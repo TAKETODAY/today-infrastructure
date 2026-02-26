@@ -20,17 +20,16 @@ package infra.app.diagnostics;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 import infra.beans.factory.BeanFactory;
-import infra.context.ApplicationContext;
+import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.core.env.Environment;
 import infra.lang.TodayStrategies;
+import infra.lang.TodayStrategies.FailureHandler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.Instantiator;
-import infra.util.Instantiator.FailureHandler;
 
 /**
  * Utility to trigger {@link FailureAnalyzer} and {@link FailureAnalysisReporter}
@@ -51,46 +50,30 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
 
   private static final Logger logger = LoggerFactory.getLogger(FailureAnalyzers.class);
 
-  @Nullable
-  private final ClassLoader classLoader;
+  private final BootstrapContext context;
+
+  private final TodayStrategies strategies;
 
   private final List<FailureAnalyzer> analyzers;
 
-  FailureAnalyzers(@Nullable ConfigurableApplicationContext context) {
-    this(context, TodayStrategies.findNames(FailureAnalyzer.class, getClassLoader(context)));
+  FailureAnalyzers(ConfigurableApplicationContext context) {
+    this(context, TodayStrategies.forDefaultResourceLocation(context.getClassLoader()));
   }
 
-  FailureAnalyzers(@Nullable ConfigurableApplicationContext context, List<String> classNames) {
-    this.classLoader = getClassLoader(context);
-    this.analyzers = loadFailureAnalyzers(classNames, context);
-  }
-
-  @Nullable
-  private static ClassLoader getClassLoader(@Nullable ConfigurableApplicationContext context) {
-    return context != null ? context.getClassLoader() : null;
-  }
-
-  private List<FailureAnalyzer> loadFailureAnalyzers(
-          List<String> classNames, @Nullable ConfigurableApplicationContext context) {
-    var instantiator = new Instantiator<FailureAnalyzer>(FailureAnalyzer.class,
-            parameters -> {
-              if (context != null) {
-                parameters.add(ApplicationContext.class, context);
-                parameters.add(BeanFactory.class, context.getBeanFactory());
-                parameters.add(Environment.class, context.getEnvironment());
-              }
-            }, new LoggingInstantiationFailureHandler());
-    return instantiator.instantiate(classLoader, classNames);
+  FailureAnalyzers(ConfigurableApplicationContext context, TodayStrategies strategies) {
+    this.strategies = strategies;
+    this.context = context.getBootstrapContext();
+    var analyzers = strategies.load(FailureAnalyzer.class, context.getBootstrapContext(), FailureHandler.logging(logger));
+    analyzers.add(FailureAnalyzedException::analyze);
+    this.analyzers = Collections.unmodifiableList(analyzers);
   }
 
   @Override
   public boolean reportException(Throwable failure) {
-    FailureAnalysis analysis = analyze(failure, this.analyzers);
-    return report(analysis, this.classLoader);
+    return report(analyze(failure, this.analyzers));
   }
 
-  @Nullable
-  private FailureAnalysis analyze(Throwable failure, List<FailureAnalyzer> analyzers) {
+  private @Nullable FailureAnalysis analyze(Throwable failure, List<FailureAnalyzer> analyzers) {
     for (FailureAnalyzer analyzer : analyzers) {
       try {
         FailureAnalysis analysis = analyzer.analyze(failure);
@@ -105,11 +88,11 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
     return null;
   }
 
-  private boolean report(@Nullable FailureAnalysis analysis, @Nullable ClassLoader classLoader) {
+  private boolean report(@Nullable FailureAnalysis analysis) {
     if (analysis == null) {
       return false;
     }
-    List<FailureAnalysisReporter> reporters = TodayStrategies.find(FailureAnalysisReporter.class, classLoader);
+    List<FailureAnalysisReporter> reporters = strategies.load(FailureAnalysisReporter.class, context, FailureHandler.logging(logger));
     if (reporters.isEmpty()) {
       return false;
     }
@@ -117,14 +100,6 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
       reporter.report(analysis);
     }
     return true;
-  }
-
-  static class LoggingInstantiationFailureHandler implements FailureHandler {
-
-    @Override
-    public void handleFailure(Class<?> type, String implementationName, Throwable failure) {
-      logger.trace("Skipping {}: {}", implementationName, failure.getMessage());
-    }
   }
 
 }

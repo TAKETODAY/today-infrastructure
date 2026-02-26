@@ -18,17 +18,19 @@
 
 package infra.app.diagnostics;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
-import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.BeanFactory;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.env.Environment;
+import infra.core.test.io.support.MockTodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -45,79 +47,110 @@ import static org.mockito.Mockito.times;
 @ExtendWith(OutputCaptureExtension.class)
 class FailureAnalyzersTests {
 
-  private static AwareFailureAnalyzer failureAnalyzer;
+  @SuppressWarnings("NullAway.Init")
+  private static FailureAnalyzer failureAnalyzer;
 
   private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
+  private final List<FailureAnalysis> reports = new ArrayList<>();
+
   @BeforeEach
   void configureMock() {
-    failureAnalyzer = mock(AwareFailureAnalyzer.class);
+    failureAnalyzer = mock(FailureAnalyzer.class);
   }
 
   @Test
   void analyzersAreLoadedAndCalled() {
     RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BasicFailureAnalyzer.class.getName(), BasicFailureAnalyzer.class.getName());
+    analyzeAndReport(failure, BasicFailureAnalyzer.class, BasicFailureAnalyzer.class);
     then(failureAnalyzer).should(times(2)).analyze(failure);
   }
 
   @Test
-  void analyzerIsConstructedWithBeanFactory(CapturedOutput output) {
+  void analyzerIsConstructedWithBeanFactory() {
     RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BasicFailureAnalyzer.class.getName(),
-            BeanFactoryConstructorFailureAnalyzer.class.getName());
+    analyzeAndReport(failure, BasicFailureAnalyzer.class, BeanFactoryConstructorFailureAnalyzer.class);
     then(failureAnalyzer).should(times(2)).analyze(failure);
-    assertThat(output).doesNotContain("implement BeanFactoryAware or EnvironmentAware");
   }
 
   @Test
-  void analyzerIsConstructedWithEnvironment(CapturedOutput output) {
+  void analyzerIsConstructedWithEnvironment() {
     RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BasicFailureAnalyzer.class.getName(),
-            EnvironmentConstructorFailureAnalyzer.class.getName());
+    analyzeAndReport(failure, BasicFailureAnalyzer.class, EnvironmentConstructorFailureAnalyzer.class);
     then(failureAnalyzer).should(times(2)).analyze(failure);
-    assertThat(output).doesNotContain("implement BeanFactoryAware or EnvironmentAware");
-  }
-
-  @Test
-  void environmentIsInjectedIntoEnvironmentAwareFailureAnalyzers() {
-    RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BasicFailureAnalyzer.class.getName(), StandardAwareFailureAnalyzer.class.getName());
   }
 
   @Test
   void analyzerThatFailsDuringInitializationDoesNotPreventOtherAnalyzersFromBeingCalled() {
     RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BrokenInitializationFailureAnalyzer.class.getName(),
-            BasicFailureAnalyzer.class.getName());
+    analyzeAndReport(failure, BrokenInitializationFailureAnalyzer.class, BasicFailureAnalyzer.class);
     then(failureAnalyzer).should().analyze(failure);
   }
 
   @Test
   void analyzerThatFailsDuringAnalysisDoesNotPreventOtherAnalyzersFromBeingCalled() {
     RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BrokenAnalysisFailureAnalyzer.class.getName(), BasicFailureAnalyzer.class.getName());
+    analyzeAndReport(failure, BrokenAnalysisFailureAnalyzer.class, BasicFailureAnalyzer.class);
     then(failureAnalyzer).should().analyze(failure);
   }
 
-  private void analyzeAndReport(Throwable failure, String... factoryNames) {
-    analyzeAndReport(failure, this.context, factoryNames);
+  @Test
+  void failureAnalyzedExceptionAreReported() {
+    FailureAnalyzedException failure = new FailureAnalyzedException("Bad", "Fix it!");
+    analyzeAndReport(failure);
+    assertThat(this.reports).hasSize(1);
+    FailureAnalysis report = this.reports.get(0);
+    assertThat(report.getDescription()).isEqualTo("Bad");
+    assertThat(report.getAction()).isEqualTo("Fix it!");
+    assertThat(report.getCause()).isSameAs(failure);
   }
 
+  @Test
+  void wrappedFailureAnalyzedExceptionAreReported() {
+    FailureAnalyzedException failure = new FailureAnalyzedException("Bad", "Fix it!");
+    analyzeAndReport(new IllegalStateException("the state of this!", failure));
+    assertThat(this.reports).hasSize(1);
+    FailureAnalysis report = this.reports.get(0);
+    assertThat(report.getDescription()).isEqualTo("Bad");
+    assertThat(report.getAction()).isEqualTo("Fix it!");
+    assertThat(report.getCause()).isSameAs(failure);
+  }
+
+  @Test
+  void whenOtherAnalyzerIsAvailableFailureAnalyzedExceptionAreNotReported() {
+    FailureAnalyzedException failure = new FailureAnalyzedException("Bad", "Fix it!");
+    analyzeAndReport(new IllegalStateException("the state of this!", failure), IllegalStateFailureAnalyzer.class);
+    assertThat(this.reports).hasSize(1);
+    FailureAnalysis report = this.reports.get(0);
+    assertThat(report.getDescription()).isEqualTo("analyzed state");
+  }
+
+  @SafeVarargs
+  private void analyzeAndReport(Throwable failure, Class<? extends FailureAnalyzer>... failureAnalyzerClasses) {
+    analyzeAndReport(failure, this.context, failureAnalyzerClasses);
+  }
+
+  @SafeVarargs
   private void analyzeAndReport(Throwable failure, AnnotationConfigApplicationContext context,
-          String... factoryNames) {
-    new FailureAnalyzers(context, Arrays.asList(factoryNames)).reportException(failure);
+          Class<? extends FailureAnalyzer>... failureAnalyzerClasses) {
+    MockTodayStrategies loader = new MockTodayStrategies();
+    for (Class<? extends FailureAnalyzer> failureAnalyzerClass : failureAnalyzerClasses) {
+      loader.add(FailureAnalyzer.class, failureAnalyzerClass);
+    }
+    loader.addInstance(FailureAnalysisReporter.class, this.reports::add);
+    new FailureAnalyzers(context, loader).reportException(failure);
   }
 
   static class BasicFailureAnalyzer implements FailureAnalyzer {
 
     @Override
-    public FailureAnalysis analyze(Throwable failure) {
+    public @Nullable FailureAnalysis analyze(Throwable failure) {
       return failureAnalyzer.analyze(failure);
     }
 
   }
 
+  @SuppressWarnings("NullAway") // Intentional NullPointerException
   static class BrokenInitializationFailureAnalyzer implements FailureAnalyzer {
 
     static {
@@ -157,11 +190,15 @@ class FailureAnalyzersTests {
 
   }
 
-  interface AwareFailureAnalyzer extends FailureAnalyzer {
+  static class IllegalStateFailureAnalyzer implements FailureAnalyzer {
 
-  }
-
-  static class StandardAwareFailureAnalyzer extends BasicFailureAnalyzer implements AwareFailureAnalyzer {
+    @Override
+    public @Nullable FailureAnalysis analyze(Throwable failure) {
+      if (failure instanceof IllegalStateException) {
+        return new FailureAnalysis("analyzed state", null, failure);
+      }
+      return null;
+    }
 
   }
 
