@@ -319,7 +319,7 @@ class JacksonTokenizerTests extends AbstractLeakCheckingTests {
               JsonToken token = parser.nextToken();
               assertThat(token).isEqualTo(JsonToken.VALUE_NUMBER_FLOAT);
               JsonParser.NumberType numberType = parser.getNumberType();
-              assertThat(numberType).isEqualTo(JsonParser.NumberType.BIG_DECIMAL);
+              assertThat(numberType).isEqualTo(JsonParser.NumberType.DOUBLE);
             })
             .verifyComplete();
   }
