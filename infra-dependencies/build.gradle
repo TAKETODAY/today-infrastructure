@@ -582,9 +582,10 @@ bom {
       ]
     }
   }
-  library("Flyway", "11.20.3") {
+  library("Flyway", "12.0.1") {
     group("org.flywaydb") {
       modules = [
+          "flyway-command-test-connection",
           "flyway-commandline",
           "flyway-core",
           "flyway-database-cassandra",
@@ -592,7 +593,8 @@ bom {
           "flyway-database-derby",
           "flyway-database-hsqldb",
           "flyway-database-informix",
-          "flyway-database-mongodb",
+          "flyway-database-nc-couchbase",
+          "flyway-database-nc-mongodb",
           "flyway-database-oracle",
           "flyway-database-postgresql",
           "flyway-database-redshift",
