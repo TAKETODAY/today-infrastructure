@@ -18,6 +18,7 @@
 
 package infra.aot.nativex;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,8 +38,9 @@ import infra.aot.hint.ResourcePatternHints;
  * @author Stephane Nicoll
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/Resources/">Accessing Resources in Native Images</a>
- * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
+ * @see <a href="https://www.graalvm.org/jdk25/reference-manual/native-image/metadata/#resources">Accessing Resources in Native Images</a>
+ * @see <a href="https://www.graalvm.org/jdk25/reference-manual/native-image/metadata/#resource-bundles">Accessing Resource Bundles in Native Images</a>
+ * @see <a href="https://www.graalvm.org/jdk25/reference-manual/native-image/overview/BuildConfiguration">Native Image Build Configuration</a>
  * @since 5.0
  */
 class ResourceHintsAttributes {
@@ -50,22 +52,21 @@ class ResourceHintsAttributes {
           Comparator.comparing(ResourceBundleHint::getBaseName);
 
   public List<Map<String, Object>> resources(ResourceHints hint) {
-    return hint.resourcePatternHints()
+    List<Map<String, Object>> resourceHints = new ArrayList<>();
+    resourceHints.addAll(hint.resourcePatternHints()
             .map(ResourcePatternHints::getIncludes).flatMap(List::stream).distinct()
             .sorted(RESOURCE_PATTERN_HINT_COMPARATOR)
-            .map(this::toAttributes).toList();
-  }
-
-  public List<Map<String, Object>> resourceBundles(ResourceHints hint) {
-    return hint.resourceBundleHints()
+            .map(this::toAttributes).toList());
+    resourceHints.addAll(hint.resourceBundleHints()
             .sorted(RESOURCE_BUNDLE_HINT_COMPARATOR)
-            .map(this::toAttributes).toList();
+            .map(this::toAttributes).toList());
+    return resourceHints;
   }
 
   private Map<String, Object> toAttributes(ResourceBundleHint hint) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, hint);
-    attributes.put("name", hint.getBaseName());
+    attributes.put("bundle", hint.getBaseName());
     return attributes;
   }
 

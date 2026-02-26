@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,14 +64,18 @@ class ReflectionHintsAttributes {
   };
 
   public List<Map<String, Object>> reflection(RuntimeHints hints) {
-    List<Map<String, Object>> reflectionHints = new ArrayList<>();
-    reflectionHints.addAll(hints.reflection().typeHints()
-            .sorted(Comparator.comparing(TypeHint::getType))
-            .map(this::toAttributes).toList());
+    List<Map<String, Object>> reflectionHints = new ArrayList<>(reflectionHints(hints));
     reflectionHints.addAll(hints.proxies().jdkProxyHints()
             .sorted(JDK_PROXY_HINT_COMPARATOR)
             .map(this::toAttributes).toList());
     return reflectionHints;
+  }
+
+  private List<Map<String, Object>> reflectionHints(RuntimeHints hints) {
+    Map<TypeReference, Map<String, Object>> allTypeHints = hints.reflection().typeHints()
+            .map(this::toAttributes).collect(Collectors.toMap((attributes -> (TypeReference) Objects.requireNonNull(attributes.get("type"))),
+                    attributes -> attributes));
+    return allTypeHints.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue).toList();
   }
 
   public List<Map<String, Object>> jni(RuntimeHints hints) {
@@ -87,6 +92,7 @@ class ReflectionHintsAttributes {
     handleFields(attributes, hint.fields());
     handleExecutables(attributes, Stream.concat(
             hint.constructors(), hint.methods()).sorted().toList());
+    handleSerializable(attributes, hint.getSerializable());
     return attributes;
   }
 
@@ -144,7 +150,14 @@ class ReflectionHintsAttributes {
     Map<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, hint);
     attributes.put("type", Map.of("proxy", hint.getProxiedInterfaces()));
+    handleSerializable(attributes, hint.getSerializable());
     return attributes;
+  }
+
+  private void handleSerializable(Map<String, Object> attributes, @Nullable Boolean serializable) {
+    if (serializable != null) {
+      attributes.put("serializable", serializable);
+    }
   }
 
 }

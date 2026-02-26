@@ -23,7 +23,6 @@ import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.ResourceHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.aot.hint.SerializationHints;
 
 /**
  * Static generator of predicates that test whether the given {@link RuntimeHints}
@@ -33,13 +32,14 @@ import infra.aot.hint.SerializationHints;
  * <p>This utility class can be used by {@link RuntimeHintsRegistrar} to conditionally
  * register hints depending on what's present already. This can also be used as a
  * testing utility for checking proper registration of hints:
- * <pre class="code">
- * Predicate&lt;RuntimeHints&gt; predicate = RuntimeHintsPredicates.reflection().onMethod(MyClass.class, "someMethod").invoke();
+ * <pre>{@code
+ * Predicate<RuntimeHints> predicate = RuntimeHintsPredicates.reflection().onMethod(MyClass.class, "someMethod").invoke();
  * assertThat(predicate).accepts(runtimeHints);
- * </pre>
+ * }</pre>
  *
  * @author Brian Clozel
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class RuntimeHintsPredicates {
@@ -47,8 +47,6 @@ public abstract class RuntimeHintsPredicates {
   private static final ReflectionHintsPredicates reflection = new ReflectionHintsPredicates();
 
   private static final ResourceHintsPredicates resource = new ResourceHintsPredicates();
-
-  private static final SerializationHintsPredicates serialization = new SerializationHintsPredicates();
 
   private static final ProxyHintsPredicates proxies = new ProxyHintsPredicates();
 
@@ -71,15 +69,6 @@ public abstract class RuntimeHintsPredicates {
    */
   public static ResourceHintsPredicates resource() {
     return resource;
-  }
-
-  /**
-   * Return a predicate generator for {@link SerializationHints serialization hints}.
-   *
-   * @return the predicate generator
-   */
-  public static SerializationHintsPredicates serialization() {
-    return serialization;
   }
 
   /**

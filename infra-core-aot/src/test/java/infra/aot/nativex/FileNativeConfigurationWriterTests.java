@@ -37,7 +37,6 @@ import infra.aot.hint.ProxyHints;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.ResourceHints;
 import infra.aot.hint.RuntimeHints;
-import infra.aot.hint.SerializationHints;
 import infra.aot.hint.TypeReference;
 import infra.core.codec.StringDecoder;
 import infra.lang.Version;
@@ -68,17 +67,17 @@ class FileNativeConfigurationWriterTests {
   void serializationConfig() throws IOException, JSONException {
     FileNativeConfigurationWriter generator = new FileNativeConfigurationWriter(tempDir);
     RuntimeHints hints = new RuntimeHints();
-    SerializationHints serializationHints = hints.serialization();
-    serializationHints.registerType(Integer.class);
-    serializationHints.registerType(Long.class);
+    ReflectionHints reflectionHints = hints.reflection();
+    reflectionHints.registerJavaSerialization(Integer.class);
+    reflectionHints.registerJavaSerialization(Long.class);
     generator.write(hints);
     assertEquals("""
             {
               "comment": "Infra Framework %s",
-            	"serialization": [
-            		{ "type": "java.lang.Integer" },
-            		{ "type": "java.lang.Long" }
-            	]
+              "reflection": [
+                { "type": "java.lang.Integer", "serializable": true },
+                { "type": "java.lang.Long", "serializable": true }
+              ]
             }
             """.formatted(Version.instance.implementationVersion()));
   }

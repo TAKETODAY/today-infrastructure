@@ -37,12 +37,14 @@ public final class JdkProxyHint implements ConditionalHint {
 
   private final List<TypeReference> proxiedInterfaces;
 
-  @Nullable
-  private final TypeReference reachableType;
+  private final @Nullable TypeReference reachableType;
+
+  private final @Nullable Boolean serializable;
 
   private JdkProxyHint(Builder builder) {
     this.proxiedInterfaces = List.copyOf(builder.proxiedInterfaces);
     this.reachableType = builder.reachableType;
+    this.serializable = builder.serializable;
   }
 
   /**
@@ -74,23 +76,26 @@ public final class JdkProxyHint implements ConditionalHint {
     return this.proxiedInterfaces;
   }
 
-  @Nullable
   @Override
-  public TypeReference getReachableType() {
+  public @Nullable TypeReference getReachableType() {
     return this.reachableType;
   }
 
+  /**
+   * Return whether to register this proxy for Java serialization.
+   *
+   * @return whether to register this proxy for Java serialization.
+   */
+  public @Nullable Boolean getSerializable() {
+    return this.serializable;
+  }
+
   @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    JdkProxyHint that = (JdkProxyHint) o;
-    return this.proxiedInterfaces.equals(that.proxiedInterfaces)
-            && Objects.equals(this.reachableType, that.reachableType);
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof JdkProxyHint that
+            && this.proxiedInterfaces.equals(that.proxiedInterfaces)
+            && Objects.equals(this.reachableType, that.reachableType)
+            && Objects.equals(this.serializable, that.serializable)));
   }
 
   @Override
@@ -105,8 +110,9 @@ public final class JdkProxyHint implements ConditionalHint {
 
     private final LinkedList<TypeReference> proxiedInterfaces;
 
-    @Nullable
-    private TypeReference reachableType;
+    private @Nullable TypeReference reachableType;
+
+    private @Nullable Boolean serializable;
 
     Builder() {
       this.proxiedInterfaces = new LinkedList<>();
@@ -135,15 +141,24 @@ public final class JdkProxyHint implements ConditionalHint {
     }
 
     /**
-     * Make this hint conditional on the fact that the specified type
-     * can be resolved.
+     * Make this hint conditional on the fact that the specified type can be resolved.
      *
-     * @param reachableType the type that should be reachable for this
-     * hint to apply
+     * @param reachableType the type that should be reachable for this hint to apply
      * @return {@code this}, to facilitate method chaining
      */
     public Builder onReachableType(TypeReference reachableType) {
       this.reachableType = reachableType;
+      return this;
+    }
+
+    /**
+     * Specify if this proxy should be registered for Java serialization.
+     *
+     * @param serializable whether to register this proxy for Java serialization.
+     * @return {@code this}, to facilitate method chaining
+     */
+    public Builder javaSerialization(@Nullable Boolean serializable) {
+      this.serializable = serializable;
       return this;
     }
 

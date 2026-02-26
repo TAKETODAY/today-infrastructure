@@ -64,8 +64,7 @@ public class ReflectionHints {
    * @param type the type to inspect
    * @return the reflection hints for this type, or {@code null}
    */
-  @Nullable
-  public TypeHint getTypeHint(TypeReference type) {
+  public @Nullable TypeHint getTypeHint(TypeReference type) {
     Builder typeHintBuilder = this.types.get(type);
     return (typeHintBuilder != null ? typeHintBuilder.build() : null);
   }
@@ -76,8 +75,7 @@ public class ReflectionHints {
    * @param type the type to inspect
    * @return the reflection hints for this type, or {@code null}
    */
-  @Nullable
-  public TypeHint getTypeHint(Class<?> type) {
+  public @Nullable TypeHint getTypeHint(Class<?> type) {
     return getTypeHint(TypeReference.of(type));
   }
 
@@ -212,9 +210,9 @@ public class ReflectionHints {
   }
 
   /**
-   * Register the need for reflection on the specified {@link Field}.
+   * Register the need for reflective field access on the specified {@link Field}.
    *
-   * @param field the field that requires reflection
+   * @param field the field that requires reflective access
    * @return {@code this}, to facilitate method chaining
    */
   public ReflectionHints registerField(Field field) {
@@ -246,6 +244,31 @@ public class ReflectionHints {
   public ReflectionHints registerMethod(Method method, ExecutableMode mode) {
     return registerType(TypeReference.of(method.getDeclaringClass()),
             typeHint -> typeHint.withMethod(method.getName(), mapParameters(method), mode));
+  }
+
+  /**
+   * Register the need for Java Serialization on the specified type.
+   *
+   * @param type the type that should be serializable
+   * @return {@code this}, to facilitate method chaining
+   */
+  public ReflectionHints registerJavaSerialization(Class<?> type) {
+    return registerJavaSerialization(type, null);
+  }
+
+  /**
+   * Register the need for Java Serialization on the specified type.
+   *
+   * @param type the type that should be serializable
+   * @return {@code this}, to facilitate method chaining
+   */
+  public ReflectionHints registerJavaSerialization(Class<?> type, @Nullable Consumer<TypeHint.Builder> serializationHint) {
+    return registerType(TypeReference.of(type), typeHint -> {
+      if (serializationHint != null) {
+        serializationHint.accept(typeHint);
+      }
+      typeHint.withJavaSerialization(true);
+    });
   }
 
   private List<TypeReference> mapParameters(Executable executable) {

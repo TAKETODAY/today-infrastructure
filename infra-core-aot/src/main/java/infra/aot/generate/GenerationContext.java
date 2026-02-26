@@ -22,7 +22,6 @@ import infra.aot.hint.ProxyHints;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.ResourceHints;
 import infra.aot.hint.RuntimeHints;
-import infra.aot.hint.SerializationHints;
 
 /**
  * Central interface used for code generation.
@@ -40,6 +39,7 @@ import infra.aot.hint.SerializationHints;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface GenerationContext {
@@ -63,9 +63,8 @@ public interface GenerationContext {
   /**
    * Get the {@link RuntimeHints} used by the context.
    * <p>Used to record {@linkplain ReflectionHints reflection},
-   * {@linkplain ResourceHints resource}, {@linkplain SerializationHints
-   * serialization}, and {@linkplain ProxyHints proxy} hints so that the
-   * application can run as a native image.
+   * {@linkplain ResourceHints resource}, and {@linkplain ProxyHints proxy}
+   * hints so that the application can run as a native image.
    *
    * @return the runtime hints
    */

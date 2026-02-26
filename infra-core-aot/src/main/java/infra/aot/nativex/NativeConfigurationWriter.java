@@ -47,12 +47,11 @@ public abstract class NativeConfigurationWriter {
   }
 
   private boolean hasAnyHint(RuntimeHints hints) {
-    return (hints.serialization().javaSerializationHints().findAny().isPresent()
-            || hints.proxies().jdkProxyHints().findAny().isPresent()
+    return hints.proxies().jdkProxyHints().findAny().isPresent()
             || hints.reflection().typeHints().findAny().isPresent()
             || hints.resources().resourcePatternHints().findAny().isPresent()
             || hints.resources().resourceBundleHints().findAny().isPresent()
-            || hints.jni().typeHints().findAny().isPresent());
+            || hints.jni().typeHints().findAny().isPresent();
   }
 
   /**

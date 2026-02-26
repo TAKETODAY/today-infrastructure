@@ -52,10 +52,9 @@ import ch.qos.logback.core.rolling.TimeBasedFileNamingAndTriggeringPolicy;
 import ch.qos.logback.core.util.FileSize;
 import infra.aot.generate.GeneratedFiles.Kind;
 import infra.aot.generate.InMemoryGeneratedFiles;
-import infra.aot.hint.JavaSerializationHint;
 import infra.aot.hint.MemberCategory;
+import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
-import infra.aot.hint.SerializationHints;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
@@ -88,12 +87,12 @@ class LogbackConfigurationAotContributionTests {
     InMemoryGeneratedFiles generatedFiles = generationContext.getGeneratedFiles();
     assertThat(generatedFiles).has(resource("META-INF/config/logback-model"));
     assertThat(generatedFiles).has(resource("META-INF/config/logback-pattern-rules"));
-    SerializationHints serializationHints = generationContext.getRuntimeHints().serialization();
-    assertThat(serializationHints.javaSerializationHints()
-            .map(JavaSerializationHint::getType)
+    ReflectionHints reflectionHints = generationContext.getRuntimeHints().reflection();
+
+    assertThat(reflectionHints.typeHints()
+            .map(TypeHint::getType)
             .map(TypeReference::getName))
             .containsExactlyInAnyOrder(namesOf(Model.class, ArrayList.class, Boolean.class, Integer.class));
-    assertThat(generationContext.getRuntimeHints().reflection().typeHints()).isEmpty();
     Properties patternRules = load(
             generatedFiles.getGeneratedFile(Kind.RESOURCE, "META-INF/config/logback-pattern-rules"));
     assertThat(patternRules).isEmpty();
@@ -108,12 +107,13 @@ class LogbackConfigurationAotContributionTests {
     InMemoryGeneratedFiles generatedFiles = generationContext.getGeneratedFiles();
     assertThat(generatedFiles).has(resource("META-INF/config/logback-model"));
     assertThat(generatedFiles).has(resource("META-INF/config/logback-pattern-rules"));
-    SerializationHints serializationHints = generationContext.getRuntimeHints().serialization();
-    assertThat(serializationHints.javaSerializationHints()
-            .map(JavaSerializationHint::getType)
+
+    ReflectionHints reflectionHints = generationContext.getRuntimeHints().reflection();
+
+    assertThat(reflectionHints.typeHints()
+            .map(TypeHint::getType)
             .map(TypeReference::getName))
             .containsExactlyInAnyOrder(namesOf(Model.class, ArrayList.class, Boolean.class, Integer.class));
-    assertThat(generationContext.getRuntimeHints().reflection().typeHints()).isEmpty();
     Properties patternRules = load(
             generatedFiles.getGeneratedFile(Kind.RESOURCE, "META-INF/config/logback-pattern-rules"));
     assertThat(patternRules).isEmpty();

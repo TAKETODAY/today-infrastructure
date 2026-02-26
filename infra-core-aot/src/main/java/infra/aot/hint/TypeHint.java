@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,14 +39,14 @@ import infra.lang.Assert;
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public final class TypeHint implements ConditionalHint {
 
   private final TypeReference type;
 
-  @Nullable
-  private final TypeReference reachableType;
+  private final @Nullable TypeReference reachableType;
 
   private final Set<FieldHint> fields;
 
@@ -57,6 +56,8 @@ public final class TypeHint implements ConditionalHint {
 
   private final Set<MemberCategory> memberCategories;
 
+  private final @Nullable Boolean serializable;
+
   private TypeHint(Builder builder) {
     this.type = builder.type;
     this.reachableType = builder.reachableType;
@@ -64,6 +65,7 @@ public final class TypeHint implements ConditionalHint {
     this.fields = builder.fields.stream().map(FieldHint::new).collect(Collectors.toSet());
     this.constructors = builder.constructors.values().stream().map(ExecutableHint.Builder::build).collect(Collectors.toSet());
     this.methods = builder.methods.values().stream().map(ExecutableHint.Builder::build).collect(Collectors.toSet());
+    this.serializable = builder.serializable;
   }
 
   /**
@@ -87,9 +89,8 @@ public final class TypeHint implements ConditionalHint {
     return this.type;
   }
 
-  @Nullable
   @Override
-  public TypeReference getReachableType() {
+  public @Nullable TypeReference getReachableType() {
     return this.reachableType;
   }
 
@@ -129,11 +130,18 @@ public final class TypeHint implements ConditionalHint {
     return this.memberCategories;
   }
 
+  /**
+   * Return whether to register this type for Java serialization.
+   *
+   * @return whether to register this type for Java serialization.
+   */
+  public @Nullable Boolean getSerializable() {
+    return this.serializable;
+  }
+
   @Override
   public String toString() {
-    return new StringJoiner(", ", TypeHint.class.getSimpleName() + "[", "]")
-            .add("type=" + this.type)
-            .toString();
+    return TypeHint.class.getSimpleName() + "[type=" + this.type + "]";
   }
 
   /**
@@ -154,8 +162,7 @@ public final class TypeHint implements ConditionalHint {
 
     private final TypeReference type;
 
-    @Nullable
-    private TypeReference reachableType;
+    private @Nullable TypeReference reachableType;
 
     private final Set<String> fields = new HashSet<>();
 
@@ -165,16 +172,17 @@ public final class TypeHint implements ConditionalHint {
 
     private final Set<MemberCategory> memberCategories = new HashSet<>();
 
+    private @Nullable Boolean serializable;
+
     Builder(TypeReference type) {
       this.type = type;
     }
 
     /**
-     * Make this hint conditional on the fact that the specified type
-     * is in a reachable code path from a static analysis point of view.
+     * Make this hint conditional on the fact that the specified type is in a
+     * reachable code path from a static analysis point of view.
      *
-     * @param reachableType the type that should be reachable for this
-     * hint to apply
+     * @param reachableType the type that should be reachable for this hint to apply
      * @return {@code this}, to facilitate method chaining
      */
     public Builder onReachableType(TypeReference reachableType) {
@@ -183,11 +191,10 @@ public final class TypeHint implements ConditionalHint {
     }
 
     /**
-     * Make this hint conditional on the fact that the specified type
-     * is in a reachable code path from a static analysis point of view.
+     * Make this hint conditional on the fact that the specified type is in a
+     * reachable code path from a static analysis point of view.
      *
-     * @param reachableType the type that should be reachable for this
-     * hint to apply
+     * @param reachableType the type that should be reachable for this hint to apply
      * @return {@code this}, to facilitate method chaining
      */
     public Builder onReachableType(Class<?> reachableType) {
@@ -196,10 +203,12 @@ public final class TypeHint implements ConditionalHint {
     }
 
     /**
-     * Register the need for reflection on the field with the specified name.
+     * Register the need for reflective access on the field with the specified name.
      *
      * @param name the name of the field
      * @return {@code this}, to facilitate method chaining
+     * @see java.lang.reflect.Field#get(Object)
+     * @see java.lang.reflect.Field#set(Object, Object)
      */
     public Builder withField(String name) {
       this.fields.add(name);
@@ -280,6 +289,17 @@ public final class TypeHint implements ConditionalHint {
     }
 
     /**
+     * Specify if this type should be registered for Java serialization.
+     *
+     * @param serializable whether to register this type for Java serialization.
+     * @return {@code this}, to facilitate method chaining
+     */
+    public Builder withJavaSerialization(@Nullable Boolean serializable) {
+      this.serializable = serializable;
+      return this;
+    }
+
+    /**
      * Create a {@link TypeHint} based on the state of this builder.
      *
      * @return a type hint
@@ -287,7 +307,6 @@ public final class TypeHint implements ConditionalHint {
     TypeHint build() {
       return new TypeHint(this);
     }
-
   }
 
   private static final class ExecutableKey {
@@ -302,22 +321,15 @@ public final class TypeHint implements ConditionalHint {
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      ExecutableKey that = (ExecutableKey) o;
-      return this.name.equals(that.name) && this.parameterTypes.equals(that.parameterTypes);
+    public boolean equals(@Nullable Object other) {
+      return (this == other || (other instanceof ExecutableKey that &&
+              this.name.equals(that.name) && this.parameterTypes.equals(that.parameterTypes)));
     }
 
     @Override
     public int hashCode() {
       return Objects.hash(this.name, this.parameterTypes);
     }
-
   }
 
 }

@@ -18,7 +18,6 @@
 
 package infra.aot.agent;
 
-import infra.aot.hint.JavaSerializationHint;
 import infra.aot.hint.JdkProxyHint;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.ResourceBundleHint;
@@ -31,6 +30,7 @@ import infra.aot.hint.ResourcePatternHint;
  * into hint categories.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public enum HintType {
@@ -49,11 +49,6 @@ public enum HintType {
    * Resource bundle hint, as described by {@link infra.aot.hint.ResourceHints#resourceBundleHints()}.
    */
   RESOURCE_BUNDLE(ResourceBundleHint.class),
-
-  /**
-   * Java serialization hint, as described by {@link infra.aot.hint.JavaSerializationHint}.
-   */
-  JAVA_SERIALIZATION(JavaSerializationHint.class),
 
   /**
    * JDK proxies hint, as described by {@link infra.aot.hint.ProxyHints#jdkProxyHints()}.

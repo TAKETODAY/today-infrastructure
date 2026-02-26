@@ -56,7 +56,7 @@ import infra.aot.generate.GeneratedFiles.FileHandler;
 import infra.aot.generate.GeneratedFiles.Kind;
 import infra.aot.generate.GenerationContext;
 import infra.aot.hint.MemberCategory;
-import infra.aot.hint.SerializationHints;
+import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.TypeReference;
 import infra.app.logging.LoggingStartupContext;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
@@ -185,8 +185,8 @@ class InfraJoranConfigurator extends JoranConfigurator {
       generationContext.getGeneratedFiles().handleFile(Kind.RESOURCE, MODEL_RESOURCE_LOCATION,
               new RequireNewOrMatchingContentFileHandler(serializedModel));
       generationContext.getRuntimeHints().resources().registerPattern(MODEL_RESOURCE_LOCATION);
-      SerializationHints serializationHints = generationContext.getRuntimeHints().serialization();
-      serializationTypes(this.model).forEach(serializationHints::registerType);
+      ReflectionHints reflectionHints = generationContext.getRuntimeHints().reflection();
+      serializationTypes(this.model).forEach(reflectionHints::registerJavaSerialization);
       reflectionTypes(this.model).forEach((type) -> generationContext.getRuntimeHints()
               .reflection()
               .registerType(TypeReference.of(type), MemberCategory.INVOKE_PUBLIC_METHODS,

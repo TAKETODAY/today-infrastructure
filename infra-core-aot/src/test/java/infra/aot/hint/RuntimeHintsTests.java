@@ -54,13 +54,6 @@ class RuntimeHintsTests {
   }
 
   @Test
-  void javaSerializationHintWithClass() {
-    this.hints.serialization().registerType(String.class);
-    assertThat(this.hints.serialization().javaSerializationHints().map(JavaSerializationHint::getType))
-            .containsExactly(TypeReference.of(String.class));
-  }
-
-  @Test
   void jdkProxyWithClass() {
     this.hints.proxies().registerJdkProxy(Function.class);
     assertThat(this.hints.proxies().jdkProxyHints()).singleElement().satisfies(jdkProxyHint ->
