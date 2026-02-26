@@ -41,6 +41,7 @@ import java.util.function.Predicate;
 import infra.core.Pair;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
+import infra.core.io.InputStreamResource;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
@@ -254,6 +255,11 @@ final class DefaultRestClient implements RestClient {
           return (T) hmc.read((Class) bodyClass, clientResponse);
         }
       }
+
+      if (bodyClass.equals(InputStream.class)) {
+        return (T) clientResponse.getBody();
+      }
+
       throw new UnknownContentTypeException(bodyType, contentType,
               clientResponse.getStatusCode(), clientResponse.getStatusText(),
               clientResponse.getHeaders(), RestClientUtils.getBody(clientResponse));
@@ -261,9 +267,6 @@ final class DefaultRestClient implements RestClient {
     catch (IOException | HttpMessageNotReadableException ex) {
       throw new RestClientException("Error while extracting response for type [%s] and content type [%s]"
               .formatted(ResolvableType.forType(bodyType), contentType), ex);
-    }
-    finally {
-      clientResponse.close();
     }
   }
 
@@ -644,7 +647,11 @@ final class DefaultRestClient implements RestClient {
       try {
         clientResponse = clientRequest.execute();
         var response = new DefaultClientResponse(clientResponse, hints);
-        return exchangeFunction.exchange(clientRequest, response);
+        T result = exchangeFunction.exchange(clientRequest, response);
+        if (close && isStreamingResult(result)) {
+          close = false;
+        }
+        return result;
       }
       catch (IOException ex) {
         throw createResourceAccessException(uri, this.httpMethod, ex);
@@ -719,6 +726,10 @@ final class DefaultRestClient implements RestClient {
       catch (IOException ex) {
         throw createResourceAccessException(uri, this.httpMethod, ex);
       }
+    }
+
+    private static boolean isStreamingResult(@Nullable Object result) {
+      return result instanceof InputStream || result instanceof InputStreamResource;
     }
 
     @Nullable
