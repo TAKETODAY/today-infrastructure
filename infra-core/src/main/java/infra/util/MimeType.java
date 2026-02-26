@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -900,18 +899,6 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    */
   public static MimeType valueOf(String value) {
     return MimeTypeUtils.parseMimeType(value);
-  }
-
-  /**
-   * @throws NullPointerException if charset is null
-   */
-  private static Map<String, String> addCharsetParameter(Charset charset, Map<String, String> parameters) {
-    if (parameters.isEmpty()) {
-      return Map.of(PARAM_CHARSET, charset.name());
-    }
-    LinkedHashMap<String, String> map = new LinkedHashMap<>(parameters);
-    map.put(PARAM_CHARSET, charset.name());
-    return map;
   }
 
   /**
