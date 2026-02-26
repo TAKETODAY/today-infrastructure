@@ -15,7 +15,7 @@
 
 
 [[resources-introduction]]
-== Introduction
+== 介绍
 
 在 Java 中 `java.net.URL` 用来描述资源，但是对于某些资源，例如：类路径下的资源的访问，需要注册一个处理器
 来处理，就像处理 `http:` 资源一样，之所以可以处理是因为 jdk 内置了。这种机制太复杂了。然而这种机制还缺少一些必要的
@@ -61,7 +61,7 @@ public interface Resource extends InputStreamSource {
 
 `Resource` 接口中一些重要的方法如下：
 
-Some of the most important methods from the `Resource` interface are:
+`Resource` 接口中一些最重要的方法包括：
 
 * `getInputStream()`: 返回一个 `InputStream` 从资源中读取。每次调用都会返回一个新的
 `InputStream`。调用者负责关闭流。
@@ -163,7 +163,7 @@ public InputStream getInputStream() throws IOException {
 
 
 [[resources-resourceloader]]
-== The `ResourceLoader` Interface
+== `ResourceLoader` 接口
 
 `ResourceLoader` 接口用来获取查找 `Resource` 对象。
 
@@ -215,7 +215,7 @@ Resource template = loader.getResource("https://myhost.com/resource/path/myTempl
 下面的表总结了从字符串到 `Resource` 的对应策略。
 
 [[resources-resource-strings]]
-.Resource strings
+.资源字符串
 |===
 | 前缀 | 举例 | 解释
 
@@ -237,7 +237,7 @@ Resource template = loader.getResource("https://myhost.com/resource/path/myTempl
 |===
 
 [[resources-resourcepatternresolver]]
-== The `PatternResourceLoader` Interface
+== `PatternResourceLoader` 接口
 
 `PatternResourceLoader` 接口继承了（扩展了） `ResourceLoader` 接口。
 他支持 `ResourceLoader` 的功能以外还支持解析符合通配符的一系列资源。

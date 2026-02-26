@@ -1,7 +1,6 @@
 [[appendix]]
-= Appendix
+= 附录
 :page-section-summary-toc: 1
-
 
 
 

@@ -1,9 +1,9 @@
 [[aot]]
-= Ahead of Time Optimizations
+= 提前编译（AOT）优化
 
 这一章涵盖了 Infra Ahead of Time (AOT) 优化。
 
-对于集成测试特定的 AOT 支持, 参见 xref:testing/testcontext-framework/aot.adoc[AOT Support for Tests].
+对于集成测试特定的 AOT 支持, 参见 xref:testing/testcontext-framework/aot.adoc[测试的 AOT 支持].
 
 [[aot.introduction]]
 == AOT 介绍
@@ -75,9 +75,9 @@ class ContainerConfiguration {
 
 ----
 
-Starting this application with the regular runtime involves a number of steps including classpath scanning, configuration class parsing, bean instantiation, and lifecycle callback handling.
-Refresh for AOT processing only applies a subset of what happens with a xref:core/beans/introduction.adoc[regular `refresh`].
-AOT processing can be triggered as follows:
+使用常规运行时启动此应用程序会经历多个步骤，包括类路径扫描、配置类解析、Bean 实例化和生命周期回调处理。
+AOT 处理的刷新只涵盖了 xref:core/beans/introduction.adoc[常规 `refresh`] 中发生的一部分内容。
+可以通过以下方式触发 AOT 处理：
 
 使用常规运行时启动此应用程序涉及许多步骤，包括类路径扫描、配置类解析、Bean 实例化和生命周期回调处理。
 AOT 处理的刷新仅适用于 xref:core/beans/introduction.adoc[常规 `refresh`] 所发生的部分。
@@ -134,7 +134,7 @@ AOT contribution 是一个组件，它提供生成的代码，以复制特定的
 ====
 
 [[aot.bean-registration-contributions]]
-=== Bean Registration AOT Contributions
+=== Bean 注册的 AOT 贡献
 
 一个核心的 `BeanFactoryInitializationAotProcessor` 实现负责收集每个候选 `BeanDefinition` 的必要贡献。
 它使用专门的 `BeanRegistrationAotProcessor` 来实现这一点。
@@ -390,7 +390,7 @@ LocalContainerEntityManagerFactoryBean customDBEntityManagerFactory(DataSource d
 ----
 
 [[aot.hints]]
-== Runtime Hints
+== 运行时提示
 
 在将应用程序作为本机镜像运行时，与常规 JVM 运行时相比，需要额外的信息。
 例如，GraalVM 需要提前知道组件是否使用了反射。
@@ -532,7 +532,7 @@ public class OrderService {
 ----
 
 [[aot.hints.testing]]
-=== Testing Runtime Hints
+=== 测试运行时提示
 
 Infra Core 还提供了 `RuntimeHintsPredicates`，这是一个用于检查现有提示是否与特定用例匹配的实用工具。
 您可以在自己的测试中使用它来验证 `RuntimeHintsRegistrar` 包含了预期的结果。
@@ -645,4 +645,3 @@ infra.runtimehintstesting.SampleReflectionRuntimeHintsTests#lambda$shouldRegiste
 您可以通过各种方式配置此 Java 代理程序在构建中的使用，请参阅您的构建工具和测试执行插件的文档。
 代理程序本身可以配置为仪器化特定的包（默认情况下仅仪器化`infra`）。
 您将在 {today-framework-code}/buildSrc/README.md[Framework `buildSrc` README] 文件中找到更多详细信息。
-

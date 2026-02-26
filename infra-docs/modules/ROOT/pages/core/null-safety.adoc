@@ -1,5 +1,5 @@
 [[null-safety]]
-= Null-safety
+= 空安全
 
 我们在 `infra.lang` 包下提供了一些注解，能够帮助你声明 API 和字段的可为空性，可以在一定程度上减少 BUG ：
 
@@ -13,6 +13,6 @@
 尚不支持泛型类型参数、可变参数和数组元素的可为空声明。
 
 [[use-cases]]
-== Use cases
+== 使用场景
 
 IDE（例如 IDEA 或 Eclipse）可以使用这些注解在编码阶段提示你与空安全相关的警告，以避免运行时出现 `NullPointerException`。

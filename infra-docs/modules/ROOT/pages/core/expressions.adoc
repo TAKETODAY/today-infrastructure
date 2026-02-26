@@ -6,51 +6,41 @@
 SpEL 是一种强大的表达语言，支持在运行时查询和操作对象图。该语言的语法类似于 Jakarta Expression Language，
 但提供了额外的功能，尤其是方法调用和基本的字符串模板功能。
 
-While there are several other Java expression languages available -- OGNL, MVEL, and JBoss
-EL, to name a few -- the Infra Expression Language was created to provide the Infra
-community with a single well supported expression language that can be used across all
-the products in the Infra portfolio. Its language features are driven by the
-requirements of the projects in the Infra portfolio, including tooling requirements
-for code completion support within the {today-tech-site-tools}[Infra Tools for Eclipse].
-That said, SpEL is based on a technology-agnostic API that lets other expression language
-implementations be integrated, should the need arise.
+虽然还有其他 Java 表达式语言（例如 OGNL、MVEL 和 JBoss EL），Infra 表达式语言的目标是为
+Infra 社区提供一个可在 Infra 产品组合中统一使用、并得到良好支持的表达式语言。
+其语言特性由 Infra 产品组合中各项目的需求驱动，其中也包括在 {today-tech-site-tools}[Infra Tools for Eclipse]
+中提供代码补全支持的工具需求。尽管如此，SpEL 仍基于一个与技术无关的 API，
+这使得在需要时可以集成其他表达式语言实现。
 
-While SpEL serves as the foundation for expression evaluation within the Infra
-portfolio, it is not directly tied to Infra and can be used independently. To
-be self contained, many of the examples in this chapter use SpEL as if it were an
-independent expression language. This requires creating a few bootstrapping
-infrastructure classes, such as the parser. Most Infra users need not deal with
-this infrastructure and can, instead, author only expression strings for evaluation.
-An example of this typical use is the integration of SpEL into creating XML or
-annotation-based bean definitions, as shown in
-xref:core/expressions/beandef.adoc[Expression support for defining bean definitions].
+虽然 SpEL 作为 Infra 产品组合中的表达式求值基础，但它并不直接依赖 Infra，也可以独立使用。
+为了自包含，本章中的许多示例将 SpEL 当作独立的表达式语言来使用。
+这需要创建一些启动所需的基础设施类，例如解析器。大多数 Infra 用户无需处理这些基础设施，
+只需编写用于求值的表达式字符串即可。一个典型的例子是将 SpEL 集成到 XML 或基于注解的
+bean 定义创建中，如 xref:core/expressions/beandef.adoc[用于定义 bean 的表达式支持] 所示。
 
-This chapter covers the features of the expression language, its API, and its language
-syntax. In several places, `Inventor` and `Society` classes are used as the target
-objects for expression evaluation. These class declarations and the data used to
-populate them are listed at the end of the chapter.
+本章涵盖表达式语言的特性、API 以及语言语法。在多个位置，`Inventor` 和 `Society` 类被用作表达式
+求值的目标对象。这些类的声明及用于填充它们的数据列在本章末尾。
 
-The expression language supports the following functionality:
+表达式语言支持以下功能：
 
-* Literal expressions
-* Accessing properties, arrays, lists, and maps
-* Inline lists
-* Inline maps
-* Array construction
-* Relational operators
-* Regular expressions
-* Logical operators
-* String operators
-* Mathematical operators
-* Assignment
-* Type expressions
-* Method invocation
-* Constructor invocation
-* Variables
-* User-defined functions
-* Bean references
-* Ternary, Elvis, and safe-navigation operators
-* Collection projection
-* Collection selection
-* Templated expressions
-
+* 字面量表达式
+* 访问属性、数组、列表与映射
+* 内联列表
+* 内联映射
+* 数组构造
+* 关系运算符
+* 正则表达式
+* 逻辑运算符
+* 字符串运算符
+* 数学运算符
+* 赋值
+* 类型表达式
+* 方法调用
+* 构造函数调用
+* 变量
+* 用户自定义函数
+* Bean 引用
+* 三元、Elvis 与安全导航运算符
+* 集合投影
+* 集合选择
+* 模板化表达式

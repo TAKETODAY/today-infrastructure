@@ -1,5 +1,5 @@
 [[infra-log]]
-= Logging
+= 日志记录
 
 下面的例子通过 `infra.logging.LoggerFactory` 获取 `Logger` 对象；
 
@@ -36,4 +36,3 @@ Logger 仅用于基础设施内部日志记录。
 
 对于用户自己的应用程序代码中的日志记录需求，最好直接使用 Log4j 2.x、SLF4J 或 JUL。
 ====
-
