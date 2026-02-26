@@ -18,25 +18,26 @@
 
 package infra.jackson.config;
 
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlFactory;
+import tools.jackson.dataformat.xml.XmlFactoryBuilder;
 
 /**
  * Callback interface that can be implemented by beans wishing to further customize the
- * {@link JsonMapper} through {@link tools.jackson.databind.json.JsonMapper.Builder} to
- * fine-tune its auto-configuration.
+ * {@link XmlFactory} through {@link XmlFactoryBuilder} to fine-tune its
+ * auto-configuration.
  *
- * @author Grzegorz Poznachowski
+ * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 @FunctionalInterface
-public interface JsonMapperBuilderCustomizer {
+public interface XmlFactoryBuilderCustomizer {
 
   /**
-   * Customize the JsonMapper.Builder.
+   * Customize the XmlFactoryBuilder.
    *
-   * @param jsonMapperBuilder the builder to customize
+   * @param xmlFactoryBuilder the builder to customize
    */
-  void customize(JsonMapper.Builder jsonMapperBuilder);
+  void customize(XmlFactoryBuilder xmlFactoryBuilder);
 
 }

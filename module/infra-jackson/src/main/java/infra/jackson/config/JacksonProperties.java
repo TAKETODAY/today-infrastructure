@@ -139,6 +139,9 @@ public class JacksonProperties {
   @NestedConfigurationProperty
   public final Json json = new Json();
 
+  @NestedConfigurationProperty
+  public final Factory factory = new Factory();
+
   public enum ConstructorDetectorStrategy {
 
     /**
@@ -195,6 +198,67 @@ public class JacksonProperties {
      * Jackson on/off token writer features that are specific to JSON.
      */
     public final Map<JsonWriteFeature, Boolean> write = new EnumMap<>(JsonWriteFeature.class);
+
+  }
+
+  public static class Factory {
+
+    public final Constraints constraints = new Constraints();
+
+    public static class Constraints {
+
+      public final Read read = new Read();
+
+      public final Write write = new Write();
+
+      public static class Read {
+
+        /**
+         * Maximum nesting depth. The depth is a count of objects and arrays that
+         * have not been closed.
+         */
+        public int maxNestingDepth = 500;
+
+        /**
+         * Maximum allowed document length. A value less than or equal to zero
+         * indicates that any length is acceptable.
+         */
+        public long maxDocumentLength = -1L;
+
+        /**
+         * Maximum allowed token count. A value less than or equal to zero
+         * indicates that any count is acceptable.
+         */
+        public long maxTokenCount = -1L;
+
+        /**
+         * Maximum number length.
+         */
+        public int maxNumberLength = 1_000;
+
+        /**
+         * Maximum string length.
+         */
+        public int maxStringLength = 100_000_000;
+
+        /**
+         * Maximum name length.
+         */
+        public int maxNameLength = 50_000;
+
+      }
+
+      public static class Write {
+
+        /**
+         * Maximum nesting depth. The depth is a count of objects and arrays that
+         * have not been closed.
+         */
+        public int maxNestingDepth = 500;
+
+      }
+
+    }
 
   }
 

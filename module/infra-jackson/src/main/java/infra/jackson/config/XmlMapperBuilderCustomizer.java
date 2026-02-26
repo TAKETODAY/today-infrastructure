@@ -27,15 +27,17 @@ import tools.jackson.dataformat.xml.XmlMapper;
  * auto-configuration.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 @FunctionalInterface
 public interface XmlMapperBuilderCustomizer {
 
-	/**
-	 * Customize the XmlMapper.Builder.
-	 * @param xmlMapperBuilder the builder to customize
-	 */
-	void customize(XmlMapper.Builder xmlMapperBuilder);
+  /**
+   * Customize the XmlMapper.Builder.
+   *
+   * @param xmlMapperBuilder the builder to customize
+   */
+  void customize(XmlMapper.Builder xmlMapperBuilder);
 
 }
