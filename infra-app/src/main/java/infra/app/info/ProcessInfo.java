@@ -26,7 +26,12 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.PlatformManagedObject;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Locale;
 
 import infra.util.ClassUtils;
 
@@ -52,11 +57,23 @@ public class ProcessInfo {
 
   private final @Nullable String owner;
 
+  private final @Nullable Instant startTime;
+
+  private final ZoneId timezone;
+
+  private final Locale locale;
+
+  private final String workingDirectory;
+
   public ProcessInfo() {
     ProcessHandle process = ProcessHandle.current();
     this.pid = process.pid();
     this.parentPid = process.parent().map(ProcessHandle::pid).orElse(-1L);
     this.owner = process.info().user().orElse(null);
+    this.startTime = process.info().startInstant().orElse(null);
+    this.timezone = ZoneId.systemDefault();
+    this.locale = Locale.getDefault();
+    this.workingDirectory = Path.of(".").toAbsolutePath().normalize().toString();
   }
 
   /**
@@ -111,7 +128,7 @@ public class ProcessInfo {
       int poolSize = invokeMethod(mxbeanClass, mxbean, "getPoolSize");
       return new VirtualThreadsInfo(mountedVirtualThreadCount, queuedVirtualThreadCount, parallelism, poolSize);
     }
-    catch (ReflectiveOperationException ex) {
+    catch (Exception ex) {
       return null;
     }
   }
@@ -132,6 +149,68 @@ public class ProcessInfo {
 
   public @Nullable String getOwner() {
     return this.owner;
+  }
+
+  /**
+   * Uptime of the process. Can be useful to see how long the process has been running
+   * and to check how long ago the last deployment or restart happened.
+   *
+   * @return duration since the process started, if available, otherwise {@code null}
+   */
+  public @Nullable Duration getUptime() {
+    return (this.startTime != null) ? Duration.between(this.startTime, Instant.now()) : null;
+  }
+
+  /**
+   * Time at which the process started. Can be useful to see when the process was
+   * started and to check when the last deployment or restart happened.
+   *
+   * @return the time when the process started, if available, otherwise {@code null}
+   * @see ProcessHandle.Info#startInstant()
+   */
+  public @Nullable Instant getStartTime() {
+    return this.startTime;
+  }
+
+  /**
+   * Current time of the process. Can be useful to check if there is any clock-skew
+   * issue and if the current time that the process knows is accurate enough.
+   *
+   * @return the current time of the process
+   * @see Instant#now
+   */
+  public Instant getCurrentTime() {
+    return Instant.now();
+  }
+
+  /**
+   * Timezone of the process. Can help to detect time and timezone related issues.
+   *
+   * @return the timezone of the process
+   * @see ZoneId#systemDefault()
+   */
+  public ZoneId getTimezone() {
+    return this.timezone;
+  }
+
+  /**
+   * Locale of the process. Can help to detect issues connected to language and country
+   * settings.
+   *
+   * @return the locale of the process
+   * @see Locale#getDefault()
+   */
+  public Locale getLocale() {
+    return this.locale;
+  }
+
+  /**
+   * Working directory of the process. Can help to locate files that the process uses.
+   *
+   * @return the absolute path of the working directory of the process
+   */
+  public String getWorkingDirectory() {
+    return this.workingDirectory;
   }
 
   /**
@@ -244,8 +323,6 @@ public class ProcessInfo {
 
     /**
      * Garbage collection information.
-     *
-     * @since 5.0
      */
     public static class GarbageCollectorInfo {
 
