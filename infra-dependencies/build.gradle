@@ -627,7 +627,7 @@ dependencies {
   api(platform("org.assertj:assertj-bom:3.27.3"))
   api(platform("org.mockito:mockito-bom:5.19.0"))
   api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
-  api(platform("tools.jackson:jackson-bom:3.0.3"))
+  api(platform("tools.jackson:jackson-bom:3.1.0"))
   api(platform("com.google.protobuf:protobuf-bom:4.33.4"))
   api(platform(project(":infra-bom")))
 
