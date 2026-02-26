@@ -53,7 +53,8 @@ import infra.web.client.RestClientCustomizer;
 @DisableDIAutoConfiguration(afterName = {
         "infra.app.config.ssl.SslAutoConfiguration",
         "infra.app.config.task.TaskExecutionAutoConfiguration",
-        "infra.http.client.config.ImperativeHttpClientAutoConfiguration"
+        "infra.http.client.config.ImperativeHttpClientAutoConfiguration",
+        "infra.http.converter.config.HttpMessageConvertersAutoConfiguration"
 })
 public final class RestClientAutoConfiguration {
 
