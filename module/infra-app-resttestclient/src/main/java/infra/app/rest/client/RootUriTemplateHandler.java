@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.client;
+package infra.app.rest.client;
 
 import org.jspecify.annotations.Nullable;
 
@@ -25,6 +25,7 @@ import java.util.Map;
 
 import infra.lang.Assert;
 import infra.util.StringUtils;
+import infra.web.client.RestTemplate;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 

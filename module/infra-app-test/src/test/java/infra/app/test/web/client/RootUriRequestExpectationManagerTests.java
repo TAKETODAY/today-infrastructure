@@ -57,6 +57,7 @@ class RootUriRequestExpectationManagerTests {
   private final String uri = "https://example.com";
 
   @Mock
+  @SuppressWarnings("NullAway.Init")
   private RequestExpectationManager delegate;
 
   private RootUriRequestExpectationManager manager;
@@ -67,12 +68,14 @@ class RootUriRequestExpectationManagerTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void createWhenRootUriIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new RootUriRequestExpectationManager(null, this.delegate))
             .withMessageContaining("RootUri is required");
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void createWhenExpectationManagerIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new RootUriRequestExpectationManager(this.uri, null))
             .withMessageContaining("ExpectationManager is required");
@@ -140,8 +143,8 @@ class RootUriRequestExpectationManagerTests {
   }
 
   @Test
-  void forRestTemplateWhenUsingRootUriTemplateHandlerShouldReturnRootUriRequestExpectationManager() {
-    RestTemplate restTemplate = new RestTemplateBuilder().rootUri(this.uri).build();
+  void forRestTemplateWhenUsingBaseUriTemplateHandlerShouldReturnRootUriRequestExpectationManager() {
+    RestTemplate restTemplate = new RestTemplateBuilder().baseURI(this.uri).build();
     RequestExpectationManager actual = RootUriRequestExpectationManager.forRestTemplate(restTemplate,
             this.delegate);
     assertThat(actual).isInstanceOf(RootUriRequestExpectationManager.class);
@@ -157,8 +160,8 @@ class RootUriRequestExpectationManagerTests {
   }
 
   @Test
-  void boundRestTemplateShouldPrefixRootUri() {
-    RestTemplate restTemplate = new RestTemplateBuilder().rootUri("https://example.com").build();
+  void boundRestTemplateShouldPrefixBaseUri() {
+    RestTemplate restTemplate = new RestTemplateBuilder().baseURI("https://example.com").build();
     MockRestServiceServer server = RootUriRequestExpectationManager.bindTo(restTemplate);
     server.expect(requestTo("/hello")).andRespond(withSuccess());
     restTemplate.getForEntity("/hello", String.class);
@@ -166,7 +169,7 @@ class RootUriRequestExpectationManagerTests {
 
   @Test
   void boundRestTemplateWhenUrlIncludesDomainShouldNotPrefixRootUri() {
-    RestTemplate restTemplate = new RestTemplateBuilder().rootUri("https://example.com").build();
+    RestTemplate restTemplate = new RestTemplateBuilder().baseURI("https://example.com").build();
     MockRestServiceServer server = RootUriRequestExpectationManager.bindTo(restTemplate);
     server.expect(requestTo("/hello")).andRespond(withSuccess());
     assertThatExceptionOfType(AssertionError.class)

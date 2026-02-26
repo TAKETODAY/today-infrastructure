@@ -16,11 +16,10 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.client;
+package infra.app.rest.client;
 
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.web.client.RootUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 

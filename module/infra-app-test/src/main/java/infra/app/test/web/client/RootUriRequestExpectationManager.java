@@ -41,7 +41,7 @@ import infra.test.web.client.ResponseActions;
 import infra.test.web.client.SimpleRequestExpectationManager;
 import infra.util.concurrent.Future;
 import infra.web.client.RestTemplate;
-import infra.web.client.RootUriTemplateHandler;
+import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 
 /**
@@ -56,7 +56,6 @@ import infra.web.util.UriTemplateHandler;
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>32
- * @see RootUriTemplateHandler
  * @see #bindTo(RestTemplate)
  * @see #forRestTemplate(RestTemplate, RequestExpectationManager)
  * @since 4.0
@@ -103,9 +102,9 @@ public class RootUriRequestExpectationManager implements RequestExpectationManag
     URI uri;
     try {
       uri = new URI(replacementUri);
-      if (request instanceof MockClientHttpRequest) {
-        ((MockClientHttpRequest) request).setURI(uri);
-        return request;
+      if (request instanceof MockClientHttpRequest mockClientHttpRequest) {
+        mockClientHttpRequest.setURI(uri);
+        return mockClientHttpRequest;
       }
       return new ReplaceUriClientHttpRequest(uri, request);
     }
@@ -157,8 +156,9 @@ public class RootUriRequestExpectationManager implements RequestExpectationManag
   /**
    * Return {@link RequestExpectationManager} to be used for binding with the specified
    * {@link RestTemplate}. If the {@link RestTemplate} is using a
-   * {@link RootUriTemplateHandler} then a {@link RootUriRequestExpectationManager} is
-   * returned, otherwise the source manager is returned unchanged.
+   * {@link DefaultUriBuilderFactory} then a
+   * {@link RootUriRequestExpectationManager} is returned, otherwise the source manager
+   * is returned unchanged.
    *
    * @param restTemplate the source REST template
    * @param expectationManager the source {@link RequestExpectationManager}
@@ -166,11 +166,10 @@ public class RootUriRequestExpectationManager implements RequestExpectationManag
    */
   public static RequestExpectationManager forRestTemplate(RestTemplate restTemplate,
           RequestExpectationManager expectationManager) {
-    Assert.notNull(restTemplate, "RestTemplate is required");
+    Assert.notNull(restTemplate, "'restTemplate' must not be null");
     UriTemplateHandler templateHandler = restTemplate.getUriTemplateHandler();
-    if (templateHandler instanceof RootUriTemplateHandler) {
-      return new RootUriRequestExpectationManager(((RootUriTemplateHandler) templateHandler).getRootUri(),
-              expectationManager);
+    if (templateHandler instanceof DefaultUriBuilderFactory defaultHandler && defaultHandler.hasBaseUri()) {
+      return new RootUriRequestExpectationManager(defaultHandler.expand("").toString(), expectationManager);
     }
     return expectationManager;
   }

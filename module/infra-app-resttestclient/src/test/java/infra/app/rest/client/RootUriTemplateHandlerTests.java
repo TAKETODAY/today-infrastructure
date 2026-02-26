@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.client;
+package infra.app.rest.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import infra.web.client.RestTemplate;
 import infra.web.util.UriTemplateHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;

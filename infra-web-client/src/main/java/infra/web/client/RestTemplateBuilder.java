@@ -45,6 +45,7 @@ import infra.http.client.HttpRedirects;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
+import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 
 /**
@@ -155,17 +156,22 @@ public class RestTemplateBuilder {
   }
 
   /**
-   * Set a root URL that should be applied to each request that starts with {@code '/'}.
-   * The root URL will only apply when {@code String} variants of the
+   * Set a base URL template that should be applied to each request that starts with
+   * {@code '/'}. The base URL will only apply when {@code String} variants of the
    * {@link RestTemplate} methods are used for specifying the request URL.
+   * <p>
+   * This is a specialization of {@link #uriTemplateHandler(UriTemplateHandler)} and
+   * will override any previously configured uri template handler.
    *
-   * @param rootUri the root URI or {@code null}
+   * @param baseURI the base URI
    * @return a new builder instance
+   * @since 5.0
    */
-  public RestTemplateBuilder rootUri(@Nullable String rootUri) {
-    return new RestTemplateBuilder(this.clientSettings, this.detectRequestFactory, rootUri, this.messageConverters,
-            this.interceptors, this.requestFactoryBuilder, this.uriTemplateHandler, this.errorHandler,
-            this.basicAuthentication, this.defaultHeaders, this.customizers, this.requestCustomizers);
+  public RestTemplateBuilder baseURI(String baseURI) {
+    return new RestTemplateBuilder(this.clientSettings, this.detectRequestFactory, this.rootUri,
+            this.messageConverters, this.interceptors, this.requestFactoryBuilder,
+            new DefaultUriBuilderFactory(baseURI), this.errorHandler, this.basicAuthentication, this.defaultHeaders,
+            this.customizers, this.requestCustomizers);
   }
 
   /**
@@ -684,9 +690,6 @@ public class RestTemplateBuilder {
     }
     if (this.errorHandler != null) {
       restTemplate.setErrorHandler(this.errorHandler);
-    }
-    if (this.rootUri != null) {
-      RootUriBuilderFactory.applyTo(restTemplate, this.rootUri);
     }
     restTemplate.getInterceptors().addAll(this.interceptors);
     if (CollectionUtils.isNotEmpty(this.customizers)) {

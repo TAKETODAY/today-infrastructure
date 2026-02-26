@@ -55,6 +55,7 @@ import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.test.util.ReflectionTestUtils;
 import infra.test.web.client.MockRestServiceServer;
+import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -107,24 +108,18 @@ class RestTemplateBuilderTests {
   }
 
   @Test
-  void rootUriShouldApply() {
-    RestTemplate restTemplate = this.builder.rootUri("https://example.com").build();
+  void detectRequestFactoryWhenFalseShouldDisableDetection() {
+    RestTemplate restTemplate = this.builder.detectRequestFactory(false).build();
+    assertThat(restTemplate.getRequestFactory()).isInstanceOf(JdkClientHttpRequestFactory.class);
+  }
+
+  @Test
+  void baseURIShouldApply() {
+    RestTemplate restTemplate = this.builder.baseURI("https://example.com").build();
     MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
     server.expect(requestTo("https://example.com/hello")).andRespond(withSuccess());
     restTemplate.getForEntity("/hello", String.class);
     server.verify();
-  }
-
-  @Test
-  void rootUriShouldApplyAfterUriTemplateHandler() {
-    UriTemplateHandler uriTemplateHandler = mock(UriTemplateHandler.class);
-    RestTemplate template = this.builder.uriTemplateHandler(uriTemplateHandler)
-            .rootUri("https://example.com")
-            .build();
-    UriTemplateHandler handler = template.getUriTemplateHandler();
-    handler.expand("/hello");
-    assertThat(handler).isInstanceOf(RootUriBuilderFactory.class);
-    then(uriTemplateHandler).should().expand("https://example.com/hello");
   }
 
   @Test
@@ -447,14 +442,14 @@ class RestTemplateBuilderTests {
     ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     this.builder.interceptors(this.interceptor)
             .messageConverters(this.messageConverter)
-            .rootUri("http://localhost:8080")
+            .baseURI("http://localhost:8080")
             .errorHandler(errorHandler)
             .basicAuthentication("spring", "boot")
             .requestFactory(() -> requestFactory)
             .customizers((restTemplate) -> {
               assertThat(restTemplate.getInterceptors()).hasSize(1);
               assertThat(restTemplate.getMessageConverters()).contains(this.messageConverter);
-              assertThat(restTemplate.getUriTemplateHandler()).isInstanceOf(RootUriBuilderFactory.class);
+              assertThat(restTemplate.getUriTemplateHandler()).isInstanceOf(DefaultUriBuilderFactory.class);
               assertThat(restTemplate.getErrorHandler()).isEqualTo(errorHandler);
               ClientHttpRequestFactory actualRequestFactory = restTemplate.getRequestFactory();
               assertThat(actualRequestFactory).isInstanceOf(InterceptingClientHttpRequestFactory.class);

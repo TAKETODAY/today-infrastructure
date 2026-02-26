@@ -39,9 +39,9 @@ import java.util.function.UnaryOperator;
 
 import javax.net.ssl.SSLContext;
 
-import infra.core.ssl.SslBundle;
 import infra.app.test.context.InfraTest;
 import infra.core.ParameterizedTypeReference;
+import infra.core.ssl.SslBundle;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -60,7 +60,6 @@ import infra.web.client.RequestCallback;
 import infra.web.client.ResponseExtractor;
 import infra.web.client.RestTemplate;
 import infra.web.client.RestTemplateBuilder;
-import infra.web.client.RootUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 
@@ -184,20 +183,6 @@ public class TestRestTemplate {
    */
   public void setUriTemplateHandler(UriTemplateHandler handler) {
     this.restTemplate.setUriTemplateHandler(handler);
-  }
-
-  /**
-   * Returns the root URI applied by {@link RestTemplateBuilder#rootUri(String)} or
-   * {@code ""} if the root URI has not been applied.
-   *
-   * @return the root URI
-   */
-  public @Nullable String getRootUri() {
-    UriTemplateHandler uriTemplateHandler = this.restTemplate.getUriTemplateHandler();
-    if (uriTemplateHandler instanceof RootUriTemplateHandler rootHandler) {
-      return rootHandler.getRootUri();
-    }
-    return uriTemplateHandler.expand("").toString();
   }
 
   /**

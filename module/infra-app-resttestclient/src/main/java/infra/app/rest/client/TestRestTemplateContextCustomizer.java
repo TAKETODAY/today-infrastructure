@@ -20,7 +20,6 @@ package infra.app.rest.client;
 
 import infra.app.rest.client.TestRestTemplate.HttpClientOption;
 import infra.app.test.context.InfraTest;
-import infra.app.test.web.client.LocalHostUriTemplateHandler;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
