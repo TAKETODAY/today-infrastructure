@@ -893,6 +893,20 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
+    public <T> T requiredBody(Class<T> bodyType) {
+      T body = body(bodyType);
+      Assert.state(body != null, "The body is required");
+      return body;
+    }
+
+    @Override
+    public <T> T requiredBody(ParameterizedTypeReference<T> bodyType) {
+      T body = body(bodyType);
+      Assert.state(body != null, "The body is required");
+      return body;
+    }
+
+    @Override
     public <T> ResponseEntity<T> toEntity(Class<T> bodyType) {
       return toEntityInternal(clientResponse, bodyType, bodyType);
     }

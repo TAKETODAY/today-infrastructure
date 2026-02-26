@@ -16,9 +16,12 @@
 
 package infra.web.client;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -32,6 +35,7 @@ import java.util.function.Predicate;
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
+import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.StreamingHttpOutputMessage;
@@ -47,8 +51,11 @@ import infra.web.client.DefaultRestClient.DefaultRequestBodyUriSpec;
 import infra.web.util.UriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +64,113 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/10 16:01
  */
 class DefaultRestClientTests {
+
+  private static final String URL = "https://example.com";
+
+  public static final String BODY = "Hello World";
+
+  private final ClientHttpRequestFactory requestFactory = mock();
+
+  private final ClientHttpRequest request = mock();
+
+  private final ClientHttpResponse response = mock();
+
+  private RestClient client;
+
+  @BeforeEach
+  void setup() {
+    this.client = RestClient.builder()
+            .requestFactory(this.requestFactory)
+            .build();
+  }
+
+  @Test
+  void requiredBodyWithClass() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.OK);
+    mockResponseBody(BODY, MediaType.TEXT_PLAIN);
+
+    String result = this.client.get().uri(URL).retrieve().requiredBody(String.class);
+
+    assertThat(result).isEqualTo(BODY);
+  }
+
+  @Test
+  void requiredBodyWithClassAndNullBody() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.OK);
+    mockEmptyResponseBody();
+
+    assertThatIllegalStateException().isThrownBy(() ->
+            this.client.get().uri(URL).retrieve().requiredBody(String.class)
+    );
+  }
+
+  @Test
+  void requiredBodyWithParameterizedTypeReference() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.OK);
+    mockResponseBody(BODY, MediaType.TEXT_PLAIN);
+
+    String result = this.client.get().uri(URL).retrieve()
+            .requiredBody(new ParameterizedTypeReference<>() {
+
+            });
+
+    assertThat(result).isEqualTo(BODY);
+  }
+
+  @Test
+  void requiredBodyWithParameterizedTypeReferenceAndNullBody() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.OK);
+    mockEmptyResponseBody();
+
+    assertThatIllegalStateException().isThrownBy(() ->
+            this.client.get().uri(URL).retrieve()
+                    .requiredBody(new ParameterizedTypeReference<String>() { })
+    );
+  }
+
+  @Test
+  void inputStreamBody() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.OK);
+    mockResponseBody(BODY, MediaType.TEXT_PLAIN);
+
+    InputStream result = this.client.get().uri(URL).retrieve().requiredBody(InputStream.class);
+
+    assertThat(result).isInstanceOf(InputStream.class);
+    verify(this.response, times(0)).close();
+  }
+
+  private void mockSentRequest(HttpMethod method, String uri) throws IOException {
+    given(this.requestFactory.createRequest(URI.create(uri), method)).willReturn(this.request);
+    given(this.request.getHeaders()).willReturn(HttpHeaders.forWritable());
+    given(this.request.getMethod()).willReturn(method);
+    given(this.request.getURI()).willReturn(URI.create(uri));
+  }
+
+  private void mockResponseStatus(HttpStatus responseStatus) throws IOException {
+    given(this.request.execute()).willReturn(this.response);
+    given(this.response.getStatusCode()).willReturn(responseStatus);
+    given(this.response.getStatusText()).willReturn(responseStatus.getReasonPhrase());
+  }
+
+  private void mockResponseBody(String expectedBody, MediaType mediaType) throws IOException {
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setContentType(mediaType);
+    responseHeaders.setContentLength(expectedBody.length());
+    given(this.response.getHeaders()).willReturn(responseHeaders);
+    given(this.response.getBody()).willReturn(new ByteArrayInputStream(expectedBody.getBytes()));
+  }
+
+  private void mockEmptyResponseBody() throws IOException {
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setContentLength(0);
+    given(this.response.getHeaders()).willReturn(responseHeaders);
+    given(this.response.getBody()).willReturn(new ByteArrayInputStream(new byte[0]));
+  }
 
   @Test
   void getMethodCreatesCorrectSpec() {
