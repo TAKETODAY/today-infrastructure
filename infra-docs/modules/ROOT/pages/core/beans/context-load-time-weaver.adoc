@@ -24,10 +24,7 @@ public class AppConfig {
 
 一旦为 `ApplicationContext` 配置完成，该 `ApplicationContext` 中的任何 bean 都可以实现
 `LoadTimeWeaverAware` 接口，从而获得对加载时编织器实例的引用。
-这在与 xref:data-access/orm/jpa.adoc[Infra JPA 支持] 结合使用时特别有用，
-其中加载时编织可能对 JPA 类转换至关重要。有关更多详细信息，请参阅
-{today-framework-api}/orm/jpa/LocalContainerEntityManagerFactoryBean.html[`LocalContainerEntityManagerFactoryBean`]
-的 Javadoc。有关 AspectJ 加载时编织的更多信息，请参阅 xref:core/aop/using-aspectj.adoc#aop-aj-ltw[在 Infra 中使用 AspectJ 进行加载时编织]。
+有关 AspectJ 加载时编织的更多信息，请参阅 xref:core/aop/using-aspectj.adoc#aop-aj-ltw[在 Infra 中使用 AspectJ 进行加载时编织]。
 
 
 
