@@ -1,76 +1,77 @@
 [[cache-strategies]]
-= Understanding the Cache Abstraction
+= 缓存策略
 
-.Cache vs Buffer
-****
+Infra 的缓存抽象提供了灵活的策略来处理缓存键生成和缓存解析。
 
-The terms, "`buffer`" and "`cache,`" tend to be used interchangeably. Note, however,
-that they represent different things. Traditionally, a buffer is used as an intermediate
-temporary store for data between a fast and a slow entity. As one party would have to wait
-for the other (which affects performance), the buffer alleviates this by allowing entire
-blocks of data to move at once rather than in small chunks. The data is written and read
-only once from the buffer. Furthermore, the buffers are visible to at least one party
-that is aware of it.
+[[cache-strategies-keygen]]
+== 键生成
 
-A cache, on the other hand, is, by definition, hidden, and neither party is aware that
-caching occurs. It also improves performance but does so by letting the same data be
-read multiple times in a fast fashion.
+缓存本质上是键值存储。
+每次调用缓存方法时，都需要生成一个唯一的键来标识缓存条目。
+默认情况下，Infra 使用 `SimpleKeyGenerator`，它根据方法参数生成键。
 
-You can find a further explanation of the differences between a buffer and a cache
-https://en.wikipedia.org/wiki/Cache_(computing)#The_difference_between_buffer_and_cache[here].
-****
+其算法如下：
 
-At its core, the cache abstraction applies caching to Java methods, thus reducing the
-number of executions based on the information available in the cache. That is, each time
-a targeted method is invoked, the abstraction applies a caching behavior that checks
-whether the method has been already invoked for the given arguments. If it has been
-invoked, the cached result is returned without having to invoke the actual method.
-If the method has not been invoked, then it is invoked, and the result is cached and
-returned to the user so that, the next time the method is invoked, the cached result is
-returned. This way, expensive methods (whether CPU- or IO-bound) can be invoked only
-once for a given set of parameters and the result reused without having to actually
-invoke the method again. The caching logic is applied transparently without any
-interference to the invoker.
+* 如果没有参数，返回 `SimpleKey.EMPTY`。
+* 如果只有一个参数，返回该实例。
+* 如果有多个参数，返回包含所有参数的 `SimpleKey`。
 
-IMPORTANT: This approach works only for methods that are guaranteed to return the same
-output (result) for a given input (or arguments) no matter how many times they are invoked.
+这种方法适用于大多数情况，只要参数具有自然的键定义并实现了有效的 `hashCode()` 和 `equals()` 方法。
+如果不是这种情况，你需要更改策略。
 
-The caching abstraction provides other cache-related operations, such as the ability
-to update the content of the cache or to remove one or all entries. These are useful if
-the cache deals with data that can change during the course of the application.
+要提供自定义键生成器，你可以实现 `org.springframework.cache.interceptor.KeyGenerator` 接口。
 
-As with other services in the TODAY Framework, the caching service is an abstraction
-(not a cache implementation) and requires the use of actual storage to store the cache data --
-that is, the abstraction frees you from having to write the caching logic but does not
-provide the actual data store. This abstraction is materialized by the
-`infra.cache.Cache` and `infra.cache.CacheManager` interfaces.
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+public class CustomKeyGenerator implements KeyGenerator {
 
-Infra provides xref:integration/cache/store-configuration.adoc[a few implementations] of that abstraction:
-JDK `java.util.concurrent.ConcurrentMap` based caches, Gemfire cache,
-https://github.com/ben-manes/caffeine/wiki[Caffeine], and JSR-107 compliant caches (such
-as Ehcache 3.x). See xref:integration/cache/plug.adoc[Plugging-in Different Back-end Caches] for more information on plugging in other cache
-stores and providers.
+    public Object generate(Object target, Method method, Object... params) {
+        return target.getClass().getSimpleName() + "_" + method.getName() + "_" + StringUtils.arrayToDelimitedString(params, "_");
+    }
+}
+----
 
-IMPORTANT: The caching abstraction has no special handling for multi-threaded and
-multi-process environments, as such features are handled by the cache implementation.
+然后，你可以在注解中引用它：
 
-If you have a multi-process environment (that is, an application deployed on several nodes),
-you need to configure your cache provider accordingly. Depending on your use cases, a copy
-of the same data on several nodes can be enough. However, if you change the data during
-the course of the application, you may need to enable other propagation mechanisms.
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Cacheable(keyGenerator = "customKeyGenerator")
+public Book findBook(ISBN isbn) { ... }
+----
 
-Caching a particular item is a direct equivalent of the typical
-get-if-not-found-then-proceed-and-put-eventually code blocks
-found with programmatic cache interaction.
-No locks are applied, and several threads may try to load the same item concurrently.
-The same applies to eviction. If several threads are trying to update or evict data
-concurrently, you may use stale data. Certain cache providers offer advanced features
-in that area. See the documentation of your cache provider for more details.
+[[cache-strategies-sync]]
+== 同步缓存
 
-To use the cache abstraction, you need to take care of two aspects:
+在多线程环境中，可能会出现多个线程同时尝试加载同一数据的情况（缓存击穿）。
+为了避免这种情况，你可以使用 `@Cacheable` 注解的 `sync` 属性。
 
-* Caching declaration: Identify the methods that need to be cached and their policies.
-* Cache configuration: The backing cache where the data is stored and from which it is read.
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Cacheable(cacheNames="foos", sync=true)
+public Foo executeExpensiveOperation(String id) { ... }
+----
 
+当 `sync` 设置为 `true` 时，只有一个线程会执行该方法，其他线程会等待结果。
+这通常通过底层缓存提供程序的本机同步功能来实现（如果支持），或者通过 Infra 框架层面的同步来实现。
 
+[[cache-strategies-conditional]]
+== 条件缓存
 
+有时，这种方法可能不适合一直缓存（例如，它可能取决于给定的参数）。
+缓存注解支持通过 `condition` 参数实现这种功能，该参数采用一个 `SpEL` 表达式，该表达式被评估为 `true` 或 `false`。
+如果为 `true`，则缓存该方法；否则，它的行为就像没有缓存一样。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Cacheable(cacheNames="book", condition="#name.length() < 32")
+public Book findBook(String name) { ... }
+----
+
+此外，还有一个 `unless` 参数，它用于否决将结果放入缓存。
+它在方法调用后进行评估，因此它可以访问 `result`。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Cacheable(cacheNames="book", unless="#result.hardback")
+public Book findBook(String name) { ... }
+----

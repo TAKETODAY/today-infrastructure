@@ -1,56 +1,32 @@
 [[cache-declarative-xml]]
-= Declarative XML-based Caching
+= 基于 XML 的声明式缓存
 
-If annotations are not an option (perhaps due to having no access to the sources
-or no external code), you can use XML for declarative caching. So, instead of
-annotating the methods for caching, you can specify the target method and the
-caching directives externally (similar to the declarative transaction management
-xref:data-access/transaction/declarative/first-example.adoc[advice]). The example
-from the previous section can be translated into the following example:
+如果注解不是一种选择（可能是因为无法访问源代码或没有外部代码），则可以使用 XML 进行声明式缓存。
+因此，与其注解缓存方法，不如在外部指定目标方法和缓存指令（类似于声明式事务管理建议）。
+上一节中的示例可以转换为以下示例：
 
-[source,xml,indent=0]
-[subs="verbatim"]
+[source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- the service we want to make cacheable -->
-<bean id="bookService" class="x.y.service.DefaultBookService"/>
-
-<!-- cache definitions -->
+<!-- 缓存建议 -->
 <cache:advice id="cacheAdvice" cache-manager="cacheManager">
-  <cache:caching cache="books">
-    <cache:cacheable method="findBook" key="#isbn"/>
-    <cache:cache-evict method="loadBooks" all-entries="true"/>
-  </cache:caching>
+    <cache:caching cache="books">
+        <cache:cacheable method="findBook" key="#isbn"/>
+        <cache:cache-evict method="loadBooks" all-entries="true"/>
+    </cache:caching>
 </cache:advice>
 
-<!-- apply the cacheable behavior to all BookService interfaces -->
+<!-- 应用缓存建议 -->
 <aop:config>
-  <aop:advisor advice-ref="cacheAdvice" pointcut="execution(* x.y.BookService.*(..))"/>
+    <aop:advisor advice-ref="cacheAdvice" pointcut="execution(* com.example.BookRepository.*(..))"/>
 </aop:config>
-
-<!-- cache manager definition omitted -->
 ----
 
-In the preceding configuration, the `bookService` is made cacheable. The caching semantics
-to apply are encapsulated in the `cache:advice` definition, which causes the `findBooks`
-method to be used for putting data into the cache and the `loadBooks` method for evicting
-data. Both definitions work against the `books` cache.
+在前面的配置中，`bookService` 被设为可缓存的。
+应用的缓存语义封装在 `cache:advice` 定义中，这会导致 `findBook` 方法用于将数据放入缓存，而 `loadBooks` 方法用于逐出数据。
+这两个定义都针对 `books` 缓存。
 
-The `aop:config` definition applies the cache advice to the appropriate points in the
-program by using the AspectJ pointcut expression (more information is available in
-xref:core/aop.adoc[Aspect Oriented Programming with Infra]). In the preceding example,
-all methods from the `BookService` are considered and the cache advice is applied to them.
+`aop:config` 定义应用缓存建议到程序的适当点（通过使用 AspectJ 切入点表达式）。
+在前面的示例中，`BookRepository` 中的所有方法都被考虑，并将建议应用于它们。
 
-The declarative XML caching supports all of the annotation-based model, so moving between
-the two should be fairly easy. Furthermore, both can be used inside the same application.
-The XML-based approach does not touch the target code. However, it is inherently more
-verbose. When dealing with classes that have overloaded methods that are targeted for
-caching, identifying the proper methods does take an extra effort, since the `method`
-argument is not a good discriminator. In these cases, you can use the AspectJ pointcut
-to cherry pick the target methods and apply the appropriate caching functionality.
-However, through XML, it is easier to apply package or group or interface-wide caching
-(again, due to the AspectJ pointcut) and to create template-like definitions (as we did
-in the preceding example by defining the target cache through the `cache:definitions`
-`cache` attribute).
-
-
-
+基于 XML 的配置允许更灵活地定义切入点，这在注解中是不可能的（因为注解只能应用于特定的方法或类）。
+此外，它允许将缓存逻辑与业务代码分离。

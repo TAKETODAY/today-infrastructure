@@ -1,11 +1,54 @@
 [[cache-specific-config]]
-= How can I Set the TTL/TTI/Eviction policy/XXX feature?
-:page-section-summary-toc: 1
+= 配置缓存存储
 
-Directly through your cache provider. The cache abstraction is an abstraction,
-not a cache implementation. The solution you use might support various data
-policies and different topologies that other solutions do not support (for example,
-the JDK `ConcurrentHashMap` -- exposing that in the cache abstraction would be useless
-because there would no backing support). Such functionality should be controlled
-directly through the backing cache (when configuring it) or through its native API.
+Infra 的缓存抽象允许你使用各种缓存存储。
+本节提供了有关配置特定缓存存储的更多详细信息。
 
+[[cache-specific-config-caffeine]]
+== Caffeine
+
+Caffeine 是一个高性能的 Java 缓存库。
+要使用 Caffeine，你需要配置 `CaffeineCacheManager`。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Bean
+public CacheManager cacheManager() {
+    CaffeineCacheManager cacheManager = new CaffeineCacheManager("books", "authors");
+    cacheManager.setCaffeine(Caffeine.newBuilder()
+            .initialCapacity(100)
+            .maximumSize(500)
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .weakKeys()
+            .recordStats());
+    return cacheManager;
+}
+----
+
+你可以通过提供 `Caffeine` 规范字符串来进一步自定义每个缓存。
+
+[[cache-specific-config-ehcache]]
+== Ehcache 2.x
+
+Ehcache 是一个广泛使用的 Java 缓存。
+Infra 提供了 `EhCacheCacheManager` 来支持 Ehcache 2.x。
+你需要提供一个 `ehcache.xml` 配置文件。
+
+[[cache-specific-config-redis]]
+== Redis
+
+Redis 是一个流行的内存数据结构存储。
+Infra Data Redis 项目提供了 `RedisCacheManager`，它允许你使用 Redis 作为缓存存储。
+你可以配置过期时间、键前缀等。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Bean
+public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    return RedisCacheManager.builder(connectionFactory)
+        .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)))
+        .build();
+}
+----
+
+这使得利用 Redis 的速度和持久性功能变得容易。

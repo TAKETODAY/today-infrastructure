@@ -1,38 +1,56 @@
 [[checkpoint-restore]]
-= JVM Checkpoint Restore
+= JVM 检查点恢复 (Project CRaC)
 
-The TODAY Framework integrates with checkpoint/restore as implemented by https://github.com/CRaC/docs[Project CRaC] in order to allow implementing systems capable of reducing the startup and warmup times of Infra-based Java applications with the JVM.
+Infra 框架支持 Project CRaC (Coordinated Restore at Checkpoint) 用于 JVM 检查点恢复。
+该项目允许您在应用程序运行时的特定点创建其状态的快照（检查点），然后稍后从该状态恢复它。
+这对于减少启动时间和预热时间非常有用。
 
-Using this feature requires:
+[[checkpoint-restore-dependencies]]
+== 依赖项
 
-* A checkpoint/restore enabled JVM (Linux only for now).
-* The presence of the https://github.com/CRaC/org.crac[`org.crac:crac`] library (version `1.4.0` and above are supported) in the classpath.
-* Specifying the required `java` command-line parameters like `-XX:CRaCCheckpointTo=PATH` or `-XX:CRaCRestoreFrom=PATH`.
+要使用 CRaC，您需要使用支持 CRaC 的 JDK（例如，Azul Zulu JDK 或 BellSoft Liberica JDK）。
+您还需要在项目中包含 `org.crac:crac` 库。
 
-WARNING: The files generated in the path specified by `-XX:CRaCCheckpointTo=PATH` when a checkpoint is requested contain a representation of the memory of the running JVM, which may contain secrets and other sensitive data. Using this feature should be done with the assumption that any value "seen" by the JVM, such as configuration properties coming from the environment, will be stored in those CRaC files. As a consequence, the security implications of where and how those files are generated, stored, and accessed should be carefully assessed.
+[[checkpoint-restore-lifecycle]]
+== 生命周期集成
 
-Conceptually, checkpoint and restore align with the xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-processor[Infra `Lifecycle` contract] for individual beans.
+Infra 框架与 CRaC 生命周期集成，以确保在检查点和恢复期间正确处理资源。
+当触发检查点时，Infra 将：
 
-== On-demand checkpoint/restore of a running application
+1.  停止所有正在运行的 bean（实现 `Lifecycle` 接口）。
+2.  关闭所有活动的上下文。
+3.  调用任何注册的 CRaC 资源上的 `beforeCheckpoint()` 方法。
 
-A checkpoint can be created on demand, for example using a command like `jcmd application.jar JDK.checkpoint`. Before the creation of the checkpoint, Infra stops all the running beans, giving them a chance to close resources if needed by implementing `Lifecycle.stop`. After restore, the same beans are restarted, with `Lifecycle.start` allowing beans to reopen resources when relevant. For libraries that do not depend on Infra, custom checkpoint/restore integration can be provided by implementing `org.crac.Resource` and registering the related instance.
+当从检查点恢复时，Infra 将：
 
-WARNING: Leveraging checkpoint/restore of a running application typically requires additional lifecycle management to gracefully stop and start using resources like files or sockets and stop active threads.
+1.  调用任何注册的 CRaC 资源上的 `afterRestore()` 方法。
+2.  刷新并重新启动上下文。
+3.  启动所有 bean。
 
-NOTE: If the checkpoint is created on a warmed-up JVM, the restored JVM will be equally warmed-up, allowing potentially peak performance immediately. This method typically requires access to remote services, and thus requires some level of platform integration.
+[[checkpoint-restore-usage]]
+== 用法
 
-== Automatic checkpoint/restore at startup
+要触发检查点，您可以使用 JDK 提供的工具或 API。
+例如，您可以使用 `jcmd` 命令：
 
-When the `-Dspring.context.checkpoint=onRefresh` JVM system property is set, a checkpoint is created automatically at
-startup during the `LifecycleProcessor.onRefresh` phase. After this phase has completed, all non-lazy initialized singletons have been instantiated, and
-`InitializingBean#afterPropertiesSet` callbacks have been invoked; but the lifecycle has not started, and the 
-`ContextRefreshedEvent` has not yet been published.
+[source,bash]
+----
+jcmd <pid> JDK.checkpoint
+----
 
-For testing purposes, it is also possible to leverage the `-Dinfra.context.exit=onRefresh` JVM system property which
-triggers similar behavior, but instead of creating a checkpoint, it exits your Infra application at the same lifecycle
-phase without requiring the Project CraC dependency/JVM or Linux. This can be useful to check if connections to remote
-services are required when the beans are not started, and potentially refine the configuration to avoid that.
+这将创建应用程序状态的快照。
+然后，您可以使用以下命令从该快照恢复：
 
-WARNING: As mentioned above, and especially in use cases where the CRaC files are shipped as part of a deployable artifact (a container image for example), operate with the assumption that any sensitive data "seen" by the JVM ends up in the CRaC files, and assess carefully the related security implications.
+[source,bash]
+----
+java -XX:CRaCRestoreFrom=<path-to-checkpoint>
+----
 
-NOTE: Automatic checkpoint/restore is a way to "fast-forward" the startup of the application to a phase where the application context is about to start, but it does not allow to have a fully warmed-up JVM.
+[[checkpoint-restore-considerations]]
+== 注意事项
+
+使用检查点恢复时，需要注意一些事项：
+
+*   **打开的文件和套接字**：在检查点期间，所有打开的文件和套接字都必须关闭。Infra 框架会自动处理其管理的资源，但您可能需要手动处理应用程序特定的资源。
+*   **随机性和时间**：如果在检查点之前初始化了随机数生成器或缓存了时间戳，则它们在恢复后可能会过时或重复。您应该在 `afterRestore()` 钩子中刷新这些值。
+*   **环境变化**：如果恢复环境与检查点环境显着不同（例如，不同的网络配置），则某些资源可能无法正常工作。

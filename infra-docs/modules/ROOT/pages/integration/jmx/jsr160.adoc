@@ -1,103 +1,56 @@
 [[jmx-jsr160]]
-= Using JSR-160 Connectors
+= JSR-160 连接器
 
-For remote access, Infra JMX module offers two `FactoryBean` implementations inside the
-`infra.jmx.support` package for creating both server- and client-side
-connectors.
-
+JSR-160 规范（Java 管理扩展远程 API）定义了通过各种协议进行远程 JMX 访问的标准方式。
+Infra 提供了对 JSR-160 连接器的配置支持。
 
 [[jmx-jsr160-server]]
-== Server-side Connectors
+== 服务器端连接器
 
-To have Infra JMX create, start, and expose a JSR-160 `JMXConnectorServer`, you can use the
-following configuration:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-	<bean id="serverConnector" class="infra.jmx.support.ConnectorServerFactoryBean"/>
-----
-
-By default, `ConnectorServerFactoryBean` creates a `JMXConnectorServer` bound to
-`service:jmx:jmxmp://localhost:9875`. The `serverConnector` bean thus exposes the
-local `MBeanServer` to clients through the JMXMP protocol on localhost, port 9875. Note
-that the JMXMP protocol is marked as optional by the JSR 160 specification. Currently,
-the main open-source JMX implementation, MX4J, and the one provided with the JDK
-do not support JMXMP.
-
-To specify another URL and register the `JMXConnectorServer` itself with the
-`MBeanServer`, you can use the `serviceUrl` and `ObjectName` properties, respectively,
-as the following example shows:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="serverConnector"
-    class="infra.jmx.support.ConnectorServerFactoryBean">
-  <property name="objectName" value="connector:name=rmi"/>
-  <property name="serviceUrl"
-      value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/myconnector"/>
-</bean>
-----
-
-If the `ObjectName` property is set, Infra automatically registers your connector
-with the `MBeanServer` under that `ObjectName`. The following example shows the full set of
-parameters that you can pass to the `ConnectorServerFactoryBean` when creating a
-`JMXConnector`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="serverConnector"
-    class="infra.jmx.support.ConnectorServerFactoryBean">
-  <property name="objectName" value="connector:name=iiop"/>
-  <property name="serviceUrl"
-    value="service:jmx:iiop://localhost/jndi/iiop://localhost:900/myconnector"/>
-  <property name="threaded" value="true"/>
-  <property name="daemon" value="true"/>
-  <property name="environment">
-    <map>
-      <entry key="someKey" value="someValue"/>
-    </map>
-  </property>
-</bean>
-----
-
-Note that, when you use a RMI-based connector, you need the lookup service (`tnameserv` or
-`rmiregistry`) to be started in order for the name registration to complete.
-
-
-[[jmx-jsr160-client]]
-== Client-side Connectors
-
-To create an `MBeanServerConnection` to a remote JSR-160-enabled `MBeanServer`, you can use the
-`MBeanServerConnectionFactoryBean`, as the following example shows:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="clientConnector" class="infra.jmx.support.MBeanServerConnectionFactoryBean">
-  <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jmxrmi"/>
-</bean>
-----
-
-
-[[jmx-jsr160-protocols]]
-== JMX over Hessian or SOAP
-
-JSR-160 permits extensions to the way in which communication is done between the client
-and the server. The examples shown in the preceding sections use the mandatory RMI-based implementation
-required by the JSR-160 specification (IIOP and JRMP) and the (optional) JMXMP. By using
-other providers or JMX implementations (such as http://mx4j.sourceforge.net[MX4J]) you
-can take advantage of protocols such as SOAP or Hessian over simple HTTP or SSL and others,
-as the following example shows:
+要启用远程访问，你需要配置一个 `JMXConnectorServer`。
+Infra 的 `ConnectorServerFactoryBean` 使这变得简单。
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="serverConnector" class="infra.jmx.support.ConnectorServerFactoryBean">
-  <property name="objectName" value="connector:name=burlap"/>
-  <property name="serviceUrl" value="service:jmx:burlap://localhost:9874"/>
+    <property name="objectName" value="connector:name=rmi"/>
+    <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/myconnector"/>
 </bean>
 ----
 
-In the preceding example, we used MX4J 3.0.0. See the official MX4J
-documentation for more information.
+默认情况下，`ConnectorServerFactoryBean` 创建一个 `JMXConnectorServer` 并将其绑定到本地 `MBeanServer`。
+`serviceUrl` 属性指定客户端用于连接的 URL。
 
+[[jmx-jsr160-client]]
+== 客户端连接器
 
+在客户端，你需要创建一个 `JMXConnector` 来连接到远程服务器。
+Infra 的 `MBeanServerConnectionFactoryBean` 提供了对此的抽象。
 
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<bean id="clientConnector" class="infra.jmx.support.MBeanServerConnectionFactoryBean">
+    <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/myconnector"/>
+</bean>
+----
+
+这个 bean 产生一个 `MBeanServerConnection`，它可以被注入到其他 bean 中，例如 `MBeanProxyFactoryBean`。
+
+[[jmx-jsr160-protocols]]
+== 协议支持
+
+JSR-160 支持多种协议，包括 RMI、IIOP 和 JMXMP。
+RMI 是默认协议，也是最常用的。
+通过更改 `serviceUrl`，你可以切换协议。
+
+* RMI: `service:jmx:rmi://host:port/jndi/rmi://host:port/connector`
+* JMXMP: `service:jmx:jmxmp://host:port`
+
+注意，JMXMP 是一个可选协议，可能需要额外的库（`jmxremote_optional.jar`）。
+
+[[jmx-jsr160-burlap-hessian]]
+== Burlap/Hessian/SOAP JMX
+
+除了标准的 JSR-160 连接器外，Infra 还支持通过 Burlap、Hessian 和 SOAP 公开 JMX。
+这些是非标准的，但在某些防火墙受限的环境中可能很有用。
+这需要配置特定的适配器。
