@@ -1,16 +1,11 @@
 [[aop-ataspectj]]
-= @AspectJ support
+= @AspectJ 支持
 :page-section-summary-toc: 1
 
-@AspectJ refers to a style of declaring aspects as regular Java classes annotated with
-annotations. The @AspectJ style was introduced by the
-{aspectj-site}[AspectJ project] as part of the AspectJ 5 release. Infra
-interprets the same annotations as AspectJ 5, using a library supplied by AspectJ
-for pointcut parsing and matching. The AOP runtime is still pure Infra AOP, though, and
-there is no dependency on the AspectJ compiler or weaver.
+@AspectJ 指的是一种将切面声明为带有注解的常规 Java 类的风格。@AspectJ 风格由
+{aspectj-site}[AspectJ 项目] 作为 AspectJ 5 发布的一部分引入。Infra
+使用 AspectJ 提供的库进行切点解析和匹配，解释与 AspectJ 5 相同的注解。
+不过，AOP 运行时仍然是纯粹的 Infra AOP，并不依赖于 AspectJ 编译器或织入器。
 
-NOTE: Using the AspectJ compiler and weaver enables use of the full AspectJ language and
-is discussed in xref:core/aop/using-aspectj.adoc[Using AspectJ with Infra Applications].
-
-
-
+NOTE: 使用 AspectJ 编译器和织入器可以使用完整的 AspectJ 语言，
+这将在 xref:core/aop/using-aspectj.adoc[在 Infra 应用程序中使用 AspectJ] 中讨论。

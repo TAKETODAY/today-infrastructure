@@ -1,22 +1,15 @@
 [[aop-introduction-proxies]]
-= AOP Proxies
+= AOP 代理
 :page-section-summary-toc: 1
 
-Infra AOP defaults to using standard JDK dynamic proxies for AOP proxies. This
-enables any interface (or set of interfaces) to be proxied.
+Infra AOP 默认使用标准 JDK 动态代理作为 AOP 代理。
+这使得任何接口（或接口集）都可以被代理。
 
-Infra AOP can also use CGLIB proxies. This is necessary to proxy classes rather than
-interfaces. By default, CGLIB is used if a business object does not implement an
-interface. As it is good practice to program to interfaces rather than classes, business
-classes normally implement one or more business interfaces. It is possible to
-xref:core/aop/proxying.adoc[force the use of CGLIB], in those (hopefully rare) cases where you
-need to advise a method that is not declared on an interface or where you need to
-pass a proxied object to a method as a concrete type.
+Infra AOP 也可以使用 CGLIB 代理。这对于代理类而不是接口是必要的。
+默认情况下，如果业务对象未实现接口，则使用 CGLIB。
+由于面向接口而不是类编程是一种好习惯，因此业务类通常实现一个或多个业务接口。
+在那些（希望很少见）你需要通知未在接口上声明的方法或需要将代理对象作为具体类型传递给方法的情况下，
+可以 xref:core/aop/proxying.adoc[强制使用 CGLIB]。
 
-It is important to grasp the fact that Infra AOP is proxy-based. See
-xref:core/aop/proxying.adoc#aop-understanding-aop-proxies[Understanding AOP Proxies] for a thorough examination of exactly what this
-implementation detail actually means.
-
-
-
-
+掌握 Infra AOP 是基于代理的这一事实非常重要。
+有关此实现细节实际含义的深入检查，请参阅 xref:core/aop/proxying.adoc#aop-understanding-aop-proxies[理解 AOP 代理]。

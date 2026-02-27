@@ -1,36 +1,29 @@
 [[aop-using-aspectj]]
-= Using AspectJ with Infra Applications
+= 在 Infra 应用程序中使用 AspectJ
 
-Everything we have covered so far in this chapter is pure Infra AOP. In this section,
-we look at how you can use the AspectJ compiler or weaver instead of or in
-addition to Infra AOP if your needs go beyond the facilities offered by Infra AOP
-alone.
+到目前为止，我们在本章中介绍的所有内容都是纯粹的 Infra AOP。在本节中，
+我们将探讨如果你的需求超出了 Infra AOP 单独提供的功能，如何使用 AspectJ 编译器或织入器
+来替代 Infra AOP 或作为其补充。
 
-Infra ships with a small AspectJ aspect library, which is available stand-alone in your
-distribution as `infra-aspects.jar`. You need to add this to your classpath in order
-to use the aspects in it. xref:core/aop/using-aspectj.adoc#aop-atconfigurable[Using AspectJ to Dependency Inject Domain Objects with Infra] and xref:core/aop/using-aspectj.adoc#aop-ajlib-other[Other Infra aspects for AspectJ] discuss the
-content of this library and how you can use it. xref:core/aop/using-aspectj.adoc#aop-aj-configure[Configuring AspectJ Aspects by Using Infra IoC] discusses how to
-dependency inject AspectJ aspects that are woven using the AspectJ compiler. Finally,
-xref:core/aop/using-aspectj.adoc#aop-aj-ltw[Load-time Weaving with AspectJ in the TODAY Framework] provides an introduction to load-time weaving for Infra applications
-that use AspectJ.
+Infra 附带了一个小的 AspectJ 切面库，在你的发行版中作为独立的 `infra-aspects.jar` 提供。
+你需要将其添加到类路径中才能使用其中的切面。xref:core/aop/using-aspectj.adoc#aop-atconfigurable[使用 AspectJ 依赖注入 Infra 领域对象] 和 xref:core/aop/using-aspectj.adoc#aop-ajlib-other[AspectJ 的其他 Infra 切面] 讨论了
+该库的内容以及如何使用它。xref:core/aop/using-aspectj.adoc#aop-aj-configure[使用 Infra IoC 配置 AspectJ 切面] 讨论了如何
+依赖注入使用 AspectJ 编译器织入的 AspectJ 切面。最后，
+xref:core/aop/using-aspectj.adoc#aop-aj-ltw[TODAY Framework 中的 AspectJ 加载时织入] 介绍了使用 AspectJ 的 Infra 应用程序的加载时织入。
 
 
 
 [[aop-atconfigurable]]
-== Using AspectJ to Dependency Inject Domain Objects with Infra
+== 使用 AspectJ 依赖注入 Infra 领域对象
 
-The Infra container instantiates and configures beans defined in your application
-context. It is also possible to ask a bean factory to configure a pre-existing
-object, given the name of a bean definition that contains the configuration to be applied.
-`infra-aspects.jar` contains an annotation-driven aspect that exploits this
-capability to allow dependency injection of any object. The support is intended to
-be used for objects created outside of the control of any container. Domain objects
-often fall into this category because they are often created programmatically with the
-`new` operator or by an ORM tool as a result of a database query.
+Infra 容器实例化并配置应用程序上下文中定义的 bean。如果在给定包含要应用的配置的
+bean 定义名称的情况下，要求 bean 工厂配置预先存在的对象也是可能的。
+`infra-aspects.jar` 包含一个注解驱动的切面，利用此功能允许对任何对象进行依赖注入。
+该支持旨在用于在任何容器控制之外创建的对象。领域对象通常属于此类，因为它们通常通过
+`new` 操作符以编程方式创建，或者作为数据库查询的结果由 ORM 工具创建。
 
-The `@Configurable` annotation marks a class as being eligible for Infra-driven
-configuration. In the simplest case, you can use purely it as a marker annotation, as the
-following example shows:
+`@Configurable` 注解将类标记为有资格进行 Infra 驱动的配置。在最简单的情况下，
+你可以纯粹将其用作标记注解，如下例所示：
 
 [tabs]
 ======
@@ -50,12 +43,10 @@ public class Account {
 
 ======
 
-When used as a marker interface in this way, Infra configures new instances of the
-annotated type (`Account`, in this case) by using a bean definition (typically
-prototype-scoped) with the same name as the fully-qualified type name
-(`com.xyz.domain.Account`). Since the default name for a bean defined via XML is the
-fully-qualified name of its type, a convenient way to declare the prototype definition
-is to omit the `id` attribute, as the following example shows:
+当以这种方式用作标记接口时，Infra 使用与完全限定类型名称（`com.xyz.domain.Account`）
+相同的名称的 bean 定义（通常是原型作用域）来配置注解类型的新实例（在本例中为 `Account`）。
+由于通过 XML 定义的 bean 的默认名称是其类型的完全限定名称，因此声明原型定义的便捷方法是
+省略 `id` 属性，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -64,8 +55,7 @@ is to omit the `id` attribute, as the following example shows:
 </bean>
 ----
 
-If you want to explicitly specify the name of the prototype bean definition to use, you
-can do so directly in the annotation, as the following example shows:
+如果你想显式指定要使用的原型 bean 定义的名称，可以直接在注解中进行指定，如下例所示：
 
 [tabs]
 ======
@@ -85,43 +75,31 @@ public class Account {
 
 ======
 
-Infra now looks for a bean definition named `account` and uses that as the
-definition to configure new `Account` instances.
+Infra 现在会查找名为 `account` 的 bean 定义，并使用该定义来配置新的 `Account` 实例。
 
-You can also use autowiring to avoid having to specify a dedicated bean definition at
-all. To have Infra apply autowiring, use the `autowire` property of the `@Configurable`
-annotation. You can specify either `@Configurable(autowire=Autowire.BY_TYPE)` or
-`@Configurable(autowire=Autowire.BY_NAME)` for autowiring by type or by name,
-respectively. As an alternative, it is preferable to specify explicit, annotation-driven
-dependency injection for your `@Configurable` beans through `@Autowired` or `@Inject`
-at the field or method level (see xref:core/beans/annotation-config.adoc[Annotation-based Container Configuration] for further details).
+你还可以使用自动装配来避免指定专用的 bean 定义。要让 Infra 应用自动装配，
+请使用 `@Configurable` 注解的 `autowire` 属性。你可以指定 `@Configurable(autowire=Autowire.BY_TYPE)` 或
+`@Configurable(autowire=Autowire.BY_NAME)` 分别按类型或按名称进行自动装配。
+作为替代方案，最好通过字段或方法级别的 `@Autowired` 或 `@Inject` 为你的 `@Configurable` bean
+指定显式的、注解驱动的依赖注入（有关更多详细信息，请参见 xref:core/beans/annotation-config.adoc[基于注解的容器配置]）。
 
-Finally, you can enable Infra dependency checking for the object references in the newly
-created and configured object by using the `dependencyCheck` attribute (for example,
-`@Configurable(autowire=Autowire.BY_NAME,dependencyCheck=true)`). If this attribute is
-set to `true`, Infra validates after configuration that all properties (which
-are not primitives or collections) have been set.
+最后，你可以使用 `dependencyCheck` 属性（例如，
+`@Configurable(autowire=Autowire.BY_NAME,dependencyCheck=true)`）为新创建和配置的对象中的对象引用
+启用 Infra 依赖检查。如果此属性设置为 `true`，Infra 将在配置后验证所有属性（非基本类型或集合）是否已设置。
 
-Note that using the annotation on its own does nothing. It is the
-`AnnotationBeanConfigurerAspect` in `infra-aspects.jar` that acts on the presence of
-the annotation. In essence, the aspect says, "after returning from the initialization of
-a new object of a type annotated with `@Configurable`, configure the newly created object
-using Infra in accordance with the properties of the annotation". In this context,
-"initialization" refers to newly instantiated objects (for example, objects instantiated
-with the `new` operator) as well as to `Serializable` objects that are undergoing
-deserialization (for example, through
-{java-api}/java.base/java/io/Serializable.html[readResolve()]).
+请注意，仅使用注解本身不会起任何作用。`infra-aspects.jar` 中的
+`AnnotationBeanConfigurerAspect` 才是对注解的存在起作用的组件。本质上，该切面表示：
+“在从初始化带有 `@Configurable` 注解的类型的新对象返回后，根据注解的属性使用 Infra 配置新创建的对象”。
+在这种情况下，“初始化”指的是新实例化的对象（例如，使用 `new` 操作符实例化的对象）
+以及正在进行反序列化的 `Serializable` 对象（例如，通过
+{java-api}/java.base/java/io/Serializable.html[readResolve()]）。
 
 [NOTE]
 =====
-One of the key phrases in the above paragraph is "in essence". For most cases, the
-exact semantics of "after returning from the initialization of a new object" are
-fine. In this context, "after initialization" means that the dependencies are
-injected after the object has been constructed. This means that the dependencies
-are not available for use in the constructor bodies of the class. If you want the
-dependencies to be injected before the constructor bodies run and thus be
-available for use in the body of the constructors, you need to define this on the
-`@Configurable` declaration, as follows:
+上面段落中的关键短语之一是“本质上”。对于大多数情况，“在从初始化新对象返回后”的确切语义是
+可以的。在这种情况下，“初始化后”意味着依赖项是在对象构造之后注入的。这意味着依赖项
+在类的构造函数体中不可用。如果你希望在构造函数体运行之前注入依赖项，从而使其
+在构造函数体中可用，则需要在 `@Configurable` 声明中定义这一点，如下所示：
 
 [tabs]
 ======
@@ -134,28 +112,21 @@ Java::
 
 ======
 
-You can find more information about the language semantics of the various pointcut
-types in AspectJ
-{aspectj-docs-progguide}/semantics-joinPoints.html[in this appendix] of the
-{aspectj-docs-progguide}/index.html[AspectJ Programming Guide].
+你可以在 {aspectj-docs-progguide}/index.html[AspectJ 编程指南] 的
+{aspectj-docs-progguide}/semantics-joinPoints.html[此附录] 中找到有关 AspectJ 中各种切点类型的语言语义的更多信息。
 =====
 
-For this to work, the annotated types must be woven with the AspectJ weaver. You can
-either use a build-time Ant or Maven task to do this (see, for example, the
-{aspectj-docs-devguide}/antTasks.html[AspectJ Development
-Environment Guide]) or load-time weaving (see xref:core/aop/using-aspectj.adoc#aop-aj-ltw[Load-time Weaving with AspectJ in the TODAY Framework]). The
-`AnnotationBeanConfigurerAspect` itself needs to be configured by Infra (in order to obtain
-a reference to the bean factory that is to be used to configure new objects). You can define
-the related configuration as follows:
+为此，必须使用 AspectJ 织入器织入带注解的类型。你可以使用构建时的 Ant 或 Maven 任务来执行此操作
+（例如，参见 {aspectj-docs-devguide}/antTasks.html[AspectJ 开发环境指南]）
+或加载时织入（参见 xref:core/aop/using-aspectj.adoc#aop-aj-ltw[TODAY Framework 中的 AspectJ 加载时织入]）。
+`AnnotationBeanConfigurerAspect` 本身需要由 Infra 配置（以便获得用于配置新对象的 bean 工厂的引用）。
+你可以定义相关配置如下：
 
 include-code::./ApplicationConfiguration[tag=snippet,indent=0]
 
-Instances of `@Configurable` objects created before the aspect has been configured
-result in a message being issued to the debug log and no configuration of the
-object taking place. An example might be a bean in the Infra configuration that creates
-domain objects when it is initialized by Infra. In this case, you can use the
-`depends-on` bean attribute to manually specify that the bean depends on the
-configuration aspect. The following example shows how to use the `depends-on` attribute:
+在切面配置之前创建的 `@Configurable` 对象实例会导致向调试日志发出一条消息，并且不进行对象配置。
+一个例子可能是 Infra 配置中的一个 bean，它在由 Infra 初始化时创建领域对象。在这种情况下，你可以使用
+`depends-on` bean 属性手动指定 bean 依赖于配置切面。下例显示了如何使用 `depends-on` 属性：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -168,60 +139,44 @@ configuration aspect. The following example shows how to use the `depends-on` at
 </bean>
 ----
 
-NOTE: Do not activate `@Configurable` processing through the bean configurer aspect unless you
-really mean to rely on its semantics at runtime. In particular, make sure that you do
-not use `@Configurable` on bean classes that are registered as regular Infra beans
-with the container. Doing so results in double initialization, once through the
-container and once through the aspect.
+NOTE: 除非你真的打算在运行时依赖其语义，否则不要通过 bean 配置器切面激活 `@Configurable` 处理。
+特别是，请确保不要在注册为容器的常规 Infra bean 的 bean 类上使用 `@Configurable`。
+这样做会导致双重初始化，一次通过容器，一次通过切面。
 
 
 [[aop-configurable-testing]]
-=== Unit Testing `@Configurable` Objects
+=== 单元测试 `@Configurable` 对象
 
-One of the goals of the `@Configurable` support is to enable independent unit testing
-of domain objects without the difficulties associated with hard-coded lookups.
-If `@Configurable` types have not been woven by AspectJ, the annotation has no affect
-during unit testing. You can set mock or stub property references in the object under
-test and proceed as normal. If `@Configurable` types have been woven by AspectJ,
-you can still unit test outside of the container as normal, but you see a warning
-message each time that you construct a `@Configurable` object indicating that it has
-not been configured by Infra.
+`@Configurable` 支持的目标之一是启用领域对象的独立单元测试，而无需通过硬编码查找相关的困难。
+如果 `@Configurable` 类型尚未被 AspectJ 织入，则注解在单元测试期间没有任何影响。
+你可以在被测对象中设置模拟或存根属性引用，并照常进行。如果 `@Configurable` 类型已被 AspectJ 织入，
+你仍然可以在容器外正常进行单元测试，但每次构造 `@Configurable` 对象时都会看到一条警告消息，
+指示它尚未由 Infra 配置。
 
 
 [[aop-ajlib-other]]
-== Other Infra aspects for AspectJ
+== AspectJ 的其他 Infra 切面
 
-In addition to the `@Configurable` aspect, `infra-aspects.jar` contains an AspectJ
-aspect that you can use to drive Infra transaction management for types and methods
-annotated with the `@Transactional` annotation. This is primarily intended for users who
-want to use the TODAY Framework's transaction support outside of the Infra container.
+除了 `@Configurable` 切面之外，`infra-aspects.jar` 还包含一个 AspectJ 切面，
+你可以使用它来驱动带有 `@Transactional` 注解的类型和方法的 Infra 事务管理。
+这主要适用于希望在 Infra 容器之外使用 TODAY Framework 的事务支持的用户。
 
-The aspect that interprets `@Transactional` annotations is the
-`AnnotationTransactionAspect`. When you use this aspect, you must annotate the
-implementation class (or methods within that class or both), not the interface (if
-any) that the class implements. AspectJ follows Java's rule that annotations on
-interfaces are not inherited.
+解释 `@Transactional` 注解的切面是 `AnnotationTransactionAspect`。使用此切面时，
+必须注解实现类（或该类中的方法，或两者），而不是该类实现的接口（如果有）。
+AspectJ 遵循 Java 的规则，即接口上的注解不会被继承。
 
-A `@Transactional` annotation on a class specifies the default transaction semantics for
-the execution of any public operation in the class.
+类上的 `@Transactional` 注解指定了该类中任何公共操作执行的默认事务语义。
 
-A `@Transactional` annotation on a method within the class overrides the default
-transaction semantics given by the class annotation (if present). Methods of any
-visibility may be annotated, including private methods. Annotating non-public methods
-directly is the only way to get transaction demarcation for the execution of such methods.
+类中方法上的 `@Transactional` 注解会覆盖类注解（如果存在）给出的默认事务语义。
+任何可见性的方法都可以被注解，包括私有方法。直接注解非公共方法是获得此类方法执行的事务划分的唯一方法。
 
-TIP: `infra-aspects` provides a similar aspect that offers the
-exact same features for the standard `jakarta.transaction.Transactional` annotation. Check
-`JtaAnnotationTransactionAspect` for more details.
+TIP: `infra-aspects` 提供了类似的切面，为标准的 `jakarta.transaction.Transactional` 注解
+提供完全相同的功能。有关更多详细信息，请查看 `JtaAnnotationTransactionAspect`。
 
-For AspectJ programmers who want to use the Infra configuration and transaction
-management support but do not want to (or cannot) use annotations, `infra-aspects.jar`
-also contains `abstract` aspects you can extend to provide your own pointcut
-definitions. See the sources for the `AbstractBeanConfigurerAspect` and
-`AbstractTransactionAspect` aspects for more information. As an example, the following
-excerpt shows how you could write an aspect to configure all instances of objects
-defined in the domain model by using prototype bean definitions that match the
-fully qualified class names:
+对于希望使用 Infra 配置和事务管理支持但不希望（或不能）使用注解的 AspectJ 程序员，
+`infra-aspects.jar` 还包含 `abstract` 切面，你可以扩展这些切面以提供自己的切点定义。
+有关更多信息，请参阅 `AbstractBeanConfigurerAspect` 和 `AbstractTransactionAspect` 切面的源代码。
+作为示例，以下摘录显示了如何编写一个切面，使用匹配完全限定类名的原型 bean 定义来配置领域模型中定义的所有对象实例：
 
 [source,java,indent=0,subs="verbatim"]
 ----
@@ -231,7 +186,7 @@ public aspect DomainObjectConfiguration extends AbstractBeanConfigurerAspect {
     setBeanWiringInfoResolver(new ClassNameBeanWiringInfoResolver());
   }
 
-  // the creation of a new bean (any object in the domain model)
+  // 创建新 bean（领域模型中的任何对象）
   protected pointcut beanCreation(Object beanInstance) :
     initialization(new(..)) &&
     CommonPointcuts.inDomainModel() &&
@@ -242,19 +197,15 @@ public aspect DomainObjectConfiguration extends AbstractBeanConfigurerAspect {
 
 
 [[aop-aj-configure]]
-== Configuring AspectJ Aspects by Using Infra IoC
+== 使用 Infra IoC 配置 AspectJ 切面
 
-When you use AspectJ aspects with Infra applications, it is natural to both want and
-expect to be able to configure such aspects with Infra. The AspectJ runtime itself is
-responsible for aspect creation, and the means of configuring the AspectJ-created
-aspects through Infra depends on the AspectJ instantiation model (the `per-xxx` clause)
-used by the aspect.
+当你在 Infra 应用程序中使用 AspectJ 切面时，很自然地希望并期望能够使用 Infra 配置此类切面。
+AspectJ 运行时本身负责切面的创建，而通过 Infra 配置 AspectJ 创建的切面的方式
+取决于切面使用的 AspectJ 实例化模型（`per-xxx` 子句）。
 
-The majority of AspectJ aspects are singleton aspects. Configuration of these
-aspects is easy. You can create a bean definition that references the aspect type as
-normal and include the `factory-method="aspectOf"` bean attribute. This ensures that
-Infra obtains the aspect instance by asking AspectJ for it rather than trying to create
-an instance itself. The following example shows how to use the `factory-method="aspectOf"` attribute:
+大多数 AspectJ 切面是单例切面。这些切面的配置很容易。你可以像往常一样创建引用切面类型的 bean 定义，
+并包含 `factory-method="aspectOf"` bean 属性。这确保了 Infra 通过向 AspectJ 请求切面实例
+而不是尝试自己创建实例来获取切面实例。下例显示了如何使用 `factory-method="aspectOf"` 属性：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -264,23 +215,18 @@ an instance itself. The following example shows how to use the `factory-method="
   <property name="profilingStrategy" ref="jamonProfilingStrategy"/>
 </bean>
 ----
-<1> Note the `factory-method="aspectOf"` attribute
+<1> 注意 `factory-method="aspectOf"` 属性
 
 
-Non-singleton aspects are harder to configure. However, it is possible to do so by
-creating prototype bean definitions and using the `@Configurable` support from
-`infra-aspects.jar` to configure the aspect instances once they have bean created by
-the AspectJ runtime.
+非单例切面更难配置。但是，可以通过创建原型 bean 定义并使用 `infra-aspects.jar` 中的
+`@Configurable` 支持在 AspectJ 运行时创建 bean 后配置切面实例来实现。
 
-If you have some @AspectJ aspects that you want to weave with AspectJ (for example,
-using load-time weaving for domain model types) and other @AspectJ aspects that you want
-to use with Infra AOP, and these aspects are all configured in Infra, you
-need to tell the Infra AOP @AspectJ auto-proxying support which exact subset of the
-@AspectJ aspects defined in the configuration should be used for auto-proxying. You can
-do this by using one or more `<include/>` elements inside the `<aop:aspectj-autoproxy/>`
-declaration. Each `<include/>` element specifies a name pattern, and only beans with
-names matched by at least one of the patterns are used for Infra AOP auto-proxy
-configuration. The following example shows how to use `<include/>` elements:
+如果你有一些希望使用 AspectJ 织入的 @AspectJ 切面（例如，对领域模型类型使用加载时织入），
+以及其他希望与 Infra AOP 一起使用的 @AspectJ 切面，并且这些切面都在 Infra 中配置，
+你需要告诉 Infra AOP @AspectJ 自动代理支持应该使用配置中定义的哪些 @AspectJ 切面子集
+进行自动代理。你可以通过在 `<aop:aspectj-autoproxy/>` 声明中使用一个或多个 `<include/>` 元素来实现。
+每个 `<include/>` 元素指定一个名称模式，只有名称与至少一个模式匹配的 bean 才会用于
+Infra AOP 自动代理配置。下例显示了如何使用 `<include/>` 元素：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -290,62 +236,46 @@ configuration. The following example shows how to use `<include/>` elements:
 	</aop:aspectj-autoproxy>
 ----
 
-NOTE: Do not be misled by the name of the `<aop:aspectj-autoproxy/>` element. Using it
-results in the creation of Infra AOP proxies. The @AspectJ style of aspect
-declaration is being used here, but the AspectJ runtime is not involved.
+NOTE: 不要被 `<aop:aspectj-autoproxy/>` 元素的名称误导。使用它会导致创建 Infra AOP 代理。
+这里使用了 @AspectJ 风格的切面声明，但并未涉及 AspectJ 运行时。
 
 
 
 [[aop-aj-ltw]]
-== Load-time Weaving with AspectJ in the TODAY Framework
+== TODAY Framework 中的 AspectJ 加载时织入
 
-Load-time weaving (LTW) refers to the process of weaving AspectJ aspects into an
-application's class files as they are being loaded into the Java virtual machine (JVM).
-The focus of this section is on configuring and using LTW in the specific context of the
-TODAY Framework. This section is not a general introduction to LTW. For full details on
-the specifics of LTW and configuring LTW with only AspectJ (with Infra not being
-involved at all), see the
-{aspectj-docs-devguide}/ltw.html[LTW section of the AspectJ
-Development Environment Guide].
+加载时织入 (LTW) 指的是在 Java 虚拟机 (JVM) 加载应用程序的类文件时，将 AspectJ 切面织入其中的过程。
+本节的重点是在 TODAY Framework 的特定上下文中配置和使用 LTW。本节不是 LTW 的一般介绍。
+有关 LTW 的详细信息以及仅使用 AspectJ（完全不涉及 Infra）配置 LTW 的信息，请参阅
+{aspectj-docs-devguide}/ltw.html[AspectJ 开发环境指南的 LTW 部分]。
 
-The value that the TODAY Framework brings to AspectJ LTW is in enabling much
-finer-grained control over the weaving process. 'Vanilla' AspectJ LTW is effected by using
-a Java (5+) agent, which is switched on by specifying a VM argument when starting up a
-JVM. It is, thus, a JVM-wide setting, which may be fine in some situations but is often a
-little too coarse. Infra-enabled LTW lets you switch on LTW on a
-per-`ClassLoader` basis, which is more fine-grained and which can make more
-sense in a 'single-JVM-multiple-application' environment (such as is found in a typical
-application server environment).
+TODAY Framework 为 AspectJ LTW 带来的价值在于能够对织入过程进行更细粒度的控制。
+“原生” AspectJ LTW 是通过使用 Java (5+) 代理来实现的，该代理通过在启动 JVM 时指定 VM 参数来开启。
+因此，这是一个 JVM 范围的设置，在某些情况下可能没问题，但通常有点过于粗糙。
+启用 Infra 的 LTW 允许你在每个 `ClassLoader` 的基础上开启 LTW，这更加细粒度，
+并且在“单 JVM 多应用程序”环境（例如典型的应用服务器环境）中更有意义。
 
-Further, xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments[in certain environments], this support enables
-load-time weaving without making any modifications to the application server's launch
-script that is needed to add `-javaagent:path/to/aspectjweaver.jar` or (as we describe
-later in this section) `-javaagent:path/to/infra-instrument.jar`. Developers configure
-the application context to enable load-time weaving instead of relying on administrators
-who typically are in charge of the deployment configuration, such as the launch script.
+此外，xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments[在某些环境中]，此支持启用加载时织入，
+而无需对应用服务器的启动脚本进行任何修改（通常需要添加 `-javaagent:path/to/aspectjweaver.jar`
+或 `-javaagent:path/to/infra-instrument.jar`，我们将在本节后面描述）。
+开发人员配置应用程序上下文以启用加载时织入，而不是依赖通常负责部署配置（如启动脚本）的管理员。
 
-Now that the sales pitch is over, let us first walk through a quick example of AspectJ
-LTW that uses Infra, followed by detailed specifics about elements introduced in the
-example. For a complete example, see the
-{today-github-org}/today-petclinic[Petclinic sample application].
+现在推销结束，让我们先通过一个使用 Infra 的 AspectJ LTW 快速示例，然后详细介绍示例中引入的元素。
+有关完整示例，请参阅 {today-github-org}/today-petclinic[Petclinic 示例应用程序]。
 
 
 [[aop-aj-ltw-first-example]]
-=== A First Example
+=== 第一个示例
 
-Assume that you are an application developer who has been tasked with diagnosing
-the cause of some performance problems in a system. Rather than break out a
-profiling tool, we are going to switch on a simple profiling aspect that lets us
-quickly get some performance metrics. We can then apply a finer-grained profiling
-tool to that specific area immediately afterwards.
+假设你是一名应用程序开发人员，被指派诊断系统中某些性能问题的原因。
+我们将开启一个简单的性能分析切面，以便快速获取一些性能指标，而不是使用分析工具。
+然后，我们可以紧接着对该特定区域应用更细粒度的分析工具。
 
-NOTE: The example presented here uses XML configuration. You can also configure and
-use @AspectJ with xref:core/beans/java.adoc[Java configuration]. Specifically, you can use the
-`@EnableLoadTimeWeaving` annotation as an alternative to `<context:load-time-weaver/>`
-(see xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[below] for details).
+NOTE: 这里展示的示例使用 XML 配置。你也可以使用 xref:core/beans/java.adoc[Java 配置] 来配置和使用 @AspectJ。
+具体来说，你可以使用 `@EnableLoadTimeWeaving` 注解作为 `<context:load-time-weaver/>` 的替代方案
+（详情请参见 xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[下文]）。
 
-The following example shows the profiling aspect, which is not fancy.
-It is a time-based profiler that uses the @AspectJ-style of aspect declaration:
+下例显示了性能分析切面，它并不花哨。它是一个基于时间的分析器，使用了 @AspectJ 风格的切面声明：
 
 [tabs]
 ======
@@ -384,10 +314,9 @@ public class ProfilingAspect {
 
 ======
 
-We also need to create an `META-INF/aop.xml` file, to inform the AspectJ weaver that
-we want to weave our `ProfilingAspect` into our classes. This file convention, namely
-the presence of a file (or files) on the Java classpath called `META-INF/aop.xml` is
-standard AspectJ. The following example shows the `aop.xml` file:
+我们还需要创建一个 `META-INF/aop.xml` 文件，以通知 AspectJ 织入器我们希望将 `ProfilingAspect`
+织入到我们的类中。这种文件约定，即在 Java 类路径上存在名为 `META-INF/aop.xml` 的文件（或多个文件），
+是标准的 AspectJ。下例显示了 `aop.xml` 文件：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -395,30 +324,24 @@ standard AspectJ. The following example shows the `aop.xml` file:
 <aspectj>
 
   <weaver>
-    <!-- only weave classes in our application-specific packages and sub-packages -->
+    <!-- 仅织入我们特定于应用程序的包和子包中的类 -->
     <include within="com.xyz..*"/>
   </weaver>
 
   <aspects>
-    <!-- weave in just this aspect -->
+    <!-- 仅织入此切面 -->
     <aspect name="com.xyz.ProfilingAspect"/>
   </aspects>
 
 </aspectj>
 ----
 
-NOTE: It is recommended to only weave specific classes (typically those in the
-application packages, as shown in the `aop.xml` example above) in order
-to avoid side effects such as AspectJ dump files and warnings.
-This is also a best practice from an efficiency perspective.
+NOTE: 建议仅织入特定的类（通常是应用程序包中的类，如上面的 `aop.xml` 示例所示），
+以避免副作用，例如 AspectJ 转储文件和警告。从效率的角度来看，这也是最佳实践。
 
-Now we can move on to the Infra-specific portion of the configuration. We need
-to configure a `LoadTimeWeaver` (explained later). This load-time weaver is the
-essential component responsible for weaving the aspect configuration in one or
-more `META-INF/aop.xml` files into the classes in your application. The good
-thing is that it does not require a lot of configuration (there are some more
-options that you can specify, but these are detailed later), as can be seen in
-the following example:
+现在我们可以继续进行 Infra 特定的配置部分。我们需要配置一个 `LoadTimeWeaver`（稍后解释）。
+这个加载时织入器是负责将一个或多个 `META-INF/aop.xml` 文件中的切面配置织入到应用程序类中的核心组件。
+好消息是它不需要太多配置（你可以指定更多选项，但这些将在后面详细介绍），如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -432,18 +355,17 @@ the following example:
     http://www.springframework.org/schema/context
     https://www.springframework.org/schema/context/spring-context.xsd">
 
-  <!-- a service object; we will be profiling its methods -->
+  <!-- 服务对象；我们将分析其方法 -->
   <bean id="entitlementCalculationService"
       class="com.xyz.StubEntitlementCalculationService"/>
 
-  <!-- this switches on the load-time weaving -->
+  <!-- 这将开启加载时织入 -->
   <context:load-time-weaver/>
 </beans>
 ----
 
-Now that all the required artifacts (the aspect, the `META-INF/aop.xml`
-file, and the Infra configuration) are in place, we can create the following
-driver class with a `main(..)` method to demonstrate the LTW in action:
+现在所有必需的工件（切面、`META-INF/aop.xml` 文件和 Infra 配置）都已就位，
+我们可以创建以下带有 `main(..)` 方法的驱动程序类来演示 LTW 的实际效果：
 
 [tabs]
 ======
@@ -463,35 +385,31 @@ public class Main {
     EntitlementCalculationService service =
         ctx.getBean(EntitlementCalculationService.class);
 
-    // the profiling aspect is 'woven' around this method execution
+    // 性能分析切面被“织入”到此方法执行周围
     service.calculateEntitlement();
   }
 }
 ----
 ======
 
-We have one last thing to do. The introduction to this section did say that one could
-switch on LTW selectively on a per-`ClassLoader` basis with Infra, and this is true.
-However, for this example, we use a Java agent (supplied with Infra) to switch on LTW.
-We use the following command to run the `Main` class shown earlier:
+我们还有最后一件事要做。本节的介绍确实说过可以使用 Infra 在每个 `ClassLoader` 的基础上选择性地开启 LTW，
+这是真的。但是，对于此示例，我们使用 Java 代理（随 Infra 提供）来开启 LTW。
+我们使用以下命令运行前面显示的 `Main` 类：
 
 [literal,subs="verbatim"]
 ----
 java -javaagent:C:/projects/xyz/lib/infra-instrument.jar com.xyz.Main
 ----
 
-The `-javaagent` is a flag for specifying and enabling
-{java-api}/java.instrument/java/lang/instrument/package-summary.html[agents
-to instrument programs that run on the JVM]. The TODAY Framework ships with such an
-agent, the `InstrumentationSavingAgent`, which is packaged in the
-`infra-instrument.jar` that was supplied as the value of the `-javaagent` argument in
-the preceding example.
+`-javaagent` 是一个标志，用于指定和启用
+{java-api}/java.instrument/java/lang/instrument/package-summary.html[用于检测在 JVM 上运行的程序的代理]。
+TODAY Framework 附带了这样一个代理 `InstrumentationSavingAgent`，它打包在 `infra-instrument.jar` 中，
+在前面的示例中作为 `-javaagent` 参数的值提供。
 
-The output from the execution of the `Main` program looks something like the next example.
-(I have introduced a `Thread.sleep(..)` statement into the `calculateEntitlement()`
-implementation so that the profiler actually captures something other than 0
-milliseconds (the `01234` milliseconds is not an overhead introduced by the AOP).
-The following listing shows the output we got when we ran our profiler:
+`Main` 程序的执行输出类似于下一个示例。
+（我在 `calculateEntitlement()` 实现中引入了 `Thread.sleep(..)` 语句，以便分析器实际上捕获除 0 毫秒以外的内容
+（`01234` 毫秒不是 AOP 引入的开销）。
+以下清单显示了我们运行分析器时得到的输出：
 
 [literal,subs="verbatim"]
 ----
@@ -504,9 +422,8 @@ ms     %     Task name
 01234  100%  calculateEntitlement
 ----
 
-Since this LTW is effected by using full-blown AspectJ, we are not limited only to advising
-Infra beans. The following slight variation on the `Main` program yields the same
-result:
+由于此 LTW 是通过使用完整的 AspectJ 实现的，因此我们不仅限于通知 Infra bean。
+以下对 `Main` 程序的轻微变体产生了相同的结果：
 
 [tabs]
 ======
@@ -526,7 +443,7 @@ public class Main {
     EntitlementCalculationService service =
         new StubEntitlementCalculationService();
 
-    // the profiling aspect will be 'woven' around this method execution
+    // 性能分析切面将被“织入”到此方法执行周围
     service.calculateEntitlement();
   }
 }
@@ -534,35 +451,29 @@ public class Main {
 
 ======
 
-Notice how, in the preceding program, we bootstrap the Infra container and
-then create a new instance of the `StubEntitlementCalculationService` totally outside
-the context of Infra. The profiling advice still gets woven in.
+请注意，在前面的程序中，我们引导 Infra 容器，然后完全在 Infra 上下文之外创建一个
+`StubEntitlementCalculationService` 的新实例。性能分析通知仍然被织入。
 
-Admittedly, the example is simplistic. However, the basics of the LTW support in Infra
-have all been introduced in the earlier example, and the rest of this section explains
-the "why" behind each bit of configuration and usage in detail.
+诚然，这个例子很简单。但是，前面例子中已经介绍了 Infra 中 LTW 支持的基础知识，
+本节的其余部分将详细解释每个配置和用法背后的“原因”。
 
-NOTE: The `ProfilingAspect` used in this example may be basic, but it is quite useful. It is a
-nice example of a development-time aspect that developers can use during development
-and then easily exclude from builds of the application being deployed
-into UAT or production.
+NOTE: 此示例中使用的 `ProfilingAspect` 可能很基础，但它非常有用。这是一个很好的开发时切面的例子，
+开发人员可以在开发期间使用，然后轻松地从部署到 UAT 或生产环境的应用程序构建中排除。
 
 
 [[aop-aj-ltw-the-aspects]]
-=== Aspects
+=== 切面
 
-The aspects that you use in LTW have to be AspectJ aspects. You can write them in
-either the AspectJ language itself, or you can write your aspects in the @AspectJ-style.
-Your aspects are then both valid AspectJ and Infra AOP aspects.
-Furthermore, the compiled aspect classes need to be available on the classpath.
+你在 LTW 中使用的切面必须是 AspectJ 切面。你可以使用 AspectJ 语言本身编写它们，
+也可以使用 @AspectJ 风格编写切面。你的切面既是有效的 AspectJ 切面，也是有效的 Infra AOP 切面。
+此外，编译后的切面类需要在类路径上可用。
 
 
 [[aop-aj-ltw-aop_dot_xml]]
 === `META-INF/aop.xml`
 
-The AspectJ LTW infrastructure is configured by using one or more `META-INF/aop.xml`
-files that are on the Java classpath (either directly or, more typically, in jar files).
-For example:
+AspectJ LTW 基础设施是通过使用 Java 类路径上的一个或多个 `META-INF/aop.xml` 文件配置的
+（直接在类路径上，或者更典型的是在 jar 文件中）。例如：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -570,59 +481,49 @@ For example:
 <aspectj>
 
   <weaver>
-    <!-- only weave classes in our application-specific packages and sub-packages -->
+    <!-- 仅织入我们特定于应用程序的包和子包中的类 -->
     <include within="com.xyz..*"/>
   </weaver>
 
 </aspectj>
 ----
 
-NOTE: It is recommended to only weave specific classes (typically those in the
-application packages, as shown in the `aop.xml` example above) in order
-to avoid side effects such as AspectJ dump files and warnings.
-This is also a best practice from an efficiency perspective.
+NOTE: 建议仅织入特定的类（通常是应用程序包中的类，如上面的 `aop.xml` 示例所示），
+以避免副作用，例如 AspectJ 转储文件和警告。从效率的角度来看，这也是最佳实践。
 
-The structure and contents of this file is detailed in the LTW part of the
-{aspectj-docs-devguide}/ltw-configuration.html[AspectJ reference
-documentation]. Because the `aop.xml` file is 100% AspectJ, we do not describe it further here.
+{aspectj-docs-devguide}/ltw-configuration.html[AspectJ 参考文档] 的 LTW 部分详细介绍了
+此文件的结构和内容。因为 `aop.xml` 文件是 100% AspectJ，所以我们这里不再进一步描述它。
 
 
 [[aop-aj-ltw-libraries]]
-=== Required libraries (JARS)
+=== 必需的库 (JARS)
 
-At minimum, you need the following libraries to use the TODAY Framework's support
-for AspectJ LTW:
+至少，你需要以下库来使用 TODAY Framework 对 AspectJ LTW 的支持：
 
 * `infra-aop.jar`
 * `aspectjweaver.jar`
 
-If you use the xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments-generic[Infra-provided agent to enable instrumentation]
-, you also need:
+如果你使用 xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments-generic[Infra 提供的代理来启用检测]，还需要：
 
 * `infra-instrument.jar`
 
 
 [[aop-aj-ltw-spring]]
-=== Infra Configuration
+=== Infra 配置
 
-The key component in Infra's LTW support is the `LoadTimeWeaver` interface (in the
-`infra.instrument.classloading` package), and the numerous implementations
-of it that ship with the Infra distribution. A `LoadTimeWeaver` is responsible for
-adding one or more `java.lang.instrument.ClassFileTransformers` to a `ClassLoader` at
-runtime, which opens the door to all manner of interesting applications, one of which
-happens to be the LTW of aspects.
+Infra LTW 支持的关键组件是 `LoadTimeWeaver` 接口（在 `infra.instrument.classloading` 包中），
+以及 Infra 发行版中附带的众多实现。`LoadTimeWeaver` 负责在运行时向 `ClassLoader` 添加一个或多个
+`java.lang.instrument.ClassFileTransformers`，这为各种有趣的应用程序打开了大门，
+其中之一恰好是切面的 LTW。
 
-TIP: If you are unfamiliar with the idea of runtime class file transformation, see the
-javadoc API documentation for the `java.lang.instrument` package before continuing.
-While that documentation is not comprehensive, at least you can see the key interfaces
-and classes (for reference as you read through this section).
+TIP: 如果你不熟悉运行时类文件转换的概念，请在继续之前查看 `java.lang.instrument` 包的 javadoc API 文档。
+虽然该文档并不详尽，但至少你可以看到关键接口和类（以便在阅读本节时作为参考）。
 
-Configuring a `LoadTimeWeaver` for a particular `ApplicationContext` can be as easy as
-adding one line. (Note that you almost certainly need to use an
-`ApplicationContext` as your Infra container -- typically, a `BeanFactory` is not
-enough because the LTW support uses `BeanFactoryPostProcessors`.)
+为特定的 `ApplicationContext` 配置 `LoadTimeWeaver` 可能就像添加一行代码一样简单。
+（请注意，你几乎肯定需要使用 `ApplicationContext` 作为 Infra 容器——通常，`BeanFactory` 是不够的，
+因为 LTW 支持使用 `BeanFactoryPostProcessors`。）
 
-To enable the TODAY Framework's LTW support, you need to configure a `LoadTimeWeaver` as follows:
+要启用 TODAY Framework 的 LTW 支持，你需要配置一个 `LoadTimeWeaver`，如下所示：
 
 [source,java]
 ----
@@ -632,38 +533,33 @@ public class ApplicationConfiguration {
 }
 ----
 
-The preceding configuration automatically defines and registers a number of LTW-specific
-infrastructure beans, such as a `LoadTimeWeaver` and an `AspectJWeavingEnabler`, for you.
-The default `LoadTimeWeaver` is the `DefaultContextLoadTimeWeaver` class, which attempts
-to decorate an automatically detected `LoadTimeWeaver`. The exact type of `LoadTimeWeaver`
-that is "automatically detected" is dependent upon your runtime environment.
-The following table summarizes various `LoadTimeWeaver` implementations:
+前面的配置会自动为你定义和注册许多特定于 LTW 的基础设施 bean，例如 `LoadTimeWeaver` 和 `AspectJWeavingEnabler`。
+默认的 `LoadTimeWeaver` 是 `DefaultContextLoadTimeWeaver` 类，它尝试装饰一个自动检测到的 `LoadTimeWeaver`。
+“自动检测”到的 `LoadTimeWeaver` 的确切类型取决于你的运行时环境。
+下表总结了各种 `LoadTimeWeaver` 实现：
 
 [[aop-aj-ltw-infra-env-impls]]
 .DefaultContextLoadTimeWeaver LoadTimeWeavers
 |===
-| Runtime Environment| `LoadTimeWeaver` implementation
+| 运行时环境| `LoadTimeWeaver` 实现
 
-| Running in https://tomcat.apache.org/[Apache Tomcat]
+| 在 https://tomcat.apache.org/[Apache Tomcat] 中运行
 | `TomcatLoadTimeWeaver`
 
-| JVM started with Infra `InstrumentationSavingAgent`
+| 使用 Infra `InstrumentationSavingAgent` 启动的 JVM
   (`java -javaagent:path/to/infra-instrument.jar`)
 | `InstrumentationLoadTimeWeaver`
 
-| Fallback, expecting the underlying ClassLoader to follow common conventions
-  (namely `addTransformer` and optionally a `getThrowawayClassLoader` method)
+| 回退，期望底层 ClassLoader 遵循通用约定
+  （即 `addTransformer` 和可选的 `getThrowawayClassLoader` 方法）
 | `ReflectiveLoadTimeWeaver`
 |===
 
-Note that the table lists only the `LoadTimeWeavers` that are autodetected when you
-use the `DefaultContextLoadTimeWeaver`. You can specify exactly which `LoadTimeWeaver`
-implementation to use.
+请注意，该表仅列出了使用 `DefaultContextLoadTimeWeaver` 时自动检测到的 `LoadTimeWeavers`。
+你可以确切指定要使用的 `LoadTimeWeaver` 实现。
 
-To configure a specific `LoadTimeWeaver`, implement the
-`LoadTimeWeavingConfigurer` interface and override the `getLoadTimeWeaver()` method
-(or use the XML equivalent).
-The following example specifies a `ReflectiveLoadTimeWeaver`:
+要配置特定的 `LoadTimeWeaver`，请实现 `LoadTimeWeavingConfigurer` 接口并覆盖 `getLoadTimeWeaver()` 方法
+（或使用 XML 等效项）。下例指定了一个 `ReflectiveLoadTimeWeaver`：
 
 [source,java]
 ----
@@ -678,61 +574,51 @@ public class CustomWeaverConfiguration implements LoadTimeWeavingConfigurer {
 }
 ----
 
-The `LoadTimeWeaver` that is defined and registered by the configuration can be later
-retrieved from the Infra container by using the well known name, `loadTimeWeaver`.
-Remember that the `LoadTimeWeaver` exists only as a mechanism for Infra LTW
-infrastructure to add one or more `ClassFileTransformers`. The actual
-`ClassFileTransformer` that does the LTW is the `ClassPreProcessorAgentAdapter` (from
-the `org.aspectj.weaver.loadtime` package) class. See the class-level javadoc of the
-`ClassPreProcessorAgentAdapter` class for further details, because the specifics of how
-the weaving is actually effected is beyond the scope of this document.
+配置定义并注册的 `LoadTimeWeaver` 稍后可以通过知名名称 `loadTimeWeaver` 从 Infra 容器中检索。
+请记住，`LoadTimeWeaver` 仅作为 Infra LTW 基础设施添加一个或多个 `ClassFileTransformers` 的机制存在。
+执行 LTW 的实际 `ClassFileTransformer` 是 `ClassPreProcessorAgentAdapter`（来自 `org.aspectj.weaver.loadtime` 包）类。
+有关更多详细信息，请参阅 `ClassPreProcessorAgentAdapter` 类的类级别 javadoc，
+因为实际如何实现织入的细节超出了本文档的范围。
 
-There is one final attribute of the configuration left to discuss: the `aspectjWeaving`
-attribute (or `aspectj-weaving` if you use XML). This attribute controls whether LTW
-is enabled or not. It accepts one of three possible values, with the default value being
-`autodetect` if the attribute is not present. The following table summarizes the three
-possible values:
+还有一个配置属性需要讨论：`aspectjWeaving` 属性（如果使用 XML，则为 `aspectj-weaving`）。
+此属性控制是否启用 LTW。它接受三个可能的值之一，如果不存在该属性，则默认值为 `autodetect`。
+下表总结了这三个可能的值：
 
 [[aop-aj-ltw-ltw-tag-attrs]]
-.AspectJ weaving attribute values
+.AspectJ weaving 属性值
 |===
-| Annotation Value| XML Value| Explanation
+| 注解值| XML 值| 解释
 
 | `ENABLED`
 | `on`
-| AspectJ weaving is on, and aspects are woven at load-time as appropriate.
+| AspectJ 织入开启，切面在加载时适当地被织入。
 
 | `DISABLED`
 | `off`
-| LTW is off. No aspect is woven at load-time.
+| LTW 关闭。加载时不会织入任何切面。
 
 | `AUTODETECT`
 | `autodetect`
-| If the Infra LTW infrastructure can find at least one `META-INF/aop.xml` file,
-  then AspectJ weaving is on. Otherwise, it is off. This is the default value.
+| 如果 Infra LTW 基础设施可以找到至少一个 `META-INF/aop.xml` 文件，
+  则 AspectJ 织入开启。否则，它关闭。这是默认值。
 |===
 
 
 [[aop-aj-ltw-environments]]
-=== Environment-specific Configuration
+=== 特定于环境的配置
 
-This last section contains any additional settings and configuration that you need
-when you use Infra LTW support in environments such as application servers and web
-containers.
+最后一部分包含在应用服务器和 Web 容器等环境中使用 Infra LTW 支持时所需的任何其他设置和配置。
 
 [[aop-aj-ltw-environments-tomcat-jboss-etc]]
 ==== Tomcat, JBoss, WildFly
 
-Tomcat and JBoss/WildFly provide a general app `ClassLoader` that is capable of local
-instrumentation. Infra native LTW may leverage those ClassLoader implementations
-to provide AspectJ weaving.
-You can simply enable load-time weaving, as xref:core/aop/using-aspectj.adoc[described earlier].
-Specifically, you do not need to modify the JVM launch script to add
-`-javaagent:path/to/infra-instrument.jar`.
+Tomcat 和 JBoss/WildFly 提供了一个通用的应用程序 `ClassLoader`，能够进行本地检测。
+Infra 原生 LTW 可以利用这些 ClassLoader 实现来提供 AspectJ 织入。
+你可以简单地启用加载时织入，如 xref:core/aop/using-aspectj.adoc[前面所述]。
+具体来说，你不需要修改 JVM 启动脚本来添加 `-javaagent:path/to/infra-instrument.jar`。
 
-Note that on JBoss, you may need to disable the app server scanning to prevent it from
-loading the classes before the application actually starts. A quick workaround is to add
-to your artifact a file named `WEB-INF/jboss-scanning.xml` with the following content:
+注意，在 JBoss 上，你可能需要禁用应用服务器扫描，以防止它在应用程序实际启动之前加载类。
+一个快速的解决方法是在你的工件中添加一个名为 `WEB-INF/jboss-scanning.xml` 的文件，内容如下：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -740,16 +626,14 @@ to your artifact a file named `WEB-INF/jboss-scanning.xml` with the following co
 ----
 
 [[aop-aj-ltw-environments-generic]]
-==== Generic Java Applications
+==== 通用 Java 应用程序
 
-When class instrumentation is required in environments that are not supported by
-specific `LoadTimeWeaver` implementations, a JVM agent is the general solution.
-For such cases, Infra provides `InstrumentationLoadTimeWeaver` which requires a
-Infra-specific (but very general) JVM agent, `infra-instrument.jar`, autodetected
-by common `@EnableLoadTimeWeaving` and `<context:load-time-weaver/>` setups.
+当在特定 `LoadTimeWeaver` 实现不支持的环境中需要类检测时，JVM 代理是通用的解决方案。
+对于这种情况，Infra 提供了 `InstrumentationLoadTimeWeaver`，它需要一个
+Infra 特定的（但非常通用的）JVM 代理 `infra-instrument.jar`，
+该代理由常见的 `@EnableLoadTimeWeaving` 和 `<context:load-time-weaver/>` 设置自动检测。
 
-To use it, you must start the virtual machine with the Infra agent by supplying
-the following JVM options:
+要使用它，必须通过提供以下 JVM 选项，使用 Infra 代理启动虚拟机：
 
 [literal]
 [subs="verbatim"]
@@ -757,11 +641,6 @@ the following JVM options:
 -javaagent:/path/to/infra-instrument.jar
 ----
 
-Note that this requires modification of the JVM launch script, which may prevent you
-from using this in application server environments (depending on your server and your
-operation policies). That said, for one-app-per-JVM deployments such as standalone
-Infra applications, you typically control the entire JVM setup in any case.
-
-
-
-
+请注意，这需要修改 JVM 启动脚本，这可能会阻止你在应用服务器环境中使用它
+（取决于你的服务器和操作策略）。话虽如此，对于每个 JVM 一个应用程序的部署，例如独立的
+Infra 应用程序，通常你可以控制整个 JVM 设置。

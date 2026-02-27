@@ -1,38 +1,34 @@
 [[aop-proxying]]
-= Proxying Mechanisms
+= 代理机制
 
-Infra AOP uses either JDK dynamic proxies or CGLIB to create the proxy for a given
-target object. JDK dynamic proxies are built into the JDK, whereas CGLIB is a common
-open-source class definition library (repackaged into `infra-core`).
+Infra AOP 使用 JDK 动态代理或 CGLIB 来为给定的目标对象创建代理。
+JDK 动态代理内置于 JDK 中，而 CGLIB 是一个通用的开源类定义库
+（已重新打包到 `infra-core` 中）。
 
-If the target object to be proxied implements at least one interface, a JDK dynamic
-proxy is used. All of the interfaces implemented by the target type are proxied.
-If the target object does not implement any interfaces, a CGLIB proxy is created.
+如果被代理的目标对象实现了至少一个接口，则使用 JDK 动态代理。
+目标类型实现的所有接口都会被代理。如果目标对象没有实现任何接口，
+则会创建 CGLIB 代理。
 
-If you want to force the use of CGLIB proxying (for example, to proxy every method
-defined for the target object, not only those implemented by its interfaces),
-you can do so. However, you should consider the following issues:
+如果你想强制使用 CGLIB 代理（例如，为了代理目标对象定义的所有方法，
+而不仅仅是接口实现的方法），也是可以的。但是，你需要考虑以下问题：
 
-* With CGLIB, `final` methods cannot be advised, as they cannot be overridden in
-  runtime-generated subclasses.
-* As of Infra 4.0, the constructor of your proxied object is NOT called twice anymore,
-  since the CGLIB proxy instance is created through Objenesis. Only if your JVM does
-  not allow for constructor bypassing, you might see double invocations and
-  corresponding debug log entries from Infra AOP support.
+* 使用 CGLIB 时，`final` 方法无法被通知，因为它们不能在运行时生成的子类中被覆盖。
+* 从 Infra 4.0 开始，被代理对象的构造函数不再被调用两次，因为 CGLIB 代理实例是通过
+  Objenesis 创建的。只有当你的 JVM 不允许绕过构造函数时，才可能看到双重调用
+  以及来自 Infra AOP 支持的相应调试日志条目。
 
-To force the use of CGLIB proxies, set the value of the `proxy-target-class` attribute
-of the `<aop:config>` element to true, as follows:
+要强制使用 CGLIB 代理，请将 `<aop:config>` 元素的 `proxy-target-class` 属性值
+设置为 true，如下所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
 <aop:config proxy-target-class="true">
-  <!-- other beans defined here... -->
+  <!-- 此处定义其他 bean... -->
 </aop:config>
 ----
 
-To force CGLIB proxying when you use the @AspectJ auto-proxy support, set the
-`proxy-target-class` attribute of the `<aop:aspectj-autoproxy>` element to `true`,
-as follows:
+要在使用 @AspectJ 自动代理支持时强制使用 CGLIB 代理，请将 `<aop:aspectj-autoproxy>`
+元素的 `proxy-target-class` 属性设置为 `true`，如下所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -41,29 +37,26 @@ as follows:
 
 [NOTE]
 ====
-Multiple `<aop:config/>` sections are collapsed into a single unified auto-proxy creator
-at runtime, which applies the _strongest_ proxy settings that any of the
-`<aop:config/>` sections (typically from different XML bean definition files) specified.
-This also applies to the `<tx:annotation-driven/>` and `<aop:aspectj-autoproxy/>`
-elements.
+多个 `<aop:config/>` 部分在运行时会被合并为单个统一的自动代理创建器，
+它应用任何 `<aop:config/>` 部分（通常来自不同的 XML bean 定义文件）
+中指定的_最强_代理设置。这也适用于 `<tx:annotation-driven/>` 和
+`<aop:aspectj-autoproxy/>` 元素。
 
-To be clear, using `proxy-target-class="true"` on `<tx:annotation-driven/>`,
-`<aop:aspectj-autoproxy/>`, or `<aop:config/>` elements forces the use of CGLIB
-proxies _for all three of them_.
+明确地说，在 `<tx:annotation-driven/>`、`<aop:aspectj-autoproxy/>`
+或 `<aop:config/>` 元素上使用 `proxy-target-class="true"` 会强制
+_所有这三个_都使用 CGLIB 代理。
 ====
 
 
 
 [[aop-understanding-aop-proxies]]
-== Understanding AOP Proxies
+== 理解 AOP 代理
 
-Infra AOP is proxy-based. It is vitally important that you grasp the semantics of
-what that last statement actually means before you write your own aspects or use any of
-the Infra AOP-based aspects supplied with the TODAY Framework.
+Infra AOP 是基于代理的。在编写你自己的切面或使用 TODAY Framework 提供的任何
+基于 Infra AOP 的切面之前，掌握这句话的实际语义至关重要。
 
-Consider first the scenario where you have a plain-vanilla, un-proxied,
-nothing-special-about-it, straight object reference, as the following
-code snippet shows:
+首先考虑这样一种场景：你有一个普通的、未被代理的、毫无特殊之处的直接对象引用，
+如下面的代码片段所示：
 
 [tabs]
 ======
@@ -74,20 +67,19 @@ Java::
 public class SimplePojo implements Pojo {
 
   public void foo() {
-    // this next method invocation is a direct call on the 'this' reference
+    // 下一个方法调用是直接在 'this' 引用上调用的
     this.bar();
   }
 
   public void bar() {
-    // some logic...
+    // 一些逻辑...
   }
 }
 ----
 
 ======
 
-If you invoke a method on an object reference, the method is invoked directly on
-that object reference, as the following image and listing show:
+如果你在对象引用上调用方法，该方法将直接在该对象引用上调用，如下图和清单所示：
 
 image::aop-proxy-plain-pojo-call.png[]
 
@@ -101,7 +93,7 @@ public class Main {
 
   public static void main(String[] args) {
     Pojo pojo = new SimplePojo();
-    // this is a direct method call on the 'pojo' reference
+    // 这是在 'pojo' 引用上的直接方法调用
     pojo.foo();
   }
 }
@@ -109,8 +101,7 @@ public class Main {
 
 ======
 
-Things change slightly when the reference that client code has is a proxy. Consider the
-following diagram and code snippet:
+当客户端代码持有的引用是代理时，情况会略有变化。考虑下面的图和代码片段：
 
 image::aop-proxy-call.png[]
 
@@ -128,7 +119,7 @@ public class Main {
     factory.addAdvice(new RetryAdvice());
 
     Pojo pojo = (Pojo) factory.getProxy();
-    // this is a method call on the proxy!
+    // 这是在代理上的方法调用！
     pojo.foo();
   }
 }
@@ -136,22 +127,16 @@ public class Main {
 
 ======
 
-The key thing to understand here is that the client code inside the `main(..)` method
-of the `Main` class has a reference to the proxy. This means that method calls on that
-object reference are calls on the proxy. As a result, the proxy can delegate to all of
-the interceptors (advice) that are relevant to that particular method call. However,
-once the call has finally reached the target object (the `SimplePojo` reference in
-this case), any method calls that it may make on itself, such as `this.bar()` or
-`this.foo()`, are going to be invoked against the `this` reference, and not the proxy.
-This has important implications. It means that self-invocation is not going to result
-in the advice associated with a method invocation getting a chance to run.
+这里需要理解的关键是，`Main` 类的 `main(..)` 方法中的客户端代码持有的是对代理的引用。
+这意味着该对象引用上的方法调用是对代理的调用。因此，代理可以委托给与该特定方法调用相关的所有拦截器（通知）。
+然而，一旦调用最终到达目标对象（在本例中为 `SimplePojo` 引用），它对自己进行的任何方法调用，
+例如 `this.bar()` 或 `this.foo()`，都将针对 `this` 引用调用，而不是针对代理。
+这具有重要的含义。这意味着自调用不会导致与方法调用关联的通知有机会运行。
 
-Okay, so what is to be done about this? The best approach (the term "best" is used
-loosely here) is to refactor your code such that the self-invocation does not happen.
-This does entail some work on your part, but it is the best, least-invasive approach.
-The next approach is absolutely horrendous, and we hesitate to point it out, precisely
-because it is so horrendous. You can (painful as it is to us) totally tie the logic
-within your class to Infra AOP, as the following example shows:
+那么，该怎么办呢？最好的方法（这里“最好”一词用得比较宽泛）是重构你的代码，使自调用不再发生。
+这确实需要你做一些工作，但这是最好、侵入性最小的方法。下一种方法绝对是糟糕透顶的，
+我们犹豫是否要指出它，正是因为它太糟糕了。你可以（尽管这让我们很痛苦）将类中的逻辑完全绑定到
+Infra AOP，如下例所示：
 
 [tabs]
 ======
@@ -162,21 +147,19 @@ Java::
 public class SimplePojo implements Pojo {
 
   public void foo() {
-    // this works, but... gah!
+    // 这行得通，但是... 哎呀！
     ((Pojo) AopContext.currentProxy()).bar();
   }
 
   public void bar() {
-    // some logic...
+    // 一些逻辑...
   }
 }
 ----
 ======
 
-This totally couples your code to Infra AOP, and it makes the class itself aware of
-the fact that it is being used in an AOP context, which flies in the face of AOP. It
-also requires some additional configuration when the proxy is being created, as the
-following example shows:
+这完全将你的代码与 Infra AOP 耦合在一起，并且使类本身意识到它正在 AOP 上下文中使用，
+这与 AOP 的初衷背道而驰。在创建代理时，它还需要一些额外的配置，如下例所示：
 
 [tabs]
 ======
@@ -193,7 +176,7 @@ public class Main {
     factory.setExposeProxy(true);
 
     Pojo pojo = (Pojo) factory.getProxy();
-    // this is a method call on the proxy!
+    // 这是在代理上的方法调用！
     pojo.foo();
   }
 }
@@ -201,9 +184,4 @@ public class Main {
 
 ======
 
-Finally, it must be noted that AspectJ does not have this self-invocation issue because
-it is not a proxy-based AOP framework.
-
-
-
-
+最后，必须指出的是，AspectJ 没有这个自调用问题，因为它不是基于代理的 AOP 框架。

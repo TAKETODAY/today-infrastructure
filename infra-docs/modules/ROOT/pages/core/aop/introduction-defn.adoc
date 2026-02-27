@@ -1,79 +1,51 @@
 [[aop-introduction-defn]]
-= AOP Concepts
+= AOP 概念
 
-Let us begin by defining some central AOP concepts and terminology. These terms are not
-Infra-specific. Unfortunately, AOP terminology is not particularly intuitive.
-However, it would be even more confusing if Infra used its own terminology.
+让我们首先定义一些核心 AOP 概念和术语。这些术语不是 Infra 特有的。
+不幸的是，AOP 术语并不是特别直观。
+但是，如果 Infra 使用自己的术语，那将更加令人困惑。
 
-* Aspect: A modularization of a concern that cuts across multiple classes.
-  Transaction management is a good example of a crosscutting concern in enterprise Java
-  applications. In Infra AOP, aspects are implemented by using regular classes
-  (the xref:core/aop/schema.adoc[schema-based approach]) or regular classes annotated with the
-  `@Aspect` annotation (the xref:core/aop/ataspectj.adoc[@AspectJ style]).
-* Join point: A point during the execution of a program, such as the execution of a
-  method or the handling of an exception. In Infra AOP, a join point always
-  represents a method execution.
-* Advice: Action taken by an aspect at a particular join point. Different types of
-  advice include "around", "before", and "after" advice. (Advice types are discussed
-  later.) Many AOP frameworks, including Infra, model an advice as an interceptor and
-  maintain a chain of interceptors around the join point.
-* Pointcut: A predicate that matches join points. Advice is associated with a
-  pointcut expression and runs at any join point matched by the pointcut (for example,
-  the execution of a method with a certain name). The concept of join points as matched
-  by pointcut expressions is central to AOP, and Infra uses the AspectJ pointcut
-  expression language by default.
-* Introduction: Declaring additional methods or fields on behalf of a type. Infra
-  AOP lets you introduce new interfaces (and a corresponding implementation) to any
-  advised object. For example, you could use an introduction to make a bean implement an
-  `IsModified` interface, to simplify caching. (An introduction is known as an
-  inter-type declaration in the AspectJ community.)
-* Target object: An object being advised by one or more aspects. Also referred to as
-  the "advised object". Since Infra AOP is implemented by using runtime proxies, this
-  object is always a proxied object.
-* AOP proxy: An object created by the AOP framework in order to implement the aspect
-  contracts (advice method executions and so on). In the TODAY Framework, an AOP proxy
-  is a JDK dynamic proxy or a CGLIB proxy.
-* Weaving: linking aspects with other application types or objects to create an
-  advised object. This can be done at compile time (using the AspectJ compiler, for
-  example), load time, or at runtime. Infra AOP, like other pure Java AOP frameworks,
-  performs weaving at runtime.
+* Aspect（切面）：跨越多个类的关注点的模块化。
+  事务管理是企业 Java 应用程序中横切关注点的一个很好的例子。
+  在 Infra AOP 中，切面是通过使用常规类（xref:core/aop/schema.adoc[基于模式的方法]）或使用 `@Aspect` 注解的常规类（xref:core/aop/ataspectj.adoc[@AspectJ 风格]）来实现的。
+* Join point（连接点）：程序执行期间的一个点，例如方法的执行或异常的处理。
+  在 Infra AOP 中，连接点始终代表方法执行。
+* Advice（通知）：切面在特定连接点采取的操作。
+  不同类型的 advice 包括“around”、“before”和“after” advice。（Advice 类型将在后面讨论。）
+  许多 AOP 框架（包括 Infra）将 advice 建模为拦截器，并在连接点周围维护拦截器链。
+* Pointcut（切入点）：匹配连接点的谓词。
+  Advice 与切入点表达式关联，并在切入点匹配的任何连接点运行（例如，执行具有特定名称的方法）。
+  由切入点表达式匹配的连接点概念是 AOP 的核心，Infra 默认使用 AspectJ 切入点表达式语言。
+* Introduction（引介）：代表类型声明额外的方法或字段。
+  Infra AOP 允许你向任何被通知对象引入新接口（以及相应的实现）。
+  例如，你可以使用引介使 bean 实现 `IsModified` 接口，以简化缓存。
+  （在 AspectJ 社区中，引介被称为类型间声明。）
+* Target object（目标对象）：被一个或多个切面通知的对象。也称为“被通知对象”。
+  由于 Infra AOP 是使用运行时代理实现的，因此该对象始终是代理对象。
+* AOP proxy（AOP 代理）：AOP 框架创建的对象，用于实现切面契约（advice 方法执行等）。
+  在 TODAY Framework 中，AOP 代理是 JDK 动态代理或 CGLIB 代理。
+* Weaving（织入）：将切面与其他应用程序类型或对象链接以创建被通知对象。
+  这可以在编译时（例如，使用 AspectJ 编译器）、加载时或运行时完成。
+  Infra AOP 与其他纯 Java AOP 框架一样，在运行时执行织入。
 
-Infra AOP includes the following types of advice:
+Infra AOP 包括以下类型的 advice：
 
-* Before advice: Advice that runs before a join point but that does not have
-  the ability to prevent execution flow proceeding to the join point (unless it throws
-  an exception).
-* After returning advice: Advice to be run after a join point completes
-  normally (for example, if a method returns without throwing an exception).
-* After throwing advice: Advice to be run if a method exits by throwing an
-  exception.
-* After (finally) advice: Advice to be run regardless of the means by which a
-  join point exits (normal or exceptional return).
-* Around advice: Advice that surrounds a join point such as a method invocation.
-  This is the most powerful kind of advice. Around advice can perform custom behavior
-  before and after the method invocation. It is also responsible for choosing whether to
-  proceed to the join point or to shortcut the advised method execution by returning its
-  own return value or throwing an exception.
+* Before advice（前置通知）：在连接点之前运行但无法阻止执行流继续到连接点的 advice（除非它抛出异常）。
+* After returning advice（返回后通知）：在连接点正常完成后运行的 advice（例如，如果方法返回而没有抛出异常）。
+* After throwing advice（抛出后通知）：如果方法通过抛出异常退出，则运行 advice。
+* After (finally) advice（最终通知）：无论连接点以何种方式退出（正常或异常返回），都会运行 advice。
+* Around advice（环绕通知）：围绕连接点（如方法调用）的 advice。
+  这是最强大的 advice 类型。环绕 advice 可以在方法调用之前和之后执行自定义行为。
+  它还负责选择是继续到连接点，还是通过返回自己的返回值或抛出异常来捷径被通知方法的执行。
 
-Around advice is the most general kind of advice. Since Infra AOP, like AspectJ,
-provides a full range of advice types, we recommend that you use the least powerful
-advice type that can implement the required behavior. For example, if you need only to
-update a cache with the return value of a method, you are better off implementing an
-after returning advice than an around advice, although an around advice can accomplish
-the same thing. Using the most specific advice type provides a simpler programming model
-with less potential for errors. For example, you do not need to invoke the `proceed()`
-method on the `JoinPoint` used for around advice, and, hence, you cannot fail to invoke it.
+环绕 advice 是最通用的 advice 类型。
+由于 Infra AOP 与 AspectJ 一样，提供了全方位的 advice 类型，因此我们建议你使用能够实现所需行为的最不强大的 advice 类型。
+例如，如果你只需要使用方法的返回值更新缓存，那么实现返回后 advice 比环绕 advice 更好，尽管环绕 advice 可以完成相同的事情。
+使用最具体的 advice 类型提供了更简单的编程模型，并且出错的可能性更小。
+例如，你不需要在用于环绕 advice 的 `JoinPoint` 上调用 `proceed()` 方法，因此，你不会因为忘记调用它而失败。
 
-All advice parameters are statically typed so that you work with advice parameters of
-the appropriate type (e.g. the type of the return value from a method execution) rather
-than `Object` arrays.
+所有 advice 参数都是静态类型的，因此你可以使用适当类型的 advice 参数（例如，方法执行的返回值的类型），而不是 `Object` 数组。
 
-The concept of join points matched by pointcuts is the key to AOP, which distinguishes
-it from older technologies offering only interception. Pointcuts enable advice to be
-targeted independently of the object-oriented hierarchy. For example, you can apply an
-around advice providing declarative transaction management to a set of methods that span
-multiple objects (such as all business operations in the service layer).
-
-
-
-
+由切入点匹配的连接点概念是 AOP 的关键，这将其与仅提供拦截的旧技术区分开来。
+切入点使 advice 可以独立于面向对象的层次结构进行定位。
+例如，你可以应用提供声明式事务管理的环绕 advice 到一组跨越多个对象的方法（例如服务层中的所有业务操作）。

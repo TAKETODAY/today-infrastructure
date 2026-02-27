@@ -1,41 +1,29 @@
 [[aop-schema]]
-= Schema-based AOP Support
+= 基于模式的 AOP 支持
 
-If you prefer an XML-based format, Infra also offers support for defining aspects
-using the `aop` namespace tags. The exact same pointcut expressions and advice kinds
-as when using the @AspectJ style are supported. Hence, in this section we focus on
-that syntax and refer the reader to the discussion in the previous section
-(xref:core/aop/ataspectj.adoc[@AspectJ support]) for an understanding of writing pointcut expressions and the binding
-of advice parameters.
+如果你更喜欢基于 XML 的格式，Infra 还支持使用 `aop` 命名空间标签定义切面。
+使用 @AspectJ 风格时支持的切入点表达式和 advice 类型与此完全相同。
+因此，在本节中，我们重点介绍该语法，并让读者参考上一节（xref:core/aop/ataspectj.adoc[@AspectJ 支持]）中的讨论，以了解编写切入点表达式和 advice 参数的绑定。
 
-To use the aop namespace tags described in this section, you need to import the
-`infra-aop` schema, as described in xref:core/appendix/xsd-schemas.adoc[XML Schema-based configuration]
-. See xref:core/appendix/xsd-schemas.adoc#aop[the AOP schema]
-for how to import the tags in the `aop` namespace.
+要使用本节中描述的 aop 命名空间标签，你需要导入 `infra-aop` 模式，如 xref:core/appendix/xsd-schemas.adoc[基于 XML 模式的配置] 中所述。
+有关如何在 `aop` 命名空间中导入标签，请参阅 xref:core/appendix/xsd-schemas.adoc#aop[AOP 模式]。
 
-Within your Infra configurations, all aspect and advisor elements must be placed within
-an `<aop:config>` element (you can have more than one `<aop:config>` element in an
-application context configuration). An `<aop:config>` element can contain pointcut,
-advisor, and aspect elements (note that these must be declared in that order).
+在 Infra 配置中，所有 aspect 和 advisor 元素都必须放置在 `<aop:config>` 元素内（你可以在应用程序上下文配置中有多个 `<aop:config>` 元素）。
+`<aop:config>` 元素可以包含 pointcut、advisor 和 aspect 元素（注意这些必须按该顺序声明）。
 
-WARNING: The `<aop:config>` style of configuration makes heavy use of Infra
-xref:core/aop-api/autoproxy.adoc[auto-proxying] mechanism. This can cause issues (such as advice
-not being woven) if you already use explicit auto-proxying through the use of
-`BeanNameAutoProxyCreator` or something similar. The recommended usage pattern is to
-use either only the `<aop:config>` style or only the `AutoProxyCreator` style and
-never mix them.
+WARNING: `<aop:config>` 配置风格大量使用 Infra xref:core/aop-api/autoproxy.adoc[自动代理] 机制。
+如果你已经通过使用 `BeanNameAutoProxyCreator` 或类似的东西使用了显式自动代理，这可能会导致问题（例如 advice 未被织入）。
+推荐的使用模式是仅使用 `<aop:config>` 风格或仅使用 `AutoProxyCreator` 风格，切勿混合使用。
 
 
 
 [[aop-schema-declaring-an-aspect]]
-== Declaring an Aspect
+== 声明 Aspect
 
-When you use the schema support, an aspect is a regular Java object defined as a bean in
-your Infra application context. The state and behavior are captured in the fields and
-methods of the object, and the pointcut and advice information are captured in the XML.
+当你使用模式支持时，切面是在 Infra 应用程序上下文中定义为 bean 的常规 Java 对象。
+状态和行为在对象的字段和方法中捕获，而切入点和 advice 信息在 XML 中捕获。
 
-You can declare an aspect by using the `<aop:aspect>` element, and reference the backing bean
-by using the `ref` attribute, as the following example shows:
+你可以使用 `<aop:aspect>` 元素声明切面，并使用 `ref` 属性引用支持 bean，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -50,19 +38,16 @@ by using the `ref` attribute, as the following example shows:
 </bean>
 ----
 
-The bean that backs the aspect (`aBean` in this case) can of course be configured and
-dependency injected just like any other Infra bean.
+支持切面的 bean（在本例中为 `aBean`）当然可以像任何其他 Infra bean 一样进行配置和依赖注入。
 
 
 
 [[aop-schema-pointcuts]]
-== Declaring a Pointcut
+== 声明 Pointcut
 
-You can declare a _named pointcut_ inside an `<aop:config>` element, letting the pointcut
-definition be shared across several aspects and advisors.
+你可以在 `<aop:config>` 元素内声明一个 _命名 pointcut_，让 pointcut 定义在多个 aspect 和 advisor 之间共享。
 
-A pointcut that represents the execution of any business service in the service layer can
-be defined as follows:
+代表服务层中任何业务服务执行的 pointcut 可以定义如下：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -74,10 +59,9 @@ be defined as follows:
 </aop:config>
 ----
 
-Note that the pointcut expression itself uses the same AspectJ pointcut expression
-language as described in xref:core/aop/ataspectj.adoc[@AspectJ support]. If you use the schema based declaration
-style, you can also refer to _named pointcuts_ defined in `@Aspect` types within the
-pointcut expression. Thus, another way of defining the above pointcut would be as follows:
+请注意，pointcut 表达式本身使用与 xref:core/aop/ataspectj.adoc[@AspectJ 支持] 中描述的相同的 AspectJ 切入点表达式语言。
+如果你使用基于模式的声明风格，你还可以引用在 pointcut 表达式中的 `@Aspect` 类型中定义的 _命名 pointcut_。
+因此，定义上述 pointcut 的另一种方法如下：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -88,10 +72,9 @@ pointcut expression. Thus, another way of defining the above pointcut would be a
 
 </aop:config>
 ----
-<1> References the `businessService` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[Sharing Named Pointcut Definitions].
+<1> 引用 xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[共享命名 Pointcut 定义] 中定义的 `businessService` 命名 pointcut。
 
-Declaring a pointcut _inside_ an aspect is very similar to declaring a top-level pointcut,
-as the following example shows:
+在 aspect _内部_ 声明 pointcut 与声明顶级 pointcut 非常相似，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -108,9 +91,8 @@ as the following example shows:
 </aop:config>
 ----
 
-In much the same way as an @AspectJ aspect, pointcuts declared by using the schema based
-definition style can collect join point context. For example, the following pointcut
-collects the `this` object as the join point context and passes it to the advice:
+与 @AspectJ 切面非常相似，使用基于模式的定义风格声明的 pointcut 可以收集连接点上下文。
+例如，以下 pointcut 收集 `this` 对象作为连接点上下文并将其传递给 advice：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -129,8 +111,7 @@ collects the `this` object as the join point context and passes it to the advice
 </aop:config>
 ----
 
-The advice must be declared to receive the collected join point context by including
-parameters of the matching names, as follows:
+必须声明 advice 以通过包含匹配名称的参数来接收收集的连接点上下文，如下所示：
 
 [tabs]
 ======
@@ -144,10 +125,8 @@ public void monitor(Object service) {
 ----
 ======
 
-When combining pointcut sub-expressions, `+&amp;&amp;+` is awkward within an XML
-document, so you can use the `and`, `or`, and `not` keywords in place of `+&amp;&amp;+`,
-`||`, and `!`, respectively. For example, the previous pointcut can be better written as
-follows:
+组合 pointcut 子表达式时，`+&amp;&amp;+` 在 XML 文档中很尴尬，因此你可以使用 `and`、`or` 和 `not` 关键字分别代替 `+&amp;&amp;+`、`||` 和 `!`。
+例如，前面的 pointcut 可以更好地写成如下：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -166,25 +145,21 @@ follows:
 </aop:config>
 ----
 
-Note that pointcuts defined in this way are referred to by their XML `id` and cannot be
-used as named pointcuts to form composite pointcuts. The named pointcut support in the
-schema-based definition style is thus more limited than that offered by the @AspectJ
-style.
+请注意，以这种方式定义的 pointcut 由其 XML `id` 引用，不能用作命名 pointcut 来形成复合 pointcut。
+因此，基于模式的定义风格中的命名 pointcut 支持比 @AspectJ 风格提供的支持更有限。
 
 
 
 [[aop-schema-advice]]
-== Declaring Advice
+== 声明 Advice
 
-The schema-based AOP support uses the same five kinds of advice as the @AspectJ style, and they have
-exactly the same semantics.
+基于模式的 AOP 支持使用与 @AspectJ 风格相同的五种 advice，并且它们具有完全相同的语义。
 
 
 [[aop-schema-advice-before]]
-=== Before Advice
+=== 前置 Advice
 
-Before advice runs before a matched method execution. It is declared inside an
-`<aop:aspect>` by using the `<aop:before>` element, as the following example shows:
+前置 advice 在匹配的方法执行之前运行。它在 `<aop:aspect>` 内部使用 `<aop:before>` 元素声明，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -199,15 +174,12 @@ Before advice runs before a matched method execution. It is declared inside an
 </aop:aspect>
 ----
 
-In the example above, `dataAccessOperation` is the `id` of a _named pointcut_ defined at
-the top (`<aop:config>`) level (see xref:core/aop/schema.adoc#aop-schema-pointcuts[Declaring a Pointcut]).
+在上面的示例中，`dataAccessOperation` 是在顶部（`<aop:config>`）级别定义的 _命名 pointcut_ 的 `id`（请参阅 xref:core/aop/schema.adoc#aop-schema-pointcuts[声明 Pointcut]）。
 
-NOTE: As we noted in the discussion of the @AspectJ style, using _named pointcuts_ can
-significantly improve the readability of your code. See xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[Sharing Named Pointcut Definitions] for
-details.
+NOTE: 正如我们在 @AspectJ 风格的讨论中指出的那样，使用 _命名 pointcut_ 可以显着提高代码的可读性。
+有关详细信息，请参阅 xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[共享命名 Pointcut 定义]。
 
-To define the pointcut inline instead, replace the `pointcut-ref` attribute with a
-`pointcut` attribute, as follows:
+要改为内联定义 pointcut，请将 `pointcut-ref` 属性替换为 `pointcut` 属性，如下所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -222,19 +194,16 @@ To define the pointcut inline instead, replace the `pointcut-ref` attribute with
 </aop:aspect>
 ----
 
-The `method` attribute identifies a method (`doAccessCheck`) that provides the body of
-the advice. This method must be defined for the bean referenced by the aspect element
-that contains the advice. Before a data access operation is performed (a method execution
-join point matched by the pointcut expression), the `doAccessCheck` method on the aspect
-bean is invoked.
+`method` 属性标识提供 advice 主体的方法（`doAccessCheck`）。
+此方法必须为包含 advice 的 aspect 元素引用的 bean 定义。
+在执行数据访问操作（由 pointcut 表达式匹配的方法执行连接点）之前，将调用 aspect bean 上的 `doAccessCheck` 方法。
 
 
 [[aop-schema-advice-after-returning]]
-=== After Returning Advice
+=== 返回后 Advice
 
-After returning advice runs when a matched method execution completes normally. It is
-declared inside an `<aop:aspect>` in the same way as before advice. The following example
-shows how to declare it:
+返回后 advice 在匹配的方法执行正常完成时运行。它在 `<aop:aspect>` 内部以与前置 advice 相同的方式声明。
+以下示例显示了如何声明它：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -248,9 +217,8 @@ shows how to declare it:
 </aop:aspect>
 ----
 
-As in the @AspectJ style, you can get the return value within the advice body.
-To do so, use the `returning` attribute to specify the name of the parameter to which
-the return value should be passed, as the following example shows:
+就像在 @AspectJ 风格中一样，你可以在 advice 主体内获取返回值。
+为此，请使用 `returning` 属性指定应传递返回值的参数的名称，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -265,9 +233,9 @@ the return value should be passed, as the following example shows:
 </aop:aspect>
 ----
 
-The `doAccessCheck` method must declare a parameter named `retVal`. The type of this
-parameter constrains matching in the same way as described for `@AfterReturning`. For
-example, you can declare the method signature as follows:
+`doAccessCheck` 方法必须声明一个名为 `retVal` 的参数。
+此参数的类型以与 `@AfterReturning` 描述的相同方式约束匹配。
+例如，你可以如下声明方法签名：
 
 [tabs]
 ======
@@ -282,11 +250,9 @@ public void doAccessCheck(Object retVal) {...
 
 
 [[aop-schema-advice-after-throwing]]
-=== After Throwing Advice
+=== 抛出后 Advice
 
-After throwing advice runs when a matched method execution exits by throwing an
-exception. It is declared inside an `<aop:aspect>` by using the `after-throwing` element,
-as the following example shows:
+抛出后 advice 在匹配的方法执行通过抛出异常退出时运行。它在 `<aop:aspect>` 内部使用 `after-throwing` 元素声明，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -300,9 +266,8 @@ as the following example shows:
 </aop:aspect>
 ----
 
-As in the @AspectJ style, you can get the thrown exception within the advice body.
-To do so, use the `throwing` attribute to specify the name of the parameter to
-which the exception should be passed as the following example shows:
+就像在 @AspectJ 风格中一样，你可以在 advice 主体内获取抛出的异常。
+为此，请使用 `throwing` 属性指定应传递异常的参数的名称，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -317,9 +282,9 @@ which the exception should be passed as the following example shows:
 </aop:aspect>
 ----
 
-The `doRecoveryActions` method must declare a parameter named `dataAccessEx`.
-The type of this parameter constrains matching in the same way as described for
-`@AfterThrowing`. For example, the method signature may be declared as follows:
+`doRecoveryActions` 方法必须声明一个名为 `dataAccessEx` 的参数。
+此参数的类型以与 `@AfterThrowing` 描述的相同方式约束匹配。
+例如，方法签名可以如下声明：
 
 [tabs]
 ======
@@ -336,8 +301,8 @@ public void doRecoveryActions(DataAccessException dataAccessEx) {...
 [[aop-schema-advice-after-finally]]
 === After (Finally) Advice
 
-After (finally) advice runs no matter how a matched method execution exits.
-You can declare it by using the `after` element, as the following example shows:
+无论匹配的方法执行如何退出，After (finally) advice 都会运行。
+你可以使用 `after` 元素声明它，如下例所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -353,33 +318,27 @@ You can declare it by using the `after` element, as the following example shows:
 
 
 [[aop-schema-advice-around]]
-=== Around Advice
+=== 环绕 Advice
 
-The last kind of advice is _around_ advice. Around advice runs "around" a matched
-method's execution. It has the opportunity to do work both before and after the method
-runs and to determine when, how, and even if the method actually gets to run at all.
-Around advice is often used if you need to share state before and after a method
-execution in a thread-safe manner – for example, starting and stopping a timer.
+最后一种 advice 是 _环绕_ advice。环绕 advice 在匹配的方法执行“周围”运行。
+它有机会在方法运行之前和之后做工作，并确定何时、如何以及即使方法实际上完全运行。
+如果你需要以线程安全的方式在方法执行之前和之后共享状态（例如，启动和停止计时器），通常使用环绕 advice。
 
 [TIP]
 ====
-Always use the least powerful form of advice that meets your requirements.
+始终使用满足你要求的最不强大的 advice 形式。
 
-For example, do not use _around_ advice if _before_ advice is sufficient for your needs.
+例如，如果 _前置_ advice 足以满足你的需求，请不要使用 _环绕_ advice。
 ====
 
-You can declare around advice by using the `aop:around` element. The advice method should
-declare `Object` as its return type, and the first parameter of the method must be of
-type `ProceedingJoinPoint`. Within the body of the advice method, you must invoke
-`proceed()` on the `ProceedingJoinPoint` in order for the underlying method to run.
-Invoking `proceed()` without arguments will result in the caller's original arguments
-being supplied to the underlying method when it is invoked. For advanced use cases, there
-is an overloaded variant of the `proceed()` method which accepts an array of arguments
-(`Object[]`). The values in the array will be used as the arguments to the underlying
-method when it is invoked. See xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-around-advice[Around Advice] for notes on calling
-`proceed` with an `Object[]`.
+你可以使用 `aop:around` 元素声明环绕 advice。advice 方法应声明 `Object` 作为其返回类型，并且方法的第一个参数必须是 `ProceedingJoinPoint` 类型。
+在 advice 方法的主体内，你必须在 `ProceedingJoinPoint` 上调用 `proceed()` 才能运行底层方法。
+不带参数调用 `proceed()` 将导致调用者的原始参数在调用时提供给底层方法。
+对于高级用例，有一个 `proceed()` 方法的重载变体，它接受参数数组 (`Object[]`)。
+数组中的值将在调用时用作底层方法的参数。
+有关使用 `Object[]` 调用 `proceed` 的说明，请参阅 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-around-advice[环绕 Advice]。
 
-The following example shows how to declare around advice in XML:
+以下示例显示了如何在 XML 中声明环绕 advice：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -393,8 +352,7 @@ The following example shows how to declare around advice in XML:
 </aop:aspect>
 ----
 
-The implementation of the `doBasicProfiling` advice can be exactly the same as in the
-@AspectJ example (minus the annotation, of course), as the following example shows:
+`doBasicProfiling` advice 的实现可以与 @AspectJ 示例完全相同（当然减去注解），如下例所示：
 
 [tabs]
 ======
@@ -403,9 +361,9 @@ Java::
 [source,java,indent=0,subs="verbatim",role="primary"]
 ----
 public Object doBasicProfiling(ProceedingJoinPoint pjp) throws Throwable {
-  // start stopwatch
+  // 启动秒表
   Object retVal = pjp.proceed();
-  // stop stopwatch
+  // 停止秒表
   return retVal;
 }
 ----
@@ -414,28 +372,24 @@ public Object doBasicProfiling(ProceedingJoinPoint pjp) throws Throwable {
 
 
 [[aop-schema-params]]
-=== Advice Parameters
+=== Advice 参数
 
-The schema-based declaration style supports fully typed advice in the same way as
-described for the @AspectJ support -- by matching pointcut parameters by name against
-advice method parameters. See xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-params[Advice Parameters] for details. If you wish
-to explicitly specify argument names for the advice methods (not relying on the
-detection strategies previously described), you can do so by using the `arg-names`
-attribute of the advice element, which is treated in the same manner as the `argNames`
-attribute in an advice annotation (as described in xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-params-names[Determining Argument Names]).
-The following example shows how to specify an argument name in XML:
+基于模式的声明风格支持完全类型化的 advice，方式与 @AspectJ 支持所描述的相同——通过按名称将 pointcut 参数与 advice 方法参数进行匹配。
+有关详细信息，请参阅 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-params[Advice 参数]。
+如果你希望显式指定 advice 方法的参数名称（不依赖于前面描述的检测策略），你可以通过使用 advice 元素的 `arg-names` 属性来实现，
+该属性的处理方式与 advice 注解中的 `argNames` 属性相同（如 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-params-names[确定参数名称] 中所述）。
+以下示例显示了如何在 XML 中指定参数名称：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
 <aop:before pointcut="com.xyz.Pointcuts.publicMethod() and @annotation(auditable)" <1>
   method="audit" arg-names="auditable" />
 ----
-<1> References the `publicMethod` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[Combining Pointcut Expressions].
+<1> 引用 xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[组合 Pointcut 表达式] 中定义的 `publicMethod` 命名 pointcut。
 
-The `arg-names` attribute accepts a comma-delimited list of parameter names.
+`arg-names` 属性接受逗号分隔的参数名称列表。
 
-The following slightly more involved example of the XSD-based approach shows
-some around advice used in conjunction with a number of strongly typed parameters:
+以下稍微复杂一点的基于 XSD 的方法示例显示了一些与许多强类型参数结合使用的环绕 advice：
 
 [tabs]
 ======
@@ -460,10 +414,8 @@ public class DefaultPersonService implements PersonService {
 
 ======
 
-Next up is the aspect. Notice the fact that the `profile(..)` method accepts a number of
-strongly-typed parameters, the first of which happens to be the join point used to
-proceed with the method call. The presence of this parameter is an indication that the
-`profile(..)` is to be used as `around` advice, as the following example shows:
+接下来是切面。请注意 `profile(..)` 方法接受许多强类型参数的事实，其中第一个恰好是用于继续方法调用的连接点。
+此参数的存在表明 `profile(..)` 将用作 `around` advice，如下例所示：
 
 [tabs]
 ======
@@ -492,8 +444,7 @@ public class SimpleProfiler {
 ----
 ======
 
-Finally, the following example XML configuration effects the execution of the
-preceding advice for a particular join point:
+最后，以下示例 XML 配置对特定连接点执行前面的 advice：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -506,10 +457,10 @@ preceding advice for a particular join point:
     http://www.springframework.org/schema/aop
     https://www.springframework.org/schema/aop/spring-aop.xsd">
 
-  <!-- this is the object that will be proxied by Infra AOP infrastructure -->
+  <!-- 这是将被 Infra AOP 基础设施代理的对象 -->
   <bean id="personService" class="com.xyz.service.DefaultPersonService"/>
 
-  <!-- this is the actual advice itself -->
+  <!-- 这是实际的 advice 本身 -->
   <bean id="profiler" class="com.xyz.SimpleProfiler"/>
 
   <aop:config>
@@ -528,7 +479,7 @@ preceding advice for a particular join point:
 </beans>
 ----
 
-Consider the following driver script:
+考虑以下驱动程序脚本：
 
 [tabs]
 ======
@@ -548,7 +499,7 @@ public class Boot {
 
 ======
 
-With such a `Boot` class, we would get output similar to the following on standard output:
+使用这样的 `Boot` 类，我们将在标准输出上获得类似于以下的输出：
 
 [literal,subs="verbatim"]
 ----
@@ -561,49 +512,35 @@ ms     %     Task name
 
 
 [[aop-ordering]]
-=== Advice Ordering
+=== Advice 排序
 
-When multiple pieces of advice need to run at the same join point (executing method)
-the ordering rules are as described in xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[Advice Ordering]. The precedence
-between aspects is determined via the `order` attribute in the `<aop:aspect>` element or
-by either adding the `@Order` annotation to the bean that backs the aspect or by having
-the bean implement the `Ordered` interface.
+当多个 advice 需要在同一连接点（执行方法）运行时，排序规则如 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[Advice 排序] 中所述。
+切面之间的优先级通过 `<aop:aspect>` 元素中的 `order` 属性确定，或者通过向支持切面的 bean 添加 `@Order` 注解或让 bean 实现 `Ordered` 接口来确定。
 
 [NOTE]
 ====
-In contrast to the precedence rules for advice methods defined in the same `@Aspect`
-class, when two pieces of advice defined in the same `<aop:aspect>` element both need to
-run at the same join point, the precedence is determined by the order in which the advice
-elements are declared within the enclosing `<aop:aspect>` element, from highest to lowest
-precedence.
+与在同一 `@Aspect` 类中定义的 advice 方法的优先级规则相反，当在同一 `<aop:aspect>` 元素中定义的两个 advice 都需要在同一连接点运行时，
+优先级由 advice 元素在封闭的 `<aop:aspect>` 元素中声明的顺序确定，从最高优先级到最低优先级。
 
-For example, given an `around` advice and a `before` advice defined in the same
-`<aop:aspect>` element that apply to the same join point, to ensure that the `around`
-advice has higher precedence than the `before` advice, the `<aop:around>` element must be
-declared before the `<aop:before>` element.
+例如，给定在同一 `<aop:aspect>` 元素中定义的 `around` advice 和 `before` advice，它们应用于同一连接点，
+为了确保 `around` advice 具有比 `before` advice 更高的优先级，必须在 `<aop:before>` 元素之前声明 `<aop:around>` 元素。
 
-As a general rule of thumb, if you find that you have multiple pieces of advice defined
-in the same `<aop:aspect>` element that apply to the same join point, consider collapsing
-such advice methods into one advice method per join point in each `<aop:aspect>` element
-or refactor the pieces of advice into separate `<aop:aspect>` elements that you can order
-at the aspect level.
+作为一般经验法则，如果你发现在同一 `<aop:aspect>` 元素中定义了多个 advice 应用于同一连接点，
+请考虑将此类 advice 方法折叠为每个 `<aop:aspect>` 元素中每个连接点的一个 advice 方法，
+或者将 advice 重构为单独的 `<aop:aspect>` 元素，以便你可以由于切面级别对其进行排序。
 ====
 
 
 
 [[aop-schema-introductions]]
-== Introductions
+== 引介
 
-Introductions (known as inter-type declarations in AspectJ) let an aspect declare
-that advised objects implement a given interface and provide an implementation of
-that interface on behalf of those objects.
+引介（在 AspectJ 中称为类型间声明）让切面声明被通知对象实现给定接口，并代表这些对象提供该接口的实现。
 
-You can make an introduction by using the `aop:declare-parents` element inside an `aop:aspect`.
-You can use the `aop:declare-parents` element to declare that matching types have a new parent (hence the name).
-For example, given an interface named `UsageTracked` and an implementation of that interface named
-`DefaultUsageTracked`, the following aspect declares that all implementors of service
-interfaces also implement the `UsageTracked` interface. (In order to expose statistics
-through JMX for example.)
+你可以通过在 `aop:aspect` 内部使用 `aop:declare-parents` 元素来进行引介。
+你可以使用 `aop:declare-parents` 元素声明匹配类型具有新父级（因此得名）。
+例如，给定名为 `UsageTracked` 的接口和该接口名为 `DefaultUsageTracked` 的实现，
+以下切面声明所有服务接口的实现者也实现 `UsageTracked` 接口。（例如，为了通过 JMX 公开统计信息。）
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -622,7 +559,7 @@ through JMX for example.)
 </aop:aspect>
 ----
 
-The class that backs the `usageTracking` bean would then contain the following method:
+支持 `usageTracking` bean 的类将包含以下方法：
 
 [tabs]
 ======
@@ -637,12 +574,10 @@ public void recordUsage(UsageTracked usageTracked) {
 
 ======
 
-The interface to be implemented is determined by the `implement-interface` attribute. The
-value of the `types-matching` attribute is an AspectJ type pattern. Any bean of a
-matching type implements the `UsageTracked` interface. Note that, in the before
-advice of the preceding example, service beans can be directly used as implementations of
-the `UsageTracked` interface. To access a bean programmatically, you could write the
-following:
+要实现的接口由 `implement-interface` 属性确定。
+`types-matching` 属性的值是 AspectJ 类型模式。任何匹配类型的 bean 都实现 `UsageTracked` 接口。
+请注意，在前面示例的前置 advice 中，服务 bean 可以直接用作 `UsageTracked` 接口的实现。
+要以编程方式访问 bean，你可以编写以下代码：
 
 [tabs]
 ======
@@ -658,25 +593,22 @@ UsageTracked usageTracked = context.getBean("myService", UsageTracked.class);
 
 
 [[aop-schema-instantiation-models]]
-== Aspect Instantiation Models
+== Aspect 实例化模型
 
-The only supported instantiation model for schema-defined aspects is the singleton
-model. Other instantiation models may be supported in future releases.
+模式定义的切面唯一支持的实例化模型是单例模型。未来版本可能会支持其他实例化模型。
 
 
 
 [[aop-schema-advisors]]
 == Advisors
 
-The concept of "advisors" comes from the AOP support defined in Infra
-and does not have a direct equivalent in AspectJ. An advisor is like a small
-self-contained aspect that has a single piece of advice. The advice itself is
-represented by a bean and must implement one of the advice interfaces described in
-xref:core/aop-api/advice.adoc#aop-api-advice-types[Advice Types in Infra]. Advisors can take advantage of AspectJ pointcut expressions.
+“advisors”的概念来自 Infra 中定义的 AOP 支持，在 AspectJ 中没有直接等效项。
+Advisor 就像一个包含单个 advice 的小型独立切面。advice 本身由 bean 表示，并且必须实现
+xref:core/aop-api/advice.adoc#aop-api-advice-types[Infra 中的 Advice 类型] 中描述的 advice 接口之一。
+Advisors 可以利用 AspectJ 切入点表达式。
 
-Infra supports the advisor concept with the `<aop:advisor>` element. You most
-commonly see it used in conjunction with transactional advice, which also has its own
-namespace support in Infra. The following example shows an advisor:
+Infra 通过 `<aop:advisor>` 元素支持 advisor 概念。你最常看到它与事务 advice 结合使用，事务 advice 在 Infra 中也有自己的命名空间支持。
+以下示例显示了一个 advisor：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -698,32 +630,23 @@ namespace support in Infra. The following example shows an advisor:
 </tx:advice>
 ----
 
-As well as the `pointcut-ref` attribute used in the preceding example, you can also use the
-`pointcut` attribute to define a pointcut expression inline.
+除了前面示例中使用的 `pointcut-ref` 属性外，你还可以使用 `pointcut` 属性内联定义 pointcut 表达式。
 
-To define the precedence of an advisor so that the advice can participate in ordering,
-use the `order` attribute to define the `Ordered` value of the advisor.
+要定义 advisor 的优先级以便 advice 可以参与排序，请使用 `order` 属性定义 advisor 的 `Ordered` 值。
 
 
 
 [[aop-schema-example]]
-== An AOP Schema Example
+== AOP 模式示例
 
-This section shows how the concurrent locking failure retry example from
-xref:core/aop/ataspectj/example.adoc[An AOP Example] looks when rewritten with the schema support.
+本节展示了当使用模式支持重写时，xref:core/aop/ataspectj/example.adoc[一个 AOP 示例] 中的并发锁定失败重试示例是什么样子的。
 
-The execution of business services can sometimes fail due to concurrency issues (for
-example, a deadlock loser). If the operation is retried, it is likely to succeed
-on the next try. For business services where it is appropriate to retry in such
-conditions (idempotent operations that do not need to go back to the user for conflict
-resolution), we want to transparently retry the operation to avoid the client seeing a
-`PessimisticLockingFailureException`. This is a requirement that clearly cuts across
-multiple services in the service layer and, hence, is ideal for implementing through an
-aspect.
+业务服务的执行有时可能会由于并发问题（例如，死锁失败者）而失败。如果重试该操作，它很可能会在下一次尝试中成功。
+对于适合在此类条件下重试的业务服务（不需要返回给用户进行冲突解决的幂等操作），我们希望透明地重试操作，以避免客户端看到 `PessimisticLockingFailureException`。
+这是一个清楚地跨越服务层中多个服务的需求，因此非常适合通过切面来实现。
 
-Because we want to retry the operation, we need to use around advice so that we can
-call `proceed` multiple times. The following listing shows the basic aspect implementation
-(which is a regular Java class that uses the schema support):
+因为我们想重试操作，所以我们需要使用环绕 advice，以便我们可以多次调用 `proceed`。
+以下清单显示了基本的切面实现（这是一个使用模式支持的常规 Java 类）：
 
 [tabs]
 ======
@@ -768,17 +691,14 @@ public class ConcurrentOperationExecutor implements Ordered {
 ----
 ======
 
-Note that the aspect implements the `Ordered` interface so that we can set the precedence of
-the aspect higher than the transaction advice (we want a fresh transaction each time we
-retry). The `maxRetries` and `order` properties are both configured by Infra. The
-main action happens in the `doConcurrentOperation` around advice method. We try to
-proceed. If we fail with a `PessimisticLockingFailureException`, we try again,
-unless we have exhausted all of our retry attempts.
+请注意，该切面实现了 `Ordered` 接口，以便我们可以将切面的优先级设置为高于事务 advice（我们希望每次重试都有一个新的事务）。
+`maxRetries` 和 `order` 属性均由 Infra 配置。
+主要动作发生在 `doConcurrentOperation` 环绕 advice 方法中。我们尝试继续。
+如果我们因 `PessimisticLockingFailureException` 而失败，我们会重试，除非我们已经用尽了所有重试尝试。
 
-NOTE: This class is identical to the one used in the @AspectJ example, but with the
-annotations removed.
+NOTE: 此类与 @AspectJ 示例中使用的类相同，但删除了注解。
 
-The corresponding Infra configuration is as follows:
+相应的 Infra 配置如下：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -804,10 +724,8 @@ The corresponding Infra configuration is as follows:
 </bean>
 ----
 
-Notice that, for the time being, we assume that all business services are idempotent. If
-this is not the case, we can refine the aspect so that it retries only genuinely
-idempotent operations, by introducing an `Idempotent` annotation and using the annotation
-to annotate the implementation of service operations, as the following example shows:
+请注意，目前我们假设所有业务服务都是幂等的。
+如果情况并非如此，我们可以通过引入 `Idempotent` 注解并使用该注解来注解服务操作的实现，从而细化切面，使其仅重试真正的幂等操作，如下例所示：
 
 [tabs]
 ======
@@ -816,16 +734,14 @@ Java::
 [source,java,indent=0,subs="verbatim",role="primary"]
 ----
 @Retention(RetentionPolicy.RUNTIME)
-// marker annotation
+// 标记注解
 public @interface Idempotent {
 }
 ----
 
 ======
 
-The
-change to the aspect to retry only idempotent operations involves refining the
-pointcut expression so that only `@Idempotent` operations match, as follows:
+对切面的更改以仅重试幂等操作涉及细化 pointcut 表达式，以便仅匹配 `@Idempotent` 操作，如下所示：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -833,7 +749,3 @@ pointcut expression so that only `@Idempotent` operations match, as follows:
     expression="execution(* com.xyz.service.*.*(..)) and
     @annotation(com.xyz.service.Idempotent)"/>
 ----
-
-
-
-

@@ -1,38 +1,32 @@
 [[aop-autoproxy]]
-= Using the "auto-proxy" facility
+= 使用“自动代理”设施
 
-So far, we have considered explicit creation of AOP proxies by using a `ProxyFactoryBean` or
-similar factory bean.
+到目前为止，我们已经考虑了通过使用 `ProxyFactoryBean` 或类似的工厂 bean 显式创建 AOP 代理。
 
-Infra also lets us use "`auto-proxy`" bean definitions, which can automatically
-proxy selected bean definitions. This is built on Infra "`bean post processor`"
-infrastructure, which enables modification of any bean definition as the container loads.
+Infra 还允许我们使用“`自动代理`” bean 定义，它可以自动代理选定的 bean 定义。
+这是建立在 Infra “`bean 后处理器`”基础设施之上的，它允许在容器加载时修改任何 bean 定义。
 
-In this model, you set up some special bean definitions in your XML bean definition file
-to configure the auto-proxy infrastructure. This lets you declare the targets
-eligible for auto-proxying. You need not use `ProxyFactoryBean`.
+在这个模型中，你在 XML bean 定义文件中设置一些特殊的 bean 定义来配置自动代理基础设施。
+这让你声明有资格进行自动代理的目标。你不需要使用 `ProxyFactoryBean`。
 
-There are two ways to do this:
+有两种方法可以做到这一点：
 
-* By using an auto-proxy creator that refers to specific beans in the current context.
-* A special case of auto-proxy creation that deserves to be considered separately:
-  auto-proxy creation driven by source-level metadata attributes.
+* 通过使用引用当前上下文中特定 bean 的自动代理创建者。
+* 一个值得单独考虑的自动代理创建的特殊情况：由源级元数据属性驱动的自动代理创建。
 
 
 
 [[aop-autoproxy-choices]]
-== Auto-proxy Bean Definitions
+== 自动代理 Bean 定义
 
-This section covers the  auto-proxy creators provided by the
-`infra.aop.framework.autoproxy` package.
+本节涵盖 `infra.aop.framework.autoproxy` 包提供的自动代理创建者。
 
 
 [[aop-api-autoproxy]]
 === `BeanNameAutoProxyCreator`
 
-The `BeanNameAutoProxyCreator` class is a `BeanPostProcessor` that automatically creates
-AOP proxies for beans with names that match literal values or wildcards. The following
-example shows how to create a `BeanNameAutoProxyCreator` bean:
+`BeanNameAutoProxyCreator` 类是一个 `BeanPostProcessor`，它自动为名称与文字值或通配符匹配的 bean 创建 AOP 代理。
+以下示例显示了如何创建 `BeanNameAutoProxyCreator` bean：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -46,55 +40,41 @@ example shows how to create a `BeanNameAutoProxyCreator` bean:
 </bean>
 ----
 
-As with `ProxyFactoryBean`, there is an `interceptorNames` property rather than a list
-of interceptors, to allow correct behavior for prototype advisors. Named "`interceptors`"
-can be advisors or any advice type.
+与 `ProxyFactoryBean` 一样，有一个 `interceptorNames` 属性而不是拦截器列表，以允许原型 advisor 的正确行为。
+命名的“`拦截器`”可以是 advisor 或任何 advice 类型。
 
-As with auto-proxying in general, the main point of using `BeanNameAutoProxyCreator` is
-to apply the same configuration consistently to multiple objects, with minimal volume of
-configuration. It is a popular choice for applying declarative transactions to multiple
-objects.
+与一般的自动代理一样，使用 `BeanNameAutoProxyCreator` 的主要目的是以最小的配置量将相同的配置一致地应用于多个对象。
+这是将声明式事务应用于多个对象的流行选择。
 
-Bean definitions whose names match, such as `jdkMyBean` and `onlyJdk` in the preceding
-example, are plain old bean definitions with the target class. An AOP proxy is
-automatically created by the `BeanNameAutoProxyCreator`. The same advice is applied
-to all matching beans. Note that, if advisors are used (rather than the interceptor in
-the preceding example), the pointcuts may apply differently to different beans.
+名称匹配的 bean 定义，例如前面示例中的 `jdkMyBean` 和 `onlyJdk`，是具有目标类的普通 bean 定义。
+AOP 代理是由 `BeanNameAutoProxyCreator` 自动创建的。相同的 advice 应用于所有匹配的 bean。
+请注意，如果使用 advisor（而不是前面示例中的拦截器），pointcut 可能会以不同方式应用于不同的 bean。
 
 
 [[aop-api-autoproxy-default]]
 === `DefaultAdvisorAutoProxyCreator`
 
-A more general and extremely powerful auto-proxy creator is
-`DefaultAdvisorAutoProxyCreator`. This automagically applies eligible advisors in the
-current context, without the need to include specific bean names in the auto-proxy
-advisor's bean definition. It offers the same merit of consistent configuration and
-avoidance of duplication as `BeanNameAutoProxyCreator`.
+一个更通用且极其强大的自动代理创建者是 `DefaultAdvisorAutoProxyCreator`。
+它会自动应用当前上下文中符合条件的 advisor，而无需在自动代理 advisor 的 bean 定义中包含特定的 bean 名称。
+它提供了与 `BeanNameAutoProxyCreator` 相同的一致配置和避免重复的优点。
 
-Using this mechanism involves:
+使用此机制涉及：
 
-* Specifying a `DefaultAdvisorAutoProxyCreator` bean definition.
-* Specifying any number of advisors in the same or related contexts. Note that these
-  must be advisors, not interceptors or other advice. This is necessary,
-  because there must be a pointcut to evaluate, to check the eligibility of each advice
-  to candidate bean definitions.
+* 指定一个 `DefaultAdvisorAutoProxyCreator` bean 定义。
+* 在相同或相关的上下文中指定任意数量的 advisor。请注意，这些必须是 advisor，而不是拦截器或其他 advice。
+  这是必要的，因为必须有一个 pointcut 来评估，以检查每个 advice 对候选 bean 定义的资格。
 
-The `DefaultAdvisorAutoProxyCreator` automatically evaluates the pointcut contained
-in each advisor, to see what (if any) advice it should apply to each business object
-(such as `businessObject1` and `businessObject2` in the example).
+`DefaultAdvisorAutoProxyCreator` 自动评估每个 advisor 中包含的 pointcut，以查看它应该对每个业务对象（例如示例中的 `businessObject1` 和 `businessObject2`）应用什么 advice（如果有）。
 
-This means that any number of advisors can be applied automatically to each business
-object. If no pointcut in any of the advisors matches any method in a business object,
-the object is not proxied. As bean definitions are added for new business objects,
-they are automatically proxied if necessary.
+这意味着任意数量的 advisor 可以自动应用于每个业务对象。
+如果任何 advisor 中的任何 pointcut 都不匹配业务对象中的任何方法，则该对象不会被代理。
+随着为新的业务对象添加 bean 定义，如果需要，它们会自动被代理。
 
-Auto-proxying in general has the advantage of making it impossible for callers or
-dependencies to obtain an un-advised object. Calling `getBean("businessObject1")` on this
-`ApplicationContext` returns an AOP proxy, not the target business object. (The "`inner
-bean`" idiom shown earlier also offers this benefit.)
+一般的自动代理具有使调用者或依赖项无法获得未被通知对象的优点。
+在这个 `ApplicationContext` 上调用 `getBean("businessObject1")` 返回一个 AOP 代理，而不是目标业务对象。
+（前面显示的“`内部 bean`”习语也提供了这种好处。）
 
-The following example creates a `DefaultAdvisorAutoProxyCreator` bean and the other
-elements discussed in this section:
+以下示例创建一个 `DefaultAdvisorAutoProxyCreator` bean 和本节中讨论的其他元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -113,19 +93,10 @@ elements discussed in this section:
 <bean id="businessObject2" class="com.mycompany.BusinessObject2"/>
 ----
 
-The `DefaultAdvisorAutoProxyCreator` is very useful if you want to apply the same advice
-consistently to many business objects. Once the infrastructure definitions are in place,
-you can add new business objects without including specific proxy configuration.
-You can also easily drop in additional aspects (for example, tracing or
-performance monitoring aspects) with minimal change to configuration.
+如果你想将相同的 advice 一致地应用于许多业务对象，`DefaultAdvisorAutoProxyCreator` 非常有用。
+一旦基础设施定义到位，你可以添加新的业务对象，而无需包含特定的代理配置。
+你还可以轻松地添加额外的切面（例如，跟踪或性能监控切面），只需对配置进行最小的更改。
 
-The `DefaultAdvisorAutoProxyCreator` offers support for filtering (by using a naming
-convention so that only certain advisors are evaluated, which allows the use of multiple,
-differently configured, AdvisorAutoProxyCreators in the same factory) and ordering.
-Advisors can implement the `infra.core.Ordered` interface to ensure
-correct ordering if this is an issue. The `TransactionAttributeSourceAdvisor` used in the
-preceding example has a configurable order value. The default setting is unordered.
-
-
-
-
+`DefaultAdvisorAutoProxyCreator` 提供对过滤（通过使用命名约定，以便仅评估某些 advisor，这允许在同一工厂中使用多个不同配置的 AdvisorAutoProxyCreator）和排序的支持。
+Advisor 可以实现 `infra.core.Ordered` 接口以确保正确的顺序（如果这是一个问题）。
+前面示例中使用的 `TransactionAttributeSourceAdvisor` 具有可配置的 order 值。默认设置是无序的。

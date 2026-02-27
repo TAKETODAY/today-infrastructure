@@ -1,12 +1,8 @@
 [[aop-mixing-styles]]
-= Mixing Aspect Types
+= 混合切面类型
 :page-section-summary-toc: 1
 
-It is perfectly possible to mix @AspectJ style aspects by using the auto-proxying support,
-schema-defined `<aop:aspect>` aspects, `<aop:advisor>` declared advisors, and even proxies
-and interceptors in other styles in the same configuration. All of these are implemented
-by using the same underlying support mechanism and can co-exist without any difficulty.
-
-
-
-
+完全可以在同一配置中混合使用 @AspectJ 风格的切面（通过自动代理支持）、
+schema 定义的 `<aop:aspect>` 切面、`<aop:advisor>` 声明的顾问，
+甚至其他风格的代理和拦截器。所有这些都是使用相同的底层支持机制实现的，
+并且可以毫无困难地共存。

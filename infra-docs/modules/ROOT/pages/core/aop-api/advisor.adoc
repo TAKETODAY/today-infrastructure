@@ -1,20 +1,13 @@
 [[aop-api-advisor]]
-= The Advisor API in Infra-
+= Infra 中的 Advisor API
 :page-section-summary-toc: 1
 
-In Infra-, an Advisor is an aspect that contains only a single advice object associated
-with a pointcut expression.
+在 Infra 中，Advisor 是一个仅包含与 pointcut 表达式关联的单个 advice 对象的切面。
 
-Apart from the special case of introductions, any advisor can be used with any advice.
-`infra.aop.support.DefaultPointcutAdvisor` is the most commonly used
-advisor class. It can be used with a `MethodInterceptor`, `BeforeAdvice`, or
-`ThrowsAdvice`.
+除了引介的特殊情况外，任何 advisor 都可以与任何 advice 一起使用。
+`infra.aop.support.DefaultPointcutAdvisor` 是最常用的 advisor 类。
+它可以与 `MethodInterceptor`、`BeforeAdvice` 或 `ThrowsAdvice` 一起使用。
 
-It is possible to mix advisor and advice types in Infra in the same AOP proxy. For
-example, you could use an interception around advice, throws advice, and before advice in
-one proxy configuration. Infra automatically creates the necessary interceptor
-chain.
-
-
-
-
+可以在同一个 AOP 代理中混合使用 Infra 中的 advisor 和 advice 类型。
+例如，你可以在一个代理配置中使用拦截环绕 advice、抛出 advice 和前置 advice。
+Infra 自动创建必要的拦截器链。

@@ -1,15 +1,14 @@
 [[aop-aspectj-programmatic]]
-= Programmatic Creation of @AspectJ Proxies
+= 编程式创建 @AspectJ 代理
 
-In addition to declaring aspects in your configuration by using either `<aop:config>`
-or `<aop:aspectj-autoproxy>`, it is also possible to programmatically create proxies
-that advise target objects. For the full details of Infra AOP API, see the
-xref:core/aop-api.adoc[next chapter]. Here, we want to focus on the ability to automatically
-create proxies by using @AspectJ aspects.
+除了通过 `<aop:config>` 或 `<aop:aspectj-autoproxy>` 在配置中声明切面外，
+也可以通过编程方式创建通知目标对象的代理。有关 Infra AOP API 的完整详情，
+请参见 xref:core/aop-api.adoc[下一章]。这里我们将重点介绍使用 @AspectJ 切面
+自动创建代理的能力。
 
-You can use the `infra.aop.aspectj.annotation.AspectJProxyFactory` class
-to create a proxy for a target object that is advised by one or more @AspectJ aspects.
-The basic usage for this class is very simple, as the following example shows:
+你可以使用 `infra.aop.aspectj.annotation.AspectJProxyFactory` 类
+为目标对象创建一个由一个或多个 @AspectJ 切面通知的代理。
+该类的基本用法非常简单，如下例所示：
 
 [tabs]
 ======
@@ -17,25 +16,20 @@ Java::
 +
 [source,java,indent=0,subs="verbatim",role="primary"]
 ----
-// create a factory that can generate a proxy for the given target object
+// 创建一个工厂，用于为给定的目标对象生成代理
 AspectJProxyFactory factory = new AspectJProxyFactory(targetObject);
 
-// add an aspect, the class must be an @AspectJ aspect
-// you can call this as many times as you need with different aspects
+// 添加切面，该类必须是 @AspectJ 切面
+// 你可以根据需要多次调用此方法以添加不同的切面
 factory.addAspect(SecurityManager.class);
 
-// you can also add existing aspect instances, the type of the object supplied
-// must be an @AspectJ aspect
+// 你也可以添加现有的切面实例，提供的对象类型必须是 @AspectJ 切面
 factory.addAspect(usageTracker);
 
-// now get the proxy object...
+// 现在获取代理对象...
 MyInterfaceType proxy = factory.getProxy();
 ----
 
 ======
 
-See the {today-framework-api}/aop/aspectj/annotation/AspectJProxyFactory.html[javadoc] for more information.
-
-
-
-
+有关更多信息，请参阅 {today-framework-api}/aop/aspectj/annotation/AspectJProxyFactory.html[javadoc]。

@@ -1,18 +1,17 @@
 [[aop-api-pointcuts]]
-= Pointcut API in Infra
+= Infra 中的 Pointcut API
 
-This section describes how Infra handles the crucial pointcut concept.
+本节描述 Infra 如何处理关键的 pointcut 概念。
 
 
 
 [[aop-api-concepts]]
-== Concepts
+== 概念
 
-Infra pointcut model enables pointcut reuse independent of advice types. You can
-target different advice with the same pointcut.
+Infra 的 pointcut 模型支持独立于 advice 类型的 pointcut 重用。
+你可以使用相同的 pointcut 针对不同的 advice。
 
-The `infra.aop.Pointcut` interface is the central interface, used to
-target advice to particular classes and methods. The complete interface follows:
+`infra.aop.Pointcut` 接口是中心接口，用于将 advice 定位到特定的类和方法。完整的接口如下：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -24,13 +23,10 @@ public interface Pointcut {
 }
 ----
 
-Splitting the `Pointcut` interface into two parts allows reuse of class and method
-matching parts and fine-grained composition operations (such as performing a "`union`"
-with another method matcher).
+将 `Pointcut` 接口拆分为两部分允许重用类和方法匹配部分以及细粒度的组合操作（例如与另一个方法匹配器执行“`并集`”操作）。
 
-The `ClassFilter` interface is used to restrict the pointcut to a given set of target
-classes. If the `matches()` method always returns true, all target classes are
-matched. The following listing shows the `ClassFilter` interface definition:
+`ClassFilter` 接口用于将 pointcut 限制为给定的目标类集。如果 `matches()` 方法始终返回 true，则匹配所有目标类。
+以下清单显示了 `ClassFilter` 接口定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -40,7 +36,7 @@ public interface ClassFilter {
 }
 ----
 
-The `MethodMatcher` interface is normally more important. The complete interface follows:
+`MethodMatcher` 接口通常更重要。完整的接口如下：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -54,79 +50,67 @@ public interface MethodMatcher {
 }
 ----
 
-The `matches(Method, Class)` method is used to test whether this pointcut ever
-matches a given method on a target class. This evaluation can be performed when an AOP
-proxy is created to avoid the need for a test on every method invocation. If the
-two-argument `matches` method returns `true` for a given method, and the `isRuntime()`
-method for the MethodMatcher returns `true`, the three-argument matches method is
-invoked on every method invocation. This lets a pointcut look at the arguments passed
-to the method invocation immediately before the target advice starts.
+`matches(Method, Class)` 方法用于测试此 pointcut 是否曾匹配目标类上的给定方法。
+可以在创建 AOP 代理时执行此评估，以避免在每次方法调用时进行测试。
+如果对于给定的方法，双参数 `matches` 方法返回 `true`，并且 MethodMatcher 的 `isRuntime()` 方法返回 `true`，
+则在每次方法调用时都会调用三参数 matches 方法。
+这使得 pointcut 可以在目标 advice 开始之前立即查看传递给方法调用的参数。
 
-Most `MethodMatcher` implementations are static, meaning that their `isRuntime()` method
-returns `false`. In this case, the three-argument `matches` method is never invoked.
+大多数 `MethodMatcher` 实现都是静态的，这意味着它们的 `isRuntime()` 方法返回 `false`。
+在这种情况下，永远不会调用三参数 `matches` 方法。
 
-TIP: If possible, try to make pointcuts static, allowing the AOP framework to cache the
-results of pointcut evaluation when an AOP proxy is created.
+TIP: 如果可能，请尝试使 pointcut 为静态的，允许 AOP 框架在创建 AOP 代理时缓存 pointcut 评估的结果。
 
 
 
 [[aop-api-pointcut-ops]]
-== Operations on Pointcuts
+== Pointcut 上的操作
 
-Infra supports operations (notably, union and intersection) on pointcuts.
+Infra 支持 pointcut 上的操作（特别是并集和交集）。
 
-Union means the methods that either pointcut matches.
-Intersection means the methods that both pointcuts match.
-Union is usually more useful.
-You can compose pointcuts by using the static methods in the
-`infra.aop.support.Pointcuts` class or by using the
-`ComposablePointcut` class in the same package. However, using AspectJ pointcut
-expressions is usually a simpler approach.
+并集意味着任一 pointcut 匹配的方法。
+交集意味着两个 pointcut 都匹配的方法。
+并集通常更有用。
+你可以通过使用 `infra.aop.support.Pointcuts` 类中的静态方法或使用同一包中的 `ComposablePointcut` 类来组合 pointcut。
+但是，使用 AspectJ pointcut 表达式通常是一种更简单的方法。
 
 
 
 [[aop-api-pointcuts-aspectj]]
-== AspectJ Expression Pointcuts
+== AspectJ 表达式 Pointcut
 
-Since 2.0, the most important type of pointcut used by Infra is
-`infra.aop.aspectj.AspectJExpressionPointcut`. This is a pointcut that
-uses an AspectJ-supplied library to parse an AspectJ pointcut expression string.
+自 2.0 以来，Infra 使用的最重要的 pointcut 类型是 `infra.aop.aspectj.AspectJExpressionPointcut`。
+这是一个使用 AspectJ 提供的库来解析 AspectJ pointcut 表达式字符串的 pointcut。
 
-See the xref:core/aop.adoc[previous chapter] for a discussion of supported AspectJ pointcut primitives.
+有关支持的 AspectJ pointcut 原语的讨论，请参阅 xref:core/aop.adoc[上一章]。
 
 
 
 [[aop-api-pointcuts-impls]]
-== Convenience Pointcut Implementations
+== 便捷的 Pointcut 实现
 
-Infra provides several convenient pointcut implementations. You can use some of them
-directly; others are intended to be subclassed in application-specific pointcuts.
+Infra 提供了几个方便的 pointcut 实现。你可以直接使用其中的一些；其他的旨在在特定于应用程序的 pointcut 中进行子类化。
 
 
 [[aop-api-pointcuts-static]]
-=== Static Pointcuts
+=== 静态 Pointcut
 
-Static pointcuts are based on the method and the target class and cannot take into account
-the method's arguments. Static pointcuts suffice -- and are best -- for most usages.
-Infra can evaluate a static pointcut only once, when a method is first invoked.
-After that, there is no need to evaluate the pointcut again with each method invocation.
+静态 pointcut 基于方法和目标类，不能考虑方法的参数。静态 pointcut 对于大多数用法来说已经足够了——也是最好的。
+Infra 只能在首次调用方法时评估静态 pointcut 一次。
+之后，不需要在每次方法调用时再次评估 pointcut。
 
-The rest of this section describes some of the static pointcut implementations that are
-included with Infra.
+本节的其余部分描述了 Infra 中包含的一些静态 pointcut 实现。
 
 [[aop-api-pointcuts-regex]]
-==== Regular Expression Pointcuts
+==== 正则表达式 Pointcut
 
-One obvious way to specify static pointcuts is regular expressions. Several AOP
-frameworks besides Infra make this possible.
-`infra.aop.support.JdkRegexpMethodPointcut` is a generic regular
-expression pointcut that uses the regular expression support in the JDK.
+指定静态 pointcut 的一种明显方法是正则表达式。除 Infra 外，其他几个 AOP 框架也使这成为可能。
+`infra.aop.support.JdkRegexpMethodPointcut` 是一个通用的正则表达式 pointcut，它使用 JDK 中的正则表达式支持。
 
-With the `JdkRegexpMethodPointcut` class, you can provide a list of pattern strings.
-If any of these is a match, the pointcut evaluates to `true`. (As a consequence,
-the resulting pointcut is effectively the union of the specified patterns.)
+使用 `JdkRegexpMethodPointcut` 类，你可以提供模式字符串列表。
+如果其中任何一个匹配，则 pointcut 评估为 `true`。（因此，结果 pointcut 实际上是指定模式的并集。）
 
-The following example shows how to use `JdkRegexpMethodPointcut`:
+以下示例显示了如何使用 `JdkRegexpMethodPointcut`：
 
 [source,java]
 ----
@@ -142,11 +126,9 @@ public class JdkRegexpConfiguration {
 }
 ----
 
-Infra provides a convenience class named `RegexpMethodPointcutAdvisor`, which lets us
-also reference an `Advice` (remember that an `Advice` can be an interceptor, before advice,
-throws advice, and others). Behind the scenes, Infra uses a `JdkRegexpMethodPointcut`.
-Using `RegexpMethodPointcutAdvisor` simplifies wiring, as the one bean encapsulates both
-pointcut and advice, as the following example shows:
+Infra 提供了一个名为 `RegexpMethodPointcutAdvisor` 的便利类，它让我们也可以引用一个 `Advice`
+（请记住，`Advice` 可以是拦截器、前置通知、抛出通知等）。在幕后，Infra 使用 `JdkRegexpMethodPointcut`。
+使用 `RegexpMethodPointcutAdvisor` 简化了连接，因为一个 bean 封装了 pointcut 和 advice，如下例所示：
 
 [source,java]
 ----
@@ -163,50 +145,43 @@ public class RegexpConfiguration {
 }
 ----
 
-You can use `RegexpMethodPointcutAdvisor` with any `Advice` type.
+你可以将 `RegexpMethodPointcutAdvisor` 与任何 `Advice` 类型一起使用。
 
 [[aop-api-pointcuts-attribute-driven]]
-==== Attribute-driven Pointcuts
+==== 属性驱动的 Pointcut
 
-An important type of static pointcut is a metadata-driven pointcut. This uses the
-values of metadata attributes (typically, source-level metadata).
+一种重要的静态 pointcut 类型是元数据驱动的 pointcut。这使用元数据属性的值（通常是源级元数据）。
 
 
 [[aop-api-pointcuts-dynamic]]
-=== Dynamic pointcuts
+=== 动态 Pointcut
 
-Dynamic pointcuts are costlier to evaluate than static pointcuts. They take into account
-method arguments as well as static information. This means that they must be
-evaluated with every method invocation and that the result cannot be cached, as arguments will
-vary.
+动态 pointcut 的评估成本比静态 pointcut 高。它们考虑方法参数以及静态信息。
+这意味着必须在每次方法调用时评估它们，并且结果不能被缓存，因为参数会变化。
 
-The main example is the `control flow` pointcut.
+主要示例是 `control flow` pointcut。
 
 [[aop-api-pointcuts-cflow]]
-==== Control Flow Pointcuts
+==== 控制流 Pointcut
 
-Infra control flow pointcuts are conceptually similar to AspectJ `cflow` pointcuts,
-although less powerful. (There is currently no way to specify that a pointcut runs
-below a join point matched by another pointcut.) A control flow pointcut matches the
-current call stack. For example, it might fire if the join point was invoked by a method
-in the `com.mycompany.web` package or by the `SomeCaller` class. Control flow pointcuts
-are specified by using the `infra.aop.support.ControlFlowPointcut` class.
+Infra 控制流 pointcut 在概念上类似于 AspectJ `cflow` pointcut，尽管功能不那么强大。
+（目前无法指定 pointcut 在与另一个 pointcut 匹配的连接点下方运行。）
+控制流 pointcut 匹配当前调用堆栈。例如，如果连接点由 `com.mycompany.web` 包中的方法或 `SomeCaller` 类调用，它可能会触发。
+控制流 pointcut 通过使用 `infra.aop.support.ControlFlowPointcut` 类指定。
 
-NOTE: Control flow pointcuts are significantly more expensive to evaluate at runtime than even
-other dynamic pointcuts. In Java 1.4, the cost is about five times that of other dynamic
-pointcuts.
+NOTE: 控制流 pointcut 在运行时的评估成本甚至比其他动态 pointcut 高得多。
+在 Java 1.4 中，成本大约是其他动态 pointcut 的五倍。
 
 
 
 [[aop-api-pointcuts-superclasses]]
-== Pointcut Superclasses
+== Pointcut 超类
 
-Infra provides useful pointcut superclasses to help you to implement your own pointcuts.
+Infra 提供了有用的 pointcut 超类来帮助你实现自己的 pointcut。
 
-Because static pointcuts are most useful, you should probably subclass
-`StaticMethodMatcherPointcut`. This requires implementing only one
-abstract method (although you can override other methods to customize behavior). The
-following example shows how to subclass `StaticMethodMatcherPointcut`:
+因为静态 pointcut 最有用，你可能应该子类化 `StaticMethodMatcherPointcut`。
+这只需要实现一个抽象方法（尽管你可以覆盖其他方法来自定义行为）。
+以下示例显示了如何子类化 `StaticMethodMatcherPointcut`：
 
 [tabs]
 ======
@@ -217,29 +192,22 @@ Java::
 class TestStaticPointcut extends StaticMethodMatcherPointcut {
 
   public boolean matches(Method m, Class targetClass) {
-    // return true if custom criteria match
+    // 如果自定义标准匹配，则返回 true
   }
 }
 ----
 
 ======
 
-There are also superclasses for dynamic pointcuts.
-You can use custom pointcuts with any advice type.
+也有用于动态 pointcut 的超类。
+你可以将自定义 pointcut 与任何 advice 类型一起使用。
 
 
 
 [[aop-api-pointcuts-custom]]
-== Custom Pointcuts
+== 自定义 Pointcut
 
-Because pointcuts in Infra AOP are Java classes rather than language features (as in
-AspectJ), you can declare custom pointcuts, whether static or dynamic. Custom
-pointcuts in Infra can be arbitrarily complex. However, we recommend using the AspectJ pointcut
-expression language, if you can.
+因为 Infra AOP 中的 pointcut 是 Java 类而不是语言特性（如在 AspectJ 中），所以你可以声明自定义 pointcut，无论是静态的还是动态的。
+Infra 中的自定义 pointcut 可以任意复杂。但是，如果可以，我们建议使用 AspectJ pointcut 表达式语言。
 
-NOTE: Later versions of Infra may offer support for "`semantic pointcuts`" as offered by JAC --
-for example, "`all methods that change instance variables in the target object.`"
-
-
-
-
+NOTE: 较新版本的 Infra 可能提供对 JAC 提供的“`语义 pointcut`”的支持——例如，“`所有更改目标对象中实例变量的方法。`”

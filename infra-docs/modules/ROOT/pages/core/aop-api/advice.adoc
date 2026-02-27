@@ -1,43 +1,38 @@
 [[aop-api-advice]]
-= Advice API in Infra
+= Infra 中的 Advice API
 
-Now we can examine how Infra AOP handles advice.
+现在我们可以通过检查 Infra AOP 如何处理 advice。
 
 
 
 [[aop-api-advice-lifecycle]]
-== Advice Lifecycles
+== Advice 生命周期
 
-Each advice is a Infra bean. An advice instance can be shared across all advised
-objects or be unique to each advised object. This corresponds to per-class or
-per-instance advice.
+每个 advice 都是一个 Infra bean。一个 advice 实例可以在所有被通知对象之间共享，也可以对每个被通知对象是唯一的。
+这对应于每类（per-class）或每实例（per-instance）的 advice。
 
-Per-class advice is used most often. It is appropriate for generic advice, such as
-transaction advisors. These do not depend on the state of the proxied object or add new
-state. They merely act on the method and arguments.
+每类 advice 最常被使用。它适用于通用 advice，例如事务 advisor。
+这些不依赖于代理对象的状态或添加新状态。它们仅作用于方法和参数。
 
-Per-instance advice is appropriate for introductions, to support mixins. In this case,
-the advice adds state to the proxied object.
+每实例 advice 适用于引介（introduction），以支持 mixin。在这种情况下，advice 向代理对象添加状态。
 
-You can use a mix of shared and per-instance advice in the same AOP proxy.
+你可以在同一个 AOP 代理中混合使用共享和每实例 advice。
 
 
 
 [[aop-api-advice-types]]
-== Advice Types in Infra
+== Infra 中的 Advice 类型
 
-Infra provides several advice types and is extensible to support
-arbitrary advice types. This section describes the basic concepts and standard advice types.
+Infra 提供了几种 advice 类型，并且可以扩展以支持任意 advice 类型。本节描述基本概念和标准 advice 类型。
 
 
 [[aop-api-advice-around]]
-=== Interception Around Advice
+=== 拦截环绕 Advice
 
-The most fundamental advice type in Infra is interception around advice.
+Infra 中最基本的 advice 类型是拦截环绕 advice。
 
-Infra is compliant with the AOP `Alliance` interface for around advice that uses method
-interception. Classes that implement `MethodInterceptor` and that implement around advice should also implement the
-following interface:
+Infra 符合 AOP `Alliance` 接口，用于使用方法拦截的环绕 advice。
+实现 `MethodInterceptor` 并实现环绕 advice 的类也应该实现以下接口：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -47,12 +42,10 @@ public interface MethodInterceptor extends Interceptor {
 }
 ----
 
-The `MethodInvocation` argument to the `invoke()` method exposes the method being
-invoked, the target join point, the AOP proxy, and the arguments to the method. The
-`invoke()` method should return the invocation's result: the return value of the join
-point.
+`invoke()` 方法的 `MethodInvocation` 参数公开了正在调用的方法、目标连接点、AOP 代理以及方法的参数。
+`invoke()` 方法应返回调用的结果：连接点的返回值。
 
-The following example shows a simple `MethodInterceptor` implementation:
+以下示例显示了一个简单的 `MethodInterceptor` 实现：
 
 [tabs]
 ======
@@ -73,32 +66,25 @@ public class DebugInterceptor implements MethodInterceptor {
 
 ======
 
-Note the call to the `proceed()` method of `MethodInvocation`. This proceeds down the
-interceptor chain towards the join point. Most interceptors invoke this method and
-return its return value. However, a `MethodInterceptor`, like any around advice, can
-return a different value or throw an exception rather than invoke the proceed method.
-However, you do not want to do this without good reason.
+注意对 `MethodInvocation` 的 `proceed()` 方法的调用。这会沿着拦截器链向连接点继续。
+大多数拦截器调用此方法并返回其返回值。但是，`MethodInterceptor` 与任何环绕 advice 一样，
+可以返回不同的值或抛出异常，而不是调用 proceed 方法。
+但是，没有充分的理由不要这样做。
 
-NOTE: `MethodInterceptor` implementations offer interoperability with other AOP Alliance-compliant AOP
-implementations. The other advice types discussed in the remainder of this section
-implement common AOP concepts but in a Infra-specific way. While there is an advantage
-in using the most specific advice type, stick with `MethodInterceptor` around advice if
-you are likely to want to run the aspect in another AOP framework. Note that pointcuts
-are not currently interoperable between frameworks, and the AOP Alliance does not
-currently define pointcut interfaces.
+NOTE: `MethodInterceptor` 实现提供与其他符合 AOP Alliance 的 AOP 实现的互操作性。
+本节其余部分讨论的其他 advice 类型实现了常见的 AOP 概念，但以 Infra 特定的方式实现。
+虽然使用最具体的 advice 类型有优势，但如果你可能希望在另一个 AOP 框架中运行切面，请坚持使用 `MethodInterceptor` 环绕 advice。
+请注意，pointcut 目前在框架之间不可互操作，并且 AOP Alliance 目前未定义 pointcut 接口。
 
 
 [[aop-api-advice-before]]
-=== Before Advice
+=== 前置 Advice
 
-A simpler advice type is a before advice. This does not need a `MethodInvocation`
-object, since it is called only before entering the method.
+一种更简单的 advice 类型是前置 advice。这不需要 `MethodInvocation` 对象，因为它仅在进入方法之前被调用。
 
-The main advantage of a before advice is that there is no need to invoke the `proceed()`
-method and, therefore, no possibility of inadvertently failing to proceed down the
-interceptor chain.
+前置 advice 的主要优点是不需要调用 `proceed()` 方法，因此不可能无意中未能沿着拦截器链继续。
 
-The following listing shows the `MethodBeforeAdvice` interface:
+以下清单显示了 `MethodBeforeAdvice` 接口：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -108,18 +94,13 @@ public interface MethodBeforeAdvice extends BeforeAdvice {
 }
 ----
 
-(Infra API design would allow for
-field before advice, although the usual objects apply to field interception and it is
-unlikely for Infra to ever implement it.)
+（Infra API 设计允许字段前置 advice，尽管通常的对象适用于字段拦截，并且 Infra 不太可能实现它。）
 
-Note that the return type is `void`. Before advice can insert custom behavior before the join
-point runs but cannot change the return value. If a before advice throws an
-exception, it stops further execution of the interceptor chain. The exception
-propagates back up the interceptor chain. If it is unchecked or on the signature of
-the invoked method, it is passed directly to the client. Otherwise, it is
-wrapped in an unchecked exception by the AOP proxy.
+请注意，返回类型为 `void`。前置 advice 可以在连接点运行之前插入自定义行为，但不能更改返回值。
+如果前置 advice 抛出异常，它将停止拦截器链的进一步执行。异常会向上传播回拦截器链。
+如果它是未检查的或在调用方法的签名上，它将直接传递给客户端。否则，它会被 AOP 代理包装在未检查的异常中。
 
-The following example shows a before advice in Infra-, which counts all method invocations:
+以下示例显示了 Infra 中的前置 advice，它计算所有方法调用：
 
 [tabs]
 ======
@@ -143,28 +124,25 @@ public class CountingBeforeAdvice implements MethodBeforeAdvice {
 
 ======
 
-TIP: Before advice can be used with any pointcut.
+TIP: 前置 advice 可以与任何 pointcut 一起使用。
 
 
 [[aop-api-advice-throws]]
-=== Throws Advice
+=== 抛出 Advice
 
-Throws advice is invoked after the return of the join point if the join point threw
-an exception. Infra offers typed throws advice. Note that this means that the
-`infra.aop.ThrowsAdvice` interface does not contain any methods. It is a
-tag interface identifying that the given object implements one or more typed throws
-advice methods. These should be in the following form:
+如果连接点抛出异常，则在连接点返回后调用抛出 advice。Infra 提供类型化的抛出 advice。
+请注意，这意味着 `infra.aop.ThrowsAdvice` 接口不包含任何方法。
+它是一个标记接口，标识给定对象实现了一个或多个类型化的抛出 advice 方法。这些应采用以下形式：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 afterThrowing([Method, args, target], subclassOfThrowable)
 ----
 
-Only the last argument is required. The method signatures may have either one or four
-arguments, depending on whether the advice method is interested in the method and
-arguments. The next two listing show classes that are examples of throws advice.
+只有最后一个参数是必需的。方法签名可以有一个或四个参数，具体取决于 advice 方法是否对方法和参数感兴趣。
+接下来的两个清单显示了作为抛出 advice 示例的类。
 
-The following advice is invoked if a `RemoteException` is thrown (including from subclasses):
+如果抛出 `RemoteException`（包括子类），则调用以下 advice：
 
 [tabs]
 ======
@@ -175,16 +153,15 @@ Java::
 public class RemoteThrowsAdvice implements ThrowsAdvice {
 
   public void afterThrowing(RemoteException ex) throws Throwable {
-    // Do something with remote exception
+    // 对远程异常做点什么
   }
 }
 ----
 
 ======
 
-Unlike the preceding
-advice, the next example declares four arguments, so that it has access to the invoked method, method
-arguments, and target object. The following advice is invoked if a `MockException` is thrown:
+与前面的 advice 不同，下一个示例声明了四个参数，以便它可以访问调用的方法、方法参数和目标对象。
+如果抛出 `MockException`，则调用以下 advice：
 
 [tabs]
 ======
@@ -195,16 +172,15 @@ Java::
 public class ServletThrowsAdviceWithArguments implements ThrowsAdvice {
 
   public void afterThrowing(Method m, Object[] args, Object target, ServletException ex) {
-    // Do something with all arguments
+    // 对所有参数做点什么
   }
 }
 ----
 
 ======
 
-The final example illustrates how these two methods could be used in a single class
-that handles both `RemoteException` and `MockException`. Any number of throws advice
-methods can be combined in a single class. The following listing shows the final example:
+最后一个示例说明了如何在处理 `RemoteException` 和 `MockException` 的单个类中使用这两个方法。
+任意数量的抛出 advice 方法可以组合在一个类中。以下清单显示了最后一个示例：
 
 [tabs]
 ======
@@ -215,33 +191,29 @@ Java::
 public static class CombinedThrowsAdvice implements ThrowsAdvice {
 
   public void afterThrowing(RemoteException ex) throws Throwable {
-    // Do something with remote exception
+    // 对远程异常做点什么
   }
 
   public void afterThrowing(Method m, Object[] args, Object target, ServletException ex) {
-    // Do something with all arguments
+    // 对所有参数做点什么
   }
 }
 ----
 
 ======
 
-NOTE: If a throws-advice method throws an exception itself, it overrides the
-original exception (that is, it changes the exception thrown to the user). The overriding
-exception is typically a RuntimeException, which is compatible with any method
-signature. However, if a throws-advice method throws a checked exception, it must
-match the declared exceptions of the target method and is, hence, to some degree
-coupled to specific target method signatures. _Do not throw an undeclared checked
-exception that is incompatible with the target method's signature!_
+NOTE: 如果抛出 advice 方法本身抛出异常，它将覆盖原始异常（即，它更改抛给用户的异常）。
+覆盖异常通常是 RuntimeException，它与任何方法签名兼容。
+但是，如果抛出 advice 方法抛出已检查异常，它必须与目标方法的声明异常匹配，因此在某种程度上耦合到特定的目标方法签名。
+_不要抛出与目标方法签名不兼容的未声明的已检查异常！_
 
-TIP: Throws advice can be used with any pointcut.
+TIP: 抛出 advice 可以与任何 pointcut 一起使用。
 
 
 [[aop-api-advice-after-returning]]
-=== After Returning Advice
+=== 返回后 Advice
 
-An after returning advice in Infra must implement the
-`infra.aop.AfterReturningAdvice` interface, which the following listing shows:
+Infra 中的返回后 advice 必须实现 `infra.aop.AfterReturningAdvice` 接口，如下清单所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -252,11 +224,9 @@ public interface AfterReturningAdvice extends Advice {
 }
 ----
 
-An after returning advice has access to the return value (which it cannot modify),
-the invoked method, the method's arguments, and the target.
+返回后 advice 可以访问返回值（它无法修改）、调用的方法、方法的参数和目标。
 
-The following after returning advice counts all successful method invocations that have
-not thrown exceptions:
+以下返回后 advice 计算所有未抛出异常的成功方法调用：
 
 [tabs]
 ======
@@ -280,19 +250,17 @@ public class CountingAfterReturningAdvice implements AfterReturningAdvice {
 ----
 ======
 
-This advice does not change the execution path. If it throws an exception, it is
-thrown up the interceptor chain instead of the return value.
+此 advice 不会更改执行路径。如果它抛出异常，则将其抛出拦截器链，而不是返回值。
 
-TIP: After returning advice can be used with any pointcut.
+TIP: 返回后 advice 可以与任何 pointcut 一起使用。
 
 
 [[aop-api-advice-introduction]]
-=== Introduction Advice
+=== 引介 Advice
 
-Infra treats introduction advice as a special kind of interception advice.
+Infra 将引介 advice 视为一种特殊的拦截 advice。
 
-Introduction requires an `IntroductionAdvisor` and an `IntroductionInterceptor` that
-implement the following interface:
+引介需要一个 `IntroductionAdvisor` 和一个 `IntroductionInterceptor`，它们实现以下接口：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -302,14 +270,11 @@ public interface IntroductionInterceptor extends MethodInterceptor {
 }
 ----
 
-The `invoke()` method inherited from the AOP Alliance `MethodInterceptor` interface must
-implement the introduction. That is, if the invoked method is on an introduced
-interface, the introduction interceptor is responsible for handling the method call -- it
-cannot invoke `proceed()`.
+从 AOP Alliance `MethodInterceptor` 接口继承的 `invoke()` 方法必须实现引介。
+也就是说，如果调用的方法在引入的接口上，则引介拦截器负责处理方法调用——它不能调用 `proceed()`。
 
-Introduction advice cannot be used with any pointcut, as it applies only at the class,
-rather than the method, level. You can only use introduction advice with the
-`IntroductionAdvisor`, which has the following methods:
+引介 advice 不能与任何 pointcut 一起使用，因为它仅适用于类级别，而不是方法级别。
+你只能将引介 advice 与 `IntroductionAdvisor` 一起使用，它具有以下方法：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -326,16 +291,13 @@ public interface IntroductionInfo {
 }
 ----
 
-There is no `MethodMatcher` and, hence, no `Pointcut` associated with introduction
-advice. Only class filtering is logical.
+没有 `MethodMatcher`，因此没有与引介 advice 关联的 `Pointcut`。只有类过滤是合乎逻辑的。
 
-The `getInterfaces()` method returns the interfaces introduced by this advisor.
+`getInterfaces()` 方法返回此 advisor 引入的接口。
 
-The `validateInterfaces()` method is used internally to see whether or not the
-introduced interfaces can be implemented by the configured `IntroductionInterceptor`.
+`validateInterfaces()` 方法在内部用于查看引入的接口是否可以由配置的 `IntroductionInterceptor` 实现。
 
-Consider an example from the Infra test suite and suppose we want to
-introduce the following interface to one or more objects:
+考虑来自 Infra 测试套件的一个示例，假设我们想要将以下接口引入到一个或多个对象：
 
 [tabs]
 ======
@@ -352,40 +314,29 @@ public interface Lockable {
 
 ======
 
-This illustrates a mixin. We want to be able to cast advised objects to `Lockable`,
-whatever their type and call lock and unlock methods. If we call the `lock()` method, we
-want all setter methods to throw a `LockedException`. Thus, we can add an aspect that
-provides the ability to make objects immutable without them having any knowledge of it:
-a good example of AOP.
+这说明了一个 mixin。我们希望能够将建议对象转换为 `Lockable`，无论其类型如何，并调用 lock 和 unlock 方法。
+如果我们调用 `lock()` 方法，我们要让所有 setter 方法抛出 `LockedException`。
+因此，我们可以添加一个切面，该切面提供使对象不可变的能力，而对象对此一无所知：这是 AOP 的一个很好的例子。
 
-First, we need an `IntroductionInterceptor` that does the heavy lifting. In this
-case, we extend the `infra.aop.support.DelegatingIntroductionInterceptor`
-convenience class. We could implement `IntroductionInterceptor` directly, but using
-`DelegatingIntroductionInterceptor` is best for most cases.
+首先，我们需要一个 `IntroductionInterceptor` 来完成繁重的工作。
+在这种情况下，我们扩展 `infra.aop.support.DelegatingIntroductionInterceptor` 便利类。
+我们可以直接实现 `IntroductionInterceptor`，但在大多数情况下使用 `DelegatingIntroductionInterceptor` 是最好的。
 
-The `DelegatingIntroductionInterceptor` is designed to delegate an introduction to an
-actual implementation of the introduced interfaces, concealing the use of interception
-to do so. You can set the delegate to any object using a constructor argument. The
-default delegate (when the no-argument constructor is used) is `this`. Thus, in the next example,
-the delegate is the `LockMixin` subclass of `DelegatingIntroductionInterceptor`.
-Given a delegate (by default, itself), a `DelegatingIntroductionInterceptor` instance
-looks for all interfaces implemented by the delegate (other than
-`IntroductionInterceptor`) and supports introductions against any of them.
-Subclasses such as `LockMixin` can call the `suppressInterface(Class intf)`
-method to suppress interfaces that should not be exposed. However, no matter how many
-interfaces an `IntroductionInterceptor` is prepared to support, the
-`IntroductionAdvisor` used controls which interfaces are actually exposed. An
-introduced interface conceals any implementation of the same interface by the target.
+`DelegatingIntroductionInterceptor` 旨在将引介委托给引入接口的实际实现，隐藏使用拦截来执行此操作。
+你可以使用构造函数参数将委托设置为任何对象。默认委托（当使用无参数构造函数时）是 `this`。
+因此，在下一个示例中，委托是 `DelegatingIntroductionInterceptor` 的 `LockMixin` 子类。
+给定一个委托（默认情况下是其本身），`DelegatingIntroductionInterceptor` 实例查找委托实现的所有接口
+（除了 `IntroductionInterceptor`），并支持针对其中任何一个的引介。
+诸如 `LockMixin` 之类的子类可以调用 `suppressInterface(Class intf)` 方法来抑制不应公开的接口。
+但是，无论 `IntroductionInterceptor` 准备支持多少个接口，使用的 `IntroductionAdvisor` 都会控制实际公开哪些接口。
+引入的接口隐藏了目标对同一接口的任何实现。
 
-Thus, `LockMixin` extends `DelegatingIntroductionInterceptor` and implements `Lockable`
-itself. The superclass automatically picks up that `Lockable` can be supported for
-introduction, so we do not need to specify that. We could introduce any number of
-interfaces in this way.
+因此，`LockMixin` 扩展了 `DelegatingIntroductionInterceptor` 并实现了 `Lockable` 本身。
+超类自动获取 `Lockable` 可以支持引介，因此我们不需要指定它。我们可以通过这种方式引入任意数量的接口。
 
-Note the use of the `locked` instance variable. This effectively adds additional state
-to that held in the target object.
+注意 `locked` 实例变量的使用。这有效地将额外的状态添加到目标对象中保存的状态。
 
-The following example shows the example `LockMixin` class:
+以下示例显示了示例 `LockMixin` 类：
 
 [tabs]
 ======
@@ -421,18 +372,14 @@ public class LockMixin extends DelegatingIntroductionInterceptor implements Lock
 
 ======
 
-Often, you need not override the `invoke()` method. The
-`DelegatingIntroductionInterceptor` implementation (which calls the `delegate` method if
-the method is introduced, otherwise proceeds towards the join point) usually
-suffices. In the present case, we need to add a check: no setter method can be invoked
-if in locked mode.
+通常，你不需要覆盖 `invoke()` 方法。
+`DelegatingIntroductionInterceptor` 实现（如果方法被引入，则调用 `delegate` 方法，否则向连接点继续）通常就足够了。
+在目前的情况下，我们需要添加一个检查：如果处于锁定模式，则不能调用 setter 方法。
 
-The required introduction only needs to hold a distinct
-`LockMixin` instance and specify the introduced interfaces (in this case, only
-`Lockable`). A more complex example might take a reference to the introduction
-interceptor (which would be defined as a prototype). In this case, there is no
-configuration relevant for a `LockMixin`, so we create it by using `new`.
-The following example shows our `LockMixinAdvisor` class:
+所需的引介只需要持有一个独特的 `LockMixin` 实例并指定引入的接口（在本例中仅为 `Lockable`）。
+更复杂的示例可能会引用引介拦截器（这将定义为原型）。
+在这种情况下，没有与 `LockMixin` 相关的配置，因此我们使用 `new` 创建它。
+以下示例显示了我们的 `LockMixinAdvisor` 类：
 
 [tabs]
 ======
@@ -449,19 +396,9 @@ public class LockMixinAdvisor extends DefaultIntroductionAdvisor {
 ----
 ======
 
-We can apply this advisor very simply, because it requires no configuration. (However, it
-is impossible to use an `IntroductionInterceptor` without an
-`IntroductionAdvisor`.) As usual with introductions, the advisor must be per-instance,
-as it is stateful. We need a different instance of `LockMixinAdvisor`, and hence
-`LockMixin`, for each advised object. The advisor comprises part of the advised object's
-state.
+我们可以非常简单地应用此 advisor，因为它不需要配置。（但是，如果不使用 `IntroductionAdvisor`，就不可能使用 `IntroductionInterceptor`。）
+与引介一样，advisor 必须是每实例的，因为他是有状态的。我们需要为每个被通知对象提供不同的 `LockMixinAdvisor` 实例，从而提供不同的 `LockMixin`。
+Advisor 包含被通知对象状态的一部分。
 
-We can apply this advisor programmatically by using the `Advised.addAdvisor()` method or
-(the recommended way) in XML configuration, as any other advisor. All proxy creation
-choices discussed below, including "`auto proxy creators,`" correctly handle introductions
-and stateful mixins.
-
-
-
-
-
+我们可以通过使用 `Advised.addAdvisor()` 方法以编程方式应用此 advisor，或者（推荐的方式）在 XML 配置中应用，就像任何其他 advisor 一样。
+下面讨论的所有代理创建选择，包括“`自动代理创建者`”，都能正确处理引介和有状态 mixin。

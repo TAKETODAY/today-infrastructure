@@ -1,13 +1,10 @@
 [[aop-at-aspectj]]
-= Declaring an Aspect
+= 声明切面
 
-With @AspectJ support enabled, any bean defined in your application context with a
-class that is an @AspectJ aspect (has the `@Aspect` annotation) is automatically
-detected by Infra and used to configure Infra AOP. The next two examples show the
-minimal steps required for a not-very-useful aspect.
+启用 @AspectJ 支持后，在应用程序上下文中定义的任何 bean，如果其类是 @AspectJ 切面（具有 `@Aspect` 注解），
+都会被 Infra 自动检测到，并用于配置 Infra AOP。接下来的两个示例展示了声明一个不太有用的切面所需的最小步骤。
 
-The first of the two examples shows a regular bean definition in the application context
-that points to a bean class that is annotated with `@Aspect`:
+这两个示例中的第一个展示了应用程序上下文中的常规 bean 定义，指向一个带有 `@Aspect` 注解的 bean 类：
 
 [source,java]
 ----
@@ -16,14 +13,13 @@ public class ApplicationConfiguration {
   @Bean
   public NotVeryUsefulAspect myAspect() {
     NotVeryUsefulAspect myAspect = new NotVeryUsefulAspect();
-    // Configure properties of the aspect here
+    // 在此处配置切面的属性
     return myAspect;
   }
 }
 ----
 
-The second of the two examples shows the `NotVeryUsefulAspect` class definition, which is
-annotated with `@Aspect`:
+这两个示例中的第二个展示了 `NotVeryUsefulAspect` 类定义，该类带有 `@Aspect` 注解：
 
 [source,java]
 ----
@@ -32,22 +28,15 @@ public class NotVeryUsefulAspect {
 }
 ----
 
-Aspects (classes annotated with `@Aspect`) can have methods and fields, the same as any
-other class. They can also contain pointcut, advice, and introduction (inter-type)
-declarations.
+切面（带有 `@Aspect` 注解的类）可以像任何其他类一样拥有方法和字段。
+它们还可以包含切点、通知和引入（类型间）声明。
 
-.Autodetecting aspects through component scanning
-NOTE: You can register aspect classes as regular beans in your Infra XML configuration,
-via `@Bean` methods in `@Configuration` classes, or have Infra autodetect them through
-classpath scanning -- the same as any other Infra-managed bean. However, note that the
-`@Aspect` annotation is not sufficient for autodetection in the classpath. For that
-purpose, you need to add a separate `@Component` annotation (or, alternatively, a custom
-stereotype annotation that qualifies, as per the rules of Infra component scanner).
+.通过组件扫描自动检测切面
+NOTE: 你可以在 Infra XML 配置中将切面类注册为常规 bean，
+或者通过 `@Configuration` 类中的 `@Bean` 方法注册，或者让 Infra 通过类路径扫描自动检测它们——这与任何其他 Infra 管理的 bean 一样。
+但是，请注意，`@Aspect` 注解对于类路径中的自动检测是不够的。为此，你需要添加一个单独的 `@Component` 注解
+（或者，根据 Infra 组件扫描器的规则，添加一个符合条件的自定义构造型注解）。
 
-.Advising aspects with other aspects?
-NOTE: In Infra AOP, aspects themselves cannot be the targets of advice from other
-aspects. The `@Aspect` annotation on a class marks it as an aspect and, hence, excludes
-it from auto-proxying.
-
-
-
+.用其他切面通知切面？
+NOTE: 在 Infra AOP 中，切面本身不能成为其他切面通知的目标。
+类上的 `@Aspect` 注解将其标记为切面，因此将其从自动代理中排除。

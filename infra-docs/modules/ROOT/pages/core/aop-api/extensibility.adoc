@@ -1,16 +1,11 @@
 [[aop-extensibility]]
-= Defining New Advice Types
+= 定义新的 Advice 类型
 :page-section-summary-toc: 1
 
-Infra AOP is designed to be extensible. While the interception implementation strategy
-is presently used internally, it is possible to support arbitrary advice types in
-addition to the interception around advice, before, throws advice, and
-after returning advice.
+Infra AOP 被设计为可扩展的。虽然拦截实现策略目前在内部使用，但除了拦截环绕 advice、前置、抛出 advice 和返回后 advice 之外，
+还可以支持任意 advice 类型。
 
-The `infra.aop.framework.adapter` package is an SPI package that lets
-support for new custom advice types be added without changing the core framework.
-The only constraint on a custom `Advice` type is that it must implement the
-`org.aopalliance.aop.Advice` marker interface.
+`infra.aop.framework.adapter` 包是一个 SPI 包，允许在不更改核心框架的情况下添加对新自定义 advice 类型的支持。
+自定义 `Advice` 类型的唯一约束是它必须实现 `org.aopalliance.aop.Advice` 标记接口。
 
-See the {today-framework-api}/aop/framework/adapter/package-summary.html[`infra.aop.framework.adapter`]
-javadoc for further information.
+有关更多信息，请参阅 {today-framework-api}/aop/framework/adapter/package-summary.html[`infra.aop.framework.adapter`] javadoc。

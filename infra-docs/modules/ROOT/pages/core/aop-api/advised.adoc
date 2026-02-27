@@ -1,10 +1,8 @@
 [[aop-api-advised]]
-= Manipulating Advised Objects
+= 操作被通知对象
 
-However you create AOP proxies, you can manipulate them BY using the
-`infra.aop.framework.Advised` interface. Any AOP proxy can be cast to this
-interface, no matter which other interfaces it implements. This interface includes the
-following methods:
+无论你如何创建 AOP 代理，你都可以通过使用 `infra.aop.framework.Advised` 接口来操作它们。
+任何 AOP 代理都可以转换为此接口，无论它实现了哪些其他接口。此接口包括以下方法：
 
 [tabs]
 ======
@@ -35,25 +33,20 @@ boolean isFrozen();
 
 ======
 
-The `getAdvisors()` method returns an `Advisor` for every advisor, interceptor, or
-other advice type that has been added to the factory. If you added an `Advisor`, the
-returned advisor at this index is the object that you added. If you added an
-interceptor or other advice type, Infra wrapped this in an advisor with a
-pointcut that always returns `true`. Thus, if you added a `MethodInterceptor`, the advisor
-returned for this index is a `DefaultPointcutAdvisor` that returns your
-`MethodInterceptor` and a pointcut that matches all classes and methods.
+`getAdvisors()` 方法为已添加到工厂的每个 advisor、interceptor 或其他 advice 类型返回一个 `Advisor`。
+如果你添加了一个 `Advisor`，则在此索引处返回的 advisor 就是你添加的对象。
+如果你添加了一个 interceptor 或其他 advice 类型，Infra 会将其包装在一个 pointcut 始终返回 `true` 的 advisor 中。
+因此，如果你添加了一个 `MethodInterceptor`，则为此索引返回的 advisor 是一个 `DefaultPointcutAdvisor`，
+它返回你的 `MethodInterceptor` 和一个匹配所有类和方法的 pointcut。
 
-The `addAdvisor()` methods can be used to add any `Advisor`. Usually, the advisor holding
-pointcut and advice is the generic `DefaultPointcutAdvisor`, which you can use with
-any advice or pointcut (but not for introductions).
+`addAdvisor()` 方法可用于添加任何 `Advisor`。通常，持有 pointcut 和 advice 的 advisor 是通用的 `DefaultPointcutAdvisor`，
+你可以将其与任何 advice 或 pointcut 一起使用（但不能用于引介）。
 
-By default, it is possible to add or remove advisors or interceptors even once a proxy
-has been created. The only restriction is that it is impossible to add or remove an
-introduction advisor, as existing proxies from the factory do not show the interface
-change. (You can obtain a new proxy from the factory to avoid this problem.)
+默认情况下，即使已创建代理，也可以添加或删除 advisor 或 interceptor。
+唯一的限制是无法添加或删除引介 advisor，因为工厂中的现有代理不会显示接口更改。
+（你可以从工厂获取新代理以避免此问题。）
 
-The following example shows casting an AOP proxy to the `Advised` interface and examining and
-manipulating its advice:
+以下示例显示了将 AOP 代理转换为 `Advised` 接口并检查和操作其 advice：
 
 [tabs]
 ======
@@ -66,12 +59,12 @@ Java::
 	int oldAdvisorCount = advisors.length;
 	System.out.println(oldAdvisorCount + " advisors");
 
-	// Add an advice like an interceptor without a pointcut
-	// Will match all proxied methods
-	// Can use for interceptors, before, after returning or throws advice
+	// 添加像拦截器这样的 advice，没有 pointcut
+	// 将匹配所有代理方法
+	// 可以用于 interceptor、前置、返回后或抛出 advice
 	advised.addAdvice(new DebugInterceptor());
 
-	// Add selective advice using a pointcut
+	// 使用 pointcut 添加选择性 advice
 	advised.addAdvisor(new DefaultPointcutAdvisor(mySpecialPointcut, myAdvice));
 
 	assertEquals("Added two advisors", oldAdvisorCount + 2, advised.getAdvisors().length);
@@ -79,20 +72,11 @@ Java::
 
 ======
 
-NOTE: It is questionable whether it is advisable (no pun intended) to modify advice on a
-business object in production, although there are, no doubt, legitimate usage cases.
-However, it can be very useful in development (for example, in tests). We have sometimes
-found it very useful to be able to add test code in the form of an interceptor or other
-advice, getting inside a method invocation that we want to test. (For example, the advice can
-get inside a transaction created for that method, perhaps to run SQL to check that
-a database was correctly updated, before marking the transaction for roll back.)
+NOTE: 在生产环境中修改业务对象上的 advice 是否明智（没有双关语意）是值得商榷的，尽管毫无疑问存在合法的使用案例。
+但是，它在开发中非常有用（例如，在测试中）。我们有时发现能够以拦截器或其他 advice 的形式添加测试代码非常有用，
+可以进入我们要测试的方法调用内部。（例如，advice 可以进入为该方法创建的事务中，也许在运行 SQL 以检查数据库是否正确更新之前，
+将事务标记为回滚。）
 
-Depending on how you created the proxy, you can usually set a `frozen` flag. In that
-case, the `Advised` `isFrozen()` method returns `true`, and any attempts to modify
-advice through addition or removal results in an `AopConfigException`. The ability
-to freeze the state of an advised object is useful in some cases (for example, to
-prevent calling code removing a security interceptor).
-
-
-
-
+根据你创建代理的方式，通常可以设置 `frozen` 标志。
+在这种情况下，`Advised` `isFrozen()` 方法返回 `true`，任何通过添加或删除修改 advice 的尝试都会导致 `AopConfigException`。
+冻结被通知对象状态的能力在某些情况下很有用（例如，防止调用代码删除安全拦截器）。

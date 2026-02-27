@@ -1,50 +1,41 @@
 [[xml-custom]]
-= XML Schema Authoring
+= XML Schema 编写
 
 [[xsd-custom-introduction]]
-Since version 2.0, Infra has featured a mechanism for adding schema-based extensions to the
-basic Infra XML format for defining and configuring beans. This section covers
-how to write your own custom XML bean definition parsers and
-integrate such parsers into the Infra IoC container.
+自 2.0 版本以来，Infra 引入了一种机制，用于向定义和配置 bean 的基本 Infra XML 格式添加基于模式的扩展。
+本节介绍如何编写自己的自定义 XML bean 定义解析器，并将这些解析器集成到 Infra IoC 容器中。
 
-To facilitate authoring configuration files that use a schema-aware XML editor,
-Infra extensible XML configuration mechanism is based on XML Schema. If you are not
-familiar with Infra current XML configuration extensions that come with the standard
-Infra distribution, you should first read the previous section on xref:core/appendix/xsd-schemas.adoc[XML Schemas].
+为了便于编写使用感知模式的 XML 编辑器的配置文件，Infra 的可扩展 XML 配置机制基于 XML Schema。
+如果您不熟悉标准 Infra 发行版附带的当前 XML 配置扩展，您应该首先阅读上一节 xref:core/appendix/xsd-schemas.adoc[XML Schemas]。
 
 
-To create new XML configuration extensions:
+要创建新的 XML 配置扩展：
 
-. xref:core/appendix/xml-custom.adoc#xsd-custom-schema[Author] an XML schema to describe your custom element(s).
-. xref:core/appendix/xml-custom.adoc#xsd-custom-namespacehandler[Code] a custom `NamespaceHandler` implementation.
-. xref:core/appendix/xml-custom.adoc#xsd-custom-parser[Code] one or more `BeanDefinitionParser` implementations
-  (this is where the real work is done).
-. xref:core/appendix/xml-custom.adoc#xsd-custom-registration[Register] your new artifacts with Infra.
+. xref:core/appendix/xml-custom.adoc#xsd-custom-schema[编写] 一个 XML 模式来描述您的自定义元素。
+. xref:core/appendix/xml-custom.adoc#xsd-custom-namespacehandler[编写] 一个自定义 `NamespaceHandler` 实现。
+. xref:core/appendix/xml-custom.adoc#xsd-custom-parser[编写] 一个或多个 `BeanDefinitionParser` 实现
+  （这是完成实际工作的地方）。
+. xref:core/appendix/xml-custom.adoc#xsd-custom-registration[注册] 您的新工件到 Infra。
 
-For a unified example, we create an
-XML extension (a custom XML element) that lets us configure objects of the type
-`SimpleDateFormat` (from the `java.text` package). When we are done,
-we will be able to define bean definitions of type `SimpleDateFormat` as follows:
+作为一个统一的示例，我们创建一个 XML 扩展（一个自定义 XML 元素），让我们配置 `SimpleDateFormat` 类型（来自 `java.text` 包）的对象。
+完成后，我们将能够如下定义 `SimpleDateFormat` 类型的 bean 定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <myns:dateformat id="dateFormat" pattern="yyyy-MM-dd HH:mm" lenient="true"/>
 ----
 
-(We include much more detailed
-examples follow later in this appendix. The intent of this first simple example is to walk you
-through the basic steps of making a custom extension.)
+（本附录稍后将包含更详细的示例。这第一个简单示例的目的是引导您完成制作自定义扩展的基本步骤。）
 
 
 
 [[xsd-custom-schema]]
-== Authoring the Schema
+== 编写 Schema
 
-Creating an XML configuration extension for use with Infra IoC container starts with
-authoring an XML Schema to describe the extension. For our example, we use the following schema
-to configure `SimpleDateFormat` objects:
+创建用于 Infra IoC 容器的 XML 配置扩展首先要编写一个 XML Schema 来描述该扩展。
+对于我们的示例，我们使用以下模式来配置 `SimpleDateFormat` 对象：
 
-myns.xsd (inside package infra/samples/xml)
+myns.xsd (在 infra/samples/xml 包内)
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -71,23 +62,18 @@ myns.xsd (inside package infra/samples/xml)
   </xsd:element>
 </xsd:schema>
 ----
-<1> The indicated line contains an extension base for all identifiable tags
-(meaning they have an `id` attribute that we can use as the bean identifier in the
-container). We can use this attribute because we imported the Infra-provided
-`beans` namespace.
+<1> 指示的行包含所有可识别标签的扩展基（意味着它们具有我们可以用作容器中 bean 标识符的 `id` 属性）。
+我们可以使用此属性，因为我们要导入 Infra 提供的 `beans` 命名空间。
 
 
-The preceding schema lets us configure `SimpleDateFormat` objects directly in an
-XML application context file by using the `<myns:dateformat/>` element, as the following
-example shows:
+前面的模式允许我们使用 `<myns:dateformat/>` 元素直接在 XML 应用程序上下文文件中配置 `SimpleDateFormat` 对象，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <myns:dateformat id="dateFormat" pattern="yyyy-MM-dd HH:mm" lenient="true"/>
 ----
 
-Note that, after we have created the infrastructure classes, the preceding snippet of XML is
-essentially the same as the following XML snippet:
+请注意，在我们创建基础设施类之后，前面的 XML 片段本质上与以下 XML 片段相同：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -97,46 +83,31 @@ essentially the same as the following XML snippet:
 </bean>
 ----
 
-The second of the two preceding snippets
-creates a bean in the container (identified by the name `dateFormat` of type
-`SimpleDateFormat`) with a couple of properties set.
+前面的两个片段中的第二个在容器中创建一个 bean（由名称 `dateFormat` 标识，类型为 `SimpleDateFormat`），并设置了几个属性。
 
-NOTE: The schema-based approach to creating configuration format allows for tight integration
-with an IDE that has a schema-aware XML editor. By using a properly authored schema, you
-can use autocompletion to let a user choose between several configuration options
-defined in the enumeration.
+NOTE: 创建配置格式的基于模式的方法允许与具有感知模式的 XML 编辑器的 IDE 紧密集成。
+通过使用正确编写的模式，您可以使用自动完成功能让用户在枚举中定义的几个配置选项之间进行选择。
 
 
 
 [[xsd-custom-namespacehandler]]
-== Coding a `NamespaceHandler`
+== 编写 `NamespaceHandler`
 
-In addition to the schema, we need a `NamespaceHandler` to parse all elements of
-this specific namespace that Infra encounters while parsing configuration files. For this example, the
-`NamespaceHandler` should take care of the parsing of the `myns:dateformat`
-element.
+除了模式之外，我们还需要一个 `NamespaceHandler` 来解析 Infra 在解析配置文件时遇到的此特定命名空间的所有元素。
+对于此示例，`NamespaceHandler` 应负责解析 `myns:dateformat` 元素。
 
-The `NamespaceHandler` interface features three methods:
+`NamespaceHandler` 接口具有三个方法：
 
-* `init()`: Allows for initialization of the `NamespaceHandler` and is called by
-  Infra before the handler is used.
-* `BeanDefinition parse(Element, ParserContext)`: Called when Infra encounters a
-  top-level element (not nested inside a bean definition or a different namespace).
-  This method can itself register bean definitions, return a bean definition, or both.
-* `BeanDefinitionHolder decorate(Node, BeanDefinitionHolder, ParserContext)`: Called
-  when Infra encounters an attribute or nested element of a different namespace.
-  The decoration of one or more bean definitions is used (for example) with the
-  xref:core/beans/factory-scopes.adoc[scopes that Infra supports].
-  We start by highlighting a simple example, without using decoration, after which
-  we show decoration in a somewhat more advanced example.
+* `init()`：允许初始化 `NamespaceHandler`，并在使用处理程序之前由 Infra 调用。
+* `BeanDefinition parse(Element, ParserContext)`：当 Infra 遇到顶级元素（未嵌套在 bean 定义或不同命名空间内）时调用。
+  此方法本身可以注册 bean 定义，返回 bean 定义，或两者兼而有之。
+* `BeanDefinitionHolder decorate(Node, BeanDefinitionHolder, ParserContext)`：当 Infra 遇到不同命名空间的属性或嵌套元素时调用。
+  一个或多个 bean 定义的装饰用于（例如）xref:core/beans/factory-scopes.adoc[Infra 支持的作用域]。
+  我们首先重点介绍一个简单的示例，不使用装饰，之后我们在一个稍微高级的示例中展示装饰。
 
-Although you can code your own `NamespaceHandler` for the entire
-namespace (and hence provide code that parses each and every element in the namespace),
-it is often the case that each top-level XML element in a Infra XML configuration file
-results in a single bean definition (as in our case, where a single `<myns:dateformat/>`
-element results in a single `SimpleDateFormat` bean definition). Infra features a
-number of convenience classes that support this scenario. In the following example, we
-use the `NamespaceHandlerSupport` class:
+虽然您可以为整个命名空间编写自己的 `NamespaceHandler`（从而提供解析命名空间中每个元素的代码），
+但通常情况下，Infra XML 配置文件中的每个顶级 XML 元素都会产生一个 bean 定义（就像我们的例子一样，其中单个 `<myns:dateformat/>` 元素产生单个 `SimpleDateFormat` bean 定义）。
+Infra 具有许多支持此场景的便利类。在以下示例中，我们使用 `NamespaceHandlerSupport` 类：
 
 [tabs]
 ======
@@ -158,27 +129,20 @@ public class MyNamespaceHandler extends NamespaceHandlerSupport {
 
 ======
 
-You may notice that there is not actually a whole lot of parsing logic
-in this class. Indeed, the `NamespaceHandlerSupport` class has a built-in notion of
-delegation. It supports the registration of any number of `BeanDefinitionParser`
-instances, to which it delegates to when it needs to parse an element in its
-namespace. This clean separation of concerns lets a `NamespaceHandler` handle the
-orchestration of the parsing of all of the custom elements in its namespace while
-delegating to `BeanDefinitionParsers` to do the grunt work of the XML parsing. This
-means that each `BeanDefinitionParser` contains only the logic for parsing a single
-custom element, as we can see in the next step.
+您可能会注意到此类中实际上没有很多解析逻辑。
+实际上，`NamespaceHandlerSupport` 类具有内置的委托概念。
+它支持注册任意数量的 `BeanDefinitionParser` 实例，当它需要解析其命名空间中的元素时，它会委托给这些实例。
+这种关注点的清晰分离让 `NamespaceHandler` 处理其命名空间中所有自定义元素的解析编排，同时委托给 `BeanDefinitionParsers` 来完成 XML 解析的繁重工作。
+这意味着每个 `BeanDefinitionParser` 仅包含解析单个自定义元素的逻辑，如下一步所示。
 
 
 
 [[xsd-custom-parser]]
-== Using `BeanDefinitionParser`
+== 使用 `BeanDefinitionParser`
 
-A `BeanDefinitionParser` is used if the `NamespaceHandler` encounters an XML
-element of the type that has been mapped to the specific bean definition parser
-(`dateformat` in this case). In other words, the `BeanDefinitionParser` is
-responsible for parsing one distinct top-level XML element defined in the schema. In
-the parser, we' have access to the XML element (and thus to its subelements, too) so that
-we can parse our custom XML content, as you can see in the following example:
+如果 `NamespaceHandler` 遇到已映射到特定 bean 定义解析器（在本例中为 `dateformat`）类型的 XML 元素，则使用 `BeanDefinitionParser`。
+换句话说，`BeanDefinitionParser` 负责解析模式中定义的一个不同的顶级 XML 元素。
+在解析器中，我们可以访问 XML 元素（从而也可以访问其子元素），以便我们可以解析我们的自定义 XML 内容，如下例所示：
 
 [tabs]
 ======
@@ -202,11 +166,11 @@ public class SimpleDateFormatBeanDefinitionParser extends AbstractSingleBeanDefi
   }
 
   protected void doParse(Element element, BeanDefinitionBuilder bean) {
-    // this will never be null since the schema explicitly requires that a value be supplied
+    // 这永远不会为空，因为模式明确要求提供值
     String pattern = element.getAttribute("pattern");
     bean.addConstructorArgValue(pattern);
 
-    // this however is an optional property
+    // 然而这是一个可选属性
     String lenient = element.getAttribute("lenient");
     if (StringUtils.hasText(lenient)) {
       bean.addPropertyValue("lenient", Boolean.valueOf(lenient));
@@ -215,82 +179,66 @@ public class SimpleDateFormatBeanDefinitionParser extends AbstractSingleBeanDefi
 
 }
 ----
-<1> We use the Infra-provided `AbstractSingleBeanDefinitionParser` to handle a lot of
-the basic grunt work of creating a single `BeanDefinition`.
-<2> We supply the `AbstractSingleBeanDefinitionParser` superclass with the type that our
-single `BeanDefinition` represents.
+<1> 我们使用 Infra 提供的 `AbstractSingleBeanDefinitionParser` 来处理创建单个 `BeanDefinition` 的许多基本繁重工作。
+<2> 我们向 `AbstractSingleBeanDefinitionParser` 超类提供我们的单个 `BeanDefinition` 所代表的类型。
 
 ======
 
 
-In this simple case, this is all that we need to do. The creation of our single
-`BeanDefinition` is handled by the `AbstractSingleBeanDefinitionParser` superclass, as
-is the extraction and setting of the bean definition's unique identifier.
+在这个简单的例子中，这就是我们需要做的全部工作。
+我们的单个 `BeanDefinition` 的创建由 `AbstractSingleBeanDefinitionParser` 超类处理，bean 定义的唯一标识符的提取和设置也是如此。
 
 
 
 [[xsd-custom-registration]]
-== Registering the Handler and the Schema
+== 注册 Handler 和 Schema
 
-The coding is finished. All that remains to be done is to make the Infra XML
-parsing infrastructure aware of our custom element. We do so by registering our custom
-`namespaceHandler` and custom XSD file in two special-purpose properties files. These
-properties files are both placed in a `META-INF` directory in your application and
-can, for example, be distributed alongside your binary classes in a JAR file. The Infra
-XML parsing infrastructure automatically picks up your new extension by consuming
-these special properties files, the formats of which are detailed in the next two sections.
+编码完成。剩下的就是让 Infra XML 解析基础设施知道我们的自定义元素。
+我们通过在两个专用属性文件中注册我们的自定义 `namespaceHandler` 和自定义 XSD 文件来实现这一点。
+这两个属性文件都放置在应用程序的 `META-INF` 目录中，例如，可以与 JAR 文件中的二进制类一起分发。
+Infra XML 解析基础设施通过使用这些特殊属性文件自动获取您的新扩展，其格式在接下来的两节中详细说明。
 
 
 [[xsd-custom-registration-infra-handlers]]
-=== Writing `META-INF/spring.handlers`
+=== 编写 `META-INF/spring.handlers`
 
-The properties file called `spring.handlers` contains a mapping of XML Schema URIs to
-namespace handler classes. For our example, we need to write the following:
+名为 `spring.handlers` 的属性文件包含 XML Schema URI 到命名空间处理程序类的映射。
+对于我们的示例，我们需要编写以下内容：
 
 [literal,subs="verbatim,quotes"]
 ----
 http\://www.mycompany.example/schema/myns=infra.samples.xml.MyNamespaceHandler
 ----
 
-(The `:` character is a valid delimiter in the Java properties format, so
-`:` character in the URI needs to be escaped with a backslash.)
+（`:` 字符是 Java 属性格式中的有效分隔符，因此 URI 中的 `:` 字符需要用反斜杠转义。）
 
-The first part (the key) of the key-value pair is the URI associated with your custom
-namespace extension and needs to exactly match exactly the value of the `targetNamespace`
-attribute, as specified in your custom XSD schema.
+键值对的第一部分（键）是与您的自定义命名空间扩展关联的 URI，并且需要与您的自定义 XSD 模式中指定的 `targetNamespace` 属性的值完全匹配。
 
 
 [[xsd-custom-registration-infra-schemas]]
-=== Writing 'META-INF/spring.schemas'
+=== 编写 'META-INF/spring.schemas'
 
-The properties file called `spring.schemas` contains a mapping of XML Schema locations
-(referred to, along with the schema declaration, in XML files that use the schema as part
-of the `xsi:schemaLocation` attribute) to classpath resources. This file is needed
-to prevent Infra from absolutely having to use a default `EntityResolver` that requires
-Internet access to retrieve the schema file. If you specify the mapping in this
-properties file, Infra searches for the schema (in this case,
-`myns.xsd` in the `infra.samples.xml` package) on the classpath.
-The following snippet shows the line we need to add for our custom schema:
+名为 `spring.schemas` 的属性文件包含 XML Schema 位置（在将模式用作 `xsi:schemaLocation` 属性一部分的 XML 文件中引用，连同模式声明一起）到类路径资源的映射。
+此文件用于防止 Infra 绝对必须使用默认的 `EntityResolver`，该解析器需要 Internet 访问才能检索模式文件。
+如果您在此属性文件中指定映射，Infra 将在类路径上搜索模式（在本例中为 `infra.samples.xml` 包中的 `myns.xsd`）。
+以下代码段显示了我们需要为自定义模式添加的行：
 
 [literal,subs="verbatim,quotes"]
 ----
 http\://www.mycompany.example/schema/myns/myns.xsd=org/springframework/samples/xml/myns.xsd
 ----
 
-(Remember that the `:` character must be escaped.)
+（请记住，必须转义 `:` 字符。）
 
-You are encouraged to deploy your XSD file (or files) right alongside
-the `NamespaceHandler` and `BeanDefinitionParser` classes on the classpath.
+鼓励您将 XSD 文件与类路径上的 `NamespaceHandler` 和 `BeanDefinitionParser` 类一起部署。
 
 
 
 [[xsd-custom-using]]
-== Using a Custom Extension in Your Infra XML Configuration
+== 在您的 Infra XML 配置中使用自定义扩展
 
-Using a custom extension that you yourself have implemented is no different from using
-one of the "`custom`" extensions that Infra provides. The following
-example uses the custom `<dateformat/>` element developed in the previous steps
-in a Infra XML configuration file:
+使用您自己实现的自定义扩展与使用 Infra 提供的“`自定义`”扩展没有什么不同。
+以下示例在 Infra XML 配置文件使用了在前面的步骤中开发的自定义 `<dateformat/>` 元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -302,33 +250,32 @@ in a Infra XML configuration file:
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.mycompany.example/schema/myns http://www.mycompany.com/schema/myns/myns.xsd">
 
-  <!-- as a top-level bean -->
+  <!-- 作为顶级 bean -->
   <myns:dateformat id="defaultDateFormat" pattern="yyyy-MM-dd HH:mm" lenient="true"/> <1>
 
   <bean id="jobDetailTemplate" abstract="true">
     <property name="dateFormat">
-      <!-- as an inner bean -->
+      <!-- 作为内部 bean -->
       <myns:dateformat pattern="HH:mm MM-dd-yyyy"/>
     </property>
   </bean>
 
 </beans>
 ----
-<1> Our custom bean.
+<1> 我们的自定义 bean。
 
 
 
 [[xsd-custom-meat]]
-== More Detailed Examples
+== 更详细的示例
 
-This section presents some more detailed examples of custom XML extensions.
+本节介绍自定义 XML 扩展的一些更详细的示例。
 
 
 [[xsd-custom-custom-nested]]
-=== Nesting Custom Elements within Custom Elements
+=== 在自定义元素中嵌套自定义元素
 
-The example presented in this section shows how you to write the various artifacts required
-to satisfy a target of the following configuration:
+本节中介绍的示例展示了如何编写满足以下配置目标的各种工件：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -351,12 +298,11 @@ to satisfy a target of the following configuration:
 </beans>
 ----
 
-The preceding configuration nests custom extensions within each other. The class
-that is actually configured by the `<foo:component/>` element is the `Component`
-class (shown in the next example). Notice how the `Component` class does not expose a
-setter method for the `components` property. This makes it hard (or rather impossible)
-to configure a bean definition for the `Component` class by using setter injection.
-The following listing shows the `Component` class:
+前面的配置将自定义扩展相互嵌套。
+实际上由 `<foo:component/>` 元素配置的类是 `Component` 类（如下一个示例所示）。
+请注意 `Component` 类没有公开 `components` 属性的 setter 方法。
+这使得使用 setter 注入为 `Component` 类配置 bean 定义变得困难（或者更确切地说是不可能）。
+以下清单显示了 `Component` 类：
 
 [tabs]
 ======
@@ -374,7 +320,7 @@ public class Component {
   private String name;
   private List<Component> components = new ArrayList<Component> ();
 
-  // there is no setter method for the 'components'
+  // 'components' 没有 setter 方法
   public void addComponent(Component component) {
     this.components.add(component);
   }
@@ -394,9 +340,8 @@ public class Component {
 ----
 ======
 
-The typical solution to this issue is to create a custom `FactoryBean` that exposes a
-setter property for the `components` property. The following listing shows such a custom
-`FactoryBean`:
+此问题的典型解决方案是创建一个自定义 `FactoryBean`，该 `FactoryBean` 公开 `components` 属性的 setter 属性。
+以下清单显示了这样一个自定义 `FactoryBean`：
 
 [tabs]
 ======
@@ -444,11 +389,8 @@ public class ComponentFactoryBean implements FactoryBean<Component> {
 
 ======
 
-This works nicely, but it exposes a lot of Infra plumbing to the end user. What we are
-going to do is write a custom extension that hides away all of this Infra plumbing.
-If we stick to xref:core/appendix/xml-custom.adoc#xsd-custom-introduction[the steps described previously], we start off
-by creating the XSD schema to define the structure of our custom tag, as the following
-listing shows:
+这很好用，但它向最终用户公开了很多 Infra 管道。我们要做的就是编写一个自定义扩展来隐藏所有这些 Infra 管道。
+如果我们坚持 xref:core/appendix/xml-custom.adoc#xsd-custom-introduction[前面描述的步骤]，我们首先创建 XSD 模式来定义自定义标签的结构，如下表所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -473,8 +415,7 @@ listing shows:
 </xsd:schema>
 ----
 
-Again following xref:core/appendix/xml-custom.adoc#xsd-custom-introduction[the process described earlier],
-we then create a custom `NamespaceHandler`:
+再次遵循 xref:core/appendix/xml-custom.adoc#xsd-custom-introduction[前面描述的过程]，然后我们创建一个自定义 `NamespaceHandler`：
 
 [tabs]
 ======
@@ -496,9 +437,8 @@ public class ComponentNamespaceHandler extends NamespaceHandlerSupport {
 
 ======
 
-Next up is the custom `BeanDefinitionParser`. Remember that we are creating
-a `BeanDefinition` that describes a `ComponentFactoryBean`. The following
-listing shows our custom `BeanDefinitionParser` implementation:
+接下来是自定义 `BeanDefinitionParser`。请记住，我们正在创建一个描述 `ComponentFactoryBean` 的 `BeanDefinition`。
+以下清单显示了我们的自定义 `BeanDefinitionParser` 实现：
 
 [tabs]
 ======
@@ -555,8 +495,7 @@ public class ComponentBeanDefinitionParser extends AbstractBeanDefinitionParser 
 
 ======
 
-Finally, the various artifacts need to be registered with the Infra XML infrastructure,
-by modifying the `META-INF/spring.handlers` and `META-INF/spring.schemas` files, as follows:
+最后，需要向 Infra XML 基础设施注册各种工件，方法是修改 `META-INF/spring.handlers` 和 `META-INF/spring.schemas` 文件，如下所示：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -572,19 +511,15 @@ http\://www.foo.example/schema/component/component.xsd=com/foo/component.xsd
 
 
 [[xsd-custom-custom-just-attributes]]
-=== Custom Attributes on "`Normal`" Elements
+=== “`普通`”元素上的自定义属性
 
-Writing your own custom parser and the associated artifacts is not hard. However,
-it is sometimes not the right thing to do. Consider a scenario where you need to
-add metadata to already existing bean definitions. In this case, you certainly
-do not want to have to write your own entire custom extension. Rather, you merely
-want to add an additional attribute to the existing bean definition element.
+编写自己的自定义解析器和相关工件并不难。然而，有时这不是正确的事情。
+考虑一种场景，您需要将元数据添加到现有的 bean 定义中。在这种情况下，您肯定不想编写自己的整个自定义扩展。
+相反，您只想向现有的 bean 定义元素添加一个附加属性。
 
-By way of another example, suppose that you define a bean definition for a
-service object that (unknown to it) accesses a clustered
-{JSR}107[JCache], and you want to ensure that the
-named JCache instance is eagerly started within the surrounding cluster.
-The following listing shows such a definition:
+举个例子，假设您为服务对象定义了一个 bean 定义，该服务对象（它不知道）访问集群 {JSR}107[JCache]，
+并且您希望确命名 JCache 实例在周围的集群中急切启动。
+以下清单显示了这样的定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -594,11 +529,10 @@ The following listing shows such a definition:
 </bean>
 ----
 
-We can then create another `BeanDefinition` when the
-`'jcache:cache-name'` attribute is parsed. This `BeanDefinition` then initializes
-the named JCache for us. We can also modify the existing `BeanDefinition` for the
-`'checkingAccountService'` so that it has a dependency on this new
-JCache-initializing `BeanDefinition`. The following listing shows our `JCacheInitializer`:
+然后我们可以在解析 `'jcache:cache-name'` 属性时创建另一个 `BeanDefinition`。
+然后，此 `BeanDefinition` 为我们初始化命名的 JCache。
+我们还可以修改 `'checkingAccountService'` 的现有 `BeanDefinition`，使其依赖于这个新的 JCache 初始化 `BeanDefinition`。
+以下清单显示了我们的 `JCacheInitializer`：
 
 [tabs]
 ======
@@ -624,8 +558,7 @@ public class JCacheInitializer {
 
 ======
 
-Now we can move onto the custom extension. First, we need to author
-the XSD schema that describes the custom attribute, as follows:
+现在我们可以继续进行自定义扩展。首先，我们需要编写描述自定义属性的 XSD 模式，如下所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -641,7 +574,7 @@ the XSD schema that describes the custom attribute, as follows:
 </xsd:schema>
 ----
 
-Next, we need to create the associated `NamespaceHandler`, as follows:
+接下来，我们需要创建关联的 `NamespaceHandler`，如下所示：
 
 [tabs]
 ======
@@ -665,9 +598,8 @@ public class JCacheNamespaceHandler extends NamespaceHandlerSupport {
 
 ======
 
-Next, we need to create the parser. Note that, in this case, because we are going to parse
-an XML attribute, we write a `BeanDefinitionDecorator` rather than a `BeanDefinitionParser`.
-The following listing shows our `BeanDefinitionDecorator` implementation:
+接下来，我们需要创建解析器。请注意，在这种情况下，因为我们要解析 XML 属性，所以我们编写一个 `BeanDefinitionDecorator` 而不是 `BeanDefinitionParser`。
+以下清单显示了我们的 `BeanDefinitionDecorator` 实现：
 
 [tabs]
 ======
@@ -729,8 +661,7 @@ public class JCacheInitializingBeanDefinitionDecorator implements BeanDefinition
 
 ======
 
-Finally, we need to register the various artifacts with the Infra XML infrastructure
-by modifying the `META-INF/spring.handlers` and `META-INF/spring.schemas` files, as follows:
+最后，我们需要通过修改 `META-INF/spring.handlers` 和 `META-INF/spring.schemas` 文件向 Infra XML 基础设施注册各种工件，如下所示：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -743,5 +674,3 @@ http\://www.foo.example/schema/jcache=com.foo.JCacheNamespaceHandler
 # in 'META-INF/spring.schemas'
 http\://www.foo.example/schema/jcache/jcache.xsd=com/foo/jcache.xsd
 ----
-
-

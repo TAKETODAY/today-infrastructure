@@ -1,12 +1,11 @@
 [[aop-resources]]
-= Further Resources
+= 更多资源
 :page-section-summary-toc: 1
 
-More information on AspectJ can be found on the {aspectj-site}[AspectJ website].
+有关 AspectJ 的更多信息，请访问 {aspectj-site}[AspectJ 网站]。
 
-_Eclipse AspectJ_ by Adrian Colyer et. al. (Addison-Wesley, 2005) provides a
-comprehensive introduction and reference for the AspectJ language.
+由 Adrian Colyer 等人撰写的 _Eclipse AspectJ_ (Addison-Wesley, 2005) 提供了
+AspectJ 语言的全面介绍和参考。
 
-_AspectJ in Action_, Second Edition by Ramnivas Laddad (Manning, 2009) comes highly
-recommended. The focus of the book is on AspectJ, but a lot of general AOP themes are
-explored (in some depth).
+Ramnivas Laddad 撰写的 _AspectJ in Action_, Second Edition (Manning, 2009) 强烈推荐。
+该书重点关注 AspectJ，但也深入探讨了许多通用的 AOP 主题。
