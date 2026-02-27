@@ -1,7 +1,7 @@
 [[beans-value-annotations]]
-= Using `@Value`
+= 使用 `@Value`
 
-`@Value` is typically used to inject externalized properties:
+`@Value` 通常用于注入外部化属性：
 
 [tabs]
 ======
@@ -22,7 +22,7 @@ Java::
 
 ======
 
-With the following configuration:
+具有以下配置：
 
 [tabs]
 ======
@@ -38,20 +38,17 @@ public class AppConfig {
 ----
 ======
 
-And the following `application.properties` file:
+以及以下 `application.properties` 文件：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 catalog.name=MovieCatalog
 ----
 
-In that case, the `catalog` parameter and field will be equal to the `MovieCatalog` value.
+在这种情况下，`catalog` 参数和字段将等于 `MovieCatalog` 值。
 
-A default lenient embedded value resolver is provided by Infra. It will try to resolve the
-property value and if it cannot be resolved, the property name (for example `${catalog.name}`)
-will be injected as the value. If you want to maintain strict control over nonexistent
-values, you should declare a `PropertySourcesPlaceholderConfigurer` bean, as the following
-example shows:
+Infra 提供了默认的宽松嵌入式值解析器。它将尝试解析属性值，如果无法解析，属性名称（例如 `${catalog.name}`）将作为值注入。
+如果您想对不存在的值保持严格控制，您应该声明一个 `PropertySourcesPlaceholderConfigurer` bean，如下例所示：
 
 [tabs]
 ======
@@ -71,22 +68,17 @@ public class AppConfig {
 
 ======
 
-NOTE: When configuring a `PropertySourcesPlaceholderConfigurer` using JavaConfig, the
-`@Bean` method must be `static`.
+NOTE: 使用 JavaConfig 配置 `PropertySourcesPlaceholderConfigurer` 时，`@Bean` 方法必须是 `static`。
 
-Using the above configuration ensures Infra initialization failure if any `${}`
-placeholder could not be resolved. It is also possible to use methods like
-`setPlaceholderPrefix`, `setPlaceholderSuffix`, `setValueSeparator`, or
-`setEscapeCharacter` to customize placeholders.
+使用上述配置可确保如果任何 `${}` 占位符无法解析，Infra 初始化将失败。
+也可以使用 `setPlaceholderPrefix`、`setPlaceholderSuffix`、`setValueSeparator` 或 `setEscapeCharacter` 等方法来自定义占位符。
 
-NOTE: Infra App configures by default a `PropertySourcesPlaceholderConfigurer` bean that
-will get properties from `application.properties` and `application.yml` files.
+NOTE: Infra App 默认配置一个 `PropertySourcesPlaceholderConfigurer` bean，该 bean 将从 `application.properties` 和 `application.yml` 文件中获取属性。
 
-Built-in converter support provided by Infra allows simple type conversion (to `Integer`
-or `int` for example) to be automatically handled. Multiple comma-separated values can be
-automatically converted to `String` array without extra effort.
+Infra 提供的内置转换器支持允许自动处理简单的类型转换（例如转换为 `Integer` 或 `int`）。
+多个逗号分隔的值可以自动转换为 `String` 数组，而无需额外的努力。
 
-It is possible to provide a default value as following:
+可以提供默认值，如下所示：
 
 [tabs]
 ======
@@ -107,10 +99,8 @@ public class MovieRecommender {
 
 ======
 
-A Infra `BeanPostProcessor` uses a `ConversionService` behind the scenes to handle the
-process for converting the `String` value in `@Value` to the target type. If you want to
-provide conversion support for your own custom type, you can provide your own
-`ConversionService` bean instance as the following example shows:
+Infra `BeanPostProcessor` 在幕后使用 `ConversionService` 来处理将 `@Value` 中的 `String` 值转换为目标类型的过程。
+如果您想为自己的自定义类型提供转换支持，您可以提供自己的 `ConversionService` bean 实例，如下例所示：
 
 [tabs]
 ======
@@ -132,8 +122,7 @@ public class AppConfig {
 
 ======
 
-When `@Value` contains a xref:core/expressions.adoc[`SpEL` expression] the value will be dynamically
-computed at runtime as the following example shows:
+当 `@Value` 包含 xref:core/expressions.adoc[`SpEL` 表达式] 时，该值将在运行时动态计算，如下例所示：
 
 [tabs]
 ======
@@ -153,7 +142,7 @@ public class MovieRecommender {
 ----
 ======
 
-SpEL also enables the use of more complex data structures:
+SpEL 还支持使用更复杂的数据结构：
 
 [tabs]
 ======
@@ -173,5 +162,3 @@ public class MovieRecommender {
 ----
 
 ======
-
-

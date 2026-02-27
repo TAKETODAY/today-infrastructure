@@ -1,16 +1,14 @@
 [[beans-standard-annotations]]
-= Using JSR 330 Standard Annotations
+= 使用 JSR 330 标准注解
 
-Infra offers support for JSR-330 standard annotations (Dependency Injection). Those
-annotations are scanned in the same way as the Infra annotations. To use them, you need
-to have the relevant jars in your classpath.
+Infra 支持 JSR-330 标准注解（依赖注入）。这些注解的扫描方式与 Infra 注解相同。
+要使用它们，您需要在类路径中有相关的 jar。
 
 [NOTE]
 =====
-If you use Maven, the `jakarta.inject` artifact is available in the standard Maven
-repository (
+如果您使用 Maven，`jakarta.inject` 工件在标准 Maven 存储库中可用 (
 https://repo.maven.apache.org/maven2/jakarta/inject/jakarta.inject-api/2.0.0/[https://repo.maven.apache.org/maven2/jakarta/inject/jakarta.inject-api/2.0.0/]).
-You can add the following dependency to your file pom.xml:
+您可以将以下依赖项添加到您的 `pom.xml` 文件中：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -22,12 +20,10 @@ You can add the following dependency to your file pom.xml:
 ----
 =====
 
-
-
 [[beans-inject-named]]
-== Dependency Injection with `@Inject` and `@Named`
+== 使用 `@Inject` 和 `@Named` 进行依赖注入
 
-Instead of `@Autowired`, you can use `@jakarta.inject.Inject` as follows:
+代替 `@Autowired`，您可以使用 `@jakarta.inject.Inject`，如下所示：
 
 [tabs]
 ======
@@ -55,11 +51,9 @@ public class SimpleMovieLister {
 
 ======
 
-As with `@Autowired`, you can use `@Inject` at the field level, method level
-and constructor-argument level. Furthermore, you may declare your injection point as a
-`Provider`, allowing for on-demand access to beans of shorter scopes or lazy access to
-other beans through a `Provider.get()` call. The following example offers a variant of the
-preceding example:
+与 `@Autowired` 一样，您可以在字段级别、方法级别和构造函数参数级别使用 `@Inject`。
+此外，您可以将注入点声明为 `Provider`，允许按需访问较短作用域的 bean 或通过 `Provider.get()` 调用延迟访问其他 bean。
+以下示例提供了前面示例的一个变体：
 
 [tabs]
 ======
@@ -88,8 +82,7 @@ public class SimpleMovieLister {
 
 ======
 
-If you would like to use a qualified name for the dependency that should be injected,
-you should use the `@Named` annotation, as the following example shows:
+如果您想为应注入的依赖项使用限定名称，应使用 `@Named` 注解，如下例所示：
 
 [tabs]
 ======
@@ -115,10 +108,9 @@ public class SimpleMovieLister {
 
 ======
 
-As with `@Autowired`, `@Inject` can also be used with `java.util.Optional` or
-`@Nullable`. This is even more applicable here, since `@Inject` does not have
-a `required` attribute. The following pair of examples show how to use `@Inject` and
-`@Nullable`:
+与 `@Autowired` 一样，`@Inject` 也可以与 `java.util.Optional` 或 `@Nullable` 一起使用。
+这在这里甚至更适用，因为 `@Inject` 没有 `required` 属性。
+以下一对示例显示了如何使用 `@Inject` 和 `@Nullable`：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -147,13 +139,10 @@ Java::
 ----
 ======
 
-
-
 [[beans-named]]
-== `@Named` and `@ManagedBean`: Standard Equivalents to the `@Component` Annotation
+== `@Named` 和 `@ManagedBean`: `@Component` 注解的标准等效项
 
-Instead of `@Component`, you can use `@jakarta.inject.Named` or `jakarta.annotation.ManagedBean`,
-as the following example shows:
+代替 `@Component`，您可以使用 `@jakarta.inject.Named` 或 `jakarta.annotation.ManagedBean`，如下例所示：
 
 [tabs]
 ======
@@ -164,7 +153,7 @@ Java::
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-@Named("movieListener")  // @ManagedBean("movieListener") could be used as well
+@Named("movieListener")  // 也可以使用 @ManagedBean("movieListener")
 public class SimpleMovieLister {
 
   private MovieFinder movieFinder;
@@ -180,8 +169,7 @@ public class SimpleMovieLister {
 
 ======
 
-It is very common to use `@Component` without specifying a name for the component.
-`@Named` can be used in a similar fashion, as the following example shows:
+使用 `@Component` 而不为组件指定名称是很常见的。`@Named` 可以以类似的方式使用，如下例所示：
 
 [tabs]
 ======
@@ -208,8 +196,7 @@ public class SimpleMovieLister {
 
 ======
 
-When you use `@Named` or `@ManagedBean`, you can use component scanning in the
-exact same way as when you use Infra annotations, as the following example shows:
+当您使用 `@Named` 或 `@ManagedBean` 时，您可以像使用 Infra 注解一样使用组件扫描，如下例所示：
 
 [tabs]
 ======
@@ -226,60 +213,48 @@ public class AppConfig  {
 
 ======
 
-NOTE: In contrast to `@Component`, the JSR-330 `@Named` and the JSR-250 `@ManagedBean`
-annotations are not composable. You should use Infra stereotype model for building
-custom component annotations.
-
-
+NOTE: 与 `@Component` 相比，JSR-330 `@Named` 和 JSR-250 `@ManagedBean` 注解不可组合。
+您应该使用 Infra 原型模型来构建自定义组件注解。
 
 [[beans-standard-annotations-limitations]]
-== Limitations of JSR-330 Standard Annotations
+== JSR-330 标准注解的限制
 
-When you work with standard annotations, you should know that some significant
-features are not available, as the following table shows:
+当您使用标准注解时，您应该知道某些重要功能不可用，如下表所示：
 
 [[annotations-comparison]]
-.Infra component model elements versus JSR-330 variants
+.Infra 组件模型元素与 JSR-330 变体的比较
 |===
-| Infra| jakarta.inject.*| jakarta.inject restrictions / comments
+| Infra| jakarta.inject.*| jakarta.inject 限制 / 备注
 
 | @Autowired
 | @Inject
-| `@Inject` has no 'required' attribute. Can be used with Java 8's `Optional` instead.
+| `@Inject` 没有 'required' 属性。可以与 Java 8 的 `Optional` 一起使用。
 
 | @Component
 | @Named / @ManagedBean
-| JSR-330 does not provide a composable model, only a way to identify named components.
+| JSR-330 不提供可组合模型，只提供识别命名组件的方法。
 
 | @Scope("singleton")
 | @Singleton
-| The JSR-330 default scope is like Infra `prototype`. However, in order to keep it
-  consistent with Infra general defaults, a JSR-330 bean declared in the Infra
-  container is a `singleton` by default. In order to use a scope other than `singleton`,
-  you should use Infra `@Scope` annotation. `jakarta.inject` also provides a
-  `jakarta.inject.Scope` annotation: however, this one is only intended to be used
-  for creating custom annotations.
+| JSR-330 默认作用域类似于 Infra `prototype`。但是，为了与 Infra 一般默认值保持一致，在 Infra 容器中声明的 JSR-330 bean 默认为 `singleton`。
+  为了使用除 `singleton` 之外的作用域，您应该使用 Infra `@Scope` 注解。
+  `jakarta.inject` 还提供了一个 `jakarta.inject.Scope` 注解：但是，该注解仅用于创建自定义注解。
 
 | @Qualifier
 | @Qualifier / @Named
-| `jakarta.inject.Qualifier` is just a meta-annotation for building custom qualifiers.
-  Concrete `String` qualifiers (like Infra `@Qualifier` with a value) can be associated
-  through `jakarta.inject.Named`.
+| `jakarta.inject.Qualifier` 只是用于构建自定义限定符的元注解。
+  具体的 `String` 限定符（如带有值的 Infra `@Qualifier`）可以通过 `jakarta.inject.Named` 关联。
 
 | @Value
 | -
-| no equivalent
+| 无等效项
 
 | @Lazy
 | -
-| no equivalent
+| 无等效项
 
 | ObjectFactory
 | Provider
-| `jakarta.inject.Provider` is a direct alternative to Infra `ObjectFactory`,
-  only with a shorter `get()` method name. It can also be used in combination with
-  Infra `@Autowired` or with non-annotated constructors and setter methods.
+| `jakarta.inject.Provider` 是 Infra `ObjectFactory` 的直接替代品，只是 `get()` 方法名称更短。
+  它还可以与 Infra `@Autowired` 结合使用，或者与未注解的构造函数和 setter 方法一起使用。
 |===
-
-
-

@@ -1,19 +1,16 @@
 [[beans-java-basic-concepts]]
-= Basic Concepts: `@Bean` and `@Configuration`
+= 基本概念：`@Bean` 和 `@Configuration`
 
-The central artifacts in Infra Java configuration support are
-`@Configuration`-annotated classes and `@Bean`-annotated methods.
+Infra Java 配置支持中的核心构件是 `@Configuration` 注解的类和 `@Bean` 注解的方法。
 
-The `@Bean` annotation is used to indicate that a method instantiates, configures, and
-initializes a new object to be managed by the Infra IoC container. For those familiar
-with Infra `<beans/>` XML configuration, the `@Bean` annotation plays the same role as
-the `<bean/>` element. You can use `@Bean`-annotated methods with any Infra
-`@Component`. However, they are most often used with `@Configuration` beans.
+`@Bean` 注解用于指示一个方法实例化、配置和初始化一个由 Infra IoC 容器管理的新对象。
+对于熟悉 Infra `<beans/>` XML 配置的人来说，`@Bean` 注解扮演的角色与 `<bean/>` 元素相同。
+您可以将 `@Bean` 注解的方法与任何 Infra `@Component` 一起使用。
+但是，它们最常与 `@Configuration` bean 一起使用。
 
-Annotating a class with `@Configuration` indicates that its primary purpose is as a
-source of bean definitions. Furthermore, `@Configuration` classes let inter-bean
-dependencies be defined by calling other `@Bean` methods in the same class.
-The simplest possible `@Configuration` class reads as follows:
+用 `@Configuration` 注解一个类表明其主要目的是作为 bean 定义的来源。
+此外，`@Configuration` 类允许通过调用同一类中的其他 `@Bean` 方法来定义 bean 之间的依赖关系。
+最简单的 `@Configuration` 类如下所示：
 
 [tabs]
 ======
@@ -33,7 +30,7 @@ public class AppConfig {
 
 ======
 
-The preceding `AppConfig` class is equivalent to the following Infra `<beans/>` XML:
+前面的 `AppConfig` 类等同于以下 Infra `<beans/>` XML：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -42,34 +39,22 @@ The preceding `AppConfig` class is equivalent to the following Infra `<beans/>` 
 </beans>
 ----
 
-.Full @Configuration vs "`lite`" @Bean mode?
+.完整的 @Configuration 与“lite” @Bean 模式？
 ****
-When `@Bean` methods are declared within classes that are not annotated with
-`@Configuration`, they are referred to as being processed in a "`lite`" mode. Bean methods
-declared on a bean that is not annotated with `@Configuration` are considered to be "`lite`",
-with a different primary purpose of the containing class and a `@Bean` method
-being a sort of bonus there. For example, service components may expose management views
-to the container through an additional `@Bean` method on each applicable component class.
-In such scenarios, `@Bean` methods are a general-purpose factory method mechanism.
+当 `@Bean` 方法在没有用 `@Configuration` 注解的类中声明时，它们被称为在“lite”模式下处理。
+在没有用 `@Configuration` 注解的 bean 上声明的 Bean 方法被认为是“lite”的，包含类的主要目的不同，而 `@Bean` 方法在这里是一种额外的好处。
+例如，服务组件可以通过每个适用组件类上的附加 `@Bean` 方法向容器公开管理视图。
+在这种情况下，`@Bean` 方法是一种通用的工厂方法机制。
 
-Unlike full `@Configuration`, lite `@Bean` methods cannot declare inter-bean dependencies.
-Instead, they operate on their containing component's internal state and, optionally, on
-arguments that they may declare. Such a `@Bean` method should therefore not invoke other
-`@Bean` methods. Each such method is literally only a factory method for a particular
-bean reference, without any special runtime semantics. The positive side-effect here is
-that no CGLIB subclassing has to be applied at runtime, so there are no limitations in
-terms of class design (that is, the containing class may be `final` and so forth).
+与完整的 `@Configuration` 不同，lite `@Bean` 方法不能声明 bean 之间的依赖关系。
+相反，它们对包含组件的内部状态进行操作，并可选地对其可能声明的参数进行操作。
+因此，此类 `@Bean` 方法不应调用其他 `@Bean` 方法。
+每个这样的方法实际上只是特定 bean 引用的工厂方法，没有任何特殊的运行时语义。
+这里的积极副作用是运行时不需要应用 CGLIB 子类化，因此在类设计方面没有限制（即，包含类可以是 `final` 等）。
 
-In common scenarios, `@Bean` methods are to be declared within `@Configuration` classes,
-ensuring that "`full`" mode is always used and that cross-method references therefore
-get redirected to the container's lifecycle management. This prevents the same
-`@Bean` method from accidentally being invoked through a regular Java call, which helps
-to reduce subtle bugs that can be hard to track down when operating in "`lite`" mode.
+在常见场景中，`@Bean` 方法应在 `@Configuration` 类中声明，确保始终使用“full”模式，因此跨方法引用会被重定向到容器的生命周期管理。
+这可以防止通过常规 Java 调用意外调用相同的 `@Bean` 方法，这有助于减少在“lite”模式下操作时难以追踪的细微错误。
 ****
 
-The `@Bean` and `@Configuration` annotations are discussed in depth in the following sections.
-First, however, we cover the various ways of creating a Infra container by using
-Java-based configuration.
-
-
-
+接下来的部分将深入讨论 `@Bean` 和 `@Configuration` 注解。
+然而，首先，我们将介绍使用基于 Java 的配置创建 Infra 容器的各种方法。

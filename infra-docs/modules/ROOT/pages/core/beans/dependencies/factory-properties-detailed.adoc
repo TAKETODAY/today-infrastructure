@@ -1,26 +1,20 @@
 [[beans-factory-properties-detailed]]
-= Dependencies and Configuration in Detail
+= 依赖项和配置详解
 
-As mentioned in the xref:core/beans/dependencies/factory-collaborators.adoc[previous section], you can define bean
-properties and constructor arguments as references to other managed beans (collaborators)
-or as values defined inline. Infra XML-based configuration metadata supports
-sub-element types within its `<property/>` and `<constructor-arg/>` elements for this
-purpose.
-
+如 xref:core/beans/dependencies/factory-collaborators.adoc[上一节] 所述，您可以将 bean 属性和构造函数参数定义为对其他托管 bean（协作者）的引用或内联定义的值。
+Infra 基于 XML 的配置元数据在其 `<property/>` 和 `<constructor-arg/>` 元素内支持子元素类型以实现此目的。
 
 [[beans-value-element]]
-== Straight Values (Primitives, Strings, and so on)
+== 直接值（基本类型、字符串等）
 
-The `value` attribute of the `<property/>` element specifies a property or constructor
-argument as a human-readable string representation. Infra
-xref:core/validation/convert.adoc#core-convert-ConversionService-API[conversion service] is used to convert these
-values from a `String` to the actual type of the property or argument.
-The following example shows various values being set:
+`<property/>` 元素的 `value` 属性将属性或构造函数参数指定为人类可读的字符串表示形式。
+Infra xref:core/validation/convert.adoc#core-convert-ConversionService-API[转换服务] 用于将这些值从 `String` 转换为属性或参数的实际类型。
+以下示例显示了设置的各种值：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-  <!-- results in a setDriverClassName(String) call -->
+  <!-- 导致 setDriverClassName(String) 调用 -->
   <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
   <property name="url" value="jdbc:mysql://localhost:3306/mydb"/>
   <property name="username" value="root"/>
@@ -28,8 +22,7 @@ The following example shows various values being set:
 </bean>
 ----
 
-The following example uses the xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-p-namespace[p-namespace] for even more succinct
-XML configuration:
+以下示例使用 xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-p-namespace[p-namespace] 进行更简洁的 XML 配置：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -49,20 +42,17 @@ XML configuration:
 </beans>
 ----
 
-The preceding XML is more succinct. However, typos are discovered at runtime rather than
-design time, unless you use an IDE (such as https://www.jetbrains.com/idea/[IntelliJ
-IDEA] or the {today-tech-site-tools}[Infra Tools for Eclipse])
-that supports automatic property completion when you create bean definitions. Such IDE
-assistance is highly recommended.
+前面的 XML 更简洁。但是，除非您使用支持在创建 bean 定义时自动完成属性的 IDE（例如 https://www.jetbrains.com/idea/[IntelliJ IDEA] 或 {today-tech-site-tools}[Infra Tools for Eclipse]），否则拼写错误是在运行时而不是设计时发现的。
+强烈建议使用此类 IDE 辅助。
 
-You can also configure a `java.util.Properties` instance, as follows:
+您还可以配置 `java.util.Properties` 实例，如下所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="mappings"
   class="infra.context.support.PropertySourcesPlaceholderConfigurer">
 
-  <!-- typed as a java.util.Properties -->
+  <!-- 类型为 java.util.Properties -->
   <property name="properties">
     <value>
       jdbc.driver.className=com.mysql.jdbc.Driver
@@ -72,17 +62,14 @@ You can also configure a `java.util.Properties` instance, as follows:
 </bean>
 ----
 
-The Infra container converts the text inside the `<value/>` element into a
-`java.util.Properties` instance by using the JavaBeans `PropertyEditor` mechanism. This
-is a nice shortcut, and is one of a few places where the Infra team do favor the use of
-the nested `<value/>` element over the `value` attribute style.
+Infra 容器通过使用 JavaBeans `PropertyEditor` 机制将 `<value/>` 元素内的文本转换为 `java.util.Properties` 实例。
+这是一个很好的快捷方式，也是 Infra 团队偏爱使用嵌套 `<value/>` 元素而不是 `value` 属性风格的少数几个地方之一。
 
 [[beans-idref-element]]
-=== The `idref` element
+=== `idref` 元素
 
-The `idref` element is simply an error-proof way to pass the `id` (a string value - not
-a reference) of another bean in the container to a `<constructor-arg/>` or `<property/>`
-element. The following example shows how to use it:
+`idref` 元素只是一种防错方法，用于将容器中另一个 bean 的 `id`（字符串值 - 不是引用）传递给 `<constructor-arg/>` 或 `<property/>` 元素。
+以下示例显示了如何使用它：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -95,8 +82,7 @@ element. The following example shows how to use it:
 </bean>
 ----
 
-The preceding bean definition snippet is exactly equivalent (at runtime) to the
-following snippet:
+前面的 bean 定义片段（在运行时）完全等同于以下片段：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -107,94 +93,74 @@ following snippet:
 </bean>
 ----
 
-The first form is preferable to the second, because using the `idref` tag lets the
-container validate at deployment time that the referenced, named bean actually
-exists. In the second variation, no validation is performed on the value that is passed
-to the `targetName` property of the `client` bean. Typos are only discovered (with most
-likely fatal results) when the `client` bean is actually instantiated. If the `client`
-bean is a xref:core/beans/factory-scopes.adoc[prototype] bean, this typo and the resulting exception
-may only be discovered long after the container is deployed.
+第一种形式优于第二种形式，因为使用 `idref` 标记允许容器在部署时验证引用的命名 bean 实际上是否存在。
+在第二种变体中，不对传递给 `client` bean 的 `targetName` 属性的值执行验证。
+只有在实际实例化 `client` bean 时才会发现拼写错误（最有可能导致致命结果）。
+如果 `client` bean 是 xref:core/beans/factory-scopes.adoc[原型] bean，则此拼写错误和产生的异常可能仅在部署容器很久之后才被发现。
 
-NOTE: The `local` attribute on the `idref` element is no longer supported in the 4.0 beans
-XSD, since it does not provide value over a regular `bean` reference any more. Change
-your existing `idref local` references to `idref bean` when upgrading to the 4.0 schema.
+NOTE: `idref` 元素上的 `local` 属性在 4.0 beans XSD 中不再受支持，因为它不再提供超过常规 `bean`引用的价值。
+升级到 4.0 模式时，将现有的 `idref local` 引用更改为 `idref bean`。
 
-A common place (at least in versions earlier than Infra 2.0) where the `<idref/>` element
-brings value is in the configuration of xref:core/aop-api/pfb.adoc#aop-pfb-1[AOP interceptors] in a
-`ProxyFactoryBean` bean definition. Using `<idref/>` elements when you specify the
-interceptor names prevents you from misspelling an interceptor ID.
-
+`<idref/>` 元素带来价值的一个常见地方（至少在 Infra 2.0 之前的版本中）是在 `ProxyFactoryBean` bean 定义中的 xref:core/aop-api/pfb.adoc#aop-pfb-1[AOP 拦截器] 配置中。
+在指定拦截器名称时使用 `<idref/>` 元素可防止拼写错误拦截器 ID。
 
 [[beans-ref-element]]
-== References to Other Beans (Collaborators)
+== 引用其他 Bean（协作者）
 
-The `ref` element is the final element inside a `<constructor-arg/>` or `<property/>`
-definition element. Here, you set the value of the specified property of a bean to be a
-reference to another bean (a collaborator) managed by the container. The referenced bean
-is a dependency of the bean whose property is to be set, and it is initialized on demand
-as needed before the property is set. (If the collaborator is a singleton bean, it may
-already be initialized by the container.) All references are ultimately a reference to
-another object. Scoping and validation depend on whether you specify the ID or name of the
-other object through the `bean` or `parent` attribute.
+`ref` 元素是 `<constructor-arg/>` 或 `<property/>` 定义元素内部的最后一个元素。
+在这里，您将 bean 的指定属性的值设置为对容器管理的另一个 bean（协作者）的引用。
+引用的 bean 是要设置属性的 bean 的依赖项，并在设置属性之前根据需要进行初始化。（如果协作者是单例 bean，它可能已经由容器初始化。）
+所有引用最终都是对另一个对象的引用。作用域和验证取决于您是通过 `bean` 还是 `parent` 属性指定另一个对象的 ID 或名称。
 
-Specifying the target bean through the `bean` attribute of the `<ref/>` tag is the most
-general form and allows creation of a reference to any bean in the same container or
-parent container, regardless of whether it is in the same XML file. The value of the
-`bean` attribute may be the same as the `id` attribute of the target bean or be the same
-as one of the values in the `name` attribute of the target bean. The following example
-shows how to use a `ref` element:
+通过 `<ref/>` 标记的 `bean` 属性指定目标 bean 是最通用的形式，允许创建对同一容器或父容器中任何 bean 的引用，无论它是否在同一 XML 文件中。
+`bean` 属性的值可以与目标 bean 的 `id` 属性相同，也可以与目标 bean 的 `name` 属性中的值之一相同。
+以下示例显示了如何使用 `ref` 元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 	<ref bean="someBean"/>
 ----
 
-Specifying the target bean through the `parent` attribute creates a reference to a bean
-that is in a parent container of the current container. The value of the `parent`
-attribute may be the same as either the `id` attribute of the target bean or one of the
-values in the `name` attribute of the target bean. The target bean must be in a
-parent container of the current one. You should use this bean reference variant mainly
-when you have a hierarchy of containers and you want to wrap an existing bean in a parent
-container with a proxy that has the same name as the parent bean. The following pair of
-listings shows how to use the `parent` attribute:
+通过 `parent` 属性指定目标 bean 会创建对当前容器的父容器中的 bean 的引用。
+`parent` 属性的值可以与目标 bean 的 `id` 属性相同，也可以与目标 bean 的 `name` 属性中的值之一相同。
+目标 bean 必须在当前容器的父容器中。
+当您拥有容器层次结构并且希望用具有与父 bean 相同名称的代理包装父容器中的现有 bean 时，您应该主要使用此 bean 引用变体。
+以下清单对显示了如何使用 `parent` 属性：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- in the parent context -->
+<!-- 在父上下文中 -->
 <bean id="accountService" class="com.something.SimpleAccountService">
-  <!-- insert dependencies as required here -->
+  <!-- 根据需要在此处插入依赖项 -->
 </bean>
 ----
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- in the child (descendant) context -->
-<bean id="accountService" <!-- bean name is the same as the parent bean -->
+<!-- 在子（后代）上下文中 -->
+<bean id="accountService" <!-- bean 名称与父 bean 相同 -->
   class="infra.aop.framework.ProxyFactoryBean">
   <property name="target">
-    <ref parent="accountService"/> <!-- notice how we refer to the parent bean -->
+    <ref parent="accountService"/> <!-- 注意我们如何引用父 bean -->
   </property>
-  <!-- insert other configuration and dependencies as required here -->
+  <!-- 根据需要在此处插入其他配置和依赖项 -->
 </bean>
 ----
 
-NOTE: The `local` attribute on the `ref` element is no longer supported in the 4.0 beans
-XSD, since it does not provide value over a regular `bean` reference any more. Change
-your existing `ref local` references to `ref bean` when upgrading to the 4.0 schema.
-
+NOTE: `ref` 元素上的 `local` 属性在 4.0 beans XSD 中不再受支持，因为它不再提供超过常规 `bean` 引用的价值。
+升级到 4.0 模式时，将现有的 `ref local` 引用更改为 `ref bean`。
 
 [[beans-inner-beans]]
-== Inner Beans
+== 内部 Bean
 
-A `<bean/>` element inside the `<property/>` or `<constructor-arg/>` elements defines an
-inner bean, as the following example shows:
+`<property/>` 或 `<constructor-arg/>` 元素内的 `<bean/>` 元素定义内部 bean，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="outer" class="...">
-  <!-- instead of using a reference to a target bean, simply define the target bean inline -->
+  <!-- 不使用对目标 bean 的引用，只需内联定义目标 bean -->
   <property name="target">
-    <bean class="com.example.Person"> <!-- this is the inner bean -->
+    <bean class="com.example.Person"> <!-- 这是内部 bean -->
       <property name="name" value="Fiona Apple"/>
       <property name="age" value="25"/>
     </bean>
@@ -202,30 +168,24 @@ inner bean, as the following example shows:
 </bean>
 ----
 
-An inner bean definition does not require a defined ID or name. If specified, the container
-does not use such a value as an identifier. The container also ignores the `scope` flag on
-creation, because inner beans are always anonymous and are always created with the outer
-bean. It is not possible to access inner beans independently or to inject them into
-collaborating beans other than into the enclosing bean.
+内部 bean 定义不需要定义的 ID 或名称。如果指定，容器不会将此类值用作标识符。
+容器还在创建时忽略 `scope` 标志，因为内部 bean 始终是匿名的，并且始终与外部 bean 一起创建。
+无法独立访问内部 bean，也无法将其注入到除了封闭 bean 之外的协作 bean 中。
 
-As a corner case, it is possible to receive destruction callbacks from a custom scope --
-for example, for a request-scoped inner bean contained within a singleton bean. The creation
-of the inner bean instance is tied to its containing bean, but destruction callbacks let it
-participate in the request scope's lifecycle. This is not a common scenario. Inner beans
-typically simply share their containing bean's scope.
-
+作为一个极端情况，可以从自定义作用域接收销毁回调——例如，对于包含在单例 bean 中的请求作用域内部 bean。
+内部 bean 实例的创建与其包含 bean 绑定，但销毁回调让它参与请求作用域的生命周期。
+这不是常见的情况。内部 bean 通常只是共享其包含 bean 的作用域。
 
 [[beans-collection-elements]]
-== Collections
+== 集合
 
-The `<list/>`, `<set/>`, `<map/>`, and `<props/>` elements set the properties
-and arguments of the Java `Collection` types `List`, `Set`, `Map`, and `Properties`,
-respectively. The following example shows how to use them:
+`<list/>`、`<set/>`、`<map/>` 和 `<props/>` 元素分别设置 Java `Collection` 类型 `List`、`Set`、`Map` 和 `Properties` 的属性和参数。
+以下示例显示了如何使用它们：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="moreComplexObject" class="example.ComplexObject">
-  <!-- results in a setAdminEmails(java.util.Properties) call -->
+  <!-- 导致 setAdminEmails(java.util.Properties) 调用 -->
   <property name="adminEmails">
     <props>
       <prop key="administrator">administrator@example.org</prop>
@@ -233,21 +193,21 @@ respectively. The following example shows how to use them:
       <prop key="development">development@example.org</prop>
     </props>
   </property>
-  <!-- results in a setSomeList(java.util.List) call -->
+  <!-- 导致 setSomeList(java.util.List) 调用 -->
   <property name="someList">
     <list>
       <value>a list element followed by a reference</value>
       <ref bean="myDataSource" />
     </list>
   </property>
-  <!-- results in a setSomeMap(java.util.Map) call -->
+  <!-- 导致 setSomeMap(java.util.Map) 调用 -->
   <property name="someMap">
     <map>
       <entry key="an entry" value="just some string"/>
       <entry key="a ref" value-ref="myDataSource"/>
     </map>
   </property>
-  <!-- results in a setSomeSet(java.util.Set) call -->
+  <!-- 导致 setSomeSet(java.util.Set) 调用 -->
   <property name="someSet">
     <set>
       <value>just some string</value>
@@ -257,8 +217,7 @@ respectively. The following example shows how to use them:
 </bean>
 ----
 
-The value of a map key or value, or a set value, can also be any of the
-following elements:
+映射键或值或集合值的值也可以是以下任何元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -266,20 +225,16 @@ following elements:
 ----
 
 [[beans-collection-elements-merging]]
-=== Collection Merging
+=== 集合合并
 
-The Infra container also supports merging collections. An application
-developer can define a parent `<list/>`, `<map/>`, `<set/>` or `<props/>` element
-and have child `<list/>`, `<map/>`, `<set/>` or `<props/>` elements inherit and
-override values from the parent collection. That is, the child collection's values are
-the result of merging the elements of the parent and child collections, with the child's
-collection elements overriding values specified in the parent collection.
+Infra 容器还支持合并集合。应用程序开发人员可以定义父 `<list/>`、`<map/>`、`<set/>` 或 `<props/>` 元素，
+并让子 `<list/>`、`<map/>`、`<set/>` 或 `<props/>` 元素继承和覆盖父集合中的值。
+也就是说，子集合的值是合并父集合和子集合元素的结果，子集合元素覆盖父集合中指定的值。
 
-This section on merging discusses the parent-child bean mechanism. Readers unfamiliar
-with parent and child bean definitions may wish to read the
-xref:core/beans/child-bean-definitions.adoc[relevant section] before continuing.
+关于合并的这一部分讨论了父子 bean 机制。
+不熟悉父 bean 和子 bean 定义的读者可能希望在继续之前阅读 xref:core/beans/child-bean-definitions.adoc[相关部分]。
 
-The following example demonstrates collection merging:
+以下示例演示了集合合并：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -294,7 +249,7 @@ The following example demonstrates collection merging:
   </bean>
   <bean id="child" parent="parent">
     <property name="adminEmails">
-      <!-- the merge is specified on the child collection definition -->
+      <!-- 合并在子集合定义上指定 -->
       <props merge="true">
         <prop key="sales">sales@example.com</prop>
         <prop key="support">support@example.co.uk</prop>
@@ -304,12 +259,10 @@ The following example demonstrates collection merging:
 <beans>
 ----
 
-Notice the use of the `merge=true` attribute on the `<props/>` element of the
-`adminEmails` property of the `child` bean definition. When the `child` bean is resolved
-and instantiated by the container, the resulting instance has an `adminEmails`
-`Properties` collection that contains the result of merging the child's
-`adminEmails` collection with the parent's `adminEmails` collection. The following listing
-shows the result:
+请注意 `child` bean 定义的 `adminEmails` 属性的 `<props/>` 元素上使用了 `merge=true` 属性。
+当容器解析并实例化 `child` bean 时，生成的实例具有一个 `adminEmails` `Properties` 集合，
+该集合包含将子项的 `adminEmails` 集合与父项的 `adminEmails` 集合合并的结果。
+以下清单显示了结果：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -318,37 +271,28 @@ sales=sales@example.com
 support=support@example.co.uk
 ----
 
-The child `Properties` collection's value set inherits all property elements from the
-parent `<props/>`, and the child's value for the `support` value overrides the value in
-the parent collection.
+子 `Properties` 集合的值集继承了父 `<props/>` 中的所有属性元素，并且子项的 `support` 值覆盖了父集合中的值。
 
-This merging behavior applies similarly to the `<list/>`, `<map/>`, and `<set/>`
-collection types. In the specific case of the `<list/>` element, the semantics
-associated with the `List` collection type (that is, the notion of an `ordered`
-collection of values) is maintained. The parent's values precede all of the child list's
-values. In the case of the `Map`, `Set`, and `Properties` collection types, no ordering
-exists. Hence, no ordering semantics are in effect for the collection types that underlie
-the associated `Map`, `Set`, and `Properties` implementation types that the container
-uses internally.
+这种合并行为同样适用于 `<list/>`、`<map/>` 和 `<set/>` 集合类型。
+在 `<list/>` 元素的特定情况下，与 `List` 集合类型关联的语义（即值的 `ordered` 集合的概念）得以保留。
+父项的值位于所有子列表的值之前。
+在 `Map`、`Set` 和 `Properties` 集合类型的情况下，不存在排序。
+因此，对于容器内部使用的关联 `Map`、`Set` 和 `Properties` 实现类型所依赖的集合类型，没有排序语义生效。
 
 [[beans-collection-merge-limitations]]
-=== Limitations of Collection Merging
+=== 集合合并的局限性
 
-You cannot merge different collection types (such as a `Map` and a `List`). If you
-do attempt to do so, an appropriate `Exception` is thrown. The `merge` attribute must be
-specified on the lower, inherited, child definition. Specifying the `merge` attribute on
-a parent collection definition is redundant and does not result in the desired merging.
+您不能合并不同的集合类型（例如 `Map` 和 `List`）。如果您尝试这样做，将抛出适当的 `Exception`。
+`merge` 属性必须在较低的、继承的子定义上指定。在父集合定义上指定 `merge` 属性是多余的，并且不会导致所需的合并。
 
 [[beans-collection-elements-strongly-typed]]
-=== Strongly-typed collection
+=== 强类型集合
 
-Thanks to Java's support for generic types, you can use strongly typed collections.
-That is, it is possible to declare a `Collection` type such that it can only contain
-(for example) `String` elements. If you use Infra to dependency-inject a
-strongly-typed `Collection` into a bean, you can take advantage of Infra
-type-conversion support such that the elements of your strongly-typed `Collection`
-instances are converted to the appropriate type prior to being added to the `Collection`.
-The following Java class and bean definition show how to do so:
+由于 Java 对泛型类型的支持，您可以使用强类型集合。
+也就是说，可以声明一种 `Collection` 类型，使其只能包含（例如）`String` 元素。
+如果您使用 Infra 将强类型 `Collection` 依赖注入到 bean 中，您可以利用 Infra 类型转换支持，
+以便您的强类型 `Collection` 实例的元素在添加到 `Collection` 之前转换为适当的类型。
+以下 Java 类和 bean 定义显示了如何执行此操作：
 
 [tabs]
 ======
@@ -383,19 +327,14 @@ public class SomeClass {
 </beans>
 ----
 
-When the `accounts` property of the `something` bean is prepared for injection, the generics
-information about the element type of the strongly-typed `Map<String, Float>` is
-available by reflection. Thus, Infra type conversion infrastructure recognizes the
-various value elements as being of type `Float`, and the string values (`9.99`, `2.75`, and
-`3.99`) are converted into an actual `Float` type.
-
+当准备注入 `something` bean 的 `accounts` 属性时，关于强类型 `Map<String, Float>` 元素类型的泛型信息可以通过反射获得。
+因此，Infra 类型转换基础设施将各种值元素识别为 `Float` 类型，并将字符串值（`9.99`、`2.75` 和 `3.99`）转换为实际的 `Float` 类型。
 
 [[beans-null-element]]
-== Null and Empty String Values
+== Null 和空字符串值
 
-Infra treats empty arguments for properties and the like as empty `Strings`. The
-following XML-based configuration metadata snippet sets the `email` property to the empty
-`String` value ("").
+Infra 将属性等的空参数视为空 `Strings`。
+以下基于 XML 的配置元数据片段将 `email` 属性设置为空 `String` 值 ("")。
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -404,7 +343,7 @@ following XML-based configuration metadata snippet sets the `email` property to 
 </bean>
 ----
 
-The preceding example is equivalent to the following Java code:
+前面的示例等效于以下 Java 代码：
 
 [tabs]
 ======
@@ -417,8 +356,7 @@ Java::
 
 ======
 
-
-The `<null/>` element handles `null` values. The following listing shows an example:
+`<null/>` 元素处理 `null` 值。以下清单显示了一个示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -429,7 +367,7 @@ The `<null/>` element handles `null` values. The following listing shows an exam
 </bean>
 ----
 
-The preceding configuration is equivalent to the following Java code:
+前面的配置等效于以下 Java 代码：
 
 [tabs]
 ======
@@ -442,20 +380,16 @@ Java::
 
 ======
 
-
 [[beans-p-namespace]]
-== XML Shortcut with the p-namespace
+== 使用 p-namespace 的 XML 快捷方式
 
-The p-namespace lets you use the `bean` element's attributes (instead of nested
-`<property/>` elements) to describe your property values collaborating beans, or both.
+p-namespace 允许您使用 `bean` 元素的属性（而不是嵌套的 `<property/>` 元素）来描述您的属性值协作 bean，或两者兼而有之。
 
-Infra supports extensible configuration formats xref:core/appendix/xsd-schemas.adoc[with namespaces],
-which are based on an XML Schema definition. The `beans` configuration format discussed in
-this chapter is defined in an XML Schema document. However, the p-namespace is not defined
-in an XSD file and exists only in the core of Infra.
+Infra 支持 xref:core/appendix/xsd-schemas.adoc[带有命名空间] 的可扩展配置格式，这些格式基于 XML Schema 定义。
+本章讨论的 `beans` 配置格式是在 XML Schema 文档中定义的。
+但是，p-namespace 未在 XSD 文件中定义，仅存在于 Infra 核心中。
 
-The following example shows two XML snippets (the first uses
-standard XML format and the second uses the p-namespace) that resolve to the same result:
+以下示例显示了解析为相同结果的两个 XML 片段（第一个使用标准 XML 格式，第二个使用 p-namespace）：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -474,13 +408,10 @@ standard XML format and the second uses the p-namespace) that resolve to the sam
 </beans>
 ----
 
-The example shows an attribute in the p-namespace called `email` in the bean definition.
-This tells Infra to include a property declaration. As previously mentioned, the
-p-namespace does not have a schema definition, so you can set the name of the attribute
-to the property name.
+该示例显示了 bean 定义中 p-namespace 中名为 `email` 的属性。
+这告诉 Infra 包含一个属性声明。如前所述，p-namespace 没有模式定义，因此您可以将属性名称设置为属性名称。
 
-This next example includes two more bean definitions that both have a reference to
-another bean:
+下一个示例包括另外两个 bean 定义，它们都有对另一个 bean 的引用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -506,30 +437,21 @@ another bean:
 </beans>
 ----
 
-This example includes not only a property value using the p-namespace
-but also uses a special format to declare property references. Whereas the first bean
-definition uses `<property name="spouse" ref="jane"/>` to create a reference from bean
-`john` to bean `jane`, the second bean definition uses `p:spouse-ref="jane"` as an
-attribute to do the exact same thing. In this case, `spouse` is the property name,
-whereas the `-ref` part indicates that this is not a straight value but rather a
-reference to another bean.
+此示例不仅包含使用 p-namespace 的属性值，还使用一种特殊格式来声明属性引用。
+第一个 bean 定义使用 `<property name="spouse" ref="jane"/>` 创建从 bean `john` 到 bean `jane` 的引用，
+而第二个 bean 定义使用 `p:spouse-ref="jane"` 作为属性来做同样的事情。
+在这种情况下，`spouse` 是属性名称，而 `-ref` 部分表示这不是直接值，而是对另一个 bean 的引用。
 
-NOTE: The p-namespace is not as flexible as the standard XML format. For example, the format
-for declaring property references clashes with properties that end in `Ref`, whereas the
-standard XML format does not. We recommend that you choose your approach carefully and
-communicate this to your team members to avoid producing XML documents that use all
-three approaches at the same time.
-
+NOTE: p-namespace 不如标准 XML 格式灵活。例如，声明属性引用的格式与以 `Ref` 结尾的属性冲突，而标准 XML 格式则不会。
+我们建议您仔细选择您的方法，并将其传达给您的团队成员，以避免生成同时使用所有三种方法的 XML 文档。
 
 [[beans-c-namespace]]
-== XML Shortcut with the c-namespace
+== 使用 c-namespace 的 XML 快捷方式
 
-Similar to the xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-p-namespace[XML Shortcut with the p-namespace], the c-namespace, introduced in Infra
-3.1, allows inlined attributes for configuring the constructor arguments rather
-then nested `constructor-arg` elements.
+类似于 xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-p-namespace[使用 p-namespace 的 XML 快捷方式]，
+Infra 3.1 中引入的 c-namespace 允许使用内联属性来配置构造函数参数，而不是嵌套的 `constructor-arg` 元素。
 
-The following example uses the `c:` namespace to do the same thing as the from
-xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-injection[Constructor-based Dependency Injection]:
+以下示例使用 `c:` 命名空间来做与 xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-injection[基于构造函数的依赖注入] 相同的事情：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -542,53 +464,44 @@ xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-inject
   <bean id="beanTwo" class="x.y.ThingTwo"/>
   <bean id="beanThree" class="x.y.ThingThree"/>
 
-  <!-- traditional declaration with optional argument names -->
+  <!-- 带有可选参数名称的传统声明 -->
   <bean id="beanOne" class="x.y.ThingOne">
     <constructor-arg name="thingTwo" ref="beanTwo"/>
     <constructor-arg name="thingThree" ref="beanThree"/>
     <constructor-arg name="email" value="something@somewhere.com"/>
   </bean>
 
-  <!-- c-namespace declaration with argument names -->
+  <!-- 带有参数名称的 c-namespace 声明 -->
   <bean id="beanOne" class="x.y.ThingOne" c:thingTwo-ref="beanTwo"
     c:thingThree-ref="beanThree" c:email="something@somewhere.com"/>
 
 </beans>
 ----
 
-The `c:` namespace uses the same conventions as the `p:` one (a trailing `-ref` for
-bean references) for setting the constructor arguments by their names. Similarly,
-it needs to be declared in the XML file even though it is not defined in an XSD schema
-(it exists inside the Infra core).
+`c:` 命名空间使用与 `p:` 相同的约定（bean 引用的后缀为 `-ref`）按名称设置构造函数参数。
+同样，即使它未在 XSD 模式中定义（它存在于 Infra 核心内），也需要在 XML 文件中声明它。
 
-For the rare cases where the constructor argument names are not available (usually if
-the bytecode was compiled without debugging information), you can use fallback to the
-argument indexes, as follows:
+对于构造函数参数名称不可用的极少数情况（通常是因为字节码是在没有调试信息的情况下编译的），
+您可以使用回退到参数索引，如下所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- c-namespace index declaration -->
+<!-- c-namespace 索引声明 -->
 <bean id="beanOne" class="x.y.ThingOne" c:_0-ref="beanTwo" c:_1-ref="beanThree"
   c:_2="something@somewhere.com"/>
 ----
 
-NOTE: Due to the XML grammar, the index notation requires the presence of the leading `_`,
-as XML attribute names cannot start with a number (even though some IDEs allow it).
-A corresponding index notation is also available for `<constructor-arg>` elements but
-not commonly used since the plain order of declaration is usually sufficient there.
+NOTE: 由于 XML 语法，索引符号需要前导 `_` 的存在，因为 XML 属性名称不能以数字开头（即使某些 IDE 允许）。
+`<constructor-arg>` 元素也有相应的索引符号，但不常用，因为通常声明的普通顺序就足够了。
 
-In practice, the constructor resolution
-xref:core/beans/dependencies/factory-collaborators.adoc#beans-factory-ctor-arguments-resolution[mechanism] is quite efficient in matching
-arguments, so unless you really need to, we recommend using the name notation
-throughout your configuration.
-
+实际上，构造函数解析 xref:core/beans/dependencies/factory-collaborators.adoc#beans-factory-ctor-arguments-resolution[机制] 在匹配参数方面非常高效，
+因此除非您真的需要，否则我们建议在整个配置中使用名称符号。
 
 [[beans-compound-property-names]]
-== Compound Property Names
+== 复合属性名称
 
-You can use compound or nested property names when you set bean properties, as long as
-all components of the path except the final property name are not `null`. Consider the
-following bean definition:
+在设置 bean 属性时，可以使用复合或嵌套属性名称，只要路径的所有组件（最终属性名称除外）都不为 `null`。
+考虑以下 bean 定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -597,10 +510,6 @@ following bean definition:
 </bean>
 ----
 
-The `something` bean has a `fred` property, which has a `bob` property, which has a `sammy`
-property, and that final `sammy` property is being set to a value of `123`. In order for
-this to work, the `fred` property of `something` and the `bob` property of `fred` must not
-be `null` after the bean is constructed. Otherwise, a `NullPointerException` is thrown.
-
-
-
+`something` bean 有一个 `fred` 属性，该属性有一个 `bob` 属性，该属性有一个 `sammy` 属性，并且该最终 `sammy` 属性被设置为值 `123`。
+为了使其工作，`something` 的 `fred` 属性和 `fred` 的 `bob` 属性在构造 bean 后必须不为 `null`。
+否则，将抛出 `NullPointerException`。

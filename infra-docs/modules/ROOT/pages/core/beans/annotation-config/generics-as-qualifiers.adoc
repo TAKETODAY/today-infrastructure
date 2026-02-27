@@ -1,9 +1,8 @@
 [[beans-generics-as-qualifiers]]
-= Using Generics as Autowiring Qualifiers
+= 使用泛型作为自动装配限定符
 
-In addition to the `@Qualifier` annotation, you can use Java generic types
-as an implicit form of qualification. For example, suppose you have the following
-configuration:
+除了 `@Qualifier` 注解之外，您还可以使用 Java 泛型类型作为限定的一种隐式形式。
+例如，假设您有以下配置：
 
 [tabs]
 ======
@@ -28,9 +27,8 @@ public class MyConfiguration {
 
 ======
 
-Assuming that the preceding beans implement a generic interface, (that is, `Store<String>` and
-`Store<Integer>`), you can `@Autowire` the `Store` interface and the generic is
-used as a qualifier, as the following example shows:
+假设前面的 bean 实现了泛型接口（即 `Store<String>` 和 `Store<Integer>`），
+您可以 `@Autowire` `Store` 接口，并且泛型被用作限定符，如下例所示：
 
 [tabs]
 ======
@@ -39,16 +37,16 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Autowired
-private Store<String> s1; // <String> qualifier, injects the stringStore bean
+private Store<String> s1; // <String> 限定符，注入 stringStore bean
 
 @Autowired
-private Store<Integer> s2; // <Integer> qualifier, injects the integerStore bean
+private Store<Integer> s2; // <Integer> 限定符，注入 integerStore bean
 ----
 
 ======
 
-Generic qualifiers also apply when autowiring lists, `Map` instances and arrays. The
-following example autowires a generic `List`:
+当自动装配列表、`Map` 实例和数组时，泛型限定符也适用。
+以下示例自动装配一个泛型 `List`：
 
 [tabs]
 ======
@@ -56,13 +54,10 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Inject all Store beans as long as they have an <Integer> generic
-// Store<String> beans will not appear in this list
+// 注入所有 Store bean，只要它们具有 <Integer> 泛型
+// Store<String> bean 不会出现在此列表中
 @Autowired
 private List<Store<Integer>> s;
 ----
 
 ======
-
-
-

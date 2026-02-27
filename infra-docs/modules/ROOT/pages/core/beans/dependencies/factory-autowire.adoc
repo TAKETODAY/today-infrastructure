@@ -1,127 +1,94 @@
 [[beans-factory-autowire]]
-= Autowiring Collaborators
+= 自动装配协作者
 
-The Infra container can autowire relationships between collaborating beans. You can
-let Infra resolve collaborators (other beans) automatically for your bean by
-inspecting the contents of the `ApplicationContext`. Autowiring has the following
-advantages:
+Infra 容器可以自动装配协作 bean 之间的关系。
+您可以通过检查 `ApplicationContext` 的内容，让 Infra 自动为您的 bean 解析协作者（其他 bean）。
+自动装配具有以下优点：
 
-* Autowiring can significantly reduce the need to specify properties or constructor
-  arguments. (Other mechanisms such as a bean template
-  xref:core/beans/child-bean-definitions.adoc[discussed elsewhere in this chapter] are also valuable
-  in this regard.)
-* Autowiring can update a configuration as your objects evolve. For example, if you need
-  to add a dependency to a class, that dependency can be satisfied automatically without
-  you needing to modify the configuration. Thus autowiring can be especially useful
-  during development, without negating the option of switching to explicit wiring when
-  the code base becomes more stable.
+* 自动装配可以显着减少指定属性或构造函数参数的需要。（其他机制，如
+  xref:core/beans/child-bean-definitions.adoc[本章其他地方讨论的] bean 模板在这方面也很有价值。）
+* 自动装配可以随着对象的发展更新配置。例如，如果您需要向类添加依赖项，则可以自动满足该依赖项，而无需修改配置。
+  因此，自动装配在开发过程中特别有用，而且不会否定在代码库变得更稳定时切换到显式装配的选项。
 
-When using XML-based configuration metadata (see xref:core/beans/dependencies/factory-collaborators.adoc[Dependency Injection]), you
-can specify the autowire mode for a bean definition with the `autowire` attribute of the
-`<bean/>` element. The autowiring functionality has four modes. You specify autowiring
-per bean and can thus choose which ones to autowire. The following table describes the
-four autowiring modes:
+当使用基于 XML 的配置元数据（请参阅 xref:core/beans/dependencies/factory-collaborators.adoc[依赖注入]）时，
+您可以使用 `<bean/>` 元素的 `autowire` 属性为 bean 定义指定自动装配模式。
+自动装配功能有四种模式。您指定每个 bean 的自动装配，从而可以选择要自动装配的 bean。
+下表描述了四种自动装配模式：
 
 [[beans-factory-autowiring-modes-tbl]]
-.Autowiring modes
+.自动装配模式
 [cols="20%,80%"]
 |===
-| Mode| Explanation
+| 模式| 说明
 
 | `no`
-| (Default) No autowiring. Bean references must be defined by `ref` elements. Changing
-  the default setting is not recommended for larger deployments, because specifying
-  collaborators explicitly gives greater control and clarity. To some extent, it
-  documents the structure of a system.
+| (默认) 不自动装配。Bean 引用必须由 `ref` 元素定义。
+  对于较大的部署，不建议更改默认设置，因为显式指定协作者可以提供更好的控制和清晰度。
+  在某种程度上，它记录了系统的结构。
 
 | `byName`
-| Autowiring by property name. Infra looks for a bean with the same name as the
-  property that needs to be autowired. For example, if a bean definition is set to
-  autowire by name and it contains a `master` property (that is, it has a
-  `setMaster(..)` method), Infra looks for a bean definition named `master` and uses
-  it to set the property.
+| 按属性名称自动装配。Infra 查找与需要自动装配的属性同名的 bean。
+  例如，如果 bean 定义设置为按名称自动装配，并且它包含一个 `master` 属性（即它有一个 `setMaster(..)` 方法），
+  Infra 会查找名为 `master` 的 bean 定义，并使用它来设置属性。
 
 | `byType`
-| Lets a property be autowired if exactly one bean of the property type exists in
-  the container. If more than one exists, a fatal exception is thrown, which indicates
-  that you may not use `byType` autowiring for that bean. If there are no matching
-  beans, nothing happens (the property is not set).
+| 如果容器中恰好存在一个属性类型的 bean，则允许自动装配属性。
+  如果存在多个，则会抛出致命异常，这表明您可能无法对该 bean 使用 `byType` 自动装配。
+  如果没有匹配的 bean，则什么也不会发生（属性未设置）。
 
 | `constructor`
-| Analogous to `byType` but applies to constructor arguments. If there is not exactly
-  one bean of the constructor argument type in the container, a fatal error is raised.
+| 类似于 `byType`，但适用于构造函数参数。如果容器中不存在恰好一个构造函数参数类型的 bean，则会引发致命错误。
 |===
 
-With `byType` or `constructor` autowiring mode, you can wire arrays and
-typed collections. In such cases, all autowire candidates within the container that
-match the expected type are provided to satisfy the dependency. You can autowire
-strongly-typed `Map` instances if the expected key type is `String`. An autowired `Map`
-instance's values consist of all bean instances that match the expected type, and the
-`Map` instance's keys contain the corresponding bean names.
-
+使用 `byType` 或 `constructor` 自动装配模式，您可以装配数组和类型化集合。
+在这种情况下，容器内所有匹配预期类型的自动装配候选者都将被提供以满足依赖项。
+如果预期的键类型为 `String`，您可以自动装配强类型 `Map` 实例。
+自动装配的 `Map` 实例的值由所有匹配预期类型的 bean 实例组成，`Map` 实例的键包含相应的 bean 名称。
 
 [[beans-autowired-exceptions]]
-== Limitations and Disadvantages of Autowiring
+== 自动装配的局限性和缺点
 
-Autowiring works best when it is used consistently across a project. If autowiring is
-not used in general, it might be confusing to developers to use it to wire only one or
-two bean definitions.
+当在整个项目中一致地使用自动装配时，它的效果最好。
+如果通常不使用自动装配，开发人员可能会对仅用于装配一个或两个 bean 定义感到困惑。
 
-Consider the limitations and disadvantages of autowiring:
+考虑自动装配的局限性和缺点：
 
-* Explicit dependencies in `property` and `constructor-arg` settings always override
-  autowiring. You cannot autowire simple properties such as primitives,
-  `Strings`, and `Classes` (and arrays of such simple properties). This limitation is
-  by-design.
-* Autowiring is less exact than explicit wiring. Although, as noted in the earlier table,
-  Infra is careful to avoid guessing in case of ambiguity that might have unexpected
-  results. The relationships between your Infra-managed objects are no longer
-  documented explicitly.
-* Wiring information may not be available to tools that may generate documentation from
-  a Infra container.
-* Multiple bean definitions within the container may match the type specified by the
-  setter method or constructor argument to be autowired. For arrays, collections, or
-  `Map` instances, this is not necessarily a problem. However, for dependencies that
-  expect a single value, this ambiguity is not arbitrarily resolved. If no unique bean
-  definition is available, an exception is thrown.
+* `property` 和 `constructor-arg` 设置中的显式依赖项始终覆盖自动装配。
+  您不能自动装配简单属性，例如原语、`Strings` 和 `Classes`（以及此类简单属性的数组）。
+  此限制是设计使然。
+* 自动装配不如显式装配精确。尽管如前面的表中所述，Infra 在遇到可能产生意外结果的歧义时会小心避免猜测。
+  您的 Infra 管理对象之间的关系不再被显式记录。
+* 能够从 Infra 容器生成文档的工具可能无法获得装配信息。
+* 容器内的多个 bean 定义可能与要自动装配的 setter 方法或构造函数参数指定的类型匹配。
+  对于数组、集合或 `Map` 实例，这不一定是个问题。
+  但是，对于期望单个值的依赖项，这种歧义不会被任意解决。如果没有唯一的 bean 定义可用，则会抛出异常。
 
-In the latter scenario, you have several options:
+在后一种情况下，您有几个选择：
 
-* Abandon autowiring in favor of explicit wiring.
-* Avoid autowiring for a bean definition by setting its `autowire-candidate` attributes
-  to `false`, as described in the xref:core/beans/dependencies/factory-autowire.adoc#beans-factory-autowire-candidate[next section].
-* Designate a single bean definition as the primary candidate by setting the
-  `primary` attribute of its `<bean/>` element to `true`.
-* Implement the more fine-grained control available with annotation-based configuration,
-  as described in xref:core/beans/annotation-config.adoc[Annotation-based Container Configuration].
-
-
+* 放弃自动装配，转而使用显式装配。
+* 通过将其 `autowire-candidate` 属性设置为 `false` 来避免 bean 定义的自动装配，如
+  xref:core/beans/dependencies/factory-autowire.adoc#beans-factory-autowire-candidate[下一节] 所述。
+* 通过将其 `<bean/>` 元素的 `primary` 属性设置为 `true`，将单个 bean 定义指定为主候选者。
+* 实现基于注解的配置提供的更细粒度的控制，如 xref:core/beans/annotation-config.adoc[基于注解的容器配置] 中所述。
 
 [[beans-factory-autowire-candidate]]
-== Excluding a Bean from Autowiring
+== 从自动装配中排除 Bean
 
-On a per-bean basis, you can exclude a bean from autowiring. In Infra XML format, set
-the `autowire-candidate` attribute of the `<bean/>` element to `false`. The container
-makes that specific bean definition unavailable to the autowiring infrastructure
-(including annotation style configurations such as xref:core/beans/annotation-config/autowired.adoc[`@Autowired`]
-).
+在每个 bean 的基础上，您可以从自动装配中排除一个 bean。
+在 Infra XML 格式中，将 `<bean/>` 元素的 `autowire-candidate` 属性设置为 `false`。
+容器使该特定 bean 定义对自动装配基础设施不可用（包括注解样式配置，例如 xref:core/beans/annotation-config/autowired.adoc[`@Autowired`]）。
 
-NOTE: The `autowire-candidate` attribute is designed to only affect type-based autowiring.
-It does not affect explicit references by name, which get resolved even if the
-specified bean is not marked as an autowire candidate. As a consequence, autowiring
-by name nevertheless injects a bean if the name matches.
+NOTE: `autowire-candidate` 属性旨在仅影响基于类型的自动装配。
+它不影响按名称的显式引用，即使指定的 bean 未标记为自动装配候选者，也会解析该引用。
+因此，如果名称匹配，按名称自动装配仍然会注入 bean。
 
-You can also limit autowire candidates based on pattern-matching against bean names. The
-top-level `<beans/>` element accepts one or more patterns within its
-`default-autowire-candidates` attribute. For example, to limit autowire candidate status
-to any bean whose name ends with `Repository`, provide a value of `*Repository`. To
-provide multiple patterns, define them in a comma-separated list. An explicit value of
-`true` or `false` for a bean definition's `autowire-candidate` attribute always takes
-precedence. For such beans, the pattern matching rules do not apply.
+您还可以根据针对 bean 名称的模式匹配来限制自动装配候选者。
+顶级 `<beans/>` 元素在其 `default-autowire-candidates` 属性中接受一个或多个模式。
+例如，要将自动装配候选者状态限制为名称以 `Repository` 结尾的任何 bean，请提供值 `*Repository`。
+要提供多个模式，请在逗号分隔的列表中定义它们。
+bean 定义的 `autowire-candidate` 属性的显式值 `true` 或 `false` 始终优先。
+对于此类 bean，模式匹配规则不适用。
 
-These techniques are useful for beans that you never want to be injected into other
-beans by autowiring. It does not mean that an excluded bean cannot itself be configured by
-using autowiring. Rather, the bean itself is not a candidate for autowiring other beans.
-
-
-
+这些技术对于您永远不想通过自动装配注入到其他 bean 中的 bean 很有用。
+这并不意味着被排除的 bean 本身不能使用自动装配进行配置。
+相反，bean 本身不是自动装配其他 bean 的候选者。

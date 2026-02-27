@@ -1,14 +1,12 @@
 [[beans-resource-annotation]]
-= Injection with `@Resource`
+= 使用 `@Resource` 注入
 
-Infra also supports injection by using the JSR-250 `@Resource` annotation
-(`jakarta.annotation.Resource`) on fields or bean property setter methods.
-This is a common pattern in Jakarta EE: for example, in JSF-managed beans and JAX-WS
-endpoints. Infra supports this pattern for Infra-managed objects as well.
+Infra 还支持在字段或 bean 属性 setter 方法上使用 JSR-250 `@Resource` 注解 (`jakarta.annotation.Resource`) 进行注入。
+这是 Jakarta EE 中的常见模式：例如，在 JSF 管理的 bean 和 JAX-WS 端点中。
+Infra 也支持 Infra 管理对象的这种模式。
 
-`@Resource` takes a name attribute. By default, Infra interprets that value as
-the bean name to be injected. In other words, it follows by-name semantics,
-as demonstrated in the following example:
+`@Resource` 接受一个 name 属性。默认情况下，Infra 将该值解释为要注入的 bean 名称。
+换句话说，它遵循按名称语义，如下例所示：
 
 --
 [tabs]
@@ -27,16 +25,14 @@ public class SimpleMovieLister {
   }
 }
 ----
-<1> This line injects a `@Resource`.
+<1> 这行注入了一个 `@Resource`。
 
 ======
 --
 
-
-If no name is explicitly specified, the default name is derived from the field name or
-setter method. In case of a field, it takes the field name. In case of a setter method,
-it takes the bean property name. The following example is going to have the bean
-named `movieFinder` injected into its setter method:
+如果没有显式指定名称，则默认名称派生自字段名称或 setter 方法。
+如果是字段，则采用字段名称。如果是 setter 方法，则采用 bean 属性名称。
+以下示例将会把名为 `movieFinder` 的 bean 注入到其 setter 方法中：
 
 --
 [tabs]
@@ -59,22 +55,14 @@ public class SimpleMovieLister {
 ======
 --
 
-NOTE: The name provided with the annotation is resolved as a bean name by the
-`ApplicationContext` of which the `CommonAnnotationBeanPostProcessor` is aware.
-The names can be resolved through JNDI if you configure Infra
-{today-framework-api}/jndi/support/SimpleJndiBeanFactory.html[`SimpleJndiBeanFactory`]
-explicitly. However, we recommend that you rely on the default behavior and
-use Infra JNDI lookup capabilities to preserve the level of indirection.
+NOTE: 注解提供的名称由 `CommonAnnotationBeanPostProcessor` 知道的 `ApplicationContext` 解析为 bean 名称。
+如果您显式配置 Infra {today-framework-api}/jndi/support/SimpleJndiBeanFactory.html[`SimpleJndiBeanFactory`]，可以通过 JNDI 解析名称。
+但是，我们建议您依赖默认行为并使用 Infra JNDI 查找功能来保持间接级别。
 
-In the exclusive case of `@Resource` usage with no explicit name specified, and similar
-to `@Autowired`, `@Resource` finds a primary type match instead of a specific named bean
-and resolves well known resolvable dependencies: the `BeanFactory`,
-`ApplicationContext`, `ResourceLoader`, `ApplicationEventPublisher`, and `MessageSource`
-interfaces.
+在未指定显式名称的 `@Resource` 使用的独占情况下，类似于 `@Autowired`，`@Resource` 查找主类型匹配而不是特定的命名 bean，
+并解析众所周知的可解析依赖项：`BeanFactory`、`ApplicationContext`、`ResourceLoader`、`ApplicationEventPublisher` 和 `MessageSource` 接口。
 
-Thus, in the following example, the `customerPreferenceDao` field first looks for a bean
-named "customerPreferenceDao" and then falls back to a primary type match for the type
-`CustomerPreferenceDao`:
+因此，在以下示例中，`customerPreferenceDao` 字段首先查找名为 "customerPreferenceDao" 的 bean，然后回退到 `CustomerPreferenceDao` 类型的主类型匹配：
 
 --
 [tabs]
@@ -97,9 +85,7 @@ public class MovieRecommender {
   // ...
 }
 ----
-<1> The `context` field is injected based on the known resolvable dependency type:
-`ApplicationContext`.
+<1> `context` 字段是根据已知的可解析依赖项类型注入的：`ApplicationContext`。
 
 ======
 --
-

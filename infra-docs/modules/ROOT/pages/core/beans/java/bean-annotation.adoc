@@ -1,25 +1,22 @@
 [[beans-java-bean-annotation]]
-= Using the `@Bean` Annotation
+= 使用 `@Bean` 注解
 
-`@Bean` is a method-level annotation and a direct analog of the XML `<bean/>` element.
-The annotation supports some of the attributes offered by `<bean/>`, such as:
+`@Bean` 是一个方法级注解，是 XML `<bean/>` 元素的直接模拟。
+该注解支持 `<bean/>` 提供的一些属性，例如：
 
 * xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[init-method]
 * xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[destroy-method]
 * xref:core/beans/dependencies/factory-autowire.adoc[autowiring]
 * `name`.
 
-You can use the `@Bean` annotation in a `@Configuration`-annotated or in a
-`@Component`-annotated class.
-
+您可以在 `@Configuration` 注解的类或 `@Component` 注解的类中使用 `@Bean` 注解。
 
 [[beans-java-declaring-a-bean]]
-== Declaring a Bean
+== 声明 Bean
 
-To declare a bean, you can annotate a method with the `@Bean` annotation. You use this
-method to register a bean definition within an `ApplicationContext` of the type
-specified as the method's return value. By default, the bean name is the same as
-the method name. The following example shows a `@Bean` method declaration:
+要声明 bean，您可以使用 `@Bean` 注解对方法进行注解。
+您使用此方法在 `ApplicationContext` 中注册一个 bean 定义，其类型指定为方法的返回值。
+默认情况下，bean 名称与方法名称相同。以下示例显示了 `@Bean` 方法声明：
 
 [tabs]
 ======
@@ -39,7 +36,7 @@ public class AppConfig {
 
 ======
 
-The preceding configuration is exactly equivalent to the following Infra XML:
+前面的配置完全等同于以下 Infra XML：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -48,17 +45,15 @@ The preceding configuration is exactly equivalent to the following Infra XML:
 </beans>
 ----
 
-Both declarations make a bean named `transferService` available in the
-`ApplicationContext`, bound to an object instance of type `TransferServiceImpl`, as the
-following text image shows:
+这两个声明都在 `ApplicationContext` 中提供了一个名为 `transferService` 的 bean，
+绑定到类型为 `TransferServiceImpl` 的对象实例，如下所示：
 
 [literal,subs="verbatim,quotes"]
 ----
 transferService -> com.acme.TransferServiceImpl
 ----
 
-You can also use default methods to define beans. This allows composition of bean
-configurations by implementing interfaces with bean definitions on default methods.
+您还可以使用默认方法来定义 bean。这允许通过在默认方法上实现带有 bean 定义的接口来组合 bean 配置。
 
 [tabs]
 ======
@@ -81,8 +76,7 @@ public class AppConfig implements BaseConfig {
 ----
 ======
 
-You can also declare your `@Bean` method with an interface (or base class)
-return type, as the following example shows:
+您还可以使用接口（或基类）返回类型声明您的 `@Bean` 方法，如下例所示：
 
 [tabs]
 ======
@@ -102,28 +96,19 @@ public class AppConfig {
 
 ======
 
-However, this limits the visibility for advance type prediction to the specified
-interface type (`TransferService`). Then, with the full type (`TransferServiceImpl`)
-known to the container only once the affected singleton bean has been instantiated.
-Non-lazy singleton beans get instantiated according to their declaration order,
-so you may see different type matching results depending on when another component
-tries to match by a non-declared type (such as `@Autowired TransferServiceImpl`,
-which resolves only once the `transferService` bean has been instantiated).
+但是，这将高级类型预测的可见性限制为指定的接口类型（`TransferService`）。
+然后，只有一旦实例化的受影响的单例 bean，容器才知道完整类型（`TransferServiceImpl`）。
+非延迟单例 bean 根据其声明顺序实例化，因此您可能会看到不同的类型匹配结果，
+具体取决于另一个组件何时尝试通过未声明的类型进行匹配（例如 `@Autowired TransferServiceImpl`，它仅在 `transferService` bean 实例化后才解析）。
 
-TIP: If you consistently refer to your types by a declared service interface, your
-`@Bean` return types may safely join that design decision. However, for components
-that implement several interfaces or for components potentially referred to by their
-implementation type, it is safer to declare the most specific return type possible
-(at least as specific as required by the injection points that refer to your bean).
-
+TIP: 如果您始终通过声明的服务接口引用您的类型，您的 `@Bean` 返回类型可以安全地加入该设计决策。
+但是，对于实现多个接口的组件或可能由其实陈类型引用的组件，声明尽可能具体的返回类型更安全（至少与引用您的 bean 的注入点所要求的具体程度相同）。
 
 [[beans-java-dependencies]]
-== Bean Dependencies
+== Bean 依赖项
 
-A `@Bean`-annotated method can have an arbitrary number of parameters that describe the
-dependencies required to build that bean. For instance, if our `TransferService`
-requires an `AccountRepository`, we can materialize that dependency with a method
-parameter, as the following example shows:
+`@Bean` 注解的方法可以有任意数量的参数，描述构建该 bean 所需的依赖项。
+例如，如果我们的 `TransferService` 需要一个 `AccountRepository`，我们可以通过方法参数具体化该依赖项，如下例所示：
 
 [tabs]
 ======
@@ -143,32 +128,25 @@ public class AppConfig {
 
 ======
 
-The resolution mechanism is pretty much identical to constructor-based dependency
-injection. See
-xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-injection[the relevant section]
-for more details.
-
+解析机制与基于构造函数的依赖注入几乎相同。
+有关更多详细信息，请参阅
+xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-injection[相关部分]。
 
 [[beans-java-lifecycle-callbacks]]
-== Receiving Lifecycle Callbacks
+== 接收生命周期回调
 
-Any classes defined with the `@Bean` annotation support the regular lifecycle callbacks
-and can use the `@PostConstruct` and `@PreDestroy` annotations from JSR-250. See
-xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[JSR-250 annotations] for further
-details.
+任何使用 `@Bean` 注解定义的类都支持常规生命周期回调，并可以使用 JSR-250 中的 `@PostConstruct` 和 `@PreDestroy` 注解。
+有关更多详细信息，请参阅 xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[JSR-250 注解]。
 
-The regular Infra xref:core/beans/factory-nature.adoc[lifecycle] callbacks are fully supported as
-well. If a bean implements `InitializingBean`, `DisposableBean`, or `Lifecycle`, their
-respective methods are called by the container.
+完全支持常规 Infra xref:core/beans/factory-nature.adoc[生命周期] 回调。
+如果 bean 实现 `InitializingBean`、`DisposableBean` 或 `Lifecycle`，则容器会调用它们各自的方法。
 
-The standard set of `*Aware` interfaces (such as xref:core/beans/beanfactory.adoc[BeanFactoryAware],
-xref:core/beans/factory-nature.adoc#beans-factory-aware[BeanNameAware],
-xref:core/beans/context-introduction.adoc#context-functionality-messagesource[MessageSourceAware],
-xref:core/beans/factory-nature.adoc#beans-factory-aware[ApplicationContextAware], and so on) are also fully supported.
+也完全支持标准集 `*Aware` 接口（例如 xref:core/beans/beanfactory.adoc[BeanFactoryAware]、
+xref:core/beans/factory-nature.adoc#beans-factory-aware[BeanNameAware]、
+xref:core/beans/context-introduction.adoc#context-functionality-messagesource[MessageSourceAware]、
+xref:core/beans/factory-nature.adoc#beans-factory-aware[ApplicationContextAware] 等）。
 
-The `@Bean` annotation supports specifying arbitrary initialization and destruction
-callback methods, much like Infra XML's `init-method` and `destroy-method` attributes
-on the `bean` element, as the following example shows:
+`@Bean` 注解支持指定任意初始化和销毁回调方法，就像 Infra XML 中 `bean` 元素上的 `init-method` 和 `destroy-method` 属性一样，如下例所示：
 
 [tabs]
 ======
@@ -179,14 +157,14 @@ Java::
 public class BeanOne {
 
   public void init() {
-    // initialization logic
+    // 初始化逻辑
   }
 }
 
 public class BeanTwo {
 
   public void cleanup() {
-    // destruction logic
+    // 销毁逻辑
   }
 }
 
@@ -209,18 +187,13 @@ public class AppConfig {
 
 [NOTE]
 =====
-By default, beans defined with Java configuration that have a public `close` or `shutdown`
-method are automatically enlisted with a destruction callback. If you have a public
-`close` or `shutdown` method and you do not wish for it to be called when the container
-shuts down, you can add `@Bean(destroyMethod = "")` to your bean definition to disable the
-default `(inferred)` mode.
+默认情况下，使用具有公共 `close` 或 `shutdown` 方法的 Java 配置定义的 bean 会自动登记销毁回调。
+如果您有一个公共 `close` 或 `shutdown` 方法，并且不希望在容器关闭时调用它，您可以将 `@Bean(destroyMethod = "")` 添加到您的 bean 定义中以禁用默认 `(inferred)` 模式。
 
-You may want to do that by default for a resource that you acquire with JNDI, as its
-lifecycle is managed outside the application. In particular, make sure to always do it
-for a `DataSource`, as it is known to be problematic on Jakarta EE application servers.
+对于使用 JNDI 获取的资源，您可能希望默认执行此操作，因为其生命周期在应用程序之外管理。
+特别是，对于 `DataSource`，请务必始终执行此操作，因为已知它在 Jakarta EE 应用服务器上存在问题。
 
-The following example shows how to prevent an automatic destruction callback for a
-`DataSource`:
+以下示例显示了如何防止 `DataSource` 的自动销毁回调：
 
 [tabs]
 ======
@@ -236,17 +209,11 @@ public DataSource dataSource() throws NamingException {
 
 ======
 
-Also, with `@Bean` methods, you typically use programmatic JNDI lookups, either by
-using Infra `JndiTemplate` or `JndiLocatorDelegate` helpers or straight JNDI
-`InitialContext` usage but not the `JndiObjectFactoryBean` variant (which would force
-you to declare the return type as the `FactoryBean` type instead of the actual target
-type, making it harder to use for cross-reference calls in other `@Bean` methods that
-intend to refer to the provided resource here).
+此外，对于 `@Bean` 方法，您通常使用编程式 JNDI 查找，要么使用 Infra `JndiTemplate` 或 `JndiLocatorDelegate` 助手，
+要么直接使用 JNDI `InitialContext`，但不使用 `JndiObjectFactoryBean` 变体（这将迫使您将返回类型声明为 `FactoryBean` 类型而不是实际目标类型，从而使其难以用于打算引用此处提供的资源的其他 `@Bean` 方法中的交叉引用调用）。
 =====
 
-In the case of `BeanOne` from the example above the preceding note, it would be
-equally valid to call the `init()` method directly during construction, as the
-following example shows:
+在上述注释之前的示例中的 `BeanOne` 的情况下，在构造期间直接调用 `init()` 方法同样有效，如下例所示：
 
 [tabs]
 ======
@@ -270,24 +237,20 @@ public class AppConfig {
 
 ======
 
-TIP: When you work directly in Java, you can do anything you like with your objects and do
-not always need to rely on the container lifecycle.
-
+TIP: 当您直接在 Java 中工作时，您可以对对象执行任何操作，并且不总是需要依赖容器生命周期。
 
 [[beans-java-specifying-bean-scope]]
-== Specifying Bean Scope
+== 指定 Bean 作用域
 
-Infra includes the `@Scope` annotation so that you can specify the scope of a bean.
+Infra 包含 `@Scope` 注解，以便您可以指定 bean 的作用域。
 
 [[beans-java-available-scopes]]
-=== Using the `@Scope` Annotation
+=== 使用 `@Scope` 注解
 
-You can specify that your beans defined with the `@Bean` annotation should have a
-specific scope. You can use any of the standard scopes specified in the
-xref:core/beans/factory-scopes.adoc[Bean Scopes] section.
+您可以指定使用 `@Bean` 注解定义的 bean 应具有特定的作用域。
+您可以使用 xref:core/beans/factory-scopes.adoc[Bean 作用域] 部分中指定的任何标准作用域。
 
-The default scope is `singleton`, but you can override this with the `@Scope` annotation,
-as the following example shows:
+默认作用域是 `singleton`，但您可以使用 `@Scope` 注解覆盖它，如下例所示：
 
 [tabs]
 ======
@@ -309,20 +272,15 @@ public class MyConfiguration {
 ======
 
 [[beans-java-scoped-proxy]]
-=== `@Scope` and `scoped-proxy`
+=== `@Scope` 和 `scoped-proxy`
 
-Infra offers a convenient way of working with scoped dependencies through
-xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[scoped proxies]. The easiest way to create
-such a proxy when using the XML configuration is the `<aop:scoped-proxy/>` element.
-Configuring your beans in Java with a `@Scope` annotation offers equivalent support
-with the `proxyMode` attribute. The default is `ScopedProxyMode.DEFAULT`, which
-typically indicates that no scoped proxy should be created unless a different default
-has been configured at the component-scan instruction level. You can specify
-`ScopedProxyMode.TARGET_CLASS`, `ScopedProxyMode.INTERFACES` or `ScopedProxyMode.NO`.
+Infra 提供了一种通过 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[作用域代理] 处理作用域依赖项的便捷方式。
+在使用 XML 配置时创建此类代理的最简单方法是 `<aop:scoped-proxy/>` 元素。
+在 Java 中使用 `@Scope` 注解配置 bean 提供了与 `proxyMode` 属性等效的支持。
+默认值为 `ScopedProxyMode.DEFAULT`，这通常表示除非在组件扫描指令级别配置了不同的默认值，否则不应创建作用域代理。
+您可以指定 `ScopedProxyMode.TARGET_CLASS`、`ScopedProxyMode.INTERFACES` 或 `ScopedProxyMode.NO`。
 
-If you port the scoped proxy example from the XML reference documentation (see
-xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[scoped proxies]) to our `@Bean` using Java,
-it resembles the following:
+如果您将作用域代理示例从 XML 参考文档（请参阅 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[作用域代理]）移植到使用 Java 的 `@Bean`，它类似于以下内容：
 
 [tabs]
 ======
@@ -330,7 +288,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// an HTTP Session-scoped bean exposed as a proxy
+// 作为代理公开的 HTTP Session 作用域 bean
 @Bean
 @SessionScope
 public UserPreferences userPreferences() {
@@ -340,7 +298,7 @@ public UserPreferences userPreferences() {
 @Bean
 public Service userService() {
   UserService service = new SimpleUserService();
-  // a reference to the proxied userPreferences bean
+  // 对代理的 userPreferences bean 的引用
   service.setUserPreferences(userPreferences());
   return service;
 }
@@ -349,11 +307,10 @@ public Service userService() {
 ======
 
 [[beans-java-customizing-bean-naming]]
-== Customizing Bean Naming
+== 自定义 Bean 命名
 
-By default, configuration classes use a `@Bean` method's name as the name of the
-resulting bean. This functionality can be overridden, however, with the `name` attribute,
-as the following example shows:
+默认情况下，配置类使用 `@Bean` 方法的名称作为生成的 bean 的名称。
+但是，可以使用 `name` 属性覆盖此功能，如下例所示：
 
 [tabs]
 ======
@@ -373,14 +330,12 @@ public class AppConfig {
 
 ======
 
-
 [[beans-java-bean-aliasing]]
-== Bean Aliasing
+== Bean 别名
 
-As discussed in xref:core/beans/definition.adoc#beans-beanname[Naming Beans], it is
-sometimes desirable to give a single bean multiple names, otherwise known as bean aliasing.
-The `name` attribute of the `@Bean` annotation accepts a String array for this purpose.
-The following example shows how to set a number of aliases for a bean:
+如 xref:core/beans/definition.adoc#beans-beanname[命名 Bean] 中所述，有时希望给单个 bean 提供多个名称，也称为 bean 别名。
+`@Bean` 注解的 `name` 属性为此目的接受一个 String 数组。
+以下示例显示了如何为 bean 设置多个别名：
 
 [tabs]
 ======
@@ -393,23 +348,20 @@ public class AppConfig {
 
   @Bean({"dataSource", "subsystemA-dataSource", "subsystemB-dataSource"})
   public DataSource dataSource() {
-    // instantiate, configure and return DataSource bean...
+    // 实例化、配置并返回 DataSource bean...
   }
 }
 ----
 
 ======
 
-
 [[beans-java-bean-description]]
-== Bean Description
+== Bean 描述
 
-Sometimes, it is helpful to provide a more detailed textual description of a bean. This can
-be particularly useful when beans are exposed (perhaps through JMX) for monitoring purposes.
+有时，提供 bean 的更详细文本描述很有帮助。
+当 bean 被公开（可能通过 JMX）以进行监控时，这特别有用。
 
-To add a description to a `@Bean`, you can use the
-{today-framework-api}/context/annotation/Description.html[`@Description`]
-annotation, as the following example shows:
+要向 `@Bean` 添加描述，可以使用 {today-framework-api}/context/annotation/Description.html[`@Description`] 注解，如下例所示：
 
 [tabs]
 ======
@@ -429,6 +381,3 @@ public class AppConfig {
 ----
 
 ======
-
-
-

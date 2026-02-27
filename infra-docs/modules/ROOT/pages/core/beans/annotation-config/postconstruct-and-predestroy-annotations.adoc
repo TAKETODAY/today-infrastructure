@@ -1,17 +1,14 @@
 [[beans-postconstruct-and-predestroy-annotations]]
-= Using `@PostConstruct` and `@PreDestroy`
+= 使用 `@PostConstruct` 和 `@PreDestroy`
 
-The `CommonAnnotationBeanPostProcessor` not only recognizes the `@Resource` annotation
-but also the JSR-250 lifecycle annotations: `jakarta.annotation.PostConstruct` and
-`jakarta.annotation.PreDestroy`. Introduced in Infra 2.5, the support for these
-annotations offers an alternative to the lifecycle callback mechanism described in
-xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[initialization callbacks] and
-xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[destruction callbacks]. Provided that the
-`CommonAnnotationBeanPostProcessor` is registered within the Infra `ApplicationContext`,
-a method carrying one of these annotations is invoked at the same point in the lifecycle
-as the corresponding Infra lifecycle interface method or explicitly declared callback
-method. In the following example, the cache is pre-populated upon initialization and
-cleared upon destruction:
+`CommonAnnotationBeanPostProcessor` 不仅识别 `@Resource` 注解，
+还识别 JSR-250 生命周期注解：`jakarta.annotation.PostConstruct` 和 `jakarta.annotation.PreDestroy`。
+在 Infra 2.5 中引入的这些注解支持提供了
+xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[初始化回调] 和
+xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[销毁回调] 中描述的生命周期回调机制的替代方案。
+只要 `CommonAnnotationBeanPostProcessor` 在 Infra `ApplicationContext` 中注册，
+带有这些注解之一的方法就会在生命周期的同一点被调用，就像相应的 Infra 生命周期接口方法或显式声明的回调方法一样。
+在以下示例中，缓存将在初始化时预填充，并在销毁时清除：
 
 [tabs]
 ======
@@ -23,31 +20,25 @@ public class CachingMovieLister {
 
   @PostConstruct
   public void populateMovieCache() {
-    // populates the movie cache upon initialization...
+    // 初始化时填充电影缓存...
   }
 
   @PreDestroy
   public void clearMovieCache() {
-    // clears the movie cache upon destruction...
+    // 销毁时清除电影缓存...
   }
 }
 ----
 
 ======
 
-For details about the effects of combining various lifecycle mechanisms, see
-xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-combined-effects[Combining Lifecycle Mechanisms].
+有关组合各种生命周期机制的效果的详细信息，请参阅
+xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-combined-effects[组合生命周期机制]。
 
 [NOTE]
 ====
-Like `@Resource`, the `@PostConstruct` and `@PreDestroy` annotation types were a part
-of the standard Java libraries from JDK 6 to 8. However, the entire `javax.annotation`
-package got separated from the core Java modules in JDK 9 and eventually removed in
-JDK 11. As of Jakarta EE 9, the package lives in `jakarta.annotation` now. If needed,
-the `jakarta.annotation-api` artifact needs to be obtained via Maven Central now,
-simply to be added to the application's classpath like any other library.
+像 `@Resource` 一样，`@PostConstruct` 和 `@PreDestroy` 注解类型是 JDK 6 到 8 标准 Java 库的一部分。
+但是，整个 `javax.annotation` 包在 JDK 9 中从核心 Java 模块中分离出来，并最终在 JDK 11 中被删除。
+从 Jakarta EE 9 开始，该包现在位于 `jakarta.annotation` 中。
+如果需要，现在需要通过 Maven Central 获取 `jakarta.annotation-api` 工件，只需像任何其他库一样将其添加到应用程序的类路径中。
 ====
-
-
-
-

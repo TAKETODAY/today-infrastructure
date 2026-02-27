@@ -1,170 +1,124 @@
 [[beans-definition]]
-= Bean Overview
+= Bean 概览
 
-A Infra IoC container manages one or more beans. These beans are created with the
-configuration metadata that you supply to the container (for example, in the form of XML
-`<bean/>` definitions).
+Infra IoC 容器管理一个或多个 bean。这些 bean 是根据您提供给容器的配置元数据（例如，以 XML `<bean/>` 定义的形式）创建的。
 
-Within the container itself, these bean definitions are represented as `BeanDefinition`
-objects, which contain (among other information) the following metadata:
+在容器内部，这些 bean 定义表示为 `BeanDefinition` 对象，其中包含（除其他信息外）以下元数据：
 
-* A package-qualified class name: typically, the actual implementation class of the
-  bean being defined.
-* Bean behavioral configuration elements, which state how the bean should behave in the
-  container (scope, lifecycle callbacks, and so forth).
-* References to other beans that are needed for the bean to do its work. These
-  references are also called collaborators or dependencies.
-* Other configuration settings to set in the newly created object -- for example, the size
-  limit of the pool or the number of connections to use in a bean that manages a
-  connection pool.
+* 全限定类名：通常是正在定义的 bean 的实际实现类。
+* Bean 行为配置元素，说明 bean 在容器中的行为方式（作用域、生命周期回调等）。
+* 对 bean 完成其工作所需的其他 bean 的引用。这些引用也称为协作者或依赖项。
+* 在新创建的对象中设置的其他配置设置——例如，管理连接池的 bean 中使用的池的大小限制或连接数。
 
-This metadata translates to a set of properties that make up each bean definition.
-The following table describes these properties:
+此元数据转换为构成每个 bean 定义的一组属性。下表描述了这些属性：
 
 [[beans-factory-bean-definition-tbl]]
-.The bean definition
+.Bean 定义
 |===
-| Property| Explained in...
+| 属性| 解释在...
 
 | Class
-| xref:core/beans/definition.adoc#beans-factory-class[Instantiating Beans]
+| xref:core/beans/definition.adoc#beans-factory-class[实例化 Bean]
 
 | Name
-| xref:core/beans/definition.adoc#beans-beanname[Naming Beans]
+| xref:core/beans/definition.adoc#beans-beanname[命名 Bean]
 
 | Scope
-| xref:core/beans/factory-scopes.adoc[Bean Scopes]
+| xref:core/beans/factory-scopes.adoc[Bean 作用域]
 
 | Constructor arguments
-| xref:core/beans/dependencies/factory-collaborators.adoc[Dependency Injection]
+| xref:core/beans/dependencies/factory-collaborators.adoc[依赖注入]
 
 | Properties
-| xref:core/beans/dependencies/factory-collaborators.adoc[Dependency Injection]
+| xref:core/beans/dependencies/factory-collaborators.adoc[依赖注入]
 
 | Autowiring mode
-| xref:core/beans/dependencies/factory-autowire.adoc[Autowiring Collaborators]
+| xref:core/beans/dependencies/factory-autowire.adoc[自动装配协作者]
 
 | Lazy initialization mode
-| xref:core/beans/dependencies/factory-lazy-init.adoc[Lazy-initialized Beans]
+| xref:core/beans/dependencies/factory-lazy-init.adoc[延迟初始化的 Bean]
 
 | Initialization method
-| xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[Initialization Callbacks]
+| xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[初始化回调]
 
 | Destruction method
-| xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[Destruction Callbacks]
+| xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[销毁回调]
 |===
 
-In addition to bean definitions that contain information on how to create a specific
-bean, the `ApplicationContext` implementations also permit the registration of existing
-objects that are created outside the container (by users). This is done by accessing the
-ApplicationContext's `BeanFactory` through the `getBeanFactory()` method, which returns
-the `StandardBeanFactory` implementation. `StandardBeanFactory` supports
-this registration through the `registerSingleton(..)` and `registerBeanDefinition(..)`
-methods. However, typical applications work solely with beans defined through regular
-bean definition metadata.
+除了包含有关如何创建特定 bean 的信息的 bean 定义外，`ApplicationContext` 实现还允许注册在容器外部（由用户）创建的现有对象。
+这是通过 `getBeanFactory()` 方法访问 ApplicationContext 的 `BeanFactory` 来完成的，该方法返回 `StandardBeanFactory` 实现。
+`StandardBeanFactory` 通过 `registerSingleton(..)` 和 `registerBeanDefinition(..)` 方法支持此注册。
+但是，典型的应用程序仅使用通过常规 bean 定义元数据定义的 bean。
 
 [NOTE]
 ====
-Bean metadata and manually supplied singleton instances need to be registered as early
-as possible, in order for the container to properly reason about them during autowiring
-and other introspection steps. While overriding existing metadata and existing
-singleton instances is supported to some degree, the registration of new beans at
-runtime (concurrently with live access to the factory) is not officially supported and may
-lead to concurrent access exceptions, inconsistent state in the bean container, or both.
+Bean 元数据和手动提供的单例实例需要尽早注册，以便容器在自动装配和其他内省步骤中正确地推理它们。
+虽然在某种程度上支持覆盖现有元数据和现有单例实例，但官方不支持在运行时注册新 bean（与对工厂的实时访问并发），这可能会导致并发访问异常、bean 容器中的状态不一致，或两者兼而有之。
 ====
 
 [[beans-definition-overriding]]
-== Overriding Beans
+== 覆盖 Bean
 
-Bean overriding is happening when a bean is registered using an identifier that is
-already allocated. While bean overriding is possible, it makes the configuration harder
-to read and this feature will be deprecated in a future release.
+当使用已分配的标识符注册 bean 时，就会发生 bean 覆盖。虽然 bean 覆盖是可能的，但这会使配置更难阅读，并且此功能将在未来的版本中弃用。
 
-To disable bean overriding altogether, you can set the `allowBeanDefinitionOverriding`
-to `false` on the `ApplicationContext` before it is refreshed. In such setup, an
-exception is thrown if bean overriding is used.
+要完全禁用 bean 覆盖，您可以在刷新 `ApplicationContext` 之前将 `allowBeanDefinitionOverriding` 设置为 `false`。
+在此设置中，如果使用 bean 覆盖，则会抛出异常。
 
-By default, the container logs every bean overriding at `INFO` level so that you can
-adapt your configuration accordingly. While not recommended, you can silence those logs
-by setting the `allowBeanDefinitionOverriding` flag to `true`.
+默认情况下，容器会在 `INFO` 级别记录每次 bean 覆盖，以便您可以相应地调整配置。
+虽然不推荐，但您可以通过将 `allowBeanDefinitionOverriding` 标志设置为 `true` 来使这些日志静音。
 
-NOTE: We acknowledge that overriding beans in a test is convenient, and there is
-explicit support for this. For more details please refer to xref:testing/annotations/integration-spring/annotation-beanoverriding.adoc[this section].
+NOTE: 我们承认在测试中覆盖 bean 很方便，并且对此有明确的支持。有关更多详细信息，请参阅 xref:testing/annotations/integration-spring/annotation-beanoverriding.adoc[本节]。
 
 [[beans-beanname]]
-== Naming Beans
+== 命名 Bean
 
-Every bean has one or more identifiers. These identifiers must be unique within the
-container that hosts the bean. A bean usually has only one identifier. However, if it
-requires more than one, the extra ones can be considered aliases.
+每个 bean 都有一个或多个标识符。这些标识符在托管 bean 的容器内必须是唯一的。一个 bean 通常只有一个标识符。但是，如果它需要多个，多余的可以被视为别名。
 
-In XML-based configuration metadata, you use the `id` attribute, the `name` attribute, or
-both to specify bean identifiers. The `id` attribute lets you specify exactly one `id`.
-Conventionally, these names are alphanumeric ('myBean', 'someService', etc.), but they
-can contain special characters as well. If you want to introduce other aliases for the
-bean, you can also specify them in the `name` attribute, separated by a comma (`,`),
-semicolon (`;`), or white space. Although the `id` attribute is defined as an
-`xsd:string` type, bean `id` uniqueness is enforced by the container, though not by XML
-parsers.
+在基于 XML 的配置元数据中，您使用 `id` 属性、`name` 属性或两者来指定 bean 标识符。`id` 属性允许您指定恰好一个 `id`。
+按照惯例，这些名称是字母数字（'myBean'、'someService' 等），但它们也可以包含特殊字符。
+如果您想为 bean 引入其他别名，也可以在 `name` 属性中指定它们，用逗号 (`,`)、分号 (`;`) 或空格分隔。
+虽然 `id` 属性定义为 `xsd:string` 类型，但 bean `id` 的唯一性由容器强制执行，而不是由 XML 解析器强制执行。
 
-You are not required to supply a `name` or an `id` for a bean. If you do not supply a
-`name` or `id` explicitly, the container generates a unique name for that bean. However,
-if you want to refer to that bean by name, through the use of the `ref` element or a
-Service Locator style lookup, you must provide a name.
-Motivations for not supplying a name are related to using xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-inner-beans[inner beans]
- and xref:core/beans/dependencies/factory-autowire.adoc[autowiring collaborators].
+您不需要为 bean 提供 `name` 或 `id`。如果您没有显式提供 `name` 或 `id`，容器会为该 bean 生成一个唯一的名称。
+但是，如果您想通过使用 `ref` 元素或 Service Locator 风格的查找按名称引用该 bean，则必须提供名称。
+不提供名称的动机与使用 xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-inner-beans[内部 bean]
+和 xref:core/beans/dependencies/factory-autowire.adoc[自动装配协作者] 有关。
 
-.Bean Naming Conventions
+.Bean 命名约定
 ****
-The convention is to use the standard Java convention for instance field names when
-naming beans. That is, bean names start with a lowercase letter and are camel-cased
-from there. Examples of such names include `accountManager`,
-`accountService`, `userDao`, `loginController`, and so forth.
+惯例是在命名 bean 时使用标准 Java 实例字段名称约定。
+也就是说，bean 名称以小写字母开头，并从那里开始驼峰式大小写。
+此类名称的示例包括 `accountManager`、`accountService`、`userDao`、`loginController` 等。
 
-Naming beans consistently makes your configuration easier to read and understand.
-Also, if you use Infra AOP, it helps a lot when applying advice to a set of beans
-related by name.
+一致地命名 bean 使您的配置更易于阅读和理解。
+此外，如果您使用 Infra AOP，当将建议应用于按名称相关的一组 bean 时，这会有很大帮助。
 ****
 
-NOTE: With component scanning in the classpath, Infra generates bean names for unnamed
-components, following the rules described earlier: essentially, taking the simple class name
-and turning its initial character to lower-case. However, in the (unusual) special
-case when there is more than one character and both the first and second characters
-are upper case, the original casing gets preserved. These are the same rules as
-defined by `java.beans.Introspector.decapitalize` (which Infra uses here).
-
+NOTE: 通过类路径中的组件扫描，Infra 会按照前面描述的规则为未命名的组件生成 bean 名称：本质上，采用简单的类名并将其首字符转换为小写。
+但是，在（不常见的）特殊情况下，如果有多个字符且第一个和第二个字符都是大写字母，则保留原始大小写。
+这些规则与 `java.beans.Introspector.decapitalize`（Infra 在此处使用）定义的规则相同。
 
 [[beans-beanname-alias]]
-=== Aliasing a Bean outside the Bean Definition
+=== 在 Bean 定义之外为 Bean 设置别名
 
-In a bean definition itself, you can supply more than one name for the bean, by using a
-combination of up to one name specified by the `id` attribute and any number of other
-names in the `name` attribute. These names can be equivalent aliases to the same bean
-and are useful for some situations, such as letting each component in an application
-refer to a common dependency by using a bean name that is specific to that component
-itself.
+在 bean 定义本身中，您可以通过使用 `id` 属性指定的一个名称与 `name` 属性中的任意数量的其他名称的组合，为 bean 提供多个名称。
+这些名称可以是同一 bean 的等效别名，并且在某些情况下很有用，例如让应用程序中的每个组件通过使用特定于该组件本身的 bean 名称来引用公共依赖项。
 
-Specifying all aliases where the bean is actually defined is not always adequate,
-however. It is sometimes desirable to introduce an alias for a bean that is defined
-elsewhere. This is commonly the case in large systems where configuration is split
-amongst each subsystem, with each subsystem having its own set of object definitions.
-In XML-based configuration metadata, you can use the `<alias/>` element to accomplish
-this. The following example shows how to do so:
+然而，在实际定义 bean 的地方指定所有别名并不总是足够的。有时需要为在别处定义的 bean 引入别名。
+这通常发生在大型系统中，其中配置在每个子系统之间拆分，每个子系统都有自己的一组对象定义。
+在基于 XML 的配置元数据中，您可以使用 `<alias/>` 元素来实现此目的。以下示例显示了如何执行此操作：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <alias name="fromName" alias="toName"/>
 ----
 
-In this case, a bean (in the same container) named `fromName` may also,
-after the use of this alias definition, be referred to as `toName`.
+在这种情况下，名为 `fromName` 的 bean（在同一容器中）在使用此别名定义后，也可以被称为 `toName`。
 
-For example, the configuration metadata for subsystem A may refer to a DataSource by the
-name of `subsystemA-dataSource`. The configuration metadata for subsystem B may refer to
-a DataSource by the name of `subsystemB-dataSource`. When composing the main application
-that uses both these subsystems, the main application refers to the DataSource by the
-name of `myApp-dataSource`. To have all three names refer to the same object, you can
-add the following alias definitions to the configuration metadata:
+例如，子系统 A 的配置元数据可以通过 `subsystemA-dataSource` 的名称引用 DataSource。
+子系统 B 的配置元数据可以通过 `subsystemB-dataSource` 的名称引用 DataSource。
+当组合使用这两个子系统的主应用程序时，主应用程序通过 `myApp-dataSource` 的名称引用 DataSource。
+要让所有三个名称都引用同一个对象，您可以将以下别名定义添加到配置元数据中：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -172,72 +126,51 @@ add the following alias definitions to the configuration metadata:
 <alias name="myApp-dataSource" alias="subsystemB-dataSource"/>
 ----
 
-Now each component and the main application can refer to the dataSource through a name
-that is unique and guaranteed not to clash with any other definition (effectively
-creating a namespace), yet they refer to the same bean.
+现在，每个组件和主应用程序都可以通过一个唯一的名称引用 dataSource，该名称保证不与任何其他定义冲突（有效地创建一个命名空间），但它们引用的是同一个 bean。
 
-.Java-configuration
+.Java 配置
 ****
-If you use Java Configuration, the `@Bean` annotation can be used to provide aliases.
-See xref:core/beans/java/bean-annotation.adoc[Using the `@Bean` Annotation] for details.
+如果您使用 Java 配置，可以使用 `@Bean` 注解来提供别名。
+有关详细信息，请参阅 xref:core/beans/java/bean-annotation.adoc[使用 `@Bean` 注解]。
 ****
-
-
 
 [[beans-factory-class]]
-== Instantiating Beans
+== 实例化 Bean
 
-A bean definition is essentially a recipe for creating one or more objects. The
-container looks at the recipe for a named bean when asked and uses the configuration
-metadata encapsulated by that bean definition to create (or acquire) an actual object.
+Bean 定义本质上是创建一或多个对象的配方。
+容器在被询问时查看命名 bean 的配方，并使用该 bean 定义封装的配置元数据来创建（或获取）实际对象。
 
-If you use XML-based configuration metadata, you specify the type (or class) of object
-that is to be instantiated in the `class` attribute of the `<bean/>` element. This
-`class` attribute (which, internally, is a `Class` property on a `BeanDefinition`
-instance) is usually mandatory. (For exceptions, see
-xref:core/beans/definition.adoc#beans-factory-class-instance-factory-method[Instantiation by Using an Instance Factory Method] and xref:core/beans/child-bean-definitions.adoc[Bean Definition Inheritance].)
-You can use the `Class` property in one of two ways:
+如果您使用基于 XML 的配置元数据，则在 `<bean/>` 元素的 `class` 属性中指定要实例化的对象的类型（或类）。
+这个 `class` 属性（在内部是 `BeanDefinition` 实例上的 `Class` 属性）通常是强制性的。（对于例外情况，请参阅
+xref:core/beans/definition.adoc#beans-factory-class-instance-factory-method[使用实例工厂方法实例化] 和 xref:core/beans/child-bean-definitions.adoc[Bean 定义继承]。）
+您可以通过以下两种方式之一使用 `Class` 属性：
 
-* Typically, to specify the bean class to be constructed in the case where the container
-  itself directly creates the bean by calling its constructor reflectively, somewhat
-  equivalent to Java code with the `new` operator.
-* To specify the actual class containing the `static` factory method that is
-  invoked to create the object, in the less common case where the container invokes a
-  `static` factory method on a class to create the bean. The object type returned
-  from the invocation of the `static` factory method may be the same class or another
-  class entirely.
+* 通常，在容器本身通过反射调用其构造函数直接创建 bean 的情况下，指定要构造的 bean 类，这在某种程度上等同于使用 `new` 运算符的 Java 代码。
+* 在不太常见的情况下，容器调用类上的 `static` 工厂方法来创建 bean，指定包含被调用的 `static` 工厂方法的实际类。
+  从 `static` 工厂方法的调用返回的对象类型可以是同一个类，也可以是完全不同的另一个类。
 
-.Nested class names
+.嵌套类名
 ****
-If you want to configure a bean definition for a nested class, you may use either the
-binary name or the source name of the nested class.
+如果要为嵌套类配置 bean 定义，可以使用嵌套类的二进制名称或源名称。
 
-For example, if you have a class called `SomeThing` in the `com.example` package, and
-this `SomeThing` class has a `static` nested class called `OtherThing`, they can be
-separated by a dollar sign (`$`) or a dot (`.`). So the value of the `class` attribute in
-a bean definition would be `com.example.SomeThing$OtherThing` or
-`com.example.SomeThing.OtherThing`.
+例如，如果在 `com.example` 包中有一个名为 `SomeThing` 的类，并且这个 `SomeThing` 类有一个名为 `OtherThing` 的 `static` 嵌套类，
+它们可以用美元符号 (`$`) 或点 (`.`) 分隔。
+因此，bean 定义中 `class` 属性的值将是 `com.example.SomeThing$OtherThing` 或 `com.example.SomeThing.OtherThing`。
 ****
-
 
 [[beans-factory-class-ctor]]
-=== Instantiation with a Constructor
+=== 使用构造函数实例化
 
-When you create a bean by the constructor approach, all normal classes are usable by and
-compatible with Infra. That is, the class being developed does not need to implement
-any specific interfaces or to be coded in a specific fashion. Simply specifying the bean
-class should suffice. However, depending on what type of IoC you use for that specific
-bean, you may need a default (empty) constructor.
+当您通过构造函数方法创建 bean 时，所有普通类都可以被 Infra 使用并与之兼容。
+也就是说，正在开发的类不需要实现任何特定接口或以特定方式编码。只需指定 bean 类就足够了。
+但是，根据您为该特定 bean 使用的 IoC 类型，您可能需要一个默认（空）构造函数。
 
-The Infra IoC container can manage virtually any class you want it to manage. It is
-not limited to managing true JavaBeans. Most Infra users prefer actual JavaBeans with
-only a default (no-argument) constructor and appropriate setters and getters modeled
-after the properties in the container. You can also have more exotic non-bean-style
-classes in your container. If, for example, you need to use a legacy connection pool
-that absolutely does not adhere to the JavaBean specification, Infra can manage it as
-well.
+Infra IoC 容器几乎可以管理您希望它管理的任何类。它不仅限于管理真正的 JavaBeans。
+大多数 Infra 用户更喜欢只有默认（无参数）构造函数和根据容器中的属性建模的适当 setter 和 getter 的实际 JavaBeans。
+您也可以在容器中拥有更多异国情调的非 bean 风格的类。
+例如，如果您需要使用绝对不符合 JavaBean 规范的遗留连接池，Infra 也可以管理它。
 
-With XML-based configuration metadata you can specify your bean class as follows:
+使用基于 XML 的配置元数据，您可以按如下方式指定 bean 类：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -246,26 +179,18 @@ With XML-based configuration metadata you can specify your bean class as follows
 <bean name="anotherExample" class="examples.ExampleBeanTwo"/>
 ----
 
-For details about the mechanism for supplying arguments to the constructor (if required)
-and setting object instance properties after the object is constructed, see
-xref:core/beans/dependencies/factory-collaborators.adoc[Injecting Dependencies].
-
+有关向构造函数提供参数（如果需要）以及在构造对象后设置对象实例属性的机制的详细信息，请参阅
+xref:core/beans/dependencies/factory-collaborators.adoc[注入依赖项]。
 
 [[beans-factory-class-static-factory-method]]
-=== Instantiation with a Static Factory Method
+=== 使用静态工厂方法实例化
 
-When defining a bean that you create with a static factory method, use the `class`
-attribute to specify the class that contains the `static` factory method and an attribute
-named `factory-method` to specify the name of the factory method itself. You should be
-able to call this method (with optional arguments, as described later) and return a live
-object, which subsequently is treated as if it had been created through a constructor.
-One use for such a bean definition is to call `static` factories in legacy code.
+定义使用静态工厂方法创建的 bean 时，使用 `class` 属性指定包含 `static` 工厂方法的类，并使用名为 `factory-method` 的属性指定工厂方法本身的名称。
+您应该能够调用此方法（带有可选参数，如下所述）并返回一个活动对象，该对象随后被视为已通过构造函数创建。
+这种 bean 定义的一个用途是在遗留代码中调用 `static` 工厂。
 
-The following bean definition specifies that the bean will be created by calling a
-factory method. The definition does not specify the type (class) of the returned object,
-but rather the class containing the factory method. In this example, the
-`createInstance()` method must be a `static` method. The following example shows how to
-specify a factory method:
+以下 bean 定义指定将通过调用工厂方法来创建 bean。该定义不指定返回对象的类型（类），而是指定包含工厂方法的类。
+在此示例中，`createInstance()` 方法必须是 `static` 方法。以下示例显示了如何指定工厂方法：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -273,7 +198,7 @@ specify a factory method:
   factory-method="createInstance"/>
 ----
 
-The following example shows a class that would work with the preceding bean definition:
+以下示例显示了一个适用于上述 bean 定义的类：
 
 [tabs]
 ======
@@ -293,36 +218,30 @@ public class ClientService {
 
 ======
 
-For details about the mechanism for supplying (optional) arguments to the factory method
-and setting object instance properties after the object is returned from the factory,
-see xref:core/beans/dependencies/factory-properties-detailed.adoc[Dependencies and Configuration in Detail].
-
+有关向工厂方法提供（可选）参数以及在从工厂返回对象后设置对象实例属性的机制的详细信息，
+请参阅 xref:core/beans/dependencies/factory-properties-detailed.adoc[依赖项和配置详解]。
 
 [[beans-factory-class-instance-factory-method]]
-=== Instantiation by Using an Instance Factory Method
+=== 使用实例工厂方法实例化
 
-Similar to instantiation through a xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[static factory method]
-, instantiation with an instance factory method invokes a non-static
-method of an existing bean from the container to create a new bean. To use this
-mechanism, leave the `class` attribute empty and, in the `factory-bean` attribute,
-specify the name of a bean in the current (or parent or ancestor) container that contains
-the instance method that is to be invoked to create the object. Set the name of the
-factory method itself with the `factory-method` attribute. The following example shows
-how to configure such a bean:
+类似于通过 xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[静态工厂方法] 实例化，
+使用实例工厂方法实例化会调用容器中现有 bean 的非静态方法来创建新 bean。
+要使用此机制，请将 `class` 属性留空，并在 `factory-bean` 属性中指定当前（或父或祖先）容器中包含要调用以创建对象的实例方法的 bean 的名称。
+使用 `factory-method` 属性设置工厂方法本身的名称。以下示例显示了如何配置此类 bean：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- the factory bean, which contains a method called createClientServiceInstance() -->
+<!-- 工厂 bean，包含名为 createClientServiceInstance() 的方法 -->
 <bean id="serviceLocator" class="examples.DefaultServiceLocator">
-  <!-- inject any dependencies required by this locator bean -->
+  <!-- 注入此定位器 bean 所需的任何依赖项 -->
 </bean>
 
-<!-- the bean to be created via the factory bean -->
+<!-- 通过工厂 bean 创建的 bean -->
 <bean id="clientService" factory-bean="serviceLocator"
   factory-method="createClientServiceInstance"/>
 ----
 
-The following example shows the corresponding class:
+以下示例显示了相应的类：
 
 [tabs]
 ======
@@ -342,12 +261,12 @@ public class DefaultServiceLocator {
 
 ======
 
-One factory class can also hold more than one factory method, as the following example shows:
+一个工厂类也可以拥有多个工厂方法，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="serviceLocator" class="examples.DefaultServiceLocator">
-  <!-- inject any dependencies required by this locator bean -->
+  <!-- 注入此定位器 bean 所需的任何依赖项 -->
 </bean>
 
 <bean id="clientService"
@@ -359,7 +278,7 @@ One factory class can also hold more than one factory method, as the following e
   factory-method="createAccountServiceInstance"/>
 ----
 
-The following example shows the corresponding class:
+以下示例显示了相应的类：
 
 [tabs]
 ======
@@ -385,34 +304,21 @@ public class DefaultServiceLocator {
 
 ======
 
-This approach shows that the factory bean itself can be managed and configured through
-dependency injection (DI). See xref:core/beans/dependencies/factory-properties-detailed.adoc[Dependencies and Configuration in Detail]
-.
+这种方法表明，工厂 bean 本身可以通过依赖注入 (DI) 进行管理和配置。
+请参阅 xref:core/beans/dependencies/factory-properties-detailed.adoc[依赖项和配置详解]。
 
-NOTE: In Infra documentation, "factory bean" refers to a bean that is configured in the
-Infra container and that creates objects through an
-xref:core/beans/definition.adoc#beans-factory-class-instance-factory-method[instance] or
-xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[static] factory method. By contrast,
-`FactoryBean` (notice the capitalization) refers to a Infra-specific
-xref:core/beans/factory-extension.adoc#beans-factory-extension-factorybean[`FactoryBean`] implementation class.
-
+NOTE: 在 Infra 文档中，“工厂 bean”是指在 Infra 容器中配置并通过
+xref:core/beans/definition.adoc#beans-factory-class-instance-factory-method[实例] 或
+xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[静态] 工厂方法创建对象的 bean。
+相比之下，`FactoryBean`（注意大写）是指特定于 Infra 的
+xref:core/beans/factory-extension.adoc#beans-factory-extension-factorybean[`FactoryBean`] 实现类。
 
 [[beans-factory-type-determination]]
-=== Determining a Bean's Runtime Type
+=== 确定 Bean 的运行时类型
 
-The runtime type of a specific bean is non-trivial to determine. A specified class in
-the bean metadata definition is just an initial class reference, potentially combined
-with a declared factory method or being a `FactoryBean` class which may lead to a
-different runtime type of the bean, or not being set at all in case of an instance-level
-factory method (which is resolved via the specified `factory-bean` name instead).
-Additionally, AOP proxying may wrap a bean instance with an interface-based proxy with
-limited exposure of the target bean's actual type (just its implemented interfaces).
+确定特定 bean 的运行时类型并非易事。
+bean 元数据定义中指定的类只是一个初始类引用，可能与声明的工厂方法结合使用，或者是一个 `FactoryBean` 类，这可能会导致 bean 的运行时类型不同，或者在实例级工厂方法的情况下根本没有设置（而是通过指定的 `factory-bean` 名称解析）。
+此外，AOP 代理可能会用基于接口的代理包装 bean 实例，从而限制目标 bean 实际类型的暴露（仅限于其实现的接口）。
 
-The recommended way to find out about the actual runtime type of a particular bean is
-a `BeanFactory.getType` call for the specified bean name. This takes all of the above
-cases into account and returns the type of object that a `BeanFactory.getBean` call is
-going to return for the same bean name.
-
-
-
-
+找出特定 bean 的实际运行时类型的推荐方法是对指定的 bean 名称调用 `BeanFactory.getType`。
+这考虑了上述所有情况，并返回 `BeanFactory.getBean` 调用将针对相同 bean 名称返回的对象类型。

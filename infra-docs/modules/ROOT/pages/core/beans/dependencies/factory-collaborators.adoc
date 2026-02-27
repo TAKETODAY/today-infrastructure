@@ -1,34 +1,23 @@
 [[beans-factory-collaborators]]
-= Dependency Injection
+= 依赖注入
 
-Dependency injection (DI) is a process whereby objects define their dependencies
-(that is, the other objects with which they work) only through constructor arguments,
-arguments to a factory method, or properties that are set on the object instance after
-it is constructed or returned from a factory method. The container then injects those
-dependencies when it creates the bean. This process is fundamentally the inverse (hence
-the name, Inversion of Control) of the bean itself controlling the instantiation
-or location of its dependencies on its own by using direct construction of classes or
-the Service Locator pattern.
+依赖注入 (DI) 是一个过程，通过该过程，对象仅通过构造函数参数、工厂方法的参数或在对象实例被构造或从工厂方法返回后设置的属性来定义其依赖项（即它们与之工作的其他对象）。
+然后，容器在创建 bean 时注入这些依赖项。
+这个过程从根本上说是 bean 本身通过使用类的直接构造或 Service Locator 模式来控制其依赖项的实例化或位置的逆过程（因此称为控制反转）。
 
-Code is cleaner with the DI principle, and decoupling is more effective when objects are
-provided with their dependencies. The object does not look up its dependencies and does
-not know the location or class of the dependencies. As a result, your classes become easier
-to test, particularly when the dependencies are on interfaces or abstract base classes,
-which allow for stub or mock implementations to be used in unit tests.
+使用 DI 原则，代码更清晰，当对象提供其依赖项时，解耦更有效。
+对象不查找其依赖项，也不知道依赖项的位置或类。
+结果，您的类变得更易于测试，特别是当依赖项是接口或抽象基类时，这允许在单元测试中使用存根或模拟实现。
 
-DI exists in two major variants: xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-injection[Constructor-based dependency injection]
- and xref:core/beans/dependencies/factory-collaborators.adoc#beans-setter-injection[Setter-based dependency injection].
-
+DI 存在两个主要变体：xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-injection[基于构造函数的依赖注入]
+和 xref:core/beans/dependencies/factory-collaborators.adoc#beans-setter-injection[基于 Setter 的依赖注入]。
 
 [[beans-constructor-injection]]
-== Constructor-based Dependency Injection
+== 基于构造函数的依赖注入
 
-Constructor-based DI is accomplished by the container invoking a constructor with a
-number of arguments, each representing a dependency. Calling a `static` factory method
-with specific arguments to construct the bean is nearly equivalent, and this discussion
-treats arguments to a constructor and to a `static` factory method similarly. The
-following example shows a class that can only be dependency-injected with constructor
-injection:
+基于构造函数的 DI 是通过容器调用带有多个参数的构造函数来完成的，每个参数代表一个依赖项。
+调用带有特定参数的 `static` 工厂方法来构造 bean 几乎是等效的，本讨论将类似地对待构造函数的参数和 `static` 工厂方法的参数。
+以下示例显示了一个只能使用构造函数注入进行依赖注入的类：
 
 [tabs]
 ======
@@ -38,31 +27,28 @@ Java::
 ----
 public class SimpleMovieLister {
 
-  // the SimpleMovieLister has a dependency on a MovieFinder
+  // SimpleMovieLister 依赖于 MovieFinder
   private final MovieFinder movieFinder;
 
-  // a constructor so that the Infra container can inject a MovieFinder
+  // 一个构造函数，以便 Infra 容器可以注入 MovieFinder
   public SimpleMovieLister(MovieFinder movieFinder) {
     this.movieFinder = movieFinder;
   }
 
-  // business logic that actually uses the injected MovieFinder is omitted...
+  // 实际使用注入的 MovieFinder 的业务逻辑被省略...
 }
 ----
 
 ======
 
-Notice that there is nothing special about this class. It is a POJO that
-has no dependencies on container specific interfaces, base classes, or annotations.
+请注意，此类没有任何特别之处。它是一个 POJO，不依赖于容器特定的接口、基类或注解。
 
 [[beans-factory-ctor-arguments-resolution]]
-=== Constructor Argument Resolution
+=== 构造函数参数解析
 
-Constructor argument resolution matching occurs by using the argument's type. If no
-potential ambiguity exists in the constructor arguments of a bean definition, the
-order in which the constructor arguments are defined in a bean definition is the order
-in which those arguments are supplied to the appropriate constructor when the bean is
-being instantiated. Consider the following class:
+构造函数参数解析匹配是通过使用参数的类型进行的。
+如果 bean 定义的构造函数参数中不存在潜在的歧义，则在 bean 定义中定义构造函数参数的顺序就是这些参数在实例化 bean 时提供给适当构造函数的顺序。
+考虑以下类：
 
 [tabs]
 ======
@@ -82,10 +68,8 @@ public class ThingOne {
 
 ======
 
-Assuming that the `ThingTwo` and `ThingThree` classes are not related by inheritance, no
-potential ambiguity exists. Thus, the following configuration works fine, and you do not
-need to specify the constructor argument indexes or types explicitly in the
-`<constructor-arg/>` element.
+假设 `ThingTwo` 和 `ThingThree` 类没有继承关系，则不存在潜在的歧义。
+因此，以下配置工作正常，您不需要在 `<constructor-arg/>` 元素中显式指定构造函数参数索引或类型。
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -101,10 +85,9 @@ need to specify the constructor argument indexes or types explicitly in the
 </beans>
 ----
 
-When another bean is referenced, the type is known, and matching can occur (as was the
-case with the preceding example). When a simple type is used, such as
-`<value>true</value>`, Infra cannot determine the type of the value, and so cannot match
-by type without help. Consider the following class:
+当引用另一个 bean 时，类型是已知的，并且可以进行匹配（如前面的示例所示）。
+当使用简单类型时，例如 `<value>true</value>`，Infra 无法确定值的类型，因此无法在没有帮助的情况下按类型匹配。
+考虑以下类：
 
 [tabs]
 ======
@@ -116,10 +99,10 @@ package examples;
 
 public class ExampleBean {
 
-  // Number of years to calculate the Ultimate Answer
+  // 计算终极答案的年数
   private final int years;
 
-  // The Answer to Life, the Universe, and Everything
+  // 生命、宇宙和一切的答案
   private final String ultimateAnswer;
 
   public ExampleBean(int years, String ultimateAnswer) {
@@ -131,11 +114,9 @@ public class ExampleBean {
 
 ======
 
-.[[beans-factory-ctor-arguments-type]]Constructor argument type matching
+.[[beans-factory-ctor-arguments-type]]构造函数参数类型匹配
 --
-In the preceding scenario, the container can use type matching with simple types if
-you explicitly specify the type of the constructor argument by using the `type` attribute,
-as the following example shows:
+在上述场景中，如果您使用 `type` 属性显式指定构造函数参数的类型，容器可以使用简单类型的类型匹配，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -146,10 +127,9 @@ as the following example shows:
 ----
 --
 
-.[[beans-factory-ctor-arguments-index]]Constructor argument index
+.[[beans-factory-ctor-arguments-index]]构造函数参数索引
 --
-You can use the `index` attribute to specify explicitly the index of constructor arguments,
-as the following example shows:
+您可以使用 `index` 属性显式指定构造函数参数的索引，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -159,16 +139,14 @@ as the following example shows:
 </bean>
 ----
 
-In addition to resolving the ambiguity of multiple simple values, specifying an index
-resolves ambiguity where a constructor has two arguments of the same type.
+除了解决多个简单值的歧义外，指定索引还可以解决构造函数具有两个相同类型参数的歧义。
 
-NOTE: The index is 0-based.
+NOTE: 索引从 0 开始。
 --
 
-.[[beans-factory-ctor-arguments-name]]Constructor argument name
+.[[beans-factory-ctor-arguments-name]]构造函数参数名称
 --
-You can also use the constructor parameter name for value disambiguation, as the following
-example shows:
+您还可以使用构造函数参数名称来消除值的歧义，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -178,12 +156,10 @@ example shows:
 </bean>
 ----
 
-Keep in mind that, to make this work out of the box, your code must be compiled with the
-debug flag enabled so that Infra can look up the parameter name from the constructor.
-If you cannot or do not want to compile your code with the debug flag, you can use the
+请记住，为了使其开箱即用，您的代码必须在启用调试标志的情况下进行编译，以便 Infra 可以从构造函数中查找参数名称。
+如果您不能或不想在启用调试标志的情况下编译代码，可以使用
 https://download.oracle.com/javase/8/docs/api/java/beans/ConstructorProperties.html[@ConstructorProperties]
-JDK annotation to explicitly name your constructor arguments. The sample class would
-then have to look as follows:
+JDK 注解来显式命名构造函数参数。示例类必须如下所示：
 
 [tabs]
 ======
@@ -195,7 +171,7 @@ package examples;
 
 public class ExampleBean {
 
-  // Fields omitted
+  // 字段省略
 
   @ConstructorProperties({"years", "ultimateAnswer"})
   public ExampleBean(int years, String ultimateAnswer) {
@@ -208,17 +184,13 @@ public class ExampleBean {
 ======
 --
 
-
 [[beans-setter-injection]]
-== Setter-based Dependency Injection
+== 基于 Setter 的依赖注入
 
-Setter-based DI is accomplished by the container calling setter methods on your
-beans after invoking a no-argument constructor or a no-argument `static` factory method to
-instantiate your bean.
+基于 Setter 的 DI 是通过容器在调用无参数构造函数或无参数 `static` 工厂方法以实例化 bean 后，调用 bean 上的 setter 方法来完成的。
 
-The following example shows a class that can only be dependency-injected by using pure
-setter injection. This class is conventional Java. It is a POJO that has no dependencies
-on container specific interfaces, base classes, or annotations.
+以下示例显示了一个只能使用纯 setter 注入进行依赖注入的类。
+这个类是传统的 Java。它是一个 POJO，不依赖于容器特定的接口、基类或注解。
 
 [tabs]
 ======
@@ -228,151 +200,107 @@ Java::
 ----
 public class SimpleMovieLister {
 
-  // the SimpleMovieLister has a dependency on the MovieFinder
+  // SimpleMovieLister 依赖于 MovieFinder
   private MovieFinder movieFinder;
 
-  // a setter method so that the Infra container can inject a MovieFinder
+  // 一个 setter 方法，以便 Infra 容器可以注入 MovieFinder
   public void setMovieFinder(MovieFinder movieFinder) {
     this.movieFinder = movieFinder;
   }
 
-  // business logic that actually uses the injected MovieFinder is omitted...
+  // 实际使用注入的 MovieFinder 的业务逻辑被省略...
 }
 ----
 
 ======
 
-
-The `ApplicationContext` supports constructor-based and setter-based DI for the beans it
-manages. It also supports setter-based DI after some dependencies have already been
-injected through the constructor approach. You configure the dependencies in the form of
-a `BeanDefinition`, which you use in conjunction with `PropertyEditor` instances to
-convert properties from one format to another. However, most Infra users do not work
-with these classes directly (that is, programmatically) but rather with XML `bean`
-definitions, annotated components (that is, classes annotated with `@Component`,
-`@Controller`, and so forth), or `@Bean` methods in Java-based `@Configuration` classes.
-These sources are then converted internally into instances of `BeanDefinition` and used to
-load an entire Infra IoC container instance.
+`ApplicationContext` 支持其管理的 bean 的基于构造函数和基于 setter 的 DI。
+它还支持在通过构造函数方法注入了一些依赖项之后进行基于 setter 的 DI。
+您以 `BeanDefinition` 的形式配置依赖项，并将其与 `PropertyEditor` 实例结合使用，将属性从一种格式转换为另一种格式。
+但是，大多数 Infra 用户不直接（即以编程方式）使用这些类，而是使用 XML `bean` 定义、带注解的组件（即使用 `@Component`、`@Controller` 等注解的类）或基于 Java 的 `@Configuration` 类中的 `@Bean` 方法。
+然后，这些源在内部转换为 `BeanDefinition` 的实例，并用于加载整个 Infra IoC 容器实例。
 
 [[beans-constructor-vs-setter-injection]]
-.Constructor-based or setter-based DI?
+.基于构造函数还是基于 Setter 的 DI？
 ****
-Since you can mix constructor-based and setter-based DI, it is a good rule of thumb to
-use constructors for mandatory dependencies and setter methods or configuration methods
-for optional dependencies. Note that use of the xref:core/beans/annotation-config/autowired.adoc[@Autowired]
-annotation on a setter method can be used to make the property be a required dependency;
-however, constructor injection with programmatic validation of arguments is preferable.
+由于您可以混合使用基于构造函数和基于 setter 的 DI，因此通过构造函数注入强制性依赖项，通过 setter 方法或配置方法注入可选依赖项是一个很好的经验法则。
+请注意，在 setter 方法上使用 xref:core/beans/annotation-config/autowired.adoc[@Autowired] 注解可用于使属性成为必需的依赖项；
+但是，带有参数编程验证的构造函数注入是首选。
 
-The Infra team generally advocates constructor injection, as it lets you implement
-application components as immutable objects and ensures that required dependencies
-are not `null`. Furthermore, constructor-injected components are always returned to the client
-(calling) code in a fully initialized state. As a side note, a large number of constructor
-arguments is a bad code smell, implying that the class likely has too many
-responsibilities and should be refactored to better address proper separation of concerns.
+Infra 团队通常提倡构造函数注入，因为它允许您将应用程序组件实现为不可变对象，并确保所需的依赖项不为 `null`。
+此外，构造函数注入的组件总是以完全初始化的状态返回给客户端（调用）代码。
+顺便说一句，大量的构造函数参数是一种糟糕的代码气味，这意味着该类可能有太多的责任，应该重构以更好地解决适当的关注点分离问题。
 
-Setter injection should primarily only be used for optional dependencies that can be
-assigned reasonable default values within the class. Otherwise, not-null checks must be
-performed everywhere the code uses the dependency. One benefit of setter injection is that
-setter methods make objects of that class amenable to reconfiguration or re-injection
-later. Management through xref:integration/jmx.adoc[JMX MBeans] is therefore a compelling
-use case for setter injection.
+Setter 注入主要用于可选依赖项，这些依赖项可以在类中分配合理的默认值。
+否则，必须在代码使用依赖项的任何地方执行非空检查。
+Setter 注入的一个好处是，setter 方法使该类的对象稍后可以重新配置或重新注入。
+因此，通过 xref:integration/jmx.adoc[JMX MBeans] 进行管理是 setter 注入的一个令人信服的用例。
 
-Use the DI style that makes the most sense for a particular class. Sometimes, when dealing
-with third-party classes for which you do not have the source, the choice is made for you.
-For example, if a third-party class does not expose any setter methods, then constructor
-injection may be the only available form of DI.
+使用对特定类最有意义的 DI 风格。有时，在处理您没有源代码的第三方类时，选择是为您做出的。
+例如，如果第三方类没有公开任何 setter 方法，则构造函数注入可能是唯一可用的 DI 形式。
 ****
-
 
 [[beans-dependency-resolution]]
-== Dependency Resolution Process
+== 依赖解析过程
 
-The container performs bean dependency resolution as follows:
+容器执行 bean 依赖解析如下：
 
-* The `ApplicationContext` is created and initialized with configuration metadata that
-  describes all the beans. Configuration metadata can be specified by XML, Java code, or
-  annotations.
-* For each bean, its dependencies are expressed in the form of properties, constructor
-  arguments, or arguments to the static-factory method (if you use that instead of a
-  normal constructor). These dependencies are provided to the bean, when the bean is
-  actually created.
-* Each property or constructor argument is an actual definition of the value to set, or
-  a reference to another bean in the container.
-* Each property or constructor argument that is a value is converted from its specified
-  format to the actual type of that property or constructor argument. By default, Infra
-  can convert a value supplied in string format to all built-in types, such as `int`,
-  `long`, `String`, `boolean`, and so forth.
+* `ApplicationContext` 被创建并使用描述所有 bean 的配置元数据进行初始化。
+  配置元数据可以通过 XML、Java 代码或注解指定。
+* 对于每个 bean，其依赖项以属性、构造函数参数或静态工厂方法参数的形式表示（如果您使用它而不是普通构造函数）。
+  当 bean 实际创建时，这些依赖项将提供给 bean。
+* 每个属性或构造函数参数都是要设置的值的实际定义，或者是对容器中另一个 bean 的引用。
+* 每个作为值的属性或构造函数参数都会从其指定的格式转换为该属性或构造函数参数的实际类型。
+  默认情况下，Infra 可以将以字符串格式提供的值转换为所有内置类型，例如 `int`、`long`、`String`、`boolean` 等。
 
-The Infra container validates the configuration of each bean as the container is created.
-However, the bean properties themselves are not set until the bean is actually created.
-Beans that are singleton-scoped and set to be pre-instantiated (the default) are created
-when the container is created. Scopes are defined in xref:core/beans/factory-scopes.adoc[Bean Scopes]. Otherwise,
-the bean is created only when it is requested. Creation of a bean potentially causes a
-graph of beans to be created, as the bean's dependencies and its dependencies'
-dependencies (and so on) are created and assigned. Note that resolution mismatches among
-those dependencies may show up late -- that is, on first creation of the affected bean.
+Infra 容器在创建容器时验证每个 bean 的配置。
+但是，在实际创建 bean 之前，不会设置 bean 属性本身。
+单例作用域并设置为预实例化（默认值）的 bean 在创建容器时创建。作用域在 xref:core/beans/factory-scopes.adoc[Bean 作用域] 中定义。
+否则，仅在请求时才创建 bean。
+创建 bean 可能会导致创建 bean 图，因为创建并分配了 bean 的依赖项及其依赖项的依赖项（依此类推）。
+请注意，这些依赖项之间的解析不匹配可能会很晚才显示出来——即在首次创建受影响的 bean 时。
 
-.Circular dependencies
+.循环依赖
 ****
-If you use predominantly constructor injection, it is possible to create an unresolvable
-circular dependency scenario.
+如果您主要使用构造函数注入，则可能会创建无法解析的循环依赖场景。
 
-For example: Class A requires an instance of class B through constructor injection, and
-class B requires an instance of class A through constructor injection. If you configure
-beans for classes A and B to be injected into each other, the Infra IoC container
-detects this circular reference at runtime, and throws a
-`BeanCurrentlyInCreationException`.
+例如：类 A 通过构造函数注入需要类 B 的实例，而类 B 通过构造函数注入需要类 A 的实例。
+如果您将类 A 和 B 的 bean 配置为相互注入，Infra IoC 容器会在运行时检测到此循环引用，并抛出 `BeanCurrentlyInCreationException`。
 
-One possible solution is to edit the source code of some classes to be configured by
-setters rather than constructors. Alternatively, avoid constructor injection and use
-setter injection only. In other words, although it is not recommended, you can configure
-circular dependencies with setter injection.
+一种可能的解决方案是编辑某些类的源代码，使其由 setter 而不是构造函数配置。
+或者，避免构造函数注入，仅使用 setter 注入。
+换句话说，尽管不建议这样做，但您可以使用 setter 注入配置循环依赖项。
 
-Unlike the typical case (with no circular dependencies), a circular dependency
-between bean A and bean B forces one of the beans to be injected into the other prior to
-being fully initialized itself (a classic chicken-and-egg scenario).
+与典型情况（没有循环依赖）不同，bean A 和 bean B 之间的循环依赖迫使其中一个 bean 在完全初始化自身之前注入到另一个 bean 中（经典的鸡和蛋场景）。
 ****
 
-You can generally trust Infra to do the right thing. It detects configuration problems,
-such as references to non-existent beans and circular dependencies, at container
-load-time. Infra sets properties and resolves dependencies as late as possible, when
-the bean is actually created. This means that a Infra container that has loaded
-correctly can later generate an exception when you request an object if there is a
-problem creating that object or one of its dependencies -- for example, the bean throws an
-exception as a result of a missing or invalid property. This potentially delayed
-visibility of some configuration issues is why `ApplicationContext` implementations by
-default pre-instantiate singleton beans. At the cost of some upfront time and memory to
-create these beans before they are actually needed, you discover configuration issues
-when the `ApplicationContext` is created, not later. You can still override this default
-behavior so that singleton beans initialize lazily, rather than being eagerly
-pre-instantiated.
+您通常可以信任 Infra 做正确的事情。它在容器加载时检测配置问题，例如对不存在的 bean 的引用和循环依赖。
+Infra 在实际创建 bean 时尽可能晚地设置属性并解析依赖项。
+这意味着，如果创建该对象或其依赖项之一存在问题——例如，bean 因缺少或无效属性而抛出异常——已正确加载的 Infra 容器稍后在您请求对象时可能会生成异常。
+某些配置问题的这种潜在延迟可见性是 `ApplicationContext` 实现默认预实例化单例 bean 的原因。
+以在实际需要之前创建这些 bean 的一些前期时间和内存为代价，您可以在创建 `ApplicationContext` 时发现配置问题，而不是稍后。
+您仍然可以覆盖此默认行为，以便单例 bean 延迟初始化，而不是急切地预实例化。
 
-If no circular dependencies exist, when one or more collaborating beans are being
-injected into a dependent bean, each collaborating bean is totally configured prior
-to being injected into the dependent bean. This means that, if bean A has a dependency on
-bean B, the Infra IoC container completely configures bean B prior to invoking the
-setter method on bean A. In other words, the bean is instantiated (if it is not a
-pre-instantiated singleton), its dependencies are set, and the relevant lifecycle
-methods (such as a xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[configured init method]
-or the xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[InitializingBean callback method])
-are invoked.
-
+如果不存在循环依赖，当一个或多个协作 bean 被注入到依赖 bean 中时，每个协作 bean 在注入到依赖 bean 之前都已完全配置。
+这意味着，如果 bean A 依赖于 bean B，Infra IoC 容器在调用 bean A 上的 setter 方法之前完全配置 bean B。
+换句话说，bean 被实例化（如果它不是预实例化的单例），设置其依赖项，并调用相关的生命周期方法（例如 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[配置的 init 方法]
+或 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[InitializingBean 回调方法]）。
 
 [[beans-some-examples]]
-== Examples of Dependency Injection
+== 依赖注入示例
 
-The following example uses XML-based configuration metadata for setter-based DI. A small
-part of a Infra XML configuration file specifies some bean definitions as follows:
+以下示例使用基于 XML 的配置元数据进行基于 setter 的 DI。
+Infra XML 配置文件的一小部分指定了一些 bean 定义，如下所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="exampleBean" class="examples.ExampleBean">
-  <!-- setter injection using the nested ref element -->
+  <!-- 使用嵌套 ref 元素的 setter 注入 -->
   <property name="beanOne">
     <ref bean="anotherExampleBean"/>
   </property>
 
-  <!-- setter injection using the neater ref attribute -->
+  <!-- 使用更整洁的 ref 属性的 setter 注入 -->
   <property name="beanTwo" ref="yetAnotherBean"/>
   <property name="integerProperty" value="1"/>
 </bean>
@@ -381,7 +309,7 @@ part of a Infra XML configuration file specifies some bean definitions as follow
 <bean id="yetAnotherBean" class="examples.YetAnotherBean"/>
 ----
 
-The following example shows the corresponding `ExampleBean` class:
+以下示例显示了相应的 `ExampleBean` 类：
 
 [tabs]
 ======
@@ -413,18 +341,18 @@ public class ExampleBean {
 
 ======
 
-In the preceding example, setters are declared to match against the properties specified
-in the XML file. The following example uses constructor-based DI:
+在前面的示例中，声明 setter 以匹配 XML 文件中指定的属性。
+以下示例使用基于构造函数的 DI：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="exampleBean" class="examples.ExampleBean">
-  <!-- constructor injection using the nested ref element -->
+  <!-- 使用嵌套 ref 元素的构造函数注入 -->
   <constructor-arg>
     <ref bean="anotherExampleBean"/>
   </constructor-arg>
 
-  <!-- constructor injection using the neater ref attribute -->
+  <!-- 使用更整洁的 ref 属性的构造函数注入 -->
   <constructor-arg ref="yetAnotherBean"/>
 
   <constructor-arg type="int" value="1"/>
@@ -434,7 +362,7 @@ in the XML file. The following example uses constructor-based DI:
 <bean id="yetAnotherBean" class="examples.YetAnotherBean"/>
 ----
 
-The following example shows the corresponding `ExampleBean` class:
+以下示例显示了相应的 `ExampleBean` 类：
 
 [tabs]
 ======
@@ -461,11 +389,9 @@ public class ExampleBean {
 
 ======
 
-The constructor arguments specified in the bean definition are used as arguments to
-the constructor of the `ExampleBean`.
+bean 定义中指定的构造函数参数用作 `ExampleBean` 构造函数的参数。
 
-Now consider a variant of this example, where, instead of using a constructor, Infra is
-told to call a `static` factory method to return an instance of the object:
+现在考虑这个示例的一个变体，其中 Infra 被告知调用 `static` 工厂方法来返回对象的实例，而不是使用构造函数：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -479,7 +405,7 @@ told to call a `static` factory method to return an instance of the object:
 <bean id="yetAnotherBean" class="examples.YetAnotherBean"/>
 ----
 
-The following example shows the corresponding `ExampleBean` class:
+以下示例显示了相应的 `ExampleBean` 类：
 
 [tabs]
 ======
@@ -489,19 +415,18 @@ Java::
 ----
 public class ExampleBean {
 
-  // a private constructor
+  // 私有构造函数
   private ExampleBean(...) {
     ...
   }
 
-  // a static factory method; the arguments to this method can be
-  // considered the dependencies of the bean that is returned,
-  // regardless of how those arguments are actually used.
+  // 静态工厂方法；此方法的参数可以视为返回 bean 的依赖项，
+  // 无论这些参数实际上如何使用。
   public static ExampleBean createInstance (
     AnotherBean anotherBean, YetAnotherBean yetAnotherBean, int i) {
 
     ExampleBean eb = new ExampleBean (...);
-    // some other operations...
+    // 一些其他操作...
     return eb;
   }
 }
@@ -509,13 +434,6 @@ public class ExampleBean {
 
 ======
 
-Arguments to the `static` factory method are supplied by `<constructor-arg/>` elements,
-exactly the same as if a constructor had actually been used. The type of the class being
-returned by the factory method does not have to be of the same type as the class that
-contains the `static` factory method (although, in this example, it is). An instance
-(non-static) factory method can be used in an essentially identical fashion (aside
-from the use of the `factory-bean` attribute instead of the `class` attribute), so we
-do not discuss those details here.
-
-
-
+`static` 工厂方法的参数由 `<constructor-arg/>` 元素提供，这与实际使用构造函数完全相同。
+工厂方法返回的类类型不必与包含 `static` 工厂方法的类类型相同（尽管在本例中是相同的）。
+实例（非静态）工厂方法可以以基本相同的方式使用（除了使用 `factory-bean` 属性代替 `class` 属性之外），因此我们在此不讨论这些细节。

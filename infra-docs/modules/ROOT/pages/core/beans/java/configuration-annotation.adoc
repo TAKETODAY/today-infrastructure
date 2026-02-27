@@ -1,17 +1,15 @@
 [[beans-java-configuration-annotation]]
-= Using the `@Configuration` annotation
+= 使用 `@Configuration` 注解
 
-`@Configuration` is a class-level annotation indicating that an object is a source of
-bean definitions. `@Configuration` classes declare beans through `@Bean`-annotated
-methods. Calls to `@Bean` methods on `@Configuration` classes can also be used to define
-inter-bean dependencies. See xref:core/beans/java/basic-concepts.adoc[Basic Concepts: `@Bean` and `@Configuration`] for a general introduction.
-
+`@Configuration` 是一个类级注解，指示对象是 bean 定义的来源。
+`@Configuration` 类通过 `@Bean` 注解的方法声明 bean。
+对 `@Configuration` 类上的 `@Bean` 方法的调用也可用于定义 bean 之间的依赖关系。
+有关一般介绍，请参阅 xref:core/beans/java/basic-concepts.adoc[基本概念：`@Bean` 和 `@Configuration`]。
 
 [[beans-java-injecting-dependencies]]
-== Injecting Inter-bean Dependencies
+== 注入 Bean 之间的依赖关系
 
-When beans have dependencies on one another, expressing that dependency is as simple
-as having one bean method call another, as the following example shows:
+当 bean 彼此依赖时，表达这种依赖关系就像让一个 bean 方法调用另一个 bean 方法一样简单，如下例所示：
 
 [tabs]
 ======
@@ -36,23 +34,18 @@ public class AppConfig {
 
 ======
 
-In the preceding example, `beanOne` receives a reference to `beanTwo` through constructor
-injection.
+在前面的示例中，`beanOne` 通过构造函数注入接收对 `beanTwo` 的引用。
 
-NOTE: This method of declaring inter-bean dependencies works only when the `@Bean` method
-is declared within a `@Configuration` class. You cannot declare inter-bean dependencies
-by using plain `@Component` classes.
-
-
+NOTE: 这种声明 bean 间依赖关系的方法仅当 `@Bean` 方法在 `@Configuration` 类中声明时才有效。
+您不能使用普通的 `@Component` 类声明 bean 间依赖关系。
 
 [[beans-java-method-injection]]
-== Lookup Method Injection
+== 查找方法注入
 
-As noted earlier, xref:core/beans/dependencies/factory-method-injection.adoc[lookup method injection] is an
-advanced feature that you should use rarely. It is useful in cases where a
-singleton-scoped bean has a dependency on a prototype-scoped bean. Using Java for this
-type of configuration provides a natural means for implementing this pattern. The
-following example shows how to use lookup method injection:
+如前所述，xref:core/beans/dependencies/factory-method-injection.adoc[查找方法注入] 是一项高级功能，您应很少使用。
+在单例作用域 bean 依赖于原型作用域 bean 的情况下，它非常有用。
+为此类型的配置使用 Java 提供了一种实现此模式的自然手段。
+以下示例显示了如何使用查找方法注入：
 
 [tabs]
 ======
@@ -62,23 +55,22 @@ Java::
 ----
 public abstract class CommandManager {
   public Object process(Object commandState) {
-    // grab a new instance of the appropriate Command interface
+    // 获取适当 Command 接口的新实例
     Command command = createCommand();
-    // set the state on the (hopefully brand new) Command instance
+    // 设置（希望是全新的）Command 实例的状态
     command.setState(commandState);
     return command.execute();
   }
 
-  // okay... but where is the implementation of this method?
+  // 好的... 但是这个方法的实现哪里去了？
   protected abstract Command createCommand();
 }
 ----
 
 ======
 
-By using Java configuration, you can create a subclass of `CommandManager` where
-the abstract `createCommand()` method is overridden in such a way that it looks up a new
-(prototype) command object. The following example shows how to do so:
+通过使用 Java 配置，您可以创建 `CommandManager` 的子类，其中抽象 `createCommand()` 方法被覆盖，以便它查找新的（原型）命令对象。
+以下示例显示了如何执行此操作：
 
 [tabs]
 ======
@@ -90,14 +82,14 @@ Java::
 @Scope("prototype")
 public AsyncCommand asyncCommand() {
   AsyncCommand command = new AsyncCommand();
-  // inject dependencies here as required
+  // 根据需要在此处注入依赖项
   return command;
 }
 
 @Bean
 public CommandManager commandManager() {
-  // return new anonymous implementation of CommandManager with createCommand()
-  // overridden to return a new prototype Command object
+  // 返回 CommandManager 的新匿名实现，其中 createCommand()
+  // 被覆盖以返回新的原型 Command 对象
   return new CommandManager() {
     protected Command createCommand() {
       return asyncCommand();
@@ -109,11 +101,10 @@ public CommandManager commandManager() {
 
 ======
 
-
 [[beans-java-further-information-java-config]]
-== Further Information About How Java-based Configuration Works Internally
+== 关于基于 Java 的配置如何在内部工作的更多信息
 
-Consider the following example, which shows a `@Bean` annotated method being called twice:
+考虑以下示例，该示例显示了被调用两次的 `@Bean` 注解方法：
 
 [tabs]
 ======
@@ -147,38 +138,26 @@ public class AppConfig {
 
 ======
 
-`clientDao()` has been called once in `clientService1()` and once in `clientService2()`.
-Since this method creates a new instance of `ClientDaoImpl` and returns it, you would
-normally expect to have two instances (one for each service). That definitely would be
-problematic: In Infra, instantiated beans have a `singleton` scope by default. This is
-where the magic comes in: All `@Configuration` classes are subclassed at startup-time
-with `CGLIB`. In the subclass, the child method checks the container first for any
-cached (scoped) beans before it calls the parent method and creates a new instance.
+`clientDao()` 在 `clientService1()` 中被调用了一次，在 `clientService2()` 中被调用了一次。
+由于此方法创建一个 `ClientDaoImpl` 的新实例并返回它，因此您通常期望有两个实例（每个服务一个）。
+这绝对是有问题的：在 Infra 中，实例化的 bean 默认具有 `singleton` 作用域。
+这就是魔术的用武之地：所有 `@Configuration` 类在启动时都使用 `CGLIB` 进行子类化。
+在子类中，子方法在调用父方法并创建新实例之前，首先检查容器是否有任何缓存的（作用域）bean。
 
-NOTE: The behavior could be different according to the scope of your bean. We are talking
-about singletons here.
+NOTE: 根据 bean 的作用域，行为可能会有所不同。我们这里讨论的是单例。
 
 [NOTE]
 ====
-It is not necessary to add CGLIB to your classpath because CGLIB classes are repackaged
-under the `infra.cglib` package and included directly within the
-`infra-core` JAR.
+无需将 CGLIB 添加到您的类路径中，因为 CGLIB 类已重新打包在 `infra.cglib` 包下，并直接包含在 `infra-core` JAR 中。
 ====
 
 [TIP]
 ====
-There are a few restrictions due to the fact that CGLIB dynamically adds features at
-startup-time. In particular, configuration classes must not be final. However, any
-constructors are allowed on configuration classes, including the use of `@Autowired` or a
-single non-default constructor declaration for default injection.
+由于 CGLIB 在启动时动态添加功能，因此存在一些限制。
+特别是，配置类不能是 final 的。
+但是，配置类上允许任何构造函数，包括使用 `@Autowired` 或单个非默认构造函数声明进行默认注入。
 
-If you prefer to avoid any CGLIB-imposed limitations, consider declaring your `@Bean`
-methods on non-`@Configuration` classes (for example, on plain `@Component` classes
-instead) or by annotating your configuration class with
-`@Configuration(proxyBeanMethods = false)`. Cross-method calls between `@Bean` methods
-are then not intercepted, so you have to exclusively rely on dependency injection at the
-constructor or method level there.
+如果您希望避免任何 CGLIB 强加的限制，请考虑在非 `@Configuration` 类上声明您的 `@Bean` 方法
+（例如，在普通的 `@Component` 类上），或者用 `@Configuration(proxyBeanMethods = false)` 注解您的配置类。
+这样，`@Bean` 方法之间的交叉方法调用就不会被拦截，因此您必须完全依赖构造函数或方法级别的依赖注入。
 ====
-
-
-

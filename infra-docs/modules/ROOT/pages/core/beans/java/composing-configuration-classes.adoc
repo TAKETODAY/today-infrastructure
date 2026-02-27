@@ -1,16 +1,13 @@
 [[beans-java-composing-configuration-classes]]
-= Composing Java-based Configurations
+= 组合基于 Java 的配置
 
-Infra Java-based configuration feature lets you compose annotations, which can reduce
-the complexity of your configuration.
-
+Infra 基于 Java 的配置功能允许您组合注解，从而降低配置的复杂性。
 
 [[beans-java-using-import]]
-== Using the `@Import` Annotation
+== 使用 `@Import` 注解
 
-Much as the `<import/>` element is used within Infra XML files to aid in modularizing
-configurations, the `@Import` annotation allows for loading `@Bean` definitions from
-another configuration class, as the following example shows:
+就像在 Infra XML 文件中使用 `<import/>` 元素来帮助模块化配置一样，
+`@Import` 注解允许从另一个配置类加载 `@Bean` 定义，如下例所示：
 
 [tabs]
 ======
@@ -40,9 +37,8 @@ public class ConfigB {
 
 ======
 
-Now, rather than needing to specify both `ConfigA.class` and `ConfigB.class` when
-instantiating the context, only `ConfigB` needs to be supplied explicitly, as the
-following example shows:
+现在，在实例化上下文时，不需要同时指定 `ConfigA.class` 和 `ConfigB.class`，
+只需要显式提供 `ConfigB`，如下例所示：
 
 [tabs]
 ======
@@ -53,7 +49,7 @@ Java::
 public static void main(String[] args) {
   ApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigB.class);
 
-  // now both beans A and B will be available...
+  // 现在 bean A 和 bean B 都可用...
   A a = ctx.getBean(A.class);
   B b = ctx.getBean(B.class);
 }
@@ -61,30 +57,21 @@ public static void main(String[] args) {
 
 ======
 
-This approach simplifies container instantiation, as only one class needs to be dealt
-with, rather than requiring you to remember a potentially large number of
-`@Configuration` classes during construction.
+这种方法简化了容器实例化，因为只需要处理一个类，而不是要求您在构造期间记住大量潜在的 `@Configuration` 类。
 
-TIP: As of TODAY Framework 4.2, `@Import` also supports references to regular component
-classes, analogous to the `AnnotationConfigApplicationContext.register` method.
-This is particularly useful if you want to avoid component scanning, by using a few
-configuration classes as entry points to explicitly define all your components.
+TIP: 从 TODAY Framework 4.2 开始，`@Import` 还支持对常规组件类的引用，类似于 `AnnotationConfigApplicationContext.register` 方法。
+如果您想避免组件扫描，通过使用几个配置类作为入口点来显式定义所有组件，这特别有用。
 
 [[beans-java-injecting-imported-beans]]
-=== Injecting Dependencies on Imported `@Bean` Definitions
+=== 注入对导入的 `@Bean` 定义的依赖
 
-The preceding example works but is simplistic. In most practical scenarios, beans have
-dependencies on one another across configuration classes. When using XML, this is not an
-issue, because no compiler is involved, and you can declare
-`ref="someBean"` and trust Infra to work it out during container initialization.
-When using `@Configuration` classes, the Java compiler places constraints on
-the configuration model, in that references to other beans must be valid Java syntax.
+前面的例子是有效的，但很简单的。在大多数实际场景中，bean 跨配置类彼此依赖。
+使用 XML 时，这不是问题，因为不涉及编译器，您可以声明 `ref="someBean"` 并相信 Infra 在容器初始化期间会解决它。
+当使用 `@Configuration` 类时，Java 编译器对配置模型施加了约束，即对其他 bean 的引用必须是有效的 Java 语法。
 
-Fortunately, solving this problem is simple. As
-xref:core/beans/java/bean-annotation.adoc#beans-java-dependencies[we already discussed],
-a `@Bean` method can have an arbitrary number of parameters that describe the bean
-dependencies. Consider the following more real-world scenario with several `@Configuration`
-classes, each depending on beans declared in the others:
+幸运的是，解决这个问题很简单。正如 xref:core/beans/java/bean-annotation.adoc#beans-java-dependencies[我们已经讨论过的]，
+`@Bean` 方法可以有任意数量的参数来描述 bean 依赖项。
+考虑以下更真实的场景，其中有几个 `@Configuration` 类，每个类都依赖于其他类中声明的 bean：
 
 [tabs]
 ======
@@ -122,7 +109,7 @@ public class SystemTestConfig {
 
 public static void main(String[] args) {
   ApplicationContext ctx = new AnnotationConfigApplicationContext(SystemTestConfig.class);
-  // everything wires up across configuration classes...
+  // 一切都在配置类之间连接起来...
   TransferService transferService = ctx.getBean(TransferService.class);
   transferService.transfer(100.00, "A123", "C456");
 }
@@ -130,30 +117,25 @@ public static void main(String[] args) {
 
 ======
 
-There is another way to achieve the same result. Remember that `@Configuration` classes are
-ultimately only another bean in the container: This means that they can take advantage of
-`@Autowired` and `@Value` injection and other features the same as any other bean.
+还有另一种方法可以达到同样的效果。请记住，`@Configuration` 类最终只是容器中的另一个 bean：
+这意味着它们可以像任何其他 bean 一样利用 `@Autowired` 和 `@Value` 注入以及其他功能。
 
 [WARNING]
 ====
-Make sure that the dependencies you inject that way are of the simplest kind only. `@Configuration`
-classes are processed quite early during the initialization of the context, and forcing a dependency
-to be injected this way may lead to unexpected early initialization. Whenever possible, resort to
-parameter-based injection, as in the preceding example.
+确保您以这种方式注入的依赖项只是最简单的类型。
+`@Configuration` 类在上下文初始化的早期阶段进行处理，强制以这种方式注入依赖项可能会导致意外的早期初始化。
+只要有可能，就采用基于参数的注入，如前面的示例所示。
 
-Avoid access to locally defined beans within a `@PostConstruct` method on the same configuration
-class. This effectively leads to a circular reference since non-static `@Bean` methods semantically
-require a fully initialized configuration class instance to be called on. With circular references
-disallowed (e.g. in Infra App 2.6+), this may trigger a `BeanCurrentlyInCreationException`.
+避免在同一配置类上的 `@PostConstruct` 方法中访问本地定义的 bean。
+这实际上会导致循环引用，因为非静态 `@Bean` 方法在语义上需要调用完全初始化的配置类实例。
+由于不允许循环引用（例如在 Infra App 2.6+ 中），这可能会触发 `BeanCurrentlyInCreationException`。
 
-Also, be particularly careful with `BeanPostProcessor` and `BeanFactoryPostProcessor` definitions
-through `@Bean`. Those should usually be declared as `static @Bean` methods, not triggering the
-instantiation of their containing configuration class. Otherwise, `@Autowired` and `@Value` may not
-work on the configuration class itself, since it is possible to create it as a bean instance earlier than
-{today-framework-api}/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.html[`AutowiredAnnotationBeanPostProcessor`].
+此外，要特别小心通过 `@Bean` 定义 `BeanPostProcessor` 和 `BeanFactoryPostProcessor`。
+这些通常应声明为 `static @Bean` 方法，而不触发其包含配置类的实例化。
+否则，`@Autowired` 和 `@Value` 可能在配置类本身上不起作用，因为可能会早于 {today-framework-api}/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.html[`AutowiredAnnotationBeanPostProcessor`] 将其创建为 bean 实例。
 ====
 
-The following example shows how one bean can be autowired to another bean:
+以下示例显示了如何将一个 bean 自动装配到另一个 bean：
 
 [tabs]
 ======
@@ -200,7 +182,7 @@ public class SystemTestConfig {
 
 public static void main(String[] args) {
   ApplicationContext ctx = new AnnotationConfigApplicationContext(SystemTestConfig.class);
-  // everything wires up across configuration classes...
+  // 一切都在配置类之间连接起来...
   TransferService transferService = ctx.getBean(TransferService.class);
   transferService.transfer(100.00, "A123", "C456");
 }
@@ -208,25 +190,19 @@ public static void main(String[] args) {
 
 ======
 
-TIP: Constructor injection in `@Configuration` classes is only supported as of Infra
-Framework 4.3. Note also that there is no need to specify `@Autowired` if the target
-bean defines only one constructor.
+TIP: 仅从 Infra Framework 4.3 开始支持 `@Configuration` 类中的构造函数注入。
+另请注意，如果目标 bean 仅定义了一个构造函数，则无需指定 `@Autowired`。
 
-.[[beans-java-injecting-imported-beans-fq]]Fully-qualifying imported beans for ease of navigation
+.[[beans-java-injecting-imported-beans-fq]]全限定导入的 bean 以便于导航
 --
-In the preceding scenario, using `@Autowired` works well and provides the desired
-modularity, but determining exactly where the autowired bean definitions are declared is
-still somewhat ambiguous. For example, as a developer looking at `ServiceConfig`, how do
-you know exactly where the `@Autowired AccountRepository` bean is declared? It is not
-explicit in the code, and this may be just fine. Remember that the
-{today-tech-site-tools}[Infra Tools for Eclipse] provides tooling that
-can render graphs showing how everything is wired, which may be all you need. Also,
-your Java IDE can easily find all declarations and uses of the `AccountRepository` type
-and quickly show you the location of `@Bean` methods that return that type.
+在前面的场景中，使用 `@Autowired` 效果很好并提供了所需的模块化，但确定自动装配的 bean 定义究竟在哪里声明仍然有些模棱两可。
+例如，作为查看 `ServiceConfig` 的开发人员，您如何确切知道 `@Autowired AccountRepository` bean 是在哪里声明的？
+它在代码中并不明确，但这可能没问题。
+请记住，{today-tech-site-tools}[Infra Tools for Eclipse] 提供的工具可以呈现显示一切如何连接的图形，这可能就是您所需要的。
+此外，您的 Java IDE 可以轻松找到 `AccountRepository` 类型的所有声明和使用，并快速向您显示返回该类型的 `@Bean` 方法的位置。
 
-In cases where this ambiguity is not acceptable and you wish to have direct navigation
-from within your IDE from one `@Configuration` class to another, consider autowiring the
-configuration classes themselves. The following example shows how to do so:
+如果这种歧义是不可接受的，并且您希望在 IDE 中从一个 `@Configuration` 类直接导航到另一个，请考虑自动装配配置类本身。
+以下示例显示了如何执行此操作：
 
 [tabs]
 ======
@@ -242,7 +218,7 @@ public class ServiceConfig {
 
   @Bean
   public TransferService transferService() {
-    // navigate 'through' the config class to the @Bean method!
+    // '通过'配置类导航到 @Bean 方法！
     return new TransferServiceImpl(repositoryConfig.accountRepository());
   }
 }
@@ -250,10 +226,10 @@ public class ServiceConfig {
 
 ======
 
-In the preceding situation, where `AccountRepository` is defined is completely explicit.
-However, `ServiceConfig` is now tightly coupled to `RepositoryConfig`. That is the
-tradeoff. This tight coupling can be somewhat mitigated by using interface-based or
-abstract class-based `@Configuration` classes. Consider the following example:
+在上述情况下，`AccountRepository` 的定义位置完全明确。
+但是，`ServiceConfig` 现在紧密耦合到 `RepositoryConfig`。这就是权衡。
+通过使用基于接口或基于抽象类的 `@Configuration` 类，可以在一定程度上缓解这种紧密耦合。
+考虑以下示例：
 
 [tabs]
 ======
@@ -290,7 +266,7 @@ public class DefaultRepositoryConfig implements RepositoryConfig {
 }
 
 @Configuration
-@Import({ServiceConfig.class, DefaultRepositoryConfig.class})  // import the concrete config!
+@Import({ServiceConfig.class, DefaultRepositoryConfig.class})  // 导入具体的配置！
 public class SystemTestConfig {
 
   @Bean
@@ -309,74 +285,51 @@ public static void main(String[] args) {
 
 ======
 
-Now `ServiceConfig` is loosely coupled with respect to the concrete
-`DefaultRepositoryConfig`, and built-in IDE tooling is still useful: You can easily
-get a type hierarchy of `RepositoryConfig` implementations. In this
-way, navigating `@Configuration` classes and their dependencies becomes no different
-than the usual process of navigating interface-based code.
+现在 `ServiceConfig` 与具体的 `DefaultRepositoryConfig` 松散耦合，并且内置的 IDE 工具仍然有用：
+您可以轻松获取 `RepositoryConfig` 实现的类型层次结构。
+通过这种方式，导航 `@Configuration` 类及其依赖项变得与导航基于接口的代码的通常过程没有什么不同。
 --
 
-
 [[beans-java-startup]]
-== Influencing the Startup of `@Bean`-defined Singletons
+== 影响 `@Bean` 定义的单例的启动
 
-If you want to influence the startup creation order of certain singleton beans, consider
-declaring some of them as `@Lazy` for creation on first access instead of on startup.
+如果您想影响某些单例 bean 的启动创建顺序，请考虑将其中一些声明为 `@Lazy` 以在首次访问时创建而不是在启动时创建。
 
-`@DependsOn` forces certain other beans to be initialized first, making sure that
-the specified beans are created before the current bean, beyond what the latter's
-direct dependencies imply.
+`@DependsOn` 强制某些其他 bean 首先被初始化，确保在当前 bean 初始化之前创建指定的 bean，这超出了后者直接依赖项所暗示的范围。
 
 [[beans-java-startup-background]]
-=== Background Initialization
+=== 后台初始化
 
-As of 6.2, there is a background initialization option: `@Bean(bootstrap=BACKGROUND)`
-allows for singling out specific beans for background initialization, covering the
-entire bean creation step for each such bean on context startup.
+从 6.2 开始，有一个后台初始化选项：`@Bean(bootstrap=BACKGROUND)` 允许挑选特定的 bean 进行后台初始化，涵盖每个此类 bean 在上下文启动时的整个 bean 创建步骤。
 
-Dependent beans with non-lazy injection points automatically wait for the bean instance
-to be completed. All regular background initializations are forced to complete at the end
-of context startup. Only beans additionally marked as `@Lazy` are allowed to be completed
-later (up until the first actual access).
+具有非延迟注入点的依赖 bean 会自动等待 bean 实例完成。
+所有常规后台初始化都强制在上下文启动结束时完成。
+只有另外标记为 `@Lazy` 的 bean 才允许稍后完成（直到第一次实际访问）。
 
-Background initialization typically goes together with `@Lazy` (or `ObjectProvider`)
-injection points in dependent beans. Otherwise, the main bootstrap thread is going to
-block when an actual background-initialized bean instance needs to be injected early.
+后台初始化通常与依赖 bean 中的 `@Lazy`（或 `ObjectProvider`）注入点一起使用。
+否则，当需要尽早注入实际的后台初始化 bean 实例时，主引导线程将被阻塞。
 
-This form of concurrent startup applies to individual beans: if such a bean depends on
-other beans, they need to have been initialized already, either simply through being
-declared earlier or through `@DependsOn` which enforces initialization in the main
-bootstrap thread before background initialization for the affected bean is triggered.
+这种形式的并发启动适用于单个 bean：如果这样一个 bean 依赖于其他 bean，它们需要已经初始化，或者通过更早声明，或者通过 `@DependsOn` 强制在触发受影响 bean 的后台初始化之前在主引导线程中初始化。
 
 [NOTE]
 ====
-A `bootstrapExecutor` bean of type `Executor` must be declared for background
-bootstrapping to be actually active. Otherwise, the background markers will be ignored at
-runtime.
+必须声明类型为 `Executor` 的 `bootstrapExecutor` bean 才能使后台引导实际处于活动状态。
+否则，后台标记将在运行时被忽略。
 
-The bootstrap executor may be a bounded executor just for startup purposes or a shared
-thread pool which serves for other purposes as well.
+引导执行器可以是仅用于启动目的的有界执行器，也可以是也用于其他目的的共享线程池。
 ====
 
-
 [[beans-java-conditional]]
-== Conditionally Include `@Configuration` Classes or `@Bean` Methods
+== 有条件地包含 `@Configuration` 类或 `@Bean` 方法
 
-It is often useful to conditionally enable or disable a complete `@Configuration` class
-or even individual `@Bean` methods, based on some arbitrary system state. One common
-example of this is to use the `@Profile` annotation to activate beans only when a specific
-profile has been enabled in the Infra `Environment` (see xref:core/beans/environment.adoc#beans-definition-profiles[Bean Definition Profiles]
-for details).
+根据某些任意系统状态有条件地启用或禁用完整的 `@Configuration` 类甚至单个 `@Bean` 方法通常很有用。
+这方面的一个常见示例是使用 `@Profile` 注解仅在 Infra `Environment` 中启用了特定配置文件时才激活 bean（有关详细信息，请参阅 xref:core/beans/environment.adoc#beans-definition-profiles[Bean 定义配置文件]）。
 
-The `@Profile` annotation is actually implemented by using a much more flexible annotation
-called {today-framework-api}/context/annotation/Conditional.html[`@Conditional`].
-The `@Conditional` annotation indicates specific
-`infra.context.annotation.Condition` implementations that should be
-consulted before a `@Bean` is registered.
+`@Profile` 注解实际上是通过使用名为 {today-framework-api}/context/annotation/Conditional.html[`@Conditional`] 的更灵活的注解来实现的。
+`@Conditional` 注解指示在注册 `@Bean` 之前应咨询的特定 `infra.context.annotation.Condition` 实现。
 
-Implementations of the `Condition` interface provide a `matches(...)`
-method that returns `true` or `false`. For example, the following listing shows the actual
-`Condition` implementation used for `@Profile`:
+`Condition` 接口的实现提供了一个返回 `true` 或 `false` 的 `matches(...)` 方法。
+例如，以下清单显示了用于 `@Profile` 的实际 `Condition` 实现：
 
 [tabs]
 ======
@@ -386,7 +339,7 @@ Java::
 ----
 @Override
 public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-  // Read the @Profile annotation attributes
+  // 读取 @Profile 注解属性
   MultiValueMap<String, Object> attrs = metadata.getAllAnnotationAttributes(Profile.class.getName());
   if (attrs != null) {
     for (Object value : attrs.get("value")) {
@@ -402,40 +355,29 @@ public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata)
 
 ======
 
-See the {today-framework-api}/context/annotation/Conditional.html[`@Conditional`]
-javadoc for more detail.
-
+有关更多详细信息，请参阅 {today-framework-api}/context/annotation/Conditional.html[`@Conditional`] javadoc。
 
 [[beans-java-combining]]
-== Combining Java and XML Configuration
+== 结合 Java 和 XML 配置
 
-Infra `@Configuration` class support does not aim to be a 100% complete replacement
-for Infra XML. Some facilities, such as Infra XML namespaces, remain an ideal way to
-configure the container. In cases where XML is convenient or necessary, you have a
-choice: either instantiate the container in an "`XML-centric`" way by using, for example,
-`ClassPathXmlApplicationContext`, or instantiate it in a "`Java-centric`" way by using
-`AnnotationConfigApplicationContext` and the `@ImportResource` annotation to import XML
-as needed.
+Infra `@Configuration` 类支持并不旨在成为 Infra XML 的 100% 完全替代品。
+某些设施，例如 Infra XML 命名空间，仍然是配置容器的理想方式。
+在 XML 方便或必要的情况下，您可以选择：要么以“以 XML 为中心”的方式实例化容器（例如，使用 `ClassPathXmlApplicationContext`），要么以“以 Java 为中心”的方式实例化它（使用 `AnnotationConfigApplicationContext` 和 `@ImportResource` 注解根据需要导入 XML）。
 
 [[beans-java-combining-xml-centric]]
-=== XML-centric Use of `@Configuration` Classes
+=== 以 XML 为中心的 `@Configuration` 类使用
 
-It may be preferable to bootstrap the Infra container from XML and include
-`@Configuration` classes in an ad-hoc fashion. For example, in a large existing codebase
-that uses Infra XML, it is easier to create `@Configuration` classes on an
-as-needed basis and include them from the existing XML files. Later in this section, we cover the
-options for using `@Configuration` classes in this kind of "`XML-centric`" situation.
+最好从 XML 引导 Infra 容器并以临时方式包含 `@Configuration` 类。
+例如，在使用 Infra XML 的大型现有代码库中，更容易按需创建 `@Configuration` 类并将其包含在现有 XML 文件中。
+在本节后面，我们将介绍在这种“以 XML 为中心”的情况下使用 `@Configuration` 类的选项。
 
-.[[beans-java-combining-xml-centric-declare-as-bean]]Declaring `@Configuration` classes as plain Infra `<bean/>` elements
+.[[beans-java-combining-xml-centric-declare-as-bean]]将 `@Configuration` 类声明为普通的 Infra `<bean/>` 元素
 --
-Remember that `@Configuration` classes are ultimately bean definitions in the
-container. In this series examples, we create a `@Configuration` class named `AppConfig` and
-include it within `system-test-config.xml` as a `<bean/>` definition. Because
-`<context:annotation-config/>` is switched on, the container recognizes the
-`@Configuration` annotation and processes the `@Bean` methods declared in `AppConfig`
-properly.
+请记住，`@Configuration` 类最终是容器中的 bean 定义。
+在这个系列示例中，我们创建一个名为 `AppConfig` 的 `@Configuration` 类，并将其作为 `<bean/>` 定义包含在 `system-test-config.xml` 中。
+因为 `<context:annotation-config/>` 已打开，容器会识别 `@Configuration` 注解并正确处理 `AppConfig` 中声明的 `@Bean` 方法。
 
-The following example shows an ordinary configuration class in Java:
+以下示例显示了 Java 中的普通配置类：
 
 [tabs]
 ======
@@ -463,12 +405,12 @@ public class AppConfig {
 
 ======
 
-The following example shows part of a sample `system-test-config.xml` file:
+以下示例显示了示例 `system-test-config.xml` 文件的一部分：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <!-- enable processing of annotations such as @Autowired and @Configuration -->
+  <!-- 启用处理注解，如 @Autowired 和 @Configuration -->
   <context:annotation-config/>
   <context:property-placeholder location="classpath:/com/acme/jdbc.properties"/>
 
@@ -482,7 +424,7 @@ The following example shows part of a sample `system-test-config.xml` file:
 </beans>
 ----
 
-The following example shows a possible `jdbc.properties` file:
+以下示例显示了一个可能的 `jdbc.properties` 文件：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -506,29 +448,23 @@ public static void main(String[] args) {
 
 ======
 
-
-NOTE: In `system-test-config.xml` file, the `AppConfig` `<bean/>` does not declare an `id`
-element. While it would be acceptable to do so, it is unnecessary, given that no other bean
-ever refers to it, and it is unlikely to be explicitly fetched from the container by name.
-Similarly, the `DataSource` bean is only ever autowired by type, so an explicit bean `id`
-is not strictly required.
+NOTE: 在 `system-test-config.xml` 文件中，`AppConfig` `<bean/>` 没有声明 `id` 元素。
+虽然这样做是可以接受的，但这是不必要的，因为没有其他 bean 引用它，并且不太可能按名称从容器中显式获取它。
+同样，`DataSource` bean 仅按类型自动装配，因此并不严格要求显式 bean `id`。
 --
 
-.[[beans-java-combining-xml-centric-component-scan]] Using <context:component-scan/> to pick up `@Configuration` classes
+.[[beans-java-combining-xml-centric-component-scan]] 使用 <context:component-scan/> 拾取 `@Configuration` 类
 --
-Because `@Configuration` is meta-annotated with `@Component`, `@Configuration`-annotated
-classes are automatically candidates for component scanning. Using the same scenario as
-described in the previous example, we can redefine `system-test-config.xml` to take advantage of component-scanning.
-Note that, in this case, we need not explicitly declare
-`<context:annotation-config/>`, because `<context:component-scan/>` enables the same
-functionality.
+因为 `@Configuration` 是用 `@Component` 元注解的，所以 `@Configuration` 注解的类自动成为组件扫描的候选者。
+使用前面示例中描述的相同场景，我们可以重新定义 `system-test-config.xml` 以利用组件扫描。
+请注意，在这种情况下，我们不需要显式声明 `<context:annotation-config/>`，因为 `<context:component-scan/>` 启用了相同的功能。
 
-The following example shows the modified `system-test-config.xml` file:
+以下示例显示了修改后的 `system-test-config.xml` 文件：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <!-- picks up and registers AppConfig as a bean definition -->
+  <!-- 拾取并注册 AppConfig 为 bean 定义 -->
   <context:component-scan base-package="com.acme"/>
   <context:property-placeholder location="classpath:/com/acme/jdbc.properties"/>
 
@@ -542,16 +478,12 @@ The following example shows the modified `system-test-config.xml` file:
 --
 
 [[beans-java-combining-java-centric]]
-=== `@Configuration` Class-centric Use of XML with `@ImportResource`
+=== 以 `@Configuration` 类为中心的 XML 使用与 `@ImportResource`
 
-In applications where `@Configuration` classes are the primary mechanism for configuring
-the container, it is still likely necessary to use at least some XML. In these
-scenarios, you can use `@ImportResource` and define only as much XML as you need. Doing
-so achieves a "`Java-centric`" approach to configuring the container and keeps XML to a
-bare minimum. The following example (which includes a configuration class, an XML file
-that defines a bean, a properties file, and the `main` class) shows how to use
-the `@ImportResource` annotation to achieve "`Java-centric`" configuration that uses XML
-as needed:
+在 `@Configuration` 类是配置容器的主要机制的应用程序中，仍然可能需要使用至少一些 XML。
+在这些场景中，您可以使用 `@ImportResource` 并仅定义您需要的 XML。
+这样做可以实现“以 Java 为中心”的方法来配置容器，并将 XML 保持在最低限度。
+以下示例（包括配置类、定义 bean 的 XML 文件、属性文件和 `main` 类）显示了如何使用 `@ImportResource` 注解来实现按需使用 XML 的“以 Java 为中心”的配置：
 
 [tabs]
 ======
@@ -612,6 +544,3 @@ public static void main(String[] args) {
 ----
 
 ======
-
-
-

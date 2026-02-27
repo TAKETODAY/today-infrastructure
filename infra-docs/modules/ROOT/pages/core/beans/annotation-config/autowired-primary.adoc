@@ -1,15 +1,12 @@
 [[beans-autowired-annotation-primary]]
-= Fine-tuning Annotation-based Autowiring with `@Primary` or `@Fallback`
+= 使用 `@Primary` 或 `@Fallback` 微调基于注解的自动装配
 
-Because autowiring by type may lead to multiple candidates, it is often necessary to have
-more control over the selection process. One way to accomplish this is with Infra
-`@Primary` annotation. `@Primary` indicates that a particular bean should be given
-preference when multiple beans are candidates to be autowired to a single-valued
-dependency. If exactly one primary bean exists among the candidates, it becomes the
-autowired value.
+由于按类型自动装配可能会导致多个候选者，因此通常需要对选择过程进行更多控制。
+实现此目的的一种方法是使用 Infra `@Primary` 注解。
+`@Primary` 表示当多个 bean 是自动装配到单值依赖项的候选者时，应优先考虑特定的 bean。
+如果候选者中恰好存在一个主 bean，它将成为自动装配的值。
 
-Consider the following configuration that defines `firstMovieCatalog` as the
-primary `MovieCatalog`:
+考虑以下配置，该配置将 `firstMovieCatalog` 定义为主 `MovieCatalog`：
 
 [tabs]
 ======
@@ -33,9 +30,8 @@ public class MovieConfiguration {
 
 ======
 
-Alternatively, as of 6.2, there is a `@Fallback` annotation for demarcating
-any beans other than the regular ones to be injected. If only one regular
-bean is left, it is effectively primary as well:
+或者，从 6.2 开始，有一个 `@Fallback` 注解，用于标记要注入的除常规 bean 之外的任何 bean。
+如果只剩下一个常规 bean，它实际上也是主 bean：
 
 [tabs]
 ======
@@ -59,8 +55,7 @@ public class MovieConfiguration {
 
 ======
 
-With both variants of the preceding configuration, the following
-`MovieRecommender` is autowired with the `firstMovieCatalog`:
+使用前面配置的两种变体，以下 `MovieRecommender` 将自动装配 `firstMovieCatalog`：
 
 [tabs]
 ======
@@ -79,7 +74,7 @@ public class MovieRecommender {
 
 ======
 
-The corresponding bean definitions follow:
+相应的 bean 定义如下：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -95,17 +90,14 @@ The corresponding bean definitions follow:
   <context:annotation-config/>
 
   <bean class="example.SimpleMovieCatalog" primary="true">
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean class="example.SimpleMovieCatalog">
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean id="movieRecommender" class="example.MovieRecommender"/>
 
 </beans>
 ----
-
-
-

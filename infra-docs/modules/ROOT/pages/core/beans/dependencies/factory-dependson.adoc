@@ -1,14 +1,12 @@
 [[beans-factory-dependson]]
-= Using `depends-on`
+= 使用 `depends-on`
 
-If a bean is a dependency of another bean, that usually means that one bean is set as a
-property of another. Typically you accomplish this with the <<beans-ref-element, `<ref/>`
-element>> in XML-based configuration metadata. However, sometimes dependencies between
-beans are less direct. An example is when a static initializer in a class needs to be
-triggered, such as for database driver registration. The `depends-on` attribute can
-explicitly force one or more beans to be initialized before the bean using this element
-is initialized. The following example uses the `depends-on` attribute to express a
-dependency on a single bean:
+如果一个 bean 是另一个 bean 的依赖项，这通常意味着一个 bean 被设置为另一个 bean 的属性。
+通常，您可以使用基于 XML 的配置元数据中的 <<beans-ref-element, `<ref/>` 元素>> 来完成此操作。
+但是，有时 bean 之间的依赖关系不那么直接。
+一个例子是当类中的静态初始化程序需要被触发时，例如数据库驱动程序注册。
+`depends-on` 属性可以显式强制一个或多个 bean 在使用此元素的 bean 初始化之前进行初始化。
+以下示例使用 `depends-on` 属性来表示对单个 bean 的依赖关系：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -16,9 +14,7 @@ dependency on a single bean:
 <bean id="manager" class="ManagerBean" />
 ----
 
-To express a dependency on multiple beans, supply a list of bean names as the value of
-the `depends-on` attribute (commas, whitespace, and semicolons are valid
-delimiters):
+要表示对多个 bean 的依赖关系，请提供 bean 名称列表作为 `depends-on` 属性的值（逗号、空格和分号是有效的分隔符）：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -30,11 +26,6 @@ delimiters):
 <bean id="accountDao" class="x.y.jdbc.JdbcAccountDao" />
 ----
 
-NOTE: The `depends-on` attribute can specify both an initialization-time dependency and,
-in the case of xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[singleton] beans only, a corresponding
-destruction-time dependency. Dependent beans that define a `depends-on` relationship
-with a given bean are destroyed first, prior to the given bean itself being destroyed.
-Thus, `depends-on` can also control shutdown order.
-
-
-
+NOTE: `depends-on` 属性既可以指定初始化时依赖项，也可以指定（仅在 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[单例] bean 的情况下）相应的销毁时依赖项。
+定义了与给定 bean 的 `depends-on` 关系的依赖 bean 会首先被销毁，在给定 bean 本身被销毁之前。
+因此，`depends-on` 也可以控制关闭顺序。

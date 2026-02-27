@@ -1,13 +1,11 @@
 [[beans-autowired-annotation-qualifiers]]
-= Fine-tuning Annotation-based Autowiring with Qualifiers
+= 使用限定符微调基于注解的自动装配
 
-`@Primary` and `@Fallback` are effective ways to use autowiring by type with several
-instances when one primary (or non-fallback) candidate can be determined.
+当可以确定一个主（或非回退）候选者时，`@Primary` 和 `@Fallback` 是对多个实例按类型使用自动装配的有效方法。
 
-When you need more control over the selection process, you can use Infra `@Qualifier`
-annotation. You can associate qualifier values with specific arguments, narrowing the set
-of type matches so that a specific bean is chosen for each argument. In the simplest case,
-this can be a plain descriptive value, as shown in the following example:
+当您需要对选择过程进行更多控制时，可以使用 Infra `@Qualifier` 注解。
+您可以将限定符值与特定参数相关联，缩小类型匹配的集合，以便为每个参数选择特定的 bean。
+在最简单的情况下，这可以是一个普通的描述性值，如下例所示：
 
 --
 [tabs]
@@ -29,8 +27,7 @@ public class MovieRecommender {
 ======
 --
 
-You can also specify the `@Qualifier` annotation on individual constructor arguments or
-method parameters, as shown in the following example:
+您还可以在各个构造函数参数或方法参数上指定 `@Qualifier` 注解，如下例所示：
 
 --
 [tabs]
@@ -59,7 +56,7 @@ public class MovieRecommender {
 ======
 --
 
-The following example shows corresponding bean definitions.
+以下示例显示了相应的 bean 定义。
 
 --
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -78,102 +75,72 @@ The following example shows corresponding bean definitions.
   <bean class="example.SimpleMovieCatalog">
     <qualifier value="main"/> <1>
 
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean class="example.SimpleMovieCatalog">
     <qualifier value="action"/> <2>
 
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean id="movieRecommender" class="example.MovieRecommender"/>
 
 </beans>
 ----
-<1> The bean with the `main` qualifier value is wired with the constructor argument that
-is qualified with the same value.
-<2> The bean with the `action` qualifier value is wired with the constructor argument that
-is qualified with the same value.
+<1> 具有 `main` 限定符值的 bean 与使用相同值限定的构造函数参数连接。
+<2> 具有 `action` 限定符值的 bean 与使用相同值限定的构造函数参数连接。
 --
 
-For a fallback match, the bean name is considered a default qualifier value. Thus, you
-can define the bean with an `id` of `main` instead of the nested qualifier element, leading
-to the same matching result. However, although you can use this convention to refer to
-specific beans by name, `@Autowired` is fundamentally about type-driven injection with
-optional semantic qualifiers. This means that qualifier values, even with the bean name
-fallback, always have narrowing semantics within the set of type matches. They do not
-semantically express a reference to a unique bean `id`. Good qualifier values are `main`
-or `EMEA` or `persistent`, expressing characteristics of a specific component that are
-independent from the bean `id`, which may be auto-generated in case of an anonymous bean
-definition such as the one in the preceding example.
+对于回退匹配，bean 名称被视为默认限定符值。
+因此，您可以使用 `id` 为 `main` 定义 bean，而不是嵌套的限定符元素，从而导致相同的匹配结果。
+但是，虽然您可以使用此约定按名称引用特定 bean，但 `@Autowired` 根本上是关于具有可选语义限定符的类型驱动注入。
+这意味着限定符值，即使有 bean 名称回退，在类型匹配集合中也始终具有缩小语义。
+它们在语义上不表示对唯一 bean `id` 的引用。
+好的限定符值是 `main` 或 `EMEA` 或 `persistent`，表示特定组件的特征，这些特征独立于 bean `id`，在匿名 bean 定义（如上例中的定义）的情况下，bean `id` 可能是自动生成的。
 
-Qualifiers also apply to typed collections, as discussed earlier -- for example, to
-`Set<MovieCatalog>`. In this case, all matching beans, according to the declared
-qualifiers, are injected as a collection. This implies that qualifiers do not have to be
-unique. Rather, they constitute filtering criteria. For example, you can define
-multiple `MovieCatalog` beans with the same qualifier value "`action`", all of which are
-injected into a `Set<MovieCatalog>` annotated with `@Qualifier("action")`.
+限定符也适用于类型化集合，如前所述——例如，适用于 `Set<MovieCatalog>`。
+在这种情况下，根据声明的限定符，所有匹配的 bean 都将作为集合注入。
+这意味着限定符不必是唯一的。相反，它们构成了过滤标准。
+例如，您可以定义多个具有相同限定符值 "`action`" 的 `MovieCatalog` bean，所有这些 bean 都被注入到用 `@Qualifier("action")` 注解的 `Set<MovieCatalog>` 中。
 
 [TIP]
 ====
-Letting qualifier values select against target bean names, within the type-matching
-candidates, does not require a `@Qualifier` annotation at the injection point.
-If there is no other resolution indicator (such as a qualifier or a primary marker),
-for a non-unique dependency situation, Infra matches the injection point name
-(that is, the field name or parameter name) against the target bean names and chooses the
-same-named candidate, if any.
+让限定符值在类型匹配候选者中针对目标 bean 名称进行选择，不需要在注入点使用 `@Qualifier` 注解。
+如果没有其他解析指示器（例如限定符或主标记），对于非唯一依赖情况，Infra 会将注入点名称（即字段名称或参数名称）与目标 bean 名称进行匹配，并选择同名候选者（如果有）。
 
-Since version 6.1, this requires the `-parameters` Java compiler flag to be present.
+从 6.1 版本开始，这要求存在 `-parameters` Java 编译器标志。
 ====
 
-That said, if you intend to express annotation-driven injection by name, do not
-primarily use `@Autowired`, even if it is capable of selecting by bean name among
-type-matching candidates. Instead, use the JSR-250 `@Resource` annotation, which is
-semantically defined to identify a specific target component by its unique name, with
-the declared type being irrelevant for the matching process. `@Autowired` has rather
-different semantics: After selecting candidate beans by type, the specified `String`
-qualifier value is considered within those type-selected candidates only (for example,
-matching an `account` qualifier against beans marked with the same qualifier label).
+话虽如此，如果您打算表达按名称的注解驱动注入，请不要主要使用 `@Autowired`，即使它能够要在类型匹配候选者中按 bean 名称进行选择。
+相反，请使用 JSR-250 `@Resource` 注解，该注解在语义上定义为通过其唯一名称标识特定目标组件，声明的类型与匹配过程无关。
+`@Autowired` 具有相当不同的语义：在按类型选择候选 bean 后，指定的 `String` 限定符值仅在那些类型选定的候选者中考虑（例如，将 `account` 限定符与标记有相同限定符标签的 bean 进行匹配）。
 
-For beans that are themselves defined as a collection, `Map`, or array type, `@Resource`
-is a fine solution, referring to the specific collection or array bean by unique name.
-That said, as of 4.3, you can match collection, `Map`, and array types through Infra
-`@Autowired` type matching algorithm as well, as long as the element type information
-is preserved in `@Bean` return type signatures or collection inheritance hierarchies.
-In this case, you can use qualifier values to select among same-typed collections,
-as outlined in the previous paragraph.
+对于本身定义为集合、`Map` 或数组类型的 bean，`@Resource` 是一个很好的解决方案，通过唯一名称引用特定的集合或数组 bean。
+话虽如此，从 4.3 开始，只要 `@Bean` 返回类型签名或集合继承层次结构中保留了元素类型信息，您也可以通过 Infra `@Autowired` 类型匹配算法匹配集合、`Map` 和数组类型。
+在这种情况下，您可以使用限定符值在相同类型的集合中进行选择，如上一段所述。
 
-As of 4.3, `@Autowired` also considers self references for injection (that is, references
-back to the bean that is currently injected). Note that self injection is a fallback.
-Regular dependencies on other components always have precedence. In that sense, self
-references do not participate in regular candidate selection and are therefore in
-particular never primary. On the contrary, they always end up as lowest precedence.
-In practice, you should use self references as a last resort only (for example, for
-calling other methods on the same instance through the bean's transactional proxy).
-Consider factoring out the affected methods to a separate delegate bean in such a scenario.
-Alternatively, you can use `@Resource`, which may obtain a proxy back to the current bean
-by its unique name.
+从 4.3 开始，`@Autowired` 还考虑注入的自引用（即，引用回当前注入的 bean）。
+请注意，自注入是一种回退。
+对其他组件的常规依赖项始终具有优先权。
+从这个意义上说，自引用不参与常规候选者选择，因此特别是不是主候选者。
+相反，它们总是以最低优先级结束。
+实际上，您应该仅将自引用作为最后手段（例如，用于通过 bean 的事务代理调用同一实例上的其他方法）。
+在这种情况下，考虑将受影响的方法重构到单独的委托 bean 中。
+或者，您可以使用 `@Resource`，它可以通过其唯一名称获取当前 bean 的代理。
 
 [NOTE]
 ====
-Trying to inject the results from `@Bean` methods on the same configuration class is
-effectively a self-reference scenario as well. Either lazily resolve such references
-in the method signature where it is actually needed (as opposed to an autowired field
-in the configuration class) or declare the affected `@Bean` methods as `static`,
-decoupling them from the containing configuration class instance and its lifecycle.
-Otherwise, such beans are only considered in the fallback phase, with matching beans
-on other configuration classes selected as primary candidates instead (if available).
+尝试在同一个配置类上注入 `@Bean` 方法的结果实际上也是一种自引用场景。
+要么在实际需要它的方法签名中延迟解析此类引用（而不是配置类中的自动装配字段），要么将受影响的 `@Bean` 方法声明为 `static`，将其与包含的配置类实例及其生命周期解耦。
+否则，此类 bean 仅在回退阶段考虑，而其他配置类上的匹配 bean 被选为主候选者（如果可用）。
 ====
 
-`@Autowired` applies to fields, constructors, and multi-argument methods, allowing for
-narrowing through qualifier annotations at the parameter level. In contrast, `@Resource`
-is supported only for fields and bean property setter methods with a single argument.
-As a consequence, you should stick with qualifiers if your injection target is a
-constructor or a multi-argument method.
+`@Autowired` 适用于字段、构造函数和多参数方法，允许通过参数级别的限定符注解进行缩小。
+相比之下，`@Resource` 仅支持字段和具有单个参数的 bean 属性 setter 方法。
+因此，如果您的注入目标是构造函数或多参数方法，则应坚持使用限定符。
 
-You can create your own custom qualifier annotations. To do so, define an annotation and
-provide the `@Qualifier` annotation within your definition, as the following example shows:
+您可以创建自己的自定义限定符注解。为此，定义一个注解并在定义中提供 `@Qualifier` 注解，如下例所示：
 
 --
 [tabs]
@@ -194,8 +161,7 @@ public @interface Genre {
 ======
 --
 
-Then you can provide the custom qualifier on autowired fields and parameters, as the
-following example shows:
+然后，您可以在自动装配的字段和参数上提供自定义限定符，如下例所示：
 
 --
 [tabs]
@@ -224,12 +190,11 @@ public class MovieRecommender {
 ======
 --
 
-Next, you can provide the information for the candidate bean definitions. You can add
-`<qualifier/>` tags as sub-elements of the `<bean/>` tag and then specify the `type` and
-`value` to match your custom qualifier annotations. The type is matched against the
-fully-qualified class name of the annotation. Alternately, as a convenience if no risk of
-conflicting names exists, you can use the short class name. The following example
-demonstrates both approaches:
+接下来，您可以为候选 bean 定义提供信息。
+您可以将 `<qualifier/>` 标记添加为 `<bean/>` 标记的子元素，然后指定 `type` 和 `value` 以匹配您的自定义限定符注解。
+类型与注解的全限定类名匹配。
+或者，为了方便起见，如果不存在名称冲突的风险，可以使用短类名。
+以下示例演示了这两种方法：
 
 --
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -247,12 +212,12 @@ demonstrates both approaches:
 
   <bean class="example.SimpleMovieCatalog">
     <qualifier type="Genre" value="Action"/>
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean class="example.SimpleMovieCatalog">
     <qualifier type="example.Genre" value="Comedy"/>
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean id="movieRecommender" class="example.MovieRecommender"/>
@@ -261,14 +226,13 @@ demonstrates both approaches:
 ----
 --
 
-In xref:core/beans/classpath-scanning.adoc[Classpath Scanning and Managed Components], you can see an annotation-based alternative to
-providing the qualifier metadata in XML. Specifically, see xref:core/beans/classpath-scanning.adoc#beans-scanning-qualifiers[Providing Qualifier Metadata with Annotations].
+在 xref:core/beans/classpath-scanning.adoc[类路径扫描和托管组件] 中，您可以看到在 XML 中提供限定符元数据的基于注解的替代方案。
+具体来说，请参阅 xref:core/beans/classpath-scanning.adoc#beans-scanning-qualifiers[使用注解提供限定符元数据]。
 
-In some cases, using an annotation without a value may suffice. This can be
-useful when the annotation serves a more generic purpose and can be applied across
-several different types of dependencies. For example, you may provide an offline
-catalog that can be searched when no Internet connection is available. First, define
-the simple annotation, as the following example shows:
+在某些情况下，使用没有值的注解可能就足够了。
+当注解用于更通用的目的并且可以跨多种不同类型的依赖项应用时，这很有用。
+例如，您可以提供一个在没有 Internet 连接时可以搜索的离线目录。
+首先，定义简单的注解，如下例所示：
 
 --
 [tabs]
@@ -287,8 +251,7 @@ public @interface Offline {
 ======
 --
 
-Then add the annotation to the field or property to be autowired, as shown in the
-following example:
+然后将注解添加到要自动装配的字段或属性中，如下例所示：
 
 --
 [tabs]
@@ -306,30 +269,27 @@ public class MovieRecommender {
   // ...
 }
 ----
-<1> This line adds the `@Offline` annotation.
+<1> 这行添加了 `@Offline` 注解。
 
 ======
 --
 
-Now the bean definition only needs a qualifier `type`, as shown in the following example:
+现在，bean 定义只需要一个限定符 `type`，如下例所示：
 
 --
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean class="example.SimpleMovieCatalog">
   <qualifier type="Offline"/> <1>
-  <!-- inject any dependencies required by this bean -->
+  <!-- 注入此 bean 所需的任何依赖项 -->
 </bean>
 ----
-<1> This element specifies the qualifier.
+<1> 此元素指定限定符。
 --
 
-
-You can also define custom qualifier annotations that accept named attributes in
-addition to or instead of the simple `value` attribute. If multiple attribute values are
-then specified on a field or parameter to be autowired, a bean definition must match
-all such attribute values to be considered an autowire candidate. As an example,
-consider the following annotation definition:
+您还可以定义自定义限定符注解，该注解接受命名属性，以补充或替代简单的 `value` 属性。
+如果在要自动装配的字段或参数上指定了多个属性值，则 bean 定义必须匹配所有这些属性值才能被视为自动装配候选者。
+作为示例，考虑以下注解定义：
 
 --
 [tabs]
@@ -352,7 +312,7 @@ public @interface MovieQualifier {
 ======
 --
 
-In this case `Format` is an enum, defined as follows:
+在这种情况下，`Format` 是一个枚举，定义如下：
 
 --
 [tabs]
@@ -369,8 +329,7 @@ public enum Format {
 ======
 --
 
-The fields to be autowired are annotated with the custom qualifier and include values
-for both attributes: `genre` and `format`, as the following example shows:
+要自动装配的字段使用自定义限定符进行注解，并包含两个属性的值：`genre` 和 `format`，如下例所示：
 
 --
 [tabs]
@@ -404,12 +363,9 @@ public class MovieRecommender {
 ======
 --
 
-Finally, the bean definitions should contain matching qualifier values. This example
-also demonstrates that you can use bean meta attributes instead of the
-`<qualifier/>` elements. If available, the `<qualifier/>` element and its attributes take
-precedence, but the autowiring mechanism falls back on the values provided within the
-`<meta/>` tags if no such qualifier is present, as in the last two bean definitions in
-the following example:
+最后，bean 定义应包含匹配的限定符值。
+此示例还演示了您可以使用 bean 元属性而不是 `<qualifier/>` 元素。
+如果可用，`<qualifier/>` 元素及其属性优先，但如果不存在此类限定符，则自动装配机制回退到 `<meta/>` 标记中提供的值，如下例中的最后两个 bean 定义所示：
 
 --
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -430,7 +386,7 @@ the following example:
       <attribute key="format" value="VHS"/>
       <attribute key="genre" value="Action"/>
     </qualifier>
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean class="example.SimpleMovieCatalog">
@@ -438,24 +394,21 @@ the following example:
       <attribute key="format" value="VHS"/>
       <attribute key="genre" value="Comedy"/>
     </qualifier>
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean class="example.SimpleMovieCatalog">
     <meta key="format" value="DVD"/>
     <meta key="genre" value="Action"/>
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
   <bean class="example.SimpleMovieCatalog">
     <meta key="format" value="BLURAY"/>
     <meta key="genre" value="Comedy"/>
-    <!-- inject any dependencies required by this bean -->
+    <!-- 注入此 bean 所需的任何依赖项 -->
   </bean>
 
 </beans>
 ----
 --
-
-
-

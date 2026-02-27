@@ -1,13 +1,13 @@
 [[beans-autowired-annotation]]
-= Using `@Autowired`
+= 使用 `@Autowired`
 
 [NOTE]
 ====
-JSR 330's `@Inject` annotation can be used in place of Infra `@Autowired` annotation in the
-examples included in this section. See xref:core/beans/standard-annotations.adoc[here] for more details.
+在包含在本节的示例中，JSR 330 的 `@Inject` 注解可以用来代替 Infra `@Autowired` 注解。
+有关更多详细信息，请参阅 xref:core/beans/standard-annotations.adoc[此处]。
 ====
 
-You can apply the `@Autowired` annotation to constructors, as the following example shows:
+您可以将 `@Autowired` 注解应用于构造函数，如下例所示：
 
 [tabs]
 ======
@@ -32,16 +32,13 @@ public class MovieRecommender {
 
 [NOTE]
 ====
-As of TODAY Framework 4.3, an `@Autowired` annotation on such a constructor is no longer
-necessary if the target bean defines only one constructor to begin with. However, if
-several constructors are available and there is no primary/default constructor, at least
-one of the constructors must be annotated with `@Autowired` in order to instruct the
-container which one to use. See the discussion on
-xref:core/beans/annotation-config/autowired.adoc#beans-autowired-annotation-constructor-resolution[constructor resolution] for details.
+如果目标 bean 最初只定义了一个构造函数，则不再需要在此类构造函数上添加 `@Autowired` 注解。
+但是，如果有几个构造函数可用且没有主/默认构造函数，则必须至少有一个构造函数使用 `@Autowired` 进行注解，以指示容器使用哪一个。
+有关详细信息，请参阅关于
+xref:core/beans/annotation-config/autowired.adoc#beans-autowired-annotation-constructor-resolution[构造函数解析] 的讨论。
 ====
 
-You can also apply the `@Autowired` annotation to _traditional_ setter methods,
-as the following example shows:
+您还可以将 `@Autowired` 注解应用于 _传统_ 的 setter 方法，如下例所示：
 
 [tabs]
 ======
@@ -64,8 +61,7 @@ public class SimpleMovieLister {
 
 ======
 
-You can also apply the annotation to methods with arbitrary names and multiple
-arguments, as the following example shows:
+您还可以将注解应用于具有任意名称和多个参数的方法，如下例所示：
 
 [tabs]
 ======
@@ -92,8 +88,7 @@ public class MovieRecommender {
 
 ======
 
-You can apply `@Autowired` to fields as well and even mix it with constructors, as the
-following example shows:
+您也可以将 `@Autowired` 应用于字段，甚至可以将其与构造函数混合使用，如下例所示：
 
 [tabs]
 ======
@@ -121,21 +116,15 @@ public class MovieRecommender {
 
 [TIP]
 ====
-Make sure that your target components (for example, `MovieCatalog` or `CustomerPreferenceDao`)
-are consistently declared by the type that you use for your `@Autowired`-annotated
-injection points. Otherwise, injection may fail due to a "no type match found" error at runtime.
+确保您的目标组件（例如，`MovieCatalog` 或 `CustomerPreferenceDao`）的类型与您用于 `@Autowired` 注解注入点的类型一致声明。
+否则，注入可能会由于运行时的“未找到类型匹配”错误而失败。
 
-For XML-defined beans or component classes found via classpath scanning, the container
-usually knows the concrete type up front. However, for `@Bean` factory methods, you need
-to make sure that the declared return type is sufficiently expressive. For components
-that implement several interfaces or for components potentially referred to by their
-implementation type, consider declaring the most specific return type on your factory
-method (at least as specific as required by the injection points referring to your bean).
+对于 XML 定义的 bean 或通过类路径扫描找到的组件类，容器通常预先知道具体类型。
+但是，对于 `@Bean` 工厂方法，您需要确保声明的返回类型具有足够的表现力。
+对于实现多个接口的组件或可能由其实现类型引用的组件，请考虑在工厂方法上声明最具体的返回类型（至少与引用 bean 的注入点所要求的具体程度相同）。
 ====
 
-You can also instruct Infra to provide all beans of a particular type from the
-`ApplicationContext` by adding the `@Autowired` annotation to a field or method that
-expects an array of that type, as the following example shows:
+您还可以通过将 `@Autowired` 注解添加到期望该类型数组的字段或方法中，指示 Infra 提供 `ApplicationContext` 中所有特定类型的 bean，如下例所示：
 
 [tabs]
 ======
@@ -154,7 +143,7 @@ public class MovieRecommender {
 
 ======
 
-The same applies for typed collections, as the following example shows:
+这也适用于类型化集合，如下例所示：
 
 [tabs]
 ======
@@ -180,25 +169,18 @@ public class MovieRecommender {
 [[beans-factory-ordered]]
 [TIP]
 ====
-Your target beans can implement the `infra.core.Ordered` interface or use
-the `@Order` or standard `@Priority` annotation if you want items in the array or list
-to be sorted in a specific order. Otherwise, their order follows the registration
-order of the corresponding target bean definitions in the container.
+如果您希望数组或列表中的项按特定顺序排序，您的目标 bean 可以实现 `infra.core.Ordered` 接口或使用 `@Order` 或标准 `@Priority` 注解。
+否则，它们的顺序遵循相应目标 bean 定义在容器中的注册顺序。
 
-You can declare the `@Order` annotation at the target class level and on `@Bean` methods,
-potentially for individual bean definitions (in case of multiple definitions that
-use the same bean class). `@Order` values may influence priorities at injection points,
-but be aware that they do not influence singleton startup order, which is an
-orthogonal concern determined by dependency relationships and `@DependsOn` declarations.
+您可以在目标类级别和 `@Bean` 方法上声明 `@Order` 注解，可能用于单个 bean 定义（在使用相同 bean 类的多个定义的情况下）。
+`@Order` 值可能会影响注入点的优先级，但请注意，它们不会影响单例启动顺序，这是由依赖关系和 `@DependsOn` 声明确定的正交关注点。
 
-Note that the standard `jakarta.annotation.Priority` annotation is not available at the
-`@Bean` level, since it cannot be declared on methods. Its semantics can be modeled
-through `@Order` values in combination with `@Primary` on a single bean for each type.
+请注意，标准 `jakarta.annotation.Priority` 注解在 `@Bean` 级别不可用，因为它不能在方法上声明。
+它的语义可以通过 `@Order` 值与每种类型的单个 bean 上的 `@Primary` 结合来建模。
 ====
 
-Even typed `Map` instances can be autowired as long as the expected key type is `String`.
-The map values contain all beans of the expected type, and the keys contain the
-corresponding bean names, as the following example shows:
+只要预期的键类型为 `String`，即使是类型化的 `Map` 实例也可以自动装配。
+映射值包含所有预期类型的 bean，键包含相应的 bean 名称，如下例所示：
 
 [tabs]
 ======
@@ -221,14 +203,11 @@ public class MovieRecommender {
 
 ======
 
-By default, autowiring fails when no matching candidate beans are available for a given
-injection point. In the case of a declared array, collection, or map, at least one
-matching element is expected.
+默认情况下，当没有匹配的候选 bean 可用于给定的注入点时，自动装配会失败。
+在声明数组、集合或映射的情况下，至少需要一个匹配元素。
 
-The default behavior is to treat annotated methods and fields as indicating required
-dependencies. You can change this behavior as demonstrated in the following example,
-enabling the framework to skip a non-satisfiable injection point through marking it as
-non-required (i.e., by setting the `required` attribute in `@Autowired` to `false`):
+默认行为是将带注解的方法和字段视为指示所需的依赖项。
+您可以像下面的示例演示的那样更改此行为，通过将其标记为非必需（即，通过将 `@Autowired` 中的 `required` 属性设置为 `false`），使框架能够跳过不可满足的注入点：
 
 [tabs]
 ======
@@ -253,46 +232,31 @@ public class SimpleMovieLister {
 
 [NOTE]
 ====
-A non-required method will not be called at all if its dependency (or one of its
-dependencies, in case of multiple arguments) is not available. A non-required field will
-not get populated at all in such cases, leaving its default value in place.
+如果非必需方法的依赖项（或在多个参数的情况下的依赖项之一）不可用，则根本不会调用该方法。
+在这种情况下，非必需字段根本不会被填充，从而保留其默认值。
 
-In other words, setting the `required` attribute to `false` indicates that the
-corresponding property is _optional_ for autowiring purposes, and the property will be
-ignored if it cannot be autowired. This allows properties to be assigned default values
-that can be optionally overridden via dependency injection.
+换句话说，将 `required` 属性设置为 `false` 表示相应的属性对于自动装配目的是 _可选的_，如果无法自动装配，该属性将被忽略。
+这允许为属性分配默认值，这些默认值可以通过依赖注入选择性地覆盖。
 ====
 
 [[beans-autowired-annotation-constructor-resolution]]
-Injected constructor and factory method arguments are a special case since the `required`
-attribute in `@Autowired` has a somewhat different meaning due to Infra constructor
-resolution algorithm that may potentially deal with multiple constructors. Constructor
-and factory method arguments are effectively required by default but with a few special
-rules in a single-constructor scenario, such as multi-element injection points (arrays,
-collections, maps) resolving to empty instances if no matching beans are available. This
-allows for a common implementation pattern where all dependencies can be declared in a
-unique multi-argument constructor — for example, declared as a single public constructor
-without an `@Autowired` annotation.
+注入的构造函数和工厂方法参数是一个特例，因为 `@Autowired` 中的 `required` 属性由于 Infra 构造函数解析算法可能处理多个构造函数而具有稍微不同的含义。
+构造函数和工厂方法参数实际上在默认情况下是必需的，但在单构造函数场景中有一些特殊规则，例如如果没有匹配的 bean 可用，多元素注入点（数组、集合、映射）解析为空实例。
+这允许一种常见的实现模式，其中所有依赖项都可以在唯一的参数构造函数中声明——例如，声明为没有 `@Autowired` 注解的单个公共构造函数。
 
 [NOTE]
 ====
-Only one constructor of any given bean class may declare `@Autowired` with the `required`
-attribute set to `true`, indicating _the_ constructor to autowire when used as a Infra
-bean. As a consequence, if the `required` attribute is left at its default value `true`,
-only a single constructor may be annotated with `@Autowired`. If multiple constructors
-declare the annotation, they will all have to declare `required=false` in order to be
-considered as candidates for autowiring (analogous to `autowire=constructor` in XML).
-The constructor with the greatest number of dependencies that can be satisfied by matching
-beans in the Infra container will be chosen. If none of the candidates can be satisfied,
-then a primary/default constructor (if present) will be used. Similarly, if a class
-declares multiple constructors but none of them is annotated with `@Autowired`, then a
-primary/default constructor (if present) will be used. If a class only declares a single
-constructor to begin with, it will always be used, even if not annotated. Note that an
-annotated constructor does not have to be public.
+任何给定的 bean 类中只有一个构造函数可以将 `@Autowired` 的 `required` 属性设置为 `true`，指示在用作 Infra bean 时要自动装配 _该_ 构造函数。
+因此，如果 `required` 属性保留其默认值 `true`，则只能用 `@Autowired` 注解一个构造函数。
+如果多个构造函数声明了该注解，它们都必须声明 `required=false` 才能被视为自动装配的候选者（类似于 XML 中的 `autowire=constructor`）。
+将选择具有最多可以通过 Infra 容器中的匹配 bean 满足的依赖项的构造函数。
+如果没有任何候选者可以满足，则将使用主/默认构造函数（如果存在）。
+同样，如果一个类声明了多个构造函数，但没有一个用 `@Autowired` 注解，则将使用主/默认构造函数（如果存在）。
+如果一个类最初只声明了一个构造函数，即使没有注解，也总是会使用它。
+请注意，带注解的构造函数不必是公共的。
 ====
 
-Alternatively, you can express the non-required nature of a particular dependency
-through Java 8's `java.util.Optional`, as the following example shows:
+或者，您可以通过 Java 8 的 `java.util.Optional` 表达特定依赖项的非必需性质，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -305,9 +269,7 @@ public class SimpleMovieLister {
 }
 ----
 
-As of TODAY Framework 5.0, you can also use a `@Nullable` annotation (of any kind
-in any package -- for example, `javax.annotation.Nullable` from JSR-305) or just leverage
-Kotlin built-in null-safety support:
+您还可以使用 `@Nullable` 注解（任何包中的任何类型——例如，JSR-305 中的 `javax.annotation.Nullable`）或仅利用 Kotlin 内置的空安全支持：
 
 [tabs]
 ======
@@ -326,12 +288,9 @@ public class SimpleMovieLister {
 
 ======
 
-You can also use `@Autowired` for interfaces that are well-known resolvable
-dependencies: `BeanFactory`, `ApplicationContext`, `Environment`, `ResourceLoader`,
-`ApplicationEventPublisher`, and `MessageSource`. These interfaces and their extended
-interfaces, such as `ConfigurableApplicationContext` or `PatternResourceLoader`, are
-automatically resolved, with no special setup necessary. The following example autowires
-an `ApplicationContext` object:
+您还可以将 `@Autowired` 用于众所周知的可解析依赖项接口：`BeanFactory`、`ApplicationContext`、`Environment`、`ResourceLoader`、`ApplicationEventPublisher` 和 `MessageSource`。
+这些接口及其扩展接口，如 `ConfigurableApplicationContext` 或 `PatternResourceLoader`，会自动解析，无需特殊设置。
+以下示例自动装配一个 `ApplicationContext` 对象：
 
 [tabs]
 ======
@@ -355,11 +314,7 @@ public class MovieRecommender {
 
 [NOTE]
 ====
-The `@Autowired`, `@Inject`, `@Value`, and `@Resource` annotations are handled by Infra
-`BeanPostProcessor` implementations. This means that you cannot apply these annotations
-within your own `BeanPostProcessor` or `BeanFactoryPostProcessor` types (if any).
-These types must be 'wired up' explicitly by using XML or a Infra `@Bean` method.
+`@Autowired`、`@Inject`、`@Value` 和 `@Resource` 注解由 Infra `BeanPostProcessor` 实现处理。
+这意味着您不能在自己的 `BeanPostProcessor` 或 `BeanFactoryPostProcessor` 类型（如果有）中应用这些注解。
+这些类型必须通过使用 XML 或 Infra `@Bean` 方法显式地“连接”。
 ====
-
-
-

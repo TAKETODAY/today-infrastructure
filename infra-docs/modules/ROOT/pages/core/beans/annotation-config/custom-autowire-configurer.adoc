@@ -1,10 +1,9 @@
 [[beans-custom-autowire-configurer]]
-= Using `CustomAutowireConfigurer`
+= 使用 `CustomAutowireConfigurer`
 
 {today-framework-api}/beans/factory/annotation/CustomAutowireConfigurer.html[`CustomAutowireConfigurer`]
-is a `BeanFactoryPostProcessor` that lets you register your own custom qualifier
-annotation types, even if they are not annotated with Infra `@Qualifier` annotation.
-The following example shows how to use `CustomAutowireConfigurer`:
+是一个 `BeanFactoryPostProcessor`，它允许您注册自己的自定义限定符注解类型，即使它们没有使用 Infra `@Qualifier` 注解。
+以下示例显示了如何使用 `CustomAutowireConfigurer`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -18,16 +17,11 @@ The following example shows how to use `CustomAutowireConfigurer`:
 </bean>
 ----
 
-The `AutowireCandidateResolver` determines autowire candidates by:
+`AutowireCandidateResolver` 通过以下方式确定自动装配候选者：
 
-* The `autowire-candidate` value of each bean definition
-* Any `default-autowire-candidates` patterns available on the `<beans/>` element
-* The presence of `@Qualifier` annotations and any custom annotations registered
-with the `CustomAutowireConfigurer`
+* 每个 bean 定义的 `autowire-candidate` 值
+* `<beans/>` 元素上可用的任何 `default-autowire-candidates` 模式
+* `@Qualifier` 注解和使用 `CustomAutowireConfigurer` 注册的任何自定义注解的存在
 
-When multiple beans qualify as autowire candidates, the determination of a "`primary`" is
-as follows: If exactly one bean definition among the candidates has a `primary`
-attribute set to `true`, it is selected.
-
-
-
+当多个 bean 符合自动装配候选者的条件时，“`primary`”的确定如下：
+如果候选者中恰好有一个 bean 定义将 `primary` 属性设置为 `true`，则选择它。

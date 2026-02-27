@@ -1,123 +1,81 @@
 [[beans-factory-extension]]
-= Container Extension Points
+= 容器扩展点
 
-Typically, an application developer does not need to subclass `ApplicationContext`
-implementation classes. Instead, the Infra IoC container can be extended by plugging in
-implementations of special integration interfaces. The next few sections describe these
-integration interfaces.
-
-
+通常，应用程序开发人员不需要继承 `ApplicationContext` 实现类。
+相反，可以通过插入特殊的集成接口实现来扩展 Infra IoC 容器。
+接下来的几节将描述这些集成接口。
 
 [[beans-factory-extension-bpp]]
-== Customizing Beans by Using a `BeanPostProcessor`
+== 使用 `BeanPostProcessor` 自定义 Bean
 
-The `BeanPostProcessor` interface defines callback methods that you can implement to
-provide your own (or override the container's default) instantiation logic, dependency
-resolution logic, and so forth. If you want to implement some custom logic after the
-Infra container finishes instantiating, configuring, and initializing a bean, you can
-plug in one or more custom `BeanPostProcessor` implementations.
+`BeanPostProcessor` 接口定义了回调方法，您可以实现这些方法来提供您自己的（或覆盖容器默认的）实例化逻辑、依赖项解析逻辑等。
+如果您想在 Infra 容器完成实例化、配置和初始化 bean 之后实现一些自定义逻辑，您可以插入一个或多个自定义 `BeanPostProcessor` 实现。
 
-You can configure multiple `BeanPostProcessor` instances, and you can control the order
-in which these `BeanPostProcessor` instances run by setting the `order` property.
-You can set this property only if the `BeanPostProcessor` implements the `Ordered`
-interface. If you write your own `BeanPostProcessor`, you should consider implementing
-the `Ordered` interface, too. For further details, see the javadoc of the
-{today-framework-api}/beans/factory/config/BeanPostProcessor.html[`BeanPostProcessor`]
-and {today-framework-api}/core/Ordered.html[`Ordered`] interfaces. See also the note on
-xref:core/beans/factory-extension.adoc#beans-factory-programmatically-registering-beanpostprocessors[programmatic registration of `BeanPostProcessor` instances].
+您可以配置多个 `BeanPostProcessor` 实例，并且可以通过设置 `order` 属性来控制这些 `BeanPostProcessor` 实例的运行顺序。
+只有当 `BeanPostProcessor` 实现了 `Ordered` 接口时，您才能设置此属性。
+如果您编写自己的 `BeanPostProcessor`，您也应该考虑实现 `Ordered` 接口。
+有关更多详细信息，请参阅 {today-framework-api}/beans/factory/config/BeanPostProcessor.html[`BeanPostProcessor`]
+和 {today-framework-api}/core/Ordered.html[`Ordered`] 接口的 javadoc。
+另请参阅关于 xref:core/beans/factory-extension.adoc#beans-factory-programmatically-registering-beanpostprocessors[以编程方式注册 `BeanPostProcessor` 实例] 的说明。
 
 [NOTE]
 ====
-`BeanPostProcessor` instances operate on bean (or object) instances. That is,
-the Infra IoC container instantiates a bean instance and then `BeanPostProcessor`
-instances do their work.
+`BeanPostProcessor` 实例对 bean（或对象）实例进行操作。
+也就是说，Infra IoC 容器实例化一个 bean 实例，然后 `BeanPostProcessor` 实例完成它们的工作。
 
-`BeanPostProcessor` instances are scoped per-container. This is relevant only if you
-use container hierarchies. If you define a `BeanPostProcessor` in one container,
-it post-processes only the beans in that container. In other words, beans that are
-defined in one container are not post-processed by a `BeanPostProcessor` defined in
-another container, even if both containers are part of the same hierarchy.
+`BeanPostProcessor` 实例的作用域是每个容器的。这仅在您使用容器层次结构时才相关。
+如果您在一个容器中定义了一个 `BeanPostProcessor`，它仅对该容器中的 bean 进行后处理。
+换句话说，在一个容器中定义的 bean 不会由在另一个容器中定义的 `BeanPostProcessor` 进行后处理，即使这两个容器属于同一层次结构。
 
-To change the actual bean definition (that is, the blueprint that defines the bean),
-you instead need to use a `BeanFactoryPostProcessor`, as described in
-xref:core/beans/factory-extension.adoc#beans-factory-extension-factory-postprocessors[Customizing Configuration Metadata with a `BeanFactoryPostProcessor`].
+要更改实际的 bean 定义（即定义 bean 的蓝图），您需要使用 `BeanFactoryPostProcessor`，如
+xref:core/beans/factory-extension.adoc#beans-factory-extension-factory-postprocessors[使用 `BeanFactoryPostProcessor` 自定义配置元数据] 中所述。
 ====
 
-The `infra.beans.factory.config.BeanPostProcessor` interface consists of
-exactly two callback methods. When such a class is registered as a post-processor with
-the container, for each bean instance that is created by the container, the
-post-processor gets a callback from the container both before container
-initialization methods (such as `InitializingBean.afterPropertiesSet()` or any
-declared `init` method) are called, and after any bean initialization callbacks.
-The post-processor can take any action with the bean instance, including ignoring the
-callback completely. A bean post-processor typically checks for callback interfaces,
-or it may wrap a bean with a proxy. Some Infra AOP infrastructure classes are
-implemented as bean post-processors in order to provide proxy-wrapping logic.
+`infra.beans.factory.config.BeanPostProcessor` 接口恰好由两个回调方法组成。
+当这样一个类作为后处理器注册到容器时，对于容器创建的每个 bean 实例，后处理器都会在容器初始化方法（如 `InitializingBean.afterPropertiesSet()` 或任何声明的 `init` 方法）被调用之前，以及在任何 bean 初始化回调之后，从容器获得回调。
+后处理器可以对 bean 实例采取任何操作，包括完全忽略回调。
+Bean 后处理器通常检查回调接口，或者它可以用代理包装 bean。
+一些 Infra AOP 基础设施类被实现为 bean 后处理器，以便提供代理包装逻辑。
 
-An `ApplicationContext` automatically detects any beans that are defined in the
-configuration metadata that implement the `BeanPostProcessor` interface. The
-`ApplicationContext` registers these beans as post-processors so that they can be called
-later, upon bean creation. Bean post-processors can be deployed in the container in the
-same fashion as any other beans.
+`ApplicationContext` 会自动检测在配置元数据中定义且实现了 `BeanPostProcessor` 接口的任何 bean。
+`ApplicationContext` 将这些 bean 注册为后处理器，以便稍后在 bean 创建时调用它们。
+Bean 后处理器可以像任何其他 bean 一样部署在容器中。
 
-Note that, when declaring a `BeanPostProcessor` by using an `@Bean` factory method on a
-configuration class, the return type of the factory method should be the implementation
-class itself or at least the `infra.beans.factory.config.BeanPostProcessor`
-interface, clearly indicating the post-processor nature of that bean. Otherwise, the
-`ApplicationContext` cannot autodetect it by type before fully creating it.
-Since a `BeanPostProcessor` needs to be instantiated early in order to apply to the
-initialization of other beans in the context, this early type detection is critical.
+请注意，当在配置类上使用 `@Bean` 工厂方法声明 `BeanPostProcessor` 时，工厂方法的返回类型应该是实现类本身或至少是 `infra.beans.factory.config.BeanPostProcessor` 接口，清楚地表明该 bean 的后处理器性质。
+否则，`ApplicationContext` 无法在完全创建它之前按类型自动检测它。
+由于 `BeanPostProcessor` 需要尽早实例化以便应用于上下文中其他 bean 的初始化，因此这种早期类型检测至关重要。
 
 [[beans-factory-programmatically-registering-beanpostprocessors]]
-.Programmatically registering `BeanPostProcessor` instances
-NOTE: While the recommended approach for `BeanPostProcessor` registration is through
-`ApplicationContext` auto-detection (as described earlier), you can register them
-programmatically against a `ConfigurableBeanFactory` by using the `addBeanPostProcessor`
-method. This can be useful when you need to evaluate conditional logic before
-registration or even for copying bean post processors across contexts in a hierarchy.
-Note, however, that `BeanPostProcessor` instances added programmatically do not respect
-the `Ordered` interface. Here, it is the order of registration that dictates the order
-of execution. Note also that `BeanPostProcessor` instances registered programmatically
-are always processed before those registered through auto-detection, regardless of any
-explicit ordering.
+.以编程方式注册 `BeanPostProcessor` 实例
+NOTE: 虽然推荐的 `BeanPostProcessor` 注册方法是通过 `ApplicationContext` 自动检测（如前所述），但您可以使用 `addBeanPostProcessor` 方法以编程方式针对 `ConfigurableBeanFactory` 注册它们。
+当您需要在注册之前评估条件逻辑，甚至在层次结构中的上下文之间复制 bean 后处理器时，这可能很有用。
+但是请注意，以编程方式添加的 `BeanPostProcessor` 实例不遵守 `Ordered` 接口。
+在这里，注册的顺序决定了执行的顺序。
+还要注意，无论是否有任何显式排序，以编程方式注册的 `BeanPostProcessor` 实例总是在通过自动检测注册的实例之前进行处理。
 
-.`BeanPostProcessor` instances and AOP auto-proxying
+.`BeanPostProcessor` 实例和 AOP 自动代理
 [NOTE]
 ====
-Classes that implement the `BeanPostProcessor` interface are special and are treated
-differently by the container. All `BeanPostProcessor` instances and beans that they
-directly reference are instantiated on startup, as part of the special startup phase
-of the `ApplicationContext`. Next, all `BeanPostProcessor` instances are registered
-in a sorted fashion and applied to all further beans in the container. Because AOP
-auto-proxying is implemented as a `BeanPostProcessor` itself, neither `BeanPostProcessor`
-instances nor the beans they directly reference are eligible for auto-proxying and,
-thus, do not have aspects woven into them.
+实现 `BeanPostProcessor` 接口的类是特殊的，容器对它们的处理方式不同。
+所有 `BeanPostProcessor` 实例以及它们直接引用的 bean 都会在启动时实例化，作为 `ApplicationContext` 特殊启动阶段的一部分。
+接下来，所有 `BeanPostProcessor` 实例都以排序的方式注册，并应用于容器中的所有其他 bean。
+因为 AOP 自动代理本身是作为 `BeanPostProcessor` 实现的，所以 `BeanPostProcessor` 实例及其直接引用的 bean 都不符合自动代理的条件，因此没有将切面编织到它们中。
 
-For any such bean, you should see an informational log message: `Bean someBean is not
-eligible for getting processed by all BeanPostProcessor interfaces (for example: not
-eligible for auto-proxying)`.
+对于任何此类 bean，您应该会看到一条信息性日志消息：`Bean someBean is not eligible for getting processed by all BeanPostProcessor interfaces (for example: not eligible for auto-proxying)`。
 
-If you have beans wired into your `BeanPostProcessor` by using autowiring or
-`@Resource` (which may fall back to autowiring), Infra might access unexpected beans
-when searching for type-matching dependency candidates and, therefore, make them
-ineligible for auto-proxying or other kinds of bean post-processing. For example, if you
-have a dependency annotated with `@Resource` where the field or setter name does not
-directly correspond to the declared name of a bean and no name attribute is used,
-Infra accesses other beans for matching them by type.
+如果您使用自动装配或 `@Resource`（可能会回退到自动装配）将 bean 连接到您的 `BeanPostProcessor` 中，Infra 在搜索类型匹配的依赖项候选者时可能会访问意想不到的 bean，从而使它们不符合自动代理或其他类型的 bean 后处理的条件。
+例如，如果您有一个用 `@Resource` 标记的依赖项，其中字段或 setter 名称与 bean 的声明名称不直接对应，并且没有使用名称属性，则 Infra 会访问其他 bean 以按类型匹配它们。
 ====
 
-The following examples show how to write, register, and use `BeanPostProcessor` instances
-in an `ApplicationContext`.
-
+以下示例显示了如何在 `ApplicationContext` 中编写、注册和使用 `BeanPostProcessor` 实例。
 
 [[beans-factory-extension-bpp-examples-hw]]
-=== Example: Hello World, `BeanPostProcessor`-style
+=== 示例：Hello World，`BeanPostProcessor` 风格
 
-This first example illustrates basic usage. The example shows a custom
-`BeanPostProcessor` implementation that invokes the `toString()` method of each bean as
-it is created by the container and prints the resulting string to the system console.
+第一个示例说明了基本用法。
+该示例显示了一个自定义 `BeanPostProcessor` 实现，该实现调用容器创建的每个 bean 的 `toString()` 方法，并将结果字符串打印到系统控制台。
 
-The following listing shows the custom `BeanPostProcessor` implementation class definition:
+以下清单显示了自定义 `BeanPostProcessor` 实现类定义：
 
 [tabs]
 ======
@@ -131,9 +89,9 @@ import infra.beans.factory.config.BeanPostProcessor;
 
 public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor {
 
-  // simply return the instantiated bean as-is
+  // 简单地按原样返回实例化的 bean
   public Object postProcessBeforeInitialization(Object bean, String beanName) {
-    return bean; // we could potentially return any object reference here...
+    return bean; // 我们可以在这里返回任何对象引用...
   }
 
   public Object postProcessAfterInitialization(Object bean, String beanName) {
@@ -145,7 +103,7 @@ public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor 
 
 ======
 
-The following `beans` element uses the `InstantiationTracingBeanPostProcessor`:
+以下 `beans` 元素使用了 `InstantiationTracingBeanPostProcessor`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -164,21 +122,19 @@ The following `beans` element uses the `InstantiationTracingBeanPostProcessor`:
   </lang:groovy>
 
   <!--
-  when the above bean (messenger) is instantiated, this custom
-  BeanPostProcessor implementation will output the fact to the system console
+  当上述 bean (messenger) 被实例化时，此自定义
+  BeanPostProcessor 实现将向系统控制台输出该事实
   -->
   <bean class="scripting.InstantiationTracingBeanPostProcessor"/>
 
 </beans>
 ----
 
-Notice how the `InstantiationTracingBeanPostProcessor` is merely defined. It does not
-even have a name, and, because it is a bean, it can be dependency-injected as you would any
-other bean. (The preceding configuration also defines a bean that is backed by a Groovy
-script. The Infra dynamic language support is detailed in the chapter entitled
-xref:languages/dynamic.adoc[Dynamic Language Support].)
+请注意 `InstantiationTracingBeanPostProcessor` 仅仅是被定义了。
+它甚至没有名字，而且因为它是一个 bean，它可以像任何其他 bean 一样被依赖注入。
+（前面的配置还定义了一个由 Groovy 脚本支持的 bean。Infra 动态语言支持在名为 xref:languages/dynamic.adoc[动态语言支持] 的章节中有详细说明。）
 
-The following Java application runs the preceding code and configuration:
+以下 Java 应用程序运行前面的代码和配置：
 
 [tabs]
 ======
@@ -203,7 +159,7 @@ public final class Boot {
 
 ======
 
-The output of the preceding application resembles the following:
+前面的应用程序的输出类似于以下内容：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -211,86 +167,55 @@ Bean 'messenger' created : infra.scripting.groovy.GroovyMessenger@272961
 infra.scripting.groovy.GroovyMessenger@272961
 ----
 
-
 [[beans-factory-extension-bpp-examples-aabpp]]
-=== Example: The `AutowiredAnnotationBeanPostProcessor`
+=== 示例：`AutowiredAnnotationBeanPostProcessor`
 
-Using callback interfaces or annotations in conjunction with a custom `BeanPostProcessor`
-implementation is a common means of extending the Infra IoC container. An example is
-Infra `AutowiredAnnotationBeanPostProcessor` -- a `BeanPostProcessor` implementation
-that ships with the Infra distribution and autowires annotated fields, setter methods,
-and arbitrary config methods.
-
-
+将回调接口或注解与自定义 `BeanPostProcessor` 实现结合使用是扩展 Infra IoC 容器的常见手段。
+一个例子是 Infra `AutowiredAnnotationBeanPostProcessor` —— 一个随 Infra 发行版提供的 `BeanPostProcessor` 实现，它自动装配带注解的字段、setter 方法和任意配置方法。
 
 [[beans-factory-extension-factory-postprocessors]]
-== Customizing Configuration Metadata with a `BeanFactoryPostProcessor`
+== 使用 `BeanFactoryPostProcessor` 自定义配置元数据
 
-The next extension point that we look at is the
-`infra.beans.factory.config.BeanFactoryPostProcessor`. The semantics of
-this interface are similar to those of the `BeanPostProcessor`, with one major
-difference: `BeanFactoryPostProcessor` operates on the bean configuration metadata.
-That is, the Infra IoC container lets a `BeanFactoryPostProcessor` read the
-configuration metadata and potentially change it _before_ the container instantiates
-any beans other than `BeanFactoryPostProcessor` instances.
+我们查看的下一个扩展点是 `infra.beans.factory.config.BeanFactoryPostProcessor`。
+该接口的语义与 `BeanPostProcessor` 的语义相似，但有一个主要区别：`BeanFactoryPostProcessor` 对 bean 配置元数据进行操作。
+也就是说，Infra IoC 容器允许 `BeanFactoryPostProcessor` 读取配置元数据，并可能在容器实例化除 `BeanFactoryPostProcessor` 实例之外的任何 bean _之前_ 更改它。
 
-You can configure multiple `BeanFactoryPostProcessor` instances, and you can control the order in
-which these `BeanFactoryPostProcessor` instances run by setting the `order` property.
-However, you can only set this property if the `BeanFactoryPostProcessor` implements the
-`Ordered` interface. If you write your own `BeanFactoryPostProcessor`, you should
-consider implementing the `Ordered` interface, too. See the javadoc of the
-{today-framework-api}/beans/factory/config/BeanFactoryPostProcessor.html[`BeanFactoryPostProcessor`]
-and {today-framework-api}/core/Ordered.html[`Ordered`] interfaces for more details.
+您可以配置多个 `BeanFactoryPostProcessor` 实例，并且可以通过设置 `order` 属性来控制这些 `BeanFactoryPostProcessor` 实例的运行顺序。
+但是，只有当 `BeanFactoryPostProcessor` 实现了 `Ordered` 接口时，您才能设置此属性。
+如果您编写自己的 `BeanFactoryPostProcessor`，您也应该考虑实现 `Ordered` 接口。
+有关更多详细信息，请参阅 {today-framework-api}/beans/factory/config/BeanFactoryPostProcessor.html[`BeanFactoryPostProcessor`]
+和 {today-framework-api}/core/Ordered.html[`Ordered`] 接口的 javadoc。
 
 [NOTE]
 ====
-If you want to change the actual bean instances (that is, the objects that are created
-from the configuration metadata), then you instead need to use a `BeanPostProcessor`
-(described earlier in
-xref:core/beans/factory-extension.adoc#beans-factory-extension-bpp[Customizing Beans by Using a `BeanPostProcessor`]).
-While it is technically possible to work with bean instances within a `BeanFactoryPostProcessor`
-(for example, by using `BeanFactory.getBean()`), doing so causes premature bean instantiation,
-violating the standard container lifecycle. This may cause negative side effects, such as
-bypassing bean post processing.
+如果您想更改实际的 bean 实例（即从配置元数据创建的对象），那么您应该使用 `BeanPostProcessor`（前面在 xref:core/beans/factory-extension.adoc#beans-factory-extension-bpp[使用 `BeanPostProcessor` 自定义 Bean] 中描述过）。
+虽然在 `BeanFactoryPostProcessor` 中使用 bean 实例在技术上是可能的（例如，通过使用 `BeanFactory.getBean()`），但这样做会导致过早的 bean 实例化，违反了标准的容器生命周期。
+这可能会导致负面的副作用，例如绕过 bean 后处理。
 
-Also, `BeanFactoryPostProcessor` instances are scoped per-container. This is only relevant
-if you use container hierarchies. If you define a `BeanFactoryPostProcessor` in one
-container, it is applied only to the bean definitions in that container. Bean definitions
-in one container are not post-processed by `BeanFactoryPostProcessor` instances in another
-container, even if both containers are part of the same hierarchy.
+此外，`BeanFactoryPostProcessor` 实例的作用域是每个容器的。这仅在您使用容器层次结构时才相关。
+如果您在一个容器中定义了一个 `BeanFactoryPostProcessor`，它仅应用于该容器中的 bean 定义。
+在一个容器中的 bean 定义不会由另一个容器中的 `BeanFactoryPostProcessor` 实例进行后处理，即使这两个容器属于同一层次结构。
 ====
 
-A bean factory post-processor is automatically run when it is declared inside an
-`ApplicationContext`, in order to apply changes to the configuration metadata that
-define the container. Infra includes a number of predefined bean factory
-post-processors, such as `PropertyOverrideConfigurer` and
-`PropertySourcesPlaceholderConfigurer`. You can also use a custom `BeanFactoryPostProcessor`
--- for example, to register custom property editors.
+当 bean 工厂后处理器在 `ApplicationContext` 内部声明时，它会自动运行，以便将更改应用于定义容器的配置元数据。
+Infra 包括许多预定义的 bean 工厂后处理器，例如 `PropertyOverrideConfigurer` 和 `PropertySourcesPlaceholderConfigurer`。
+您还可以使用自定义 `BeanFactoryPostProcessor` —— 例如，注册自定义属性编辑器。
 
-An `ApplicationContext` automatically detects any beans that are deployed into it that
-implement the `BeanFactoryPostProcessor` interface. It uses these beans as bean factory
-post-processors, at the appropriate time. You can deploy these post-processor beans as
-you would any other bean.
+`ApplicationContext` 会自动检测部署在其中的任何实现了 `BeanFactoryPostProcessor` 接口的 bean。
+它会在适当的时候将这些 bean 用作 bean 工厂后处理器。
+您可以像部署任何其他 bean 一样部署这些后处理器 bean。
 
-NOTE: As with ``BeanPostProcessor``s , you typically do not want to configure
-``BeanFactoryPostProcessor``s for lazy initialization. If no other bean references a
-`Bean(Factory)PostProcessor`, that post-processor will not get instantiated at all.
-Thus, marking it for lazy initialization will be ignored, and the
-`Bean(Factory)PostProcessor` will be instantiated eagerly even if you set the
-`default-lazy-init` attribute to `true` on the declaration of your `<beans />` element.
-
+NOTE: 与 ``BeanPostProcessor`` 一样，您通常不希望将 ``BeanFactoryPostProcessor`` 配置为延迟初始化。
+如果没有其他 bean 引用 `Bean(Factory)PostProcessor`，该后处理器根本不会被实例化。
+因此，将其标记为延迟初始化将被忽略，并且 `Bean(Factory)PostProcessor` 将被急切地实例化，即使您在 `<beans />` 元素的声明中将 `default-lazy-init` 属性设置为 `true`。
 
 [[beans-factory-placeholderconfigurer]]
-=== Example: The Class Name Substitution `PropertySourcesPlaceholderConfigurer`
+=== 示例：类名替换 `PropertySourcesPlaceholderConfigurer`
 
-You can use the `PropertySourcesPlaceholderConfigurer` to externalize property values
-from a bean definition in a separate file by using the standard Java `Properties` format.
-Doing so enables the person deploying an application to customize environment-specific
-properties, such as database URLs and passwords, without the complexity or risk of
-modifying the main XML definition file or files for the container.
+您可以使用 `PropertySourcesPlaceholderConfigurer` 通过使用标准 Java `Properties` 格式在单独的文件中外部化 bean 定义中的属性值。
+这样做使得部署应用程序的人员可以自定义特定于环境的属性，例如数据库 URL 和密码，而无需承担修改容器的主 XML 定义文件的复杂性或风险。
 
-Consider the following XML-based configuration metadata fragment, where a `DataSource`
-with placeholder values is defined:
+考虑以下基于 XML 的配置元数据片段，其中定义了一个具有占位符值的 `DataSource`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -306,12 +231,11 @@ with placeholder values is defined:
 </bean>
 ----
 
-The example shows properties configured from an external `Properties` file. At runtime,
-a `PropertySourcesPlaceholderConfigurer` is applied to the metadata that replaces some
-properties of the DataSource. The values to replace are specified as placeholders of the
-form pass:q[`${property-name}`], which follows the Ant and log4j and JSP EL style.
+该示例显示了从外部 `Properties` 文件配置的属性。
+在运行时，`PropertySourcesPlaceholderConfigurer` 应用于元数据，替换 DataSource 的一些属性。
+要替换的值指定为形式为 pass:q[`${property-name}`] 的占位符，这遵循 Ant 和 log4j 以及 JSP EL 风格。
 
-The actual values come from another file in the standard Java `Properties` format:
+实际值来自标准 Java `Properties` 格式的另一个文件：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -321,40 +245,34 @@ jdbc.username=sa
 jdbc.password=root
 ----
 
-Therefore, the `${jdbc.username}` string is replaced at runtime with the value, 'sa', and
-the same applies for other placeholder values that match keys in the properties file.
-The `PropertySourcesPlaceholderConfigurer` checks for placeholders in most properties and
-attributes of a bean definition. Furthermore, you can customize the placeholder prefix and suffix.
+因此，`${jdbc.username}` 字符串在运行时被替换为值 'sa'，这同样适用于与属性文件中的键匹配的其他占位符值。
+`PropertySourcesPlaceholderConfigurer` 检查 bean 定义的大多数属性和属性中的占位符。
+此外，您可以自定义占位符的前缀和后缀。
 
-With the `context` namespace introduced in Infra 2.5, you can configure property placeholders
-with a dedicated configuration element. You can provide one or more locations as a
-comma-separated list in the `location` attribute, as the following example shows:
+使用 Infra 2.5 中引入的 `context` 命名空间，您可以使用专用的配置元素配置属性占位符。
+您可以在 `location` 属性中提供一个或多个位置作为逗号分隔的列表，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <context:property-placeholder location="classpath:com/something/jdbc.properties"/>
 ----
 
-The `PropertySourcesPlaceholderConfigurer` not only looks for properties in the `Properties`
-file you specify. By default, if it cannot find a property in the specified properties files,
-it checks against Infra `Environment` properties and regular Java `System` properties.
+`PropertySourcesPlaceholderConfigurer` 不仅在您指定的 `Properties` 文件中查找属性。
+默认情况下，如果它在指定的属性文件中找不到属性，它会检查 Infra `Environment` 属性和常规 Java `System` 属性。
 
 [WARNING]
 =====
-Only one such element should be defined for a given application with the properties
-that it needs. Several property placeholders can be configured as long as they have distinct
-placeholder syntax (`${...}`).
+对于给定的应用程序，应该只定义一个这样的元素，其中包含它所需的属性。
+只要它们具有不同的占位符语法（`${...}`），就可以配置多个属性占位符。
 
-If you need to modularize the source of properties used for the replacement, you should
-not create multiple properties placeholders. Rather, you should create your own
-`PropertySourcesPlaceholderConfigurer` bean that gathers the properties to use.
+如果您需要模块化用于替换的属性源，您不应该创建多个属性占位符。
+相反，您应该创建自己的 `PropertySourcesPlaceholderConfigurer` bean，它收集要使用的属性。
 =====
 
 [TIP]
 =====
-You can use the `PropertySourcesPlaceholderConfigurer` to substitute class names, which
-is sometimes useful when you have to pick a particular implementation class at runtime.
-The following example shows how to do so:
+您可以使用 `PropertySourcesPlaceholderConfigurer` 来替换类名，这在您必须在运行时选择特定实现类时有时很有用。
+以下示例显示了如何执行此操作：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -370,34 +288,26 @@ The following example shows how to do so:
 <bean id="serviceStrategy" class="${custom.strategy.class}"/>
 ----
 
-If the class cannot be resolved at runtime to a valid class, resolution of the bean
-fails when it is about to be created, which is during the `preInstantiateSingletons()`
-phase of an `ApplicationContext` for a non-lazy-init bean.
+如果类在运行时无法解析为有效类，则在即将创建 bean 时（对于非延迟初始化 bean，是在 `ApplicationContext` 的 `preInstantiateSingletons()` 阶段），bean 的解析将失败。
 =====
 
-
 [[beans-factory-overrideconfigurer]]
-=== Example: The `PropertyOverrideConfigurer`
+=== 示例：`PropertyOverrideConfigurer`
 
-The `PropertyOverrideConfigurer`, another bean factory post-processor, resembles the
-`PropertySourcesPlaceholderConfigurer`, but unlike the latter, the original definitions
-can have default values or no values at all for bean properties. If an overriding
-`Properties` file does not have an entry for a certain bean property, the default
-context definition is used.
+`PropertyOverrideConfigurer` 是另一个 bean 工厂后处理器，类似于 `PropertySourcesPlaceholderConfigurer`，但与后者不同的是，原始定义可以具有默认值或根本没有 bean 属性的值。
+如果覆盖的 `Properties` 文件没有某个 bean 属性的条目，则使用默认上下文定义。
 
-Note that the bean definition is not aware of being overridden, so it is not
-immediately obvious from the XML definition file that the override configurer is being
-used. In case of multiple `PropertyOverrideConfigurer` instances that define different
-values for the same bean property, the last one wins, due to the overriding mechanism.
+请注意，bean 定义不知道被覆盖，因此从 XML 定义文件中并不立即显而易见正在使用覆盖配置器。
+如果有多个 `PropertyOverrideConfigurer` 实例为同一 bean 属性定义了不同的值，由于覆盖机制，最后一个获胜。
 
-Properties file configuration lines take the following format:
+属性文件配置行采用以下格式：
 
 [literal,subs="verbatim,quotes"]
 ----
 beanName.property=value
 ----
 
-The following listing shows an example of the format:
+以下清单显示了格式的示例：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -405,66 +315,42 @@ dataSource.driverClassName=com.mysql.jdbc.Driver
 dataSource.url=jdbc:mysql:mydb
 ----
 
-This example file can be used with a container definition that contains a bean called
-`dataSource` that has `driver` and `url` properties.
+此示例文件可以与包含名为 `dataSource` 且具有 `driver` 和 `url` 属性的 bean 的容器定义一起使用。
 
-Compound property names are also supported, as long as every component of the path
-except the final property being overridden is already non-null (presumably initialized
-by the constructors). In the following example, the `sammy` property of the `bob`
-property of the `fred` property of the `tom` bean is set to the scalar value `123`:
+只要路径的每个组件（除了被覆盖的最终属性外）都已经非空（大概由构造函数初始化），就支持复合属性名称。
+在以下示例中，`tom` bean 的 `fred` 属性的 `bob` 属性的 `sammy` 属性设置为标量值 `123`：
 
 [literal,subs="verbatim,quotes"]
 ----
 tom.fred.bob.sammy=123
 ----
 
+NOTE: 指定的覆盖值始终是文字值。它们不会被转换为 bean 引用。
+当 XML bean 定义中的原始值指定 bean 引用时，此约定也适用。
 
-NOTE: Specified override values are always literal values. They are not translated into
-bean references. This convention also applies when the original value in the XML bean
-definition specifies a bean reference.
-
-With the `context` namespace introduced in Infra 2.5, it is possible to configure
-property overriding with a dedicated configuration element, as the following example shows:
+使用 Infra 2.5 中引入的 `context` 命名空间，可以使用专用的配置元素配置属性覆盖，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <context:property-override location="classpath:override.properties"/>
 ----
 
-
-
 [[beans-factory-extension-factorybean]]
-== Customizing Instantiation Logic with a `FactoryBean`
+== 使用 `FactoryBean` 自定义实例化逻辑
 
-You can implement the `infra.beans.factory.FactoryBean` interface for objects that
-are themselves factories.
+您可以为本身就是工厂的对象实现 `infra.beans.factory.FactoryBean` 接口。
 
-The `FactoryBean` interface is a point of pluggability into the Infra IoC container's
-instantiation logic. If you have complex initialization code that is better expressed in
-Java as opposed to a (potentially) verbose amount of XML, you can create your own
-`FactoryBean`, write the complex initialization inside that class, and then plug your
-custom `FactoryBean` into the container.
+`FactoryBean` 接口是 Infra IoC 容器实例化逻辑的一个可插拔点。
+如果您有复杂的初始化代码，用 Java 表达比用（可能）冗长的 XML 表达更好，您可以创建自己的 `FactoryBean`，在该类中编写复杂的初始化，然后将您的自定义 `FactoryBean` 插入到容器中。
 
-The `FactoryBean<T>` interface provides three methods:
+`FactoryBean<T>` 接口提供了三个方法：
 
-* `T getObject()`: Returns an instance of the object this factory creates. The
-  instance can possibly be shared, depending on whether this factory returns singletons
-  or prototypes.
-* `boolean isSingleton()`: Returns `true` if this `FactoryBean` returns singletons or
-  `false` otherwise. The default implementation of this method returns `true`.
-* `Class<?> getObjectType()`: Returns the object type returned by the `getObject()` method
-  or `null` if the type is not known in advance.
+* `T getObject()`: 返回此工厂创建的对象的实例。该实例可能被共享，取决于此工厂是返回单例还是原型。
+* `boolean isSingleton()`: 如果此 `FactoryBean` 返回单例，则返回 `true`，否则返回 `false`。此方法的默认实现返回 `true`。
+* `Class<?> getObjectType()`: 返回 `getObject()` 方法返回的对象类型，如果类型事先未知，则返回 `null`。
 
-The `FactoryBean` concept and interface are used in a number of places within the Infra
-Framework. More than 50 implementations of the `FactoryBean` interface ship with Infra
-itself.
+`FactoryBean` 概念和接口在 Infra Framework 中的许多地方都有使用。
+Infra 本身附带了 50 多个 `FactoryBean` 接口的实现。
 
-When you need to ask a container for an actual `FactoryBean` instance itself instead of
-the bean it produces, prefix the bean's `id` with the ampersand symbol (`&`) when
-calling the `getBean()` method of the `ApplicationContext`. So, for a given `FactoryBean`
-with an `id` of `myBean`, invoking `getBean("myBean")` on the container returns the
-product of the `FactoryBean`, whereas invoking `getBean("&myBean")` returns the
-`FactoryBean` instance itself.
-
-
-
+当您需要向容器请求实际的 `FactoryBean` 实例本身而不是它生成的 bean 时，在调用 `ApplicationContext` 的 `getBean()` 方法时，在 bean 的 `id` 前加上 `&` 符号。
+因此，对于给定的 `id` 为 `myBean` 的 `FactoryBean`，在容器上调用 `getBean("myBean")` 返回 `FactoryBean` 的产品，而调用 `getBean("&myBean")` 返回 `FactoryBean` 实例本身。

@@ -1,21 +1,18 @@
 [[beans-factory-method-injection]]
-= Method Injection
+= 方法注入
 
-In most application scenarios, most beans in the container are
-xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[singletons]. When a singleton bean needs to
-collaborate with another singleton bean or a non-singleton bean needs to collaborate
-with another non-singleton bean, you typically handle the dependency by defining one
-bean as a property of the other. A problem arises when the bean lifecycles are
-different. Suppose singleton bean A needs to use non-singleton (prototype) bean B,
-perhaps on each method invocation on A. The container creates the singleton bean A only
-once, and thus only gets one opportunity to set the properties. The container cannot
-provide bean A with a new instance of bean B every time one is needed.
+在大多数应用场景中，容器中的大多数 bean 都是
+xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[单例]。
+当一个单例 bean 需要与另一个单例 bean 协作，或者一个非单例 bean 需要与另一个非单例 bean 协作时，通常通过将一个 bean 定义为另一个 bean 的属性来处理依赖关系。
+当 bean 生命周期不同时，就会出现问题。
+假设单例 bean A 需要使用非单例（原型）bean B，可能是在 A 的每次方法调用上。
+容器只创建一次单例 bean A，因此只有一次机会设置属性。
+容器无法在每次需要时为 bean A 提供 bean B 的新实例。
 
-A solution is to forego some inversion of control. You can xref:core/beans/factory-nature.adoc#beans-factory-aware[make bean A aware of the container]
- by implementing the `ApplicationContextAware` interface,
-and by xref:core/beans/basics.adoc#beans-factory-client[making a `getBean("B")` call to the container] ask for (a
-typically new) bean B instance every time bean A needs it. The following example
-shows this approach:
+一种解决方案是放弃一些控制反转。
+您可以通过实现 `ApplicationContextAware` 接口 xref:core/beans/factory-nature.adoc#beans-factory-aware[让 bean A 知道容器]，
+并通过 xref:core/beans/basics.adoc#beans-factory-client[对容器进行 `getBean("B")` 调用] 在每次 bean A 需要时请求（通常是新的）bean B 实例。
+以下示例显示了这种方法：
 
 [tabs]
 ======
@@ -31,23 +28,22 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 
 /**
- * A class that uses a stateful Command-style class to perform
- * some processing.
+ * 一个使用有状态 Command 风格类来执行某些处理的类。
  */
 public class CommandManager implements ApplicationContextAware {
 
   private ApplicationContext applicationContext;
 
   public Object process(Map commandState) {
-    // grab a new instance of the appropriate Command
+    // 获取适当 Command 的新实例
     Command command = createCommand();
-    // set the state on the (hopefully brand new) Command instance
+    // 设置（希望是全新的）Command 实例的状态
     command.setState(commandState);
     return command.execute();
   }
 
   protected Command createCommand() {
-    // notice the Infra API dependency!
+    // 注意 Infra API 依赖！
     return this.applicationContext.getBean("command", Command.class);
   }
 
@@ -60,45 +56,30 @@ public class CommandManager implements ApplicationContextAware {
 
 ======
 
-The preceding is not desirable, because the business code is aware of and coupled to the
-TODAY Framework. Method Injection, a somewhat advanced feature of the Infra IoC
-container, lets you handle this use case cleanly.
+前面的做法是不可取的，因为业务代码知道并耦合到 TODAY Framework。
+方法注入是 Infra IoC 容器的一个有点高级的功能，它可以让您干净地处理这个用例。
 
 ****
-You can read more about the motivation for Method Injection in
-{today-tech-site-blog}/2004/08/06/method-injection/[this blog entry].
+您可以在 {today-tech-site-blog}/2004/08/06/method-injection/[这篇博文] 中阅读更多关于方法注入动机的内容。
 ****
-
-
 
 [[beans-factory-lookup-method-injection]]
-== Lookup Method Injection
+== 查找方法注入
 
-Lookup method injection is the ability of the container to override methods on
-container-managed beans and return the lookup result for another named bean in the
-container. The lookup typically involves a prototype bean, as in the scenario described
-in xref:core/beans/dependencies/factory-method-injection.adoc[the preceding section]. The TODAY Framework
-implements this method injection by using bytecode generation from the CGLIB library to
-dynamically generate a subclass that overrides the method.
+查找方法注入是容器覆盖容器管理 bean 上的方法并返回容器中另一个命名 bean 的查找结果的能力。
+查找通常涉及原型 bean，如 xref:core/beans/dependencies/factory-method-injection.adoc[上一节] 中描述的场景。
+TODAY Framework 通过使用 CGLIB 库中的字节码生成来动态生成覆盖该方法的子类来实现此方法注入。
 
 [NOTE]
 ====
-* For this dynamic subclassing to work, the class that the Infra bean container
-  subclasses cannot be `final`, and the method to be overridden cannot be `final`, either.
-* Unit-testing a class that has an `abstract` method requires you to subclass the class
-  yourself and to supply a stub implementation of the `abstract` method.
-* Concrete methods are also necessary for component scanning, which requires concrete
-  classes to pick up.
-* A further key limitation is that lookup methods do not work with factory methods and
-  in particular not with `@Bean` methods in configuration classes, since, in that case,
-  the container is not in charge of creating the instance and therefore cannot create
-  a runtime-generated subclass on the fly.
+* 为了使这种动态子类化起作用，Infra bean 容器子类化的类不能是 `final`，要覆盖的方法也不能是 `final`。
+* 对具有 `abstract` 方法的类进行单元测试需要您自己子类化该类并提供 `abstract` 方法的存根实现。
+* 具体方法对于组件扫描也是必要的，这需要具体类来拾取。
+* 另一个关键限制是查找方法不适用于工厂方法，特别是配置类中的 `@Bean` 方法，因为在这种情况下，容器不负责创建实例，因此无法动态创建运行时生成的子类。
 ====
 
-In the case of the `CommandManager` class in the previous code snippet, the
-Infra container dynamically overrides the implementation of the `createCommand()`
-method. The `CommandManager` class does not have any Infra dependencies, as
-the reworked example shows:
+在前面代码片段中的 `CommandManager` 类的情况下，Infra 容器动态覆盖 `createCommand()` 方法的实现。
+`CommandManager` 类没有任何 Infra 依赖项，如重写的示例所示：
 
 [tabs]
 ======
@@ -108,58 +89,53 @@ Java::
 ----
 package fiona.apple;
 
-// no more Infra imports!
+// 不再有 Infra 导入！
 
 public abstract class CommandManager {
 
   public Object process(Object commandState) {
-    // grab a new instance of the appropriate Command interface
+    // 获取适当 Command 接口的新实例
     Command command = createCommand();
-    // set the state on the (hopefully brand new) Command instance
+    // 设置（希望是全新的）Command 实例的状态
     command.setState(commandState);
     return command.execute();
   }
 
-  // okay... but where is the implementation of this method?
+  // 好的... 但是这个方法的实现哪里去了？
   protected abstract Command createCommand();
 }
 ----
 
 ======
 
-In the client class that contains the method to be injected (the `CommandManager` in this
-case), the method to be injected requires a signature of the following form:
+在包含要注入的方法的客户端类中（本例中为 `CommandManager`），要注入的方法需要以下形式的签名：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <public|protected> [abstract] <return-type> theMethodName(no-arguments);
 ----
 
-If the method is `abstract`, the dynamically-generated subclass implements the method.
-Otherwise, the dynamically-generated subclass overrides the concrete method defined in
-the original class. Consider the following example:
+如果方法是 `abstract`，动态生成的子类将实现该方法。
+否则，动态生成的子类将覆盖原始类中定义的具体方法。考虑以下示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- a stateful bean deployed as a prototype (non-singleton) -->
+<!-- 部署为原型（非单例）的有状态 bean -->
 <bean id="myCommand" class="fiona.apple.AsyncCommand" scope="prototype">
-  <!-- inject dependencies here as required -->
+  <!-- 根据需要在此处注入依赖项 -->
 </bean>
 
-<!-- commandProcessor uses statefulCommandHelper -->
+<!-- commandProcessor 使用 statefulCommandHelper -->
 <bean id="commandManager" class="fiona.apple.CommandManager">
   <lookup-method name="createCommand" bean="myCommand"/>
 </bean>
 ----
 
-The bean identified as `commandManager` calls its own `createCommand()` method
-whenever it needs a new instance of the `myCommand` bean. You must be careful to deploy
-the `myCommand` bean as a prototype if that is actually what is needed. If it is
-a xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[singleton], the same instance of the `myCommand`
-bean is returned each time.
+标识为 `commandManager` 的 bean 在每次需要 `myCommand` bean 的新实例时都会调用其自己的 `createCommand()` 方法。
+如果实际上需要这样做，您必须小心地将 `myCommand` bean 部署为原型。
+如果是 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[单例]，则每次都会返回相同的 `myCommand` bean 实例。
 
-Alternatively, within the annotation-based component model, you can declare a lookup
-method through the `@Lookup` annotation, as the following example shows:
+或者，在基于注解的组件模型中，您可以通过 `@Lookup` 注解声明查找方法，如下例所示：
 
 [tabs]
 ======
@@ -182,8 +158,7 @@ public abstract class CommandManager {
 
 ======
 
-Or, more idiomatically, you can rely on the target bean getting resolved against the
-declared return type of the lookup method:
+或者，更习惯地，您可以依赖于根据查找方法的声明返回类型解析目标 bean：
 
 [tabs]
 ======
@@ -206,32 +181,25 @@ public abstract class CommandManager {
 
 ======
 
-Note that you should typically declare such annotated lookup methods with a concrete
-stub implementation, in order for them to be compatible with Infra component
-scanning rules where abstract classes get ignored by default. This limitation does not
-apply to explicitly registered or explicitly imported bean classes.
+请注意，您通常应该使用具体的存根实现来声明此类带注解的查找方法，以便它们与 Infra 组件扫描规则兼容，默认情况下会忽略抽象类。
+此限制不适用于显式注册或显式导入的 bean 类。
 
 [TIP]
 ====
-Another way of accessing differently scoped target beans is an `ObjectFactory`/
-`Provider` injection point. See xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[Scoped Beans as Dependencies].
+访问不同作用域目标 bean 的另一种方法是 `ObjectFactory`/`Provider` 注入点。
+请参阅 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[作用域 Bean 作为依赖项]。
 
-You may also find the `ServiceLocatorFactoryBean` (in the
-`infra.beans.factory.config` package) to be useful.
+您可能还会发现 `ServiceLocatorFactoryBean`（在 `infra.beans.factory.config` 包中）很有用。
 ====
 
-
-
 [[beans-factory-arbitrary-method-replacement]]
-== Arbitrary Method Replacement
+== 任意方法替换
 
-A less useful form of method injection than lookup method injection is the ability to
-replace arbitrary methods in a managed bean with another method implementation. You
-can safely skip the rest of this section until you actually need this functionality.
+比查找方法注入不太有用的一种方法注入形式是用另一种方法实现替换托管 bean 中的任意方法的能力。
+您可以放心地跳过本节的其余部分，直到您真正需要此功能。
 
-With XML-based configuration metadata, you can use the `replaced-method` element to
-replace an existing method implementation with another, for a deployed bean. Consider
-the following class, which has a method called `computeValue` that we want to override:
+对于基于 XML 的配置元数据，您可以使用 `replaced-method` 元素将已部署 bean 的现有方法实现替换为另一种方法实现。
+考虑以下类，它有一个名为 `computeValue` 的方法，我们想要覆盖它：
 
 [tabs]
 ======
@@ -242,17 +210,16 @@ Java::
 public class MyValueCalculator {
 
   public String computeValue(String input) {
-    // some real code...
+    // 一些真实代码...
   }
 
-  // some other methods...
+  // 一些其他方法...
 }
 ----
 
 ======
 
-A class that implements the `infra.beans.factory.support.MethodReplacer`
-interface provides the new method definition, as the following example shows:
+实现 `infra.beans.factory.support.MethodReplacer` 接口的类提供了新的方法定义，如下例所示：
 
 [tabs]
 ======
@@ -261,13 +228,12 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 /**
- * meant to be used to override the existing computeValue(String)
- * implementation in MyValueCalculator
+ * 旨在用于覆盖 MyValueCalculator 中现有的 computeValue(String) 实现
  */
 public class ReplacementComputeValue implements MethodReplacer {
 
   public Object reimplement(Object o, Method m, Object[] args) throws Throwable {
-    // get the input value, work with it, and return a computed result
+    // 获取输入值，处理它，并返回计算结果
     String input = (String) args[0];
     ...
     return ...;
@@ -277,15 +243,12 @@ public class ReplacementComputeValue implements MethodReplacer {
 
 ======
 
-
-
-The bean definition to deploy the original class and specify the method override would
-resemble the following example:
+部署原始类并指定方法覆盖的 bean 定义类似于以下示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="myValueCalculator" class="x.y.z.MyValueCalculator">
-  <!-- arbitrary method replacement -->
+  <!-- 任意方法替换 -->
   <replaced-method name="computeValue" replacer="replacementComputeValue">
     <arg-type>String</arg-type>
   </replaced-method>
@@ -294,12 +257,9 @@ resemble the following example:
 <bean id="replacementComputeValue" class="a.b.c.ReplacementComputeValue"/>
 ----
 
-You can use one or more `<arg-type/>` elements within the `<replaced-method/>`
-element to indicate the method signature of the method being overridden. The signature
-for the arguments is necessary only if the method is overloaded and multiple variants
-exist within the class. For convenience, the type string for an argument may be a
-substring of the fully qualified type name. For example, the following all match
-`java.lang.String`:
+您可以在 `<replaced-method/>` 元素内使用一个或多个 `<arg-type/>` 元素来指示被覆盖方法的方法签名。
+只有当方法重载且类中存在多个变体时，才需要参数的签名。
+为了方便起见，参数的类型字符串可以是全限定类型名称的子字符串。例如，以下所有内容都匹配 `java.lang.String`：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -308,9 +268,4 @@ substring of the fully qualified type name. For example, the following all match
 	Str
 ----
 
-Because the number of arguments is often enough to distinguish between each possible
-choice, this shortcut can save a lot of typing, by letting you type only the
-shortest string that matches an argument type.
-
-
-
+因为参数的数量通常足以区分每个可能的选择，所以这个快捷方式可以通过让您只键入与参数类型匹配的最短字符串来节省大量输入。

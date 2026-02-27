@@ -141,17 +141,6 @@ public class Example {
 The userDao argument is required.
 ----
 
-With regard to internationalization ("`i18n`"), Infra various `MessageSource`
-implementations follow the same locale resolution and fallback rules as the standard JDK
-`ResourceBundle`. In short, and continuing with the example `messageSource` defined
-previously, if you want to resolve messages against the British (`en-GB`) locale, you
-would create files called `format_en_GB.properties`, `exceptions_en_GB.properties`, and
-`windows_en_GB.properties`, respectively.
-
-Typically, locale resolution is managed by the surrounding environment of the
-application. In the following example, the locale against which (British) messages are
-resolved is specified manually:
-
 关于国际化（"`i18n`"），Infra 中的各种 `MessageSource` 实现遵循与标准 JDK `ResourceBundle`
 相同的区域设置解析和回退规则。简而言之，继续使用之前定义的示例 `messageSource`，如果您想针对英国
 （en-GB）区域设置解析消息，您需要分别创建名为 `format_en_GB.properties`、
@@ -567,16 +556,14 @@ JDK `java.net.URL` 类的更丰富的版本。事实上，`Resource` 的实现�
 
 
 [[context-create]]
-== Convenient ApplicationContext Instantiation for Web Applications
+== 为 Web 应用程序提供便捷的 ApplicationContext 实例化
 
 NOTE: 5.0 不再支持 Servlet
 
-You can create `ApplicationContext` instances declaratively by using, for example, a
-`ContextLoader`. Of course, you can also create `ApplicationContext` instances
-programmatically by using one of the `ApplicationContext` implementations.
+您可以使用例如 `ContextLoader` 来声明式地创建 `ApplicationContext` 实例。
+当然，您也可以使用 `ApplicationContext` 实现之一以编程方式创建 `ApplicationContext` 实例。
 
-You can register an `ApplicationContext` by using the `ContextLoaderListener`, as the
-following example shows:
+您可以使用 `ContextLoaderListener` 注册 `ApplicationContext`，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -590,61 +577,39 @@ following example shows:
 </listener>
 ----
 
-The listener inspects the `contextConfigLocation` parameter. If the parameter does not
-exist, the listener uses `/WEB-INF/applicationContext.xml` as a default. When the
-parameter does exist, the listener separates the `String` by using predefined
-delimiters (comma, semicolon, and whitespace) and uses the values as locations where
-application contexts are searched. Ant-style path patterns are supported as well.
-Examples are `/WEB-INF/{asterisk}Context.xml` (for all files with names that end with
-`Context.xml` and that reside in the `WEB-INF` directory) and `/WEB-INF/**/*Context.xml`
-(for all such files in any subdirectory of `WEB-INF`).
+监听器检查 `contextConfigLocation` 参数。如果参数不存在，监听器默认使用 `/WEB-INF/applicationContext.xml`。
+当参数存在时，监听器使用预定义的分隔符（逗号、分号和空格）分隔 `String`，并将这些值用作搜索应用程序上下文的位置。
+也支持 Ant 样式的路径模式。
+例如 `/WEB-INF/{asterisk}Context.xml`（用于所有以 `Context.xml` 结尾且位于 `WEB-INF` 目录中的文件）
+和 `/WEB-INF/**/*Context.xml`（用于 `WEB-INF` 任何子目录中的所有此类文件）。
 
 
 
 [[context-deploy-rar]]
-== Deploying a Infra `ApplicationContext` as a Jakarta EE RAR File
+== 将 Infra `ApplicationContext` 部署为 Jakarta EE RAR 文件
 
-It is possible to deploy a Infra `ApplicationContext` as a RAR file, encapsulating the
-context and all of its required bean classes and library JARs in a Jakarta EE RAR deployment
-unit. This is the equivalent of bootstrapping a stand-alone `ApplicationContext` (only hosted
-in Jakarta EE environment) being able to access the Jakarta EE servers facilities. RAR deployment
-is a more natural alternative to a scenario of deploying a headless WAR file -- in effect,
-a WAR file without any HTTP entry points that is used only for bootstrapping a Infra
-`ApplicationContext` in a Jakarta EE environment.
+可以将 Infra `ApplicationContext` 部署为 RAR 文件，将上下文及其所有必需的 bean 类和库 JAR 封装在 Jakarta EE RAR 部署单元中。
+这相当于引导一个独立的 `ApplicationContext`（仅托管在 Jakarta EE 环境中），能够访问 Jakarta EE 服务器设施。
+RAR 部署是部署无头 WAR 文件场景的一种更自然的替代方案——实际上，一个没有 HTTP 入口点的 WAR 文件，
+仅用于在 Jakarta EE 环境中引导 Infra `ApplicationContext`。
 
-RAR deployment is ideal for application contexts that do not need HTTP entry points but
-rather consist only of message endpoints and scheduled jobs. Beans in such a context can
-use application server resources such as the JTA transaction manager and JNDI-bound JDBC
-`DataSource` instances and JMS `ConnectionFactory` instances and can also register with
-the platform's JMX server -- all through Infra standard transaction management and JNDI
-and JMX support facilities. Application components can also interact with the application
-server's JCA `WorkManager` through Infra `TaskExecutor` abstraction.
+RAR 部署非常适合不需要 HTTP 入口点而仅包含消息端点和计划作业的应用程序上下文。
+此类上下文中的 Bean 可以使用应用服务器资源，例如 JTA 事务管理器和 JNDI 绑定的 JDBC `DataSource` 实例
+和 JMS `ConnectionFactory` 实例，还可以向平台的 JMX 服务器注册——所有这些都通过 Infra 标准事务管理和 JNDI 和 JMX 支持设施。
+应用程序组件还可以通过 Infra `TaskExecutor` 抽象与应用服务器的 JCA `WorkManager` 交互。
 
-See the javadoc of the
-{today-framework-api}/jca/context/SpringContextResourceAdapter.html[`SpringContextResourceAdapter`]
-class for the configuration details involved in RAR deployment.
+有关 RAR 部署所涉及的配置详细信息，请参阅
+{today-framework-api}/jca/context/SpringContextResourceAdapter.html[`SpringContextResourceAdapter`] 类的 javadoc。
 
-For a simple deployment of a Infra ApplicationContext as a Jakarta EE RAR file:
+对于将 Infra ApplicationContext 作为 Jakarta EE RAR 文件进行简单部署：
 
-. Package
-all application classes into a RAR file (which is a standard JAR file with a different
-file extension).
-. Add all required library JARs into the root of the RAR archive.
-. Add a
-`META-INF/ra.xml` deployment descriptor (as shown in the {today-framework-api}/jca/context/SpringContextResourceAdapter.html[javadoc for `SpringContextResourceAdapter`])
-and the corresponding Infra XML bean definition file(s) (typically
-`META-INF/applicationContext.xml`).
-. Drop the resulting RAR file into your
-application server's deployment directory.
+. 将所有应用程序类打包到一个 RAR 文件中（这是一个具有不同文件扩展名的标准 JAR 文件）。
+. 将所有必需的库 JAR 添加到 RAR 存档的根目录中。
+. 添加一个 `META-INF/ra.xml` 部署描述符（如 {today-framework-api}/jca/context/SpringContextResourceAdapter.html[`SpringContextResourceAdapter` 的 javadoc] 中所示）
+和相应的 Infra XML bean 定义文件（通常是 `META-INF/applicationContext.xml`）。
+. 将生成的 RAR 文件放入应用服务器的部署目录中。
 
-NOTE: Such RAR deployment units are usually self-contained. They do not expose components
-to the outside world, not even to other modules of the same application. Interaction with a
-RAR-based `ApplicationContext` usually occurs through JMS destinations that it shares with
-other modules. A RAR-based `ApplicationContext` may also, for example, schedule some jobs
-or react to new files in the file system (or the like). If it needs to allow synchronous
-access from the outside, it could (for example) export RMI endpoints, which may be used
-by other application modules on the same machine.
-
-
-
-
+NOTE: 此类 RAR 部署单元通常是独立的。它们不向外界公开组件，甚至不向同一应用程序的其他模块公开。
+与基于 RAR 的 `ApplicationContext` 的交互通常通过它与其他模块共享的 JMS 目标进行。
+基于 RAR 的 `ApplicationContext` 还可以例如安排一些作业或对文件系统中的新文件做出反应（或类似情况）。
+如果它需要允许来自外部的同步访问，它可以（例如）导出 RMI 端点，这些端点可以由同一台机器上的其他应用程序模块使用。

@@ -1,27 +1,19 @@
 [[beans-java-instantiating-container]]
-= Instantiating the Infra Container by Using `AnnotationConfigApplicationContext`
+= 使用 `AnnotationConfigApplicationContext` 实例化 Infra 容器
 
-The following sections document Infra `AnnotationConfigApplicationContext`, introduced in Infra
-3.0. This versatile `ApplicationContext` implementation is capable of accepting not only
-`@Configuration` classes as input but also plain `@Component` classes and classes
-annotated with JSR-330 metadata.
+以下部分记录了 Infra 3.0 中引入的 Infra `AnnotationConfigApplicationContext`。
+这个多功能的 `ApplicationContext` 实现不仅能够接受 `@Configuration` 类作为输入，还能够接受普通的 `@Component` 类和使用 JSR-330 元数据注解的类。
 
-When `@Configuration` classes are provided as input, the `@Configuration` class itself
-is registered as a bean definition and all declared `@Bean` methods within the class
-are also registered as bean definitions.
+当提供 `@Configuration` 类作为输入时，`@Configuration` 类本身被注册为 bean 定义，并且类中所有声明的 `@Bean` 方法也被注册为 bean 定义。
 
-When `@Component` and JSR-330 classes are provided, they are registered as bean
-definitions, and it is assumed that DI metadata such as `@Autowired` or `@Inject` are
-used within those classes where necessary.
-
+当提供 `@Component` 和 JSR-330 类时，它们被注册为 bean 定义，并且假设在必要时在这些类中使用 DI 元数据，例如 `@Autowired` 或 `@Inject`。
 
 [[beans-java-instantiating-container-constructor]]
-== Simple Construction
+== 简单构造
 
-In much the same way that Infra XML files are used as input when instantiating a
-`ClassPathXmlApplicationContext`, you can use `@Configuration` classes as input when
-instantiating an `AnnotationConfigApplicationContext`. This allows for completely
-XML-free usage of the Infra container, as the following example shows:
+就像实例化 `ClassPathXmlApplicationContext` 时使用 Infra XML 文件作为输入一样，
+您可以在实例化 `AnnotationConfigApplicationContext` 时使用 `@Configuration` 类作为输入。
+这允许完全不使用 XML 的 Infra 容器使用，如下例所示：
 
 [tabs]
 ======
@@ -38,9 +30,8 @@ public static void main(String[] args) {
 
 ======
 
-As mentioned earlier, `AnnotationConfigApplicationContext` is not limited to working only
-with `@Configuration` classes. Any `@Component` or JSR-330 annotated class may be supplied
-as input to the constructor, as the following example shows:
+如前所述，`AnnotationConfigApplicationContext` 不仅限于只与 `@Configuration` 类一起工作。
+任何 `@Component` 或 JSR-330 注解的类都可以作为输入提供给构造函数，如下例所示：
 
 [tabs]
 ======
@@ -57,17 +48,14 @@ public static void main(String[] args) {
 
 ======
 
-The preceding example assumes that `MyServiceImpl`, `Dependency1`, and `Dependency2` use Infra
-dependency injection annotations such as `@Autowired`.
-
+前面的示例假设 `MyServiceImpl`、`Dependency1` 和 `Dependency2` 使用 Infra 依赖注入注解，例如 `@Autowired`。
 
 [[beans-java-instantiating-container-register]]
-== Building the Container Programmatically by Using `register(Class<?>...)`
+== 使用 `register(Class<?>...)` 以编程方式构建容器
 
-You can instantiate an `AnnotationConfigApplicationContext` by using a no-arg constructor
-and then configure it by using the `register()` method. This approach is particularly useful
-when programmatically building an `AnnotationConfigApplicationContext`. The following
-example shows how to do so:
+您可以使用无参数构造函数实例化 `AnnotationConfigApplicationContext`，然后使用 `register()` 方法对其进行配置。
+这种方法在以编程方式构建 `AnnotationConfigApplicationContext` 时特别有用。
+以下示例显示了如何执行此操作：
 
 [tabs]
 ======
@@ -87,11 +75,10 @@ public static void main(String[] args) {
 
 ======
 
-
 [[beans-java-instantiating-container-scan]]
-== Enabling Component Scanning with `scan(String...)`
+== 使用 `scan(String...)` 启用组件扫描
 
-To enable component scanning, you can annotate your `@Configuration` class as follows:
+要启用组件扫描，您可以按如下方式注解您的 `@Configuration` 类：
 
 [tabs]
 ======
@@ -105,15 +92,13 @@ public class AppConfig  {
   // ...
 }
 ----
-<1> This annotation enables component scanning.
+<1> 此注解启用组件扫描。
 
 ======
 
-
 [TIP]
 =====
-Experienced Infra users may be familiar with the XML declaration equivalent from
-Infra `context:` namespace, shown in the following example:
+经验丰富的 Infra 用户可能熟悉来自 Infra `context:` 命名空间的 XML 声明等效项，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -123,11 +108,8 @@ Infra `context:` namespace, shown in the following example:
 ----
 =====
 
-In the preceding example, the `com.acme` package is scanned to look for any
-`@Component`-annotated classes, and those classes are registered as Infra bean
-definitions within the container. `AnnotationConfigApplicationContext` exposes the
-`scan(String...)` method to allow for the same component-scanning functionality, as the
-following example shows:
+在前面的示例中，扫描 `com.acme` 包以查找任何 `@Component` 注解的类，并将这些类注册为容器内的 Infra bean 定义。
+`AnnotationConfigApplicationContext` 公开了 `scan(String...)` 方法以允许相同的组件扫描功能，如下例所示：
 
 [tabs]
 ======
@@ -145,79 +127,6 @@ public static void main(String[] args) {
 
 ======
 
-NOTE: Remember that `@Configuration` classes are xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[meta-annotated]
-with `@Component`, so they are candidates for component-scanning. In the preceding example,
-assuming that `AppConfig` is declared within the `com.acme` package (or any package
-underneath), it is picked up during the call to `scan()`. Upon `refresh()`, all its `@Bean`
-methods are processed and registered as bean definitions within the container.
-
-
-[[beans-java-instantiating-container-web]]
-== Support for Web Applications with `AnnotationConfigWebApplicationContext`
-
-A `WebApplicationContext` variant of `AnnotationConfigApplicationContext` is available
-with `AnnotationConfigWebApplicationContext`. You can use this implementation when
-configuring the Infra `ContextLoaderListener` mockApi listener, Web MVC
-`MockDispatcher`, and so forth. The following `web.xml` snippet configures a typical
-Web MVC web application (note the use of the `contextClass` context-param and
-init-param):
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<web-app>
-  <!-- Configure ContextLoaderListener to use AnnotationConfigWebApplicationContext
-    instead of the default XmlWebApplicationContext -->
-  <context-param>
-    <param-name>contextClass</param-name>
-    <param-value>
-      infra.web.context.support.AnnotationConfigWebApplicationContext
-    </param-value>
-  </context-param>
-
-  <!-- Configuration locations must consist of one or more comma- or space-delimited
-    fully-qualified @Configuration classes. Fully-qualified packages may also be
-    specified for component-scanning -->
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>com.acme.AppConfig</param-value>
-  </context-param>
-
-  <!-- Bootstrap the root application context as usual using ContextLoaderListener -->
-  <listener>
-    <listener-class>infra.web.context.ContextLoaderListener</listener-class>
-  </listener>
-
-  <!-- Declare a Web MVC DispatcherServlet as usual -->
-  <mockApi>
-    <mockApi-name>dispatcher</mockApi-name>
-    <mockApi-class>infra.web.mockApi.DispatcherServlet</mockApi-class>
-    <!-- Configure DispatcherServlet to use AnnotationConfigWebApplicationContext
-      instead of the default XmlWebApplicationContext -->
-    <init-param>
-      <param-name>contextClass</param-name>
-      <param-value>
-        infra.web.context.support.AnnotationConfigWebApplicationContext
-      </param-value>
-    </init-param>
-    <!-- Again, config locations must consist of one or more comma- or space-delimited
-      and fully-qualified @Configuration classes -->
-    <init-param>
-      <param-name>contextConfigLocation</param-name>
-      <param-value>com.acme.web.MvcConfig</param-value>
-    </init-param>
-  </mockApi>
-
-  <!-- map all requests for /app/* to the dispatcher mockApi -->
-  <mockApi-mapping>
-    <mockApi-name>dispatcher</mockApi-name>
-    <url-pattern>/app/*</url-pattern>
-  </mockApi-mapping>
-</web-app>
-----
-
-NOTE: For programmatic use cases, a `GenericWebApplicationContext` can be used as an
-alternative to `AnnotationConfigWebApplicationContext`. See the
-{today-framework-api}/web/context/support/GenericWebApplicationContext.html[`GenericWebApplicationContext`]
-javadoc for details.
-
-
+NOTE: 请记住，`@Configuration` 类是用 `@Component` xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[元注解] 的，
+因此它们是组件扫描的候选者。在前面的示例中，假设 `AppConfig` 声明在 `com.acme` 包（或其下的任何包）中，
+它在调用 `scan()` 期间被拾取。在 `refresh()` 时，它的所有 `@Bean` 方法都会被处理并在容器内注册为 bean 定义。
