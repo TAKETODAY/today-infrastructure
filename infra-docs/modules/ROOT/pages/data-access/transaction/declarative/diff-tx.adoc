@@ -1,15 +1,9 @@
 [[transaction-declarative-diff-tx]]
-= Configuring Different Transactional Semantics for Different Beans
+= 为不同的 Bean 配置不同的事务语义
 
-Consider the scenario where you have a number of service layer objects, and you want to
-apply a totally different transactional configuration to each of them. You can do so
-by defining distinct `<aop:advisor/>` elements with differing `pointcut` and
-`advice-ref` attribute values.
+考虑这样一种情况：您有许多服务层对象，并且希望对每个对象应用完全不同的事务配置。您可以通过定义具有不同 `pointcut` 和 `advice-ref` 属性值的不同 `<aop:advisor/>` 元素来实现。
 
-As a point of comparison, first assume that all of your service layer classes are
-defined in a root `x.y.service` package. To make all beans that are instances of classes
-defined in that package (or in subpackages) and that have names ending in `Service` have
-the default transactional configuration, you could write the following:
+作为比较点，首先假设您所有的服务层类都在根 `x.y.service` 包中定义。为了使在该包（或子包）中定义且名称以 `Service` 结尾的所有 bean 都具有默认事务配置，您可以编写以下内容：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -35,13 +29,13 @@ the default transactional configuration, you could write the following:
 
   </aop:config>
 
-  <!-- these two beans will be transactional... -->
+  <!-- 这两个 bean 将是事务性的... -->
   <bean id="fooService" class="x.y.service.DefaultFooService"/>
   <bean id="barService" class="x.y.service.extras.SimpleBarService"/>
 
-  <!-- ... and these two beans won't -->
-  <bean id="anotherService" class="org.xyz.SomeService"/> <!-- (not in the right package) -->
-  <bean id="barManager" class="x.y.service.SimpleBarManager"/> <!-- (doesn't end in 'Service') -->
+  <!-- ... 而这两个 bean 不会 -->
+  <bean id="anotherService" class="org.xyz.SomeService"/> <!-- (不在正确的包中) -->
+  <bean id="barManager" class="x.y.service.SimpleBarManager"/> <!-- (不以 'Service' 结尾) -->
 
   <tx:advice id="txAdvice">
     <tx:attributes>
@@ -50,13 +44,12 @@ the default transactional configuration, you could write the following:
     </tx:attributes>
   </tx:advice>
 
-  <!-- other transaction infrastructure beans such as a TransactionManager omitted... -->
+  <!-- 省略了其他事务基础设施 bean，例如 TransactionManager... -->
 
 </beans>
 ----
 
-The following example shows how to configure two distinct beans with totally different
-transactional settings:
+以下示例显示了如何配置两个具有完全不同事务设置的不同 bean：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -87,10 +80,10 @@ transactional settings:
 
   </aop:config>
 
-  <!-- this bean will be transactional (see the 'defaultServiceOperation' pointcut) -->
+  <!-- 此 bean 将是事务性的（参见 'defaultServiceOperation' 切入点） -->
   <bean id="fooService" class="x.y.service.DefaultFooService"/>
 
-  <!-- this bean will also be transactional, but with totally different transactional settings -->
+  <!-- 此 bean 也将是事务性的，但具有完全不同的事务设置 -->
   <bean id="anotherFooService" class="x.y.service.ddl.DefaultDdlManager"/>
 
   <tx:advice id="defaultTxAdvice">
@@ -106,9 +99,7 @@ transactional settings:
     </tx:attributes>
   </tx:advice>
 
-  <!-- other transaction infrastructure beans such as a TransactionManager omitted... -->
+  <!-- 省略了其他事务基础设施 bean，例如 TransactionManager... -->
 
 </beans>
 ----
-
-

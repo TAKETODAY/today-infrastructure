@@ -1,53 +1,18 @@
 [[transaction-declarative]]
-= Declarative Transaction Management
+= 声明式事务管理
 
-NOTE: Most TODAY Framework users choose declarative transaction management. This option has
-the least impact on application code and, hence, is most consistent with the ideals of a
-non-invasive lightweight container.
+NOTE: 大多数 TODAY Framework 用户选择声明式事务管理。此选项对应用程序代码的影响最小，因此最符合非侵入式轻量级容器的理想。
 
-The TODAY Framework's declarative transaction management is made possible with Infra
-aspect-oriented programming (AOP). However, as the transactional aspects code comes
-with the TODAY Framework distribution and may be used in a boilerplate fashion, AOP
-concepts do not generally have to be understood to make effective use of this code.
+TODAY Framework 的声明式事务管理是通过 Infra 面向切面编程 (AOP) 实现的。但是，由于事务切面代码随 TODAY Framework 分发版一起提供，并且可能以样板方式使用，因此通常不需要了解 AOP 概念即可有效使用此代码。
 
-The TODAY Framework's declarative transaction management is similar to EJB CMT, in that
-you can specify transaction behavior (or lack of it) down to the individual method level.
-You can make a `setRollbackOnly()` call within a transaction context, if
-necessary. The differences between the two types of transaction management are:
+TODAY Framework 的声明式事务管理类似于 EJB CMT，您可以指定事务行为（或不指定）直到单个方法级别。如果需要，您可以在事务上下文中进行 `setRollbackOnly()` 调用。两种类型的事务管理之间的区别在于：
 
-* Unlike EJB CMT, which is tied to JTA, the TODAY Framework's declarative transaction
-  management works in any environment. It can work with JTA transactions or local
-  transactions by using JDBC, JPA, or Hibernate by adjusting the configuration
-  files.
-* You can apply the TODAY Framework declarative transaction management to any class,
-  not merely special classes such as EJBs.
-* The TODAY Framework offers declarative
-  xref:data-access/transaction/declarative/rolling-back.adoc[rollback rules], a feature with no EJB
-  equivalent. Both programmatic and declarative support for rollback rules is provided.
-* The TODAY Framework lets you customize transactional behavior by using AOP.
-  For example, you can insert custom behavior in the case of transaction rollback. You
-  can also add arbitrary advice, along with transactional advice. With EJB CMT, you
-  cannot influence the container's transaction management, except with
-  `setRollbackOnly()`.
-* The TODAY Framework does not support propagation of transaction contexts across
-  remote calls, as high-end application servers do. If you need this feature, we
-  recommend that you use EJB. However, consider carefully before using such a feature,
-  because, normally, one does not want transactions to span remote calls.
+* 与绑定到 JTA 的 EJB CMT 不同，TODAY Framework 的声明式事务管理适用于任何环境。它可以通过调整配置文件，使用 JDBC、JPA 或 Hibernate 处理 JTA 事务或本地事务。
+* 您可以将 TODAY Framework 声明式事务管理应用于任何类，而不仅仅是 EJB 等特殊类。
+* TODAY Framework 提供声明式 xref:data-access/transaction/declarative/rolling-back.adoc[回滚规则]，这是 EJB 没有的功能。提供了对回滚规则的编程式和声明式支持。
+* TODAY Framework 允许您通过使用 AOP 自定义事务行为。例如，您可以在事务回滚的情况下插入自定义行为。您还可以添加任意通知以及事务通知。使用 EJB CMT，除了使用 `setRollbackOnly()` 之外，您无法影响容器的事务管理。
+* TODAY Framework 不支持跨远程调用的事务上下文传播，而高端应用服务器支持。如果您需要此功能，我们建议您使用 EJB。但是，在使用此功能之前请仔细考虑，因为通常不希望事务跨越远程调用。
 
-The concept of rollback rules is important. They let you specify which exceptions
-(and throwables) should cause automatic rollback. You can specify this declaratively, in
-configuration, not in Java code. So, although you can still call `setRollbackOnly()` on
-the `TransactionStatus` object to roll back the current transaction back, most often you
-can specify a rule that `MyApplicationException` must always result in rollback. The
-significant advantage to this option is that business objects do not depend on the
-transaction infrastructure. For example, they typically do not need to import Infra
-transaction APIs or other Infra APIs.
+回滚规则的概念很重要。它们允许您指定哪些异常（和 throwable）应导致自动回滚。您可以在配置中以声明方式指定此项，而不是在 Java 代码中。因此，尽管您仍然可以在 `TransactionStatus` 对象上调用 `setRollbackOnly()` 来回滚当前事务，但通常您可以指定一个规则，即 `MyApplicationException` 必须始终导致回滚。此选项的显著优势在于业务对象不依赖于事务基础设施。例如，它们通常不需要导入 Infra 事务 API 或其他 Infra API。
 
-Although EJB container default behavior automatically rolls back the transaction on a
-system exception (usually a runtime exception), EJB CMT does not roll back the
-transaction automatically on an application exception (that is, a checked exception
-other than `java.rmi.RemoteException`). While the Infra default behavior for
-declarative transaction management follows EJB convention (roll back is automatic only
-on unchecked exceptions), it is often useful to customize this behavior.
-
-
+虽然 EJB 容器默认行为会在系统异常（通常是运行时异常）时自动回滚事务，但 EJB CMT 不会在应用程序异常（即除 `java.rmi.RemoteException` 之外的受检异常）时自动回滚事务。虽然 Infra 声明式事务管理的默认行为遵循 EJB 约定（仅在未检查的异常上自动回滚），但自定义此行为通常很有用。

@@ -1,52 +1,25 @@
 [[tx-decl-explained]]
-= Understanding the TODAY Framework's Declarative Transaction Implementation
+= 理解 TODAY Framework 的声明式事务实现
 
-It is not sufficient merely to tell you to annotate your classes with the
-`@Transactional` annotation, add `@EnableTransactionManagement` to your configuration,
-and expect you to understand how it all works. To provide a deeper understanding, this
-section explains the inner workings of the TODAY Framework's declarative transaction
-infrastructure in the context of transaction-related issues.
+仅仅告诉您用 `@Transactional` 注解来注解您的类，将 `@EnableTransactionManagement` 添加到您的配置中，并期望您了解这一切是如何工作的，这还不够。为了提供更深入的理解，本节在事务相关问题的背景下解释了 TODAY Framework 声明式事务基础设施的内部工作原理。
 
-The most important concepts to grasp with regard to the TODAY Framework's declarative
-transaction support are that this support is enabled
-xref:core/aop/proxying.adoc#aop-understanding-aop-proxies[via AOP proxies] and that the transactional
-advice is driven by metadata (currently XML- or annotation-based). The combination of AOP
-with transactional metadata yields an AOP proxy that uses a `TransactionInterceptor` in
-conjunction with an appropriate `TransactionManager` implementation to drive transactions
-around method invocations.
+关于 TODAY Framework 的声明式事务支持，要掌握的最重要概念是，此支持是 xref:core/aop/proxying.adoc#aop-understanding-aop-proxies[通过 AOP 代理] 启用的，并且事务通知是由元数据（目前基于 XML 或注解）驱动的。AOP 与事务元数据的组合产生了一个 AOP 代理，该代理使用 `TransactionInterceptor` 与适当的 `TransactionManager` 实现相结合，以围绕方法调用驱动事务。
 
-NOTE: Infra AOP is covered in xref:core/aop.adoc[the AOP section].
+NOTE: Infra AOP 在 xref:core/aop.adoc[AOP 部分] 中介绍。
 
-TODAY Framework's `TransactionInterceptor` provides transaction management for
-imperative and reactive programming models. The interceptor detects the desired flavor of
-transaction management by inspecting the method return type. Methods returning a reactive
-type such as `Publisher` or Kotlin `Flow` (or a subtype of those) qualify for reactive
-transaction management. All other return types including `void` use the code path for
-imperative transaction management.
+TODAY Framework 的 `TransactionInterceptor` 为命令式和响应式编程模型提供事务管理。拦截器通过检查方法返回类型来检测所需的事务管理风格。返回响应式类型（如 `Publisher` 或 Kotlin `Flow`（或其子类型））的方法有资格进行响应式事务管理。包括 `void` 在内的所有其他返回类型都使用命令式事务管理的代码路径。
 
-Transaction management flavors impact which transaction manager is required. Imperative
-transactions require a `PlatformTransactionManager`, while reactive transactions use
-`ReactiveTransactionManager` implementations.
+事务管理风格会影响所需的事务管理器。命令式事务需要 `PlatformTransactionManager`，而响应式事务使用 `ReactiveTransactionManager` 实现。
 
 [NOTE]
 ====
-`@Transactional` commonly works with thread-bound transactions managed by
-`PlatformTransactionManager`, exposing a transaction to all data access operations within
-the current execution thread. Note: This does _not_ propagate to newly started threads
-within the method.
+`@Transactional` 通常与由 `PlatformTransactionManager` 管理的线程绑定事务一起使用，将事务暴露给当前执行线程内的所有数据访问操作。注意：这 _不会_ 传播到方法内新启动的线程。
 
-A reactive transaction managed by `ReactiveTransactionManager` uses the Reactor context
-instead of thread-local attributes. As a consequence, all participating data access
-operations need to execute within the same Reactor context in the same reactive pipeline.
+由 `ReactiveTransactionManager` 管理的响应式事务使用 Reactor 上下文而不是线程局部属性。因此，所有参与的数据访问操作都需要在同一响应式管道中的同一 Reactor 上下文中执行。
 
-When configured with a `ReactiveTransactionManager`, all transaction-demarcated methods
-are expected to return a reactive pipeline. Void methods or regular return types need
-to be associated with a regular `PlatformTransactionManager`, e.g. through the
-`transactionManager` attribute of the corresponding `@Transactional` declarations.
+当配置有 `ReactiveTransactionManager` 时，所有事务划分的方法都应返回响应式管道。Void 方法或常规返回类型需要与常规 `PlatformTransactionManager` 关联，例如通过相应 `@Transactional` 声明的 `transactionManager` 属性。
 ====
 
-The following image shows a conceptual view of calling a method on a transactional proxy:
+下图显示了在事务代理上调用方法的概念视图：
 
 image::tx.png[]
-
-

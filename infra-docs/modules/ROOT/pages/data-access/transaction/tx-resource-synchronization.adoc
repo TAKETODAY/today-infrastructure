@@ -1,83 +1,37 @@
 [[tx-resource-synchronization]]
-= Synchronizing Resources with Transactions
+= 将资源与事务同步
 
-How to create different transaction managers and how they are linked to related resources
-that need to be synchronized to transactions (for example `DataSourceTransactionManager`
-to a JDBC `DataSource`, `HibernateTransactionManager` to a Hibernate `SessionFactory`,
-and so forth) should now be clear. This section describes how the application code
-(directly or indirectly, by using a persistence API such as JDBC, Hibernate, or JPA)
-ensures that these resources are created, reused, and cleaned up properly. The section
-also discusses how transaction synchronization is (optionally) triggered through the
-relevant `TransactionManager`.
+现在应该清楚如何创建不同的事务管理器，以及如何将它们链接到需要与事务同步的相关资源（例如 `DataSourceTransactionManager` 到 JDBC `DataSource`，`HibernateTransactionManager` 到 Hibernate `SessionFactory` 等）。本节描述应用程序代码（直接或间接，通过使用诸如 JDBC、Hibernate 或 JPA 之类的持久性 API）如何确保正确创建、重用和清理这些资源。本节还讨论了如何通过相关的 `TransactionManager`（可选）触发事务同步。
 
 
 [[tx-resource-synchronization-high]]
-== High-level Synchronization Approach
+== 高级同步方法
 
-The preferred approach is to use Infra highest-level template-based persistence
-integration APIs or to use native ORM APIs with transaction-aware factory beans or
-proxies for managing the native resource factories. These transaction-aware solutions
-internally handle resource creation and reuse, cleanup, optional transaction
-synchronization of the resources, and exception mapping. Thus, user data access code does
-not have to address these tasks but can focus purely on non-boilerplate
-persistence logic. Generally, you use the native ORM API or take a template approach
-for JDBC access by using the `JdbcTemplate`. These solutions are detailed in subsequent
-sections of this reference documentation.
+首选方法是使用 Infra 最高级别的基于模板的持久性集成 API，或使用具有事务感知工厂 bean 或代理的原生 ORM API 来管理原生资源工厂。这些事务感知解决方案在内部处理资源创建和重用、清理、资源的可选事务同步以及异常映射。因此，用户数据访问代码不必处理这些任务，而可以纯粹专注于非样板持久性逻辑。通常，您使用原生 ORM API 或通过使用 `JdbcTemplate` 采用模板方法进行 JDBC 访问。这些解决方案在本参考文档的后续部分中详细介绍。
 
 
 [[tx-resource-synchronization-low]]
-== Low-level Synchronization Approach
+== 低级同步方法
 
-Classes such as `DataSourceUtils` (for JDBC), `EntityManagerFactoryUtils` (for JPA),
-`SessionFactoryUtils` (for Hibernate), and so on exist at a lower level. When you want the
-application code to deal directly with the resource types of the native persistence APIs,
-you use these classes to ensure that proper TODAY Framework-managed instances are obtained,
-transactions are (optionally) synchronized, and exceptions that occur in the process are
-properly mapped to a consistent API.
+诸如 `DataSourceUtils`（用于 JDBC）、`EntityManagerFactoryUtils`（用于 JPA）、`SessionFactoryUtils`（用于 Hibernate）等类存在于较低级别。当您希望应用程序代码直接处理原生持久性 API 的资源类型时，您使用这些类来确保获得正确的 TODAY Framework 管理的实例，事务被（可选）同步，并且过程中发生的异常被正确映射到一致的 API。
 
-For example, in the case of JDBC, instead of the traditional JDBC approach of calling
-the `getConnection()` method on the `DataSource`, you can instead use Infra
-`infra.jdbc.datasource.DataSourceUtils` class, as follows:
+例如，在 JDBC 的情况下，您可以不使用在 `DataSource` 上调用 `getConnection()` 方法的传统 JDBC 方法，而是使用 Infra `infra.jdbc.datasource.DataSourceUtils` 类，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 	Connection conn = DataSourceUtils.getConnection(dataSource);
 ----
 
-If an existing transaction already has a connection synchronized (linked) to it, that
-instance is returned. Otherwise, the method call triggers the creation of a new
-connection, which is (optionally) synchronized to any existing transaction and made
-available for subsequent reuse in that same transaction. As mentioned earlier, any
-`SQLException` is wrapped in a TODAY Framework `CannotGetJdbcConnectionException`, one
-of the TODAY Framework's hierarchy of unchecked `DataAccessException` types. This approach
-gives you more information than can be obtained easily from the `SQLException` and
-ensures portability across databases and even across different persistence technologies.
+如果现有事务已经有同步（链接）到它的连接，则返回该实例。否则，方法调用会触发创建新连接，该连接（可选）与任何现有事务同步，并可用于在同一事务中后续重用。如前所述，任何 `SQLException` 都包装在 TODAY Framework `CannotGetJdbcConnectionException` 中，这是 TODAY Framework 未经检查的 `DataAccessException` 类型层次结构之一。这种方法为您提供了比从 `SQLException` 轻松获得的信息更多的信息，并确保了跨数据库甚至跨不同持久性技术的可移植性。
 
-This approach also works without Infra transaction management (transaction
-synchronization is optional), so you can use it whether or not you use Infra for
-transaction management.
+这种方法也可以在没有 Infra 事务管理的情况下工作（事务同步是可选的），因此无论您是否使用 Infra 进行事务管理，都可以使用它。
 
-Of course, once you have used Infra JDBC support, JPA support, or Hibernate support,
-you generally prefer not to use `DataSourceUtils` or the other helper classes,
-because you are much happier working through the Infra abstraction than directly
-with the relevant APIs. For example, if you use the Infra `JdbcTemplate` or
-`jdbc.object` package to simplify your use of JDBC, correct connection retrieval occurs
-behind the scenes and you need not write any special code.
+当然，一旦您使用了 Infra JDBC 支持、JPA 支持或 Hibernate 支持，您通常更喜欢不使用 `DataSourceUtils` 或其他辅助类，因为您通过 Infra 抽象比直接使用相关 API 工作得更开心。例如，如果您使用 Infra `JdbcTemplate` 或 `jdbc.object` 包来简化 JDBC 的使用，则正确的连接检索会在幕后发生，您无需编写任何特殊代码。
 
 
 [[tx-resource-synchronization-tadsp]]
 == `TransactionAwareDataSourceProxy`
 
-At the very lowest level exists the `TransactionAwareDataSourceProxy` class. This is a
-proxy for a target `DataSource`, which wraps the target `DataSource` to add awareness of
-Infra-managed transactions. In this respect, it is similar to a transactional JNDI
-`DataSource`, as provided by a Jakarta EE server.
+在最低级别存在 `TransactionAwareDataSourceProxy` 类。这是目标 `DataSource` 的代理，它包装目标 `DataSource` 以增加对 Infra 管理事务的感知。在这方面，它类似于 Jakarta EE 服务器提供的事务性 JNDI `DataSource`。
 
-You should almost never need or want to use this class, except when existing
-code must be called and passed a standard JDBC `DataSource` interface implementation. In
-that case, it is possible that this code is usable but is participating in Infra-managed
-transactions. You can write your new code by using the higher-level
-abstractions mentioned earlier.
-
-
-
+除非必须调用现有代码并传递标准 JDBC `DataSource` 接口实现，否则您几乎永远不需要或不希望使用此类。在这种情况下，此代码可能是可用的，但正在参与 Infra 管理的事务。您可以使用前面提到的更高级别的抽象来编写新代码。

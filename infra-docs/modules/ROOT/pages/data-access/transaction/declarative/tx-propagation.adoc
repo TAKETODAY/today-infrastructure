@@ -1,80 +1,33 @@
 [[tx-propagation]]
-= Transaction Propagation
+= 事务传播
 
-This section describes some semantics of transaction propagation in Infra. Note
-that this section is not a proper introduction to transaction propagation. Rather, it
-details some of the semantics regarding transaction propagation in Infra.
+本节描述 Infra 中事务传播的一些语义。请注意，本节不是对事务传播的适当介绍。相反，它详细介绍了 Infra 中有关事务传播的一些语义。
 
-In Infra-managed transactions, be aware of the difference between physical and
-logical transactions, and how the propagation setting applies to this difference.
+在 Infra 管理的事务中，请注意物理事务和逻辑事务之间的区别，以及传播设置如何应用于此差异。
 
 [[tx-propagation-required]]
-== Understanding `PROPAGATION_REQUIRED`
+== 理解 `PROPAGATION_REQUIRED`
 
 image::tx_prop_required.png[]
 
-`PROPAGATION_REQUIRED` enforces a physical transaction, either locally for the current
-scope if no transaction exists yet or participating in an existing 'outer' transaction
-defined for a larger scope. This is a fine default in common call stack arrangements
-within the same thread (for example, a service facade that delegates to several repository methods
-where all the underlying resources have to participate in the service-level transaction).
+`PROPAGATION_REQUIRED` 强制执行物理事务，如果尚未存在事务，则在本地为当前范围执行，或者参与为更大范围定义的现有“外部”事务。在同一线程内的常见调用堆栈安排中，这是一个很好的默认值（例如，委托给多个存储库方法的服务外观，其中所有底层资源都必须参与服务级事务）。
 
-NOTE: By default, a participating transaction joins the characteristics of the outer scope,
-silently ignoring the local isolation level, timeout value, or read-only flag (if any).
-Consider switching the `validateExistingTransactions` flag to `true` on your transaction
-manager if you want isolation level declarations to be rejected when participating in
-an existing transaction with a different isolation level. This non-lenient mode also
-rejects read-only mismatches (that is, an inner read-write transaction that tries to participate
-in a read-only outer scope).
+NOTE: 默认情况下，参与事务加入外部范围的特征，静默忽略本地隔离级别、超时值或只读标志（如果有）。如果您希望在参与具有不同隔离级别的现有事务时拒绝隔离级别声明，请考虑将事务管理器上的 `validateExistingTransactions` 标志切换为 `true`。这种非宽松模式还会拒绝只读不匹配（即尝试参与只读外部范围的内部读写事务）。
 
-When the propagation setting is `PROPAGATION_REQUIRED`, a logical transaction scope
-is created for each method upon which the setting is applied. Each such logical
-transaction scope can determine rollback-only status individually, with an outer
-transaction scope being logically independent from the inner transaction scope.
-In the case of standard `PROPAGATION_REQUIRED` behavior, all these scopes are
-mapped to the same physical transaction. So a rollback-only marker set in the inner
-transaction scope does affect the outer transaction's chance to actually commit.
+当传播设置是 `PROPAGATION_REQUIRED` 时，将为应用该设置的每个方法创建一个逻辑事务范围。每个这样的逻辑事务范围都可以单独确定仅回滚状态，外部事务范围在逻辑上独立于内部事务范围。在标准 `PROPAGATION_REQUIRED` 行为的情况下，所有这些范围都映射到同一个物理事务。因此，在内部事务范围中设置的仅回滚标记确实会影响外部事务实际提交的机会。
 
-However, in the case where an inner transaction scope sets the rollback-only marker, the
-outer transaction has not decided on the rollback itself, so the rollback (silently
-triggered by the inner transaction scope) is unexpected. A corresponding
-`UnexpectedRollbackException` is thrown at that point. This is expected behavior so
-that the caller of a transaction can never be misled to assume that a commit was
-performed when it really was not. So, if an inner transaction (of which the outer caller
-is not aware) silently marks a transaction as rollback-only, the outer caller still
-calls commit. The outer caller needs to receive an `UnexpectedRollbackException` to
-indicate clearly that a rollback was performed instead.
+但是，在内部事务范围设置仅回滚标记的情况下，外部事务尚未决定回滚本身，因此回滚（由内部事务范围静默触发）是意外的。此时会抛出相应的 `UnexpectedRollbackException`。这是预期的行为，以便事务的调用者永远不会被误导以为实际上并未执行提交。因此，如果内部事务（外部调用者不知道）静默地将事务标记为仅回滚，则外部调用者仍然调用提交。外部调用者需要接收 `UnexpectedRollbackException` 以清楚地指示已执行回滚。
 
 [[tx-propagation-requires_new]]
-== Understanding `PROPAGATION_REQUIRES_NEW`
+== 理解 `PROPAGATION_REQUIRES_NEW`
 
 image::tx_prop_requires_new.png[]
 
-`PROPAGATION_REQUIRES_NEW`, in contrast to `PROPAGATION_REQUIRED`, always uses an
-independent physical transaction for each affected transaction scope, never
-participating in an existing transaction for an outer scope. In such an arrangement,
-the underlying resource transactions are different and, hence, can commit or roll back
-independently, with an outer transaction not affected by an inner transaction's rollback
-status and with an inner transaction's locks released immediately after its completion.
-Such an independent inner transaction can also declare its own isolation level, timeout,
-and read-only settings and not inherit an outer transaction's characteristics.
+与 `PROPAGATION_REQUIRED` 相比，`PROPAGATION_REQUIRES_NEW` 始终为每个受影响的事务范围使用独立的物理事务，从不参与外部范围的现有事务。在这种安排中，底层资源事务是不同的，因此可以独立提交或回滚，外部事务不受内部事务回滚状态的影响，内部事务的锁在其完成后立即释放。这种独立的内部事务还可以声明自己的隔离级别、超时和只读设置，而不继承外部事务的特征。
 
-NOTE: The resources attached to the outer transaction will remain bound there while
-the inner transaction acquires its own resources such as a new database connection.
-This may lead to exhaustion of the connection pool and potentially to a deadlock if
-several threads have an active outer transaction and wait to acquire a new connection
-for their inner transaction, with the pool not being able to hand out any such inner
-connection anymore. Do not use `PROPAGATION_REQUIRES_NEW` unless your connection pool
-is appropriately sized, exceeding the number of concurrent threads by at least 1.
+NOTE: 附加到外部事务的资源将保持绑定在那里，而内部事务获取其自己的资源，例如新的数据库连接。这可能导致连接池耗尽，如果多个线程具有活动的外部事务并等待获取其内部事务的新连接，并且池无法再分发任何此类内部连接，则可能导致死锁。除非您的连接池大小适当，超过并发线程数至少 1，否则请勿使用 `PROPAGATION_REQUIRES_NEW`。
 
 [[tx-propagation-nested]]
-== Understanding `PROPAGATION_NESTED`
+== 理解 `PROPAGATION_NESTED`
 
-`PROPAGATION_NESTED` uses a single physical transaction with multiple savepoints
-that it can roll back to. Such partial rollbacks let an inner transaction scope
-trigger a rollback for its scope, with the outer transaction being able to continue
-the physical transaction despite some operations having been rolled back. This setting
-is typically mapped onto JDBC savepoints, so it works only with JDBC resource
-transactions. See Infra {today-framework-api}/jdbc/datasource/DataSourceTransactionManager.html[`DataSourceTransactionManager`].
-
-
+`PROPAGATION_NESTED` 使用具有多个保存点的单个物理事务，它可以回滚到这些保存点。这种部分回滚允许内部事务范围触发其范围的回滚，尽管某些操作已回滚，但外部事务仍能够继续物理事务。此设置通常映射到 JDBC 保存点，因此它仅适用于 JDBC 资源事务。请参阅 Infra {today-framework-api}/jdbc/datasource/DataSourceTransactionManager.html[`DataSourceTransactionManager`]。

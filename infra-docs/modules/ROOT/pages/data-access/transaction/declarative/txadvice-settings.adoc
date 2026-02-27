@@ -1,63 +1,53 @@
 [[transaction-declarative-txadvice-settings]]
-= <tx:advice/> Settings
+= <tx:advice/> 设置
 
-This section summarizes the various transactional settings that you can specify by using
-the `<tx:advice/>` tag. The default `<tx:advice/>` settings are:
+本节总结了可以使用 `<tx:advice/>` 标签指定的各种事务设置。默认的 `<tx:advice/>` 设置为：
 
-* The xref:data-access/transaction/declarative/tx-propagation.adoc[propagation setting] is `REQUIRED.`
-* The isolation level is `DEFAULT.`
-* The transaction is read-write.
-* The transaction timeout defaults to the default timeout of the underlying transaction
-  system or none if timeouts are not supported.
-* Any `RuntimeException` triggers rollback, and any checked `Exception` does not.
+* xref:data-access/transaction/declarative/tx-propagation.adoc[传播设置] 为 `REQUIRED`。
+* 隔离级别为 `DEFAULT`。
+* 事务是读写的。
+* 事务超时默认为底层事务系统的默认超时，如果不支持超时，则为无。
+* 任何 `RuntimeException` 都会触发回滚，而任何检查 `Exception` 则不会。
 
-You can change these default settings. The following table summarizes the various attributes of the `<tx:method/>` tags
-that are nested within `<tx:advice/>` and `<tx:attributes/>` tags:
+您可以更改这些默认设置。下表总结了嵌套在 `<tx:advice/>` 和 `<tx:attributes/>` 标签中的 `<tx:method/>` 标签的各种属性：
 
 [[tx-method-settings]]
-.<tx:method/> settings
+.<tx:method/> 设置
 |===
-| Attribute| Required?| Default| Description
+| 属性| 必需？| 默认值| 描述
 
 | `name`
-| Yes
+| 是
 |
-| Method names with which the transaction attributes are to be associated. The
-  wildcard ({asterisk}) character can be used to associate the same transaction attribute
-  settings with a number of methods (for example, `get*`, `handle*`, `on*Event`, and so
-  forth).
+| 事务属性要关联的方法名称。通配符 ({asterisk}) 字符可用于将相同的事务属性设置与许多方法关联（例如，`get*`、`handle*`、`on*Event` 等）。
 
 | `propagation`
-| No
+| 否
 | `REQUIRED`
-| Transaction propagation behavior.
+| 事务传播行为。
 
 | `isolation`
-| No
+| 否
 | `DEFAULT`
-| Transaction isolation level. Only applicable to propagation settings of `REQUIRED` or `REQUIRES_NEW`.
+| 事务隔离级别。仅适用于 `REQUIRED` 或 `REQUIRES_NEW` 的传播设置。
 
 | `timeout`
-| No
+| 否
 | -1
-| Transaction timeout (seconds). Only applicable to propagation `REQUIRED` or `REQUIRES_NEW`.
+| 事务超时（秒）。仅适用于传播 `REQUIRED` 或 `REQUIRES_NEW`。
 
 | `read-only`
-| No
+| 否
 | false
-| Read-write versus read-only transaction. Applies only to `REQUIRED` or `REQUIRES_NEW`.
+| 读写与只读事务。仅适用于 `REQUIRED` 或 `REQUIRES_NEW`。
 
 | `rollback-for`
-| No
+| 否
 |
-| Comma-delimited list of `Exception` instances that trigger rollback. For example,
-  `com.foo.MyBusinessException,ServletException`.
+| 触发回滚的 `Exception` 实例的逗号分隔列表。例如，`com.foo.MyBusinessException,ServletException`。
 
 | `no-rollback-for`
-| No
+| 否
 |
-| Comma-delimited list of `Exception` instances that do not trigger rollback. For example,
-  `com.foo.MyBusinessException,ServletException`.
+| 不触发回滚的 `Exception` 实例的逗号分隔列表。例如，`com.foo.MyBusinessException,ServletException`。
 |===
-
-

@@ -1,14 +1,7 @@
 [[transaction-declarative-first-example]]
-= Example of Declarative Transaction Implementation
+= 声明式事务实现示例
 
-Consider the following interface and its attendant implementation. This example uses
-`Foo` and `Bar` classes as placeholders so that you can concentrate on the transaction
-usage without focusing on a particular domain model. For the purposes of this example,
-the fact that the `DefaultFooService` class throws `UnsupportedOperationException`
-instances in the body of each implemented method is good. That behavior lets you see
-transactions being created and then rolled back in response to the
-`UnsupportedOperationException` instance. The following listing shows the `FooService`
-interface:
+考虑以下接口及其附带的实现。此示例使用 `Foo` 和 `Bar` 类作为占位符，以便您可以专注于事务使用，而无需关注特定的域模型。就本示例而言，`DefaultFooService` 类在每个实现的方法主体中抛出 `UnsupportedOperationException` 实例是件好事。该行为让您看到事务被创建，然后响应 `UnsupportedOperationException` 实例而回滚。以下清单显示了 `FooService` 接口：
 
 [tabs]
 ======
@@ -16,7 +9,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary",chomp="-packages"]
 ----
-// the service interface that we want to make transactional
+// 我们想要使其具有事务性的服务接口
 
 package x.y.service;
 
@@ -35,7 +28,7 @@ public interface FooService {
 
 ======
 
-The following example shows an implementation of the preceding interface:
+以下示例显示了前面接口的实现：
 
 [tabs]
 ======
@@ -71,15 +64,11 @@ public class DefaultFooService implements FooService {
 
 ======
 
-Assume that the first two methods of the `FooService` interface, `getFoo(String)` and
-`getFoo(String, String)`, must run in the context of a transaction with read-only
-semantics and that the other methods, `insertFoo(Foo)` and `updateFoo(Foo)`, must
-run in the context of a transaction with read-write semantics. The following
-configuration is explained in detail in the next few paragraphs:
+假设 `FooService` 接口的前两个方法 `getFoo(String)` 和 `getFoo(String, String)` 必须在具有只读语义的事务上下文中运行，而其他方法 `insertFoo(Foo)` 和 `updateFoo(Foo)` 必须在具有读写语义的事务上下文中运行。以下配置在接下来的几段中详细解释：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
-<!-- from the file 'context.xml' -->
+<!-- 来自文件 'context.xml' -->
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -93,28 +82,27 @@ configuration is explained in detail in the next few paragraphs:
     http://www.springframework.org/schema/aop
     https://www.springframework.org/schema/aop/spring-aop.xsd">
 
-  <!-- this is the service object that we want to make transactional -->
+  <!-- 这是我们想要使其具有事务性的服务对象 -->
   <bean id="fooService" class="x.y.service.DefaultFooService"/>
 
-  <!-- the transactional advice (what 'happens'; see the <aop:advisor/> bean below) -->
+  <!-- 事务通知（'发生'什么；参见下面的 <aop:advisor/> bean） -->
   <tx:advice id="txAdvice" transaction-manager="txManager">
-    <!-- the transactional semantics... -->
+    <!-- 事务语义... -->
     <tx:attributes>
-      <!-- all methods starting with 'get' are read-only -->
+      <!-- 所有以 'get' 开头的方法都是只读的 -->
       <tx:method name="get*" read-only="true"/>
-      <!-- other methods use the default transaction settings (see below) -->
+      <!-- 其他方法使用默认事务设置（见下文） -->
       <tx:method name="*"/>
     </tx:attributes>
   </tx:advice>
 
-  <!-- ensure that the above transactional advice runs for any execution
-    of an operation defined by the FooService interface -->
+  <!-- 确保上述事务通知针对 FooService 接口定义的任何操作执行运行 -->
   <aop:config>
     <aop:pointcut id="fooServiceOperation" expression="execution(* x.y.service.FooService.*(..))"/>
     <aop:advisor advice-ref="txAdvice" pointcut-ref="fooServiceOperation"/>
   </aop:config>
 
-  <!-- don't forget the DataSource -->
+  <!-- 别忘了 DataSource -->
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
     <property name="url" value="jdbc:oracle:thin:@rj-t42:1521:elvis"/>
@@ -122,45 +110,25 @@ configuration is explained in detail in the next few paragraphs:
     <property name="password" value="tiger"/>
   </bean>
 
-  <!-- similarly, don't forget the TransactionManager -->
+  <!-- 同样，别忘了 TransactionManager -->
   <bean id="txManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-  <!-- other <bean/> definitions here -->
+  <!-- 其他 <bean/> 定义在这里 -->
 
 </beans>
 ----
 
-Examine the preceding configuration. It assumes that you want to make a service object,
-the `fooService` bean, transactional. The transaction semantics to apply are encapsulated
-in the `<tx:advice/>` definition. The `<tx:advice/>` definition reads as "all methods
-starting with `get` are to run in the context of a read-only transaction, and all
-other methods are to run with the default transaction semantics". The
-`transaction-manager` attribute of the `<tx:advice/>` tag is set to the name of the
-`TransactionManager` bean that is going to drive the transactions (in this case, the
-`txManager` bean).
+检查前面的配置。它假设您想使服务对象 `fooService` bean 具有事务性。要应用的事务语义封装在 `<tx:advice/>` 定义中。`<tx:advice/>` 定义读作“所有以 `get` 开头的方法都在只读事务的上下文中运行，所有其他方法都以默认事务语义运行”。`<tx:advice/>` 标签的 `transaction-manager` 属性设置为将驱动事务的 `TransactionManager` bean 的名称（在本例中为 `txManager` bean）。
 
-TIP: You can omit the `transaction-manager` attribute in the transactional advice
-(`<tx:advice/>`) if the bean name of the `TransactionManager` that you want to
-wire in has the name `transactionManager`. If the `TransactionManager` bean that
-you want to wire in has any other name, you must use the `transaction-manager`
-attribute explicitly, as in the preceding example.
+TIP: 如果您要连接的 `TransactionManager` 的 bean 名称为 `transactionManager`，则可以省略事务通知 (`<tx:advice/>`) 中的 `transaction-manager` 属性。如果您要连接的 `TransactionManager` bean 具有任何其他名称，则必须显式使用 `transaction-manager` 属性，如前面的示例所示。
 
-The `<aop:config/>` definition ensures that the transactional advice defined by the
-`txAdvice` bean runs at the appropriate points in the program. First, you define a
-pointcut that matches the execution of any operation defined in the `FooService` interface
-(`fooServiceOperation`). Then you associate the pointcut with the `txAdvice` by using an
-advisor. The result indicates that, at the execution of a `fooServiceOperation`,
-the advice defined by `txAdvice` is run.
+`<aop:config/>` 定义确保由 `txAdvice` bean 定义的事务通知在程序中的适当点运行。首先，您定义一个切入点，该切入点匹配 `FooService` 接口中定义的任何操作的执行（`fooServiceOperation`）。然后，您使用 advisor 将切入点与 `txAdvice` 关联起来。结果表明，在执行 `fooServiceOperation` 时，将运行 `txAdvice` 定义的通知。
 
-The expression defined within the `<aop:pointcut/>` element is an AspectJ pointcut
-expression. See xref:core/aop.adoc[the AOP section] for more details on pointcut
-expressions in Infra.
+`<aop:pointcut/>` 元素中定义的表达式是 AspectJ 切入点表达式。有关 Infra 中切入点表达式的更多详细信息，请参阅 xref:core/aop.adoc[AOP 部分]。
 
-A common requirement is to make an entire service layer transactional. The best way to
-do this is to change the pointcut expression to match any operation in your
-service layer. The following example shows how to do so:
+一个常见的要求是使整个服务层具有事务性。执行此操作的最佳方法是更改切入点表达式以匹配服务层中的任何操作。以下示例显示了如何执行此操作：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -170,18 +138,11 @@ service layer. The following example shows how to do so:
 </aop:config>
 ----
 
-NOTE: In the preceding example, it is assumed that all your service interfaces are defined
-in the `x.y.service` package. See xref:core/aop.adoc[the AOP section] for more details.
+NOTE: 在前面的示例中，假设您的所有服务接口都在 `x.y.service` 包中定义。有关更多详细信息，请参阅 xref:core/aop.adoc[AOP 部分]。
 
-Now that we have analyzed the configuration, you may be asking yourself,
-"What does all this configuration actually do?"
+既然我们已经分析了配置，您可能会问自己，“所有这些配置实际上做了什么？”
 
-The configuration shown earlier is used to create a transactional proxy around the object
-that is created from the `fooService` bean definition. The proxy is configured with
-the transactional advice so that, when an appropriate method is invoked on the proxy,
-a transaction is started, suspended, marked as read-only, and so on, depending on the
-transaction configuration associated with that method. Consider the following program
-that test drives the configuration shown earlier:
+前面显示的配置用于围绕从 `fooService` bean 定义创建的对象创建事务代理。代理配置了事务通知，以便在代理上调用适当的方法时，根据与该方法关联的事务配置，启动、挂起、标记为只读等事务。考虑以下测试驱动前面显示的配置的程序：
 
 [tabs]
 ======
@@ -198,132 +159,3 @@ public final class Boot {
   }
 }
 ----
-
-======
-
-The output from running the preceding program should resemble the following (the Log4J
-output and the stack trace from the `UnsupportedOperationException` thrown by the
-`insertFoo(..)` method of the `DefaultFooService` class have been truncated for clarity):
-
-[source,logging,indent=0,subs="verbatim,quotes"]
-----
-	<!-- the Infra container is starting up... -->
-	[AspectJInvocationContextExposingAdvisorAutoProxyCreator] - Creating implicit proxy for bean 'fooService' with 0 common interceptors and 1 specific interceptors
-
-	<!-- the DefaultFooService is actually proxied -->
-	[JdkDynamicAopProxy] - Creating JDK dynamic proxy for [x.y.service.DefaultFooService]
-
-	<!-- ... the insertFoo(..) method is now being invoked on the proxy -->
-	[TransactionInterceptor] - Getting transaction for x.y.service.FooService.insertFoo
-
-	<!-- the transactional advice kicks in here... -->
-	[DataSourceTransactionManager] - Creating new transaction with name [x.y.service.FooService.insertFoo]
-	[DataSourceTransactionManager] - Acquired Connection [org.apache.commons.dbcp.PoolableConnection@a53de4] for JDBC transaction
-
-	<!-- the insertFoo(..) method from DefaultFooService throws an exception... -->
-	[RuleBasedTransactionAttribute] - Applying rules to determine whether transaction should rollback on java.lang.UnsupportedOperationException
-	[TransactionInterceptor] - Invoking rollback for transaction on x.y.service.FooService.insertFoo due to throwable [java.lang.UnsupportedOperationException]
-
-	<!-- and the transaction is rolled back (by default, RuntimeException instances cause rollback) -->
-	[DataSourceTransactionManager] - Rolling back JDBC transaction on Connection [org.apache.commons.dbcp.PoolableConnection@a53de4]
-	[DataSourceTransactionManager] - Releasing JDBC Connection after transaction
-	[DataSourceUtils] - Returning JDBC Connection to DataSource
-
-	Exception in thread "main" java.lang.UnsupportedOperationException at x.y.service.DefaultFooService.insertFoo(DefaultFooService.java:14)
-	<!-- AOP infrastructure stack trace elements removed for clarity -->
-	at $Proxy0.insertFoo(Unknown Source)
-	at Boot.main(Boot.java:11)
-----
-
-To use reactive transaction management the code has to use reactive types.
-
-NOTE: TODAY Framework uses the `ReactiveAdapterRegistry` to determine whether a method
-return type is reactive.
-
-The following listing shows a modified version of the previously used `FooService`, but
-this time the code uses reactive types:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary",chomp="-packages"]
-----
-// the reactive service interface that we want to make transactional
-
-package x.y.service;
-
-public interface FooService {
-
-  Flux<Foo> getFoo(String fooName);
-
-  Publisher<Foo> getFoo(String fooName, String barName);
-
-  Mono<Void> insertFoo(Foo foo);
-
-  Mono<Void> updateFoo(Foo foo);
-
-}
-----
-
-======
-
-The following example shows an implementation of the preceding interface:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary",chomp="-packages"]
-----
-package x.y.service;
-
-public class DefaultFooService implements FooService {
-
-  @Override
-  public Flux<Foo> getFoo(String fooName) {
-    // ...
-  }
-
-  @Override
-  public Publisher<Foo> getFoo(String fooName, String barName) {
-    // ...
-  }
-
-  @Override
-  public Mono<Void> insertFoo(Foo foo) {
-    // ...
-  }
-
-  @Override
-  public Mono<Void> updateFoo(Foo foo) {
-    // ...
-  }
-}
-----
-
-======
-
-Imperative and reactive transaction management share the same semantics for transaction
-boundary and transaction attribute definitions. The main difference between imperative
-and reactive transactions is the deferred nature of the latter. `TransactionInterceptor`
-decorates the returned reactive type with a transactional operator to begin and clean up
-the transaction. Therefore, calling a transactional reactive method defers the actual
-transaction management to a subscription type that activates processing of the reactive
-type.
-
-Another aspect of reactive transaction management relates to data escaping which is a
-natural consequence of the programming model.
-
-Method return values of imperative transactions are returned from transactional methods
-upon successful termination of a method so that partially computed results do not escape
-the method closure.
-
-Reactive transaction methods return a reactive wrapper type which represents a
-computation sequence along with a promise to begin and complete the computation.
-
-A `Publisher` can emit data while a transaction is ongoing but not necessarily completed.
-Therefore, methods that depend upon successful completion of an entire transaction need
-to ensure completion and buffer results in the calling code.
-
-

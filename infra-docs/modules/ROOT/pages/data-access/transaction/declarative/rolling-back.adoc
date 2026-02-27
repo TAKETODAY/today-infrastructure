@@ -1,78 +1,35 @@
 [[transaction-declarative-rolling-back]]
-= Rolling Back a Declarative Transaction
+= 回滚声明式事务
 
-The previous section outlined the basics of how to specify transactional settings for
-classes, typically service layer classes, declaratively in your application. This section
-describes how you can control the rollback of transactions in a simple, declarative
-fashion in XML configuration. For details on controlling rollback semantics declaratively
-with the `@Transactional` annotation, see
-xref:data-access/transaction/declarative/annotations.adoc#transaction-declarative-attransactional-settings[`@Transactional` Settings].
+上一节概述了如何在应用程序中以声明方式为类（通常是服务层类）指定事务设置的基础知识。本节描述如何以 XML 配置中简单、声明式的方式控制事务的回滚。有关使用 `@Transactional` 注解以声明方式控制回滚语义的详细信息，请参阅 xref:data-access/transaction/declarative/annotations.adoc#transaction-declarative-attransactional-settings[`@Transactional` 设置]。
 
-The recommended way to indicate to the TODAY Framework's transaction infrastructure
-that a transaction's work is to be rolled back is to throw an `Exception` from code that
-is currently executing in the context of a transaction. The TODAY Framework's
-transaction infrastructure code catches any unhandled `Exception` as it bubbles up
-the call stack and makes a determination whether to mark the transaction for rollback.
+向 TODAY Framework 的事务基础设施指示事务工作要回滚的推荐方法是从当前在事务上下文中执行的代码中抛出 `Exception`。TODAY Framework 的事务基础设施代码会捕获任何未处理的 `Exception`，因为它会冒泡调用堆栈，并确定是否将事务标记为回滚。
 
-In its default configuration, the TODAY Framework's transaction infrastructure code
-marks a transaction for rollback only in the case of runtime, unchecked exceptions.
-That is, when the thrown exception is an instance or subclass of `RuntimeException`.
-(`Error` instances also, by default, result in a rollback).
+在其默认配置中，TODAY Framework 的事务基础设施代码仅在运行时、未检查异常的情况下将事务标记为回滚。也就是说，当抛出的异常是 `RuntimeException` 的实例或子类时。（默认情况下，`Error` 实例也会导致回滚）。
 
-Checked exceptions that are thrown from a transactional method do not result in a rollback
-in the default configuration. You can configure exactly which `Exception` types mark a
-transaction for rollback, including checked exceptions by specifying _rollback rules_.
+从事务方法抛出的检查异常在默认配置中不会导致回滚。您可以通过指定 _回滚规则_ 来确切配置哪些 `Exception` 类型将事务标记为回滚，包括检查异常。
 
-.Rollback rules
+.回滚规则
 [[transaction-declarative-rollback-rules]]
 [NOTE]
 ====
-Rollback rules determine if a transaction should be rolled back when a given exception is
-thrown, and the rules are based on exception types or exception patterns.
+回滚规则确定当抛出给定异常时是否应回滚事务，规则基于异常类型或异常模式。
 
-Rollback rules may be configured in XML via the `rollback-for` and `no-rollback-for`
-attributes, which allow rules to be defined as patterns. When using
-xref:data-access/transaction/declarative/annotations.adoc#transaction-declarative-attransactional-settings[`@Transactional`], rollback rules may
-be configured via the `rollbackFor`/`noRollbackFor` and
-`rollbackForClassName`/`noRollbackForClassName` attributes, which allow rules to be
-defined based on exception types or patterns, respectively.
+回滚规则可以通过 `rollback-for` 和 `no-rollback-for` 属性在 XML 中配置，这允许将规则定义为模式。当使用 xref:data-access/transaction/declarative/annotations.adoc#transaction-declarative-attransactional-settings[`@Transactional`] 时，可以通过 `rollbackFor`/`noRollbackFor` 和 `rollbackForClassName`/`noRollbackForClassName` 属性配置回滚规则，这分别允许基于异常类型或模式定义规则。
 
-When a rollback rule is defined with an exception type, that type will be used to match
-against the type of a thrown exception and its super types, providing type safety and
-avoiding any unintentional matches that may occur when using a pattern. For example, a
-value of `jakarta.mockApi.ServletException.class` will only match thrown exceptions of
-type `jakarta.mockApi.ServletException` and its subclasses.
+当使用异常类型定义回滚规则时，该类型将用于匹配抛出的异常及其超类型的类型，从而提供类型安全性并避免在使用模式时可能发生的任何意外匹配。例如，`jakarta.mockApi.ServletException.class` 的值将仅匹配 `jakarta.mockApi.ServletException` 及其子类型的抛出异常。
 
-When a rollback rule is defined with an exception pattern, the pattern can be a fully
-qualified class name or a substring of a fully qualified class name for an exception type
-(which must be a subclass of `Throwable`), with no wildcard support at present. For
-example, a value of `"jakarta.mockApi.ServletException"` or `"ServletException"` will
-match `jakarta.mockApi.ServletException` and its subclasses.
+当使用异常模式定义回滚规则时，模式可以是完全限定的类名或异常类型（必须是 `Throwable` 的子类）的完全限定类名的子字符串，目前不支持通配符。例如，`"jakarta.mockApi.ServletException"` 或 `"ServletException"` 的值将匹配 `jakarta.mockApi.ServletException` 及其子类。
 
 [WARNING]
 =====
-You must carefully consider how specific a pattern is and whether to include package
-information (which isn't mandatory). For example, `"Exception"` will match nearly
-anything and will probably hide other rules. `"java.lang.Exception"` would be correct if
-`"Exception"` were meant to define a rule for all checked exceptions. With more unique
-exception names such as `"BaseBusinessException"` there is likely no need to use the
-fully qualified class name for the exception pattern.
+您必须仔细考虑模式的具体程度以及是否包含包信息（这不是强制性的）。例如，`"Exception"` 将匹配几乎任何内容，并且可能会隐藏其他规则。如果 `"Exception"` 旨在为所有检查异常定义规则，则 `"java.lang.Exception"` 将是正确的。对于更独特的异常名称，例如 `"BaseBusinessException"`，可能不需要对异常模式使用完全限定的类名。
 
-Furthermore, pattern-based rollback rules may result in unintentional matches for
-similarly named exceptions and nested classes. This is due to the fact that a thrown
-exception is considered to be a match for a given pattern-based rollback rule if the name
-of the thrown exception contains the exception pattern configured for the rollback rule.
-For example, given a rule configured to match on `"com.example.CustomException"`, that
-rule will match against an exception named `com.example.CustomExceptionV2` (an exception
-in the same package as `CustomException` but with an additional suffix) or an exception
-named `com.example.CustomException$AnotherException` (an exception declared as a nested
-class in `CustomException`).
+此外，基于模式的回滚规则可能会导致名称相似的异常和嵌套类的意外匹配。这是因为如果抛出的异常的名称包含为回滚规则配置的异常模式，则认为抛出的异常与给定的基于模式的回滚规则匹配。例如，给定配置为匹配 `"com.example.CustomException"` 的规则，该规则将匹配名为 `com.example.CustomExceptionV2` 的异常（与 `CustomException` 在同一包中但具有附加后缀的异常）或名为 `com.example.CustomException$AnotherException` 的异常（在 `CustomException` 中声明为嵌套类的异常）。
 =====
 ====
 
-The following XML snippet demonstrates how to configure rollback for a checked,
-application-specific `Exception` type by supplying an _exception pattern_ via the
-`rollback-for` attribute:
+以下 XML 代码片段演示了如何通过 `rollback-for` 属性提供 _异常模式_ 来为已检查的、特定于应用程序的 `Exception` 类型配置回滚：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -84,10 +41,7 @@ application-specific `Exception` type by supplying an _exception pattern_ via th
 </tx:advice>
 ----
 
-If you do not want a transaction rolled back when an exception is thrown, you can also
-specify 'no rollback' rules. The following example tells the TODAY Framework's
-transaction infrastructure to commit the attendant transaction even in the face of an
-unhandled `InstrumentNotFoundException`:
+如果您不希望在抛出异常时回滚事务，您还可以指定“不回滚”规则。以下示例告诉 TODAY Framework 的事务基础设施即使面对未处理的 `InstrumentNotFoundException` 也要提交伴随的事务：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -99,11 +53,7 @@ unhandled `InstrumentNotFoundException`:
 </tx:advice>
 ----
 
-When the TODAY Framework's transaction infrastructure catches an exception and consults
-the configured rollback rules to determine whether to mark the transaction for rollback,
-the strongest matching rule wins. So, in the case of the following configuration, any
-exception other than an `InstrumentNotFoundException` results in a rollback of the
-attendant transaction:
+当 TODAY Framework 的事务基础设施捕获异常并咨询配置的回滚规则以确定是否将事务标记为回滚时，最强的匹配规则获胜。因此，在以下配置的情况下，除 `InstrumentNotFoundException` 之外的任何异常都会导致伴随事务的回滚：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -114,10 +64,7 @@ attendant transaction:
 </tx:advice>
 ----
 
-You can also indicate a required rollback programmatically. Although simple, this process
-is quite invasive and tightly couples your code to the TODAY Framework's transaction
-infrastructure. The following example shows how to programmatically indicate a required
-rollback:
+您还可以以编程方式指示所需的回滚。虽然很简单，但此过程具有很强的侵入性，并且将您的代码紧密耦合到 TODAY Framework 的事务基础设施。以下示例显示了如何以编程方式指示所需的回滚：
 
 [tabs]
 ======
@@ -127,9 +74,9 @@ Java::
 ----
 public void resolvePosition() {
   try {
-    // some business logic...
+    // 一些业务逻辑...
   } catch (NoProductInStockException ex) {
-    // trigger rollback programmatically
+    // 以编程方式触发回滚
     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
   }
 }
@@ -137,8 +84,4 @@ public void resolvePosition() {
 
 ======
 
-You are strongly encouraged to use the declarative approach to rollback, if at all
-possible. Programmatic rollback is available should you absolutely need it, but its
-usage flies in the face of achieving a clean POJO-based architecture.
-
-
+强烈建议您尽可能使用声明式方法进行回滚。如果您绝对需要，可以使用编程式回滚，但它的使用与实现干净的基于 POJO 的架构背道而驰。

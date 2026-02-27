@@ -1,8 +1,5 @@
 [[orm]]
-= Object Relational Mapping (ORM) Data Access
+= 对象关系映射 (ORM) 数据访问
 :page-section-summary-toc: 1
 
-This section covers data access when you use Object Relational Mapping (ORM).
-
-
-
+本节涵盖了使用对象关系映射 (ORM) 时的数据访问。

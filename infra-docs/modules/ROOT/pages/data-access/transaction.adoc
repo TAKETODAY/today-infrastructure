@@ -1,37 +1,20 @@
 [[transaction]]
-= Transaction Management
+= 事务管理
 
-Comprehensive transaction support is among the most compelling reasons to use the Infra
-Framework. The TODAY Framework provides a consistent abstraction for transaction
-management that delivers the following benefits:
+全面的事务支持是使用 Infra Framework 的最令人信服的理由之一。TODAY Framework 为事务管理提供了一致的抽象，具有以下优点：
 
-* A consistent programming model across different transaction APIs, such as Java
-  Transaction API (JTA), JDBC, Hibernate, and the Java Persistence API (JPA).
-* Support for xref:data-access/transaction/declarative.adoc[declarative transaction management].
-* A simpler API for xref:data-access/transaction/programmatic.adoc[programmatic] transaction management
-  than complex transaction APIs, such as JTA.
-* Excellent integration with Infra data access abstractions.
+* 跨不同事务 API（如 Java Transaction API (JTA)、JDBC、Hibernate 和 Java Persistence API (JPA)）的一致编程模型。
+* 支持 xref:data-access/transaction/declarative.adoc[声明式事务管理]。
+* 比复杂的事务 API（如 JTA）更简单的 xref:data-access/transaction/programmatic.adoc[编程式] 事务管理 API。
+* 与 Infra 数据访问抽象的绝佳集成。
 
-The following sections describe the TODAY Framework's transaction features and technologies:
+以下部分描述了 TODAY Framework 的事务功能和技术：
 
-* xref:data-access/transaction/motivation.adoc[Advantages of the TODAY Framework's transaction support model]
-  describes why you would use the TODAY Framework's transaction abstraction instead of EJB
-  Container-Managed Transactions (CMT) or choosing to drive transactions through a proprietary API.
-* xref:data-access/transaction/strategies.adoc[Understanding the TODAY Framework transaction abstraction]
-  outlines the core classes and describes how to configure and obtain `DataSource` instances
-  from a variety of sources.
-* xref:data-access/transaction/tx-resource-synchronization.adoc[Synchronizing resources with transactions]
-  describes how the application code ensures that resources are created, reused, and cleaned up properly.
-* xref:data-access/transaction/declarative.adoc[Declarative transaction management] describes support for
-  declarative transaction management.
-* xref:data-access/transaction/programmatic.adoc[Programmatic transaction management] covers support for
-  programmatic (that is, explicitly coded) transaction management.
-* xref:data-access/transaction/event.adoc[Transaction bound event] describes how you could use application
-  events within a transaction.
+* xref:data-access/transaction/motivation.adoc[TODAY Framework 事务支持模型的优势] 描述了为什么要使用 TODAY Framework 的事务抽象而不是 EJB 容器管理事务 (CMT) 或选择通过专有 API 驱动事务。
+* xref:data-access/transaction/strategies.adoc[理解 TODAY Framework 事务抽象] 概述了核心类，并描述了如何配置和从各种来源获取 `DataSource` 实例。
+* xref:data-access/transaction/tx-resource-synchronization.adoc[将资源与事务同步] 描述了应用程序代码如何确保资源被正确创建、重用和清理。
+* xref:data-access/transaction/declarative.adoc[声明式事务管理] 描述了对声明式事务管理的支持。
+* xref:data-access/transaction/programmatic.adoc[编程式事务管理] 涵盖了对编程式（即显式编码）事务管理的支持。
+* xref:data-access/transaction/event.adoc[事务绑定事件] 描述了如何在事务中使用应用程序事件。
 
-The chapter also includes discussions of best practices,
-xref:data-access/transaction/application-server-integration.adoc[application server integration],
-and xref:data-access/transaction/solutions-to-common-problems.adoc[solutions to common problems].
-
-
-
+本章还包括关于最佳实践、xref:data-access/transaction/application-server-integration.adoc[应用服务器集成] 和 xref:data-access/transaction/solutions-to-common-problems.adoc[常见问题解决方案] 的讨论。

@@ -1,19 +1,6 @@
 [[transaction-application-server-integration]]
-= Application server-specific integration
+= 应用服务器特定集成
 
-Infra transaction abstraction is generally application server-agnostic. Additionally,
-Infra `JtaTransactionManager` class (which can optionally perform a JNDI lookup for
-the JTA `UserTransaction` and `TransactionManager` objects) autodetects the location for
-the latter object, which varies by application server. Having access to the JTA
-`TransactionManager` allows for enhanced transaction semantics -- in particular,
-supporting transaction suspension. See the
-{today-framework-api}/transaction/jta/JtaTransactionManager.html[`JtaTransactionManager`]
-javadoc for details.
+Infra 事务抽象通常与应用服务器无关。此外，Infra `JtaTransactionManager` 类（可以选择执行 JNDI 查找以获取 JTA `UserTransaction` 和 `TransactionManager` 对象）会自动检测后者的位置，该位置因应用服务器而异。访问 JTA `TransactionManager` 允许增强事务语义——特别是支持事务挂起。有关详细信息，请参阅 {today-framework-api}/transaction/jta/JtaTransactionManager.html[`JtaTransactionManager`] javadoc。
 
-Infra `JtaTransactionManager` is the standard choice to run on Jakarta EE application
-servers and is known to work on all common servers. Advanced functionality, such as
-transaction suspension, works on many servers as well (including GlassFish, JBoss and
-Geronimo) without any special configuration required.
-
-
-
+Infra `JtaTransactionManager` 是在 Jakarta EE 应用服务器上运行的标准选择，并且已知可在所有常见服务器上运行。高级功能（例如事务挂起）也可以在许多服务器上运行（包括 GlassFish、JBoss 和 Geronimo），无需任何特殊配置。

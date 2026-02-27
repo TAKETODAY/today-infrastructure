@@ -1,37 +1,12 @@
 [[jdbc-packages]]
-= Package Hierarchy
+= 包层次结构
 
-The TODAY Framework's JDBC abstraction framework consists of four different packages:
+TODAY Framework 的 JDBC 抽象框架由四个不同的包组成：
 
-* `core`: The `infra.jdbc.core` package contains the `JdbcTemplate` class
-and its various callback interfaces, plus a variety of related classes. A subpackage
-named `infra.jdbc.core.simple` contains the `SimpleJdbcInsert` and
-`SimpleJdbcCall` classes. Another subpackage named
-`infra.jdbc.core.namedparam` contains the `NamedParameterJdbcTemplate`
-class and the related support classes. See xref:data-access/jdbc/core.adoc[Using the JDBC Core Classes to Control Basic JDBC Processing and Error Handling], xref:data-access/jdbc/advanced.adoc[JDBC Batch Operations], and
-xref:data-access/jdbc/simple.adoc[Simplifying JDBC Operations with the `SimpleJdbc` Classes].
+* `core`: `infra.jdbc.core` 包包含 `JdbcTemplate` 类及其各种回调接口，以及各种相关类。名为 `infra.jdbc.core.simple` 的子包包含 `SimpleJdbcInsert` 和 `SimpleJdbcCall` 类。另一个名为 `infra.jdbc.core.namedparam` 的子包包含 `NamedParameterJdbcTemplate` 类和相关的支持类。请参阅 xref:data-access/jdbc/core.adoc[使用 JDBC 核心类控制基本 JDBC 处理和错误处理]、xref:data-access/jdbc/advanced.adoc[JDBC 批量操作] 和 xref:data-access/jdbc/simple.adoc[使用 `SimpleJdbc` 类简化 JDBC 操作]。
 
-* `datasource`: The `infra.jdbc.datasource` package contains a utility class
-for easy `DataSource` access and various simple `DataSource` implementations that you can
-use for testing and running unmodified JDBC code outside of a Jakarta EE container. A subpackage
-named `infra.jdbc.datasource.embedded` provides support for creating
-embedded databases by using Java database engines, such as HSQL, H2, and Derby. See
-xref:data-access/jdbc/connections.adoc[Controlling Database Connections] and xref:data-access/jdbc/embedded-database-support.adoc[Embedded Database Support].
+* `datasource`: `infra.jdbc.datasource` 包包含用于轻松访问 `DataSource` 的实用程序类，以及可用于在 Jakarta EE 容器之外测试和运行未修改的 JDBC 代码的各种简单 `DataSource` 实现。名为 `infra.jdbc.datasource.embedded` 的子包提供了对使用 Java 数据库引擎（如 HSQL、H2 和 Derby）创建嵌入式数据库的支持。请参阅 xref:data-access/jdbc/connections.adoc[控制数据库连接] 和 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持]。
 
-* `object`: The `infra.jdbc.object` package contains classes that represent
-RDBMS queries, updates, and stored procedures as thread-safe, reusable objects. See
-xref:data-access/jdbc/object.adoc[Modeling JDBC Operations as Java Objects]. This style
-results in a more object-oriented approach, although objects returned by queries are
-naturally disconnected from the database. This higher-level of JDBC abstraction depends
-on the lower-level abstraction in the `infra.jdbc.core` package.
+* `object`: `infra.jdbc.object` 包包含将 RDBMS 查询、更新和存储过程表示为线程安全、可重用对象的类。请参阅 xref:data-access/jdbc/object.adoc[将 JDBC 操作建模为 Java 对象]。这种风格产生了一种更面向对象的方法，尽管查询返回的对象自然与数据库断开连接。这种更高级别的 JDBC 抽象依赖于 `infra.jdbc.core` 包中的低级别抽象。
 
-* `support`: The `infra.jdbc.support` package provides `SQLException`
-translation functionality and some utility classes. Exceptions thrown during JDBC processing
-are translated to exceptions defined in the `infra.dao` package. This means
-that code using the Infra JDBC abstraction layer does not need to implement JDBC or
-RDBMS-specific error handling. All translated exceptions are unchecked, which gives you
-the option of catching the exceptions from which you can recover while letting other
-exceptions be propagated to the caller. See xref:data-access/jdbc/core.adoc#jdbc-SQLExceptionTranslator[Using `SQLExceptionTranslator`].
-
-
-
+* `support`: `infra.jdbc.support` 包提供 `SQLException` 转换功能和一些实用程序类。JDBC 处理期间抛出的异常将转换为 `infra.dao` 包中定义的异常。这意味着使用 Infra JDBC 抽象层的代码不需要实现 JDBC 或 RDBMS 特定的错误处理。所有转换后的异常都是未检查的，这使您可以选择捕获可以恢复的异常，同时让其他异常传播到调用者。请参阅 xref:data-access/jdbc/core.adoc#jdbc-SQLExceptionTranslator[使用 `SQLExceptionTranslator`]。

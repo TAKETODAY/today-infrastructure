@@ -1,22 +1,19 @@
 [[transaction-declarative-applying-more-than-just-tx-advice]]
-= Advising Transactional Operations
+= 通知的事务操作
 
-Suppose you want to run both transactional operations and some basic profiling advice.
-How do you effect this in the context of `<tx:annotation-driven/>`?
+假设您想运行事务操作和一些基本的性能分析通知。如何在 `<tx:annotation-driven/>` 的上下文中实现这一点？
 
-When you invoke the `updateFoo(Foo)` method, you want to see the following actions:
+当您调用 `updateFoo(Foo)` 方法时，您希望看到以下操作：
 
-* The configured profiling aspect starts.
-* The transactional advice runs.
-* The method on the advised object runs.
-* The transaction commits.
-* The profiling aspect reports the exact duration of the whole transactional method invocation.
+* 配置的性能分析切面启动。
+* 事务通知运行。
+* 被通知对象上的方法运行。
+* 事务提交。
+* 性能分析切面报告整个事务方法调用的确切持续时间。
 
-NOTE: This chapter is not concerned with explaining AOP in any great detail (except as it
-applies to transactions). See xref:core/aop.adoc[AOP] for detailed coverage of the AOP
-configuration and AOP in general.
+NOTE: 本章不打算非常详细地解释 AOP（除了它适用于事务）。有关 AOP 配置和一般 AOP 的详细介绍，请参阅 xref:core/aop.adoc[AOP]。
 
-The following code shows the simple profiling aspect discussed earlier:
+以下代码显示了前面讨论的简单性能分析切面：
 
 [tabs]
 ======
@@ -34,7 +31,7 @@ public class SimpleProfiler implements Ordered {
 
   private int order;
 
-  // allows us to control the ordering of advice
+  // 允许我们要控制通知的顺序
   public int getOrder() {
     return this.order;
   }
@@ -43,7 +40,7 @@ public class SimpleProfiler implements Ordered {
     this.order = order;
   }
 
-  // this method is the around advice
+  // 此方法是环绕通知
   public Object profile(ProceedingJoinPoint call) throws Throwable {
     Object returnValue;
     StopWatch clock = new StopWatch(getClass().getName());
@@ -61,12 +58,9 @@ public class SimpleProfiler implements Ordered {
 
 ======
 
-The ordering of advice
-is controlled through the `Ordered` interface. For full details on advice ordering, see
-xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[Advice ordering].
+通知的顺序通过 `Ordered` 接口控制。有关通知顺序的完整详细信息，请参阅 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[通知顺序]。
 
-The following configuration creates a `fooService` bean that has profiling and
-transactional aspects applied to it in the desired order:
+以下配置创建了一个 `fooService` bean，该 bean按所需顺序应用了性能分析和事务切面：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -85,16 +79,16 @@ transactional aspects applied to it in the desired order:
 
   <bean id="fooService" class="x.y.service.DefaultFooService"/>
 
-  <!-- this is the aspect -->
+  <!-- 这是切面 -->
   <bean id="profiler" class="x.y.SimpleProfiler">
-    <!-- run before the transactional advice (hence the lower order number) -->
+    <!-- 在事务通知之前运行（因此顺序号较低） -->
     <property name="order" value="1"/>
   </bean>
 
   <tx:annotation-driven transaction-manager="txManager" order="200"/>
 
   <aop:config>
-      <!-- this advice runs around the transactional advice -->
+      <!-- 此通知在事务通知周围运行 -->
       <aop:aspect id="profilingAspect" ref="profiler">
         <aop:pointcut id="serviceMethodWithReturnValue"
             expression="execution(!void x.y..*Service.*(..))"/>
@@ -116,11 +110,9 @@ transactional aspects applied to it in the desired order:
 </beans>
 ----
 
-You can configure any number
-of additional aspects in similar fashion.
+您可以以类似的方式配置任意数量的其他切面。
 
-The following example creates the same setup as the previous two examples but uses the purely XML
-declarative approach:
+以下示例创建了与前两个示例相同的设置，但使用了纯 XML 声明式方法：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -139,18 +131,18 @@ declarative approach:
 
   <bean id="fooService" class="x.y.service.DefaultFooService"/>
 
-  <!-- the profiling advice -->
+  <!-- 性能分析通知 -->
   <bean id="profiler" class="x.y.SimpleProfiler">
-    <!-- run before the transactional advice (hence the lower order number) -->
+    <!-- 在事务通知之前运行（因此顺序号较低） -->
     <property name="order" value="1"/>
   </bean>
 
   <aop:config>
     <aop:pointcut id="entryPointMethod" expression="execution(* x.y..*Service.*(..))"/>
-    <!-- runs after the profiling advice (cf. the order attribute) -->
+    <!-- 在性能分析通知之后运行（参见 order 属性） -->
 
     <aop:advisor advice-ref="txAdvice" pointcut-ref="entryPointMethod" order="2"/>
-    <!-- order value is higher than the profiling aspect -->
+    <!-- 顺序值高于性能分析切面 -->
 
     <aop:aspect id="profilingAspect" ref="profiler">
       <aop:pointcut id="serviceMethodWithReturnValue"
@@ -167,18 +159,11 @@ declarative approach:
     </tx:attributes>
   </tx:advice>
 
-  <!-- other <bean/> definitions such as a DataSource and a TransactionManager here -->
+  <!-- 其他 <bean/> 定义，如 DataSource 和 TransactionManager 在这里 -->
 
 </beans>
 ----
 
-The result of the preceding configuration is a `fooService` bean that has profiling and
-transactional aspects applied to it in that order. If you want the profiling advice
-to run after the transactional advice on the way in and before the
-transactional advice on the way out, you can swap the value of the profiling
-aspect bean's `order` property so that it is higher than the transactional advice's
-order value.
+上述配置的结果是一个 `fooService` bean，它按该顺序应用了性能分析和事务切面。如果您希望性能分析通知在进入时在事务通知之后运行，在退出时在事务通知之前运行，您可以交换性能分析切面 bean 的 `order` 属性的值，使其高于事务通知的顺序值。
 
-You can configure additional aspects in similar fashion.
-
-
+您可以以类似的方式配置其他切面。

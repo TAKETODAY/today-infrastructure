@@ -1,20 +1,7 @@
 [[tx-decl-vs-prog]]
-= Choosing Between Programmatic and Declarative Transaction Management
+= 在编程式和声明式事务管理之间进行选择
 :page-section-summary-toc: 1
 
-Programmatic transaction management is usually a good idea only if you have a small
-number of transactional operations. For example, if you have a web application that
-requires transactions only for certain update operations, you may not want to set up
-transactional proxies by using Infra or any other technology. In this case, using the
-`TransactionTemplate` may be a good approach. Being able to set the transaction name
-explicitly is also something that can be done only by using the programmatic approach
-to transaction management.
+仅当您有少量事务操作时，编程式事务管理通常才是一个好主意。例如，如果您有一个仅对某些更新操作需要事务的 Web 应用程序，则可能不想使用 Infra 或任何其他技术设置事务代理。在这种情况下，使用 `TransactionTemplate` 可能是一个好方法。能够显式设置事务名称也是只有使用编程式事务管理方法才能做到的事情。
 
-On the other hand, if your application has numerous transactional operations,
-declarative transaction management is usually worthwhile. It keeps transaction
-management out of business logic and is not difficult to configure. When using the
-TODAY Framework, rather than EJB CMT, the configuration cost of declarative transaction
-management is greatly reduced.
-
-
-
+另一方面，如果您的应用程序有大量事务操作，则声明式事务管理通常是值得的。它将事务管理排除在业务逻辑之外，并且不难配置。当使用 TODAY Framework 而不是 EJB CMT 时，声明式事务管理的配置成本大大降低。

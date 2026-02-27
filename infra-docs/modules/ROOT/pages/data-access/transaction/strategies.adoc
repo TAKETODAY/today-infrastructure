@@ -1,13 +1,7 @@
 [[transaction-strategies]]
-= Understanding the TODAY Framework Transaction Abstraction
+= 理解 TODAY Framework 事务抽象
 
-The key to the Infra transaction abstraction is the notion of a transaction strategy. A
-transaction strategy is defined by a `TransactionManager`, specifically the
-`infra.transaction.PlatformTransactionManager` interface for imperative
-transaction management and the
-`infra.transaction.ReactiveTransactionManager` interface for reactive
-transaction management. The following listing shows the definition of the
-`PlatformTransactionManager` API:
+Infra 事务抽象的关键是事务策略的概念。事务策略由 `TransactionManager` 定义，具体来说，用于命令式事务管理的 `infra.transaction.PlatformTransactionManager` 接口和用于响应式事务管理的 `infra.transaction.ReactiveTransactionManager` 接口。以下清单显示了 `PlatformTransactionManager` API 的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -21,34 +15,13 @@ public interface PlatformTransactionManager extends TransactionManager {
 }
 ----
 
-This is primarily a service provider interface (SPI), although you can use it
-xref:data-access/transaction/programmatic.adoc#transaction-programmatic-ptm[programmatically] from your application code. Because
-`PlatformTransactionManager` is an interface, it can be easily mocked or stubbed as
-necessary. It is not tied to a lookup strategy, such as JNDI.
-`PlatformTransactionManager` implementations are defined like any other object (or bean)
-in the TODAY Framework IoC container. This benefit alone makes TODAY Framework
-transactions a worthwhile abstraction, even when you work with JTA. You can test
-transactional code much more easily than if it used JTA directly.
+这主要是一个服务提供者接口 (SPI)，尽管您可以从应用程序代码中 xref:data-access/transaction/programmatic.adoc#transaction-programmatic-ptm[以编程方式] 使用它。因为 `PlatformTransactionManager` 是一个接口，所以它可以根据需要轻松地进行模拟或存根。它不绑定到查找策略，例如 JNDI。`PlatformTransactionManager` 实现像 TODAY Framework IoC 容器中的任何其他对象（或 bean）一样定义。即使在使用 JTA 时，仅此好处就使 TODAY Framework 事务成为一个值得的抽象。您可以比直接使用 JTA 更容易地测试事务代码。
 
-Again, in keeping with Infra philosophy, the `TransactionException` that can be thrown
-by any of the `PlatformTransactionManager` interface's methods is unchecked (that
-is, it extends the `java.lang.RuntimeException` class). Transaction infrastructure
-failures are almost invariably fatal. In rare cases where application code can actually
-recover from a transaction failure, the application developer can still choose to catch
-and handle `TransactionException`. The salient point is that developers are not
-_forced_ to do so.
+同样，为了保持 Infra 哲学，由 `PlatformTransactionManager` 接口的任何方法抛出的 `TransactionException` 都是未检查的（即，它扩展了 `java.lang.RuntimeException` 类）。事务基础设施故障几乎总是致命的。在极少数情况下，应用程序代码实际上可以从事务故障中恢复，应用程序开发人员仍然可以选择捕获并处理 `TransactionException`。重点是开发人员并未_被迫_这样做。
 
-The `getTransaction(..)` method returns a `TransactionStatus` object, depending on a
-`TransactionDefinition` parameter. The returned `TransactionStatus` might represent a
-new transaction or can represent an existing transaction, if a matching transaction
-exists in the current call stack. The implication in this latter case is that, as with
-Jakarta EE transaction contexts, a `TransactionStatus` is associated with a thread of
-execution.
+`getTransaction(..)` 方法根据 `TransactionDefinition` 参数返回一个 `TransactionStatus` 对象。返回的 `TransactionStatus` 可能代表一个新事务，或者如果当前调用堆栈中存在匹配的事务，则可以代表一个现有事务。后一种情况的含义是，与 Jakarta EE 事务上下文一样，`TransactionStatus` 与执行线程相关联。
 
-As of TODAY Framework 5.2, Infra also provides a transaction management abstraction for
-reactive applications that make use of reactive types or Kotlin Coroutines. The following
-listing shows the transaction strategy defined by
-`infra.transaction.ReactiveTransactionManager`:
+从 TODAY Framework 5.2 开始，Infra 还为使用响应式类型或 Kotlin 协程的响应式应用程序提供了事务管理抽象。以下清单显示了由 `infra.transaction.ReactiveTransactionManager` 定义的事务策略：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -62,38 +35,18 @@ public interface ReactiveTransactionManager extends TransactionManager {
 }
 ----
 
-The reactive transaction manager is primarily a service provider interface (SPI),
-although you can use it xref:data-access/transaction/programmatic.adoc#transaction-programmatic-rtm[programmatically] from your
-application code. Because `ReactiveTransactionManager` is an interface, it can be easily
-mocked or stubbed as necessary.
+响应式事务管理器主要是一个服务提供者接口 (SPI)，尽管您可以从应用程序代码中 xref:data-access/transaction/programmatic.adoc#transaction-programmatic-rtm[以编程方式] 使用它。因为 `ReactiveTransactionManager` 是一个接口，所以它可以根据需要轻松地进行模拟或存根。
 
-The `TransactionDefinition` interface specifies:
+`TransactionDefinition` 接口指定：
 
-* Propagation: Typically, all code within a transaction scope runs in
-  that transaction. However, you can specify the behavior if
-  a transactional method is run when a transaction context already exists. For
-  example, code can continue running in the existing transaction (the common case), or
-  the existing transaction can be suspended and a new transaction created. Infra
-  offers all of the transaction propagation options familiar from EJB CMT. To read
-  about the semantics of transaction propagation in Infra, see xref:data-access/transaction/declarative/tx-propagation.adoc[Transaction Propagation].
-* Isolation: The degree to which this transaction is isolated from the work of other
-  transactions. For example, can this transaction see uncommitted writes from other
-  transactions?
-* Timeout: How long this transaction runs before timing out and being automatically rolled back
-  by the underlying transaction infrastructure.
-* Read-only status: You can use a read-only transaction when your code reads but
-  does not modify data. Read-only transactions can be a useful optimization in some
-  cases, such as when you use Hibernate.
+* 传播：通常，事务范围内的所有代码都在该事务中运行。但是，您可以指定如果当事务上下文已存在时运行事务方法时的行为。例如，代码可以在现有事务中继续运行（常见情况），或者可以挂起现有事务并创建新事务。Infra 提供了 EJB CMT 中熟悉的所有事务传播选项。要阅读有关 Infra 中事务传播语义的信息，请参阅 xref:data-access/transaction/declarative/tx-propagation.adoc[事务传播]。
+* 隔离：此事务与其他事务的工作隔离的程度。例如，此事务可以看到其他事务未提交的写入吗？
+* 超时：此事务在超时并由底层事务基础设施自动回滚之前运行多长时间。
+* 只读状态：当您的代码读取但不修改数据时，您可以使用只读事务。只读事务在某些情况下（例如使用 Hibernate 时）可能是有用的优化。
 
-These settings reflect standard transactional concepts. If necessary, refer to resources
-that discuss transaction isolation levels and other core transaction concepts.
-Understanding these concepts is essential to using the TODAY Framework or any
-transaction management solution.
+这些设置反映了标准事务概念。如有必要，请参阅讨论事务隔离级别和其他核心事务概念的资源。理解这些概念对于使用 TODAY Framework 或任何事务管理解决方案至关重要。
 
-The `TransactionStatus` interface provides a simple way for transactional code to
-control transaction execution and query transaction status. The concepts should be
-familiar, as they are common to all transaction APIs. The following listing shows the
-`TransactionStatus` interface:
+`TransactionStatus` 接口为事务代码提供了一种简单的方法来控制事务执行和查询事务状态。这些概念应该是熟悉的，因为它们是所有事务 API 通用的。以下清单显示了 `TransactionStatus` 接口：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -117,16 +70,11 @@ public interface TransactionStatus extends TransactionExecution, SavepointManage
 }
 ----
 
-Regardless of whether you opt for declarative or programmatic transaction management in
-Infra, defining the correct `TransactionManager` implementation is absolutely essential.
-You typically define this implementation through dependency injection.
+无论您在 Infra 中选择声明式还是编程式事务管理，定义正确的 `TransactionManager` 实现都是绝对必要的。您通常通过依赖注入来定义此实现。
 
-`TransactionManager` implementations normally require knowledge of the environment in
-which they work: JDBC, JTA, Hibernate, and so on. The following examples show how you can
-define a local `PlatformTransactionManager` implementation (in this case, with plain
-JDBC.)
+`TransactionManager` 实现通常需要了解它们工作的环境：JDBC、JTA、Hibernate 等。以下示例显示了如何定义本地 `PlatformTransactionManager` 实现（在本例中，使用普通 JDBC）。
 
-You can define a JDBC `DataSource` by creating a bean similar to the following:
+您可以通过创建类似于以下的 bean 来定义 JDBC `DataSource`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -138,8 +86,7 @@ You can define a JDBC `DataSource` by creating a bean similar to the following:
 </bean>
 ----
 
-The related `PlatformTransactionManager` bean definition then has a reference to the
-`DataSource` definition. It should resemble the following example:
+相关的 `PlatformTransactionManager` bean 定义随后具有对 `DataSource` 定义的引用。它应类似于以下示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -148,9 +95,7 @@ The related `PlatformTransactionManager` bean definition then has a reference to
 </bean>
 ----
 
-If you use JTA in a Jakarta EE container, then you use a container `DataSource`, obtained
-through JNDI, in conjunction with Infra `JtaTransactionManager`. The following example
-shows what the JTA and JNDI lookup version would look like:
+如果您在 Jakarta EE 容器中使用 JTA，则使用通过 JNDI 获取的容器 `DataSource`，并结合 Infra `JtaTransactionManager`。以下示例显示了 JTA 和 JNDI 查找版本的样子：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -168,117 +113,21 @@ shows what the JTA and JNDI lookup version would look like:
 
   <bean id="txManager" class="infra.transaction.jta.JtaTransactionManager" />
 
-  <!-- other <bean/> definitions here -->
+  <!-- 其他 <bean/> 定义在这里 -->
 
 </beans>
 ----
 
-The `JtaTransactionManager` does not need to know about the `DataSource` (or any other
-specific resources) because it uses the container's global transaction management
-infrastructure.
+`JtaTransactionManager` 不需要知道 `DataSource`（或任何其他特定资源），因为它使用容器的全局事务管理基础设施。
 
-NOTE: The preceding definition of the `dataSource` bean uses the `<jndi-lookup/>` tag
-from the `jee` namespace. For more information see
-xref:integration/appendix.adoc#xsd-schemas-jee[The JEE Schema].
+NOTE: `dataSource` bean 的上述定义使用了 `jee` 命名空间中的 `<jndi-lookup/>` 标签。有关更多信息，请参阅 xref:integration/appendix.adoc#xsd-schemas-jee[JEE 模式]。
 
-NOTE: If you use JTA, your transaction manager definition should look the same, regardless
-of what data access technology you use, be it JDBC, Hibernate JPA, or any other supported
-technology. This is due to the fact that JTA transactions are global transactions, which
-can enlist any transactional resource.
+NOTE: 如果您使用 JTA，无论您使用什么数据访问技术，无论是 JDBC、Hibernate JPA 还是任何其他支持的技术，您的事务管理器定义都应该看起来相同。这是因为 JTA 事务是全局事务，可以征用任何事务资源。
 
-In all Infra transaction setups, application code does not need to change. You can change
-how transactions are managed merely by changing configuration, even if that change means
-moving from local to global transactions or vice versa.
+在所有 Infra 事务设置中，应用程序代码无需更改。您只需更改配置即可更改事务的管理方式，即使该更改意味着从本地事务转移到全局事务，反之亦然。
 
 
 [[transaction-strategies-hibernate]]
-== Hibernate Transaction Setup
+== Hibernate 事务设置
 
-You can also easily use Hibernate local transactions, as shown in the following examples.
-In this case, you need to define a Hibernate `LocalSessionFactoryBean`, which your
-application code can use to obtain Hibernate `Session` instances.
-
-The `DataSource` bean definition is similar to the local JDBC example shown previously
-and, thus, is not shown in the following example.
-
-NOTE: If the `DataSource` (used by any non-JTA transaction manager) is looked up through
-JNDI and managed by a Jakarta EE container, it should be non-transactional, because the
-TODAY Framework (rather than the Jakarta EE container) manages the transactions.
-
-The `txManager` bean in this case is of the `HibernateTransactionManager` type. In the
-same way as the `DataSourceTransactionManager` needs a reference to the `DataSource`, the
-`HibernateTransactionManager` needs a reference to the `SessionFactory`. The following
-example declares `sessionFactory` and `txManager` beans:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
-  <property name="dataSource" ref="dataSource"/>
-  <property name="mappingResources">
-    <list>
-      <value>infra/samples/petclinic/hibernate/petclinic.hbm.xml</value>
-    </list>
-  </property>
-  <property name="hibernateProperties">
-    <value>
-      hibernate.dialect=${hibernate.dialect}
-    </value>
-  </property>
-</bean>
-
-<bean id="txManager" class="infra.orm.hibernate5.HibernateTransactionManager">
-  <property name="sessionFactory" ref="sessionFactory"/>
-</bean>
-----
-
-If you use Hibernate and Jakarta EE container-managed JTA transactions, you should use the
-same `JtaTransactionManager` as in the previous JTA example for JDBC, as the following
-example shows. Also, it is recommended to make Hibernate aware of JTA through its
-transaction coordinator and possibly also its connection release mode configuration:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
-  <property name="dataSource" ref="dataSource"/>
-  <property name="mappingResources">
-    <list>
-      <value>infra/samples/petclinic/hibernate/petclinic.hbm.xml</value>
-    </list>
-  </property>
-  <property name="hibernateProperties">
-    <value>
-      hibernate.dialect=${hibernate.dialect}
-      hibernate.transaction.coordinator_class=jta
-      hibernate.connection.handling_mode=DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT
-    </value>
-  </property>
-</bean>
-
-<bean id="txManager" class="infra.transaction.jta.JtaTransactionManager"/>
-----
-
-Or alternatively, you may pass the `JtaTransactionManager` into your `LocalSessionFactoryBean`
-for enforcing the same defaults:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
-  <property name="dataSource" ref="dataSource"/>
-  <property name="mappingResources">
-    <list>
-      <value>infra/samples/petclinic/hibernate/petclinic.hbm.xml</value>
-    </list>
-  </property>
-  <property name="hibernateProperties">
-    <value>
-      hibernate.dialect=${hibernate.dialect}
-    </value>
-  </property>
-  <property name="jtaTransactionManager" ref="txManager"/>
-</bean>
-
-<bean id="txManager" class="infra.transaction.jta.JtaTransactionManager"/>
-----
-
-
-
+您也可以轻松使用 Hibernate 本地事务，如以下示例所示。在这种情况下，您需要定义一个 Hibernate `LocalSessionFactoryBean`，您的应用程序代码可以使用它来获取 Hibernate `Session` 实例。

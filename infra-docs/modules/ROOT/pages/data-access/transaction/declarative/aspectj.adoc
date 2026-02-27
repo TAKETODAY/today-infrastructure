@@ -1,24 +1,11 @@
 [[transaction-declarative-aspectj]]
-= Using `@Transactional` with AspectJ
+= 使用 `@Transactional` 与 AspectJ
 
-You can also use the TODAY Framework's `@Transactional` support outside of a Infra
-container by means of an AspectJ aspect. To do so, first annotate your classes
-(and optionally your classes' methods) with the `@Transactional` annotation,
-and then link (weave) your application with the
-`infra.transaction.aspectj.AnnotationTransactionAspect` defined in the
-`infra-aspects.jar` file. You must also configure the aspect with a transaction
-manager. You can use the TODAY Framework's IoC container to take care of
-dependency-injecting the aspect. The simplest way to configure the transaction
-management aspect is to use the `<tx:annotation-driven/>` element and specify the `mode`
-attribute to `aspectj` as described in xref:data-access/transaction/declarative/annotations.adoc[Using `@Transactional`]. Because
-we focus here on applications that run outside of a Infra container, we show
-you how to do it programmatically.
+您还可以通过 AspectJ 切面在 Infra 容器之外使用 TODAY Framework 的 `@Transactional` 支持。为此，首先使用 `@Transactional` 注解来注解您的类（以及可选的类的方法），然后将您的应用程序与 `infra-aspects.jar` 文件中定义的 `infra.transaction.aspectj.AnnotationTransactionAspect` 链接（编织）。您还必须使用事务管理器配置切面。您可以使用 TODAY Framework 的 IoC 容器来处理切面的依赖注入。配置事务管理切面的最简单方法是使用 `<tx:annotation-driven/>` 元素并将 `mode` 属性指定为 `aspectj`，如 xref:data-access/transaction/declarative/annotations.adoc[使用 `@Transactional`] 中所述。因为我们这里关注的是在 Infra 容器之外运行的应用程序，所以我们将向您展示如何以编程方式执行此操作。
 
-NOTE: Prior to continuing, you may want to read xref:data-access/transaction/declarative/annotations.adoc[Using `@Transactional`] and
-xref:core/aop.adoc[AOP] respectively.
+NOTE: 在继续之前，您可能需要分别阅读 xref:data-access/transaction/declarative/annotations.adoc[使用 `@Transactional`] 和 xref:core/aop.adoc[AOP]。
 
-The following example shows how to create a transaction manager and configure the
-`AnnotationTransactionAspect` to use it:
+以下示例显示了如何创建事务管理器并配置 `AnnotationTransactionAspect` 以使用它：
 
 [tabs]
 ======
@@ -26,30 +13,19 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// construct an appropriate transaction manager
+	// 构造一个合适的事务管理器
 	DataSourceTransactionManager txManager = new DataSourceTransactionManager(getDataSource());
 
-	// configure the AnnotationTransactionAspect to use it; this must be done before executing any transactional methods
+	// 配置 AnnotationTransactionAspect 以使用它；这必须在执行任何事务方法之前完成
 	AnnotationTransactionAspect.aspectOf().setTransactionManager(txManager);
 ----
 
 ======
 
-NOTE: When you use this aspect, you must annotate the implementation class (or the methods
-within that class or both), not the interface (if any) that the class implements. AspectJ
-follows Java's rule that annotations on interfaces are not inherited.
+NOTE: 当您使用此切面时，您必须注解实现类（或该类中的方法或两者），而不是该类实现的接口（如果有）。AspectJ 遵循 Java 的规则，即接口上的注解不会被继承。
 
-The `@Transactional` annotation on a class specifies the default transaction semantics
-for the execution of any public method in the class.
+类上的 `@Transactional` 注解指定了该类中任何公共方法执行的默认事务语义。
 
-The `@Transactional` annotation on a method within the class overrides the default
-transaction semantics given by the class annotation (if present). You can annotate any method,
-regardless of visibility.
+类内方法上的 `@Transactional` 注解覆盖了类注解给出的默认事务语义（如果存在）。您可以注解任何方法，无论可见性如何。
 
-To weave your applications with the `AnnotationTransactionAspect`, you must either build
-your application with AspectJ (see the {aspectj-docs-devguide}/index.html[AspectJ Development
-Guide]) or use load-time weaving. See xref:core/aop/using-aspectj.adoc#aop-aj-ltw[Load-time weaving with AspectJ in the TODAY Framework]
- for a discussion of load-time weaving with AspectJ.
-
-
-
+要使用 `AnnotationTransactionAspect` 编织您的应用程序，您必须使用 AspectJ 构建您的应用程序（请参阅 {aspectj-docs-devguide}/index.html[AspectJ 开发指南]）或使用加载时编织。有关 AspectJ 加载时编织的讨论，请参阅 xref:core/aop/using-aspectj.adoc#aop-aj-ltw[TODAY Framework 中的 AspectJ 加载时编织]。

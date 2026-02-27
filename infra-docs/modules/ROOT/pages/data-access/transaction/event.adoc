@@ -1,19 +1,11 @@
 [[transaction-event]]
-= Transaction-bound Events
+= 事务绑定事件
 
-As of Infra 4.2, the listener of an event can be bound to a phase of the transaction.
-The typical example is to handle the event when the transaction has completed successfully.
-Doing so lets events be used with more flexibility when the outcome of the current
-transaction actually matters to the listener.
+从 Infra 4.2 开始，事件的监听器可以绑定到事务的某个阶段。典型的例子是在事务成功完成后处理事件。这使得当当前事务的结果对监听器实际上很重要时，可以更灵活地使用事件。
 
-You can register a regular event listener by using the `@EventListener` annotation.
-If you need to bind it to the transaction, use `@TransactionalEventListener`.
-When you do so, the listener is bound to the commit phase of the transaction by default.
+您可以使用 `@EventListener` 注解注册常规事件监听器。如果您需要将其绑定到事务，请使用 `@TransactionalEventListener`。当您这样做时，默认情况下，监听器绑定到事务的提交阶段。
 
-The next example shows this concept. Assume that a component publishes an order-created
-event and that we want to define a listener that should only handle that event once the
-transaction in which it has been published has committed successfully. The following
-example sets up such an event listener:
+下一个示例展示了这个概念。假设一个组件发布了一个订单创建事件，我们要定义一个监听器，该监听器应仅在发布该事件的事务成功提交后才处理该事件。以下示例设置了这样一个事件监听器：
 
 [tabs]
 ======
@@ -33,26 +25,11 @@ Java::
 
 ======
 
-The `@TransactionalEventListener` annotation exposes a `phase` attribute that lets you
-customize the phase of the transaction to which the listener should be bound.
-The valid phases are `BEFORE_COMMIT`, `AFTER_COMMIT` (default), `AFTER_ROLLBACK`, as well as
-`AFTER_COMPLETION` which aggregates the transaction completion (be it a commit or a rollback).
+`@TransactionalEventListener` 注解公开了一个 `phase` 属性，允许您自定义监听器应绑定到的事务阶段。有效阶段为 `BEFORE_COMMIT`、`AFTER_COMMIT`（默认值）、`AFTER_ROLLBACK` 以及 `AFTER_COMPLETION`，后者聚合了事务完成（无论是提交还是回滚）。
 
-If no transaction is running, the listener is not invoked at all, since we cannot honor the
-required semantics. You can, however, override that behavior by setting the `fallbackExecution`
-attribute of the annotation to `true`.
+如果没有事务正在运行，则根本不会调用监听器，因为我们无法遵守所需的语义。但是，您可以通过将注解的 `fallbackExecution` 属性设置为 `true` 来覆盖该行为。
 
 [NOTE]
 ====
-As of 6.1, `@TransactionalEventListener` can work with thread-bound transactions managed by
-`PlatformTransactionManager` as well as reactive transactions managed by `ReactiveTransactionManager`.
-For the former, listeners are guaranteed to see the current thread-bound transaction.
-Since the latter uses the Reactor context instead of thread-local variables, the transaction
-context needs to be included in the published event instance as the event source.
-See the
-{today-framework-api}/transaction/reactive/TransactionalEventPublisher.html[`TransactionalEventPublisher`]
-javadoc for details.
+从 6.1 开始，`@TransactionalEventListener` 可以与 `PlatformTransactionManager` 管理的线程绑定事务以及 `ReactiveTransactionManager` 管理的响应式事务一起使用。对于前者，保证监听器可以看到当前线程绑定的事务。由于后者使用 Reactor 上下文而不是线程局部变量，因此事务上下文需要包含在作为事件源发布的事件实例中。有关详细信息，请参阅 {today-framework-api}/transaction/reactive/TransactionalEventPublisher.html[`TransactionalEventPublisher`] javadoc。
 ====
-
-
-

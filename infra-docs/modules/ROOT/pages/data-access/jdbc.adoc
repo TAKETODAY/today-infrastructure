@@ -1,58 +1,52 @@
 [[jdbc]]
-= Data Access with JDBC
+= 使用 JDBC 进行数据访问
 
-The value provided by the TODAY Framework JDBC abstraction is perhaps best shown by
-the sequence of actions outlined in the following table below. The table shows which actions Infra
-takes care of and which actions are your responsibility.
+TODAY Framework JDBC 抽象提供的价值或许最好通过下表列出的操作序列来展示。该表显示了哪些操作由 Infra 负责，哪些操作由您负责。
 
 [[jdbc-who-does-what]]
-.Infra JDBC - who does what?
+.Infra JDBC - 谁负责什么？
 |===
-| Action| Infra| You
+| 操作| Infra| 您
 
-| Define connection parameters.
+| 定义连接参数。
 |
 | X
 
-| Open the connection.
+| 打开连接。
 | X
 |
 
-| Specify the SQL statement.
+| 指定 SQL 语句。
 |
 | X
 
-| Declare parameters and provide parameter values
+| 声明参数并提供参数值
 |
 | X
 
-| Prepare and run the statement.
+| 准备并运行语句。
 | X
 |
 
-| Set up the loop to iterate through the results (if any).
+| 设置循环以迭代结果（如果有）。
 | X
 |
 
-| Do the work for each iteration.
+| 为每次迭代执行工作。
 |
 | X
 
-| Process any exception.
+| 处理任何异常。
 | X
 |
 
-| Handle transactions.
+| 处理事务。
 | X
 |
 
-| Close the connection, the statement, and the resultset.
+| 关闭连接、语句和结果集。
 | X
 |
 |===
 
-The TODAY Framework takes care of all the low-level details that can make JDBC such a
-tedious API.
-
-
-
+TODAY Framework 处理了所有可能使 JDBC 成为如此繁琐 API 的底层细节。

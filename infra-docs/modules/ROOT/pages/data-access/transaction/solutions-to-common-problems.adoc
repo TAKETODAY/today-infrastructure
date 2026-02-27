@@ -1,23 +1,11 @@
 [[transaction-solutions-to-common-problems]]
-= Solutions to Common Problems
+= 常见问题解决方案
 :page-section-summary-toc: 1
 
-This section describes solutions to some common problems.
+本节介绍一些常见问题的解决方案。
 
 
 [[transaction-solutions-to-common-problems-wrong-ptm]]
-== Using the Wrong Transaction Manager for a Specific `DataSource`
+== 为特定 `DataSource` 使用错误的事务管理器
 
-Use the correct `PlatformTransactionManager` implementation based on your choice of
-transactional technologies and requirements. Used properly, the TODAY Framework merely
-provides a straightforward and portable abstraction. If you use global
-transactions, you must use the
-`infra.transaction.jta.JtaTransactionManager` class (or an
-xref:data-access/transaction/application-server-integration.adoc[application server-specific subclass] of
-it) for all your transactional operations. Otherwise, the transaction infrastructure
-tries to perform local transactions on such resources as container `DataSource`
-instances. Such local transactions do not make sense, and a good application server
-treats them as errors.
-
-
-
+根据您对事务技术和要求的选择，使用正确的 `PlatformTransactionManager` 实现。如果使用得当，TODAY Framework 仅提供一个简单且可移植的抽象。如果您使用全局事务，则必须对所有事务操作使用 `infra.transaction.jta.JtaTransactionManager` 类（或其 xref:data-access/transaction/application-server-integration.adoc[应用服务器特定的子类]）。否则，事务基础设施会尝试对诸如容器 `DataSource` 实例之类的资源执行本地事务。此类本地事务没有意义，好的应用服务器会将它们视为错误。

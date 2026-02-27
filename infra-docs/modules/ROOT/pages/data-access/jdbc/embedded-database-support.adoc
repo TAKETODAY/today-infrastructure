@@ -1,24 +1,18 @@
 [[jdbc-embedded-database-support]]
-= Embedded Database Support
+= 嵌入式数据库支持
 
-The `infra.jdbc.datasource.embedded` package provides support for embedded
-Java database engines. Support for https://www.hsqldb.org[HSQL],
-https://www.h2database.com[H2], and https://db.apache.org/derby[Derby] is provided
-natively. You can also use an extensible API to plug in new embedded database types and
-`DataSource` implementations.
+`infra.jdbc.datasource.embedded` 包提供了对嵌入式 Java 数据库引擎的支持。原生支持 https://www.hsqldb.org[HSQL]、https://www.h2database.com[H2] 和 https://db.apache.org/derby[Derby]。您还可以使用可扩展的 API 插入新的嵌入式数据库类型和 `DataSource` 实现。
 
 [[jdbc-why-embedded-database]]
-== Why Use an Embedded Database?
+== 为什么要使用嵌入式数据库？
 
-An embedded database can be useful during the development phase of a project because of its
-lightweight nature. Benefits include ease of configuration, quick startup time,
-testability, and the ability to rapidly evolve your SQL during development.
+嵌入式数据库由于其轻量级的性质，在项目的开发阶段非常有用。好处包括易于配置、启动时间快、可测试性以及在开发过程中快速演进 SQL 的能力。
 
 
 [[jdbc-embedded-database]]
-== Creating an Embedded Database
+== 创建嵌入式数据库
 
-You can expose an embedded database instance as a bean as the following example shows:
+您可以将嵌入式数据库实例作为 bean 公开，如下例所示：
 
 include-code::./JdbcEmbeddedDatabaseConfiguration[tag=snippet,indent=0]
 
@@ -39,54 +33,40 @@ public class JdbcEmbeddedDatabaseConfiguration {
 }
 ----
 
-The preceding configuration creates an embedded H2 database that is populated with SQL from
-the `schema.sql` and `test-data.sql` resources in the root of the classpath. In addition, as
-a best practice, the embedded database is assigned a uniquely generated name. The
-embedded database is made available to the Infra container as a bean of type
-`javax.sql.DataSource` that can then be injected into data access objects as needed.
+前面的配置创建了一个嵌入式 H2 数据库，该数据库使用类路径根目录下的 `schema.sql` 和 `test-data.sql` 资源中的 SQL 进行填充。此外，作为最佳实践，为嵌入式数据库分配了一个唯一生成的名称。嵌入式数据库作为 `javax.sql.DataSource` 类型的 bean 提供给 Infra 容器，然后可以根据需要将其注入到数据访问对象中。
 
-See the {today-framework-api}/jdbc/datasource/embedded/EmbeddedDatabaseBuilder.html[javadoc for `EmbeddedDatabaseBuilder`]
-for further details on all supported options.
+有关所有支持选项的更多详细信息，请参阅 {today-framework-api}/jdbc/datasource/embedded/EmbeddedDatabaseBuilder.html[`EmbeddedDatabaseBuilder` 的 javadoc]。
 
 
 [[jdbc-embedded-database-types]]
-== Selecting the Embedded Database Type
+== 选择嵌入式数据库类型
 
-This section covers how to select one of the three embedded databases that Infra
-supports. It includes the following topics:
+本节介绍如何选择 Infra 支持的三种嵌入式数据库之一。它包括以下主题：
 
-* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-HSQL[Using HSQL]
-* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-H2[Using H2]
-* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-Derby[Using Derby]
+* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-HSQL[使用 HSQL]
+* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-H2[使用 H2]
+* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-Derby[使用 Derby]
 
 [[jdbc-embedded-database-using-HSQL]]
-=== Using HSQL
+=== 使用 HSQL
 
-Infra supports HSQL 1.8.0 and above. HSQL is the default embedded database if no type is
-explicitly specified. To specify HSQL explicitly, set the `type` attribute of the
-`embedded-database` tag to `HSQL`. If you use the builder API, call the
-`setType(EmbeddedDatabaseType)` method with `EmbeddedDatabaseType.HSQL`.
+Infra 支持 HSQL 1.8.0 及更高版本。如果未显式指定类型，则 HSQL 是默认的嵌入式数据库。要显式指定 HSQL，请将 `embedded-database` 标签的 `type` 属性设置为 `HSQL`。如果您使用构建器 API，请使用 `EmbeddedDatabaseType.HSQL` 调用 `setType(EmbeddedDatabaseType)` 方法。
 
 [[jdbc-embedded-database-using-H2]]
-=== Using H2
+=== 使用 H2
 
-Infra supports the H2 database. To enable H2, set the `type` attribute of the
-`embedded-database` tag to `H2`. If you use the builder API, call the
-`setType(EmbeddedDatabaseType)` method with `EmbeddedDatabaseType.H2`.
+Infra 支持 H2 数据库。要启用 H2，请将 `embedded-database` 标签的 `type` 属性设置为 `H2`。如果您使用构建器 API，请使用 `EmbeddedDatabaseType.H2` 调用 `setType(EmbeddedDatabaseType)` 方法。
 
 [[jdbc-embedded-database-using-Derby]]
-=== Using Derby
+=== 使用 Derby
 
-Infra supports Apache Derby 10.5 and above. To enable Derby, set the `type`
-attribute of the `embedded-database` tag to `DERBY`. If you use the builder API,
-call the `setType(EmbeddedDatabaseType)` method with `EmbeddedDatabaseType.DERBY`.
+Infra 支持 Apache Derby 10.5 及更高版本。要启用 Derby，请将 `embedded-database` 标签的 `type` 属性设置为 `DERBY`。如果您使用构建器 API，请使用 `EmbeddedDatabaseType.DERBY` 调用 `setType(EmbeddedDatabaseType)` 方法。
 
 
 [[jdbc-embedded-database-types-custom]]
-== Customizing the Embedded Database Type
+== 自定义嵌入式数据库类型
 
-While each supported type comes with default connection settings, it is possible
-to customize them if necessary. The following example uses H2 with a custom driver:
+虽然每种支持的类型都带有默认连接设置，但在必要时可以对其进行自定义。以下示例使用带有自定义驱动程序的 H2：
 
 [tabs]
 ======
@@ -122,16 +102,9 @@ public class DataSourceConfig {
 
 
 [[jdbc-embedded-database-dao-testing]]
-== Testing Data Access Logic with an Embedded Database
+== 使用嵌入式数据库测试数据访问逻辑
 
-Embedded databases provide a lightweight way to test data access code. The next example is a
-data access integration test template that uses an embedded database. Using such a template
-can be useful for one-offs when the embedded database does not need to be reused across test
-classes. However, if you wish to create an embedded database that is shared within a test suite,
-consider using the xref:testing/testcontext-framework.adoc[Infra TestContext Framework] and
-configuring the embedded database as a bean in the Infra `ApplicationContext` as described
-in xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database[Creating an Embedded Database].
-The following listing shows the test template:
+嵌入式数据库提供了一种轻量级的方法来测试数据访问代码。下一个示例是使用嵌入式数据库的数据访问集成测试模板。当嵌入式数据库不需要在测试类之间重用时，使用这样的模板对于一次性操作很有用。但是，如果您希望创建一个在测试套件中共享的嵌入式数据库，请考虑使用 xref:testing/testcontext-framework.adoc[Infra TestContext Framework]，并将嵌入式数据库配置为 Infra `ApplicationContext` 中的 bean，如 xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database[创建嵌入式数据库] 中所述。以下清单显示了测试模板：
 
 [tabs]
 ======
@@ -145,8 +118,8 @@ public class DataAccessIntegrationTestTemplate {
 
   @BeforeEach
   public void setUp() {
-    // creates an HSQL in-memory database populated from default scripts
-    // classpath:schema.sql and classpath:data.sql
+    // 创建一个从默认脚本填充的 HSQL 内存数据库
+    // classpath:schema.sql 和 classpath:data.sql
     db = new EmbeddedDatabaseBuilder()
         .generateUniqueName(true)
         .addDefaultScripts()
@@ -171,47 +144,13 @@ public class DataAccessIntegrationTestTemplate {
 
 
 [[jdbc-embedded-database-unique-names]]
-== Generating Unique Names for Embedded Databases
+== 为嵌入式数据库生成唯一名称
 
-Development teams often encounter errors with embedded databases if their test suite
-inadvertently attempts to recreate additional instances of the same database. This can
-happen quite easily if an XML configuration file or `@Configuration` class is responsible
-for creating an embedded database and the corresponding configuration is then reused
-across multiple testing scenarios within the same test suite (that is, within the same JVM
-process) -- for example, integration tests against embedded databases whose
-`ApplicationContext` configuration differs only with regard to which bean definition
-profiles are active.
+如果开发团队的测试套件无意中尝试重新创建同一数据库的其他实例，他们经常会遇到嵌入式数据库错误。如果 XML 配置文件或 `@Configuration` 类负责创建嵌入式数据库，然后相应的配置在同一测试套件内的多个测试场景中重用（即，在同一 JVM 进程内）——例如，针对嵌入式数据库的集成测试，其 `ApplicationContext` 配置仅在哪些 bean 定义配置文件处于活动状态方面有所不同，则很容易发生这种情况。
 
-The root cause of such errors is the fact that Infra `EmbeddedDatabaseFactory` (used
-internally by both the `<jdbc:embedded-database>` XML namespace element and the
-`EmbeddedDatabaseBuilder` for Java configuration) sets the name of the embedded database to
-`testdb` if not otherwise specified. For the case of `<jdbc:embedded-database>`, the
-embedded database is typically assigned a name equal to the bean's `id` (often,
-something like `dataSource`). Thus, subsequent attempts to create an embedded database
-do not result in a new database. Instead, the same JDBC connection URL is reused,
-and attempts to create a new embedded database actually point to an existing
-embedded database created from the same configuration.
+此类错误的根本原因是 Infra `EmbeddedDatabaseFactory`（由 `<jdbc:embedded-database>` XML 命名空间元素和用于 Java 配置的 `EmbeddedDatabaseBuilder` 在内部使用）将嵌入式数据库的名称设置为 `testdb`（如果未另行指定）。对于 `<jdbc:embedded-database>` 的情况，嵌入式数据库通常被分配一个等于 bean `id` 的名称（通常类似于 `dataSource`）。因此，后续创建嵌入式数据库的尝试不会产生新的数据库。相反，重用了相同的 JDBC 连接 URL，并且尝试创建新的嵌入式数据库实际上指向从相同配置创建的现有嵌入式数据库。
 
-To address this common issue, TODAY Framework 4.2 provides support for generating
-unique names for embedded databases. To enable the use of generated names, use one of
-the following options.
+为了解决这个常见问题，TODAY Framework 4.2 提供了对生成嵌入式数据库唯一名称的支持。要启用生成名称的使用，请使用以下选项之一。
 
 * `EmbeddedDatabaseFactory.setGenerateUniqueDatabaseName()`
 * `EmbeddedDatabaseBuilder.generateUniqueName()`
-* `<jdbc:embedded-database generate-name="true" ... >`
-
-
-[[jdbc-embedded-database-extension]]
-== Extending the Embedded Database Support
-
-You can extend Infra JDBC embedded database support in two ways:
-
-* Implement `EmbeddedDatabaseConfigurer` to support a new embedded database type.
-* Implement `DataSourceFactory` to support a new `DataSource` implementation, such as a
-connection pool to manage embedded database connections.
-
-We encourage you to contribute extensions to the Infra community at
-{today-framework-issues}[GitHub Issues].
-
-
-

@@ -1,90 +1,37 @@
 [[transaction-motivation]]
-= Advantages of the TODAY Framework's Transaction Support Model
+= TODAY Framework 事务支持模型的优势
 
-Traditionally, EE application developers have had two choices for transaction management:
-global or local transactions, both of which have profound limitations. Global
-and local transaction management is reviewed in the next two sections, followed by a
-discussion of how the TODAY Framework's transaction management support addresses the
-limitations of the global and local transaction models.
+传统上，EE 应用程序开发人员在事务管理方面有两种选择：全局事务或本地事务，但这两种选择都有深刻的局限性。接下来的两节将回顾全局和本地事务管理，然后讨论 TODAY Framework 的事务管理支持如何解决全局和本地事务模型的局限性。
 
 
 [[transaction-global]]
-== Global Transactions
+== 全局事务
 
-Global transactions let you work with multiple transactional resources, typically
-relational databases and message queues. The application server manages global
-transactions through the JTA, which is a cumbersome API (partly due to its
-exception model). Furthermore, a JTA `UserTransaction` normally needs to be sourced from
-JNDI, meaning that you also need to use JNDI in order to use JTA. The use
-of global transactions limits any potential reuse of application code, as JTA is
-normally only available in an application server environment.
+全局事务允许您使用多个事务资源，通常是关系数据库和消息队列。应用服务器通过 JTA 管理全局事务，JTA 是一个繁琐的 API（部分原因是其异常模型）。此外，JTA `UserTransaction` 通常需要从 JNDI 获取，这意味着您还需要使用 JNDI 才能使用 JTA。全局事务的使用限制了应用程序代码的任何潜在重用，因为 JTA 通常仅在应用服务器环境中可用。
 
-Previously, the preferred way to use global transactions was through EJB CMT
-(Container Managed Transaction). CMT is a form of declarative transaction
-management (as distinguished from programmatic transaction management). EJB CMT
-removes the need for transaction-related JNDI lookups, although the use of EJB
-itself necessitates the use of JNDI. It removes most but not all of the need to write
-Java code to control transactions. The significant downside is that CMT is tied to JTA
-and an application server environment. Also, it is only available if one chooses to
-implement business logic in EJBs (or at least behind a transactional EJB facade). The
-negatives of EJB in general are so great that this is not an attractive proposition,
-especially in the face of compelling alternatives for declarative transaction management.
+以前，使用全局事务的首选方式是通过 EJB CMT（容器管理事务）。CMT 是一种声明式事务管理形式（与编程式事务管理相区别）。EJB CMT 消除了与事务相关的 JNDI 查找的需要，尽管使用 EJB 本身需要使用 JNDI。它消除了大部分（但不是全部）编写 Java 代码来控制事务的需要。显着的缺点是 CMT 绑定到 JTA 和应用服务器环境。此外，只有当选择在 EJB 中（或至少在事务性 EJB 外观之后）实现业务逻辑时，它才可用。EJB 的缺点总体上非常大，以至于这不是一个有吸引力的提议，尤其是在面对声明式事务管理的引人注目的替代方案时。
 
 
 [[transaction-local]]
-== Local Transactions
+== 本地事务
 
-Local transactions are resource-specific, such as a transaction associated with a JDBC
-connection. Local transactions may be easier to use but have a significant disadvantage:
-They cannot work across multiple transactional resources. For example, code that manages
-transactions by using a JDBC connection cannot run within a global JTA transaction. Because
-the application server is not involved in transaction management, it cannot help ensure
-correctness across multiple resources. (It is worth noting that most applications use a
-single transaction resource.) Another downside is that local transactions are invasive
-to the programming model.
+本地事务是特定于资源的，例如与 JDBC 连接关联的事务。本地事务可能更容易使用，但有一个显着的缺点：它们无法跨多个事务资源工作。例如，使用 JDBC 连接管理事务的代码无法在全局 JTA 事务中运行。由于应用服务器不参与事务管理，因此它无法帮助确保跨多个资源的正确性。（值得注意的是，大多数应用程序使用单个事务资源。）另一个缺点是本地事务对编程模型具有侵入性。
 
 
 [[transaction-programming-model]]
-== TODAY Framework's Consistent Programming Model
+== TODAY Framework 的一致编程模型
 
-Infra resolves the disadvantages of global and local transactions. It lets
-application developers use a consistent programming model in any environment.
-You write your code once, and it can benefit from different transaction management
-strategies in different environments. The TODAY Framework provides both declarative and
-programmatic transaction management. Most users prefer declarative transaction
-management, which we recommend in most cases.
+Infra 解决了全局和本地事务的缺点。它允许应用程序开发人员在任何环境中使用一致的编程模型。您只需编写一次代码，它就可以在不同的环境中受益于不同的事务管理策略。TODAY Framework 提供声明式和编程式事务管理。大多数用户更喜欢声明式事务管理，这也是我们在大多数情况下推荐的。
 
-With programmatic transaction management, developers work with the TODAY Framework
-transaction abstraction, which can run over any underlying transaction infrastructure.
-With the preferred declarative model, developers typically write little or no code
-related to transaction management and, hence, do not depend on the TODAY Framework
-transaction API or any other transaction API.
+通过编程式事务管理，开发人员使用 TODAY Framework 事务抽象，该抽象可以在任何底层事务基础设施上运行。使用首选的声明式模型，开发人员通常编写很少或根本不编写与事务管理相关的代码，因此不依赖于 TODAY Framework 事务 API 或任何其他事务 API。
 
-.Do you need an application server for transaction management?
+.你需要应用服务器来进行事务管理吗？
 ****
-The TODAY Framework's transaction management support changes traditional rules as to
-when an enterprise Java application requires an application server.
+TODAY Framework 的事务管理支持改变了企业 Java 应用程序何时需要应用服务器的传统规则。
 
-In particular, you do not need an application server purely for declarative transactions
-through EJBs. In fact, even if your application server has powerful JTA capabilities,
-you may decide that the TODAY Framework's declarative transactions offer more power and
-a more productive programming model than EJB CMT.
+特别是，您不需要仅仅为了通过 EJB 进行声明式事务而使用应用服务器。事实上，即使您的应用服务器具有强大的 JTA 功能，您也可能决定 TODAY Framework 的声明式事务比 EJB CMT 提供更强大的功能和更高效的编程模型。
 
-Typically, you need an application server's JTA capability only if your application needs
-to handle transactions across multiple resources, which is not a requirement for many
-applications. Many high-end applications use a single, highly scalable database (such as
-Oracle RAC) instead. Stand-alone transaction managers (such as
-https://www.atomikos.com/[Atomikos Transactions])
-are other options. Of course, you may need other application server capabilities, such as
-Java Message Service (JMS) and Jakarta EE Connector Architecture (JCA).
+通常，仅当您的应用程序需要处理跨多个资源的事务时，才需要应用服务器的 JTA 功能，但这并非许多应用程序的要求。许多高端应用程序使用单个、高度可扩展的数据库（例如 Oracle RAC）。独立的事务管理器（例如 https://www.atomikos.com/[Atomikos Transactions]）是其他选择。当然，您可能需要其他应用服务器功能，例如 Java 消息服务 (JMS) 和 Jakarta EE 连接器架构 (JCA)。
 
-The TODAY Framework gives you the choice of when to scale your application to a fully
-loaded application server. Gone are the days when the only alternative to using EJB
-CMT or JTA was to write code with local transactions (such as those on JDBC connections)
-and face a hefty rework if you need that code to run within global, container-managed
-transactions. With the TODAY Framework, only some of the bean definitions in your
-configuration file need to change (rather than your code).
+TODAY Framework 让您可以选择何时将应用程序扩展到完全加载的应用服务器。除了使用 EJB CMT 或 JTA 之外，唯一的替代方案是编写带有本地事务的代码（例如在 JDBC 连接上），并且如果需要该代码在全局、容器管理的事务中运行，则面临繁重的返工，这样的日子已经一去不复返了。使用 TODAY Framework，只有配置文件中的一些 bean 定义需要更改（而不是您的代码）。
 ****
-
-
-

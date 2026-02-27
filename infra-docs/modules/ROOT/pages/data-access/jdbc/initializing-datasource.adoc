@@ -1,17 +1,13 @@
 [[jdbc-initializing-datasource]]
-= Initializing a `DataSource`
+= 初始化 `DataSource`
 
-The `infra.jdbc.datasource.init` package provides support for initializing
-an existing `DataSource`. The embedded database support provides one option for creating
-and initializing a `DataSource` for an application. However, you may sometimes need to initialize
-an instance that runs on a server somewhere.
+`infra.jdbc.datasource.init` 包提供了对初始化现有 `DataSource` 的支持。嵌入式数据库支持提供了为应用程序创建和初始化 `DataSource` 的一种选择。但是，您有时可能需要初始化运行在某处服务器上的实例。
 
 
 [[jdbc-initializing-datasource-xml]]
-== Initializing a Database by Using Infra XML
+== 使用 Infra XML 初始化数据库
 
-If you want to initialize a database and you can provide a reference to a `DataSource`
-bean, you can use the `initialize-database` tag in the `infra-jdbc` namespace:
+如果您想初始化数据库并且可以提供对 `DataSource` bean 的引用，则可以使用 `infra-jdbc` 命名空间中的 `initialize-database` 标签：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -21,24 +17,11 @@ bean, you can use the `initialize-database` tag in the `infra-jdbc` namespace:
 </jdbc:initialize-database>
 ----
 
-The preceding example runs the two specified scripts against the database. The first
-script creates a schema, and the second populates tables with a test data set. The script
-locations can also be patterns with wildcards in the usual Ant style used for resources
-in Infra (for example,
-`classpath{asterisk}:/com/foo/{asterisk}{asterisk}/sql/{asterisk}-data.sql`). If you use a
-pattern, the scripts are run in the lexical order of their URL or filename.
+前面的示例针对数据库运行两个指定的脚本。第一个脚本创建模式，第二个脚本使用测试数据集填充表。脚本位置也可以是带有通配符的模式，采用 Infra 中用于资源的通常 Ant 样式（例如，`classpath{asterisk}:/com/foo/{asterisk}{asterisk}/sql/{asterisk}-data.sql`）。如果您使用模式，则脚本将按其 URL 或文件名的字典顺序运行。
 
-The default behavior of the database initializer is to unconditionally run the provided
-scripts. This may not always be what you want -- for instance, if you run
-the scripts against a database that already has test data in it. The likelihood
-of accidentally deleting data is reduced by following the common pattern (shown earlier)
-of creating the tables first and then inserting the data. The first step fails if
-the tables already exist.
+数据库初始化器的默认行为是无条件运行提供的脚本。这可能并不总是您想要的——例如，如果您针对已经包含测试数据的数据库运行脚本。通过遵循先创建表然后插入数据的常见模式（如前所示），可以减少意外删除数据的可能性。如果表已存在，则第一步失败。
 
-However, to gain more control over the creation and deletion of existing data, the XML
-namespace provides a few additional options. The first is a flag to switch the
-initialization on and off. You can set this according to the environment (such as pulling a
-boolean value from system properties or from an environment bean). The following example gets a value from a system property:
+但是，为了更好地控制现有数据的创建和删除，XML 命名空间提供了一些其他选项。第一个是打开和关闭初始化的标志。您可以根据环境设置此标志（例如从系统属性或环境 bean 中提取布尔值）。以下示例从系统属性获取值：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -47,12 +30,10 @@ boolean value from system properties or from an environment bean). The following
   <jdbc:script location="..."/>
 </jdbc:initialize-database>
 ----
-<1> Get the value for `enabled` from a system property called `INITIALIZE_DATABASE`.
+<1> 从名为 `INITIALIZE_DATABASE` 的系统属性获取 `enabled` 的值。
 
 
-The second option to control what happens with existing data is to be more tolerant of
-failures. To this end, you can control the ability of the initializer to ignore certain
-errors in the SQL it runs from the scripts, as the following example shows:
+控制现有数据发生情况的第二个选项是对故障更加宽容。为此，您可以控制初始化器忽略它从脚本运行的 SQL 中的某些错误的能力，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -61,20 +42,11 @@ errors in the SQL it runs from the scripts, as the following example shows:
 </jdbc:initialize-database>
 ----
 
-In the preceding example, we are saying that we expect that, sometimes, the scripts are run
-against an empty database, and there are some `DROP` statements in the scripts that
-would, therefore, fail. So failed SQL `DROP` statements will be ignored, but other failures
-will cause an exception. This is useful if your SQL dialect doesn't support `DROP ... IF
-EXISTS` (or similar) but you want to unconditionally remove all test data before
-re-creating it. In that case the first script is usually a set of `DROP` statements,
-followed by a set of `CREATE` statements.
+在前面的示例中，我们说我们预计有时脚本会针对空数据库运行，因此脚本中有一些 `DROP` 语句会失败。因此，失败的 SQL `DROP` 语句将被忽略，但其他失败将导致异常。如果您的 SQL 方言不支持 `DROP ... IF EXISTS`（或类似内容），但您想在重新创建之前无条件删除所有测试数据，这很有用。在这种情况下，第一个脚本通常是一组 `DROP` 语句，后跟一组 `CREATE` 语句。
 
-The `ignore-failures` option can be set to `NONE` (the default), `DROPS` (ignore failed
-drops), or `ALL` (ignore all failures).
+`ignore-failures` 选项可以设置为 `NONE`（默认值）、`DROPS`（忽略失败的删除）或 `ALL`（忽略所有失败）。
 
-Each statement should be separated by `;` or a new line if the `;` character is not
-present at all in the script. You can control that globally or script by script, as the
-following example shows:
+如果脚本中根本不存在 `;` 字符，则每个语句应由 `;` 或新行分隔。您可以全局控制或按脚本控制，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -84,63 +56,29 @@ following example shows:
   <jdbc:script location="classpath:com/myapp/sql/db-test-data-2.sql"/>
 </jdbc:initialize-database>
 ----
-<1> Set the separator scripts to `@@`.
-<2> Set the separator for `db-schema.sql` to `;`.
+<1> 将分隔符脚本设置为 `@@`。
+<2> 将 `db-schema.sql` 的分隔符设置为 `;`。
 
-In this example, the two `test-data` scripts use `@@` as statement separator and only
-the `db-schema.sql` uses `;`. This configuration specifies that the default separator
-is `@@` and overrides that default for the `db-schema` script.
+在此示例中，两个 `test-data` 脚本使用 `@@` 作为语句分隔符，只有 `db-schema.sql` 使用 `;`。此配置指定默认分隔符为 `@@`，并覆盖 `db-schema` 脚本的默认值。
 
-If you need more control than you get from the XML namespace, you can use the
-`DataSourceInitializer` directly and define it as a component in your application.
+如果您需要比从 XML 命名空间获得的更多控制，您可以直接使用 `DataSourceInitializer` 并将其定义为应用程序中的组件。
 
 [[jdbc-client-component-initialization]]
-=== Initialization of Other Components that Depend on the Database
+=== 初始化依赖于数据库的其他组件
 
-A large class of applications (those that do not use the database until after the Infra context has
-started) can use the database initializer with no further
-complications. If your application is not one of those, you might need to read the rest
-of this section.
+一大类应用程序（那些在 Infra 上下文启动之前不使用数据库的应用程序）可以使用数据库初始化器，而不会出现进一步的并发症。如果您的应用程序不是其中之一，您可能需要阅读本节的其余部分。
 
-The database initializer depends on a `DataSource` instance and runs the scripts
-provided in its initialization callback (analogous to an `init-method` in an XML bean
-definition, a `@PostConstruct` method in a component, or the `afterPropertiesSet()`
-method in a component that implements `InitializingBean`). If other beans depend on the
-same data source and use the data source in an initialization callback, there
-might be a problem because the data has not yet been initialized. A common example of
-this is a cache that initializes eagerly and loads data from the database on application
-startup.
+数据库初始化器依赖于 `DataSource` 实例，并运行其初始化回调中提供的脚本（类似于 XML bean 定义中的 `init-method`、组件中的 `@PostConstruct` 方法或实现 `InitializingBean` 的组件中的 `afterPropertiesSet()` 方法）。如果其他 bean 依赖于相同的数据源并在初始化回调中使用该数据源，则可能会出现问题，因为数据尚未初始化。这方面的一个常见示例是在应用程序启动时急切初始化并从数据库加载数据的缓存。
 
-To get around this issue, you have two options: change your cache initialization strategy
-to a later phase or ensure that the database initializer is initialized first.
+要解决此问题，您有两个选择：将缓存初始化策略更改为较晚的阶段，或者确保首先初始化数据库初始化器。
 
-Changing your cache initialization strategy might be easy if the application is in your control and not otherwise.
-Some suggestions for how to implement this include:
+如果应用程序在您的控制之下，而不是其他情况，那么更改缓存初始化策略可能很容易。关于如何实现这一点的一些建议包括：
 
-* Make the cache initialize lazily on first usage, which improves application startup
-  time.
-* Have your cache or a separate component that initializes the cache implement
-  `Lifecycle` or `SmartLifecycle`. When the application context starts, you can
-  automatically start a `SmartLifecycle` by setting its `autoStartup` flag, and you can
-  manually start a `Lifecycle` by calling `ConfigurableApplicationContext.start()`
-  on the enclosing context.
-* Use a Infra `ApplicationEvent` or similar custom observer mechanism to trigger the
-  cache initialization. `ContextRefreshedEvent` is always published by the context when
-  it is ready for use (after all beans have been initialized), so that is often a useful
-  hook (this is how the `SmartLifecycle` works by default).
+* 使缓存在首次使用时延迟初始化，这可以缩短应用程序启动时间。
+* 让您的缓存或初始化缓存的单独组件实现 `Lifecycle` 或 `SmartLifecycle`。当应用程序上下文启动时，您可以通过设置其 `autoStartup` 标志来自动启动 `SmartLifecycle`，并且可以通过在封闭上下文上调用 `ConfigurableApplicationContext.start()` 来手动启动 `Lifecycle`。
+* 使用 Infra `ApplicationEvent` 或类似的自定义观察者机制来触发缓存初始化。`ContextRefreshedEvent` 总是在上下文准备好使用时（所有 bean 初始化之后）由上下文发布，因此这通常是一个有用的钩子（这就是 `SmartLifecycle` 默认工作的方式）。
 
-Ensuring that the database initializer is initialized first can also be easy. Some suggestions on how to implement this include:
+确保首先初始化数据库初始化器也很容易。关于如何实现这一点的一些建议包括：
 
-* Rely on the default behavior of the Infra `BeanFactory`, which is that beans are
-  initialized in registration order. You can easily arrange that by adopting the common
-  practice of a set of `<import/>` elements in XML configuration that order your
-  application modules and ensuring that the database and database initialization are
-  listed first.
-* Separate the `DataSource` and the business components that use it and control their
-  startup order by putting them in separate `ApplicationContext` instances (for example, the
-  parent context contains the `DataSource`, and the child context contains the business
-  components). This structure is common in Infra web applications but can be more
-  generally applied.
-
-
-
+* 依赖 Infra `BeanFactory` 的默认行为，即按注册顺序初始化 bean。您可以通过采用 XML 配置中一组 `<import/>` 元素的常见做法来轻松安排这一点，这些元素对您的应用程序模块进行排序，并确保首先列出数据库和数据库初始化。
+* 将 `DataSource` 和使用它的业务组件分开，并通过将它们放在单独的 `ApplicationContext` 实例中来控制它们的启动顺序（例如，父上下文包含 `DataSource`，子上下文包含业务组件）。这种结构在 Infra Web 应用程序中很常见，但可以更普遍地应用。

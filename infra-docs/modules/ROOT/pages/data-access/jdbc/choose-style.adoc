@@ -1,27 +1,9 @@
 [[jdbc-choose-style]]
-= Choosing an Approach for JDBC Database Access
+= 选择 JDBC 数据库访问方式
 
-You can choose among several approaches to form the basis for your JDBC database access.
-In addition to three flavors of `JdbcTemplate`, a `SimpleJdbcInsert` and `SimpleJdbcCall`
-approach optimizes database metadata, and the RDBMS Object style results in a more
-object-oriented approach. Once you start using one of these approaches, you can still mix
-and match to include a feature from a different approach.
+您可以选择多种方法作为 JDBC 数据库访问的基础。除了三种风格的 `JdbcTemplate` 之外，`SimpleJdbcInsert` 和 `SimpleJdbcCall` 方法优化了数据库元数据，而 RDBMS 对象风格则产生了一种更面向对象的方法。一旦您开始使用其中一种方法，您仍然可以混合搭配以包含来自不同方法的功能。
 
-* `JdbcTemplate` is the classic and most popular Infra JDBC approach. This
-  "`lowest-level`" approach and all others use a `JdbcTemplate` under the covers.
-* `NamedParameterJdbcTemplate` wraps a `JdbcTemplate` to provide named parameters
-  instead of the traditional JDBC `?` placeholders. This approach provides better
-  documentation and ease of use when you have multiple parameters for an SQL statement.
-* `SimpleJdbcInsert` and `SimpleJdbcCall` optimize database metadata to limit the amount
-  of necessary configuration. This approach simplifies coding so that you only need to
-  provide the name of the table or procedure and a map of parameters matching the column
-  names. This works only if the database provides adequate metadata. If the database does
-  not provide this metadata, you have to provide explicit configuration of the parameters.
-* RDBMS objects — including `MappingSqlQuery`, `SqlUpdate`, and `StoredProcedure` —
-  require you to create reusable and thread-safe objects during initialization of your
-  data-access layer. This approach allows you to define your query string, declare
-  parameters, and compile the query. Once you do that, `execute(...)`, `update(...)`, and
-  `findObject(...)` methods can be called multiple times with various parameter values.
-
-
-
+* `JdbcTemplate` 是经典且最流行的 Infra JDBC 方法。这种“`最低级别`”的方法和所有其他方法都在底层使用 `JdbcTemplate`。
+* `NamedParameterJdbcTemplate` 包装了一个 `JdbcTemplate` 以提供命名参数，而不是传统的 JDBC `?` 占位符。当您的 SQL 语句有多个参数时，此方法提供了更好的文档和易用性。
+* `SimpleJdbcInsert` 和 `SimpleJdbcCall` 优化了数据库元数据以限制必要的配置量。此方法简化了编码，因此您只需提供表或过程的名称以及与列名匹配的参数映射。这仅在数据库提供足够的元数据时才有效。如果数据库不提供此元数据，则必须提供参数的显式配置。
+* RDBMS 对象——包括 `MappingSqlQuery`、`SqlUpdate` 和 `StoredProcedure`——要求您在数据访问层的初始化期间创建可重用且线程安全的对象。此方法允许您定义查询字符串、声明参数并编译查询。一旦您这样做，就可以使用各种参数值多次调用 `execute(...)`、`update(...)` 和 `findObject(...)` 方法。
