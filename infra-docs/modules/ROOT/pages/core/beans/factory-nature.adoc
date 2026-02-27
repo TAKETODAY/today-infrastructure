@@ -1,67 +1,51 @@
 [[beans-factory-nature]]
-= Customizing the Nature of a Bean
+= 自定义 Bean 的性质
 
-The TODAY Framework provides a number of interfaces you can use to customize the nature
-of a bean. This section groups them as follows:
+TODAY Framework 提供了许多接口，您可以使用这些接口自定义 bean 的性质。本节将它们分组如下：
 
-* xref:core/beans/factory-nature.adoc#beans-factory-lifecycle[Lifecycle Callbacks]
-* xref:core/beans/factory-nature.adoc#beans-factory-aware[`ApplicationContextAware` and `BeanNameAware`]
-* xref:core/beans/factory-nature.adoc#aware-list[Other `Aware` Interfaces]
-
-
+* xref:core/beans/factory-nature.adoc#beans-factory-lifecycle[生命周期回调]
+* xref:core/beans/factory-nature.adoc#beans-factory-aware[`ApplicationContextAware` 和 `BeanNameAware`]
+* xref:core/beans/factory-nature.adoc#aware-list[其他 `Aware` 接口]
 
 [[beans-factory-lifecycle]]
-== Lifecycle Callbacks
+== 生命周期回调
 
-To interact with the container's management of the bean lifecycle, you can implement
-the Infra `InitializingBean` and `DisposableBean` interfaces. The container calls
-`afterPropertiesSet()` for the former and `destroy()` for the latter to let the bean
-perform certain actions upon initialization and destruction of your beans.
+要与容器对 bean 生命周期的管理进行交互，您可以实现 Infra 的 `InitializingBean` 和 `DisposableBean` 接口。
+容器为前者调用 `afterPropertiesSet()`，为后者调用 `destroy()`，以便让 bean 在初始化和销毁时执行某些操作。
 
 [TIP]
 ====
-The JSR-250 `@PostConstruct` and `@PreDestroy` annotations are generally considered best
-practice for receiving lifecycle callbacks in a modern Infra application. Using these
-annotations means that your beans are not coupled to Infra-specific interfaces.
-For details, see xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[Using `@PostConstruct` and `@PreDestroy`].
+JSR-250 `@PostConstruct` 和 `@PreDestroy` 注解通常被认为是现代 Infra 应用程序中接收生命周期回调的最佳实践。
+使用这些注解意味着您的 bean 不会耦合到特定于 Infra 的接口。
+有关详细信息，请参阅 xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[使用 `@PostConstruct` 和 `@PreDestroy`]。
 
-If you do not want to use the JSR-250 annotations but you still want to remove
-coupling, consider `init-method` and `destroy-method` bean definition metadata.
+如果您不想使用 JSR-250 注解，但仍想消除耦合，请考虑使用 `init-method` 和 `destroy-method` bean 定义元数据。
 ====
 
-Internally, the TODAY Framework uses `BeanPostProcessor` implementations to process any
-callback interfaces it can find and call the appropriate methods. If you need custom
-features or other lifecycle behavior Infra does not by default offer, you can
-implement a `BeanPostProcessor` yourself. For more information, see
-xref:core/beans/factory-extension.adoc[Container Extension Points].
+在内部，TODAY Framework 使用 `BeanPostProcessor` 实现来处理它能找到的任何回调接口并调用适当的方法。
+如果您需要自定义特性或 Infra 默认未提供的其他生命周期行为，您可以自己实现一个 `BeanPostProcessor`。
+有关更多信息，请参阅 xref:core/beans/factory-extension.adoc[容器扩展点]。
 
-In addition to the initialization and destruction callbacks, Infra-managed objects may
-also implement the `Lifecycle` interface so that those objects can participate in the
-startup and shutdown process, as driven by the container's own lifecycle.
+除了初始化和销毁回调外，Infra 管理的对象还可以实现 `Lifecycle` 接口，以便这些对象可以参与由容器自身生命周期驱动的启动和关闭过程。
 
-The lifecycle callback interfaces are described in this section.
-
-
+本节描述了生命周期回调接口。
 
 [[beans-factory-lifecycle-initializingbean]]
-=== Initialization Callbacks
+=== 初始化回调
 
-The `infra.beans.factory.InitializingBean` interface lets a bean
-perform initialization work after the container has set all necessary properties on the
-bean. The `InitializingBean` interface specifies a single method:
+`infra.beans.factory.InitializingBean` 接口允许 bean 在容器设置了 bean 上所有必要的属性后执行初始化工作。
+`InitializingBean` 接口指定了一个方法：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 void afterPropertiesSet() throws Exception;
 ----
 
-We recommend that you do not use the `InitializingBean` interface, because it
-unnecessarily couples the code to Infra. Alternatively, we suggest using
-the xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PostConstruct`] annotation or
-specifying a POJO initialization method. In the case of XML-based configuration metadata,
-you can use the `init-method` attribute to specify the name of the method that has a void
-no-argument signature. With Java configuration, you can use the `initMethod` attribute of
-`@Bean`. See xref:core/beans/java/bean-annotation.adoc#beans-java-lifecycle-callbacks[Receiving Lifecycle Callbacks]. Consider the following example:
+我们建议您不要使用 `InitializingBean` 接口，因为它不必要地将代码耦合到 Infra。
+或者，我们建议使用 xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PostConstruct`] 注解或指定 POJO 初始化方法。
+在基于 XML 的配置元数据的情况下，您可以使用 `init-method` 属性来指定具有无参数签名的方法名称。
+对于 Java 配置，您可以使用 `@Bean` 的 `initMethod` 属性。
+请参阅 xref:core/beans/java/bean-annotation.adoc#beans-java-lifecycle-callbacks[接收生命周期回调]。考虑以下示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -77,15 +61,14 @@ Java::
 public class ExampleBean {
 
   public void init() {
-    // do some initialization work
+    // 执行一些初始化工作
   }
 }
 ----
 
 ======
 
-The preceding example has almost exactly the same effect as the following example
-(which consists of two listings):
+前面的示例与下面的示例（由两个列表组成）几乎具有相同的效果：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -102,59 +85,46 @@ public class AnotherExampleBean implements InitializingBean {
 
   @Override
   public void afterPropertiesSet() {
-    // do some initialization work
+    // 执行一些初始化工作
   }
 }
 ----
 
 ======
 
-However, the first of the two preceding examples does not couple the code to Infra.
+然而，前面的两个示例中的第一个并没有将代码耦合到 Infra。
 
 [NOTE]
 ====
-Be aware that `@PostConstruct` and initialization methods in general are executed
-within the container's singleton creation lock. The bean instance is only considered
-as fully initialized and ready to be published to others after returning from the
-`@PostConstruct` method. Such individual initialization methods are only meant
-for validating the configuration state and possibly preparing some data structures
-based on the given configuration but no further activity with external bean access.
-Otherwise there is a risk for an initialization deadlock.
+请注意，`@PostConstruct` 和一般的初始化方法是在容器的单例创建锁内执行的。
+只有在从 `@PostConstruct` 方法返回后，bean 实例才被视为完全初始化并准备好发布给其他人。
+此类单独的初始化方法仅用于验证配置状态，并可能根据给定的配置准备一些数据结构，但不能进行进一步的外部 bean 访问活动。
+否则，存在初始化死锁的风险。
 
-For a scenario where expensive post-initialization activity is to be triggered,
-e.g. asynchronous database preparation steps, your bean should either implement
-`SmartInitializingSingleton.afterSingletonsInstantiated()` or rely on the context
-refresh event: implementing `ApplicationListener<ContextRefreshedEvent>` or
-declaring its annotation equivalent `@EventListener(ContextRefreshedEvent.class)`.
-Those variants come after all regular singleton initialization and therefore
-outside of any singleton creation lock.
+对于需要触发昂贵的后初始化活动的场景，例如异步数据库准备步骤，您的 bean 应该实现
+`SmartInitializingSingleton.afterSingletonsInstantiated()` 或依赖于上下文刷新事件：
+实现 `ApplicationListener<ContextRefreshedEvent>` 或声明其注解等效项 `@EventListener(ContextRefreshedEvent.class)`。
+这些变体出现在所有常规单例初始化之后，因此在任何单例创建锁之外。
 
-Alternatively, you may implement the `(Smart)Lifecycle` interface and integrate with
-the container's overall lifecycle management, including an auto-startup mechanism,
-a pre-destroy stop step, and potential stop/restart callbacks (see below).
+或者，您可以实现 `(Smart)Lifecycle` 接口并与容器的整体生命周期管理集成，包括自动启动机制、预销毁停止步骤以及潜在的停止/重启回调（见下文）。
 ====
 
-
-
 [[beans-factory-lifecycle-disposablebean]]
-=== Destruction Callbacks
+=== 销毁回调
 
-Implementing the `infra.beans.factory.DisposableBean` interface lets a
-bean get a callback when the container that contains it is destroyed. The
-`DisposableBean` interface specifies a single method:
+实现 `infra.beans.factory.DisposableBean` 接口允许 bean 在包含它的容器被销毁时获得回调。
+`DisposableBean` 接口指定了一个方法：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 void destroy() throws Exception;
 ----
 
-We recommend that you do not use the `DisposableBean` callback interface, because it
-unnecessarily couples the code to Infra. Alternatively, we suggest using
-the xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PreDestroy`] annotation or
-specifying a generic method that is supported by bean definitions. With XML-based
-configuration metadata, you can use the `destroy-method` attribute on the `<bean/>`.
-With Java configuration, you can use the `destroyMethod` attribute of `@Bean`. See
-xref:core/beans/java/bean-annotation.adoc#beans-java-lifecycle-callbacks[Receiving Lifecycle Callbacks]. Consider the following definition:
+我们建议您不要使用 `DisposableBean` 回调接口，因为它不必要地将代码耦合到 Infra。
+或者，我们建议使用 xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PreDestroy`] 注解或指定 bean 定义支持的通用方法。
+对于基于 XML 的配置元数据，您可以使用 `<bean/>` 上的 `destroy-method` 属性。
+对于 Java 配置，您可以使用 `@Bean` 的 `destroyMethod` 属性。
+请参阅 xref:core/beans/java/bean-annotation.adoc#beans-java-lifecycle-callbacks[接收生命周期回调]。考虑以下定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -170,14 +140,14 @@ Java::
 public class ExampleBean {
 
   public void cleanup() {
-    // do some destruction work (like releasing pooled connections)
+    // 执行一些销毁工作（如释放池化连接）
   }
 }
 ----
 
 ======
 
-The preceding definition has almost exactly the same effect as the following definition:
+前面的定义与下面的定义几乎具有相同的效果：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -194,58 +164,45 @@ public class AnotherExampleBean implements DisposableBean {
 
   @Override
   public void destroy() {
-    // do some destruction work (like releasing pooled connections)
+    // 执行一些销毁工作（如释放池化连接）
   }
 }
 ----
 
 ======
 
-However, the first of the two preceding definitions does not couple the code to Infra.
+然而，前面的两个定义中的第一个并没有将代码耦合到 Infra。
 
-Note that Infra also supports inference of destroy methods, detecting a public `close` or
-`shutdown` method. This is the default behavior for `@Bean` methods in Java configuration
-classes and automatically matches `java.lang.AutoCloseable` or `java.io.Closeable`
-implementations, not coupling the destruction logic to Infra either.
+请注意，Infra 还支持销毁方法的推断，即检测公共的 `close` 或 `shutdown` 方法。
+这是 Java 配置类中 `@Bean` 方法的默认行为，并自动匹配 `java.lang.AutoCloseable` 或 `java.io.Closeable` 实现，
+也不会将销毁逻辑耦合到 Infra。
 
-TIP: For destroy method inference with XML, you may assign the `destroy-method` attribute
-of a `<bean>` element a special `(inferred)` value, which instructs Infra to automatically
-detect a public `close` or `shutdown` method on the bean class for a specific bean definition.
-You can also set this special `(inferred)` value on the `default-destroy-method` attribute
-of a `<beans>` element to apply this behavior to an entire set of bean definitions (see
-xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-default-init-destroy-methods[Default Initialization and Destroy Methods]).
+TIP: 对于 XML 的销毁方法推断，您可以将 `<bean>` 元素的 `destroy-method` 属性分配一个特殊的 `(inferred)` 值，
+这指示 Infra 自动检测特定 bean 定义的 bean 类上的公共 `close` 或 `shutdown` 方法。
+您还可以在 `<beans>` 元素的 `default-destroy-method` 属性上设置此特殊 `(inferred)` 值，
+以将此行为应用于整个 bean 定义集（参见 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-default-init-destroy-methods[默认初始化和销毁方法]）。
 
 [NOTE]
 ====
-For extended shutdown phases, you may implement the `Lifecycle` interface and receive
-an early stop signal before the destroy methods of any singleton beans are called.
-You may also implement `SmartLifecycle` for a time-bound stop step where the container
-will wait for all such stop processing to complete before moving on to destroy methods.
+对于扩展的关闭阶段，您可以实现 `Lifecycle` 接口，并在任何单例 bean 的销毁方法被调用之前接收提前停止信号。
+您还可以实现 `SmartLifecycle` 以进行有时间限制的停止步骤，其中容器将等待所有此类停止处理完成后再继续进行销毁方法。
 ====
 
-
-
 [[beans-factory-lifecycle-default-init-destroy-methods]]
-=== Default Initialization and Destroy Methods
+=== 默认初始化和销毁方法
 
-When you write initialization and destroy method callbacks that do not use the
-Infra-specific `InitializingBean` and `DisposableBean` callback interfaces, you
-typically write methods with names such as `init()`, `initialize()`, `dispose()`,
-and so on. Ideally, the names of such lifecycle callback methods are standardized across
-a project so that all developers use the same method names and ensure consistency.
+当您编写不使用 Infra 特定的 `InitializingBean` 和 `DisposableBean` 回调接口的初始化和销毁方法回调时，
+您通常会编写名为 `init()`、`initialize()`、`dispose()` 等的方法。
+理想情况下，此类生命周期回调方法的名称应在整个项目中标准化，以便所有开发人员使用相同的方法名称并确保一致性。
 
-You can configure the Infra container to "`look`" for named initialization and destroy
-callback method names on every bean. This means that you, as an application developer,
-can write your application classes and use an initialization callback called `init()`,
-without having to configure an `init-method="init"` attribute with each bean definition.
-The Infra IoC container calls that method when the bean is created (and in accordance
-with the standard lifecycle callback contract xref:core/beans/factory-nature.adoc#beans-factory-lifecycle[described previously]).
-This feature also enforces a consistent naming convention for initialization and
-destroy method callbacks.
+您可以配置 Infra 容器以在每个 bean 上“查找”命名的初始化和销毁回调方法名称。
+这意味着，作为应用程序开发人员，您可以编写应用程序类并使用名为 `init()` 的初始化回调，
+而无需为每个 bean 定义配置 `init-method="init"` 属性。
+Infra IoC 容器在创建 bean 时调用该方法（并遵循 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle[前面描述的] 标准生命周期回调契约）。
+此功能还强制执行初始化和销毁方法回调的一致命名约定。
 
-Suppose that your initialization callback methods are named `init()` and your destroy
-callback methods are named `destroy()`. Your class then resembles the class in the
-following example:
+假设您的初始化回调方法名为 `init()`，销毁回调方法名为 `destroy()`。
+您的类类似于以下示例中的类：
 
 [tabs]
 ======
@@ -261,7 +218,7 @@ public class DefaultBlogService implements BlogService {
     this.blogDao = blogDao;
   }
 
-  // this is (unsurprisingly) the initialization callback method
+  // 这（不出所料）是初始化回调方法
   public void init() {
     if (this.blogDao == null) {
       throw new IllegalStateException("The [blogDao] property must be set.");
@@ -272,7 +229,7 @@ public class DefaultBlogService implements BlogService {
 
 ======
 
-You could then use that class in a bean resembling the following:
+然后，您可以在类似以下的 bean 中使用该类：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -285,70 +242,51 @@ You could then use that class in a bean resembling the following:
 </beans>
 ----
 
-The presence of the `default-init-method` attribute on the top-level `<beans/>` element
-attribute causes the Infra IoC container to recognize a method called `init` on the bean
-class as the initialization method callback. When a bean is created and assembled, if the
-bean class has such a method, it is invoked at the appropriate time.
+顶层 `<beans/>` 元素属性上 `default-init-method` 属性的存在会导致 Infra IoC 容器将 bean 类上名为 `init` 的方法识别为初始化方法回调。
+当 bean 被创建和组装时，如果 bean 类有这样的方法，它将在适当的时间被调用。
 
-You can configure destroy method callbacks similarly (in XML, that is) by using the
-`default-destroy-method` attribute on the top-level `<beans/>` element.
+您可以通过使用顶层 `<beans/>` 元素上的 `default-destroy-method` 属性类似地配置销毁方法回调（即在 XML 中）。
 
-Where existing bean classes already have callback methods that are named at variance
-with the convention, you can override the default by specifying (in XML, that is) the
-method name by using the `init-method` and `destroy-method` attributes of the `<bean/>`
-itself.
+如果现有的 bean 类已经具有与约定名称不同的回调方法，您可以通过使用 `<bean/>` 本身的 `init-method` 和 `destroy-method` 属性指定（即在 XML 中）方法名称来覆盖默认值。
 
-The Infra container guarantees that a configured initialization callback is called
-immediately after a bean is supplied with all dependencies. Thus, the initialization
-callback is called on the raw bean reference, which means that AOP interceptors and so
-forth are not yet applied to the bean. A target bean is fully created first and
-then an AOP proxy (for example) with its interceptor chain is applied. If the target
-bean and the proxy are defined separately, your code can even interact with the raw
-target bean, bypassing the proxy. Hence, it would be inconsistent to apply the
-interceptors to the `init` method, because doing so would couple the lifecycle of the
-target bean to its proxy or interceptors and leave strange semantics when your code
-interacts directly with the raw target bean.
-
-
+Infra 容器保证在为 bean 提供了所有依赖项后立即调用配置的初始化回调。
+因此，初始化回调是在原始 bean 引用上调用的，这意味着 AOP 拦截器等尚未应用于 bean。
+首先完全创建目标 bean，然后应用（例如）带有拦截器链的 AOP 代理。
+如果目标 bean 和代理是分开定义的，您的代码甚至可以与原始目标 bean 交互，绕过代理。
+因此，将拦截器应用于 `init` 方法是不一致的，因为这样做会将目标 bean 的生命周期耦合到其代理或拦截器，
+并在您的代码直接与原始目标 bean 交互时留下奇怪的语义。
 
 [[beans-factory-lifecycle-combined-effects]]
-=== Combining Lifecycle Mechanisms
+=== 组合生命周期机制
 
-As of Infra 2.5, you have three options for controlling bean lifecycle behavior:
+您有三个选项来控制 bean 生命周期行为：
 
-* The xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[`InitializingBean`] and
-xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[`DisposableBean`] callback interfaces
-* Custom `init()` and `destroy()` methods
-* The xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PostConstruct` and `@PreDestroy` annotations]
-. You can combine these mechanisms to control a given bean.
+* xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[`InitializingBean`] 和 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[`DisposableBean`] 回调接口
+* 自定义 `init()` 和 `destroy()` 方法
+* xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PostConstruct` 和 `@PreDestroy` 注解]
 
-NOTE: If multiple lifecycle mechanisms are configured for a bean and each mechanism is
-configured with a different method name, then each configured method is run in the
-order listed after this note. However, if the same method name is configured -- for example,
-`init()` for an initialization method -- for more than one of these lifecycle mechanisms,
-that method is run once, as explained in the
-xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-default-init-destroy-methods[preceding section].
+您可以组合这些机制来控制给定的 bean。
 
-Multiple lifecycle mechanisms configured for the same bean, with different
-initialization methods, are called as follows:
+NOTE: 如果为 bean 配置了多种生命周期机制，并且每种机制都配置了不同的方法名称，则每个配置的方法都将按照本说明后的顺序列出运行。
+但是，如果为多种生命周期机制配置了相同的方法名称——例如，初始化方法的 `init()`——则该方法只运行一次，
+如 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-default-init-destroy-methods[上一节] 所述。
 
-. Methods annotated with `@PostConstruct`
-. `afterPropertiesSet()` as defined by the `InitializingBean` callback interface
-. A custom configured `init()` method
+为同一个 bean 配置的多种生命周期机制，具有不同的初始化方法，调用顺序如下：
 
-Destroy methods are called in the same order:
+. 带有 `@PostConstruct` 注解的方法
+. `InitializingBean` 回调接口定义的 `afterPropertiesSet()`
+. 自定义配置的 `init()` 方法
 
-. Methods annotated with `@PreDestroy`
-. `destroy()` as defined by the `DisposableBean` callback interface
-. A custom configured `destroy()` method
+销毁方法的调用顺序相同：
 
-
+. 带有 `@PreDestroy` 注解的方法
+. `DisposableBean` 回调接口定义的 `destroy()`
+. 自定义配置的 `destroy()` 方法
 
 [[beans-factory-lifecycle-processor]]
-=== Startup and Shutdown Callbacks
+=== 启动和关闭回调
 
-The `Lifecycle` interface defines the essential methods for any object that has its own
-lifecycle requirements (such as starting and stopping some background process):
+`Lifecycle` 接口为任何具有自身生命周期需求的对象（如启动和停止某些后台进程）定义了基本方法：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -362,11 +300,10 @@ public interface Lifecycle {
 }
 ----
 
-Any Infra-managed object may implement the `Lifecycle` interface. Then, when the
-`ApplicationContext` itself receives start and stop signals (for example, for a stop/restart
-scenario at runtime), it cascades those calls to all `Lifecycle` implementations
-defined within that context. It does this by delegating to a `LifecycleProcessor`, shown
-in the following listing:
+任何 Infra 管理的对象都可以实现 `Lifecycle` 接口。
+然后，当 `ApplicationContext` 本身接收到启动和停止信号时（例如，在运行时的停止/重启场景），
+它会将这些调用级联到在该上下文中定义的所有 `Lifecycle` 实现。
+它通过委托给 `LifecycleProcessor` 来做到这一点，如下面的列表所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -378,31 +315,24 @@ public interface LifecycleProcessor extends Lifecycle {
 }
 ----
 
-Notice that the `LifecycleProcessor` is itself an extension of the `Lifecycle`
-interface. It also adds two other methods for reacting to the context being refreshed
-and closed.
+请注意，`LifecycleProcessor` 本身是 `Lifecycle` 接口的扩展。
+它还添加了另外两个方法，用于响应上下文被刷新和关闭。
 
 [TIP]
 ====
-Note that the regular `infra.context.Lifecycle` interface is a plain
-contract for explicit start and stop notifications and does not imply auto-startup
-at context refresh time. For fine-grained control over auto-startup and for graceful
-stopping of a specific bean (including startup and stop phases), consider implementing
-the extended `infra.context.SmartLifecycle` interface instead.
+请注意，常规的 `infra.context.Lifecycle` 接口是一个用于显式启动和停止通知的普通契约，并不意味着在上下文刷新时自动启动。
+对于对自动启动的细粒度控制以及特定 bean 的优雅停止（包括启动和停止阶段），请考虑实现扩展的 `infra.context.SmartLifecycle` 接口。
 
-Also, please note that stop notifications are not guaranteed to come before destruction.
-On regular shutdown, all `Lifecycle` beans first receive a stop notification before
-the general destruction callbacks are being propagated. However, on hot refresh during
-a context's lifetime or on stopped refresh attempts, only destroy methods are called.
+此外，请注意，不能保证停止通知在销毁之前到来。
+在常规关闭时，所有 `Lifecycle` bean 在传播一般销毁回调之前首先接收停止通知。
+但是，在上下文生命周期内的热刷新或停止的刷新尝试期间，仅调用销毁方法。
 ====
 
-The order of startup and shutdown invocations can be important. If a "`depends-on`"
-relationship exists between any two objects, the dependent side starts after its
-dependency, and it stops before its dependency. However, at times, the direct
-dependencies are unknown. You may only know that objects of a certain type should start
-prior to objects of another type. In those cases, the `SmartLifecycle` interface defines
-another option, namely the `getPhase()` method as defined on its super-interface,
-`Phased`. The following listing shows the definition of the `Phased` interface:
+启动和关闭调用的顺序可能很重要。
+如果任何两个对象之间存在“依赖”关系，则依赖方在其依赖项之后启动，并在其依赖项之前停止。
+然而，有时直接依赖关系是未知的。您可能只知道某种类型的对象应该在另一种类型的对象之前启动。
+在这些情况下，`SmartLifecycle` 接口定义了另一个选项，即在其父接口 `Phased` 上定义的 `getPhase()` 方法。
+下面的列表显示了 `Phased` 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -412,7 +342,7 @@ public interface Phased {
 }
 ----
 
-The following listing shows the definition of the `SmartLifecycle` interface:
+下面的列表显示了 `SmartLifecycle` 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -424,68 +354,49 @@ public interface SmartLifecycle extends Lifecycle, Phased {
 }
 ----
 
-When starting, the objects with the lowest phase start first. When stopping, the
-reverse order is followed. Therefore, an object that implements `SmartLifecycle` and
-whose `getPhase()` method returns `Integer.MIN_VALUE` would be among the first to start
-and the last to stop. At the other end of the spectrum, a phase value of
-`Integer.MAX_VALUE` would indicate that the object should be started last and stopped
-first (likely because it depends on other processes to be running). When considering the
-phase value, it is also important to know that the default phase for any "`normal`"
-`Lifecycle` object that does not implement `SmartLifecycle` is `0`. Therefore, any
-negative phase value indicates that an object should start before those standard
-components (and stop after them). The reverse is true for any positive phase value.
+启动时，具有最低相位的对象首先启动。停止时，遵循相反的顺序。
+因此，实现 `SmartLifecycle` 且其 `getPhase()` 方法返回 `Integer.MIN_VALUE` 的对象将是首先启动和最后停止的对象之一。
+在频谱的另一端，相位值 `Integer.MAX_VALUE` 将指示该对象应最后启动并首先停止（可能是因为它依赖于其他正在运行的进程）。
+在考虑相位值时，了解未实现 `SmartLifecycle` 的任何“正常”`Lifecycle` 对象的默认相位为 `0` 也很重要。
+因此，任何负相位值表示对象应在这些标准组件之前启动（并在它们之后停止）。任何正相位值则相反。
 
-The stop method defined by `SmartLifecycle` accepts a callback. Any
-implementation must invoke that callback's `run()` method after that implementation's
-shutdown process is complete. That enables asynchronous shutdown where necessary, since
-the default implementation of the `LifecycleProcessor` interface,
-`DefaultLifecycleProcessor`, waits up to its timeout value for the group of objects
-within each phase to invoke that callback. The default per-phase timeout is 30 seconds.
-You can override the default lifecycle processor instance by defining a bean named
-`lifecycleProcessor` within the context. If you want only to modify the timeout,
-defining the following would suffice:
+`SmartLifecycle` 定义的停止方法接受一个回调。
+任何实现必须在该实现的关闭过程完成后调用该回调的 `run()` 方法。
+这在必要时启用了异步关闭，因为 `LifecycleProcessor` 接口的默认实现 `DefaultLifecycleProcessor`
+会等待每个相位内的对象组调用该回调，直到达到其超时值。默认的每个相位超时为 30 秒。
+您可以通过在上下文中定义一个名为 `lifecycleProcessor` 的 bean 来覆盖默认的生命周期处理器实例。
+如果您只想修改超时，定义以下内容就足够了：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="lifecycleProcessor" class="infra.context.support.DefaultLifecycleProcessor">
-  <!-- timeout value in milliseconds -->
+  <!-- 超时值，单位毫秒 -->
   <property name="timeoutPerShutdownPhase" value="10000"/>
 </bean>
 ----
 
-As mentioned earlier, the `LifecycleProcessor` interface defines callback methods for the
-refreshing and closing of the context as well. The latter drives the shutdown
-process as if `stop()` had been called explicitly, but it happens when the context is
-closing. The 'refresh' callback, on the other hand, enables another feature of
-`SmartLifecycle` beans. When the context is refreshed (after all objects have been
-instantiated and initialized), that callback is invoked. At that point, the
-default lifecycle processor checks the boolean value returned by each
-`SmartLifecycle` object's `isAutoStartup()` method. If `true`, that object is
-started at that point rather than waiting for an explicit invocation of the context's or
-its own `start()` method (unlike the context refresh, the context start does not happen
-automatically for a standard context implementation). The `phase` value and any
-"`depends-on`" relationships determine the startup order as described earlier.
-
-
+如前所述，`LifecycleProcessor` 接口还定义了用于刷新和关闭上下文的回调方法。
+后者驱动关闭过程，就像显式调用了 `stop()` 一样，但它是在上下文关闭时发生的。
+另一方面，“刷新”回调启用了 `SmartLifecycle` bean 的另一个功能。
+当上下文被刷新时（在所有对象被实例化和初始化之后），该回调被调用。
+此时，默认生命周期处理器检查每个 `SmartLifecycle` 对象的 `isAutoStartup()` 方法返回的布尔值。
+如果为 `true`，则该对象在此时启动，而不是等待显式调用上下文或其自己的 `start()` 方法
+（与上下文刷新不同，上下文启动不会自动发生在标准上下文实现中）。
+`phase` 值和任何“依赖”关系决定了如前所述的启动顺序。
 
 [[beans-factory-shutdown]]
-=== Shutting Down the Infra IoC Container Gracefully in Non-Web Applications
+=== 在非 Web 应用程序中优雅地关闭 Infra IoC 容器
 
 [NOTE]
 ====
-This section applies only to non-web applications. Infra web-based
-`ApplicationContext` implementations already have code in place to gracefully shut down
-the Infra IoC container when the relevant web application is shut down.
+本节仅适用于非 Web 应用程序。基于 Infra Web 的 `ApplicationContext` 实现已经具备了在相关 Web 应用程序关闭时优雅地关闭 Infra IoC 容器的代码。
 ====
 
-If you use Infra IoC container in a non-web application environment (for
-example, in a rich client desktop environment), register a shutdown hook with the
-JVM. Doing so ensures a graceful shutdown and calls the relevant destroy methods on your
-singleton beans so that all resources are released. You must still configure
-and implement these destroy callbacks correctly.
+如果您在非 Web 应用程序环境（例如，富客户端桌面环境）中使用 Infra IoC 容器，请向 JVM 注册关闭钩子。
+这样做可以确保优雅关闭，并在您的单例 bean 上调用相关的销毁方法，以便释放所有资源。
+您仍然必须正确配置和实现这些销毁回调。
 
-To register a shutdown hook, call the `registerShutdownHook()` method that is
-declared on the `ConfigurableApplicationContext` interface, as the following example shows:
+要注册关闭钩子，请调用 `ConfigurableApplicationContext` 接口上声明的 `registerShutdownHook()` 方法，如下例所示：
 
 [tabs]
 ======
@@ -501,61 +412,42 @@ public final class Boot {
   public static void main(final String[] args) throws Exception {
     ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("beans.xml");
 
-    // add a shutdown hook for the above context...
+    // 为上述上下文添加关闭钩子...
     ctx.registerShutdownHook();
 
-    // app runs here...
+    // 应用程序在此处运行...
 
-    // main method exits, hook is called prior to the app shutting down...
+    // main 方法退出，钩子在应用程序关闭之前被调用...
   }
 }
 ----
 
 ======
 
-
-
 [[beans-factory-thread-safety]]
-=== Thread Safety and Visibility
+=== 线程安全性和可见性
 
-The Infra core container publishes created singleton instances in a thread-safe manner,
-guarding access through a singleton lock and guaranteeing visibility in other threads.
+Infra 核心容器以线程安全的方式发布创建的单例实例，通过单例锁保护访问并保证在其他线程中的可见性。
 
-As a consequence, application-provided bean classes do not have to be concerned about the
-visibility of their initialization state. Regular configuration fields do not have to be
-marked as `volatile` as long as they are only mutated during the initialization phase,
-providing visibility guarantees similar to `final` even for setter-based configuration
-state that is mutable during that initial phase. If such fields get changed after the
-bean creation phase and its subsequent initial publication, they need to be declared as
-`volatile` or guarded by a common lock whenever accessed.
+因此，应用程序提供的 bean 类不必担心其初始化状态的可见性。
+常规配置字段只要仅在初始化阶段发生变化，就不必标记为 `volatile`，即使对于在该初始阶段可变的基于 setter 的配置状态，也提供类似于 `final` 的可见性保证。
+如果此类字段在 bean 创建阶段及其随后的初始发布之后发生更改，则需要在访问时声明为 `volatile` 或由公共锁保护。
 
-Note that concurrent access to such configuration state in singleton bean instances,
-e.g. for controller instances or repository instances, is perfectly thread-safe after
-such safe initial publication from the container side. This includes common singleton
-`FactoryBean` instances which are processed within the general singleton lock as well.
+请注意，对此类单例 bean 实例中的配置状态的并发访问（例如，对于控制器实例或存储库实例），在从容器侧进行此类安全初始发布后是完全线程安全的。
+这包括常见的单例 `FactoryBean` 实例，它们也在通用单例锁内处理。
 
-For destruction callbacks, the configuration state remains thread-safe but any runtime
-state accumulated between initialization and destruction should be kept in thread-safe
-structures (or in `volatile` fields for simple cases) as per common Java guidelines.
+对于销毁回调，配置状态保持线程安全，但在初始化和销毁之间累积的任何运行时状态应根据通用 Java 指南保存在线程安全结构中（或对于简单情况保存在 `volatile` 字段中）。
 
-Deeper `Lifecycle` integration as shown above involves runtime-mutable state such as
-a `runnable` field which will have to be declared as `volatile`. While the common
-lifecycle callbacks follow a certain order, e.g. a start callback is guaranteed to
-only happen after full initialization and a stop callback only after an initial start,
-there is a special case with the common stop before destroy arrangement: It is strongly
-recommended that the internal state in any such bean also allows for an immediate
-destroy callback without a preceding stop since this may happen during an extraordinary
-shutdown after a cancelled bootstrap or in case of a stop timeout caused by another bean.
-
-
+如上所示的更深层次的 `Lifecycle` 集成涉及运行时可变状态，例如 `runnable` 字段，该字段必须声明为 `volatile`。
+虽然常见的生命周期回调遵循一定的顺序，例如启动回调保证仅在完全初始化后发生，停止回调仅在初始启动后发生，
+但有一个特殊情况是销毁前的常见停止安排：强烈建议任何此类 bean 中的内部状态也允许在没有先前停止的情况下立即进行销毁回调，
+因为这可能在取消引导后的非凡关闭期间发生，或者在由另一个 bean 引起的停止超时的情况下发生。
 
 [[beans-factory-aware]]
 == `ApplicationContextAware` and `BeanNameAware`
 
-When an `ApplicationContext` creates an object instance that implements the
-`infra.context.ApplicationContextAware` interface, the instance is provided
-with a reference to that `ApplicationContext`. The following listing shows the definition
-of the `ApplicationContextAware` interface:
+当 `ApplicationContext` 创建一个实现 `infra.context.ApplicationContextAware` 接口的对象实例时，该实例将获得对该 `ApplicationContext` 的引用。
+下面的列表显示了 `ApplicationContextAware` 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -565,32 +457,22 @@ public interface ApplicationContextAware {
 }
 ----
 
-Thus, beans can programmatically manipulate the `ApplicationContext` that created them,
-through the `ApplicationContext` interface or by casting the reference to a known
-subclass of this interface (such as `ConfigurableApplicationContext`, which exposes
-additional functionality). One use would be the programmatic retrieval of other beans.
-Sometimes this capability is useful. However, in general, you should avoid it, because
-it couples the code to Infra and does not follow the Inversion of Control style,
-where collaborators are provided to beans as properties. Other methods of the
-`ApplicationContext` provide access to file resources, publishing application events,
-and accessing a `MessageSource`. These additional features are described in
-xref:core/beans/context-introduction.adoc[Additional Capabilities of the `ApplicationContext`].
+因此，beans 可以通过 `ApplicationContext` 接口或通过将引用转换为该接口的已知子类（例如 `ConfigurableApplicationContext`，它公开了附加功能），
+以编程方式操作创建它们的 `ApplicationContext`。
+一种用途是以编程方式检索其他 beans。有时这种能力很有用。
+但是，一般来说，您应该避免这样做，因为它将代码耦合到 Infra，并且不遵循控制反转风格，在控制反转风格中，协作者作为属性提供给 beans。
+`ApplicationContext` 的其他方法提供对文件资源的访问、发布应用程序事件以及访问 `MessageSource`。
+这些附加功能在 xref:core/beans/context-introduction.adoc[`ApplicationContext` 的附加功能] 中描述。
 
-Autowiring is another alternative to obtain a reference to the
-`ApplicationContext`. The _traditional_ `constructor` and `byType` autowiring modes
-(as described in xref:core/beans/dependencies/factory-autowire.adoc[Autowiring Collaborators]) can provide a dependency of type
-`ApplicationContext` for a constructor argument or a setter method parameter,
-respectively. For more flexibility, including the ability to autowire fields and
-multiple parameter methods, use the annotation-based autowiring features. If you do,
-the `ApplicationContext` is autowired into a field, constructor argument, or method
-parameter that expects the `ApplicationContext` type if the field, constructor, or
-method in question carries the `@Autowired` annotation. For more information, see
-xref:core/beans/annotation-config/autowired.adoc[Using `@Autowired`].
+自动装配是获得对 `ApplicationContext` 引用的另一种选择。
+_传统_ 的 `constructor` 和 `byType` 自动装配模式（如 xref:core/beans/dependencies/factory-autowire.adoc[自动装配协作者] 中所述）
+可以分别为构造函数参数或 setter 方法参数提供 `ApplicationContext` 类型的依赖项。
+为了获得更大的灵活性，包括自动装配字段和多参数方法的能力，请使用基于注解的自动装配功能。
+如果这样做，如果字段、构造函数或方法带有 `@Autowired` 注解，则 `ApplicationContext` 将被自动装配到期望 `ApplicationContext` 类型的字段、构造函数参数或方法参数中。
+有关更多信息，请参阅 xref:core/beans/annotation-config/autowired.adoc[使用 `@Autowired`]。
 
-When an `ApplicationContext` creates a class that implements the
-`infra.beans.factory.BeanNameAware` interface, the class is provided with
-a reference to the name defined in its associated object definition. The following listing
-shows the definition of the BeanNameAware interface:
+当 `ApplicationContext` 创建一个实现 `infra.beans.factory.BeanNameAware` 接口的类时，该类将获得对其关联对象定义中定义的名称的引用。
+下面的列表显示了 BeanNameAware 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -600,67 +482,57 @@ public interface BeanNameAware {
 }
 ----
 
-The callback is invoked after population of normal bean properties but before an
-initialization callback such as `InitializingBean.afterPropertiesSet()` or a custom
-init-method.
-
-
+该回调在填充正常 bean 属性之后，但在初始化回调（如 `InitializingBean.afterPropertiesSet()` 或自定义 init-method）之前调用。
 
 [[aware-list]]
-== Other `Aware` Interfaces
+== 其他 `Aware` 接口
 
-Besides `ApplicationContextAware` and `BeanNameAware` (discussed xref:core/beans/factory-nature.adoc#beans-factory-aware[earlier]),
-Infra offers a wide range of `Aware` callback interfaces that let beans indicate to the container
-that they require a certain infrastructure dependency. As a general rule, the name indicates the
-dependency type. The following table summarizes the most important `Aware` interfaces:
+除了 `ApplicationContextAware` 和 `BeanNameAware`（xref:core/beans/factory-nature.adoc#beans-factory-aware[前面] 讨论过），
+Infra 提供了各种 `Aware` 回调接口，允许 beans 向容器指示它们需要某种基础设施依赖项。
+作为一般规则，名称指示依赖项类型。下表总结了最重要的 `Aware` 接口：
 
 [[beans-factory-nature-aware-list]]
-.Aware interfaces
+.Aware 接口
 |===
-| Name| Injected Dependency| Explained in...
+| 名称| 注入的依赖项| 解释在...
 
 | `ApplicationContextAware`
-| Declaring `ApplicationContext`.
-| xref:core/beans/factory-nature.adoc#beans-factory-aware[`ApplicationContextAware` and `BeanNameAware`]
+| 声明 `ApplicationContext`。
+| xref:core/beans/factory-nature.adoc#beans-factory-aware[`ApplicationContextAware` 和 `BeanNameAware`]
 
 | `ApplicationEventPublisherAware`
-| Event publisher of the enclosing `ApplicationContext`.
-| xref:core/beans/context-introduction.adoc[Additional Capabilities of the `ApplicationContext`]
+| 封闭 `ApplicationContext` 的事件发布者。
+| xref:core/beans/context-introduction.adoc[`ApplicationContext` 的附加功能]
 
 | `BeanClassLoaderAware`
-| Class loader used to load the bean classes.
-| xref:core/beans/definition.adoc#beans-factory-class[Instantiating Beans]
+| 用于加载 bean 类的类加载器。
+| xref:core/beans/definition.adoc#beans-factory-class[实例化 Beans]
 
 | `BeanFactoryAware`
-| Declaring `BeanFactory`.
-| xref:core/beans/beanfactory.adoc[The `BeanFactory` API]
+| 声明 `BeanFactory`。
+| xref:core/beans/beanfactory.adoc[`BeanFactory` API]
 
 | `BeanNameAware`
-| Name of the declaring bean.
-| xref:core/beans/factory-nature.adoc#beans-factory-aware[`ApplicationContextAware` and `BeanNameAware`]
+| 声明 bean 的名称。
+| xref:core/beans/factory-nature.adoc#beans-factory-aware[`ApplicationContextAware` 和 `BeanNameAware`]
 
 | `LoadTimeWeaverAware`
-| Defined weaver for processing class definition at load time.
-| xref:core/aop/using-aspectj.adoc#aop-aj-ltw[Load-time Weaving with AspectJ in the TODAY Framework]
+| 定义的用于在加载时处理类定义的 weaver。
+| xref:core/aop/using-aspectj.adoc#aop-aj-ltw[TODAY Framework 中使用 AspectJ 进行加载时织入]
 
 | `MessageSourceAware`
-| Configured strategy for resolving messages (with support for parameterization and
-  internationalization).
-| xref:core/beans/context-introduction.adoc[Additional Capabilities of the `ApplicationContext`]
+| 配置的消息解析策略（支持参数化和国际化）。
+| xref:core/beans/context-introduction.adoc[`ApplicationContext` 的附加功能]
 
 | `NotificationPublisherAware`
-| Infra JMX notification publisher.
-| xref:integration/jmx/notifications.adoc[Notifications]
+| Infra JMX 通知发布者。
+| xref:integration/jmx/notifications.adoc[通知]
 
 | `ResourceLoaderAware`
-| Configured loader for low-level access to resources.
-| Resources
+| 配置的用于低级访问资源的加载器。
+| 资源
 
 |===
 
-Note again that using these interfaces ties your code to the Infra API and does not
-follow the Inversion of Control style. As a result, we recommend them for infrastructure
-beans that require programmatic access to the container.
-
-
-
+再次注意，使用这些接口将您的代码绑定到 Infra API，并且不遵循控制反转风格。
+因此，我们建议将它们用于需要以编程方式访问容器的基础设施 beans。
