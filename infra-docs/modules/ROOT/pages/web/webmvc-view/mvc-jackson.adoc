@@ -2,42 +2,22 @@
 = Jackson
 
 
-Infra offers support for the Jackson JSON library.
-
+Infra 提供了对 Jackson JSON 库的支持。
 
 
 [[mvc-view-json-mapping]]
-== Jackson-based JSON MVC Views
+== 基于 Jackson 的 JSON MVC 视图
 
-The `JacksonJsonView` uses the Jackson library's `ObjectMapper` to render the response
-content as JSON. By default, the entire contents of the model map (with the exception of
-framework-specific classes) are encoded as JSON. For cases where the contents of the
-map need to be filtered, you can specify a specific set of model attributes to encode
-by using the `modelKeys` property. You can also use the `extractValueFromSingleKeyModel`
-property to have the value in single-key models extracted and serialized directly rather
-than as a map of model attributes.
+`JacksonJsonView` 使用 Jackson 库的 `ObjectMapper` 将响应内容渲染为 JSON。默认情况下，模型映射的全部内容（框架特定的类除外）都编码为 JSON。对于需要过滤映射内容的情况，可以使用 `modelKeys` 属性指定要编码的一组特定的模型属性。您还可以使用 `extractValueFromSingleKeyModel` 属性，将单键模型中的值直接提取并序列化，而不是作为模型属性的映射。
 
-You can customize JSON mapping as needed by using Jackson's provided
-annotations. When you need further control, you can inject a custom `ObjectMapper`
-through the `ObjectMapper` property, for cases where you need to provide custom JSON
-serializers and deserializers for specific types.
-
+您可以根据需要使用 Jackson 提供的注解来自定义 JSON 映射。当您需要进一步控制时，可以通过 `ObjectMapper` 属性注入自定义 `ObjectMapper`，以便为特定类型提供自定义 JSON 序列化器和反序列化器。
 
 
 [[mvc-view-xml-mapping]]
-== Jackson-based XML Views
+== 基于 Jackson 的 XML 视图
 
-`JacksonXmlView` uses the
-{jackson-github-org}/jackson-dataformat-xml[Jackson XML extension's] `XmlMapper`
-to render the response content as XML. If the model contains multiple entries, you should
-explicitly set the object to be serialized by using the `modelKey` bean property. If the
-model contains a single entry, it is serialized automatically.
+`JacksonXmlView` 使用
+{jackson-github-org}/jackson-dataformat-xml[Jackson XML 扩展的] `XmlMapper`
+将响应内容渲染为 XML。如果模型包含多个条目，您应该使用 `modelKey` bean 属性显式设置要序列化的对象。如果模型包含单个条目，则会自动序列化它。
 
-You can customize XML mapping as needed by using JAXB or Jackson's provided
-annotations. When you need further control, you can inject a custom `XmlMapper`
-through the `ObjectMapper` property, for cases where custom XML
-you need to provide serializers and deserializers for specific types.
-
-
-
-
+您可以根据需要使用 JAXB 或 Jackson 提供的注解来自定义 XML 映射。当您需要进一步控制时，可以通过 `ObjectMapper` 属性注入自定义 `XmlMapper`，以便为特定类型提供自定义 XML 序列化器和反序列化器。

@@ -1,52 +1,29 @@
 [[mvc-handlermapping-path]]
-= Path Matching
+= 路径匹配
 
-The Servlet API exposes the full request path as `requestURI` and further sub-divides it
-into `contextPath`, `servletPath`, and `pathInfo` whose values vary depending on how a
-Servlet is mapped. From these inputs, Web MVC needs to determine the lookup path to
-use for mapping handlers, which should exclude the `contextPath` and any `servletMapping`
-prefix, if applicable.
+Servlet API 将完整的请求路径公开为 `requestURI`，并将其进一步细分为 `contextPath`、`servletPath`
+和 `pathInfo`，其值取决于 Servlet 的映射方式。从这些输入中，Web MVC 需要确定用于映射处理程序的查找路径，
+该路径应排除 `contextPath` 和任何 `servletMapping` 前缀（如果适用）。
 
-The `servletPath` and `pathInfo` are decoded and that makes them impossible to compare
-directly to the full `requestURI` in order to derive the lookupPath and that makes it
-necessary to decode the `requestURI`. However this introduces its own issues because the
-path may contain encoded reserved characters such as `"/"` or `";"` that can in turn
-alter the structure of the path after they are decoded which can also lead to security
-issues. In addition, Servlet containers may normalize the `servletPath` to varying
-degrees which makes it further impossible to perform `startsWith` comparisons against
-the `requestURI`.
+`servletPath` 和 `pathInfo` 是解码后的，这使得它们无法直接与完整的 `requestURI` 进行比较以派生 lookupPath，
+这使得有必要对 `requestURI` 进行解码。但这引入了自己的问题，因为路径可能包含编码的保留字符，例如 `"/"` 或 `";"`，
+这些字符在解码后可能会改变路径的结构，从而也可能导致安全问题。此外，Servlet 容器可能会将 `servletPath`
+标准化到不同程度，这使得无法对 `requestURI` 执行 `startsWith` 比较。
 
-This is why it is best to avoid reliance on the `servletPath` which comes with the
-prefix-based `servletPath` mapping type. If the `MockDispatcher` is mapped as the
-default Servlet with `"/"` or otherwise without a prefix with `"/*"` and the Servlet
-container is 4.0+ then Web MVC is able to detect the Servlet mapping type and avoid
-use of the `servletPath` and `pathInfo` altogether. On a 3.1 Servlet container,
-assuming the same Servlet mapping types, the equivalent can be achieved by providing
-a `UrlPathHelper` with `alwaysUseFullPath=true` via xref:web/webmvc/mvc-config/path-matching.adoc[Path Matching] in
-the MVC config.
+这就是为什么最好避免依赖带有基于前缀的 `servletPath` 映射类型的 `servletPath`。如果 `MockDispatcher`
+被映射为带有 `"/"` 的默认 Servlet，或者没有前缀的 `"/*"`，并且 Servlet 容器是 4.0+，那么 Web MVC
+能够检测 Servlet 映射类型并完全避免使用 `servletPath` 和 `pathInfo`。在 3.1 Servlet 容器上，
+假设相同的 Servlet 映射类型，可以通过 MVC 配置中的 xref:web/webmvc/mvc-config/path-matching.adoc[路径匹配]
+提供具有 `alwaysUseFullPath=true` 的 `UrlPathHelper` 来实现相同的效果。
 
-Fortunately the default Servlet mapping `"/"` is a good choice. However, there is still
-an issue in that the `requestURI` needs to be decoded to make it possible to compare to
-controller mappings. This is again undesirable because of the potential to decode
-reserved characters that alter the path structure. If such characters are not expected,
-then you can reject them (like the Infra Security HTTP firewall), or you can configure
-`UrlPathHelper` with `urlDecode=false` but controller mappings will need to match to the
-encoded path which may not always work well. Furthermore, sometimes the
-`MockDispatcher` needs to share the URL space with another Servlet and may need to
-be mapped by prefix.
+幸运的是，默认的 Servlet 映射 `"/"` 是一个不错的选择。但是，仍然存在一个问题，即 `requestURI` 需要解码才能与控制器映射进行比较。
+这也是不可取的，因为可能会解码改变路径结构的保留字符。如果不期望此类字符，则可以拒绝它们（如 Infra Security HTTP 防火墙），
+或者您可以配置 `UrlPathHelper` 为 `urlDecode=false`，但控制器映射将需要匹配编码路径，这可能并不总是很有效。
+此外，有时 `MockDispatcher` 需要与另一个 Servlet 共享 URL 空间，并且可能需要通过前缀进行映射。
 
-The above issues are addressed when using `PathPatternParser` and parsed patterns, as
-an alternative to String path matching with `AntPathMatcher`. The `PathPatternParser` has
-been available for use in Web MVC from version 5.3, and is enabled by default from
-version 6.0. Unlike `AntPathMatcher` which needs either the lookup path decoded or the
-controller mapping encoded, a parsed `PathPattern` matches to a parsed representation
-of the path called `RequestPath`, one path segment at a time. This allows decoding and
-sanitizing path segment values individually without the risk of altering the structure
-of the path. Parsed `PathPattern` also supports the use of `servletPath` prefix mapping
-as long as a Servlet path mapping is used and the prefix is kept simple, i.e. it has no
-encoded characters. For pattern syntax details and comparison, see
-xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-pattern-comparison[Pattern Comparison].
-
-
-
-
+当使用 `PathPatternParser` 和解析的模式作为使用 `AntPathMatcher` 的字符串路径匹配的替代方案时，上述问题得到了解决。
+`PathPatternParser` 从 5.3 版本开始可在 Web MVC 中使用，并从 6.0 版本开始默认启用。与 `AntPathMatcher`
+需要解码查找路径或编码控制器映射不同，解析的 `PathPattern` 与称为 `RequestPath` 的路径的解析表示形式匹配，
+一次一个路径段。这允许单独解码和清理路径段值，而没有改变路径结构的风险。解析的 `PathPattern` 还支持使用
+`servletPath` 前缀映射，只要使用 Servlet 路径映射并且前缀保持简单，即它没有编码字符。有关模式语法详细信息和比较，
+请参阅 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-pattern-comparison[模式比较]。

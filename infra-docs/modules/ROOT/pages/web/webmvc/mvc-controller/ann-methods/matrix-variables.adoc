@@ -1,20 +1,17 @@
 [[mvc-ann-matrix-variables]]
-= Matrix Variables
+= 矩阵变量
 
-{rfc-site}/rfc3986#section-3.3[RFC 3986] discusses name-value pairs in
-path segments. In Web MVC, we refer to those as "`matrix variables`" based on an
-https://www.w3.org/DesignIssues/MatrixURIs.html["`old post`"] by Tim Berners-Lee, but they
-can be also be referred to as URI path parameters.
+{rfc-site}/rfc3986#section-3.3[RFC 3986] 讨论了路径段中的名称-值对。在 Web MVC 中，
+我们根据 Tim Berners-Lee 的一篇 https://www.w3.org/DesignIssues/MatrixURIs.html["`旧文章`"]
+将它们称为“`矩阵变量`”，但它们也可以称为 URI 路径参数。
 
-Matrix variables can appear in any path segment, with each variable separated by a semicolon and
-multiple values separated by comma (for example, `/cars;color=red,green;year=2012`). Multiple
-values can also be specified through repeated variable names (for example,
-`color=red;color=green;color=blue`).
+矩阵变量可以出现在任何路径段中，每个变量之间用分号分隔，多个值之间用逗号分隔
+（例如，`/cars;color=red,green;year=2012`）。也可以通过重复变量名来指定多个值
+（例如，`color=red;color=green;color=blue`）。
 
-If a URL is expected to contain matrix variables, the request mapping for a controller
-method must use a URI variable to mask that variable content and ensure the request can
-be matched successfully independent of matrix variable order and presence.
-The following example uses a matrix variable:
+如果预期 URL 包含矩阵变量，则控制器方法的请求映射必须使用 URI 变量来掩盖该变量内容，
+并确保请求可以成功匹配，而不管矩阵变量的顺序和存在与否。
+以下示例使用了矩阵变量：
 
 [tabs]
 ======
@@ -34,9 +31,8 @@ Java::
 
 ======
 
-Given that all path segments may contain matrix variables, you may sometimes need to
-disambiguate which path variable the matrix variable is expected to be in.
-The following example shows how to do so:
+鉴于所有路径段都可能包含矩阵变量，您有时可能需要消除矩阵变量预期位于哪个路径变量中的歧义。
+以下示例显示了如何执行此操作：
 
 [tabs]
 ======
@@ -57,8 +53,7 @@ public void findPet(
 ----
 ======
 
-A matrix variable may be defined as optional and a default value specified, as the
-following example shows:
+可以将矩阵变量定义为可选的，并指定默认值，如下例所示：
 
 [tabs]
 ======
@@ -76,7 +71,7 @@ public void findPet(@MatrixVariable(required=false, defaultValue="1") int q) {
 ----
 ======
 
-To get all matrix variables, you can use a `MultiValueMap`, as the following example shows:
+要获取所有矩阵变量，可以使用 `MultiValueMap`，如下例所示：
 
 [tabs]
 ======
@@ -97,9 +92,6 @@ public void findPet(
 ----
 ======
 
-Note that you need to enable the use of matrix variables. In the MVC Java configuration,
-you need to set a `UrlPathHelper` with `removeSemicolonContent=false` through
-xref:web/webmvc/mvc-config/path-matching.adoc[Path Matching]. In the MVC XML namespace, you can set
-`<mvc:annotation-driven enable-matrix-variables="true"/>`.
-
-
+请注意，您需要启用矩阵变量的使用。在 MVC Java 配置中，您需要通过
+xref:web/webmvc/mvc-config/path-matching.adoc[路径匹配] 设置一个 `removeSemicolonContent=false` 的 `UrlPathHelper`。
+在 MVC XML 命名空间中，您可以设置 `<mvc:annotation-driven enable-matrix-variables="true"/>`。

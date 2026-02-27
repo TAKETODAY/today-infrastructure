@@ -1,60 +1,49 @@
 [[mvc-localeresolver]]
 = Locale
 
-Most parts of Infra architecture support internationalization, as the Infra web
-MVC framework does. `MockDispatcher` lets you automatically resolve messages
-by using the client's locale. This is done with `LocaleResolver` objects.
+Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。`MockDispatcher` 让您可以使用客户端的区域设置自动解析消息。
+这是通过 `LocaleResolver` 对象完成的。
 
-When a request comes in, the `MockDispatcher` looks for a locale resolver and, if it
-finds one, it tries to use it to set the locale. By using the `RequestContext.getLocale()`
-method, you can always retrieve the locale that was resolved by the locale resolver.
+当请求进来时，`MockDispatcher` 会寻找一个区域设置解析器，如果找到，它会尝试使用它来设置区域设置。
+通过使用 `RequestContext.getLocale()` 方法，您始终可以检索由区域设置解析器解析的区域设置。
 
-In addition to automatic locale resolution, you can also attach an interceptor to the
-handler mapping (see xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[Interception] for more information on handler
-mapping interceptors) to change the locale under specific circumstances (for example,
-based on a parameter in the request).
+除了自动区域设置解析之外，您还可以将拦截器附加到处理程序映射
+（有关处理程序映射拦截器的更多信息，请参阅 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截]）
+以在特定情况下（例如，根据请求中的参数）更改区域设置。
 
-Locale resolvers and interceptors are defined in the
-`infra.web.mockApi.i18n` package and are configured in your application
-context in the normal way. The following selection of locale resolvers is included in
-Infra.
+区域设置解析器和拦截器定义在 `infra.web.mockApi.i18n` 包中，并以常规方式在您的应用程序上下文中配置。
+Infra 中包含以下区域设置解析器选择。
 
-* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[Time Zone]
-* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-acceptheader[Header Resolver]
-* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-cookie[Cookie Resolver]
-* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-session[Session Resolver]
-* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-interceptor[Locale Interceptor]
+* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[时区]
+* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-acceptheader[Header 解析器]
+* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-cookie[Cookie 解析器]
+* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-session[Session 解析器]
+* xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-localeresolver-interceptor[Locale 拦截器]
 
 
 [[mvc-timezone]]
-== Time Zone
+== 时区
 
-In addition to obtaining the client's locale, it is often useful to know its time zone.
-The `LocaleContextResolver` interface offers an extension to `LocaleResolver` that lets
-resolvers provide a richer `LocaleContext`, which may include time zone information.
+除了获取客户端的区域设置外，了解其时区通常很有用。`LocaleContextResolver` 接口提供了对 `LocaleResolver`
+的扩展，让解析器提供更丰富的 `LocaleContext`，其中可能包括时区信息。
 
-When available, the user's `TimeZone` can be obtained by using the
-`RequestContext.getTimeZone()` method. Time zone information is automatically used
-by any Date/Time `Converter` and `Formatter` objects that are registered with Infra
-`ConversionService`.
+如果可用，可以使用 `RequestContext.getTimeZone()` 方法获取用户的 `TimeZone`。
+任何向 Infra `ConversionService` 注册的日期/时间 `Converter` 和 `Formatter` 对象都会自动使用时区信息。
 
 
 [[mvc-localeresolver-acceptheader]]
-== Header Resolver
+== Header 解析器
 
-This locale resolver inspects the `accept-language` header in the request that was sent
-by the client (for example, a web browser). Usually, this header field contains the locale of
-the client's operating system. Note that this resolver does not support time zone
-information.
+此区域设置解析器检查客户端（例如，Web 浏览器）发送的请求中的 `accept-language` 头。
+通常，此头字段包含客户端操作系统的区域设置。请注意，此解析器不支持时区信息。
 
 
 [[mvc-localeresolver-cookie]]
-== Cookie Resolver
+== Cookie 解析器
 
-This locale resolver inspects a `Cookie` that might exist on the client to see if a
-`Locale` or `TimeZone` is specified. If so, it uses the specified details. By using the
-properties of this locale resolver, you can specify the name of the cookie as well as the
-maximum age. The following example defines a `CookieLocaleResolver`:
+此区域设置解析器检查客户端上可能存在的 `Cookie`，以查看是否指定了 `Locale` 或 `TimeZone`。
+如果是，它将使用指定的详细信息。通过使用此区域设置解析器的属性，您可以指定 cookie 的名称以及最大寿命。
+以下示例定义了一个 `CookieLocaleResolver`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -68,55 +57,49 @@ maximum age. The following example defines a `CookieLocaleResolver`:
 </bean>
 ----
 
-The following table describes the properties `CookieLocaleResolver`:
+下表描述了 `CookieLocaleResolver` 的属性：
 
 [[mvc-cookie-locale-resolver-props-tbl]]
-.CookieLocaleResolver properties
+.CookieLocaleResolver 属性
 [cols="1,1,4"]
 |===
-| Property | Default | Description
+| 属性 | 默认值 | 描述
 
 | `cookieName`
-| class name + LOCALE
-| The name of the cookie
+| 类名 + LOCALE
+| cookie 的名称
 
 | `cookieMaxAge`
-| Servlet container default
-| The maximum time a cookie persists on the client. If `-1` is specified, the
-  cookie will not be persisted. It is available only until the client shuts down
-  the browser.
+| Servlet 容器默认值
+| cookie 在客户端上持续存在的最大时间。如果指定了 `-1`，则 cookie 将不会持久化。
+  它仅在客户端关闭浏览器之前可用。
 
 | `cookiePath`
 | /
-| Limits the visibility of the cookie to a certain part of your site. When `cookiePath` is
-  specified, the cookie is visible only to that path and the paths below it.
+| 将 cookie 的可见性限制为您网站的特定部分。当指定 `cookiePath` 时，
+  cookie 仅对该路径及其下的路径可见。
 |===
 
 
 [[mvc-localeresolver-session]]
-== Session Resolver
+== Session 解析器
 
-The `SessionLocaleResolver` lets you retrieve `Locale` and `TimeZone` from the
-session that might be associated with the user's request. In contrast to
-`CookieLocaleResolver`, this strategy stores locally chosen locale settings in the
-Servlet container's `HttpSession`. As a consequence, those settings are temporary
-for each session and are, therefore, lost when each session ends.
+`SessionLocaleResolver` 允许您从可能与用户请求关联的会话中检索 `Locale` 和 `TimeZone`。
+与 `CookieLocaleResolver` 相比，此策略将本地选择的区域设置存储在 Servlet 容器的 `HttpSession` 中。
+因此，这些设置对于每个会话都是临时的，因此在每个会话结束时会丢失。
 
-Note that there is no direct relationship with external session management mechanisms,
-such as the Infra Session project. This `SessionLocaleResolver` evaluates and
-modifies the corresponding `HttpSession` attributes against the current `HttpMockRequest`.
+请注意，与外部会话管理机制（如 Infra Session 项目）没有直接关系。
+此 `SessionLocaleResolver` 针对当前 `HttpMockRequest` 评估和修改相应的 `HttpSession` 属性。
 
 
 [[mvc-localeresolver-interceptor]]
-== Locale Interceptor
+== Locale 拦截器
 
-You can enable changing of locales by adding the `LocaleChangeInterceptor` to one of the
-`HandlerMapping` definitions. It detects a parameter in the request and changes the locale
-accordingly, calling the `setLocale` method on the `LocaleResolver` in the dispatcher's
-application context. The next example shows that calls to all `{asterisk}.view` resources
-that contain a parameter named `siteLanguage` now changes the locale. So, for example,
-a request for the URL, `https://www.sf.net/home.view?siteLanguage=nl`, changes the site
-language to Dutch. The following example shows how to intercept the locale:
+您可以通过将 `LocaleChangeInterceptor` 添加到 `HandlerMapping` 定义之一来启用区域设置更改。
+它检测请求中的参数并相应地更改区域设置，在调度程序的应用程序上下文中的 `LocaleResolver` 上调用 `setLocale` 方法。
+下一个示例显示，对包含名为 `siteLanguage` 参数的所有 `{asterisk}.view` 资源的调用现在会更改区域设置。
+因此，例如，对 URL `https://www.sf.net/home.view?siteLanguage=nl` 的请求会将站点语言更改为荷兰语。
+以下示例显示了如何拦截区域设置：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -140,6 +123,3 @@ language to Dutch. The following example shows how to intercept the locale:
   </property>
 </bean>
 ----
-
-
-

@@ -84,38 +84,23 @@ WebSocket API 很容易集成到 Web MVC 应用程序中，其中 `DispatcherHan
 通过调用 `WebSocketHttpRequestHandler`，它也很容易集成到其他 HTTP 处理场景中。这非常方便且易于理解。然而，在涉及到 JSR-356 运行时时，需要特别考虑。
 
 [[websocket-server-allowed-origins]]
-== Allowed Origins
+== 允许的来源
 
-The default behavior for WebSocket and SockJS is to accept only same-origin requests.
-It is also possible to allow all or a specified list of origins.
-This check is mostly designed for browser clients.
-Nothing prevents other types of clients from modifying the `Origin` header value (see
-{rfc-site}/rfc6454[RFC 6454: The Web Origin Concept] for more details).
-
-The three possible behaviors are:
-
-* Allow only same-origin requests (default): In this mode, when SockJS is enabled, the Iframe HTTP response header `X-Frame-Options` is set to `SAMEORIGIN`, and JSONP transport is disabled, since it does not allow checking the origin of a request.
-As a consequence, IE6 and IE7 are not supported when this mode is enabled.
-* Allow a specified list of origins: Each allowed origin must start with `http://`
-or `https://`.
-In this mode, when SockJS is enabled, IFrame transport is disabled.
-As a consequence, IE6 through IE9 are not supported when this mode is enabled.
-* Allow all origins: To enable this mode, you should provide `{asterisk}` as the allowed origin value.
-In this mode, all transports are available.
-
-You can configure WebSocket and SockJS allowed origins, as the following example shows:
-
-WebSocket 的默认行为是仅接受同源请求。
+WebSocket 和 SockJS 的默认行为是仅接受同源请求。
 也可以允许所有或指定的一组来源。
 此检查主要设计用于浏览器客户端。
-没有任何阻止其他类型的客户端修改 `Origin` 标头值（有关详细信息，请参见 {rfc-site}/rfc6454[RFC 6454: Web Origin 概念]）。
+没有任何阻止其他类型的客户端修改 `Origin` 标头值（有关详细信息，请参见
+{rfc-site}/rfc6454[RFC 6454: The Web Origin Concept]）。
 
 三种可能的行为是：
 
 * 仅允许同源请求（默认）：在此模式下，当启用 SockJS 时，Iframe HTTP 响应头 `X-Frame-Options` 被设置为 `SAMEORIGIN`，
 并且禁用了 JSONP 传输，因为它不允许检查请求的来源。因此，当启用此模式时，不支持 IE6 和 IE7。
 * 允许指定的一组来源：每个允许的来源必须以 `http://` 或 `https://` 开头。
-* 允许所有来源：要启用此模式，应将 `{asterisk}` 作为允许的来源值提供。在此模式下，所有传输都可用。
+在此模式下，当启用 SockJS 时，IFrame 传输被禁用。
+因此，当启用此模式时，不支持 IE6 到 IE9。
+* 允许所有来源：要启用此模式，应将 `{asterisk}` 作为允许的来源值提供。
+在此模式下，所有传输都可用。
 
 您可以配置 WebSocket 和 SockJS 允许的来源，如下例所示：
 
@@ -136,6 +121,3 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
   }
 }
 ----
-
-
-

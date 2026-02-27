@@ -1,10 +1,9 @@
 [[mvc-multipart-forms]]
 = Multipart
 
-After a `MultipartResolver` has been xref:web/webmvc/mvc-core/multipart.adoc[enabled], the content of POST
-requests with `multipart/form-data` is parsed and accessible as regular request
-parameters. The following example accesses one regular form field and one uploaded
-file:
+在 xref:web/webmvc/mvc-core/multipart.adoc[启用] `MultipartResolver` 之后，
+带有 `multipart/form-data` 的 POST 请求的内容将被解析并作为常规请求参数访问。
+以下示例访问一个常规表单字段和一个上传的文件：
 
 [tabs]
 ======
@@ -31,20 +30,16 @@ public class FileUploadController {
 
 ======
 
-Declaring the argument type as a `List<MultipartFile>` allows for resolving multiple
-files for the same parameter name.
+将参数类型声明为 `List<MultipartFile>` 允许解析同一参数名称的多个文件。
 
-When the `@RequestParam` annotation is declared as a `Map<String, MultipartFile>` or
-`MultiValueMap<String, MultipartFile>`, without a parameter name specified in the annotation,
-then the map is populated with the multipart files for each given parameter name.
+当 `@RequestParam` 注解声明为 `Map<String, MultipartFile>` 或 `MultiValueMap<String, MultipartFile>` 时，
+如果在注解中没有指定参数名称，则映射将填充每个给定参数名称的多部分文件。
 
-NOTE: With Servlet multipart parsing, you may also declare `jakarta.mockApi.http.Part`
-instead of Infra Web `Part`, as a method argument or collection value type.
+NOTE: 使用 Servlet 多部分解析时，您也可以声明 `jakarta.mockApi.http.Part` 而不是 Infra Web `Part`，
+作为方法参数或集合值类型。
 
-You can also use multipart content as part of data binding to a
-xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[command object]. For example, the form field
-and file from the preceding example could be fields on a form object,
-as the following example shows:
+您还可以将多部分内容用作数据绑定到 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[命令对象] 的一部分。
+例如，前面示例中的表单字段和文件可以是表单对象上的字段，如下例所示：
 
 [tabs]
 ======
@@ -78,8 +73,7 @@ public class FileUploadController {
 ======
 
 
-Multipart requests can also be submitted from non-browser clients in a RESTful service
-scenario. The following example shows a file with JSON:
+多部分请求也可以从非浏览器客户端在 RESTful 服务场景中提交。以下示例显示了一个带有 JSON 的文件：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -101,10 +95,8 @@ Content-Transfer-Encoding: 8bit
 ... File Data ...
 ----
 
-You can access the "meta-data" part with `@RequestParam` as a `String` but you'll
-probably want it deserialized from JSON (similar to `@RequestBody`). Use the
-`@RequestPart` annotation to access a multipart after converting it with an
-xref:integration/rest-clients.adoc#rest-message-conversion[HttpMessageConverter]:
+您可以使用 `@RequestParam` 作为 `String` 访问 "meta-data" 部分，但您可能希望将其从 JSON 反序列化（类似于 `@RequestBody`）。
+使用 `@RequestPart` 注解在使用 xref:integration/rest-clients.adoc#rest-message-conversion[HttpMessageConverter] 转换后访问多部分：
 
 [tabs]
 ======
@@ -121,12 +113,10 @@ public String handle(@RequestPart("meta-data") MetaData metadata,
 
 ======
 
-You can use `@RequestPart` in combination with `jakarta.validation.Valid` or use Infra
-`@Validated` annotation, both of which cause Standard Bean Validation to be applied.
-By default, validation errors cause a `MethodArgumentNotValidException`, which is turned
-into a 400 (BAD_REQUEST) response. Alternatively, you can handle validation errors locally
-within the controller through an `Errors` or `BindingResult` argument,
-as the following example shows:
+您可以将 `@RequestPart` 与 `jakarta.validation.Valid` 结合使用，或使用 Infra `@Validated` 注解，
+这两者都会导致应用标准 Bean 验证。默认情况下，验证错误会导致 `MethodArgumentNotValidException`，
+该异常会转换为 400 (BAD_REQUEST) 响应。或者，您可以通过 `Errors` 或 `BindingResult` 参数在控制器内本地处理验证错误，
+如下例所示：
 
 [tabs]
 ======
@@ -142,8 +132,5 @@ public String handle(@Valid @RequestPart("meta-data") MetaData metadata, Errors 
 
 ======
 
-If method validation applies because other parameters have `@Constraint` annotations,
-then `HandlerMethodValidationException` is raised instead. For more details, see the
-section on xref:web/webmvc/mvc-controller/ann-validation.adoc[Validation].
-
-
+如果因为其他参数具有 `@Constraint` 注解而应用方法验证，则会引发 `HandlerMethodValidationException`。
+有关更多详细信息，请参阅 xref:web/webmvc/mvc-controller/ann-validation.adoc[验证] 部分。

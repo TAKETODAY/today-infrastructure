@@ -1,19 +1,16 @@
 [[mvc-view-groovymarkup]]
-= Groovy Markup
+= Groovy 标记
 
-The https://groovy-lang.org/templating.html#_the_markuptemplateengine[Groovy Markup Template Engine]
-is primarily aimed at generating XML-like markup (XML, XHTML, HTML5, and others), but you can
-use it to generate any text-based content. The TODAY Framework has a built-in
-integration for using Web MVC with Groovy Markup.
+https://groovy-lang.org/templating.html#_the_markuptemplateengine[Groovy 标记模板引擎]
+主要用于生成类似 XML 的标记（XML、XHTML、HTML5 等），但您也可以使用它来生成任何基于文本的内容。TODAY Framework 内置了 Web MVC 与 Groovy 标记的集成。
 
-NOTE: The Groovy Markup Template engine requires Groovy 2.3.1+.
-
+NOTE: Groovy 标记模板引擎需要 Groovy 2.3.1+。
 
 
 [[mvc-view-groovymarkup-configuration]]
-== Configuration
+== 配置
 
-The following example shows how to configure the Groovy Markup Template Engine:
+以下示例展示了如何配置 Groovy 标记模板引擎：
 
 [tabs]
 ======
@@ -30,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
     registry.groovy();
   }
 
-  // Configure the Groovy Markup Template Engine...
+  // 配置 Groovy 标记模板引擎...
 
   @Bean
   public GroovyMarkupConfigurer groovyMarkupConfigurer() {
@@ -43,7 +40,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 ======
 
-The following example shows how to configure the same in XML:
+以下示例展示了如何在 XML 中进行相同的配置：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -53,17 +50,16 @@ The following example shows how to configure the same in XML:
   <mvc:groovy/>
 </mvc:view-resolvers>
 
-<!-- Configure the Groovy Markup Template Engine... -->
+<!-- 配置 Groovy 标记模板引擎... -->
 <mvc:groovy-configurer resource-loader-path="/WEB-INF/"/>
 ----
 
 
 
 [[mvc-view-groovymarkup-example]]
-== Example
+== 示例
 
-Unlike traditional template engines, Groovy Markup relies on a DSL that uses a builder
-syntax. The following example shows a sample template for an HTML page:
+与传统的模板引擎不同，Groovy 标记依赖于使用构建器语法的 DSL。以下示例展示了一个 HTML 页面的示例模板：
 
 [source,groovy,indent=0,subs="verbatim,quotes"]
 ----
@@ -78,7 +74,3 @@ syntax. The following example shows a sample template for an HTML page:
 		}
 	}
 ----
-
-
-
-

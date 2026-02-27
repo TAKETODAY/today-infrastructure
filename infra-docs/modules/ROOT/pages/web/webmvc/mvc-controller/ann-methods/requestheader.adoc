@@ -1,10 +1,9 @@
 [[mvc-ann-requestheader]]
 = `@RequestHeader`
 
-You can use the `@RequestHeader` annotation to bind a request header to a method argument in a
-controller.
+您可以使用 `@RequestHeader` 注解将请求头绑定到控制器中的方法参数。
 
-Consider the following request, with headers:
+考虑以下带有请求头的请求：
 
 [literal]
 [subs="verbatim,quotes"]
@@ -17,7 +16,7 @@ Accept-Charset          ISO-8859-1,utf-8;q=0.7,*;q=0.7
 Keep-Alive              300
 ----
 
-The following example gets the value of the `Accept-Encoding` and `Keep-Alive` headers:
+以下示例获取 `Accept-Encoding` 和 `Keep-Alive` 头的值：
 
 [tabs]
 ======
@@ -32,21 +31,16 @@ public void handle(
   //...
 }
 ----
-<1> Get the value of the `Accept-Encoding` header.
-<2> Get the value of the `Keep-Alive` header.
+<1> 获取 `Accept-Encoding` 头的值。
+<2> 获取 `Keep-Alive` 头的值。
 
 ======
 
-If the target method parameter type is not
-`String`, type conversion is automatically applied. See xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[Type Conversion].
+如果目标方法参数类型不是 `String`，则自动应用类型转换。
+参见 xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[类型转换]。
 
-When an `@RequestHeader` annotation is used on a `Map<String, String>`,
-`MultiValueMap<String, String>`, or `HttpHeaders` argument, the map is populated
-with all header values.
+当在 `Map<String, String>`、`MultiValueMap<String, String>` 或 `HttpHeaders` 参数上使用 `@RequestHeader` 注解时，
+映射将填充所有头值。
 
-TIP: Built-in support is available for converting a comma-separated string into an
-array or collection of strings or other types known to the type conversion system. For
-example, a method parameter annotated with `@RequestHeader("Accept")` can be of type
-`String` but also `String[]` or `List<String>`.
-
-
+TIP: 内置支持可用于将逗号分隔的字符串转换为字符串数组或集合，或类型转换系统已知的其他类型。
+例如，用 `@RequestHeader("Accept")` 注解的方法参数可以是 `String` 类型，也可以是 `String[]` 或 `List<String>`。

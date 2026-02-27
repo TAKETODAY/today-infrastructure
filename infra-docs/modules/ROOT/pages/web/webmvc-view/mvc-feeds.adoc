@@ -1,14 +1,9 @@
 [[mvc-view-feeds]]
-= RSS and Atom
+= RSS 和 Atom
 
-Both `AbstractAtomFeedView` and `AbstractRssFeedView` inherit from the
-`AbstractFeedView` base class and are used to provide Atom and RSS Feed views, respectively. They
-are based on https://rometools.github.io/rome/[ROME] project and are located in the
-package `infra.web.view.feed`.
+`AbstractAtomFeedView` 和 `AbstractRssFeedView` 都继承自 `AbstractFeedView` 基类，分别用于提供 Atom 和 RSS Feed 视图。它们基于 https://rometools.github.io/rome/[ROME] 项目，位于 `infra.web.view.feed` 包中。
 
-`AbstractAtomFeedView` requires you to implement the `buildFeedEntries()` method and
-optionally override the `buildFeedMetadata()` method (the default implementation is
-empty). The following example shows how to do so:
+`AbstractAtomFeedView` 要求您实现 `buildFeedEntries()` 方法，并可选地重写 `buildFeedMetadata()` 方法（默认实现为空）。以下示例展示了如何实现：
 
 [tabs]
 ======
@@ -21,20 +16,20 @@ public class SampleContentAtomView extends AbstractAtomFeedView {
   @Override
   protected void buildFeedMetadata(Map<String, Object> model,
       Feed feed, HttpServletRequest request) {
-    // implementation omitted
+    // 省略实现
   }
 
   @Override
   protected List<Entry> buildFeedEntries(Map<String, Object> model,
       HttpServletRequest request, HttpServletResponse response) throws Exception {
-    // implementation omitted
+    // 省略实现
   }
 }
 ----
 
 ======
 
-Similar requirements apply for implementing `AbstractRssFeedView`, as the following example shows:
+实现 `AbstractRssFeedView` 也有类似的要求，如下例所示：
 
 [tabs]
 ======
@@ -47,28 +42,19 @@ public class SampleContentRssView extends AbstractRssFeedView {
   @Override
   protected void buildFeedMetadata(Map<String, Object> model,
       Channel feed, HttpServletRequest request) {
-    // implementation omitted
+    // 省略实现
   }
 
   @Override
   protected List<Item> buildFeedItems(Map<String, Object> model,
       HttpServletRequest request, HttpServletResponse response) throws Exception {
-    // implementation omitted
+    // 省略实现
   }
 }
 ----
 ======
 
+`buildFeedItems()` 和 `buildFeedEntries()` 方法传入了 HTTP 请求，以防您需要访问 Locale。HTTP 响应仅用于设置 Cookie 或其他 HTTP 头。方法返回后，Feed 会自动写入响应对象。
 
-
-The `buildFeedItems()` and `buildFeedEntries()` methods pass in the HTTP request, in case
-you need to access the Locale. The HTTP response is passed in only for the setting of
-cookies or other HTTP headers. The feed is automatically written to the response
-object after the method returns.
-
-For an example of creating an Atom view, see Alef Arendsen's Infra Team Blog
-{today-tech-site-blog}/2009/03/16/adding-an-atom-view-to-an-application-using-today-s-rest-support[entry].
-
-
-
-
+有关创建 Atom 视图的示例，请参阅 Alef Arendsen 的 Infra Team 博客文章
+{today-tech-site-blog}/2009/03/16/adding-an-atom-view-to-an-application-using-today-s-rest-support[使用 TODAY 的 REST 支持为应用程序添加 Atom 视图]。

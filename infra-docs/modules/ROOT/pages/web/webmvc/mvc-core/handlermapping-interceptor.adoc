@@ -1,34 +1,21 @@
 [[mvc-handlermapping-interceptor]]
-= Interception
+= 拦截
 
-All `HandlerMapping` implementations support handler interceptors that are useful when
-you want to apply specific functionality to certain requests -- for example, checking for
-a principal. Interceptors must implement `HandlerInterceptor` from the
-`infra.web.mockApi` package with three methods that should provide enough
-flexibility to do all kinds of pre-processing and post-processing:
+所有 `HandlerMapping` 实现都支持处理程序拦截器，当您想要将特定功能应用于某些请求（例如，检查主体）时，这些拦截器非常有用。
+拦截器必须从 `infra.web` 包中实现 `HandlerInterceptor`，该接口具有2个方法，
+应提供足够的灵活性来执行各种预处理和后处理：
 
-* `preHandle(..)`: Before the actual handler is run
-* `postHandle(..)`: After the handler is run
-* `afterCompletion(..)`: After the complete request has finished
+* `preProcessing(..)`: 在实际处理程序运行之前
+* `postProcessing(..)`: 在处理程序运行之后
 
-The `preHandle(..)` method returns a boolean value. You can use this method to break or
-continue the processing of the execution chain. When this method returns `true`, the
-handler execution chain continues. When it returns false, the `MockDispatcher`
-assumes the interceptor itself has taken care of requests (and, for example, rendered an
-appropriate view) and does not continue executing the other interceptors and the actual
-handler in the execution chain.
+`preProcessing(..)` 方法返回一个布尔值。您可以使用此方法中断或继续执行链的处理。
+当此方法返回 `true` 时，处理程序执行链继续。
 
-See xref:web/webmvc/mvc-config/interceptors.adoc[Interceptors] in the section on MVC configuration for examples of how to
-configure interceptors. You can also register them directly by using setters on individual
-`HandlerMapping` implementations.
+有关如何配置拦截器的示例，请参阅 MVC 配置部分中的 xref:web/webmvc/mvc-config/interceptors.adoc[拦截器]。
+您也可以通过在各个 `HandlerMapping` 实现上使用 setter 直接注册它们。
 
-`postHandle` method is less useful with `@ResponseBody` and `ResponseEntity` methods for
-which the response is written and committed within the `HandlerAdapter` and before
-`postHandle`. That means it is too late to make any changes to the response, such as adding
-an extra header. For such scenarios, you can implement `ResponseBodyAdvice` and either
-declare it as an xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] bean or configure it directly on
-`RequestMappingHandlerAdapter`.
-
-
-
-
+`postProcessing` 方法对于 `@ResponseBody` 和 `ResponseEntity` 方法不太有用，
+因为这些方法的响应是在 `HandlerAdapter` 内和 `postProcessing` 之前写入和提交的。
+这意味着现在对响应进行任何更改（例如添加额外的头）为时已晚。对于此类场景，您可以实现 `ResponseBodyAdvice`
+并将其声明为 xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] bean，
+或者直接在 `RequestMappingHandlerAdapter` 上进行配置。

@@ -1,10 +1,9 @@
 [[mvc-ann-requestparam]]
 = `@RequestParam`
 
-You can use the `@RequestParam` annotation to bind Servlet request parameters (that is,
-query parameters or form data) to a method argument in a controller.
+您可以使用 `@RequestParam` 注解将 Servlet 请求参数（即查询参数或表单数据）绑定到控制器中的方法参数。
 
-The following example shows how to do so:
+以下示例显示了如何执行此操作：
 
 [tabs]
 ======
@@ -29,28 +28,21 @@ public class EditPetForm {
 
 }
 ----
-<1> Using `@RequestParam` to bind `petId`.
+<1> 使用 `@RequestParam` 绑定 `petId`。
 
 ======
 
-By default, method parameters that use this annotation are required, but you can specify that
-a method parameter is optional by setting the `@RequestParam` annotation's `required` flag to
-`false` or by declaring the argument with an `java.util.Optional` wrapper.
+默认情况下，使用此注解的方法参数是必需的，但您可以通过将 `@RequestParam` 注解的 `required` 标志设置为 `false`
+或通过使用 `java.util.Optional` 包装器声明参数来指定方法参数是可选的。
 
-Type conversion is automatically applied if the target method parameter type is not
-`String`. See xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[Type Conversion].
+如果目标方法参数类型不是 `String`，则自动应用类型转换。
+参见 xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[类型转换]。
 
-Declaring the argument type as an array or list allows for resolving multiple parameter
-values for the same parameter name.
+将参数类型声明为数组或列表允许解析同一参数名称的多个参数值。
 
-When an `@RequestParam` annotation is declared as a `Map<String, String>` or
-`MultiValueMap<String, String>`, without a parameter name specified in the annotation,
-then the map is populated with the request parameter values for each given parameter name.
+当 `@RequestParam` 注解声明为 `Map<String, String>` 或 `MultiValueMap<String, String>` 时，
+如果在注解中没有指定参数名称，则映射将填充每个给定参数名称的请求参数值。
 
-Note that use of `@RequestParam` is optional (for example, to set its attributes).
-By default, any argument that is a simple value type (as determined by
-{today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty])
-and is not resolved by any other argument resolver, is treated as if it were annotated
-with `@RequestParam`.
-
-
+注意，使用 `@RequestParam` 是可选的（例如，设置其属性）。
+默认情况下，任何作为简单值类型的参数（由 {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty] 确定），
+并且未被任何其他参数解析器解析的参数，都被视为如同用 `@RequestParam` 注解一样。

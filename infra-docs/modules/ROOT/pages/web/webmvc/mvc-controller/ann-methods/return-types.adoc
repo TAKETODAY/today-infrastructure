@@ -1,104 +1,88 @@
 [[mvc-ann-return-types]]
-= Return Values
+= 返回值
 
 
-The next table describes the supported controller method return values. Reactive types are
-supported for all return values.
+下表描述了支持的控制器方法返回值。所有返回值都支持响应式类型。
 
 [cols="1,2", options="header"]
 |===
-| Controller method return value | Description
+| 控制器方法返回值 | 描述
 
 | `@ResponseBody`
-| The return value is converted through `HttpMessageConverter` implementations and written to the
-  response. See xref:web/webmvc/mvc-controller/ann-methods/responsebody.adoc[`@ResponseBody`].
+| 返回值通过 `HttpMessageConverter` 实现进行转换并写入响应。参见 xref:web/webmvc/mvc-controller/ann-methods/responsebody.adoc[`@ResponseBody`]。
 
 | `HttpEntity<B>`, `ResponseEntity<B>`
-| The return value that specifies the full response (including HTTP headers and body) is to be converted
-  through `HttpMessageConverter` implementations and written to the response.
-  See xref:web/webmvc/mvc-controller/ann-methods/responseentity.adoc[ResponseEntity].
+| 指定完整响应（包括 HTTP 头和正文）的返回值，通过 `HttpMessageConverter` 实现进行转换并写入响应。
+  参见 xref:web/webmvc/mvc-controller/ann-methods/responseentity.adoc[ResponseEntity]。
 
 | `HttpHeaders`
-| For returning a response with headers and no body.
+| 用于返回带有头但没有正文的响应。
 
 | `ErrorResponse`
-| To render an RFC 7807 error response with details in the body,
-  see xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses]
+| 要呈现具有正文详细信息的 RFC 7807 错误响应，
+  参见 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应]
 
 | `ProblemDetail`
-| To render an RFC 7807 error response with details in the body,
-  see xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses]
+| 要呈现具有正文详细信息的 RFC 7807 错误响应，
+  参见 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应]
 
 | `String`
-| A view name to be resolved with `ViewResolver` implementations and used together with the implicit
-  model -- determined through command objects and `@ModelAttribute` methods. The handler
-  method can also programmatically enrich the model by declaring a `Model` argument
-  (see xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-registration[Explicit Registrations]).
+| 一个视图名称，将通过 `ViewResolver` 实现解析，并与隐式模型一起使用——通过命令对象和 `@ModelAttribute` 方法确定。
+  处理器方法也可以通过声明 `Model` 参数以编程方式丰富模型
+  （参见 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-registration[显式注册]）。
 
 | `View`
-| A `View` instance to use for rendering together with the implicit model -- determined
-  through command objects and `@ModelAttribute` methods. The handler method can also
-  programmatically enrich the model by declaring a `Model` argument
-  (see xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-registration[Explicit Registrations]).
+| 一个 `View` 实例，用于与隐式模型一起渲染——通过命令对象和 `@ModelAttribute` 方法确定。
+  处理器方法也可以通过声明 `Model` 参数以编程方式丰富模型
+  （参见 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-registration[显式注册]）。
 
 | `java.util.Map`, `infra.ui.Model`
-| Attributes to be added to the implicit model, with the view name implicitly determined
-  through a `RequestToViewNameTranslator`.
+| 要添加到隐式模型中的属性，视图名称通过 `RequestToViewNameTranslator` 隐式确定。
 
 | `@ModelAttribute`
-| An attribute to be added to the model, with the view name implicitly determined through
-  a `RequestToViewNameTranslator`.
+| 要添加到模型中的属性，视图名称通过 `RequestToViewNameTranslator` 隐式确定。
 
-  Note that `@ModelAttribute` is optional. See "Any other return value" at the end of
-  this table.
+  注意 `@ModelAttribute` 是可选的。参见本表末尾的“任何其他返回值”。
 
-| `ModelAndView` object
-| The view and model attributes to use and, optionally, a response status.
+| `ModelAndView` 对象
+| 要使用的视图和模型属性，以及可选的响应状态。
 
 | `void`
-| A method with a `void` return type (or `null` return value) is considered to have fully
-  handled the response if it also has a `MockResponse`, an `OutputStream` argument, or
-  an `@ResponseStatus` annotation. The same is also true if the controller has made a positive
-  `ETag` or `lastModified` timestamp check (see xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[Controllers] for details).
+| 如果方法具有 `void` 返回类型（或 `null` 返回值），并且它还具有 `MockResponse`、`OutputStream` 参数，
+  或者具有 `@ResponseStatus` 注解，则认为它已经完全处理了响应。如果控制器进行了积极的 `ETag` 或 `lastModified` 时间戳检查
+  （参见 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器] 了解详细信息），也是如此。
 
-  If none of the above is true, a `void` return type can also indicate "`no response body`" for
-  REST controllers or a default view name selection for HTML controllers.
+  如果没有上述任何情况，`void` 返回类型也可以表示 REST 控制器的“没有响应体”或 HTML 控制器的默认视图名称选择。
 
 | `DeferredResult<V>`
-| Produce any of the preceding return values asynchronously from any thread -- for example, as a
-  result of some event or callback. See xref:web/webmvc/mvc-ann-async.adoc[Asynchronous Requests] and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-deferredresult[`DeferredResult`].
+| 从任何线程异步生成上述任何返回值——例如，作为某些事件或回调的结果。
+  参见 xref:web/webmvc/mvc-ann-async.adoc[异步请求] 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-deferredresult[`DeferredResult`]。
 
 | `Callable<V>`
-| Produce any of the above return values asynchronously in a Web MVC-managed thread.
-  See xref:web/webmvc/mvc-ann-async.adoc[Asynchronous Requests] and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-callable[`Callable`].
+| 在 Web MVC 管理的线程中异步生成上述任何返回值。
+  参见 xref:web/webmvc/mvc-ann-async.adoc[异步请求] 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-callable[`Callable`]。
 
 | `ListenableFuture<V>`,
   `java.util.concurrent.CompletionStage<V>`,
   `java.util.concurrent.CompletableFuture<V>`
-| Alternative to `DeferredResult`, as a convenience (for example, when an underlying service
-  returns one of those).
+| 作为方便的替代 `DeferredResult`（例如，当底层服务返回其中之一时）。
 
 | `ResponseBodyEmitter`, `SseEmitter`
-| Emit a stream of objects asynchronously to be written to the response with
-  `HttpMessageConverter` implementations. Also supported as the body of a `ResponseEntity`.
-  See xref:web/webmvc/mvc-ann-async.adoc[Asynchronous Requests] and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[HTTP Streaming].
+| 异步发出对象流，通过 `HttpMessageConverter` 实现写入响应。也支持作为 `ResponseEntity` 的正文。
+  参见 xref:web/webmvc/mvc-ann-async.adoc[异步请求] 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[HTTP 流]。
 
 | `StreamingResponseBody`
-| Write to the response `OutputStream` asynchronously. Also supported as the body of a
-  `ResponseEntity`. See xref:web/webmvc/mvc-ann-async.adoc[Asynchronous Requests] and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[HTTP Streaming].
+| 异步写入响应 `OutputStream`。也支持作为 `ResponseEntity` 的正文。
+  参见 xref:web/webmvc/mvc-ann-async.adoc[异步请求] 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[HTTP 流]。
 
-| Reactor and other reactive types registered via `ReactiveAdapterRegistry`
-| A single value type, e.g. `Mono`, is comparable to returning `DeferredResult`.
-  A multi-value type, e.g. `Flux`, may be treated as a stream depending on the requested
-  media type, e.g. "text/event-stream", "application/json+stream", or otherwise is
-  collected to a List and rendered as a single value. See xref:web/webmvc/mvc-ann-async.adoc[Asynchronous Requests] and
-  xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[Reactive Types].
+| Reactor 和其他通过 `ReactiveAdapterRegistry` 注册的响应式类型
+| 单值类型，例如 `Mono`，类似于返回 `DeferredResult`。
+  多值类型，例如 `Flux`，可以根据请求的媒体类型被视为流，例如 "text/event-stream"、"application/json+stream"，
+  否则被收集到 List 中并渲染为单个值。参见 xref:web/webmvc/mvc-ann-async.adoc[异步请求] 和
+  xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[响应式类型]。
 
-| Other return values
-| If a return value remains unresolved in any other way, it is treated as a model
-  attribute, unless it is a simple type as determined by
-  {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty],
-  in which case it remains unresolved.
+| 其他返回值
+| 如果返回值没有以任何其他方式解析，则将其视为模型属性，除非它是由
+  {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty]
+  确定的简单类型，在这种情况下它保持未解析状态。
 |===
-
-

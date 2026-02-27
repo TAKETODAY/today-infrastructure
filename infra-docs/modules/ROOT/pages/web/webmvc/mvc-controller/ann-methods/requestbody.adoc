@@ -1,9 +1,8 @@
 [[mvc-ann-requestbody]]
 = `@RequestBody`
 
-You can use the `@RequestBody` annotation to have the request body read and deserialized into an
-`Object` through an xref:integration/rest-clients.adoc#rest-message-conversion[`HttpMessageConverter`].
-The following example uses a `@RequestBody` argument:
+您可以使用 `@RequestBody` 注解让请求体通过 xref:integration/rest-clients.adoc#rest-message-conversion[`HttpMessageConverter`]
+读取并反序列化为 `Object`。以下示例使用了一个 `@RequestBody` 参数：
 
 [tabs]
 ======
@@ -18,15 +17,13 @@ public void handle(@RequestBody Account account) {
 ----
 ======
 
-You can use the xref:web/webmvc/mvc-config/message-converters.adoc[Message Converters] option of the xref:web/webmvc/mvc-config.adoc[MVC Config] to
-configure or customize message conversion.
+您可以使用 xref:web/webmvc/mvc-config.adoc[MVC 配置] 的 xref:web/webmvc/mvc-config/message-converters.adoc[消息转换器]
+选项来配置或自定义消息转换。
 
-You can use `@RequestBody` in combination with `jakarta.validation.Valid` or Infra
-`@Validated` annotation, both of which cause Standard Bean Validation to be applied.
-By default, validation errors cause a `MethodArgumentNotValidException`, which is turned
-into a 400 (BAD_REQUEST) response. Alternatively, you can handle validation errors locally
-within the controller through an `Errors` or `BindingResult` argument,
-as the following example shows:
+您可以将 `@RequestBody` 与 `jakarta.validation.Valid` 结合使用，或使用 Infra `@Validated` 注解，
+这两者都会导致应用标准 Bean 验证。默认情况下，验证错误会导致 `MethodArgumentNotValidException`，
+该异常会转换为 400 (BAD_REQUEST) 响应。或者，您可以通过 `Errors` 或 `BindingResult` 参数在控制器内本地处理验证错误，
+如下例所示：
 
 [tabs]
 ======
@@ -42,7 +39,5 @@ public void handle(@Valid @RequestBody Account account, Errors errors) {
 
 ======
 
-If method validation applies because other parameters have `@Constraint` annotations,
-then `HandlerMethodValidationException` is raised instead. For more details, see the
-section on xref:web/webmvc/mvc-controller/ann-validation.adoc[Validation].
-
+如果因为其他参数具有 `@Constraint` 注解而应用方法验证，则会引发 `HandlerMethodValidationException`。
+有关更多详细信息，请参阅 xref:web/webmvc/mvc-controller/ann-validation.adoc[验证] 部分。

@@ -1,26 +1,16 @@
 [[mvc-view-xslt]]
-= XSLT Views
+= XSLT 视图
 
-XSLT is a transformation language for XML and is popular as a view technology within web
-applications. XSLT can be a good choice as a view technology if your application
-naturally deals with XML or if your model can easily be converted to XML. The following
-section shows how to produce an XML document as model data and have it transformed with
-XSLT in a Infra Web MVC application.
+XSLT 是一种 XML 转换语言，作为 Web 应用程序中的视图技术很受欢迎。如果您的应用程序自然处理 XML，或者如果您的模型可以轻松转换为 XML，那么 XSLT 可能是视图技术的不错选择。以下部分展示了如何在 Infra Web MVC 应用程序中生成 XML 文档作为模型数据并使用 XSLT 对其进行转换。
 
-This example is a trivial Infra application that creates a list of words in the
-`Controller` and adds them to the model map. The map is returned, along with the view
-name of our XSLT view. See xref:web/webmvc/mvc-controller.adoc[Annotated Controllers] for details of Infra Web MVC's
-`Controller` interface. The XSLT controller turns the list of words into a simple XML
-document ready for transformation.
-
+这是一个简单的 Infra 应用程序，它在 `Controller` 中创建一个单词列表并将它们添加到模型映射中。返回该映射以及我们的 XSLT 视图的视图名称。有关 Infra Web MVC 的 `Controller` 接口的详细信息，请参阅 xref:web/webmvc/mvc-controller.adoc[注解控制器]。XSLT 控制器将单词列表转换为简单的 XML 文档，以供转换。
 
 
 [[mvc-view-xslt-beandefs]]
 == Beans
 
-Configuration is standard for a simple Infra web application: The MVC configuration
-has to define an `XsltViewResolver` bean and regular MVC annotation configuration.
-The following example shows how to do so:
+配置对于简单的 Infra Web 应用程序来说是标准的：MVC 配置必须定义一个 `XsltViewResolver` bean 和常规的 MVC 注解配置。
+以下示例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -49,10 +39,9 @@ public class WebConfig implements WebMvcConfigurer {
 [[mvc-view-xslt-controllercode]]
 == Controller
 
-We also need a Controller that encapsulates our word-generation logic.
+我们还需要一个封装了单词生成逻辑的 Controller。
 
-The controller logic is encapsulated in a `@Controller` class, with the
-handler method being defined as follows:
+控制器逻辑封装在一个 `@Controller` 类中，处理方法的定义如下：
 
 [tabs]
 ======
@@ -84,26 +73,17 @@ public class XsltController {
 
 ======
 
-So far, we have only created a DOM document and added it to the Model map. Note that you
-can also load an XML file as a `Resource` and use it instead of a custom DOM document.
+到目前为止，我们只创建了一个 DOM 文档并将其添加到模型映射中。请注意，您也可以将 XML 文件作为 `Resource` 加载并使用它来代替自定义 DOM 文档。
 
-There are software packages available that automatically 'domify'
-an object graph, but, within Infra, you have complete flexibility to create the DOM
-from your model in any way you choose. This prevents the transformation of XML playing
-too great a part in the structure of your model data, which is a danger when using tools
-to manage the DOMification process.
-
+有一些软件包可以自动“domify”对象图，但在 Infra 中，您可以完全灵活地以任何您选择的方式从模型创建 DOM。这防止了 XML 的转换在模型数据的结构中扮演过大的角色，这是使用工具管理 DOMification 过程时的危险。
 
 
 [[mvc-view-xslt-transforming]]
-== Transformation
+== 转换
 
-Finally, the `XsltViewResolver` resolves the "`home`" XSLT template file and merges the
-DOM document into it to generate our view. As shown in the `XsltViewResolver`
-configuration, XSLT templates live in the `war` file in the `WEB-INF/xsl` directory
-and end with an `xslt` file extension.
+最后，`XsltViewResolver` 解析 "`home`" XSLT 模板文件并将 DOM 文档合并到其中以生成我们的视图。如 `XsltViewResolver` 配置所示，XSLT 模板位于 `war` 文件的 `WEB-INF/xsl` 目录中，并以 `xslt` 文件扩展名结尾。
 
-The following example shows an XSLT transform:
+以下示例显示了一个 XSLT 转换：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -131,7 +111,7 @@ The following example shows an XSLT transform:
 </xsl:stylesheet>
 ----
 
-The preceding transform is rendered as the following HTML:
+上述转换渲染为以下 HTML：
 
 [source,html,indent=0,subs="verbatim,quotes"]
 ----

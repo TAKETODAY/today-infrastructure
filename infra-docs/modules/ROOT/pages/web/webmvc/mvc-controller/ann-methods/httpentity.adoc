@@ -1,8 +1,8 @@
 [[mvc-ann-httpentity]]
 = HttpEntity
 
-`HttpEntity` is more or less identical to using xref:web/webmvc/mvc-controller/ann-methods/requestbody.adoc[`@RequestBody`] but is based on a
-container object that exposes request headers and body. The following listing shows an example:
+`HttpEntity` 与使用 xref:web/webmvc/mvc-controller/ann-methods/requestbody.adoc[`@RequestBody`]
+或多或少相同，但它是基于一个公开请求头和正文的容器对象。以下清单显示了一个示例：
 
 [tabs]
 ======
@@ -17,6 +17,3 @@ public void handle(HttpEntity<Account> entity) {
 ----
 
 ======
-
-
-

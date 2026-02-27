@@ -1,14 +1,5 @@
 [[mvc-view-xml-marshalling]]
-= XML Marshalling
+= XML 编组
 :page-section-summary-toc: 1
 
-The `MarshallingView` uses an XML `Marshaller` (defined in the `infra.oxm`
-package) to render the response content as XML. You can explicitly set the object to be
-marshalled by using a `MarshallingView` instance's `modelKey` bean property. Alternatively,
-the view iterates over all model properties and marshals the first type that is supported
-by the `Marshaller`. For more information on the functionality in the
-`infra.oxm` package, see xref:data-access/oxm.adoc[Marshalling XML using O/X Mappers].
-
-
-
-
+`MarshallingView` 使用 XML `Marshaller`（定义在 `infra.oxm` 包中）将响应内容渲染为 XML。您可以使用 `MarshallingView` 实例的 `modelKey` bean 属性显式设置要编组的对象。或者，视图会迭代所有模型属性并编组 `Marshaller` 支持的第一个类型。有关 `infra.oxm` 包中功能的更多信息，请参阅 xref:data-access/oxm.adoc[使用 O/X 映射器编组 XML]。

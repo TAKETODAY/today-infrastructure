@@ -1,66 +1,51 @@
 [[mvc-sequence]]
-= Processing
+= 处理流程
 
-The `MockDispatcher` processes requests as follows:
+`MockDispatcher` 处理请求如下：
 
-* The `WebApplicationContext` is searched for and bound in the request as an attribute
-  that the controller and other elements in the process can use. It is bound by default
-  under the `DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE` key.
-* The locale resolver is bound to the request to let elements in the process
-  resolve the locale to use when processing the request (rendering the view, preparing
-  data, and so on). If you do not need locale resolving, you do not need the locale resolver.
-* The theme resolver is bound to the request to let elements such as views determine
-  which theme to use. If you do not use themes, you can ignore it.
-* If you specify a multipart file resolver, the request is inspected for multiparts. If
-  multiparts are found, the request is wrapped in a `MultipartHttpServletRequest` for
-  further processing by other elements in the process. See xref:web/webmvc/mvc-core/multipart.adoc[Multipart Resolver] for further
-  information about multipart handling.
-* An appropriate handler is searched for. If a handler is found, the execution chain
-  associated with the handler (preprocessors, postprocessors, and controllers) is
-  run to prepare a model for rendering. Alternatively, for annotated
-  controllers, the response can be rendered (within the `HandlerAdapter`) instead of
-  returning a view.
-* If a model is returned, the view is rendered. If no model is returned (maybe due to
-  a preprocessor or postprocessor intercepting the request, perhaps for security
-  reasons), no view is rendered, because the request could already have been fulfilled.
+* 搜索 `WebApplicationContext` 并将其作为属性绑定在请求中，以便控制器和进程中的其他元素可以使用。
+  默认情况下，它绑定在 `DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE` 键下。
+* 区域设置解析器绑定到请求，以让进程中的元素在处理请求（渲染视图、准备数据等）时解析要使用的区域设置。
+  如果您不需要区域设置解析，则不需要区域设置解析器。
+* 主题解析器绑定到请求，以让诸如视图之类的元素确定要使用的主题。如果您不使用主题，可以忽略它。
+* 如果指定了多部分文件解析器，则会检查请求是否存在多部分。如果找到多部分，则请求将包装在
+  `MultipartHttpServletRequest` 中，以便由进程中的其他元素进一步处理。
+  有关多部分处理的更多信息，请参阅 xref:web/webmvc/mvc-core/multipart.adoc[Multipart 解析器]。
+* 搜索适当的处理程序。如果找到处理程序，则运行与处理程序关联的执行链（预处理器、后处理器和控制器）
+  以准备渲染模型。或者，对于带注解的控制器，可以渲染响应（在 `HandlerAdapter` 内）而不是返回视图。
+* 如果返回模型，则渲染视图。如果没有返回模型（可能是由于预处理器或后处理器拦截了请求，可能是出于安全原因），
+  则不渲染视图，因为请求可能已经完成。
 
-The `HandlerExceptionResolver` beans declared in the `WebApplicationContext` are used to
-resolve exceptions thrown during request processing. Those exception resolvers allow
-customizing the logic to address exceptions. See xref:web/webmvc/mvc-core/exceptionhandlers.adoc[Exceptions] for more details.
+`WebApplicationContext` 中声明的 `HandlerExceptionResolver` bean 用于解决请求处理期间抛出的异常。
+这些异常解析器允许自定义解决异常的逻辑。有关更多详细信息，请参阅 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]。
 
-For HTTP caching support, handlers can use the `checkNotModified` methods of `WebRequest`,
-along with further options for annotated controllers as described in
-xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[HTTP Caching for Controllers].
+对于 HTTP 缓存支持，处理程序可以使用 `WebRequest` 的 `checkNotModified` 方法，
+以及 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器的 HTTP 缓存]
+中描述的带注解控制器的更多选项。
 
-You can customize individual `MockDispatcher` instances by adding Servlet
-initialization parameters (`init-param` elements) to the Servlet declaration in the
-`web.xml` file. The following table lists the supported parameters:
+您可以通过向 `web.xml` 文件中的 Servlet 声明添加 Servlet 初始化参数（`init-param` 元素）
+来自定义单个 `MockDispatcher` 实例。下表列出了支持的参数：
 
 [[mvc-disp-handler-init-params-tbl]]
-.DispatcherServlet initialization parameters
+.DispatcherServlet 初始化参数
 |===
-| Parameter| Explanation
+| 参数| 解释
 
 | `contextClass`
-| Class that implements `ConfigurableWebApplicationContext`, to be instantiated and
-  locally configured by this Servlet. By default, `XmlWebApplicationContext` is used.
+| 实现 `ConfigurableWebApplicationContext` 的类，由该 Servlet 实例化和本地配置。
+  默认情况下，使用 `XmlWebApplicationContext`。
 
 | `contextConfigLocation`
-| String that is passed to the context instance (specified by `contextClass`) to
-  indicate where contexts can be found. The string consists potentially of multiple
-  strings (using a comma as a delimiter) to support multiple contexts. In the case of
-  multiple context locations with beans that are defined twice, the latest location
-  takes precedence.
+| 传递给上下文实例（由 `contextClass` 指定）的字符串，指示可以在哪里找到上下文。
+  该字符串可能由多个字符串组成（使用逗号作为分隔符）以支持多个上下文。
+  如果多个上下文位置定义了两次 bean，则以最新的位置为准。
 
 | `namespace`
-| Namespace of the `WebApplicationContext`. Defaults to `[mockApi-name]-mockApi`.
+| `WebApplicationContext` 的命名空间。默认为 `[mockApi-name]-mockApi`。
 
 | `throwExceptionIfNoHandlerFound`
-| Whether to throw a `NoHandlerFoundException` when no handler was found for a request.
-  The exception can then be caught with a `HandlerExceptionResolver` (for example, by using an
-  `@ExceptionHandler` controller method) and handled as any others.
+| 当没有找到请求的处理程序时是否抛出 `NoHandlerFoundException`。
+  然后可以使用 `HandlerExceptionResolver`（例如，通过使用 `@ExceptionHandler` 控制器方法）
+  捕获异常并像其他异常一样进行处理。
 
 |===
-
-
-

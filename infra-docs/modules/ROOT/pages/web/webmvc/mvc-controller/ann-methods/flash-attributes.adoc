@@ -1,46 +1,31 @@
 [[mvc-flash-attributes]]
-= Flash Attributes
+= Flash 属性
 
-Flash attributes provide a way for one request to store attributes that are intended for use in
-another. This is most commonly needed when redirecting -- for example, the
-Post-Redirect-Get pattern. Flash attributes are saved temporarily before the
-redirect (typically in the session) to be made available to the request after the
-redirect and are removed immediately.
+Flash 属性提供了一种让一个请求存储旨在供另一个请求使用的属性的方法。
+这在重定向时最常需要——例如，Post-Redirect-Get 模式。
+Flash 属性在重定向之前临时保存（通常在会话中），以便在重定向后的请求中可用，并立即被移除。
 
-Web MVC has two main abstractions in support of flash attributes. `FlashMap` is used
-to hold flash attributes, while `FlashMapManager` is used to store, retrieve, and manage
-`FlashMap` instances.
+Web MVC 有两个主要的抽象来支持 Flash 属性。`FlashMap` 用于保存 Flash 属性，
+而 `FlashMapManager` 用于存储、检索和管理 `FlashMap` 实例。
 
-Flash attribute support is always "`on`" and does not need to be enabled explicitly.
-However, if not used, it never causes HTTP session creation. On each request, there is an
-"`input`" `FlashMap` with attributes passed from a previous request (if any) and an
-"`output`" `FlashMap` with attributes to save for a subsequent request. Both `FlashMap`
-instances are accessible from anywhere in Web MVC through static methods in
-`RequestContextUtils`.
+Flash 属性支持始终是“开启”的，不需要显式启用。但是，如果不使用，它绝不会导致创建 HTTP 会话。
+在每个请求上，都有一个具有从上一个请求传递的属性（如果有）的“输入”`FlashMap`，
+以及一个具有要为后续请求保存的属性的“输出”`FlashMap`。
+这两个 `FlashMap` 实例都可以通过 `RequestContextUtils` 中的静态方法在 Web MVC 的任何地方访问。
 
-Annotated controllers typically do not need to work with `FlashMap` directly. Instead, a
-`@RequestMapping` method can accept an argument of type `RedirectAttributes` and use it
-to add flash attributes for a redirect scenario. Flash attributes added through
-`RedirectAttributes` are automatically propagated to the "`output`" FlashMap. Similarly,
-after the redirect, attributes from the "`input`" `FlashMap` are automatically added to the
-`Model` of the controller that serves the target URL.
+带注解的控制器通常不需要直接使用 `FlashMap`。相反，`@RequestMapping` 方法可以接受 `RedirectAttributes`
+类型的参数，并使用它为重定向场景添加 Flash 属性。通过 `RedirectAttributes` 添加的 Flash 属性会自动传播到“输出”FlashMap。
+同样，在重定向之后，来自“输入”`FlashMap` 的属性会自动添加到服务于目标 URL 的控制器的 `Model` 中。
 
-.Matching requests to flash attributes
+.将请求匹配到 Flash 属性
 ****
-The concept of flash attributes exists in many other web frameworks and has proven to sometimes
-be exposed to concurrency issues. This is because, by definition, flash attributes
-are to be stored until the next request. However the very "`next`" request may not be the
-intended recipient but another asynchronous request (for example, polling or resource requests),
-in which case the flash attributes are removed too early.
+Flash 属性的概念存在于许多其他 Web 框架中，并且已被证明有时会暴露于并发问题。
+这是因为，根据定义，Flash 属性将存储到下一个请求。然而，非常的“下一个”请求可能不是预期的接收者，
+而是另一个异步请求（例如，轮询或资源请求），在这种情况下，Flash 属性会被过早移除。
 
-To reduce the possibility of such issues, `RedirectView` automatically "`stamps`"
-`FlashMap` instances with the path and query parameters of the target redirect URL. In
-turn, the default `FlashMapManager` matches that information to incoming requests when
-it looks up the "`input`" `FlashMap`.
+为了减少此类问题的可能性，`RedirectView` 自动用目标重定向 URL 的路径和查询参数“标记”`FlashMap` 实例。
+反过来，默认的 `FlashMapManager` 在查找“输入”`FlashMap` 时将该信息与传入请求进行匹配。
 
-This does not entirely eliminate the possibility of a concurrency issue but
-reduces it greatly with information that is already available in the redirect URL.
-Therefore, we recommend that you use flash attributes mainly for redirect scenarios.
+这并没有完全消除并发问题的可能性，但通过重定向 URL 中已有的信息大大减少了这种可能性。
+因此，我们建议您主要在重定向场景中使用 Flash 属性。
 ****
-
-

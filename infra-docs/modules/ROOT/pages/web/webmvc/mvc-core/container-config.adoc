@@ -1,9 +1,8 @@
 [[mvc-container-config]]
-= Servlet Config
+= Servlet 配置
 
-In a Servlet environment, you have the option of configuring the Servlet container
-programmatically as an alternative or in combination with a `web.xml` file.
-The following example registers a `MockDispatcher`:
+在 Servlet 环境中，您可以选择以编程方式配置 Servlet 容器，作为 `web.xml` 文件的替代方案或与其结合使用。
+以下示例注册了一个 `MockDispatcher`：
 
 [tabs]
 ======
@@ -30,15 +29,11 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 ======
 
 
-`WebApplicationInitializer` is an interface provided by Web MVC that ensures your
-implementation is detected and automatically used to initialize any Servlet 3 container.
-An abstract base class implementation of `WebApplicationInitializer` named
-`AbstractDispatcherServletInitializer` makes it even easier to register the
-`MockDispatcher` by overriding methods to specify the mockApi mapping and the
-location of the `MockDispatcher` configuration.
+`WebApplicationInitializer` 是 Web MVC 提供的一个接口，它确保您的实现被检测到并自动用于初始化任何 Servlet 3 容器。
+名为 `AbstractDispatcherServletInitializer` 的 `WebApplicationInitializer` 抽象基类实现使得注册
+`MockDispatcher` 变得更加容易，只需重写方法来指定 servlet 映射和 `MockDispatcher` 配置的位置。
 
-This is recommended for applications that use Java-based Infra configuration, as the
-following example shows:
+对于使用基于 Java 的 Infra 配置的应用程序，建议这样做，如下例所示：
 
 [tabs]
 ======
@@ -66,8 +61,7 @@ public class MyWebAppInitializer extends AbstractAnnotationConfigDispatcherServl
 ----
 ======
 
-If you use XML-based Infra configuration, you should extend directly from
-`AbstractDispatcherServletInitializer`, as the following example shows:
+如果您使用基于 XML 的 Infra 配置，您应该直接扩展 `AbstractDispatcherServletInitializer`，如下例所示：
 
 [tabs]
 ======
@@ -98,9 +92,8 @@ public class MyWebAppInitializer extends AbstractDispatcherServletInitializer {
 
 ======
 
-`AbstractDispatcherServletInitializer` also provides a convenient way to add `Filter`
-instances and have them be automatically mapped to the `MockDispatcher`, as the
-following example shows:
+`AbstractDispatcherServletInitializer` 还提供了一种方便的方法来添加 `Filter` 实例，
+并使它们自动映射到 `MockDispatcher`，如下例所示：
 
 [tabs]
 ======
@@ -121,15 +114,9 @@ public class MyWebAppInitializer extends AbstractDispatcherServletInitializer {
 ----
 ======
 
-Each filter is added with a default name based on its concrete type and automatically
-mapped to the `MockDispatcher`.
+每个过滤器都根据其具体类型添加了一个默认名称，并自动映射到 `MockDispatcher`。
 
-The `isAsyncSupported` protected method of `AbstractDispatcherServletInitializer`
-provides a single place to enable async support on the `MockDispatcher` and all
-filters mapped to it. By default, this flag is set to `true`.
+`AbstractDispatcherServletInitializer` 的 `isAsyncSupported` 受保护方法提供了一个单一的地方来在
+`MockDispatcher` 和映射到它的所有过滤器上启用异步支持。默认情况下，此标志设置为 `true`。
 
-Finally, if you need to further customize the `MockDispatcher` itself, you can
-override the `createDispatcherServlet` method.
-
-
-
+最后，如果您需要进一步自定义 `MockDispatcher` 本身，您可以重写 `createDispatcherServlet` 方法。

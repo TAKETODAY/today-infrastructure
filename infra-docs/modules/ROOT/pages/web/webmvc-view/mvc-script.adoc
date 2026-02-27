@@ -1,14 +1,11 @@
 [[mvc-view-script]]
-= Script Views
+= 脚本视图
 
-The TODAY Framework has a built-in integration for using Web MVC with any
-templating library that can run on top of the
-{JSR}223[JSR-223] Java scripting engine. We have tested the following
-templating libraries on different script engines:
+TODAY Framework 内置了 Web MVC 与任何可以在 {JSR}223[JSR-223] Java 脚本引擎之上运行的模板库的集成。我们已经在不同的脚本引擎上测试了以下模板库：
 
 [%header]
 |===
-|Scripting Library |Scripting Engine
+|脚本库 |脚本引擎
 |https://handlebarsjs.com/[Handlebars] |https://openjdk.java.net/projects/nashorn/[Nashorn]
 |https://mustache.github.io/[Mustache] |https://openjdk.java.net/projects/nashorn/[Nashorn]
 |https://facebook.github.io/react/[React] |https://openjdk.java.net/projects/nashorn/[Nashorn]
@@ -17,36 +14,27 @@ templating libraries on different script engines:
 |https://docs.python.org/2/library/string.html#template-strings[String templates] |https://www.jython.org/[Jython]
 |===
 
-TIP: The basic rule for integrating any other script engine is that it must implement the
-`ScriptEngine` and `Invocable` interfaces.
-
+TIP: 集成任何其他脚本引擎的基本规则是它必须实现 `ScriptEngine` 和 `Invocable` 接口。
 
 
 [[mvc-view-script-dependencies]]
-== Requirements
+== 要求
 
-You need to have the script engine on your classpath, the details of which vary by script engine:
+您的类路径上需要有脚本引擎，其详细信息因脚本引擎而异：
 
-* The https://openjdk.java.net/projects/nashorn/[Nashorn] JavaScript engine is provided with
-Java 8+. Using the latest update release available is highly recommended.
-* https://www.jruby.org[JRuby] should be added as a dependency for Ruby support.
-* https://www.jython.org[Jython] should be added as a dependency for Python support.
-* `org.jetbrains.kotlin:kotlin-script-util` dependency and a `META-INF/services/javax.script.ScriptEngineFactory`
- file containing a `org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory`
- line should be added for Kotlin script support. See
- https://github.com/sdeleuze/kotlin-script-templating[this example] for more details.
+* https://openjdk.java.net/projects/nashorn/[Nashorn] JavaScript 引擎随 Java 8+ 提供。强烈建议使用可用的最新更新版本。
+* https://www.jruby.org[JRuby] 应添加为依赖项以支持 Ruby。
+* https://www.jython.org[Jython] 应添加为依赖项以支持 Python。
+* 应添加 `org.jetbrains.kotlin:kotlin-script-util` 依赖项和包含 `org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory` 行的 `META-INF/services/javax.script.ScriptEngineFactory` 文件以支持 Kotlin 脚本。有关更多详细信息，请参阅 https://github.com/sdeleuze/kotlin-script-templating[此示例]。
 
-You need to have the script templating library. One way to do that for JavaScript is
-through https://www.webjars.org/[WebJars].
-
+您需要有脚本模板库。对于 JavaScript，一种方法是通过 https://www.webjars.org/[WebJars]。
 
 
 [[mvc-view-script-integrate]]
-== Script Templates
+== 脚本模板
 
-You can declare a `ScriptTemplateConfigurer` bean to specify the script engine to use,
-the script files to load, what function to call to render templates, and so on.
-The following example uses Mustache templates and the Nashorn JavaScript engine:
+您可以声明一个 `ScriptTemplateConfigurer` bean 来指定要使用的脚本引擎、要加载的脚本文件、要调用以渲染模板的函数等。
+以下示例使用 Mustache 模板和 Nashorn JavaScript 引擎：
 
 [tabs]
 ======
@@ -76,7 +64,7 @@ public class WebConfig implements WebMvcConfigurer {
 ----
 ======
 
-The controller would look no different for the Java and XML configurations, as the following example shows:
+对于 Java 和 XML 配置，控制器看起来没有什么不同，如下例所示：
 
 [tabs]
 ======
@@ -98,7 +86,7 @@ public class SampleController {
 
 ======
 
-The following example shows the Mustache template:
+以下示例显示了 Mustache 模板：
 
 [source,html,indent=0,subs="verbatim,quotes"]
 ----
@@ -112,24 +100,17 @@ The following example shows the Mustache template:
 </html>
 ----
 
-The render function is called with the following parameters:
+使用以下参数调用渲染函数：
 
-* `String template`: The template content
-* `Map model`: The view model
-* `RenderingContext renderingContext`: The
-  {today-framework-api}/web/mockApi/view/script/RenderingContext.html[`RenderingContext`]
-  that gives access to the application context, the locale, the template loader, and the
-  URL (since 5.0)
+* `String template`: 模板内容
+* `Map model`: 视图模型
+* `RenderingContext renderingContext`: {today-framework-api}/web/mockApi/view/script/RenderingContext.html[`RenderingContext`]，提供对应用程序上下文、区域设置、模板加载器和 URL（自 5.0 起）的访问
 
-`Mustache.render()` is natively compatible with this signature, so you can call it directly.
+`Mustache.render()` 与此签名原生兼容，因此您可以直接调用它。
 
-If your templating technology requires some customization, you can provide a script that
-implements a custom render function. For example, https://handlebarsjs.com[Handlerbars]
-needs to compile templates before using them and requires a
-https://en.wikipedia.org/wiki/Polyfill[polyfill] to emulate some
-browser facilities that are not available in the server-side script engine.
+如果您的模板技术需要一些自定义，您可以提供一个实现自定义渲染函数的脚本。例如，https://handlebarsjs.com[Handlerbars] 需要在使用前编译模板，并且需要 https://en.wikipedia.org/wiki/Polyfill[polyfill] 来模拟服务器端脚本引擎中不可用的某些浏览器功能。
 
-The following example shows how to do so:
+以下示例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -160,23 +141,17 @@ public class WebConfig implements WebMvcConfigurer {
 
 ======
 
-NOTE: Setting the `sharedEngine` property to `false` is required when using non-thread-safe
-script engines with templating libraries not designed for concurrency, such as Handlebars or
-React running on Nashorn. In that case, Java SE 8 update 60 is required, due to
-https://bugs.openjdk.java.net/browse/JDK-8076099[this bug], but it is generally
-recommended to use a recent Java SE patch release in any case.
+NOTE: 当使用非线程安全脚本引擎和未针对并发设计的模板库（例如在 Nashorn 上运行的 Handlebars 或 React）时，需要将 `sharedEngine` 属性设置为 `false`。在这种情况下，由于 https://bugs.openjdk.java.net/browse/JDK-8076099[此错误]，需要 Java SE 8 update 60，但通常建议使用最新的 Java SE 补丁版本。
 
-`polyfill.js` defines only the `window` object needed by Handlebars to run properly, as follows:
+`polyfill.js` 仅定义了 Handlebars 正常运行所需的 `window` 对象，如下所示：
 
 [source,javascript,indent=0,subs="verbatim,quotes"]
 ----
 	var window = {};
 ----
 
-This basic `render.js` implementation compiles the template before using it. A production-ready
-implementation should also store any reused cached templates or pre-compiled templates.
-You can do so on the script side (and handle any customization you need -- managing
-template engine configuration, for example). The following example shows how to do so:
+这个基本的 `render.js` 实现会在使用前编译模板。生产就绪的实现还应存储任何重用的缓存模板或预编译模板。
+您可以在脚本端执行此操作（并处理您需要的任何自定义 -- 例如管理模板引擎配置）。以下示例展示了如何做到这一点：
 
 [source,javascript,indent=0,subs="verbatim,quotes"]
 ----
@@ -186,11 +161,7 @@ function render(template, model) {
 }
 ----
 
-Check out the TODAY Framework unit tests,
-{today-framework-code}/infra-web/src/test/java/infra/web/mockApi/view/script[Java], and
-{today-framework-code}/infra-web/src/test/resources/infra/web/mockApi/view/script[resources],
-for more configuration examples.
-
-
-
-
+查看 TODAY Framework 单元测试，
+{today-framework-code}/infra-web/src/test/java/infra/web/mockApi/view/script[Java] 和
+{today-framework-code}/infra-web/src/test/resources/infra/web/mockApi/view/script[资源]，
+了解更多配置示例。

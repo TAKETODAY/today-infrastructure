@@ -1,30 +1,23 @@
 [[mvc-redirecting-passing-data]]
-= Redirect Attributes
+= 重定向属性
 
-By default, all model attributes are considered to be exposed as URI template variables in
-the redirect URL. Of the remaining attributes, those that are primitive types or
-collections or arrays of primitive types are automatically appended as query parameters.
+默认情况下，所有模型属性都被视为在重定向 URL 中作为 URI 模板变量公开。
+在剩余的属性中，原始类型或原始类型的集合或数组会自动附加为查询参数。
 
-Appending primitive type attributes as query parameters can be the desired result if a
-model instance was prepared specifically for the redirect. However, in annotated
-controllers, the model can contain additional attributes added for rendering purposes (for example,
-drop-down field values). To avoid the possibility of having such attributes appear in the
-URL, a `@RequestMapping` method can declare an argument of type `RedirectAttributes` and
-use it to specify the exact attributes to make available to `RedirectView`. If the method
-does redirect, the content of `RedirectAttributes` is used.  Otherwise, the content of the
-model is used.
+如果模型实例是专门为重定向准备的，那么将原始类型属性附加为查询参数可能是预期的结果。
+但是，在带注解的控制器中，模型可能包含为渲染目的而添加的附加属性（例如，下拉字段值）。
+为了避免此类属性出现在 URL 中的可能性，`@RequestMapping` 方法可以声明一个 `RedirectAttributes`
+类型的参数，并使用它来指定要提供给 `RedirectView` 的确切属性。
+如果方法进行重定向，则使用 `RedirectAttributes` 的内容。否则，使用模型的内容。
 
-The `RequestMappingHandlerAdapter` provides a flag called
-`ignoreDefaultModelOnRedirect`, which you can use to indicate that the content of the default
-`Model` should never be used if a controller method redirects. Instead, the controller
-method should declare an attribute of type `RedirectAttributes` or, if it does not do so,
-no attributes should be passed on to `RedirectView`. Both the MVC namespace and the MVC
-Java configuration keep this flag set to `false`, to maintain backwards compatibility.
-However, for new applications, we recommend setting it to `true`.
+`RequestMappingHandlerAdapter` 提供了一个名为 `ignoreDefaultModelOnRedirect` 的标志，
+您可以使用它来指示如果控制器方法重定向，则不应使用默认 `Model` 的内容。
+相反，控制器方法应声明一个 `RedirectAttributes` 类型的属性，或者如果不这样做，则不应向 `RedirectView` 传递任何属性。
+MVC 命名空间和 MVC Java 配置都将此标志设置为 `false`，以保持向后兼容性。
+但是，对于新应用程序，我们建议将其设置为 `true`。
 
-Note that URI template variables from the present request are automatically made
-available when expanding a redirect URL, and you don't need to explicitly add them
-through `Model` or `RedirectAttributes`. The following example shows how to define a redirect:
+请注意，当前请求的 URI 模板变量在扩展重定向 URL 时会自动可用，您不需要通过 `Model` 或 `RedirectAttributes` 显式添加它们。
+以下示例展示了如何定义重定向：
 
 [tabs]
 ======
@@ -40,8 +33,6 @@ public String upload(...) {
 ----
 ======
 
-Another way of passing data to the redirect target is by using flash attributes. Unlike
-other redirect attributes, flash attributes are saved in the HTTP session (and, hence, do
-not appear in the URL). See xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash Attributes] for more information.
-
-
+另一种向重定向目标传递数据的方法是使用 Flash 属性。与其他重定向属性不同，
+Flash 属性保存在 HTTP 会话中（因此不会出现在 URL 中）。
+有关更多信息，请参阅 xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash 属性]。

@@ -1,17 +1,16 @@
 [[mvc-ann-cookievalue]]
 = `@CookieValue`
 
-You can use the `@CookieValue` annotation to bind the value of an HTTP cookie to a method argument
-in a controller.
+您可以使用 `@CookieValue` 注解将 HTTP cookie 的值绑定到控制器中的方法参数。
 
-Consider a request with the following cookie:
+考虑一个带有以下 cookie 的请求：
 
 [literal,subs="verbatim,quotes"]
 ----
 JSESSIONID=415A4AC178C59DACE0B2C9CA727CDD84
 ----
 
-The following example shows how to get the cookie value:
+以下示例展示了如何获取 cookie 值：
 
 [tabs]
 ======
@@ -24,11 +23,9 @@ public void handle(@CookieValue("JSESSIONID") String cookie) { <1>
   //...
 }
 ----
-<1> Get the value of the `JSESSIONID` cookie.
+<1> 获取 `JSESSIONID` cookie 的值。
 
 ======
 
-If the target method parameter type is not `String`, type conversion is applied automatically.
-See xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[Type Conversion].
-
-
+如果目标方法参数类型不是 `String`，则自动应用类型转换。
+参见 xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[类型转换]。

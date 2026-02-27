@@ -1,10 +1,8 @@
 [[mvc-ann-sessionattribute]]
 = `@SessionAttribute`
 
-If you need access to pre-existing session attributes that are managed globally
-(that is, outside the controller -- for example, by a filter) and may or may not be present,
-you can use the `@SessionAttribute` annotation on a method parameter,
-as the following example shows:
+如果您需要访问全局管理的（即在控制器之外——例如，由过滤器管理）且可能存在也可能不存在的预先存在的会话属性，
+您可以在方法参数上使用 `@SessionAttribute` 注解，如下例所示：
 
 [tabs]
 ======
@@ -17,9 +15,6 @@ public String handle(@SessionAttribute User user) { <1>
   // ...
 }
 ----
-<1> Using a `@SessionAttribute` annotation.
+<1> 使用 `@SessionAttribute` 注解。
 
 ======
-
-
-

@@ -1,26 +1,21 @@
 [[mvc-logging]]
-= Logging
+= 日志
 
-DEBUG-level logging in Web MVC is designed to be compact, minimal, and
-human-friendly. It focuses on high-value bits of information that are useful over and
-over again versus others that are useful only when debugging a specific issue.
+Web MVC 中的 DEBUG 级别日志旨在紧凑、最小且人性化。它专注于一遍又一遍有用的高价值信息，而不是仅在调试特定问题时有用的其他信息。
 
-TRACE-level logging generally follows the same principles as DEBUG (and, for example, also
-should not be a fire hose) but can be used for debugging any issue. In addition, some log
-messages may show a different level of detail at TRACE versus DEBUG.
+TRACE 级别日志通常遵循与 DEBUG 相同的原则（例如，也不应该是大量的），但可用于调试任何问题。
+此外，一些日志消息可能会在 TRACE 与 DEBUG 级别显示不同的详细程度。
 
-Good logging comes from the experience of using the logs. If you spot anything that does
-not meet the stated goals, please let us know.
+良好的日志来自使用日志的经验。如果您发现任何不符合既定目标的内容，请告诉我们。
 
 
 [[mvc-logging-sensitive-data]]
-== Sensitive Data
+== 敏感数据
 
-DEBUG and TRACE logging may log sensitive information. This is why request parameters and
-headers are masked by default and their logging in full must be enabled explicitly
-through the `enableLoggingRequestDetails` property on `MockDispatcher`.
+DEBUG 和 TRACE 日志可能会记录敏感信息。这就是为什么请求参数和头默认被屏蔽，
+并且必须通过 `MockDispatcher` 上的 `enableLoggingRequestDetails` 属性显式启用它们的完整日志记录。
 
-The following example shows how to do so by using Java configuration:
+以下示例显示了如何使用 Java 配置执行此操作：
 
 [tabs]
 ======
@@ -54,7 +49,3 @@ public class MyInitializer
 }
 ----
 ======
-
-
-
-

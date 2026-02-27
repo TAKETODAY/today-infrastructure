@@ -1,5 +1,5 @@
 [[websocket-fallback]]
-= Fallback
+= 回退
 
 在公共互联网上，限制性代理可能会阻止 WebSocket 交互，要么是因为它们未配置为传递 `Upgrade` 标头，要么是因为它们关闭看起来处于空闲状态的长连接。
 
@@ -9,25 +9,14 @@
 [[websocket-fallback-cors]]
 == CORS
 
-If you allow cross-origin requests (see xref:web/websocket/server.adoc#websocket-server-allowed-origins[Allowed Origins]), the SockJS protocol uses CORS for cross-domain support in the XHR streaming and polling transports.
-Therefore, CORS headers are added automatically, unless the presence of CORS headers in the response is detected.
-So, if an application is already configured to provide CORS support (for example, through a Servlet Filter),
-
-* `Access-Control-Allow-Origin`: Initialized from the value of the `Origin` request header.
-* `Access-Control-Allow-Credentials`: Always set to `true`.
-* `Access-Control-Request-Headers`: Initialized from values from the equivalent request header.
-* `Access-Control-Allow-Methods`: The HTTP methods a transport supports (see `TransportType` enum).
-* `Access-Control-Max-Age`: Set to 31536000 (1 year).
-
-Alternatively, if the CORS configuration allows it, consider excluding URLs with the SockJS endpoint prefix, thus letting Infra `SockJsService` handle it.
-
-如果允许跨域请求（参见 xref:web/websocket/server.adoc#websocket-server-allowed-origins[Allowed Origins]），
-除非检测到响应中存在 CORS 标头，否则将自动添加 CORS 标头。因此，如果应用程序已经配置为提供 CORS 支持，
+如果您允许跨域请求（请参阅 xref:web/websocket/server.adoc#websocket-server-allowed-origins[允许的来源]），SockJS 协议将在 XHR 流和轮询传输中使用 CORS 进行跨域支持。
+因此，除非检测到响应中存在 CORS 标头，否则将自动添加 CORS 标头。
+因此，如果应用程序已经配置为提供 CORS 支持（例如，通过 Servlet 过滤器），则：
 
 * `Access-Control-Allow-Origin`：从 `Origin` 请求标头的值初始化。
 * `Access-Control-Allow-Credentials`：始终设置为 `true`。
-* `Access-Control-Request-Headers`：从相应请求标头的值初始化。
+* `Access-Control-Request-Headers`：从等效请求标头的值初始化。
 * `Access-Control-Allow-Methods`：传输支持的 HTTP 方法（参见 `TransportType` 枚举）。
 * `Access-Control-Max-Age`：设置为 31536000（1 年）。
 
-
+或者，如果 CORS 配置允许，请考虑排除带有 SockJS 端点前缀的 URL，从而让 Infra `SockJsService` 处理它。

@@ -1,46 +1,44 @@
 [[mvc-uri-building]]
-= URI Links
+= URI 链接
 
-This section describes various options available in the TODAY Framework to work with URI's.
+本节描述了 TODAY Framework 中用于处理 URI 的各种选项。
 
 include::partial$web/web-uris.adoc[leveloffset=+1]
 
 
 
 [[mvc-uricomponentsbuilder]]
-== Relative Servlet Requests
+== 相对 Web 请求
 
-You can use `ServletUriComponentsBuilder` to create URIs relative to the current request,
-as the following example shows:
+您可以使用 `UriComponentsBuilder` 创建相对于当前请求的 URI，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 HttpServletRequest request = ...
 
-// Re-uses scheme, host, port, path, and query string...
+// 重用 scheme, host, port, path, 和 query string...
 
-URI uri = ServletUriComponentsBuilder.fromRequest(request)
+URI uri = UriComponentsBuilder.fromRequest(request)
     .replaceQueryParam("accountId", "{id}")
     .build("123");
 ----
 
-You can create URIs relative to the context path, as the following example shows:
+您可以创建相对于上下文路径（context path）的 URI，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 HttpServletRequest request = ...
 
-// Re-uses scheme, host, port, and context path...
+// 重用 scheme, host, port, 和 context path...
 
-URI uri = ServletUriComponentsBuilder.fromContextPath(request)
+URI uri = UriComponentsBuilder.fromContextPath(request)
     .path("/accounts")
     .build()
     .toUri();
 ----
 
 
-You can create URIs relative to a Servlet (for example, `/main/{asterisk}`),
-as the following example shows:
+您可以创建相对于 Servlet 的 URI（例如 `/main/{asterisk}`），如下例所示：
 
 [tabs]
 ======
@@ -50,9 +48,9 @@ Java::
 ----
 	HttpServletRequest request = ...
 
-	// Re-uses scheme, host, port, context path, and Servlet mapping prefix...
+	// 重用 scheme, host, port, context path, 和 Servlet mapping prefix...
 
-	URI uri = ServletUriComponentsBuilder.fromServletMapping(request)
+	URI uri = UriComponentsBuilder.fromServletMapping(request)
 			.path("/accounts")
 			.build()
 			.toUri();
@@ -62,10 +60,9 @@ Java::
 
 
 [[mvc-links-to-controllers]]
-== Links to Controllers
+== 指向控制器的链接
 
-Web MVC provides a mechanism to prepare links to controller methods. For example,
-the following MVC controller allows for link creation:
+Web MVC 提供了一种机制来准备指向控制器方法的链接。例如，下面的 MVC 控制器允许创建链接：
 
 [tabs]
 ======
@@ -86,7 +83,7 @@ public class BookingController {
 
 ======
 
-You can prepare a link by referring to the method by name, as the following example shows:
+您可以通过名称引用方法来准备链接，如下例所示：
 
 [tabs]
 ======
@@ -101,16 +98,12 @@ URI uri = uriComponents.encode().toUri();
 ----
 ======
 
-In the preceding example, we provide actual method argument values (in this case, the long value: `21`)
-to be used as a path variable and inserted into the URL. Furthermore, we provide the
-value, `42`, to fill in any remaining URI variables, such as the `hotel` variable inherited
-from the type-level request mapping. If the method had more arguments, we could supply null for
-arguments not needed for the URL. In general, only `@PathVariable` and `@RequestParam` arguments
-are relevant for constructing the URL.
+在前面的示例中，我们提供了实际的方法参数值（在本例中为 long 值：`21`）作为路径变量并插入到 URL 中。
+此外，我们提供了值 `42` 来填充任何剩余的 URI 变量，例如从类型级请求映射继承的 `hotel` 变量。
+如果方法有更多参数，我们可以为不需要用于 URL 的参数提供 null。通常，只有 `@PathVariable` 和 `@RequestParam` 参数与构建 URL 相关。
 
-There are additional ways to use `MvcUriComponentsBuilder`. For example, you can use a technique
-akin to mock testing through proxies to avoid referring to the controller method by name, as the following example shows
-(the example assumes static import of `MvcUriComponentsBuilder.on`):
+还有其他使用 `MvcUriComponentsBuilder` 的方法。例如，您可以使用类似于通过代理进行 mock 测试的技术，
+以避免通过名称引用控制器方法，如下例所示（该示例假设静态导入了 `MvcUriComponentsBuilder.on`）：
 
 [tabs]
 ======
@@ -125,25 +118,18 @@ URI uri = uriComponents.encode().toUri();
 ----
 ======
 
-NOTE: Controller method signatures are limited in their design when they are supposed to be usable for
-link creation with `fromMethodCall`. Aside from needing a proper parameter signature,
-there is a technical limitation on the return type (namely, generating a runtime proxy
-for link builder invocations), so the return type must not be `final`. In particular,
-the common `String` return type for view names does not work here. You should use `ModelAndView`
-or even plain `Object` (with a `String` return value) instead.
+NOTE: 控制器方法签名在设计用于通过 `fromMethodCall` 创建链接时受到限制。除了需要适当的参数签名外，
+返回类型还有一个技术限制（即为链接构建器调用生成运行时代理），因此返回类型不能是 `final`。
+特别是，用于视图名称的常见 `String` 返回类型在这里不起作用。您应该改用 `ModelAndView` 甚至普通的 `Object`（带有 `String` 返回值）。
 
-The earlier examples use static methods in `MvcUriComponentsBuilder`. Internally, they rely
-on `ServletUriComponentsBuilder` to prepare a base URL from the scheme, host, port,
-context path, and mockApi path of the current request. This works well in most cases.
-However, sometimes, it can be insufficient. For example, you may be outside the context of
-a request (such as a batch process that prepares links) or perhaps you need to insert a path
-prefix (such as a locale prefix that was removed from the request path and needs to be
-re-inserted into links).
+前面的示例使用了 `MvcUriComponentsBuilder` 中的静态方法。在内部，它们依赖 `UriComponentsBuilder`
+从当前请求的 scheme、host、port、context path 和 servlet path 准备基本 URL。这在大多数情况下效果很好。
+但是，有时这可能还不够。例如，您可能处于请求上下文之外（例如准备链接的批处理过程），或者您可能需要插入路径前缀
+（例如从请求路径中删除并需要重新插入到链接中的区域设置前缀）。
 
-For such cases, you can use the static `fromXxx` overloaded methods that accept a
-`UriComponentsBuilder` to use a base URL. Alternatively, you can create an instance of `MvcUriComponentsBuilder`
-with a base URL and then use the instance-based `withXxx` methods. For example, the
-following listing uses `withMethodCall`:
+对于这种情况，您可以使用接受 `UriComponentsBuilder` 以使用基本 URL 的静态 `fromXxx` 重载方法。
+或者，您可以创建一个带有基本 URL 的 `MvcUriComponentsBuilder` 实例，然后使用基于实例的 `withXxx` 方法。
+例如，下面的清单使用了 `withMethodCall`：
 
 [tabs]
 ======
@@ -151,7 +137,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	UriComponentsBuilder base = ServletUriComponentsBuilder.fromCurrentContextPath().path("/en");
+	UriComponentsBuilder base = UriComponentsBuilder.forHttpRequest(req).path("/en");
 	MvcUriComponentsBuilder builder = MvcUriComponentsBuilder.relativeTo(base);
 	builder.withMethodCall(on(BookingController.class).getBooking(21)).buildAndExpand(42);
 
@@ -163,12 +149,12 @@ Java::
 
 
 [[mvc-links-to-controllers-from-views]]
-== Links in Views
+== 视图中的链接
 
-In views such as Thymeleaf, FreeMarker, or JSP, you can build links to annotated controllers
-by referring to the implicitly or explicitly assigned name for each request mapping.
+在 Thymeleaf、FreeMarker 或 JSP 等视图中，您可以通过引用每个请求映射的隐式或显式分配的名称，
+来构建指向带注解控制器的链接。
 
-Consider the following example:
+考虑以下示例：
 
 [tabs]
 ======
@@ -184,27 +170,3 @@ public class PersonAddressController {
 }
 ----
 ======
-
-Given the preceding controller, you can prepare a link from a JSP, as follows:
-
-[source,jsp,indent=0,subs="verbatim,quotes"]
-----
-<%@ taglib uri="http://www.springframework.org/tags" prefix="s" %>
-...
-<a href="${s:mvcUrl('PAC#getAddress').arg(0,'US').buildAndExpand('123')}">Get Address</a>
-----
-
-The preceding example relies on the `mvcUrl` function declared in the Infra tag library
-(that is, META-INF/spring.tld), but it is easy to define your own function or prepare a
-similar one for other templating technologies.
-
-Here is how this works. On startup, every `@RequestMapping` is assigned a default name
-through `HandlerMethodMappingNamingStrategy`, whose default implementation uses the
-capital letters of the class and the method name (for example, the `getThing` method in
-`ThingController` becomes "TC#getThing"). If there is a name clash, you can use
-`@RequestMapping(name="..")` to assign an explicit name or implement your own
-`HandlerMethodMappingNamingStrategy`.
-
-
-
-

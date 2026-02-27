@@ -1,7 +1,7 @@
 [[mvc-ann-responseentity]]
 = ResponseEntity
 
-`ResponseEntity` is like xref:web/webmvc/mvc-controller/ann-methods/responsebody.adoc[`@ResponseBody`] but with status and headers. For example:
+`ResponseEntity` 类似于 xref:web/webmvc/mvc-controller/ann-methods/responsebody.adoc[`@ResponseBody`]，但带有状态和头。例如：
 
 [tabs]
 ======
@@ -19,27 +19,18 @@ public ResponseEntity<String> handle() {
 
 ======
 
-The body will usually be provided as a value object to be rendered to a corresponding
-response representation (e.g. JSON) by one of the registered `HttpMessageConverters`.
+正文通常作为值对象提供，由已注册的 `HttpMessageConverters` 之一渲染为相应的响应表示（例如 JSON）。
 
-A `ResponseEntity<Resource>` can be returned for file content, copying the `InputStream`
-content of the provided resource to the response `OutputStream`. Note that the
-`InputStream` should be lazily retrieved by the `Resource` handle in order to reliably
-close it after it has been copied to the response. If you are using `InputStreamResource`
-for such a purpose, make sure to construct it with an on-demand `InputStreamSource`
-(e.g. through a lambda expression that retrieves the actual `InputStream`). Also, custom
-subclasses of `InputStreamResource` are only supported in combination with a custom
-`contentLength()` implementation which avoids consuming the stream for that purpose.
+可以返回 `ResponseEntity<Resource>` 作为文件内容，将提供的资源的 `InputStream` 内容复制到响应 `OutputStream`。
+注意，`InputStream` 应该由 `Resource` 句柄延迟检索，以便在复制到响应后可靠地关闭它。
+如果您为此目的使用 `InputStreamResource`，请确保使用按需 `InputStreamSource` 构建它
+（例如，通过检索实际 `InputStream` 的 lambda 表达式）。此外，`InputStreamResource` 的自定义子类仅在结合
+自定义 `contentLength()` 实现时受支持，该实现避免为此目的消耗流。
 
-Web MVC supports using a single value xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[reactive type]
-to produce the `ResponseEntity` asynchronously, and/or single and multi-value reactive
-types for the body. This allows the following types of async responses:
+Web MVC 支持使用单个值 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[响应式类型]
+异步生成 `ResponseEntity`，和/或正文的单值和多值响应式类型。这允许以下类型的异步响应：
 
-* `ResponseEntity<Mono<T>>` or `ResponseEntity<Flux<T>>` make the response status and
-  headers known immediately while the body is provided asynchronously at a later point.
-  Use `Mono` if the body consists of 0..1 values or `Flux` if it can produce multiple values.
-* `Mono<ResponseEntity<T>>` provides all three -- response status, headers, and body,
-  asynchronously at a later point. This allows the response status and headers to vary
-  depending on the outcome of asynchronous request handling.
-
-
+* `ResponseEntity<Mono<T>>` 或 `ResponseEntity<Flux<T>>` 使响应状态和头立即可知，而正文在稍后异步提供。
+  如果正文包含 0..1 个值，请使用 `Mono`；如果它可以生成多个值，请使用 `Flux`。
+* `Mono<ResponseEntity<T>>` 在稍后异步提供所有三个——响应状态、头和正文。
+  这允许响应状态和头根据异步请求处理的结果而变化。
