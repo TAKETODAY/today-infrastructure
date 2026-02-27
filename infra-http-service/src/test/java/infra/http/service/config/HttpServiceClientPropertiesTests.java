@@ -24,7 +24,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.context.annotation.Configuration;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.http.client.HttpRedirects;
@@ -51,28 +52,33 @@ class HttpServiceClientPropertiesTests {
     environment.setProperty("http.service-client.c1.ssl.bundle", "usual");
     environment.setProperty("http.service-client.c2.base-uri", "https://example.com/rossen");
     environment.setProperty("http.service-client.c3.base-uri", "https://example.com/phil");
-    try (AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext()) {
-      applicationContext.setEnvironment(environment);
-      applicationContext.register(PropertiesConfiguration.class);
-      applicationContext.refresh();
-      HttpServiceClientProperties properties = applicationContext.getBean(HttpServiceClientProperties.class);
-      assertThat(properties).containsOnlyKeys("c1", "c2", "c3");
-      HttpClientProperties c1 = properties.get("c1");
-      assertThat(c1).isNotNull();
-      assertThat(c1.baseUri).isEqualTo("https://example.com/olga");
-      assertThat(c1.defaultHeader).containsOnly(Map.entry("secure", List.of("very", "somewhat")),
-              Map.entry("test", List.of("true")));
-      assertThat(c1.redirects).isEqualTo(HttpRedirects.DONT_FOLLOW);
-      assertThat(c1.connectTimeout).isEqualTo(Duration.ofSeconds(10));
-      assertThat(c1.readTimeout).isEqualTo(Duration.ofSeconds(20));
-      assertThat(c1.ssl.bundle).isEqualTo("usual");
-      HttpClientProperties c2 = properties.get("c2");
-      assertThat(c2).isNotNull();
-      assertThat(c2.baseUri).isEqualTo("https://example.com/rossen");
-      HttpClientProperties c3 = properties.get("c3");
-      assertThat(c3).isNotNull();
-      assertThat(c3.baseUri).isEqualTo("https://example.com/phil");
-    }
+    HttpServiceClientProperties properties = HttpServiceClientProperties.bind(environment);
+    HttpClientProperties c1 = properties.get("c1");
+    assertThat(c1).isNotNull();
+    assertThat(c1.baseUri).isEqualTo("https://example.com/olga");
+    assertThat(c1.defaultHeader).containsOnly(Map.entry("secure", List.of("very", "somewhat")),
+            Map.entry("test", List.of("true")));
+    assertThat(c1.redirects).isEqualTo(HttpRedirects.DONT_FOLLOW);
+    assertThat(c1.connectTimeout).isEqualTo(Duration.ofSeconds(10));
+    assertThat(c1.readTimeout).isEqualTo(Duration.ofSeconds(20));
+    assertThat(c1.ssl.bundle).isEqualTo("usual");
+    HttpClientProperties c2 = properties.get("c2");
+    assertThat(c2).isNotNull();
+    assertThat(c2.baseUri).isEqualTo("https://example.com/rossen");
+    HttpClientProperties c3 = properties.get("c3");
+    assertThat(c3).isNotNull();
+    assertThat(c3.baseUri).isEqualTo("https://example.com/phil");
+    assertThat(properties.get("c4")).isNull();
+
+  }
+
+  @Test
+  void registersHintsForBindingOfHttpClientProperties() {
+    RuntimeHints hints = new RuntimeHints();
+    new HttpServiceClientProperties.Hints().registerHints(hints, getClass().getClassLoader());
+    assertThat(RuntimeHintsPredicates.reflection().onType(HttpClientProperties.class)).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onType(ApiVersionProperties.class)).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onType(ApiVersionProperties.Insert.class)).accepts(hints);
   }
 
   @Configuration

@@ -18,13 +18,13 @@
 
 package infra.http.service.config;
 
-import infra.core.ssl.SslBundles;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
-import infra.context.properties.EnableConfigurationProperties;
+import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.ResourceLoader;
+import infra.core.ssl.SslBundles;
 import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
@@ -47,8 +47,12 @@ import infra.web.client.config.RestClientAutoConfiguration;
 @DisableDIAutoConfiguration(after = { ImperativeHttpClientAutoConfiguration.class, RestClientAutoConfiguration.class })
 @ConditionalOnClass(RestClientAdapter.class)
 @ConditionalOnBean(HttpServiceProxyRegistry.class)
-@EnableConfigurationProperties(HttpServiceClientProperties.class)
 public final class HttpServiceClientAutoConfiguration {
+
+  @Component
+  static HttpServiceClientProperties httpServiceClientProperties(ConfigurableEnvironment environment) {
+    return HttpServiceClientProperties.bind(environment);
+  }
 
   @Component
   static PropertiesRestClientHttpServiceGroupConfigurer restClientPropertiesHttpServiceGroupConfigurer(

@@ -18,9 +18,18 @@
 
 package infra.http.service.config;
 
-import java.util.LinkedHashMap;
+import org.jspecify.annotations.Nullable;
 
-import infra.context.properties.ConfigurationProperties;
+import java.util.Collections;
+import java.util.Map;
+
+import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.RuntimeHintsRegistrar;
+import infra.context.annotation.ImportRuntimeHints;
+import infra.context.properties.bind.Bindable;
+import infra.context.properties.bind.BindableRuntimeHintsRegistrar;
+import infra.context.properties.bind.Binder;
+import infra.core.env.ConfigurableEnvironment;
 
 /**
  * Properties for HTTP Service clients.
@@ -31,7 +40,38 @@ import infra.context.properties.ConfigurationProperties;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationProperties("http.service-client")
-public class HttpServiceClientProperties extends LinkedHashMap<String, HttpClientProperties> {
+@ImportRuntimeHints(HttpServiceClientProperties.Hints.class)
+public class HttpServiceClientProperties {
+
+  private final Map<String, HttpClientProperties> properties;
+
+  HttpServiceClientProperties(Map<String, HttpClientProperties> properties) {
+    this.properties = properties;
+  }
+
+  /**
+   * Return the {@link HttpClientProperties} for the given named client.
+   *
+   * @param name the service client name
+   * @return the properties or {@code null}
+   */
+  public @Nullable HttpClientProperties get(String name) {
+    return this.properties.get(name);
+  }
+
+  static HttpServiceClientProperties bind(ConfigurableEnvironment environment) {
+    return new HttpServiceClientProperties(Binder.get(environment)
+            .bind("http.service-client", Bindable.mapOf(String.class, HttpClientProperties.class))
+            .orRequired(Collections.emptyMap()));
+  }
+
+  static class Hints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+      BindableRuntimeHintsRegistrar.forTypes(HttpClientProperties.class).registerHints(hints, classLoader);
+    }
+
+  }
 
 }

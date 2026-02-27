@@ -4,9 +4,9 @@
 *.war
 *.ear
 /target
-/.settings
-/.classpath
-/.project
+.settings
+.classpath
+.project
 /.sts4-cache
 .sts4-cache
 /.idea/
@@ -32,3 +32,5 @@
 publish.sh
 cached-antora-playbook.yml
 update_headers.sh
+
+buildSrc/bin
