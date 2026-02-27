@@ -1,13 +1,21 @@
 [[jdbc-advanced-jdbc]]
-= JDBC 批量操作
+= JDBC Batch Operations
 
-如果您对同一个预处理语句（prepared statement）批量执行多次调用，大多数 JDBC 驱动程序都能提供更好的性能。通过将更新分组成批处理，您可以限制往返数据库的次数。
+Most JDBC drivers provide improved performance if you batch multiple calls to the same
+prepared statement. By grouping updates into batches, you limit the number of round trips
+to the database.
 
 
 [[jdbc-batch-classic]]
-== 使用 `JdbcTemplate` 进行基本批量操作
+== Basic Batch Operations with `JdbcTemplate`
 
-您可以通过实现一个特殊接口 `BatchPreparedStatementSetter` 的两个方法，并将该实现作为第二个参数传递给 `batchUpdate` 方法调用，来完成 `JdbcTemplate` 批处理。您可以使用 `getBatchSize` 方法提供当前批次的大小。您可以使用 `setValues` 方法为预处理语句的参数设置值。此方法的调用次数为您在 `getBatchSize` 调用中指定的次数。以下示例根据列表中的条目更新 `t_actor` 表，整个列表用作批处理：
+You accomplish `JdbcTemplate` batch processing by implementing two methods of a special interface,
+`BatchPreparedStatementSetter`, and passing that implementation in as the second parameter
+in your `batchUpdate` method call. You can use the `getBatchSize` method to provide the size of
+the current batch. You can use the `setValues` method to set the values for the parameters of
+the prepared statement. This method is called the number of times that you specified in the
+`getBatchSize` call. The following example updates the `t_actor` table based on entries in a list,
+and the entire list is used as the batch:
 
 [tabs]
 ======
@@ -45,15 +53,27 @@ public class JdbcActorDao implements ActorDao {
 
 ======
 
-如果您正在处理更新流或从文件读取，您可能有一个首选的批处理大小，但最后一个批处理可能没有那么多条目。在这种情况下，您可以使用 `InterruptibleBatchPreparedStatementSetter` 接口，该接口允许您在输入源耗尽后中断批处理。`isBatchExhausted` 方法允许您发出的批处理结束信号。
+If you process a stream of updates or reading from a file, you might have a
+preferred batch size, but the last batch might not have that number of entries. In this
+case, you can use the `InterruptibleBatchPreparedStatementSetter` interface, which lets
+you interrupt a batch once the input source is exhausted. The `isBatchExhausted` method
+lets you signal the end of the batch.
 
 
 [[jdbc-batch-list]]
-== 使用对象列表进行批量操作
+== Batch Operations with a List of Objects
 
-`JdbcTemplate` 和 `NamedParameterJdbcTemplate` 都提供了另一种提供批量更新的方式。与其实现特殊的批处理接口，不如将调用中的所有参数值作为列表提供。框架循环遍历这些值并使用内部预处理语句设置器。API 会有所不同，具体取决于您是否使用命名参数。对于命名参数，您提供一个 `SqlParameterSource` 数组，批处理的每个成员对应一个条目。您可以使用 `SqlParameterSourceUtils.createBatch` 便捷方法创建此数组，传入 bean 风格的对象数组（具有对应于参数的 getter 方法）、以 `String` 为键的 `Map` 实例（包含相应的参数作为值）或两者的混合。
+Both the `JdbcTemplate` and the `NamedParameterJdbcTemplate` provides an alternate way
+of providing the batch update. Instead of implementing a special batch interface, you
+provide all parameter values in the call as a list. The framework loops over these
+values and uses an internal prepared statement setter. The API varies, depending on
+whether you use named parameters. For the named parameters, you provide an array of
+`SqlParameterSource`, one entry for each member of the batch. You can use the
+`SqlParameterSourceUtils.createBatch` convenience methods to create this array, passing
+in an array of bean-style objects (with getter methods corresponding to parameters),
+`String`-keyed `Map` instances (containing the corresponding parameters as values), or a mix of both.
 
-以下示例显示了使用命名参数的批量更新：
+The following example shows a batch update using named parameters:
 
 [tabs]
 ======
@@ -80,9 +100,13 @@ public class JdbcActorDao implements ActorDao {
 ----
 ======
 
-对于使用经典 `?` 占位符的 SQL 语句，您传入一个包含具有更新值的对象数组的列表。此对象数组必须为 SQL 语句中的每个占位符提供一个条目，并且它们的顺序必须与 SQL 语句中定义的顺序相同。
+For an SQL statement that uses the classic `?` placeholders, you pass in a list
+containing an object array with the update values. This object array must have one entry
+for each placeholder in the SQL statement, and they must be in the same order as they are
+defined in the SQL statement.
 
-以下示例与前面的示例相同，只是它使用经典的 JDBC `?` 占位符：
+The following example is the same as the preceding example, except that it uses classic
+JDBC `?` placeholders:
 
 [tabs]
 ======
@@ -116,22 +140,43 @@ public class JdbcActorDao implements ActorDao {
 
 ======
 
-我们前面描述的所有批量更新方法都返回一个 `int` 数组，其中包含每个批处理条目的受影响行数。此计数由 JDBC 驱动程序报告。如果计数不可用，JDBC 驱动程序将返回 `-2` 值。
+All of the batch update methods that we described earlier return an `int` array
+containing the number of affected rows for each batch entry. This count is reported by
+the JDBC driver. If the count is not available, the JDBC driver returns a value of `-2`.
 
 [NOTE]
 ====
-在此类场景中，通过自动设置底层 `PreparedStatement` 上的值，每个值的相应 JDBC 类型需要从给定的 Java 类型派生。虽然这通常效果很好，但也存在出现问题的可能性（例如，对于包含 `null` 值的 Map）。在这种情况下，Infra 默认调用 `ParameterMetaData.getParameterType`，这对您的 JDBC 驱动程序来说可能很昂贵。如果您遇到性能问题（如在 Oracle 12c、JBoss 和 PostgreSQL 上报告的那样），您应该使用最新的驱动程序版本，并考虑将 `jdbc.getParameterType.ignore` 属性设置为 `true`（作为 JVM 系统属性或通过 xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] 机制）。
+In such a scenario, with automatic setting of values on an underlying `PreparedStatement`,
+the corresponding JDBC type for each value needs to be derived from the given Java type.
+While this usually works well, there is a potential for issues (for example, with Map-contained
+`null` values). Infra, by default, calls `ParameterMetaData.getParameterType` in such a
+case, which can be expensive with your JDBC driver. You should use a recent driver
+version and consider setting the `jdbc.getParameterType.ignore` property to `true`
+(as a JVM system property or via the
+xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] mechanism) if you encounter
+a performance issue (as reported on Oracle 12c, JBoss, and PostgreSQL).
 
-或者，您可以考虑显式指定相应的 JDBC 类型，可以通过 `BatchPreparedStatementSetter`（如前所示），通过提供给基于 `List<Object[]>` 调用的显式类型数组，通过自定义 `MapSqlParameterSource` 实例上的 `registerSqlType` 调用，或者通过即使对于空值也从 Java 声明的属性类型派生 SQL 类型的 `BeanPropertySqlParameterSource`。
+Alternatively, you might consider specifying the corresponding JDBC types explicitly,
+either through a `BatchPreparedStatementSetter` (as shown earlier), through an explicit type
+array given to a `List<Object[]>` based call, through `registerSqlType` calls on a
+custom `MapSqlParameterSource` instance, or through a `BeanPropertySqlParameterSource`
+that derives the SQL type from the Java-declared property type even for a null value.
 ====
 
 
 [[jdbc-batch-multi]]
-== 具有多个批次的批量操作
+== Batch Operations with Multiple Batches
 
-前面的批量更新示例处理的批次非常大，以至于您希望将它们分解为几个较小的批次。您可以通过多次调用 `batchUpdate` 方法使用前面提到的方法来做到这一点，但现在有一种更方便的方法。此方法除了 SQL 语句外，还接受包含参数的对象的 `Collection`、每个批次要进行的更新次数以及用于设置预处理语句参数值的 `ParameterizedPreparedStatementSetter`。框架循环遍历提供的值，并将更新调用分解为指定大小的批次。
+The preceding example of a batch update deals with batches that are so large that you want to
+break them up into several smaller batches. You can do this with the methods
+mentioned earlier by making multiple calls to the `batchUpdate` method, but there is now a
+more convenient method. This method takes, in addition to the SQL statement, a
+`Collection` of objects that contain the parameters, the number of updates to make for each
+batch, and a `ParameterizedPreparedStatementSetter` to set the values for the parameters
+of the prepared statement. The framework loops over the provided values and breaks the
+update calls into batches of the size specified.
 
-以下示例显示了使用批次大小为 100 的批量更新：
+The following example shows a batch update that uses a batch size of 100:
 
 [tabs]
 ======
@@ -153,3 +198,27 @@ public class JdbcActorDao implements ActorDao {
         actors,
         100,
         (PreparedStatement ps, Actor actor) -> {
+          ps.setString(1, actor.getFirstName());
+          ps.setString(2, actor.getLastName());
+          ps.setLong(3, actor.getId().longValue());
+        });
+    return updateCounts;
+  }
+
+  // ... additional methods
+}
+----
+
+======
+
+The batch update method for this call returns an array of `int` arrays that contains an
+array entry for each batch with an array of the number of affected rows for each update.
+The top-level array's length indicates the number of batches run, and the second level
+array's length indicates the number of updates in that batch. The number of updates in
+each batch should be the batch size provided for all batches (except that the last one
+that might be less), depending on the total number of update objects provided. The update
+count for each update statement is the one reported by the JDBC driver. If the count is
+not available, the JDBC driver returns a value of `-2`.
+
+
+

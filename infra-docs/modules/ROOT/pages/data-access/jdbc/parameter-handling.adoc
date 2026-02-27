@@ -1,43 +1,67 @@
 [[jdbc-parameter-handling]]
-= 参数和数据值处理的常见问题
+= Common Problems with Parameter and Data Value Handling
 
-TODAY Framework 的 JDBC 支持提供的不同方法中存在参数和数据值处理的常见问题。本节介绍如何解决这些问题。
+Common problems with parameters and data values exist in the different approaches
+provided by TODAY Framework's JDBC support. This section covers how to address them.
 
 
 [[jdbc-type-information]]
-== 为参数提供 SQL 类型信息
+== Providing SQL Type Information for Parameters
 
-通常，Infra 根据传入的参数类型确定参数的 SQL 类型。可以显式提供设置参数值时要使用的 SQL 类型。这有时对于正确设置 `NULL` 值是必要的。
+Usually, Infra determines the SQL type of the parameters based on the type of parameter
+passed in. It is possible to explicitly provide the SQL type to be used when setting
+parameter values. This is sometimes necessary to correctly set `NULL` values.
 
-您可以通过多种方式提供 SQL 类型信息：
+You can provide SQL type information in several ways:
 
-* `JdbcTemplate` 的许多更新和查询方法都采用 `int` 数组形式的附加参数。此数组用于通过使用 `java.sql.Types` 类中的常量值来指示相应参数的 SQL 类型。为每个参数提供一个条目。
-* 您可以使用 `SqlParameterValue` 类来包装需要此附加信息的参数值。为此，请为每个值创建一个新实例，并在构造函数中传入 SQL 类型和参数值。您还可以为数值提供可选的比例参数。
-* 对于使用命名参数的方法，您可以使用 `SqlParameterSource` 类、`BeanPropertySqlParameterSource` 或 `MapSqlParameterSource`。它们都有用于为任何命名参数值注册 SQL 类型的方法。
+* Many update and query methods of the `JdbcTemplate` take an additional parameter in
+the form of an `int` array. This array is used to indicate the SQL type of the
+corresponding parameter by using constant values from the `java.sql.Types` class. Provide
+one entry for each parameter.
+* You can use the `SqlParameterValue` class to wrap the parameter value that needs this
+additional information. To do so, create a new instance for each value and pass in the SQL type
+and the parameter value in the constructor. You can also provide an optional scale
+parameter for numeric values.
+* For methods that work with named parameters, you can use the `SqlParameterSource` classes,
+`BeanPropertySqlParameterSource` or `MapSqlParameterSource`. They both have methods
+for registering the SQL type for any of the named parameter values.
 
 
 [[jdbc-lob]]
-== 处理 BLOB 和 CLOB 对象
+== Handling BLOB and CLOB objects
 
-您可以在数据库中存储图像、其他二进制数据和大块文本。这些大对象对于二进制数据称为 BLOB（二进制大对象），对于字符数据称为 CLOB（字符大对象）。在 Infra 中，您可以通过直接使用 `JdbcTemplate` 以及使用 RDBMS 对象和 `SimpleJdbc` 类提供的更高级抽象来处理这些大对象。所有这些方法都使用 `LobHandler` 接口的实现来进行 LOB（大对象）数据的实际管理。`LobHandler` 通过 `getLobCreator` 方法提供对 `LobCreator` 类的访问，该类用于创建要插入的新 LOB 对象。
+You can store images, other binary data, and large chunks of text in the database. These
+large objects are called BLOBs (Binary Large OBject) for binary data and CLOBs (Character
+Large OBject) for character data. In Infra, you can handle these large objects by using
+the `JdbcTemplate` directly and also when using the higher abstractions provided by RDBMS
+Objects and the `SimpleJdbc` classes. All of these approaches use an implementation of
+the `LobHandler` interface for the actual management of the LOB (Large OBject) data.
+`LobHandler` provides access to a `LobCreator` class, through the `getLobCreator` method,
+that is used for creating new LOB objects to be inserted.
 
-`LobCreator` 和 `LobHandler` 为 LOB 输入和输出提供以下支持：
+`LobCreator` and `LobHandler` provide the following support for LOB input and output:
 
 * BLOB
-** `byte[]`: `getBlobAsBytes` 和 `setBlobAsBytes`
+** `byte[]`: `getBlobAsBytes` and `setBlobAsBytes`
 ** `InputStream`: `getBlobAsBinaryStream` and `setBlobAsBinaryStream`
 * CLOB
-** `String`: `getClobAsString` 和 `setClobAsString`
-** `InputStream`: `getClobAsAsciiStream` 和 `setClobAsAsciiStream`
-** `Reader`: `getClobAsCharacterStream` 和 `setClobAsCharacterStream`
+** `String`: `getClobAsString` and `setClobAsString`
+** `InputStream`: `getClobAsAsciiStream` and `setClobAsAsciiStream`
+** `Reader`: `getClobAsCharacterStream` and `setClobAsCharacterStream`
 
-下一个示例显示了如何创建和插入 BLOB。稍后我们将展示如何从数据库中读取它。
+The next example shows how to create and insert a BLOB. Later we show how to read
+it back from the database.
 
-此示例使用 `JdbcTemplate` 和 `AbstractLobCreatingPreparedStatementCallback` 的实现。它实现了一个方法 `setValues`。此方法提供了一个 `LobCreator`，我们使用它来设置 SQL 插入语句中 LOB 列的值。
+This example uses a `JdbcTemplate` and an implementation of the
+`AbstractLobCreatingPreparedStatementCallback`. It implements one method,
+`setValues`. This method provides a `LobCreator` that we use to set the values for the
+LOB columns in your SQL insert statement.
 
-对于此示例，我们假设有一个变量 `lobHandler`，它已设置为 `DefaultLobHandler` 的实例。通常通过依赖注入设置此值。
+For this example, we assume that there is a variable, `lobHandler`, that is already
+set to an instance of a `DefaultLobHandler`. You typically set this value through
+dependency injection.
 
-以下示例显示了如何创建和插入 BLOB：
+The following example shows how to create and insert a BLOB:
 
 [tabs]
 ======
@@ -65,20 +89,28 @@ jdbcTemplate.execute(
 blobIs.close();
 clobReader.close();
 ----
-<1> 传入 `lobHandler`，在此示例中为普通的 `DefaultLobHandler`。
-<2> 使用 `setClobAsCharacterStream` 方法传入 CLOB 的内容。
-<3> 使用 `setBlobAsBinaryStream` 方法传入 BLOB 的内容。
+<1> Pass in the `lobHandler` that (in this example) is a plain `DefaultLobHandler`.
+<2> Using the method `setClobAsCharacterStream` to pass in the contents of the CLOB.
+<3> Using the method `setBlobAsBinaryStream` to pass in the contents of the BLOB.
 
 ======
 
 [NOTE]
 ====
-如果您在从 `DefaultLobHandler.getLobCreator()` 返回的 `LobCreator` 上调用 `setBlobAsBinaryStream`、`setClobAsAsciiStream` 或 `setClobAsCharacterStream` 方法，则可以选择为 `contentLength` 参数指定负值。如果指定的内容长度为负数，则 `DefaultLobHandler` 使用不带长度参数的 set-stream 方法的 JDBC 4.0 变体。否则，它会将指定的长度传递给驱动程序。
+If you invoke the `setBlobAsBinaryStream`, `setClobAsAsciiStream`, or
+`setClobAsCharacterStream` method on the `LobCreator` returned from
+`DefaultLobHandler.getLobCreator()`, you can optionally specify a negative value
+for the `contentLength` argument. If the specified content length is negative, the
+`DefaultLobHandler` uses the JDBC 4.0 variants of the set-stream methods without a
+length parameter. Otherwise, it passes the specified length on to the driver.
 
-请参阅您使用的 JDBC 驱动程序的文档，以验证它是否支持在不提供内容长度的情况下流式传输 LOB。
+See the documentation for the JDBC driver you use to verify that it supports streaming
+a LOB without providing the content length.
 ====
 
-现在是从数据库读取 LOB 数据的时候了。同样，您使用具有相同实例变量 `lobHandler` 和对 `DefaultLobHandler` 的引用的 `JdbcTemplate`。以下示例显示了如何执行此操作：
+Now it is time to read the LOB data from the database. Again, you use a `JdbcTemplate`
+with the same instance variable `lobHandler` and a reference to a `DefaultLobHandler`.
+The following example shows how to do so:
 
 [tabs]
 ======
@@ -98,28 +130,49 @@ List<Map<String, Object>> l = jdbcTemplate.query("select id, a_clob, a_blob from
     }
   });
 ----
-<1> 使用 `getClobAsString` 方法检索 CLOB 的内容。
-<2> 使用 `getBlobAsBytes` 方法检索 BLOB 的内容。
+<1> Using the method `getClobAsString` to retrieve the contents of the CLOB.
+<2> Using the method `getBlobAsBytes` to retrieve the contents of the BLOB.
 
 ======
 
 
 [[jdbc-in-clause]]
-== 为 IN 子句传入值列表
+== Passing in Lists of Values for IN Clause
 
-SQL 标准允许根据包含可变值列表的表达式选择行。典型的例子是 `select * from T_ACTOR where id in (1, 2, 3)`。JDBC 标准不直接支持预处理语句的此变量列表。您不能声明可变数量的占位符。您需要准备好具有所需占位符数量的多种变体，或者一旦知道需要多少占位符，就需要动态生成 SQL 字符串。`NamedParameterJdbcTemplate` 中提供的命名参数支持采用后一种方法。您可以将值作为简单值的 `java.util.List`（或任何 `Iterable`）传入。此列表用于将所需的占位符插入实际的 SQL 语句中，并在语句执行期间传入值。
+The SQL standard allows for selecting rows based on an expression that includes a
+variable list of values. A typical example would be `select * from T_ACTOR where id in
+(1, 2, 3)`. This variable list is not directly supported for prepared statements by the
+JDBC standard. You cannot declare a variable number of placeholders. You need a number
+of variations with the desired number of placeholders prepared, or you need to generate
+the SQL string dynamically once you know how many placeholders are required. The named
+parameter support provided in the `NamedParameterJdbcTemplate` takes the latter approach.
+You can pass in the values as a `java.util.List` (or any `Iterable`) of simple values.
+This list is used to insert the required placeholders into the actual SQL statement
+and pass in the values during statement execution.
 
-NOTE: 传入许多值时要小心。JDBC 标准不保证您可以为 `IN` 表达式列表使用超过 100 个值。各种数据库都超过了这个数字，但它们通常对允许多少个值有一个硬性限制。例如，Oracle 的限制是 1000。
+NOTE: Be careful when passing in many values. The JDBC standard does not guarantee that
+you can use more than 100 values for an `IN` expression list. Various databases exceed
+this number, but they usually have a hard limit for how many values are allowed.
+For example, Oracle's limit is 1000.
 
-除了值列表中的原始值之外，您还可以创建对象数组的 `java.util.List`。此列表可以支持为 `in` 子句定义的多个表达式，例如 `+++select * from T_ACTOR where (id, last_name) in ((1, 'Johnson'), (2, 'Harrop'))+++`。当然，这要求您的数据库支持此语法。
+In addition to the primitive values in the value list, you can create a `java.util.List`
+of object arrays. This list can support multiple expressions being defined for the `in`
+clause, such as `+++select * from T_ACTOR where (id, last_name) in ((1, 'Johnson'), (2,
+'Harrop'))+++`. This, of course, requires that your database supports this syntax.
 
 
 [[jdbc-complex-types]]
-== 处理存储过程调用的复杂类型
+== Handling Complex Types for Stored Procedure Calls
 
-当您调用存储过程时，有时可以使用特定于数据库的复杂类型。为了适应这些类型，Infra 提供了 `SqlReturnType` 以在从存储过程调用返回时处理它们，以及 `SqlTypeValue` 以在将它们作为参数传递给存储过程时处理它们。
+When you call stored procedures, you can sometimes use complex types specific to the
+database. To accommodate these types, Infra provides a `SqlReturnType` for handling
+them when they are returned from the stored procedure call and `SqlTypeValue` when they
+are passed in as a parameter to the stored procedure.
 
-`SqlReturnType` 接口有一个必须实现的单一方法（名为 `getTypeValue`）。此接口用作 `SqlOutParameter` 声明的一部分。以下示例显示返回用户声明类型 `ITEM_TYPE` 的 Oracle `STRUCT` 对象的值：
+The `SqlReturnType` interface has a single method (named `getTypeValue`) that must be
+implemented. This interface is used as part of the declaration of an `SqlOutParameter`.
+The following example shows returning the value of an Oracle `STRUCT` object of the user
+declared type `ITEM_TYPE`:
 
 [tabs]
 ======
@@ -144,3 +197,66 @@ public class TestItemStoredProcedure extends StoredProcedure {
     // ...
   }
 ----
+
+======
+
+You can use `SqlTypeValue` to pass the value of a Java object (such as `TestItem`) to a
+stored procedure. The `SqlTypeValue` interface has a single method (named
+`createTypeValue`) that you must implement. The active connection is passed in, and you
+can use it to create database-specific objects, such as `StructDescriptor` instances
+or `ArrayDescriptor` instances. The following example creates a `StructDescriptor` instance:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+final TestItem testItem = new TestItem(123L, "A test item",
+    new SimpleDateFormat("yyyy-M-d").parse("2010-12-31"));
+
+SqlTypeValue value = new AbstractSqlTypeValue() {
+  protected Object createTypeValue(Connection conn, int sqlType, String typeName) throws SQLException {
+    StructDescriptor itemDescriptor = new StructDescriptor(typeName, conn);
+    Struct item = new STRUCT(itemDescriptor, conn,
+    new Object[] {
+      testItem.getId(),
+      testItem.getDescription(),
+      new java.sql.Date(testItem.getExpirationDate().getTime())
+    });
+    return item;
+  }
+};
+----
+
+======
+
+You can now add this `SqlTypeValue` to the `Map` that contains the input parameters for the
+`execute` call of the stored procedure.
+
+Another use for the `SqlTypeValue` is passing in an array of values to an Oracle stored
+procedure. Oracle has its own internal `ARRAY` class that must be used in this case, and
+you can use the `SqlTypeValue` to create an instance of the Oracle `ARRAY` and populate
+it with values from the Java `ARRAY`, as the following example shows:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+final Long[] ids = new Long[] {1L, 2L};
+
+SqlTypeValue value = new AbstractSqlTypeValue() {
+  protected Object createTypeValue(Connection conn, int sqlType, String typeName) throws SQLException {
+    ArrayDescriptor arrayDescriptor = new ArrayDescriptor(typeName, conn);
+    ARRAY idArray = new ARRAY(arrayDescriptor, conn, ids);
+    return idArray;
+  }
+};
+----
+
+======
+
+
+
