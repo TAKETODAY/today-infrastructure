@@ -1,8 +1,8 @@
 [[expressions-inline-maps]]
-= Inline Maps
+= 内联 Map
 
-You can also directly express maps in an expression by using `{key:value}` notation. The
-following example shows how to do so:
+你还可以使用 `{key:value}` 符号直接在表达式中表示 Map。
+下例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -10,7 +10,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// evaluates to a Java map containing the two entries
+	// 评估结果为包含这两个条目的 Java Map
 	Map inventorInfo = (Map) parser.parseExpression("{name:'Nikola',dob:'10-July-1856'}").getValue(context);
 
 	Map mapOfMaps = (Map) parser.parseExpression("{name:{first:'Nikola',last:'Tesla'},dob:{day:10,month:'July',year:1856}}").getValue(context);
@@ -18,11 +18,6 @@ Java::
 
 ======
 
-`{:}` by itself means an empty map. For performance reasons, if the map is itself
-composed of fixed literals or other nested constant structures (lists or maps), a
-constant map is created to represent the expression (rather than building a new map on
-each evaluation). Quoting of the map keys is optional (unless the key contains a period
-(`.`)). The examples above do not use quoted keys.
-
-
-
+`{:}` 本身表示一个空 Map。出于性能原因，如果 Map 本身由固定字面量或其他嵌套常量结构（列表或 Map）组成，
+则会创建一个常量 Map 来表示该表达式（而不是在每次评估时构建一个新 Map）。
+Map 键的引号是可选的（除非键包含句点 (`.`)）。上面的例子没有使用带引号的键。

@@ -1,17 +1,16 @@
 [[aop-advice]]
-= Declaring Advice
+= 声明通知
 
-Advice is associated with a pointcut expression and runs before, after, or around method
-executions matched by the pointcut. The pointcut expression may be either an _inline
-pointcut_ or a reference to a xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[_named pointcut_].
+通知（Advice）与切点表达式相关联，并在切点匹配的方法执行之前、之后或周围运行。
+切点表达式既可以是_内联切点_，也可以是对 xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[_命名切点_] 的引用。
 
 
 [[aop-advice-before]]
-== Before Advice
+== 前置通知
 
-You can declare before advice in an aspect by using the `@Before` annotation.
+你可以使用 `@Before` 注解在切面中声明前置通知。
 
-The following example uses an inline pointcut expression.
+下例使用内联切点表达式。
 
 [tabs]
 ======
@@ -34,8 +33,7 @@ public class BeforeExample {
 
 ======
 
-If we use a xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[named pointcut], we can rewrite the preceding example
-as follows:
+如果我们使用 xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[命名切点]，我们可以将前面的例子重写如下：
 
 [tabs]
 ======
@@ -59,10 +57,10 @@ public class BeforeExample {
 
 
 [[aop-advice-after-returning]]
-== After Returning Advice
+== 返回后通知
 
-After returning advice runs when a matched method execution returns normally.
-You can declare it by using the `@AfterReturning` annotation.
+返回后通知（After returning advice）在匹配的方法执行正常返回时运行。
+你可以使用 `@AfterReturning` 注解来声明它。
 
 [tabs]
 ======
@@ -85,13 +83,11 @@ public class AfterReturningExample {
 
 ======
 
-NOTE: You can have multiple advice declarations (and other members as well),
-all inside the same aspect. We show only a single advice declaration in these
-examples to focus the effect of each one.
+NOTE: 你可以在同一个切面中拥有多个通知声明（以及其他成员）。
+在这些示例中，我们只展示单个通知声明，以集中展示每个通知的效果。
 
-Sometimes, you need access in the advice body to the actual value that was returned.
-You can use the form of `@AfterReturning` that binds the return value to get that
-access, as the following example shows:
+有时，你需要在通知体中访问实际返回的值。
+你可以使用绑定返回值的 `@AfterReturning` 形式来获取该访问权限，如下例所示：
 
 [tabs]
 ======
@@ -116,22 +112,19 @@ public class AfterReturningExample {
 
 ======
 
-The name used in the `returning` attribute must correspond to the name of a parameter
-in the advice method. When a method execution returns, the return value is passed to
-the advice method as the corresponding argument value. A `returning` clause also
-restricts matching to only those method executions that return a value of the
-specified type (in this case, `Object`, which matches any return value).
+`returning` 属性中使用的名称必须与通知方法中的参数名称相对应。
+当方法执行返回时，返回值将作为相应的参数值传递给通知方法。
+`returning` 子句还限制匹配，使其仅匹配那些返回指定类型值的方法执行
+（在本例中为 `Object`，它匹配任何返回值）。
 
-Please note that it is not possible to return a totally different reference when
-using after returning advice.
+请注意，使用返回后通知时，不可能返回一个完全不同的引用。
 
 
 [[aop-advice-after-throwing]]
-== After Throwing Advice
+== 抛出异常后通知
 
-After throwing advice runs when a matched method execution exits by throwing an
-exception. You can declare it by using the `@AfterThrowing` annotation, as the
-following example shows:
+抛出异常后通知（After throwing advice）在匹配的方法执行通过抛出异常退出时运行。
+你可以使用 `@AfterThrowing` 注解来声明它，如下例所示：
 
 [tabs]
 ======
@@ -154,11 +147,9 @@ public class AfterThrowingExample {
 
 ======
 
-Often, you want the advice to run only when exceptions of a given type are thrown,
-and you also often need access to the thrown exception in the advice body. You can
-use the `throwing` attribute to both restrict matching (if desired -- use `Throwable`
-as the exception type otherwise) and bind the thrown exception to an advice parameter.
-The following example shows how to do so:
+通常，你希望通知仅在抛出给定类型的异常时运行，并且你通常还需要在通知体中访问抛出的异常。
+你可以使用 `throwing` 属性来限制匹配（如果需要——否则使用 `Throwable` 作为异常类型）
+并将抛出的异常绑定到通知参数。下例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -183,28 +174,25 @@ public class AfterThrowingExample {
 
 ======
 
-The name used in the `throwing` attribute must correspond to the name of a parameter in
-the advice method. When a method execution exits by throwing an exception, the exception
-is passed to the advice method as the corresponding argument value. A `throwing` clause
-also restricts matching to only those method executions that throw an exception of the
-specified type (`DataAccessException`, in this case).
+`throwing` 属性中使用的名称必须与通知方法中的参数名称相对应。
+当方法执行通过抛出异常退出时，该异常将作为相应的参数值传递给通知方法。
+`throwing` 子句还限制匹配，使其仅匹配那些抛出指定类型异常的方法执行
+（在本例中为 `DataAccessException`）。
 
 [NOTE]
 ====
-Note that `@AfterThrowing` does not indicate a general exception handling callback.
-Specifically, an `@AfterThrowing` advice method is only supposed to receive exceptions
-from the join point (user-declared target method) itself but not from an accompanying
-`@After`/`@AfterReturning` method.
+请注意，`@AfterThrowing` 并不表示通用的异常处理回调。
+具体来说，`@AfterThrowing` 通知方法只应该接收来自连接点（用户声明的目标方法）本身的异常，
+而不应该接收来自伴随的 `@After`/`@AfterReturning` 方法的异常。
 ====
 
 
 [[aop-advice-after-finally]]
-== After (Finally) Advice
+== 后置（最终）通知
 
-After (finally) advice runs when a matched method execution exits. It is declared by
-using the `@After` annotation. After advice must be prepared to handle both normal and
-exception return conditions. It is typically used for releasing resources and similar
-purposes. The following example shows how to use after finally advice:
+后置（最终）通知（After (finally) advice）在匹配的方法执行退出时运行。
+它通过使用 `@After` 注解来声明。后置通知必须准备好处理正常返回和异常返回的情况。
+它通常用于释放资源和类似目的。下例展示了如何使用后置（最终）通知：
 
 [tabs]
 ======
@@ -229,72 +217,58 @@ public class AfterFinallyExample {
 
 [NOTE]
 ====
-Note that `@After` advice in AspectJ is defined as "after finally advice", analogous
-to a finally block in a try-catch statement. It will be invoked for any outcome,
-normal return or exception thrown from the join point (user-declared target method),
-in contrast to `@AfterReturning` which only applies to successful normal returns.
+请注意，AspectJ 中的 `@After` 通知被定义为“后置最终通知”，类似于 try-catch 语句中的 finally 块。
+它将在任何结果（正常返回或从连接点（用户声明的目标方法）抛出异常）下被调用，
+这与 `@AfterReturning` 相反，后者仅适用于成功的正常返回。
 ====
 
 
 [[aop-ataspectj-around-advice]]
-== Around Advice
+== 环绕通知
 
-The last kind of advice is _around_ advice. Around advice runs "around" a matched
-method's execution. It has the opportunity to do work both before and after the method
-runs and to determine when, how, and even if the method actually gets to run at all.
-Around advice is often used if you need to share state before and after a method
-execution in a thread-safe manner – for example, starting and stopping a timer.
+最后一种通知是_环绕_通知（Around advice）。环绕通知在匹配的方法执行“周围”运行。
+它有机会在方法运行之前和之后进行工作，并确定方法何时、如何甚至是否真正运行。
+如果你需要以线程安全的方式在方法执行之前和之后共享状态（例如，启动和停止计时器），
+通常会使用环绕通知。
 
 [TIP]
 ====
-Always use the least powerful form of advice that meets your requirements.
+始终使用满足你要求的功能最弱的通知形式。
 
-For example, do not use _around_ advice if _before_ advice is sufficient for your needs.
+例如，如果_前置_通知足以满足你的需求，请不要使用_环绕_通知。
 ====
 
-Around advice is declared by annotating a method with the `@Around` annotation. The
-method should declare `Object` as its return type, and the first parameter of the method
-must be of type `ProceedingJoinPoint`. Within the body of the advice method, you must
-invoke `proceed()` on the `ProceedingJoinPoint` in order for the underlying method to
-run. Invoking `proceed()` without arguments will result in the caller's original
-arguments being supplied to the underlying method when it is invoked. For advanced use
-cases, there is an overloaded variant of the `proceed()` method which accepts an array of
-arguments (`Object[]`). The values in the array will be used as the arguments to the
-underlying method when it is invoked.
+环绕通知通过使用 `@Around` 注解标注方法来声明。
+该方法应声明 `Object` 作为其返回类型，并且方法的第一个参数必须是 `ProceedingJoinPoint` 类型。
+在通知方法体内，你必须在 `ProceedingJoinPoint` 上调用 `proceed()` 以便让底层方法运行。
+不带参数调用 `proceed()` 将导致调用者的原始参数在调用时被提供给底层方法。
+对于高级用例，`proceed()` 方法有一个重载变体，它接受一个参数数组 (`Object[]`)。
+数组中的值将在调用时用作底层方法的参数。
 
 [NOTE]
 ====
-The behavior of `proceed` when called with an `Object[]` is a little different than the
-behavior of `proceed` for around advice compiled by the AspectJ compiler. For around
-advice written using the traditional AspectJ language, the number of arguments passed to
-`proceed` must match the number of arguments passed to the around advice (not the number
-of arguments taken by the underlying join point), and the value passed to proceed in a
-given argument position supplants the original value at the join point for the entity the
-value was bound to (do not worry if this does not make sense right now).
+当使用 `Object[]` 调用 `proceed` 时，其行为与 AspectJ 编译器编译的环绕通知的 `proceed` 行为略有不同。
+对于使用传统 AspectJ 语言编写的环绕通知，传递给 `proceed` 的参数数量必须与传递给环绕通知的参数数量匹配
+（而不是底层连接点接受的参数数量），并且在给定参数位置传递给 proceed 的值会取代该值绑定到的实体的连接点处的原始值
+（如果现在不明白也不用担心）。
 
-The approach taken by Infra is simpler and a better match to its proxy-based,
-execution-only semantics. You only need to be aware of this difference if you compile
-`@AspectJ` aspects written for Infra and use `proceed` with arguments with the AspectJ
-compiler and weaver. There is a way to write such aspects that is 100% compatible across
-both Infra AOP and AspectJ, and this is discussed in the
-xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-proceeding-with-the-call[following section on advice parameters].
+Infra 采用的方法更简单，并且更符合其基于代理的、仅执行的语义。
+只有当你编译为 Infra 编写的 `@AspectJ` 切面并使用 AspectJ 编译器和织入器对带参数的 `proceed` 进行处理时，
+你才需要注意这种差异。有一种方法可以编写这样的切面，使其在 Infra AOP 和 AspectJ 之间 100% 兼容，
+这将在 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-proceeding-with-the-call[下一节关于通知参数的内容] 中讨论。
 ====
 
-The value returned by the around advice is the return value seen by the caller of the
-method. For example, a simple caching aspect could return a value from a cache if it has
-one or invoke `proceed()` (and return that value) if it does not. Note that `proceed`
-may be invoked once, many times, or not at all within the body of the around advice. All
-of these are legal.
+环绕通知返回的值是方法的调用者看到的返回值。
+例如，一个简单的缓存切面如果有缓存值，则可以从缓存中返回一个值，如果没有，则调用 `proceed()`（并返回该值）。
+请注意，`proceed` 可以在环绕通知的主体中被调用一次、多次或根本不被调用。
+所有这些都是合法的。
 
-WARNING: If you declare the return type of your around advice method as `void`, `null`
-will always be returned to the caller, effectively ignoring the result of any invocation
-of `proceed()`. It is therefore recommended that an around advice method declare a return
-type of `Object`. The advice method should typically return the value returned from an
-invocation of `proceed()`, even if the underlying method has a `void` return type.
-However, the advice may optionally return a cached value, a wrapped value, or some other
-value depending on the use case.
+WARNING: 如果你将环绕通知方法的返回类型声明为 `void`，则始终会向调用者返回 `null`，
+从而有效地忽略任何 `proceed()` 调用的结果。因此，建议环绕通知方法声明 `Object` 返回类型。
+通知方法通常应返回 `proceed()` 调用返回的值，即使底层方法具有 `void` 返回类型也是如此。
+但是，根据用例，通知可以根据需要返回缓存值、包装值或其他值。
 
-The following example shows how to use around advice:
+下例展示了如何使用环绕通知：
 
 [tabs]
 ======
@@ -311,9 +285,9 @@ public class AroundExample {
 
   @Around("execution(* com.xyz..service.*.*(..))")
   public Object doBasicProfiling(ProceedingJoinPoint pjp) throws Throwable {
-    // start stopwatch
+    // 启动计时器
     Object retVal = pjp.proceed();
-    // stop stopwatch
+    // 停止计时器
     return retVal;
   }
 }
@@ -322,42 +296,37 @@ public class AroundExample {
 ======
 
 [[aop-ataspectj-advice-params]]
-== Advice Parameters
+== 通知参数
 
-Infra offers fully typed advice, meaning that you declare the parameters you need in the
-advice signature (as we saw earlier for the returning and throwing examples) rather than
-work with `Object[]` arrays all the time. We see how to make argument and other contextual
-values available to the advice body later in this section. First, we take a look at how to
-write generic advice that can find out about the method the advice is currently advising.
+Infra 提供了完全类型的通知，这意味着你在通知签名中声明所需的参数（如我们之前在返回和抛出示例中看到的那样），
+而不是一直使用 `Object[]` 数组。我们将要在本节稍后部分看到如何使参数和其他上下文值对通知体可用。
+首先，我们来看看如何编写通用的通知，以便了解通知当前正在通知的方法。
 
 [[aop-ataspectj-advice-params-the-joinpoint]]
-=== Access to the Current `JoinPoint`
+=== 访问当前 `JoinPoint`
 
-Any advice method may declare, as its first parameter, a parameter of type
-`org.aspectj.lang.JoinPoint`. Note that around advice is required to declare a first
-parameter of type `ProceedingJoinPoint`, which is a subclass of `JoinPoint`.
+任何通知方法都可以声明一个 `org.aspectj.lang.JoinPoint` 类型的参数作为其第一个参数。
+请注意，环绕通知需要声明一个 `ProceedingJoinPoint` 类型的第一个参数，它是 `JoinPoint` 的子类。
 
-The `JoinPoint` interface provides a number of useful methods:
+`JoinPoint` 接口提供了许多有用的方法：
 
-* `getArgs()`: Returns the method arguments.
-* `getThis()`: Returns the proxy object.
-* `getTarget()`: Returns the target object.
-* `getSignature()`: Returns a description of the method that is being advised.
-* `toString()`: Prints a useful description of the method being advised.
+* `getArgs()`: 返回方法参数。
+* `getThis()`: 返回代理对象。
+* `getTarget()`: 返回目标对象。
+* `getSignature()`: 返回正在被通知的方法的描述。
+* `toString()`: 打印正在被通知的方法的有用描述。
 
-See the {aspectj-api}/org/aspectj/lang/JoinPoint.html[javadoc] for more detail.
+有关更多详细信息，请参阅 {aspectj-api}/org/aspectj/lang/JoinPoint.html[javadoc]。
 
 [[aop-ataspectj-advice-params-passing]]
-=== Passing Parameters to Advice
+=== 将参数传递给通知
 
-We have already seen how to bind the returned value or exception value (using after
-returning and after throwing advice). To make argument values available to the advice
-body, you can use the binding form of `args`. If you use a parameter name in place of a
-type name in an `args` expression, the value of the corresponding argument is passed as
-the parameter value when the advice is invoked. An example should make this clearer.
-Suppose you want to advise the execution of DAO operations that take an `Account`
-object as the first parameter, and you need access to the account in the advice body.
-You could write the following:
+我们已经看到了如何绑定返回值或异常值（使用返回后和抛出异常后通知）。
+要使参数值对通知体可用，可以使用 `args` 的绑定形式。
+如果在 `args` 表达式中使用参数名称代替类型名称，则在调用通知时，相应参数的值将作为参数值传递。
+一个例子应该会让这一点更清楚。
+假设你想通知将 `Account` 对象作为第一个参数的 DAO 操作的执行，并且你需要在这个通知体中访问该账户。
+你可以这样写：
 
 [tabs]
 ======
@@ -373,15 +342,12 @@ public void validateAccount(Account account) {
 
 ======
 
-The `args(account,..)` part of the pointcut expression serves two purposes. First, it
-restricts matching to only those method executions where the method takes at least one
-parameter, and the argument passed to that parameter is an instance of `Account`.
-Second, it makes the actual `Account` object available to the advice through the `account`
-parameter.
+切点表达式的 `args(account,..)` 部分有两个作用。首先，它限制匹配，使其仅匹配那些方法至少接受一个参数，
+并且传递给该参数的实参是 `Account` 实例的方法执行。
+其次，它通过 `account` 参数使实际的 `Account` 对象对通知可用。
 
-Another way of writing this is to declare a pointcut that "provides" the `Account`
-object value when it matches a join point, and then refer to the named pointcut
-from the advice. This would look as follows:
+编写此代码的另一种方法是声明一个切点，当它匹配连接点时“提供” `Account` 对象值，
+然后从通知中引用该命名切点。如下所示：
 
 [tabs]
 ======
@@ -400,14 +366,12 @@ public void validateAccount(Account account) {
 
 ======
 
-See the AspectJ programming guide for more details.
+有关更多详细信息，请参阅 AspectJ 编程指南。
 
-The proxy object (`this`), target object (`target`), and annotations (`@within`,
-`@target`, `@annotation`, and `@args`) can all be bound in a similar fashion. The next
-set of examples shows how to match the execution of methods annotated with an
-`@Auditable` annotation and extract the audit code:
+代理对象 (`this`)、目标对象 (`target`) 和注解 (`@within`、`@target`、`@annotation` 和 `@args`)
+都可以以类似的方式绑定。下一组示例展示了如何匹配带有 `@Auditable` 注解的方法执行并提取审计代码：
 
-The following shows the definition of the `@Auditable` annotation:
+以下显示了 `@Auditable` 注解的定义：
 
 [tabs]
 ======
@@ -423,7 +387,7 @@ public @interface Auditable {
 ----
 ======
 
-The following shows the advice that matches the execution of `@Auditable` methods:
+以下显示了匹配 `@Auditable` 方法执行的通知：
 
 [tabs]
 ======
@@ -434,18 +398,18 @@ Java::
 @Before("com.xyz.Pointcuts.publicMethod() && @annotation(auditable)") // <1>
 public void audit(Auditable auditable) {
   AuditCode code = auditable.value();
-  // ...
+  // ... 使用 code
 }
 ----
-<1> References the `publicMethod` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[Combining Pointcut Expressions].
+<1> 引用在 xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[组合切点表达式] 中定义的 `publicMethod` 命名切点。
 
 ======
 
 [[aop-ataspectj-advice-params-generics]]
-=== Advice Parameters and Generics
+=== 通知参数与泛型
 
-Infra AOP can handle generics used in class declarations and method parameters. Suppose
-you have a generic type like the following:
+Infra AOP 可以处理类声明和方法参数中使用的泛型。
+假设你有如下泛型类型：
 
 [tabs]
 ======
@@ -461,8 +425,7 @@ public interface Sample<T> {
 
 ======
 
-You can restrict interception of method types to certain parameter types by
-tying the advice parameter to the parameter type for which you want to intercept the method:
+你可以通过将通知参数绑定到要拦截该方法的参数类型，将方法类型的拦截限制为某些参数类型：
 
 [tabs]
 ======
@@ -472,14 +435,13 @@ Java::
 ----
 @Before("execution(* ..Sample+.sampleGenericMethod(*)) && args(param)")
 public void beforeSampleMethod(MyType param) {
-  // Advice implementation
+  // 通知实现
 }
 ----
 
 ======
 
-This approach does not work for generic collections. So you cannot define a
-pointcut as follows:
+这种方法不适用于泛型集合。所以你不能像下面这样定义切点：
 
 [tabs]
 ======
@@ -489,62 +451,50 @@ Java::
 ----
 @Before("execution(* ..Sample+.sampleGenericCollectionMethod(*)) && args(param)")
 public void beforeSampleMethod(Collection<MyType> param) {
-  // Advice implementation
+  // 通知实现
 }
 ----
 
 ======
 
-To make this work, we would have to inspect every element of the collection, which is not
-reasonable, as we also cannot decide how to treat `null` values in general. To achieve
-something similar to this, you have to type the parameter to `Collection<?>` and manually
-check the type of the elements.
+要使其工作，我们需要检查集合的每个元素，这是不合理的，因为我们也无法决定通常如何处理 `null` 值。
+要实现类似的功能，你必须将参数类型定义为 `Collection<?>` 并手动检查元素的类型。
 
 [[aop-ataspectj-advice-params-names]]
-=== Determining Argument Names
+=== 确定参数名称
 
-Parameter binding in advice invocations relies on matching the names used in pointcut
-expressions to the parameter names declared in advice and pointcut method signatures.
+通知调用中的参数绑定依赖于将切点表达式中使用的名称与通知和切点方法签名中声明的参数名称进行匹配。
 
-NOTE: This section uses the terms _argument_ and _parameter_ interchangeably, since
-AspectJ APIs refer to parameter names as argument names.
+NOTE: 本节互换使用术语_实参（argument）_和_形参（parameter）_，因为 AspectJ API 将形参名称称为实参名称。
 
-Infra AOP uses the following `ParameterNameDiscoverer` implementations to determine
-parameter names. Each discoverer will be given a chance to discover parameter names, and
-the first successful discoverer wins. If none of the registered discoverers is capable
-of determining parameter names, an exception will be thrown.
+Infra AOP 使用以下 `ParameterNameDiscoverer` 实现来确定参数名称。
+每个发现者都有机会发现参数名称，第一个成功的发现者获胜。
+如果没有任何已注册的发现者能够确定参数名称，则会抛出异常。
 
-`AspectJAnnotationParameterNameDiscoverer` :: Uses parameter names that have been explicitly
-  specified by the user via the `argNames` attribute in the corresponding advice or
-  pointcut annotation. See xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-params-names-explicit[Explicit Argument Names] for details.
-`KotlinReflectionParameterNameDiscoverer` :: Uses Kotlin reflection APIs to determine
-  parameter names. This discoverer is only used if such APIs are present on the classpath.
-`StandardReflectionParameterNameDiscoverer` :: Uses the standard `java.lang.reflect.Parameter`
-  API to determine parameter names. Requires that code be compiled with the `-parameters`
-  flag for `javac`. Recommended approach on Java 8+.
-`AspectJAdviceParameterNameDiscoverer` :: Deduces parameter names from the pointcut
-  expression, `returning`, and `throwing` clauses. See the
-  {today-framework-api}/aop/aspectj/AspectJAdviceParameterNameDiscoverer.html[javadoc]
-  for details on the algorithm used.
+`AspectJAnnotationParameterNameDiscoverer` :: 使用用户通过相应通知或切点注解中的 `argNames` 属性显式指定的参数名称。
+  有关详细信息，请参阅 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-params-names-explicit[显式参数名称]。
+`KotlinReflectionParameterNameDiscoverer` :: 使用 Kotlin 反射 API 确定参数名称。
+  仅当类路径上存在此类 API 时才使用此发现者。
+`StandardReflectionParameterNameDiscoverer` :: 使用标准 `java.lang.reflect.Parameter` API 确定参数名称。
+  要求使用 `javac` 的 `-parameters` 标志编译代码。Java 8+ 上的推荐方法。
+`AspectJAdviceParameterNameDiscoverer` :: 从切点表达式、`returning` 和 `throwing` 子句中推断参数名称。
+  有关所用算法的详细信息，请参阅 {today-framework-api}/aop/aspectj/AspectJAdviceParameterNameDiscoverer.html[javadoc]。
 
 [[aop-ataspectj-advice-params-names-explicit]]
-=== Explicit Argument Names
+=== 显式参数名称
 
-@AspectJ advice and pointcut annotations have an optional `argNames` attribute that you
-can use to specify the argument names of the annotated method.
+@AspectJ 通知和切点注解具有一个可选的 `argNames` 属性，你可以使用它来指定带注解方法的参数名称。
 
 [TIP]
 ====
-If an @AspectJ aspect has been compiled by the AspectJ compiler (`ajc`) even without
-debug information, you do not need to add the `argNames` attribute, since the compiler
-retains the needed information.
+如果 @AspectJ 切面已由 AspectJ 编译器 (`ajc`) 编译（即使没有调试信息），则无需添加 `argNames` 属性，
+因为编译器保留了所需的信息。
 
-Similarly, if an @AspectJ aspect has been compiled with `javac` using the `-parameters`
-flag, you do not need to add the `argNames` attribute, since the compiler retains the
-needed information.
+同样，如果 @AspectJ 切面已使用 `javac` 的 `-parameters` 标志编译，则无需添加 `argNames` 属性，
+因为编译器保留了所需的信息。
 ====
 
-The following example shows how to use the `argNames` attribute:
+下例展示了如何使用 `argNames` 属性：
 
 [tabs]
 ======
@@ -556,17 +506,16 @@ Java::
   argNames = "bean,auditable") // <2>
 public void audit(Object bean, Auditable auditable) {
   AuditCode code = auditable.value();
-  // ... use code and bean
+  // ... 使用 code 和 bean
 }
 ----
-<1> References the `publicMethod` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[Combining Pointcut Expressions].
-<2> Declares `bean` and `auditable` as the argument names.
+<1> 引用在 xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[组合切点表达式] 中定义的 `publicMethod` 命名切点。
+<2> 声明 `bean` 和 `auditable` 作为参数名称。
 ======
 
-If the first parameter is of type `JoinPoint`, `ProceedingJoinPoint`, or
-`JoinPoint.StaticPart`, you can omit the name of the parameter from the value of the
-`argNames` attribute. For example, if you modify the preceding advice to receive the join
-point object, the `argNames` attribute does not need to include it:
+如果第一个参数的类型是 `JoinPoint`、`ProceedingJoinPoint` 或 `JoinPoint.StaticPart`，
+你可以从 `argNames` 属性的值中省略该参数的名称。
+例如，如果你修改前面的通知以接收连接点对象，则 `argNames` 属性不需要包含它：
 
 [tabs]
 ======
@@ -578,19 +527,17 @@ Java::
   argNames = "bean,auditable") // <2>
 public void audit(JoinPoint jp, Object bean, Auditable auditable) {
   AuditCode code = auditable.value();
-  // ... use code, bean, and jp
+  // ... 使用 code, bean, 和 jp
 }
 ----
-<1> References the `publicMethod` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[Combining Pointcut Expressions].
-<2> Declares `bean` and `auditable` as the argument names.
+<1> 引用在 xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[组合切点表达式] 中定义的 `publicMethod` 命名切点。
+<2> 声明 `bean` 和 `auditable` 作为参数名称。
 
 ======
 
-The special treatment given to the first parameter of type `JoinPoint`,
-`ProceedingJoinPoint`, or `JoinPoint.StaticPart` is particularly convenient for advice
-methods that do not collect any other join point context. In such situations, you may
-omit the `argNames` attribute. For example, the following advice does not need to declare
-the `argNames` attribute:
+给予 `JoinPoint`、`ProceedingJoinPoint` 或 `JoinPoint.StaticPart` 类型的第一个参数的特殊处理
+对于不收集任何其他连接点上下文的通知方法特别方便。在这种情况下，你可以省略 `argNames` 属性。
+例如，以下通知不需要声明 `argNames` 属性：
 
 [tabs]
 ======
@@ -600,21 +547,20 @@ Java::
 ----
 @Before("com.xyz.Pointcuts.publicMethod()") // <1>
 public void audit(JoinPoint jp) {
-  // ... use jp
+  // ... 使用 jp
 }
 ----
-<1> References the `publicMethod` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[Combining Pointcut Expressions].
+<1> 引用在 xref:core/aop/ataspectj/pointcuts.adoc#aop-pointcuts-combining[组合切点表达式] 中定义的 `publicMethod` 命名切点。
 
 ======
 
 
 [[aop-ataspectj-advice-proceeding-with-the-call]]
-=== Proceeding with Arguments
+=== 带参数执行
 
-We remarked earlier that we would describe how to write a `proceed` call with
-arguments that works consistently across Infra AOP and AspectJ. The solution is
-to ensure that the advice signature binds each of the method parameters in order.
-The following example shows how to do so:
+我们之前提到过，我们将描述如何编写在 Infra AOP 和 AspectJ 之间一致工作的带参数的 `proceed` 调用。
+解决方案是确保通知签名按顺序绑定每个方法参数。
+下例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -631,49 +577,37 @@ public Object preProcessQueryPattern(ProceedingJoinPoint pjp,
   return pjp.proceed(new Object[] {newPattern});
 }
 ----
-<1> References the `inDataAccessLayer` named pointcut defined in xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[Sharing Named Pointcut Definitions].
+<1> 引用在 xref:core/aop/ataspectj/pointcuts.adoc#aop-common-pointcuts[共享命名切点定义] 中定义的 `inDataAccessLayer` 命名切点。
 ======
 
-In many cases, you do this binding anyway (as in the preceding example).
+在许多情况下，无论如何你都会进行这种绑定（如前面的例子所示）。
 
 
 [[aop-ataspectj-advice-ordering]]
-== Advice Ordering
+== 通知顺序
 
-What happens when multiple pieces of advice all want to run at the same join point?
-Infra AOP follows the same precedence rules as AspectJ to determine the order of advice
-execution. The highest precedence advice runs first "on the way in" (so, given two pieces
-of before advice, the one with highest precedence runs first). "On the way out" from a
-join point, the highest precedence advice runs last (so, given two pieces of after
-advice, the one with the highest precedence will run second).
+当多条通知都想在同一个连接点运行时会发生什么？
+Infra AOP 遵循与 AspectJ 相同的优先级规则来确定通知执行的顺序。
+优先级最高的通知在“进入时”首先运行（因此，给定两个前置通知，优先级高的那个先运行）。
+从连接点“退出时”，优先级最高的通知最后运行（因此，给定两个后置通知，优先级高的那个后运行）。
 
-When two pieces of advice defined in different aspects both need to run at the same
-join point, unless you specify otherwise, the order of execution is undefined. You can
-control the order of execution by specifying precedence. This is done in the normal
-Infra way by either implementing the `infra.core.Ordered` interface in
-the aspect class or annotating it with the `@Order` annotation. Given two aspects, the
-aspect returning the lower value from `Ordered.getOrder()` (or the annotation value) has
-the higher precedence.
+当定义在不同切面中的两条通知都需要在同一个连接点运行时，除非你另行指定，否则执行顺序是未定义的。
+你可以通过指定优先级来控制执行顺序。这可以通过在切面类中实现 `infra.core.Ordered` 接口
+或用 `@Order` 注解标注它来以常规的 Infra 方式完成。给定两个切面，
+从 `Ordered.getOrder()` 返回较低值（或注解值）的切面具有较高的优先级。
 
 [NOTE]
 ====
-Each of the distinct advice types of a particular aspect is conceptually meant to apply
-to the join point directly. As a consequence, an `@AfterThrowing` advice method is not
-supposed to receive an exception from an accompanying `@After`/`@AfterReturning` method.
+特定切面的每种不同通知类型在概念上都意味着直接应用于连接点。
+因此，`@AfterThrowing` 通知方法不应该接收来自伴随的 `@After`/`@AfterReturning` 方法的异常。
 
-advice methods defined in the same `@Aspect` class that
-need to run at the same join point are assigned precedence based on their advice type in
-the following order, from highest to lowest precedence: `@Around`, `@Before`, `@After`,
-`@AfterReturning`, `@AfterThrowing`. Note, however, that an `@After` advice method will
-effectively be invoked after any `@AfterReturning` or `@AfterThrowing` advice methods
-in the same aspect, following AspectJ's "after finally advice" semantics for `@After`.
+在同一个 `@Aspect` 类中定义的、需要在同一个连接点运行的通知方法，根据其通知类型按以下顺序（从高到低）分配优先级：
+`@Around`, `@Before`, `@After`, `@AfterReturning`, `@AfterThrowing`。
+但请注意，`@After` 通知方法实际上将在同一个切面中的任何 `@AfterReturning` 或 `@AfterThrowing` 通知方法之后被调用，
+遵循 AspectJ 对 `@After` 的“后置最终通知”语义。
 
-When two pieces of the same type of advice (for example, two `@After` advice methods)
-defined in the same `@Aspect` class both need to run at the same join point, the ordering
-is undefined (since there is no way to retrieve the source code declaration order through
-reflection for javac-compiled classes). Consider collapsing such advice methods into one
-advice method per join point in each `@Aspect` class or refactor the pieces of advice into
-separate `@Aspect` classes that you can order at the aspect level via `Ordered` or `@Order`.
+当在同一个 `@Aspect` 类中定义的同一类型的两条通知（例如，两个 `@After` 通知方法）都需要在同一个连接点运行时，
+顺序是未定义的（因为没有办法通过反射检索 javac 编译类的源代码声明顺序）。
+考虑将这些通知方法折叠为每个 `@Aspect` 类中每个连接点一个通知方法，
+或者将通知重构为单独的 `@Aspect` 类，你可以通过 `Ordered` 或 `@Order` 在切面级别对其进行排序。
 ====
-
-

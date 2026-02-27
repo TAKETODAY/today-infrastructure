@@ -1,18 +1,16 @@
 [[expressions-beandef]]
-= Expressions in Bean Definitions
+= Bean 定义中的表达式
 
-You can use SpEL expressions with configuration metadata for defining bean instances. In both
-cases, the syntax to define the expression is of the form `#{ <expression string> }`.
+你可以将 SpEL 表达式与配置元数据一起使用，以定义 bean 实例。在这两种情况下，
+定义表达式的语法形式为 `#{ <expression string> }`。
 
-All beans in the application context are available as predefined variables with their
-common bean name. This includes standard context beans such as `environment` (of type
-`infra.core.env.Environment`) as well as `systemProperties` and
-`systemEnvironment` (of type `Map<String, Object>`) for access to the runtime environment.
+应用程序上下文中的所有 bean 都可以作为预定义变量使用，变量名为其常见的 bean 名称。
+这包括标准上下文 bean，如 `environment`（类型为 `infra.core.env.Environment`）
+以及用于访问运行时环境的 `systemProperties` 和 `systemEnvironment`（类型为 `Map<String, Object>`）。
 
-To specify a default value, you can place the `@Value` annotation on fields, methods,
-and method or constructor parameters (or XML equivalent).
+要指定默认值，可以将 `@Value` 注解放在字段、方法以及方法或构造函数参数上（或 XML 等效项）。
 
-The following example sets the default value of a field:
+下例设置字段的默认值：
 
 [source,java]
 ----
@@ -31,9 +29,9 @@ public class FieldValueTestBean {
 }
 ----
 
-Note that you do not have to prefix the predefined variable with the `#` symbol here.
+请注意，这里不需要在预定义变量前加上 `#` 符号。
 
-The following example shows the equivalent but on a property setter method:
+下例显示了等效的属性 setter 方法：
 
 [source,java]
 ----
@@ -52,8 +50,7 @@ public class PropertyValueTestBean {
 }
 ----
 
-Autowired methods and constructors can also use the `@Value` annotation, as the following
-examples show:
+自动装配的方法和构造函数也可以使用 `@Value` 注解，如下例所示：
 
 [source,java]
 ----
@@ -97,7 +94,7 @@ public class MovieRecommender {
 }
 ----
 
-You can also refer to other bean properties by name, as the following example shows:
+你还可以按名称引用其他 bean 属性，如下例所示：
 
 [source,java]
 ----

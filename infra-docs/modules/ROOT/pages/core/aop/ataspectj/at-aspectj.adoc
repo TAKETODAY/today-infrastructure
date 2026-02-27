@@ -1,10 +1,10 @@
 [[aop-at-aspectj]]
 = 声明切面
 
-启用 @AspectJ 支持后，在应用程序上下文中定义的任何 bean，如果其类是 @AspectJ 切面（具有 `@Aspect` 注解），
-都会被 Infra 自动检测到，并用于配置 Infra AOP。接下来的两个示例展示了声明一个不太有用的切面所需的最小步骤。
+启用 @AspectJ 支持后，应用程序上下文中定义的任何 bean，如果其类是 @AspectJ 切面（具有 `@Aspect` 注解），
+都会被 Infra 自动检测到，并用于配置 Infra AOP。接下来的两个例子展示了定义一个不太有用的切面所需的最小步骤。
 
-这两个示例中的第一个展示了应用程序上下文中的常规 bean 定义，指向一个带有 `@Aspect` 注解的 bean 类：
+这两个例子中的第一个展示了应用程序上下文中的常规 bean 定义，指向一个带有 `@Aspect` 注解的 bean 类：
 
 [source,java]
 ----
@@ -19,7 +19,7 @@ public class ApplicationConfiguration {
 }
 ----
 
-这两个示例中的第二个展示了 `NotVeryUsefulAspect` 类定义，该类带有 `@Aspect` 注解：
+这两个例子中的第二个展示了 `NotVeryUsefulAspect` 类定义，它带有 `@Aspect` 注解：
 
 [source,java]
 ----
@@ -28,14 +28,14 @@ public class NotVeryUsefulAspect {
 }
 ----
 
-切面（带有 `@Aspect` 注解的类）可以像任何其他类一样拥有方法和字段。
+切面（带有 `@Aspect` 注解的类）可以拥有方法和字段，与其他任何类一样。
 它们还可以包含切点、通知和引入（类型间）声明。
 
 .通过组件扫描自动检测切面
 NOTE: 你可以在 Infra XML 配置中将切面类注册为常规 bean，
-或者通过 `@Configuration` 类中的 `@Bean` 方法注册，或者让 Infra 通过类路径扫描自动检测它们——这与任何其他 Infra 管理的 bean 一样。
-但是，请注意，`@Aspect` 注解对于类路径中的自动检测是不够的。为此，你需要添加一个单独的 `@Component` 注解
-（或者，根据 Infra 组件扫描器的规则，添加一个符合条件的自定义构造型注解）。
+通过 `@Configuration` 类中的 `@Bean` 方法注册，或者让 Infra 通过类路径扫描自动检测它们——与其他任何 Infra 管理的 bean 一样。
+但是，请注意，`@Aspect` 注解对于类路径中的自动检测是不够的。
+为此，你需要添加一个单独的 `@Component` 注解（或者，根据 Infra 组件扫描器的规则，添加一个符合条件的自定义构造型注解）。
 
 .用其他切面通知切面？
 NOTE: 在 Infra AOP 中，切面本身不能成为其他切面通知的目标。

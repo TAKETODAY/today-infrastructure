@@ -1,10 +1,9 @@
 [[expressions-templating]]
-= Expression Templating
+= 表达式模板化
 
-Expression templates allow mixing literal text with one or more evaluation blocks.
-Each evaluation block is delimited with prefix and suffix characters that you can
-define. A common choice is to use `+#{ }+` as the delimiters, as the following example
-shows:
+表达式模板允许将字面文本与一个或多个评估块混合。
+每个评估块都由你可以定义的前缀和后缀字符分隔。
+通常的选择是使用 `#{ }` 作为分隔符，如下例所示：
 
 [tabs]
 ======
@@ -16,19 +15,14 @@ String randomPhrase = parser.parseExpression(
     "random number is #{T(java.lang.Math).random()}",
     new TemplateParserContext()).getValue(String.class);
 
-// evaluates to "random number is 0.7038186818312008"
+// 评估结果为 "random number is 0.7038186818312008"
 ----
 
 ======
 
-The string is evaluated by concatenating the literal text `'random number is '` with the
-result of evaluating the expression inside the `+#{ }+` delimiters (in this case, the
-result of calling that `random()` method). The second argument to the `parseExpression()`
-method is of the type `ParserContext`. The `ParserContext` interface is used to influence
-how the expression is parsed in order to support the expression templating functionality.
-The `TemplateParserContext` used in the previous example resides in the
-`infra.expression.common` package and is an implementation of the
-`ParserContext` which by default configures the prefix and suffix to `#{` and `}`,
-respectively.
-
-
+该字符串是通过将字面文本 `'random number is '` 与 `#{ }` 分隔符内的表达式评估结果连接起来进行评估的
+（在本例中为调用该 `random()` 方法的结果）。
+`parseExpression()` 方法的第二个参数是 `ParserContext` 类型。
+`ParserContext` 接口用于影响表达式的解析方式，以支持表达式模板化功能。
+上例中使用的 `TemplateParserContext` 位于 `infra.expression.common` 包中，
+是 `ParserContext` 的一个实现，默认情况下将前缀和后缀分别配置为 `#{` 和 `}`。

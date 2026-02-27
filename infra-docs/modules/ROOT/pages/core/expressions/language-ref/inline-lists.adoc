@@ -1,7 +1,7 @@
 [[expressions-inline-lists]]
-= Inline Lists
+= 内联列表
 
-You can directly express lists in an expression by using `{}` notation.
+你可以使用 `{}` 符号直接在表达式中表示列表。
 
 [tabs]
 ======
@@ -9,7 +9,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// evaluates to a Java list containing the four numbers
+	// 评估结果为包含这四个数字的 Java 列表
 	List numbers = (List) parser.parseExpression("{1,2,3,4}").getValue(context);
 
 	List listOfLists = (List) parser.parseExpression("{{'a','b'},{'x','y'}}").getValue(context);
@@ -17,9 +17,5 @@ Java::
 
 ======
 
-`{}` by itself means an empty list. For performance reasons, if the list is itself
-entirely composed of fixed literals, a constant list is created to represent the
-expression (rather than building a new list on each evaluation).
-
-
-
+`{}` 本身表示一个空列表。出于性能原因，如果列表本身完全由固定字面量组成，
+则会创建一个常量列表来表示该表达式（而不是在每次评估时构建一个新列表）。

@@ -1,19 +1,14 @@
 [[aop-pointcuts]]
-= Declaring a Pointcut
+= 声明切点
 
-Pointcuts determine join points of interest and thus enable us to control
-when advice runs. Infra AOP only supports method execution join points for Infra
-beans, so you can think of a pointcut as matching the execution of methods on Infra
-beans. A pointcut declaration has two parts: a signature comprising a name and any
-parameters and a pointcut expression that determines exactly which method
-executions we are interested in. In the @AspectJ annotation-style of AOP, a pointcut
-signature is provided by a regular method definition, and the pointcut expression is
-indicated by using the `@Pointcut` annotation (the method serving as the pointcut signature
-must have a `void` return type).
+切点确定感兴趣的连接点，从而使我们能够控制通知何时运行。
+Infra AOP 仅支持 Infra bean 的方法执行连接点，因此你可以将切点视为匹配 Infra bean 上方法的执行。
+切点声明由两部分组成：包含名称和任何参数的签名，以及确定我们要关注哪些方法执行的切点表达式。
+在 AOP 的 @AspectJ 注解风格中，切点签名由常规方法定义提供，
+切点表达式由 `@Pointcut` 注解指示（作为切点签名的方法必须具有 `void` 返回类型）。
 
-An example may help make this distinction between a pointcut signature and a pointcut
-expression clear. The following example defines a pointcut named `anyOldTransfer` that
-matches the execution of any method named `transfer`:
+一个例子可能有助于阐明切点签名和切点表达式之间的区别。
+下例定义了一个名为 `anyOldTransfer` 的切点，它匹配任何名为 `transfer` 的方法的执行：
 
 [tabs]
 ======
@@ -21,122 +16,90 @@ Java::
 +
 [source,java,indent=0,subs="verbatim",role="primary"]
 ----
-@Pointcut("execution(* transfer(..))") // the pointcut expression
-private void anyOldTransfer() {} // the pointcut signature
+@Pointcut("execution(* transfer(..))") // 切点表达式
+private void anyOldTransfer() {} // 切点签名
 ----
 ======
 
-The pointcut expression that forms the value of the `@Pointcut` annotation is a regular
-AspectJ pointcut expression. For a full discussion of AspectJ's pointcut language, see
-the {aspectj-docs-progguide}/index.html[AspectJ
-Programming Guide] (and, for extensions, the
-{aspectj-docs}/adk15notebook/index.html[AspectJ 5
-Developer's Notebook]) or one of the books on AspectJ (such as _Eclipse AspectJ_, by Colyer
-et al., or _AspectJ in Action_, by Ramnivas Laddad).
+构成 `@Pointcut` 注解值的切点表达式是常规的 AspectJ 切点表达式。
+有关 AspectJ 切点语言的完整讨论，请参阅 {aspectj-docs-progguide}/index.html[AspectJ 编程指南]
+（以及扩展部分的 {aspectj-docs}/adk15notebook/index.html[AspectJ 5 开发人员笔记本]）
+或有关 AspectJ 的书籍之一（例如 Colyer 等人著的 _Eclipse AspectJ_，或 Ramnivas Laddad 著的 _AspectJ in Action_）。
 
 
 [[aop-pointcuts-designators]]
-== Supported Pointcut Designators
+== 支持的切点指示符
 
-Infra AOP supports the following AspectJ pointcut designators (PCD) for use in pointcut
-expressions:
+Infra AOP 支持以下 AspectJ 切点指示符（PCD）用于切点表达式：
 
-* `execution`: For matching method execution join points. This is the primary
-  pointcut designator to use when working with Infra AOP.
-* `within`: Limits matching to join points within certain types (the execution
-  of a method declared within a matching type when using Infra AOP).
-* `this`: Limits matching to join points (the execution of methods when using Infra
-  AOP) where the bean reference (Infra AOP proxy) is an instance of the given type.
-* `target`: Limits matching to join points (the execution of methods when using
-  Infra AOP) where the target object (application object being proxied) is an instance
-  of the given type.
-* `args`: Limits matching to join points (the execution of methods when using Infra
-  AOP) where the arguments are instances of the given types.
-* `@target`: Limits matching to join points (the execution of methods when using
-  Infra AOP) where the class of the executing object has an annotation of the given type.
-* `@args`: Limits matching to join points (the execution of methods when using Infra
-  AOP) where the runtime type of the actual arguments passed have annotations of the
-  given types.
-* `@within`: Limits matching to join points within types that have the given
-  annotation (the execution of methods declared in types with the given annotation when
-  using Infra AOP).
-* `@annotation`: Limits matching to join points where the subject of the join point
-  (the method being run in Infra AOP) has the given annotation.
+* `execution`: 用于匹配方法执行连接点。这是使用 Infra AOP 时使用的主要切点指示符。
+* `within`: 将匹配限制为特定类型内的连接点（使用 Infra AOP 时为在匹配类型内声明的方法的执行）。
+* `this`: 将匹配限制为 bean 引用（Infra AOP 代理）是给定类型的实例的连接点（使用 Infra AOP 时为方法的执行）。
+* `target`: 将匹配限制为目标对象（被代理的应用程序对象）是给定类型的实例的连接点（使用 Infra AOP 时为方法的执行）。
+* `args`: 将匹配限制为参数是给定类型的实例的连接点（使用 Infra AOP 时为方法的执行）。
+* `@target`: 将匹配限制为执行对象的类具有给定类型的注解的连接点（使用 Infra AOP 时为方法的执行）。
+* `@args`: 将匹配限制为传递的实际参数的运行时类型具有给定类型的注解的连接点（使用 Infra AOP 时为方法的执行）。
+* `@within`: 将匹配限制为具有给定注解的类型内的连接点（使用 Infra AOP 时为在具有给定注解的类型中声明的方法的执行）。
+* `@annotation`: 将匹配限制为连接点的主题（在 Infra AOP 中运行的方法）具有给定注解的连接点。
 
-.Other pointcut types
+.其他切点类型
 ****
-The full AspectJ pointcut language supports additional pointcut designators that are not
-supported in Infra: `call`, `get`, `set`, `preinitialization`,
-`staticinitialization`, `initialization`, `handler`, `adviceexecution`, `withincode`, `cflow`,
-`cflowbelow`, `if`, `@this`, and `@withincode`. Use of these pointcut designators in pointcut
-expressions interpreted by Infra AOP results in an `IllegalArgumentException` being
-thrown.
+完整的 AspectJ 切点语言支持 Infra 中不支持的其他切点指示符：
+`call`, `get`, `set`, `preinitialization`, `staticinitialization`, `initialization`, `handler`, `adviceexecution`, `withincode`, `cflow`, `cflowbelow`, `if`, `@this`, 和 `@withincode`。
+在 Infra AOP 解释的切点表达式中使用这些切点指示符会导致抛出 `IllegalArgumentException`。
 
-The set of pointcut designators supported by Infra AOP may be extended in future
-releases to support more of the AspectJ pointcut designators.
+Infra AOP 支持的切点指示符集可能会在未来的版本中扩展，以支持更多的 AspectJ 切点指示符。
 ****
 
-Because Infra AOP limits matching to only method execution join points, the preceding discussion
-of the pointcut designators gives a narrower definition than you can find in the
-AspectJ programming guide. In addition, AspectJ itself has type-based semantics and, at
-an execution join point, both `this` and `target` refer to the same object: the
-object executing the method. Infra AOP is a proxy-based system and differentiates
-between the proxy object itself (which is bound to `this`) and the target object behind the
-proxy (which is bound to `target`).
+因为 Infra AOP 将匹配限制为仅方法执行连接点，所以前面关于切点指示符的讨论给出的定义比 AspectJ 编程指南中的定义更窄。
+此外，AspectJ 本身具有基于类型的语义，在执行连接点处，`this` 和 `target` 都指向同一个对象：执行方法的对象。
+Infra AOP 是一个基于代理的系统，区分代理对象本身（绑定到 `this`）和代理背后的目标对象（绑定到 `target`）。
 
 [NOTE]
 ====
-Due to the proxy-based nature of Infra AOP framework, calls within the target object
-are, by definition, not intercepted. For JDK proxies, only public interface method
-calls on the proxy can be intercepted. With CGLIB, public and protected method calls on
-the proxy are intercepted (and even package-visible methods, if necessary). However,
-common interactions through proxies should always be designed through public signatures.
+由于 Infra AOP 框架基于代理的性质，目标对象内的调用根据定义不会被拦截。
+对于 JDK 代理，只能拦截代理上的公共接口方法调用。
+对于 CGLIB，代理上的公共和受保护方法调用会被拦截（如果需要，甚至包括包可见方法）。
+但是，通过代理的常见交互应始终通过公共签名进行设计。
 
-Note that pointcut definitions are generally matched against any intercepted method.
-If a pointcut is strictly meant to be public-only, even in a CGLIB proxy scenario with
-potential non-public interactions through proxies, it needs to be defined accordingly.
+请注意，切点定义通常与任何拦截的方法匹配。
+如果切点严格意味着仅限公共方法，即使在具有通过代理进行潜在非公共交互的 CGLIB 代理场景中，也需要相应地定义它。
 
-If your interception needs include method calls or even constructors within the target
-class, consider the use of Infra-driven xref:core/aop/using-aspectj.adoc#aop-aj-ltw[native AspectJ weaving] instead
-of Infra proxy-based AOP framework. This constitutes a different mode of AOP usage
-with different characteristics, so be sure to make yourself familiar with weaving
-before making a decision.
+如果你的拦截需求包括目标类中的方法调用甚至构造函数，请考虑使用 Infra 驱动的
+xref:core/aop/using-aspectj.adoc#aop-aj-ltw[原生 AspectJ 织入] 而不是 Infra 基于代理的 AOP 框架。
+这构成了具有不同特征的不同 AOP 使用模式，因此在做出决定之前请务必熟悉织入。
 ====
 
-Infra AOP also supports an additional PCD named `bean`. This PCD lets you limit
-the matching of join points to a particular named Infra bean or to a set of named
-Infra beans (when using wildcards). The `bean` PCD has the following form:
+Infra AOP 还支持一个名为 `bean` 的附加 PCD。
+此 PCD 允许你将连接点的匹配限制为特定的命名 Infra bean 或一组命名 Infra bean（使用通配符时）。
+`bean` PCD 具有以下形式：
 
 [source,indent=0,subs="verbatim"]
 ----
 	bean(idOrNameOfBean)
 ----
 
-The `idOrNameOfBean` token can be the name of any Infra bean. Limited wildcard
-support that uses the `*` character is provided, so, if you establish some naming
-conventions for your Infra beans, you can write a `bean` PCD expression
-to select them. As is the case with other pointcut designators, the `bean` PCD can
-be used with the `&&` (and), `||` (or), and `!` (negation) operators, too.
+`idOrNameOfBean` 标记可以是任何 Infra bean 的名称。
+提供了使用 `*` 字符的有限通配符支持，因此，如果你为 Infra bean 建立一些命名约定，
+你可以编写 `bean` PCD 表达式来选择它们。
+与其他切点指示符一样，`bean` PCD 也可以与 `&&` (与)、`||` (或) 和 `!` (非) 运算符一起使用。
 
 [NOTE]
 ====
-The `bean` PCD is supported only in Infra AOP and not in
-native AspectJ weaving. It is a Infra-specific extension to the standard PCDs that
-AspectJ defines and is, therefore, not available for aspects declared in the `@Aspect` model.
+`bean` PCD 仅在 Infra AOP 中受支持，在原生 AspectJ 织入中不受支持。
+它是对 AspectJ 定义的标准 PCD 的 Infra 特定扩展，因此不可用于在 `@Aspect` 模型中声明的切面。
 
-The `bean` PCD operates at the instance level (building on the Infra bean name
-concept) rather than at the type level only (to which weaving-based AOP is limited).
-Instance-based pointcut designators are a special capability of Infra
-proxy-based AOP framework and its close integration with the Infra bean factory, where
-it is natural and straightforward to identify specific beans by name.
+`bean` PCD 在实例级别（基于 Infra bean 名称概念）操作，而不是仅在类型级别（基于织入的 AOP 仅限于此）操作。
+基于实例的切点指示符是 Infra 基于代理的 AOP 框架及其与 Infra bean 工厂紧密集成的特殊能力，
+通过名称识别特定 bean 是自然而直接的。
 ====
 
 
 [[aop-pointcuts-combining]]
-== Combining Pointcut Expressions
+== 组合切点表达式
 
-You can combine pointcut expressions by using `&&,` `||` and `!`. You can also refer to
-pointcut expressions by name. The following example shows three pointcut expressions:
+你可以使用 `&&`、`||` 和 `!` 组合切点表达式。你也可以按名称引用切点表达式。
+下例显示了三个切点表达式：
 
 [tabs]
 ======
@@ -158,28 +121,23 @@ public class Pointcuts {
   public void tradingOperation() {} // <3>
 }
 ----
-<1> `publicMethod` matches if a method execution join point represents the execution
-of any public method.
-<2> `inTrading` matches if a method execution is in the trading module.
-<3> `tradingOperation` matches if a method execution represents any public method in the
-trading module.
+<1> `publicMethod` 匹配如果方法执行连接点表示任何公共方法的执行。
+<2> `inTrading` 匹配如果方法执行在交易模块中。
+<3> `tradingOperation` 匹配如果方法执行表示交易模块中的任何公共方法。
 ======
 
-It is a best practice to build more complex pointcut expressions out of smaller _named
-pointcuts_, as shown above. When referring to pointcuts by name, normal Java visibility
-rules apply (you can see `private` pointcuts in the same type, `protected` pointcuts in
-the hierarchy, `public` pointcuts anywhere, and so on). Visibility does not affect
-pointcut matching.
+最佳实践是像上面那样用较小的_命名切点_构建更复杂的切点表达式。
+当按名称引用切点时，适用正常的 Java 可见性规则（你可以看到同一类型中的 `private` 切点、
+层次结构中的 `protected` 切点、任何地方的 `public` 切点等）。
+可见性不影响切点匹配。
 
 
 [[aop-common-pointcuts]]
-== Sharing Named Pointcut Definitions
+== 共享命名切点定义
 
-When working with enterprise applications, developers often have the need to refer to
-modules of the application and particular sets of operations from within several aspects.
-We recommend defining a dedicated class that captures commonly used _named pointcut_
-expressions for this purpose. Such a class typically resembles the following
-`CommonPointcuts` example (though what you name the class is up to you):
+在处理企业应用程序时，开发人员通常需要从多个切面引用应用程序的模块和特定的操作集。
+为此，我们建议定义一个专用类来捕获常用的_命名切点_表达式。
+此类通常类似于以下 `CommonPointcuts` 示例（尽管类的命名取决于你）：
 
 [tabs]
 ======
@@ -194,50 +152,43 @@ import org.aspectj.lang.annotation.Pointcut;
 public class CommonPointcuts {
 
   /**
-   * A join point is in the web layer if the method is defined
-   * in a type in the com.xyz.web package or any sub-package
-   * under that.
+   * 如果方法定义在 com.xyz.web 包或其下的任何子包中的类型中，
+   * 则连接点在 web 层中。
    */
   @Pointcut("within(com.xyz.web..*)")
   public void inWebLayer() {}
 
   /**
-   * A join point is in the service layer if the method is defined
-   * in a type in the com.xyz.service package or any sub-package
-   * under that.
+   * 如果方法定义在 com.xyz.service 包或其下的任何子包中的类型中，
+   * 则连接点在服务层中。
    */
   @Pointcut("within(com.xyz.service..*)")
   public void inServiceLayer() {}
 
   /**
-   * A join point is in the data access layer if the method is defined
-   * in a type in the com.xyz.dao package or any sub-package
-   * under that.
+   * 如果方法定义在 com.xyz.dao 包或其下的任何子包中的类型中，
+   * 则连接点在数据访问层中。
    */
   @Pointcut("within(com.xyz.dao..*)")
   public void inDataAccessLayer() {}
 
   /**
-   * A business service is the execution of any method defined on a service
-   * interface. This definition assumes that interfaces are placed in the
-   * "service" package, and that implementation types are in sub-packages.
+   * 业务服务是在服务接口上定义的任何方法的执行。
+   * 此定义假设接口放置在 "service" 包中，并且实现类型在子包中。
    *
-   * If you group service interfaces by functional area (for example,
-   * in packages com.xyz.abc.service and com.xyz.def.service) then
-   * the pointcut expression "execution(* com.xyz..service.*.*(..))"
-   * could be used instead.
+   * 如果你按功能区域对服务接口进行分组（例如，
+   * 在包 com.xyz.abc.service 和 com.xyz.def.service 中），
+   * 则可以使用切点表达式 "execution(* com.xyz..service.*.*(..))"。
    *
-   * Alternatively, you can write the expression using the 'bean'
-   * PCD, like so "bean(*Service)". (This assumes that you have
-   * named your Infra service beans in a consistent fashion.)
+   * 或者，你可以使用 'bean' PCD 编写表达式，如 "bean(*Service)"。
+   * （这假设你以一致的方式命名了 Infra 服务 bean。）
    */
   @Pointcut("execution(* com.xyz..service.*.*(..))")
   public void businessService() {}
 
   /**
-   * A data access operation is the execution of any method defined on a
-   * DAO interface. This definition assumes that interfaces are placed in the
-   * "dao" package, and that implementation types are in sub-packages.
+   * 数据访问操作是在 DAO 接口上定义的任何方法的执行。
+   * 此定义假设接口放置在 "dao" 包中，并且实现类型在子包中。
    */
   @Pointcut("execution(* com.xyz.dao.*.*(..))")
   public void dataAccessOperation() {}
@@ -247,11 +198,8 @@ public class CommonPointcuts {
 
 ======
 
-You can refer to the pointcuts defined in such a class anywhere you need a pointcut
-expression by referencing the fully-qualified name of the class combined with the
-`@Pointcut` method's name. For example, to make the service layer transactional, you
-could write the following which references the
-`com.xyz.CommonPointcuts.businessService()` _named pointcut_:
+你可以在任何需要切点表达式的地方引用此类中定义的切点，方法是引用类的完全限定名称结合 `@Pointcut` 方法的名称。
+例如，要使服务层具有事务性，你可以编写以下引用 `com.xyz.CommonPointcuts.businessService()` _命名切点_的内容：
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -268,15 +216,15 @@ could write the following which references the
 </tx:advice>
 ----
 
-The `<aop:config>` and `<aop:advisor>` elements are discussed in xref:core/aop/schema.adoc[Schema-based AOP Support]. The
-transaction elements are discussed in xref:data-access/transaction.adoc[Transaction Management].
+`<aop:config>` 和 `<aop:advisor>` 元素在 xref:core/aop/schema.adoc[基于 Schema 的 AOP 支持] 中讨论。
+事务元素在 xref:data-access/transaction.adoc[事务管理] 中讨论。
 
 
 [[aop-pointcuts-examples]]
-== Examples
+== 示例
 
-Infra AOP users are likely to use the `execution` pointcut designator the most often.
-The format of an execution expression follows:
+Infra AOP 用户可能最常使用 `execution` 切点指示符。
+执行表达式的格式如下：
 
 [literal,indent=0,subs="verbatim"]
 ----
@@ -286,166 +234,150 @@ The format of an execution expression follows:
 				throws-pattern?)
 ----
 
-All parts except the returning type pattern (`ret-type-pattern` in the preceding snippet),
-the name pattern, and the parameters pattern are optional. The returning type pattern determines
-what the return type of the method must be in order for a join point to be matched.
-`{asterisk}` is most frequently used as the returning type pattern. It matches any return
-type. A fully-qualified type name matches only when the method returns the given
-type. The name pattern matches the method name. You can use the `{asterisk}` wildcard as all or
-part of a name pattern. If you specify a declaring type pattern,
-include a trailing `.` to join it to the name pattern component.
-The parameters pattern is slightly more complex: `()` matches a
-method that takes no parameters, whereas `(..)` matches any number (zero or more) of parameters.
-The `({asterisk})` pattern matches a method that takes one parameter of any type.
-`(*,String)` matches a method that takes two parameters. The first can be of any type, while the
-second must be a `String`. Consult the
-{aspectj-docs-progguide}/semantics-pointcuts.html[Language
-Semantics] section of the AspectJ Programming Guide for more information.
+除了返回类型模式（前面片段中的 `ret-type-pattern`）、名称模式和参数模式外，所有部分都是可选的。
+返回类型模式确定方法的返回类型必须是什么才能匹配连接点。
+`{asterisk}` 最常用作返回类型模式。它匹配任何返回类型。
+完全限定的类型名称仅当方法返回给定类型时才匹配。
+名称模式匹配方法名称。你可以使用 `{asterisk}` 通配符作为名称模式的全部或一部分。
+如果你指定声明类型模式，请包含后缀 `.` 以将其连接到名称模式组件。
+参数模式稍微复杂一些：`()` 匹配不带参数的方法，而 `(..)` 匹配任意数量（零个或多个）的参数。
+`({asterisk})` 模式匹配接受一个任何类型参数的方法。
+`(*,String)` 匹配接受两个参数的方法。第一个可以是任何类型，而第二个必须是 `String`。
+有关更多信息，请参阅 AspectJ 编程指南的
+{aspectj-docs-progguide}/semantics-pointcuts.html[语言语义] 部分。
 
-The following examples show some common pointcut expressions:
+以下示例显示了一些常见的切点表达式：
 
-* The execution of any public method:
+* 任何公共方法的执行：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	execution(public * *(..))
 ----
 
-* The execution of any method with a name that begins with `set`:
+* 名称以 `set` 开头的任何方法的执行：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	execution(* set*(..))
 ----
 
-* The execution of any method defined by the `AccountService` interface:
+* `AccountService` 接口定义的任何方法的执行：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	execution(* com.xyz.service.AccountService.*(..))
 ----
 
-* The execution of any method defined in the `service` package:
+* `service` 包中定义的任何方法的执行：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	execution(* com.xyz.service.*.*(..))
 ----
 
-* The execution of any method defined in the service package or one of its sub-packages:
+* `service` 包或其子包之一中定义的任何方法的执行：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	execution(* com.xyz.service..*.*(..))
 ----
 
-* Any join point (method execution only in Infra AOP) within the service package:
+* `service` 包内的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	within(com.xyz.service.*)
 ----
 
-* Any join point (method execution only in Infra AOP) within the service package or one of its
-sub-packages:
+* `service` 包或其子包之一内的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	within(com.xyz.service..*)
 ----
 
-* Any join point (method execution only in Infra AOP) where the proxy implements the
-`AccountService` interface:
+* 代理实现 `AccountService` 接口的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	this(com.xyz.service.AccountService)
 ----
 +
-NOTE: `this` is more commonly used in a binding form. See the section on xref:core/aop/ataspectj/advice.adoc[Declaring Advice]
-for how to make the proxy object available in the advice body.
+NOTE: `this` 更常用于绑定形式。有关如何使代理对象在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 
-* Any join point (method execution only in Infra AOP) where the target object
-implements the `AccountService` interface:
+* 目标对象实现 `AccountService` 接口的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	target(com.xyz.service.AccountService)
 ----
 +
-NOTE: `target` is more commonly used in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section
-for how to make the target object available in the advice body.
+NOTE: `target` 更常用于绑定形式。有关如何使目标对象在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 
-* Any join point (method execution only in Infra AOP) that takes a single parameter
-and where the argument passed at runtime is `Serializable`:
+* 接受单个参数且运行时传递的参数是 `Serializable` 的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	args(java.io.Serializable)
 ----
 +
-NOTE: `args` is more commonly used in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section
-for how to make the method arguments available in the advice body.
+NOTE: `args` 更常用于绑定形式。有关如何使方法参数在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 +
-Note that the pointcut given in this example is different from `execution(*
-*(java.io.Serializable))`. The args version matches if the argument passed at runtime is
-`Serializable`, and the execution version matches if the method signature declares a single
-parameter of type `Serializable`.
+请注意，此示例中给出的切点与 `execution(* *(java.io.Serializable))` 不同。
+args 版本在运行时传递的参数是 `Serializable` 时匹配，而 execution 版本在方法签名声明单个 `Serializable` 类型参数时匹配。
 
-* Any join point (method execution only in Infra AOP) where the target object has a
-`@Transactional` annotation:
+* 目标对象具有 `@Transactional` 注解的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	@target(infra.transaction.annotation.Transactional)
 ----
 +
-NOTE: You can also use `@target` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section for
-how to make the annotation object available in the advice body.
+NOTE: 你也可以在绑定形式中使用 `@target`。有关如何使注解对象在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 
-* Any join point (method execution only in Infra AOP) where the declared type of the
-target object has an `@Transactional` annotation:
+* 目标对象的声明类型具有 `@Transactional` 注解的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	@within(infra.transaction.annotation.Transactional)
 ----
 +
-NOTE: You can also use `@within` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section for
-how to make the annotation object available in the advice body.
+NOTE: 你也可以在绑定形式中使用 `@within`。有关如何使注解对象在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 
-* Any join point (method execution only in Infra AOP) where the executing method has an
-`@Transactional` annotation:
+* 执行方法具有 `@Transactional` 注解的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	@annotation(infra.transaction.annotation.Transactional)
 ----
 +
-NOTE: You can also use `@annotation` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section
-for how to make the annotation object available in the advice body.
+NOTE: 你也可以在绑定形式中使用 `@annotation`。有关如何使注解对象在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 
-* Any join point (method execution only in Infra AOP) which takes a single parameter,
-and where the runtime type of the argument passed has the `@Classified` annotation:
+* 接受单个参数，并且传递的参数的运行时类型具有 `@Classified` 注解的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	@args(com.xyz.security.Classified)
 ----
 +
-NOTE: You can also use `@args` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section
-how to make the annotation object(s) available in the advice body.
+NOTE: 你也可以在绑定形式中使用 `@args`。有关如何使注解对象在通知体中可用的信息，
+请参阅 xref:core/aop/ataspectj/advice.adoc[声明通知] 部分。
 
-* Any join point (method execution only in Infra AOP) on a Infra bean named
-`tradeService`:
+* 名为 `tradeService` 的 Infra bean 上的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
 	bean(tradeService)
 ----
 
-* Any join point (method execution only in Infra AOP) on Infra beans having names that
-match the wildcard expression `*Service`:
+* 名称匹配通配符表达式 `*Service` 的 Infra bean 上的任何连接点（在 Infra AOP 中仅限方法执行）：
 +
 [literal,indent=0,subs="verbatim"]
 ----
@@ -454,40 +386,26 @@ match the wildcard expression `*Service`:
 
 
 [[writing-good-pointcuts]]
-== Writing Good Pointcuts
+== 编写好的切点
 
-During compilation, AspectJ processes pointcuts in order to optimize matching
-performance. Examining code and determining if each join point matches (statically or
-dynamically) a given pointcut is a costly process. (A dynamic match means the match
-cannot be fully determined from static analysis and that a test is placed in the code to
-determine if there is an actual match when the code is running). On first encountering a
-pointcut declaration, AspectJ rewrites it into an optimal form for the matching
-process. What does this mean? Basically, pointcuts are rewritten in DNF (Disjunctive
-Normal Form) and the components of the pointcut are sorted such that those components
-that are cheaper to evaluate are checked first. This means you do not have to worry
-about understanding the performance of various pointcut designators and may supply them
-in any order in a pointcut declaration.
+在编译期间，AspectJ 处理切点以优化匹配性能。
+检查代码并确定每个连接点是否匹配（静态或动态）给定的切点是一个代价高昂的过程。
+（动态匹配意味着无法从静态分析中完全确定匹配，并且在代码中放置测试以确定代码运行时是否存在实际匹配）。
+首次遇到切点声明时，AspectJ 会将其重写为用于匹配过程的最佳形式。这意味着什么？
+基本上，切点被重写为 DNF（析取范式），并且切点的组件被排序，以便首先检查那些评估成本较低的组件。
+这意味着你不必担心了解各种切点指示符的性能，并且可以在切点声明中以任何顺序提供它们。
 
-However, AspectJ can work only with what it is told. For optimal performance of
-matching, you should think about what you are trying to achieve and narrow the search
-space for matches as much as possible in the definition. The existing designators
-naturally fall into one of three groups: kinded, scoping, and contextual:
+但是，AspectJ 只能处理它被告知的内容。为了获得最佳的匹配性能，你应该考虑你想要通过定义实现什么，
+并尽可能缩小定义的匹配搜索空间。现有的指示符自然分为三组：类型（kinded）、作用域（scoping）和上下文（contextual）：
 
-* Kinded designators select a particular kind of join point:
-`execution`, `get`, `set`, `call`, and `handler`.
-* Scoping designators select a group of join points of interest
-(probably of many kinds): `within` and `withincode`
-* Contextual designators match (and optionally bind) based on context:
-`this`, `target`, and `@annotation`
+* 类型指示符选择特定类型的连接点：
+`execution`, `get`, `set`, `call`, 和 `handler`。
+* 作用域指示符选择一组感兴趣的连接点（可能是多种类型）：`within` 和 `withincode`
+* 上下文指示符根据上下文进行匹配（并可选地绑定）：
+`this`, `target`, 和 `@annotation`
 
-A well written pointcut should include at least the first two types (kinded and
-scoping). You can include the contextual designators to match based on
-join point context or bind that context for use in the advice. Supplying only a
-kinded designator or only a contextual designator works but could affect weaving
-performance (time and memory used), due to extra processing and analysis. Scoping
-designators are very fast to match, and using them means AspectJ can very quickly
-dismiss groups of join points that should not be further processed. A good
-pointcut should always include one if possible.
-
-
-
+编写良好的切点应至少包含前两种类型（类型和作用域）。
+你可以包含上下文指示符以根据连接点上下文进行匹配或绑定该上下文以在通知中使用。
+仅提供类型指示符或仅提供上下文指示符也可以工作，但由于额外的处理和分析，可能会影响织入性能（使用的时间和内存）。
+作用域指示符的匹配速度非常快，使用它们意味着 AspectJ 可以非常快速地排除不应进一步处理的连接点组。
+如果可能，好的切点应始终包含一个作用域指示符。

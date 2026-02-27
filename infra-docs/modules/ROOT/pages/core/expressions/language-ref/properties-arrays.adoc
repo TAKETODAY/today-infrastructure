@@ -1,57 +1,50 @@
 [[expressions-properties-arrays]]
-= Properties, Arrays, Lists, Maps, and Indexers
+= 属性、数组、列表、Map 和索引器
 
-The Infra Expression Language provides support for navigating object graphs and indexing
-into various structures.
+Infra 表达式语言支持导航对象图和索引各种结构。
 
-NOTE: Numerical index values are zero-based, such as when accessing the n^th^ element of
-an array in Java.
+NOTE: 数字索引值是从零开始的，例如在访问 Java 数组的第 n 个元素时。
 
-TIP: See the xref:core/expressions/language-ref/operator-safe-navigation.adoc[Safe Navigation Operator]
-section for details on how to navigate object graphs and index into various structures
-using the null-safe operator.
+TIP: 有关如何使用空安全运算符导航对象图和索引各种结构的详细信息，
+请参阅 xref:core/expressions/language-ref/operator-safe-navigation.adoc[安全导航运算符] 部分。
 
 [[expressions-property-navigation]]
-== Property Navigation
+== 属性导航
 
-You can navigate property references within an object graph by using a period to indicate
-a nested property value. The instances of the `Inventor` class, `pupin` and `tesla`, were
-populated with data listed in the
-xref:core/expressions/example-classes.adoc[Classes used in the examples] section. To
-navigate _down_ the object graph and get Tesla's year of birth and Pupin's city of birth,
-we use the following expressions:
+你可以使用句点指示嵌套属性值来在对象图中导航属性引用。
+`Inventor` 类的实例 `pupin` 和 `tesla` 使用了
+xref:core/expressions/example-classes.adoc[示例中使用的类] 部分列出的数据进行填充。
+为了_向下_导航对象图并获取 Tesla 的出生年份和 Pupin 的出生城市，
+我们使用以下表达式：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// evaluates to 1856
+// 评估结果为 1856
 int year = (Integer) parser.parseExpression("birthdate.year + 1900").getValue(context);
 
-// evaluates to "Smiljan"
+// 评估结果为 "Smiljan"
 String city = (String) parser.parseExpression("placeOfBirth.city").getValue(context);
 ----
 
 [NOTE]
 ====
-Case insensitivity is allowed for the first letter of property names. Thus, the
-expressions in the above example may be written as `Birthdate.Year + 1900` and
-`PlaceOfBirth.City`, respectively. In addition, properties may optionally be accessed via
-method invocations -- for example, `getPlaceOfBirth().getCity()` instead of
-`placeOfBirth.city`.
+属性名称的首字母允许不区分大小写。因此，上面示例中的表达式可以分别写为
+`Birthdate.Year + 1900` 和 `PlaceOfBirth.City`。
+此外，属性还可以选择通过方法调用来访问——例如，`getPlaceOfBirth().getCity()`
+而不是 `placeOfBirth.city`。
 ====
 
 [[expressions-indexing-arrays-and-collections]]
-== Indexing into Arrays and Collections
+== 索引数组和集合
 
-The n^th^ element of an array or collection (for example, a `Set` or `List`) can be
-obtained by using square bracket notation, as the following example shows.
+数组或集合（例如 `Set` 或 `List`）的第 n 个元素可以使用方括号符号获取，如下例所示。
 
 [NOTE]
 ====
-If the indexed collection is a `java.util.List`, the n^th^ element will be accessed
-directly via `list.get(n)`.
+如果被索引的集合是 `java.util.List`，则第 n 个元素将通过 `list.get(n)` 直接访问。
 
-For any other type of `Collection`, the n^th^ element will be accessed by iterating over
-the collection using its `Iterator` and returning the n^th^ element encountered.
+对于任何其他类型的 `Collection`，第 n 个元素将通过使用其 `Iterator` 迭代集合
+并返回遇到的第 n 个元素来访问。
 ====
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -59,114 +52,104 @@ the collection using its `Iterator` and returning the n^th^ element encountered.
 ExpressionParser parser = new SpelExpressionParser();
 EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
 
-// Inventions Array
+// 发明数组
 
-// evaluates to "Induction motor"
+// 评估结果为 "Induction motor"
 String invention = parser.parseExpression("inventions[3]").getValue(
     context, tesla, String.class);
 
-// Members List
+// 成员列表
 
-// evaluates to "Nikola Tesla"
+// 评估结果为 "Nikola Tesla"
 String name = parser.parseExpression("members[0].name").getValue(
     context, ieee, String.class);
 
-// List and Array Indexing
+// 列表和数组索引
 
-// evaluates to "Wireless communication"
+// 评估结果为 "Wireless communication"
 String invention = parser.parseExpression("members[0].inventions[6]").getValue(
     context, ieee, String.class);
 ----
 
 [[expressions-indexing-strings]]
-== Indexing into Strings
+== 索引字符串
 
-The n^th^ character of a string can be obtained by specifying the index within square
-brackets, as demonstrated in the following example.
+字符串的第 n 个字符可以通过在方括号内指定索引来获取，如下例所示。
 
-NOTE: The n^th^ character of a string will evaluate to a `java.lang.String`, not a
-`java.lang.Character`.
+NOTE: 字符串的第 n 个字符将评估为 `java.lang.String`，而不是 `java.lang.Character`。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// evaluates to "T" (8th letter of "Nikola Tesla")
+// 评估结果为 "T" ("Nikola Tesla" 的第 8 个字母)
 String character = parser.parseExpression("members[0].name[7]")
     .getValue(societyContext, String.class);
 ----
 
 [[expressions-indexing-maps]]
-== Indexing into Maps
+== 索引 Map
 
-The contents of maps are obtained by specifying the key value within square brackets. In
-the following example, because keys for the `officers` map are strings, we can specify
-string literals such as `'president'`:
+Map 的内容通过在方括号内指定键值来获取。
+在下例中，因为 `officers` Map 的键是字符串，我们可以指定字符串字面量，如 `'president'`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Officer's Map
+// 官员 Map
 
-// evaluates to Inventor("Pupin")
+// 评估结果为 Inventor("Pupin")
 Inventor pupin = parser.parseExpression("officers['president']")
     .getValue(societyContext, Inventor.class);
 
-// evaluates to "Idvor"
+// 评估结果为 "Idvor"
 String city = parser.parseExpression("officers['president'].placeOfBirth.city")
     .getValue(societyContext, String.class);
 
 String countryExpression = "officers['advisors'][0].placeOfBirth.country";
 
-// setting values
+// 设置值
 parser.parseExpression(countryExpression)
     .setValue(societyContext, "Croatia");
 
-// evaluates to "Croatia"
+// 评估结果为 "Croatia"
 String country = parser.parseExpression(countryExpression)
     .getValue(societyContext, String.class);
 ----
 
 [[expressions-indexing-objects]]
-== Indexing into Objects
+== 索引对象
 
-A property of an object can be obtained by specifying the name of the property within
-square brackets. This is analogous to accessing the value of a map based on its key. The
-following example demonstrates how to _index_ into an object to retrieve a specific
-property.
+对象的属性可以通过在方括号内指定属性名称来获取。
+这类似于基于键访问 Map 的值。
+下例演示了如何_索引_对象以检索特定属性。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Create an inventor to use as the root context object.
+// 创建一个发明家作为根上下文对象。
 Inventor tesla = new Inventor("Nikola Tesla");
 
-// evaluates to "Nikola Tesla"
+// 评估结果为 "Nikola Tesla"
 String name = parser.parseExpression("#root['name']")
     .getValue(context, tesla, String.class);
 ----
 
 [[expressions-indexing-custom]]
-== Indexing into Custom Structures
+== 索引自定义结构
 
-the Infra Expression Language supports indexing into custom
-structures by allowing developers to implement and register an `IndexAccessor` with the
-`EvaluationContext`. If you would like to support
-xref:core/expressions/evaluation.adoc#expressions-spel-compilation[compilation] of
-expressions that rely on a custom index accessor, that index accessor must implement the
-`CompilableIndexAccessor` SPI.
+Infra 表达式语言支持通过允许开发人员实现 `IndexAccessor` 并将其注册到 `EvaluationContext`
+来索引自定义结构。如果你想支持依赖于自定义索引访问器的表达式的
+xref:core/expressions/evaluation.adoc#expressions-spel-compilation[编译]，
+该索引访问器必须实现 `CompilableIndexAccessor` SPI。
 
-To support common use cases, Spring provides a built-in `ReflectiveIndexAccessor` which
-is a flexible `IndexAccessor` that uses reflection to read from and optionally write to
-an indexed structure of a target object. The indexed structure can be accessed through a
-`public` read-method (when being read) or a `public` write-method (when being written).
-The relationship between the read-method and write-method is based on a convention that
-is applicable for typical implementations of indexed structures.
+为了支持常见用例，Infra 提供了一个内置的 `ReflectiveIndexAccessor`，
+它是一个灵活的 `IndexAccessor`，使用反射读取和可选地写入目标对象的索引结构。
+索引结构可以通过 `public` 读取方法（读取时）或 `public` 写入方法（写入时）访问。
+读取方法和写入方法之间的关系基于适用于索引结构典型实现的约定。
 
-NOTE: `ReflectiveIndexAccessor` also implements `CompilableIndexAccessor` in order to
-support xref:core/expressions/evaluation.adoc#expressions-spel-compilation[compilation]
-to bytecode for read access. Note, however, that the configured read-method must be
-invokable via a `public` class or `public` interface for compilation to succeed.
+NOTE: `ReflectiveIndexAccessor` 也实现了 `CompilableIndexAccessor`，以支持
+xref:core/expressions/evaluation.adoc#expressions-spel-compilation[编译] 为字节码以进行读取访问。
+但是请注意，配置的读取方法必须可以通过 `public` 类或 `public` 接口调用，编译才能成功。
 
-The following code listings define a `Color` enum and `FruitMap` type that behaves like a
-map but does not implement the `java.util.Map` interface. Thus, if you want to index into
-a `FruitMap` within a SpEL expression, you will need to register an `IndexAccessor`.
+以下代码清单定义了一个 `Color` 枚举和一个 `FruitMap` 类型，该类型表现得像 map 但不实现 `java.util.Map` 接口。
+因此，如果你想在 SpEL 表达式中索引 `FruitMap`，你需要注册一个 `IndexAccessor`。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -199,34 +182,19 @@ public class FruitMap {
 }
 ----
 
-A read-only `IndexAccessor` for `FruitMap` can be created via `new
-ReflectiveIndexAccessor(FruitMap.class, Color.class, "getFruit")`. With that accessor
-registered and a `FruitMap` registered as a variable named `#fruitMap`, the SpEL
-expression `#fruitMap[T(example.Color).RED]` will evaluate to `"cherry"`.
-
-A read-write `IndexAccessor` for `FruitMap` can be created via `new
-ReflectiveIndexAccessor(FruitMap.class, Color.class, "getFruit", "setFruit")`. With that
-accessor registered and a `FruitMap` registered as a variable named `#fruitMap`, the SpEL
-expression `#fruitMap[T(example.Color).RED] = 'strawberry'` can be used to change the
-fruit mapping for the color red from `"cherry"` to `"strawberry"`.
-
-The following example demonstrates how to register a `ReflectiveIndexAccessor` to index
-into a `FruitMap` and then index into the `FruitMap` within a SpEL expression.
-
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Create a ReflectiveIndexAccessor for FruitMap
+// 为 FruitMap 创建一个 ReflectiveIndexAccessor
 IndexAccessor fruitMapAccessor = new ReflectiveIndexAccessor(
     FruitMap.class, Color.class, "getFruit", "setFruit");
 
-// Register the IndexAccessor for FruitMap
+// 注册 FruitMap 的 IndexAccessor
 context.addIndexAccessor(fruitMapAccessor);
 
-// Register the fruitMap variable
+// 注册 fruitMap 变量
 context.setVariable("fruitMap", new FruitMap());
 
-// evaluates to "cherry"
+// 评估结果为 "cherry"
 String fruit = parser.parseExpression("#fruitMap[T(example.Color).RED]")
     .getValue(context, String.class);
 ----
-

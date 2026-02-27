@@ -1,11 +1,11 @@
 [[expressions-collection-projection]]
-= Collection Projection
+= 集合投影
 
-Projection lets a collection drive the evaluation of a sub-expression, and the result is
-a new collection. The syntax for projection is `.![projectionExpression]`. For example,
-suppose we have a list of inventors but want the list of cities where they were born.
-Effectively, we want to evaluate `placeOfBirth.city` for every entry in the inventor
-list. The following example uses projection to do so:
+投影（Projection）允许集合驱动子表达式的评估，结果是一个新的集合。
+投影的语法是 `.![projectionExpression]`。
+例如，假设我们有一个发明家列表，但想要他们出生的城市列表。
+实际上，我们想要对发明家列表中的每个条目评估 `placeOfBirth.city`。
+下例使用投影来做到这一点：
 
 [tabs]
 ======
@@ -13,25 +13,21 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// evaluates to ["Smiljan", "Idvor"]
+	// 评估结果为 ["Smiljan", "Idvor"]
 List placesOfBirth = parser.parseExpression("members.![placeOfBirth.city]")
     .getValue(societyContext, List.class);
 ----
 
 ======
 
-Projection is supported for arrays and anything that implements `java.lang.Iterable` or
-`java.util.Map`. When using a map to drive projection, the projection expression is
-evaluated against each entry in the map (represented as a Java `Map.Entry`). The result
-of a projection across a map is a list that consists of the evaluation of the projection
-expression against each map entry.
+数组和任何实现了 `java.lang.Iterable` 或 `java.util.Map` 的对象都支持投影。
+当使用 map 驱动投影时，投影表达式将针对 map 中的每个条目（表示为 Java `Map.Entry`）进行评估。
+跨 map 投影的结果是一个列表，该列表包含针对每个 map 条目评估投影表达式的结果。
 
 [NOTE]
 ====
-The Infra Expression Language also supports safe navigation for collection projection.
+Infra 表达式语言还支持用于集合投影的安全导航。
 
-See
-xref:core/expressions/language-ref/operator-safe-navigation.adoc#expressions-operator-safe-navigation-selection-and-projection[Safe Collection Selection and Projection]
-for details.
+有关详细信息，请参阅
+xref:core/expressions/language-ref/operator-safe-navigation.adoc#expressions-operator-safe-navigation-selection-and-projection[安全的集合选择和投影]。
 ====
-

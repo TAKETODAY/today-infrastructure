@@ -1,17 +1,14 @@
 [[format-configuring-formatting-globaldatetimeformat]]
-= Configuring a Global Date and Time Format
+= 配置全局日期和时间格式
 
-By default, date and time fields not annotated with `@DateTimeFormat` are converted from
-strings by using the `DateFormat.SHORT` style. If you prefer, you can change this by
-defining your own global format.
+默认情况下，未用 `@DateTimeFormat` 注解的日期和时间字段将使用 `DateFormat.SHORT` 样式从字符串转换。如果您愿意，可以通过定义自己的全局格式来更改此设置。
 
-To do that, ensure that Infra does not register default formatters. Instead, register
-formatters manually with the help of:
+为此，请确保 Infra 不注册默认格式化程序。相反，请借助以下类手动注册格式化程序：
 
 * `infra.format.datetime.standard.DateTimeFormatterRegistrar`
 * `infra.format.datetime.DateFormatterRegistrar`
 
-For example, the following configuration registers a global `yyyyMMdd` format:
+例如，以下配置注册了一个全局 `yyyyMMdd` 格式：
 
 [source,java]
 ----
@@ -21,20 +18,20 @@ public class ApplicationConfiguration {
   @Bean
   public FormattingConversionService conversionService() {
 
-    // Use the DefaultFormattingConversionService but do not register defaults
+    // 使用 DefaultFormattingConversionService 但不注册默认值
     DefaultFormattingConversionService conversionService =
             new DefaultFormattingConversionService(false);
 
-    // Ensure @NumberFormat is still supported
+    // 确保仍然支持 @NumberFormat
     conversionService.addFormatterForFieldAnnotation(
             new NumberFormatAnnotationFormatterFactory());
 
-    // Register JSR-310 date conversion with a specific global format
+    // 使用特定的全局格式注册 JSR-310 日期转换
     DateTimeFormatterRegistrar dateTimeRegistrar = new DateTimeFormatterRegistrar();
     dateTimeRegistrar.setDateFormatter(DateTimeFormatter.ofPattern("yyyyMMdd"));
     dateTimeRegistrar.registerFormatters(conversionService);
 
-    // Register date conversion with a specific global format
+    // 使用特定的全局格式注册日期转换
     DateFormatterRegistrar dateRegistrar = new DateFormatterRegistrar();
     dateRegistrar.setFormatter(new DateFormatter("yyyyMMdd"));
     dateRegistrar.registerFormatters(conversionService);
@@ -44,9 +41,5 @@ public class ApplicationConfiguration {
 }
 ----
 
-Note there are extra considerations when configuring date and time formats in web
-applications. Please see
-xref:web/webmvc/mvc-config/conversion.adoc[WebMVC Conversion and Formatting].
-
-
-
+请注意，在 Web 应用程序中配置日期和时间格式时还有其他注意事项。请参阅
+xref:web/webmvc/mvc-config/conversion.adoc[WebMVC 转换和格式化]。

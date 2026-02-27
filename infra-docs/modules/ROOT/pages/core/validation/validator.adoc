@@ -1,11 +1,9 @@
 [[validator]]
-= Validation by Using Infra Validator Interface
+= 使用 Infra Validator 接口进行验证
 
-Infra features a `Validator` interface that you can use to validate objects. The
-`Validator` interface works by using an `Errors` object so that, while validating,
-validators can report validation failures to the `Errors` object.
+Infra 提供了一个 `Validator` 接口，您可以使用它来验证对象。`Validator` 接口通过使用 `Errors` 对象工作，以便在验证时，验证器可以向 `Errors` 对象报告验证失败。
 
-Consider the following example of a small data object:
+考虑以下一个小数据对象的示例：
 
 [tabs]
 ======
@@ -18,22 +16,18 @@ public class Person {
   private String name;
   private int age;
 
-  // the usual getters and setters...
+  // 通常的 getter 和 setter...
 }
 ----
 
 ======
 
-The next example provides validation behavior for the `Person` class by implementing the
-following two methods of the `infra.validation.Validator` interface:
+下一个示例通过实现 `infra.validation.Validator` 接口的以下两个方法，为 `Person` 类提供验证行为：
 
-* `supports(Class)`: Can this `Validator` validate instances of the supplied `Class`?
-* `validate(Object, infra.validation.Errors)`: Validates the given object
-  and, in case of validation errors, registers those with the given `Errors` object.
+* `supports(Class)`：此 `Validator` 是否可以验证提供的 `Class` 的实例？
+* `validate(Object, infra.validation.Errors)`：验证给定的对象，如果出现验证错误，则将其注册到给定的 `Errors` 对象中。
 
-Implementing a `Validator` is fairly straightforward, especially when you know of the
-`ValidationUtils` helper class that the TODAY Framework also provides. The following
-example implements `Validator` for `Person` instances:
+实现 `Validator` 相当简单，尤其是当您知道 TODAY Framework 还提供的 `ValidationUtils` 辅助类时。以下示例为 `Person` 实例实现了 `Validator`：
 
 [tabs]
 ======
@@ -44,7 +38,7 @@ Java::
 public class PersonValidator implements Validator {
 
   /**
-   * This Validator validates only Person instances
+   * 此 Validator 仅验证 Person 实例
    */
   public boolean supports(Class clazz) {
     return Person.class.equals(clazz);
@@ -64,21 +58,9 @@ public class PersonValidator implements Validator {
 
 ======
 
-The `static` `rejectIfEmpty(..)` method on the `ValidationUtils` class is used to
-reject the `name` property if it is `null` or the empty string. Have a look at the
-{today-framework-api}/validation/ValidationUtils.html[`ValidationUtils`] javadoc
-to see what functionality it provides besides the example shown previously.
+`ValidationUtils` 类上的 `static` `rejectIfEmpty(..)` 方法用于在 `name` 属性为 `null` 或空字符串时拒绝该属性。请查看 {today-framework-api}/validation/ValidationUtils.html[`ValidationUtils`] javadoc，以了解除了前面显示的示例之外，它还提供了哪些功能。
 
-While it is certainly possible to implement a single `Validator` class to validate each
-of the nested objects in a rich object, it may be better to encapsulate the validation
-logic for each nested class of object in its own `Validator` implementation. A simple
-example of a "`rich`" object would be a `Customer` that is composed of two `String`
-properties (a first and a second name) and a complex `Address` object. `Address` objects
-may be used independently of `Customer` objects, so a distinct `AddressValidator`
-has been implemented. If you want your `CustomerValidator` to reuse the logic contained
-within the `AddressValidator` class without resorting to copy-and-paste, you can
-dependency-inject or instantiate an `AddressValidator` within your `CustomerValidator`,
-as the following example shows:
+虽然实现单个 `Validator` 类来验证富对象中的每个嵌套对象当然是可能的，但最好将每个嵌套对象类的验证逻辑封装在其自己的 `Validator` 实现中。"`富`"对象的一个简单示例是 `Customer`，它由两个 `String` 属性（名字和姓氏）和一个复杂的 `Address` 对象组成。`Address` 对象可以独立于 `Customer` 对象使用，因此实现了一个独特的 `AddressValidator`。如果您希望您的 `CustomerValidator` 重用 `AddressValidator` 类中包含的逻辑，而不求助于复制和粘贴，您可以在 `CustomerValidator` 中依赖注入或实例化一个 `AddressValidator`，如下例所示：
 
 [tabs]
 ======
@@ -103,7 +85,7 @@ public class CustomerValidator implements Validator {
   }
 
   /**
-   * This Validator validates Customer instances, and any subclasses of Customer too
+   * 此 Validator 验证 Customer 实例，以及 Customer 的任何子类
    */
   public boolean supports(Class clazz) {
     return Customer.class.isAssignableFrom(clazz);
@@ -125,17 +107,6 @@ public class CustomerValidator implements Validator {
 
 ======
 
-Validation errors are reported to the `Errors` object passed to the validator. In the case
-of Infra Web MVC, you can use the `<spring:bind/>` tag to inspect the error messages, but
-you can also inspect the `Errors` object yourself. More information about the
-methods it offers can be found in the {today-framework-api}/validation/Errors.html[javadoc].
+验证错误将报告给传递给验证器的 `Errors` 对象。在 Infra Web MVC 的情况下，您可以使用 `<spring:bind/>` 标签来检查错误消息，但您也可以自己检查 `Errors` 对象。有关其提供的方法的更多信息，请参阅 {today-framework-api}/validation/Errors.html[javadoc]。
 
-Validators may also get locally invoked for the immediate validation of a given object,
-not involving a binding process. As of 6.1, this has been simplified through a new
-`Validator.validateObject(Object)` method which is available by default now, returning
-a simple ´Errors` representation which can be inspected: typically calling `hasErrors()`
-or the new `failOnError` method for turning the error summary message into an exception
-(e.g. `validator.validateObject(myObject).failOnError(IllegalArgumentException::new)`).
-
-
-
+验证器也可以在本地调用，以便立即验证给定对象，而不涉及绑定过程。从 6.1 开始，这已通过一个新的 `Validator.validateObject(Object)` 方法得到简化，该方法现在默认可用，返回一个简单的 `Errors` 表示形式，可以对其进行检查：通常调用 `hasErrors()` 或新的 `failOnError` 方法将错误摘要消息转换为异常（例如 `validator.validateObject(myObject).failOnError(IllegalArgumentException::new)`）。

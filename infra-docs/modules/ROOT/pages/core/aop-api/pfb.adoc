@@ -1,155 +1,80 @@
 [[aop-pfb]]
-= Using the `ProxyFactoryBean` to Create AOP Proxies
+= 使用 `ProxyFactoryBean` 创建 AOP 代理
 
-If you use the Infra IoC container (an `ApplicationContext` or `BeanFactory`) for your
-business objects (and you should be!), you want to use one of Infra AOP
-`FactoryBean` implementations. (Remember that a factory bean introduces a layer of indirection, letting
-it create objects of a different type.)
+如果您为业务对象使用 Infra IoC 容器（`ApplicationContext` 或 `BeanFactory`）（您应该这样做！），您会希望使用 Infra AOP `FactoryBean` 实现之一。（请记住，工厂 bean 引入了一个间接层，让它创建不同类型的对象。）
 
-NOTE: The Infra AOP support also uses factory beans under the covers.
+NOTE: Infra AOP 支持也在幕后使用工厂 bean。
 
-The basic way to create an AOP proxy in Infra is to use the
-`infra.aop.framework.ProxyFactoryBean`. This gives complete control over
-the pointcuts, any advice that applies, and their ordering. However, there are simpler
-options that are preferable if you do not need such control.
+在 Infra 中创建 AOP 代理的基本方法是使用 `infra.aop.framework.ProxyFactoryBean`。这可以完全控制切入点、任何适用的通知及其顺序。但是，如果您不需要此类控制，则有更简单的选项可供选择。
 
 
 
 [[aop-pfb-1]]
-== Basics
+== 基础
 
-The `ProxyFactoryBean`, like other Infra `FactoryBean` implementations, introduces a
-level of indirection. If you define a `ProxyFactoryBean` named `foo`, objects that
-reference `foo` do not see the `ProxyFactoryBean` instance itself but an object
-created by the implementation of the `getObject()` method in the `ProxyFactoryBean` . This
-method creates an AOP proxy that wraps a target object.
+与其他 Infra `FactoryBean` 实现一样，`ProxyFactoryBean` 引入了一个间接级别。如果您定义一个名为 `foo` 的 `ProxyFactoryBean`，则引用 `foo` 的对象看到的不是 `ProxyFactoryBean` 实例本身，而是由 `ProxyFactoryBean` 中的 `getObject()` 方法实现创建的对象。此方法创建一个包装目标对象的 AOP 代理。
 
-One of the most important benefits of using a `ProxyFactoryBean` or another IoC-aware
-class to create AOP proxies is that advice and pointcuts can also be
-managed by IoC. This is a powerful feature, enabling certain approaches that are hard to
-achieve with other AOP frameworks. For example, an advice may itself reference
-application objects (besides the target, which should be available in any AOP
-framework), benefiting from all the pluggability provided by Dependency Injection.
+使用 `ProxyFactoryBean` 或其他具有 IoC 感知的类来创建 AOP 代理的最重要好处之一是，通知和切入点也可以由 IoC 管理。这是一个强大的功能，可以实现其他 AOP 框架难以实现的方法。例如，通知本身可以引用应用程序对象（除了目标，这在任何 AOP 框架中都应该是可用的），从而受益于依赖注入提供的所有可插拔性。
 
 
 
 [[aop-pfb-2]]
-== JavaBean Properties
+== JavaBean 属性
 
-In common with most `FactoryBean` implementations provided with Infra-, the
-`ProxyFactoryBean` class is itself a JavaBean. Its properties are used to:
+与 Infra 提供的大多数 `FactoryBean` 实现一样，`ProxyFactoryBean` 类本身就是一个 JavaBean。其属性用于：
 
-* Specify the target you want to proxy.
-* Specify whether to use CGLIB (described later and see also xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[JDK- and CGLIB-based proxies]).
+* 指定要代理的目标。
+* 指定是否使用 CGLIB（稍后描述，另请参阅 xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[基于 JDK 和 CGLIB 的代理]）。
 
-Some key properties are inherited from `infra.aop.framework.ProxyConfig`
-(the superclass for all AOP proxy factories in Infra). These key properties include
-the following:
+一些关键属性继承自 `infra.aop.framework.ProxyConfig`（Infra 中所有 AOP 代理工厂的超类）。这些关键属性包括：
 
-* `proxyTargetClass`: `true` if the target class is to be proxied, rather than the
-  target class's interfaces. If this property value is set to `true`, then CGLIB proxies
-  are created (but see also xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[JDK- and CGLIB-based proxies]).
-* `optimize`: Controls whether or not aggressive optimizations are applied to proxies
-  created through CGLIB. You should not blithely use this setting unless you fully
-  understand how the relevant AOP proxy handles optimization. This is currently used
-  only for CGLIB proxies. It has no effect with JDK dynamic proxies.
-* `frozen`: If a proxy configuration is `frozen`, changes to the configuration are
-  no longer allowed. This is useful both as a slight optimization and for those cases
-  when you do not want callers to be able to manipulate the proxy (through the `Advised`
-  interface) after the proxy has been created. The default value of this property is
-  `false`, so changes (such as adding additional advice) are allowed.
-* `exposeProxy`: Determines whether or not the current proxy should be exposed in a
-  `ThreadLocal` so that it can be accessed by the target. If a target needs to obtain
-  the proxy and the `exposeProxy` property is set to `true`, the target can use the
-  `AopContext.currentProxy()` method.
+* `proxyTargetClass`：如果要代理目标类而不是目标类的接口，则为 `true`。如果将此属性值设置为 `true`，则会创建 CGLIB 代理（但另请参阅 xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[基于 JDK 和 CGLIB 的代理]）。
+* `optimize`：控制是否对通过 CGLIB 创建的代理应用激进的优化。除非您完全了解相关 AOP 代理如何处理优化，否则不应轻易使用此设置。这目前仅用于 CGLIB 代理。它对 JDK 动态代理没有影响。
+* `frozen`：如果代理配置被 `frozen`，则不再允许更改配置。这既可用作轻微的优化，也适用于您不希望调用者在创建代理后（通过 `Advised` 接口）操作代理的情况。此属性的默认值为 `false`，因此允许更改（例如添加其他通知）。
+* `exposeProxy`：确定当前代理是否应在 `ThreadLocal` 中公开，以便目标可以访问它。如果目标需要获取代理并且 `exposeProxy` 属性设置为 `true`，则目标可以使用 `AopContext.currentProxy()` 方法。
 
-Other properties specific to `ProxyFactoryBean` include the following:
+特定于 `ProxyFactoryBean` 的其他属性包括：
 
-* `proxyInterfaces`: An array of `String` interface names. If this is not supplied, a CGLIB
-  proxy for the target class is used (but see also xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[JDK- and CGLIB-based proxies]).
-* `interceptorNames`: A `String` array of `Advisor`, interceptor, or other advice names to
-  apply. Ordering is significant, on a first come-first served basis. That is to say
-  that the first interceptor in the list is the first to be able to intercept the
-  invocation.
+* `proxyInterfaces`：`String` 接口名称数组。如果未提供此项，则使用目标类的 CGLIB 代理（但另请参阅 xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[基于 JDK 和 CGLIB 的代理]）。
+* `interceptorNames`：要应用的 `Advisor`、拦截器或其他通知名称的 `String` 数组。顺序很重要，遵循先到先得的原则。也就是说，列表中的第一个拦截器是第一个能够拦截调用的拦截器。
 +
-The names are bean names in the current factory, including bean names from ancestor
-factories. You cannot mention bean references here, since doing so results in the
-`ProxyFactoryBean` ignoring the singleton setting of the advice.
+这些名称是当前工厂中的 bean 名称，包括来自祖先工厂的 bean 名称。您不能在此处提及 bean 引用，因为这样做会导致 `ProxyFactoryBean` 忽略通知的单例设置。
 +
-You can append an interceptor name with an asterisk (`*`). Doing so results in the
-application of all advisor beans with names that start with the part before the asterisk
-to be applied. You can find an example of using this feature in xref:core/aop-api/pfb.adoc#aop-global-advisors[Using "`Global`" Advisors].
+您可以在拦截器名称后附加星号（`*`）。这样做会导致应用名称以星号之前的部分开头的所有 advisor bean。您可以在 xref:core/aop-api/pfb.adoc#aop-global-advisors[使用“`全局`”Advisor] 中找到使用此功能的示例。
 
-* singleton: Whether or not the factory should return a single object, no matter how
-  often the `getObject()` method is called. Several `FactoryBean` implementations offer
-  such a method. The default value is `true`. If you want to use stateful advice - for
-  example, for stateful mixins - use prototype advice along with a singleton value of
-  `false`.
+* singleton：无论调用 `getObject()` 方法多少次，工厂是否都应返回单个对象。几个 `FactoryBean` 实现都提供了这种方法。默认值为 `true`。如果您想使用有状态通知 - 例如，对于有状态 mixin - 请使用原型通知以及单例值为 `false`。
 
 
 
 [[aop-pfb-proxy-types]]
-== JDK- and CGLIB-based proxies
+== 基于 JDK 和 CGLIB 的代理
 
-This section serves as the definitive documentation on how the `ProxyFactoryBean`
-chooses to create either a JDK-based proxy or a CGLIB-based proxy for a particular target
-object (which is to be proxied).
+本节作为关于 `ProxyFactoryBean` 如何选择为特定目标对象（要代理的对象）创建基于 JDK 的代理或基于 CGLIB 的代理的权威文档。
 
-NOTE: The behavior of the `ProxyFactoryBean` with regard to creating JDK- or CGLIB-based
-proxies changed between versions 1.2.x and 2.0 of Infra. The `ProxyFactoryBean` now
-exhibits similar semantics with regard to auto-detecting interfaces as those of the
-`TransactionProxyFactoryBean` class.
+NOTE: `ProxyFactoryBean` 在创建基于 JDK 或 CGLIB 的代理方面的行为在 Infra 的 1.2.x 和 2.0 版本之间发生了变化。`ProxyFactoryBean` 现在在自动检测接口方面表现出与 `TransactionProxyFactoryBean` 类相似的语义。
 
-If the class of a target object that is to be proxied (hereafter simply referred to as
-the target class) does not implement any interfaces, a CGLIB-based proxy is
-created. This is the easiest scenario, because JDK proxies are interface-based, and no
-interfaces means JDK proxying is not even possible. You can plug in the target bean
-and specify the list of interceptors by setting the `interceptorNames` property. Note that a
-CGLIB-based proxy is created even if the `proxyTargetClass` property of the
-`ProxyFactoryBean` has been set to `false`. (Doing so makes no sense and is best
-removed from the bean definition, because it is, at best, redundant, and, at worst
-confusing.)
+如果要代理的目标对象的类（以下简称为目标类）未实现任何接口，则会创建基于 CGLIB 的代理。这是最简单的场景，因为 JDK 代理是基于接口的，没有接口意味着甚至无法进行 JDK 代理。您可以插入目标 bean 并通过设置 `interceptorNames` 属性指定拦截器列表。请注意，即使 `ProxyFactoryBean` 的 `proxyTargetClass` 属性已设置为 `false`，也会创建基于 CGLIB 的代理。（这样做毫无意义，最好从 bean 定义中删除，因为它充其量是多余的，最坏的情况是令人困惑。）
 
-If the target class implements one (or more) interfaces, the type of proxy that is
-created depends on the configuration of the `ProxyFactoryBean`.
+如果目标类实现了一个（或多个）接口，则创建的代理类型取决于 `ProxyFactoryBean` 的配置。
 
-If the `proxyTargetClass` property of the `ProxyFactoryBean` has been set to `true`,
-a CGLIB-based proxy is created. This makes sense and is in keeping with the
-principle of least surprise. Even if the `proxyInterfaces` property of the
-`ProxyFactoryBean` has been set to one or more fully qualified interface names, the fact
-that the `proxyTargetClass` property is set to `true` causes CGLIB-based
-proxying to be in effect.
+如果 `ProxyFactoryBean` 的 `proxyTargetClass` 属性已设置为 `true`，则会创建基于 CGLIB 的代理。这很有意义，并且符合最小惊讶原则。即使 `ProxyFactoryBean` 的 `proxyInterfaces` 属性已设置为一个或多个完全限定的接口名称，`proxyTargetClass` 属性设置为 `true` 的事实也会导致基于 CGLIB 的代理生效。
 
-If the `proxyInterfaces` property of the `ProxyFactoryBean` has been set to one or more
-fully qualified interface names, a JDK-based proxy is created. The created
-proxy implements all of the interfaces that were specified in the `proxyInterfaces`
-property. If the target class happens to implement a whole lot more interfaces than
-those specified in the `proxyInterfaces` property, that is all well and good, but those
-additional interfaces are not implemented by the returned proxy.
+如果 `ProxyFactoryBean` 的 `proxyInterfaces` 属性已设置为一个或多个完全限定的接口名称，则会创建基于 JDK 的代理。创建的代理实现了 `proxyInterfaces` 属性中指定的所有接口。如果目标类恰好实现了比 `proxyInterfaces` 属性中指定的接口多得多的接口，那也没关系，但返回的代理不会实现这些额外的接口。
 
-If the `proxyInterfaces` property of the `ProxyFactoryBean` has not been set, but
-the target class does implement one (or more) interfaces, the
-`ProxyFactoryBean` auto-detects the fact that the target class does actually
-implement at least one interface, and a JDK-based proxy is created. The interfaces
-that are actually proxied are all of the interfaces that the target class
-implements. In effect, this is the same as supplying a list of each and every
-interface that the target class implements to the `proxyInterfaces` property. However,
-it is significantly less work and less prone to typographical errors.
+如果未设置 `ProxyFactoryBean` 的 `proxyInterfaces` 属性，但目标类确实实现了一个（或多个）接口，则 `ProxyFactoryBean` 会自动检测到目标类实际上至少实现了一个接口的事实，并创建一个基于 JDK 的代理。实际代理的接口是目标类实现的所有接口。实际上，这与向 `proxyInterfaces` 属性提供目标类实现的每个接口的列表相同。但是，它的工作量要少得多，而且不太容易出现拼写错误。
 
 
 
 [[aop-api-proxying-intf]]
-== Proxying Interfaces
+== 代理接口
 
-Consider a simple example of `ProxyFactoryBean` in action. This example involves:
+考虑一个 `ProxyFactoryBean` 的简单示例。此示例涉及：
 
-* A target bean that is proxied. This is the `personTarget` bean definition in
-  the example.
-* An `Advisor` and an `Interceptor` used to provide advice.
-* An AOP proxy bean definition to specify the target object (the `personTarget` bean),
-  the interfaces to proxy, and the advice to apply.
+* 一个被代理的目标 bean。这是示例中的 `personTarget` bean 定义。
+* 用于提供通知的 `Advisor` 和 `Interceptor`。
+* 一个 AOP 代理 bean 定义，用于指定目标对象（`personTarget` bean）、要代理的接口以及要应用的通知。
 
-The following listing shows the example:
+以下清单显示了该示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -179,18 +104,11 @@ The following listing shows the example:
 </bean>
 ----
 
-Note that the `interceptorNames` property takes a list of `String`, which holds the bean names of the
-interceptors or advisors in the current factory. You can use advisors, interceptors, before, after
-returning, and throws advice objects. The ordering of advisors is significant.
+请注意，`interceptorNames` 属性采用 `String` 列表，其中包含当前工厂中拦截器或 advisor 的 bean 名称。您可以使用 advisor、拦截器、前置、返回后和抛出通知对象。advisor 的顺序很重要。
 
-NOTE: You might be wondering why the list does not hold bean references. The reason for this is
-that, if the singleton property of the `ProxyFactoryBean` is set to `false`, it must be able to
-return independent proxy instances. If any of the advisors is itself a prototype, an
-independent instance would need to be returned, so it is necessary to be able to obtain
-an instance of the prototype from the factory. Holding a reference is not sufficient.
+NOTE: 您可能想知道为什么列表不包含 bean 引用。其原因是，如果 `ProxyFactoryBean` 的 singleton 属性设置为 `false`，它必须能够返回独立的代理实例。如果任何 advisor 本身是原型的，则需要返回一个独立的实例，因此必须能够从工厂获取原型的实例。持有引用是不够的。
 
-The `person` bean definition shown earlier can be used in place of a `Person` implementation, as
-follows:
+前面显示的 `person` bean 定义可以用来代替 `Person` 实现，如下所示：
 
 [tabs]
 ======
@@ -198,128 +116,3 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	Person person = (Person) factory.getBean("person");
-----
-
-======
-
-Other beans in the same IoC context can express a strongly typed dependency on it, as
-with an ordinary Java object. The following example shows how to do so:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="personUser" class="com.mycompany.PersonUser">
-  <property name="person"><ref bean="person"/></property>
-</bean>
-----
-
-The `PersonUser` class in this example exposes a property of type `Person`. As far as
-it is concerned, the AOP proxy can be used transparently in place of a "`real`" person
-implementation. However, its class would be a dynamic proxy class. It would be possible
-to cast it to the `Advised` interface (discussed later).
-
-You can conceal the distinction between target and proxy by using an anonymous
-inner bean. Only the `ProxyFactoryBean` definition is different. The
-advice is included only for completeness. The following example shows how to use an
-anonymous inner bean:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="myAdvisor" class="com.mycompany.MyAdvisor">
-  <property name="someProperty" value="Custom string property value"/>
-</bean>
-
-<bean id="debugInterceptor" class="infra.aop.interceptor.DebugInterceptor"/>
-
-<bean id="person" class="infra.aop.framework.ProxyFactoryBean">
-  <property name="proxyInterfaces" value="com.mycompany.Person"/>
-  <!-- Use inner bean, not local reference to target -->
-  <property name="target">
-    <bean class="com.mycompany.PersonImpl">
-      <property name="name" value="Tony"/>
-      <property name="age" value="51"/>
-    </bean>
-  </property>
-  <property name="interceptorNames">
-    <list>
-      <value>myAdvisor</value>
-      <value>debugInterceptor</value>
-    </list>
-  </property>
-</bean>
-----
-
-Using an anonymous inner bean has the advantage that there is only one object of type `Person`. This is useful if we want
-to prevent users of the application context from obtaining a reference to the un-advised
-object or need to avoid any ambiguity with Infra IoC autowiring. There is also,
-arguably, an advantage in that the `ProxyFactoryBean` definition is self-contained.
-However, there are times when being able to obtain the un-advised target from the
-factory might actually be an advantage (for example, in certain test scenarios).
-
-
-
-[[aop-api-proxying-class]]
-== Proxying Classes
-
-What if you need to proxy a class, rather than one or more interfaces?
-
-Imagine that in our earlier example, there was no `Person` interface. We needed to advise
-a class called `Person` that did not implement any business interface. In this case, you
-can configure Infra to use CGLIB proxying rather than dynamic proxies. To do so, set the
-`proxyTargetClass` property on the `ProxyFactoryBean` shown earlier to `true`. While it is best to
-program to interfaces rather than classes, the ability to advise classes that do not
-implement interfaces can be useful when working with legacy code. (In general, Infra
-is not prescriptive. While it makes it easy to apply good practices, it avoids forcing a
-particular approach.)
-
-If you want to, you can force the use of CGLIB in any case, even if you do have
-interfaces.
-
-CGLIB proxying works by generating a subclass of the target class at runtime. Infra
-configures this generated subclass to delegate method calls to the original target. The
-subclass is used to implement the Decorator pattern, weaving in the advice.
-
-CGLIB proxying should generally be transparent to users. However, there are some issues
-to consider:
-
-* `final` classes cannot be proxied, because they cannot be extended.
-* `final` methods cannot be advised, because they cannot be overridden.
-* `private` methods cannot be advised, because they cannot be overridden.
-* Methods that are not visible, typically package private methods in a parent class
-from a different package, cannot be advised because they are effectively private.
-
-NOTE: There is no need to add CGLIB to your classpath. CGLIB is repackaged and included
-in the `infra-core` JAR. In other words, CGLIB-based AOP works "out of the box", as do
-JDK dynamic proxies.
-
-There is little performance difference between CGLIB proxies and dynamic proxies.
-Performance should not be a decisive consideration in this case.
-
-
-
-[[aop-global-advisors]]
-== Using "`Global`" Advisors
-
-By appending an asterisk to an interceptor name, all advisors with bean names that match
-the part before the asterisk are added to the advisor chain. This can come in handy
-if you need to add a standard set of "`global`" advisors. The following example defines
-two global advisors:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="proxy" class="infra.aop.framework.ProxyFactoryBean">
-  <property name="target" ref="service"/>
-  <property name="interceptorNames">
-    <list>
-      <value>global*</value>
-    </list>
-  </property>
-</bean>
-
-<bean id="global_debug" class="infra.aop.interceptor.DebugInterceptor"/>
-<bean id="global_performance" class="infra.aop.interceptor.PerformanceMonitorInterceptor"/>
-----
-
-
-
-

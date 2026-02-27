@@ -1,9 +1,8 @@
 [[expressions-bean-references]]
-= Bean References
+= Bean 引用
 
-If the evaluation context has been configured with a bean resolver, you can
-look up beans from an expression by using the `@` symbol. The following example shows how
-to do so:
+如果评估上下文已配置 bean 解析器，你可以使用 `@` 符号从表达式中查找 bean。
+下例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -15,14 +14,14 @@ ExpressionParser parser = new SpelExpressionParser();
 StandardEvaluationContext context = new StandardEvaluationContext();
 context.setBeanResolver(new MyBeanResolver());
 
-// This will end up calling resolve(context,"something") on MyBeanResolver during evaluation
+// 这最终将在评估期间调用 MyBeanResolver 上的 resolve(context,"something")
 Object bean = parser.parseExpression("@something").getValue(context);
 ----
 
 ======
 
-To access a factory bean itself, you should instead prefix the bean name with an `&` symbol.
-The following example shows how to do so:
+要访问工厂 bean 本身，你应该改为在 bean 名称前加上 `&` 符号。
+下例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -34,9 +33,7 @@ Java::
 	StandardEvaluationContext context = new StandardEvaluationContext();
 	context.setBeanResolver(new MyBeanResolver());
 
-	// This will end up calling resolve(context,"&foo") on MyBeanResolver during evaluation
+	// 这最终将在评估期间调用 MyBeanResolver 上的 resolve(context,"&foo")
 	Object bean = parser.parseExpression("&foo").getValue(context);
 ----
 ======
-
-

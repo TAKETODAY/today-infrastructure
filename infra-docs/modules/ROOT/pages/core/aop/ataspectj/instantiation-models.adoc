@@ -1,17 +1,15 @@
 [[aop-instantiation-models]]
-= Aspect Instantiation Models
+= 切面实例化模型
 
-NOTE: This is an advanced topic. If you are just starting out with AOP, you can safely skip
-it until later.
+NOTE: 这是一个高级主题。如果你刚开始接触 AOP，可以放心地跳过它，以后再看。
 
-By default, there is a single instance of each aspect within the application
-context. AspectJ calls this the singleton instantiation model. It is possible to define
-aspects with alternate lifecycles. Infra supports AspectJ's `perthis`, `pertarget`, and
-`pertypewithin` instantiation models; `percflow` and `percflowbelow` are not currently
-supported.
+默认情况下，应用程序上下文中每个切面都有一个单例实例。
+AspectJ 将此称为单例实例化模型。可以用替代的生命周期定义切面。
+Infra 支持 AspectJ 的 `perthis`、`pertarget` 和 `pertypewithin` 实例化模型；
+目前不支持 `percflow` 和 `percflowbelow`。
 
-You can declare a `perthis` aspect by specifying a `perthis` clause in the `@Aspect`
-annotation. Consider the following example:
+你可以通过在 `@Aspect` 注解中指定 `perthis` 子句来声明 `perthis` 切面。
+考虑以下示例：
 
 [tabs]
 ======
@@ -32,18 +30,14 @@ public class MyAspect {
 ----
 ======
 
-In the preceding example, the effect of the `perthis` clause is that one aspect instance
-is created for each unique service object that performs a business service (each unique
-object bound to `this` at join points matched by the pointcut expression). The aspect
-instance is created the first time that a method is invoked on the service object. The
-aspect goes out of scope when the service object goes out of scope. Before the aspect
-instance is created, none of the advice within it runs. As soon as the aspect instance
-has been created, the advice declared within it runs at matched join points, but only
-when the service object is the one with which this aspect is associated. See the AspectJ
-Programming Guide for more information on `per` clauses.
+在前面的例子中，`perthis` 子句的效果是，为每个执行业务服务的唯一服务对象
+（在切点表达式匹配的连接点处绑定到 `this` 的每个唯一对象）创建一个切面实例。
+切面实例是在服务对象上第一次调用方法时创建的。
+当服务对象超出范围时，切面也超出范围。
+在创建切面实例之前，其中的任何通知都不会运行。
+一旦创建了切面实例，其中声明的通知就会在匹配的连接点处运行，
+但前提是服务对象是与此切面关联的对象。
+有关 `per` 子句的更多信息，请参阅 AspectJ 编程指南。
 
-The `pertarget` instantiation model works in exactly the same way as `perthis`, but it
-creates one aspect instance for each unique target object at matched join points.
-
-
-
+`pertarget` 实例化模型的工作方式与 `perthis` 完全相同，
+但它是在匹配的连接点处为每个唯一的目标对象创建一个切面实例。

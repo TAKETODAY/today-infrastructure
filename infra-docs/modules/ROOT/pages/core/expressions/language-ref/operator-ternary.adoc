@@ -1,8 +1,8 @@
 [[expressions-operator-ternary]]
-= Ternary Operator (If-Then-Else)
+= 三元运算符 (If-Then-Else)
 
-You can use the ternary operator for performing if-then-else conditional logic inside
-the expression. The following listing shows a minimal example:
+你可以使用三元运算符在表达式内部执行 if-then-else 条件逻辑。
+以下清单显示了一个最小示例：
 
 [tabs]
 ======
@@ -16,8 +16,8 @@ String falseString = parser.parseExpression(
 
 ======
 
-In this case, the boolean `false` results in returning the string value `'falseExp'`. A more
-realistic example follows:
+在这种情况下，布尔值 `false` 导致返回字符串值 `'falseExp'`。
+下面是一个更实际的例子：
 
 [tabs]
 ======
@@ -37,8 +37,4 @@ String queryResultString = parser.parseExpression(expression)
 ----
 ======
 
-See the next section on the Elvis operator for an even shorter syntax for the
-ternary operator.
-
-
-
+有关三元运算符的更短语法，请参阅下一节关于 Elvis 运算符的内容。

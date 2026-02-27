@@ -1,37 +1,18 @@
 [[format]]
-= Infra Field Formatting
+= Infra 字段格式化
 
-As discussed in the previous section, xref:core/validation/convert.adoc[`core.convert`] is a
-general-purpose type conversion system. It provides a unified `ConversionService` API as
-well as a strongly typed `Converter` SPI for implementing conversion logic from one type
-to another. A Infra container uses this system to bind bean property values. In
-addition, both the Infra Expression Language (SpEL) and `DataBinder` use this system to
-bind field values. For example, when SpEL needs to coerce a `Short` to a `Long` to
-complete an `expression.setValue(Object bean, Object value)` attempt, the `core.convert`
-system performs the coercion.
+正如上一节所讨论的，xref:core/validation/convert.adoc[`core.convert`] 是一个通用的类型转换系统。它提供了统一的 `ConversionService` API 以及用于实现从一种类型到另一种类型的转换逻辑的强类型 `Converter` SPI。Infra 容器使用此系统来绑定 bean 属性值。此外，Infra 表达式语言 (SpEL) 和 `DataBinder` 都使用此系统来绑定字段值。例如，当 SpEL 需要将 `Short` 强制转换为 `Long` 以完成 `expression.setValue(Object bean, Object value)` 尝试时，`core.convert` 系统将执行强制转换。
 
-Now consider the type conversion requirements of a typical client environment, such as a
-web or desktop application. In such environments, you typically convert from `String`
-to support the client postback process, as well as back to `String` to support the
-view rendering process. In addition, you often need to localize `String` values. The more
-general `core.convert` `Converter` SPI does not address such formatting requirements
-directly. To directly address them, Infra provides a convenient `Formatter` SPI that
-provides a simple and robust alternative to `PropertyEditor` implementations for client
-environments.
+现在考虑典型客户端环境（例如 Web 或桌面应用程序）的类型转换要求。在此类环境中，通常需要从 `String` 转换以支持客户端回传过程，以及转换回 `String` 以支持视图渲染过程。此外，通常还需要对 `String` 值进行本地化。更通用的 `core.convert` `Converter` SPI 不直接解决此类格式化要求。为了直接解决这些问题，Infra 提供了一个方便的 `Formatter` SPI，它为客户端环境提供了一个简单而强大的 `PropertyEditor` 实现替代方案。
 
-In general, you can use the `Converter` SPI when you need to implement general-purpose type
-conversion logic -- for example, for converting between a `java.util.Date` and a `Long`.
-You can use the `Formatter` SPI when you work in a client environment (such as a web
-application) and need to parse and print localized field values. The `ConversionService`
-provides a unified type conversion API for both SPIs.
+通常，当需要实现通用类型转换逻辑（例如，在 `java.util.Date` 和 `Long` 之间进行转换）时，可以使用 `Converter` SPI。当在客户端环境（例如 Web 应用程序）中工作并且需要解析和打印本地化的字段值时，可以使用 `Formatter` SPI。`ConversionService` 为这两个 SPI 提供了统一的类型转换 API。
 
 
 
 [[format-Formatter-SPI]]
-== The `Formatter` SPI
+== `Formatter` SPI
 
-The `Formatter` SPI to implement field formatting logic is simple and strongly typed. The
-following listing shows the `Formatter` interface definition:
+用于实现字段格式化逻辑的 `Formatter` SPI 简单且是强类型的。以下列表显示了 `Formatter` 接口定义：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -41,8 +22,7 @@ public interface Formatter<T> extends Printer<T>, Parser<T> {
 }
 ----
 
-`Formatter` extends from the `Printer` and `Parser` building-block interfaces. The
-following listing shows the definitions of those two interfaces:
+`Formatter` 继承自 `Printer` 和 `Parser` 构建块接口。以下列表显示了这两个接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -62,21 +42,14 @@ public interface Parser<T> {
 }
 ----
 
-To create your own `Formatter`, implement the `Formatter` interface shown earlier.
-Parameterize `T` to be the type of object you wish to format -- for example,
-`java.util.Date`. Implement the `print()` operation to print an instance of `T` for
-display in the client locale. Implement the `parse()` operation to parse an instance of
-`T` from the formatted representation returned from the client locale. Your `Formatter`
-should throw a `ParseException` or an `IllegalArgumentException` if a parse attempt fails. Take
-care to ensure that your `Formatter` implementation is thread-safe.
+要创建自己的 `Formatter`，请实现前面显示的 `Formatter` 接口。
+将 `T` 参数化为您希望格式化的对象类型 -- 例如 `java.util.Date`。实现 `print()` 操作以打印 `T` 的实例，以便在客户端区域设置中显示。实现 `parse()` 操作以从客户端区域设置返回的格式化表示形式中解析 `T` 的实例。如果解析尝试失败，您的 `Formatter` 应抛出 `ParseException` 或 `IllegalArgumentException`。请注意确保您的 `Formatter` 实现是线程安全的。
 
-The `format` subpackages provide several `Formatter` implementations as a convenience.
-The `number` package provides `NumberStyleFormatter`, `CurrencyStyleFormatter`, and
-`PercentStyleFormatter` to format `Number` objects that use a `java.text.NumberFormat`.
-The `datetime` package provides a `DateFormatter` to format `java.util.Date` objects with
-a `java.text.DateFormat`.
+`format` 子包提供了几个 `Formatter` 实现以方便使用。
+`number` 包提供了 `NumberStyleFormatter`、`CurrencyStyleFormatter` 和 `PercentStyleFormatter`，用于使用 `java.text.NumberFormat` 格式化 `Number` 对象。
+`datetime` 包提供了 `DateFormatter`，用于使用 `java.text.DateFormat` 格式化 `java.util.Date` 对象。
 
-The following `DateFormatter` is an example `Formatter` implementation:
+以下 `DateFormatter` 是一个示例 `Formatter` 实现：
 
 [tabs]
 ======
@@ -118,17 +91,14 @@ public final class DateFormatter implements Formatter<Date> {
 
 ======
 
-The Infra team welcomes community-driven `Formatter` contributions. See
-{today-framework-issues}[GitHub Issues] to contribute.
+Infra 团队欢迎社区驱动的 `Formatter` 贡献。请参阅 {today-framework-issues}[GitHub Issues] 进行贡献。
 
 
 
 [[format-CustomFormatAnnotations]]
-== Annotation-driven Formatting
+== 注解驱动的格式化
 
-Field formatting can be configured by field type or annotation. To bind
-an annotation to a `Formatter`, implement `AnnotationFormatterFactory`. The following
-listing shows the definition of the `AnnotationFormatterFactory` interface:
+字段格式化可以通过字段类型或注解进行配置。要将注解绑定到 `Formatter`，请实现 `AnnotationFormatterFactory`。以下列表显示了 `AnnotationFormatterFactory` 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -144,16 +114,14 @@ public interface AnnotationFormatterFactory<A extends Annotation> {
 }
 ----
 
-To create an implementation:
+要创建一个实现：
 
-. Parameterize `A` to be the field `annotationType` with which you wish to associate
-formatting  logic -- for example `infra.format.annotation.DateTimeFormat`.
-. Have `getFieldTypes()` return the types of fields on which the annotation can be used.
-. Have `getPrinter()` return a `Printer` to print the value of an annotated field.
-. Have `getParser()` return a `Parser` to parse a `clientValue` for an annotated field.
+. 将 `A` 参数化为您希望关联格式化逻辑的字段 `annotationType` -- 例如 `infra.format.annotation.DateTimeFormat`。
+. 让 `getFieldTypes()` 返回可以使用该注解的字段类型。
+. 让 `getPrinter()` 返回一个 `Printer` 来打印带注解字段的值。
+. 让 `getParser()` 返回一个 `Parser` 来解析带注解字段的 `clientValue`。
 
-The following example `AnnotationFormatterFactory` implementation binds the `@NumberFormat`
-annotation to a formatter to let a number style or pattern be specified:
+以下示例 `AnnotationFormatterFactory` 实现将 `@NumberFormat` 注解绑定到格式化程序，以允许指定数字样式或模式：
 
 [tabs]
 ======
@@ -195,124 +163,4 @@ public final class NumberFormatAnnotationFormatterFactory
 ----
 ======
 
-To trigger formatting, you can annotate fields with `@NumberFormat`, as the following
-example shows:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-public class MyModel {
-
-  @NumberFormat(style=Style.CURRENCY)
-  private BigDecimal decimal;
-}
-----
-
-======
-
-
-[[format-annotations-api]]
-=== Format Annotation API
-
-A portable format annotation API exists in the `infra.format.annotation`
-package. You can use `@NumberFormat` to format `Number` fields such as `Double` and
-`Long`, and `@DateTimeFormat` to format `java.util.Date`, `java.util.Calendar`, `Long`
-(for millisecond timestamps) as well as JSR-310 `java.time`.
-
-The following example uses `@DateTimeFormat` to format a `java.util.Date` as an ISO Date
-(yyyy-MM-dd):
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-public class MyModel {
-
-  @DateTimeFormat(iso=ISO.DATE)
-  private Date date;
-}
-----
-
-======
-
-
-[[format-FormatterRegistry-SPI]]
-== The `FormatterRegistry` SPI
-
-The `FormatterRegistry` is an SPI for registering formatters and converters.
-`FormattingConversionService` is an implementation of `FormatterRegistry` suitable for
-most environments. You can programmatically or declaratively configure this variant
-as a Infra bean, e.g. by using `FormattingConversionServiceFactoryBean`. Because this
-implementation also implements `ConversionService`, you can directly configure it
-for use with Infra `DataBinder` and the Infra Expression Language (SpEL).
-
-The following listing shows the `FormatterRegistry` SPI:
-
-[source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
-----
-package infra.format;
-
-public interface FormatterRegistry extends ConverterRegistry {
-
-  void addPrinter(Printer<?> printer);
-
-  void addParser(Parser<?> parser);
-
-  void addFormatter(Formatter<?> formatter);
-
-  void addFormatterForFieldType(Class<?> fieldType, Formatter<?> formatter);
-
-  void addFormatterForFieldType(Class<?> fieldType, Printer<?> printer, Parser<?> parser);
-
-  void addFormatterForFieldAnnotation(AnnotationFormatterFactory<? extends Annotation> annotationFormatterFactory);
-}
-----
-
-As shown in the preceding listing, you can register formatters by field type or by annotation.
-
-The `FormatterRegistry` SPI lets you configure formatting rules centrally, instead of
-duplicating such configuration across your controllers. For example, you might want to
-enforce that all date fields are formatted a certain way or that fields with a specific
-annotation are formatted in a certain way. With a shared `FormatterRegistry`, you define
-these rules once, and they are applied whenever formatting is needed.
-
-
-
-[[format-FormatterRegistrar-SPI]]
-== The `FormatterRegistrar` SPI
-
-`FormatterRegistrar` is an SPI for registering formatters and converters through the
-FormatterRegistry. The following listing shows its interface definition:
-
-[source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
-----
-package infra.format;
-
-public interface FormatterRegistrar {
-
-  void registerFormatters(FormatterRegistry registry);
-}
-----
-
-A `FormatterRegistrar` is useful when registering multiple related converters and
-formatters for a given formatting category, such as date formatting. It can also be
-useful where declarative registration is insufficient -- for example, when a formatter
-needs to be indexed under a specific field type different from its own `<T>` or when
-registering a `Printer`/`Parser` pair. The next section provides more information on
-converter and formatter registration.
-
-
-
-[[format-configuring-formatting-mvc]]
-== Configuring Formatting in Web MVC
-
-See xref:web/webmvc/mvc-config/conversion.adoc[Conversion and Formatting] in the Web MVC chapter.
-
-
-
-
+要触发格式化，您可以使用 `@NumberFormat` 对字段进行注解，如下例所示：

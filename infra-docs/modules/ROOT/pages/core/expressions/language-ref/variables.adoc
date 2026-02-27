@@ -1,42 +1,36 @@
 [[expressions-ref-variables]]
-= Variables
+= 变量
 
-You can reference variables in an expression by using the `#variableName` syntax. Variables
-are set by using the `setVariable()` method in `EvaluationContext` implementations.
+你可以使用 `#variableName` 语法在表达式中引用变量。
+变量通过使用 `EvaluationContext` 实现中的 `setVariable()` 方法进行设置。
 
 [NOTE]
 ====
-Variable names must be begin with a letter (as defined below), an underscore, or a dollar
-sign.
+变量名必须以字母（定义如下）、下划线或美元符号开头。
 
-Variable names must be composed of one or more of the following supported types of
-characters.
+变量名必须由一个或多个以下支持的字符类型组成。
 
-* letter: any character for which `java.lang.Character.isLetter(char)` returns `true`
-  - This includes letters such as `A` to `Z`, `a` to `z`, `ü`, `ñ`, and `é` as well as
-    letters from other character sets such as Chinese, Japanese, Cyrillic, etc.
-* digit: `0` to `9`
-* underscore: `_`
-* dollar sign: `$`
+* 字母：任何 `java.lang.Character.isLetter(char)` 返回 `true` 的字符
+  - 这包括 `A` 到 `Z`、`a` 到 `z`、`ü`、`ñ` 和 `é` 等字母，以及其他字符集（如中文、日文、西里尔文等）中的字母。
+* 数字：`0` 到 `9`
+* 下划线：`_`
+* 美元符号：`$`
 ====
 
 [TIP]
 ====
-When setting a variable or root context object in the `EvaluationContext`, it is advised
-that the type of the variable or root context object be `public`.
+在 `EvaluationContext` 中设置变量或根上下文对象时，建议变量或根上下文对象的类型为 `public`。
 
-Otherwise, certain types of SpEL expressions involving a variable or root context object
-with a non-public type may fail to evaluate or compile.
+否则，某些涉及非公共类型的变量或根上下文对象的 SpEL 表达式可能无法评估或编译。
 ====
 
 [WARNING]
 ====
-Since variables share a common namespace with
-xref:core/expressions/language-ref/functions.adoc[functions] in the evaluation context,
-care must be taken to ensure that variable names and functions names do not overlap.
+由于变量与评估上下文中的 xref:core/expressions/language-ref/functions.adoc[函数] 共享一个公共命名空间，
+因此必须注意确保变量名和函数名不重叠。
 ====
 
-The following example shows how to use variables.
+下例展示了如何使用变量。
 
 [tabs]
 ======
@@ -57,15 +51,13 @@ System.out.println(tesla.getName());  // "Mike Tesla"
 
 
 [[expressions-this-root]]
-== The `#this` and `#root` Variables
+== `#this` 和 `#root` 变量
 
-The `#this` variable is always defined and refers to the current evaluation object
-(against which unqualified references are resolved). The `#root` variable is always
-defined and refers to the root context object. Although `#this` may vary as components of
-an expression are evaluated, `#root` always refers to the root.
+`#this` 变量始终已定义，并引用当前的评估对象（针对该对象解析非限定引用）。
+`#root` 变量始终已定义，并引用根上下文对象。
+虽然 `#this` 可能会随着表达式组件的评估而变化，但 `#root` 始终引用根。
 
-The following example shows how to use the `#this` variable in conjunction with
-xref:core/expressions/language-ref/collection-selection.adoc[collection selection].
+下例展示了如何结合 xref:core/expressions/language-ref/collection-selection.adoc[集合选择] 使用 `#this` 变量。
 
 [tabs]
 ======
@@ -73,27 +65,25 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Create a list of prime integers.
+// 创建质数整数列表
 List<Integer> primes = List.of(2, 3, 5, 7, 11, 13, 17);
 
-// Create parser and set variable 'primes' as the list of integers.
+// 创建解析器并将变量 'primes' 设置为整数列表
 ExpressionParser parser = new SpelExpressionParser();
 EvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding().build();
 context.setVariable("primes", primes);
 
-// Select all prime numbers > 10 from the list (using selection ?{...}).
+// 从列表中选择所有大于 10 的质数（使用选择 ?{...}）
 String expression = "#primes.?[#this > 10]";
 
-// Evaluates to a list containing [11, 13, 17].
+// 评估结果为包含 [11, 13, 17] 的列表
 List<Integer> primesGreaterThanTen =
   parser.parseExpression(expression).getValue(context, List.class);
 ----
 
 ======
 
-The following example shows how to use the `#this` and `#root` variables together in
-conjunction with
-xref:core/expressions/language-ref/collection-projection.adoc[collection projection].
+下例展示了如何结合 xref:core/expressions/language-ref/collection-projection.adoc[集合投影] 一起使用 `#this` 和 `#root` 变量。
 
 [tabs]
 ======
@@ -101,20 +91,19 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Create parser and evaluation context.
+// 创建解析器和评估上下文
 ExpressionParser parser = new SpelExpressionParser();
 EvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding().build();
 
-// Create an inventor to use as the root context object.
+// 创建一个发明家作为根上下文对象
 Inventor tesla = new Inventor("Nikola Tesla");
 tesla.setInventions("Telephone repeater", "Tesla coil transformer");
 
-// Iterate over all inventions of the Inventor referenced as the #root
-// object, and generate a list of strings whose contents take the form
-// "<inventor's name> invented the <invention>." (using projection !{...}).
+// 迭代作为 #root 对象引用的发明家的所有发明，
+// 并生成一个字符串列表，其内容形式为 "<inventor's name> invented the <invention>."（使用投影 !{...}）
 String expression = "#root.inventions.![#root.name + ' invented the ' + #this + '.']";
 
-// Evaluates to a list containing:
+// 评估结果为包含以下内容的列表：
 // "Nikola Tesla invented the Telephone repeater."
 // "Nikola Tesla invented the Tesla coil transformer."
 List<String> results = parser.parseExpression(expression)
@@ -122,4 +111,3 @@ List<String> results = parser.parseExpression(expression)
 ----
 
 ======
-

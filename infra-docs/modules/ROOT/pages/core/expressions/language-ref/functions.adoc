@@ -1,26 +1,22 @@
 [[expressions-ref-functions]]
-= Functions
+= 函数
 
-You can extend SpEL by registering user-defined functions that can be called within
-expressions by using the `#functionName(...)` syntax. Functions can be registered as
-variables in `EvaluationContext` implementations via the `setVariable()` method.
+你可以通过注册用户定义的函数来扩展 SpEL，这些函数可以使用 `#functionName(...)` 语法在表达式中调用。
+函数可以通过 `setVariable()` 方法注册为 `EvaluationContext` 实现中的变量。
 
 [TIP]
 ====
-`StandardEvaluationContext` also defines `registerFunction(...)` methods that provide a
-convenient way to register a function as a `java.lang.reflect.Method` or a
-`java.lang.invoke.MethodHandle`.
+`StandardEvaluationContext` 还定义了 `registerFunction(...)` 方法，
+提供了一种方便的方式来将函数注册为 `java.lang.reflect.Method` 或 `java.lang.invoke.MethodHandle`。
 ====
 
 [WARNING]
 ====
-Since functions share a common namespace with
-xref:core/expressions/language-ref/variables.adoc[variables] in the evaluation context,
-care must be taken to ensure that function names and variable names do not overlap.
+由于函数与评估上下文中的 xref:core/expressions/language-ref/variables.adoc[变量] 共享一个公共命名空间，
+因此必须注意确保函数名称和变量名称不重叠。
 ====
 
-The following example shows how to register a user-defined function to be invoked via
-reflection using a `java.lang.reflect.Method`:
+下例展示了如何注册一个用户定义的函数，以便使用 `java.lang.reflect.Method` 通过反射调用：
 
 [tabs]
 ======
@@ -36,7 +32,7 @@ Java::
 
 ======
 
-For example, consider the following utility method that reverses a string:
+例如，考虑以下反转字符串的实用方法：
 
 [tabs]
 ======
@@ -54,7 +50,7 @@ public abstract class StringUtils {
 
 ======
 
-You can register and use the preceding method, as the following example shows:
+你可以注册并使用前面的方法，如下例所示：
 
 [tabs]
 ======
@@ -67,22 +63,19 @@ ExpressionParser parser = new SpelExpressionParser();
 EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
 context.setVariable("reverseString", StringUtils.class.getMethod("reverseString", String.class));
 
-// evaluates to "olleh"
+// 评估结果为 "olleh"
 String helloWorldReversed = parser.parseExpression("#reverseString('hello')").getValue(context, String.class);
 ----
 
 ======
 
-A function can also be registered as a `java.lang.invoke.MethodHandle`. This enables
-potentially more efficient use cases if the `MethodHandle` target and parameters have
-been fully bound prior to registration; however, partially bound handles are also
-supported.
+函数也可以注册为 `java.lang.invoke.MethodHandle`。
+如果 `MethodHandle` 目标和参数在注册之前已完全绑定，这可能会启用更高效的用例；
+但是，也支持部分绑定的句柄。
 
-Consider the `String#formatted(String, Object...)` instance method, which produces a
-message according to a template and a variable number of arguments.
+考虑 `String#formatted(String, Object...)` 实例方法，它根据模板和可变数量的参数生成消息。
 
-You can register and use the `formatted` method as a `MethodHandle`, as the following
-example shows:
+你可以将 `formatted` 方法注册并使用为 `MethodHandle`，如下例所示：
 
 [tabs]
 ======
@@ -97,17 +90,16 @@ MethodHandle mh = MethodHandles.lookup().findVirtual(String.class, "formatted",
     MethodType.methodType(String.class, Object[].class));
 context.setVariable("message", mh);
 
-// evaluates to "Simple message: <Hello World>"
+// 评估结果为 "Simple message: <Hello World>"
 String message = parser.parseExpression("#message('Simple message: <%s>', 'Hello World', 'ignored')")
     .getValue(context, String.class);
 ----
 
 ======
 
-As hinted above, binding a `MethodHandle` and registering the bound `MethodHandle` is also
-supported. This is likely to be more performant if both the target and all the arguments
-are bound. In that case no arguments are necessary in the SpEL expression, as the
-following example shows:
+如上所述，也支持绑定 `MethodHandle` 并注册绑定的 `MethodHandle`。
+如果目标和所有参数都已绑定，这可能会更高效。
+在这种情况下，SpEL 表达式中不需要任何参数，如下例所示：
 
 [tabs]
 ======
@@ -123,15 +115,12 @@ Object varargs = new Object[] { "prerecorded", 3, "Oh Hello World!", "ignored" }
 MethodHandle mh = MethodHandles.lookup().findVirtual(String.class, "formatted",
     MethodType.methodType(String.class, Object[].class))
     .bindTo(template)
-    .bindTo(varargs); //here we have to provide arguments in a single array binding
+    .bindTo(varargs); // 在这里我们必须在一个数组绑定中提供参数
 context.setVariable("message", mh);
 
-// evaluates to "This is a prerecorded message with 3 words: <Oh Hello World!>"
+// 评估结果为 "This is a prerecorded message with 3 words: <Oh Hello World!>"
 String message = parser.parseExpression("#message()")
     .getValue(context, String.class);
 ----
 
 ======
-
-
-

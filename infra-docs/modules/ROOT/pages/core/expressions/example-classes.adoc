@@ -1,7 +1,7 @@
 [[expressions-example-classes]]
-= Classes Used in the Examples
+= 示例中使用的类
 
-This section lists the classes used in the examples throughout this chapter.
+本节列出了本章示例中使用的类。
 
 == `Inventor`
 

@@ -1,12 +1,10 @@
 [[expressions-collection-selection]]
-= Collection Selection
+= 集合选择
 
-Selection is a powerful expression language feature that lets you transform a
-source collection into another collection by selecting from its entries.
+选择（Selection）是一项强大的表达式语言功能，它允许你通过从源集合的条目中进行选择，将其转换为另一个集合。
 
-Selection uses a syntax of `.?[selectionExpression]`. It filters the collection and
-returns a new collection that contains a subset of the original elements. For example,
-selection lets us easily get a list of Serbian inventors, as the following example shows:
+选择使用的语法为 `.?[selectionExpression]`。它过滤集合并返回一个包含原始元素子集的新集合。
+例如，选择让我们很容易获得塞尔维亚发明家的列表，如下例所示：
 
 [tabs]
 ======
@@ -20,15 +18,13 @@ List<Inventor> list = (List<Inventor>) parser.parseExpression(
 
 ======
 
-Selection is supported for arrays and anything that implements `java.lang.Iterable` or
-`java.util.Map`. For an array or `Iterable`, the selection expression is evaluated
-against each individual element. Against a map, the selection expression is evaluated
-against each map entry (objects of the Java type `Map.Entry`). Each map entry has its
-`key` and `value` accessible as properties for use in the selection.
+数组和任何实现了 `java.lang.Iterable` 或 `java.util.Map` 的对象都支持选择。
+对于数组或 `Iterable`，选择表达式将针对每个单独的元素进行评估。
+针对 map，选择表达式将针对每个 map 条目（Java 类型 `Map.Entry` 的对象）进行评估。
+每个 map 条目都有其 `key` 和 `value` 可作为属性访问，以供选择中使用。
 
-Given a `Map` stored in a variable named `#map`, the following expression returns a new
-map that consists of those elements of the original map where the entry's value is less
-than 27:
+给定一个存储在名为 `#map` 的变量中的 `Map`，以下表达式返回一个新的 map，
+该 map 由原始 map 中条目值小于 27 的那些元素组成：
 
 [tabs]
 ======
@@ -41,17 +37,14 @@ Java::
 
 ======
 
-In addition to returning all the selected elements, you can retrieve only the first or
-the last element. To obtain the first element matching the selection expression, the
-syntax is `.^[selectionExpression]`. To obtain the last element matching the selection
-expression, the syntax is `.$[selectionExpression]`.
+除了返回所有选定的元素外，你还可以仅检索第一个或最后一个元素。
+要获取与选择表达式匹配的第一个元素，语法是 `.^[selectionExpression]`。
+要获取与选择表达式匹配的最后一个元素，语法是 `.$[selectionExpression]`。
 
 [NOTE]
 ====
-The Infra Expression Language also supports safe navigation for collection selection.
+Infra 表达式语言还支持用于集合选择的安全导航。
 
-See
-xref:core/expressions/language-ref/operator-safe-navigation.adoc#expressions-operator-safe-navigation-selection-and-projection[Safe Collection Selection and Projection]
-for details.
+有关详细信息，请参阅
+xref:core/expressions/language-ref/operator-safe-navigation.adoc#expressions-operator-safe-navigation-selection-and-projection[安全的集合选择和投影]。
 ====
-

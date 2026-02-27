@@ -1,13 +1,12 @@
 [[expressions-types]]
-= Types
+= 类型
 
-You can use the special `T` operator to specify an instance of `java.lang.Class` (the
-type). Static methods are invoked by using this operator as well. The
-`StandardEvaluationContext` uses a `TypeLocator` to find types, and the
-`StandardTypeLocator` (which can be replaced) is built with an understanding of the
-`java.lang` package. This means that `T()` references to types within the `java.lang`
-package do not need to be fully qualified, but all other type references must be. The
-following example shows how to use the `T` operator:
+你可以使用特殊的 `T` 运算符来指定 `java.lang.Class`（类型）的实例。
+静态方法也通过使用此运算符来调用。
+`StandardEvaluationContext` 使用 `TypeLocator` 来查找类型，
+而 `StandardTypeLocator`（可以替换）是在了解 `java.lang` 包的情况下构建的。
+这意味着对 `java.lang` 包内类型的 `T()` 引用不需要完全限定，但所有其他类型引用必须完全限定。
+下例展示了如何使用 `T` 运算符：
 
 [tabs]
 ======
@@ -28,13 +27,9 @@ boolean trueValue = parser.parseExpression(
 
 [NOTE]
 ====
-If your application or framework manages its own `EvaluationContext`, you may need to
-manually configure a `StandardTypeLocator` with a specific `ClassLoader` to ensure that
-the SpEL expression parser is able to reliably locate user types.
+如果你的应用程序或框架管理自己的 `EvaluationContext`，你可能需要手动配置具有特定 `ClassLoader` 的
+`StandardTypeLocator`，以确保 SpEL 表达式解析器能够可靠地定位用户类型。
 
-For example, the `StandardBeanExpressionResolver` in the `spring-context` module
-configures a `StandardTypeLocator` using the bean `ClassLoader` of the corresponding
-`BeanFactory`.
+例如，`spring-context` 模块中的 `StandardBeanExpressionResolver` 使用相应 `BeanFactory` 的 bean `ClassLoader`
+配置 `StandardTypeLocator`。
 ====
-
-

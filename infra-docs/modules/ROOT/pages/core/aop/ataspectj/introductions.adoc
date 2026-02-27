@@ -1,15 +1,13 @@
 [[aop-introductions]]
-= Introductions
+= 引入
 
-Introductions (known as inter-type declarations in AspectJ) enable an aspect to declare
-that advised objects implement a given interface, and to provide an implementation of
-that interface on behalf of those objects.
+引入（Introductions，在 AspectJ 中称为类型间声明）允许切面声明被通知的对象实现给定的接口，
+并代表这些对象提供该接口的实现。
 
-You can make an introduction by using the `@DeclareParents` annotation. This annotation
-is used to declare that matching types have a new parent (hence the name). For example,
-given an interface named `UsageTracked` and an implementation of that interface named
-`DefaultUsageTracked`, the following aspect declares that all implementors of service
-interfaces also implement the `UsageTracked` interface (e.g. for statistics via JMX):
+你可以使用 `@DeclareParents` 注解来进行引入。
+此注解用于声明匹配的类型有一个新的父类（因此得名）。
+例如，给定一个名为 `UsageTracked` 的接口和该接口名为 `DefaultUsageTracked` 的实现，
+以下切面声明所有服务接口的实现者也实现 `UsageTracked` 接口（例如，用于通过 JMX 进行统计）：
 
 [tabs]
 ======
@@ -33,12 +31,11 @@ public class UsageTracking {
 
 ======
 
-The interface to be implemented is determined by the type of the annotated field. The
-`value` attribute of the `@DeclareParents` annotation is an AspectJ type pattern. Any
-bean of a matching type implements the `UsageTracked` interface. Note that, in the
-before advice of the preceding example, service beans can be directly used as
-implementations of the `UsageTracked` interface. If accessing a bean programmatically,
-you would write the following:
+要实现的接口由带注解字段的类型确定。
+`@DeclareParents` 注解的 `value` 属性是一个 AspectJ 类型模式。
+任何匹配类型的 bean 都实现了 `UsageTracked` 接口。
+请注意，在前面示例的前置通知中，服务 bean 可以直接用作 `UsageTracked` 接口的实现。
+如果以编程方式访问 bean，你可以这样写：
 
 [tabs]
 ======
@@ -50,5 +47,3 @@ UsageTracked usageTracked = context.getBean("myService", UsageTracked.class);
 ----
 
 ======
-
-

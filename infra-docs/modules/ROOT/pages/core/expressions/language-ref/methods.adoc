@@ -1,9 +1,8 @@
 [[expressions-methods]]
-= Methods
+= 方法
 
-You can invoke methods by using typical Java programming syntax. You can also invoke methods
-on literals. Variable arguments are also supported. The following examples show how to
-invoke methods:
+你可以使用典型的 Java 编程语法调用方法。你也可以在字面量上调用方法。
+也支持可变参数。下例展示了如何调用方法：
 
 [tabs]
 ======
@@ -11,14 +10,12 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// string literal, evaluates to "bc"
+// 字符串字面量，评估结果为 "bc"
 String bc = parser.parseExpression("'abc'.substring(1, 3)").getValue(String.class);
 
-// evaluates to true
+// 评估结果为 true
 boolean isMember = parser.parseExpression("isMember('Mihajlo Pupin')").getValue(
     societyContext, Boolean.class);
 ----
 
 ======
-
-

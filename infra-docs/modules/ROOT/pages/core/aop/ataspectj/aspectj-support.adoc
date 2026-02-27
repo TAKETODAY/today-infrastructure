@@ -1,13 +1,13 @@
 [[aop-aspectj-support]]
 = 启用 @AspectJ 支持
 
-要在 Infra 配置中使用 @AspectJ 切面，你需要启用 Infra 对配置基于 @AspectJ 切面的 Infra AOP
-以及根据是否被这些切面通知来自动代理 bean 的支持。
-所谓自动代理，是指如果 Infra 确定一个 bean 被一个或多个切面通知，
-它会自动为该 bean 生成一个代理来拦截方法调用，并确保根据需要运行通知。
+要在 Infra 配置中使用 @AspectJ 切面，你需要启用 Infra 支持，
+以便基于 @AspectJ 切面配置 Infra AOP，并根据 bean 是否被这些切面通知来自动代理 bean。
+通过自动代理，我们的意思是，如果 Infra 确定一个 bean 被一个或多个切面通知，
+它会自动为该 bean 生成一个代理来拦截方法调用，并确保按需运行通知。
 
-可以通过编程方式或 XML 配置启用 @AspectJ 支持。无论哪种情况，
-你还需要确保 AspectJ 的 `org.aspectj:aspectjweaver` 库位于应用程序的类路径中（版本 1.9 或更高版本）。
+可以通过编程方式或 XML 配置来启用 @AspectJ 支持。在任何一种情况下，
+你都需要确保 AspectJ 的 `org.aspectj:aspectjweaver` 库在你的应用程序的类路径上（版本 1.9 或更高）。
 
 [source,java]
 ----

@@ -1,53 +1,44 @@
 [[expressions-ref-literal]]
-= Literal Expressions
+= 字面量表达式
 
-SpEL supports the following types of literal expressions.
+SpEL 支持以下类型的字面量表达式。
 
-String ::
-  Strings can be delimited by single quotation marks (`'`) or double quotation marks
-  (`"`). To include a single quotation mark within a string literal enclosed in single
-  quotation marks, use two adjacent single quotation mark characters. Similarly, to
-  include a double quotation mark within a string literal enclosed in double quotation
-  marks, use two adjacent double quotation mark characters.
-Number ::
-  Numbers support the use of the negative sign, exponential notation, and decimal points.
-  * Integer: `int` or `long`
-  * Hexadecimal: `int` or `long`
-  * Real: `float` or `double`
-  ** By default, real numbers are parsed using `Double.parseDouble()`.
-Boolean ::
-  `true` or `false`
+字符串 ::
+  字符串可以由单引号 (`'`) 或双引号 (`"`) 分隔。
+  要在由单引号包围的字符串字面量中包含单引号，请使用两个相邻的单引号字符。
+  同样，要在由双引号包围的字符串字面量中包含双引号，请使用两个相邻的双引号字符。
+数字 ::
+  数字支持使用负号、指数符号和小数点。
+  * 整数：`int` or `long`
+  * 十六进制：`int` or `long`
+  * 实数：`float` or `double`
+  ** 默认情况下，实数使用 `Double.parseDouble()` 解析。
+布尔值 ::
+  `true` 或 `false`
 Null ::
   `null`
 
 [NOTE]
 ====
-Due to the design and implementation of the Infra Expression Language, literal numbers
-are always stored internally as positive numbers.
+由于 Infra 表达式语言的设计和实现，字面量数字在内部始终存储为正数。
 
-For example, `-2` is stored internally as a positive `2` which is then negated while
-evaluating the expression (by calculating the value of `0 - 2`).
+例如，`-2` 在内部存储为正 `2`，然后在评估表达式时取反（通过计算 `0 - 2` 的值）。
 
-This means that it is not possible to represent a negative literal number equal to the
-minimum value of that type of number in Java. For example, the minimum supported value
-for an `int` in Java is `Integer.MIN_VALUE` which has a value of `-2147483648`. However,
-if you include `-2147483648` in a SpEL expression, an exception will be thrown informing
-you that the value `2147483648` cannot be parsed as an `int` (because it exceeds the
-value of `Integer.MAX_VALUE` which is `2147483647`).
+这意味着不可能在 Java 中表示等于该类型数字最小值的负字面量数字。
+例如，Java 中 `int` 的最小支持值是 `Integer.MIN_VALUE`，其值为 `-2147483648`。
+但是，如果你在 SpEL 表达式中包含 `-2147483648`，则会抛出异常，通知你无法将值 `2147483648` 解析为 `int`
+（因为它超过了 `Integer.MAX_VALUE` 的值，即 `2147483647`）。
 
-If you need to use the minimum value for a particular type of number within a SpEL
-expression, you can either reference the `MIN_VALUE` constant for the respective wrapper
-type (such as `Integer.MIN_VALUE`, `Long.MIN_VALUE`, etc.) or calculate the minimum
-value. For example, to use the minimum integer value:
+如果你需要在 SpEL 表达式中使用特定类型数字的最小值，你可以引用相应包装类型的 `MIN_VALUE` 常量
+（例如 `Integer.MIN_VALUE`，`Long.MIN_VALUE` 等）或计算最小值。
+例如，要使用最小整数值：
 
-- `T(Integer).MIN_VALUE` -- requires a `StandardEvaluationContext`
-- `-2^31` -- can be used with any type of `EvaluationContext`
+- `T(Integer).MIN_VALUE` -- 需要 `StandardEvaluationContext`
+- `-2^31` -- 可与任何类型的 `EvaluationContext` 一起使用
 ====
 
-The following listing shows simple usage of literals. Typically, they are not used in
-isolation like this but, rather, as part of a more complex expression -- for example,
-using a literal on one side of a logical comparison operator or as an argument to a
-method.
+以下清单显示了字面量的简单用法。通常，它们不会像这样单独使用，而是作为更复杂表达式的一部分使用——
+例如，作为逻辑比较运算符一侧的字面量或作为方法的参数。
 
 [tabs]
 ======
@@ -57,15 +48,15 @@ Java::
 ----
 	ExpressionParser parser = new SpelExpressionParser();
 
-	// evaluates to "Hello World"
+	// 评估结果为 "Hello World"
 	String helloWorld = (String) parser.parseExpression("'Hello World'").getValue();
 
-	// evaluates to "Tony's Pizza"
+	// 评估结果为 "Tony's Pizza"
 	String pizzaParlor = (String) parser.parseExpression("'Tony''s Pizza'").getValue();
 
 	double avogadrosNumber = (Double) parser.parseExpression("6.0221415E+23").getValue();
 
-	// evaluates to 2147483647
+	// 评估结果为 2147483647
 	int maxValue = (Integer) parser.parseExpression("0x7FFFFFFF").getValue();
 
 	boolean trueValue = (Boolean) parser.parseExpression("true").getValue();
@@ -74,6 +65,3 @@ Java::
 ----
 
 ======
-
-
-
