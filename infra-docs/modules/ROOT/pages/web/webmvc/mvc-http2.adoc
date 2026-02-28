@@ -2,10 +2,28 @@
 = HTTP/2
 :page-section-summary-toc: 1
 
-Servlet 4 容器需要支持 HTTP/2，TODAY Framework 5 与 Servlet API 4 兼容。
-从编程模型的角度来看，应用程序不需要做任何特定的事情。但是，这涉及到服务器配置方面的考虑。
-有关更多详细信息，请参阅 {today-framework-wiki}/HTTP-2-support[HTTP/2 wiki 页面]。
+通过配置 `server.http2.enabled=true` 开启
 
-Servlet API 确实暴露了一个与 HTTP/2 相关的构造。您可以使用 `jakarta.mockApi.http.PushBuilder`
-主动向客户端推送资源，它支持作为 `@RequestMapping` 方法的
-xref:web/webmvc/mvc-controller/ann-methods/arguments.adoc[方法参数]。
+[source,yaml]
+----
+server:
+  netty:
+    worker-threads: 8
+    acceptor-threads: 1
+    max-connection: 10240000
+    leak-detection: paranoid
+    connection-timeout: 30s
+    auto-ack-ping-frame: true
+    auto-ack-settings-frame: true
+    http2-graceful-shutdown-timeout: 29s
+    auto-read: ${server.http2.enabled}
+
+  use-virtual-thread-service-executor: true
+
+  http2:
+    enabled: true
+    initial-settings:
+      max-header-list-size: 1024
+      push-enabled: false
+      connect-protocol-enabled: false
+----
