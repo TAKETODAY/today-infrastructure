@@ -20,6 +20,7 @@ package infra.web;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,10 @@ import java.util.Set;
 import infra.core.ResolvableType;
 import infra.ui.Model;
 import infra.ui.ModelMap;
+import infra.validation.BindException;
 import infra.validation.BindingResult;
+import infra.validation.Errors;
+import infra.web.bind.EscapedErrors;
 import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.support.BindParamNameResolver;
 import infra.web.bind.support.WebBindingInitializer;
@@ -51,23 +55,19 @@ import infra.web.view.ModelAndView;
  */
 public class BindingContext {
 
-  @Nullable
-  private ModelMap model;
+  private final @Nullable WebBindingInitializer initializer;
 
-  @Nullable
-  private RedirectModel redirectModel;
+  private @Nullable ModelMap model;
 
-  @Nullable
-  private Set<String> noBinding;
+  private @Nullable RedirectModel redirectModel;
 
-  @Nullable
-  private Set<String> bindingDisabled;
+  private @Nullable Set<String> noBinding;
 
-  @Nullable
-  private final WebBindingInitializer initializer;
+  private @Nullable Set<String> bindingDisabled;
 
-  @Nullable
-  protected ModelAndView modelAndView;
+  protected @Nullable ModelAndView modelAndView;
+
+  private @Nullable Map<String, Errors> errorsMap;
 
   /**
    * Create a new {@code BindingContext}.
@@ -173,6 +173,9 @@ public class BindingContext {
   }
 
   /**
+   * Check if a {@link ModelAndView} instance exists in this context.
+   *
+   * @return {@code true} if a {@link ModelAndView} is present, {@code false} otherwise
    * @since 3.0
    */
   public boolean hasModelAndView() {
@@ -180,6 +183,9 @@ public class BindingContext {
   }
 
   /**
+   * Check if a model exists in this context.
+   *
+   * @return {@code true} if a model is present, {@code false} otherwise
    * @since 4.0
    */
   public boolean hasModel() {
@@ -224,11 +230,20 @@ public class BindingContext {
   public void initModel(RequestContext request) throws Throwable {
   }
 
-  @Nullable
-  public RedirectModel getRedirectModel() {
+  /**
+   * Get the redirect model associated with this binding context.
+   *
+   * @return the redirect model, or {@code null} if none is set
+   */
+  public @Nullable RedirectModel getRedirectModel() {
     return redirectModel;
   }
 
+  /**
+   * Set the redirect model for this binding context.
+   *
+   * @param redirectModel the redirect model to set, or {@code null} to clear it
+   */
   public void setRedirectModel(@Nullable RedirectModel redirectModel) {
     this.redirectModel = redirectModel;
   }
@@ -342,6 +357,47 @@ public class BindingContext {
    */
   public boolean containsAttribute(String name) {
     return hasModel() && getModel().containsAttribute(name);
+  }
+
+  /**
+   * Retrieve the Errors instance for the given bind object.
+   *
+   * @param name the name of the bind object
+   * @param htmlEscape create an Errors instance with automatic HTML escaping?
+   * @return the Errors instance, or {@code null} if not found
+   * @since 5.0
+   */
+  public @Nullable Errors getErrors(String name, boolean htmlEscape) {
+    if (this.errorsMap == null) {
+      this.errorsMap = new HashMap<>();
+    }
+    Errors errors = this.errorsMap.get(name);
+    boolean put = false;
+    if (errors == null) {
+      if (model != null && model.get(name) instanceof Errors e) {
+        errors = e;
+      }
+      // Check old BindException prefix for backwards compatibility.
+      if (errors instanceof BindException be) {
+        errors = be.getBindingResult();
+      }
+      if (errors == null) {
+        return null;
+      }
+      put = true;
+    }
+    if (htmlEscape && !(errors instanceof EscapedErrors)) {
+      errors = new EscapedErrors(errors);
+      put = true;
+    }
+    else if (!htmlEscape && errors instanceof EscapedErrors ee) {
+      errors = ee.getSource();
+      put = true;
+    }
+    if (put) {
+      this.errorsMap.put(name, errors);
+    }
+    return errors;
   }
 
   /**

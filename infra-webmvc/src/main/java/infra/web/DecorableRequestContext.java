@@ -53,6 +53,7 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.util.MultiValueMap;
+import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
@@ -749,6 +750,26 @@ public abstract class DecorableRequestContext extends RequestContext {
   @Override
   public String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
     return delegate().getMessage(code, args, defaultMessage, htmlEscape);
+  }
+
+  @Override
+  public BindStatus getBindStatus(String path) throws IllegalStateException {
+    return delegate().getBindStatus(path);
+  }
+
+  @Override
+  public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
+    return delegate().getBindStatus(path, htmlEscape);
+  }
+
+  @Override
+  public @Nullable Errors getErrors(String name) {
+    return delegate().getErrors(name);
+  }
+
+  @Override
+  public @Nullable Errors getErrors(String name, boolean htmlEscape) {
+    return delegate().getErrors(name, htmlEscape);
   }
 
   @Override

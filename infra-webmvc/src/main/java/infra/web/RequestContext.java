@@ -75,6 +75,7 @@ import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncManagerFactory;
@@ -2483,6 +2484,58 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   protected boolean isDefaultHtmlEscape() {
     return defaultHtmlEscape;
+  }
+
+  /**
+   * Retrieve the Errors instance for the given bind object, using the "defaultHtmlEscape" setting.
+   *
+   * @param name the name of the bind object
+   * @return the Errors instance, or {@code null} if not found
+   * @since 5.0
+   */
+  public @Nullable Errors getErrors(String name) {
+    return getErrors(name, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the Errors instance for the given bind object.
+   *
+   * @param name the name of the bind object
+   * @param htmlEscape create an Errors instance with automatic HTML escaping?
+   * @return the Errors instance, or {@code null} if not found
+   * @since 5.0
+   */
+  public @Nullable Errors getErrors(String name, boolean htmlEscape) {
+    BindingContext binding = getBinding();
+    if (binding != null) {
+      return binding.getErrors(name, htmlEscape);
+    }
+    return null;
+  }
+
+  /**
+   * Create a BindStatus for the given bind object, using the "defaultHtmlEscape" setting.
+   *
+   * @param path the bean and property path for which values and errors will be resolved (for example, "person.age")
+   * @return the new BindStatus instance
+   * @throws IllegalStateException if no corresponding Errors object found
+   * @since 5.0
+   */
+  public BindStatus getBindStatus(String path) throws IllegalStateException {
+    return new BindStatus(this, path, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Create a BindStatus for the given bind object, using the "defaultHtmlEscape" setting.
+   *
+   * @param path the bean and property path for which values and errors will be resolved (for example, "person.age")
+   * @param htmlEscape create a BindStatus with automatic HTML escaping?
+   * @return the new BindStatus instance
+   * @throws IllegalStateException if no corresponding Errors object found
+   * @since 5.0
+   */
+  public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
+    return new BindStatus(this, path, htmlEscape);
   }
 
   @Override
