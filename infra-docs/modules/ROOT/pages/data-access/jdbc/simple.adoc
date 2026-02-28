@@ -1,23 +1,18 @@
 [[jdbc-simple-jdbc]]
-= Simplifying JDBC Operations with the `SimpleJdbc` Classes
+= 使用 `SimpleJdbc` 类简化 JDBC 操作
 
-The `SimpleJdbcInsert` and `SimpleJdbcCall` classes provide a simplified configuration
-by taking advantage of database metadata that can be retrieved through the JDBC driver.
-This means that you have less to configure up front, although you can override or turn off
-the metadata processing if you prefer to provide all the details in your code.
+`SimpleJdbcInsert` 和 `SimpleJdbcCall` 类利用可以通过 JDBC 驱动程序检索的数据库元数据，提供了简化的配置。
+这意味着您可以减少前期的配置工作，当然，如果您更喜欢在代码中提供所有细节，也可以覆盖或关闭元数据处理。
 
 
 [[jdbc-simple-jdbc-insert-1]]
-== Inserting Data by Using `SimpleJdbcInsert`
+== 使用 `SimpleJdbcInsert` 插入数据
 
-We start by looking at the `SimpleJdbcInsert` class with the minimal amount of
-configuration options. You should instantiate the `SimpleJdbcInsert` in the data access
-layer's initialization method. For this example, the initializing method is the
-`setDataSource` method. You do not need to subclass the `SimpleJdbcInsert` class. Instead,
-you can create a new instance and set the table name by using the `withTableName` method.
-Configuration methods for this class follow the `fluid` style that returns the instance
-of the `SimpleJdbcInsert`, which lets you chain all configuration methods. The following
-example uses only one configuration method (we show examples of multiple methods later):
+我们首先看看具有最少配置选项的 `SimpleJdbcInsert` 类。您应该在数据访问层的初始化方法中实例化 `SimpleJdbcInsert`。
+对于此示例，初始化方法是 `setDataSource` 方法。您不需要子类化 `SimpleJdbcInsert` 类。
+相反，您可以创建一个新实例并使用 `withTableName` 方法设置表名。
+此类的配置方法遵循返回 `SimpleJdbcInsert` 实例的“流式”风格，这允许您链接所有配置方法。
+以下示例仅使用一种配置方法（我们稍后将展示多种方法）：
 
 [tabs]
 ======
@@ -41,26 +36,22 @@ public class JdbcActorDao implements ActorDao {
     insertActor.execute(parameters);
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-The `execute` method used here takes a plain `java.util.Map` as its only parameter. The
-important thing to note here is that the keys used for the `Map` must match the column
-names of the table, as defined in the database. This is because we read the metadata
-to construct the actual insert statement.
+此处使用的 `execute` 方法接受一个 `java.util.Map` 作为其唯一参数。这里重要的一点是，用于 Map 的键必须与数据库中定义的表的列名匹配。
+这是因为我们读取元数据以构建实际的 SQL 语句。
 
 
 [[jdbc-simple-jdbc-insert-2]]
-== Retrieving Auto-generated Keys by Using `SimpleJdbcInsert`
+== 使用 `SimpleJdbcInsert` 检索自动生成的键
 
-The next example uses the same insert as the preceding example, but, instead of passing in the `id`, it
-retrieves the auto-generated key and sets it on the new `Actor` object. When it creates
-the `SimpleJdbcInsert`, in addition to specifying the table name, it specifies the name
-of the generated key column with the `usingGeneratedKeyColumns` method. The following
-listing shows how it works:
+此示例使用与前一个相同的插入，但不是传入 `id`，而是检索自动生成的键并将其设置在新的 `Actor` 对象上。
+当您创建 `SimpleJdbcInsert` 时，除了指定表名外，您还可以使用 `usingGeneratedKeyColumns` 方法指定生成的键列的名称。
+以下清单显示了其工作原理：
 
 [tabs]
 ======
@@ -86,25 +77,21 @@ public class JdbcActorDao implements ActorDao {
     actor.setId(newId.longValue());
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 ======
 
-The main difference when you run the insert by using this second approach is that you do not
-add the `id` to the `Map`, and you call the `executeAndReturnKey` method. This returns a
-`java.lang.Number` object with which you can create an instance of the numerical type that
-is used in your domain class. You cannot rely on all databases to return a specific Java
-class here. `java.lang.Number` is the base class that you can rely on. If you have
-multiple auto-generated columns or the generated values are non-numeric, you can
-use a `KeyHolder` that is returned from the `executeAndReturnKeyHolder` method.
+运行此代码时的主要区别在于，您不将 ID 添加到 `Map` 中，而是调用 `executeAndReturnKey` 方法。
+这会返回一个 `java.lang.Number` 对象，您可以使用它来创建域类中使用的数值类型的实例。
+您不能依赖所有的数据库都返回特定的 Java 类。`java.lang.Number` 是您可以依赖的基类。
+如果您有多个自动生成的列，或者是生成的值是非数值的，您可以使用从 `executeAndReturnKeyHolder` 方法返回的 `KeyHolder`。
 
 
 [[jdbc-simple-jdbc-insert-3]]
-== Specifying Columns for a `SimpleJdbcInsert`
+== 指定 `SimpleJdbcInsert` 的列
 
-You can limit the columns for an insert by specifying a list of column names with the
-`usingColumns` method, as the following example shows:
+您可以通过使用 `usingColumns` 方法指定列名列表来限制插入的列，如下例所示：
 
 [tabs]
 ======
@@ -131,25 +118,22 @@ public class JdbcActorDao implements ActorDao {
     actor.setId(newId.longValue());
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-The execution of the insert is the same as if you had relied on the metadata to determine
-which columns to use.
+插入的执行与之前相同。这里的区别在于，只有给定的列会在 SQL 插入语句中使用。
 
 
 [[jdbc-simple-jdbc-parameters]]
-== Using `SqlParameterSource` to Provide Parameter Values
+== 使用 `SqlParameterSource` 提供参数值
 
-Using a `Map` to provide parameter values works fine, but it is not the most convenient
-class to use. Infra provides a couple of implementations of the `SqlParameterSource`
-interface that you can use instead. The first one is `BeanPropertySqlParameterSource`,
-which is a very convenient class if you have a JavaBean-compliant class that contains
-your values. It uses the corresponding getter method to extract the parameter
-values. The following example shows how to use `BeanPropertySqlParameterSource`:
+使用 `Map` 提供参数值工作得很好，但这不是最方便的类。
+Infra 提供了几个 `SqlParameterSource` 接口的实现，您可以方便地使用它们。
+第一个是 `BeanPropertySqlParameterSource`，如果你有一个遵循 JavaBean 约定的类，并且它具有与列名匹配的属性，这非常方便。
+它使用相应的 getter 方法来提取参数值。以下示例展示了如何使用 `BeanPropertySqlParameterSource`：
 
 [tabs]
 ======
@@ -173,14 +157,14 @@ public class JdbcActorDao implements ActorDao {
     actor.setId(newId.longValue());
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-Another option is the `MapSqlParameterSource` that resembles a `Map` but provides a more
-convenient `addValue` method that can be chained. The following example shows how to use it:
+另一种选择是 `MapSqlParameterSource`，它类似于 `Map`，但提供了一个更方便的 `addValue` 方法，可以链接起来。
+以下示例展示了如何使用它：
 
 [tabs]
 ======
@@ -206,27 +190,23 @@ public class JdbcActorDao implements ActorDao {
     actor.setId(newId.longValue());
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-As you can see, the configuration is the same. Only the executing code has to change to
-use these alternative input classes.
+正如您所看到的，配置是相同的。只有执行代码需要更改以使用这些替代输入类。
 
 
 [[jdbc-simple-jdbc-call-1]]
-== Calling a Stored Procedure with `SimpleJdbcCall`
+== 使用 `SimpleJdbcCall` 调用存储过程
 
-The `SimpleJdbcCall` class uses metadata in the database to look up names of `in`
-and `out` parameters so that you do not have to explicitly declare them. You can
-declare parameters if you prefer to do that or if you have parameters (such as `ARRAY`
-or `STRUCT`) that do not have an automatic mapping to a Java class. The first example
-shows a simple procedure that returns only scalar values in `VARCHAR` and `DATE` format
-from a MySQL database. The example procedure reads a specified actor entry and returns
-`first_name`, `last_name`, and `birth_date` columns in the form of `out` parameters.
-The following listing shows the first example:
+`SimpleJdbcCall` 类利用数据库中的元数据来查找 `in` 和 `out` 参数的名称，这样您就不必显式声明它们。
+如果愿意，您可以声明参数，或者如果除此之外您还有参数（如 `ARRAY` 或 `STRUCT`）没有自动映射到 Java 类，也可以声明参数。
+第一个示例展示了一个简单的过程，它仅返回 `VARCHAR` 和 `DATE` 格式的标量值。
+该过程示例读取指定的 actor 条目，并以 `out` 参数的形式返回 `first_name`、`last_name` 和 `birth_date` 列。
+以下清单显示了该过程：
 
 [source,sql,indent=0,subs="verbatim,quotes"]
 ----
@@ -242,16 +222,12 @@ BEGIN
 END;
 ----
 
-The `in_id` parameter contains the `id` of the actor that you are looking up. The `out`
-parameters return the data read from the table.
+`in_id` 参数包含您要查找的 actor 的 `id`。`out` 参数返回从表中读取的数据。
 
-You can declare `SimpleJdbcCall` in a manner similar to declaring `SimpleJdbcInsert`. You
-should instantiate and configure the class in the initialization method of your data-access
-layer. Compared to the `StoredProcedure` class, you need not create a subclass
-and you need not to declare parameters that can be looked up in the database metadata.
-The following example of a `SimpleJdbcCall` configuration uses the preceding stored
-procedure (the only configuration option, in addition to the `DataSource`, is the name
-of the stored procedure):
+您可以以类似于声明 `SimpleJdbcInsert` 的方式声明 `SimpleJdbcCall`。
+您应该在数据访问层的初始化方法中实例化和配置该类。
+与 `StoredProcedure` 类相比，您不需要创建子类，也不需要声明可以在数据库元数据中查找的参数。
+以下 `SimpleJdbcCall` 配置示例使用前面的存储过程（除了 `DataSource` 之外，唯一的配置选项是存储过程的名称）：
 
 [tabs]
 ======
@@ -280,33 +256,28 @@ public class JdbcActorDao implements ActorDao {
     return actor;
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-The code you write for the execution of the call involves creating an `SqlParameterSource`
-containing the IN parameter. You must match the name provided for the input value
-with that of the parameter name declared in the stored procedure. The case does not have
-to match because you use metadata to determine how database objects should be referred to
-in a stored procedure. What is specified in the source for the stored procedure is not
-necessarily the way it is stored in the database. Some databases transform names to all
-upper case, while others use lower case or use the case as specified.
+您为执行调用编写的代码涉及创建一个包含 IN 参数的 `SqlParameterSource`。
+您必须将为输入值提供的名称与存储过程中声明的参数名称相匹配。
+大小写不必匹配，因为您使用元数据来确定如何在存储过程中引用数据库对象。
+在存储过程的源中指定的内容不一定是它在数据库中的存储方式。
+有些数据库将名称转换为全大写，而另一些数据库则使用小写或按指定的大小写使用。
 
-The `execute` method takes the IN parameters and returns a `Map` that contains any `out`
-parameters keyed by the name, as specified in the stored procedure. In this case, they are
-`out_first_name`, `out_last_name`, and `out_birth_date`.
+`execute` 方法接受 IN 参数并返回一个 `Map`，其中包含由存储过程中的名称作为键的任何 `out` 参数。
+在这种情况下，它们是 `out_first_name`、`out_last_name` 和 `out_birth_date`。
 
-The last part of the `execute` method creates an `Actor` instance to use to return the
-data retrieved. Again, it is important to use the names of the `out` parameters as they
-are declared in the stored procedure. Also, the case in the names of the `out`
-parameters stored in the results map matches that of the `out` parameter names in the
-database, which could vary between databases. To make your code more portable, you should
-do a case-insensitive lookup or instruct Infra to use a `LinkedCaseInsensitiveMap`.
-To do the latter, you can create your own `JdbcTemplate` and set the `setResultsMapCaseInsensitive`
-property to `true`. Then you can pass this customized `JdbcTemplate` instance into
-the constructor of your `SimpleJdbcCall`. The following example shows this configuration:
+`execute` 方法的最后一部分创建一个 `Actor` 实例，用于返回检索到的数据。
+同样，使用存储过程中声明的 `out` 参数名称非常重要。
+此外，存储在结果映射中的 `out` 参数名称的大小写与数据库中 `out` 参数名称的大小写相匹配，这可能因数据库而异。
+为了使您的代码更具可移植性，您应该进行不区分大小写的查找，或者指示 Infra 使用 `LinkedCaseInsensitiveMap`。
+要执行后者，您可以创建自己的 `JdbcTemplate` 并将 `setResultsMapCaseInsensitive` 属性设置为 `true`。
+然后，您可以将此自定义 `JdbcTemplate` 实例传递给您的 `SimpleJdbcCall` 的构造函数。
+以下示例展示了此配置：
 
 [tabs]
 ======
@@ -325,40 +296,31 @@ public class JdbcActorDao implements ActorDao {
         .withProcedureName("read_actor");
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-By taking this action, you avoid conflicts in the case used for the names of your
-returned `out` parameters.
+通过采取此操作，您可以避免用于返回的 `out` 参数名称的大小写冲突。
 
 
 [[jdbc-simple-jdbc-call-2]]
-== Explicitly Declaring Parameters to Use for a `SimpleJdbcCall`
+== 为 `SimpleJdbcCall` 显式声明参数
 
-Earlier in this chapter, we described how parameters are deduced from metadata, but you can declare them
-explicitly if you wish. You can do so by creating and configuring `SimpleJdbcCall` with
-the `declareParameters` method, which takes a variable number of `SqlParameter` objects
-as input. See the xref:data-access/jdbc/simple.adoc#jdbc-params[next section] for details on how to define an `SqlParameter`.
+在本章前面，我们描述了如何从元数据推导参数，但如果愿意，您可以显式声明它们。
+为此，您可以使用 `declareParameters` 方法创建和配置 `SimpleJdbcCall`，该方法接受可变数量的 `SqlParameter` 对象作为输入。
+有关如何定义 `SqlParameter` 的详细信息，请参阅 xref:data-access/jdbc/simple.adoc#jdbc-params[下一节]。
 
-NOTE: Explicit declarations are necessary if the database you use is not a Infra-supported
-database. Currently, Infra supports metadata lookup of stored procedure calls for the
-following databases: Apache Derby, DB2, MySQL, Microsoft SQL Server, Oracle, and Sybase.
-We also support metadata lookup of stored functions for MySQL, Microsoft SQL Server,
-and Oracle.
+NOTE: 如果您使用的数据库不是 Infra 支持的数据库，则必须进行显式声明。
+目前，Infra 支持对以下数据库的存储过程调用进行元数据查找：Apache Derby、DB2、MySQL、Microsoft SQL Server、Oracle 和 Sybase。
+我们还支持 MySQL、Microsoft SQL Server 和 Oracle 的存储函数元数据查找。
 
-You can opt to explicitly declare one, some, or all of the parameters. The parameter
-metadata is still used where you do not explicitly declare parameters. To bypass all
-processing of metadata lookups for potential parameters and use only the declared
-parameters, you can call the method `withoutProcedureColumnMetaDataAccess` as part of the
-declaration. Suppose that you have two or more different call signatures declared for a
-database function. In this case, you call `useInParameterNames` to specify the list
-of IN parameter names to include for a given signature.
+您可以选择显式声明一个、部分或全部参数。在您未显式声明参数的地方，仍会使用参数元数据。
+要绕过对潜在参数的所有元数据查找处理并仅使用声明的参数，您可以调用 `withoutProcedureColumnMetaDataAccess` 方法作为声明的一部分。
+假设您为一个数据库函数声明了两个或多个不同的调用签名。在这种情况下，您调用 `useInParameterNames` 来指定要包含在给定签名中的 IN 参数名称列表。
 
-The following example shows a fully declared procedure call and uses the information from
-the preceding example:
+以下示例显示了一个完全声明的过程调用，并使用了前面示例中的信息：
 
 [tabs]
 ======
@@ -385,24 +347,21 @@ public class JdbcActorDao implements ActorDao {
         );
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 
 ======
 
-The execution and end results of the two examples are the same. The second example specifies all
-details explicitly rather than relying on metadata.
+这两个示例的执行和最终结果是相同的。第二个示例显式指定了所有详细信息，而不是依赖于元数据。
 
 
 [[jdbc-params]]
-== How to Define `SqlParameters`
+== 如何定义 `SqlParameter`
 
-To define a parameter for the `SimpleJdbc` classes and also for the RDBMS operations
-classes (covered in xref:data-access/jdbc/object.adoc[Modeling JDBC Operations as Java Objects]) you can use `SqlParameter` or one of its subclasses.
-To do so, you typically specify the parameter name and SQL type in the constructor. The SQL type
-is specified by using the `java.sql.Types` constants. Earlier in this chapter, we saw declarations
-similar to the following:
+要为 `SimpleJdbc` 类（以及 RDBMS 操作类，涵盖在 xref:data-access/jdbc/object.adoc[将 JDBC 操作建模为 Java 对象] 中）定义参数，您可以使用 `SqlParameter` 或其子类之一。
+为此，您通常在构造函数中指定参数名称和 SQL 类型。SQL 类型使用 `java.sql.Types` 常量指定。
+在本章前面，我们看到了类似于以下的声明：
 
 [tabs]
 ======
@@ -416,39 +375,27 @@ Java::
 
 ======
 
-The first line with the `SqlParameter` declares an IN parameter. You can use IN parameters
-for both stored procedure calls and for queries by using the `SqlQuery` and its
-subclasses (covered in xref:data-access/jdbc/object.adoc#jdbc-SqlQuery[Understanding `SqlQuery`]).
+带有 `SqlParameter` 的第一行声明了一个 IN 参数。IN 参数既可用于存储过程调用，也可用于使用 `SqlQuery` 及其子类的查询（涵盖在 xref:data-access/jdbc/object.adoc#jdbc-SqlQuery[理解 `SqlQuery`] 中）。
 
-The second line (with the `SqlOutParameter`) declares an `out` parameter to be used in a
-stored procedure call. There is also an `SqlInOutParameter` for `InOut` parameters
-(parameters that provide an IN value to the procedure and that also return a value).
+第二行（带有 `SqlOutParameter`）声明了一个用于存储过程调用的 `out` 参数。
+还有一个用于 `InOut` 参数的 `SqlInOutParameter`（即为存储过程提供 IN 值同时也返回值的参数）。
 
-NOTE: Only parameters declared as `SqlParameter` and `SqlInOutParameter` are used to
-provide input values. This is different from the `StoredProcedure` class, which (for
-backwards compatibility reasons) lets input values be provided for parameters
-declared as `SqlOutParameter`.
+NOTE: 只有声明为 `SqlParameter` 和 `SqlInOutParameter` 的参数才用于提供输入值。
+这与 `StoredProcedure` 类不同，后者（出于向后兼容性原因）允许为声明为 `SqlOutParameter` 的参数提供输入值。
 
-For IN parameters, in addition to the name and the SQL type, you can specify a scale for
-numeric data or a type name for custom database types. For `out` parameters, you can
-provide a `RowMapper` to handle mapping of rows returned from a `REF` cursor. Another
-option is to specify an `SqlReturnType` that provides an opportunity to define
-customized handling of the return values.
+对于 IN 参数，除了名称和 SQL 类型之外，您还可以为数字数据指定比例，或者是用于创建自定义数据库类型的类型名称。
+对于 `out` 参数，您可以提供一个 `RowMapper` 来处理从 `REF` 游标返回的行映射。
+另一个选项是指定一个 `SqlReturnType`，这让您可以定义返回值处理的自定义处理。
 
 
 [[jdbc-simple-jdbc-call-3]]
-== Calling a Stored Function by Using `SimpleJdbcCall`
+== 使用 `SimpleJdbcCall` 调用存储函数
 
-You can call a stored function in almost the same way as you call a stored procedure, except
-that you provide a function name rather than a procedure name. You use the
-`withFunctionName` method as part of the configuration to indicate that you want to make
-a call to a function, and the corresponding string for a function call is generated. A
-specialized call (`executeFunction`) is used to run the function, and it
-returns the function return value as an object of a specified type, which means you do
-not have to retrieve the return value from the results map. A similar convenience method
-(named `executeObject`) is also available for stored procedures that have only one `out`
-parameter. The following example (for MySQL) is based on a stored function named `get_actor_name`
-that returns an actor's full name:
+调用存储函数几乎与调用存储过程相同，只是您提供的是函数名称而不是过程名称。
+您使用 `withFunctionName` 方法作为配置的一部分，以指示我们想要进行函数调用，并且生成相应的函数调用字符串。
+专门用于运行函数的调用（`executeFunction`）返回指定类型的函数返回值，这意味着您不必从结果映射中检索返回值。
+对于只有一个 `out` 参数的存储过程，也有一个类似的便捷方法（名为 `executeObject`）。
+以下示例（针对 MySQL）基于名为 `get_actor_name` 的存储函数，该函数返回演员的全名：
 
 [source,sql,indent=0,subs="verbatim,quotes"]
 ----
@@ -463,8 +410,7 @@ that returns an actor's full name:
   END;
 ----
 
-To call this function, we again create a `SimpleJdbcCall` in the initialization method,
-as the following example shows:
+要调用此函数，我们再次在初始化方法中创建一个 `SimpleJdbcCall`，如下例所示：
 
 [tabs]
 ======
@@ -490,31 +436,24 @@ public class JdbcActorDao implements ActorDao {
     return name;
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 ======
 
-The `executeFunction` method used returns a `String` that contains the return value from the
-function call.
+使用的 `executeFunction` 方法返回包含函数调用返回值的 `String`。
 
 
 [[jdbc-simple-jdbc-call-4]]
-== Returning a `ResultSet` or REF Cursor from a `SimpleJdbcCall`
+== 从 `SimpleJdbcCall` 返回 `ResultSet` 或 REF 游标
 
-Calling a stored procedure or function that returns a result set is a bit tricky. Some
-databases return result sets during the JDBC results processing, while others require an
-explicitly registered `out` parameter of a specific type. Both approaches need
-additional processing to loop over the result set and process the returned rows. With
-the `SimpleJdbcCall`, you can use the `returningResultSet` method and declare a `RowMapper`
-implementation to be used for a specific parameter. If the result set is
-returned during the results processing, there are no names defined, so the returned
-results must match the order in which you declare the `RowMapper`
-implementations. The name specified is still used to store the processed list of results
-in the results map that is returned from the `execute` statement.
+调用返回结果集的存储过程或函数有点棘手。某些数据库在 JDBC 结果处理期间返回结果集，
+而另一些数据库则需要显式注册特定类型的 `out` 参数。这两种方法都需要额外的处理来循环遍历结果集并处理返回的行。
+使用 `SimpleJdbcCall`，您可以使用 `returningResultSet` 方法并声明一个 `RowMapper` 实现用于特定参数。
+如果结果集是在结果处理期间返回的，则没有定义的名称，因此返回的结果必须与您声明 `RowMapper` 实现的顺序相匹配。
+指定的名称仍用于将处理后的结果列表存储在从 `execute` 语句返回的结果映射中。
 
-The next example (for MySQL) uses a stored procedure that takes no IN parameters and returns
-all rows from the `t_actor` table:
+下一个示例（针对 MySQL）使用一个不接受 IN 参数并返回 `t_actor` 表中所有行的存储过程：
 
 [source,sql,indent=0,subs="verbatim,quotes"]
 ----
@@ -524,10 +463,9 @@ all rows from the `t_actor` table:
 	END;
 ----
 
-To call this procedure, you can declare the `RowMapper`. Because the class to which you want
-to map follows the JavaBean rules, you can use a `BeanPropertyRowMapper` that is created by
-passing in the required class to map to in the `newInstance` method.
-The following example shows how to do so:
+要调用此过程，您可以声明 `RowMapper`。因为您要映射到的类遵循 JavaBean 规则，
+所以您可以使用通过传入所需的映射类到 `newInstance` 方法创建的 `BeanPropertyRowMapper`。
+以下示例展示了如何执行此操作：
 
 [tabs]
 ======
@@ -553,13 +491,10 @@ public class JdbcActorDao implements ActorDao {
     return (List) m.get("actors");
   }
 
-  // ... additional methods
+  // ... 其他方法
 }
 ----
 ======
 
-The `execute` call passes in an empty `Map`, because this call does not take any parameters.
-The list of actors is then retrieved from the results map and returned to the caller.
-
-
-
+`execute` 调用传入一个空的 `Map`，因为此调用不带任何参数。
+然后从结果映射中检索演员列表并将其返回给调用者。
