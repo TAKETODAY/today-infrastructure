@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.freemarker.config;
+package infra.web.view.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +32,8 @@ import infra.web.view.AbstractTemplateViewResolver;
  */
 public abstract class AbstractTemplateViewResolverProperties extends AbstractViewResolverProperties {
 
+  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "request";
+
   /**
    * Prefix that gets prepended to view names when building a URL.
    */
@@ -45,8 +47,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
   /**
    * Name of the RequestContext attribute for all views.
    */
-  @Nullable
-  private String requestContextAttribute;
+  private @Nullable String requestContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with
@@ -93,8 +94,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
     this.suffix = suffix;
   }
 
-  @Nullable
-  public String getRequestContextAttribute() {
+  public @Nullable String getRequestContextAttribute() {
     return this.requestContextAttribute;
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.freemarker.config;
+package infra.web.view.config;
 
 import org.jspecify.annotations.Nullable;
 

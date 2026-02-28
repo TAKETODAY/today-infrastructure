@@ -36,6 +36,7 @@ import infra.logging.LoggerFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateLocation;
+import infra.web.view.config.AbstractTemplateViewResolverProperties;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} for configuring FreeMarker.
