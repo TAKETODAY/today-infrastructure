@@ -40,6 +40,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import infra.context.ApplicationContext;
+import infra.context.MessageSource;
+import infra.context.MessageSourceResolvable;
+import infra.context.NoSuchMessageException;
 import infra.core.AttributeAccessor;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
@@ -67,9 +70,12 @@ import infra.web.multipart.MultipartRequest;
  */
 public abstract class DecoratingRequestContext extends RequestContext {
 
-  @SuppressWarnings("NullAway")
   protected DecoratingRequestContext() {
     super(null, null);
+  }
+
+  protected DecoratingRequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
+    super(context, dispatcherHandler);
   }
 
   @Override
@@ -78,23 +84,13 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
+  public long getRequestProcessingTime() {
+    return delegate().getRequestProcessingTime();
+  }
+
+  @Override
   public ApplicationContext getApplicationContext() {
     return delegate().getApplicationContext();
-  }
-
-  @Override
-  public Reader getReader(Charset encoding) throws IOException {
-    return delegate().getReader(encoding);
-  }
-
-  @Override
-  public ReadableByteChannel readableChannel() throws IOException {
-    return delegate().readableChannel();
-  }
-
-  @Override
-  public WritableByteChannel writableChannel() throws IOException {
-    return delegate().writableChannel();
   }
 
   @Override
@@ -281,6 +277,21 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
+  public Reader getReader(Charset encoding) throws IOException {
+    return delegate().getReader(encoding);
+  }
+
+  @Override
+  public ReadableByteChannel readableChannel() throws IOException {
+    return delegate().readableChannel();
+  }
+
+  @Override
+  public WritableByteChannel writableChannel() throws IOException {
+    return delegate().writableChannel();
+  }
+
+  @Override
   protected BufferedReader createReader() throws IOException {
     return delegate().createReader();
   }
@@ -323,6 +334,11 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   public Collection<String> getHeaderNames() {
     return delegate().getHeaderNames();
+  }
+
+  @Override
+  public boolean containsHeader(String name) {
+    return delegate().containsHeader(name);
   }
 
   @Override
@@ -523,6 +539,11 @@ public abstract class DecoratingRequestContext extends RequestContext {
     delegate().setAttribute(name, value);
   }
 
+  @Override
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    delegate().setAttributes(attributes);
+  }
+
   @Nullable
   @Override
   public Object removeAttribute(String name) {
@@ -677,6 +698,76 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   protected RequestPath readRequestPath() {
     return delegate().readRequestPath();
+  }
+
+  @Override
+  public MessageSource getMessageSource() {
+    return delegate().getMessageSource();
+  }
+
+  @Override
+  public String getMessage(String code) throws NoSuchMessageException {
+    return delegate().getMessage(code);
+  }
+
+  @Override
+  public String getMessage(String code, @Nullable List<?> args) throws NoSuchMessageException {
+    return delegate().getMessage(code, args);
+  }
+
+  @Override
+  public String getMessage(String code, Object @Nullable [] args) throws NoSuchMessageException {
+    return delegate().getMessage(code, args);
+  }
+
+  @Override
+  public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
+    return delegate().getMessage(resolvable);
+  }
+
+  @Override
+  public String getMessage(String code, String defaultMessage) {
+    return delegate().getMessage(code, defaultMessage);
+  }
+
+  @Override
+  public String getMessage(String code, @Nullable List<?> args, String defaultMessage) {
+    return delegate().getMessage(code, args, defaultMessage);
+  }
+
+  @Override
+  public String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
+    return delegate().getMessage(code, args, htmlEscape);
+  }
+
+  @Override
+  public String getMessage(String code, Object @Nullable [] args, String defaultMessage) {
+    return delegate().getMessage(code, args, defaultMessage);
+  }
+
+  @Override
+  public String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
+    return delegate().getMessage(resolvable, htmlEscape);
+  }
+
+  @Override
+  public String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
+    return delegate().getMessage(code, args, defaultMessage, htmlEscape);
+  }
+
+  @Override
+  public void registerDestructionCallback(Runnable callback) {
+    delegate().registerDestructionCallback(callback);
+  }
+
+  @Override
+  public void registerDestructionCallback(String name, Runnable callback) {
+    delegate().registerDestructionCallback(name, callback);
+  }
+
+  @Override
+  public void removeDestructionCallback(String name) {
+    delegate().removeDestructionCallback(name);
   }
 
   public abstract RequestContext delegate();

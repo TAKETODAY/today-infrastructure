@@ -46,6 +46,9 @@ import java.util.TimeZone;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
+import infra.context.MessageSource;
+import infra.context.MessageSourceResolvable;
+import infra.context.NoSuchMessageException;
 import infra.core.AttributeAccessor;
 import infra.core.AttributeAccessorSupport;
 import infra.core.Conventions;
@@ -67,6 +70,7 @@ import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.NullValue;
+import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -77,6 +81,7 @@ import infra.web.async.WebAsyncManagerFactory;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.multipart.MultipartRequest;
+import infra.web.util.HtmlUtils;
 import infra.web.util.WebUtils;
 
 import static infra.lang.Constant.DEFAULT_CHARSET;
@@ -142,6 +147,15 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * Supported in addition to the standard scopes "singleton" and "prototype".
    */
   public static final String SCOPE_SESSION = SessionScope.NAME;
+
+  /**
+   * Flag indicating whether HTML escaping is enabled by default for message resolution.
+   * This value is retrieved from the application's configuration using the key
+   * "infra.web.default-html-escape". If the key is not found, the default value is {@code true}.
+   *
+   * @since 5.0
+   */
+  public static final boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", true);
 
   private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 
@@ -287,7 +301,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return this request processing time millis
    * @since 4.0
    */
-  public final long getRequestProcessingTime() {
+  public long getRequestProcessingTime() {
     long requestCompletedTimeMillis = this.requestCompletedTimeMillis;
     if (requestCompletedTimeMillis > 0) {
       return requestCompletedTimeMillis - getRequestTimeMillis();
@@ -1075,7 +1089,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param callback the callback to be executed for destruction
    * @since 5.0
    */
-  public final void registerDestructionCallback(Runnable callback) {
+  public void registerDestructionCallback(Runnable callback) {
     Assert.notNull(callback, "Destruction Callback is required");
     String variableName = Conventions.getVariableName(callback);
     registerDestructionCallback(variableName, callback);
@@ -1088,7 +1102,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param callback the callback to be executed for destruction
    * @since 5.0
    */
-  public final void registerDestructionCallback(String name, Runnable callback) {
+  public void registerDestructionCallback(String name, Runnable callback) {
     Assert.notNull(name, "Name is required");
     Assert.notNull(callback, "Destruction Callback is required");
     if (destructionCallbacks == null) {
@@ -1103,7 +1117,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param name the name of the attribute to remove the callback for
    * @since 5.0
    */
-  public final void removeDestructionCallback(String name) {
+  public void removeDestructionCallback(String name) {
     Assert.notNull(name, "Name is required");
     if (destructionCallbacks != null) {
       destructionCallbacks.remove(name);
@@ -2309,6 +2323,166 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   protected final void processException(Throwable exception) throws Throwable {
     dispatcherHandler.processDispatchResult(this, null, null, exception);
+  }
+
+  // ---------------------------------------------------------------------
+  // MessageSource API
+  // ---------------------------------------------------------------------
+
+  /**
+   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
+   *
+   * @param code the code of the message
+   * @param defaultMessage the String to return if the lookup fails
+   * @return the message
+   * @since 5.0
+   */
+  public String getMessage(String code, String defaultMessage) {
+    return getMessage(code, null, defaultMessage, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
+   *
+   * @param code the code of the message
+   * @param args arguments for the message, or {@code null} if none
+   * @param defaultMessage the String to return if the lookup fails
+   * @return the message
+   * @since 5.0
+   */
+  public String getMessage(String code, Object @Nullable [] args, String defaultMessage) {
+    return getMessage(code, args, defaultMessage, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
+   *
+   * @param code the code of the message
+   * @param args arguments for the message as a List, or {@code null} if none
+   * @param defaultMessage the String to return if the lookup fails
+   * @return the message
+   * @since 5.0
+   */
+  public String getMessage(String code, @Nullable List<?> args, String defaultMessage) {
+    return getMessage(code, (args != null ? args.toArray() : null), defaultMessage, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the message for the given code.
+   *
+   * @param code the code of the message
+   * @param args arguments for the message, or {@code null} if none
+   * @param defaultMessage the String to return if the lookup fails
+   * @param htmlEscape if the message should be HTML-escaped
+   * @return the message
+   * @since 5.0
+   */
+  public String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
+    String msg = getMessageSource().getMessage(code, args, defaultMessage, getLocale());
+    if (msg == null) {
+      return "";
+    }
+    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
+  }
+
+  /**
+   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
+   *
+   * @param code the code of the message
+   * @return the message
+   * @throws infra.context.NoSuchMessageException if not found
+   * @since 5.0
+   */
+  public String getMessage(String code) throws NoSuchMessageException {
+    return getMessage(code, null, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
+   *
+   * @param code the code of the message
+   * @param args arguments for the message, or {@code null} if none
+   * @return the message
+   * @throws infra.context.NoSuchMessageException if not found
+   * @since 5.0
+   */
+  public String getMessage(String code, Object @Nullable [] args) throws NoSuchMessageException {
+    return getMessage(code, args, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
+   *
+   * @param code the code of the message
+   * @param args arguments for the message as a List, or {@code null} if none
+   * @return the message
+   * @throws infra.context.NoSuchMessageException if not found
+   * @since 5.0
+   */
+  public String getMessage(String code, @Nullable List<?> args) throws NoSuchMessageException {
+    return getMessage(code, args != null ? args.toArray() : null, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the message for the given code.
+   *
+   * @param code the code of the message
+   * @param args arguments for the message, or {@code null} if none
+   * @param htmlEscape if the message should be HTML-escaped
+   * @return the message
+   * @throws infra.context.NoSuchMessageException if not found
+   * @since 5.0
+   */
+  public String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
+    String msg = getMessageSource().getMessage(code, args, getLocale());
+    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
+  }
+
+  /**
+   * Retrieve the given MessageSourceResolvable (for example, an ObjectError instance), using the "defaultHtmlEscape" setting.
+   *
+   * @param resolvable the MessageSourceResolvable
+   * @return the message
+   * @throws infra.context.NoSuchMessageException if not found
+   * @since 5.0
+   */
+  public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
+    return getMessage(resolvable, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the given MessageSourceResolvable (for example, an ObjectError instance).
+   *
+   * @param resolvable the MessageSourceResolvable
+   * @param htmlEscape if the message should be HTML-escaped
+   * @return the message
+   * @throws infra.context.NoSuchMessageException if not found
+   * @since 5.0
+   */
+  public String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
+    String msg = getMessageSource().getMessage(resolvable, getLocale());
+    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
+  }
+
+  /**
+   * Return the MessageSource to use (typically the current ApplicationContext).
+   *
+   * @since 5.0
+   */
+  public MessageSource getMessageSource() {
+    return getApplicationContext();
+  }
+
+  /**
+   * Determines whether HTML escaping is enabled by default for message resolution.
+   * This method returns the value of the static field {@code defaultHtmlEscape},
+   * which is initialized from the application's configuration.
+   *
+   * @return {@code true} if HTML escaping is enabled by default, {@code false} otherwise
+   * @since 5.0
+   */
+  protected boolean isDefaultHtmlEscape() {
+    return defaultHtmlEscape;
   }
 
   @Override
