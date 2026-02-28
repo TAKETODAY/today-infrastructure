@@ -35,11 +35,9 @@ import infra.context.ApplicationContext;
 import infra.context.support.ApplicationObjectSupport;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Assert;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
-import infra.web.BindingContext;
 import infra.web.ContextExposingRequestContext;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RedirectModel;
@@ -355,7 +353,6 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * Dynamic values take precedence over static attributes.
    */
   protected Map<String, Object> createMergedOutputModel(@Nullable Map<String, ?> model, RequestContext context) {
-
     // Consolidate static and dynamic model attributes.
     Map<String, Object> staticAttributes = getStaticAttributes();
     int size = model != null ? model.size() : 0;
@@ -393,21 +390,6 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
       RedirectModel output = RequestContextUtils.getOutputRedirectModel(context);
       if (output != null) {
         mergedModel.putAll(output.asMap());
-      }
-    }
-
-    // Model from BindingContext
-    BindingContext binding = context.getBinding();
-    if (binding != null) {
-      try {
-        binding.updateModel(context);
-      }
-      catch (Throwable e) {
-        throw new ViewRenderingException("View model update failed", e);
-      }
-      if (binding.hasModel()) {
-        // injected arguments Model
-        mergedModel.putAll(binding.getModel());
       }
     }
 
@@ -456,8 +438,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    */
   protected RequestContext getRequestContextToExpose(RequestContext original) {
     if (this.exposeContextBeansAsAttributes || this.exposedContextBeanNames != null) {
-      ApplicationContext wac = getApplicationContext();
-      Assert.state(wac != null, "No ApplicationContext");
+      ApplicationContext wac = applicationContext();
       return new ContextExposingRequestContext(original, wac, this.exposedContextBeanNames);
     }
     return original;

@@ -57,6 +57,11 @@ public class ContextExposingRequestContext extends DecoratingRequestContext {
   }
 
   @Override
+  public ApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
+
+  @Override
   @Nullable
   public Object getAttribute(String name) {
     if ((explicitAttributes == null || !explicitAttributes.contains(name))

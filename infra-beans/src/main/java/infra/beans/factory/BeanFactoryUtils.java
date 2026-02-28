@@ -561,16 +561,46 @@ public abstract class BeanFactoryUtils {
     }
   }
 
+  /**
+   * Find a bean with the specified name in the given bean factory.
+   * <p>If no such bean is found, returns {@code null}.
+   *
+   * @param beanFactory the bean factory to search in
+   * @param beanName the name of the bean to find
+   * @param <T> the type of the bean
+   * @return the bean instance with the specified name, or {@code null} if not found
+   */
   @Nullable
   public static <T> T find(BeanFactory beanFactory, String beanName) {
     return find(beanFactory, beanName, null);
   }
 
+  /**
+   * Find a bean with the specified name and type in the given bean factory.
+   * <p>If no such bean is found, returns {@code null}.
+   *
+   * @param beanFactory the bean factory to search in
+   * @param beanName the name of the bean to find
+   * @param requiredType the required type of the bean
+   * @param <T> the type of the bean
+   * @return the bean instance with the specified name and type, or {@code null} if not found
+   */
   @Nullable
   public static <T> T find(BeanFactory beanFactory, String beanName, @Nullable Class<T> requiredType) {
     return find(beanFactory, beanName, requiredType, null);
   }
 
+  /**
+   * Find a bean with the specified name and type in the given bean factory.
+   * <p>If no such bean is found, returns the value provided by the default supplier.
+   *
+   * @param beanFactory the bean factory to search in
+   * @param beanName the name of the bean to find
+   * @param requiredType the required type of the bean
+   * @param defaultValue a supplier providing a default value if the bean is not found
+   * @param <T> the type of the bean
+   * @return the bean instance with the specified name and type, or the default value if not found
+   */
   @Nullable
   @SuppressWarnings("NullAway")
   public static <T> T find(BeanFactory beanFactory, String beanName,
@@ -584,6 +614,17 @@ public abstract class BeanFactoryUtils {
     return null;
   }
 
+  /**
+   * Find a local bean with the specified name and type in the given bean factory.
+   * <p>If the bean factory is hierarchical, only searches within the local bean factory.
+   * If no such bean is found, returns {@code null}.
+   *
+   * @param beanFactory the bean factory to search in
+   * @param beanName the name of the bean to find
+   * @param requiredType the required type of the bean
+   * @param <T> the type of the bean
+   * @return the local bean instance with the specified name and type, or {@code null} if not found
+   */
   @Nullable
   public static <T> T findLocal(BeanFactory beanFactory, String beanName, Class<T> requiredType) {
     if (beanFactory instanceof HierarchicalBeanFactory hbc) {
@@ -603,11 +644,30 @@ public abstract class BeanFactoryUtils {
 
   // type lookup
 
+  /**
+   * Find a bean of the specified type in the given bean factory.
+   * <p>If no such bean is found, returns {@code null}.
+   *
+   * @param beanFactory the bean factory to search in
+   * @param requiredType the type of bean to find
+   * @param <T> the type of the bean
+   * @return the bean instance of the specified type, or {@code null} if not found
+   */
   @Nullable
   public static <T> T find(BeanFactory beanFactory, Class<T> requiredType) {
     return find(beanFactory, requiredType, null);
   }
 
+  /**
+   * Find a bean of the specified type in the given bean factory.
+   * <p>If no such bean is found, returns the value provided by the default supplier.
+   *
+   * @param beanFactory the bean factory to search in
+   * @param requiredType the type of bean to find
+   * @param defaultValue a supplier providing a default value if the bean is not found
+   * @param <T> the type of the bean
+   * @return the bean instance of the specified type, or the default value if not found
+   */
   @Nullable
   public static <T> T find(BeanFactory beanFactory, Class<T> requiredType, @Nullable Supplier<T> defaultValue) {
     try {

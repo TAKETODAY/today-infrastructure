@@ -23,6 +23,7 @@ import java.util.Map;
 
 import infra.core.i18n.LocaleContextHolder;
 import infra.lang.Assert;
+import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.LocaleResolver;
@@ -34,10 +35,12 @@ import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.SmartReturnValueHandler;
 
 /**
- * view-name or {@link View} and {@link ViewRef} ReturnValueHandler
+ * Handles return values that are view names, {@link View} instances, or {@link ViewRef} references.
+ * This handler is responsible for resolving and rendering views based on the return value of a handler method.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see View
+ * @see ViewRef
  * @see RedirectModel
  * @see RedirectModelManager
  * @see HandlerMethod
@@ -47,8 +50,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   private final ViewResolver viewResolver;
 
-  @Nullable
-  private LocaleResolver localeResolver;
+  private @Nullable LocaleResolver localeResolver;
 
   public ViewReturnValueHandler(ViewResolver viewResolver) {
     this(viewResolver, null);
@@ -241,7 +243,27 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param view View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, View view, @Nullable Map<String, Object> model) {
+  public void renderView(RequestContext context, View view, @Nullable Map<String, @Nullable Object> model) {
+    // Model from BindingContext
+    BindingContext binding = context.getBinding();
+    if (binding != null) {
+      try {
+        binding.updateModel(context);
+      }
+      catch (Throwable e) {
+        throw new ViewRenderingException("View model update failed", e);
+      }
+      if (binding.hasModel()) {
+        // injected arguments Model
+        if (model == null) {
+          model = binding.getModel().asMap();
+        }
+        else {
+          model.putAll(binding.getModel().asMap());
+        }
+      }
+    }
+
     try {
       // do rendering
       view.render(model, context);
@@ -270,8 +292,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    *
    * @return LocaleResolver
    */
-  @Nullable
-  public LocaleResolver getLocaleResolver() {
+  public @Nullable LocaleResolver getLocaleResolver() {
     return localeResolver;
   }
 
@@ -304,8 +325,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     return view;
   }
 
-  @Nullable
-  private View resolveViewName(Locale locale, String viewName) {
+  private @Nullable View resolveViewName(Locale locale, String viewName) {
     try {
       return viewResolver.resolveViewName(viewName, locale);
     }
