@@ -66,6 +66,68 @@ dependencies {
 | `server.netty.leak-detection`
 | 资源泄漏检测级别 (DISABLED, SIMPLE, ADVANCED, PARANOID)。
 | DISABLED
+
+| `server.netty.writer-auto-flush`
+| 是否在每次写入操作后自动刷新 PrintWriter。
+| false
+
+| `server.netty.data-received-queue-capacity`
+| 用于存储接收数据块的队列容量。
+| 256
+
+| `server.netty.auto-read`
+| 是否自动从通道读取数据。
+| true
+
+| `server.netty.auto-ack-ping-frame`
+| 是否自动确认 PING 帧。
+| true
+
+| `server.netty.auto-ack-settings-frame`
+| 是否自动确认 SETTINGS 帧。
+| true
+
+| `server.netty.http2-graceful-shutdown-timeout`
+| HTTP/2 连接的优雅关闭超时时间。
+| 30s
+
+| `server.netty.chunked-supported`
+| 是否支持 `Transfer-Encoding: Chunked`。
+| true
+
+| `server.netty.allow-partial-chunks`
+| 是否允许分块被拆分为多个消息。
+| true
+
+| `server.netty.allow-duplicate-content-lengths`
+| 是否允许超过一个 `Content-Length` 头。
+| false
+|===
+
+此外，还有一些通用的服务器配置属性，位于 `server` 前缀下：
+
+|===
+| 属性名 | 描述 | 默认值
+
+| `server.port`
+| 服务器 HTTP 端口。
+| 8080
+
+| `server.address`
+| 服务器绑定的网络地址。
+| 0.0.0.0 (所有接口)
+
+| `server.use-virtual-thread-service-executor`
+| 是否使用虚拟线程作为服务执行器 (Java 21+)。
+| false
+
+| `server.forward-headers-strategy`
+| 处理 X-Forwarded-* 头的策略 (NATIVE, FRAMEWORK, NONE)。
+| 无 (暂未实现)
+
+| `server.shutdown`
+| 服务器支持的关闭类型 (IMMEDIATE, GRACEFUL)。
+| GRACEFUL
 |===
 
 === 线程池配置
@@ -91,6 +153,61 @@ server:
     shutdown:
       quiet-period: 2 # 静默期（秒），在此期间如果没有新任务提交，则关闭
       timeout: 15     # 最大等待时间（秒），无论是否有任务提交，超过此时间强制关闭
+----
+
+=== HTTP/2 配置
+
+可以通过 `server.http2` 前缀配置 HTTP/2：
+
+[source,yaml]
+----
+server:
+  http2:
+    enabled: true # 启用 HTTP/2
+----
+
+=== SSL 配置
+
+可以通过 `server.ssl` 前缀配置 SSL：
+
+[source,yaml]
+----
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    key-alias: tomcat
+----
+
+=== 压缩配置（暂未实现）
+
+可以通过 `server.compression` 前缀配置响应压缩：
+
+[source,yaml]
+----
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
+    min-response-size: 2048
+----
+
+=== Multipart 配置
+
+可以通过 `server.multipart` 前缀配置 Multipart 请求处理：
+
+[source,yaml]
+----
+server:
+  multipart:
+    max-fields: 128
+    max-header-size: 512B
+    field-size-threshold: 16KB
+    parsing-buffer-size: 4KB
+    default-charset: UTF-8
+    temp-base-dir: /tmp/uploads
 ----
 
 == 编程式配置
