@@ -1054,7 +1054,7 @@ public final class RequestContextUtils {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  private static final class InjectableRequestContext extends DecoratingRequestContext {
+  private static final class InjectableRequestContext extends DecorableRequestContext {
 
     @Override
     public RequestContext delegate() {

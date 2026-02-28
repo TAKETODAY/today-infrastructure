@@ -36,13 +36,9 @@ import infra.lang.Assert;
  */
 public class ContextExposingRequestContext extends DecoratingRequestContext {
 
-  private final RequestContext delegate;
+  private final @Nullable Set<String> exposedContextBeanNames;
 
-  @Nullable
-  private final Set<String> exposedContextBeanNames;
-
-  @Nullable
-  private Set<String> explicitAttributes;
+  private @Nullable Set<String> explicitAttributes;
 
   /**
    * Create a new ContextExposingRequestContext for the given request.
@@ -55,9 +51,8 @@ public class ContextExposingRequestContext extends DecoratingRequestContext {
    * @throws NullPointerException if RequestContext is {@code null}
    */
   public ContextExposingRequestContext(RequestContext delegate, ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
-    super(context, delegate.dispatcherHandler);
+    super(delegate, context, delegate.dispatcherHandler);
     Assert.notNull(context, "ApplicationContext is required");
-    this.delegate = delegate;
     this.exposedContextBeanNames = exposedContextBeanNames;
   }
 
@@ -81,11 +76,6 @@ public class ContextExposingRequestContext extends DecoratingRequestContext {
       this.explicitAttributes = new HashSet<>(8);
     }
     this.explicitAttributes.add(name);
-  }
-
-  @Override
-  public RequestContext delegate() {
-    return delegate;
   }
 
 }

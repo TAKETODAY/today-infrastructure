@@ -62,12 +62,7 @@ class DecoratingRequestContextTests {
   @Test
   void getDelegate_ShouldReturnDelegateInstance() {
     RequestContext delegate = mock(RequestContext.class);
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     assertThat(wrapper.delegate()).isSameAs(delegate);
   }
@@ -75,19 +70,8 @@ class DecoratingRequestContextTests {
   @Test
   void equals_ShouldReturnTrue_ForSameDelegate() {
     RequestContext delegate = mock(RequestContext.class);
-    DecoratingRequestContext wrapper1 = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
-
-    DecoratingRequestContext wrapper2 = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper1 = new DecoratingRequestContext(delegate);
+    DecoratingRequestContext wrapper2 = new DecoratingRequestContext(delegate);
 
     assertThat(wrapper1).isEqualTo(wrapper2);
   }
@@ -96,19 +80,8 @@ class DecoratingRequestContextTests {
   void equals_ShouldReturnFalse_ForDifferentDelegate() {
     RequestContext delegate1 = mock(RequestContext.class);
     RequestContext delegate2 = mock(RequestContext.class);
-    DecoratingRequestContext wrapper1 = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate1;
-      }
-    };
-
-    DecoratingRequestContext wrapper2 = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate2;
-      }
-    };
+    DecoratingRequestContext wrapper1 = new DecoratingRequestContext(delegate1);
+    DecoratingRequestContext wrapper2 = new DecoratingRequestContext(delegate2);
 
     assertThat(wrapper1).isNotEqualTo(wrapper2);
   }
@@ -116,36 +89,21 @@ class DecoratingRequestContextTests {
   @Test
   void equals_ShouldReturnFalse_ForNonDecoratingRequestContext() {
     RequestContext delegate = mock(RequestContext.class);
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     assertThat(wrapper).isNotEqualTo(delegate);
   }
 
   @Test
   void equals_ShouldReturnTrue_ForSameInstance() {
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return mock(RequestContext.class);
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(mock());
 
     assertThat(wrapper).isEqualTo(wrapper);
   }
 
   @Test
   void hashCode_ShouldReturnIdentityHashCode() {
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return mock(RequestContext.class);
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(mock(RequestContext.class));
 
     assertThat(wrapper.hashCode()).isEqualTo(System.identityHashCode(wrapper));
   }
@@ -155,12 +113,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.toString()).thenReturn("MockDelegate");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     assertThat(wrapper.toString()).isEqualTo("Wrapper for MockDelegate");
   }
@@ -168,12 +121,7 @@ class DecoratingRequestContextTests {
   @Test
   void allMethodsShouldDelegateToWrappedInstance() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     // Test a few representative methods
     wrapper.getRequestURI();
@@ -194,12 +142,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getRequestTimeMillis()).thenReturn(12345L);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     long result = wrapper.getRequestTimeMillis();
 
@@ -213,12 +156,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getApplicationContext()).thenReturn(applicationContext);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     ApplicationContext result = wrapper.getApplicationContext();
 
@@ -233,12 +171,7 @@ class DecoratingRequestContextTests {
     Charset charset = Charset.defaultCharset();
     when(delegate.getReader(charset)).thenReturn(reader);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Reader result = wrapper.getReader(charset);
 
@@ -252,12 +185,7 @@ class DecoratingRequestContextTests {
     ReadableByteChannel channel = mock(ReadableByteChannel.class);
     when(delegate.readableChannel()).thenReturn(channel);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     ReadableByteChannel result = wrapper.readableChannel();
 
@@ -271,12 +199,7 @@ class DecoratingRequestContextTests {
     WritableByteChannel channel = mock(WritableByteChannel.class);
     when(delegate.writableChannel()).thenReturn(channel);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     WritableByteChannel result = wrapper.writableChannel();
 
@@ -289,12 +212,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getScheme()).thenReturn("https");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getScheme();
 
@@ -307,12 +225,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getServerPort()).thenReturn(8080);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     int result = wrapper.getServerPort();
 
@@ -325,12 +238,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getServerName()).thenReturn("localhost");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getServerName();
 
@@ -344,12 +252,7 @@ class DecoratingRequestContextTests {
     URI uri = URI.create("http://localhost:8080/test");
     when(delegate.getURI()).thenReturn(uri);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     URI result = wrapper.getURI();
 
@@ -362,12 +265,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.isPreFlightRequest()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.isPreFlightRequest();
 
@@ -380,12 +278,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.isCorsRequest()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.isCorsRequest();
 
@@ -399,12 +292,7 @@ class DecoratingRequestContextTests {
     RequestPath requestPath = mock(RequestPath.class);
     when(delegate.getRequestPath()).thenReturn(requestPath);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     RequestPath result = wrapper.getRequestPath();
 
@@ -417,12 +305,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getRequestURL()).thenReturn("http://localhost:8080/test");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getRequestURL();
 
@@ -435,12 +318,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getQueryString()).thenReturn("param=value");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getQueryString();
 
@@ -454,12 +332,7 @@ class DecoratingRequestContextTests {
     HttpCookie[] cookies = new HttpCookie[0];
     when(delegate.getCookies()).thenReturn(cookies);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpCookie[] result = wrapper.getCookies();
 
@@ -473,12 +346,7 @@ class DecoratingRequestContextTests {
     HttpCookie cookie = mock(HttpCookie.class);
     when(delegate.getCookie("test")).thenReturn(cookie);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpCookie result = wrapper.getCookie("test");
 
@@ -491,12 +359,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     ResponseCookie cookie = mock(ResponseCookie.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.addCookie(cookie);
 
@@ -507,12 +370,7 @@ class DecoratingRequestContextTests {
   void addCookieWithNameAndValue_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.addCookie("name", "value");
 
@@ -525,12 +383,7 @@ class DecoratingRequestContextTests {
     List<ResponseCookie> cookies = new ArrayList<>();
     when(delegate.removeCookie("name")).thenReturn(cookies);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     List<ResponseCookie> result = wrapper.removeCookie("name");
 
@@ -543,12 +396,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.hasResponseCookie()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.hasResponseCookie();
 
@@ -562,12 +410,7 @@ class DecoratingRequestContextTests {
     ArrayList<ResponseCookie> cookies = new ArrayList<>();
     when(delegate.responseCookies()).thenReturn(cookies);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     ArrayList<ResponseCookie> result = wrapper.responseCookies();
 
@@ -581,12 +424,7 @@ class DecoratingRequestContextTests {
     MultiValueMap<String, String> parameters = mock(MultiValueMap.class);
     when(delegate.getParameters()).thenReturn(parameters);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     MultiValueMap<String, String> result = wrapper.getParameters();
 
@@ -600,12 +438,7 @@ class DecoratingRequestContextTests {
     Set<String> parameterNames = Set.of("param1", "param2");
     when(delegate.getParameterNames()).thenReturn(parameterNames);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Set<String> result = wrapper.getParameterNames();
 
@@ -619,12 +452,7 @@ class DecoratingRequestContextTests {
     String[] values = { "value1", "value2" };
     when(delegate.getParameters("param")).thenReturn(values);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String[] result = wrapper.getParameters("param");
 
@@ -637,12 +465,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getParameter("param")).thenReturn("value");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getParameter("param");
 
@@ -655,12 +478,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getRemoteAddress()).thenReturn("192.168.1.1");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getRemoteAddress();
 
@@ -673,12 +491,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getRemotePort()).thenReturn(12345);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     int result = wrapper.getRemotePort();
 
@@ -692,12 +505,7 @@ class DecoratingRequestContextTests {
     SocketAddress address = mock(SocketAddress.class);
     when(delegate.localAddress()).thenReturn(address);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     SocketAddress result = wrapper.localAddress();
 
@@ -711,12 +519,7 @@ class DecoratingRequestContextTests {
     InetSocketAddress address = mock(InetSocketAddress.class);
     when(delegate.remoteAddress()).thenReturn(address);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     InetSocketAddress result = wrapper.remoteAddress();
 
@@ -729,12 +532,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getContentLength()).thenReturn(1024L);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     long result = wrapper.getContentLength();
 
@@ -748,12 +546,7 @@ class DecoratingRequestContextTests {
     InputStream body = mock(InputStream.class);
     when(delegate.getBody()).thenReturn(body);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     InputStream result = wrapper.getBody();
 
@@ -767,12 +560,7 @@ class DecoratingRequestContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.getHeaders()).thenReturn(headers);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpHeaders result = wrapper.getHeaders();
 
@@ -786,12 +574,7 @@ class DecoratingRequestContextTests {
     InputStream inputStream = mock(InputStream.class);
     when(delegate.getInputStream()).thenReturn(inputStream);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     InputStream result = wrapper.getInputStream();
 
@@ -805,12 +588,7 @@ class DecoratingRequestContextTests {
     java.io.BufferedReader reader = mock(java.io.BufferedReader.class);
     when(delegate.getReader()).thenReturn(reader);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     java.io.BufferedReader result = wrapper.getReader();
 
@@ -823,12 +601,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.isMultipart()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.isMultipart();
 
@@ -841,12 +614,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getContentTypeAsString()).thenReturn("application/json");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getContentTypeAsString();
 
@@ -860,12 +628,7 @@ class DecoratingRequestContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.requestHeaders()).thenReturn(headers);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpHeaders result = wrapper.requestHeaders();
 
@@ -879,12 +642,7 @@ class DecoratingRequestContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.createRequestHeaders()).thenReturn(headers);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpHeaders result = wrapper.createRequestHeaders();
 
@@ -898,12 +656,7 @@ class DecoratingRequestContextTests {
     Locale locale = Locale.ENGLISH;
     when(delegate.getLocale()).thenReturn(locale);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Locale result = wrapper.getLocale();
 
@@ -916,12 +669,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.checkNotModified(12345L)).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.checkNotModified(12345L);
 
@@ -934,12 +682,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.checkNotModified("etag-value")).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.checkNotModified("etag-value");
 
@@ -952,12 +695,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.checkNotModified("etag-value", 12345L)).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.checkNotModified("etag-value", 12345L);
 
@@ -970,12 +708,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.isNotModified()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.isNotModified();
 
@@ -987,12 +720,7 @@ class DecoratingRequestContextTests {
   void setContentLength_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setContentLength(1024L);
 
@@ -1004,12 +732,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.isCommitted()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.isCommitted();
 
@@ -1021,12 +744,7 @@ class DecoratingRequestContextTests {
   void reset_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.reset();
 
@@ -1037,12 +755,7 @@ class DecoratingRequestContextTests {
   void sendRedirect_ShouldDelegateToDelegate() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.sendRedirect("http://example.com");
 
@@ -1053,12 +766,7 @@ class DecoratingRequestContextTests {
   void setStatusWithInt_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setStatus(200);
 
@@ -1069,12 +777,7 @@ class DecoratingRequestContextTests {
   void setStatusWithHttpStatusCode_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setStatus(HttpStatusCode.valueOf(200));
 
@@ -1086,12 +789,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getStatus()).thenReturn(200);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     int result = wrapper.getStatus();
 
@@ -1103,12 +801,7 @@ class DecoratingRequestContextTests {
   void sendErrorWithHttpStatusCode_ShouldDelegateToDelegate() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.sendError(HttpStatus.NOT_FOUND);
 
@@ -1119,12 +812,7 @@ class DecoratingRequestContextTests {
   void sendErrorWithHttpStatusCodeAndMessage_ShouldDelegateToDelegate() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.sendError(HttpStatus.NOT_FOUND, "Not found");
 
@@ -1135,12 +823,7 @@ class DecoratingRequestContextTests {
   void sendErrorWithInt_ShouldDelegateToDelegate() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.sendError(404);
 
@@ -1151,12 +834,7 @@ class DecoratingRequestContextTests {
   void sendErrorWithIntAndMessage_ShouldDelegateToDelegate() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.sendError(404, "Not found");
 
@@ -1169,12 +847,7 @@ class DecoratingRequestContextTests {
     java.io.OutputStream outputStream = mock(java.io.OutputStream.class);
     when(delegate.getOutputStream()).thenReturn(outputStream);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     java.io.OutputStream result = wrapper.getOutputStream();
 
@@ -1188,12 +861,7 @@ class DecoratingRequestContextTests {
     java.io.PrintWriter writer = mock(java.io.PrintWriter.class);
     when(delegate.getWriter()).thenReturn(writer);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     java.io.PrintWriter result = wrapper.getWriter();
 
@@ -1205,12 +873,7 @@ class DecoratingRequestContextTests {
   void setContentTypeWithString_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setContentType("text/html");
 
@@ -1221,12 +884,7 @@ class DecoratingRequestContextTests {
   void setContentTypeWithMediaType_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setContentType(MediaType.TEXT_HTML);
 
@@ -1238,12 +896,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getResponseContentType()).thenReturn("text/html");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getResponseContentType();
 
@@ -1255,12 +908,7 @@ class DecoratingRequestContextTests {
   void setHeader_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setHeader("Content-Type", "application/json");
 
@@ -1271,12 +919,7 @@ class DecoratingRequestContextTests {
   void addHeader_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.addHeader("Cache-Control", "no-cache");
 
@@ -1287,12 +930,7 @@ class DecoratingRequestContextTests {
   void removeHeader_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.removeHeader("Cache-Control");
 
@@ -1304,12 +942,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.containsResponseHeader("Content-Type")).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.containsResponseHeader("Content-Type");
 
@@ -1323,12 +956,7 @@ class DecoratingRequestContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.responseHeaders()).thenReturn(headers);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpHeaders result = wrapper.responseHeaders();
 
@@ -1341,12 +969,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     HttpHeaders headers = mock(HttpHeaders.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.addHeaders(headers);
 
@@ -1359,12 +982,7 @@ class DecoratingRequestContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.createResponseHeaders()).thenReturn(headers);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpHeaders result = wrapper.createResponseHeaders();
 
@@ -1378,12 +996,7 @@ class DecoratingRequestContextTests {
     ServerHttpResponse response = mock(ServerHttpResponse.class);
     when(delegate.asHttpOutputMessage()).thenReturn(response);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     ServerHttpResponse result = wrapper.asHttpOutputMessage();
 
@@ -1397,12 +1010,7 @@ class DecoratingRequestContextTests {
     Object nativeRequest = new Object();
     when(delegate.nativeRequest()).thenReturn(nativeRequest);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Object result = wrapper.nativeRequest();
 
@@ -1416,12 +1024,7 @@ class DecoratingRequestContextTests {
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
     when(delegate.getMatchingMetadata()).thenReturn(metadata);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HandlerMatchingMetadata result = wrapper.getMatchingMetadata();
 
@@ -1434,12 +1037,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setMatchingMetadata(metadata);
 
@@ -1451,12 +1049,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.hasMatchingMetadata()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.hasMatchingMetadata();
 
@@ -1469,12 +1062,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getAttribute("key")).thenReturn("value");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Object result = wrapper.getAttribute("key");
 
@@ -1486,12 +1074,7 @@ class DecoratingRequestContextTests {
   void setAttribute_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setAttribute("key", "value");
 
@@ -1503,12 +1086,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.removeAttribute("key")).thenReturn("value");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Object result = wrapper.removeAttribute("key");
 
@@ -1520,12 +1098,7 @@ class DecoratingRequestContextTests {
   void clearAttributes_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.clearAttributes();
 
@@ -1538,12 +1111,7 @@ class DecoratingRequestContextTests {
     String[] attributeNames = { "attr1", "attr2" };
     when(delegate.getAttributeNames()).thenReturn(attributeNames);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String[] result = wrapper.getAttributeNames();
 
@@ -1555,12 +1123,7 @@ class DecoratingRequestContextTests {
   void flush_ShouldDelegateToDelegate() throws IOException {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.flush();
 
@@ -1571,12 +1134,7 @@ class DecoratingRequestContextTests {
   void requestCompleted_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.requestCompleted();
 
@@ -1588,12 +1146,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     Throwable throwable = new RuntimeException("test");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.requestCompleted(throwable);
 
@@ -1606,12 +1159,7 @@ class DecoratingRequestContextTests {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
     when(delegate.asyncWebRequest()).thenReturn(asyncWebRequest);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     AsyncWebRequest result = wrapper.asyncWebRequest();
 
@@ -1624,12 +1172,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.isConcurrentHandlingStarted()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.isConcurrentHandlingStarted();
 
@@ -1643,12 +1186,7 @@ class DecoratingRequestContextTests {
     MultipartRequest multipartRequest = mock(MultipartRequest.class);
     when(delegate.asMultipartRequest()).thenReturn(multipartRequest);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     MultipartRequest result = wrapper.asMultipartRequest();
 
@@ -1661,12 +1199,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     BindingContext bindingContext = mock(BindingContext.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.setBinding(bindingContext);
 
@@ -1679,12 +1212,7 @@ class DecoratingRequestContextTests {
     BindingContext bindingContext = mock(BindingContext.class);
     when(delegate.getBinding()).thenReturn(bindingContext);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     BindingContext result = wrapper.getBinding();
 
@@ -1698,12 +1226,7 @@ class DecoratingRequestContextTests {
     BindingContext bindingContext = mock(BindingContext.class);
     when(delegate.binding()).thenReturn(bindingContext);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     BindingContext result = wrapper.binding();
 
@@ -1716,12 +1239,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.hasBinding()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.hasBinding();
 
@@ -1735,12 +1253,7 @@ class DecoratingRequestContextTests {
     RedirectModel redirectModel = mock(RedirectModel.class);
     when(delegate.getInputRedirectModel()).thenReturn(redirectModel);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     RedirectModel result = wrapper.getInputRedirectModel();
 
@@ -1755,12 +1268,7 @@ class DecoratingRequestContextTests {
     RedirectModelManager manager = mock(RedirectModelManager.class);
     when(delegate.getInputRedirectModel(manager)).thenReturn(redirectModel);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     RedirectModel result = wrapper.getInputRedirectModel(manager);
 
@@ -1773,12 +1281,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.hasAttribute("key")).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.hasAttribute("key");
 
@@ -1792,12 +1295,7 @@ class DecoratingRequestContextTests {
     Iterable<String> names = List.of("attr1", "attr2");
     when(delegate.attributeNames()).thenReturn(names);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     Iterable<String> result = wrapper.attributeNames();
 
@@ -1810,12 +1308,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     AttributeAccessor source = mock(AttributeAccessor.class);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     wrapper.copyFrom(source);
 
@@ -1827,12 +1320,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.hasAttributes()).thenReturn(true);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     boolean result = wrapper.hasAttributes();
 
@@ -1847,12 +1335,7 @@ class DecoratingRequestContextTests {
     attributes.put("key", "value");
     when(delegate.getAttributes()).thenReturn(attributes);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     java.util.Map<String, Object> result = wrapper.getAttributes();
 
@@ -1865,12 +1348,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getMethod()).thenReturn(HttpMethod.GET);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HttpMethod result = wrapper.getMethod();
 
@@ -1883,12 +1361,7 @@ class DecoratingRequestContextTests {
     RequestContext delegate = mock(RequestContext.class);
     when(delegate.getMethodAsString()).thenReturn("GET");
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     String result = wrapper.getMethodAsString();
 
@@ -1902,12 +1375,7 @@ class DecoratingRequestContextTests {
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
     when(delegate.matchingMetadata()).thenReturn(metadata);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     HandlerMatchingMetadata result = wrapper.matchingMetadata();
 
@@ -1921,12 +1389,7 @@ class DecoratingRequestContextTests {
     WebAsyncManager asyncManager = mock(WebAsyncManager.class);
     when(delegate.asyncManager()).thenReturn(asyncManager);
 
-    DecoratingRequestContext wrapper = new DecoratingRequestContext() {
-      @Override
-      public RequestContext delegate() {
-        return delegate;
-      }
-    };
+    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
     WebAsyncManager result = wrapper.asyncManager();
 

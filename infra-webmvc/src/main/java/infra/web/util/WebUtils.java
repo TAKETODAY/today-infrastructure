@@ -35,7 +35,7 @@ import infra.session.Session;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.DecoratingRequestContext;
+import infra.web.DecorableRequestContext;
 import infra.web.RequestContext;
 import infra.web.multipart.Part;
 
@@ -145,7 +145,7 @@ public abstract class WebUtils {
       if (requiredType.isInstance(request)) {
         return (T) request;
       }
-      else if (request instanceof DecoratingRequestContext wrapper) {
+      else if (request instanceof DecorableRequestContext wrapper) {
         return getNativeContext(wrapper.delegate(), requiredType);
       }
     }
