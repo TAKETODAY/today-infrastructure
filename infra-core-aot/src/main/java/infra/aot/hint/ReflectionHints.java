@@ -25,8 +25,10 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -48,6 +50,8 @@ public class ReflectionHints {
 
   private final Map<TypeReference, TypeHint.Builder> types = new HashMap<>();
 
+  private final Set<LambdaHint> lambdaHints = new LinkedHashSet<>();
+
   /**
    * Return the types that require reflection.
    *
@@ -55,6 +59,16 @@ public class ReflectionHints {
    */
   public Stream<TypeHint> typeHints() {
     return this.types.values().stream().map(TypeHint.Builder::build);
+  }
+
+  /**
+   * Return the lambda hints.
+   *
+   * @return a stream of {@link LambdaHint}
+   * @since 5.0
+   */
+  public Stream<LambdaHint> lambdaHints() {
+    return this.lambdaHints.stream();
   }
 
   /**
@@ -269,6 +283,33 @@ public class ReflectionHints {
       }
       typeHint.withJavaSerialization(true);
     });
+  }
+
+  /**
+   * Register a {@link LambdaHint}.
+   *
+   * @param declaringClass the type declaring the lambda
+   * @param lambdaHint the consumer of the hint builder
+   * @return {@code this}, to facilitate method chaining
+   * @since 5.0
+   */
+  public ReflectionHints registerLambda(TypeReference declaringClass, Consumer<LambdaHint.Builder> lambdaHint) {
+    LambdaHint.Builder builder = LambdaHint.of(declaringClass);
+    lambdaHint.accept(builder);
+    this.lambdaHints.add(builder.build());
+    return this;
+  }
+
+  /**
+   * Register a {@link LambdaHint}.
+   *
+   * @param declaringClass the type declaring the lambda
+   * @param lambdaHint the consumer of the hint builder
+   * @return {@code this}, to facilitate method chaining
+   * @since 5.0
+   */
+  public ReflectionHints registerLambda(Class<?> declaringClass, Consumer<LambdaHint.Builder> lambdaHint) {
+    return this.registerLambda(TypeReference.of(declaringClass), lambdaHint);
   }
 
   private List<TypeReference> mapParameters(Executable executable) {

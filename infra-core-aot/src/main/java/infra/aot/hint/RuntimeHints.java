@@ -19,15 +19,15 @@
 package infra.aot.hint;
 
 /**
- * Gather hints that can be used to optimize the application runtime.
+ * Hints that can be used to optimize the application runtime.
  *
- * <p>Use of reflection can be recorded for individual members of a type, as
- * well as broader {@linkplain MemberCategory member categories}. Access to
- * resources can be specified using patterns or the base name of a resource
- * bundle.
+ * <p>The use of reflection can be recorded for individual members of a type,
+ * lambdas, or broader {@linkplain MemberCategory member categories}.
  *
- * <p>Hints that require the need for Java serialization of proxies can be
- * recorded as well.
+ * <p>Access to resources can be specified using patterns or the base name of a
+ * resource bundle.
+ *
+ * <p>The need for Java serialization or proxies can be recorded as well.
  *
  * @author Stephane Nicoll
  * @author Janne Valkealahti
