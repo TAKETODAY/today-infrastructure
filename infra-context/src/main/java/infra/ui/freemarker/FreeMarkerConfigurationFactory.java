@@ -100,7 +100,7 @@ public class FreeMarkerConfigurationFactory {
   @Nullable
   private List<TemplateLoader> postTemplateLoaders;
 
-  private String @Nullable []templateLoaderPaths;
+  private String @Nullable [] templateLoaderPaths;
 
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -422,7 +422,6 @@ public class FreeMarkerConfigurationFactory {
    * @see #setPostTemplateLoaders
    */
   protected void postProcessTemplateLoaders(List<TemplateLoader> templateLoaders) {
-
   }
 
   /**
@@ -433,8 +432,7 @@ public class FreeMarkerConfigurationFactory {
    * @param templateLoaders the final List of TemplateLoader instances
    * @return the aggregate TemplateLoader
    */
-  @Nullable
-  protected TemplateLoader getAggregateTemplateLoader(List<TemplateLoader> templateLoaders) {
+  protected @Nullable TemplateLoader getAggregateTemplateLoader(List<TemplateLoader> templateLoaders) {
     switch (templateLoaders.size()) {
       case 0 -> {
         log.debug("No FreeMarker TemplateLoaders specified");
@@ -462,7 +460,6 @@ public class FreeMarkerConfigurationFactory {
    * @see #createConfiguration()
    */
   protected void postProcessConfiguration(Configuration config) throws IOException, TemplateException {
-
   }
 
 }
