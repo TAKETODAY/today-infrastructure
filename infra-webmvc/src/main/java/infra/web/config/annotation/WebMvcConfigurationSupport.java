@@ -63,6 +63,7 @@ import infra.web.HandlerMapping;
 import infra.web.LocaleResolver;
 import infra.web.NotFoundHandler;
 import infra.web.RedirectModelManager;
+import infra.web.RequestToViewNameTranslator;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
@@ -94,6 +95,7 @@ import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.util.pattern.PathPatternParser;
+import infra.web.view.DefaultRequestToViewNameTranslator;
 import infra.web.view.UrlBasedViewResolver;
 import infra.web.view.ViewResolver;
 import infra.web.view.ViewResolverComposite;
@@ -1048,6 +1050,12 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       }
     }
     return this.apiVersionStrategy;
+  }
+
+  @Component
+  @ConditionalOnMissingBean
+  public RequestToViewNameTranslator viewNameTranslator() {
+    return new DefaultRequestToViewNameTranslator();
   }
 
   /**

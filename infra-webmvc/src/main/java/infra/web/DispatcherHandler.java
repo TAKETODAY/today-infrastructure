@@ -48,6 +48,7 @@ import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.result.AsyncReturnValueHandler;
 import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
+import infra.web.view.ViewRef;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers.
@@ -103,6 +104,8 @@ public class DispatcherHandler extends InfraHandler {
   private NotFoundHandler notFoundHandler;
 
   protected @Nullable WebAsyncManagerFactory webAsyncManagerFactory;
+
+  private @Nullable RequestToViewNameTranslator viewNameTranslator;
 
   public DispatcherHandler() {
   }
@@ -240,6 +243,19 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
+   * Sets the RequestToViewNameTranslator to use for translating request paths to view names.
+   * <p>This translator is used when no explicit view name is returned by a handler,
+   * allowing for automatic view name resolution based on the request URL.
+   *
+   * @param viewNameTranslator the RequestToViewNameTranslator instance to use,
+   * or {@code null} to disable automatic view name translation
+   * @since 5.0
+   */
+  public void setViewNameTranslator(@Nullable RequestToViewNameTranslator viewNameTranslator) {
+    this.viewNameTranslator = viewNameTranslator;
+  }
+
+  /**
    * add RequestHandledListener array to the list of listeners to be notified when a request is handled.
    *
    * @param array RequestHandledListener array
@@ -289,6 +305,7 @@ public class DispatcherHandler extends InfraHandler {
     initExceptionHandler(context);
     initNotFoundHandler(context);
     initWebAsyncManagerFactory(context);
+    initRequestToViewNameTranslator(context);
     initRequestCompletedListeners(context);
     initRequestContinueExpectedResolvers(context);
   }
@@ -413,6 +430,19 @@ public class DispatcherHandler extends InfraHandler {
     requestContinueExpectedResolvers.addAll(matchingBeans.values());
     AnnotationAwareOrderComparator.sort(requestContinueExpectedResolvers);
     requestContinueExpectedResolvers.trimToSize();
+  }
+
+  /**
+   * Initialize the RequestToViewNameTranslator used by this servlet instance.
+   * <p>If no implementation is configured then we default to DefaultRequestToViewNameTranslator.
+   *
+   * @since 5.0
+   */
+  private void initRequestToViewNameTranslator(ApplicationContext context) {
+    setViewNameTranslator(BeanFactoryUtils.find(context, RequestToViewNameTranslator.class));
+    if (viewNameTranslator != null) {
+      logStrategy(viewNameTranslator);
+    }
   }
 
   // ------------------------------------------------------------------------
@@ -569,10 +599,24 @@ public class DispatcherHandler extends InfraHandler {
       else {
         selected = returnValueHandler.selectHandler(handler, returnValue);
         if (selected == null) {
-          if (returnValue == null && handler != null) {
-            throw new ReturnValueHandlerNotFoundException(handler);
+          if (returnValue == null) {
+            // find default view
+            String defaultViewName = getDefaultViewName(request);
+            if (defaultViewName != null) {
+              returnValue = ViewRef.forViewName(defaultViewName);
+              selected = returnValueHandler.selectHandler(null, returnValue);
+              if (selected == null) {
+                throw new ReturnValueHandlerNotFoundException(null, handler);
+              }
+              handler = null;
+            }
+            else {
+              throw new ReturnValueHandlerNotFoundException(null, handler);
+            }
           }
-          throw new ReturnValueHandlerNotFoundException(returnValue, handler);
+          else {
+            throw new ReturnValueHandlerNotFoundException(returnValue, handler);
+          }
         }
       }
 
@@ -686,6 +730,17 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
     return null;
+  }
+
+  /**
+   * Translate the supplied request into a default view name.
+   *
+   * @param request current HTTP servlet request
+   * @return the view name (or {@code null} if no default found)
+   * @throws Exception if view name translation failed
+   */
+  protected @Nullable String getDefaultViewName(RequestContext request) throws Exception {
+    return viewNameTranslator != null ? viewNameTranslator.getViewName(request) : null;
   }
 
   // @since 4.0
