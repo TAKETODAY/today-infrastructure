@@ -144,15 +144,33 @@ server:
 
 === 优雅停机
 
-Netty 服务器支持优雅停机，可以通过 `server.netty.shutdown` 配置相关参数：
+Netty 服务器支持优雅停机，可以通过 `server.netty.shutdown` 配置相关参数。
+优雅停机可确保在关闭服务器之前，不会提交新任务，但会允许正在进行的任务在“静默期”内完成。
+
+|===
+| 属性名 | 描述 | 默认值
+
+| `server.netty.shutdown.quiet-period`
+| 静默期（秒），在此期间如果没有新任务提交，则关闭。如果在此期间有任务提交，则静默期重新开始。
+| 1s
+
+| `server.netty.shutdown.timeout`
+| 最大等待时间（秒），无论是否有任务提交，超过此时间强制关闭。
+| 10s
+
+| `server.netty.shutdown.unit`
+| `quiet-period` 和 `timeout` 的时间单位。
+| SECONDS
+|===
 
 [source,yaml]
 ----
 server:
   netty:
     shutdown:
-      quiet-period: 2 # 静默期（秒），在此期间如果没有新任务提交，则关闭
-      timeout: 15     # 最大等待时间（秒），无论是否有任务提交，超过此时间强制关闭
+      quiet-period: 2 # 静默期（秒）
+      timeout: 15     # 最大等待时间（秒）
+      unit: SECONDS   # 时间单位
 ----
 
 === HTTP/2 配置
