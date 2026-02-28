@@ -3985,7 +3985,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class ValidatedDataClassController {
 
     @InitBinder
-    public void initBinder(RequestContextDataBinder binder) {
+    public void initBinder(WebDataBinder binder) {
       binder.registerCustomEditor(String.class, "param1", new StringTrimmerEditor(true));
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
@@ -4013,10 +4013,10 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
-//      rc.getBindStatus("dataClass");
-//      rc.getBindStatus("dataClass.param1");
-//      rc.getBindStatus("dataClass.param2");
-//      rc.getBindStatus("dataClass.param3");
+      request.getBindStatus("dataClass");
+      request.getBindStatus("dataClass.param1");
+      request.getBindStatus("dataClass.param2");
+      request.getBindStatus("dataClass.param3");
       request.getWriter().write(this.content);
     }
   }
@@ -4195,8 +4195,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class NestedValidatedDataClassController {
 
     @InitBinder
-    public void initBinder(RequestContextDataBinder binder) {
-//      binder.setConversionService(new DefaultFormattingConversionService());
+    public void initBinder(WebDataBinder binder) {
+      //binder.setConversionService(new DefaultFormattingConversionService());
       binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
@@ -4228,15 +4228,13 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @Override
-    protected void renderMergedOutputModel(
-            Map<String, Object> model, RequestContext request) throws Exception {
-//      RequestContext rc = new RequestContext(request, model);
-//      rc.getBindStatus("nestedDataClass");
-//      rc.getBindStatus("nestedDataClass.param1");
-//      rc.getBindStatus("nestedDataClass.nestedParam2");
-//      rc.getBindStatus("nestedDataClass.nestedParam2.param1");
-//      rc.getBindStatus("nestedDataClass.nestedParam2.param2");
-//      rc.getBindStatus("nestedDataClass.nestedParam2.param3");
+    protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
+      request.getBindStatus("nestedDataClass");
+      request.getBindStatus("nestedDataClass.param1");
+      request.getBindStatus("nestedDataClass.nestedParam2");
+      request.getBindStatus("nestedDataClass.nestedParam2.param1");
+      request.getBindStatus("nestedDataClass.nestedParam2.param2");
+      request.getBindStatus("nestedDataClass.nestedParam2.param3");
       request.getWriter().write(this.content);
     }
   }

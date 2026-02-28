@@ -374,7 +374,7 @@ public class BindingContext {
     Errors errors = this.errorsMap.get(name);
     boolean put = false;
     if (errors == null) {
-      if (model != null && model.get(name) instanceof Errors e) {
+      if (model != null && model.get(BindingResult.MODEL_KEY_PREFIX + name) instanceof Errors e) {
         errors = e;
       }
       // Check old BindException prefix for backwards compatibility.

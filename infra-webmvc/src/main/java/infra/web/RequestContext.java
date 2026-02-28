@@ -156,7 +156,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @since 5.0
    */
-  public static final boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", true);
+  public static final boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
 
   private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 

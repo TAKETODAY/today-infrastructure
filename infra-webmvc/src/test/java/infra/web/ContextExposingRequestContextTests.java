@@ -123,7 +123,7 @@ class ContextExposingRequestContextTests {
 
     assertThatThrownBy(() -> new ContextExposingRequestContext(mockRequest, null, null))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("WebApplicationContext is required");
+            .hasMessageContaining("ApplicationContext is required");
   }
 
   @Test
