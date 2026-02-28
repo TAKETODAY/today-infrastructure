@@ -1,27 +1,27 @@
 [[mvc-exceptionhandlers]]
 = 异常
 
-如果在请求映射期间发生异常或从请求处理程序（例如 `@Controller`）抛出异常，`MockDispatcher`
-会委托给 `HandlerExceptionResolver` bean 链来解决异常并提供替代处理，通常是错误响应。
+如果在请求映射期间发生异常或从请求处理程序（例如 `@Controller`）抛出异常，`DispatcherHandler`
+会委托给 `HandlerExceptionHandler` bean 链来解决异常并提供替代处理，通常是错误响应。
 
-下表列出了可用的 `HandlerExceptionResolver` 实现：
+下表列出了可用的 `HandlerExceptionHandler` 实现：
 
 [cols="1,2", options="header"]
-.HandlerExceptionResolver 实现
+.HandlerExceptionHandler 实现
 |===
-| `HandlerExceptionResolver` | 描述
+| `HandlerExceptionHandler` | 描述
 
-| `SimpleMappingExceptionResolver`
+| `SimpleMappingExceptionHandler`
 | 异常类名和错误视图名之间的映射。用于在浏览器应用程序中渲染错误页面。
 
-| {today-framework-api}/web/mockApi/mvc/support/DefaultHandlerExceptionResolver.html[`DefaultHandlerExceptionResolver`]
+| {today-framework-api}/web/mockApi/mvc/support/DefaultHandlerExceptionHandler.html[`DefaultHandlerExceptionHandler`]
 | 解析 Web MVC 引发的异常并将它们映射到 HTTP 状态代码。
   另请参见替代方案 `ResponseEntityExceptionHandler` 和 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应]。
 
-| `ResponseStatusExceptionResolver`
+| `ResponseStatusExceptionHandler`
 | 解析带有 `@ResponseStatus` 注解的异常，并根据注解中的值将它们映射到 HTTP 状态代码。
 
-| `ExceptionHandlerExceptionResolver`
+| `ExceptionHandlerAnnotationExceptionHandler`
 | 通过调用 `@Controller` 或 `@ControllerAdvice` 类中的 `@ExceptionHandler` 方法来解析异常。
   参见 xref:web/webmvc/mvc-controller/ann-exceptionhandler.adoc[@ExceptionHandler 方法]。
 |===
@@ -30,10 +30,10 @@
 [[mvc-exceptionhandlers-handling]]
 == 解析器链
 
-您可以通过在 Infra 配置中声明多个 `HandlerExceptionResolver` bean 并根据需要设置它们的 `order`
+您可以通过在 Infra 配置中声明多个 `HandlerExceptionHandler` bean 并根据需要设置它们的 `order`
 属性来形成异常解析器链。order 属性越高，异常解析器的位置越靠后。
 
-`HandlerExceptionResolver` 的契约指定它可以返回：
+`HandlerExceptionHandler` 的契约指定它可以返回：
 
 * 指向错误视图的 `ModelAndView`。
 * 如果异常在解析器内处理，则为空 `ModelAndView`。
@@ -42,45 +42,3 @@
 xref:web/webmvc/mvc-config.adoc[MVC 配置] 会自动声明用于默认 Web MVC 异常、
 `@ResponseStatus` 注解异常以及支持 `@ExceptionHandler` 方法的内置解析器。您可以自定义该列表或替换它。
 
-
-[[mvc-ann-customer-mockApi-container-error-page]]
-== 容器错误页面
-
-如果任何 `HandlerExceptionResolver` 都无法解决异常，因此将其留待传播，或者如果响应状态设置为错误状态（即 4xx、5xx），
-Servlet 容器可以渲染 HTML 中的默认错误页面。要自定义容器的默认错误页面，可以在 `web.xml` 中声明错误页面映射。
-以下示例显示了如何执行此操作：
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<error-page>
-  <location>/error</location>
-</error-page>
-----
-
-鉴于前面的示例，当异常冒泡或响应具有错误状态时，Servlet 容器会在容器内向配置的 URL（例如 `/error`）进行 ERROR 分派。
-然后由 `MockDispatcher` 处理，可能将其映射到 `@Controller`，该控制器可以实现为返回带有模型的错误视图名称或渲染 JSON 响应，
-如下例所示：
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-@RestController
-public class ErrorController {
-
-  @RequestMapping(path = "/error")
-  public Map<String, Object> handle(HttpServletRequest request) {
-    Map<String, Object> map = new HashMap<>();
-    map.put("status", request.getAttribute("jakarta.mockApi.error.status_code"));
-    map.put("reason", request.getAttribute("jakarta.mockApi.error.message"));
-    return map;
-  }
-}
-----
-
-======
-
-TIP: Servlet API 没有提供在 Java 中创建错误页面映射的方法。但是，您可以同时使用 `WebApplicationInitializer`
-和最小的 `web.xml`。

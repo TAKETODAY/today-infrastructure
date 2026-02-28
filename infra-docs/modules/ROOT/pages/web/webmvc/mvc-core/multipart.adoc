@@ -1,56 +1,11 @@
 [[mvc-multipart]]
 = Multipart 解析器
 
-`infra.web.multipart` 包中的 `MultipartResolver` 是用于解析多部分请求（包括文件上传）的策略。
-有一个基于容器的 `StandardServletMultipartResolver` 实现，用于 Servlet 多部分请求解析。
-请注意，截至 TODAY Framework 6.0 及其新的 Servlet 5.0+ 基线，
-基于 Apache Commons FileUpload 的过时 `CommonsMultipartResolver` 不再可用。
-
-要启用多部分处理，您需要在 `MockDispatcher` Infra 配置中声明一个名为 `multipartResolver`
-的 `MultipartResolver` bean。`MockDispatcher` 检测到它并将其应用于传入请求。
-当接收到内容类型为 `multipart/form-data` 的 POST 时，解析器会解析内容，
-将当前的 `HttpMockRequest` 包装为 `MultipartHttpServletRequest`，以便除了将部分作为请求参数公开之外，
-还提供对解析文件的访问。
+`infra.web.multipart` 包中的 `MultipartParser` 是用于解析 `multipart` 请求（包括文件上传）的策略。
+有一个默认的的 `infra.web.multipart.parsing.DefaultMultipartParser` 实现。底层来源于
+（Apache Commons FileUpload）
 
 
-[[mvc-multipart-resolver-standard]]
-== Servlet Multipart 解析
+要启用 `multipart` 处理，您需要在 IoC 容器声明一个名为 `MultipartParser` bean。
+当接收到内容类型为 `multipart/form-data` 的 POST 时，解析器会解析内容。
 
-Servlet 多部分解析需要通过 Servlet 容器配置启用。为此：
-
-* 在 Java 中，在 Servlet 注册上设置 `MultipartConfigElement`。
-* 在 `web.xml` 中，向 mockApi 声明添加 `"<multipart-config>"` 部分。
-
-以下示例显示了如何在 Servlet 注册上设置 `MultipartConfigElement`：
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-public class AppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
-
-  // ...
-
-  @Override
-  protected void customizeRegistration(ServletRegistration.Dynamic registration) {
-
-    // 还可以选择设置 maxFileSize, maxRequestSize, fileSizeThreshold
-    registration.setMultipartConfig(new MultipartConfigElement("/tmp"));
-  }
-
-}
-----
-
-======
-
-一旦 Servlet 多部分配置到位，您就可以添加一个名为 `multipartResolver` 的 `StandardServletMultipartResolver` 类型的 bean。
-
-[NOTE]
-====
-此解析器变体按原样使用 Servlet 容器的多部分解析器，可能会使应用程序暴露于容器实现差异。
-默认情况下，它将尝试使用任何 HTTP 方法解析任何 `multipart/` 内容类型，但这可能并非所有 Servlet 容器都支持。
-有关详细信息和配置选项，请参阅
-{today-framework-api}/web/multipart/support/StandardServletMultipartResolver.html[`StandardServletMultipartResolver`] javadoc。
-====
