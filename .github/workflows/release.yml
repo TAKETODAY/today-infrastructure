@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     tags:
-      - v5.0-Draft.[0-9]+
+      - '*'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 jobs:
