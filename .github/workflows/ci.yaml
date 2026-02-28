@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout project sources
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v6
 
       - name: Build
         id: build
