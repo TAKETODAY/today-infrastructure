@@ -5,28 +5,28 @@
 
 
 [[xsd-schemas]]
-== XML Schemas
+== XML 模式
 
-本附录部分列出了数据访问相关的 XML 架构，包括：
+本部分附录列出了用于数据访问的 XML 模式，包括：
 
-* xref:data-access/appendix.adoc#xsd-schemas-tx[`tx` 架构]
-* xref:data-access/appendix.adoc#xsd-schemas-jdbc[`jdbc` 架构]
+* xref:data-access/appendix.adoc#xsd-schemas-tx[`tx` 模式]
+* xref:data-access/appendix.adoc#xsd-schemas-jdbc[`jdbc` 模式]
 
 
 
 [[xsd-schemas-tx]]
-=== `tx` 架构
+=== `tx` 模式
 
-`tx` 标签用于配置 Infra 事务综合支持中的各类 bean。
-这些标签在 xref:data-access/transaction.adoc[事务管理] 章节中介绍。
+`tx` 标签用于在 Infra 对事务的全面支持中配置所有那些 bean。
+这些标签在名为 xref:data-access/transaction.adoc[事务管理] 的章节中有所介绍。
 
-TIP: 我们强烈建议你查看 Infra 发布包中的 `spring-tx.xsd` 文件。
-该文件包含 Infra 事务配置的 XML Schema，并涵盖 `tx` 命名空间中各元素的信息，
-包括属性默认值等。该文件带有内联文档说明，因此为遵循 DRY（Don’t Repeat Yourself）
-原则，这里不再重复。
+TIP: 我们强烈建议您查看 Infra 发行版中随附的 `'spring-tx.xsd'` 文件。
+此文件包含 Infra 事务配置的 XML 模式，并涵盖了 `tx` 命名空间中的所有各种元素，
+包括属性默认值和类似信息。此文件在内部有文档说明，因此，为了遵守 DRY（不要重复自己）原则，
+此处不再重复这些信息。
 
-为完整起见，要使用 `tx` 架构中的元素，需要在 Infra XML 配置文件顶部加入如下前置声明。
-下方片段引用了正确的 schema，从而使 `tx` 命名空间中的标签可用：
+为了完整起见，要使用 `tx` 模式中的元素，您需要在 Infra XML 配置文件的顶部包含以下序言。
+以下代码段中的文本引用了正确的模式，以便 `tx` 命名空间中的标签可供您使用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -47,24 +47,24 @@ TIP: 我们强烈建议你查看 Infra 发布包中的 `spring-tx.xsd` 文件。
 
 </beans>
 ----
-<1> 声明使用 `tx` 命名空间。
-<2> 指定该位置（以及其他 schema 位置）。
+<1> 声明 `tx` 命名空间的使用。
+<2> 指定位置（与其他模式位置一起）。
 
-NOTE: 通常在使用 `tx` 命名空间元素时，也会使用 `aop` 命名空间元素
-（因为 Infra 的声明式事务支持基于 AOP 实现）。上面的 XML 片段包含了引用 `aop`
-schema 所需的行，从而使 `aop` 命名空间中的元素可用。
+NOTE: 通常，当您使用 `tx` 命名空间中的元素时，您也在使用 `aop` 命名空间中的元素
+（因为 Infra 中的声明式事务支持是通过使用 AOP 实现的）。
+前面的 XML 代码段包含了引用 `aop` 模式所需的相关行，以便 `aop` 命名空间中的元素可供您使用。
 
 
 
 [[xsd-schemas-jdbc]]
-=== `jdbc` 架构
+=== `jdbc` 模式
 
-`jdbc` 元素可用于快速配置嵌入式数据库或初始化现有数据源。
-这些元素分别在 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持]
-与 xref:data-access/jdbc/initializing-datasource.adoc[初始化数据源] 中进行说明。
+`jdbc` 元素让您可以快速配置嵌入式数据库或初始化现有的数据源。
+这些元素分别记录在 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持]
+和 xref:data-access/jdbc/initializing-datasource.adoc[初始化数据源] 中。
 
-要使用 `jdbc` 架构中的元素，需要在 Infra XML 配置文件顶部加入如下前置声明。
-下方片段引用了正确的 schema，从而使 `jdbc` 命名空间中的元素可用：
+要使用 `jdbc` 模式中的元素，您需要在 Infra XML 配置文件的顶部包含以下序言。
+以下代码段中的文本引用了正确的模式，以便 `jdbc` 命名空间中的元素可供您使用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -82,5 +82,5 @@ schema 所需的行，从而使 `aop` 命名空间中的元素可用。
 
 	</beans>
 ----
-<1> 声明使用 `jdbc` 命名空间。
-<2> 指定该位置（以及其他 schema 位置）。
+<1> 声明 `jdbc` 命名空间的使用。
+<2> 指定位置（与其他模式位置一起）。

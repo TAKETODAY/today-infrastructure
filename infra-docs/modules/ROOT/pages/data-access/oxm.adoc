@@ -1,45 +1,56 @@
 [[oxm]]
-= 使用 Object-XML 映射器进行 XML 编组
+= 使用 Object-XML 映射器编组 XML
 
 
 
 [[oxm-introduction]]
 == 简介
 
-本章描述了 Infra Object-XML 映射支持。Object-XML 映射（简称 O-X 映射）是将 XML 文档转换为对象或将对象转换为 XML 文档的行为。此转换过程也称为 XML 编组（Marshalling）或 XML 序列化（Serialization）。本章可以互换使用这些术语。
+本章描述了 Infra 的 Object-XML 映射支持。Object-XML 映射（简称 O-X 映射）是将 XML 文档转换为对象以及从对象转换为 XML 文档的行为。
+这个转换过程也称为 XML 编组（Marshalling）或 XML 序列化（Serialization）。本章可以互换地使用这些术语。
 
-在 O-X 映射领域，编组器（marshaller）负责将对象（图）序列化为 XML。同样，解组器（unmarshaller）将 XML 反序列化为对象图。此 XML 可以采用 DOM 文档、输入或输出流或 SAX 处理程序的形式。
+在 O-X 映射领域中，marshaller（编组器）负责将对象（图）序列化为 XML。
+类似地，unmarshaller（解组器）将 XML 反序列化为对象图。
+此 XML 可以采用 DOM 文档、输入或输出流或 SAX 处理程序的形式。
 
 使用 Infra 满足 O/X 映射需求的一些好处包括：
 
-* xref:data-access/oxm.adoc#oxm-ease-of-configuration[易于配置]
-* xref:data-access/oxm.adoc#oxm-consistent-interfaces[一致的接口]
-* xref:data-access/oxm.adoc#oxm-consistent-exception-hierarchy[一致的异常层次结构]
+* xref:data-access/oxm.adoc#oxm-ease-of-configuration[配置简便]
+* xref:data-access/oxm.adoc#oxm-consistent-interfaces[统一的接口]
+* xref:data-access/oxm.adoc#oxm-consistent-exception-hierarchy[统一的异常层次结构]
 
 
 [[oxm-ease-of-configuration]]
-=== 易于配置
+=== 配置简便
 
-Infra bean 工厂使配置编组器变得容易，无需构建 JAXB 上下文、JiBX 绑定工厂等。您可以像配置应用程序上下文中的任何其他 bean 一样配置编组器。此外，基于 XML 命名空间的配置可用于多种编组器，使配置更加简单。
+Infra bean 工厂使得配置编组器变得容易，无需构建 JAXB 上下文、JiBX 绑定工厂等。
+您可以像配置应用程序上下文中的任何其他 bean 一样配置编组器。
+此外，许多编组器都支持基于 XML 命名空间的配置，使配置更加简单。
 
 
 [[oxm-consistent-interfaces]]
-=== 一致的接口
+=== 统一的接口
 
-Infra O-X 映射通过两个全局接口运行：{today-framework-api}/oxm/Marshaller.html[`Marshaller`] 和 {today-framework-api}/oxm/Unmarshaller.html[`Unmarshaller`]。这些抽象使您可以相对轻松地切换 O-X 映射框架，而无需对执行编组的类进行任何更改或只需很少的更改。这种方法的另一个好处是，可以以非侵入式方式使用混合搭配的方法进行 XML 编组（例如，一些编组使用 JAXB 执行，另一些使用 XStream 执行），让您利用每种技术的优势。
+Infra O-X 映射通过两个全局接口进行操作：{today-framework-api}/oxm/Marshaller.html[`Marshaller`] 和
+{today-framework-api}/oxm/Unmarshaller.html[`Unmarshaller`]。
+这些抽象让您可以相对轻松地切换 O-X 映射框架，而无需对执行编组的类进行任何更改或只需很少的更改。
+这种方法的另一个好处是，它使得以非侵入式的方式采用混合匹配的方法进行 XML 编组（例如，一些编组使用 JAXB 执行，另一些使用 XStream 执行）成为可能，
+从而让您可以利用每种技术的优势。
 
 
 [[oxm-consistent-exception-hierarchy]]
-=== 一致的异常层次结构
+=== 统一的异常层次结构
 
-Infra 提供了从底层 O-X 映射工具的异常到其自己的异常层次结构的转换，其中 `XmlMappingException` 作为根异常。这些运行时异常包装了原始异常，因此不会丢失任何信息。
+Infra 提供了从底层 O-X 映射工具的异常到其自身异常层次结构的转换，其中 `XmlMappingException` 作为根异常。
+这些运行时异常包装了原始异常，因此不会丢失任何信息。
 
 
 
 [[oxm-marshaller-unmarshaller]]
 == `Marshaller` 和 `Unmarshaller`
 
-如 xref:data-access/oxm.adoc#oxm-introduction[简介] 中所述，编组器将对象序列化为 XML，解组器将 XML 流反序列化为对象。本节描述用于此目的的两个 Infra 接口。
+如 xref:data-access/oxm.adoc#oxm-introduction[简介] 所述，marshaller 将对象序列化为 XML，
+而 unmarshaller 将 XML 流反序列化为对象。本节描述了用于此目的的两个 Infra 接口。
 
 
 [[oxm-marshaller]]
@@ -58,11 +69,13 @@ public interface Marshaller {
 }
 ----
 
-`Marshaller` 接口有一个主要方法，该方法将给定的对象编组到给定的 `javax.xml.transform.Result`。Result 是一个标记接口，基本上代表了 XML 输出抽象。具体实现包装了各种 XML 表示形式，如下表所示：
+`Marshaller` 接口有一个主要方法，该方法将给定对象编组到给定的 `javax.xml.transform.Result`。
+结果是一个标记接口，基本上代表了 XML 输出抽象。
+具体实现包装了各种 XML 表示形式，如下表所示：
 
 [[oxm-marshaller-tbl]]
 |===
-| Result 实现| 包装的 XML 表示形式
+| Result 实现 | 包装的 XML 表示形式
 
 | `DOMResult`
 | `org.w3c.dom.Node`
@@ -71,53 +84,60 @@ public interface Marshaller {
 | `org.xml.sax.ContentHandler`
 
 | `StreamResult`
-| `java.io.File`、`java.io.OutputStream` 或 `java.io.Writer`
+| `java.io.File`, `java.io.OutputStream`, 或 `java.io.Writer`
 |===
 
-NOTE: 虽然 `marshal()` 方法接受一个普通对象作为其第一个参数，但大多数 `Marshaller` 实现无法处理任意对象。相反，对象类必须在映射文件中映射、使用注解标记、向编组器注册或具有公共基类。请参阅本章后面的部分，以确定您的 O-X 技术如何管理这一点。
+NOTE: 尽管 `marshal()` 方法接受一个普通对象作为其第一个参数，但大多数 `Marshaller` 实现无法处理任意对象。
+相反，对象类必须在映射文件中映射、使用注解标记、向编组器注册或具有公共基类。
+请参阅本章后面的部分，以确您的 O-X 技术如何管理这一点。
 
 
 [[oxm-unmarshaller]]
 === 理解 `Unmarshaller`
 
-与 `Marshaller` 类似，我们有 `infra.oxm.Unmarshaller` 接口，如下表所示：
+与 `Marshaller` 类似，我们有 `infra.oxm.Unmarshaller` 接口，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 public interface Unmarshaller {
 
   /**
-   * 将给定的提供的 Source 解组为对象图。
+   * 将给定的 Source 解组为对象图。
    */
   Object unmarshal(Source source) throws XmlMappingException, IOException;
 }
 ----
 
-此接口也有一个方法，该方法从给定的 `javax.xml.transform.Source`（XML 输入抽象）读取并返回读取的对象。与 `Result` 一样，`Source` 是一个标记接口，具有三个具体实现。每个都包装了不同的 XML 表示形式，如下表所示：
+此接口也有一个方法，该方法从给定的 `javax.xml.transform.Source`（XML 输入抽象）读取并返回读取的对象。
+与 `Result` 一样，`Source` 是一个标记接口，具有三个具体实现。
+每个都包装了不同的 XML 表示形式，如下表所示：
 
 [[oxm-unmarshaller-tbl]]
 |===
-| Source 实现| 包装的 XML 表示形式
+| Source 实现 | 包装的 XML 表示形式
 
 | `DOMSource`
 | `org.w3c.dom.Node`
 
 | `SAXSource`
-| `org.xml.sax.InputSource` 和 `org.xml.sax.XMLReader`
+| `org.xml.sax.InputSource`, 和 `org.xml.sax.XMLReader`
 
 | `StreamSource`
-| `java.io.File`、`java.io.InputStream` 或 `java.io.Reader`
+| `java.io.File`, `java.io.InputStream`, 或 `java.io.Reader`
 |===
 
-即使有两个单独的编组接口（`Marshaller` 和 `Unmarshaller`），Infra-WS 中的所有实现都在一个类中实现了这两个接口。这意味着您可以连接一个编组器类，并在 `applicationContext.xml` 中将其既作为编组器又作为解组器引用。
+尽管有两个独立的编组接口（`Marshaller` 和 `Unmarshaller`），但 Infra-WS 中的所有实现都在一个类中实现了这两个接口。
+这意味着您可以装配一个编组器类，并在 `applicationContext.xml` 中将其同时引用为编组器和解组器。
 
 
 [[oxm-xmlmappingexception]]
 === 理解 `XmlMappingException`
 
-Infra 提供了从底层 O-X 映射工具的异常到其自己的异常层次结构的转换，其中 `XmlMappingException` 作为根异常。这些运行时异常包装了原始异常，因此不会丢失任何信息。
+Infra 将底层 O-X 映射工具的异常转换为其自己的异常层次结构，其中 `XmlMappingException` 作为根异常。
+这些运行时异常包装了原始异常，因此不会丢失任何信息。
 
-此外，`MarshallingFailureException` 和 `UnmarshallingFailureException` 提供了编组和解组操作之间的区别，即使底层 O-X 映射工具没有这样做。
+此外，`MarshallingFailureException` 和 `UnmarshallingFailureException` 提供了编组和解组操作之间的区别，
+即使底层 O-X 映射工具没有这样做。
 
 O-X 映射异常层次结构如下图所示：
 
@@ -128,7 +148,8 @@ image::oxm-exceptions.png[]
 [[oxm-usage]]
 == 使用 `Marshaller` 和 `Unmarshaller`
 
-您可以将 Infra OXM 用于各种情况。在以下示例中，我们使用它将 Infra 管理的应用程序的设置编组为 XML 文件。在以下示例中，我们使用一个简单的 JavaBean 来表示设置：
+您可以将 Infra OXM 用于各种情况。在以下示例中，我们使用它将 Infra 管理的应用程序的设置编组为 XML 文件。
+在以下示例中，我们使用一个简单的 JavaBean 来表示设置：
 
 [tabs]
 ======
@@ -152,4 +173,318 @@ public class Settings {
 
 ======
 
-应用程序类使用此 bean 来存储其设置。除了 main 方法外，该类还有两个方法：`saveSettings()` 将设置 bean 保存到名为 `settings.xml` 的文件中，而 `loadSettings()` 再次加载这些设置。以下 `main()` 方法构造一个 Infra 应用程序上下文并调用这两个方法：
+应用程序类使用此 bean 来存储其设置。除了 main 方法外，该类还有两个方法：
+`saveSettings()` 将设置 bean 保存到名为 `settings.xml` 的文件中，
+`loadSettings()` 再次加载这些设置。
+以下 `main()` 方法构造一个 Infra 应用程序上下文并调用这两个方法：
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
+import infra.oxm.Marshaller;
+import infra.oxm.Unmarshaller;
+
+public class Application {
+
+  private static final String FILE_NAME = "settings.xml";
+  private Settings settings = new Settings();
+  private Marshaller marshaller;
+  private Unmarshaller unmarshaller;
+
+  public void setMarshaller(Marshaller marshaller) {
+    this.marshaller = marshaller;
+  }
+
+  public void setUnmarshaller(Unmarshaller unmarshaller) {
+    this.unmarshaller = unmarshaller;
+  }
+
+  public void saveSettings() throws IOException {
+    try (FileOutputStream os = new FileOutputStream(FILE_NAME)) {
+      this.marshaller.marshal(settings, new StreamResult(os));
+    }
+  }
+
+  public void loadSettings() throws IOException {
+    try (FileInputStream is = new FileInputStream(FILE_NAME)) {
+      this.settings = (Settings) this.unmarshaller.unmarshal(new StreamSource(is));
+    }
+  }
+
+  public static void main(String[] args) throws IOException {
+    ApplicationContext appContext =
+        new ClassPathXmlApplicationContext("applicationContext.xml");
+    Application application = (Application) appContext.getBean("application");
+    application.saveSettings();
+    application.loadSettings();
+  }
+}
+----
+
+======
+
+`Application` 需要设置 `marshaller` 和 `unmarshaller` 属性。
+我们可以通过使用以下 `applicationContext.xml` 来做到这一点：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<beans>
+  <bean id="application" class="Application">
+    <property name="marshaller" ref="xstreamMarshaller" />
+    <property name="unmarshaller" ref="xstreamMarshaller" />
+  </bean>
+  <bean id="xstreamMarshaller" class="infra.oxm.xstream.XStreamMarshaller"/>
+</beans>
+----
+
+此应用程序上下文使用 XStream，但我们也可以使用本章后面描述的任何其他编组器实例。
+请注意，默认情况下，XStream 不需要任何进一步的配置，因此 bean 定义相当简单。
+另请注意，`XStreamMarshaller` 实现了 `Marshaller` 和 `Unmarshaller`，
+因此我们可以在应用程序的 `marshaller` 和 `unmarshaller` 属性中引用 `xstreamMarshaller` bean。
+
+此示例应用程序生成以下 `settings.xml` 文件：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<settings foo-enabled="false"/>
+----
+
+
+
+[[oxm-schema-based-config]]
+== XML 配置命名空间
+
+您可以使用 OXM 命名空间中的标记更简洁地配置编组器。
+要使这些标记可用，您必须首先在 XML 配置文件的序言中引用适当的模式。
+以下示例展示了如何执行此操作：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:oxm="http://www.springframework.org/schema/oxm" <1>
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    https://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/oxm
+    https://www.springframework.org/schema/oxm/spring-oxm.xsd"> <2>
+----
+<1> 引用 `oxm` 模式。
+<2> 指定 `oxm` 模式位置。
+
+
+该模式使以下元素可用：
+
+* xref:data-access/oxm.adoc#oxm-jaxb2-xsd[`jaxb2-marshaller`]
+* xref:data-access/oxm.adoc#oxm-jibx-xsd[`jibx-marshaller`]
+
+每个标记都在其各自的编组器部分中进行了解释。例如，JAXB2 编组器的配置可能如下所示：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<oxm:jaxb2-marshaller id="marshaller" contextPath="infra.ws.samples.airline.schema"/>
+----
+
+
+
+[[oxm-jaxb]]
+== JAXB
+
+JAXB 绑定编译器将 W3C XML Schema 转换为一个或多个 Java 类、一个 `jaxb.properties` 文件以及可能的某些资源文件。
+JAXB 还提供了一种从带注解的 Java 类生成模式的方法。
+
+Infra 支持 JAXB 2.0 API 作为 XML 编组策略，遵循 xref:data-access/oxm.adoc#oxm-marshaller-unmarshaller[`Marshaller` 和 `Unmarshaller`] 中描述的 `Marshaller` 和 `Unmarshaller` 接口。
+相应的集成类位于 `infra.oxm.jaxb` 包中。
+
+
+[[oxm-jaxb2]]
+=== 使用 `Jaxb2Marshaller`
+
+`Jaxb2Marshaller` 类实现了 Infra 的 `Marshaller` 和 `Unmarshaller` 接口。
+它需要一个上下文路径才能操作。您可以通过设置 `contextPath` 属性来设置上下文路径。
+上下文路径是包含模式派生类的 Java 包名称的列表，以冒号分隔。
+它还提供了一个 `classesToBeBound` 属性，允许您设置编组器支持的类数组。
+通过向 bean 指定一个或多个模式资源来执行模式验证，如下例所示：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<beans>
+  <bean id="jaxb2Marshaller" class="infra.oxm.jaxb.Jaxb2Marshaller">
+    <property name="classesToBeBound">
+      <list>
+        <value>infra.oxm.jaxb.Flight</value>
+        <value>infra.oxm.jaxb.Flights</value>
+      </list>
+    </property>
+    <property name="schema" value="classpath:infra/oxm/schema.xsd"/>
+  </bean>
+
+  ...
+
+</beans>
+----
+
+[[oxm-jaxb2-xsd]]
+==== XML 配置命名空间
+
+`jaxb2-marshaller` 元素配置一个 `infra.oxm.jaxb.Jaxb2Marshaller`，
+如下例所示：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<oxm:jaxb2-marshaller id="marshaller" contextPath="infra.ws.samples.airline.schema"/>
+----
+
+或者，您可以使用 `class-to-be-bound` 子元素提供要绑定到编组器的类列表：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<oxm:jaxb2-marshaller id="marshaller">
+  <oxm:class-to-be-bound name="infra.ws.samples.airline.schema.Airport"/>
+  <oxm:class-to-be-bound name="infra.ws.samples.airline.schema.Flight"/>
+  ...
+</oxm:jaxb2-marshaller>
+----
+
+下表描述了可用的属性：
+
+|===
+| 属性 | 描述 | 是否必需
+
+| `id`
+| 编组器的 ID
+| 否
+
+| `contextPath`
+| JAXB 上下文路径
+| 否
+|===
+
+
+
+[[oxm-jibx]]
+== JiBX
+
+JiBX 框架提供类似于 Hibernate 为 ORM 提供的解决方案：绑定定义定义了如何将 Java 对象转换为 XML 或从 XML 转换的规则。
+准备好绑定并编译类后，JiBX 绑定编译器会增强类文件并添加代码以处理将类实例转换为 XML 或从 XML 转换。
+
+有关 JiBX 的更多信息，请参阅 http://jibx.sourceforge.net/[JiBX 网站]。
+Infra 集成类位于 `infra.oxm.jibx` 包中。
+
+
+[[oxm-jibx-marshaller]]
+=== 使用 `JibxMarshaller`
+
+`JibxMarshaller` 类实现了 `Marshaller` 和 `Unmarshaller` 接口。
+要进行操作，它需要要编组的类的名称，您可以使用 `targetClass` 属性进行设置。
+或者，您可以通过设置 `bindingName` 属性来设置绑定名称。
+在以下示例中，我们绑定 `Flights` 类：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<beans>
+  <bean id="jibxFlightsMarshaller" class="infra.oxm.jibx.JibxMarshaller">
+    <property name="targetClass">infra.oxm.jibx.Flights</property>
+  </bean>
+  ...
+</beans>
+----
+
+`JibxMarshaller` 配置为单个类。如果您想编组多个类，则必须配置多个 `JibxMarshaller` 实例，并使用不同的 `targetClass` 属性值。
+
+[[oxm-jibx-xsd]]
+==== XML 配置命名空间
+
+`jibx-marshaller` 标记配置一个 `infra.oxm.jibx.JibxMarshaller`，
+如下例所示：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<oxm:jibx-marshaller id="marshaller" target-class="infra.ws.samples.airline.schema.Flight"/>
+----
+
+下表描述了可用的属性：
+
+|===
+| 属性 | 描述 | 是否必需
+
+| `id`
+| 编组器的 ID
+| 否
+
+| `target-class`
+| 此编组器的目标类
+| 是
+
+| `bindingName`
+| 此编组器使用的绑定名称
+| 否
+|===
+
+
+
+[[oxm-xstream]]
+== XStream
+
+XStream 是一个简单的库，用于将对象序列化为 XML 并再次反序列化。
+它不需要任何映射，并生成干净的 XML。
+
+有关 XStream 的更多信息，请参阅 https://x-stream.github.io/[XStream 网站]。
+Infra 集成类位于 `infra.oxm.xstream` 包中。
+
+
+[[oxm-xstream-marshaller]]
+=== 使用 `XStreamMarshaller`
+
+`XStreamMarshaller` 不需要任何配置，可以直接在应用程序上下文中进行配置。
+为了进一步自定义 XML，您可以设置一个别名映射，该映射由映射到类的字符串别名组成，如下例所示：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<beans>
+  <bean id="xstreamMarshaller" class="infra.oxm.xstream.XStreamMarshaller">
+    <property name="aliases">
+      <props>
+        <prop key="Flight">infra.oxm.xstream.Flight</prop>
+      </props>
+    </property>
+  </bean>
+  ...
+</beans>
+----
+
+[WARNING]
+=====
+默认情况下，XStream 允许解组任意类，这可能导致不安全的 Java 序列化效果。
+因此，我们不建议使用 `XStreamMarshaller` 从外部源（即 Web）解组 XML，因为这可能导致安全漏洞。
+
+如果您选择使用 `XStreamMarshaller` 从外部源解组 XML，请在 `XStreamMarshaller` 上设置 `supportedClasses` 属性，如下例所示：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<bean id="xstreamMarshaller" class="infra.oxm.xstream.XStreamMarshaller">
+  <property name="supportedClasses" value="infra.oxm.xstream.Flight"/>
+  ...
+</bean>
+----
+
+这样做可以确保只有已注册的类才有资格进行解组。
+
+此外，您可以注册 {today-framework-api}/oxm/xstream/XStreamMarshaller.html#setConverters(com.thoughtworks.xstream.converters.ConverterMatcher...)[自定义转换器]，以确保只能解组受支持的类。
+除了显式支持应支持的域类的转换器之外，您可能还希望在列表中的最后一个转换器添加一个 `CatchAllConverter`。
+结果，具有较低优先级和可能存在安全漏洞的默认 XStream 转换器不会被调用。
+=====
+
+NOTE: 请注意，XStream 是一个 XML 序列化库，而不是数据绑定库。
+因此，它的命名空间支持有限。结果，它不太适合在 Web 服务中使用。
