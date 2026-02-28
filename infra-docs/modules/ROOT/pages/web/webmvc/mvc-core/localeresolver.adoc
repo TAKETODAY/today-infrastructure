@@ -11,7 +11,7 @@ Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。
 （有关处理程序映射拦截器的更多信息，请参阅 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截]）
 以在特定情况下（例如，根据请求中的参数）更改区域设置。
 
-区域设置解析器和拦截器定义在 `infra.web.mockApi.i18n` 包中，并以常规方式在您的应用程序上下文中配置。
+区域设置解析器和拦截器定义在 `infra.web.i18n` 包中，并以常规方式在您的应用程序上下文中配置。
 Infra 中包含以下区域设置解析器选择。
 
 * xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[时区]
@@ -47,7 +47,7 @@ Infra 中包含以下区域设置解析器选择。
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="localeResolver" class="infra.web.mockApi.i18n.CookieLocaleResolver">
+<bean id="localeResolver" class="infra.web.i18n.CookieLocaleResolver">
 
   <property name="cookieName" value="clientlanguage"/>
 
@@ -104,15 +104,15 @@ Infra 中包含以下区域设置解析器选择。
 [source,xml,indent=0,subs="verbatim"]
 ----
 <bean id="localeChangeInterceptor"
-    class="infra.web.mockApi.i18n.LocaleChangeInterceptor">
+    class="infra.web.i18n.LocaleChangeInterceptor">
   <property name="paramName" value="siteLanguage"/>
 </bean>
 
 <bean id="localeResolver"
-    class="infra.web.mockApi.i18n.CookieLocaleResolver"/>
+    class="infra.web.i18n.CookieLocaleResolver"/>
 
 <bean id="urlMapping"
-    class="infra.web.mockApi.handler.SimpleUrlHandlerMapping">
+    class="infra.web.handler.SimpleUrlHandlerMapping">
   <property name="interceptors">
     <list>
       <ref bean="localeChangeInterceptor"/>

@@ -103,7 +103,8 @@ public class InfraTemplateLoader implements TemplateLoader {
   }
 
   @Override
-  public void closeTemplateSource(Object templateSource) throws IOException { }
+  public void closeTemplateSource(Object templateSource) {
+  }
 
 }
 

@@ -1,8 +1,7 @@
 [[aop-introduction-infra-defn]]
 = Infra AOP 的能力与目标
 
-Infra AOP 以纯 Java 实现，无需特殊编译过程。Infra AOP 不需要控制类加载器层级，因此
-适合在 mockApi 容器或应用服务器中使用。
+Infra AOP 以纯 Java 实现，无需特殊编译过程。
 
 Infra AOP 目前只支持方法执行连接点（对 Infra bean 上的方法执行进行通知）。
 字段拦截尚未实现，不过在不破坏核心 Infra AOP API 的前提下可以添加字段拦截支持。

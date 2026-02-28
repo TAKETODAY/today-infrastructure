@@ -1,74 +1,107 @@
 [[mvc-view-freemarker]]
 = FreeMarker
 
-https://freemarker.apache.org/[Apache FreeMarker] is a template engine for generating any
-kind of text output from HTML to email and others. The Spring Framework has built-in
-integration for using Spring MVC with FreeMarker templates.
+https://freemarker.apache.org/[Apache FreeMarker] 是一个模板引擎，用于生成从 HTML 到电子邮件等各种文本输出。
+Infra Framework 内置了使用 FreeMarker 模板的 Infra MVC 集成。
 
 
 [[mvc-view-freemarker-contextconfig]]
-== View Configuration
+== 视图配置
 
-The following example shows how to configure FreeMarker as a view technology:
+以下示例展示了如何将 FreeMarker 配置为视图技术：
 
-include-code::./WebConfiguration[tag=snippet,indent=0]
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
 
-Your templates need to be stored in the directory specified by the `FreeMarkerConfigurer`
-shown in the preceding example. Given the preceding configuration, if your controller
-returns a view name of `welcome`, the resolver looks for the
-`/WEB-INF/freemarker/welcome.ftl` template.
+  @Override
+  public void configureViewResolvers(ViewResolverRegistry registry) {
+    registry.freeMarker();
+  }
 
+  // 配置 FreeMarker...
 
-[[mvc-views-freemarker]]
-== FreeMarker Configuration
+  @Bean
+  public FreeMarkerConfigurer freeMarkerConfigurer() {
+    FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+    configurer.setTemplateLoaderPath("classpath:freemarker");
+    return configurer;
+  }
+}
+----
 
-You can pass FreeMarker 'Settings' and 'SharedVariables' directly to the FreeMarker
-`Configuration` object (which is managed by Spring) by setting the appropriate bean
-properties on the `FreeMarkerConfigurer` bean. The `freemarkerSettings` property requires
-a `java.util.Properties` object, and the `freemarkerVariables` property requires a
-`java.util.Map`. The following example shows how to use a `FreeMarkerConfigurer`:
+======
 
-include-code::./WebConfiguration[tag=snippet,indent=0]
-
-See the FreeMarker documentation for details of settings and variables as they apply to
-the `Configuration` object.
-
-
-[[mvc-view-freemarker-forms]]
-== Form Handling
-
-Spring provides a tag library for use in JSPs that contains, among others, a
-`<spring:bind/>` element. This element primarily lets forms display values from
-form-backing objects and show the results of failed validations from a `Validator` in the
-web or business tier. Spring also has support for the same functionality in FreeMarker,
-with additional convenience macros for generating form input elements themselves.
-
-[[mvc-view-bind-macros]]
-=== The Bind Macros
-
-A standard set of macros are maintained within the `spring-webmvc.jar` file for
-FreeMarker, so they are always available to a suitably configured application.
-
-Some of the macros defined in the Spring templating libraries are considered internal
-(private), but no such scoping exists in the macro definitions, making all macros visible
-to calling code and user templates. The following sections concentrate only on the macros
-you need to directly call from within your templates. If you wish to view the macro code
-directly, the file is called `infra.ftl` and is in the
-`org.springframework.web.servlet.view.freemarker` package.
-
-[[mvc-view-simple-binding]]
-=== Simple Binding
-
-In your HTML forms based on FreeMarker templates that act as a form view for a Spring MVC
-controller, you can use code similar to the next example to bind to field values and
-display error messages for each input field in similar fashion to the JSP equivalent. The
-following example shows a `personForm` view:
+或者，您也可以声明 `FreeMarkerConfigurer` bean 以完全控制所有属性，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-	<!-- FreeMarker macros have to be imported into a namespace.
-		We strongly recommend sticking to 'spring'. -->
-	<#import "/infra.ftl" as spring/>
+<bean id="freemarkerConfig" class="infra.web.view.freemarker.FreeMarkerConfigurer">
+  <property name="templateLoaderPath" value="classpath:freemarker/"/>
+</bean>
+----
+
+您的模板需要存储在前面示例中显示的 `FreeMarkerConfigurer` 指定的目录中。
+鉴于前面的配置，如果您的控制器返回 `welcome` 视图名称，解析器将查找 `classpath:freemarker/welcome.ftl` 模板。
+
+
+[[mvc-views-freemarker]]
+== FreeMarker 配置
+
+您可以通过在 `FreeMarkerConfigurer` bean 上设置相应的 bean 属性，将 FreeMarker 'Settings' 和 'SharedVariables'
+直接传递给 FreeMarker `Configuration` 对象（由 Infra 管理）。
+`freemarkerSettings` 属性需要一个 `java.util.Properties` 对象，而 `freemarkerVariables` 属性需要一个 `java.util.Map`。
+以下示例展示了如何使用 `FreeMarkerConfigurer`：
+
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<bean id="freemarkerConfig" class="infra.web.view.freemarker.FreeMarkerConfigurer">
+  <property name="templateLoaderPath" value="classpath:freemarker/"/>
+  <property name="freemarkerVariables">
+    <map>
+      <entry key="xml_escape" value-ref="fmXmlEscape"/>
+    </map>
+  </property>
+</bean>
+
+<bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape"/>
+----
+
+有关应用于 `Configuration` 对象的设置和变量的详细信息，请参阅 FreeMarker 文档。
+
+
+[[mvc-view-freemarker-forms]]
+== 表单处理
+
+Infra 提供了一个用于 FreeMarker 显示来自 Web 或业务层中 `Validator` 的失败验证结果。
+
+[[mvc-view-bind-macros]]
+=== 绑定宏
+
+一组标准的宏在 `infra-webmvc.jar` 文件中为 FreeMarker 维护，因此它们始终可用于配置适当的应用程序。
+
+Infra 模板库中定义的一些宏被认为是内部的（私有的），但宏定义中不存在此类作用域，使得所有宏对调用代码和用户模板可见。
+以下部分仅关注您需要从模板中直接调用的宏。
+如果您想直接查看宏代码，该文件名为 `infra.ftl`，位于 根目录 包中。
+
+[[mvc-view-simple-binding]]
+=== 简单绑定
+
+在基于充当 Infra MVC 控制器表单视图的 FreeMarker 模板的 HTML 表单中，您可以使用类似于下一个示例的代码绑定到字段值，
+并以等效项类似的方式显示每个输入字段的错误消息。
+以下示例显示了 `personForm` 视图：
+
+[source,injectedfreemarker,indent=0,subs="verbatim,quotes"]
+----
+	<!-- FreeMarker 宏必须导入到命名空间中。
+		我们强烈建议坚持使用 'infra'。 -->
+	<#import "/infra.ftl" as infra/>
 	<html>
 		...
 		<form action="" method="POST">
@@ -86,132 +119,105 @@ following example shows a `personForm` view:
 	</html>
 ----
 
-`<@infra.bind>` requires a 'path' argument, which consists of the name of your command
-object (it is 'command', unless you changed it in your controller configuration) followed
-by a period and the name of the field on the command object to which you wish to bind. You
-can also use nested fields, such as `command.address.street`. The `bind` macro assumes the
-default HTML escaping behavior specified by the `ServletContext` parameter
-`defaultHtmlEscape` in `web.xml`.
-
-An alternative form of the macro called `<@infra.bindEscaped>` takes a second argument
-that explicitly specifies whether HTML escaping should be used in the status error
-messages or values. You can set it to `true` or `false` as required. Additional form
-handling macros simplify the use of HTML escaping, and you should use these macros
-wherever possible. They are explained in the next section.
+名为 `<@infra.bindEscaped>` 的宏的另一种形式采用第二个参数，该参数显式指定是否应在状态错误消息或值中使用 HTML 转义。
+您可以根据需要将其设置为 `true` 或 `false`。
+其他表单处理宏简化了 HTML 转义的使用，您应该尽可能使用这些宏。
+下一节将对它们进行解释。
 
 [[mvc-views-form-macros]]
-=== Input Macros
+=== 输入宏
 
-Additional convenience macros for FreeMarker simplify both binding and form generation
-(including validation error display). It is never necessary to use these macros to
-generate form input fields, and you can mix and match them with simple HTML or direct
-calls to the Spring bind macros that we highlighted previously.
+FreeMarker 的其他便捷宏简化了绑定和表单生成（包括验证错误显示）。
+从来没有必要使用这些宏来生成表单输入字段，您可以将它们与简单的 HTML 或直接调用我们之前重点介绍的 Infra 绑定宏混合使用。
 
-The following table of available macros shows the FreeMarker Template (FTL) definitions
-and the parameter list that each takes:
+下表列出了可用的宏，显示了 FreeMarker 模板 (FTL) 定义以及每个宏采用的参数列表：
 
 [[views-macros-defs-tbl]]
-.Table of macro definitions
+.宏定义表
 [cols="3,1"]
 |===
-| macro | FTL definition
+| 宏 | FTL 定义
 
-| `message` (output a string from a resource bundle based on the code parameter)
+| `message` (根据代码参数从资源包输出字符串)
 | <@infra.message code/>
 
-| `messageText` (output a string from a resource bundle based on the code parameter,
-falling back to the value of the default parameter)
+| `messageText` (根据代码参数从资源包输出字符串，回退到默认参数的值)
 | <@infra.messageText code, text/>
 
-| `formInput` (standard input field for gathering user input)
+| `formInput` (用于收集用户输入的标准输入字段)
 | <@infra.formInput path, attributes, fieldType/>
 
-| `formHiddenInput` (hidden input field for submitting non-user input)
+| `formHiddenInput` (用于提交非用户输入的隐藏输入字段)
 | <@infra.formHiddenInput path, attributes/>
 
-| `formPasswordInput` (standard input field for gathering passwords. Note that no
-value is ever populated in fields of this type.)
+| `formPasswordInput` (用于收集密码的标准输入字段。请注意，此类型的字段中永远不会填充任何值。)
 | <@infra.formPasswordInput path, attributes/>
 
-| `formTextarea` (large text field for gathering long, freeform text input)
+| `formTextarea` (用于收集长格式自由文本输入的大文本字段)
 | <@infra.formTextarea path, attributes/>
 
-| `formSingleSelect` (drop down box of options that let a single required value be
-selected)
+| `formSingleSelect` (允许选择单个所需值的选项下拉框)
 | <@infra.formSingleSelect path, options, attributes/>
 
-| `formMultiSelect` (a list box of options that let the user select 0 or more values)
+| `formMultiSelect` (允许用户选择 0 个或多个值的选项列表框)
 | <@infra.formMultiSelect path, options, attributes/>
 
-| `formRadioButtons` (a set of radio buttons that let a single selection be made
-from the available choices)
+| `formRadioButtons` (一组单选按钮，允许从可用选项中进行单选)
 | <@infra.formRadioButtons path, options separator, attributes/>
 
-| `formCheckboxes` (a set of checkboxes that let 0 or more values be selected)
+| `formCheckboxes` (一组复选框，允许选择 0 个或多个值)
 | <@infra.formCheckboxes path, options, separator, attributes/>
 
-| `formCheckbox` (a single checkbox)
+| `formCheckbox` (单个复选框)
 | <@infra.formCheckbox path, attributes/>
 
-| `showErrors` (simplify display of validation errors for the bound field)
+| `showErrors` (简化绑定字段的验证错误显示)
 | <@infra.showErrors separator, classOrStyle/>
 |===
 
-NOTE: In FreeMarker templates, `formHiddenInput` and `formPasswordInput` are not actually
-required, as you can use the normal `formInput` macro, specifying `hidden` or `password`
-as the value for the `fieldType` parameter.
+NOTE: 在 FreeMarker 模板中，`formHiddenInput` 和 `formPasswordInput` 实际上不是必需的，
+因为您可以使用普通的 `formInput` 宏，将 `hidden` 或 `password` 指定为 `fieldType` 参数的值。
 
-The parameters to any of the above macros have consistent meanings:
+上述任何宏的参数都具有一致的含义：
 
-* `path`: The name of the field to bind to (for example, "command.name")
-* `options`: A `Map` of all the available values that can be selected from in the input
-field. The keys to the map represent the values that are POSTed back from the form
-and bound to the command object. Map objects stored against the keys are the labels
-displayed on the form to the user and may be different from the corresponding values
-posted back by the form. Usually, such a map is supplied as reference data by the
-controller. You can use any `Map` implementation, depending on required behavior.
-For strictly sorted maps, you can use a `SortedMap` (such as a `TreeMap`) with a
-suitable `Comparator` and, for arbitrary Maps that should return values in insertion
-order, use a `LinkedHashMap` or a `LinkedMap` from `commons-collections`.
-* `separator`: Where multiple options are available as discreet elements (radio buttons
-or checkboxes), the sequence of characters used to separate each one in the list
-(such as `<br>`).
-* `attributes`: An additional string of arbitrary tags or text to be included within
-the HTML tag itself. This string is echoed literally by the macro. For example, in a
-`textarea` field, you may supply attributes (such as 'rows="5" cols="60"'), or you
-could pass style information such as 'style="border:1px solid silver"'.
-* `classOrStyle`: For the `showErrors` macro, the name of the CSS class that the `span`
-element that wraps each error uses. If no information is supplied (or the value is
-empty), the errors are wrapped in `<b></b>` tags.
+* `path`: 要绑定到的字段的名称（例如 "command.name"）
+* `options`: 所有可用值的 `Map`，可以在输入字段中从中进行选择。
+映射的键表示从表单 POST 回并绑定到命令对象的值。
+针对键存储的映射对象是显示在表单上给用户的标签，可能与表单发回的相应值不同。
+通常，此类映射由控制器作为参考数据提供。
+您可以根据所需的行为使用任何 `Map` 实现。
+对于严格排序的映射，您可以使用带有合适 `Comparator` 的 `SortedMap`（例如 `TreeMap`），
+对于应按插入顺序返回值的任意映射，请使用 `LinkedHashMap` 或来自 `commons-collections` 的 `LinkedMap`。
+* `separator`: 当多个选项作为离散元素（单选按钮或复选框）可用时，用于分隔列表中每个选项的字符序列（例如 `<br>`）。
+* `attributes`: 要包含在 HTML 标签本身的任意标签或文本的附加字符串。
+此字符串由宏按字面意思回显。
+例如，在 `textarea` 字段中，您可以提供属性（例如 'rows="5" cols="60"'），或者您可以传递样式信息，例如 'style="border:1px solid silver"'。
+* `classOrStyle`: 对于 `showErrors` 宏，包装每个错误的 `span` 元素使用的 CSS 类的名称。
+如果没有提供信息（或值为空），则错误将包装在 `<b></b>` 标签中。
 
-The following sections outline examples of the macros.
+以下部分概述了宏的示例。
 
 [[mvc-views-form-macros-input]]
-==== Input Fields
+==== 输入字段
 
-The `formInput` macro takes the `path` parameter (`command.name`) and an additional `attributes`
-parameter (which is empty in the upcoming example). The macro, along with all other form
-generation macros, performs an implicit Spring bind on the path parameter. The binding
-remains valid until a new bind occurs, so the `showErrors` macro does not need to pass the
-path parameter again -- it operates on the field for which a binding was last created.
+`formInput` 宏采用 `path` 参数 (`command.name`) 和一个附加的 `attributes` 参数（在接下来的示例中为空）。
+该宏与所有其他表单生成宏一样，对路径参数执行隐式 Infra 绑定。
+绑定在发生新绑定之前一直有效，因此 `showErrors` 宏不需要再次传递路径参数——它对上次创建绑定的字段进行操作。
 
-The `showErrors` macro takes a separator parameter (the characters that are used to
-separate multiple errors on a given field) and also accepts a second parameter -- this
-time, a class name or style attribute. Note that FreeMarker can specify default
-values for the attributes parameter. The following example shows how to use the `formInput`
-and `showErrors` macros:
+`showErrors` 宏采用分隔符参数（用于分隔给定字段上的多个错误的字符），并且还接受第二个参数——这次是类名或样式属性。
+请注意，FreeMarker 可以为属性参数指定默认值。
+以下示例展示了如何使用 `formInput` 和 `showErrors` 宏：
 
-[source,xml,indent=0,subs="verbatim,quotes"]
+[source,injectedfreemarker,indent=0,subs="verbatim,quotes"]
 ----
 	<@infra.formInput "command.name"/>
 	<@infra.showErrors "<br>"/>
 ----
 
-The next example shows the output of the form fragment, generating the name field and displaying a
-validation error after the form was submitted with no value in the field. Validation
-occurs through Spring's Validation framework.
+下一个示例显示了表单片段的输出，生成名称字段并在表单提交且字段中没有值后显示验证错误。
+验证通过 Infra 的验证框架进行。
 
-The generated HTML resembles the following example:
+生成的 HTML 类似于以下示例：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
@@ -223,29 +229,25 @@ The generated HTML resembles the following example:
 	<br>
 ----
 
-The `formTextarea` macro works the same way as the `formInput` macro and accepts the same
-parameter list. Commonly, the second parameter (`attributes`) is used to pass style
-information or `rows` and `cols` attributes for the `textarea`.
+`formTextarea` 宏的工作方式与 `formInput` 宏相同，并且接受相同的参数列表。
+通常，第二个参数 (`attributes`) 用于传递样式信息或 `textarea` 的 `rows` 和 `cols` 属性。
 
 [[mvc-views-form-macros-select]]
-==== Selection Fields
+==== 选择字段
 
-You can use four selection field macros to generate common UI value selection inputs in
-your HTML forms:
+您可以使用四个选择字段宏在 HTML 表单中生成常见的 UI 值选择输入：
 
 * `formSingleSelect`
 * `formMultiSelect`
 * `formRadioButtons`
 * `formCheckboxes`
 
-Each of the four macros accepts a `Map` of options that contains the value for the form
-field and the label that corresponds to that value. The value and the label can be the
-same.
+四个宏中的每一个都接受一个选项 `Map`，其中包含表单字段的值以及与该值对应的标签。
+值和标签可以相同。
 
-The next example is for radio buttons in FTL. The form-backing object specifies a default
-value of 'London' for this field, so no validation is necessary. When the form is
-rendered, the entire list of cities to choose from is supplied as reference data in the
-model under the name 'cityMap'. The following listing shows the example:
+下一个示例是 FTL 中的单选按钮。表单支持对象为此字段指定默认值 'London'，因此无需验证。
+当渲染表单时，可供选择的整个城市列表作为参考数据在名称 'cityMap' 下的模型中提供。
+以下清单显示了该示例：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
@@ -254,12 +256,11 @@ model under the name 'cityMap'. The following listing shows the example:
 	<@infra.formRadioButtons "command.address.town", cityMap, ""/><br><br>
 ----
 
-The preceding listing renders a line of radio buttons, one for each value in `cityMap`, and uses a
-separator of `""`. No additional attributes are supplied (the last parameter to the macro is
-missing). The `cityMap` uses the same `String` for each key-value pair in the map. The map's
-keys are what the form actually submits as `POST` request parameters. The map values are the
-labels that the user sees. In the preceding example, given a list of three well known cities
-and a default value in the form backing object, the HTML resembles the following:
+前面的清单呈现了一行单选按钮，`cityMap` 中的每个值对应一个，并使用 `""` 分隔符。
+未提供其他属性（缺少宏的最后一个参数）。
+`cityMap` 对映射中的每个键值对使用相同的 `String`。
+映射的键是表单实际作为 `POST` 请求参数提交的内容。映射值是用户看到的标签。
+在前面的示例中，给定三个著名城市的列表和表单支持对象中的默认值，HTML 类似于以下内容：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
@@ -269,8 +270,7 @@ and a default value in the form backing object, the HTML resembles the following
 	<input type="radio" name="address.town" value="New York">New York</input>
 ----
 
-If your application expects to handle cities by internal codes (for example), you can create the map of
-codes with suitable keys, as the following example shows:
+如果您的应用程序希望通过内部代码（例如）处理城市，您可以创建具有合适键的代码映射，如下例所示：
 
 [tabs]
 ======
@@ -278,7 +278,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	protected Map<String, ?> referenceData(HttpServletRequest request) throws Exception {
+	protected Map<String, ?> referenceData(RequestContext request) throws Exception {
 		Map<String, String> cityMap = new LinkedHashMap<>();
 		cityMap.put("LDN", "London");
 		cityMap.put("PRS", "Paris");
@@ -290,23 +290,9 @@ Java::
 	}
 ----
 
-Kotlin::
-+
-[source,kotlin,indent=0,subs="verbatim,quotes"]
-----
-	protected fun referenceData(request: HttpServletRequest): Map<String, *> {
-		val cityMap = linkedMapOf(
-				"LDN" to "London",
-				"PRS" to "Paris",
-				"NYC" to "New York"
-		)
-		return hashMapOf("cityMap" to cityMap)
-	}
-----
 ======
 
-The code now produces output where the radio values are the relevant codes, but the
-user still sees the more user-friendly city names, as follows:
+代码现在生成的输出中，单选值是相关的代码，但用户仍然看到更友好的城市名称，如下所示：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
@@ -317,18 +303,9 @@ user still sees the more user-friendly city names, as follows:
 ----
 
 [[mvc-views-form-macros-html-escaping]]
-=== HTML Escaping
+=== HTML 转义
 
-Default usage of the form macros described earlier results in HTML elements that are HTML 4.01
-compliant and that use the default value for HTML escaping defined in your `web.xml` file, as
-used by Spring's bind support. To make the elements be XHTML compliant or to override
-the default HTML escaping value, you can specify two variables in your template (or in
-your model, where they are visible to your templates). The advantage of specifying
-them in the templates is that they can be changed to different values later in the
-template processing to provide different behavior for different fields in your form.
-
-To switch to XHTML compliance for your tags, specify a value of `true` for a
-model or context variable named `xhtmlCompliant`, as the following example shows:
+要为您的标记切换到 XHTML 合规性，请为名为 `xhtmlCompliant` 的模型或上下文变量指定值 `true`，如下例所示：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
@@ -336,10 +313,9 @@ model or context variable named `xhtmlCompliant`, as the following example shows
 	<#assign xhtmlCompliant = true>
 ----
 
-After processing this directive, any elements generated by the Spring macros are now XHTML
-compliant.
+处理此指令后，Infra 宏生成的任何元素现在都符合 XHTML。
 
-In similar fashion, you can specify HTML escaping per field, as the following example shows:
+以类似的方式，您可以为每个字段指定 HTML 转义，如下例所示：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
@@ -349,6 +325,6 @@ In similar fashion, you can specify HTML escaping per field, as the following ex
 	<#-- next field will use HTML escaping -->
 	<@infra.formInput "command.name"/>
 
-	<#assign htmlEscape = false in spring>
+	<#assign htmlEscape = false in infra>
 	<#-- all future fields will be bound with HTML escaping off -->
 ----
