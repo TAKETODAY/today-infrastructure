@@ -108,8 +108,6 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   private @Nullable List<ServerBootstrapCustomizer> bootstrapCustomizers;
 
-  private NettyServerProperties nettyConfig = new NettyServerProperties();
-
   private @Nullable ChannelConfigurer channelConfigurer;
 
   private @Nullable ChannelHandler httpTrafficHandler;
@@ -122,6 +120,8 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   /** @since 5.0 */
   private @Nullable Duration connectionTimeout;
+
+  private NettyServerProperties nettyConfig = new NettyServerProperties();
 
   private Http2FrameCodecFactory http2FrameCodecFactory = new DefaultHttp2FrameCodecFactory();
 
