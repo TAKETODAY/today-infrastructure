@@ -1,25 +1,24 @@
 [[appendix]]
-= Appendix
+= 附录
 
 
 
 
 [[appendix.xsd-schemas]]
-== XML Schemas
+== XML 模式
 
-This part of the appendix lists XML schemas related to integration technologies.
+本部分附录列出了与集成技术相关的 XML 模式。
 
 
 
 [[appendix.xsd-schemas-jee]]
-=== The `jee` Schema
+=== `jee` 模式
 
-The `jee` elements deal with issues related to Jakarta EE (Enterprise Edition) configuration,
-such as looking up a JNDI object and defining EJB references.
+`jee` 元素处理与 Jakarta EE (Enterprise Edition) 配置相关的问题，
+例如查找 JNDI 对象和定义 EJB 引用。
 
-To use the elements in the `jee` schema, you need to have the following preamble at the top
-of your Infra XML configuration file. The text in the following snippet references the
-correct schema so that the elements in the `jee` namespace are available to you:
+要使用 `jee` 模式中的元素，您需要在 Infra XML 配置文件的顶部包含以下序言。
+以下代码段中的文本引用了正确的模式，以便 `jee` 命名空间中的元素可供您使用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -41,9 +40,9 @@ correct schema so that the elements in the `jee` namespace are available to you:
 
 
 [[appendix.xsd-schemas-jee-jndi-lookup]]
-==== <jee:jndi-lookup/> (simple)
+==== `<jee:jndi-lookup/>` (简单)
 
-The following example shows how to use JNDI to look up a data source without the `jee` schema:
+以下示例展示了如何在不使用 `jee` 模式的情况下使用 JNDI 查找数据源：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -56,8 +55,7 @@ The following example shows how to use JNDI to look up a data source without the
 </bean>
 ----
 
-The following example shows how to use JNDI to look up a data source with the `jee`
-schema:
+以下示例展示了如何使用 `jee` 模式通过 JNDI 查找数据源：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -72,10 +70,9 @@ schema:
 
 
 [[appendix.xsd-schemas-jee-jndi-lookup-environment-single]]
-==== `<jee:jndi-lookup/>` (with Single JNDI Environment Setting)
+==== `<jee:jndi-lookup/>` (带有单个 JNDI 环境设置)
 
-The following example shows how to use JNDI to look up an environment variable without
-`jee`:
+以下示例展示了如何在不使用 `jee` 的情况下使用 JNDI 查找环境变量：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -89,7 +86,7 @@ The following example shows how to use JNDI to look up an environment variable w
 </bean>
 ----
 
-The following example shows how to use JNDI to look up an environment variable with `jee`:
+以下示例展示了如何使用 `jee` 通过 JNDI 查找环境变量：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -100,10 +97,9 @@ The following example shows how to use JNDI to look up an environment variable w
 
 
 [[appendix.xsd-schemas-jee-jndi-lookup-environment-multiple]]
-==== `<jee:jndi-lookup/>` (with Multiple JNDI Environment Settings)
+==== `<jee:jndi-lookup/>` (带有多个 JNDI 环境设置)
 
-The following example shows how to use JNDI to look up multiple environment variables
-without `jee`:
+以下示例展示了如何在不使用 `jee` 的情况下使用 JNDI 查找多个环境变量：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -118,13 +114,12 @@ without `jee`:
 </bean>
 ----
 
-The following example shows how to use JNDI to look up multiple environment variables with
-`jee`:
+以下示例展示了如何使用 `jee` 通过 JNDI 查找多个环境变量：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <jee:jndi-lookup id="simple" jndi-name="jdbc/MyDataSource">
-  <!-- newline-separated, key-value pairs for the environment (standard Properties format) -->
+  <!-- 换行分隔的环境键值对（标准 Properties 格式） -->
   <jee:environment>
     sing=song
     ping=pong
@@ -134,10 +129,9 @@ The following example shows how to use JNDI to look up multiple environment vari
 
 
 [[appendix.xsd-schemas-jee-jndi-lookup-complex]]
-==== `<jee:jndi-lookup/>` (Complex)
+==== `<jee:jndi-lookup/>` (复杂)
 
-The following example shows how to use JNDI to look up a data source and a number of
-different properties without `jee`:
+以下示例展示了如何在不使用 `jee` 的情况下使用 JNDI 查找数据源和许多不同的属性：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -151,8 +145,7 @@ different properties without `jee`:
 </bean>
 ----
 
-The following example shows how to use JNDI to look up a data source and a number of
-different properties with `jee`:
+以下示例展示了如何使用 `jee` 通过 JNDI 查找数据源和许多不同的属性：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -166,142 +159,3 @@ different properties with `jee`:
 ----
 
 
-
-[[appendix.xsd-schemas-jee-local-slsb]]
-==== `<jee:local-slsb/>` (Simple)
-
-The `<jee:local-slsb/>` element configures a reference to a local EJB Stateless Session Bean.
-
-The following example shows how to configures a reference to a local EJB Stateless Session Bean
-without `jee`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="simple"
-    class="infra.ejb.access.LocalStatelessSessionProxyFactoryBean">
-  <property name="jndiName" value="ejb/RentalServiceBean"/>
-  <property name="businessInterface" value="com.foo.service.RentalService"/>
-</bean>
-----
-
-The following example shows how to configures a reference to a local EJB Stateless Session Bean
-with `jee`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<jee:local-slsb id="simpleSlsb" jndi-name="ejb/RentalServiceBean"
-    business-interface="com.foo.service.RentalService"/>
-----
-
-
-
-[[appendix.xsd-schemas-jee-local-slsb-complex]]
-==== `<jee:local-slsb/>` (Complex)
-
-The `<jee:local-slsb/>` element configures a reference to a local EJB Stateless Session Bean.
-
-The following example shows how to configures a reference to a local EJB Stateless Session Bean
-and a number of properties without `jee`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="complexLocalEjb"
-    class="infra.ejb.access.LocalStatelessSessionProxyFactoryBean">
-  <property name="jndiName" value="ejb/RentalServiceBean"/>
-  <property name="businessInterface" value="com.example.service.RentalService"/>
-  <property name="cacheHome" value="true"/>
-  <property name="lookupHomeOnStartup" value="true"/>
-  <property name="resourceRef" value="true"/>
-</bean>
-----
-
-The following example shows how to configures a reference to a local EJB Stateless Session Bean
-and a number of properties with `jee`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<jee:local-slsb id="complexLocalEjb"
-    jndi-name="ejb/RentalServiceBean"
-    business-interface="com.foo.service.RentalService"
-    cache-home="true"
-    lookup-home-on-startup="true"
-    resource-ref="true">
-----
-
-
-[[appendix.xsd-schemas-jee-remote-slsb]]
-==== <jee:remote-slsb/>
-
-The `<jee:remote-slsb/>` element configures a reference to a `remote` EJB Stateless Session Bean.
-
-The following example shows how to configures a reference to a remote EJB Stateless Session Bean
-without `jee`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="complexRemoteEjb"
-    class="infra.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean">
-  <property name="jndiName" value="ejb/MyRemoteBean"/>
-  <property name="businessInterface" value="com.foo.service.RentalService"/>
-  <property name="cacheHome" value="true"/>
-  <property name="lookupHomeOnStartup" value="true"/>
-  <property name="resourceRef" value="true"/>
-  <property name="homeInterface" value="com.foo.service.RentalService"/>
-  <property name="refreshHomeOnConnectFailure" value="true"/>
-</bean>
-----
-
-The following example shows how to configures a reference to a remote EJB Stateless Session Bean
-with `jee`:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<jee:remote-slsb id="complexRemoteEjb"
-    jndi-name="ejb/MyRemoteBean"
-    business-interface="com.foo.service.RentalService"
-    cache-home="true"
-    lookup-home-on-startup="true"
-    resource-ref="true"
-    home-interface="com.foo.service.RentalService"
-    refresh-home-on-connect-failure="true">
-----
-
-
-
-
-[[appendix.xsd-schemas-context-mbe]]
-=== Using `<context:mbean-export/>`
-
-This element is detailed in
-xref:integration/jmx/naming.adoc#jmx-context-mbeanexport[Configuring Annotation-based MBean Export].
-
-
-
-[[appendix.xsd-schemas-cache]]
-=== The `cache` Schema
-
-You can use the `cache` elements to enable support for Infra `@CacheEvict`, `@CachePut`,
-and `@Caching` annotations. It it also supports declarative XML-based caching. See
-xref:integration/cache/annotations.adoc#cache-annotation-enable[Enabling Caching Annotations] and
-xref:integration/cache/declarative-xml.adoc[Declarative XML-based Caching] for details.
-
-To use the elements in the `cache` schema, you need to have the following preamble at the
-top of your Infra XML configuration file. The text in the following snippet references
-the correct schema so that the elements in the `cache` namespace are available to you:
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:cache="http://www.springframework.org/schema/cache"
-  xsi:schemaLocation="
-    http://www.springframework.org/schema/beans
-    https://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/cache
-    https://www.springframework.org/schema/cache/spring-cache.xsd">
-
-  <!-- bean definitions here -->
-
-</beans>
-----
