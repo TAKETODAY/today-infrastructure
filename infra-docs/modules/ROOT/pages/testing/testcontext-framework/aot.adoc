@@ -16,7 +16,7 @@
   xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存]。
 
 默认情况下，所有测试在 AOT 模式下启用。不过，你可以通过
-xref:testing/annotations/integration-spring/annotation-disabledinaotmode.adoc[`@DisabledInAotMode`]
+xref:testing/annotations/integration-infra/annotation-disabledinaotmode.adoc[`@DisabledInAotMode`]
 注解，选择性地在 AOT 模式下禁用整个测试类或某个测试方法。
 使用 JUnit Jupiter 时，可以通过 `@EnabledInNativeImage` 与 `@DisabledInNativeImage`
 注解在 GraalVM 原生镜像中选择性启用或禁用测试。注意 `@DisabledInAotMode` 也会在

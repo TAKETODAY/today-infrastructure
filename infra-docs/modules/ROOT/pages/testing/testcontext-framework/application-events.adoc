@@ -11,7 +11,7 @@ the `ApplicationEvents` API which allows you to process the events as a
 To use `ApplicationEvents` in your tests, do the following.
 
 * Ensure that your test class is annotated or meta-annotated with
-  xref:testing/annotations/integration-spring/annotation-recordapplicationevents.adoc[`@RecordApplicationEvents`].
+  xref:testing/annotations/integration-infra/annotation-recordapplicationevents.adoc[`@RecordApplicationEvents`].
 * Ensure that the `ApplicationEventsTestExecutionListener` is registered. Note, however,
   that `ApplicationEventsTestExecutionListener` is registered by default and only needs
   to be manually registered if you have custom configuration via

@@ -33,7 +33,7 @@ abstraction or injected directly into Infra-managed components – for example, 
 ====
 If you use `@DynamicPropertySource` in a base class and discover that tests in subclasses
 fail because the dynamic properties change between subclasses, you may need to annotate
-your base class with xref:testing/annotations/integration-spring/annotation-dirtiescontext.adoc[`@DirtiesContext`] to
+your base class with xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[`@DirtiesContext`] to
 ensure that each subclass gets its own `ApplicationContext` with the correct dynamic
 properties.
 ====

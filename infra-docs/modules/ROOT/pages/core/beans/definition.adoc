@@ -67,7 +67,7 @@ Bean 元数据和手动提供的单例实例需要尽早注册，以便容器在
 默认情况下，容器会在 `INFO` 级别记录每次 bean 覆盖，以便您可以相应地调整配置。
 虽然不推荐，但您可以通过将 `allowBeanDefinitionOverriding` 标志设置为 `true` 来使这些日志静音。
 
-NOTE: 我们承认在测试中覆盖 bean 很方便，并且对此有明确的支持。有关更多详细信息，请参阅 xref:testing/annotations/integration-spring/annotation-beanoverriding.adoc[本节]。
+NOTE: 我们承认在测试中覆盖 bean 很方便，并且对此有明确的支持。有关更多详细信息，请参阅 xref:testing/annotations/integration-infra/annotation-beanoverriding.adoc[本节]。
 
 [[beans-beanname]]
 == 命名 Bean

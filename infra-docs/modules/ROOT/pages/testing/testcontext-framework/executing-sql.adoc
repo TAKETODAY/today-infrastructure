@@ -378,7 +378,7 @@ database schema or some common test data once per test class and then provide ad
 use case specific test data per test method. To enable `@Sql` merging, annotate either
 your test class or test method with `@SqlMergeMode(MERGE)`. To disable merging for a
 specific test method (or specific test subclass), you can switch back to the default mode
-via `@SqlMergeMode(OVERRIDE)`. Consult the xref:testing/annotations/integration-spring/annotation-sqlmergemode.adoc[`@SqlMergeMode` annotation documentation section]
+via `@SqlMergeMode(OVERRIDE)`. Consult the xref:testing/annotations/integration-infra/annotation-sqlmergemode.adoc[`@SqlMergeMode` annotation documentation section]
  for examples and further details.
 
 
