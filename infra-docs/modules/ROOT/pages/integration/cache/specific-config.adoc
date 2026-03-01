@@ -1,11 +1,5 @@
 [[cache-specific-config]]
-= How can I Set the TTL/TTI/Eviction policy/XXX feature?
+= 如何设置 TTL/TTI/驱逐策略/XXX 功能？
 :page-section-summary-toc: 1
 
-Directly through your cache provider. The cache abstraction is an abstraction,
-not a cache implementation. The solution you use might support various data
-policies and different topologies that other solutions do not support (for example,
-the JDK `ConcurrentHashMap` -- exposing that in the cache abstraction would be useless
-because there would no backing support). Such functionality should be controlled
-directly through the backing cache (when configuring it) or through its native API.
-
+直接通过您的缓存提供程序。缓存抽象是一个抽象，而不是缓存实现。您使用的解决方案可能支持其他解决方案不支持的各种数据策略和不同的拓扑结构（例如，JDK `ConcurrentHashMap` —— 在缓存抽象中公开它将是无用的，因为没有后备支持）。此类功能应直接通过后备缓存（配置时）或通过其本机 API 进行控制。

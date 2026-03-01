@@ -1,28 +1,28 @@
 [[rest-client-access]]
-= REST Clients
+= REST 客户端
 
-The TODAY Framework provides the following choices for making calls to REST endpoints:
+TODAY Framework 提供了以下选项来调用 REST 端点：
 
-* xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] - synchronous client with a fluent API.
-* xref:integration/rest-clients.adoc#rest-webclient[`WebClient`] - non-blocking, reactive client with fluent API.
-* xref:integration/rest-clients.adoc#rest-resttemplate[`RestTemplate`] - synchronous client with template method API.
-* xref:integration/rest-clients.adoc#rest-http-interface[HTTP Interface] - annotated interface with generated, dynamic proxy implementation.
+* xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] - 具有流畅 API 的同步客户端。
+* xref:integration/rest-clients.adoc#rest-webclient[`WebClient`] - 具有流畅 API 的非阻塞、响应式客户端。
+* xref:integration/rest-clients.adoc#rest-resttemplate[`RestTemplate`] - 具有模板方法 API 的同步客户端。
+* xref:integration/rest-clients.adoc#rest-http-interface[HTTP 接口] - 具有生成的动态代理实现的注解接口。
 
 
 [[rest-restclient]]
 == `RestClient`
 
-The `RestClient` is a synchronous HTTP client that offers a modern, fluent API.
-It offers an abstraction over HTTP libraries that allows for convenient conversion from a Java object to an HTTP request, and the creation of objects from an HTTP response.
+`RestClient` 是一个同步 HTTP 客户端，提供现代、流畅的 API。
+它提供了对 HTTP 库的抽象，允许方便地将 Java 对象转换为 HTTP 请求，并从 HTTP 响应创建对象。
 
-=== Creating a `RestClient`
+=== 创建 `RestClient`
 
-The `RestClient` is created using one of the static `create` methods.
-You can also use `builder()` to get a builder with further options, such as specifying which HTTP library to use (see <<rest-request-factories>>) and which message converters to use (see <<rest-message-conversion>>), setting a default URI, default path variables, default request headers, or `uriBuilderFactory`, or registering interceptors and initializers.
+`RestClient` 是使用静态 `create` 方法之一创建的。
+您还可以使用 `builder()` 获取具有更多选项的构建器，例如指定要使用的 HTTP 库（请参阅 <<rest-request-factories>>）和要使用的消息转换器（请参阅 <<rest-message-conversion>>），设置默认 URI、默认路径变量、默认请求头或 `uriBuilderFactory`，或注册拦截器和初始化器。
 
-Once created (or built), the `RestClient` can be used safely by multiple threads.
+一旦创建（或构建），`RestClient` 就可以安全地供多个线程使用。
 
-The following sample shows how to create a default `RestClient`, and how to build a custom one.
+以下示例显示了如何创建默认的 `RestClient`，以及如何构建自定义的 `RestClient`。
 
 [tabs]
 ======
@@ -45,39 +45,39 @@ RestClient customClient = RestClient.builder()
 
 ======
 
-=== Using the `RestClient`
+=== 使用 `RestClient`
 
-When making an HTTP request with the `RestClient`, the first thing to specify is which HTTP method to use.
-This can be done with `method(HttpMethod)` or with the convenience methods `get()`, `head()`, `post()`, and so on.
+使用 `RestClient` 发出 HTTP 请求时，首先要指定要使用的 HTTP 方法。
+这可以通过 `method(HttpMethod)` 或使用便捷方法 `get()`、`head()`、`post()` 等来完成。
 
-==== Request URL
+==== 请求 URL
 
-Next, the request URI can be specified with the `uri` methods.
-This step is optional and can be skipped if the `RestClient` is configured with a default URI.
-The URL is typically specified as a `String`, with optional URI template variables.
-String URLs are encoded by default, but this can be changed by building a client with a custom `uriBuilderFactory`.
+接下来，可以使用 `uri` 方法指定请求 URI。
+此步骤是可选的，如果 `RestClient` 配置了默认 URI，则可以跳过此步骤。
+URL 通常指定为 `String`，带有可选的 URI 模板变量。
+字符串 URL 默认编码，但这可以通过使用自定义 `uriBuilderFactory` 构建客户端来更改。
 
-The URL can also be provided with a function or as a `java.net.URI`, both of which are not encoded.
-For more details on working with and encoding URIs, see xref:web/webmvc/mvc-uri-building.adoc[URI Links].
+URL 也可以通过函数或作为 `java.net.URI` 提供，这两者都不编码。
+有关处理和编码 URI 的更多详细信息，请参阅 xref:web/webmvc/mvc-uri-building.adoc[URI 链接]。
 
-==== Request headers and body
+==== 请求头和正文
 
-If necessary, the HTTP request can be manipulated by adding request headers with `header(String, String)`, `headers(Consumer<HttpHeaders>`, or with the convenience methods `accept(MediaType...)`, `acceptCharset(Charset...)` and so on.
-For HTTP requests that can contain a body (`POST`, `PUT`, and `PATCH`), additional methods are available: `contentType(MediaType)`, and `contentLength(long)`.
+如有必要，可以通过使用 `header(String, String)`、`headers(Consumer<HttpHeaders>)` 添加请求头，或使用便捷方法 `accept(MediaType...)`、`acceptCharset(Charset...)` 等来操作 HTTP 请求。
+对于可以包含正文的 HTTP 请求（`POST`、`PUT` 和 `PATCH`），还有其他方法可用：`contentType(MediaType)` 和 `contentLength(long)`。
 
-The request body itself can be set by `body(Object)`, which internally uses <<rest-message-conversion>>.
-Alternatively, the request body can be set using a `ParameterizedTypeReference`, allowing you to use generics.
-Finally, the body can be set to a callback function that writes to an `OutputStream`.
+请求正文本身可以通过 `body(Object)` 设置，其内部使用 <<rest-message-conversion>>。
+或者，可以使用 `ParameterizedTypeReference` 设置请求正文，允许您使用泛型。
+最后，可以将正文设置为写入 `OutputStream` 的回调函数。
 
-==== Retrieving the response
+==== 检索响应
 
-Once the request has been set up, the HTTP response is accessed by invoking `retrieve()`.
-The response body can be accessed by using `body(Class)` or `body(ParameterizedTypeReference)` for parameterized types like lists.
-The `body` method converts the response contents into various types – for instance, bytes can be converted into a `String`, JSON can be converted into objects using Jackson, and so on (see <<rest-message-conversion>>).
+设置请求后，通过调用 `retrieve()` 访问 HTTP 响应。
+可以使用 `body(Class)` 或 `body(ParameterizedTypeReference)`（对于列表等参数化类型）访问响应正文。
+`body` 方法将响应内容转换为各种类型——例如，字节可以转换为 `String`，JSON 可以使用 Jackson 转换为对象，依此类推（请参阅 <<rest-message-conversion>>）。
 
-The response can also be converted into a `ResponseEntity`, giving access to the response headers as well as the body.
+响应也可以转换为 `ResponseEntity`，从而可以访问响应头和正文。
 
-This sample shows how `RestClient` can be used to perform a simple `GET` request.
+此示例显示了如何使用 `RestClient` 执行简单的 `GET` 请求。
 
 [tabs]
 ======
@@ -93,15 +93,15 @@ String result = restClient.get() <1>
 System.out.println(result); <5>
 ----
 
-<1> Set up a GET request
-<2> Specify the URL to connect to
-<3> Retrieve the response
-<4> Convert the response into a string
-<5> Print the result
+<1> 设置 GET 请求
+<2> 指定要连接的 URL
+<3> 检索响应
+<4> 将响应转换为字符串
+<5> 打印结果
 
 ======
 
-Access to the response status code and headers is provided through `ResponseEntity`:
+通过 `ResponseEntity` 提供对响应状态代码和头的访问：
 
 [tabs]
 ======
@@ -119,14 +119,14 @@ System.out.println("Response headers: " + result.getHeaders()); <3>
 System.out.println("Contents: " + result.getBody()); <3>
 ----
 
-<1> Set up a GET request for the specified URL
-<2> Convert the response into a `ResponseEntity`
-<3> Print the result
+<1> 为指定的 URL 设置 GET 请求
+<2> 将响应转换为 `ResponseEntity`
+<3> 打印结果
 
 ======
 
-`RestClient` can convert JSON to objects, using the Jackson library.
-Note the usage of URI variables in this sample and that the `Accept` header is set to JSON.
+`RestClient` 可以使用 Jackson 库将 JSON 转换为对象。
+请注意此示例中 URI 变量的使用，并且 `Accept` 头设置为 JSON。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -138,12 +138,12 @@ Pet pet = restClient.get()
   .body(Pet.class); <3>
 ----
 
-<1> Using URI variables
-<2> Set the `Accept` header to `application/json`
-<3> Convert the JSON response into a `Pet` domain object
+<1> 使用 URI 变量
+<2> 将 `Accept` 头设置为 `application/json`
+<3> 将 JSON 响应转换为 `Pet` 域对象
 
 
-In the next sample, `RestClient` is used to perform a POST request that contains JSON, which again is converted using Jackson.
+在下一个示例中，`RestClient` 用于执行包含 JSON 的 POST 请求，该请求再次使用 Jackson 进行转换。
 
 [tabs]
 ======
@@ -160,18 +160,18 @@ ResponseEntity<Void> response = restClient.post() <2>
   .toBodilessEntity(); <5>
 ----
 
-<1> Create a `Pet` domain object
-<2> Set up a POST request, and the URL to connect to
-<3> Set the `Content-Type` header to `application/json`
-<4> Use `pet` as the request body
-<5> Convert the response into a response entity with no body.
+<1> 创建 `Pet` 域对象
+<2> 设置 POST 请求以及要连接的 URL
+<3> 将 `Content-Type` 头设置为 `application/json`
+<4> 使用 `pet` 作为请求正文
+<5> 将响应转换为没有正文的响应实体。
 
 ======
 
-==== Error handling
+==== 错误处理
 
-By default, `RestClient` throws a subclass of `RestClientException` when retrieving a response with a 4xx or 5xx status code.
-This behavior can be overridden using `onStatus`.
+默认情况下，`RestClient` 在检索具有 4xx 或 5xx 状态代码的响应时会抛出 `RestClientException` 的子类。
+可以使用 `onStatus` 覆盖此行为。
 
 [tabs]
 ======
@@ -187,15 +187,15 @@ String result = restClient.get() <1>
   })
   .body(String.class);
 ----
-<1> Create a GET request for a URL that returns a 404 status code
-<2> Set up a status handler for all 4xx status codes
-<3> Throw a custom exception
+<1> 为返回 404 状态代码的 URL 创建 GET 请求
+<2> 为所有 4xx 状态代码设置状态处理程序
+<3> 抛出自定义异常
 ======
 
 ==== Exchange
 
-For more advanced scenarios, the `RestClient` gives access to the underlying HTTP request and response through the `exchange()` method, which can be used instead of `retrieve()`.
-Status handlers are not applied when use `exchange()`, because the exchange function already provides access to the full response, allowing you to perform any error handling necessary.
+对于更高级的场景，`RestClient` 通过 `exchange()` 方法提供对底层 HTTP 请求和响应的访问，该方法可用于代替 `retrieve()`。
+使用 `exchange()` 时不应用状态处理程序，因为 exchange 函数已经提供了对完整响应的访问，允许您执行任何必要的错误处理。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -213,78 +213,78 @@ Pet result = restClient.get()
   });
 ----
 
-<1> `exchange` provides the request and response
-<2> Throw an exception when the response has a 4xx status code
-<3> Convert the response into a Pet domain object
+<1> `exchange` 提供请求和响应
+<2> 当响应具有 4xx 状态代码时抛出异常
+<3> 将响应转换为 Pet 域对象
 
 
 [[rest-message-conversion]]
-=== HTTP Message Conversion
+=== HTTP 消息转换
 
-The `infra-web` module contains the `HttpMessageConverter` interface for reading and writing the body of HTTP requests and responses through `InputStream` and `OutputStream`.
-`HttpMessageConverter` instances are used on the client side (for example, in the `RestClient`) and on the server side (for example, in Web MVC REST controllers).
+`infra-web` 模块包含 `HttpMessageConverter` 接口，用于通过 `InputStream` 和 `OutputStream` 读取和写入 HTTP 请求和响应的正文。
+`HttpMessageConverter` 实例在客户端（例如，在 `RestClient` 中）和服务器端（例如，在 Web MVC REST 控制器中）使用。
 
-Concrete implementations for the main media (MIME) types are provided in the framework and are, by default, registered with the `RestClient` and `RestTemplate` on the client side and with `RequestMappingHandlerAdapter` on the server side (see xref:web/webmvc/mvc-config/message-converters.adoc[Configuring Message Converters]).
+框架中提供了主要媒体 (MIME) 类型的具体实现，默认情况下，这些实现已在客户端向 `RestClient` 和 `RestTemplate` 注册，在服务器端向 `RequestMappingHandlerAdapter` 注册（请参阅 xref:web/webmvc/mvc-config/message-converters.adoc[配置消息转换器]）。
 
-Several implementations of `HttpMessageConverter` are described below.
-Refer to the {today-framework-api}/http/converter/HttpMessageConverter.html[`HttpMessageConverter` Javadoc] for the complete list.
-For all converters, a default media type is used, but you can override it by setting the `supportedMediaTypes`  property.
+下面介绍了几种 `HttpMessageConverter` 的实现。
+有关完整列表，请参阅 {today-framework-api}/http/converter/HttpMessageConverter.html[`HttpMessageConverter` Javadoc]。
+对于所有转换器，都使用默认媒体类型，但您可以通过设置 `supportedMediaTypes` 属性来覆盖它。
 
 [[rest-message-converters-tbl]]
-.HttpMessageConverter Implementations
+.HttpMessageConverter 实现
 [cols="1,3"]
 |===
-| MessageConverter | Description
+| MessageConverter | 描述
 
 | `StringHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write `String` instances from the HTTP request and response.
-By default, this converter supports all text media types(`text/{asterisk}`) and writes with a `Content-Type` of `text/plain`.
+| 一个 `HttpMessageConverter` 实现，可以从 HTTP 请求和响应中读取和写入 `String` 实例。
+默认情况下，此转换器支持所有文本媒体类型 (`text/{asterisk}`) 并以 `text/plain` 的 `Content-Type` 写入。
 
 | `FormHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write form data from the HTTP request and response.
-By default, this converter reads and writes the `application/x-www-form-urlencoded` media type.
-Form data is read from and written into a `MultiValueMap<String, String>`.
-The converter can also write (but not read) multipart data read from a `MultiValueMap<String, Object>`.
-By default, `multipart/form-data` is supported.
-Additional multipart subtypes can be supported for writing form data.
-Consult the javadoc for `FormHttpMessageConverter` for further details.
+| 一个 `HttpMessageConverter` 实现，可以从 HTTP 请求和响应中读取和写入表单数据。
+默认情况下，此转换器读取和写入 `application/x-www-form-urlencoded` 媒体类型。
+表单数据从 `MultiValueMap<String, String>` 中读取并写入其中。
+转换器还可以写入（但不能读取）从 `MultiValueMap<String, Object>` 读取的多部分数据。
+默认情况下，支持 `multipart/form-data`。
+支持其他多部分子类型用于写入表单数据。
+有关更多详细信息，请参阅 `FormHttpMessageConverter` 的 javadoc。
 
 | `ByteArrayHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write byte arrays from the HTTP request and response.
-By default, this converter supports all media types (`{asterisk}/{asterisk}`) and writes with a `Content-Type` of `application/octet-stream`.
-You can override this by setting the `supportedMediaTypes` property and overriding `getContentType(byte[])`.
+| 一个 `HttpMessageConverter` 实现，可以从 HTTP 请求和响应中读取和写入字节数组。
+默认情况下，此转换器支持所有媒体类型 (`{asterisk}/{asterisk}`) 并以 `application/octet-stream` 的 `Content-Type` 写入。
+您可以通过设置 `supportedMediaTypes` 属性并覆盖 `getContentType(byte[])` 来覆盖此设置。
 
 | `MarshallingHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write XML by using Infra `Marshaller` and `Unmarshaller` abstractions from the `infra.oxm` package.
-This converter requires a `Marshaller` and `Unmarshaller` before it can be used.
-You can inject these through constructor or bean properties.
-By default, this converter supports `text/xml` and `application/xml`.
+| 一个 `HttpMessageConverter` 实现，可以使用 `infra.oxm` 包中的 Infra `Marshaller` 和 `Unmarshaller` 抽象读取和写入 XML。
+此转换器在使用前需要 `Marshaller` 和 `Unmarshaller`。
+您可以通过构造函数或 Bean 属性注入这些。
+默认情况下，此转换器支持 `text/xml` 和 `application/xml`。
 
 | `JacksonJsonHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write JSON by using Jackson's `ObjectMapper`.
-You can customize JSON mapping as needed through the use of Jackson's provided annotations.
-When you need further control (for cases where custom JSON serializers/deserializers need to be provided for specific types), you can inject a custom `ObjectMapper` through the `ObjectMapper` property.
-By default, this converter supports `application/json`.
+| 一个 `HttpMessageConverter` 实现，可以使用 Jackson 的 `ObjectMapper` 读取和写入 JSON。
+您可以根据需要通过使用 Jackson 提供的注解来自定义 JSON 映射。
+当您需要进一步控制时（对于需要为特定类型提供自定义 JSON 序列化器/反序列化器的情况），可以通过 `ObjectMapper` 属性注入自定义 `ObjectMapper`。
+默认情况下，此转换器支持 `application/json`。
 
 | `JacksonXmlHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write XML by using {jackson-github-org}/jackson-dataformat-xml[Jackson XML] extension's `XmlMapper`.
-You can customize XML mapping as needed through the use of JAXB or Jackson's provided annotations.
-When you need further control (for cases where custom XML serializers/deserializers need to be provided for specific types), you can inject a custom `XmlMapper` through the `ObjectMapper` property.
-By default, this converter supports `application/xml`.
+| 一个 `HttpMessageConverter` 实现，可以使用 {jackson-github-org}/jackson-dataformat-xml[Jackson XML] 扩展的 `XmlMapper` 读取和写入 XML。
+您可以根据需要通过使用 JAXB 或 Jackson 提供的注解来自定义 XML 映射。
+当您需要进一步控制时（对于需要为特定类型提供自定义 XML 序列化器/反序列化器的情况），可以通过 `ObjectMapper` 属性注入自定义 `XmlMapper`。
+默认情况下，此转换器支持 `application/xml`。
 
 | `SourceHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write `javax.xml.transform.Source` from the HTTP request and response.
-Only `DOMSource`, `SAXSource`, and `StreamSource` are supported.
-By default, this converter supports `text/xml` and `application/xml`.
+| 一个 `HttpMessageConverter` 实现，可以从 HTTP 请求和响应中读取和写入 `javax.xml.transform.Source`。
+仅支持 `DOMSource`、`SAXSource` 和 `StreamSource`。
+默认情况下，此转换器支持 `text/xml` 和 `application/xml`。
 
 |===
 
-By default, `RestClient` and `RestTemplate` register all built-in message converters, depending on the availability of underlying libraries on the classpath.
-You can also set the message converters to use explicitly, by using the `messageConverters()` method on the `RestClient` builder, or via the `messageConverters` property of `RestTemplate`.
+默认情况下，`RestClient` 和 `RestTemplate` 会注册所有内置消息转换器，具体取决于类路径上底层库的可用性。
+您还可以通过使用 `RestClient` 构建器上的 `messageConverters()` 方法或通过 `RestTemplate` 的 `messageConverters` 属性显式设置要使用的消息转换器。
 
-==== Jackson JSON Views
+==== Jackson JSON 视图
 
-To serialize only a subset of the object properties, you can specify a {baeldung-blog}/jackson-json-view-annotation[Jackson JSON View], as the following example shows:
+要仅序列化对象属性的子集，可以指定 {baeldung-blog}/jackson-json-view-annotation[Jackson JSON 视图]，如下例所示：
 
 [source,java,indent=0,subs="verbatim"]
 ----
@@ -301,8 +301,8 @@ ResponseEntity<Void> response = restClient.post() // or RestTemplate.postForEnti
 
 ==== Multipart
 
-To send multipart data, you need to provide a `MultiValueMap<String, Object>` whose values may be an `Object` for part content, a `Resource` for a file part, or an `HttpEntity` for part content with headers.
-For example:
+要发送多部分数据，您需要提供一个 `MultiValueMap<String, Object>`，其值可以是部分内容的对象、文件部分的 `Resource` 或具有头的部分内容的 `HttpEntity`。
+例如：
 
 [source,java,indent=0,subs="verbatim"]
 ----
@@ -319,126 +319,124 @@ parts.add("xmlPart", new HttpEntity<>(myBean, headers));
 // send using RestClient.post or RestTemplate.postForEntity
 ----
 
-In most cases, you do not have to specify the `Content-Type` for each part.
-The content type is determined automatically based on the `HttpMessageConverter` chosen to serialize it or, in the case of a `Resource`, based on the file extension.
-If necessary, you can explicitly provide the `MediaType` with an `HttpEntity` wrapper.
+在大多数情况下，您不必为每个部分指定 `Content-Type`。
+内容类型根据选择用于序列化它的 `HttpMessageConverter` 自动确定，或者在 `Resource` 的情况下，根据文件扩展名确定。
+如有必要，您可以使用 `HttpEntity` 包装器显式提供 `MediaType`。
 
-Once the `MultiValueMap` is ready, you can use it as the body of a `POST` request, using  `RestClient.post().body(parts)` (or `RestTemplate.postForObject`).
+一旦 `MultiValueMap` 准备就绪，您可以使用 `RestClient.post().body(parts)`（或 `RestTemplate.postForObject`）将其用作 `POST` 请求的正文。
 
-If the `MultiValueMap` contains at least one non-`String` value, the `Content-Type` is set to `multipart/form-data` by the `FormHttpMessageConverter`.
-If the `MultiValueMap` has `String` values, the `Content-Type` defaults to `application/x-www-form-urlencoded`.
-If necessary the `Content-Type` may also be set explicitly.
+如果 `MultiValueMap` 包含至少一个非 `String` 值，则 `FormHttpMessageConverter` 将 `Content-Type` 设置为 `multipart/form-data`。
+如果 `MultiValueMap` 具有 `String` 值，则 `Content-Type` 默认为 `application/x-www-form-urlencoded`。
+如有必要，也可以显式设置 `Content-Type`。
 
 [[rest-request-factories]]
-=== Client Request Factories
+=== 客户端请求工厂
 
-To execute the HTTP request, `RestClient` uses a client HTTP library.
-These libraries are adapted via the `ClientRequestFactory` interface.
-Various implementations are available:
+为了执行 HTTP 请求，`RestClient` 使用客户端 HTTP 库。
+这些库通过 `ClientRequestFactory` 接口进行适配。
+提供了各种实现：
 
-* `JdkClientHttpRequestFactory` for Java's `HttpClient`
-* `HttpComponentsClientHttpRequestFactory` for use with Apache HTTP Components `HttpClient`
-* `ReactorClientHttpRequestFactory` for Reactor Netty's `HttpClient`
+* `JdkClientHttpRequestFactory` 用于 Java 的 `HttpClient`
+* `HttpComponentsClientHttpRequestFactory` 用于 Apache HTTP Components `HttpClient`
+* `ReactorClientHttpRequestFactory` 用于 Reactor Netty 的 `HttpClient`
 
-If no request factory is specified when the `RestClient` was built, it will use the Apache if they are available on the classpath.
-Otherwise, if the `java.net.http` module is loaded, it will use Java's `HttpClient`.
-Finally, it will resort to the simple default.
+如果在构建 `RestClient` 时未指定请求工厂，并且它们在类路径上可用，则它将使用 Apache。
+否则，如果加载了 `java.net.http` 模块，它将使用 Java 的 `HttpClient`。
+最后，它将求助于简单的默认值。
 
 [[rest-webclient]]
 == `WebClient`
 
-`WebClient` is a non-blocking, reactive client to perform HTTP requests.
-It was introduced in 5.0 and offers an alternative to the `RestTemplate`, with support for synchronous, asynchronous, and streaming scenarios.
+`WebClient` 是一个非阻塞的响应式客户端，用于执行 HTTP 请求。
+它是在 5.0 中引入的，提供了 `RestTemplate` 的替代方案，支持同步、异步和流式场景。
 
-`WebClient` supports the following:
+`WebClient` 支持以下内容：
 
-* Non-blocking I/O
-* Reactive Streams back pressure
-* High concurrency with fewer hardware resources
-* Functional-style, fluent API that takes advantage of Java 8 lambdas
-* Synchronous and asynchronous interactions
-* Streaming up to or streaming down from a server
+* 非阻塞 I/O
+* Reactive Streams 背压
+* 使用更少的硬件资源实现高并发
+* 利用 Java 8 lambdas 的函数式风格、流畅的 API
+* 同步和异步交互
+* 向上流式传输或从服务器向下流式传输
 
 
 [[rest-resttemplate]]
 == `RestTemplate`
 
-The `RestTemplate` provides a high-level API over HTTP client libraries in the form of a classic Infra Template class.
-It exposes the following groups of overloaded methods:
+`RestTemplate` 以经典的 Infra 模板类的形式提供了 HTTP 客户端库的高级 API。
+它公开了以下重载方法组：
 
-NOTE: The xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] offers a more modern API for synchronous HTTP access.
+NOTE: xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] 为同步 HTTP 访问提供了更现代的 API。
 
 [[rest-overview-of-resttemplate-methods-tbl]]
-.RestTemplate methods
+.RestTemplate 方法
 [cols="1,3"]
 |===
-| Method group | Description
+| 方法组 | 描述
 
 | `getForObject`
-| Retrieves a representation via GET.
+| 通过 GET 检索表示。
 
 | `getForEntity`
-| Retrieves a `ResponseEntity` (that is, status, headers, and body) by using GET.
+| 使用 GET 检索 `ResponseEntity`（即状态、头和正文）。
 
 | `headForHeaders`
-| Retrieves all headers for a resource by using HEAD.
+| 使用 HEAD 检索资源的所有头。
 
 | `postForLocation`
-| Creates a new resource by using POST and returns the `Location` header from the response.
+| 使用 POST 创建新资源并从响应中返回 `Location` 头。
 
 | `postForObject`
-| Creates a new resource by using POST and returns the representation from the response.
+| 使用 POST 创建新资源并从响应中返回表示。
 
 | `postForEntity`
-| Creates a new resource by using POST and returns the representation from the response.
+| 使用 POST 创建新资源并从响应中返回表示。
 
 | `put`
-| Creates or updates a resource by using PUT.
+| 使用 PUT 创建或更新资源。
 
 | `patchForObject`
-| Updates a resource by using PATCH and returns the representation from the response.
-Note that the JDK `HttpURLConnection` does not support `PATCH`, but Apache HttpComponents and others do.
+| 使用 PATCH 更新资源并从响应中返回表示。
+请注意，JDK `HttpURLConnection` 不支持 `PATCH`，但 Apache HttpComponents 和其他组件支持。
 
 | `delete`
-| Deletes the resources at the specified URI by using DELETE.
+| 使用 DELETE 删除指定 URI 处的资源。
 
 | `optionsForAllow`
-| Retrieves allowed HTTP methods for a resource by using ALLOW.
+| 使用 ALLOW 检索资源允许的 HTTP 方法。
 
 | `exchange`
-| More generalized (and less opinionated) version of the preceding methods that provides extra flexibility when needed.
-It accepts a `RequestEntity` (including HTTP method, URL, headers, and body as input) and returns a `ResponseEntity`.
+| 前述方法的更通用（且不那么固执己见）版本，在需要时提供额外的灵活性。
+它接受 `RequestEntity`（包括 HTTP 方法、URL、头和正文作为输入）并返回 `ResponseEntity`。
 
-These methods allow the use of `ParameterizedTypeReference` instead of `Class` to specify
-a response type with generics.
+这些方法允许使用 `ParameterizedTypeReference` 而不是 `Class` 来指定带有泛型的响应类型。
 
 | `execute`
-| The most generalized way to perform a request, with full control over request
-preparation and response extraction through callback interfaces.
+| 执行请求的最通用方式，通过回调接口完全控制请求准备和响应提取。
 
 |===
 
-=== Initialization
+=== 初始化
 
-`RestTemplate` uses the same HTTP library abstraction as `RestClient`.
-By default, it uses the `JdkClientHttpRequestFactory`, but this can be changed via the constructor.
-See <<rest-request-factories>>.
+`RestTemplate` 使用与 `RestClient` 相同的 HTTP 库抽象。
+默认情况下，它使用 `JdkClientHttpRequestFactory`，但这可以通过构造函数更改。
+请参阅 <<rest-request-factories>>。
 
 
 [[rest-template-body]]
-=== Body
+=== 正文
 
-Objects passed into and returned from `RestTemplate` methods are converted to and from HTTP messages with the help of an `HttpMessageConverter`, see <<rest-message-conversion>>.
+传入和从 `RestTemplate` 方法返回的对象在 `HttpMessageConverter` 的帮助下转换为 HTTP 消息，请参阅 <<rest-message-conversion>>。
 
-=== Migrating from `RestTemplate` to `RestClient`
+=== 从 `RestTemplate` 迁移到 `RestClient`
 
-The following table shows `RestClient` equivalents for `RestTemplate` methods.
-It can be used to migrate from the latter to the former.
+下表显示了 `RestTemplate` 方法的 `RestClient` 等效项。
+它可用于从后者迁移到前者。
 
-.RestClient equivalents for RestTemplate methods
+.RestTemplate 方法的 RestClient 等效项
 [cols="1,1",options="header"]
 |===
-| `RestTemplate` method | `RestClient` equivalent
+| `RestTemplate` 方法 | `RestClient` 等效项
 
 | `getForObject(String, Class, Object...)`
 | `get()
@@ -739,16 +737,13 @@ It can be used to migrate from the latter to the former.
 
 
 [[rest-http-interface]]
-== HTTP Interface
+== HTTP 接口
 
-The TODAY Framework lets you define an HTTP service as a Java interface with
-`@HttpExchange` methods.
-You can pass such an interface to `HttpServiceProxyFactory`
-to create a proxy which performs requests through an HTTP client such as `RestClient`
-or `WebClient`.
-You can also implement the interface from an `@Controller` for server request handling.
+TODAY Framework 允许您将 HTTP 服务定义为具有 `@HttpExchange` 方法的 Java 接口。
+您可以将此类接口传递给 `HttpServiceProxyFactory` 以创建代理，该代理通过 HTTP 客户端（如 `RestClient` 或 `WebClient`）执行请求。
+您还可以从 `@Controller` 实现该接口以进行服务器请求处理。
 
-Start by creating the interface with `@HttpExchange` methods:
+首先创建带有 `@HttpExchange` 方法的接口：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -757,14 +752,14 @@ interface RepositoryService {
   @GetExchange("/repos/{owner}/{repo}")
   Repository getRepository(@PathVariable String owner, @PathVariable String repo);
 
-  // more HTTP exchange methods...
+  // 更多 HTTP 交换方法...
 
 }
 ----
 
-Now you can create a proxy that performs requests when methods are called.
+现在您可以创建一个代理，该代理在调用方法时执行请求。
 
-For `RestClient`:
+对于 `RestClient`:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -775,7 +770,7 @@ For `RestClient`:
 	RepositoryService service = factory.createClient(RepositoryService.class);
 ----
 
-For `WebClient`:
+对于 `WebClient`:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -786,7 +781,7 @@ For `WebClient`:
 	RepositoryService service = factory.createClient(RepositoryService.class);
 ----
 
-`@HttpExchange` is supported at the type level where it applies to all methods:
+`@HttpExchange` 在类型级别受支持，它适用于所有方法：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -804,95 +799,78 @@ interface RepositoryService {
 ----
 
 [[rest-http-interface-method-parameters]]
-=== Method Parameters
+=== 方法参数
 
-Annotated, HTTP exchange methods support flexible method signatures with the following method parameters:
+带注解的 HTTP 交换方法支持灵活的方法签名，具有以下方法参数：
 
 [cols="1,2",options="header"]
 |===
-| Method argument | Description
+| 方法参数 | 描述
 
 | `URI`
-| Dynamically set the URL for the request, overriding the annotation's `url` attribute.
+| 动态设置请求的 URL，覆盖注解的 `url` 属性。
 
 | `UriBuilderFactory`
-| Provide a `UriBuilderFactory` to expand the URI template and URI variables with.
-In effect, replaces the `UriBuilderFactory` (and its base URL) of the underlying client.
+| 提供一个 `UriBuilderFactory` 来扩展 URI 模板和 URI 变量。
+实际上，替换了底层客户端的 `UriBuilderFactory`（及其基本 URL）。
 
 | `HttpMethod`
-| Dynamically set the HTTP method for the request, overriding the annotation's `method` attribute
+| 动态设置请求的 HTTP 方法，覆盖注解的 `method` 属性
 
 | `@RequestHeader`
-| Add a request header or multiple headers. The argument may be a `Map<String, ?>` or
-`MultiValueMap<String, ?>` with multiple headers, a `Collection<?>` of values, or an
-individual value. Type conversion is supported for non-String values.
+| 添加一个或多个请求头。参数可以是具有多个头的 `Map<String, ?>` 或 `MultiValueMap<String, ?>`，值的 `Collection<?>` 或单个值。支持非 String 值的类型转换。
 
 | `@PathVariable`
-| Add a variable for expand a placeholder in the request URL. The argument may be a
-`Map<String, ?>` with multiple variables, or an individual value. Type conversion
-is supported for non-String values.
+| 添加一个变量以扩展请求 URL 中的占位符。参数可以是具有多个变量的 `Map<String, ?>` 或单个值。支持非 String 值的类型转换。
 
 | `@RequestAttribute`
-| Provide an `Object` to add as a request attribute. Only supported by `WebClient`.
+| 提供一个 `Object` 作为请求属性添加。仅 `WebClient` 支持。
 
 | `@RequestBody`
-| Provide the body of the request either as an Object to be serialized, or a
-Reactive Streams `Publisher` such as `Mono`, `Flux`, or any other async type supported
-through the configured `ReactiveAdapterRegistry`.
+| 提供请求的正文，作为要序列化的对象，或 Reactive Streams `Publisher`，如 `Mono`、`Flux` 或通过配置的 `ReactiveAdapterRegistry` 支持的任何其他异步类型。
 
 | `@RequestParam`
-| Add a request parameter or multiple parameters. The argument may be a `Map<String, ?>`
-or `MultiValueMap<String, ?>` with multiple parameters, a `Collection<?>` of values, or
-an individual value. Type conversion is supported for non-String values.
+| 添加一个或多个请求参数。参数可以是具有多个参数的 `Map<String, ?>` 或 `MultiValueMap<String, ?>`，值的 `Collection<?>` 或单个值。支持非 String 值的类型转换。
 
-  When `"content-type"` is set to `"application/x-www-form-urlencoded"`, request
-  parameters are encoded in the request body. Otherwise, they are added as URL query
-  parameters.
+  当 `"content-type"` 设置为 `"application/x-www-form-urlencoded"` 时，请求参数在请求正文中编码。否则，它们作为 URL 查询参数添加。
 
 | `@RequestPart`
-| Add a request part, which may be a String (form field), `Resource` (file part),
-Object (entity to be encoded, e.g. as JSON), `HttpEntity` (part content and headers),
-a Infra `Part`, or Reactive Streams `Publisher` of any of the above.
+| 添加请求部分，可以是 String（表单字段）、`Resource`（文件部分）、Object（要编码的实体，例如作为 JSON）、`HttpEntity`（部分内容和头）、Infra `Part` 或上述任何项的 Reactive Streams `Publisher`。
 
 | `Part`
-| Add a request part from a `Part`, typically used in a Web MVC controller
-where it represents an uploaded file.
+| 从 `Part` 添加请求部分，通常在 Web MVC 控制器中使用，其中它表示上传的文件。
 
 | `@CookieValue`
-| Add a cookie or multiple cookies. The argument may be a `Map<String, ?>` or
-`MultiValueMap<String, ?>` with multiple cookies, a `Collection<?>` of values, or an
-individual value. Type conversion is supported for non-String values.
+| 添加一个或多个 cookie。参数可以是具有多个 cookie 的 `Map<String, ?>` 或 `MultiValueMap<String, ?>`，值的 `Collection<?>` 或单个值。支持非 String 值的类型转换。
 
 |===
 
 
 [[rest-http-interface-return-values]]
-=== Return Values
+=== 返回值
 
-The supported return values depend on the underlying client.
+支持的返回值取决于底层客户端。
 
-Clients adapted to `RequestExecutionFactory` such as `RestClient`
-support synchronous and asynchronous return values:
+适配到 `RequestExecutionFactory` 的客户端（如 `RestClient`）支持同步和异步返回值：
 
 [cols="1,2",options="header"]
 |===
-| Method return value | Description
+| 方法返回值 | 描述
 
 | `void`
-| Perform the given request.
+| 执行给定的请求。
 
 | `HttpHeaders`
-| Perform the given request and return the response headers.
+| 执行给定的请求并返回响应头。
 
 | `<T>`
-| Perform the given request and decode the response content to the declared return type.
+| 执行给定的请求并将响应内容解码为声明的返回类型。
 
 | `ResponseEntity<Void>`
-| Perform the given request and return a `ResponseEntity` with the status and headers.
+| 执行给定的请求并返回带有状态和头的 `ResponseEntity`。
 
 | `ResponseEntity<T>`
-| Perform the given request, decode the response content to the declared return type, and
-return a `ResponseEntity` with the status, headers, and the decoded body.
+| 执行给定的请求，将响应内容解码为声明的返回类型，并返回带有状态、头和解码正文的 `ResponseEntity`。
 
 | `ClientResponse`, `ClientHttpResponse`
 | 直接返回原始响应
@@ -902,57 +880,49 @@ return a `ResponseEntity` with the status, headers, and the decoded body.
 
 |===
 
-Clients adapted to `RequestExecutionFactory` such as `WebClient`, support all of above as well as reactive variants.
-The table below shows Reactor types, but you can also use other reactive types that are supported through the `ReactiveAdapterRegistry`:
+适配到 `RequestExecutionFactory` 的客户端（如 `WebClient`）支持上述所有内容以及响应式变体。
+下表显示了 Reactor 类型，但您也可以使用通过 `ReactiveAdapterRegistry` 支持的其他响应式类型：
 
 [cols="1,2",options="header"]
 |===
-| Method return value | Description
+| 方法返回值 | 描述
 
 | `Mono<Void>`
-| Perform the given request, and release the response content, if any.
+| 执行给定的请求，并释放响应内容（如果有）。
 
 | `Mono<HttpHeaders>`
-| Perform the given request, release the response content, if any, and return the
-response headers.
+| 执行给定的请求，释放响应内容（如果有），并返回响应头。
 
 | `Mono<T>`
-| Perform the given request and decode the response content to the declared return type.
+| 执行给定的请求并将响应内容解码为声明的返回类型。
 
 | `Flux<T>`
-| Perform the given request and decode the response content to a stream of the declared
-element type.
+| 执行给定的请求并将响应内容解码为声明的元素类型的流。
 
 | `Mono<ResponseEntity<Void>>`
-| Perform the given request, and release the response content, if any, and return a
-`ResponseEntity` with the status and headers.
+| 执行给定的请求，并释放响应内容（如果有），并返回带有状态和头的 `ResponseEntity`。
 
 | `Mono<ResponseEntity<T>>`
-| Perform the given request, decode the response content to the declared return type, and
-return a `ResponseEntity` with the status, headers, and the decoded body.
+| 执行给定的请求，将响应内容解码为声明的返回类型，并返回带有状态、头和解码正文的 `ResponseEntity`。
 
 | `Mono<ResponseEntity<Flux<T>>`
-| Perform the given request, decode the response content to a stream of the declared
-element type, and return a `ResponseEntity` with the status, headers, and the decoded
-response body stream.
+| 执行给定的请求，将响应内容解码为声明的元素类型的流，并返回带有状态、头和解码响应正文流的 `ResponseEntity`。
 
 |===
 
-By default, the timeout for synchronous return values with `ReactorHttpExchangeAdapter`
-depends on how the underlying HTTP client is configured.
-You can set a `blockTimeout`
-value on the adapter level as well, but we recommend relying on timeout settings of the underlying HTTP client, which operates at a lower level and provides more control.
+默认情况下，`ReactorHttpExchangeAdapter` 的同步返回值的超时取决于底层 HTTP 客户端的配置方式。
+您也可以在适配器级别设置 `blockTimeout` 值，但我们建议依赖底层 HTTP 客户端的超时设置，该客户端在较低级别运行并提供更多控制。
 
 
 [[rest-http-interface-exceptions]]
-=== Error Handling
+=== 错误处理
 
-To customize error response handling, you need to configure the underlying HTTP client.
+要自定义错误响应处理，您需要配置底层 HTTP 客户端。
 
-For `RestClient`:
+对于 `RestClient`:
 
-By default, `RestClient` raises `RestClientException` for 4xx and 5xx HTTP status codes.
-To customize this, register a response status handler that applies to all responses performed through the client:
+默认情况下，`RestClient` 对 4xx 和 5xx HTTP 状态代码引发 `RestClientException`。
+要自定义此行为，请注册适用于通过客户端执行的所有响应的响应状态处理程序：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -964,13 +934,12 @@ To customize this, register a response status handler that applies to all respon
 	HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
 ----
 
-For more details and options, such as suppressing error status codes, see the Javadoc of
-`defaultStatusHandler` in `RestClient.Builder`.
+有关更多详细信息和选项（例如抑制错误状态代码），请参阅 `RestClient.Builder` 中 `defaultStatusHandler` 的 Javadoc。
 
-For `WebClient`:
+对于 `WebClient`:
 
-By default, `WebClient` raises `WebClientResponseException` for 4xx and 5xx HTTP status codes.
-To customize this, register a response status handler that applies to all responses performed through the client:
+默认情况下，`WebClient` 对 4xx 和 5xx HTTP 状态代码引发 `WebClientResponseException`。
+要自定义此行为，请注册适用于通过客户端执行的所有响应的响应状态处理程序：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -982,13 +951,12 @@ WebClientAdapter adapter = WebClientAdapter.create(webClient);
 HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder(adapter).build();
 ----
 
-For more details and options, such as suppressing error status codes, see the Javadoc of
-`defaultStatusHandler` in `WebClient.Builder`.
+有关更多详细信息和选项（例如抑制错误状态代码），请参阅 `WebClient.Builder` 中 `defaultStatusHandler` 的 Javadoc。
 
-For `RestTemplate`:
+对于 `RestTemplate`:
 
-By default, `RestTemplate` raises `RestClientException` for 4xx and 5xx HTTP status codes.
-To customize this, register an error handler that applies to all responses performed through the client:
+默认情况下，`RestTemplate` 对 4xx 和 5xx HTTP 状态代码引发 `RestClientException`。
+要自定义此行为，请注册适用于通过客户端执行的所有响应的错误处理程序：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -998,6 +966,4 @@ To customize this, register an error handler that applies to all responses perfo
   RestTemplateAdapter adapter = RestTemplateAdapter.create(restTemplate);
   HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
 ----
-
-For more details and options, see the Javadoc of `setErrorHandler` in `RestTemplate` and the `ResponseErrorHandler` hierarchy.
 

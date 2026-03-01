@@ -1,24 +1,19 @@
 [[cache-annotations]]
-= Declarative Annotation-based Caching
+= 基于注解的声明式缓存
 
-For caching declaration, Infra caching abstraction provides a set of Java annotations:
+对于缓存声明，Infra 缓存抽象提供了一组 Java 注解：
 
-* `@Cacheable`: Triggers cache population.
-* `@CacheEvict`: Triggers cache eviction.
-* `@CachePut`: Updates the cache without interfering with the method execution.
-* `@Caching`: Regroups multiple cache operations to be applied on a method.
-* `@CacheConfig`: Shares some common cache-related settings at class-level.
+* `@Cacheable`：触发缓存填充。
+* `@CacheEvict`：触发缓存驱逐。
+* `@CachePut`：在不干扰方法执行的情况下更新缓存。
+* `@Caching`：重新组合要应用于方法的多个缓存操作。
+* `@CacheConfig`：在类级别共享一些常见的缓存相关设置。
 
 
 [[cache-annotations-cacheable]]
-== The `@Cacheable` Annotation
+== `@Cacheable` 注解
 
-As the name implies, you can use `@Cacheable` to demarcate methods that are cacheable --
-that is, methods for which the result is stored in the cache so that, on subsequent
-invocations (with the same arguments), the value in the cache is returned without
-having to actually invoke the method. In its simplest form, the annotation declaration
-requires the name of the cache associated with the annotated method, as the following
-example shows:
+顾名思义，您可以使用 `@Cacheable` 来划分可缓存的方法——即结果存储在缓存中的方法，以便在随后的调用（使用相同的参数）中，直接返回缓存中的值，而无需实际调用该方法。在最简单的形式中，注解声明需要与注解方法关联的缓存名称，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -26,17 +21,11 @@ example shows:
 public Book findBook(ISBN isbn) {...}
 ----
 
-In the preceding snippet, the `findBook` method is associated with the cache named `books`.
-Each time the method is called, the cache is checked to see whether the invocation has
-already been run and does not have to be repeated. While in most cases, only one
-cache is declared, the annotation lets multiple names be specified so that more than one
-cache is being used. In this case, each of the caches is checked before invoking the
-method -- if at least one cache is hit, the associated value is returned.
+在前面的片段中，`findBook` 方法与名为 `books` 的缓存相关联。每次调用该方法时，都会检查缓存以查看该调用是否已经运行过且无需重复。虽然在大多数情况下只声明一个缓存，但该注解允许指定多个名称，以便使用多个缓存。在这种情况下，在调用方法之前会检查每个缓存——如果至少有一个缓存命中，则返回关联的值。
 
-NOTE: All the other caches that do not contain the value are also updated, even though
-the cached method was not actually invoked.
+NOTE: 所有其他不包含该值的缓存也会被更新，即使缓存的方法实际上没有被调用。
 
-The following example uses `@Cacheable` on the `findBook` method with multiple caches:
+以下示例在 `findBook` 方法上使用 `@Cacheable` 并指定多个缓存：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -45,31 +34,23 @@ public Book findBook(ISBN isbn) {...}
 ----
 
 [[cache-annotations-cacheable-default-key]]
-=== Default Key Generation
+=== 默认键生成
 
-Since caches are essentially key-value stores, each invocation of a cached method
-needs to be translated into a suitable key for cache access. The caching abstraction
-uses a simple `KeyGenerator` based on the following algorithm:
+由于缓存本质上是键值存储，因此缓存方法的每次调用都需要转换为合适的键以进行缓存访问。缓存抽象使用基于以下算法的简单 `KeyGenerator`：
 
-* If no parameters are given, return `SimpleKey.EMPTY`.
-* If only one parameter is given, return that instance.
-* If more than one parameter is given, return a `SimpleKey` that contains all parameters.
+* 如果没有给出参数，则返回 `SimpleKey.EMPTY`。
+* 如果只给出一个参数，则返回该实例。
+* 如果给出多个参数，则返回包含所有参数的 `SimpleKey`。
 
-This approach works well for most use-cases, as long as parameters have natural keys
-and implement valid `hashCode()` and `equals()` methods. If that is not the case,
-you need to change the strategy.
+这种方法适用于大多数用例，只要参数具有自然键并实现有效的 `hashCode()` 和 `equals()` 方法即可。如果情况并非如此，则需要更改策略。
 
-To provide a different default key generator, you need to implement the
-`infra.cache.interceptor.KeyGenerator` interface.
+要提供不同的默认键生成器，您需要实现 `infra.cache.interceptor.KeyGenerator` 接口。
 
 
 [[cache-annotations-cacheable-key]]
-=== Custom Key Generation Declaration
+=== 自定义键生成声明
 
-Since caching is generic, the target methods are quite likely to have various signatures
-that cannot be readily mapped on top of the cache structure. This tends to become obvious
-when the target method has multiple arguments out of which only some are suitable for
-caching (while the rest are used only by the method logic). Consider the following example:
+由于缓存是通用的，目标方法很可能具有各种无法直接映射到缓存结构之上的签名。当目标方法有多个参数，其中只有部分参数适合缓存（而其余参数仅由方法逻辑使用）时，这一点往往变得显而易见。考虑以下示例：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -77,21 +58,13 @@ caching (while the rest are used only by the method logic). Consider the followi
 public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed);
 ----
 
-At first glance, while the two `boolean` arguments influence the way the book is found,
-they are no use for the cache. Furthermore, what if only one of the two is important
-while the other is not?
+乍一看，虽然这两个 `boolean` 参数影响查找书籍的方式，但它们对缓存没有用处。此外，如果两个参数中只有一个重要而另一个不重要怎么办？
 
-For such cases, the `@Cacheable` annotation lets you specify how the key is generated
-through its `key` attribute. You can use xref:core/expressions.adoc[SpEL] to pick the
-arguments of interest (or their nested properties), perform operations, or even
-invoke arbitrary methods without having to write any code or implement any interface.
-This is the recommended approach over the
-xref:integration/cache/annotations.adoc#cache-annotations-cacheable-default-key[default generator],
-since methods tend to be quite different in signatures as the code base grows. While the
-default strategy might work for some methods, it rarely works for all methods.
+对于此类情况，`@Cacheable` 注解允许您通过其 `key` 属性指定如何生成键。您可以使用 xref:core/expressions.adoc[SpEL] 来选取感兴趣的参数（或其嵌套属性）、执行操作，甚至调用任意方法，而无需编写任何代码或实现任何接口。这是推荐的方法，优于
+xref:integration/cache/annotations.adoc#cache-annotations-cacheable-default-key[默认生成器]，
+因为随着代码库的增长，方法的签名往往会有很大差异。虽然默认策略可能适用于某些方法，但它很少适用于所有方法。
 
-The following examples use various SpEL declarations (if you are not familiar with SpEL,
-do yourself a favor and read xref:core/expressions.adoc[Infra Expression Language]):
+以下示例使用各种 SpEL 声明（如果您不熟悉 SpEL，请务必阅读 xref:core/expressions.adoc[Infra 表达式语言]）：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -105,13 +78,9 @@ public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
 public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
 ----
 
-The preceding snippets show how easy it is to select a certain argument, one of its
-properties, or even an arbitrary (static) method.
+前面的片段展示了选择特定参数、其属性之一甚至任意（静态）方法是多么容易。
 
-If the algorithm responsible for generating the key is too specific or if it needs
-to be shared, you can define a custom `keyGenerator` on the operation. To do so,
-specify the name of the `KeyGenerator` bean implementation to use, as the following
-example shows:
+如果负责生成键的算法过于特定，或者如果需要共享该算法，则可以在操作上定义自定义 `keyGenerator`。为此，请指定要使用的 `KeyGenerator` bean 实现的名称，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -119,92 +88,68 @@ example shows:
 public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
 ----
 
-NOTE: The `key` and `keyGenerator` parameters are mutually exclusive and an operation
-that specifies both results in an exception.
+NOTE: `key` 和 `keyGenerator` 参数是互斥的，同时指定两者的操作会导致异常。
 
 [[cache-annotations-cacheable-default-cache-resolver]]
-=== Default Cache Resolution
+=== 默认缓存解析
 
-The caching abstraction uses a simple `CacheResolver` that retrieves the caches
-defined at the operation level by using the configured `CacheManager`.
+缓存抽象使用一个简单的 `CacheResolver`，它通过使用配置的 `CacheManager` 来检索在操作级别定义的缓存。
 
-To provide a different default cache resolver, you need to implement the
-`infra.cache.interceptor.CacheResolver` interface.
+要提供不同的默认缓存解析器，您需要实现 `infra.cache.interceptor.CacheResolver` 接口。
 
 [[cache-annotations-cacheable-cache-resolver]]
-=== Custom Cache Resolution
+=== 自定义缓存解析
 
-The default cache resolution fits well for applications that work with a
-single `CacheManager` and have no complex cache resolution requirements.
+默认的缓存解析非常适合使用单个 `CacheManager` 且没有复杂缓存解析要求的应用程序。
 
-For applications that work with several cache managers, you can set the
-`cacheManager` to use for each operation, as the following example shows:
+对于使用多个缓存管理器的应用程序，您可以设置每个操作要使用的 `cacheManager`，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Cacheable(cacheNames="books", cacheManager="anotherCacheManager") <1>
 public Book findBook(ISBN isbn) {...}
 ----
-<1> Specifying `anotherCacheManager`.
+<1> 指定 `anotherCacheManager`。
 
-You can also replace the `CacheResolver` entirely in a fashion similar to that of
-replacing xref:integration/cache/annotations.adoc#cache-annotations-cacheable-key[key generation].
-The resolution is requested for every cache operation, letting the implementation
-actually resolve the caches to use based on runtime arguments. The following example
-shows how to specify a `CacheResolver`:
+您还可以以类似于替换 xref:integration/cache/annotations.adoc#cache-annotations-cacheable-key[键生成] 的方式完全替换 `CacheResolver`。
+每个缓存操作都会请求解析，从而允许实现根据运行时参数实际解析要使用的缓存。以下示例显示了如何指定 `CacheResolver`：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Cacheable(cacheResolver="runtimeCacheResolver") <1>
 public Book findBook(ISBN isbn) {...}
 ----
-<1> Specifying the `CacheResolver`.
+<1> 指定 `CacheResolver`。
 
 [NOTE]
 ====
-Since Infra 4.1, the `value` attribute of the cache annotations are no longer
-mandatory, since this particular information can be provided by the `CacheResolver`
-regardless of the content of the annotation.
+从 Infra 4.1 开始，缓存注解的 `value` 属性不再是强制性的，因为无论注解的内容如何，此特定信息都可以由 `CacheResolver` 提供。
 
-Similarly to `key` and `keyGenerator`, the `cacheManager` and `cacheResolver`
-parameters are mutually exclusive, and an operation specifying both
-results in an exception, as a custom `CacheManager` is ignored by the
-`CacheResolver` implementation. This is probably not what you expect.
+与 `key` 和 `keyGenerator` 类似，`cacheManager` 和 `cacheResolver` 参数是互斥的，同时指定两者的操作会导致异常，因为自定义 `CacheManager` 会被 `CacheResolver` 实现忽略。这可能不是您所期望的。
 ====
 
 [[cache-annotations-cacheable-synchronized]]
-=== Synchronized Caching
+=== 同步缓存
 
-In a multi-threaded environment, certain operations might be concurrently invoked for
-the same argument (typically on startup). By default, the cache abstraction does not
-lock anything, and the same value may be computed several times, defeating the purpose
-of caching.
+在多线程环境中，某些操作可能会针对相同的参数并发调用（通常在启动时）。默认情况下，缓存抽象不锁定任何内容，并且相同的值可能会被计算多次，从而破坏了缓存的目的。
 
-For those particular cases, you can use the `sync` attribute to instruct the underlying
-cache provider to lock the cache entry while the value is being computed. As a result,
-only one thread is busy computing the value, while the others are blocked until the entry
-is updated in the cache. The following example shows how to use the `sync` attribute:
+对于这些特定情况，您可以使用 `sync` 属性来指示底层缓存提供程序在计算值时锁定缓存条目。结果是，只有一个线程忙于计算值，而其他线程则被阻塞，直到缓存中的条目更新。以下示例显示了如何使用 `sync` 属性：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Cacheable(cacheNames="foos", sync=true) <1>
 public Foo executeExpensiveOperation(String id) {...}
 ----
-<1> Using the `sync` attribute.
+<1> 使用 `sync` 属性。
 
-NOTE: This is an optional feature, and your favorite cache library may not support it.
-All `CacheManager` implementations provided by the core framework support it. See the
-documentation of your cache provider for more details.
+NOTE: 这是一个可选功能，您喜欢的缓存库可能不支持它。核心框架提供的所有 `CacheManager` 实现都支持它。有关更多详细信息，请参阅缓存提供程序的文档。
 
 [[cache-annotations-cacheable-reactive]]
-=== Caching with CompletableFuture and Reactive Return Types
+=== 使用 CompletableFuture 和响应式返回类型进行缓存
 
-As of 6.1, cache annotations take `CompletableFuture` and reactive return types
-into account, automatically adapting the cache interaction accordingly.
+从 6.1 开始，缓存注解将 `CompletableFuture` 和响应式返回类型纳入考量，自动相应地调整缓存交互。
 
-For a method returning a `CompletableFuture`, the object produced by that future
-will be cached whenever it is complete, and the cache lookup for a cache hit will
-be retrieved via a `CompletableFuture`:
+对于返回 `CompletableFuture` 的方法，该 future 生成的对象将在完成时被缓存，并且缓存命中的缓存查找将通过 `CompletableFuture` 检索：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -212,9 +157,7 @@ be retrieved via a `CompletableFuture`:
 public CompletableFuture<Book> findBook(ISBN isbn) {...}
 ----
 
-For a method returning a Reactor `Mono`, the object emitted by that Reactive Streams
-publisher will be cached whenever it is available, and the cache lookup for a cache
-hit will be retrieved as a `Mono` (backed by a `CompletableFuture`):
+对于返回 Reactor `Mono` 的方法，该 Reactive Streams 发布者发出的对象将在可用时被缓存，并且缓存命中的缓存查找将作为 `Mono`（由 `CompletableFuture` 支持）检索：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -222,10 +165,7 @@ hit will be retrieved as a `Mono` (backed by a `CompletableFuture`):
 public Mono<Book> findBook(ISBN isbn) {...}
 ----
 
-For a method returning a Reactor `Flux`, the objects emitted by that Reactive Streams
-publisher will be collected into a `List` and cached whenever that list is complete,
-and the cache lookup for a cache hit will be retrieved as a `Flux` (backed by a
-`CompletableFuture` for the cached `List` value):
+对于返回 Reactor `Flux` 的方法，该 Reactive Streams 发布者发出的对象将被收集到 `List` 中，并在该列表完成时被缓存，并且缓存命中的缓存查找将作为 `Flux`（由缓存 `List` 值的 `CompletableFuture` 支持）检索：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -233,21 +173,16 @@ and the cache lookup for a cache hit will be retrieved as a `Flux` (backed by a
 public Flux<Book> findBooks(String author) {...}
 ----
 
-Such `CompletableFuture` and reactive adaptation also works for synchronized caching,
-computing the value only once in case of a concurrent cache miss:
+这种 `CompletableFuture` 和响应式适配也适用于同步缓存，在并发缓存未命中的情况下仅计算一次值：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Cacheable(cacheNames="foos", sync=true) <1>
 public CompletableFuture<Foo> executeExpensiveOperation(String id) {...}
 ----
-<1> Using the `sync` attribute.
+<1> 使用 `sync` 属性。
 
-NOTE: In order for such an arrangement to work at runtime, the configured cache
-needs to be capable of `CompletableFuture`-based retrieval. The Infra-provided
-`ConcurrentMapCacheManager` automatically adapts to that retrieval style, and
-`CaffeineCacheManager` natively supports it when its asynchronous cache mode is
-enabled: set `setAsyncCacheMode(true)` on your `CaffeineCacheManager` instance.
+NOTE: 为了使这种安排在运行时起作用，配置的缓存需要能够进行基于 `CompletableFuture` 的检索。Infra 提供的 `ConcurrentMapCacheManager` 自动适应这种检索风格，而 `CaffeineCacheManager` 在启用异步缓存模式时原生支持它：在您的 `CaffeineCacheManager` 实例上设置 `setAsyncCacheMode(true)`。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -260,47 +195,30 @@ CacheManager cacheManager() {
 }
 ----
 
-Last but not least, be aware that annotation-driven caching is not appropriate
-for sophisticated reactive interactions involving composition and back pressure.
-If you choose to declare `@Cacheable` on specific reactive methods, consider the
-impact of the rather coarse-granular cache interaction which simply stores the
-emitted object for a `Mono` or even a pre-collected list of objects for a `Flux`.
+最后但同样重要的一点是，请注意，注解驱动的缓存不适用于涉及组合和背压的复杂响应式交互。如果您选择在特定响应式方法上声明 `@Cacheable`，请考虑相当粗粒度的缓存交互的影响，该交互仅存储 `Mono` 发出的对象，甚至存储 `Flux` 的预收集对象列表。
 
 [[cache-annotations-cacheable-condition]]
-=== Conditional Caching
+=== 条件缓存
 
-Sometimes, a method might not be suitable for caching all the time (for example, it might
-depend on the given arguments). The cache annotations support such use cases through the
-`condition` parameter, which takes a `SpEL` expression that is evaluated to either `true`
-or `false`. If `true`, the method is cached. If not, it behaves as if the method is not
-cached (that is, the method is invoked every time no matter what values are in the cache
-or what arguments are used). For example, the following method is cached only if the
-argument `name` has a length shorter than 32:
+有时，方法可能并不总是适合缓存（例如，它可能取决于给定的参数）。缓存注解通过 `condition` 参数支持此类用例，该参数接受一个 `SpEL` 表达式，该表达式的计算结果为 `true` 或 `false`。如果是 `true`，则缓存该方法。如果不是，则其行为就像该方法未缓存一样（即，无论缓存中有什么值或使用什么参数，每次都会调用该方法）。例如，仅当参数 `name` 的长度小于 32 时，才会缓存以下方法：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Cacheable(cacheNames="book", condition="#name.length() < 32") <1>
 public Book findBook(String name)
 ----
-<1> Setting a condition on `@Cacheable`.
+<1> 在 `@Cacheable` 上设置条件。
 
-In addition to the `condition` parameter, you can use the `unless` parameter to veto the
-adding of a value to the cache. Unlike `condition`, `unless` expressions are evaluated
-after the method has been invoked. To expand on the previous example, perhaps we only
-want to cache paperback books, as the following example does:
+除了 `condition` 参数之外，您还可以使用 `unless` 参数来否决将值添加到缓存中。与 `condition` 不同，`unless` 表达式在方法调用后进行计算。为了扩展前面的示例，也许我们只想缓存平装书，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Cacheable(cacheNames="book", condition="#name.length() < 32", unless="#result.hardback") <1>
 public Book findBook(String name)
 ----
-<1> Using the `unless` attribute to block hardbacks.
+<1> 使用 `unless` 属性阻止精装书。
 
-The cache abstraction supports `java.util.Optional` return types. If an `Optional` value
-is _present_, it will be stored in the associated cache. If an `Optional` value is not
-present, `null` will be stored in the associated cache. `#result` always refers to the
-business entity and never a supported wrapper, so the previous example can be rewritten
-as follows:
+缓存抽象支持 `java.util.Optional` 返回类型。如果 `Optional` 值_存在_，它将存储在关联的缓存中。如果 `Optional` 值不存在，则 `null` 将存储在关联的缓存中。`#result` 始终指代业务实体，而绝不是支持的包装器，因此前面的示例可以重写如下：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -308,77 +226,64 @@ as follows:
 public Optional<Book> findBook(String name)
 ----
 
-Note that `#result` still refers to `Book` and not `Optional<Book>`. Since it might be
-`null`, we use SpEL's xref:core/expressions/language-ref/operator-safe-navigation.adoc[safe navigation operator].
+请注意，`#result` 仍然指代 `Book` 而不是 `Optional<Book>`。因为它可能是 `null`，所以我们使用 SpEL 的 xref:core/expressions/language-ref/operator-safe-navigation.adoc[安全导航运算符]。
 
 [[cache-spel-context]]
-=== Available Caching SpEL Evaluation Context
+=== 可用的缓存 SpEL 评估上下文
 
-Each `SpEL` expression evaluates against a dedicated xref:core/expressions/language-ref.adoc[`context`].
-In addition to the built-in parameters, the framework provides dedicated caching-related
-metadata, such as the argument names. The following table describes the items made
-available to the context so that you can use them for key and conditional computations:
+每个 `SpEL` 表达式都针对专用的 xref:core/expressions/language-ref.adoc[`context`] 进行评估。除了内置参数外，框架还提供专用的缓存相关元数据，例如参数名称。下表描述了上下文中可用的项目，以便您可以使用它们进行键和条件计算：
 
 [[cache-spel-context-tbl]]
-.Cache SpEL available metadata
+.缓存 SpEL 可用元数据
 |===
-| Name| Location| Description| Example
+| 名称 | 位置 | 描述 | 示例
 
 | `methodName`
-| Root object
-| The name of the method being invoked
+| 根对象
+| 被调用的方法名称
 | `#root.methodName`
 
 | `method`
-| Root object
-| The method being invoked
+| 根对象
+| 被调用的方法
 | `#root.method.name`
 
 | `target`
-| Root object
-| The target object being invoked
+| 根对象
+| 被调用的目标对象
 | `#root.target`
 
 | `targetClass`
-| Root object
-| The class of the target being invoked
+| 根对象
+| 被调用的目标类
 | `#root.targetClass`
 
 | `args`
-| Root object
-| The arguments (as array) used for invoking the target
+| 根对象
+| 用于调用目标的参数（作为数组）
 | `#root.args[0]`
 
 | `caches`
-| Root object
-| Collection of caches against which the current method is run
+| 根对象
+| 当前方法针对其运行的缓存集合
 | `#root.caches[0].name`
 
-| Argument name
-| Evaluation context
-| Name of any of the method arguments. If the names are not available
-  (perhaps due to having no debug information), the argument names are also available under the `#a<#arg>`
-  where `#arg` stands for the argument index (starting from `0`).
-| `#iban` or `#a0` (you can also use `#p0` or `#p<#arg>` notation as an alias).
+| 参数名称
+| 评估上下文
+| 任何方法参数的名称。如果名称不可用（可能是由于没有调试信息），则参数名称也可以在 `#a<#arg>` 下获得，其中 `#arg` 代表参数索引（从 `0` 开始）。
+| `#iban` 或 `#a0` (您也可以使用 `#p0` 或 `#p<#arg>` 表示法作为别名)。
 
 | `result`
-| Evaluation context
-| The result of the method call (the value to be cached). Only available in `unless`
-  expressions, `cache put` expressions (to compute the `key`), or `cache evict`
-  expressions (when `beforeInvocation` is `false`). For supported wrappers (such as
-  `Optional`), `#result` refers to the actual object, not the wrapper.
+| 评估上下文
+| 方法调用的结果（要缓存的值）。仅在 `unless` 表达式、`cache put` 表达式（用于计算 `key`）或 `cache evict` 表达式（当 `beforeInvocation` 为 `false` 时）中可用。对于支持的包装器（如 `Optional`），`#result` 指的是实际对象，而不是包装器。
 | `#result`
 |===
 
 
 [[cache-annotations-put]]
-== The `@CachePut` Annotation
+== `@CachePut` 注解
 
-When the cache needs to be updated without interfering with the method execution,
-you can use the `@CachePut` annotation. That is, the method is always invoked and its
-result is placed into the cache (according to the `@CachePut` options). It supports
-the same options as `@Cacheable` and should be used for cache population rather than
-method flow optimization. The following example uses the `@CachePut` annotation:
+当需要在不干扰方法执行的情况下更新缓存时，可以使用 `@CachePut` 注解。即，始终调用该方法，并将其结果放入缓存中（根据 `@CachePut` 选项）。它支持与 `@Cacheable` 相同的选项，应用于缓存填充而不是方法流优化。以下示例使用 `@CachePut` 注解：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -386,72 +291,36 @@ method flow optimization. The following example uses the `@CachePut` annotation:
 public Book updateBook(ISBN isbn, BookDescriptor descriptor)
 ----
 
-IMPORTANT: Using `@CachePut` and `@Cacheable` annotations on the same method is generally
-strongly discouraged because they have different behaviors. While the latter causes the
-method invocation to be skipped by using the cache, the former forces the invocation in
-order to run a cache update. This leads to unexpected behavior and, with the exception
-of specific corner-cases (such as annotations having conditions that exclude them from each
-other), such declarations should be avoided. Note also that such conditions should not rely
-on the result object (that is, the `#result` variable), as these are validated up-front to
-confirm the exclusion.
+IMPORTANT: 通常强烈建议不要在同一方法上使用 `@CachePut` 和 `@Cacheable` 注解，因为它们具有不同的行为。后者通过使用缓存导致跳过方法调用，而前者为了运行缓存更新而强制调用。这会导致意想不到的行为，除了特定的边缘情况（例如具有将它们彼此排除的条件的注解）之外，应避免此类声明。另请注意，此类条件不应依赖于结果对象（即 `#result` 变量），因为这些是在前期验证以确认排除的。
 
-As of 6.1, `@CachePut` takes `CompletableFuture` and reactive return types into account,
-performing the put operation whenever the produced object is available.
+从 6.1 开始，`@CachePut` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要生成的对象可用，就执行放置操作。
 
 
 [[cache-annotations-evict]]
-== The `@CacheEvict` Annotation
+== `@CacheEvict` 注解
 
-The cache abstraction allows not just population of a cache store but also eviction.
-This process is useful for removing stale or unused data from the cache. As opposed to
-`@Cacheable`, `@CacheEvict` demarcates methods that perform cache
-eviction (that is, methods that act as triggers for removing data from the cache).
-Similarly to its sibling, `@CacheEvict` requires specifying one or more caches
-that are affected by the action, allows a custom cache and key resolution or a
-condition to be specified, and features an extra parameter
-(`allEntries`) that indicates whether a cache-wide eviction needs to be performed
-rather than just an entry eviction (based on the key). The following example evicts
-all entries from the `books` cache:
+缓存抽象不仅允许填充缓存存储，还允许驱逐。此过程对于从缓存中删除过时或未使用的数据很有用。与 `@Cacheable` 相反，`@CacheEvict` 划分了执行缓存驱逐的方法（即，充当从缓存中删除数据的触发器的方法）。与其兄弟类似，`@CacheEvict` 需要指定受操作影响的一个或多个缓存，允许指定自定义缓存和键解析或条件，并具有一个额外的参数 (`allEntries`)，该参数指示是否需要执行范围广泛的缓存驱逐，而不仅仅是条目驱逐（基于键）。以下示例驱逐 `books` 缓存中的所有条目：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @CacheEvict(cacheNames="books", allEntries=true) <1>
 public void loadBooks(InputStream batch)
 ----
-<1> Using the `allEntries` attribute to evict all entries from the cache.
+<1> 使用 `allEntries` 属性驱逐缓存中的所有条目。
 
-This option comes in handy when an entire cache region needs to be cleared out.
-Rather than evicting each entry (which would take a long time, since it is inefficient),
-all the entries are removed in one operation, as the preceding example shows.
-Note that the framework ignores any key specified in this scenario as it does not apply
-(the entire cache is evicted, not only one entry).
+当需要清除整个缓存区域时，此选项非常方便。如前面的示例所示，所有条目都在一个操作中删除，而不是驱逐每个条目（这会花费很长时间，因为它效率低下）。请注意，框架会忽略在此场景中指定的任何键，因为它不适用（整个缓存被驱逐，而不仅仅是一个条目）。
 
-You can also indicate whether the eviction should occur after (the default) or before
-the method is invoked by using the `beforeInvocation` attribute. The former provides the
-same semantics as the rest of the annotations: Once the method completes successfully,
-an action (in this case, eviction) on the cache is run. If the method does not
-run (as it might be cached) or an exception is thrown, the eviction does not occur.
-The latter (`beforeInvocation=true`) causes the eviction to always occur before the
-method is invoked. This is useful in cases where the eviction does not need to be tied
-to the method outcome.
+您还可以通过使用 `beforeInvocation` 属性指示驱逐是在方法调用之后（默认）还是之前发生。前者提供与其余注解相同的语义：一旦方法成功完成，就会运行缓存上的操作（在本例中为驱逐）。如果方法不运行（因为它可能已被缓存）或抛出异常，则不会发生驱逐。后者（`beforeInvocation=true`）导致驱逐始终在方法调用之前发生。这在驱逐不需要与方法结果相关联的情况下很有用。
 
-Note that `void` methods can be used with `@CacheEvict` - as the methods act as a
-trigger, the return values are ignored (as they do not interact with the cache). This is
-not the case with `@Cacheable` which adds data to the cache or updates data in the cache
-and, thus, requires a result.
+请注意，`void` 方法可以与 `@CacheEvict` 一起使用 - 由于方法充当触发器，因此返回值被忽略（因为它们不与缓存交互）。`@Cacheable` 的情况并非如此，它将数据添加到缓存或更新缓存中的数据，因此需要结果。
 
-As of 6.1, `@CacheEvict` takes `CompletableFuture` and reactive return types into account,
-performing an after-invocation evict operation whenever processing has completed.
+从 6.1 开始，`@CacheEvict` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要处理完成，就执行调用后驱逐操作。
 
 
 [[cache-annotations-caching]]
-== The `@Caching` Annotation
+== `@Caching` 注解
 
-Sometimes, multiple annotations of the same type (such as `@CacheEvict` or
-`@CachePut`) need to be specified -- for example, because the condition or the key
-expression is different between different caches. `@Caching` lets multiple nested
-`@Cacheable`, `@CachePut`, and `@CacheEvict` annotations be used on the same method.
-The following example uses two `@CacheEvict` annotations:
+有时，需要指定相同类型的多个注解（例如 `@CacheEvict` 或 `@CachePut`）——例如，因为不同缓存之间的条件或键表达式不同。`@Caching` 允许在同一方法上使用多个嵌套的 `@Cacheable`、`@CachePut` 和 `@CacheEvict` 注解。以下示例使用两个 `@CacheEvict` 注解：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -461,14 +330,9 @@ public Book importBooks(String deposit, Date date)
 
 
 [[cache-annotations-config]]
-== The `@CacheConfig` Annotation
+== `@CacheConfig` 注解
 
-So far, we have seen that caching operations offer many customization options and that
-you can set these options for each operation. However, some of the customization options
-can be tedious to configure if they apply to all operations of the class. For
-instance, specifying the name of the cache to use for every cache operation of the
-class can be replaced by a single class-level definition. This is where `@CacheConfig`
-comes into play. The following examples uses `@CacheConfig` to set the name of the cache:
+到目前为止，我们已经看到缓存操作提供了许多自定义选项，并且您可以为每个操作设置这些选项。但是，如果某些自定义选项适用于类的所有操作，则配置起来可能会很繁琐。例如，为类的每个缓存操作指定要使用的缓存名称可以用单个类级别定义替换。这就是 `@CacheConfig` 发挥作用的地方。以下示例使用 `@CacheConfig` 设置缓存名称：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -479,34 +343,25 @@ public class BookRepositoryImpl implements BookRepository {
   public Book findBook(ISBN isbn) {...}
 }
 ----
-<1> Using `@CacheConfig` to set the name of the cache.
+<1> 使用 `@CacheConfig` 设置缓存名称。
 
-`@CacheConfig` is a class-level annotation that allows sharing the cache names,
-the custom `KeyGenerator`, the custom `CacheManager`, and the custom `CacheResolver`.
-Placing this annotation on the class does not turn on any caching operation.
+`@CacheConfig` 是一个类级注解，允许共享缓存名称、自定义 `KeyGenerator`、自定义 `CacheManager` 和自定义 `CacheResolver`。将此注解放在类上不会开启任何缓存操作。
 
-An operation-level customization always overrides a customization set on `@CacheConfig`.
-Therefore, this gives three levels of customizations for each cache operation:
+操作级别的自定义始终覆盖 `@CacheConfig` 上设置的自定义。因此，这为每个缓存操作提供了三个级别的自定义：
 
-* Globally configured, e.g. through `CachingConfigurer`: see next section.
-* At the class level, using `@CacheConfig`.
-* At the operation level.
+* 全局配置，例如通过 `CachingConfigurer`：见下一节。
+* 在类级别，使用 `@CacheConfig`。
+* 在操作级别。
 
-NOTE: Provider-specific settings are typically available on the `CacheManager` bean,
-e.g. on `CaffeineCacheManager`. These are effectively also global.
+NOTE: 特定于提供程序的设置通常在 `CacheManager` bean 上可用，例如在 `CaffeineCacheManager` 上。这些实际上也是全局的。
 
 
 [[cache-annotation-enable]]
-== Enabling Caching Annotations
+== 启用缓存注解
 
-It is important to note that even though declaring the cache annotations does not
-automatically trigger their actions - like many things in Infra, the feature has to be
-declaratively enabled (which means if you ever suspect caching is to blame, you can
-disable it by removing only one configuration line rather than all the annotations in
-your code).
+重要的是要注意，即使声明了缓存注解也不会自动触发它们的操作 - 就像 Infra 中的许多事情一样，该功能必须以声明方式启用（这意味着如果您怀疑缓存是罪魁祸首，您可以通过仅删除一行配置而不是代码中的所有注解来禁用它）。
 
-To enable caching annotations add the annotation `@EnableCaching` to one of your
-`@Configuration` classes:
+要启用缓存注解，请将注解 `@EnableCaching` 添加到您的一个 `@Configuration` 类中：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -523,7 +378,7 @@ public class AppConfig {
 }
 ----
 
-Alternatively, for XML configuration you can use the `cache:annotation-driven` element:
+或者，对于 XML 配置，您可以使用 `cache:annotation-driven` 元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -542,137 +397,77 @@ Alternatively, for XML configuration you can use the `cache:annotation-driven` e
 </beans>
 ----
 
-Both the `cache:annotation-driven` element and the `@EnableCaching` annotation let you
-specify various options that influence the way the caching behavior is added to the
-application through AOP. The configuration is intentionally similar with that of
-xref:data-access/transaction/declarative/annotations.adoc#tx-annotation-driven-settings[`@Transactional`].
+`cache:annotation-driven` 元素和 `@EnableCaching` 注解都允许您指定各种选项，这些选项会影响通过 AOP 添加到应用程序的缓存行为的方式。该配置故意与 xref:data-access/transaction/declarative/annotations.adoc#tx-annotation-driven-settings[`@Transactional`] 相似。
 
-NOTE: The default advice mode for processing caching annotations is `proxy`, which allows
-for interception of calls through the proxy only. Local calls within the same class
-cannot get intercepted that way. For a more advanced mode of interception, consider
-switching to `aspectj` mode in combination with compile-time or load-time weaving.
+NOTE: 处理缓存注解的默认建议模式是 `proxy`，它仅允许通过代理拦截调用。同一类中的本地调用无法以这种方式被拦截。对于更高级的拦截模式，请考虑切换到 `aspectj` 模式并结合编译时或加载时编织。
 
-NOTE: For more detail about advanced customizations (using Java configuration) that are
-required to implement `CachingConfigurer`, see the
-{today-framework-api}/cache/annotation/CachingConfigurer.html[javadoc].
+NOTE: 有关实现 `CachingConfigurer` 所需的高级自定义（使用 Java 配置）的更多详细信息，请参阅 {today-framework-api}/cache/annotation/CachingConfigurer.html[javadoc]。
 
 [[cache-annotation-driven-settings]]
-.Cache annotation settings
+.缓存注解设置
 [cols="1,1,1,3"]
 |===
-| XML Attribute | Annotation Attribute | Default | Description
+| XML 属性 | 注解属性 | 默认值 | 描述
 
 | `cache-manager`
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
 | `cacheManager`
-| The name of the cache manager to use. A default `CacheResolver` is initialized behind
-  the scenes with this cache manager (or `cacheManager` if not set). For more
-  fine-grained management of the cache resolution, consider setting the 'cache-resolver'
-  attribute.
+| 要使用的缓存管理器的名称。默认的 `CacheResolver` 在幕后使用此缓存管理器（如果未设置，则为 `cacheManager`）进行初始化。为了对缓存解析进行更细粒度的管理，请考虑设置 'cache-resolver' 属性。
 
 | `cache-resolver`
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
-| A `SimpleCacheResolver` using the configured `cacheManager`.
-| The bean name of the CacheResolver that is to be used to resolve the backing caches.
-  This attribute is not required and needs to be specified only as an alternative to
-  the 'cache-manager' attribute.
+| 使用配置的 `cacheManager` 的 `SimpleCacheResolver`。
+| 用于解析支持缓存的 CacheResolver 的 bean 名称。此属性不是必需的，仅在作为 'cache-manager' 属性的替代方案时才需要指定。
 
 | `key-generator`
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
 | `SimpleKeyGenerator`
-| Name of the custom key generator to use.
+| 要使用的自定义键生成器的名称。
 
 | `error-handler`
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
 | `SimpleCacheErrorHandler`
-| The name of the custom cache error handler to use. By default, any exception thrown during
-  a cache related operation is thrown back at the client.
+| 要使用的自定义缓存错误处理程序的名称。默认情况下，在缓存相关操作期间引发的任何异常都会抛回给客户端。
 
 | `mode`
 | `mode`
 | `proxy`
-| The default mode (`proxy`) processes annotated beans to be proxied by using Infra AOP
-  framework (following proxy semantics, as discussed earlier, applying to method calls
-  coming in through the proxy only). The alternative mode (`aspectj`) instead weaves the
-  affected classes with Infra AspectJ caching aspect, modifying the target class byte
-  code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar`
-  in the classpath as well as load-time weaving (or compile-time weaving) enabled. (See
-  xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra configuration] for details on how to set up
-  load-time weaving.)
+| 默认模式 (`proxy`) 使用 Infra AOP 框架处理要代理的注解 bean（遵循代理语义，如前所述，仅适用于通过代理传入的方法调用）。替代模式 (`aspectj`) 改为使用 Infra AspectJ 缓存切面编织受影响的类，修改目标类字节码以应用于任何类型的方法调用。AspectJ 编织需要类路径中有 `spring-aspects.jar`，并且启用了加载时编织（或编译时编织）。（有关如何设置加载时编织的详细信息，请参阅 xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra 配置]。）
 
 | `proxy-target-class`
 | `proxyTargetClass`
 | `false`
-| Applies to proxy mode only. Controls what type of caching proxies are created for
-  classes annotated with the `@Cacheable` or `@CacheEvict` annotations. If the
-  `proxy-target-class` attribute is set to `true`, class-based proxies are created.
-  If `proxy-target-class` is `false` or if the attribute is omitted, standard JDK
-  interface-based proxies are created. (See xref:core/aop/proxying.adoc[Proxying Mechanisms]
-  for a detailed examination of the different proxy types.)
+| 仅适用于代理模式。控制为使用 `@Cacheable` 或 `@CacheEvict` 注解的类创建什么类型的缓存代理。如果 `proxy-target-class` 属性设置为 `true`，则创建基于类的代理。如果 `proxy-target-class` 为 `false` 或如果省略该属性，则创建标准 JDK 基于接口的代理。（有关不同代理类型的详细检查，请参阅 xref:core/aop/proxying.adoc[代理机制]。）
 
 | `order`
 | `order`
 | Ordered.LOWEST_PRECEDENCE
-| Defines the order of the cache advice that is applied to beans annotated with
-  `@Cacheable` or `@CacheEvict`. (For more information about the rules related to
-  ordering AOP advice, see xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[Advice Ordering].)
-  No specified ordering means that the AOP subsystem determines the order of the advice.
+| 定义应用于使用 `@Cacheable` 或 `@CacheEvict` 注解的 bean 的缓存建议的顺序。（有关与排序 AOP 建议相关的规则的更多信息，请参阅 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[建议排序]。）未指定排序意味着 AOP 子系统确定建议的顺序。
 |===
 
-NOTE: `<cache:annotation-driven/>` looks for `@Cacheable/@CachePut/@CacheEvict/@Caching`
-only on beans in the same application context in which it is defined. This means that,
-if you put `<cache:annotation-driven/>` in a `WebApplicationContext` for a
-`MockDispatcher`, it checks for beans only in your controllers, not your services.
-See xref:web/webmvc/mvc-core.adoc[the MVC section] for more information.
+NOTE: `<cache:annotation-driven/>` 仅在定义它的同一个应用程序上下文中查找 `@Cacheable/@CachePut/@CacheEvict/@Caching`。这意味着，如果您将 `<cache:annotation-driven/>` 放在 `MockDispatcher` 的 `WebApplicationContext` 中，它仅检查控制器中的 bean，而不检查服务中的 bean。有关更多信息，请参阅 xref:web/webmvc/mvc-core.adoc[MVC 部分]。
 
-.Method visibility and cache annotations
+.方法可见性和缓存注解
 ****
-When you use proxies, you should apply the cache annotations only to methods with
-public visibility. If you do annotate protected, private, or package-visible methods
-with these annotations, no error is raised, but the annotated method does not exhibit
-the configured caching settings. Consider using AspectJ (see the rest of this section)
-if you need to annotate non-public methods, as it changes the bytecode itself.
+使用代理时，应仅将缓存注解应用于具有公共可见性的方法。如果您使用这些注解来注解受保护、私有或包可见的方法，则不会引发错误，但注解的方法不会表现出配置的缓存设置。如果需要注解非公共方法，请考虑使用 AspectJ（请参阅本节的其余部分），因为它会更改字节码本身。
 ****
 
-TIP: Infra recommends that you only annotate concrete classes (and methods of concrete
-classes) with the `@Cache{asterisk}` annotations, as opposed to annotating interfaces.
-You certainly can place an `@Cache{asterisk}` annotation on an interface (or an interface
-method), but this works only if you use the proxy mode (`mode="proxy"`). If you use the
-weaving-based aspect (`mode="aspectj"`), the caching settings are not recognized on
-interface-level declarations by the weaving infrastructure.
+TIP: Infra 建议您仅使用 `@Cache{asterisk}` 注解来注解具体类（和具体类的方法），而不是注解接口。您当然可以在接口（或接口方法）上放置 `@Cache{asterisk}` 注解，但这仅在使用代理模式 (`mode="proxy"`) 时有效。如果您使用基于编织的切面 (`mode="aspectj"`)，则编织基础设施无法识别接口级声明上的缓存设置。
 
-NOTE: In proxy mode (the default), only external method calls coming in through the
-proxy are intercepted. This means that self-invocation (in effect, a method within the
-target object that calls another method of the target object) does not lead to actual
-caching at runtime even if the invoked method is marked with `@Cacheable`. Consider
-using the `aspectj` mode in this case. Also, the proxy must be fully initialized to
-provide the expected behavior, so you should not rely on this feature in your
-initialization code (that is, `@PostConstruct`).
+NOTE: 在代理模式（默认）下，仅拦截通过代理进入的外部方法调用。这意味着即使调用的方法标记为 `@Cacheable`，自调用（实际上是目标对象内的方法调用目标对象的另一个方法）也不会导致运行时的实际缓存。在这种情况下，请考虑使用 `aspectj` 模式。此外，代理必须完全初始化才能提供预期的行为，因此您不应在初始化代码（即 `@PostConstruct`）中依赖此功能。
 
 
 [[cache-annotation-stereotype]]
-== Using Custom Annotations
+== 使用自定义注解
 
-.Custom annotation and AspectJ
+.自定义注解和 AspectJ
 ****
-This feature works only with the proxy-based approach but can be enabled
-with a bit of extra effort by using AspectJ.
+此功能仅适用于基于代理的方法，但可以通过使用 AspectJ 稍加努力来启用。
 
-The `spring-aspects` module defines an aspect for the standard annotations only.
-If you have defined your own annotations, you also need to define an aspect for
-those. Check `AnnotationCacheAspect` for an example.
+`spring-aspects` 模块仅为标准注解定义了一个切面。如果您定义了自己的注解，还需要为这些注解定义一个切面。查看 `AnnotationCacheAspect` 以获取示例。
 ****
 
-The caching abstraction lets you use your own annotations to identify what method
-triggers cache population or eviction. This is quite handy as a template mechanism,
-as it eliminates the need to duplicate cache annotation declarations, which is
-especially useful if the key or condition are specified or if the foreign imports
-(`infra`) are not allowed in your code base. Similarly to the rest
-of the xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[stereotype] annotations, you can
-use `@Cacheable`, `@CachePut`, `@CacheEvict`, and `@CacheConfig` as
-xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[meta-annotations] (that is, annotations that
-can annotate other annotations). In the following example, we replace a common
-`@Cacheable` declaration with our own custom annotation:
+缓存抽象允许您使用自己的注解来标识什么方法触发缓存填充或驱逐。这作为一种模板机制非常方便，因为它消除了重复缓存注解声明的需要，如果指定了键或条件，或者如果您的代码库中不允许外部导入（`infra`），这尤其有用。与其 xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[构造型] 注解类似，您可以将 `@Cacheable`、`@CachePut`、`@CacheEvict` 和 `@CacheConfig` 用作 xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[元注解]（即可以注解其他注解的注解）。在以下示例中，我们将常见的 `@Cacheable` 声明替换为我们自己的自定义注解：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -683,8 +478,7 @@ can annotate other annotations). In the following example, we replace a common
   }
 ----
 
-In the preceding example, we have defined our own `SlowService` annotation,
-which itself is annotated with `@Cacheable`. Now we can replace the following code:
+在前面的示例中，我们定义了自己的 `SlowService` 注解，该注解本身使用 `@Cacheable` 进行了注解。现在我们可以替换以下代码：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -692,8 +486,7 @@ which itself is annotated with `@Cacheable`. Now we can replace the following co
 public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
 ----
 
-The following example shows the custom annotation with which we can replace the
-preceding code:
+以下示例显示了我们可以用来替换前面代码的自定义注解：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -701,9 +494,4 @@ preceding code:
 public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
 ----
 
-Even though `@SlowService` is not a Infra annotation, the container automatically picks
-up its declaration at runtime and understands its meaning. Note that, as mentioned
-xref:integration/cache/annotations.adoc#cache-annotation-enable[earlier], annotation-driven behavior needs to be enabled.
-
-
-
+即使 `@SlowService` 不是 Infra 注解，容器也会在运行时自动获取其声明并理解其含义。请注意，如 xref:integration/cache/annotations.adoc#cache-annotation-enable[前文] 所述，需要启用注解驱动的行为。

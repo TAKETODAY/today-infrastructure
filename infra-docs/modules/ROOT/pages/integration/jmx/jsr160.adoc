@@ -1,32 +1,22 @@
 [[jmx-jsr160]]
-= Using JSR-160 Connectors
+= 使用 JSR-160 连接器
 
-For remote access, Infra JMX module offers two `FactoryBean` implementations inside the
-`infra.jmx.support` package for creating both server- and client-side
-connectors.
+对于远程访问，Infra JMX 模块在 `infra.jmx.support` 包中提供了两个 `FactoryBean` 实现，用于创建服务器端和客户端连接器。
 
 
 [[jmx-jsr160-server]]
-== Server-side Connectors
+== 服务器端连接器
 
-To have Infra JMX create, start, and expose a JSR-160 `JMXConnectorServer`, you can use the
-following configuration:
+要让 Infra JMX 创建、启动并公开 JSR-160 `JMXConnectorServer`，可以使用以下配置：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 	<bean id="serverConnector" class="infra.jmx.support.ConnectorServerFactoryBean"/>
 ----
 
-By default, `ConnectorServerFactoryBean` creates a `JMXConnectorServer` bound to
-`service:jmx:jmxmp://localhost:9875`. The `serverConnector` bean thus exposes the
-local `MBeanServer` to clients through the JMXMP protocol on localhost, port 9875. Note
-that the JMXMP protocol is marked as optional by the JSR 160 specification. Currently,
-the main open-source JMX implementation, MX4J, and the one provided with the JDK
-do not support JMXMP.
+默认情况下，`ConnectorServerFactoryBean` 创建绑定到 `service:jmx:jmxmp://localhost:9875` 的 `JMXConnectorServer`。因此，`serverConnector` bean 通过 localhost 端口 9875 上的 JMXMP 协议向客户端公开本地 `MBeanServer`。请注意，JMXMP 协议被 JSR 160 规范标记为可选。目前，主要的开源 JMX 实现 MX4J 和 JDK 提供的实现不支持 JMXMP。
 
-To specify another URL and register the `JMXConnectorServer` itself with the
-`MBeanServer`, you can use the `serviceUrl` and `ObjectName` properties, respectively,
-as the following example shows:
+要指定另一个 URL 并将 `JMXConnectorServer` 本身注册到 `MBeanServer`，您可以分别使用 `serviceUrl` 和 `ObjectName` 属性，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -38,10 +28,7 @@ as the following example shows:
 </bean>
 ----
 
-If the `ObjectName` property is set, Infra automatically registers your connector
-with the `MBeanServer` under that `ObjectName`. The following example shows the full set of
-parameters that you can pass to the `ConnectorServerFactoryBean` when creating a
-`JMXConnector`:
+如果设置了 `ObjectName` 属性，Infra 会自动将您的连接器注册到该 `ObjectName` 下的 `MBeanServer`。以下示例显示了在创建 `JMXConnector` 时可以传递给 `ConnectorServerFactoryBean` 的完整参数集：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -60,15 +47,13 @@ parameters that you can pass to the `ConnectorServerFactoryBean` when creating a
 </bean>
 ----
 
-Note that, when you use a RMI-based connector, you need the lookup service (`tnameserv` or
-`rmiregistry`) to be started in order for the name registration to complete.
+请注意，当您使用基于 RMI 的连接器时，需要启动查找服务（`tnameserv` 或 `rmiregistry`）才能完成名称注册。
 
 
 [[jmx-jsr160-client]]
-== Client-side Connectors
+== 客户端连接器
 
-To create an `MBeanServerConnection` to a remote JSR-160-enabled `MBeanServer`, you can use the
-`MBeanServerConnectionFactoryBean`, as the following example shows:
+要创建到远程启用 JSR-160 的 `MBeanServer` 的 `MBeanServerConnection`，可以使用 `MBeanServerConnectionFactoryBean`，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -79,14 +64,9 @@ To create an `MBeanServerConnection` to a remote JSR-160-enabled `MBeanServer`, 
 
 
 [[jmx-jsr160-protocols]]
-== JMX over Hessian or SOAP
+== 基于 Hessian 或 SOAP 的 JMX
 
-JSR-160 permits extensions to the way in which communication is done between the client
-and the server. The examples shown in the preceding sections use the mandatory RMI-based implementation
-required by the JSR-160 specification (IIOP and JRMP) and the (optional) JMXMP. By using
-other providers or JMX implementations (such as http://mx4j.sourceforge.net[MX4J]) you
-can take advantage of protocols such as SOAP or Hessian over simple HTTP or SSL and others,
-as the following example shows:
+JSR-160 允许扩展客户端和服务器之间的通信方式。前面部分中显示的示例使用了 JSR-160 规范（IIOP 和 JRMP）和（可选）JMXMP 要求的强制性基于 RMI 的实现。通过使用其他提供程序或 JMX 实现（例如 http://mx4j.sourceforge.net[MX4J]），您可以利用诸如 SOAP 或 Hessian 之类的协议通过简单的 HTTP 或 SSL 等，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -96,8 +76,4 @@ as the following example shows:
 </bean>
 ----
 
-In the preceding example, we used MX4J 3.0.0. See the official MX4J
-documentation for more information.
-
-
-
+在前面的示例中，我们使用了 MX4J 3.0.0。有关更多信息，请参阅官方 MX4J 文档。

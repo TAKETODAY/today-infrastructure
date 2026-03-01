@@ -1,15 +1,5 @@
 [[cache-plug]]
-= Plugging-in Different Back-end Caches
+= 插入不同的后端缓存
 :page-section-summary-toc: 1
 
-Clearly, there are plenty of caching products out there that you can use as a backing
-store. For those that do not support JSR-107 you need to provide a `CacheManager` and a
-`Cache` implementation. This may sound harder than it is, since, in practice, the classes
-tend to be simple https://en.wikipedia.org/wiki/Adapter_pattern[adapters] that map the
-caching abstraction framework on top of the storage API, as the _Caffeine_ classes do.
-Most `CacheManager` classes can use the classes in the
-`infra.cache.support` package (such as `AbstractCacheManager` which takes
-care of the boiler-plate code, leaving only the actual mapping to be completed).
-
-
-
+显然，有很多缓存产品可以用作后备存储。对于那些不支持 JSR-107 的产品，您需要提供 `CacheManager` 和 `Cache` 实现。这听起来可能比实际上要难，因为在实践中，这些类往往是简单的 https://en.wikipedia.org/wiki/Adapter_pattern[适配器]，它们将缓存抽象框架映射到存储 API 之上，就像 _Caffeine_ 类所做的那样。大多数 `CacheManager` 类可以使用 `infra.cache.support` 包中的类（例如 `AbstractCacheManager`，它负责样板代码，只留下实际映射需要完成）。

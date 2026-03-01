@@ -1,12 +1,7 @@
 [[cache-declarative-xml]]
-= Declarative XML-based Caching
+= 基于 XML 的声明式缓存
 
-If annotations are not an option (perhaps due to having no access to the sources
-or no external code), you can use XML for declarative caching. So, instead of
-annotating the methods for caching, you can specify the target method and the
-caching directives externally (similar to the declarative transaction management
-xref:data-access/transaction/declarative/first-example.adoc[advice]). The example
-from the previous section can be translated into the following example:
+如果注解不是一种选择（可能是由于无法访问源代码或没有外部代码），则可以使用 XML 进行声明式缓存。因此，您可以指定目标方法和外部缓存指令（类似于声明式事务管理 xref:data-access/transaction/declarative/first-example.adoc[建议]），而不是注解缓存方法。上一节中的示例可以转换为以下示例：
 
 [source,xml,indent=0]
 [subs="verbatim"]
@@ -30,27 +25,8 @@ from the previous section can be translated into the following example:
 <!-- cache manager definition omitted -->
 ----
 
-In the preceding configuration, the `bookService` is made cacheable. The caching semantics
-to apply are encapsulated in the `cache:advice` definition, which causes the `findBooks`
-method to be used for putting data into the cache and the `loadBooks` method for evicting
-data. Both definitions work against the `books` cache.
+在前面的配置中，`bookService` 被设为可缓存。要应用的缓存语义封装在 `cache:advice` 定义中，这会导致 `findBooks` 方法用于将数据放入缓存，而 `loadBooks` 方法用于驱逐数据。这两个定义都针对 `books` 缓存工作。
 
-The `aop:config` definition applies the cache advice to the appropriate points in the
-program by using the AspectJ pointcut expression (more information is available in
-xref:core/aop.adoc[Aspect Oriented Programming with Infra]). In the preceding example,
-all methods from the `BookService` are considered and the cache advice is applied to them.
+`aop:config` 定义通过使用 AspectJ 切入点表达式将缓存建议应用于程序中的适当点（更多信息可在 xref:core/aop.adoc[Infra 面向切面编程] 中找到）。在前面的示例中，考虑了 `BookService` 中的所有方法，并将缓存建议应用于它们。
 
-The declarative XML caching supports all of the annotation-based model, so moving between
-the two should be fairly easy. Furthermore, both can be used inside the same application.
-The XML-based approach does not touch the target code. However, it is inherently more
-verbose. When dealing with classes that have overloaded methods that are targeted for
-caching, identifying the proper methods does take an extra effort, since the `method`
-argument is not a good discriminator. In these cases, you can use the AspectJ pointcut
-to cherry pick the target methods and apply the appropriate caching functionality.
-However, through XML, it is easier to apply package or group or interface-wide caching
-(again, due to the AspectJ pointcut) and to create template-like definitions (as we did
-in the preceding example by defining the target cache through the `cache:definitions`
-`cache` attribute).
-
-
-
+声明式 XML 缓存支持所有基于注解的模型，因此在两者之间移动应该相当容易。此外，两者都可以在同一个应用程序中使用。基于 XML 的方法不涉及目标代码。但是，它本来就更冗长。在处理具有针对缓存的重载方法的类时，识别正确的方法确实需要额外的努力，因为 `method` 参数不是一个很好的鉴别器。在这些情况下，您可以使用 AspectJ 切入点来挑选目标方法并应用适当的缓存功能。但是，通过 XML，更容易应用包或组或接口范围的缓存（同样，由于 AspectJ 切入点）并创建类似模板的定义（正如我们在前面的示例中所做的那样，通过 `cache:definitions` `cache` 属性定义目标缓存）。

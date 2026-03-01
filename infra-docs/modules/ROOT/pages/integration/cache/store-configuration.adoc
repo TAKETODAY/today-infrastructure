@@ -1,17 +1,13 @@
 [[cache-store-configuration]]
-= Configuring the Cache Storage
+= 配置缓存存储
 
-The cache abstraction provides several storage integration options. To use them, you need
-to declare an appropriate `CacheManager` (an entity that controls and manages `Cache`
-instances and that can be used to retrieve these for storage).
+缓存抽象提供了多种存储集成选项。要使用它们，您需要声明一个适当的 `CacheManager`（一个控制和管理 `Cache` 实例并可用于检索这些实例以进行存储的实体）。
 
 
 [[cache-store-configuration-jdk]]
-== JDK `ConcurrentMap`-based Cache
+== 基于 JDK `ConcurrentMap` 的缓存
 
-The JDK-based `Cache` implementation resides under
-`infra.cache.concurrent` package. It lets you use `ConcurrentHashMap`
-as a backing `Cache` store. The following example shows how to configure two caches:
+基于 JDK 的 `Cache` 实现位于 `infra.cache.concurrent` 包下。它允许您使用 `ConcurrentHashMap` 作为后备 `Cache` 存储。以下示例显示了如何配置两个缓存：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -26,31 +22,23 @@ as a backing `Cache` store. The following example shows how to configure two cac
 </bean>
 ----
 
-The preceding snippet uses the `SimpleCacheManager` to create a `CacheManager` for the
-two nested `ConcurrentMapCache` instances named `default` and `books`. Note that the
-names are configured directly for each cache.
+前面的片段使用 `SimpleCacheManager` 为两个名为 `default` 和 `books` 的嵌套 `ConcurrentMapCache` 实例创建了一个 `CacheManager`。请注意，名称是为每个缓存直接配置的。
 
-As the cache is created by the application, it is bound to its lifecycle, making it
-suitable for basic use cases, tests, or simple applications. The cache scales well
-and is very fast, but it does not provide any management, persistence capabilities,
-or eviction contracts.
+由于缓存是由应用程序创建的，因此它绑定到其生命周期，使其适用于基本用例、测试或简单的应用程序。该缓存具有良好的扩展性且速度非常快，但它不提供任何管理、持久性功能或驱逐契约。
 
 
 [[cache-store-configuration-eviction]]
-== Ehcache-based Cache
+== 基于 Ehcache 的缓存
 
-Ehcache 3.x is fully JSR-107 compliant and no dedicated support is required for it. See
-xref:integration/cache/store-configuration.adoc#cache-store-configuration-jsr107[JSR-107 Cache] for details.
+Ehcache 3.x 完全符合 JSR-107 标准，不需要专门的支持。有关详细信息，请参阅 xref:integration/cache/store-configuration.adoc#cache-store-configuration-jsr107[JSR-107 缓存]。
 
 
 [[cache-store-configuration-caffeine]]
-== Caffeine Cache
+== Caffeine 缓存
 
-Caffeine is a Java 8 rewrite of Guava's cache, and its implementation is located in the
-`infra.cache.caffeine` package and provides access to several features
-of Caffeine.
+Caffeine 是 Guava 缓存的 Java 8 重写版，其实现位于 `infra.cache.caffeine` 包中，并提供了对 Caffeine 多个功能的访问。
 
-The following example configures a `CacheManager` that creates the cache on demand:
+以下示例配置了一个按需创建缓存的 `CacheManager`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -58,8 +46,7 @@ The following example configures a `CacheManager` that creates the cache on dema
     class="infra.cache.caffeine.CaffeineCacheManager"/>
 ----
 
-You can also provide the caches to use explicitly. In that case, only those
-are made available by the manager. The following example shows how to do so:
+您还可以显式提供要使用的缓存。在这种情况下，管理器仅提供那些缓存。以下示例显示了如何执行此操作：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -73,28 +60,23 @@ are made available by the manager. The following example shows how to do so:
 </bean>
 ----
 
-The Caffeine `CacheManager` also supports custom `Caffeine` and `CacheLoader`.
-See the https://github.com/ben-manes/caffeine/wiki[Caffeine documentation]
-for more information about those.
+Caffeine `CacheManager` 还支持自定义 `Caffeine` 和 `CacheLoader`。
+有关这些内容的更多信息，请参阅 https://github.com/ben-manes/caffeine/wiki[Caffeine 文档]。
 
 
 [[cache-store-configuration-gemfire]]
-== GemFire-based Cache
+== 基于 GemFire 的缓存
 
-GemFire is a memory-oriented, disk-backed, elastically scalable, continuously available,
-active (with built-in pattern-based subscription notifications), globally replicated
-database and provides fully-featured edge caching. For further information on how to
-use GemFire as a `CacheManager` (and more).
+GemFire 是一个面向内存、支持磁盘、可弹性扩展、持续可用、主动（具有内置的基于模式的订阅通知）、全局复制的数据库，并提供功能齐全的边缘缓存。有关如何将 GemFire 用作 `CacheManager`（及更多内容）的更多信息。
 
 
 [[cache-store-configuration-jsr107]]
-== JSR-107 Cache
+== JSR-107 缓存
 
-Infra caching abstraction can also use JSR-107-compliant caches. The JCache
-implementation is located in the `infra.cache.jcache` package.
+Infra 缓存抽象也可以使用符合 JSR-107 标准的缓存。JCache 实现位于 `infra.cache.jcache` 包中。
 
-Again, to use it, you need to declare the appropriate `CacheManager`.
-The following example shows how to do so:
+同样，要使用它，您需要声明适当的 `CacheManager`。
+以下示例显示了如何执行此操作：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -108,15 +90,10 @@ The following example shows how to do so:
 
 
 [[cache-store-configuration-noop]]
-== Dealing with Caches without a Backing Store
+== 处理没有后备存储的缓存
 
-Sometimes, when switching environments or doing testing, you might have cache
-declarations without having an actual backing cache configured. As this is an invalid
-configuration, an exception is thrown at runtime, since the caching infrastructure
-is unable to find a suitable store. In situations like this, rather than removing the
-cache declarations (which can prove tedious), you can wire in a simple dummy cache that
-performs no caching -- that is, it forces the cached methods to be invoked every time.
-The following example shows how to do so:
+有时，在切换环境或进行测试时，您可能会在没有配置实际后备缓存的情况下进行缓存声明。由于这是一个无效的配置，因此在运行时会抛出异常，因为缓存基础设施无法找到合适的存储。在这种情况下，与其删除缓存声明（这可能很繁琐），不如连接一个简单的虚拟缓存，该缓存不执行任何缓存操作——即，它强制每次都调用缓存的方法。
+以下示例显示了如何执行此操作：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -131,12 +108,4 @@ The following example shows how to do so:
 </bean>
 ----
 
-The `CompositeCacheManager` in the preceding chains multiple `CacheManager` instances and,
-through the `fallbackToNoOpCache` flag, adds a no-op cache for all the definitions not
-handled by the configured cache managers. That is, every cache definition not found in
-either `jdkCache` or `gemfireCache` (configured earlier in the example) is handled by
-the no-op cache, which does not store any information, causing the target method to be
-invoked every time.
-
-
-
+前面的 `CompositeCacheManager` 链接了多个 `CacheManager` 实例，并通过 `fallbackToNoOpCache` 标志，为所有未由配置的缓存管理器处理的定义添加了一个无操作缓存。也就是说，在 `jdkCache` 或 `gemfireCache`（在示例前面配置）中未找到的每个缓存定义都由无操作缓存处理，该缓存不存储任何信息，导致每次都调用目标方法。

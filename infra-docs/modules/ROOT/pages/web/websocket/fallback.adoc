@@ -19,4 +19,3 @@
 * `Access-Control-Allow-Methods`：传输支持的 HTTP 方法（参见 `TransportType` 枚举）。
 * `Access-Control-Max-Age`：设置为 31536000（1 年）。
 
-或者，如果 CORS 配置允许，请考虑排除带有 SockJS 端点前缀的 URL，从而让 Infra `SockJsService` 处理它。

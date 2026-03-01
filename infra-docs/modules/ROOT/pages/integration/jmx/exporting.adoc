@@ -1,9 +1,7 @@
 [[jmx-exporting]]
-= Exporting Your Beans to JMX
+= 将您的 Bean 导出到 JMX
 
-The core class in Infra JMX framework is the `MBeanExporter`. This class is
-responsible for taking your Infra beans and registering them with a JMX `MBeanServer`.
-For example, consider the following class:
+Infra JMX 框架中的核心类是 `MBeanExporter`。该类负责获取您的 Infra Bean 并将它们注册到 JMX `MBeanServer`。例如，考虑以下类：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages",chomp="-packages"]
 ----
@@ -41,14 +39,12 @@ public class JmxTestBean implements IJmxTestBean {
 }
 ----
 
-To expose the properties and methods of this bean as attributes and operations of an
-MBean, you can configure an instance of the `MBeanExporter` class in your
-configuration file and pass in the bean, as the following example shows:
+要将此 Bean 的属性和方法公开为 MBean 的属性和操作，您可以在配置文件中配置 `MBeanExporter` 类的实例并传入该 Bean，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <!-- this bean must not be lazily initialized if the exporting is to happen -->
+  <!-- 如果要进行导出，则此 bean 不得延迟初始化 -->
   <bean id="exporter" class="infra.jmx.export.MBeanExporter" lazy-init="false">
     <property name="beans">
       <map>
@@ -63,40 +59,19 @@ configuration file and pass in the bean, as the following example shows:
 </beans>
 ----
 
-The pertinent bean definition from the preceding configuration snippet is the `exporter`
-bean. The `beans` property tells the `MBeanExporter` exactly which of your beans must be
-exported to the JMX `MBeanServer`. In the default configuration, the key of each entry
-in the `beans` `Map` is used as the `ObjectName` for the bean referenced by the
-corresponding entry value. You can change this behavior, as described in xref:integration/jmx/naming.adoc[Controlling  `ObjectName` Instances for Your Beans].
+前面配置片段中的相关 Bean 定义是 `exporter` Bean。`beans` 属性告诉 `MBeanExporter` 确切需要将哪些 Bean 导出到 JMX `MBeanServer`。在默认配置中，`beans` `Map` 中每个条目的键用作对应条目值引用的 Bean 的 `ObjectName`。您可以更改此行为，如 xref:integration/jmx/naming.adoc[控制 Bean 的 `ObjectName` 实例] 中所述。
 
-With this configuration, the `testBean` bean is exposed as an MBean under the
-`ObjectName` `bean:name=testBean1`. By default, all `public` properties of the bean
-are exposed as attributes and all `public` methods (except those inherited from the
-`Object` class) are exposed as operations.
+通过此配置，`testBean` Bean 在 `ObjectName` `bean:name=testBean1` 下作为 MBean 公开。默认情况下，Bean 的所有 `public` 属性都作为属性公开，所有 `public` 方法（从 `Object` 类继承的方法除外）都作为操作公开。
 
-NOTE: `MBeanExporter` is a `Lifecycle` bean (see xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-processor[Startup and Shutdown Callbacks]
-). By default, MBeans are exported as late as possible during
-the application lifecycle. You can configure the `phase` at which
-the export happens or disable automatic registration by setting the `autoStartup` flag.
+NOTE: `MBeanExporter` 是一个 `Lifecycle` Bean（请参阅 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-processor[启动和关闭回调]）。默认情况下，MBean 在应用程序生命周期中尽可能晚地导出。您可以配置导出发生的 `phase`，或通过设置 `autoStartup` 标志来禁用自动注册。
 
 
 [[jmx-exporting-mbeanserver]]
-== Creating an MBeanServer
+== 创建 MBeanServer
 
-The configuration shown in the xref:integration/jmx/exporting.adoc[preceding section] assumes that the
-application is running in an environment that has one (and only one) `MBeanServer`
-already running. In this case, Infra tries to locate the running `MBeanServer` and
-register your beans with that server (if any). This behavior is useful when your
-application runs inside a container (such as Tomcat or IBM WebSphere) that has its
-own `MBeanServer`.
+xref:integration/jmx/exporting.adoc[上一节] 中显示的配置假设应用程序运行在一个已经运行了一个（且只有一个）`MBeanServer` 的环境中。在这种情况下，Infra 尝试定位正在运行的 `MBeanServer` 并将您的 Bean 注册到该服务器（如果有）。当您的应用程序在具有自己的 `MBeanServer` 的容器（如 Tomcat 或 IBM WebSphere）内运行时，此行为非常有用。
 
-However, this approach is of no use in a standalone environment or when running inside
-a container that does not provide an `MBeanServer`. To address this, you can create an
-`MBeanServer` instance declaratively by adding an instance of the
-`infra.jmx.support.MBeanServerFactoryBean` class to your configuration.
-You can also ensure that a specific `MBeanServer` is used by setting the value of the
-`MBeanExporter` instance's `server` property to the `MBeanServer` value returned by an
-`MBeanServerFactoryBean`, as the following example shows:
+但是，这种方法在独立环境中或在不提供 `MBeanServer` 的容器内运行时毫无用处。为了解决这个问题，您可以通过将 `infra.jmx.support.MBeanServerFactoryBean` 类的实例添加到您的配置中来声明性地创建 `MBeanServer` 实例。您还可以通过将 `MBeanExporter` 实例的 `server` 属性的值设置为 `MBeanServerFactoryBean` 返回的 `MBeanServer` 值来确保使用特定的 `MBeanServer`，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -105,8 +80,8 @@ You can also ensure that a specific `MBeanServer` is used by setting the value o
   <bean id="mbeanServer" class="infra.jmx.support.MBeanServerFactoryBean"/>
 
   <!--
-  this bean needs to be eagerly pre-instantiated in order for the exporting to occur;
-  this means that it must not be marked as lazily initialized
+  此 bean 需要急切地预实例化才能进行导出；
+  这意味着它不得标记为延迟初始化
   -->
   <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
@@ -125,29 +100,21 @@ You can also ensure that a specific `MBeanServer` is used by setting the value o
 </beans>
 ----
 
-In the preceding example, an instance of `MBeanServer` is created by the `MBeanServerFactoryBean` and is
-supplied to the `MBeanExporter` through the `server` property. When you supply your own
-`MBeanServer` instance, the `MBeanExporter` does not try to locate a running
-`MBeanServer` and uses the supplied `MBeanServer` instance. For this to work
-correctly, you must have a JMX implementation on your classpath.
+在前面的示例中，`MBeanServer` 的实例由 `MBeanServerFactoryBean` 创建，并通过 `server` 属性提供给 `MBeanExporter`。当您提供自己的 `MBeanServer` 实例时，`MBeanExporter` 不会尝试定位正在运行的 `MBeanServer`，而是使用提供的 `MBeanServer` 实例。为了使其正常工作，您的类路径中必须有 JMX 实现。
 
 
 [[jmx-mbean-server]]
-== Reusing an Existing `MBeanServer`
+== 重用现有的 `MBeanServer`
 
-If no server is specified, the `MBeanExporter` tries to automatically detect a running
-`MBeanServer`. This works in most environments, where only one `MBeanServer` instance is
-used. However, when multiple instances exist, the exporter might pick the wrong server.
-In such cases, you should use the `MBeanServer` `agentId` to indicate which instance to
-be used, as the following example shows:
+如果未指定服务器，`MBeanExporter` 会尝试自动检测正在运行的 `MBeanServer`。这在大多数环境中都有效，其中仅使用一个 `MBeanServer` 实例。但是，当存在多个实例时，导出器可能会选择错误的服务器。在这种情况下，您应该使用 `MBeanServer` `agentId` 来指示要使用哪个实例，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
   <bean id="mbeanServer" class="infra.jmx.support.MBeanServerFactoryBean">
-    <!-- indicate to first look for a server -->
+    <!-- 指示首先查找服务器 -->
     <property name="locateExistingServerIfPossible" value="true"/>
-    <!-- search for the MBeanServer instance with the given agentId -->
+    <!-- 搜索具有给定 agentId 的 MBeanServer 实例 -->
     <property name="agentId" value="MBeanServer_instance_agentId>"/>
   </bean>
   <bean id="exporter" class="infra.jmx.export.MBeanExporter">
@@ -157,47 +124,36 @@ be used, as the following example shows:
 </beans>
 ----
 
-For platforms or cases where the existing `MBeanServer` has a dynamic (or unknown)
-`agentId` that is retrieved through lookup methods, you should use
-xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[factory-method],
-as the following example shows:
+对于通过查找方法检索现有 `MBeanServer` 具有动态（或未知）`agentId` 的平台或情况，您应该使用 xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[factory-method]，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
   <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="server">
-      <!-- Custom MBeanServerLocator -->
+      <!-- 自定义 MBeanServerLocator -->
       <bean class="platform.package.MBeanServerLocator" factory-method="locateMBeanServer"/>
     </property>
   </bean>
 
-  <!-- other beans here -->
+  <!-- 其他 bean 在这里 -->
 
 </beans>
 ----
 
 
 [[jmx-exporting-lazy]]
-== Lazily Initialized MBeans
+== 延迟初始化的 MBean
 
-If you configure a bean with an `MBeanExporter` that is also configured for lazy
-initialization, the `MBeanExporter` does not break this contract and avoids
-instantiating the bean. Instead, it registers a proxy with the `MBeanServer` and defers
-obtaining the bean from the container until the first invocation on the proxy occurs.
+如果您使用也配置为延迟初始化的 `MBeanExporter` 配置 Bean，则 `MBeanExporter` 不会破坏此契约，并避免实例化该 Bean。相反，它向 `MBeanServer` 注册代理，并推迟从容器获取 Bean，直到在代理上发生第一次调用。
 
-This also affects `FactoryBean` resolution where `MBeanExporter` will regularly
-introspect the produced object, effectively triggering `FactoryBean.getObject()`.
-In order to avoid this, mark the corresponding bean definition as lazy-init.
+这也会影响 `FactoryBean` 解析，其中 `MBeanExporter` 将定期自省生成的对象，从而有效地触发 `FactoryBean.getObject()`。为了避免这种情况，请将相应的 Bean 定义标记为 lazy-init。
 
 
 [[jmx-exporting-auto]]
-== Automatic Registration of MBeans
+== MBean 的自动注册
 
-Any beans that are exported through the `MBeanExporter` and are already valid MBeans
-are registered as-is with the `MBeanServer` without further intervention from Infra.
-You can cause MBeans to be automatically detected by the `MBeanExporter` by setting
-the `autodetect` property to `true`, as the following example shows:
+通过 `MBeanExporter` 导出且已经是有效 MBean 的任何 Bean 都将按原样注册到 `MBeanServer`，而无需 Infra 的进一步干预。您可以通过将 `autodetect` 属性设置为 `true` 来使 `MBeanExporter` 自动检测 MBean，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -208,58 +164,35 @@ the `autodetect` property to `true`, as the following example shows:
 <bean name="spring:mbean=true" class="infra.jmx.export.TestDynamicMBean"/>
 ----
 
-In the preceding example, the bean called `spring:mbean=true` is already a valid JMX MBean
-and is automatically registered by Infra. By default, a bean that is autodetected for JMX
-registration has its bean name used as the `ObjectName`. You can override this behavior,
-as detailed in xref:integration/jmx/naming.adoc[Controlling  `ObjectName` Instances for Your Beans].
+在前面的示例中，名为 `spring:mbean=true` 的 Bean 已经是一个有效的 JMX MBean，并且由 Infra 自动注册。默认情况下，自动检测用于 JMX 注册的 Bean 使用其 Bean 名称作为 `ObjectName`。您可以覆盖此行为，如 xref:integration/jmx/naming.adoc[控制 Bean 的 `ObjectName` 实例] 中详述。
 
 
 [[jmx-exporting-registration-behavior]]
-== Controlling the Registration Behavior
+== 控制注册行为
 
-Consider the scenario where a Infra `MBeanExporter` attempts to register an `MBean`
-with an `MBeanServer` by using the `ObjectName` `bean:name=testBean1`. If an `MBean`
-instance has already been registered under that same `ObjectName`, the default behavior
-is to fail (and throw an `InstanceAlreadyExistsException`).
+考虑这样一个场景：Infra `MBeanExporter` 尝试使用 `ObjectName` `bean:name=testBean1` 向 `MBeanServer` 注册 `MBean`。如果已经使用相同的 `ObjectName` 注册了 `MBean` 实例，则默认行为是失败（并抛出 `InstanceAlreadyExistsException`）。
 
-You can control exactly what happens when an `MBean` is
-registered with an `MBeanServer`. Infra JMX support allows for three different
-registration behaviors to control the registration behavior when the registration
-process finds that an `MBean` has already been registered under the same `ObjectName`.
-The following table summarizes these registration behaviors:
+您可以精确控制当 `MBean` 向 `MBeanServer` 注册时发生的情况。Infra JMX 支持允许三种不同的注册行为，以控制当注册过程发现 `MBean` 已在相同的 `ObjectName` 下注册时的注册行为。下表总结了这些注册行为：
 
 [[jmx-registration-behaviors]]
-.Registration Behaviors
+.注册行为
 [cols="1,4"]
 |===
-| Registration behavior | Explanation
+| 注册行为 | 说明
 
 | `FAIL_ON_EXISTING`
-| This is the default registration behavior. If an `MBean` instance has already been
-  registered under the same `ObjectName`, the `MBean` that is being registered is not
-  registered, and an `InstanceAlreadyExistsException` is thrown. The existing
-  `MBean` is unaffected.
+| 这是默认的注册行为。如果已在相同的 `ObjectName` 下注册了 `MBean` 实例，则不会注册正在注册的 `MBean`，并且会抛出 `InstanceAlreadyExistsException`。现有的 `MBean` 不受影响。
 
 | `IGNORE_EXISTING`
-| If an `MBean` instance has already been registered under the same `ObjectName`, the
-  `MBean` that is being registered is not registered. The existing `MBean` is
-  unaffected, and no `Exception` is thrown. This is useful in settings where
-  multiple applications want to share a common `MBean` in a shared `MBeanServer`.
+| 如果已在相同的 `ObjectName` 下注册了 `MBean` 实例，则不会注册正在注册的 `MBean`。现有的 `MBean` 不受影响，并且不会抛出 `Exception`。这在多个应用程序希望在共享的 `MBeanServer` 中共享公共 `MBean` 的设置中很有用。
 
 | `REPLACE_EXISTING`
-| If an `MBean` instance has already been registered under the same `ObjectName`, the
-  existing `MBean` that was previously registered is unregistered, and the new
-  `MBean` is registered in its place (the new `MBean` effectively replaces the
-  previous instance).
+| 如果已在相同的 `ObjectName` 下注册了 `MBean` 实例，则先前注册的现有 `MBean` 将被注销，并且新的 `MBean` 将在其位置注册（新的 `MBean` 有效地替换了先前的实例）。
 |===
 
-The values in the preceding table are defined as enums on the `RegistrationPolicy` class.
-If you want to change the default registration behavior, you need to set the value of the
-`registrationPolicy` property on your `MBeanExporter` definition to one of those
-values.
+上表中的值在 `RegistrationPolicy` 类上定义为枚举。如果要更改默认注册行为，则需要将 `MBeanExporter` 定义上的 `registrationPolicy` 属性的值设置为这些值之一。
 
-The following example shows how to change from the default registration
-behavior to the `REPLACE_EXISTING` behavior:
+以下示例显示了如何从默认注册行为更改为 `REPLACE_EXISTING` 行为：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -281,6 +214,3 @@ behavior to the `REPLACE_EXISTING` behavior:
 
 </beans>
 ----
-
-
-

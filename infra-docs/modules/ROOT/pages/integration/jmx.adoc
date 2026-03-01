@@ -1,26 +1,18 @@
 [[jmx]]
 = JMX
 
-The JMX (Java Management Extensions) support in Infra provides features that let you
-easily and transparently integrate your Infra application into a JMX infrastructure.
+Infra 中的 JMX (Java Management Extensions) 支持提供的功能使您可以轻松透明地将 Infra 应用程序集成到 JMX 基础设施中。
 
 .JMX?
 ****
-This chapter is not an introduction to JMX. It does not try to explain why you might want
-to use JMX. If you are new to JMX, see xref:integration/jmx/resources.adoc[Further Resources] at the end of this chapter.
+本章不是 JMX 的介绍。它并不试图解释您为什么要使用 JMX。如果您是 JMX 的新手，请参阅本章末尾的 xref:integration/jmx/resources.adoc[更多资源]。
 ****
 
-Specifically, Infra JMX support provides four core features:
+具体来说，Infra JMX 支持提供四个核心功能：
 
-* The automatic registration of any Infra bean as a JMX MBean.
-* A flexible mechanism for controlling the management interface of your beans.
-* The declarative exposure of MBeans over remote, JSR-160 connectors.
-* The simple proxying of both local and remote MBean resources.
+* 任何 Infra Bean 作为 JMX MBean 的自动注册。
+* 控制 Bean 管理接口的灵活机制。
+* 通过远程 JSR-160 连接器声明性地公开 MBean。
+* 本地和远程 MBean 资源的简单代理。
 
-These features are designed to work without coupling your application components to
-either Infra or JMX interfaces and classes. Indeed, for the most part, your application
-classes need not be aware of either Infra or JMX in order to take advantage of the
-Infra JMX features.
-
-
-
+这些功能旨在无需将您的应用程序组件耦合到 Infra 或 JMX 接口和类即可工作。实际上，在大多数情况下，您的应用程序类无需知道 Infra 或 JMX 即可利用 Infra JMX 功能。

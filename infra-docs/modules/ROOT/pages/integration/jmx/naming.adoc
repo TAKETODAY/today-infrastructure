@@ -1,27 +1,15 @@
 [[jmx-naming]]
-= Controlling  `ObjectName` Instances for Your Beans
+= 控制 Bean 的 `ObjectName` 实例
 
-Behind the scenes, the `MBeanExporter` delegates to an implementation of the
-`ObjectNamingStrategy` to obtain an `ObjectName` instance for each of the beans it registers.
-By default, the default implementation, `KeyNamingStrategy` uses the key of the
-`beans` `Map` as the `ObjectName`. In addition, the `KeyNamingStrategy` can map the key
-of the `beans` `Map` to an entry in a `Properties` file (or files) to resolve the
-`ObjectName`. In addition to the `KeyNamingStrategy`, Infra provides two additional
-`ObjectNamingStrategy` implementations: the `IdentityNamingStrategy` (which builds an
-`ObjectName` based on the JVM identity of the bean) and the `MetadataNamingStrategy` (which
-uses source-level metadata to obtain the `ObjectName`).
+在幕后，`MBeanExporter` 委托给 `ObjectNamingStrategy` 的实现，为它注册的每个 bean 获取 `ObjectName` 实例。默认情况下，默认实现 `KeyNamingStrategy` 使用 `beans` `Map` 的键作为 `ObjectName`。此外，`KeyNamingStrategy` 可以将 `beans` `Map` 的键映射到 `Properties` 文件（或多个文件）中的条目，以解析 `ObjectName`。除了 `KeyNamingStrategy` 之外，Infra 还提供了另外两个 `ObjectNamingStrategy` 实现：`IdentityNamingStrategy`（基于 bean 的 JVM 标识构建 `ObjectName`）和 `MetadataNamingStrategy`（使用源代码级元数据获取 `ObjectName`）。
 
 
 [[jmx-naming-properties]]
-== Reading `ObjectName` Instances from Properties
+== 从属性中读取 `ObjectName` 实例
 
-You can configure your own `KeyNamingStrategy` instance and configure it to read
-`ObjectName` instances from a `Properties` instance rather than use a bean key. The
-`KeyNamingStrategy` tries to locate an entry in the `Properties` with a key
-that corresponds to the bean key. If no entry is found or if the `Properties` instance is
-`null`, the bean key itself is used.
+您可以配置自己的 `KeyNamingStrategy` 实例，并将其配置为从 `Properties` 实例而不是使用 bean 键读取 `ObjectName` 实例。`KeyNamingStrategy` 尝试使用与 bean 键对应的键在 `Properties` 中定位条目。如果未找到条目或 `Properties` 实例为 `null`，则使用 bean 键本身。
 
-The following code shows a sample configuration for the `KeyNamingStrategy`:
+以下代码显示了 `KeyNamingStrategy` 的示例配置：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -55,23 +43,15 @@ The following code shows a sample configuration for the `KeyNamingStrategy`:
 </beans>
 ----
 
-The preceding example configures an instance of `KeyNamingStrategy` with a `Properties` instance that
-is merged from the `Properties` instance defined by the mapping property and the
-properties files located in the paths defined by the mappings property. In this
-configuration, the `testBean` bean is given an `ObjectName` of `bean:name=testBean1`,
-since this is the entry in the `Properties` instance that has a key corresponding to the
-bean key.
+前面的示例配置了一个 `KeyNamingStrategy` 实例，该实例带有一个 `Properties` 实例，该实例是从 mapping 属性定义的 `Properties` 实例和 mappings 属性定义的路径中的属性文件合并而来的。在此配置中，`testBean` bean 被赋予 `ObjectName` `bean:name=testBean1`，因为这是 `Properties` 实例中具有与 bean 键对应的键的条目。
 
-If no entry in the `Properties` instance can be found, the bean key name is used as
-the `ObjectName`.
+如果在 `Properties` 实例中找不到任何条目，则将 bean 键名用作 `ObjectName`。
 
 
 [[jmx-naming-metadata]]
-== Using `MetadataNamingStrategy`
+== 使用 `MetadataNamingStrategy`
 
-`MetadataNamingStrategy` uses the `objectName` property of the `ManagedResource`
-attribute on each bean to create the `ObjectName`. The following code shows the
-configuration for the `MetadataNamingStrategy`:
+`MetadataNamingStrategy` 使用每个 bean 上 `ManagedResource` 属性的 `objectName` 属性来创建 `ObjectName`。以下代码显示了 `MetadataNamingStrategy` 的配置：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -101,11 +81,7 @@ configuration for the `MetadataNamingStrategy`:
 </beans>
 ----
 
-If no `objectName` has been provided for the `ManagedResource` attribute, an
-`ObjectName` is created with the following
-format: _[fully-qualified-package-name]:type=[short-classname],name=[bean-name]_. For
-example, the generated `ObjectName` for the following bean would be
-`com.example:type=MyClass,name=myBean`:
+如果未为 `ManagedResource` 属性提供 `objectName`，则使用以下格式创建 `ObjectName`：_[fully-qualified-package-name]:type=[short-classname],name=[bean-name]_。例如，以下 bean 生成的 `ObjectName` 将是 `com.example:type=MyClass,name=myBean`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -114,16 +90,9 @@ example, the generated `ObjectName` for the following bean would be
 
 
 [[jmx-context-mbeanexport]]
-== Configuring Annotation-based MBean Export
+== 配置基于注解的 MBean 导出
 
-If you prefer to use xref:integration/jmx/interface.adoc#jmx-interface-metadata[the annotation-based approach] to define
-your management interfaces, a convenience subclass of `MBeanExporter` is available:
-`AnnotationMBeanExporter`. When defining an instance of this subclass, you no longer need the
-`namingStrategy`, `assembler`, and `attributeSource` configuration,
-since it always uses standard Java annotation-based metadata (autodetection is
-always enabled as well). In fact, rather than defining an `MBeanExporter` bean, an even
-simpler syntax is supported by the `@EnableMBeanExport` `@Configuration` annotation,
-as the following example shows:
+如果您更喜欢使用 xref:integration/jmx/interface.adoc#jmx-interface-metadata[基于注解的方法] 来定义管理接口，则可以使用 `MBeanExporter` 的一个便捷子类：`AnnotationMBeanExporter`。定义此子类的实例时，您不再需要 `namingStrategy`、`assembler` 和 `attributeSource` 配置，因为它始终使用标准 Java 基于注解的元数据（自动检测也始终启用）。实际上，与其定义 `MBeanExporter` bean，不如使用 `@EnableMBeanExport` `@Configuration` 注解支持的更简单的语法，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -134,19 +103,14 @@ public class AppConfig {
 }
 ----
 
-If you prefer XML-based configuration, the `<context:mbean-export/>` element serves the
-same purpose and is shown in the following listing:
+如果您更喜欢基于 XML 的配置，`<context:mbean-export/>` 元素具有相同的用途，如以下清单所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 	<context:mbean-export/>
 ----
 
-If necessary, you can provide a reference to a particular MBean `server`, and the
-`defaultDomain` attribute (a property of `AnnotationMBeanExporter`) accepts an alternate
-value for the generated MBean `ObjectName` domains. This is used in place of the
-fully qualified package name as described in the previous section on
-xref:integration/jmx/naming.adoc#jmx-naming-metadata[MetadataNamingStrategy], as the following example shows:
+如有必要，您可以提供对特定 MBean `server` 的引用，并且 `defaultDomain` 属性（`AnnotationMBeanExporter` 的一个属性）接受生成的 MBean `ObjectName` 域的替代值。这用于代替完全限定的包名称，如上一节关于 xref:integration/jmx/naming.adoc#jmx-naming-metadata[MetadataNamingStrategy] 中所述，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -157,19 +121,11 @@ xref:integration/jmx/naming.adoc#jmx-naming-metadata[MetadataNamingStrategy], as
 	}
 ----
 
-The following example shows the XML equivalent of the preceding annotation-based example:
+以下示例显示了前面基于注解的示例的 XML 等效项：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 	<context:mbean-export server="myMBeanServer" default-domain="myDomain"/>
 ----
 
-CAUTION: Do not use interface-based AOP proxies in combination with autodetection of JMX
-annotations in your bean classes. Interface-based proxies "`hide`" the target class, which
-also hides the JMX-managed resource annotations. Hence, you should use target-class proxies in that
-case (through setting the 'proxy-target-class' flag on `<aop:config/>`,
-`<tx:annotation-driven/>` and so on). Otherwise, your JMX beans might be silently ignored at
-startup.
-
-
-
+CAUTION: 请勿将基于接口的 AOP 代理与 bean 类中 JMX 注解的自动检测结合使用。基于接口的代理“`隐藏`”目标类，这也隐藏了 JMX 托管资源注解。因此，在这种情况下，您应该使用目标类代理（通过在 `<aop:config/>`、`<tx:annotation-driven/>` 等上设置 'proxy-target-class' 标志）。否则，您的 JMX bean 可能会在启动时被静默忽略。

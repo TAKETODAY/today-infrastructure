@@ -1,45 +1,29 @@
 [[mail]]
-= Email
+= 电子邮件
 
-This section describes how to send email with the TODAY Framework.
+本节介绍如何使用 TODAY Framework 发送电子邮件。
 
-.Library dependencies
+.库依赖
 ****
-The following JAR needs to be on the classpath of your application in order to use the
-TODAY Framework's email support:
+为了使用 TODAY Framework 的电子邮件支持，您的应用程序的类路径中需要以下 JAR：
 
-* The https://jakartaee.github.io/mail-api/[Jakarta Mail] library
+* https://jakartaee.github.io/mail-api/[Jakarta Mail] 库
 
-This library is freely available on the web -- for example, in Maven Central as
-`com.sun.mail:jakarta.mail`. Please make sure to use the latest 2.x version (which uses
-the `jakarta.mail` package namespace) rather than Jakarta Mail 1.6.x (which uses the
-`javax.mail` package namespace).
+该库可以在网上免费获得——例如，在 Maven Central 中为 `com.sun.mail:jakarta.mail`。请确保使用最新的 2.x 版本（使用 `jakarta.mail` 包命名空间），而不是 Jakarta Mail 1.6.x（使用 `javax.mail` 包命名空间）。
 ****
 
-The TODAY Framework provides a helpful utility library for sending email that shields
-you from the specifics of the underlying mailing system and is responsible for
-low-level resource handling on behalf of the client.
+TODAY Framework 提供了一个有用的实用程序库用于发送电子邮件，它使您免受底层邮件系统细节的影响，并负责代表客户端进行低级资源处理。
 
-The `infra.mail` package is the root level package for the Infra
-Framework's email support. The central interface for sending emails is the `MailSender`
-interface. A simple value object that encapsulates the properties of a simple mail such
-as `from` and `to` (plus many others) is the `SimpleMailMessage` class. This package
-also contains a hierarchy of checked exceptions that provide a higher level of
-abstraction over the lower level mail system exceptions, with the root exception being
-`MailException`. See the {today-framework-api}/mail/MailException.html[javadoc]
-for more information on the rich mail exception hierarchy.
+`infra.mail` 包是 Infra Framework 电子邮件支持的根级包。发送电子邮件的核心接口是 `MailSender` 接口。`SimpleMailMessage` 类是一个简单的值对象，封装了简单邮件的属性，如 `from` 和 `to`（以及许多其他属性）。该包还包含一个受检异常层次结构，它在低级邮件系统异常之上提供了更高级别的抽象，根异常为 `MailException`。有关丰富的邮件异常层次结构的更多信息，请参阅 {today-framework-api}/mail/MailException.html[javadoc]。
 
-The `infra.mail.javamail.JavaMailSender` interface adds specialized
-JavaMail features, such as MIME message support to the `MailSender` interface
-(from which it inherits). `JavaMailSender` also provides a callback interface called
-`infra.mail.javamail.MimeMessagePreparator` for preparing a `MimeMessage`.
+`infra.mail.javamail.JavaMailSender` 接口向 `MailSender` 接口（它继承自该接口）添加了专门的 JavaMail 功能，例如 MIME 消息支持。`JavaMailSender` 还提供了一个名为 `infra.mail.javamail.MimeMessagePreparator` 的回调接口，用于准备 `MimeMessage`。
 
 
 
 [[mail-usage]]
-== Usage
+== 用法
 
-Assume that we have a business interface called `OrderManager`, as the following example shows:
+假设我们有一个名为 `OrderManager` 的业务接口，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -50,15 +34,13 @@ public interface OrderManager {
 }
 ----
 
-Further assume that we have a requirement stating that an email message with an
-order number needs to be generated and sent to a customer who placed the relevant order.
+进一步假设我们有一个要求，即需要生成并发送包含订单号的电子邮件消息给下订单的客户。
 
 
 [[mail-usage-simple]]
-=== Basic `MailSender` and `SimpleMailMessage` Usage
+=== 基本 `MailSender` 和 `SimpleMailMessage` 用法
 
-The following example shows how to use `MailSender` and `SimpleMailMessage` to send an
-email when someone places an order:
+以下示例显示了如何在有人下订单时使用 `MailSender` 和 `SimpleMailMessage` 发送电子邮件：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -81,11 +63,11 @@ public class SimpleOrderManager implements OrderManager {
 
   public void placeOrder(Order order) {
 
-    // Do the business calculations...
+    // 进行业务计算...
 
-    // Call the collaborators to persist the order...
+    // 调用协作者以持久化订单...
 
-    // Create a thread-safe "copy" of the template message and customize it
+    // 创建模板消息的线程安全“副本”并对其进行自定义
     SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
     msg.setTo(order.getCustomer().getEmailAddress());
     msg.setText(
@@ -97,7 +79,7 @@ public class SimpleOrderManager implements OrderManager {
       this.mailSender.send(msg);
     }
     catch (MailException ex) {
-      // simply log it and go on...
+      // 简单地记录并继续...
       System.err.println(ex.getMessage());
     }
   }
@@ -105,7 +87,7 @@ public class SimpleOrderManager implements OrderManager {
 }
 ----
 
-The following example shows the bean definitions for the preceding code:
+以下示例显示了上述代码的 Bean 定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -113,7 +95,7 @@ The following example shows the bean definitions for the preceding code:
   <property name="host" value="mail.mycompany.example"/>
 </bean>
 
-<!-- this is a template message that we can pre-load with default state -->
+<!-- 这是一个模板消息，我们可以使用默认状态预加载它 -->
 <bean id="templateMessage" class="infra.mail.SimpleMailMessage">
   <property name="from" value="customerservice@mycompany.example"/>
   <property name="subject" value="Your order"/>
@@ -127,11 +109,9 @@ The following example shows the bean definitions for the preceding code:
 
 
 [[mail-usage-mime]]
-=== Using `JavaMailSender` and `MimeMessagePreparator`
+=== 使用 `JavaMailSender` 和 `MimeMessagePreparator`
 
-This section describes another implementation of `OrderManager` that uses the `MimeMessagePreparator`
-callback interface. In the following example, the `mailSender` property is of type
-`JavaMailSender` so that we are able to use the JavaMail `MimeMessage` class:
+本节介绍了 `OrderManager` 的另一种实现，它使用 `MimeMessagePreparator` 回调接口。在以下示例中，`mailSender` 属性的类型为 `JavaMailSender`，以便我们可以使用 JavaMail `MimeMessage` 类：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -153,8 +133,8 @@ public class SimpleOrderManager implements OrderManager {
   }
 
   public void placeOrder(final Order order) {
-    // Do the business calculations...
-    // Call the collaborators to persist the order...
+    // 进行业务计算...
+    // 调用协作者以持久化订单...
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -171,7 +151,7 @@ public class SimpleOrderManager implements OrderManager {
       this.mailSender.send(preparator);
     }
     catch (MailException ex) {
-      // simply log it and go on...
+      // 简单地记录并继续...
       System.err.println(ex.getMessage());
     }
   }
@@ -179,26 +159,20 @@ public class SimpleOrderManager implements OrderManager {
 }
 ----
 
-NOTE: The mail code is a crosscutting concern and could well be a candidate for
-refactoring into a xref:core/aop.adoc[custom Infra AOP aspect], which could then
-be run at appropriate joinpoints on the `OrderManager` target.
+NOTE: 邮件代码是一个横切关注点，很可能适合重构为 xref:core/aop.adoc[自定义 Infra AOP 切面]，然后可以在 `OrderManager` 目标上的适当连接点运行。
 
-The TODAY Framework's mail support ships with the standard JavaMail implementation.
-See the relevant javadoc for more information.
+TODAY Framework 的邮件支持附带标准 JavaMail 实现。有关更多信息，请参阅相关 javadoc。
 
 
 
 [[mail-javamail-mime]]
-== Using the JavaMail `MimeMessageHelper`
+== 使用 JavaMail `MimeMessageHelper`
 
-A class that comes in pretty handy when dealing with JavaMail messages is
-`infra.mail.javamail.MimeMessageHelper`, which shields you from
-having to use the verbose JavaMail API. Using the `MimeMessageHelper`, it is
-pretty easy to create a `MimeMessage`, as the following example shows:
+在处理 JavaMail 消息时，一个非常有用的类是 `infra.mail.javamail.MimeMessageHelper`，它可以使您免于使用冗长的 JavaMail API。使用 `MimeMessageHelper`，创建一个 `MimeMessage` 非常容易，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-// of course you would use DI in any real-world cases
+// 当然，您会在任何实际用例中使用 DI
 JavaMailSenderImpl sender = new JavaMailSenderImpl();
 sender.setHost("mail.host.com");
 
@@ -212,17 +186,14 @@ sender.send(message);
 
 
 [[mail-javamail-mime-attachments]]
-=== Sending Attachments and Inline Resources
+=== 发送附件和内联资源
 
-Multipart email messages allow for both attachments and inline resources. Examples of
-inline resources include an image or a stylesheet that you want to use in your message but
-that you do not want displayed as an attachment.
+多部分电子邮件消息允许附件和内联资源。内联资源的示例包括您希望在消息中使用但不希望作为附件显示的图像或样式表。
 
 [[mail-javamail-mime-attachments-attachment]]
-==== Attachments
+==== 附件
 
-The following example shows you how to use the `MimeMessageHelper` to send an email
-with a single JPEG image attachment:
+以下示例向您展示了如何使用 `MimeMessageHelper` 发送带有单个 JPEG 图像附件的电子邮件：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -231,13 +202,13 @@ with a single JPEG image attachment:
 
 	MimeMessage message = sender.createMimeMessage();
 
-	// use the true flag to indicate you need a multipart message
+	// 使用 true 标志表示您需要多部分消息
 	MimeMessageHelper helper = new MimeMessageHelper(message, true);
 	helper.setTo("test@host.com");
 
 	helper.setText("Check out this image!");
 
-	// let's attach the infamous windows Sample file (this time copied to c:/)
+	// 让我们附上臭名昭著的 windows Sample 文件（这次复制到 c:/）
 	FileSystemResource file = new FileSystemResource(new File("c:/Sample.jpg"));
 	helper.addAttachment("CoolImage.jpg", file);
 
@@ -245,10 +216,9 @@ with a single JPEG image attachment:
 ----
 
 [[mail-javamail-mime-attachments-inline]]
-==== Inline Resources
+==== 内联资源
 
-The following example shows you how to use the `MimeMessageHelper` to send an email
-with an inline image:
+以下示例向您展示了如何使用 `MimeMessageHelper` 发送带有内联图像的电子邮件：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -257,46 +227,32 @@ with an inline image:
 
 	MimeMessage message = sender.createMimeMessage();
 
-	// use the true flag to indicate you need a multipart message
+	// 使用 true 标志表示您需要多部分消息
 	MimeMessageHelper helper = new MimeMessageHelper(message, true);
 	helper.setTo("test@host.com");
 
-	// use the true flag to indicate the text included is HTML
+	// 使用 true 标志表示包含的文本是 HTML
 	helper.setText("<html><body><img src='cid:identifier1234'></body></html>", true);
 
-	// let's include the infamous windows Sample file (this time copied to c:/)
+	// 让我们包含臭名昭著的 windows Sample 文件（这次复制到 c:/）
 	FileSystemResource res = new FileSystemResource(new File("c:/Sample.jpg"));
 	helper.addInline("identifier1234", res);
 
 	sender.send(message);
 ----
 
-WARNING: Inline resources are added to the `MimeMessage` by using the specified `Content-ID`
-(`identifier1234` in the above example). The order in which you add the text
-and the resource are very important. Be sure to first add the text and then
-the resources. If you are doing it the other way around, it does not work.
+WARNING: 使用指定的 `Content-ID`（在上面的示例中为 `identifier1234`）将内联资源添加到 `MimeMessage`。添加文本和资源的顺序非常重要。请务必先添加文本，然后再添加资源。如果反过来做，则不起作用。
 
 
 [[mail-templates]]
-=== Creating Email Content by Using a Templating Library
+=== 使用模板库创建电子邮件内容
 
-The code in the examples shown in the previous sections explicitly created the content of the email message,
-by using methods calls such as `message.setText(..)`. This is fine for simple cases, and it
-is okay in the context of the aforementioned examples, where the intent was to show you
-the very basics of the API.
+前面几节中显示的示例中的代码使用诸如 `message.setText(..)` 之类的方法调用显式创建了电子邮件消息的内容。对于简单的情况，这很好，并且在上述示例的上下文中也是可以的，其目的是向您展示 API 的基础知识。
 
-In your typical enterprise application, though, developers often do not create the content
-of email messages by using the previously shown approach for a number of reasons:
+但是，在典型的企业应用程序中，开发人员通常不会使用前面显示的方法创建电子邮件消息的内容，原因如下：
 
-* Creating HTML-based email content in Java code is tedious and error prone.
-* There is no clear separation between display logic and business logic.
-* Changing the display structure of the email content requires writing Java code,
-  recompiling, redeploying, and so on.
+* 在 Java 代码中创建基于 HTML 的电子邮件内容既乏味又容易出错。
+* 显示逻辑和业务逻辑之间没有清晰的分离。
+* 更改电子邮件内容的显示结构需要编写 Java 代码、重新编译、重新部署等。
 
-Typically, the approach taken to address these issues is to use a template library (such
-as FreeMarker) to define the display structure of email content. This leaves your code
-tasked only with creating the data that is to be rendered in the email template and
-sending the email. It is definitely a best practice when the content of your email messages
-becomes even moderately complex, and, with the TODAY Framework's support classes for
-FreeMarker, it becomes quite easy to do.
-
+通常，解决这些问题的方法是使用模板库（如 FreeMarker）来定义电子邮件内容的显示结构。这使得您的代码仅负责创建要在电子邮件模板中呈现的数据并发送电子邮件。当您的电子邮件消息的内容变得稍微复杂时，这绝对是一个最佳实践，并且有了 TODAY Framework 对 FreeMarker 的支持类，这就变得很容易做到。

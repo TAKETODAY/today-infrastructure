@@ -157,5 +157,3 @@
     expected-type="com.myapp.DefaultThing"
     proxy-interface="com.myapp.Thing"/>
 ----
-
-

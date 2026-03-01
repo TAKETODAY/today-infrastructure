@@ -1,76 +1,34 @@
 [[cache-strategies]]
-= Understanding the Cache Abstraction
+= 理解缓存抽象
 
-.Cache vs Buffer
+.缓存与缓冲区
 ****
 
-The terms, "`buffer`" and "`cache,`" tend to be used interchangeably. Note, however,
-that they represent different things. Traditionally, a buffer is used as an intermediate
-temporary store for data between a fast and a slow entity. As one party would have to wait
-for the other (which affects performance), the buffer alleviates this by allowing entire
-blocks of data to move at once rather than in small chunks. The data is written and read
-only once from the buffer. Furthermore, the buffers are visible to at least one party
-that is aware of it.
+术语“`缓冲区`”和“`缓存`”往往互换使用。但这请注意，它们代表不同的事物。传统上，缓冲区用作快速实体和慢速实体之间数据的中间临时存储。由于一方必须等待另一方（这会影响性能），缓冲区通过允许整个数据块一次移动而不是小块移动来缓解这种情况。数据仅从缓冲区写入和读取一次。此外，缓冲区对于至少一方是可见的。
 
-A cache, on the other hand, is, by definition, hidden, and neither party is aware that
-caching occurs. It also improves performance but does so by letting the same data be
-read multiple times in a fast fashion.
+另一方面，根据定义，缓存是隐藏的，任何一方都不知道发生了缓存。它也提高了性能，但是通过让相同的数据以快速的方式被多次读取来实现的。
 
-You can find a further explanation of the differences between a buffer and a cache
-https://en.wikipedia.org/wiki/Cache_(computing)#The_difference_between_buffer_and_cache[here].
+您可以https://en.wikipedia.org/wiki/Cache_(computing)#The_difference_between_buffer_and_cache[在此处]找到有关缓冲区和缓存之间差异的进一步解释。
 ****
 
-At its core, the cache abstraction applies caching to Java methods, thus reducing the
-number of executions based on the information available in the cache. That is, each time
-a targeted method is invoked, the abstraction applies a caching behavior that checks
-whether the method has been already invoked for the given arguments. If it has been
-invoked, the cached result is returned without having to invoke the actual method.
-If the method has not been invoked, then it is invoked, and the result is cached and
-returned to the user so that, the next time the method is invoked, the cached result is
-returned. This way, expensive methods (whether CPU- or IO-bound) can be invoked only
-once for a given set of parameters and the result reused without having to actually
-invoke the method again. The caching logic is applied transparently without any
-interference to the invoker.
+在其核心，缓存抽象将缓存应用于 Java 方法，从而根据缓存中可用的信息减少执行次数。也就是说，每次调用目标方法时，抽象都会应用一种缓存行为，检查是否已使用给定参数调用了该方法。如果已调用，则返回缓存的结果，而无需调用实际方法。如果该方法尚未被调用，则调用该方法，并将结果缓存并返回给用户，以便下次调用该方法时，返回缓存的结果。这样，昂贵的方法（无论是 CPU 密集型还是 IO 密集型）对于给定的一组参数只能调用一次，并且可以重用结果，而无需再次实际调用该方法。缓存逻辑透明地应用，不会对调用者造成任何干扰。
 
-IMPORTANT: This approach works only for methods that are guaranteed to return the same
-output (result) for a given input (or arguments) no matter how many times they are invoked.
+IMPORTANT: 此方法仅适用于无论调用多少次，对于给定输入（或参数）都保证返回相同输出（结果）的方法。
 
-The caching abstraction provides other cache-related operations, such as the ability
-to update the content of the cache or to remove one or all entries. These are useful if
-the cache deals with data that can change during the course of the application.
+缓存抽象提供了其他与缓存相关的操作，例如更新缓存内容或删除一个或所有条目的能力。如果缓存处理在应用程序过程中可能发生变化的数据，这些功能非常有用。
 
-As with other services in the TODAY Framework, the caching service is an abstraction
-(not a cache implementation) and requires the use of actual storage to store the cache data --
-that is, the abstraction frees you from having to write the caching logic but does not
-provide the actual data store. This abstraction is materialized by the
-`infra.cache.Cache` and `infra.cache.CacheManager` interfaces.
+与 TODAY Framework 中的其他服务一样，缓存服务是一个抽象（不是缓存实现），需要使用实际存储来存储缓存数据——也就是说，抽象使您免于编写缓存逻辑，但不提供实际的数据存储。这种抽象由 `infra.cache.Cache` 和 `infra.cache.CacheManager` 接口具体化。
 
-Infra provides xref:integration/cache/store-configuration.adoc[a few implementations] of that abstraction:
-JDK `java.util.concurrent.ConcurrentMap` based caches, Gemfire cache,
-https://github.com/ben-manes/caffeine/wiki[Caffeine], and JSR-107 compliant caches (such
-as Ehcache 3.x). See xref:integration/cache/plug.adoc[Plugging-in Different Back-end Caches] for more information on plugging in other cache
-stores and providers.
+Infra 提供了该抽象的 xref:integration/cache/store-configuration.adoc[一些实现]：基于 JDK `java.util.concurrent.ConcurrentMap` 的缓存、Gemfire 缓存、https://github.com/ben-manes/caffeine/wiki[Caffeine] 以及符合 JSR-107 标准的缓存（例如 Ehcache 3.x）。有关插入其他缓存存储和提供程序的更多信息，请参阅 xref:integration/cache/plug.adoc[插入不同的后端缓存]。
 
-IMPORTANT: The caching abstraction has no special handling for multi-threaded and
-multi-process environments, as such features are handled by the cache implementation.
+IMPORTANT: 缓存抽象对多线程和多进程环境没有特殊处理，因为此类功能由缓存实现处理。
 
-If you have a multi-process environment (that is, an application deployed on several nodes),
-you need to configure your cache provider accordingly. Depending on your use cases, a copy
-of the same data on several nodes can be enough. However, if you change the data during
-the course of the application, you may need to enable other propagation mechanisms.
+如果您有多进程环境（即部署在多个节点上的应用程序），则需要相应地配置缓存提供程序。根据您的用例，在多个节点上复制相同的数据可能就足够了。但是，如果在应用程序过程中更改数据，则可能需要启用其他传播机制。
 
-Caching a particular item is a direct equivalent of the typical
-get-if-not-found-then-proceed-and-put-eventually code blocks
-found with programmatic cache interaction.
-No locks are applied, and several threads may try to load the same item concurrently.
-The same applies to eviction. If several threads are trying to update or evict data
-concurrently, you may use stale data. Certain cache providers offer advanced features
-in that area. See the documentation of your cache provider for more details.
+缓存特定项直接等同于在使用编程缓存交互时发现的典型 get-if-not-found-then-proceed-and-put-eventually 代码块。
+不应用锁，多个线程可能会尝试同时加载同一项。驱逐也是如此。如果多个线程尝试并发更新或驱逐数据，您可能会使用陈旧数据。某些缓存提供程序在该领域提供了高级功能。有关更多详细信息，请参阅缓存提供程序的文档。
 
-To use the cache abstraction, you need to take care of two aspects:
+要使用缓存抽象，您需要处理两个方面：
 
-* Caching declaration: Identify the methods that need to be cached and their policies.
-* Cache configuration: The backing cache where the data is stored and from which it is read.
-
-
-
+* 缓存声明：确定需要缓存的方法及其策略。
+* 缓存配置：存储数据并从中读取数据的后备缓存。
