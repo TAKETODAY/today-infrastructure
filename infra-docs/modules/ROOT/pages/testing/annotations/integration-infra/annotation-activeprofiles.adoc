@@ -1,11 +1,9 @@
 [[infra-testing-annotation-activeprofiles]]
 = `@ActiveProfiles`
 
-`@ActiveProfiles` is a class-level annotation that is used to declare which bean
-definition profiles should be active when loading an `ApplicationContext` for an
-integration test.
+`@ActiveProfiles` 是一个类级注解，用于声明在为集成测试加载 `ApplicationContext` 时哪些 bean 定义配置文件 (profiles) 应该是活动的。
 
-The following example indicates that the `dev` profile should be active:
+以下示例指示 `dev` 配置文件应该是活动的：
 
 [tabs]
 ======
@@ -16,16 +14,15 @@ Java::
 @ContextConfiguration
 @ActiveProfiles("dev") // <1>
 class DeveloperTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Indicate that the `dev` profile should be active.
+<1> 指示 `dev` 配置文件应该是活动的。
 
 ======
 
 
-The following example indicates that both the `dev` and the `integration` profiles should
-be active:
+以下示例指示 `dev` 和 `integration` 配置文件都应该是活动的：
 
 [tabs]
 ======
@@ -36,22 +33,15 @@ Java::
 @ContextConfiguration
 @ActiveProfiles({"dev", "integration"}) // <1>
 class DeveloperIntegrationTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Indicate that the `dev` and `integration` profiles should be active.
+<1> 指示 `dev` 和 `integration` 配置文件都应该是活动的。
 
 ======
 
 
-NOTE: `@ActiveProfiles` provides support for inheriting active bean definition profiles
-declared by superclasses and enclosing classes by default. You can also resolve active
-bean definition profiles programmatically by implementing a custom
-xref:testing/testcontext-framework/ctx-management/env-profiles.adoc#testcontext-ctx-management-env-profiles-ActiveProfilesResolver[`ActiveProfilesResolver`]
-and registering it by using the `resolver` attribute of `@ActiveProfiles`.
+NOTE: `@ActiveProfiles` 默认支持继承由超类和封闭类声明的活动 bean 定义配置文件。
+您还可以通过实现自定义 xref:testing/testcontext-framework/ctx-management/env-profiles.adoc#testcontext-ctx-management-env-profiles-ActiveProfilesResolver[`ActiveProfilesResolver`] 并使用 `@ActiveProfiles` 的 `resolver` 属性注册它来以编程方式解析活动 bean 定义配置文件。
 
-See xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[Context Configuration with Environment Profiles],
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration], and the
-{today-framework-api}/test/context/ActiveProfiles.html[`@ActiveProfiles`] javadoc for
-examples and further details.
-
+有关示例和更多详细信息，请参阅 xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[使用环境配置文件的上下文配置]、xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置] 和 {today-framework-api}/test/context/ActiveProfiles.html[`@ActiveProfiles`] javadoc。

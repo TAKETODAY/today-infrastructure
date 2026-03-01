@@ -1,16 +1,11 @@
 [[infra-testing-annotation-webappconfiguration]]
 = `@WebAppConfiguration`
 
-`@WebAppConfiguration` is a class-level annotation that you can use to declare that the
-`ApplicationContext` loaded for an integration test should be a `WebApplicationContext`.
-The mere presence of `@WebAppConfiguration` on a test class ensures that a
-`WebApplicationContext` is loaded for the test, using the default value of
-`"file:src/main/webapp"` for the path to the root of the web application (that is, the
-resource base path). The resource base path is used behind the scenes to create a
-`MockContextImpl`, which serves as the `MockContextImpl` for the test's
-`WebApplicationContext`.
+`@WebAppConfiguration` 是一个类级注解，您可以使用它来声明为集成测试加载的 `ApplicationContext` 应该是 `WebApplicationContext`。
+测试类上仅存在 `@WebAppConfiguration` 即可确保为测试加载 `WebApplicationContext`，使用默认值 `"file:src/main/webapp"` 作为 Web 应用程序根目录的路径（即资源基础路径）。
+资源基础路径在后台用于创建 `MockContextImpl`，它充当测试的 `WebApplicationContext` 的 `MockContextImpl`。
 
-The following example shows how to use the `@WebAppConfiguration` annotation:
+以下示例显示了如何使用 `@WebAppConfiguration` 注解：
 
 --
 [tabs]
@@ -22,19 +17,19 @@ Java::
 @ContextConfiguration
 @WebAppConfiguration // <1>
 class WebAppTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> The `@WebAppConfiguration` annotation.
+<1> `@WebAppConfiguration` 注解。
 
 ======
 --
 
 
-To override the default, you can specify a different base resource path by using the
-implicit `value` attribute. Both `classpath:` and `file:` resource prefixes are
-supported. If no resource prefix is supplied, the path is assumed to be a file system
-resource. The following example shows how to specify a classpath resource:
+要覆盖默认值，您可以使用隐式 `value` 属性指定不同的基础资源路径。
+支持 `classpath:` 和 `file:` 资源前缀。
+如果未提供资源前缀，则假定路径是文件系统资源。
+以下示例显示了如何指定类路径资源：
 
 --
 [tabs]
@@ -46,17 +41,13 @@ Java::
 @ContextConfiguration
 @WebAppConfiguration("classpath:test-web-resources") // <1>
 class WebAppTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Specifying a classpath resource.
+<1> 指定类路径资源。
 ======
 --
 
 
-Note that `@WebAppConfiguration` must be used in conjunction with
-`@ContextConfiguration`, either within a single test class or within a test class
-hierarchy. See the
-{today-framework-api}/test/context/web/WebAppConfiguration.html[`@WebAppConfiguration`]
-javadoc for further details.
-
+请注意，`@WebAppConfiguration` 必须与 `@ContextConfiguration` 结合使用，无论是在单个测试类中还是在测试类层次结构中。
+有关更多详细信息，请参阅 {today-framework-api}/test/context/web/WebAppConfiguration.html[`@WebAppConfiguration`] javadoc。

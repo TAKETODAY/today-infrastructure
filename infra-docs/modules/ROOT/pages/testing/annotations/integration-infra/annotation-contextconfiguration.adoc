@@ -1,19 +1,14 @@
 [[infra-testing-annotation-contextconfiguration]]
 = `@ContextConfiguration`
 
-`@ContextConfiguration` defines class-level metadata that is used to determine how to
-load and configure an `ApplicationContext` for integration tests. Specifically,
-`@ContextConfiguration` declares the application context resource `locations` or the
-component `classes` used to load the context.
+`@ContextConfiguration` 定义了类级元数据，用于确定如何为集成测试加载和配置 `ApplicationContext`。
+具体来说，`@ContextConfiguration` 声明了用于加载上下文的应用程序上下文资源 `locations` 或组件 `classes`。
 
-Resource locations are typically XML configuration files or Groovy scripts located in the
-classpath, while component classes are typically `@Configuration` classes. However,
-resource locations can also refer to files and scripts in the file system, and component
-classes can be `@Component` classes, `@Service` classes, and so on. See
-xref:testing/testcontext-framework/ctx-management/javaconfig.adoc#testcontext-ctx-management-javaconfig-component-classes[Component Classes] for further details.
+资源位置通常是位于类路径中的 XML 配置文件或 Groovy 脚本，而组件类通常是 `@Configuration` 类。
+但是，资源位置也可以引用文件系统中的文件和脚本，组件类可以是 `@Component` 类、`@Service` 类等。
+有关更多详细信息，请参阅 xref:testing/testcontext-framework/ctx-management/javaconfig.adoc#testcontext-ctx-management-javaconfig-component-classes[组件类]。
 
-The following example shows a `@ContextConfiguration` annotation that refers to an XML
-file:
+以下示例显示了一个引用 XML 文件的 `@ContextConfiguration` 注解：
 
 [tabs]
 ======
@@ -23,15 +18,15 @@ Java::
 ----
 @ContextConfiguration("/test-config.xml") // <1>
 class XmlApplicationContextTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Referring to an XML file.
+<1> 引用 XML 文件。
 
 ======
 
 
-The following example shows a `@ContextConfiguration` annotation that refers to a class:
+以下示例显示了一个引用类的 `@ContextConfiguration` 注解：
 
 [tabs]
 ======
@@ -41,16 +36,15 @@ Java::
 ----
 @ContextConfiguration(classes = TestConfig.class) // <1>
 class ConfigClassApplicationContextTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Referring to a class.
+<1> 引用类。
 ======
 
 
-As an alternative or in addition to declaring resource locations or component classes,
-you can use `@ContextConfiguration` to declare `ApplicationContextInitializer` classes.
-The following example shows such a case:
+作为声明资源位置或组件类的替代或补充，您可以使用 `@ContextConfiguration` 来声明 `ApplicationContextInitializer` 类。
+以下示例显示了这种情况：
 
 [tabs]
 ======
@@ -60,20 +54,18 @@ Java::
 ----
 @ContextConfiguration(initializers = CustomContextInitializer.class) // <1>
 class ContextInitializerTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Declaring an initializer class.
+<1> 声明初始化器类。
 
 ======
 
 
-You can optionally use `@ContextConfiguration` to declare the `ContextLoader` strategy as
-well. Note, however, that you typically do not need to explicitly configure the loader,
-since the default loader supports `initializers` and either resource `locations` or
-component `classes`.
+您还可以选择使用 `@ContextConfiguration` 来声明 `ContextLoader` 策略。
+但请注意，您通常不需要显式配置加载器，因为默认加载器支持 `initializers` 以及资源 `locations` 或组件 `classes`。
 
-The following example uses both a location and a loader:
+以下示例同时使用了位置和加载器：
 
 [tabs]
 ======
@@ -83,19 +75,14 @@ Java::
 ----
 @ContextConfiguration(locations = "/test-context.xml", loader = CustomContextLoader.class) // <1>
 class CustomLoaderXmlApplicationContextTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Configuring both a location and a custom loader.
+<1> 同时配置位置和自定义加载器。
 
 ======
 
 
-NOTE: `@ContextConfiguration` provides support for inheriting resource locations or
-configuration classes as well as context initializers that are declared by superclasses
-or enclosing classes.
+NOTE: `@ContextConfiguration` 提供对继承由超类或封闭类声明的资源位置或配置类以及上下文初始化器的支持。
 
-See xref:testing/testcontext-framework/ctx-management.adoc[Context Management],
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration], and the `@ContextConfiguration`
-javadocs for further details.
-
+有关更多详细信息，请参阅 xref:testing/testcontext-framework/ctx-management.adoc[上下文管理]、xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置] 和 `@ContextConfiguration` javadocs。

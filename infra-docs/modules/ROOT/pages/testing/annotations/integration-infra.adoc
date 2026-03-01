@@ -1,12 +1,10 @@
-[[integration-testing-annotations-spring]]
-= Infra Testing Annotations
+[[integration-testing-annotations-infra]]
+= Infra 测试注解
 
-The TODAY Framework provides the following set of Infra-specific annotations that you
-can use in your unit and integration tests in conjunction with the TestContext framework.
-See the corresponding javadoc for further information, including default attribute
-values, attribute aliases, and other details.
+TODAY Framework 提供了以下特定于 Infra 的注解集，您可以将它们与 TestContext 框架结合使用于单元测试和集成测试中。
+有关更多信息（包括默认属性值、属性别名和其他详细信息），请参阅相应的 javadoc。
 
-Infra testing annotations include the following:
+Infra 测试注解包括以下内容：
 
 * xref:testing/annotations/integration-infra/annotation-bootstrapwith.adoc[`@BootstrapWith`]
 * xref:testing/annotations/integration-infra/annotation-contextconfiguration.adoc[`@ContextConfiguration`]
@@ -29,5 +27,4 @@ Infra testing annotations include the following:
 * xref:testing/annotations/integration-infra/annotation-sqlgroup.adoc[`@SqlGroup`]
 * xref:testing/annotations/integration-infra/annotation-disabledinaotmode.adoc[`@DisabledInAotMode`]
 * xref:testing/annotations/integration-infra/annotation-beanoverriding.adoc#infra-testing-annotation-beanoverriding-testbean[`@TestBean`]
-* xref:testing/annotations/integration-infra/annotation-beanoverriding.adoc#infra-testing-annotation-beanoverriding-mockitobean[`@MockitoBean` and `@MockitoSpyBean`]
-
+* xref:testing/annotations/integration-infra/annotation-beanoverriding.adoc#infra-testing-annotation-beanoverriding-mockitobean[`@MockitoBean` 和 `@MockitoSpyBean`]

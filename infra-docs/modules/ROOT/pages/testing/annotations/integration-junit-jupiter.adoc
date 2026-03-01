@@ -1,9 +1,7 @@
 [[integration-testing-annotations-junit-jupiter]]
-= Infra JUnit Jupiter Testing Annotations
+= Infra JUnit Jupiter 测试注解
 
-The following annotations are supported when used in conjunction with the
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[`InfraExtension`] and JUnit Jupiter
-(that is, the programming model in JUnit 5):
+当与 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[`InfraExtension`] 和 JUnit Jupiter（即 JUnit 5 中的编程模型）结合使用时，支持以下注解：
 
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-junitconfig[`@JUnitConfig`]
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-junitwebconfig[`@JUnitWebConfig`]
@@ -16,15 +14,11 @@ xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupite
 [[integration-testing-annotations-junit-jupiter-junitconfig]]
 == `@JUnitConfig`
 
-`@JUnitConfig` is a composed annotation that combines
-`@ExtendWith(InfraExtension.class)` from JUnit Jupiter with `@ContextConfiguration` from
-the Infra TestContext Framework. It can be used at the class level as a drop-in
-replacement for `@ContextConfiguration`. With regard to configuration options, the only
-difference between `@ContextConfiguration` and `@JUnitConfig` is that component
-classes may be declared with the `value` attribute in `@JUnitConfig`.
+`@JUnitConfig` 是一个组合注解，它结合了 JUnit Jupiter 中的 `@ExtendWith(InfraExtension.class)` 和 Infra TestContext 框架中的 `@ContextConfiguration`。
+它可以在类级别用作 `@ContextConfiguration` 的直接替代品。
+关于配置选项，`@ContextConfiguration` 和 `@JUnitConfig` 之间的唯一区别是，组件类可以在 `@JUnitConfig` 中使用 `value` 属性声明。
 
-The following example shows how to use the `@JUnitConfig` annotation to specify a
-configuration class:
+以下示例显示了如何使用 `@JUnitConfig` 注解指定配置类：
 
 [tabs]
 ======
@@ -34,15 +28,14 @@ Java::
 ----
 @JUnitConfig(TestConfig.class) // <1>
 class ConfigurationClassJUnitJupiterInfraTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Specify the configuration class.
+<1> 指定配置类。
 ======
 
 
-The following example shows how to use the `@JUnitConfig` annotation to specify the
-location of a configuration file:
+以下示例显示了如何使用 `@JUnitConfig` 注解指定配置文件的位置：
 
 [tabs]
 ======
@@ -52,33 +45,25 @@ Java::
 ----
 @JUnitConfig(locations = "/test-config.xml") // <1>
 class XmlJUnitJupiterInfraTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Specify the location of a configuration file.
+<1> 指定配置文件的位置。
 
 ======
 
 
-See xref:testing/testcontext-framework/ctx-management.adoc[Context Management] as well as the javadoc for
-{today-framework-api}/test/context/junit/jupiter/JUnitConfig.html[`@JUnitConfig`]
-and `@ContextConfiguration` for further details.
+有关更多详细信息，请参阅 xref:testing/testcontext-framework/ctx-management.adoc[上下文管理] 以及 {today-framework-api}/test/context/junit/jupiter/JUnitConfig.html[`@JUnitConfig`] 和 `@ContextConfiguration` 的 javadoc。
 
 [[integration-testing-annotations-junit-jupiter-junitwebconfig]]
 == `@JUnitWebConfig`
 
-`@JUnitWebConfig` is a composed annotation that combines
-`@ExtendWith(InfraExtension.class)` from JUnit Jupiter with `@ContextConfiguration` and
-`@WebAppConfiguration` from the Infra TestContext Framework. You can use it at the class
-level as a drop-in replacement for `@ContextConfiguration` and `@WebAppConfiguration`.
-With regard to configuration options, the only difference between `@ContextConfiguration`
-and `@JUnitWebConfig` is that you can declare component classes by using the
-`value` attribute in `@JUnitWebConfig`. In addition, you can override the `value`
-attribute from `@WebAppConfiguration` only by using the `resourcePath` attribute in
-`@JUnitWebConfig`.
+`@JUnitWebConfig` 是一个组合注解，它结合了 JUnit Jupiter 中的 `@ExtendWith(InfraExtension.class)` 和 Infra TestContext 框架中的 `@ContextConfiguration` 以及 `@WebAppConfiguration`。
+您可以在类级别将其用作 `@ContextConfiguration` 和 `@WebAppConfiguration` 的直接替代品。
+关于配置选项，`@ContextConfiguration` 和 `@JUnitWebConfig` 之间的唯一区别是，您可以使用 `@JUnitWebConfig` 中的 `value` 属性声明组件类。
+此外，您只能通过使用 `@JUnitWebConfig` 中的 `resourcePath` 属性来覆盖 `@WebAppConfiguration` 中的 `value` 属性。
 
-The following example shows how to use the `@JUnitWebConfig` annotation to specify
-a configuration class:
+以下示例显示了如何使用 `@JUnitWebConfig` 注解指定配置类：
 
 [tabs]
 ======
@@ -88,16 +73,15 @@ Java::
 ----
 @JUnitWebConfig(TestConfig.class) // <1>
 class ConfigurationClassJUnitJupiterInfraWebTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Specify the configuration class.
+<1> 指定配置类。
 
 ======
 
 
-The following example shows how to use the `@JUnitWebConfig` annotation to specify the
-location of a configuration file:
+以下示例显示了如何使用 `@JUnitWebConfig` 注解指定配置文件的位置：
 
 [tabs]
 ======
@@ -107,77 +91,55 @@ Java::
 ----
 @JUnitWebConfig(locations = "/test-config.xml") // <1>
 class XmlJUnitJupiterInfraWebTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Specify the location of a configuration file.
+<1> 指定配置文件的位置。
 
 ======
 
 
-See xref:testing/testcontext-framework/ctx-management.adoc[Context Management] as well as the javadoc for
-{today-framework-api}/test/context/junit/jupiter/web/JUnitWebConfig.html[`@JUnitWebConfig`],
-{today-framework-api}/test/context/ContextConfiguration.html[`@ContextConfiguration`], and
-{today-framework-api}/test/context/web/WebAppConfiguration.html[`@WebAppConfiguration`]
-for further details.
+有关更多详细信息，请参阅 xref:testing/testcontext-framework/ctx-management.adoc[上下文管理] 以及 {today-framework-api}/test/context/junit/jupiter/web/JUnitWebConfig.html[`@JUnitWebConfig`]、{today-framework-api}/test/context/ContextConfiguration.html[`@ContextConfiguration`] 和 {today-framework-api}/test/context/web/WebAppConfiguration.html[`@WebAppConfiguration`] 的 javadoc。
 
 [[integration-testing-annotations-testconstructor]]
 == `@TestConstructor`
 
-`@TestConstructor` is a type-level annotation that is used to configure how the parameters
-of a test class constructor are autowired from components in the test's
-`ApplicationContext`.
+`@TestConstructor` 是一个类型级别的注解，用于配置如何从测试的 `ApplicationContext` 中的组件自动装配测试类构造函数的参数。
 
-If `@TestConstructor` is not present or meta-present on a test class, the default _test
-constructor autowire mode_ will be used. See the tip below for details on how to change
-the default mode. Note, however, that a local declaration of `@Autowired`,
-`@jakarta.inject.Inject`, or `@javax.inject.Inject` on a constructor takes precedence
-over both `@TestConstructor` and the default mode.
+如果测试类上不存在或元存在 `@TestConstructor`，则将使用默认的 *测试构造函数自动装配模式*。
+有关如何更改默认模式的详细信息，请参阅下面的提示。
+但是请注意，构造函数上 `@Autowired`、`@jakarta.inject.Inject` 或 `@javax.inject.Inject` 的本地声明优先于 `@TestConstructor` 和默认模式。
 
-.Changing the default test constructor autowire mode
+.更改默认的测试构造函数自动装配模式
 [TIP]
 =====
-The default _test constructor autowire mode_ can be changed by setting the
-`infra.test.constructor.autowire.mode` JVM system property to `all`. Alternatively, the
-default mode may be set via the
-xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
+可以通过将 `infra.test.constructor.autowire.mode` JVM 系统属性设置为 `all` 来更改默认的 *测试构造函数自动装配模式*。
+或者，可以通过 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制设置默认模式。
 
-As of TODAY Framework 5.3, the default mode may also be configured as a
-https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params[JUnit Platform configuration parameter].
+从 TODAY Framework 5.3 开始，默认模式也可以配置为 https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params[JUnit 平台配置参数]。
 
-If the `infra.test.constructor.autowire.mode` property is not set, test class
-constructors will not be automatically autowired.
+如果未设置 `infra.test.constructor.autowire.mode` 属性，则测试类构造函数将不会自动装配。
 =====
 
-NOTE: As of TODAY Framework 5.2, `@TestConstructor` is only supported in conjunction
-with the `InfraExtension` for use with JUnit Jupiter. Note that the `InfraExtension` is
-often automatically registered for you – for example, when using annotations such as
-`@JUnitConfig` and `@JUnitWebConfig` or various test-related annotations from
-Infra App Test.
+NOTE: 从 TODAY Framework 5.2 开始，`@TestConstructor` 仅支持与用于 JUnit Jupiter 的 `InfraExtension` 结合使用。
+请注意，`InfraExtension` 通常会自动为您注册——例如，当使用诸如 `@JUnitConfig` 和 `@JUnitWebConfig` 之类的注解或来自 Infra App Test 的各种测试相关注解时。
 
 [[integration-testing-annotations-nestedtestconfiguration]]
 == `@NestedTestConfiguration`
 
-`@NestedTestConfiguration` is a type-level annotation that is used to configure how
-Infra test configuration annotations are processed within enclosing class hierarchies
-for inner test classes.
+`@NestedTestConfiguration` 是一个类型级别的注解，用于配置如何在内部测试类的封闭类层次结构中处理 Infra 测试配置注解。
 
-If `@NestedTestConfiguration` is not present or meta-present on a test class, in its
-supertype hierarchy, or in its enclosing class hierarchy, the default _enclosing
-configuration inheritance mode_ will be used. See the tip below for details on how to
-change the default mode.
+如果测试类、其超类型层次结构或其封闭类层次结构中不存在或元存在 `@NestedTestConfiguration`，则将使用默认的 *封闭配置继承模式*。
+有关如何更改默认模式的详细信息，请参阅下面的提示。
 
-.Changing the default enclosing configuration inheritance mode
+.更改默认的封闭配置继承模式
 [TIP]
 =====
-The default _enclosing configuration inheritance mode_ is `INHERIT`, but it can be
-changed by setting the `infra.test.enclosing.configuration` JVM system property to
-`OVERRIDE`. Alternatively, the default mode may be set via the
-xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
+默认的 *封闭配置继承模式* 是 `INHERIT`，但可以通过将 `infra.test.enclosing.configuration` JVM 系统属性设置为 `OVERRIDE` 来更改。
+或者，可以通过 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制设置默认模式。
 =====
 
-The xref:testing/testcontext-framework.adoc[Infra TestContext Framework] honors `@NestedTestConfiguration` semantics for the
-following annotations.
+xref:testing/testcontext-framework.adoc[Infra TestContext 框架] 遵循以下注解的 `@NestedTestConfiguration` 语义。
 
 * xref:testing/annotations/integration-infra/annotation-bootstrapwith.adoc[`@BootstrapWith`]
 * xref:testing/annotations/integration-infra/annotation-contextconfiguration.adoc[`@ContextConfiguration`]
@@ -197,122 +159,3 @@ following annotations.
 * xref:testing/annotations/integration-infra/annotation-sqlconfig.adoc[`@SqlConfig`]
 * xref:testing/annotations/integration-infra/annotation-sqlmergemode.adoc[`@SqlMergeMode`]
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-testconstructor[`@TestConstructor`]
-
-NOTE: The use of `@NestedTestConfiguration` typically only makes sense in conjunction
-with `@Nested` test classes in JUnit Jupiter; however, there may be other testing
-frameworks with support for Infra and nested test classes that make use of this
-annotation.
-
-See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] for an example and further
-details.
-
-[[integration-testing-annotations-junit-jupiter-enabledif]]
-== `@EnabledIf`
-
-`@EnabledIf` is used to signal that the annotated JUnit Jupiter test class or test method
-is enabled and should be run if the supplied `expression` evaluates to `true`.
-Specifically, if the expression evaluates to `Boolean.TRUE` or a `String` equal to `true`
-(ignoring case), the test is enabled. When applied at the class level, all test methods
-within that class are automatically enabled by default as well.
-
-Expressions can be any of the following:
-
-* xref:core/expressions.adoc[Infra Expression Language] (SpEL) expression. For example:
-  `@EnabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")`
-* Placeholder for a property available in the Infra xref:core/beans/environment.adoc[`Environment`].
-  For example: `@EnabledIf("${smoke.tests.enabled}")`
-* Text literal. For example: `@EnabledIf("true")`
-
-Note, however, that a text literal that is not the result of dynamic resolution of a
-property placeholder is of zero practical value, since `@EnabledIf("false")` is
-equivalent to `@Disabled` and `@EnabledIf("true")` is logically meaningless.
-
-You can use `@EnabledIf` as a meta-annotation to create custom composed annotations. For
-example, you can create a custom `@EnabledOnMac` annotation as follows:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@EnabledIf(
-  expression = "#{systemProperties['os.name'].toLowerCase().contains('mac')}",
-  reason = "Enabled on Mac OS"
-)
-public @interface EnabledOnMac {}
-----
-
-======
-
-[NOTE]
-====
-`@EnabledOnMac` is meant only as an example of what is possible. If you have that exact
-use case, please use the built-in `@EnabledOnOs(MAC)` support in JUnit Jupiter.
-====
-
-[WARNING]
-====
-Since JUnit 5.7, JUnit Jupiter also has a condition annotation named `@EnabledIf`. Thus,
-if you wish to use Infra `@EnabledIf` support make sure you import the annotation type
-from the correct package.
-====
-
-[[integration-testing-annotations-junit-jupiter-disabledif]]
-== `@DisabledIf`
-
-`@DisabledIf` is used to signal that the annotated JUnit Jupiter test class or test
-method is disabled and should not be run if the supplied `expression` evaluates to
-`true`. Specifically, if the expression evaluates to `Boolean.TRUE` or a `String` equal
-to `true` (ignoring case), the test is disabled. When applied at the class level, all
-test methods within that class are automatically disabled as well.
-
-Expressions can be any of the following:
-
-* xref:core/expressions.adoc[Infra Expression Language] (SpEL) expression. For example:
-  `@DisabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")`
-* Placeholder for a property available in the Infra xref:core/beans/environment.adoc[`Environment`].
-  For example: `@DisabledIf("${smoke.tests.disabled}")`
-* Text literal. For example: `@DisabledIf("true")`
-
-Note, however, that a text literal that is not the result of dynamic resolution of a
-property placeholder is of zero practical value, since `@DisabledIf("true")` is
-equivalent to `@Disabled` and `@DisabledIf("false")` is logically meaningless.
-
-You can use `@DisabledIf` as a meta-annotation to create custom composed annotations. For
-example, you can create a custom `@DisabledOnMac` annotation as follows:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@DisabledIf(
-  expression = "#{systemProperties['os.name'].toLowerCase().contains('mac')}",
-  reason = "Disabled on Mac OS"
-)
-public @interface DisabledOnMac {}
-----
-
-======
-
-[NOTE]
-====
-`@DisabledOnMac` is meant only as an example of what is possible. If you have that exact
-use case, please use the built-in `@DisabledOnOs(MAC)` support in JUnit Jupiter.
-====
-
-[WARNING]
-====
-Since JUnit 5.7, JUnit Jupiter also has a condition annotation named `@DisabledIf`. Thus,
-if you wish to use Infra `@DisabledIf` support make sure you import the annotation type
-from the correct package.
-====
-
-
-

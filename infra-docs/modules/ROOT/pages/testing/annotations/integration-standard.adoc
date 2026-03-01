@@ -1,37 +1,28 @@
 [[integration-testing-annotations-standard]]
-= Standard Annotation Support
+= 标准注解支持
 
-The following annotations are supported with standard semantics for all configurations of
-the Infra TestContext Framework. Note that these annotations are not specific to tests
-and can be used anywhere in the TODAY Framework.
+以下注解在 Infra TestContext 框架的所有配置中都支持标准语义。
+请注意，这些注解并非特定于测试，可以在 TODAY Framework 中的任何位置使用。
 
 * `@Autowired`
 * `@Qualifier`
 * `@Value`
-* `@Resource` (jakarta.annotation) if JSR-250 is present
-* `@ManagedBean` (jakarta.annotation) if JSR-250 is present
-* `@Inject` (jakarta.inject) if JSR-330 is present
-* `@Named` (jakarta.inject) if JSR-330 is present
-* `@PersistenceContext` (jakarta.persistence) if JPA is present
-* `@PersistenceUnit` (jakarta.persistence) if JPA is present
+* `@Resource` (jakarta.annotation) 如果存在 JSR-250
+* `@ManagedBean` (jakarta.annotation) 如果存在 JSR-250
+* `@Inject` (jakarta.inject) 如果存在 JSR-330
+* `@Named` (jakarta.inject) 如果存在 JSR-330
+* `@PersistenceContext` (jakarta.persistence) 如果存在 JPA
+* `@PersistenceUnit` (jakarta.persistence) 如果存在 JPA
 * `@Transactional` (infra.transaction.annotation)
-  _with xref:testing/testcontext-framework/tx.adoc#testcontext-tx-attribute-support[limited attribute support]_
+  _具有 xref:testing/testcontext-framework/tx.adoc#testcontext-tx-attribute-support[有限的属性支持]_
 
-.JSR-250 Lifecycle Annotations
+.JSR-250 生命周期注解
 [NOTE]
 ====
-In the Infra TestContext Framework, you can use `@PostConstruct` and `@PreDestroy` with
-standard semantics on any application components configured in the `ApplicationContext`.
-However, these lifecycle annotations have limited usage within an actual test class.
+在 Infra TestContext 框架中，您可以在 `ApplicationContext` 中配置的任何应用程序组件上使用具有标准语义的 `@PostConstruct` 和 `@PreDestroy`。
+但是，这些生命周期注解在实际测试类中的使用有限。
 
-If a method within a test class is annotated with `@PostConstruct`, that method runs
-before any before methods of the underlying test framework (for example, methods
-annotated with JUnit Jupiter's `@BeforeEach`), and that applies for every test method in
-the test class. On the other hand, if a method within a test class is annotated with
-`@PreDestroy`, that method never runs. Therefore, within a test class, we recommend that
-you use test lifecycle callbacks from the underlying test framework instead of
-`@PostConstruct` and `@PreDestroy`.
+如果测试类中的方法使用 `@PostConstruct` 进行了注解，则该方法在底层测试框架的任何 before 方法（例如使用 JUnit Jupiter 的 `@BeforeEach` 注解的方法）之前运行，并且这适用于测试类中的每个测试方法。
+另一方面，如果测试类中的方法使用 `@PreDestroy` 进行了注解，则该方法永远不会运行。
+因此，在测试类中，我们建议您使用底层测试框架的测试生命周期回调，而不是 `@PostConstruct` 和 `@PreDestroy`。
 ====
-
-
-

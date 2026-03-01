@@ -1,12 +1,9 @@
 [[integration-testing-annotations-meta]]
-= Meta-Annotation Support for Testing
+= 测试的元注解支持
 
-You can use most test-related annotations as
-xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[meta-annotations] to create custom composed
-annotations and reduce configuration duplication across a test suite.
+您可以使用大多数测试相关注解作为 xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[元注解] 来创建自定义组合注解，并减少整个测试套件中的配置重复。
 
-You can use each of the following as a meta-annotation in conjunction with the
-xref:testing/testcontext-framework.adoc[TestContext framework].
+您可以将以下每一个用作与 xref:testing/testcontext-framework.adoc[TestContext 框架] 结合使用的元注解。
 
 * `@BootstrapWith`
 * `@ContextConfiguration`
@@ -26,18 +23,18 @@ xref:testing/testcontext-framework.adoc[TestContext framework].
 * `@SqlConfig`
 * `@SqlMergeMode`
 * `@SqlGroup`
-* `@Repeat` _(only supported on JUnit 4)_
-* `@Timed` _(only supported on JUnit 4)_
-* `@IfProfileValue` _(only supported on JUnit 4)_
-* `@ProfileValueSourceConfiguration` _(only supported on JUnit 4)_
-* `@JUnitConfig` _(only supported on JUnit Jupiter)_
-* `@JUnitWebConfig` _(only supported on JUnit Jupiter)_
-* `@TestConstructor` _(only supported on JUnit Jupiter)_
-* `@NestedTestConfiguration` _(only supported on JUnit Jupiter)_
-* `@EnabledIf` _(only supported on JUnit Jupiter)_
-* `@DisabledIf` _(only supported on JUnit Jupiter)_
+* `@Repeat` _(仅在 JUnit 4 上受支持)_
+* `@Timed` _(仅在 JUnit 4 上受支持)_
+* `@IfProfileValue` _(仅在 JUnit 4 上受支持)_
+* `@ProfileValueSourceConfiguration` _(仅在 JUnit 4 上受支持)_
+* `@JUnitConfig` _(仅在 JUnit Jupiter 上受支持)_
+* `@JUnitWebConfig` _(仅在 JUnit Jupiter 上受支持)_
+* `@TestConstructor` _(仅在 JUnit Jupiter 上受支持)_
+* `@NestedTestConfiguration` _(仅在 JUnit Jupiter 上受支持)_
+* `@EnabledIf` _(仅在 JUnit Jupiter 上受支持)_
+* `@DisabledIf` _(仅在 JUnit Jupiter 上受支持)_
 
-Consider the following example:
+考虑以下示例：
 
 [tabs]
 ======
@@ -60,9 +57,7 @@ Java::
 
 ======
 
-If we discover that we are repeating the preceding configuration across our JUnit 4-based
-test suite, we can reduce the duplication by introducing a custom composed annotation
-that centralizes the common test configuration for Infra, as follows:
+如果我们发现我们在基于 JUnit 4 的测试套件中重复上述配置，我们可以通过引入自定义组合注解来减少重复，该注解集中了 Infra 的通用测试配置，如下所示：
 
 [tabs]
 ======
@@ -80,8 +75,7 @@ Java::
 
 ======
 
-Then we can use our custom `@TransactionalDevTestConfig` annotation to simplify the
-configuration of individual JUnit 4 based test classes, as follows:
+然后我们可以使用我们的自定义 `@TransactionalDevTestConfig` 注解来简化基于 JUnit 4 的单个测试类的配置，如下所示：
 
 [tabs]
 ======
@@ -99,9 +93,8 @@ Java::
 ----
 ======
 
-If we write tests that use JUnit Jupiter, we can reduce code duplication even further,
-since annotations in JUnit 5 can also be used as meta-annotations. Consider the following
-example:
+如果我们编写使用 JUnit Jupiter 的测试，我们可以进一步减少代码重复，因为 JUnit 5 中的注解也可以用作元注解。
+考虑以下示例：
 
 [tabs]
 ======
@@ -124,10 +117,7 @@ Java::
 
 ======
 
-If we discover that we are repeating the preceding configuration across our JUnit
-Jupiter-based test suite, we can reduce the duplication by introducing a custom composed
-annotation that centralizes the common test configuration for Infra and JUnit Jupiter,
-as follows:
+如果我们发现我们在基于 JUnit Jupiter 的测试套件中重复上述配置，我们可以通过引入自定义组合注解来减少重复，该注解集中了 Infra 和 JUnit Jupiter 的通用测试配置，如下所示：
 
 [tabs]
 ======
@@ -146,8 +136,7 @@ Java::
 
 ======
 
-Then we can use our custom `@TransactionalDevTestConfig` annotation to simplify the
-configuration of individual JUnit Jupiter based test classes, as follows:
+然后我们可以使用我们的自定义 `@TransactionalDevTestConfig` 注解来简化基于 JUnit Jupiter 的单个测试类的配置，如下所示：
 
 [tabs]
 ======
@@ -164,12 +153,8 @@ Java::
 
 ======
 
-Since JUnit Jupiter supports the use of `@Test`, `@RepeatedTest`, `ParameterizedTest`,
-and others as meta-annotations, you can also create custom composed annotations at the
-test method level. For example, if we wish to create a composed annotation that combines
-the `@Test` and `@Tag` annotations from JUnit Jupiter with the `@Transactional`
-annotation from Infra, we could create an `@TransactionalIntegrationTest` annotation, as
-follows:
+由于 JUnit Jupiter 支持使用 `@Test`、`@RepeatedTest`、`ParameterizedTest` 等作为元注解，您也可以在测试方法级别创建自定义组合注解。
+例如，如果我们希望创建一个组合注解，将 JUnit Jupiter 的 `@Test` 和 `@Tag` 注解与 Infra 的 `@Transactional` 注解结合起来，我们可以创建一个 `@TransactionalIntegrationTest` 注解，如下所示：
 
 [tabs]
 ======
@@ -187,8 +172,7 @@ Java::
 
 ======
 
-Then we can use our custom `@TransactionalIntegrationTest` annotation to simplify the
-configuration of individual JUnit Jupiter based test methods, as follows:
+然后我们可以使用我们的自定义 `@TransactionalIntegrationTest` 注解来简化基于 JUnit Jupiter 的单个测试方法的配置，如下所示：
 
 [tabs]
 ======

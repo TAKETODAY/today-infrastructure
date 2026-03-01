@@ -1,9 +1,7 @@
 [[integration-testing-annotations-junit4]]
-= Infra JUnit 4 Testing Annotations
+= Infra JUnit 4 测试注解
 
-The following annotations are supported only when used in conjunction with the
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-runner[InfraRunner], xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Infra JUnit 4 rules]
-, or xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[Infra JUnit 4 support classes]:
+以下注解仅在与 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-runner[InfraRunner]、xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Infra JUnit 4 规则] 或 xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[Infra JUnit 4 支持类] 结合使用时才受支持：
 
 * xref:testing/annotations/integration-junit4.adoc#integration-testing-annotations-junit4-ifprofilevalue[`@IfProfileValue`]
 * xref:testing/annotations/integration-junit4.adoc#integration-testing-annotations-junit4-profilevaluesourceconfiguration[`@ProfileValueSourceConfiguration`]
@@ -13,19 +11,17 @@ xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-runne
 [[integration-testing-annotations-junit4-ifprofilevalue]]
 == `@IfProfileValue`
 
-`@IfProfileValue` indicates that the annotated test is enabled for a specific testing
-environment. If the configured `ProfileValueSource` returns a matching `value` for the
-provided `name`, the test is enabled. Otherwise, the test is disabled and, effectively,
-ignored.
+`@IfProfileValue` 指示带注解的测试针对特定的测试环境启用。
+如果配置的 `ProfileValueSource` 返回提供的 `name` 的匹配 `value`，则启用测试。
+否则，测试将被禁用，实际上被忽略。
 
-You can apply `@IfProfileValue` at the class level, the method level, or both.
-Class-level usage of `@IfProfileValue` takes precedence over method-level usage for any
-methods within that class or its subclasses. Specifically, a test is enabled if it is
-enabled both at the class level and at the method level. The absence of `@IfProfileValue`
-means the test is implicitly enabled. This is analogous to the semantics of JUnit 4's
-`@Ignore` annotation, except that the presence of `@Ignore` always disables a test.
+您可以在类级别、方法级别或两者都应用 `@IfProfileValue`。
+`@IfProfileValue` 的类级使用优先于该类或其子类中任何方法的方法级使用。
+具体来说，如果测试在类级别和方法级别都启用，则启用该测试。
+不存在 `@IfProfileValue` 意味着测试默认启用。
+这类似于 JUnit 4 的 `@Ignore` 注解的语义，不同之处在于 `@Ignore` 的存在总是禁用测试。
 
-The following example shows a test that has an `@IfProfileValue` annotation:
+以下示例显示了一个带有 `@IfProfileValue` 注解的测试：
 
 [tabs]
 ======
@@ -36,17 +32,16 @@ Java::
 @IfProfileValue(name="java.vendor", value="Oracle Corporation") // <1>
 @Test
 public void testProcessWhichRunsOnlyOnOracleJvm() {
-  // some logic that should run only on Java VMs from Oracle Corporation
+  // 一些仅应在 Oracle Corporation 的 Java VM 上运行的逻辑
 }
 ----
-<1> Run this test only when the Java vendor is "Oracle Corporation".
+<1> 仅当 Java 供应商为 "Oracle Corporation" 时运行此测试。
 
 ======
 
 
-Alternatively, you can configure `@IfProfileValue` with a list of `values` (with `OR`
-semantics) to achieve TestNG-like support for test groups in a JUnit 4 environment.
-Consider the following example:
+或者，您可以为 `@IfProfileValue` 配置 `values` 列表（具有 `OR` 语义），以在 JUnit 4 环境中实现类似 TestNG 的测试组支持。
+考虑以下示例：
 
 [tabs]
 ======
@@ -57,10 +52,10 @@ Java::
 @IfProfileValue(name="test-groups", values={"unit-tests", "integration-tests"}) // <1>
 @Test
 public void testProcessWhichRunsForUnitOrIntegrationTestGroups() {
-  // some logic that should run only for unit and integration test groups
+  // 一些仅应针对单元测试和集成测试组运行的逻辑
 }
 ----
-<1> Run this test for unit tests and integration tests.
+<1> 针对单元测试和集成测试运行此测试。
 
 ======
 
@@ -68,11 +63,9 @@ public void testProcessWhichRunsForUnitOrIntegrationTestGroups() {
 [[integration-testing-annotations-junit4-profilevaluesourceconfiguration]]
 == `@ProfileValueSourceConfiguration`
 
-`@ProfileValueSourceConfiguration` is a class-level annotation that specifies what type
-of `ProfileValueSource` to use when retrieving profile values configured through the
-`@IfProfileValue` annotation. If `@ProfileValueSourceConfiguration` is not declared for a
-test, `SystemProfileValueSource` is used by default. The following example shows how to
-use `@ProfileValueSourceConfiguration`:
+`@ProfileValueSourceConfiguration` 是一个类级注解，用于指定在检索通过 `@IfProfileValue` 注解配置的配置文件值时要使用的 `ProfileValueSource` 类型。
+如果未为测试声明 `@ProfileValueSourceConfiguration`，则默认使用 `SystemProfileValueSource`。
+以下示例显示了如何使用 `@ProfileValueSourceConfiguration`：
 
 [tabs]
 ======
@@ -82,10 +75,10 @@ Java::
 ----
 @ProfileValueSourceConfiguration(CustomProfileValueSource.class) // <1>
 public class CustomProfileValueSourceTests {
-  // class body...
+  // 类体...
 }
 ----
-<1> Use a custom profile value source.
+<1> 使用自定义配置文件值源。
 
 ======
 
@@ -93,13 +86,11 @@ public class CustomProfileValueSourceTests {
 [[integration-testing-annotations-junit4-timed]]
 == `@Timed`
 
-`@Timed` indicates that the annotated test method must finish execution in a specified
-time period (in milliseconds). If the text execution time exceeds the specified time
-period, the test fails.
+`@Timed` 指示带注解的测试方法必须在指定的时间段内（以毫秒为单位）完成执行。
+如果文本执行时间超过指定的时间段，则测试失败。
 
-The time period includes running the test method itself, any repetitions of the test (see
-`@Repeat`), as well as any setting up or tearing down of the test fixture. The following
-example shows how to use it:
+该时间段包括运行测试方法本身、测试的任何重复（请参阅 `@Repeat`）以及测试夹具的任何设置或拆卸。
+以下示例显示了如何使用它：
 
 [tabs]
 ======
@@ -109,31 +100,26 @@ Java::
 ----
 @Timed(millis = 1000) // <1>
 public void testProcessWithOneSecondTimeout() {
-  // some logic that should not take longer than 1 second to run
+  // 一些运行时间不应超过 1 秒的逻辑
 }
 ----
-<1> Set the time period for the test to one second.
+<1> 将测试的时间段设置为一秒。
 ======
 
 
-Infra `@Timed` annotation has different semantics than JUnit 4's `@Test(timeout=...)`
-support. Specifically, due to the manner in which JUnit 4 handles test execution timeouts
-(that is, by executing the test method in a separate `Thread`), `@Test(timeout=...)`
-preemptively fails the test if the test takes too long. Infra `@Timed`, on the other
-hand, does not preemptively fail the test but rather waits for the test to complete
-before failing.
+Infra `@Timed` 注解具有与 JUnit 4 的 `@Test(timeout=...)` 支持不同的语义。
+具体来说，由于 JUnit 4 处理测试执行超时的方式（即在单独的 `Thread` 中执行测试方法），如果测试花费的时间太长，`@Test(timeout=...)` 会抢先使测试失败。
+另一方面，Infra `@Timed` 不会抢先使测试失败，而是等待测试完成后再失败。
 
 [[integration-testing-annotations-junit4-repeat]]
 == `@Repeat`
 
-`@Repeat` indicates that the annotated test method must be run repeatedly. The number of
-times that the test method is to be run is specified in the annotation.
+`@Repeat` 指示带注解的测试方法必须重复运行。
+注解中指定了测试方法要运行的次数。
 
-The scope of execution to be repeated includes execution of the test method itself as
-well as any setting up or tearing down of the test fixture. When used with the
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[`InfraMethodRule`], the scope additionally includes
-preparation of the test instance by `TestExecutionListener` implementations. The
-following example shows how to use the `@Repeat` annotation:
+要重复的执行范围包括测试方法本身的执行以及测试夹具的任何设置或拆卸。
+当与 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[`InfraMethodRule`] 一起使用时，该范围还包括 `TestExecutionListener` 实现对测试实例的准备。
+以下示例显示了如何使用 `@Repeat` 注解：
 
 [tabs]
 ======
@@ -147,9 +133,6 @@ public void testProcessRepeatedly() {
   // ...
 }
 ----
-<1> Repeat this test ten times.
+<1> 重复此测试十次。
 
 ======
-
-
-
