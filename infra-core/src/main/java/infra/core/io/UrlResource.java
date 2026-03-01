@@ -118,7 +118,7 @@ public class UrlResource extends AbstractFileResolvingResource {
     URL url;
 
     try {
-      // Prefer URI construction with toURL conversion (as of 6.1)
+      // Prefer URI construction with toURL conversion
       uri = ResourceUtils.toURI(cleanedPath);
       url = uri.toURL();
     }
