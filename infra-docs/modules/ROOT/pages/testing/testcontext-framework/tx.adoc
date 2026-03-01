@@ -1,106 +1,75 @@
 [[testcontext-tx]]
-= Transaction Management
+= 事务管理
 
-In the TestContext framework, transactions are managed by the
-`TransactionalTestExecutionListener`, which is configured by default, even if you do not
-explicitly declare `@TestExecutionListeners` on your test class. To enable support for
-transactions, however, you must configure a `PlatformTransactionManager` bean in the
-`ApplicationContext` that is loaded with `@ContextConfiguration` semantics (further
-details are provided later). In addition, you must declare Infra `@Transactional`
-annotation either at the class or the method level for your tests.
+在 TestContext 框架中，事务由 `TransactionalTestExecutionListener` 管理，即使您未在测试类上显式声明 `@TestExecutionListeners`，默认情况下也会配置该监听器。
+但是，要启用对事务的支持，您必须在通过 `@ContextConfiguration` 语义加载的 `ApplicationContext` 中配置 `PlatformTransactionManager` Bean（稍后将提供更多详细信息）。
+此外，您必须在测试的类或方法级别声明 Infra `@Transactional` 注解。
 
 [[testcontext-tx-test-managed-transactions]]
-== Test-managed Transactions
+== 测试管理的事务
 
-Test-managed transactions are transactions that are managed declaratively by using the
-`TransactionalTestExecutionListener` or programmatically by using `TestTransaction`
-(described later). You should not confuse such transactions with Infra-managed
-transactions (those managed directly by Infra within the `ApplicationContext` loaded for
-tests) or application-managed transactions (those managed programmatically within
-application code that is invoked by tests). Infra-managed and application-managed
-transactions typically participate in test-managed transactions. However, you should use
-caution if Infra-managed or application-managed transactions are configured with any
-propagation type other than `REQUIRED` or `SUPPORTS` (see the discussion on
-xref:data-access/transaction/declarative/tx-propagation.adoc[transaction propagation] for details).
+测试管理的事务是使用 `TransactionalTestExecutionListener` 声明式管理或使用 `TestTransaction`（稍后描述）以编程方式管理的事务。
+您不应将此类事务与 Infra 管理的事务（由 Infra 在为测试加载的 `ApplicationContext` 中直接管理的事务）或应用程序管理的事务（在测试调用的应用程序代码中以编程方式管理的事务）混淆。
+Infra 管理的和应用程序管理的事务通常参与测试管理的事务。
+但是，如果 Infra 管理的或应用程序管理的事务配置了除 `REQUIRED` 或 `SUPPORTS` 之外的任何传播类型，则应谨慎（有关详细信息，请参阅关于 xref:data-access/transaction/declarative/tx-propagation.adoc[事务传播] 的讨论）。
 
-.Preemptive timeouts and test-managed transactions
+.抢占式超时和测试管理的事务
 [WARNING]
 ====
-Caution must be taken when using any form of preemptive timeouts from a testing framework
-in conjunction with Infra test-managed transactions.
+当结合使用测试框架的任何形式的抢占式超时与 Infra 测试管理的事务时，必须谨慎。
 
-Specifically, Infra’s testing support binds transaction state to the current thread (via
-a `java.lang.ThreadLocal` variable) _before_ the current test method is invoked. If a
-testing framework invokes the current test method in a new thread in order to support a
-preemptive timeout, any actions performed within the current test method will _not_ be
-invoked within the test-managed transaction. Consequently, the result of any such actions
-will not be rolled back with the test-managed transaction. On the contrary, such actions
-will be committed to the persistent store -- for example, a relational database -- even
-though the test-managed transaction is properly rolled back by Infra.
+具体来说，Infra 的测试支持在调用当前测试方法 *之前* 将事务状态绑定到当前线程（通过 `java.lang.ThreadLocal` 变量）。
+如果测试框架为了支持抢占式超时而在新线程中调用当前测试方法，则在当前测试方法中执行的任何操作都 *不会* 在测试管理的事务中调用。
+因此，任何此类操作的结果都 *不会* 随测试管理的事务一起回滚。
+相反，即使 Infra 正确回滚了测试管理的事务，此类操作也将提交到持久存储（例如关系数据库）。
 
-Situations in which this can occur include but are not limited to the following.
+可能发生这种情况的情况包括但不限于以下情况。
 
-* JUnit 4's `@Test(timeout = ...)` support and `TimeOut` rule
-* JUnit Jupiter's `assertTimeoutPreemptively(...)` methods in the
-  `org.junit.jupiter.api.Assertions` class
-* TestNG's `@Test(timeOut = ...)` support
+* JUnit 4 的 `@Test(timeout = ...)` 支持和 `TimeOut` 规则
+* JUnit Jupiter 的 `org.junit.jupiter.api.Assertions` 类中的 `assertTimeoutPreemptively(...)` 方法
+* TestNG 的 `@Test(timeOut = ...)` 支持
 ====
 
 [[testcontext-tx-enabling-transactions]]
-== Enabling and Disabling Transactions
+== 启用和禁用事务
 
-Annotating a test method with `@Transactional` causes the test to be run within a
-transaction that is, by default, automatically rolled back after completion of the test.
-If a test class is annotated with `@Transactional`, each test method within that class
-hierarchy runs within a transaction. Test methods that are not annotated with
-`@Transactional` (at the class or method level) are not run within a transaction. Note
-that `@Transactional` is not supported on test lifecycle methods — for example, methods
-annotated with JUnit Jupiter's `@BeforeAll`, `@BeforeEach`, etc. Furthermore, tests that
-are annotated with `@Transactional` but have the `propagation` attribute set to
-`NOT_SUPPORTED` or `NEVER` are not run within a transaction.
+使用 `@Transactional` 注解测试方法会导致测试在事务中运行，默认情况下，该事务在测试完成后自动回滚。
+如果使用 `@Transactional` 注解测试类，则该类层次结构中的每个测试方法都在事务中运行。
+未（在类或方法级别）使用 `@Transactional` 注解的测试方法不在事务中运行。
+请注意，测试生命周期方法不支持 `@Transactional`——例如，使用 JUnit Jupiter 的 `@BeforeAll`、`@BeforeEach` 等注解的方法。
+此外，使用 `@Transactional` 注解但将 `propagation` 属性设置为 `NOT_SUPPORTED` 或 `NEVER` 的测试不在事务中运行。
 
 [[testcontext-tx-attribute-support]]
-.`@Transactional` attribute support
+.`@Transactional` 属性支持
 |===
-|Attribute |Supported for test-managed transactions
+|属性 |支持测试管理的事务
 
-|`value` and `transactionManager` |yes
+|`value` 和 `transactionManager` |是
 
-|`propagation` |only `Propagation.NOT_SUPPORTED` and `Propagation.NEVER` are supported
+|`propagation` |仅支持 `Propagation.NOT_SUPPORTED` 和 `Propagation.NEVER`
 
-|`isolation` |no
+|`isolation` |否
 
-|`timeout` |no
+|`timeout` |否
 
-|`readOnly` |no
+|`readOnly` |否
 
-|`rollbackFor` and `rollbackForClassName` |no: use `TestTransaction.flagForRollback()` instead
+|`rollbackFor` 和 `rollbackForClassName` |否：请改用 `TestTransaction.flagForRollback()`
 
-|`noRollbackFor` and `noRollbackForClassName` |no: use `TestTransaction.flagForCommit()` instead
+|`noRollbackFor` 和 `noRollbackForClassName` |否：请改用 `TestTransaction.flagForCommit()`
 |===
 
 [TIP]
 ====
-Method-level lifecycle methods — for example, methods annotated with JUnit Jupiter's
-`@BeforeEach` or `@AfterEach` — are run within a test-managed transaction. On the other
-hand, suite-level and class-level lifecycle methods — for example, methods annotated with
-JUnit Jupiter's `@BeforeAll` or `@AfterAll` and methods annotated with TestNG's
-`@BeforeSuite`, `@AfterSuite`, `@BeforeClass`, or `@AfterClass` — are _not_ run within a
-test-managed transaction.
+方法级生命周期方法——例如，使用 JUnit Jupiter 的 `@BeforeEach` 或 `@AfterEach` 注解的方法——在测试管理的事务中运行。
+另一方面，套件级和类级生命周期方法——例如，使用 JUnit Jupiter 的 `@BeforeAll` 或 `@AfterAll` 注解的方法以及使用 TestNG 的 `@BeforeSuite`、`@AfterSuite`、`@BeforeClass` 或 `@AfterClass` 注解的方法——*不* 在测试管理的事务中运行。
 
-If you need to run code in a suite-level or class-level lifecycle method within a
-transaction, you may wish to inject a corresponding `PlatformTransactionManager` into
-your test class and then use that with a `TransactionTemplate` for programmatic
-transaction management.
+如果您需要在事务中的套件级或类级生命周期方法中运行代码，您可能希望将相应的 `PlatformTransactionManager` 注入到您的测试类中，然后将其与 `TransactionTemplate` 一起用于编程式事务管理。
 ====
 
-Note that xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`]
- and
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`]
-are preconfigured for transactional support at the class level.
+请注意，xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`] 和 xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`] 已预先配置为在类级别提供事务支持。
 
-The following example demonstrates a common scenario for writing an integration test for
-a Hibernate-based `UserRepository`:
+以下示例演示了为基于 Hibernate 的 `UserRepository` 编写集成测试的常见场景：
 
 [tabs]
 ======
@@ -127,13 +96,13 @@ class HibernateUserRepositoryTests {
 
   @Test
   void createUser() {
-    // track initial state in test database:
+    // 跟踪测试数据库中的初始状态：
     final int count = countRowsInTable("user");
 
     User user = new User(...);
     repository.save(user);
 
-    // Manual flush is required to avoid false positive in test
+    // 需要手动刷新以避免测试中的误报
     sessionFactory.getCurrentSession().flush();
     assertNumUsers(count + 1);
   }
@@ -149,31 +118,23 @@ class HibernateUserRepositoryTests {
 ----
 ======
 
-As explained in xref:testing/testcontext-framework/tx.adoc#testcontext-tx-rollback-and-commit-behavior[Transaction Rollback and Commit Behavior], there is no need to
-clean up the database after the `createUser()` method runs, since any changes made to the
-database are automatically rolled back by the `TransactionalTestExecutionListener`.
+如 xref:testing/testcontext-framework/tx.adoc#testcontext-tx-rollback-and-commit-behavior[事务回滚和提交行为] 中所述，`createUser()` 方法运行后无需清理数据库，因为对数据库所做的任何更改都会由 `TransactionalTestExecutionListener` 自动回滚。
 
 [[testcontext-tx-rollback-and-commit-behavior]]
-== Transaction Rollback and Commit Behavior
+== 事务回滚和提交行为
 
-By default, test transactions will be automatically rolled back after completion of the
-test; however, transactional commit and rollback behavior can be configured declaratively
-via the `@Commit` and `@Rollback` annotations. See the corresponding entries in the
-xref:testing/annotations.adoc[annotation support] section for further details.
+默认情况下，测试事务将在测试完成后自动回滚；但是，可以通过 `@Commit` 和 `@Rollback` 注解以声明方式配置事务提交和回滚行为。
+有关更多详细信息，请参阅 xref:testing/annotations.adoc[注解支持] 部分中的相应条目。
 
 [[testcontext-tx-programmatic-tx-mgt]]
-== Programmatic Transaction Management
+== 编程式事务管理
 
-You can interact with test-managed transactions programmatically by using the static
-methods in `TestTransaction`. For example, you can use `TestTransaction` within test
-methods, before methods, and after methods to start or end the current test-managed
-transaction or to configure the current test-managed transaction for rollback or commit.
-Support for `TestTransaction` is automatically available whenever the
-`TransactionalTestExecutionListener` is enabled.
+您可以使用 `TestTransaction` 中的静态方法以编程方式与测试管理的事务进行交互。
+例如，您可以在测试方法、before 方法和 after 方法中使用 `TestTransaction` 来开始或结束当前测试管理的事务，或者配置当前测试管理的事务以进行回滚或提交。
+只要启用 `TransactionalTestExecutionListener`，就会自动提供对 `TestTransaction` 的支持。
 
-The following example demonstrates some of the features of `TestTransaction`. See the
-javadoc for {today-framework-api}/test/context/transaction/TestTransaction.html[`TestTransaction`]
-for further details.
+以下示例演示了 `TestTransaction` 的一些功能。
+有关更多详细信息，请参阅 {today-framework-api}/test/context/transaction/TestTransaction.html[`TestTransaction`] 的 javadoc。
 
 [tabs]
 ======
@@ -187,20 +148,19 @@ public class ProgrammaticTransactionManagementTests extends
 
   @Test
   public void transactionalTest() {
-    // assert initial state in test database:
+    // 断言测试数据库中的初始状态：
     assertNumUsers(2);
 
     deleteFromTables("user");
 
-    // changes to the database will be committed!
+    // 对数据库的更改将被提交！
     TestTransaction.flagForCommit();
     TestTransaction.end();
     assertFalse(TestTransaction.isActive());
     assertNumUsers(0);
 
     TestTransaction.start();
-    // perform other actions against the database that will
-    // be automatically rolled back after the test completes...
+    // 针对数据库执行其他操作，这些操作将在测试完成后自动回滚...
   }
 
   protected void assertNumUsers(int expected) {
@@ -212,31 +172,18 @@ public class ProgrammaticTransactionManagementTests extends
 ======
 
 [[testcontext-tx-before-and-after-tx]]
-== Running Code Outside of a Transaction
+== 在事务之外运行代码
 
-Occasionally, you may need to run certain code before or after a transactional test
-method but outside the transactional context -- for example, to verify the initial
-database state prior to running your test or to verify expected transactional commit
-behavior after your test runs (if the test was configured to commit the transaction).
-`TransactionalTestExecutionListener` supports the `@BeforeTransaction` and
-`@AfterTransaction` annotations for exactly such scenarios. You can annotate any `void`
-method in a test class or any `void` default method in a test interface with one of these
-annotations, and the `TransactionalTestExecutionListener` ensures that your
-before-transaction method or after-transaction method runs at the appropriate time.
+有时，您可能需要在事务性测试方法之前或之后但在事务上下文之外运行某些代码——例如，在运行测试之前验证初始数据库状态，或在测试运行之后验证预期的事务提交行为（如果测试配置为提交事务）。
+`TransactionalTestExecutionListener` 支持 `@BeforeTransaction` 和 `@AfterTransaction` 注解，正是为了这种场景。
+您可以使用这些注解之一注解测试类中的任何 `void` 方法或测试接口中的任何 `void` 默认方法，并且 `TransactionalTestExecutionListener` 确保您的事务前方法或事务后方法在适当的时间运行。
 
 [NOTE]
 ====
-Generally speaking, `@BeforeTransaction` and `@AfterTransaction` methods must not accept
-any arguments.
+一般来说，`@BeforeTransaction` 和 `@AfterTransaction` 方法不得接受任何参数。
 
-However, as of TODAY Framework 6.1, for tests using the
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[`InfraExtension`]
-with JUnit Jupiter, `@BeforeTransaction` and `@AfterTransaction` methods may optionally
-accept arguments which will be resolved by any registered JUnit `ParameterResolver`
-extension such as the `InfraExtension`. This means that JUnit-specific arguments like
-`TestInfo` or beans from the test's `ApplicationContext` may be provided to
-`@BeforeTransaction` and `@AfterTransaction` methods, as demonstrated in the following
-example.
+但是，从 TODAY Framework 6.1 开始，对于在 JUnit Jupiter 中使用 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[`InfraExtension`] 的测试，`@BeforeTransaction` 和 `@AfterTransaction` 方法可以选择接受参数，这些参数将由任何注册的 JUnit `ParameterResolver` 扩展（例如 `InfraExtension`）解析。
+这意味着可以将 JUnit 特定的参数（如 `TestInfo`）或来自测试 `ApplicationContext` 的 Bean 提供给 `@BeforeTransaction` 和 `@AfterTransaction` 方法，如下例所示。
 
 [tabs]
 ======
@@ -246,7 +193,7 @@ Java::
 ----
 @BeforeTransaction
 void verifyInitialDatabaseState(@Autowired DataSource dataSource) {
-	// Use the DataSource to verify the initial state before a transaction is started
+	// 使用 DataSource 在启动事务之前验证初始状态
 }
 ----
 
@@ -255,38 +202,26 @@ void verifyInitialDatabaseState(@Autowired DataSource dataSource) {
 
 [TIP]
 ====
-Any before methods (such as methods annotated with JUnit Jupiter's `@BeforeEach`) and any
-after methods (such as methods annotated with JUnit Jupiter's `@AfterEach`) are run
-within the test-managed transaction for a transactional test method.
+任何 before 方法（例如使用 JUnit Jupiter 的 `@BeforeEach` 注解的方法）和任何 after 方法（例如使用 JUnit Jupiter 的 `@AfterEach` 注解的方法）都在事务性测试方法的测试管理事务中运行。
 
-Similarly, methods annotated with `@BeforeTransaction` or `@AfterTransaction` are only
-run for transactional test methods.
+同样，使用 `@BeforeTransaction` 或 `@AfterTransaction` 注解的方法仅针对事务性测试方法运行。
 ====
 
 [[testcontext-tx-mgr-config]]
-== Configuring a Transaction Manager
+== 配置事务管理器
 
-`TransactionalTestExecutionListener` expects a `PlatformTransactionManager` bean to be
-defined in the Infra `ApplicationContext` for the test. If there are multiple instances
-of `PlatformTransactionManager` within the test's `ApplicationContext`, you can declare a
-qualifier by using `@Transactional("myTxMgr")` or `@Transactional(transactionManager =
-"myTxMgr")`, or `TransactionManagementConfigurer` can be implemented by an
-`@Configuration` class. Consult the
-{today-framework-api}/test/context/transaction/TestContextTransactionUtils.html#retrieveTransactionManager-infra.test.context.TestContext-java.lang.String-[javadoc
-for `TestContextTransactionUtils.retrieveTransactionManager()`] for details on the
-algorithm used to look up a transaction manager in the test's `ApplicationContext`.
+`TransactionalTestExecutionListener` 期望在测试的 Infra `ApplicationContext` 中定义一个 `PlatformTransactionManager` Bean。
+如果在测试的 `ApplicationContext` 中有多个 `PlatformTransactionManager` 实例，您可以使用 `@Transactional("myTxMgr")` 或 `@Transactional(transactionManager = "myTxMgr")` 声明限定符，或者可以由 `@Configuration` 类实现 `TransactionManagementConfigurer`。
+有关用于在测试的 `ApplicationContext` 中查找事务管理器的算法的详细信息，请参阅 {today-framework-api}/test/context/transaction/TestContextTransactionUtils.html#retrieveTransactionManager-infra.test.context.TestContext-java.lang.String-[`TestContextTransactionUtils.retrieveTransactionManager()` 的 javadoc]。
 
 [[testcontext-tx-annotation-demo]]
-== Demonstration of All Transaction-related Annotations
+== 所有事务相关注解的演示
 
-The following JUnit Jupiter based example displays a fictitious integration testing
-scenario that highlights all transaction-related annotations. The example is not intended
-to demonstrate best practices but rather to demonstrate how these annotations can be
-used. See the xref:testing/annotations.adoc[annotation support] section for further
-information and configuration examples. xref:testing/testcontext-framework/executing-sql.adoc#testcontext-executing-sql-declaratively-tx[Transaction management for `@Sql`]
- contains an additional example that uses `@Sql` for
-declarative SQL script execution with default transaction rollback semantics. The
-following example shows the relevant annotations:
+以下基于 JUnit Jupiter 的示例展示了一个虚构的集成测试场景，突出显示了所有与事务相关的注解。
+该示例并非旨在演示最佳实践，而是为了演示如何使用这些注解。
+有关更多信息和配置示例，请参阅 xref:testing/annotations.adoc[注解支持] 部分。
+xref:testing/testcontext-framework/executing-sql.adoc#testcontext-executing-sql-declaratively-tx[`@Sql` 的事务管理] 包含一个额外的示例，该示例使用 `@Sql` 进行具有默认事务回滚语义的声明性 SQL 脚本执行。
+以下示例显示了相关的注解：
 
 [tabs]
 ======
@@ -301,29 +236,29 @@ class FictitiousTransactionalTest {
 
   @BeforeTransaction
   void verifyInitialDatabaseState() {
-    // logic to verify the initial state before a transaction is started
+    // 在启动事务之前验证初始状态的逻辑
   }
 
   @BeforeEach
   void setUpTestDataWithinTransaction() {
-    // set up test data within the transaction
+    // 在事务中设置测试数据
   }
 
   @Test
-  // overrides the class-level @Commit setting
+  // 覆盖类级 @Commit 设置
   @Rollback
   void modifyDatabaseWithinTransaction() {
-    // logic which uses the test data and modifies database state
+    // 使用测试数据并修改数据库状态的逻辑
   }
 
   @AfterEach
   void tearDownWithinTransaction() {
-    // run "tear down" logic within the transaction
+    // 在事务中运行 "拆解" 逻辑
   }
 
   @AfterTransaction
   void verifyFinalDatabaseState() {
-    // logic to verify the final state after transaction has rolled back
+    // 在事务回滚后验证最终状态的逻辑
   }
 
 }
@@ -332,17 +267,13 @@ class FictitiousTransactionalTest {
 ======
 
 [[testcontext-tx-false-positives]]
-.Avoid false positives when testing ORM code
+.测试 ORM 代码时避免误报
 [NOTE]
 =====
-When you test application code that manipulates the state of a Hibernate session or JPA
-persistence context, make sure to flush the underlying unit of work within test methods
-that run that code. Failing to flush the underlying unit of work can produce false
-positives: Your test passes, but the same code throws an exception in a live, production
-environment. Note that this applies to any ORM framework that maintains an in-memory unit
-of work. In the following Hibernate-based example test case, one method demonstrates a
-false positive, and the other method correctly exposes the results of flushing the
-session:
+当您测试操作 Hibernate 会话或 JPA 持久性上下文状态的应用程序代码时，请务必在运行该代码的测试方法中刷新底层工作单元。
+未能刷新底层工作单元可能会产生误报：您的测试通过了，但相同的代码在实时生产环境中抛出异常。
+请注意，这适用于任何维护内存中工作单元的 ORM 框架。
+在以下基于 Hibernate 的示例测试用例中，一个方法演示了误报，另一个方法正确公开了刷新会话的结果：
 
 [tabs]
 ======
@@ -356,18 +287,17 @@ Java::
 SessionFactory sessionFactory;
 
 @Transactional
-@Test // no expected exception!
+@Test // 没有预期的异常！
 public void falsePositive() {
   updateEntityInHibernateSession();
-  // False positive: an exception will be thrown once the Hibernate
-  // Session is finally flushed (i.e., in production code)
+  // 误报：一旦 Hibernate Session 最终被刷新（即在生产代码中），就会抛出异常
 }
 
 @Transactional
 @Test(expected = ...)
 public void updateWithSessionFlush() {
   updateEntityInHibernateSession();
-  // Manual flush is required to avoid false positive in test
+  // 需要手动刷新以避免测试中的误报
   sessionFactory.getCurrentSession().flush();
 }
 
@@ -376,7 +306,7 @@ public void updateWithSessionFlush() {
 
 ======
 
-The following example shows matching methods for JPA:
+以下示例显示了 JPA 的匹配方法：
 
 [tabs]
 ======
@@ -390,18 +320,17 @@ Java::
  EntityManager entityManager;
 
  @Transactional
- @Test // no expected exception!
+ @Test // 没有预期的异常！
  public void falsePositive() {
    updateEntityInJpaPersistenceContext();
-   // False positive: an exception will be thrown once the JPA
-   // EntityManager is finally flushed (i.e., in production code)
+   // 误报：一旦 JPA EntityManager 最终被刷新（即在生产代码中），就会抛出异常
  }
 
  @Transactional
  @Test(expected = ...)
  public void updateWithEntityManagerFlush() {
    updateEntityInJpaPersistenceContext();
-   // Manual flush is required to avoid false positive in test
+   // 需要手动刷新以避免测试中的误报
    entityManager.flush();
  }
 
@@ -412,26 +341,17 @@ Java::
 =====
 
 [[testcontext-tx-orm-lifecycle-callbacks]]
-.Testing ORM entity lifecycle callbacks
+.测试 ORM 实体生命周期回调
 [NOTE]
 =====
-Similar to the note about avoiding xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[false positives]
-when testing ORM code, if your application makes use of entity lifecycle callbacks (also
-known as entity listeners), make sure to flush the underlying unit of work within test
-methods that run that code. Failing to _flush_ or _clear_ the underlying unit of work can
-result in certain lifecycle callbacks not being invoked.
+类似于关于在测试 ORM 代码时避免 xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[误报] 的说明，如果您的应用程序使用了实体生命周期回调（也称为实体监听器），请务必在运行该代码的测试方法中刷新底层工作单元。
+未能 *刷新 (flush)* 或 *清除 (clear)* 底层工作单元可能会导致某些生命周期回调未被调用。
 
-For example, when using JPA, `@PostPersist`, `@PreUpdate`, and `@PostUpdate` callbacks
-will not be called unless `entityManager.flush()` is invoked after an entity has been
-saved or updated. Similarly, if an entity is already attached to the current unit of work
-(associated with the current persistence context), an attempt to reload the entity will
-not result in a `@PostLoad` callback unless `entityManager.clear()` is invoked before the
-attempt to reload the entity.
+例如，当使用 JPA 时，除非在保存或更新实体后调用 `entityManager.flush()`，否则不会调用 `@PostPersist`、`@PreUpdate` 和 `@PostUpdate` 回调。
+同样，如果实体已附加到当前工作单元（与当前持久性上下文关联），则除非在尝试重新加载实体之前调用 `entityManager.clear()`，否则重新加载实体的尝试将不会导致 `@PostLoad` 回调。
 
-The following example shows how to flush the `EntityManager` to ensure that
-`@PostPersist` callbacks are invoked when an entity is persisted. An entity listener with
-a `@PostPersist` callback method has been registered for the `Person` entity used in the
-example.
+以下示例显示了如何刷新 `EntityManager` 以确保在持久化实体时调用 `@PostPersist` 回调。
+已为示例中使用的 `Person` 实体注册了具有 `@PostPersist` 回调方法的实体监听器。
 
 [tabs]
 ======
@@ -450,14 +370,14 @@ Java::
  @Transactional
  @Test
  void savePerson() {
-   // EntityManager#persist(...) results in @PrePersist but not @PostPersist
+   // EntityManager#persist(...) 导致 @PrePersist 但不是 @PostPersist
    repo.save(new Person("Jane"));
 
-   // Manual flush is required for @PostPersist callback to be invoked
+   // 需要手动刷新才能调用 @PostPersist 回调
    entityManager.flush();
 
-   // Test code that relies on the @PostPersist callback
-   // having been invoked...
+   // 依赖于 @PostPersist 回调的测试代码
+   // 已经被调用...
  }
 
  // ...
@@ -465,9 +385,7 @@ Java::
 
 ======
 
-See
-{today-framework-code}/infra-test/src/test/java/infra/test/context/junit/jupiter/orm/JpaEntityListenerTests.java[JpaEntityListenerTests]
-in the TODAY Framework test suite for working examples using all JPA lifecycle callbacks.
+请参阅 TODAY Framework 测试套件中的
+{today-framework-code}/infra-test/src/test/java/infra/test/context/junit/jupiter/orm/JpaEntityListenerTests.java[JpaEntityListenerTests]，
+了解使用所有 JPA 生命周期回调的工作示例。
 =====
-
-

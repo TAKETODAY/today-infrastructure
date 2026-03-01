@@ -1,86 +1,58 @@
 [[testcontext-key-abstractions]]
-= Key Abstractions
+= 关键抽象
 
-The core of the framework consists of the `TestContextManager` class and the
-`TestContext`, `TestExecutionListener`, and `SmartContextLoader` interfaces. A
-`TestContextManager` is created for each test class (for example, for the execution of
-all test methods within a single test class in JUnit Jupiter). The `TestContextManager`,
-in turn, manages a `TestContext` that holds the context of the current test. The
-`TestContextManager` also updates the state of the `TestContext` as the test progresses
-and delegates to `TestExecutionListener` implementations, which instrument the actual
-test execution by providing dependency injection, managing transactions, and so on. A
-`SmartContextLoader` is responsible for loading an `ApplicationContext` for a given test
-class. See the {today-framework-api}/test/context/package-summary.html[javadoc] and the
-Infra test suite for further information and examples of various implementations.
+框架的核心由 `TestContextManager` 类以及 `TestContext`、`TestExecutionListener` 和 `SmartContextLoader` 接口组成。
+`TestContextManager` 为每个测试类创建（例如，在 JUnit Jupiter 中执行单个测试类内的所有测试方法）。
+`TestContextManager` 反过来管理一个持有当前测试上下文的 `TestContext`。
+`TestContextManager` 还会随着测试的进行更新 `TestContext` 的状态，并委托给 `TestExecutionListener` 实现，这些实现通过提供依赖注入、管理事务等来增强实际的测试执行。
+`SmartContextLoader` 负责为给定的测试类加载 `ApplicationContext`。
+有关更多信息和各种实现的示例，请参阅 {today-framework-api}/test/context/package-summary.html[javadoc] 和 Infra 测试套件。
 
 [[testcontext]]
 == `TestContext`
 
-`TestContext` encapsulates the context in which a test is run (agnostic of the
-actual testing framework in use) and provides context management and caching support for
-the test instance for which it is responsible. The `TestContext` also delegates to a
-`SmartContextLoader` to load an `ApplicationContext` if requested.
+`TestContext` 封装了运行测试的上下文（与实际使用的测试框架无关），并为其负责的测试实例提供上下文管理和缓存支持。
+如果请求，`TestContext` 还会委托给 `SmartContextLoader` 来加载 `ApplicationContext`。
 
 [[testcontextmanager]]
 == `TestContextManager`
 
-`TestContextManager` is the main entry point into the Infra TestContext Framework and is
-responsible for managing a single `TestContext` and signaling events to each registered
-`TestExecutionListener` at well-defined test execution points:
+`TestContextManager` 是 Infra TestContext 框架的主要入口点，负责管理单个 `TestContext` 并在定义的测试执行点向每个注册的 `TestExecutionListener` 发送事件信号：
 
-* Prior to any "`before class`" or "`before all`" methods of a particular testing framework.
-* Test instance post-processing.
-* Prior to any "`before`" or "`before each`" methods of a particular testing framework.
-* Immediately before execution of the test method but after test setup.
-* Immediately after execution of the test method but before test tear down.
-* After any "`after`" or "`after each`" methods of a particular testing framework.
-* After any "`after class`" or "`after all`" methods of a particular testing framework.
+* 在特定测试框架的任何 “`before class`” 或 “`before all`” 方法之前。
+* 测试实例后处理。
+* 在特定测试框架的任何 “`before`” 或 “`before each`” 方法之前。
+* 在执行测试方法之前但在测试设置之后立即执行。
+* 在执行测试方法之后但在测试拆解之前立即执行。
+* 在特定测试框架的任何 “`after`” 或 “`after each`” 方法之后。
+* 在特定测试框架的任何 “`after class`” 或 “`after all`” 方法之后。
 
 [[testexecutionlistener]]
 == `TestExecutionListener`
 
-`TestExecutionListener` defines the API for reacting to test-execution events published by
-the `TestContextManager` with which the listener is registered. See xref:testing/testcontext-framework/tel-config.adoc[`TestExecutionListener` Configuration].
+`TestExecutionListener` 定义了用于响应由注册了该监听器的 `TestContextManager` 发布的测试执行事件的 API。
+请参阅 xref:testing/testcontext-framework/tel-config.adoc[`TestExecutionListener` 配置]。
 
 [[context-loaders]]
 == Context Loaders
 
-`ContextLoader` is a strategy interface for loading an `ApplicationContext` for an
-integration test managed by the Infra TestContext Framework. You should implement
-`SmartContextLoader` instead of this interface to provide support for component classes,
-active bean definition profiles, test property sources, context hierarchies, and
-`WebApplicationContext` support.
+`ContextLoader` 是一个策略接口，用于为 Infra TestContext 框架管理的集成测试加载 `ApplicationContext`。
+您应该实现 `SmartContextLoader` 而不是此接口，以提供对组件类、活动 Bean 定义配置文件 (profiles)、测试属性源、上下文层次结构和 `WebApplicationContext` 支持的支持。
 
-`SmartContextLoader` is an extension of the `ContextLoader` interface that supersedes the
-original minimal `ContextLoader` SPI. Specifically, a `SmartContextLoader` can choose to
-process resource locations, component classes, or context initializers. Furthermore, a
-`SmartContextLoader` can set active bean definition profiles and test property sources in
-the context that it loads.
+`SmartContextLoader` 是 `ContextLoader` 接口的扩展，它取代了原始的最小 `ContextLoader` SPI。
+具体来说，`SmartContextLoader` 可以选择处理资源位置、组件类或上下文初始化器。
+此外，`SmartContextLoader` 可以在其加载的上下文中设置活动 Bean 定义配置文件和测试属性源。
 
-Infra provides the following implementations:
+Infra 提供了以下实现：
 
-* `DelegatingSmartContextLoader`: One of two default loaders, it delegates internally to
-  an `AnnotationConfigContextLoader`, a `GenericXmlContextLoader`, or a
-  `GenericGroovyXmlContextLoader`, depending either on the configuration declared for the
-  test class or on the presence of default locations or default configuration classes.
-  Groovy support is enabled only if Groovy is on the classpath.
-* `WebDelegatingSmartContextLoader`: One of two default loaders, it delegates internally
-  to an `AnnotationConfigWebContextLoader`, a `GenericXmlWebContextLoader`, or a
-  `GenericGroovyXmlWebContextLoader`, depending either on the configuration declared for
-  the test class or on the presence of default locations or default configuration
-  classes. A web `ContextLoader` is used only if `@WebAppConfiguration` is present on the
-  test class. Groovy support is enabled only if Groovy is on the classpath.
-* `AnnotationConfigContextLoader`: Loads a standard `ApplicationContext` from component
-  classes.
-* `AnnotationConfigWebContextLoader`: Loads a `WebApplicationContext` from component
-  classes.
-* `GenericGroovyXmlContextLoader`: Loads a standard `ApplicationContext` from resource
-  locations that are either Groovy scripts or XML configuration files.
-* `GenericGroovyXmlWebContextLoader`: Loads a `WebApplicationContext` from resource
-  locations that are either Groovy scripts or XML configuration files.
-* `GenericXmlContextLoader`: Loads a standard `ApplicationContext` from XML resource
-  locations.
-* `GenericXmlWebContextLoader`: Loads a `WebApplicationContext` from XML resource
-  locations.
-
-
+* `DelegatingSmartContextLoader`：两个默认加载器之一，它根据为测试类声明的配置或默认位置或默认配置类的存在，在内部委托给 `AnnotationConfigContextLoader`、`GenericXmlContextLoader` 或 `GenericGroovyXmlContextLoader`。
+只有在类路径上有 Groovy 时才启用 Groovy 支持。
+* `WebDelegatingSmartContextLoader`：两个默认加载器之一，它根据为测试类声明的配置或默认位置或默认配置类的存在，在内部委托给 `AnnotationConfigWebContextLoader`、`GenericXmlWebContextLoader` 或 `GenericGroovyXmlWebContextLoader`。
+仅当测试类上存在 `@WebAppConfiguration` 时才使用 Web `ContextLoader`。
+只有在类路径上有 Groovy 时才启用 Groovy 支持。
+* `AnnotationConfigContextLoader`：从组件类加载标准的 `ApplicationContext`。
+* `AnnotationConfigWebContextLoader`：从组件类加载 `WebApplicationContext`。
+* `GenericGroovyXmlContextLoader`：从 Groovy 脚本或 XML 配置文件资源位置加载标准的 `ApplicationContext`。
+* `GenericGroovyXmlWebContextLoader`：从 Groovy 脚本或 XML 配置文件资源位置加载 `WebApplicationContext`。
+* `GenericXmlContextLoader`：从 XML 资源位置加载标准的 `ApplicationContext`。
+* `GenericXmlWebContextLoader`：从 XML 资源位置加载 `WebApplicationContext`。

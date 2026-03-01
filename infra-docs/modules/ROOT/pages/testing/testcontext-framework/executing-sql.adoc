@@ -1,50 +1,33 @@
 [[testcontext-executing-sql]]
-= Executing SQL Scripts
+= 执行 SQL 脚本
 
-When writing integration tests against a relational database, it is often beneficial to
-run SQL scripts to modify the database schema or insert test data into tables. The
-`infra-jdbc` module provides support for _initializing_ an embedded or existing database
-by executing SQL scripts when the Infra `ApplicationContext` is loaded. See
-xref:data-access/jdbc/embedded-database-support.adoc[Embedded database support] and
-xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-dao-testing[Testing data access logic with an embedded database]
- for details.
+在针对关系数据库编写集成测试时，运行 SQL 脚本来修改数据库架构或将测试数据插入表中通常是有益的。
+`infra-jdbc` 模块提供了通过在加载 Infra `ApplicationContext` 时执行 SQL 脚本来 *初始化* 嵌入式或现有数据库的支持。
+有关详细信息，请参阅 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持] 和 xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-dao-testing[使用嵌入式数据库测试数据访问逻辑]。
 
-Although it is very useful to initialize a database for testing _once_ when the
-`ApplicationContext` is loaded, sometimes it is essential to be able to modify the
-database _during_ integration tests. The following sections explain how to run SQL
-scripts programmatically and declaratively during integration tests.
+虽然在加载 `ApplicationContext` 时初始化数据库 *一次* 非常有用，但有时必须能够在集成测试 *期间* 修改数据库。
+以下部分说明了如何在集成测试期间以编程方式和声明方式运行 SQL 脚本。
 
 [[testcontext-executing-sql-programmatically]]
-== Executing SQL scripts programmatically
+== 以编程方式执行 SQL 脚本
 
-Infra provides the following options for executing SQL scripts programmatically within
-integration test methods.
+Infra 提供了以下选项，用于在集成测试方法中以编程方式执行 SQL 脚本。
 
 * `infra.jdbc.datasource.init.ScriptUtils`
 * `infra.jdbc.datasource.init.ResourceDatabasePopulator`
 * `infra.test.context.junit4.AbstractTransactionalJUnit4InfraContextTests`
 * `infra.test.context.testng.AbstractTransactionalTestNGInfraContextTests`
 
-`ScriptUtils` provides a collection of static utility methods for working with SQL
-scripts and is mainly intended for internal use within the framework. However, if you
-require full control over how SQL scripts are parsed and run, `ScriptUtils` may suit
-your needs better than some of the other alternatives described later. See the
-{today-framework-api}/jdbc/datasource/init/ScriptUtils.html[javadoc] for individual
-methods in `ScriptUtils` for further details.
+`ScriptUtils` 提供了一组用于处理 SQL 脚本的静态实用程序方法，主要供框架内部使用。
+但是，如果您需要完全控制 SQL 脚本的解析和运行方式，`ScriptUtils` 可能比后面描述的其他一些替代方案更适合您的需求。
+有关更多详细信息，请参阅 `ScriptUtils` 中各个方法的 {today-framework-api}/jdbc/datasource/init/ScriptUtils.html[javadoc]。
 
-`ResourceDatabasePopulator` provides an object-based API for programmatically populating,
-initializing, or cleaning up a database by using SQL scripts defined in external
-resources. `ResourceDatabasePopulator` provides options for configuring the character
-encoding, statement separator, comment delimiters, and error handling flags used when
-parsing and running the scripts. Each of the configuration options has a reasonable
-default value. See the
-{today-framework-api}/jdbc/datasource/init/ResourceDatabasePopulator.html[javadoc] for
-details on default values. To run the scripts configured in a
-`ResourceDatabasePopulator`, you can invoke either the `populate(Connection)` method to
-run the populator against a `java.sql.Connection` or the `execute(DataSource)` method
-to run the populator against a `javax.sql.DataSource`. The following example
-specifies SQL scripts for a test schema and test data, sets the statement separator to
-`@@`, and run the scripts against a `DataSource`:
+`ResourceDatabasePopulator` 提供了一个基于对象的 API，用于使用外部资源中定义的 SQL 脚本以编程方式填充、初始化或清理数据库。
+`ResourceDatabasePopulator` 提供了用于配置解析和运行脚本时使用的字符编码、语句分隔符、注释定界符和错误处理标志的选项。
+每个配置选项都有一个合理的默认值。
+有关默认值的详细信息，请参阅 {today-framework-api}/jdbc/datasource/init/ResourceDatabasePopulator.html[javadoc]。
+要运行在 `ResourceDatabasePopulator` 中配置的脚本，您可以调用 `populate(Connection)` 方法针对 `java.sql.Connection` 运行填充器，或调用 `execute(DataSource)` 方法针对 `javax.sql.DataSource` 运行填充器。
+以下示例为测试架构和测试数据指定 SQL 脚本，将语句分隔符设置为 `@@`，并针对 `DataSource` 运行脚本：
 
 [tabs]
 ======
@@ -60,55 +43,41 @@ void databaseTest() {
       new ClassPathResource("test-data.sql"));
   populator.setSeparator("@@");
   populator.execute(this.dataSource);
-  // run code that uses the test schema and data
+  // 运行使用测试架构和数据的代码
 }
 ----
 
 ======
 
-Note that `ResourceDatabasePopulator` internally delegates to `ScriptUtils` for parsing
-and running SQL scripts. Similarly, the `executeSqlScript(..)` methods in
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`]
-and xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`]
-internally use a `ResourceDatabasePopulator` to run SQL scripts. See the Javadoc for the
-various `executeSqlScript(..)` methods for further details.
+请注意，`ResourceDatabasePopulator` 在内部委托给 `ScriptUtils` 来解析和运行 SQL 脚本。
+同样，xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`] 和 xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`] 中的 `executeSqlScript(..)` 方法在内部使用 `ResourceDatabasePopulator` 来运行 SQL 脚本。
+有关更多详细信息，请参阅各种 `executeSqlScript(..)` 方法的 Javadoc。
 
 [[testcontext-executing-sql-declaratively]]
-== Executing SQL scripts declaratively with @Sql
+== 使用 @Sql 以声明方式执行 SQL 脚本
 
-In addition to the aforementioned mechanisms for running SQL scripts programmatically,
-you can declaratively configure SQL scripts in the Infra TestContext Framework.
-Specifically, you can declare the `@Sql` annotation on a test class or test method to
-configure individual SQL statements or the resource paths to SQL scripts that should be
-run against a given database before or after an integration test class or test method.
-Support for `@Sql` is provided by the `SqlScriptsTestExecutionListener`, which is enabled
-by default.
+除了上述以编程方式运行 SQL 脚本的机制外，您还可以在 Infra TestContext 框架中以声明方式配置 SQL 脚本。
+具体来说，您可以在测试类或测试方法上声明 `@Sql` 注解，以配置应在集成测试类或测试方法之前或之后针对给定数据库运行的单个 SQL 语句或 SQL 脚本的资源路径。
+`@Sql` 的支持由 `SqlScriptsTestExecutionListener` 提供，默认情况下已启用。
 
 [NOTE]
 ====
-Method-level `@Sql` declarations override class-level declarations by default, but this
-behavior may be configured per test class or per test method via `@SqlMergeMode`. See
-xref:testing/testcontext-framework/executing-sql.adoc#testcontext-executing-sql-declaratively-script-merging[Merging and Overriding Configuration with `@SqlMergeMode`]
-for further details.
+默认情况下，方法级 `@Sql` 声明会覆盖类级声明，但此行为可以通过 `@SqlMergeMode` 针对每个测试类或每个测试方法进行配置。
+有关更多详细信息，请参阅 xref:testing/testcontext-framework/executing-sql.adoc#testcontext-executing-sql-declaratively-script-merging[使用 `@SqlMergeMode` 合并和覆盖配置]。
 
-However, this does not apply to class-level declarations configured for the
-`BEFORE_TEST_CLASS` or `AFTER_TEST_CLASS` execution phases. Such declarations cannot be
-overridden, and the corresponding scripts and statements will be executed once per class
-in addition to any method-level scripts and statements.
+但是，这不适用于为 `BEFORE_TEST_CLASS` 或 `AFTER_TEST_CLASS` 执行阶段配置的类级声明。
+此类声明不能被覆盖，并且相应的脚本和语句除了任何方法级脚本和语句外，每个类还会执行一次。
 ====
 
 [[testcontext-executing-sql-declaratively-script-resources]]
-=== Path Resource Semantics
+=== 路径资源语义
 
-Each path is interpreted as a Infra `Resource`. A plain path (for example,
-`"schema.sql"`) is treated as a classpath resource that is relative to the package in
-which the test class is defined. A path starting with a slash is treated as an absolute
-classpath resource (for example, `"/org/example/schema.sql"`). A path that references a
-URL (for example, a path prefixed with `classpath:`, `file:`, `http:`) is loaded by using
-the specified resource protocol.
+每个路径都解释为 Infra `Resource`。
+普通路径（例如，`"schema.sql"`）被视为相对于定义测试类的包的类路径资源。
+以斜杠开头的路径被视为绝对类路径资源（例如，`"/org/example/schema.sql"`）。
+引用 URL 的路径（例如，以 `classpath:`、`file:`、`http:` 为前缀的路径）使用指定的资源协议加载。
 
-The following example shows how to use `@Sql` at the class level and at the method level
-within a JUnit Jupiter based integration test class:
+以下示例显示了如何在基于 JUnit Jupiter 的集成测试类中在类级别和方法级别使用 `@Sql`：
 
 [tabs]
 ======
@@ -122,13 +91,13 @@ class DatabaseTests {
 
   @Test
   void emptySchemaTest() {
-    // run code that uses the test schema without any test data
+    // 运行使用测试架构但不包含任何测试数据的代码
   }
 
   @Test
   @Sql({"/test-schema.sql", "/test-user-data.sql"})
   void userTest() {
-    // run code that uses the test schema and test data
+    // 运行使用测试架构和测试数据的代码
   }
 }
 ----
@@ -136,37 +105,28 @@ class DatabaseTests {
 ======
 
 [[testcontext-executing-sql-declaratively-script-detection]]
-=== Default Script Detection
+=== 默认脚本检测
 
-If no SQL scripts or statements are specified, an attempt is made to detect a `default`
-script, depending on where `@Sql` is declared. If a default cannot be detected, an
-`IllegalStateException` is thrown.
+如果没有指定 SQL 脚本或语句，则会尝试根据声明 `@Sql` 的位置检测 `default` 脚本。
+如果无法检测到默认值，则抛出 `IllegalStateException`。
 
-* Class-level declaration: If the annotated test class is `com.example.MyTest`, the
-  corresponding default script is `classpath:com/example/MyTest.sql`.
-* Method-level declaration: If the annotated test method is named `testMethod()` and is
-  defined in the class `com.example.MyTest`, the corresponding default script is
-  `classpath:com/example/MyTest.testMethod.sql`.
+* 类级声明：如果带注解的测试类是 `com.example.MyTest`，则对应的默认脚本是 `classpath:com/example/MyTest.sql`。
+* 方法级声明：如果带注解的测试方法名为 `testMethod()` 并且定义在类 `com.example.MyTest` 中，则对应的默认脚本是 `classpath:com/example/MyTest.testMethod.sql`。
 
 [[testcontext-executing-sql-declaratively-logging]]
-=== Logging SQL Scripts and Statements
+=== 记录 SQL 脚本和语句
 
-If you want to see which SQL scripts are being executed, set the
-`infra.test.context.jdbc` logging category to `DEBUG`.
+如果您想查看正在执行哪些 SQL 脚本，请将 `infra.test.context.jdbc` 日志类别设置为 `DEBUG`。
 
-If you want to see which SQL statements are being executed, set the
-`infra.jdbc.datasource.init` logging category to `DEBUG`.
+如果您想查看正在执行哪些 SQL 语句，请将 `infra.jdbc.datasource.init` 日志类别设置为 `DEBUG`。
 
 [[testcontext-executing-sql-declaratively-multiple-annotations]]
-=== Declaring Multiple `@Sql` Sets
+=== 声明多个 `@Sql` 集
 
-If you need to configure multiple sets of SQL scripts for a given test class or test
-method but with different syntax configuration, different error handling rules, or
-different execution phases per set, you can declare multiple instances of `@Sql`. You can
-either use `@Sql` as a repeatable annotation, or you can use the `@SqlGroup` annotation
-as an explicit container for declaring multiple instances of `@Sql`.
+如果您需要为给定的测试类或测试方法配置多组 SQL 脚本，但具有不同的语法配置、不同的错误处理规则或每组不同的执行阶段，则可以声明多个 `@Sql` 实例。
+您可以将 `@Sql` 用作可重复注解，也可以使用 `@SqlGroup` 注解作为声明多个 `@Sql` 实例的显式容器。
 
-The following example shows how to use `@Sql` as a repeatable annotation:
+以下示例显示了如何将 `@Sql` 用作可重复注解：
 
 [tabs]
 ======
@@ -178,18 +138,16 @@ Java::
 @Sql(scripts = "/test-schema.sql", config = @SqlConfig(commentPrefix = "`"))
 @Sql("/test-user-data.sql")
 void userTest() {
-  // run code that uses the test schema and test data
+  // 运行使用测试架构和测试数据的代码
 }
 ----
 
 ======
 
-In the scenario presented in the preceding example, the `test-schema.sql` script uses a
-different syntax for single-line comments.
+在前面的示例中呈现的场景中，`test-schema.sql` 脚本对单行注释使用不同的语法。
 
-The following example is identical to the preceding example, except that the `@Sql`
-declarations are grouped together within `@SqlGroup`. The use of `@SqlGroup` is optional,
-but you may need to use `@SqlGroup` for compatibility with other JVM languages.
+以下示例与前面的示例相同，只是 `@Sql` 声明在 `@SqlGroup` 中组合在一起。
+使用 `@SqlGroup` 是可选的，但您可能需要使用 `@SqlGroup` 才能与其他 JVM 语言兼容。
 
 [tabs]
 ======
@@ -203,19 +161,17 @@ Java::
   @Sql("/test-user-data.sql")
 )}
 void userTest() {
-  // run code that uses the test schema and test data
+  // 运行使用测试架构和测试数据的代码
 }
 ----
 
 ======
 
 [[testcontext-executing-sql-declaratively-script-execution-phases]]
-=== Script Execution Phases
+=== 脚本执行阶段
 
-By default, SQL scripts are run before the corresponding test method. However, if you
-need to run a particular set of scripts after the test method (for example, to clean up
-database state), you can set the `executionPhase` attribute in `@Sql` to
-`AFTER_TEST_METHOD`, as the following example shows:
+默认情况下，SQL 脚本在相应的测试方法之前运行。
+但是，如果您需要在测试方法之后运行一组特定的脚本（例如，为了清理数据库状态），您可以将 `@Sql` 中的 `executionPhase` 属性设置为 `AFTER_TEST_METHOD`，如下例所示：
 
 [tabs]
 ======
@@ -234,18 +190,15 @@ Java::
   executionPhase = AFTER_TEST_METHOD
 )
 void userTest() {
-  // run code that needs the test data to be committed
-  // to the database outside of the test's transaction
+  // 运行需要将测试数据提交到数据库的代码
+  // 并且该代码在测试事务之外运行
 }
 ----
 ======
 
-NOTE: `ISOLATED` and `AFTER_TEST_METHOD` are statically imported from
-`Sql.TransactionMode` and `Sql.ExecutionPhase`, respectively.
+NOTE: `ISOLATED` 和 `AFTER_TEST_METHOD` 分别从 `Sql.TransactionMode` 和 `Sql.ExecutionPhase` 静态导入。
 
-As of TODAY Framework 6.1, it is possible to run a particular set of scripts before or
-after the test class by setting the `executionPhase` attribute in a class-level `@Sql`
-declaration to `BEFORE_TEST_CLASS` or `AFTER_TEST_CLASS`, as the following example shows:
+从 TODAY Framework 6.1 开始，可以通过将类级 `@Sql` 声明中的 `executionPhase` 属性设置为 `BEFORE_TEST_CLASS` 或 `AFTER_TEST_CLASS` 来在测试类之前或之后运行一组特定的脚本，如下例所示：
 
 [tabs]
 ======
@@ -259,71 +212,47 @@ class DatabaseTests {
 
   @Test
   void emptySchemaTest() {
-    // run code that uses the test schema without any test data
+    // 运行使用测试架构但不包含任何测试数据的代码
   }
 
   @Test
   @Sql("/test-user-data.sql")
   void userTest() {
-    // run code that uses the test schema and test data
+    // 运行使用测试架构和测试数据的代码
   }
 }
 ----
 
 ======
 
-NOTE: `BEFORE_TEST_CLASS` is statically imported from `Sql.ExecutionPhase`.
+NOTE: `BEFORE_TEST_CLASS` 从 `Sql.ExecutionPhase` 静态导入。
 
 [[testcontext-executing-sql-declaratively-script-configuration]]
-=== Script Configuration with `@SqlConfig`
+=== 使用 `@SqlConfig` 进行脚本配置
 
-You can configure script parsing and error handling by using the `@SqlConfig` annotation.
-When declared as a class-level annotation on an integration test class, `@SqlConfig`
-serves as global configuration for all SQL scripts within the test class hierarchy. When
-declared directly by using the `config` attribute of the `@Sql` annotation, `@SqlConfig`
-serves as local configuration for the SQL scripts declared within the enclosing `@Sql`
-annotation. Every attribute in `@SqlConfig` has an implicit default value, which is
-documented in the javadoc of the corresponding attribute. Due to the rules defined for
-annotation attributes in the Java Language Specification, it is, unfortunately, not
-possible to assign a value of `null` to an annotation attribute. Thus, in order to
-support overrides of inherited global configuration, `@SqlConfig` attributes have an
-explicit default value of either `""` (for Strings), `{}` (for arrays), or `DEFAULT` (for
-enumerations). This approach lets local declarations of `@SqlConfig` selectively override
-individual attributes from global declarations of `@SqlConfig` by providing a value other
-than `""`, `{}`, or `DEFAULT`. Global `@SqlConfig` attributes are inherited whenever
-local `@SqlConfig` attributes do not supply an explicit value other than `""`, `{}`, or
-`DEFAULT`. Explicit local configuration, therefore, overrides global configuration.
+您可以使用 `@SqlConfig` 注解配置脚本解析和错误处理。
+当声明为集成测试类上的类级注解时，`@SqlConfig` 充当测试类层次结构中所有 SQL 脚本的全局配置。
+当直接使用 `@Sql` 注解的 `config` 属性声明时，`@SqlConfig` 充当在封闭的 `@Sql` 注解中声明的 SQL 脚本的本地配置。
+`@SqlConfig` 中的每个属性都有一个隐式默认值，该值记录在相应属性的 javadoc 中。
+由于 Java 语言规范中为注解属性定义的规则，遗憾的是，无法将 `null` 值分配给注解属性。
+因此，为了支持覆盖继承的全局配置，`@SqlConfig` 属性具有显式默认值 `""`（对于字符串）、`{}`（对于数组）或 `DEFAULT`（对于枚举）。
+这种方法允许 `@SqlConfig` 的本地声明通过提供除 `""`、`{}` 或 `DEFAULT` 以外的值来选择性地覆盖 `@SqlConfig` 全局声明中的单个属性。
+只要本地 `@SqlConfig` 属性不提供除 `""`、`{}` 或 `DEFAULT` 以外的显式值，就会继承全局 `@SqlConfig` 属性。
+因此，显式本地配置将覆盖全局配置。
 
-The configuration options provided by `@Sql` and `@SqlConfig` are equivalent to those
-supported by `ScriptUtils` and `ResourceDatabasePopulator` but are a superset of those
-provided by the `<jdbc:initialize-database/>` XML namespace element. See the javadoc of
-individual attributes in {today-framework-api}/test/context/jdbc/Sql.html[`@Sql`] and
-{today-framework-api}/test/context/jdbc/SqlConfig.html[`@SqlConfig`] for details.
+`@Sql` 和 `@SqlConfig` 提供的配置选项等同于 `ScriptUtils` 和 `ResourceDatabasePopulator` 支持的选项，但它们是 `<jdbc:initialize-database/>` XML 命名空间元素提供的选项的超集。
+有关详细信息，请参阅 {today-framework-api}/test/context/jdbc/Sql.html[`@Sql`] 和 {today-framework-api}/test/context/jdbc/SqlConfig.html[`@SqlConfig`] 中各个属性的 javadoc。
 
 [[testcontext-executing-sql-declaratively-tx]]
-==== Transaction management for `@Sql`
+==== `@Sql` 的事务管理
 
-By default, the `SqlScriptsTestExecutionListener` infers the desired transaction
-semantics for scripts configured by using `@Sql`. Specifically, SQL scripts are run
-without a transaction, within an existing Infra-managed transaction (for example, a
-transaction managed by the `TransactionalTestExecutionListener` for a test annotated with
-`@Transactional`), or within an isolated transaction, depending on the configured value
-of the `transactionMode` attribute in `@SqlConfig` and the presence of a
-`PlatformTransactionManager` in the test's `ApplicationContext`. As a bare minimum,
-however, a `javax.sql.DataSource` must be present in the test's `ApplicationContext`.
+默认情况下，`SqlScriptsTestExecutionListener` 推断使用 `@Sql` 配置的脚本所需的事务语义。
+具体来说，SQL 脚本将在没有事务的情况下运行、在现有的 Infra 管理的事务中运行（例如，由 `TransactionalTestExecutionListener` 管理的用于使用 `@Transactional` 注解的测试的事务），或在隔离的事务中运行，这取决于 `@SqlConfig` 中 `transactionMode` 属性的配置值以及测试的 `ApplicationContext` 中是否存在 `PlatformTransactionManager`。
+然而，作为最低要求，测试的 `ApplicationContext` 中必须存在 `javax.sql.DataSource`。
 
-If the algorithms used by `SqlScriptsTestExecutionListener` to detect a `DataSource` and
-`PlatformTransactionManager` and infer the transaction semantics do not suit your needs,
-you can specify explicit names by setting the `dataSource` and `transactionManager`
-attributes of `@SqlConfig`. Furthermore, you can control the transaction propagation
-behavior by setting the `transactionMode` attribute of `@SqlConfig` (for example, whether
-scripts should be run in an isolated transaction). Although a thorough discussion of all
-supported options for transaction management with `@Sql` is beyond the scope of this
-reference manual, the javadoc for
-{today-framework-api}/test/context/jdbc/SqlConfig.html[`@SqlConfig`] and
-{today-framework-api}/test/context/jdbc/SqlScriptsTestExecutionListener.html[`SqlScriptsTestExecutionListener`]
-provide detailed information, and the following example shows a typical testing scenario
-that uses JUnit Jupiter and transactional tests with `@Sql`:
+如果 `SqlScriptsTestExecutionListener` 用于检测 `DataSource` 和 `PlatformTransactionManager` 并推断事务语义的算法不符合您的需求，您可以通过设置 `@SqlConfig` 的 `dataSource` 和 `transactionManager` 属性来指定显式名称。
+此外，您可以通过设置 `@SqlConfig` 的 `transactionMode` 属性来控制事务传播行为（例如，脚本是否应在隔离的事务中运行）。
+虽然对使用 `@Sql` 进行事务管理的所有支持选项的深入讨论超出了本参考手册的范围，但 {today-framework-api}/test/context/jdbc/SqlConfig.html[`@SqlConfig`] 和 {today-framework-api}/test/context/jdbc/SqlScriptsTestExecutionListener.html[`SqlScriptsTestExecutionListener`] 的 javadoc 提供了详细信息，以下示例显示了使用 JUnit Jupiter 和带有 `@Sql` 的事务性测试的典型测试场景：
 
 [tabs]
 ======
@@ -345,9 +274,9 @@ class TransactionalSqlScriptsTests {
   @Test
   @Sql("/test-data.sql")
   void usersTest() {
-    // verify state in test database:
+    // 验证测试数据库中的状态：
     assertNumUsers(2);
-    // run code that uses the test data...
+    // 运行使用测试数据的代码...
   }
 
   int countRowsInTable(String tableName) {
@@ -363,22 +292,13 @@ class TransactionalSqlScriptsTests {
 
 ======
 
-Note that there is no need to clean up the database after the `usersTest()` method is
-run, since any changes made to the database (either within the test method or within the
-`/test-data.sql` script) are automatically rolled back by the
-`TransactionalTestExecutionListener` (see xref:testing/testcontext-framework/tx.adoc[transaction management] for
-details).
+请注意，运行 `usersTest()` 方法后无需清理数据库，因为对数据库所做的任何更改（无论是在测试方法内还是在 `/test-data.sql` 脚本内）都会由 `TransactionalTestExecutionListener` 自动回滚（有关详细信息，请参阅 xref:testing/testcontext-framework/tx.adoc[事务管理]）。
 
 [[testcontext-executing-sql-declaratively-script-merging]]
-=== Merging and Overriding Configuration with `@SqlMergeMode`
+=== 使用 `@SqlMergeMode` 合并和覆盖配置
 
-As of TODAY Framework 5.2, it is possible to merge method-level `@Sql` declarations with
-class-level declarations. For example, this allows you to provide the configuration for a
-database schema or some common test data once per test class and then provide additional,
-use case specific test data per test method. To enable `@Sql` merging, annotate either
-your test class or test method with `@SqlMergeMode(MERGE)`. To disable merging for a
-specific test method (or specific test subclass), you can switch back to the default mode
-via `@SqlMergeMode(OVERRIDE)`. Consult the xref:testing/annotations/integration-infra/annotation-sqlmergemode.adoc[`@SqlMergeMode` annotation documentation section]
- for examples and further details.
-
-
+自 TODAY Framework 5.2 起，可以将方法级 `@Sql` 声明与类级声明合并。
+例如，这允许您为每个测试类提供一次数据库架构或一些通用测试数据的配置，然后为每个测试方法提供额外的、特定于用例的测试数据。
+要启用 `@Sql` 合并，请使用 `@SqlMergeMode(MERGE)` 注解您的测试类或测试方法。
+要禁用特定测试方法（或特定测试子类）的合并，您可以通过 `@SqlMergeMode(OVERRIDE)` 切换回默认模式。
+有关示例和更多详细信息，请参阅 xref:testing/annotations/integration-infra/annotation-sqlmergemode.adoc[`@SqlMergeMode` 注解文档部分]。

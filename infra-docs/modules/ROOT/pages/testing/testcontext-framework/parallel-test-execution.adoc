@@ -1,48 +1,33 @@
 [[testcontext-parallel-test-execution]]
-= Parallel Test Execution
+= 并行测试执行
 
-TODAY Framework 5.0 introduced basic support for executing tests in parallel within a
-single JVM when using the Infra TestContext Framework. In general, this means that most
-test classes or test methods can be run in parallel without any changes to test code
-or configuration.
+TODAY Framework 5.0 引入了在使用 Infra TestContext 框架时在单个 JVM 中并行执行测试的基本支持。
+通常，这意味着大多数测试类或测试方法可以并行运行，而无需更改测试代码或配置。
 
-TIP: For details on how to set up parallel test execution, see the documentation for your
-testing framework, build tool, or IDE.
+TIP: 有关如何设置并行测试执行的详细信息，请参阅测试框架、构建工具或 IDE 的文档。
 
-Keep in mind that the introduction of concurrency into your test suite can result in
-unexpected side effects, strange runtime behavior, and tests that fail intermittently or
-seemingly randomly. The Infra Team therefore provides the following general guidelines
-for when not to run tests in parallel.
+请记住，在测试套件中引入并发可能会导致意外的副作用、奇怪的运行时行为以及测试间歇性或看似随机地失败。
+因此，Infra 团队针对何时不并行运行测试提供了以下一般准则。
 
-Do not run tests in parallel if the tests:
+如果测试符合以下情况，请勿并行运行测试：
 
-* Use TODAY Framework's `@DirtiesContext` support.
-* Use Infra App's `@MockBean` or `@SpyBean` support.
-* Use JUnit 4's `@FixMethodOrder` support or any testing framework feature
-  that is designed to ensure that test methods run in a particular order. Note,
-  however, that this does not apply if entire test classes are run in parallel.
-* Change the state of shared services or systems such as a database, message broker,
-  filesystem, and others. This applies to both embedded and external systems.
+* 使用 TODAY Framework 的 `@DirtiesContext` 支持。
+* 使用 Infra App 的 `@MockBean` or `@SpyBean` 支持。
+* 使用 JUnit 4 的 `@FixMethodOrder` 支持或任何旨在确保测试方法按特定顺序运行的测试框架功能。
+但是，请注意，如果整个测试类并行运行，则这不适用。
+* 更改共享服务或系统的状态，例如数据库、消息代理、文件系统等。
+这适用于嵌入式和外部系统。
 
 [TIP]
 ====
-If parallel test execution fails with an exception stating that the `ApplicationContext`
-for the current test is no longer active, this typically means that the
-`ApplicationContext` was removed from the `ContextCache` in a different thread.
+如果并行测试执行失败并出现说明当前测试的 `ApplicationContext` 不再处于活动状态的异常，这通常意味着 `ApplicationContext` 已在另一个线程中从 `ContextCache` 中删除。
 
-This may be due to the use of `@DirtiesContext` or due to automatic eviction from the
-`ContextCache`. If `@DirtiesContext` is the culprit, you either need to find a way to
-avoid using `@DirtiesContext` or exclude such tests from parallel execution. If the
-maximum size of the `ContextCache` has been exceeded, you can increase the maximum size
-of the cache. See the discussion on xref:testing/testcontext-framework/ctx-management/caching.adoc[context caching]
-for details.
+这可能是由于使用了 `@DirtiesContext` 或由于从 `ContextCache` 中自动驱逐。
+如果 `@DirtiesContext` 是罪魁祸首，您要么需要找到一种避免使用 `@DirtiesContext` 的方法，要么将此类测试排除在并行执行之外。
+如果已超过 `ContextCache` 的最大大小，则可以增加缓存的最大大小。
+有关详细信息，请参阅关于 xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存] 的讨论。
 ====
 
-WARNING: Parallel test execution in the Infra TestContext Framework is only possible if
-the underlying `TestContext` implementation provides a copy constructor, as explained in
-the javadoc for {today-framework-api}/test/context/TestContext.html[`TestContext`]. The
-`DefaultTestContext` used in Infra provides such a constructor. However, if you use a
-third-party library that provides a custom `TestContext` implementation, you need to
-verify that it is suitable for parallel test execution.
-
-
+WARNING: 只有当底层 `TestContext` 实现提供复制构造函数时，Infra TestContext 框架中的并行测试执行才可能，如 {today-framework-api}/test/context/TestContext.html[`TestContext`] 的 javadoc 中所述。
+Infra 中使用的 `DefaultTestContext` 提供了这样的构造函数。
+但是，如果您使用提供自定义 `TestContext` 实现的第三方库，则需要验证它是否适合并行测试执行。

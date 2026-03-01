@@ -1,26 +1,20 @@
 [[testcontext-web-scoped-beans]]
-= Testing Request- and Session-scoped Beans
+= 测试请求和会话作用域的 Bean
 
-Infra has supported xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[Request- and session-scoped beans]
- since the early years, and you can test your request-scoped and session-scoped
-beans by following these steps:
+Infra 自早期以来一直支持 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[请求和会话作用域的 Bean]，您可以按照以下步骤测试请求作用域和会话作用域的 Bean：
 
-* Ensure that a `WebApplicationContext` is loaded for your test by annotating your test
-  class with `@WebAppConfiguration`.
-* Inject the mock request or session into your test instance and prepare your test
-  fixture as appropriate.
-* Invoke your web component that you retrieved from the configured
-  `WebApplicationContext` (with dependency injection).
-* Perform assertions against the mocks.
+* 通过使用 `@WebAppConfiguration` 注解测试类，确保为测试加载 `WebApplicationContext`。
+* 将模拟请求或会话注入到测试实例中，并适当地准备测试夹具。
+* 调用从配置的 `WebApplicationContext` 中检索到的 Web 组件（通过依赖注入）。
+* 对模拟对象执行断言。
 
-The next code snippet shows the XML configuration for a login use case. Note that the
-`userService` bean has a dependency on a request-scoped `loginAction` bean. Also, the
-`LoginAction` is instantiated by using xref:core/expressions.adoc[SpEL expressions] that
-retrieve the username and password from the current HTTP request. In our test, we want to
-configure these request parameters through the mock managed by the TestContext framework.
-The following listing shows the configuration for this use case:
+下一个代码片段显示了登录用例的 XML 配置。
+请注意，`userService` Bean 依赖于请求作用域的 `loginAction` Bean。
+此外，`LoginAction` 是使用 xref:core/expressions.adoc[SpEL 表达式] 实例化的，该表达式从当前 HTTP 请求中检索用户名和密码。
+在我们的测试中，我们希望通过 TestContext 框架管理的模拟对象配置这些请求参数。
+以下清单显示了此用例的配置：
 
-.Request-scoped bean configuration
+.请求作用域 Bean 配置
 [source,xml,indent=0]
 ----
 <beans>
@@ -38,18 +32,15 @@ The following listing shows the configuration for this use case:
 </beans>
 ----
 
-In `RequestScopedBeanTests`, we inject both the `UserService` (that is, the subject under
-test) and the `HttpMockRequestImpl` into our test instance. Within our
-`requestScope()` test method, we set up our test fixture by setting request parameters in
-the provided `HttpMockRequestImpl`. When the `loginUser()` method is invoked on our
-`userService`, we are assured that the user service has access to the request-scoped
-`loginAction` for the current `HttpMockRequestImpl` (that is, the one in which we just
-set parameters). We can then perform assertions against the results based on the known
-inputs for the username and password. The following listing shows how to do so:
+在 `RequestScopedBeanTests` 中，我们将 `UserService`（即被测对象）和 `HttpMockRequestImpl` 注入到我们的测试实例中。
+在我们的 `requestScope()` 测试方法中，我们通过在提供的 `HttpMockRequestImpl` 中设置请求参数来设置我们的测试夹具。
+当在我们的 `userService` 上调用 `loginUser()` 方法时，我们可以确信用户服务可以访问当前 `HttpMockRequestImpl`（即我们刚刚设置参数的那个）的请求作用域 `loginAction`。
+然后，我们可以根据已知的用户名和密码输入对结果执行断言。
+以下清单显示了如何执行此操作：
 
 [tabs]
 ======
-Request-scoped bean test::
+请求作用域 Bean 测试::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -65,21 +56,20 @@ class RequestScopedBeanTests {
     request.setParameter("pswd", "$pr!ng");
 
     LoginResults results = userService.loginUser();
-    // assert results
+    // 断言结果
   }
 }
 ----
 
 ======
 
-The following code snippet is similar to the one we saw earlier for a request-scoped
-bean. However, this time, the `userService` bean has a dependency on a session-scoped
-`userPreferences` bean. Note that the `UserPreferences` bean is instantiated by using a
-SpEL expression that retrieves the theme from the current HTTP session. In our test, we
-need to configure a theme in the mock session managed by the TestContext framework. The
-following example shows how to do so:
+以下代码片段与我们之前看到的请求作用域 Bean 的代码片段类似。
+但是，这一次，`userService` Bean 依赖于会话作用域的 `userPreferences` Bean。
+请注意，`UserPreferences` Bean 是使用从当前 HTTP 会话中检索主题的 SpEL 表达式实例化的。
+在我们的测试中，我们需要在 TestContext 框架管理的模拟会话中配置主题。
+以下示例显示了如何执行此操作：
 
-.Session-scoped bean configuration
+.会话作用域 Bean 配置
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
@@ -96,17 +86,14 @@ following example shows how to do so:
 </beans>
 ----
 
-In `SessionScopedBeanTests`, we inject the `UserService` and the `MockHttpSession` into
-our test instance. Within our `sessionScope()` test method, we set up our test fixture by
-setting the expected `theme` attribute in the provided `MockHttpSession`. When the
-`processUserPreferences()` method is invoked on our `userService`, we are assured that
-the user service has access to the session-scoped `userPreferences` for the current
-`MockHttpSession`, and we can perform assertions against the results based on the
-configured theme. The following example shows how to do so:
+在 `SessionScopedBeanTests` 中，我们将 `UserService` 和 `MockHttpSession` 注入到我们的测试实例中。
+在我们的 `sessionScope()` 测试方法中，我们通过在提供的 `MockHttpSession` 中设置预期的 `theme` 属性来设置我们的测试夹具。
+当在我们的 `userService` 上调用 `processUserPreferences()` 方法时，我们可以确信用户服务可以访问当前 `MockHttpSession` 的会话作用域 `userPreferences`，并且我们可以根据配置的主题对结果执行断言。
+以下示例显示了如何执行此操作：
 
 [tabs]
 ======
-Session-scoped bean test::
+会话作用域 Bean 测试::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -121,10 +108,9 @@ class SessionScopedBeanTests {
     session.setAttribute("theme", "blue");
 
     Results results = userService.processUserPreferences();
-    // assert results
+    // 断言结果
   }
 }
 ----
 
 ======
-

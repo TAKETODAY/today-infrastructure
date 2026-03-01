@@ -1,26 +1,13 @@
 [[testcontext-bootstrapping]]
-= Bootstrapping the TestContext Framework
+= 引导 TestContext 框架
 
-The default configuration for the internals of the Infra TestContext Framework is
-sufficient for all common use cases. However, there are times when a development team or
-third party framework would like to change the default `ContextLoader`, implement a
-custom `TestContext` or `ContextCache`, augment the default sets of
-`ContextCustomizerFactory` and `TestExecutionListener` implementations, and so on. For
-such low-level control over how the TestContext framework operates, Infra provides a
-bootstrapping strategy.
+Infra TestContext 框架内部的默认配置足以满足所有常见用例。
+然而，有时开发团队或第三方框架希望更改默认的 `ContextLoader`，实现自定义的 `TestContext` 或 `ContextCache`，增强 `ContextCustomizerFactory` 和 `TestExecutionListener` 实现的默认集合等等。
+为了对 TestContext 框架的操作进行这种低级控制，Infra 提供了一种引导策略。
 
-`TestContextBootstrapper` defines the SPI for bootstrapping the TestContext framework. A
-`TestContextBootstrapper` is used by the `TestContextManager` to load the
-`TestExecutionListener` implementations for the current test and to build the
-`TestContext` that it manages. You can configure a custom bootstrapping strategy for a
-test class (or test class hierarchy) by using `@BootstrapWith`, either directly or as a
-meta-annotation. If a bootstrapper is not explicitly configured by using
-`@BootstrapWith`, either the `DefaultTestContextBootstrapper` or the
-`WebTestContextBootstrapper` is used, depending on the presence of `@WebAppConfiguration`.
+`TestContextBootstrapper` 定义了用于引导 TestContext 框架的 SPI。
+`TestContextManager` 使用 `TestContextBootstrapper` 来加载当前测试的 `TestExecutionListener` 实现，并构建它管理的 `TestContext`。
+您可以使用 `@BootstrapWith`（直接使用或作为元注解）为测试类（或测试类层次结构）配置自定义引导策略。
+如果未使用 `@BootstrapWith` 显式配置引导程序，则根据 `@WebAppConfiguration` 的存在与否，使用 `DefaultTestContextBootstrapper` 或 `WebTestContextBootstrapper`。
 
-Since the `TestContextBootstrapper` SPI is likely to change in the future (to accommodate
-new requirements), we strongly encourage implementers not to implement this interface
-directly but rather to extend `AbstractTestContextBootstrapper` or one of its concrete
-subclasses instead.
-
-
+由于 `TestContextBootstrapper` SPI 将来可能会发生变化（以适应新的需求），我们强烈建议实现者不要直接实现此接口，而是扩展 `AbstractTestContextBootstrapper` 或其具体子类之一。

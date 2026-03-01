@@ -1,45 +1,29 @@
 [[testcontext-tel-config]]
-= `TestExecutionListener` Configuration
+= `TestExecutionListener` 配置
 
-Infra provides the following `TestExecutionListener` implementations that are registered
-by default, exactly in the following order:
+Infra 提供了以下默认注册的 `TestExecutionListener` 实现，顺序如下：
 
-* `MockTestExecutionListener`: Configures Servlet API mocks for a
-  `WebApplicationContext`.
-* `DirtiesContextBeforeModesTestExecutionListener`: Handles the `@DirtiesContext`
-  annotation for "`before`" modes.
-* `ApplicationEventsTestExecutionListener`: Provides support for
-  xref:testing/testcontext-framework/application-events.adoc[`ApplicationEvents`].
-* `DependencyInjectionTestExecutionListener`: Provides dependency injection for the test
-  instance.
-* `MicrometerObservationRegistryTestExecutionListener`: Provides support for
-  Micrometer's `ObservationRegistry`.
-* `DirtiesContextTestExecutionListener`: Handles the `@DirtiesContext` annotation for
-  "`after`" modes.
-* `CommonCachesTestExecutionListener`: Clears resource caches in the test's
-  `ApplicationContext` if necessary.
-* `TransactionalTestExecutionListener`: Provides transactional test execution with
-  default rollback semantics.
-* `SqlScriptsTestExecutionListener`: Runs SQL scripts configured by using the `@Sql`
-  annotation.
-* `EventPublishingTestExecutionListener`: Publishes test execution events to the test's
-  `ApplicationContext` (see xref:testing/testcontext-framework/test-execution-events.adoc[Test Execution Events]).
+* `MockTestExecutionListener`：为 `WebApplicationContext` 配置 Servlet API 模拟对象。
+* `DirtiesContextBeforeModesTestExecutionListener`：处理 "`before`" 模式的 `@DirtiesContext` 注解。
+* `ApplicationEventsTestExecutionListener`：提供对 xref:testing/testcontext-framework/application-events.adoc[`ApplicationEvents`] 的支持。
+* `DependencyInjectionTestExecutionListener`：为测试实例提供依赖注入。
+* `MicrometerObservationRegistryTestExecutionListener`：提供对 Micrometer 的 `ObservationRegistry` 的支持。
+* `DirtiesContextTestExecutionListener`：处理 "`after`" 模式的 `@DirtiesContext` 注解。
+* `CommonCachesTestExecutionListener`：如果需要，清除测试 `ApplicationContext` 中的资源缓存。
+* `TransactionalTestExecutionListener`：提供具有默认回滚语义的事务性测试执行。
+* `SqlScriptsTestExecutionListener`：运行使用 `@Sql` 注解配置的 SQL 脚本。
+* `EventPublishingTestExecutionListener`：将测试执行事件发布到测试的 `ApplicationContext`（请参阅 xref:testing/testcontext-framework/test-execution-events.adoc[测试执行事件]）。
 
 [[testcontext-tel-config-registering-tels]]
-== Registering `TestExecutionListener` Implementations
+== 注册 `TestExecutionListener` 实现
 
-You can register `TestExecutionListener` implementations explicitly for a test class, its
-subclasses, and its nested classes by using the `@TestExecutionListeners` annotation. See
-xref:testing/annotations.adoc[annotation support] and the javadoc for
-{today-framework-api}/test/context/TestExecutionListeners.html[`@TestExecutionListeners`]
-for details and examples.
+您可以使用 `@TestExecutionListeners` 注解为测试类、其子类及其嵌套类显式注册 `TestExecutionListener` 实现。
+有关详细信息和示例，请参阅 xref:testing/annotations.adoc[注解支持] 和 {today-framework-api}/test/context/TestExecutionListeners.html[`@TestExecutionListeners`] 的 javadoc。
 
-.Switching to default `TestExecutionListener` implementations
+.切换到默认的 `TestExecutionListener` 实现
 [NOTE]
 ====
-If you extend a class that is annotated with `@TestExecutionListeners` and you need to
-switch to using the default set of listeners, you can annotate your class with the
-following.
+如果您扩展了一个使用 `@TestExecutionListeners` 注解的类，并且需要切换到使用默认的监听器集，则可以使用以下内容注解您的类。
 
 [tabs]
 ======
@@ -47,13 +31,13 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Switch to default listeners
+// 切换到默认监听器
 @TestExecutionListeners(
   listeners = {},
   inheritListeners = false,
   mergeMode = MERGE_WITH_DEFAULTS)
 class MyTest extends BaseTest {
-  // class body...
+  // 类体...
 }
 ----
 
@@ -61,43 +45,29 @@ class MyTest extends BaseTest {
 ====
 
 [[testcontext-tel-config-automatic-discovery]]
-== Automatic Discovery of Default `TestExecutionListener` Implementations
+== 自动发现默认 `TestExecutionListener` 实现
 
-Registering `TestExecutionListener` implementations by using `@TestExecutionListeners` is
-suitable for custom listeners that are used in limited testing scenarios. However, it can
-become cumbersome if a custom listener needs to be used across an entire test suite. This
-issue is addressed through support for automatic discovery of default
-`TestExecutionListener` implementations through the `InfraFactoriesLoader` mechanism.
+使用 `@TestExecutionListeners` 注册 `TestExecutionListener` 实现适用于在有限测试场景中使用的自定义监听器。
+但是，如果需要在整个测试套件中使用自定义监听器，则会变得很麻烦。
+这个问题通过 `InfraFactoriesLoader` 机制支持自动发现默认 `TestExecutionListener` 实现来解决。
 
-For example, the `infra-test` module declares all core default `TestExecutionListener`
-implementations under the `infra.test.context.TestExecutionListener` key in
-its {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[`META-INF/today.strategies`
-properties file]. Third-party frameworks and developers can contribute their own
-`TestExecutionListener` implementations to the list of default listeners in the same
-manner through their own `today.strategies` files.
+例如，`infra-test` 模块在其 {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[`META-INF/today.strategies` 属性文件] 中的 `infra.test.context.TestExecutionListener` 键下声明了所有核心默认 `TestExecutionListener` 实现。
+第三方框架和开发人员可以通过他们自己的 `today.strategies` 文件，以相同的方式将他们自己的 `TestExecutionListener` 实现贡献给默认监听器列表。
 
 [[testcontext-tel-config-ordering]]
-== Ordering `TestExecutionListener` Implementations
+== `TestExecutionListener` 实现排序
 
-When the TestContext framework discovers default `TestExecutionListener` implementations
-through the xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-automatic-discovery[aforementioned]
-`InfraFactoriesLoader` mechanism, the instantiated listeners are sorted by using
-Infra `AnnotationAwareOrderComparator`, which honors Infra `Ordered` interface and
-`@Order` annotation for ordering. `AbstractTestExecutionListener` and all default
-`TestExecutionListener` implementations provided by Infra implement `Ordered` with
-appropriate values. Third-party frameworks and developers should therefore make sure that
-their default `TestExecutionListener` implementations are registered in the proper order
-by implementing `Ordered` or declaring `@Order`. See the javadoc for the `getOrder()`
-methods of the core default `TestExecutionListener` implementations for details on what
-values are assigned to each core listener.
+当 TestContext 框架通过 xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-automatic-discovery[上述] `InfraFactoriesLoader` 机制发现默认 `TestExecutionListener` 实现时，实例化的监听器使用 Infra `AnnotationAwareOrderComparator` 进行排序，该比较器支持 Infra `Ordered` 接口和 `@Order` 注解进行排序。
+`AbstractTestExecutionListener` 和 Infra 提供的所有默认 `TestExecutionListener` 实现都实现了具有适当值的 `Ordered`。
+因此，第三方框架和开发人员应确保通过实现 `Ordered` 或声明 `@Order` 以正确的顺序注册其默认 `TestExecutionListener` 实现。
+有关分配给每个核心监听器的值的详细信息，请参阅核心默认 `TestExecutionListener` 实现的 `getOrder()` 方法的 javadoc。
 
 [[testcontext-tel-config-merging]]
-== Merging `TestExecutionListener` Implementations
+== 合并 `TestExecutionListener` 实现
 
-If a custom `TestExecutionListener` is registered via `@TestExecutionListeners`, the
-default listeners are not registered. In most common testing scenarios, this effectively
-forces the developer to manually declare all default listeners in addition to any custom
-listeners. The following listing demonstrates this style of configuration:
+如果通过 `@TestExecutionListeners` 注册了自定义 `TestExecutionListener`，则不会注册默认监听器。
+在大多数常见的测试场景中，这实际上迫使开发人员除了任何自定义监听器之外，还要手动声明所有默认监听器。
+以下清单演示了这种配置风格：
 
 [tabs]
 ======
@@ -116,37 +86,23 @@ Java::
   SqlScriptsTestExecutionListener.class
 })
 class MyTest {
-  // class body...
+  // 类体...
 }
 ----
 
 ======
 
-The challenge with this approach is that it requires that the developer know exactly
-which listeners are registered by default. Moreover, the set of default listeners can
-change from release to release -- for example, `SqlScriptsTestExecutionListener` was
-introduced in TODAY Framework 4.1, and `DirtiesContextBeforeModesTestExecutionListener`
-was introduced in TODAY Framework 4.2. Furthermore, third-party frameworks like Infra
-Boot and Infra Security register their own default `TestExecutionListener`
-implementations by using the aforementioned xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-automatic-discovery[automatic discovery mechanism]
-.
+这种方法的挑战在于，它要求开发人员确切知道默认注册了哪些监听器。
+此外，默认监听器集可能会随版本而变化——例如，`SqlScriptsTestExecutionListener` 是在 TODAY Framework 4.1 中引入的，而 `DirtiesContextBeforeModesTestExecutionListener` 是在 TODAY Framework 4.2 中引入的。
+此外，像 Infra Boot 和 Infra Security 这样的第三方框架使用上述 xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-automatic-discovery[自动发现机制] 注册它们自己的默认 `TestExecutionListener` 实现。
 
-To avoid having to be aware of and re-declare all default listeners, you can set the
-`mergeMode` attribute of `@TestExecutionListeners` to `MergeMode.MERGE_WITH_DEFAULTS`.
-`MERGE_WITH_DEFAULTS` indicates that locally declared listeners should be merged with the
-default listeners. The merging algorithm ensures that duplicates are removed from the
-list and that the resulting set of merged listeners is sorted according to the semantics
-of `AnnotationAwareOrderComparator`, as described in xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-ordering[Ordering `TestExecutionListener` Implementations].
-If a listener implements `Ordered` or is annotated with `@Order`, it can influence the
-position in which it is merged with the defaults. Otherwise, locally declared listeners
-are appended to the list of default listeners when merged.
+为了避免必须了解并重新声明所有默认监听器，您可以将 `@TestExecutionListeners` 的 `mergeMode` 属性设置为 `MergeMode.MERGE_WITH_DEFAULTS`。
+`MERGE_WITH_DEFAULTS` 指示本地声明的监听器应与默认监听器合并。
+合并算法确保从列表中删除重复项，并且生成的合并监听器集根据 `AnnotationAwareOrderComparator` 的语义进行排序，如 xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-ordering[`TestExecutionListener` 实现排序] 中所述。
+如果监听器实现了 `Ordered` 或使用 `@Order` 进行了注解，它可以影响其与默认值合并的位置。
+否则，本地声明的监听器在合并时将追加到默认监听器列表的末尾。
 
-For example, if the `MyCustomTestExecutionListener` class in the previous example
-configures its `order` value (for example, `500`) to be less than the order of the
-`MockTestExecutionListener` (which happens to be `1000`), the
-`MyCustomTestExecutionListener` can then be automatically merged with the list of
-defaults in front of the `MockTestExecutionListener`, and the previous example could
-be replaced with the following:
+例如，如果上一个示例中的 `MyCustomTestExecutionListener` 类将其 `order` 值（例如 `500`）配置为小于 `MockTestExecutionListener` 的顺序（恰好是 `1000`），则 `MyCustomTestExecutionListener` 可以自动合并到 `MockTestExecutionListener` 前面的默认值列表中，并且可以将前面的示例替换为以下内容：
 
 [tabs]
 ======
@@ -160,7 +116,7 @@ Java::
   mergeMode = MERGE_WITH_DEFAULTS
 )
 class MyTest {
-  // class body...
+  // 类体...
 }
 ----
 

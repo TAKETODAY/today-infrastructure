@@ -1,11 +1,8 @@
 [[testcontext-test-execution-events]]
-= Test Execution Events
+= 测试执行事件
 
-The `EventPublishingTestExecutionListener` introduced in TODAY Framework 5.2 offers an
-alternative approach to implementing a custom `TestExecutionListener`. Components in the
-test's `ApplicationContext` can listen to the following events published by the
-`EventPublishingTestExecutionListener`, each of which corresponds to a method in the
-`TestExecutionListener` API.
+TODAY Framework 5.2 中引入的 `EventPublishingTestExecutionListener` 提供了一种实现自定义 `TestExecutionListener` 的替代方法。
+测试的 `ApplicationContext` 中的组件可以监听由 `EventPublishingTestExecutionListener` 发布的以下事件，每个事件对应于 `TestExecutionListener` API 中的一个方法。
 
 * `BeforeTestClassEvent`
 * `PrepareTestInstanceEvent`
@@ -15,48 +12,28 @@ test's `ApplicationContext` can listen to the following events published by the
 * `AfterTestMethodEvent`
 * `AfterTestClassEvent`
 
-These events may be consumed for various reasons, such as resetting mock beans or tracing
-test execution. One advantage of consuming test execution events rather than implementing
-a custom `TestExecutionListener` is that test execution events may be consumed by any
-Infra bean registered in the test `ApplicationContext`, and such beans may benefit
-directly from dependency injection and other features of the `ApplicationContext`. In
-contrast, a `TestExecutionListener` is not a bean in the `ApplicationContext`.
+消费这些事件可能有各种原因，例如重置模拟 Bean 或跟踪测试执行。
+消费测试执行事件而不是实现自定义 `TestExecutionListener` 的一个优点是，测试执行事件可以由在测试 `ApplicationContext` 中注册的任何 Infra Bean 消费，并且这些 Bean 可以直接受益于依赖注入和 `ApplicationContext` 的其他功能。
+相比之下，`TestExecutionListener` 不是 `ApplicationContext` 中的 Bean。
 
 [NOTE]
 ====
-The `EventPublishingTestExecutionListener` is registered by default; however, it only
-publishes events if the `ApplicationContext` has _already been loaded_. This prevents the
-`ApplicationContext` from being loaded unnecessarily or too early.
+`EventPublishingTestExecutionListener` 默认已注册；但是，它仅在 `ApplicationContext` *已经加载*的情况下才发布事件。
+这可以防止 `ApplicationContext` 被不必要地或过早地加载。
 
-Consequently, a `BeforeTestClassEvent` will not be published until after the
-`ApplicationContext` has been loaded by another `TestExecutionListener`. For example, with
-the default set of `TestExecutionListener` implementations registered, a
-`BeforeTestClassEvent` will not be published for the first test class that uses a
-particular test `ApplicationContext`, but a `BeforeTestClassEvent` _will_ be published for
-any subsequent test class in the same test suite that uses the same test
-`ApplicationContext` since the context will already have been loaded when subsequent test
-classes run (as long as the context has not been removed from the `ContextCache` via
-`@DirtiesContext` or the max-size eviction policy).
+因此，在另一个 `TestExecutionListener` 加载 `ApplicationContext` 之前，不会发布 `BeforeTestClassEvent`。
+例如，在注册了默认的一组 `TestExecutionListener` 实现的情况下，对于使用特定测试 `ApplicationContext` 的第一个测试类，不会发布 `BeforeTestClassEvent`，但对于同一测试套件中使用相同测试 `ApplicationContext` 的任何后续测试类，*将*发布 `BeforeTestClassEvent`，因为当后续测试类运行时，上下文已经加载（只要上下文没有通过 `@DirtiesContext` 或最大大小驱逐策略从 `ContextCache` 中移除）。
 
-If you wish to ensure that a `BeforeTestClassEvent` is always published for every test
-class, you need to register a `TestExecutionListener` that loads the `ApplicationContext`
-in the `beforeTestClass` callback, and that `TestExecutionListener` must be registered
-_before_ the `EventPublishingTestExecutionListener`.
+如果您希望确保为每个测试类始终发布 `BeforeTestClassEvent`，则需要注册一个在 `beforeTestClass` 回调中加载 `ApplicationContext` 的 `TestExecutionListener`，并且该 `TestExecutionListener` 必须注册在 `EventPublishingTestExecutionListener` *之前*。
 
-Similarly, if `@DirtiesContext` is used to remove the `ApplicationContext` from the
-context cache after the last test method in a given test class, the `AfterTestClassEvent`
-will not be published for that test class.
+同样，如果使用 `@DirtiesContext` 在给定测试类中的最后一个测试方法之后从上下文缓存中删除 `ApplicationContext`，则不会为该测试类发布 `AfterTestClassEvent`。
 ====
 
-In order to listen to test execution events, a Infra bean may choose to implement the
-`infra.context.ApplicationListener` interface. Alternatively, listener
-methods can be annotated with `@EventListener` and configured to listen to one of the
-particular event types listed above (see
-xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[Annotation-based Event Listeners]).
-Due to the popularity of this approach, Infra provides the following dedicated
-`@EventListener` annotations to simplify registration of test execution event listeners.
-These annotations reside in the `infra.test.context.event.annotation`
-package.
+为了监听测试执行事件，Infra Bean 可以选择实现 `infra.context.ApplicationListener` 接口。
+或者，监听器方法可以使用 `@EventListener` 进行注解，并配置为监听上面列出的特定事件类型之一（请参阅
+xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[基于注解的事件监听器]）。
+由于这种方法的流行，Infra 提供了以下专用 `@EventListener` 注解来简化测试执行事件监听器的注册。
+这些注解驻留在 `infra.test.context.event.annotation` 包中。
 
 * `@BeforeTestClass`
 * `@PrepareTestInstance`
@@ -67,22 +44,15 @@ package.
 * `@AfterTestClass`
 
 [[testcontext-test-execution-events-exception-handling]]
-== Exception Handling
+== 异常处理
 
-By default, if a test execution event listener throws an exception while consuming an
-event, that exception will propagate to the underlying testing framework in use (such as
-JUnit or TestNG). For example, if the consumption of a `BeforeTestMethodEvent` results in
-an exception, the corresponding test method will fail as a result of the exception. In
-contrast, if an asynchronous test execution event listener throws an exception, the
-exception will not propagate to the underlying testing framework. For further details on
-asynchronous exception handling, consult the class-level javadoc for `@EventListener`.
+默认情况下，如果测试执行事件监听器在消费事件时抛出异常，则该异常将传播到正在使用的底层测试框架（如 JUnit 或 TestNG）。
+例如，如果 `BeforeTestMethodEvent` 的消费导致异常，则相应的测试方法将因异常而失败。
+相比之下，如果异步测试执行事件监听器抛出异常，则该异常不会传播到底层测试框架。
+有关异步异常处理的更多详细信息，请参阅 `@EventListener` 的类级 javadoc。
 
 [[testcontext-test-execution-events-async]]
-== Asynchronous Listeners
+== 异步监听器
 
-If you want a particular test execution event listener to process events asynchronously,
-you can use Infra xref:integration/scheduling.adoc#scheduling-annotation-support-async[regular `@Async` support]
-. For further details, consult the class-level javadoc for
-`@EventListener`.
-
-
+如果您希望特定的测试执行事件监听器异步处理事件，可以使用 Infra xref:integration/scheduling.adoc#scheduling-annotation-support-async[常规的 `@Async` 支持]。
+有关更多详细信息，请参阅 `@EventListener` 的类级 javadoc。

@@ -1,58 +1,41 @@
 [[testcontext-fixture-di]]
-= Dependency Injection of Test Fixtures
+= 测试夹具的依赖注入
 
-When you use the `DependencyInjectionTestExecutionListener` (which is configured by
-default), the dependencies of your test instances are injected from beans in the
-application context that you configured with `@ContextConfiguration` or related
-annotations. You may use setter injection, field injection, or both, depending on
-which annotations you choose and whether you place them on setter methods or fields.
-If you are using JUnit Jupiter you may also optionally use constructor injection
-(see xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-di[Dependency Injection with `InfraExtension`]). For consistency with Infra annotation-based
-injection support, you may also use Infra `@Autowired` annotation or the `@Inject`
-annotation from JSR-330 for field and setter injection.
+当您使用 `DependencyInjectionTestExecutionListener`（默认配置）时，测试实例的依赖项将从您使用 `@ContextConfiguration` 或相关注解配置的应用程序上下文中的 Bean 注入。
+您可以使用 setter 注入、字段注入或两者兼用，具体取决于您选择的注解以及将它们放置在 setter 方法还是字段上。
+如果您使用的是 JUnit Jupiter，您还可以选择使用构造函数注入
+（请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-di[使用 `InfraExtension` 的依赖注入]）。
+为了与 Infra 基于注解的注入支持保持一致，您还可以使用 Infra 的 `@Autowired` 注解或 JSR-330 中的 `@Inject` 注解进行字段和 setter 注入。
 
-TIP: For testing frameworks other than JUnit Jupiter, the TestContext framework does not
-participate in instantiation of the test class. Thus, the use of `@Autowired` or
-`@Inject` for constructors has no effect for test classes.
+TIP: 对于 JUnit Jupiter 以外的测试框架，TestContext 框架不参与测试类的实例化。
+因此，对构造函数使用 `@Autowired` 或 `@Inject` 对测试类没有影响。
 
-NOTE: Although field injection is discouraged in production code, field injection is
-actually quite natural in test code. The rationale for the difference is that you will
-never instantiate your test class directly. Consequently, there is no need to be able to
-invoke a `public` constructor or setter method on your test class.
+NOTE: 虽然在生产代码中不鼓励使用字段注入，但在测试代码中，字段注入实际上是很自然的。
+这种差异的理由是，您永远不会直接实例化您的测试类。
+因此，不需要能够在测试类上调用 `public` 构造函数或 setter 方法。
 
-Because `@Autowired` is used to perform xref:core/beans/dependencies/factory-autowire.adoc[autowiring by type]
-, if you have multiple bean definitions of the same type, you cannot rely on this
-approach for those particular beans. In that case, you can use `@Autowired` in
-conjunction with `@Qualifier`. You can also choose to use `@Inject` in conjunction with
-`@Named`. Alternatively, if your test class has access to its `ApplicationContext`, you
-can perform an explicit lookup by using (for example) a call to
-`applicationContext.getBean("titleRepository", TitleRepository.class)`.
+因为 `@Autowired` 用于执行 xref:core/beans/dependencies/factory-autowire.adoc[按类型自动装配]，所以如果您有多个相同类型的 Bean 定义，则不能对这些特定 Bean 依赖此方法。
+在这种情况下，您可以将 `@Autowired` 与 `@Qualifier` 结合使用。
+您也可以选择将 `@Inject` 与 `@Named` 结合使用。
+或者，如果您的测试类可以访问其 `ApplicationContext`，则可以通过使用（例如）调用 `applicationContext.getBean("titleRepository", TitleRepository.class)` 来执行显式查找。
 
-If you do not want dependency injection applied to your test instances, do not annotate
-fields or setter methods with `@Autowired` or `@Inject`. Alternatively, you can disable
-dependency injection altogether by explicitly configuring your class with
-`@TestExecutionListeners` and omitting `DependencyInjectionTestExecutionListener.class`
-from the list of listeners.
+如果您不希望将依赖注入应用于您的测试实例，请不要使用 `@Autowired` 或 `@Inject` 注解字段或 setter 方法。
+或者，您可以通过使用 `@TestExecutionListeners` 显式配置您的类并从监听器列表中省略 `DependencyInjectionTestExecutionListener.class` 来完全禁用依赖注入。
 
-Consider the scenario of testing a `HibernateTitleRepository` class, as outlined in the
-xref:testing/integration.adoc#integration-testing-goals[Goals] section. The next two code listings demonstrate the
-use of `@Autowired` on fields and setter methods. The application context configuration
-is presented after all sample code listings.
+考虑测试 `HibernateTitleRepository` 类的场景，如 xref:testing/integration.adoc#integration-testing-goals[目标] 部分所述。
+接下来的两个代码清单演示了在字段和 setter 方法上使用 `@Autowired`。
+应用程序上下文配置显示在所有示例代码清单之后。
 
 [NOTE]
 ====
-The dependency injection behavior in the following code listings is not specific to JUnit
-Jupiter. The same DI techniques can be used in conjunction with any supported testing
-framework.
+以下代码清单中的依赖注入行为并非特定于 JUnit Jupiter。
+相同的 DI 技术可以与任何支持的测试框架结合使用。
 
-The following examples make calls to static assertion methods, such as `assertNotNull()`,
-but without prepending the call with `Assertions`. In such cases, assume that the method
-was properly imported through an `import static` declaration that is not shown in the
-example.
+以下示例调用了静态断言方法，例如 `assertNotNull()`，但在调用前没有加上 `Assertions`。
+在这种情况下，假设该方法已通过示例中未显示的 `import static` 声明正确导入。
 ====
 
-The first code listing shows a JUnit Jupiter based implementation of the test class that
-uses `@Autowired` for field injection:
+第一个代码清单显示了基于 JUnit Jupiter 的测试类实现，该实现使用 `@Autowired` 进行字段注入：
 
 [tabs]
 ======
@@ -61,11 +44,11 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// specifies the Infra configuration to load for this test fixture
+// 指定为此测试夹具加载的 Infra 配置
 @ContextConfiguration("repository-config.xml")
 class HibernateTitleRepositoryTests {
 
-  // this instance will be dependency injected by type
+  // 这个实例将通过类型进行依赖注入
   @Autowired
   HibernateTitleRepository titleRepository;
 
@@ -79,8 +62,7 @@ class HibernateTitleRepositoryTests {
 
 ======
 
-Alternatively, you can configure the class to use `@Autowired` for setter injection, as
-follows:
+或者，您可以配置该类以对 setter 注入使用 `@Autowired`，如下所示：
 
 [tabs]
 ======
@@ -89,11 +71,11 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// specifies the Infra configuration to load for this test fixture
+// 指定为此测试夹具加载的 Infra 配置
 @ContextConfiguration("repository-config.xml")
 class HibernateTitleRepositoryTests {
 
-  // this instance will be dependency injected by type
+  // 这个实例将通过类型进行依赖注入
   HibernateTitleRepository titleRepository;
 
   @Autowired
@@ -111,9 +93,8 @@ class HibernateTitleRepositoryTests {
 
 ======
 
-The preceding code listings use the same XML context file referenced by the
-`@ContextConfiguration` annotation (that is, `repository-config.xml`). The following
-shows this configuration:
+前面的代码清单使用了 `@ContextConfiguration` 注解引用的相同 XML 上下文文件（即 `repository-config.xml`）。
+以下显示了此配置：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -123,13 +104,13 @@ shows this configuration:
   xsi:schemaLocation="http://www.springframework.org/schema/beans
     https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <!-- this bean will be injected into the HibernateTitleRepositoryTests class -->
+  <!-- 这个 bean 将被注入到 HibernateTitleRepositoryTests 类中 -->
   <bean id="titleRepository" class="com.foo.repository.hibernate.HibernateTitleRepository">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
   <bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
-    <!-- configuration elided for brevity -->
+    <!-- 省略配置以简洁 -->
   </bean>
 
 </beans>
@@ -137,12 +118,8 @@ shows this configuration:
 
 [NOTE]
 =====
-If you are extending from a Infra-provided test base class that happens to use
-`@Autowired` on one of its setter methods, you might have multiple beans of the affected
-type defined in your application context (for example, multiple `DataSource` beans). In
-such a case, you can override the setter method and use the `@Qualifier` annotation to
-indicate a specific target bean, as follows (but make sure to delegate to the overridden
-method in the superclass as well):
+如果您是从 Infra 提供的测试基类扩展而来，而该基类碰巧在其 setter 方法之一上使用了 `@Autowired`，则您的应用程序上下文中可能会定义多个受影响类型的 Bean（例如，多个 `DataSource` Bean）。
+在这种情况下，您可以重写 setter 方法并使用 `@Qualifier` 注解来指示特定的目标 Bean，如下所示（但请确保也委托给超类中的重写方法）：
 
 [tabs]
 ======
@@ -163,11 +140,7 @@ Java::
 
 ======
 
-The specified qualifier value indicates the specific `DataSource` bean to inject,
-narrowing the set of type matches to a specific bean. Its value is matched against
-`<qualifier>` declarations within the corresponding `<bean>` definitions. The bean name
-is used as a fallback qualifier value, so you can effectively also point to a specific
-bean by name there (as shown earlier, assuming that `myDataSource` is the bean `id`).
+指定的限定符值指示要注入的特定 `DataSource` Bean，将类型匹配集缩小到特定 Bean。
+其值与相应的 `<bean>` 定义中的 `<qualifier>` 声明进行匹配。
+Bean 名称用作回退限定符值，因此您实际上也可以通过名称指向特定 Bean（如前所示，假设 `myDataSource` 是 Bean `id`）。
 =====
-
-

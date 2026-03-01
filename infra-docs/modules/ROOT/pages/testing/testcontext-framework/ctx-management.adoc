@@ -1,20 +1,15 @@
 [[testcontext-ctx-management]]
-= Context Management
+= 上下文管理
 
-Each `TestContext` provides context management and caching support for the test instance
-for which it is responsible. Test instances do not automatically receive access to the
-configured `ApplicationContext`. However, if a test class implements the
-`ApplicationContextAware` interface, a reference to the `ApplicationContext` is supplied
-to the test instance. Note that `AbstractJUnit4InfraContextTests` and
-`AbstractTestNGInfraContextTests` implement `ApplicationContextAware` and, therefore,
-provide access to the `ApplicationContext` automatically.
+每个 `TestContext` 为其负责的测试实例提供上下文管理和缓存支持。
+测试实例不会自动获得对已配置的 `ApplicationContext` 的访问权限。
+但是，如果测试类实现了 `ApplicationContextAware` 接口，则会将对 `ApplicationContext` 的引用提供给测试实例。
+请注意，`AbstractJUnit4InfraContextTests` 和 `AbstractTestNGInfraContextTests` 实现了 `ApplicationContextAware`，因此会自动提供对 `ApplicationContext` 的访问。
 
 .@Autowired ApplicationContext
 [TIP]
 =====
-As an alternative to implementing the `ApplicationContextAware` interface, you can inject
-the application context for your test class through the `@Autowired` annotation on either
-a field or setter method, as the following example shows:
+作为实现 `ApplicationContextAware` 接口的替代方法，您可以通过字段或 setter 方法上的 `@Autowired` 注解为测试类注入应用程序上下文，如以下示例所示：
 
 [tabs]
 ======
@@ -28,16 +23,15 @@ class MyTest {
   @Autowired // <1>
   ApplicationContext applicationContext;
 
-  // class body...
+  // 类体...
 }
 ----
-<1> Injecting the `ApplicationContext`.
+<1> 注入 `ApplicationContext`。
 
 ======
 
 
-Similarly, if your test is configured to load a `WebApplicationContext`, you can inject
-the web application context into your test, as follows:
+同样，如果您的测试配置为加载 `WebApplicationContext`，则可以将 Web 应用程序上下文注入到您的测试中，如下所示：
 
 [tabs]
 ======
@@ -51,46 +45,37 @@ class MyWebAppTest {
   @Autowired // <2>
   WebApplicationContext wac;
 
-  // class body...
+  // 类体...
 }
 ----
-<1> Configuring the `WebApplicationContext`.
-<2> Injecting the `WebApplicationContext`.
+<1> 配置 `WebApplicationContext`。
+<2> 注入 `WebApplicationContext`。
 ======
 
 
-Dependency injection by using `@Autowired` is provided by the
-`DependencyInjectionTestExecutionListener`, which is configured by default
-(see xref:testing/testcontext-framework/fixture-di.adoc[Dependency Injection of Test Fixtures]).
+使用 `@Autowired` 的依赖注入由 `DependencyInjectionTestExecutionListener` 提供，它是默认配置的
+（请参阅 xref:testing/testcontext-framework/fixture-di.adoc[测试夹具的依赖注入]）。
 =====
 
-Test classes that use the TestContext framework do not need to extend any particular
-class or implement a specific interface to configure their application context. Instead,
-configuration is achieved by declaring the `@ContextConfiguration` annotation at the
-class level. If your test class does not explicitly declare application context resource
-locations or component classes, the configured `ContextLoader` determines how to load a
-context from a default location or default configuration classes. In addition to context
-resource locations and component classes, an application context can also be configured
-through application context initializers.
+使用 TestContext 框架的测试类不需要扩展任何特定类或实现特定接口来配置其应用程序上下文。
+相反，通过在类级别声明 `@ContextConfiguration` 注解来实现配置。
+如果您的测试类没有显式声明应用程序上下文资源位置或组件类，则配置的 `ContextLoader` 将确定如何从默认位置或默认配置类加载上下文。
+除了上下文资源位置和组件类之外，还可以通过应用程序上下文初始化器配置应用程序上下文。
 
-The following sections explain how to use Infra `@ContextConfiguration` annotation to
-configure a test `ApplicationContext` by using XML configuration files, Groovy scripts,
-component classes (typically `@Configuration` classes), or context initializers.
-Alternatively, you can implement and configure your own custom `SmartContextLoader` for
-advanced use cases.
+以下部分说明了如何使用 Infra `@ContextConfiguration` 注解通过 XML 配置文件、Groovy 脚本、组件类（通常为 `@Configuration` 类）或上下文初始化器来配置测试 `ApplicationContext`。
+或者，您可以实现并配置自己的自定义 `SmartContextLoader` 以用于高级用例。
 
-* xref:testing/testcontext-framework/ctx-management/xml.adoc[Context Configuration with XML resources]
-* xref:testing/testcontext-framework/ctx-management/groovy.adoc[Context Configuration with Groovy Scripts]
-* xref:testing/testcontext-framework/ctx-management/javaconfig.adoc[Context Configuration with Component Classes]
-* xref:testing/testcontext-framework/ctx-management/mixed-config.adoc[Mixing XML, Groovy Scripts, and Component Classes]
-* xref:testing/testcontext-framework/ctx-management/context-customizers.adoc[Context Configuration with Context Customizers]
-* xref:testing/testcontext-framework/ctx-management/initializers.adoc[Context Configuration with Context Initializers]
-* xref:testing/testcontext-framework/ctx-management/inheritance.adoc[Context Configuration Inheritance]
-* xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[Context Configuration with Environment Profiles]
-* xref:testing/testcontext-framework/ctx-management/property-sources.adoc[Context Configuration with Test Property Sources]
-* xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[Context Configuration with Dynamic Property Sources]
-* xref:testing/testcontext-framework/ctx-management/web.adoc[Loading a `WebApplicationContext`]
-* xref:testing/testcontext-framework/ctx-management/caching.adoc[Context Caching]
-* xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[Context Failure Threshold]
-* xref:testing/testcontext-framework/ctx-management/hierarchies.adoc[Context Hierarchies]
-
+* xref:testing/testcontext-framework/ctx-management/xml.adoc[使用 XML 资源的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/groovy.adoc[使用 Groovy 脚本的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/javaconfig.adoc[使用组件类的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/mixed-config.adoc[混合使用 XML、Groovy 脚本和组件类]
+* xref:testing/testcontext-framework/ctx-management/context-customizers.adoc[使用上下文定制器的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/initializers.adoc[使用上下文初始化器的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/inheritance.adoc[上下文配置继承]
+* xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[使用环境配置文件的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/property-sources.adoc[使用测试属性源的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[使用动态属性源的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/web.adoc[加载 `WebApplicationContext`]
+* xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存]
+* xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[上下文失败阈值]
+* xref:testing/testcontext-framework/ctx-management/hierarchies.adoc[上下文层次结构]
