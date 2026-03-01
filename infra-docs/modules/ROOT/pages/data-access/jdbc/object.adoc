@@ -1,44 +1,26 @@
 [[jdbc-object]]
-= Modeling JDBC Operations as Java Objects
+= 将 JDBC 操作建模为 Java 对象
 
-The `infra.jdbc.object` package contains classes that let you access
-the database in a more object-oriented manner. As an example, you can run queries
-and get the results back as a list that contains business objects with the relational
-column data mapped to the properties of the business object. You can also run stored
-procedures and run update, delete, and insert statements.
+`infra.jdbc.object` 包包含允许您以更面向对象的方式访问数据库的类。例如，您可以运行查询并将结果作为包含业务对象的列表返回，其中关系列数据映射到业务对象的属性。您还可以运行存储过程以及执行更新、删除和插入语句。
 
 [NOTE]
 ====
-Many Infra developers believe that the various RDBMS operation classes described below
-(with the exception of the xref:data-access/jdbc/object.adoc#jdbc-StoredProcedure[`StoredProcedure`] class) can often
-be replaced with straight `JdbcTemplate` calls. Often, it is simpler to write a DAO
-method that calls a method on a `JdbcTemplate` directly (as opposed to
-encapsulating a query as a full-blown class).
+许多 Infra 开发人员认为，下面描述的各种 RDBMS 操作类（xref:data-access/jdbc/object.adoc#jdbc-StoredProcedure[`StoredProcedure`] 类除外）通常可以用直接的 `JdbcTemplate` 调用来代替。通常，编写一个直接调用 `JdbcTemplate` 方法的 DAO 方法（而不是将查询封装为一个完整的类）更简单。
 
-However, if you are getting measurable value from using the RDBMS operation classes,
-you should continue to use these classes.
+但是，如果您从使用 RDBMS 操作类中获得了可衡量的价值，则应继续使用这些类。
 ====
 
 
 [[jdbc-SqlQuery]]
-== Understanding `SqlQuery`
+== 理解 `SqlQuery`
 
-`SqlQuery` is a reusable, thread-safe class that encapsulates an SQL query. Subclasses
-must implement the `newRowMapper(..)` method to provide a `RowMapper` instance that can
-create one object per row obtained from iterating over the `ResultSet` that is created
-during the execution of the query. The `SqlQuery` class is rarely used directly, because
-the `MappingSqlQuery` subclass provides a much more convenient implementation for
-mapping rows to Java classes. Other implementations that extend `SqlQuery` are
-`MappingSqlQueryWithParameters` and `UpdatableSqlQuery`.
+`SqlQuery` 是一个可重用的、线程安全的类，它封装了一个 SQL 查询。子类必须实现 `newRowMapper(..)` 方法，以提供一个 `RowMapper` 实例，该实例可以为在查询执行期间创建的 `ResultSet` 上迭代获得的每一行创建一个对象。`SqlQuery` 类很少直接使用，因为 `MappingSqlQuery` 子类提供了一个更方便的实现，用于将行映射到 Java 类。其他扩展 `SqlQuery` 的实现包括 `MappingSqlQueryWithParameters` 和 `UpdatableSqlQuery`。
 
 
 [[jdbc-MappingSqlQuery]]
-== Using `MappingSqlQuery`
+== 使用 `MappingSqlQuery`
 
-`MappingSqlQuery` is a reusable query in which concrete subclasses must implement the
-abstract `mapRow(..)` method to convert each row of the supplied `ResultSet` into an
-object of the type specified. The following example shows a custom query that maps the
-data from the `t_actor` relation to an instance of the `Actor` class:
+`MappingSqlQuery` 是一个可重用的查询，具体的子类必须实现抽象的 `mapRow(..)` 方法，以将提供的 `ResultSet` 的每一行转换为指定类型的对象。以下示例显示了一个自定义查询，该查询将来自 `t_actor` 关系的数据映射到 `Actor` 类的实例：
 
 [tabs]
 ======
@@ -67,18 +49,7 @@ public class ActorMappingQuery extends MappingSqlQuery<Actor> {
 
 ======
 
-The class extends `MappingSqlQuery` parameterized with the `Actor` type. The constructor
-for this customer query takes a `DataSource` as the only parameter. In this
-constructor, you can call the constructor on the superclass with the `DataSource` and the SQL
-that should be run to retrieve the rows for this query. This SQL is used to
-create a `PreparedStatement`, so it may contain placeholders for any parameters to be
-passed in during execution. You must declare each parameter by using the `declareParameter`
-method passing in an `SqlParameter`. The `SqlParameter` takes a name, and the JDBC type
-as defined in `java.sql.Types`. After you define all parameters, you can call the
-`compile()` method so that the statement can be prepared and later run. This class is
-thread-safe after it is compiled, so, as long as these instances are created when the DAO
-is initialized, they can be kept as instance variables and be reused. The following
-example shows how to define such a class:
+该类扩展了使用 `Actor` 类型参数化的 `MappingSqlQuery`。此客户查询的构造函数将 `DataSource` 作为唯一参数。在此构造函数中，您可以使用 `DataSource` 和为检索此查询的行而应运行的 SQL 来调用超类的构造函数。此 SQL 用于创建 `PreparedStatement`，因此它可能包含在执行期间传入的任何参数的占位符。您必须通过使用传入 `SqlParameter` 的 `declareParameter` 方法来声明每个参数。`SqlParameter` 接受一个名称，以及在 `java.sql.Types` 中定义的 JDBC 类型。定义完所有参数后，您可以调用 `compile()` 方法，以便可以准备语句并在稍后运行。此类在编译后是线程安全的，因此，只要这些实例是在 DAO 初始化时创建的，它们就可以作为实例变量保存并被重用。以下示例显示了如何定义此类：
 
 [tabs]
 ======
@@ -99,12 +70,7 @@ public Customer getCustomer(Long id) {
 ----
 ======
 
-The method in the preceding example retrieves the customer with the `id` that is passed in as the
-only parameter. Since we want only one object to be returned, we call the `findObject` convenience
-method with the `id` as the parameter. If we had instead a query that returned a
-list of objects and took additional parameters, we would use one of the `execute`
-methods that takes an array of parameter values passed in as varargs. The following
-example shows such a method:
+前面示例中的方法检索具有作为唯一参数传入的 `id` 的客户。由于我们只希望返回一个对象，因此我们调用以 `id` 作为参数的 `findObject` 便捷方法。如果我们有一个返回对象列表并接受其他参数的查询，我们将使用其中一个 `execute` 方法，该方法接受作为可变参数传入的参数值数组。以下示例显示了此类方法：
 
 [tabs]
 ======
@@ -121,16 +87,11 @@ public List<Actor> searchForActors(int age, String namePattern) {
 
 
 [[jdbc-SqlUpdate]]
-== Using `SqlUpdate`
+== 使用 `SqlUpdate`
 
-The `SqlUpdate` class encapsulates an SQL update. As with a query, an update object is
-reusable, and, as with all `RdbmsOperation` classes, an update can have parameters and is
-defined in SQL. This class provides a number of `update(..)` methods analogous to the
-`execute(..)` methods of query objects. The `SqlUpdate` class is concrete. It can be
-subclassed -- for example, to add a custom update method.
-However, you do not have to subclass the `SqlUpdate`
-class, since it can easily be parameterized by setting SQL and declaring parameters.
-The following example creates a custom update method named `execute`:
+`SqlUpdate` 类封装了一个 SQL 更新。与查询一样，更新对象是可重用的，并且与所有 `RdbmsOperation` 类一样，更新可以具有参数并在 SQL 中定义。该类提供了许多类似于查询对象的 `execute(..)` 方法的 `update(..)` 方法。`SqlUpdate` 类是具体的。它可以被子类化——例如，添加自定义更新方法。
+但是，您不必子类化 `SqlUpdate` 类，因为可以通过设置 SQL 和声明参数轻松地将其参数化。
+以下示例创建了一个名为 `execute` 的自定义更新方法：
 
 [tabs]
 ======
@@ -154,9 +115,9 @@ public class UpdateCreditRating extends SqlUpdate {
   }
 
   /**
-   * @param id for the Customer to be updated
-   * @param rating the new value for credit rating
-   * @return number of rows updated
+   * @param id 要更新的客户的 id
+   * @param rating 信用评级的新值
+   * @return 更新的行数
    */
   public int execute(int id, int rating) {
     return update(rating, id);
@@ -167,16 +128,13 @@ public class UpdateCreditRating extends SqlUpdate {
 
 
 [[jdbc-StoredProcedure]]
-== Using `StoredProcedure`
+== 使用 `StoredProcedure`
 
-The `StoredProcedure` class is an `abstract` superclass for object abstractions of RDBMS
-stored procedures.
+`StoredProcedure` 类是 RDBMS 存储过程的对象抽象的 `abstract` 超类。
 
-The inherited `sql` property is the name of the stored procedure in the RDBMS.
+继承的 `sql` 属性是 RDBMS 中存储过程的名称。
 
-To define a parameter for the `StoredProcedure` class, you can use an `SqlParameter` or one
-of its subclasses. You must specify the parameter name and SQL type in the constructor,
-as the following code snippet shows:
+要为 `StoredProcedure` 类定义参数，您可以使用 `SqlParameter` 或其子类之一。您必须在构造函数中指定参数名称和 SQL 类型，如以下代码片段所示：
 
 [tabs]
 ======
@@ -190,32 +148,17 @@ new SqlOutParameter("out_first_name", Types.VARCHAR),
 
 ======
 
-The SQL type is specified using the `java.sql.Types` constants.
+SQL 类型使用 `java.sql.Types` 常量指定。
 
-The first line (with the `SqlParameter`) declares an IN parameter. You can use IN parameters
-both for stored procedure calls and for queries using the `SqlQuery` and its
-subclasses (covered in xref:data-access/jdbc/object.adoc#jdbc-SqlQuery[Understanding `SqlQuery`]).
+第一行（使用 `SqlParameter`）声明了一个 IN 参数。您可以将 IN 参数用于存储过程调用，也可以用于使用 `SqlQuery` 及其子类（在 xref:data-access/jdbc/object.adoc#jdbc-SqlQuery[理解 `SqlQuery`] 中介绍）的查询。
 
-The second line (with the `SqlOutParameter`) declares an `out` parameter to be used in the
-stored procedure call. There is also an `SqlInOutParameter` for `InOut` parameters
-(parameters that provide an `in` value to the procedure and that also return a value).
+第二行（使用 `SqlOutParameter`）声明了一个要在存储过程调用中使用的 `out` 参数。还有一个用于 `InOut` 参数（向过程提供 `in` 值并返回值的参数）的 `SqlInOutParameter`。
 
-For `in` parameters, in addition to the name and the SQL type, you can specify a
-scale for numeric data or a type name for custom database types. For `out` parameters,
-you can provide a `RowMapper` to handle mapping of rows returned from a `REF` cursor.
-Another option is to specify an `SqlReturnType` that lets you define customized
-handling of the return values.
+对于 `in` 参数，除了名称和 SQL 类型之外，您还可以指定数字数据的标度或自定义数据库类型的类型名称。对于 `out` 参数，您可以提供一个 `RowMapper` 来处理从 `REF` 游标返回的行的映射。
+另一个选项是指定一个 `SqlReturnType`，它允许您定义返回值的自定义处理。
 
-The next example of a simple DAO uses a `StoredProcedure` to call a function
-(`sysdate()`), which comes with any Oracle database. To use the stored procedure
-functionality, you have to create a class that extends `StoredProcedure`. In this
-example, the `StoredProcedure` class is an inner class. However, if you need to reuse the
-`StoredProcedure`, you can declare it as a top-level class. This example has no input
-parameters, but an output parameter is declared as a date type by using the
-`SqlOutParameter` class. The `execute()` method runs the procedure and extracts the
-returned date from the results `Map`. The results `Map` has an entry for each declared
-output parameter (in this case, only one) by using the parameter name as the key.
-The following listing shows our custom StoredProcedure class:
+下一个简单的 DAO 示例使用 `StoredProcedure` 调用函数 (`sysdate()`)，该函数随任何 Oracle 数据库提供。要使用存储过程功能，您必须创建一个扩展 `StoredProcedure` 的类。在此示例中，`StoredProcedure` 类是一个内部类。但是，如果您需要重用 `StoredProcedure`，您可以将其声明为顶级类。此示例没有输入参数，但使用 `SqlOutParameter` 类将输出参数声明为日期类型。`execute()` 方法运行过程并从结果 `Map` 中提取返回的日期。结果 `Map` 使用参数名称作为键，为每个声明的输出参数（在本例中只有一个）提供一个条目。
+以下清单显示了我们的自定义 StoredProcedure 类：
 
 [tabs]
 ======
@@ -258,7 +201,7 @@ public class StoredProcedureDao {
     }
 
     public Date execute() {
-      // the 'sysdate' sproc has no input parameters, so an empty Map is supplied...
+      // 'sysdate' 存储过程没有输入参数，因此提供了一个空的 Map...
       Map<String, Object> results = execute(new HashMap<String, Object>());
       Date sysdate = (Date) results.get("date");
       return sysdate;
@@ -270,8 +213,7 @@ public class StoredProcedureDao {
 
 ======
 
-The following example of a `StoredProcedure` has two output parameters (in this case,
-Oracle REF cursors):
+以下 `StoredProcedure` 示例具有两个输出参数（在本例中为 Oracle REF 游标）：
 
 [tabs]
 ======
@@ -298,7 +240,7 @@ public class TitlesAndGenresStoredProcedure extends StoredProcedure {
   }
 
   public Map<String, Object> execute() {
-    // again, this sproc has no input parameters, so an empty Map is supplied
+    // 同样，此存储过程没有输入参数，因此提供了一个空的 Map
     return super.execute(new HashMap<String, Object>());
   }
 }
@@ -306,13 +248,9 @@ public class TitlesAndGenresStoredProcedure extends StoredProcedure {
 
 ======
 
-Notice how the overloaded variants of the `declareParameter(..)` method that have been
-used in the `TitlesAndGenresStoredProcedure` constructor are passed `RowMapper`
-implementation instances. This is a very convenient and powerful way to reuse existing
-functionality. The next two examples provide code for the two `RowMapper` implementations.
+请注意，在 `TitlesAndGenresStoredProcedure` 构造函数中使用的 `declareParameter(..)` 方法的重载变体是如何传递 `RowMapper` 实现实例的。这是一种重用现有功能的非常方便且强大的方法。接下来的两个示例提供了两个 `RowMapper` 实现的代码。
 
-The `TitleMapper` class maps a `ResultSet` to a `Title` domain object for each row in
-the supplied `ResultSet`, as follows:
+`TitleMapper` 类将提供的 `ResultSet` 中每一行的 `ResultSet` 映射到 `Title` 域对象，如下所示：
 
 [tabs]
 ======
@@ -338,8 +276,7 @@ public final class TitleMapper implements RowMapper<Title> {
 
 ======
 
-The `GenreMapper` class maps a `ResultSet` to a `Genre` domain object for each row in
-the supplied `ResultSet`, as follows:
+`GenreMapper` 类将提供的 `ResultSet` 中每一行的 `ResultSet` 映射到 `Genre` 域对象，如下所示：
 
 [tabs]
 ======
@@ -362,9 +299,7 @@ public final class GenreMapper implements RowMapper<Genre> {
 
 ======
 
-To pass parameters to a stored procedure that has one or more input parameters in its
-definition in the RDBMS, you can code a strongly typed `execute(..)` method that would
-delegate to the untyped `execute(Map)` method in the superclass, as the following example shows:
+要将参数传递给在 RDBMS 的定义中具有一个或多个输入参数的存储过程，您可以编写一个强类型的 `execute(..)` 方法，该方法将委托给超类中的无类型 `execute(Map)` 方法，如以下示例所示：
 
 [tabs]
 ======
@@ -403,6 +338,3 @@ public class TitlesAfterDateStoredProcedure extends StoredProcedure {
 ----
 
 ======
-
-
-

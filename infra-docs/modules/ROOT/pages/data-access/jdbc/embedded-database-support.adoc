@@ -144,30 +144,13 @@ public class DataAccessIntegrationTestTemplate {
 
 
 [[jdbc-embedded-database-unique-names]]
-== Generating Unique Names for Embedded Databases
+== 为嵌入式数据库生成唯一名称
 
-Development teams often encounter errors with embedded databases if their test suite
-inadvertently attempts to recreate additional instances of the same database. This can
-happen quite easily if an XML configuration file or `@Configuration` class is responsible
-for creating an embedded database and the corresponding configuration is then reused
-across multiple testing scenarios within the same test suite (that is, within the same JVM
-process) -- for example, integration tests against embedded databases whose
-`ApplicationContext` configuration differs only with regard to which bean definition
-profiles are active.
+如果开发团队的测试套件无意中尝试重新创建同一数据库的其他实例，则经常会遇到嵌入式数据库错误。如果 XML 配置文件或 `@Configuration` 类负责创建嵌入式数据库，然后相应的配置在同一测试套件（即同一 JVM 进程）内的多个测试场景中重复使用，这很容易发生——例如，针对嵌入式数据库的集成测试，其 `ApplicationContext` 配置仅在哪些 bean 定义配置文件处于活动状态方面有所不同。
 
-The root cause of such errors is the fact that Infra `EmbeddedDatabaseFactory` (used
-internally by both the `<jdbc:embedded-database>` XML namespace element and the
-`EmbeddedDatabaseBuilder` for Java configuration) sets the name of the embedded database to
-`testdb` if not otherwise specified. For the case of `<jdbc:embedded-database>`, the
-embedded database is typically assigned a name equal to the bean's `id` (often,
-something like `dataSource`). Thus, subsequent attempts to create an embedded database
-do not result in a new database. Instead, the same JDBC connection URL is reused,
-and attempts to create a new embedded database actually point to an existing
-embedded database created from the same configuration.
+此类错误的根本原因是 Infra `EmbeddedDatabaseFactory`（由 `<jdbc:embedded-database>` XML 命名空间元素和 Java 配置的 `EmbeddedDatabaseBuilder` 内部使用）如果未另行指定，会将嵌入式数据库的名称设置为 `testdb`。对于 `<jdbc:embedded-database>` 的情况，嵌入式数据库通常被分配一个等于 bean 的 `id` 的名称（通常类似于 `dataSource`）。因此，随后创建嵌入式数据库的尝试不会导致新数据库。相反，重用了相同的 JDBC 连接 URL，并且创建新嵌入式数据库的尝试实际上指向了从相同配置创建的现有嵌入式数据库。
 
-To address this common issue, TODAY Framework 4.0 provides support for generating
-unique names for embedded databases. To enable the use of generated names, use one of
-the following options.
+为了解决这个常见问题，TODAY Framework 4.0 提供了为嵌入式数据库生成唯一名称的支持。要启用生成名称的使用，请使用以下选项之一。
 
 * `EmbeddedDatabaseFactory.setGenerateUniqueDatabaseName()`
 * `EmbeddedDatabaseBuilder.generateUniqueName()`
@@ -175,14 +158,11 @@ the following options.
 
 
 [[jdbc-embedded-database-extension]]
-== Extending the Embedded Database Support
+== 扩展嵌入式数据库支持
 
-You can extend Infra JDBC embedded database support in two ways:
+您可以通过两种方式扩展 Infra JDBC 嵌入式数据库支持：
 
-* Implement `EmbeddedDatabaseConfigurer` to support a new embedded database type.
-* Implement `DataSourceFactory` to support a new `DataSource` implementation, such as a
-connection pool to manage embedded database connections.
+* 实现 `EmbeddedDatabaseConfigurer` 以支持新的嵌入式数据库类型。
+* 实现 `DataSourceFactory` 以支持新的 `DataSource` 实现，例如用于管理嵌入式数据库连接的连接池。
 
-We encourage you to contribute extensions to the Infra community at
-{today-framework-issues}[GitHub Issues].
-
+我们鼓励您在 {today-framework-issues}[GitHub Issues] 上向 Infra 社区贡献扩展。
