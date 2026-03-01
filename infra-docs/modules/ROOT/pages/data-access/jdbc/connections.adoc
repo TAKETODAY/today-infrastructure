@@ -145,4 +145,34 @@ NOTE: 除非必须调用现有代码并传递标准 JDBC `DataSource` 接口实�
 [[jdbc-DataSourceTransactionManager]]
 == 使用 `DataSourceTransactionManager` / `JdbcTransactionManager`
 
-`DataSourceTransactionManager` 类是单个 JDBC `DataSource` 的 `PlatformTransactionManager` 实现。它绑定一个 JDBC `Connection`
+`DataSourceTransactionManager` 类是单个 JDBC `DataSource` 的 `PlatformTransactionManager` 实现。
+它将指定 `DataSource` 中的 JDBC `Connection` 绑定到当前执行线程，这可能允许每个 `DataSource` 有一个线程绑定的 `Connection`。
+
+应用程序代码需要通过 `DataSourceUtils.getConnection(DataSource)`
+而不是 Java EE 的标准 `DataSource.getConnection` 来获取 JDBC `Connection`。
+它抛出非受检的 `infra.dao` 异常而不是受检的 `SQLExceptions`。
+所有框架类（如 `JdbcTemplate`）都隐式使用此策略。如果未与事务管理器一起使用，
+则查找策略的行为与 `DataSource.getConnection` 完全相同，因此可以在任何情况下使用。
+
+`DataSourceTransactionManager` 类支持保存点（`PROPAGATION_NESTED`）、自定义隔离级别和超时，
+这些超时作为适当的 JDBC 语句查询超时应用。为了支持后者，应用程序代码必须使用 `JdbcTemplate`
+或为每个创建的语句调用 `DataSourceUtils.applyTransactionTimeout(..)` 方法。
+
+在单一资源的情况下，您可以使用 `DataSourceTransactionManager` 代替 `JtaTransactionManager`，
+因为它不需要容器支持 JTA 事务协调器。在这些事务管理器之间切换只是配置问题，前提是您坚持使用所需的连接查找模式。
+请注意，JTA 不支持保存点或自定义隔离级别，并且具有不同的超时机制，但在 JDBC 资源和 JDBC 提交/回滚管理方面表现出类似的行为。
+
+对于 JTA 风格的实际资源连接延迟检索，Infra 为目标连接池提供了相应的 `DataSource` 代理类：
+请参阅 {today-framework-api}/jdbc/datasource/LazyConnectionDataSourceProxy.html[`LazyConnectionDataSourceProxy`]。
+这对于可能没有实际语句执行的空事务（在这种情况下从不获取实际资源）特别有用，并且在路由 `DataSource` 之前也很有用，这意味着要考虑事务同步的只读标志和/或隔离级别（例如 `IsolationLevelDataSourceRouter`）。
+
+`LazyConnectionDataSourceProxy` 还为在只读事务期间使用的只读连接池提供了特殊支持，
+避免了在从主连接池获取 JDBC 连接时在每个事务的开始和结束时切换其只读标志的开销（这可能很昂贵，具体取决于 JDBC 驱动程序）。
+
+NOTE: 从 4.0 开始，Infra 提供了一个扩展的 `JdbcTransactionManager` 变体，
+它增加了在提交/回滚时的异常转换功能（与 `JdbcTemplate` 对齐）。`DataSourceTransactionManager`
+只会抛出 `TransactionSystemException`（类似于 JTA），而 `JdbcTransactionManager` 会将数据库锁定失败等转换为相应的 `DataAccessException` 子类。
+请注意，应用程序代码需要准备好应对此类异常，而不是仅仅期望 `TransactionSystemException`。在这种情况下，`JdbcTransactionManager` 是推荐的选择。
+
+在异常行为方面，`JdbcTransactionManager` 大致相当于 `JpaTransactionManager`，也相当于 `R2dbcTransactionManager`，
+可以作为彼此的直接伴侣/替代品。另一方面，`DataSourceTransactionManager` 相当于 `JtaTransactionManager`，可以在那里作为直接替代品。
