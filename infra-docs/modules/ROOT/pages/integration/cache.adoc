@@ -6,7 +6,7 @@
 xref:data-access/transaction.adoc[事务] 支持类似，缓存抽象允许以一致方式使用多种缓存解决方案，
 对代码影响最小。
 
-在 TODAY Framework 4.1 中，缓存抽象显著扩展，支持
+缓存抽象显著扩展，支持
 xref:integration/cache/jsr-107.adoc[JSR-107 注解] 并提供更多自定义选项。
 
 

@@ -3,7 +3,8 @@
 
 `CommonAnnotationBeanPostProcessor` 不仅识别 `@Resource` 注解，
 还识别 JSR-250 生命周期注解：`jakarta.annotation.PostConstruct` 和 `jakarta.annotation.PreDestroy`。
-在 Infra 2.5 中引入的这些注解支持提供了
+
+引入的这些注解支持提供了
 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[初始化回调] 和
 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[销毁回调] 中描述的生命周期回调机制的替代方案。
 只要 `CommonAnnotationBeanPostProcessor` 在 Infra `ApplicationContext` 中注册，

@@ -30,7 +30,7 @@ public class MovieConfiguration {
 
 ======
 
-或者，从 6.2 开始，有一个 `@Fallback` 注解，用于标记要注入的除常规 bean 之外的任何 bean。
+或者，有一个 `@Fallback` 注解，用于标记要注入的除常规 bean 之外的任何 bean。
 如果只剩下一个常规 bean，它实际上也是主 bean：
 
 [tabs]

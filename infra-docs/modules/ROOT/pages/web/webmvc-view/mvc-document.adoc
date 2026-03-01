@@ -56,7 +56,6 @@ public class PdfWordList extends AbstractPdfView {
 [[mvc-view-document-excel]]
 == Excel 视图
 
-自 TODAY Framework 4.2 起，
 `infra.web.mock.view.document.AbstractXlsView` 被作为 Excel 视图的基类提供。
 它基于 Apache POI，并提供了专用子类（`AbstractXlsxView` 和 `AbstractXlsxStreamingView`）
 来取代过时的 `AbstractExcelView` 类。

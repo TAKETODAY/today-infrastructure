@@ -57,7 +57,7 @@ city = parser.parseExpression("placeOfBirth?.city") // <2>
 [[expressions-operator-safe-navigation-indexing]]
 == 安全索引访问
 
-自 TODAY Framework 6.2 起，Infra 表达式语言支持对以下类型的结构进行索引的安全导航。
+Infra 表达式语言支持对以下类型的结构进行索引的安全导航。
 
 * xref:core/expressions/language-ref/properties-arrays.adoc#expressions-indexing-arrays-and-collections[数组和集合]
 * xref:core/expressions/language-ref/properties-arrays.adoc#expressions-indexing-strings[字符串]
