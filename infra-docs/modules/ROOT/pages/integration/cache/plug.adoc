@@ -1,70 +1,15 @@
 [[cache-plug]]
-= 插入不同的后端缓存
+= Plugging-in Different Back-end Caches
+:page-section-summary-toc: 1
 
-显然，有很多缓存产品可以用作后备存储。
-为了插入它们，你需要提供一个 `CacheManager` 和 `Cache` 实现。
-本节描述了与多个流行缓存产品的集成。
+Clearly, there are plenty of caching products out there that you can use as a backing
+store. For those that do not support JSR-107 you need to provide a `CacheManager` and a
+`Cache` implementation. This may sound harder than it is, since, in practice, the classes
+tend to be simple https://en.wikipedia.org/wiki/Adapter_pattern[adapters] that map the
+caching abstraction framework on top of the storage API, as the _Caffeine_ classes do.
+Most `CacheManager` classes can use the classes in the
+`infra.cache.support` package (such as `AbstractCacheManager` which takes
+care of the boiler-plate code, leaving only the actual mapping to be completed).
 
-[[cache-store-configuration-jdk]]
-== JDK ConcurrentMap-based Cache
 
-基于 JDK 的 `Cache` 实现位于 `infra.cache.concurrent` 包下。
-它允许使用 `ConcurrentHashMap` 作为后备 `Cache` 存储。
 
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<!-- 简单的缓存管理器 -->
-<bean id="cacheManager" class="infra.cache.support.SimpleCacheManager">
-    <property name="caches">
-        <set>
-            <bean class="infra.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
-            <bean class="infra.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="books"/>
-        </set>
-    </property>
-</bean>
-----
-
-[[cache-store-configuration-ehcache]]
-== Ehcache-based Cache
-
-Ehcache 实现位于 `infra.cache.ehcache` 包下。
-要使用它，你需要声明适当的 `CacheManager`。
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="cacheManager" class="infra.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache"/>
-
-<!-- EhCache 库设置 -->
-<bean id="ehcache" class="infra.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="ehcache.xml"/>
-----
-
-[[cache-store-configuration-caffeine]]
-== Caffeine Cache
-
-Caffeine 是 Java 8 重写的 Guava 缓存，它是 Guava 缓存的继任者。
-如果存在 Caffeine，Infra 会自动配置 `CaffeineCacheManager`（前提是没有其他缓存管理器被显式配置）。
-
-[[cache-store-configuration-gemfire]]
-== GemFire-based Cache
-
-GemFire 是一个面向内存的数据网格。
-Infra Data GemFire 项目提供了与 GemFire 的集成。
-
-[[cache-store-configuration-jsr107]]
-== JSR-107 Cache
-
-Infra 的缓存抽象也支持 JSR-107 兼容的缓存。
-`JCacheCacheManager` 适配了 JSR-107 `javax.cache.CacheManager` 到 Infra 的 `org.springframework.cache.CacheManager`。
-
-[[cache-store-configuration-none]]
-== 处理无后备存储的缓存
-
-有时，你需要切换环境（例如开发环境）而不配置实际的后备缓存。
-对于这种情况，你可以使用 `NoOpCacheManager`。
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<bean id="cacheManager" class="infra.cache.support.NoOpCacheManager"/>
-----
-
-这允许你在不更改代码的情况下禁用缓存（例如，为了调试目的）。

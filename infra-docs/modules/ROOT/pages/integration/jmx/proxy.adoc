@@ -1,9 +1,10 @@
 [[jmx-proxy]]
-= 通过代理访问 MBean
+= Accessing MBeans through Proxies
 
-Infra JMX 允许你创建代理，将调用重新路由到在本地或远程 `MBeanServer` 中注册的 MBean。
-这些代理为你提供了一个标准的 Java 接口，通过它你可以与你的 MBean 进行交互。
-以下代码显示了如何为在本地 `MBeanServer` 中运行的 MBean 配置代理：
+Infra JMX lets you create proxies that re-route calls to MBeans that are registered in a
+local or remote `MBeanServer`. These proxies provide you with a standard Java interface,
+through which you can interact with your MBeans. The following code shows how to configure a
+proxy for an MBean running in a local `MBeanServer`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -13,11 +14,16 @@ Infra JMX 允许你创建代理，将调用重新路由到在本地或远程 `MB
 </bean>
 ----
 
-在前面的示例中，你可以看到为在 `bean:name=testBean` 的 `ObjectName` 下注册的 MBean 创建了一个代理。
-代理实现的接口集由 `proxyInterfaces` 属性控制，将这些接口上的方法和属性映射到 MBean 上的操作和属性的规则与 `InterfaceBasedMBeanInfoAssembler` 使用的规则相同。
+In the preceding example, you can see that a proxy is created for the MBean registered under the
+`ObjectName` of `bean:name=testBean`. The set of interfaces that the proxy implements
+is controlled by the `proxyInterfaces` property, and the rules for mapping methods and
+properties on these interfaces to operations and attributes on the MBean are the same
+rules used by the `InterfaceBasedMBeanInfoAssembler`.
 
-`MBeanProxyFactoryBean` 可以创建到任何可以通过 `MBeanServerConnection` 访问的 MBean 的代理。
-默认情况下，定位并使用本地 `MBeanServer`，但你可以覆盖它并提供指向远程 `MBeanServer` 的 `MBeanServerConnection`，以满足指向远程 MBean 的代理的需求：
+The `MBeanProxyFactoryBean` can create a proxy to any MBean that is accessible through an
+`MBeanServerConnection`. By default, the local `MBeanServer` is located and used, but
+you can override this and provide an `MBeanServerConnection` that points to a remote
+`MBeanServer` to cater for proxies that point to remote MBeans:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -33,6 +39,11 @@ Infra JMX 允许你创建代理，将调用重新路由到在本地或远程 `MB
 </bean>
 ----
 
-在前面的示例中，我们创建了一个 `MBeanServerConnection`，它指向使用 `MBeanServerConnectionFactoryBean` 的远程机器。
-然后，该 `MBeanServerConnection` 通过 `server` 属性传递给 `MBeanProxyFactoryBean`。
-创建的代理通过此 `MBeanServerConnection` 将所有调用转发到 `MBeanServer`。
+In the preceding example, we create an `MBeanServerConnection` that points to a remote machine
+that uses the `MBeanServerConnectionFactoryBean`. This `MBeanServerConnection` is then
+passed to the `MBeanProxyFactoryBean` through the `server` property. The proxy that is
+created forwards all invocations to the `MBeanServer` through this
+`MBeanServerConnection`.
+
+
+

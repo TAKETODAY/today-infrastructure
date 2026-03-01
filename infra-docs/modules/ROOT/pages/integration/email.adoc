@@ -1,95 +1,302 @@
 [[mail]]
-= 电子邮件
+= Email
 
-本节描述了如何使用 Infra 发送电子邮件。
+This section describes how to send email with the TODAY Framework.
 
-[[mail-introduction]]
-== 简介
+.Library dependencies
+****
+The following JAR needs to be on the classpath of your application in order to use the
+TODAY Framework's email support:
 
-库提供了一个用于发送电子邮件的实用程序库，该库将用户与底层邮件系统细节隔离开来，并负责代表客户端进行低级资源处理。
+* The https://jakartaee.github.io/mail-api/[Jakarta Mail] library
 
-`infra.mail` 包是 Infra 电子邮件支持的根级包。
-发送电子邮件的中心接口是 `MailSender` 接口。
-`JavaMailSender` 扩展了 `MailSender` 以支持 MIME 消息，通常与 `MimeMessageHelper` 类一起使用，用于创建 `MimeMessage`。
+This library is freely available on the web -- for example, in Maven Central as
+`com.sun.mail:jakarta.mail`. Please make sure to use the latest 2.x version (which uses
+the `jakarta.mail` package namespace) rather than Jakarta Mail 1.6.x (which uses the
+`javax.mail` package namespace).
+****
+
+The TODAY Framework provides a helpful utility library for sending email that shields
+you from the specifics of the underlying mailing system and is responsible for
+low-level resource handling on behalf of the client.
+
+The `infra.mail` package is the root level package for the Infra
+Framework's email support. The central interface for sending emails is the `MailSender`
+interface. A simple value object that encapsulates the properties of a simple mail such
+as `from` and `to` (plus many others) is the `SimpleMailMessage` class. This package
+also contains a hierarchy of checked exceptions that provide a higher level of
+abstraction over the lower level mail system exceptions, with the root exception being
+`MailException`. See the {today-framework-api}/mail/MailException.html[javadoc]
+for more information on the rich mail exception hierarchy.
+
+The `infra.mail.javamail.JavaMailSender` interface adds specialized
+JavaMail features, such as MIME message support to the `MailSender` interface
+(from which it inherits). `JavaMailSender` also provides a callback interface called
+`infra.mail.javamail.MimeMessagePreparator` for preparing a `MimeMessage`.
+
+
 
 [[mail-usage]]
-== 用法
+== Usage
 
-以下示例显示了如何使用 `JavaMailSenderImpl` 发送简单的电子邮件：
+Assume that we have a business interface called `OrderManager`, as the following example shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
+public interface OrderManager {
+
+  void placeOrder(Order order);
+
+}
+----
+
+Further assume that we have a requirement stating that an email message with an
+order number needs to be generated and sent to a customer who placed the relevant order.
+
+
+[[mail-usage-simple]]
+=== Basic `MailSender` and `SimpleMailMessage` Usage
+
+The following example shows how to use `MailSender` and `SimpleMailMessage` to send an
+email when someone places an order:
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+import infra.mail.MailException;
+import infra.mail.MailSender;
 import infra.mail.SimpleMailMessage;
-import infra.mail.javamail.JavaMailSenderImpl;
 
-public class MailExample {
+public class SimpleOrderManager implements OrderManager {
 
-    public void sendMail() {
-        JavaMailSenderImpl sender = new JavaMailSenderImpl();
-        sender.setHost("mail.host.com");
+  private MailSender mailSender;
+  private SimpleMailMessage templateMessage;
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("user@host.com");
-        message.setTo("user@otherhost.com");
-        message.setSubject("Test");
-        message.setText("This is a test");
+  public void setMailSender(MailSender mailSender) {
+    this.mailSender = mailSender;
+  }
 
-        sender.send(message);
+  public void setTemplateMessage(SimpleMailMessage templateMessage) {
+    this.templateMessage = templateMessage;
+  }
+
+  public void placeOrder(Order order) {
+
+    // Do the business calculations...
+
+    // Call the collaborators to persist the order...
+
+    // Create a thread-safe "copy" of the template message and customize it
+    SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
+    msg.setTo(order.getCustomer().getEmailAddress());
+    msg.setText(
+      "Dear " + order.getCustomer().getFirstName()
+        + order.getCustomer().getLastName()
+        + ", thank you for placing order. Your order number is "
+        + order.getOrderNumber());
+    try {
+      this.mailSender.send(msg);
     }
+    catch (MailException ex) {
+      // simply log it and go on...
+      System.err.println(ex.getMessage());
+    }
+  }
+
 }
 ----
 
-此示例创建一个 `JavaMailSenderImpl` 实例，配置主机，创建 `SimpleMailMessage`，然后发送它。
+The following example shows the bean definitions for the preceding code:
 
-[[mail-mime-messages]]
-== MIME 消息
+[source,xml,indent=0,subs="verbatim,quotes"]
+----
+<bean id="mailSender" class="infra.mail.javamail.JavaMailSenderImpl">
+  <property name="host" value="mail.mycompany.example"/>
+</bean>
 
-要发送带有附件或 HTML 内容的更复杂的电子邮件，可以使用 `MimeMessage`。
-`JavaMailSender` 提供了 `createMimeMessage()` 方法来创建新消息。
-为了简化 `MimeMessage` 的填充，Infra 提供了 `MimeMessageHelper` 类。
+<!-- this is a template message that we can pre-load with default state -->
+<bean id="templateMessage" class="infra.mail.SimpleMailMessage">
+  <property name="from" value="customerservice@mycompany.example"/>
+  <property name="subject" value="Your order"/>
+</bean>
+
+<bean id="orderManager" class="com.mycompany.businessapp.support.SimpleOrderManager">
+  <property name="mailSender" ref="mailSender"/>
+  <property name="templateMessage" ref="templateMessage"/>
+</bean>
+----
+
+
+[[mail-usage-mime]]
+=== Using `JavaMailSender` and `MimeMessagePreparator`
+
+This section describes another implementation of `OrderManager` that uses the `MimeMessagePreparator`
+callback interface. In the following example, the `mailSender` property is of type
+`JavaMailSender` so that we are able to use the JavaMail `MimeMessage` class:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+
+import infra.mail.MailException;
 import infra.mail.javamail.JavaMailSender;
-import infra.mail.javamail.MimeMessageHelper;
+import infra.mail.javamail.MimeMessagePreparator;
 
-public class MimeMailExample {
+public class SimpleOrderManager implements OrderManager {
 
-    private JavaMailSender mailSender;
+  private JavaMailSender mailSender;
 
-    public void sendMimeMail() {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+  public void setMailSender(JavaMailSender mailSender) {
+    this.mailSender = mailSender;
+  }
 
-        helper.setFrom("user@host.com");
-        helper.setTo("user@otherhost.com");
-        helper.setSubject("Test");
-        helper.setText("<html><body><h1>This is a test</h1></body></html>", true);
+  public void placeOrder(final Order order) {
+    // Do the business calculations...
+    // Call the collaborators to persist the order...
 
-        mailSender.send(message);
+    MimeMessagePreparator preparator = new MimeMessagePreparator() {
+      public void prepare(MimeMessage mimeMessage) throws Exception {
+        mimeMessage.setRecipient(Message.RecipientType.TO,
+            new InternetAddress(order.getCustomer().getEmailAddress()));
+        mimeMessage.setFrom(new InternetAddress("mail@mycompany.example"));
+        mimeMessage.setText("Dear " + order.getCustomer().getFirstName() + " " +
+            order.getCustomer().getLastName() + ", thanks for your order. " +
+            "Your order number is " + order.getOrderNumber() + ".");
+      }
+    };
+
+    try {
+      this.mailSender.send(preparator);
     }
+    catch (MailException ex) {
+      // simply log it and go on...
+      System.err.println(ex.getMessage());
+    }
+  }
+
 }
 ----
 
-[[mail-attachments]]
-== 附件
+NOTE: The mail code is a crosscutting concern and could well be a candidate for
+refactoring into a xref:core/aop.adoc[custom Infra AOP aspect], which could then
+be run at appropriate joinpoints on the `OrderManager` target.
 
-`MimeMessageHelper` 也使添加附件变得容易：
+The TODAY Framework's mail support ships with the standard JavaMail implementation.
+See the relevant javadoc for more information.
+
+
+
+[[mail-javamail-mime]]
+== Using the JavaMail `MimeMessageHelper`
+
+A class that comes in pretty handy when dealing with JavaMail messages is
+`infra.mail.javamail.MimeMessageHelper`, which shields you from
+having to use the verbose JavaMail API. Using the `MimeMessageHelper`, it is
+pretty easy to create a `MimeMessage`, as the following example shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-import java.io.File;
-import infra.core.io.FileSystemResource;
+// of course you would use DI in any real-world cases
+JavaMailSenderImpl sender = new JavaMailSenderImpl();
+sender.setHost("mail.host.com");
 
-// ...
+MimeMessage message = sender.createMimeMessage();
+MimeMessageHelper helper = new MimeMessageHelper(message);
+helper.setTo("test@host.com");
+helper.setText("Thank you for ordering!");
 
-FileSystemResource file = new FileSystemResource(new File("attachment.jpg"));
-helper.addAttachment("CoolImage.jpg", file);
+sender.send(message);
 ----
+
+
+[[mail-javamail-mime-attachments]]
+=== Sending Attachments and Inline Resources
+
+Multipart email messages allow for both attachments and inline resources. Examples of
+inline resources include an image or a stylesheet that you want to use in your message but
+that you do not want displayed as an attachment.
+
+[[mail-javamail-mime-attachments-attachment]]
+==== Attachments
+
+The following example shows you how to use the `MimeMessageHelper` to send an email
+with a single JPEG image attachment:
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+	JavaMailSenderImpl sender = new JavaMailSenderImpl();
+	sender.setHost("mail.host.com");
+
+	MimeMessage message = sender.createMimeMessage();
+
+	// use the true flag to indicate you need a multipart message
+	MimeMessageHelper helper = new MimeMessageHelper(message, true);
+	helper.setTo("test@host.com");
+
+	helper.setText("Check out this image!");
+
+	// let's attach the infamous windows Sample file (this time copied to c:/)
+	FileSystemResource file = new FileSystemResource(new File("c:/Sample.jpg"));
+	helper.addAttachment("CoolImage.jpg", file);
+
+	sender.send(message);
+----
+
+[[mail-javamail-mime-attachments-inline]]
+==== Inline Resources
+
+The following example shows you how to use the `MimeMessageHelper` to send an email
+with an inline image:
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+	JavaMailSenderImpl sender = new JavaMailSenderImpl();
+	sender.setHost("mail.host.com");
+
+	MimeMessage message = sender.createMimeMessage();
+
+	// use the true flag to indicate you need a multipart message
+	MimeMessageHelper helper = new MimeMessageHelper(message, true);
+	helper.setTo("test@host.com");
+
+	// use the true flag to indicate the text included is HTML
+	helper.setText("<html><body><img src='cid:identifier1234'></body></html>", true);
+
+	// let's include the infamous windows Sample file (this time copied to c:/)
+	FileSystemResource res = new FileSystemResource(new File("c:/Sample.jpg"));
+	helper.addInline("identifier1234", res);
+
+	sender.send(message);
+----
+
+WARNING: Inline resources are added to the `MimeMessage` by using the specified `Content-ID`
+(`identifier1234` in the above example). The order in which you add the text
+and the resource are very important. Be sure to first add the text and then
+the resources. If you are doing it the other way around, it does not work.
+
 
 [[mail-templates]]
-== 电子邮件模板
+=== Creating Email Content by Using a Templating Library
 
-Infra 不提供自己的模板引擎，但它很容易与第三方模板引擎（如 FreeMarker、Thymeleaf 或 Velocity）集成，以生成电子邮件内容。
-您通常使用模板引擎生成 HTML 文本，然后将其传递给 `MimeMessageHelper.setText(text, true)`。
+The code in the examples shown in the previous sections explicitly created the content of the email message,
+by using methods calls such as `message.setText(..)`. This is fine for simple cases, and it
+is okay in the context of the aforementioned examples, where the intent was to show you
+the very basics of the API.
+
+In your typical enterprise application, though, developers often do not create the content
+of email messages by using the previously shown approach for a number of reasons:
+
+* Creating HTML-based email content in Java code is tedious and error prone.
+* There is no clear separation between display logic and business logic.
+* Changing the display structure of the email content requires writing Java code,
+  recompiling, redeploying, and so on.
+
+Typically, the approach taken to address these issues is to use a template library (such
+as FreeMarker) to define the display structure of email content. This leaves your code
+tasked only with creating the data that is to be rendered in the email template and
+sending the email. It is definitely a best practice when the content of your email messages
+becomes even moderately complex, and, with the TODAY Framework's support classes for
+FreeMarker, it becomes quite easy to do.
+

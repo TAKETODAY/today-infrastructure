@@ -357,16 +357,16 @@ available to the context so that you can use them for key and conditional comput
 | Argument name
 | Evaluation context
 | Name of any of the method arguments. If the names are not available
-(perhaps due to having no debug information), the argument names are also available under the `#a<#arg>`
-where `#arg` stands for the argument index (starting from `0`).
+  (perhaps due to having no debug information), the argument names are also available under the `#a<#arg>`
+  where `#arg` stands for the argument index (starting from `0`).
 | `#iban` or `#a0` (you can also use `#p0` or `#p<#arg>` notation as an alias).
 
 | `result`
 | Evaluation context
 | The result of the method call (the value to be cached). Only available in `unless`
-expressions, `cache put` expressions (to compute the `key`), or `cache evict`
-expressions (when `beforeInvocation` is `false`). For supported wrappers (such as
-`Optional`), `#result` refers to the actual object, not the wrapper.
+  expressions, `cache put` expressions (to compute the `key`), or `cache evict`
+  expressions (when `beforeInvocation` is `false`). For supported wrappers (such as
+  `Optional`), `#result` refers to the actual object, not the wrapper.
 | `#result`
 |===
 
@@ -566,16 +566,16 @@ required to implement `CachingConfigurer`, see the
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
 | `cacheManager`
 | The name of the cache manager to use. A default `CacheResolver` is initialized behind
-the scenes with this cache manager (or `cacheManager` if not set). For more
-fine-grained management of the cache resolution, consider setting the 'cache-resolver'
-attribute.
+  the scenes with this cache manager (or `cacheManager` if not set). For more
+  fine-grained management of the cache resolution, consider setting the 'cache-resolver'
+  attribute.
 
 | `cache-resolver`
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
 | A `SimpleCacheResolver` using the configured `cacheManager`.
 | The bean name of the CacheResolver that is to be used to resolve the backing caches.
-This attribute is not required and needs to be specified only as an alternative to
-the 'cache-manager' attribute.
+  This attribute is not required and needs to be specified only as an alternative to
+  the 'cache-manager' attribute.
 
 | `key-generator`
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
@@ -586,37 +586,37 @@ the 'cache-manager' attribute.
 | N/A (see the {today-framework-api}/cache/annotation/CachingConfigurer.html[`CachingConfigurer`] javadoc)
 | `SimpleCacheErrorHandler`
 | The name of the custom cache error handler to use. By default, any exception thrown during
-a cache related operation is thrown back at the client.
+  a cache related operation is thrown back at the client.
 
 | `mode`
 | `mode`
 | `proxy`
 | The default mode (`proxy`) processes annotated beans to be proxied by using Infra AOP
-framework (following proxy semantics, as discussed earlier, applying to method calls
-coming in through the proxy only). The alternative mode (`aspectj`) instead weaves the
-affected classes with Infra AspectJ caching aspect, modifying the target class byte
-code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar`
-in the classpath as well as load-time weaving (or compile-time weaving) enabled. (See
-xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra configuration] for details on how to set up
-load-time weaving.)
+  framework (following proxy semantics, as discussed earlier, applying to method calls
+  coming in through the proxy only). The alternative mode (`aspectj`) instead weaves the
+  affected classes with Infra AspectJ caching aspect, modifying the target class byte
+  code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar`
+  in the classpath as well as load-time weaving (or compile-time weaving) enabled. (See
+  xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra configuration] for details on how to set up
+  load-time weaving.)
 
 | `proxy-target-class`
 | `proxyTargetClass`
 | `false`
 | Applies to proxy mode only. Controls what type of caching proxies are created for
-classes annotated with the `@Cacheable` or `@CacheEvict` annotations. If the
-`proxy-target-class` attribute is set to `true`, class-based proxies are created.
-If `proxy-target-class` is `false` or if the attribute is omitted, standard JDK
-interface-based proxies are created. (See xref:core/aop/proxying.adoc[Proxying Mechanisms]
-for a detailed examination of the different proxy types.)
+  classes annotated with the `@Cacheable` or `@CacheEvict` annotations. If the
+  `proxy-target-class` attribute is set to `true`, class-based proxies are created.
+  If `proxy-target-class` is `false` or if the attribute is omitted, standard JDK
+  interface-based proxies are created. (See xref:core/aop/proxying.adoc[Proxying Mechanisms]
+  for a detailed examination of the different proxy types.)
 
 | `order`
 | `order`
 | Ordered.LOWEST_PRECEDENCE
 | Defines the order of the cache advice that is applied to beans annotated with
-`@Cacheable` or `@CacheEvict`. (For more information about the rules related to
-ordering AOP advice, see xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[Advice Ordering].)
-No specified ordering means that the AOP subsystem determines the order of the advice.
+  `@Cacheable` or `@CacheEvict`. (For more information about the rules related to
+  ordering AOP advice, see xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-ordering[Advice Ordering].)
+  No specified ordering means that the AOP subsystem determines the order of the advice.
 |===
 
 NOTE: `<cache:annotation-driven/>` looks for `@Cacheable/@CachePut/@CacheEvict/@Caching`

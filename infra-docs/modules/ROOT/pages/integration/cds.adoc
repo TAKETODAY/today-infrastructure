@@ -1,46 +1,65 @@
 [[cds]]
-= 类数据共享 (CDS)
+= CDS
+:page-aliases: integration/class-data-sharing.adoc
 
-类数据共享 (CDS) 是 JDK 的一项功能，有助于减少 Java 应用程序的启动时间和内存占用。
+Class Data Sharing (CDS) is a https://docs.oracle.com/en/java/javase/17/vm/class-data-sharing.html[JVM feature]
+that can help reduce the startup time and memory footprint of Java applications.
 
-Infra 框架为 CDS 提供了特定支持，以便更轻松地为您的应用程序创建 CDS 归档。
+To use this feature, a CDS archive should be created for the particular classpath of the
+application. The TODAY Framework provides a hook-point to ease the creation of the
+archive. Once the archive is available, users should opt in to use it via a JVM flag.
 
-[[cds-creation]]
-== 创建 CDS 归档
+== Creating the CDS Archive
 
-CDS 分两个步骤工作：
+A CDS archive for an application can be created when the application exits. The Infra
+Framework provides a mode of operation where the process can exit automatically once the
+`ApplicationContext` has refreshed. In this mode, all non-lazy initialized singletons
+have been instantiated, and `InitializingBean#afterPropertiesSet` callbacks have been
+invoked; but the lifecycle has not started, and the `ContextRefreshedEvent` has not yet
+been published.
 
-1.  创建应用程序加载的类的列表。
-2.  创建包含这些类的数据的归档。
+To create the archive, two additional JVM flags must be specified:
 
-Infra 框架提供了一个挂钩，通过使用 `infra.context.aot.AotApplicationContextInitializer` 来简化类列表的创建。
-此类旨在用于应用程序的 AOT（提前）处理阶段，但它也可以用于执行应用程序并记录已加载的类。
+* `-XX:ArchiveClassesAtExit=application.jsa`: creates the CDS archive on exit
+* `-Dinfra.context.exit=onRefresh`: starts and then immediately exits your Infra
+  application as described above
 
-要使用此功能，您需要在启动应用程序时设置 `infra.aot.enabled` 系统属性为 `true`，并启用 CDS 转储：
+To create a CDS archive, your JDK must have a base image. If you add the flags above to
+your startup script, you may get a warning that looks like this:
 
-[source,bash]
+[source,shell,indent=0,subs="verbatim"]
 ----
-java -Dinfra.aot.enabled=true -XX:ArchiveClassesAtExit=application.jsa -jar application.jar
-----
-
-这将启动您的应用程序，当您停止它时（例如，使用 `Ctrl+C`），JVM 将创建一个包含已加载类的 `application.jsa` 文件。
-
-[[cds-usage]]
-== 使用 CDS 归档
-
-一旦有了 `application.jsa` 文件，就可以使用它来启动应用程序：
-
-[source,bash]
-----
-java -XX:SharedArchiveFile=application.jsa -jar application.jar
+  -XX:ArchiveClassesAtExit is unsupported when base CDS archive is not loaded. Run with -Xlog:cds for more info.
 ----
 
-JVM 将使用归档中的类数据，这应该会缩短启动时间。
+The base CDS archive can be created by issuing the following command:
 
-[[cds-optimizations]]
-== 优化
+[source,shell,indent=0,subs="verbatim"]
+----
+  $ java -Xshare:dump
+----
 
-Infra 框架的 CDS 支持还包括一些优化，以确保尽可能多的类包含在归档中。
-例如，它会急切地初始化某些组件，以确保它们的类被加载并包含在列表中。
+== Using the Archive
 
-这些优化是自动启用的，只要 `infra.aot.enabled` 系统属性设置为 `true`。
+Once the archive is available, add `-XX:SharedArchiveFile=application.jsa` to your startup
+script to use it, assuming an `application.jsa` file in the working directory.
+
+To figure out how effective the cache is, you can enable class loading logs by adding
+an extra attribute: `-Xlog:class+load:file=cds.log`. This creates a `cds.log` with every
+attempt to load a class and its source. Classes that are loaded from the cache should have
+a "shared objects file" source, as shown in the following example:
+
+[source,shell,indent=0,subs="verbatim"]
+----
+  [0.064s][info][class,load] infra.core.env.EnvironmentCapable source: shared objects file (top)
+  [0.064s][info][class,load] infra.beans.factory.BeanFactory source: shared objects file (top)
+  [0.064s][info][class,load] infra.beans.factory.ListableBeanFactory source: shared objects file (top)
+  [0.064s][info][class,load] infra.beans.factory.HierarchicalBeanFactory source: shared objects file (top)
+  [0.065s][info][class,load] infra.context.MessageSource source: shared objects file (top)
+----
+
+TIP: If you have a large number of classes that are not loaded from the cache, make sure that
+the JDK and classpath used by the commands that create the archive and start the application
+are identical. Note also that to effectively cache classes, the classpath should be specified
+as a list of JARs containing those classes, and avoid the usage of directories and `*`
+wildcard characters.

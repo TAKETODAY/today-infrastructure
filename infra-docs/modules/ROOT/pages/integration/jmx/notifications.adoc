@@ -1,14 +1,18 @@
 [[jmx-notifications]]
-= 通知
+= Notifications
 
-Infra JMX 产品包括对 JMX 通知的全面支持。
+Infra JMX offering includes comprehensive support for JMX notifications.
+
 
 [[jmx-notifications-listeners]]
-== 注册通知监听器
+== Registering Listeners for Notifications
 
-Infra JMX 支持使得向任意数量的 MBean 注册任意数量的 `NotificationListeners` 变得容易（这包括由 Infra `MBeanExporter` 导出的 MBean 和通过其他机制注册的 MBean）。
-例如，考虑这样一种情况：每当目标 MBean 的属性发生更改时，我们都希望收到通知（通过 `Notification`）。
-以下示例将通知写入控制台：
+Infra JMX support makes it easy to register any number of
+`NotificationListeners` with any number of MBeans (this includes MBeans exported by
+Infra `MBeanExporter` and MBeans registered through some other mechanism). For
+example, consider the scenario where one would like to be informed (through a
+`Notification`) each and every time an attribute of a target MBean changes. The following
+example writes notifications to the console:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -34,7 +38,8 @@ public class ConsoleLoggingNotificationListener
 }
 ----
 
-以下示例将 `ConsoleLoggingNotificationListener`（在前面的示例中定义）添加到 `notificationListenerMappings`：
+The following example adds `ConsoleLoggingNotificationListener` (defined in the preceding
+example) to `notificationListenerMappings`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -63,10 +68,14 @@ public class ConsoleLoggingNotificationListener
 </beans>
 ----
 
-有了上述配置，每次从目标 MBean (`bean:name=testBean1`) 广播 JMX `Notification` 时，通过 `notificationListenerMappings` 属性注册为监听器的 `ConsoleLoggingNotificationListener` bean 都会收到通知。
-然后，`ConsoleLoggingNotificationListener` bean 可以采取它认为适当的任何操作来响应 `Notification`。
+With the preceding configuration in place, every time a JMX `Notification` is broadcast from
+the target MBean (`bean:name=testBean1`), the `ConsoleLoggingNotificationListener` bean
+that was registered as a listener through the `notificationListenerMappings` property is
+notified. The `ConsoleLoggingNotificationListener` bean can then take whatever action
+it deems appropriate in response to the `Notification`.
 
-你也可以使用直接的 bean 名称作为导出的 bean 和监听器之间的链接，如下例所示：
+You can also use straight bean names as the link between exported beans and listeners,
+as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -95,7 +104,10 @@ public class ConsoleLoggingNotificationListener
 </beans>
 ----
 
-如果你想为包含的 `MBeanExporter` 导出的所有 bean 注册单个 `NotificationListener` 实例，你可以使用特殊的通配符 (`{asterisk}`) 作为 `notificationListenerMappings` 属性映射中的条目的键，如下例所示：
+If you want to register a single `NotificationListener` instance for all of the beans
+that the enclosing `MBeanExporter` exports, you can use the special wildcard (`{asterisk}`)
+as the key for an entry in the `notificationListenerMappings` property
+map, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -108,12 +120,18 @@ public class ConsoleLoggingNotificationListener
 </property>
 ----
 
-如果你需要做相反的事情（即，针对一个 MBean 注册多个不同的监听器），你必须改用 `notificationListeners` 列表属性（优先于 `notificationListenerMappings` 属性）。
-这次，我们配置 `NotificationListenerBean` 实例，而不是为单个 MBean 配置 `NotificationListener`。
-`NotificationListenerBean` 封装了一个 `NotificationListener` 和它要在 `MBeanServer` 中注册的 `ObjectName`（或 `ObjectNames`）。
-`NotificationListenerBean` 还封装了许多其他属性，例如 `NotificationFilter` 和可在高级 JMX 通知场景中使用的任意 handback 对象。
+If you need to do the inverse (that is, register a number of distinct listeners against
+an MBean), you must instead use the `notificationListeners` list property (in
+preference to the `notificationListenerMappings` property). This time, instead of
+configuring a `NotificationListener` for a single MBean, we configure
+`NotificationListenerBean` instances. A `NotificationListenerBean` encapsulates a
+`NotificationListener` and the `ObjectName` (or `ObjectNames`) that it is to be
+registered against in an `MBeanServer`. The `NotificationListenerBean` also encapsulates
+a number of other properties, such as a `NotificationFilter` and an arbitrary handback
+object that can be used in advanced JMX notification scenarios.
 
-使用 `NotificationListenerBean` 实例时的配置与前面介绍的没有太大区别，如下例所示：
+The configuration when using `NotificationListenerBean` instances is not wildly
+different to what was presented previously, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -149,9 +167,10 @@ public class ConsoleLoggingNotificationListener
 </beans>
 ----
 
-前面的示例等同于第一个通知示例。
-那么，假设我们希望每次引发 `Notification` 时都获得一个 handback 对象，并且我们要通过提供 `NotificationFilter` 来过滤掉无关的 `Notifications`。
-以下示例实现了这些目标：
+The preceding example is equivalent to the first notification example. Assume, then, that
+we want to be given a handback object every time a `Notification` is raised and that
+we also want to filter out extraneous `Notifications` by supplying a
+`NotificationFilter`. The following example accomplishes these goals:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -170,7 +189,7 @@ public class ConsoleLoggingNotificationListener
           <constructor-arg ref="customerNotificationListener"/>
           <property name="mappedObjectNames">
             <list>
-              <!-- 处理来自两个不同 MBean 的通知 -->
+              <!-- handles notifications from two distinct MBeans -->
               <value>bean:name=testBean1</value>
               <value>bean:name=testBean2</value>
             </list>
@@ -186,40 +205,104 @@ public class ConsoleLoggingNotificationListener
     </property>
   </bean>
 
-  <!-- 省略了其他 bean 定义 -->
+  <!-- implements both the NotificationListener and NotificationFilter interfaces -->
+  <bean id="customerNotificationListener" class="com.example.ConsoleLoggingNotificationListener"/>
+
+  <bean id="testBean1" class="infra.jmx.JmxTestBean">
+    <property name="name" value="TEST"/>
+    <property name="age" value="100"/>
+  </bean>
+
+  <bean id="testBean2" class="infra.jmx.JmxTestBean">
+    <property name="name" value="ANOTHER TEST"/>
+    <property name="age" value="200"/>
+  </bean>
 
 </beans>
 ----
 
+(For a full discussion of what a handback object is and,
+indeed, what a `NotificationFilter` is, see the section of the JMX
+specification (1.2) entitled 'The JMX Notification Model'.)
+
+
 [[jmx-notifications-publishing]]
-== 发布通知
+== Publishing Notifications
 
-Infra 不仅支持接收通知，还支持发布通知。
+Infra provides support not only for registering to receive `Notifications` but also
+for publishing `Notifications`.
 
-[[jmx-notifications-publishing-annotations]]
-=== @ManagedNotification 注解
+NOTE: This section is really only relevant to Infra-managed beans that have
+been exposed as MBeans through an `MBeanExporter`. Any existing user-defined MBeans should
+use the standard JMX APIs for notification publication.
 
-你可以使用 `@ManagedNotification` 注解来声明 bean 发出的通知。
-这会将通知元数据添加到 MBeanInfo 中，这是 JMX 规范所鼓励的。
+The key interface in Infra JMX notification publication support is the
+`NotificationPublisher` interface (defined in the
+`infra.jmx.export.notification` package). Any bean that is going to be
+exported as an MBean through an `MBeanExporter` instance can implement the related
+`NotificationPublisherAware` interface to gain access to a `NotificationPublisher`
+instance. The `NotificationPublisherAware` interface supplies an instance of a
+`NotificationPublisher` to the implementing bean through a simple setter method,
+which the bean can then use to publish `Notifications`.
 
-[source,java,indent=0,subs="verbatim,quotes"]
+As stated in the javadoc of the
+{today-framework-api}/jmx/export/notification/NotificationPublisher.html[`NotificationPublisher`]
+interface, managed beans that publish events through the `NotificationPublisher`
+mechanism are not responsible for the state management of notification listeners.
+Infra JMX support takes care of handling all the JMX infrastructure issues.
+All you need to do, as an application developer, is implement the
+`NotificationPublisherAware` interface and start publishing events by using the
+supplied `NotificationPublisher` instance. Note that the `NotificationPublisher`
+is set after the managed bean has been registered with an `MBeanServer`.
+
+Using a `NotificationPublisher` instance is quite straightforward. You create a JMX
+`Notification` instance (or an instance of an appropriate `Notification` subclass),
+populate the notification with the data pertinent to the event that is to be
+published, and invoke the `sendNotification(Notification)` on the
+`NotificationPublisher` instance, passing in the `Notification`.
+
+In the following example, exported instances of the `JmxTestBean` publish a
+`NotificationEvent` every time the `add(int, int)` operation is invoked:
+
+[source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-@ManagedResource
-@ManagedNotification(name="MyNotification", notificationTypes={"my.type"})
-public class MyBean implements NotificationPublisherAware {
+package infra.jmx;
 
-    private NotificationPublisher publisher;
+import infra.jmx.export.notification.NotificationPublisherAware;
+import infra.jmx.export.notification.NotificationPublisher;
+import javax.management.Notification;
 
-    public void setNotificationPublisher(NotificationPublisher publisher) {
-        this.publisher = publisher;
-    }
+public class JmxTestBean implements IJmxTestBean, NotificationPublisherAware {
 
-    public void doSomething() {
-        // ...
-        publisher.sendNotification(new Notification("my.type", this, 0));
-    }
+  private String name;
+  private int age;
+  private boolean isSuperman;
+  private NotificationPublisher publisher;
+
+  // other getters and setters omitted for clarity
+
+  public int add(int x, int y) {
+    int answer = x + y;
+    this.publisher.sendNotification(new Notification("add", this, 0));
+    return answer;
+  }
+
+  public void dontExposeMe() {
+    throw new RuntimeException();
+  }
+
+  public void setNotificationPublisher(NotificationPublisher notificationPublisher) {
+    this.publisher = notificationPublisher;
+  }
+
 }
 ----
 
-Infra 会自动检测 `NotificationPublisherAware` 接口并注入 `NotificationPublisher`，你可以使用它来发送通知。
-这样，你的 bean 就不需要扩展 `NotificationBroadcasterSupport`，从而保持了纯 POJO 风格。
+The `NotificationPublisher` interface and the machinery to get it all working is one of
+the nicer features of Infra JMX support. It does, however, come with the price tag of
+coupling your classes to both Infra and JMX. As always, the advice here is to be
+pragmatic. If you need the functionality offered by the `NotificationPublisher` and
+you can accept the coupling to both Infra and JMX, then do so.
+
+
+
