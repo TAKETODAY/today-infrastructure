@@ -1,14 +1,7 @@
 [[testcontext-ctx-management-xml]]
-= Context Configuration with XML resources
+= 使用 XML 资源进行上下文配置
 
-To load an `ApplicationContext` for your tests by using XML configuration files, annotate
-your test class with `@ContextConfiguration` and configure the `locations` attribute with
-an array that contains the resource locations of XML configuration metadata. A plain or
-relative path (for example, `context.xml`) is treated as a classpath resource that is
-relative to the package in which the test class is defined. A path starting with a slash
-is treated as an absolute classpath location (for example, `/org/example/config.xml`). A
-path that represents a resource URL (i.e., a path prefixed with `classpath:`, `file:`,
-`http:`, etc.) is used _as is_.
+要使用 XML 配置文件为测试加载 `ApplicationContext`，可以使用 `@ContextConfiguration` 标注测试类，并使用包含 XML 配置元数据资源位置的数组配置 `locations` 属性。普通路径或相对路径（例如，`context.xml`）被视为相对于定义测试类的包的类路径资源。以斜杠开头的路径被视为绝对类路径位置（例如，`/org/example/config.xml`）。表示资源 URL 的路径（即以 `classpath:`、`file:`、`http:` 等为前缀的路径）将_原样_使用。
 
 [tabs]
 ======
@@ -17,23 +10,19 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from "/app-config.xml" and
-// "/test-config.xml" in the root of the classpath
+// ApplicationContext 将从类路径根目录下的 "/app-config.xml" 和
+// "/test-config.xml" 加载
 @ContextConfiguration(locations = {"/app-config.xml", "/test-config.xml"}) // <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Setting the locations attribute to a list of XML files.
+<1> 将 locations 属性设置为 XML 文件列表。
 
 ======
 
 
-`@ContextConfiguration` supports an alias for the `locations` attribute through the
-standard Java `value` attribute. Thus, if you do not need to declare additional
-attributes in `@ContextConfiguration`, you can omit the declaration of the `locations`
-attribute name and declare the resource locations by using the shorthand format
-demonstrated in the following example:
+`@ContextConfiguration` 通过标准 Java `value` 属性支持 `locations` 属性的别名。因此，如果你不需要在 `@ContextConfiguration` 中声明其他属性，可以省略 `locations` 属性名称的声明，并使用以下示例中演示的简写格式声明资源位置：
 
 [tabs]
 ======
@@ -44,20 +33,14 @@ Java::
 @ExtendWith(InfraExtension.class)
 @ContextConfiguration({"/app-config.xml", "/test-config.xml"}) <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Specifying XML files without using the `locations` attribute.
+<1> 指定 XML 文件而不使用 `locations` 属性。
 ======
 
 
-If you omit both the `locations` and the `value` attributes from the
-`@ContextConfiguration` annotation, the TestContext framework tries to detect a default
-XML resource location. Specifically, `GenericXmlContextLoader` and
-`GenericXmlWebContextLoader` detect a default location based on the name of the test
-class. If your class is named `com.example.MyTest`, `GenericXmlContextLoader` loads your
-application context from `"classpath:com/example/MyTest-context.xml"`. The following
-example shows how to do so:
+如果你从 `@ContextConfiguration` 注解中省略 `locations` 和 `value` 属性，TestContext 框架会尝试检测默认 XML 资源位置。具体来说，`GenericXmlContextLoader` 和 `GenericXmlWebContextLoader` 基于测试类的名称检测默认位置。如果你的类名为 `com.example.MyTest`，`GenericXmlContextLoader` 将从 `"classpath:com/example/MyTest-context.xml"` 加载你的应用程序上下文。以下示例显示了如何执行此操作：
 
 [tabs]
 ======
@@ -66,14 +49,12 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from
-// "classpath:com/example/MyTest-context.xml"
+// ApplicationContext 将从
+// "classpath:com/example/MyTest-context.xml" 加载
 @ContextConfiguration // <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Loading configuration from the default location.
+<1> 从默认位置加载配置。
 ======
-
-

@@ -1,24 +1,9 @@
 [[mvc-test-server]]
-= Overview
+= 概述
 :page-section-summary-toc: 1
 
-You can write plain unit tests for Web MVC by instantiating a controller, injecting it
-with dependencies, and calling its methods. However such tests do not verify request
-mappings, data binding, message conversion, type conversion, validation, and nor
-do they involve any of the supporting `@InitBinder`, `@ModelAttribute`, or
-`@ExceptionHandler` methods.
+你可以通过实例化一个控制器、注入依赖并调用其方法来为 Web MVC 编写普通的单元测试。然而，这样的测试不会验证请求映射、数据绑定、消息转换、类型转换、验证，也不会涉及任何支持性的 `@InitBinder`、`@ModelAttribute` 或 `@ExceptionHandler` 方法。
 
-The Web MVC Test framework, also known as `MockMvc`, aims to provide more complete
-testing for Web MVC controllers without a running server. It does that by invoking
-the `MockDispatcher` and passing
-xref:testing/unit.adoc#mock-objects-mockApi["`mock`" implementations of the Servlet API] from the
-`infra-test` module which replicates the full Web MVC request handling without
-a running server.
+Web MVC Test 框架（也称为 `MockMvc`）旨在为 Web MVC 控制器提供更完整的测试，而无需运行服务器。它通过调用 `MockDispatcher` 并传递来自 `infra-test` 模块的 xref:testing/unit.adoc#mock-objects-mockApi[Servlet API 的“`mock`”实现] 来实现这一点，从而在没有运行服务器的情况下复制完整的 Web MVC 请求处理。
 
-MockMvc is a server side test framework that lets you verify most of the functionality
-of a Web MVC application using lightweight and targeted tests. You can use it on
-its own to perform requests and to verify responses, or you can also use it through
-the xref:testing/webtestclient.adoc[WebTestClient] API with MockMvc plugged in as the server to handle requests
-with.
-
-
+MockMvc 是一个服务器端测试框架，让你能够使用轻量级和针对性的测试来验证 Web MVC 应用程序的大部分功能。你可以单独使用它来执行请求并验证响应，也可以通过 xref:testing/webtestclient.adoc[WebTestClient] API 使用它，其中 MockMvc 作为服务器插入以处理请求。

@@ -1,41 +1,18 @@
 [[testcontext-ctx-management-dynamic-property-sources]]
-= Context Configuration with Dynamic Property Sources
+= 使用动态属性源进行上下文配置
 
-As of TODAY Framework 5.2.5, the TestContext framework provides support for _dynamic_
-properties via the `@DynamicPropertySource` annotation. This annotation can be used in
-integration tests that need to add properties with dynamic values to the set of
-`PropertySources` in the `Environment` for the `ApplicationContext` loaded for the
-integration test.
+自 TODAY Framework 5.2.5 起，TestContext 框架通过 `@DynamicPropertySource` 注解提供了对_动态_属性的支持。此注解可用于需要向为集成测试加载的 `ApplicationContext` 的 `Environment` 中的 `PropertySources` 集合添加具有动态值的属性的集成测试。
 
 [NOTE]
 ====
-The `@DynamicPropertySource` annotation and its supporting infrastructure were
-originally designed to allow properties from
-{testcontainers-site}[Testcontainers] based tests to be exposed easily to
-Infra integration tests. However, this feature may also be used with any form of
-external resource whose lifecycle is maintained outside the test's `ApplicationContext`.
+`@DynamicPropertySource` 注解及其支持基础设施最初旨在允许基于 {testcontainers-site}[Testcontainers] 的测试中的属性轻松暴露给 Infra 集成测试。然而，此功能也可用于任何生命周期在测试 `ApplicationContext` 之外维护的外部资源。
 ====
 
-In contrast to the xref:testing/testcontext-framework/ctx-management/property-sources.adoc[`@TestPropertySource`]
-annotation that is applied at the class level, `@DynamicPropertySource` must be applied
-to a `static` method that accepts a single `DynamicPropertyRegistry` argument which is
-used to add _name-value_ pairs to the `Environment`. Values are dynamic and provided via
-a `Supplier` which is only invoked when the property is resolved. Typically, method
-references are used to supply values, as can be seen in the following example which uses
-the Testcontainers project to manage a Redis container outside of the Infra
-`ApplicationContext`. The IP address and port of the managed Redis container are made
-available to components within the test's `ApplicationContext` via the `redis.host` and
-`redis.port` properties. These properties can be accessed via Infra `Environment`
-abstraction or injected directly into Infra-managed components – for example, via
-`@Value("${redis.host}")` and `@Value("${redis.port}")`, respectively.
+与应用于类级别的 xref:testing/testcontext-framework/ctx-management/property-sources.adoc[`@TestPropertySource`] 注解相比，`@DynamicPropertySource` 必须应用于接受单个 `DynamicPropertyRegistry` 参数的 `static` 方法，该参数用于向 `Environment` 添加_名称-值_对。值是动态的，并通过 `Supplier` 提供，该 `Supplier` 仅在解析属性时调用。通常，使用方法引用来提供值，如以下示例所示，该示例使用 Testcontainers 项目在 Infra `ApplicationContext` 之外管理 Redis 容器。托管 Redis 容器的 IP 地址和端口通过 `redis.host` 和 `redis.port` 属性提供给测试 `ApplicationContext` 中的组件。这些属性可以通过 Infra `Environment` 抽象访问，也可以直接注入到 Infra 管理的组件中——例如，分别通过 `@Value("${redis.host}")` 和 `@Value("${redis.port}")`。
 
 [TIP]
 ====
-If you use `@DynamicPropertySource` in a base class and discover that tests in subclasses
-fail because the dynamic properties change between subclasses, you may need to annotate
-your base class with xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[`@DirtiesContext`] to
-ensure that each subclass gets its own `ApplicationContext` with the correct dynamic
-properties.
+如果你在基类中使用 `@DynamicPropertySource`，并发现子类中的测试失败，因为动态属性在子类之间发生了变化，你可能需要使用 xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[`@DirtiesContext`] 标注你的基类，以确保每个子类都获得具有正确动态属性的自己的 `ApplicationContext`。
 ====
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -54,17 +31,12 @@ class ExampleIntegrationTests {
     registry.add("redis.port", redis::getFirstMappedPort);
   }
 
-  // tests ...
+  // 测试 ...
 
 }
 ----
 
 [[precedence]]
-== Precedence
+== 优先级
 
-Dynamic properties have higher precedence than those loaded from `@TestPropertySource`,
-the operating system's environment, Java system properties, or property sources added by
-the application declaratively by using `@PropertySource` or programmatically. Thus,
-dynamic properties can be used to selectively override properties loaded via
-`@TestPropertySource`, system property sources, and application property sources.
-
+动态属性的优先级高于从 `@TestPropertySource`、操作系统的环境、Java 系统属性加载的属性，或应用程序通过使用 `@PropertySource` 或以编程方式添加的属性源。因此，动态属性可用于选择性地覆盖通过 `@TestPropertySource`、系统属性源和应用程序属性源加载的属性。

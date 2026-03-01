@@ -1,11 +1,7 @@
 [[infra-testing-annotation-sqlgroup]]
 = `@SqlGroup`
 
-`@SqlGroup` is a container annotation that aggregates several `@Sql` annotations. You can
-use `@SqlGroup` natively to declare several nested `@Sql` annotations, or you can use it
-in conjunction with Java 8's support for repeatable annotations, where `@Sql` can be
-declared several times on the same class or method, implicitly generating this container
-annotation. The following example shows how to declare an SQL group:
+`@SqlGroup` 是一个容器注解，用于聚合多个 `@Sql` 注解。你可以原生使用 `@SqlGroup` 来声明多个嵌套的 `@Sql` 注解，或者结合 Java 8 对可重复注解的支持来使用它，其中 `@Sql` 可以在同一个类或方法上声明多次，隐式生成此容器注解。以下示例显示了如何声明一个 SQL 组：
 
 [tabs]
 ======
@@ -19,12 +15,9 @@ Java::
   @Sql("/test-user-data.sql")
 })
 void userTest() {
-  // run code that uses the test schema and test data
+  // 运行使用测试架构和测试数据的代码
 }
 ----
-<1> Declare a group of SQL scripts.
+<1> 声明一组 SQL 脚本。
 
 ======
-
-
-

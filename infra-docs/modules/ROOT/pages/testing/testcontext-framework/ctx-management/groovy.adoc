@@ -1,74 +1,57 @@
 [[testcontext-ctx-management-groovy]]
-= Context Configuration with Groovy Scripts
+= 使用 Groovy 脚本进行上下文配置
 
-To load an `ApplicationContext` for your tests by using Groovy scripts that use the
-xref:core/beans/basics.adoc#groovy-bean-definition-dsl[Groovy Bean Definition DSL], you can annotate
-your test class with `@ContextConfiguration` and configure the `locations` or `value`
-attribute with an array that contains the resource locations of Groovy scripts. Resource
-lookup semantics for Groovy scripts are the same as those described for
-xref:testing/testcontext-framework/ctx-management/xml.adoc[XML configuration files].
+要使用使用 xref:core/beans/basics.adoc#groovy-bean-definition-dsl[Groovy Bean 定义 DSL] 的 Groovy 脚本为测试加载 `ApplicationContext`，你可以使用 `@ContextConfiguration` 标注你的测试类，并使用包含 Groovy 脚本资源位置的数组配置 `locations` 或 `value` 属性。Groovy 脚本的资源查找语义与 xref:testing/testcontext-framework/ctx-management/xml.adoc[XML 配置文件] 中描述的相同。
 
-.Enabling Groovy script support
-TIP: Support for using Groovy scripts to load an `ApplicationContext` in the Infra
-TestContext Framework is enabled automatically if Groovy is on the classpath.
+.启用 Groovy 脚本支持
+TIP: 如果类路径中有 Groovy，Infra TestContext 框架会自动启用使用 Groovy 脚本加载 `ApplicationContext` 的支持。
 
-The following example shows how to specify Groovy configuration files:
+以下示例显示了如何指定 Groovy 配置文件：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from "/AppConfig.groovy" and
-// "/TestConfig.groovy" in the root of the classpath
+// ApplicationContext 将从类路径根目录下的 "/AppConfig.groovy" 和
+// "/TestConfig.groovy" 加载
 @ContextConfiguration({"/AppConfig.groovy", "/TestConfig.Groovy"}) <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Specifying the location of Groovy configuration files.
+<1> 指定 Groovy 配置文件的位置。
 
 
-If you omit both the `locations` and `value` attributes from the `@ContextConfiguration`
-annotation, the TestContext framework tries to detect a default Groovy script.
-Specifically, `GenericGroovyXmlContextLoader` and `GenericGroovyXmlWebContextLoader`
-detect a default location based on the name of the test class. If your class is named
-`com.example.MyTest`, the Groovy context loader loads your application context from
-`"classpath:com/example/MyTestContext.groovy"`. The following example shows how to use
-the default:
+如果你从 `@ContextConfiguration` 注解中省略了 `locations` 和 `value` 属性，TestContext 框架会尝试检测默认的 Groovy 脚本。具体来说，`GenericGroovyXmlContextLoader` 和 `GenericGroovyXmlWebContextLoader` 基于测试类的名称检测默认位置。如果你的类名为 `com.example.MyTest`，Groovy 上下文加载器将从 `"classpath:com/example/MyTestContext.groovy"` 加载你的应用程序上下文。以下示例显示了如何使用默认值：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from
-// "classpath:com/example/MyTestContext.groovy"
+// ApplicationContext 将从
+// "classpath:com/example/MyTestContext.groovy" 加载
 @ContextConfiguration // <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Loading configuration from the default location.
+<1> 从默认位置加载配置。
 
 
-.Declaring XML configuration and Groovy scripts simultaneously
+.同时声明 XML 配置和 Groovy 脚本
 [TIP]
 =====
-You can declare both XML configuration files and Groovy scripts simultaneously by using
-the `locations` or `value` attribute of `@ContextConfiguration`. If the path to a
-configured resource location ends with `.xml`, it is loaded by using an
-`XmlBeanDefinitionReader`. Otherwise, it is loaded by using a
-`GroovyBeanDefinitionReader`.
+你可以通过使用 `@ContextConfiguration` 的 `locations` 或 `value` 属性同时声明 XML 配置文件和 Groovy 脚本。如果配置的资源位置路径以 `.xml` 结尾，则使用 `XmlBeanDefinitionReader` 加载它。否则，使用 `GroovyBeanDefinitionReader` 加载它。
 
-The following listing shows how to combine both in an integration test:
+以下清单显示了如何在集成测试中结合使用两者：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from
-// "/app-config.xml" and "/TestConfig.groovy"
+// ApplicationContext 将从
+// "/app-config.xml" 和 "/TestConfig.groovy" 加载
 @ContextConfiguration({ "/app-config.xml", "/TestConfig.groovy" })
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
 
 =====
-

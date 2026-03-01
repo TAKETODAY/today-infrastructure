@@ -1,14 +1,9 @@
 [[infra-testing-annotation-dynamicpropertysource]]
 = `@DynamicPropertySource`
 
-`@DynamicPropertySource` is a method-level annotation that you can use to register
-_dynamic_ properties to be added to the set of `PropertySources` in the `Environment` for
-an `ApplicationContext` loaded for an integration test. Dynamic properties are useful
-when you do not know the value of the properties upfront – for example, if the properties
-are managed by an external resource such as for a container managed by the
-{testcontainers-site}[Testcontainers] project.
+`@DynamicPropertySource` 是一个方法级别的注解，你可以使用它来注册 _动态_ 属性，这些属性将被添加到为集成测试加载的 `ApplicationContext` 的 `Environment` 中的 `PropertySources` 集中。当你无法预先知道属性值时，动态属性非常有用——例如，如果属性由外部资源管理，如由 {testcontainers-site}[Testcontainers] 项目管理的容器。
 
-The following example demonstrates how to register a dynamic property:
+以下示例演示了如何注册动态属性：
 
 [tabs]
 ======
@@ -29,10 +24,9 @@ class MyIntegrationTests {
   // tests ...
 }
 ----
-<1> Annotate a `static` method with `@DynamicPropertySource`.
-<2> Accept a `DynamicPropertyRegistry` as an argument.
-<3> Register a dynamic `server.port` property to be retrieved lazily from the server.
+<1> 使用 `@DynamicPropertySource` 注解一个 `static` 方法。
+<2> 接受一个 `DynamicPropertyRegistry` 作为参数。
+<3> 注册一个动态的 `server.port` 属性，以便从服务器延迟检索。
 ======
 
-See xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[Context Configuration with Dynamic Property Sources] for further details.
-
+有关更多详细信息，请参见 xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[具有动态属性源的上下文配置]。

@@ -1,30 +1,22 @@
 [[infra-testing-annotation-beanoverriding]]
-= Bean Overriding in Tests
+= 测试中的 Bean 覆盖
 
-Bean Overriding in Tests refers to the ability to override specific beans in the Context
-for a test class, by annotating one or more fields in said test class.
+测试中的 Bean 覆盖是指通过注解测试类中的一个或多个字段，来覆盖测试类上下文中的特定 bean 的能力。
 
-NOTE: This is intended as a less risky alternative to the practice of registering a bean via
-`@Bean` with the `StandardBeanFactory` `setAllowBeanDefinitionOverriding` set to
-`true`.
+注意：这旨在作为一种风险较小的替代方案，以此来替代通过 `@Bean` 注册 bean 并将 `StandardBeanFactory` 的 `setAllowBeanDefinitionOverriding` 设置为 `true` 的做法。
 
-The Infra Testing Framework provides two sets of annotations presented below. One relies
-purely on Infra, while the second set relies on the Mockito third party library.
+Infra 测试框架提供了下面介绍的两组注解。一组纯粹依赖于 Infra，而第二组则依赖于 Mockito 第三方库。
 
 [[infra-testing-annotation-beanoverriding-testbean]]
 == `@TestBean`
 
-`@TestBean` is used on a test class field to override a specific bean with an instance
-provided by a conventionally named static method.
+`@TestBean` 用于测试类字段，以使用通过按约定命名的静态方法提供的实例来覆盖特定 bean。
 
-By default, the bean name and the associated static method name are derived from the
-annotated field's name, but the annotation allows for specific values to be provided.
+默认情况下，bean 名称和关联的静态方法名称派生自被注解的字段名称，但该注解允许提供特定值。
 
-The `@TestBean` annotation uses the `REPLACE_DEFINITION`
-xref:#infra-testing-annotation-beanoverriding-extending[strategy for test bean overriding].
+`@TestBean` 注解使用 `REPLACE_DEFINITION` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]。
 
-The following example shows how to fully configure the `@TestBean` annotation, with
-explicit values equivalent to the default:
+以下示例展示了如何完全配置 `@TestBean` 注解，使用等同于默认值的显式值：
 
 [tabs]
 ======
@@ -43,35 +35,24 @@ class OverrideBeanTests {
   }
 }
 ----
-<1> Mark a field for bean overriding in this test class
-<2> The result of this static method will be used as the instance and injected into the field
+<1> 在此测试类中标记一个字段用于 bean 覆盖
+<2> 此静态方法的结果将用作实例并注入到字段中
 ======
 
-NOTE: The method to invoke is searched in the test class and any enclosing class it might
-have, as well as its hierarchy. This typically allows nested test class to rely on the
-method to use in the root test class.
+注意：要调用的方法会在测试类及其可能拥有的任何封闭类以及其层次结构中搜索。这通常允许嵌套测试类依赖于根测试类中使用的方法。
 
 [[infra-testing-annotation-beanoverriding-mockitobean]]
-== `@MockitoBean` and `@MockitoSpyBean`
+== `@MockitoBean` 和 `@MockitoSpyBean`
 
-`@MockitoBean` and `@MockitoSpyBean` are used on a test class field to override a bean
-with a mocking and spying instance, respectively. In the later case, the original bean
-definition is not replaced but instead an early instance is captured and wrapped by the
-spy.
+`@MockitoBean` 和 `@MockitoSpyBean` 用于测试类字段，分别使用 mock 和 spy 实例覆盖 bean。在后一种情况下，原始 bean 定义不会被替换，而是捕获早期实例并由 spy 包装。
 
-By default, the name of the bean to override is derived from the annotated field's name,
-but both annotations allows for a specific `name` to be provided. Each annotation also
-defines Mockito-specific attributes to fine-tune the mocking details.
+默认情况下，要覆盖的 bean 名称派生自被注解的字段名称，但这两种注解都允许提供特定的 `name`。每个注解还定义了 Mockito 特定的属性以微调 mock 细节。
 
-The `@MockitoBean` annotation uses the `CREATE_OR_REPLACE_DEFINITION`
-xref:#infra-testing-annotation-beanoverriding-extending[strategy for test bean overriding].
+`@MockitoBean` 注解使用 `CREATE_OR_REPLACE_DEFINITION` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]。
 
-The `@MockitoSpyBean` annotation uses the `WRAP_EARLY_BEAN`
-xref:#infra-testing-annotation-beanoverriding-extending[strategy] and the original instance
-is wrapped in a Mockito spy.
+`@MockitoSpyBean` 注解使用 `WRAP_EARLY_BEAN` xref:#infra-testing-annotation-beanoverriding-extending[策略]，并且原始实例被包装在 Mockito spy 中。
 
-The following example shows how to configure the bean name for both `@MockitoBean` and
-`@MockitoSpyBean` annotations:
+以下示例展示了如何为 `@MockitoBean` 和 `@MockitoSpyBean` 注解配置 bean 名称：
 
 [tabs]
 ======
@@ -89,46 +70,33 @@ class OverrideBeanTests {
   // test case body...
 }
 ----
-<1> Mark `mockService` as a Mockito mock override of bean `service1` in this test class
-<2> Mark `spyService` as a Mockito spy override of bean `service2` in this test class
-<3> Both fields will be injected with the Mockito values (the mock and the spy respectively)
+<1> 将 `mockService` 标记为此测试类中 bean `service1` 的 Mockito mock 覆盖
+<2> 将 `spyService` 标记为此测试类中 bean `service2` 的 Mockito spy 覆盖
+<3> 两个字段都将注入 Mockito 值（分别为 mock 和 spy）
 ======
 
 
 [[infra-testing-annotation-beanoverriding-extending]]
-== Extending bean override with a custom annotation
+== 使用自定义注解扩展 bean 覆盖
 
-The three annotations introduced above build upon the `@BeanOverride` meta-annotation
-and associated infrastructure, which allows to define custom bean overriding variants.
+上面介绍的三个注解建立在 `@BeanOverride` 元注解和相关基础设施之上，允许定义自定义 bean 覆盖变体。
 
-To create an extension, the following is needed:
+要创建扩展，需要以下内容：
 
-- An annotation meta-annotated with `@BeanOverride` that defines the
-`BeanOverrideProcessor` to use.
-- The `BeanOverrideProcessor` implementation itself.
-- One or more concrete `OverrideMetadata` implementations provided by the processor.
+- 一个使用 `@BeanOverride` 元注解的注解，定义要使用的 `BeanOverrideProcessor`。
+- `BeanOverrideProcessor` 实现本身。
+- 处理器提供的一个或多个具体 `OverrideMetadata` 实现。
 
-The Infra TestContext Framework includes infrastructure classes that support bean
-overriding: a `BeanFactoryPostProcessor`, a `TestExecutionListener` and a
-`ContextCustomizerFactory`.
-The later two are automatically registered via the Infra TestContext Framework
-`infra.factories` file, and are responsible for setting up the rest of the infrastructure.
+Infra TestContext 框架包含支持 bean 覆盖的基础设施类：`BeanFactoryPostProcessor`、`TestExecutionListener` 和 `ContextCustomizerFactory`。
+后两者通过 Infra TestContext 框架 `infra.factories` 文件自动注册，并负责设置其余的基础设施。
 
-The test classes are parsed looking for any field meta-annotated with `@BeanOverride`,
-instantiating the relevant `BeanOverrideProcessor` in order to register an
-`OverrideMetadata`.
+解析测试类以查找任何使用 `@BeanOverride` 元注解的字段，实例化相关的 `BeanOverrideProcessor` 以注册 `OverrideMetadata`。
 
-Then the `BeanOverrideBeanFactoryPostProcessor` will use that information to alter the
-context, registering and replacing bean definitions as defined by each metadata
-`BeanOverrideStrategy`:
+然后，`BeanOverrideBeanFactoryPostProcessor` 将使用该信息来更改上下文，根据每个元数据 `BeanOverrideStrategy` 的定义注册和替换 bean 定义：
 
- - `REPLACE_DEFINITION`: replaces the bean definition. If it is not present in the
-context, an exception is thrown.
- - `CREATE_OR_REPLACE_DEFINITION`: replaces the bean definition if the bean definition
-does not exist, or create one if it is not.
- - `WRAP_BEAN`: get the original instance early so that it can be wrapped.
+ - `REPLACE_DEFINITION`：替换 bean 定义。如果上下文中不存在，则抛出异常。
+ - `CREATE_OR_REPLACE_DEFINITION`：如果 bean 定义不存在则替换 bean 定义，或者如果不存在则创建一个。
+ - `WRAP_BEAN`：尽早获取原始实例以便将其包装。
 
-NOTE: The Bean Overriding infrastructure does not include any bean resolution step,
-unlike an `@Autowired`-annotated field for instance. As such, the name of the bean to
-override must be somehow provided to or computed by the `BeanOverrideProcessor`.
-Typically, the user provides the name one way or the other.
+注意：Bean 覆盖基础设施不包含任何 bean 解析步骤，这与 `@Autowired` 注解的字段不同。因此，要覆盖的 bean 的名称必须以某种方式提供给 `BeanOverrideProcessor` 或由其计算。
+通常，用户以某种方式提供名称。

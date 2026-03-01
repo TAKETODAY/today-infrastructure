@@ -1,13 +1,9 @@
 [[infra-testing-annotation-beforetransaction]]
 = `@BeforeTransaction`
 
-`@BeforeTransaction` indicates that the annotated `void` method should be run before a
-transaction is started, for test methods that have been configured to run within a
-transaction by using Infra `@Transactional` annotation. `@BeforeTransaction` methods
-are not required to be `public` and may be declared on Java 8-based interface default
-methods.
+`@BeforeTransaction` 表示对于已配置为使用 Infra `@Transactional` 注解在事务中运行的测试方法，被注解的 `void` 方法应在事务开始前运行。`@BeforeTransaction` 方法不需要是 `public` 的，并且可以在基于 Java 8 的接口默认方法上声明。
 
-The following example shows how to use the `@BeforeTransaction` annotation:
+以下示例展示了如何使用 `@BeforeTransaction` 注解：
 
 [tabs]
 ======
@@ -17,10 +13,8 @@ Java::
 ----
 @BeforeTransaction // <1>
 void beforeTransaction() {
-  // logic to be run before a transaction is started
+  // 在事务开始前运行的逻辑
 }
 ----
-<1> Run this method before a transaction.
+<1> 在事务之前运行此方法。
 ======
-
-

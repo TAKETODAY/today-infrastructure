@@ -1,33 +1,8 @@
 [[testcontext-ctx-management-mixed-config]]
-= Mixing XML, Groovy Scripts, and Component Classes
+= 混合使用 XML、Groovy 脚本和组件类
 
-It may sometimes be desirable to mix XML configuration files, Groovy scripts, and
-component classes (typically `@Configuration` classes) to configure an
-`ApplicationContext` for your tests. For example, if you use XML configuration in
-production, you may decide that you want to use `@Configuration` classes to configure
-specific Infra-managed components for your tests, or vice versa.
+有时可能希望混合使用 XML 配置文件、Groovy 脚本和组件类（通常是 `@Configuration` 类）来为测试配置 `ApplicationContext`。例如，如果你在生产中使用 XML 配置，你可能决定使用 `@Configuration` 类来为测试配置特定的 Infra 管理组件，反之亦然。
 
-Furthermore, some third-party frameworks (such as Infra App) provide first-class
-support for loading an `ApplicationContext` from different types of resources
-simultaneously (for example, XML configuration files, Groovy scripts, and
-`@Configuration` classes). The TODAY Framework, historically, has not supported this for
-standard deployments. Consequently, most of the `SmartContextLoader` implementations that
-the TODAY Framework delivers in the `infra-test` module support only one resource type
-for each test context. However, this does not mean that you cannot use both. One
-exception to the general rule is that the `GenericGroovyXmlContextLoader` and
-`GenericGroovyXmlWebContextLoader` support both XML configuration files and Groovy
-scripts simultaneously. Furthermore, third-party frameworks may choose to support the
-declaration of both `locations` and `classes` through `@ContextConfiguration`, and, with
-the standard testing support in the TestContext framework, you have the following options.
+此外，一些第三方框架（如 Infra App）提供了一流的支持，可以同时从不同类型的资源（例如，XML 配置文件、Groovy 脚本和 `@Configuration` 类）加载 `ApplicationContext`。TODAY Framework 历史上不支持在标准部署中这样做。因此，TODAY Framework 在 `infra-test` 模块中提供的大多数 `SmartContextLoader` 实现每个测试上下文仅支持一种资源类型。但这并不意味着你不能同时使用两者。一般规则的一个例外是 `GenericGroovyXmlContextLoader` 和 `GenericGroovyXmlWebContextLoader` 同时支持 XML 配置文件和 Groovy 脚本。此外，第三方框架可能选择通过 `@ContextConfiguration` 支持同时声明 `locations` 和 `classes`，而在 TestContext 框架的标准测试支持下，你有以下选择。
 
-If you want to use resource locations (for example, XML or Groovy) and `@Configuration`
-classes to configure your tests, you must pick one as the entry point, and that one must
-include or import the other. For example, in XML or Groovy scripts, you can include
-`@Configuration` classes by using component scanning or defining them as normal Infra
-beans, whereas, in a `@Configuration` class, you can use `@ImportResource` to import XML
-configuration files or Groovy scripts. Note that this behavior is semantically equivalent
-to how you configure your application in production: In production configuration, you
-define either a set of XML or Groovy resource locations or a set of `@Configuration`
-classes from which your production `ApplicationContext` is loaded, but you still have the
-freedom to include or import the other type of configuration.
-
+如果你想使用资源位置（例如，XML 或 Groovy）和 `@Configuration` 类来配置测试，你必须选择一个作为入口点，并且该入口点必须包含或导入另一个。例如，在 XML 或 Groovy 脚本中，你可以通过使用组件扫描或将其定义为普通 Infra bean 来包含 `@Configuration` 类，而在 `@Configuration` 类中，你可以使用 `@ImportResource` 导入 XML 配置文件或 Groovy 脚本。请注意，此行为在语义上等同于你在生产中配置应用程序的方式：在生产配置中，你定义一组 XML 或 Groovy 资源位置或一组 `@Configuration` 类，从中加载生产 `ApplicationContext`，但你仍然可以自由地包含或导入另一种类型的配置。

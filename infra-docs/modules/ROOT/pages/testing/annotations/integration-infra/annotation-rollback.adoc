@@ -1,19 +1,11 @@
 [[infra-testing-annotation-rollback]]
 = `@Rollback`
 
-`@Rollback` indicates whether the transaction for a transactional test method should be
-rolled back after the test method has completed. If `true`, the transaction is rolled
-back. Otherwise, the transaction is committed (see also
-xref:testing/annotations/integration-infra/annotation-commit.adoc[`@Commit`]). Rollback for integration tests in the Infra
-TestContext Framework defaults to `true` even if `@Rollback` is not explicitly declared.
+`@Rollback` 指示事务性测试方法的事务在测试方法完成后是否应回滚。如果是 `true`，则事务回滚。否则，事务提交（另请参见 xref:testing/annotations/integration-infra/annotation-commit.adoc[`@Commit`]）。即使没有显式声明 `@Rollback`，Infra TestContext 框架中的集成测试默认回滚也为 `true`。
 
-When declared as a class-level annotation, `@Rollback` defines the default rollback
-semantics for all test methods within the test class hierarchy. When declared as a
-method-level annotation, `@Rollback` defines rollback semantics for the specific test
-method, potentially overriding class-level `@Rollback` or `@Commit` semantics.
+当声明为类级别注解时，`@Rollback` 定义测试类层次结构中所有测试方法的默认回滚语义。当声明为方法级别注解时，`@Rollback` 定义特定测试方法的回滚语义，可能会覆盖类级别的 `@Rollback` 或 `@Commit` 语义。
 
-The following example causes a test method's result to not be rolled back (that is, the
-result is committed to the database):
+以下示例导致测试方法的结果不回滚（即结果提交到数据库）：
 
 [tabs]
 ======
@@ -27,8 +19,6 @@ void testProcessWithoutRollback() {
   // ...
 }
 ----
-<1> Do not roll back the result.
+<1> 不要回滚结果。
 
 ======
-
-

@@ -1,12 +1,9 @@
 [[mvc-test-server-htmlunit-why]]
-= Why HtmlUnit Integration?
+= 为什么选择 HtmlUnit 集成？
 
-The most obvious question that comes to mind is "`Why do I need this?`" The answer is
-best found by exploring a very basic sample application. Assume you have a Web MVC web
-application that supports CRUD operations on a `Message` object. The application also
-supports paging through all messages. How would you go about testing it?
+想到的最明显的问题是“`我为什么需要这个？`”。通过探索一个非常基本的示例应用程序可以最好地找到答案。假设你有一个 Web MVC Web 应用程序，支持对 `Message` 对象进行 CRUD 操作。该应用程序还支持对所有消息进行分页。你会如何去测试它？
 
-With Web MVC Test, we can easily test if we are able to create a `Message`, as follows:
+使用 Web MVC Test，我们可以轻松测试是否能够创建 `Message`，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -20,8 +17,7 @@ mockMvc.perform(createMessage)
 ----
 
 
-What if we want to test the form view that lets us create the message? For example,
-assume our form looks like the following snippet:
+如果我们想测试允许我们创建消息的表单视图怎么办？例如，假设我们的表单看起来像下面的片段：
 
 [source,xml,indent=0]
 ----
@@ -40,8 +36,7 @@ assume our form looks like the following snippet:
 </form>
 ----
 
-How do we ensure that our form produce the correct request to create a new message? A
-naive attempt might resemble the following:
+我们如何确保我们的表单产生创建新消息的正确请求？一个幼稚的尝试可能类似于以下内容：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -50,10 +45,7 @@ naive attempt might resemble the following:
 			.andExpect(xpath("//textarea[@name='text']").exists());
 ----
 
-This test has some obvious drawbacks. If we update our controller to use the parameter
-`message` instead of `text`, our form test continues to pass, even though the HTML form
-is out of sync with the controller. To resolve this we can combine our two tests, as
-follows:
+这个测试有一些明显的缺点。如果我们更新控制器以使用参数 `message` 而不是 `text`，我们的表单测试将继续通过，即使 HTML 表单与控制器不同步。为了解决这个问题，我们可以合并我们的两个测试，如下所示：
 
 [[mvc-test-server-htmlunit-mock-mvc-test]]
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -74,72 +66,42 @@ mockMvc.perform(createMessage)
 ----
 
 
-This would reduce the risk of our test incorrectly passing, but there are still some
-problems:
+这将降低我们测试错误通过的风险，但仍有一些问题：
 
-* What if we have multiple forms on our page? Admittedly, we could update our XPath
-  expressions, but they get more complicated as we take more factors into account: Are
-  the fields the correct type? Are the fields enabled? And so on.
-* Another issue is that we are doing double the work we would expect. We must first
-  verify the view, and then we submit the view with the same parameters we just verified.
-  Ideally, this could be done all at once.
-* Finally, we still cannot account for some things. For example, what if the form has
-  JavaScript validation that we wish to test as well?
+* 如果我们的页面上有多个表单怎么办？诚然，我们可以更新我们的 XPath 表达式，但随着我们考虑更多因素，它们会变得更加复杂：字段类型是否正确？字段是否启用？等等。
+* 另一个问题是我们正在做我们预期的双倍工作。我们必须首先验证视图，然后我们使用我们刚刚验证的相同参数提交视图。理想情况下，这可以一次完成。
+* 最后，我们仍然无法解释某些事情。例如，如果表单具有我们也希望测试的 JavaScript 验证怎么办？
 
-The overall problem is that testing a web page does not involve a single interaction.
-Instead, it is a combination of how the user interacts with a web page and how that web
-page interacts with other resources. For example, the result of a form view is used as
-the input to a user for creating a message. In addition, our form view can potentially
-use additional resources that impact the behavior of the page, such as JavaScript
-validation.
+总体问题是测试网页不涉及单一交互。相反，它是用户如何与网页交互以及该网页如何与其他资源交互的组合。例如，表单视图的结果用作用户创建消息的输入。此外，我们的表单视图可能会使用影响页面行为的其他资源，例如 JavaScript 验证。
 
 [[mvc-test-server-htmlunit-why-integration]]
-== Integration Testing to the Rescue?
+== 集成测试来救援？
 
-To resolve the issues mentioned earlier, we could perform end-to-end integration testing,
-but this has some drawbacks. Consider testing the view that lets us page through the
-messages. We might need the following tests:
+为了解决前面提到的问题，我们可以执行端到端集成测试，但这有一些缺点。考虑测试允许我们对消息进行分页的视图。我们可能需要以下测试：
 
-* Does our page display a notification to the user to indicate that no results are
-  available when the messages are empty?
-* Does our page properly display a single message?
-* Does our page properly support paging?
+* 当消息为空时，我们的页面是否向用户显示通知以指示没有可用结果？
+* 我们的页面是否正确显示单条消息？
+* 我们的页面是否正确支持分页？
 
-To set up these tests, we need to ensure our database contains the proper messages. This
-leads to a number of additional challenges:
+为了设置这些测试，我们需要确保我们的数据库包含适当的消息。这导致了许多额外的挑战：
 
-* Ensuring the proper messages are in the database can be tedious. (Consider foreign key
-  constraints.)
-* Testing can become slow, since each test would need to ensure that the database is in
-  the correct state.
-* Since our database needs to be in a specific state, we cannot run tests in parallel.
-* Performing assertions on such items as auto-generated IDs, timestamps, and others can
-  be difficult.
+* 确保数据库中包含适当的消息可能很乏味。（考虑外键约束。）
+* 测试可能会变慢，因为每个测试都需要确保数据库处于正确状态。
+* 由于我们的数据库需要处于特定状态，我们无法并行运行测试。
+* 对自动生成的 ID、时间戳和其他项目执行断言可能很困难。
 
-These challenges do not mean that we should abandon end-to-end integration testing
-altogether. Instead, we can reduce the number of end-to-end integration tests by
-refactoring our detailed tests to use mock services that run much faster, more reliably,
-and without side effects. We can then implement a small number of true end-to-end
-integration tests that validate simple workflows to ensure that everything works together
-properly.
+这些挑战并不意味着我们应该完全放弃端到端集成测试。相反，我们可以通过重构详细测试以使用运行速度更快、更可靠且无副作用的 mock 服务来减少端到端集成测试的数量。然后我们可以实施少量真正的端到端集成测试，验证简单的工作流以确保一切协同工作正常。
 
 [[mvc-test-server-htmlunit-why-mockmvc]]
-== Enter HtmlUnit Integration
+== 进入 HtmlUnit 集成
 
-So how can we achieve a balance between testing the interactions of our pages and still
-retain good performance within our test suite? The answer is: "`By integrating MockMvc
-with HtmlUnit.`"
+那么我们如何在测试页面交互和在测试套件中保持良好性能之间取得平衡呢？答案是：“`通过集成 MockMvc 和 HtmlUnit。`”
 
 [[mvc-test-server-htmlunit-options]]
-== HtmlUnit Integration Options
+== HtmlUnit 集成选项
 
-You have a number of options when you want to integrate MockMvc with HtmlUnit:
+当你想要集成 MockMvc 和 HtmlUnit 时，你有许多选项：
 
-* xref:testing/mvc-test-framework/server-htmlunit/mah.adoc[MockMvc and HtmlUnit]: Use this option if you
-  want to use the raw HtmlUnit libraries.
-* xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc[MockMvc and WebDriver]: Use this option to
-  ease development and reuse code between integration and end-to-end testing.
-* xref:testing/mvc-test-framework/server-htmlunit/geb.adoc[MockMvc and Geb]: Use this option if you want to
-  use Groovy for testing, ease development, and reuse code between integration and
-  end-to-end testing.
-
+* xref:testing/mvc-test-framework/server-htmlunit/mah.adoc[MockMvc 和 HtmlUnit]：如果你想使用原始的 HtmlUnit 库，请使用此选项。
+* xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc[MockMvc 和 WebDriver]：使用此选项可以简化开发并在集成测试和端到端测试之间重用代码。
+* xref:testing/mvc-test-framework/server-htmlunit/geb.adoc[MockMvc 和 Geb]：如果你想使用 Groovy 进行测试、简化开发并在集成测试和端到端测试之间重用代码，请使用此选项。

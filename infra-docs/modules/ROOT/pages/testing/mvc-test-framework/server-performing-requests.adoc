@@ -1,63 +1,51 @@
 [[mvc-test-server-performing-requests]]
-= Performing Requests
+= 执行请求
 
-This section shows how to use MockMvc on its own to perform requests and verify responses.
-If using MockMvc through the `WebTestClient` please see the corresponding section on
-xref:testing/webtestclient.adoc#webtestclient-tests[Writing Tests] instead.
+本节展示了如何单独使用 MockMvc 执行请求并验证响应。
+如果通过 `WebTestClient` 使用 MockMvc，请参阅 xref:testing/webtestclient.adoc#webtestclient-tests[编写测试] 中的相应部分。
 
-To perform requests that use any HTTP method, as the following example shows:
+要执行使用任何 HTTP 方法的请求，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// static import of MockMvcRequestBuilders.*
+// MockMvcRequestBuilders.* 的静态导入
 
 mockMvc.perform(post("/hotels/{id}", 42).accept(MediaType.APPLICATION_JSON));
 ----
 
 
-You can also perform file upload requests that internally use
-`MockMultipartHttpMockRequest` so that there is no actual parsing of a multipart
-request. Rather, you have to set it up to be similar to the following example:
+你也可以执行文件上传请求，其内部使用 `MockMultipartHttpMockRequest`，因此不会对多部分请求进行实际解析。相反，你必须将其设置为类似于以下示例：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	mockMvc.perform(multipart("/doc").file("a1", "ABC".getBytes("UTF-8")));
 ----
 
-You can specify query parameters in URI template style, as the following example shows:
+你可以以 URI 模板样式指定查询参数，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	mockMvc.perform(get("/hotels?thing={thing}", "somewhere"));
 ----
 
-You can also add Servlet request parameters that represent either query or form
-parameters, as the following example shows:
+你还可以添加表示查询或表单参数的 Servlet 请求参数，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	mockMvc.perform(get("/hotels").param("thing", "somewhere"));
 ----
 
-If application code relies on Servlet request parameters and does not check the query
-string explicitly (as is most often the case), it does not matter which option you use.
-Keep in mind, however, that query parameters provided with the URI template are decoded
-while request parameters provided through the `param(...)` method are expected to already
-be decoded.
+如果应用程序代码依赖于 Servlet 请求参数并且没有显式检查查询字符串（通常情况下是这样），那么你使用哪个选项并不重要。
+但是请记住，随 URI 模板提供的查询参数会被解码，而通过 `param(...)` 方法提供的请求参数应该是已经解码的。
 
-In most cases, it is preferable to leave the context path and the Servlet path out of the
-request URI. If you must test with the full request URI, be sure to set the `contextPath`
-and `servletPath` accordingly so that request mappings work, as the following example
-shows:
+在大多数情况下，最好将上下文路径和 Servlet 路径保留在请求 URI 之外。如果你必须使用完整的请求 URI 进行测试，请务必相应地设置 `contextPath` 和 `servletPath`，以便请求映射起作用，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	mockMvc.perform(get("/app/main/hotels/{id}").contextPath("/app").servletPath("/main"))
 ----
 
-In the preceding example, it would be cumbersome to set the `contextPath` and
-`servletPath` with every performed request. Instead, you can set up default request
-properties, as the following example shows:
+在前面的示例中，为每个执行的请求设置 `contextPath` 和 `servletPath` 会很麻烦。相反，你可以设置默认请求属性，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -75,8 +63,4 @@ class MyWebTests {
 }
 ----
 
-The preceding properties affect every request performed through the `MockMvc` instance.
-If the same property is also specified on a given request, it overrides the default
-value. That is why the HTTP method and URI in the default request do not matter, since
-they must be specified on every request.
-
+前面的属性会影响通过 `MockMvc` 实例执行的每个请求。如果给定的请求上也指定了相同的属性，则它将覆盖默认值。这就是为什么默认请求中的 HTTP 方法和 URI 不重要的原因，因为它们必须在每个请求中指定。

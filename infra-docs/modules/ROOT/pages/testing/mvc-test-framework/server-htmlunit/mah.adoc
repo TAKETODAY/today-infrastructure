@@ -1,17 +1,14 @@
 [[mvc-test-server-htmlunit-mah]]
-= MockMvc and HtmlUnit
+= MockMvc 和 HtmlUnit
 
-This section describes how to integrate MockMvc and HtmlUnit. Use this option if you want
-to use the raw HtmlUnit libraries.
+本节介绍如何集成 MockMvc 和 HtmlUnit。如果你想使用原始的 HtmlUnit 库，请使用此选项。
 
 [[mvc-test-server-htmlunit-mah-setup]]
-== MockMvc and HtmlUnit Setup
+== MockMvc 和 HtmlUnit 设置
 
-First, make sure that you have included a test dependency on
-`org.htmlunit:htmlunit`.
+首先，确保你已包含对 `org.htmlunit:htmlunit` 的测试依赖。
 
-We can easily create an HtmlUnit `WebClient` that integrates with MockMvc by using the
-`MockMvcWebClientBuilder`, as follows:
+我们可以通过使用 `MockMvcWebClientBuilder` 轻松创建一个与 MockMvc 集成的 HtmlUnit `WebClient`，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -25,31 +22,23 @@ void setup(WebApplicationContext context) {
 }
 ----
 
-NOTE: This is a simple example of using `MockMvcWebClientBuilder`. For advanced usage,
-see xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-advanced-builder[Advanced `MockMvcWebClientBuilder`].
+NOTE: 这是使用 `MockMvcWebClientBuilder` 的一个简单示例。有关高级用法，请参阅 xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-advanced-builder[高级 `MockMvcWebClientBuilder`]。
 
-This ensures that any URL that references `localhost` as the server is directed to our
-`MockMvc` instance without the need for a real HTTP connection. Any other URL is
-requested by using a network connection, as normal. This lets us easily test the use of
-CDNs.
+这确保了任何引用 `localhost` 作为服务器的 URL 都会被定向到我们的 `MockMvc` 实例，而无需真正的 HTTP 连接。任何其他 URL 都会像往常一样使用网络连接请求。这让我们能够轻松测试 CDN 的使用。
 
 [[mvc-test-server-htmlunit-mah-usage]]
-== MockMvc and HtmlUnit Usage
+== MockMvc 和 HtmlUnit 用法
 
-Now we can use HtmlUnit as we normally would but without the need to deploy our
-application to a Servlet container. For example, we can request the view to create a
-message with the following:
+现在我们可以像平常一样使用 HtmlUnit，而无需将应用程序部署到 Servlet 容器。例如，我们可以请求创建消息的视图，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	HtmlPage createMsgFormPage = webClient.getPage("http://localhost/messages/form");
 ----
 
-NOTE: The default context path is `""`. Alternatively, we can specify the context path,
-as described in xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-advanced-builder[Advanced `MockMvcWebClientBuilder`].
+NOTE: 默认上下文路径是 `""`。或者，我们可以指定上下文路径，如 xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-advanced-builder[高级 `MockMvcWebClientBuilder`] 中所述。
 
-Once we have a reference to the `HtmlPage`, we can then fill out the form and submit it
-to create a message, as the following example shows:
+一旦我们有了对 `HtmlPage` 的引用，我们就可以填写表单并提交以创建消息，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -62,8 +51,7 @@ to create a message, as the following example shows:
 	HtmlPage newMessagePage = submit.click();
 ----
 
-Finally, we can verify that a new message was created successfully. The following
-assertions use the {assertj-docs}[AssertJ] library:
+最后，我们可以验证新消息是否成功创建。以下断言使用 {assertj-docs}[AssertJ] 库：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -77,25 +65,17 @@ assertions use the {assertj-docs}[AssertJ] library:
 ----
 
 
-The preceding code improves on our
-xref:testing/mvc-test-framework/server-htmlunit/why.adoc#mvc-test-server-htmlunit-mock-mvc-test[MockMvc test] in a number of ways.
-First, we no longer have to explicitly verify our form and then create a request that
-looks like the form. Instead, we request the form, fill it out, and submit it, thereby
-significantly reducing the overhead.
+前面的代码在很多方面改进了我们的 xref:testing/mvc-test-framework/server-htmlunit/why.adoc#mvc-test-server-htmlunit-mock-mvc-test[MockMvc 测试]。
+首先，我们不再需要显式验证表单，然后创建一个看起来像表单的请求。相反，我们请求表单，填写并提交，从而大大减少了开销。
 
-Another important factor is that https://htmlunit.sourceforge.io/javascript.html[HtmlUnit
-uses the Mozilla Rhino engine] to evaluate JavaScript. This means that we can also test
-the behavior of JavaScript within our pages.
+另一个重要因素是 https://htmlunit.sourceforge.io/javascript.html[HtmlUnit 使用 Mozilla Rhino 引擎] 来评估 JavaScript。这意味着我们还可以测试页面内 JavaScript 的行为。
 
-See the https://htmlunit.sourceforge.io/gettingStarted.html[HtmlUnit documentation] for
-additional information about using HtmlUnit.
+有关使用 HtmlUnit 的更多信息，请参阅 https://htmlunit.sourceforge.io/gettingStarted.html[HtmlUnit 文档]。
 
 [[mvc-test-server-htmlunit-mah-advanced-builder]]
-== Advanced `MockMvcWebClientBuilder`
+== 高级 `MockMvcWebClientBuilder`
 
-In the examples so far, we have used `MockMvcWebClientBuilder` in the simplest way
-possible, by building a `WebClient` based on the `WebApplicationContext` loaded for us by
-the Infra TestContext Framework. This approach is repeated in the following example:
+到目前为止的示例中，我们以最简单的方式使用了 `MockMvcWebClientBuilder`，即基于 Infra TestContext 框架为我们加载的 `WebApplicationContext` 构建 `WebClient`。此方法在以下示例中重复：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -110,7 +90,7 @@ void setup(WebApplicationContext context) {
 ----
 
 
-We can also specify additional configuration options, as the following example shows:
+我们还可以指定其他配置选项，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -119,19 +99,18 @@ WebClient webClient;
 @BeforeEach
 void setup() {
   webClient = MockMvcWebClientBuilder
-    // demonstrates applying a MockMvcConfigurer (Infra Security)
+    // 演示应用 MockMvcConfigurer (Infra Security)
     .webAppContextSetup(context, springSecurity())
-    // for illustration only - defaults to ""
+    // 仅用于说明 - 默认为 ""
     .contextPath("")
-    // By default MockMvc is used for localhost only;
-    // the following will use MockMvc for example.com and example.org as well
+    // 默认情况下 MockMvc 仅用于 localhost；
+    // 以下内容也将对 example.com 和 example.org 使用 MockMvc
     .useMockMvcForHosts("example.com","example.org")
     .build();
 }
 ----
 
-As an alternative, we can perform the exact same setup by configuring the `MockMvc`
-instance separately and supplying it to the `MockMvcWebClientBuilder`, as follows:
+作为替代方案，我们可以通过单独配置 `MockMvc` 实例并将其提供给 `MockMvcWebClientBuilder` 来执行完全相同的设置，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -142,18 +121,15 @@ MockMvc mockMvc = MockMvcBuilders
 
 webClient = MockMvcWebClientBuilder
     .mockMvcSetup(mockMvc)
-    // for illustration only - defaults to ""
+    // 仅用于说明 - 默认为 ""
     .contextPath("")
-    // By default MockMvc is used for localhost only;
-    // the following will use MockMvc for example.com and example.org as well
+    // 默认情况下 MockMvc 仅用于 localhost；
+    // 以下内容也将对 example.com 和 example.org 使用 MockMvc
     .useMockMvcForHosts("example.com","example.org")
     .build();
 ----
 
 
-This is more verbose, but, by building the `WebClient` with a `MockMvc` instance, we have
-the full power of MockMvc at our fingertips.
+这更冗长，但是通过使用 `MockMvc` 实例构建 `WebClient`，我们可以充分利用 MockMvc 的强大功能。
 
-TIP: For additional information on creating a `MockMvc` instance, see
-xref:testing/mvc-test-framework/server-setup-options.adoc[Setup Choices].
-
+TIP: 有关创建 `MockMvc` 实例的更多信息，请参阅 xref:testing/mvc-test-framework/server-setup-options.adoc[设置选择]。

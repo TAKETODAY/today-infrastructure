@@ -1,21 +1,12 @@
 [[mvc-test-server-htmlunit]]
-= HtmlUnit Integration
+= HtmlUnit 集成
 :page-section-summary-toc: 1
 
-Infra provides integration between xref:testing/mvc-test-framework/server.adoc[MockMvc] and
-https://htmlunit.sourceforge.io/[HtmlUnit]. This simplifies performing end-to-end testing
-when using HTML-based views. This integration lets you:
+Infra 提供了 xref:testing/mvc-test-framework/server.adoc[MockMvc] 和 https://htmlunit.sourceforge.io/[HtmlUnit] 之间的集成。这简化了使用基于 HTML 的视图时执行端到端测试的过程。此集成允许你：
 
-* Easily test HTML pages by using tools such as
-  https://htmlunit.sourceforge.io/[HtmlUnit],
-  https://www.seleniumhq.org[WebDriver], and
-  https://www.gebish.org/manual/current/#spock-junit-testng[Geb] without the need to
-  deploy to a Servlet container.
-* Test JavaScript within pages.
-* Optionally, test using mock services to speed up testing.
-* Share logic between in-container end-to-end tests and out-of-container integration tests.
+* 使用诸如 https://htmlunit.sourceforge.io/[HtmlUnit]、https://www.seleniumhq.org[WebDriver] 和 https://www.gebish.org/manual/current/#spock-junit-testng[Geb] 之类的工具轻松测试 HTML 页面，而无需部署到 Servlet 容器。
+* 测试页面内的 JavaScript。
+* 可选地，使用 mock 服务进行测试以加快测试速度。
+* 在容器内端到端测试和容器外集成测试之间共享逻辑。
 
-NOTE: MockMvc works with templating technologies that do not rely on a Servlet Container
-(for example, Thymeleaf, FreeMarker, and others), but it does not work with JSPs, since
-they rely on the Servlet container.
-
+NOTE: MockMvc 适用于不依赖 Servlet 容器的模板技术（例如 Thymeleaf、FreeMarker 等），但它不适用于 JSP，因为 JSP 依赖于 Servlet 容器。

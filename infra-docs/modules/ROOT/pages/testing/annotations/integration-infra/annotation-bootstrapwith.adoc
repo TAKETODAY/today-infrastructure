@@ -2,8 +2,4 @@
 = `@BootstrapWith`
 :page-section-summary-toc: 1
 
-`@BootstrapWith` is a class-level annotation that you can use to configure how the Infra
-TestContext Framework is bootstrapped. Specifically, you can use `@BootstrapWith` to
-specify a custom `TestContextBootstrapper`. See the section on
-xref:testing/testcontext-framework/bootstrapping.adoc[bootstrapping the TestContext framework] for further details.
-
+`@BootstrapWith` 是一个类级别的注解，你可以使用它来配置如何引导 Infra TestContext 框架。具体来说，你可以使用 `@BootstrapWith` 来指定自定义的 `TestContextBootstrapper`。有关更多详细信息，请参见 xref:testing/testcontext-framework/bootstrapping.adoc[引导 TestContext 框架] 部分。

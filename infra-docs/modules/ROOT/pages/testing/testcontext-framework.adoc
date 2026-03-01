@@ -2,25 +2,8 @@
 = Infra TestContext Framework
 :page-section-summary-toc: 1
 
-The Infra TestContext Framework (located in the `infra.test.context`
-package) provides generic, annotation-driven unit and integration testing support that is
-agnostic of the testing framework in use. The TestContext framework also places a great
-deal of importance on convention over configuration, with reasonable defaults that you
-can override through annotation-based configuration.
+Infra TestContext Framework（位于 `infra.test.context` 包中）提供了通用的、注解驱动的单元和集成测试支持，该支持与所使用的测试框架无关。TestContext 框架也非常重视约定优于配置，提供了合理的默认值，你可以通过基于注解的配置来覆盖这些默认值。
 
-In addition to generic testing infrastructure, the TestContext framework provides
-explicit support for JUnit 4, JUnit Jupiter (AKA JUnit 5), and TestNG. For JUnit 4 and
-TestNG, Infra provides `abstract` support classes. Furthermore, Infra provides a custom
-JUnit `Runner` and custom JUnit `Rules` for JUnit 4 and a custom `Extension` for JUnit
-Jupiter that let you write so-called POJO test classes. POJO test classes are not
-required to extend a particular class hierarchy, such as the `abstract` support classes.
+除了通用的测试基础设施外，TestContext 框架还为 JUnit 4、JUnit Jupiter（又名 JUnit 5）和 TestNG 提供了显式支持。对于 JUnit 4 和 TestNG，Infra 提供了 `abstract` 支持类。此外，Infra 为 JUnit 4 提供了自定义 JUnit `Runner` 和自定义 JUnit `Rules`，为 JUnit Jupiter 提供了自定义 `Extension`，这让你能够编写所谓的 POJO 测试类。POJO 测试类不需要扩展特定的类层次结构，例如 `abstract` 支持类。
 
-The following section provides an overview of the internals of the TestContext framework.
-If you are interested only in using the framework and are not interested in extending it
-with your own custom listeners or custom loaders, feel free to go directly to the
-configuration (xref:testing/testcontext-framework/ctx-management.adoc[context management],
-xref:testing/testcontext-framework/fixture-di.adoc[dependency injection], xref:testing/testcontext-framework/tx.adoc[transaction management]
-), xref:testing/testcontext-framework/support-classes.adoc[support classes], and
-xref:testing/annotations.adoc[annotation support] sections.
-
-
+下一节将概述 TestContext 框架的内部结构。如果你只对使用框架感兴趣，而不对使用自己的自定义监听器或自定义加载器扩展它感兴趣，请随时直接转到配置（xref:testing/testcontext-framework/ctx-management.adoc[上下文管理]、xref:testing/testcontext-framework/fixture-di.adoc[依赖注入]、xref:testing/testcontext-framework/tx.adoc[事务管理]）、xref:testing/testcontext-framework/support-classes.adoc[支持类]和 xref:testing/annotations.adoc[注解支持]部分。

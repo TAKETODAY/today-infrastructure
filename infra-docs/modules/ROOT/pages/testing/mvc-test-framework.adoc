@@ -2,14 +2,6 @@
 = MockMvc
 :page-section-summary-toc: 1
 
-The Web MVC Test framework, also known as MockMvc, provides support for testing Infra
-MVC applications. It performs full Web MVC request handling but via mock request and
-response objects instead of a running server.
+Web MVC Test 框架，也被称为 MockMvc，为测试 Infra MVC 应用程序提供支持。它执行完整的 Web MVC 请求处理，但是通过 mock 请求和响应对象，而不是通过运行中的服务器。
 
-MockMvc can be used on its own to perform requests and verify responses. It can also be
-used through the xref:testing/webtestclient.adoc[WebTestClient] where MockMvc is plugged in as the server to handle
-requests with. The advantage of `WebTestClient` is the option to work with higher level
-objects instead of raw data as well as the ability to switch to full, end-to-end HTTP
-tests against a live server and use the same test API.
-
-
+MockMvc 可以单独用于执行请求和验证响应。它也可以通过 xref:testing/webtestclient.adoc[WebTestClient] 使用，其中 MockMvc 作为服务器插入以处理请求。`WebTestClient` 的优势在于可以选择使用更高级别的对象而不是原始数据，以及能够切换到针对实时服务器的完整端到端 HTTP 测试并使用相同的测试 API。

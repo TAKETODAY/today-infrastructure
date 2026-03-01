@@ -1,11 +1,5 @@
 [[mvc-test-server-resources]]
-= Further Examples
+= 更多示例
 :page-section-summary-toc: 1
 
-The framework's own tests include
-{today-framework-code}/infra-test/src/test/java/infra/test/web/mockApi/samples[
-many sample tests] intended to show how to use MockMvc on its own or through the
-{today-framework-code}/infra-test/src/test/java/infra/test/web/mockApi/samples/client[
-WebTestClient]. Browse these examples for further ideas.
-
-
+框架自身的测试包括 {today-framework-code}/infra-test/src/test/java/infra/test/web/mockApi/samples[许多示例测试]，旨在展示如何单独使用 MockMvc 或通过 {today-framework-code}/infra-test/src/test/java/infra/test/web/mockApi/samples/client[WebTestClient] 使用 MockMvc。浏览这些示例以获取更多思路。

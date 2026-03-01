@@ -2,13 +2,8 @@
 = `@RecordApplicationEvents`
 :page-section-summary-toc: 1
 
-`@RecordApplicationEvents` is a class-level annotation that is used to instruct the
-_Infra TestContext Framework_ to record all application events that are published in the
-`ApplicationContext` during the execution of a single test.
+`@RecordApplicationEvents` 是一个类级别的注解，用于指示 _Infra TestContext 框架_ 记录在单个测试执行期间在 `ApplicationContext` 中发布的所有应用程序事件。
 
-The recorded events can be accessed via the `ApplicationEvents` API within tests.
+记录的事件可以通过测试中的 `ApplicationEvents` API 访问。
 
-See xref:testing/testcontext-framework/application-events.adoc[Application Events] and the 
-{today-framework-api}/test/context/event/RecordApplicationEvents.html[`@RecordApplicationEvents`
-javadoc] for an example and further details.
-
+有关示例和更多详细信息，请参见 xref:testing/testcontext-framework/application-events.adoc[应用程序事件] 和 {today-framework-api}/test/context/event/RecordApplicationEvents.html[`@RecordApplicationEvents` javadoc]。

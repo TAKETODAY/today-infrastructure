@@ -1,13 +1,9 @@
 [[infra-testing-annotation-contextcustomizerfactories]]
 = `@ContextCustomizerFactories`
 
-`@ContextCustomizerFactories` is used to register `ContextCustomizerFactory`
-implementations for a particular test class, its subclasses, and its nested classes. If
-you wish to register a factory globally, you should register it via the automatic
-discovery mechanism described in
-xref:testing/testcontext-framework/ctx-management/context-customizers.adoc[`ContextCustomizerFactory` Configuration].
+`@ContextCustomizerFactories` 用于为特定测试类、其子类及其嵌套类注册 `ContextCustomizerFactory` 实现。如果你希望全局注册工厂，应通过 xref:testing/testcontext-framework/ctx-management/context-customizers.adoc[`ContextCustomizerFactory` 配置] 中描述的自动发现机制进行注册。
 
-The following example shows how to register two `ContextCustomizerFactory` implementations:
+以下示例展示了如何注册两个 `ContextCustomizerFactory` 实现：
 
 [tabs]
 ======
@@ -21,14 +17,9 @@ class CustomContextCustomizerFactoryTests {
   // class body...
 }
 ----
-<1> Register two `ContextCustomizerFactory` implementations.
+<1> 注册两个 `ContextCustomizerFactory` 实现。
 
 ======
 
 
-By default, `@ContextCustomizerFactories` provides support for inheriting factories from
-superclasses or enclosing classes. See
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] and the
-{today-framework-api}/test/context/ContextCustomizerFactories.html[`@ContextCustomizerFactories`
-javadoc] for an example and further details.
-
+默认情况下，`@ContextCustomizerFactories` 支持从超类或封闭类继承工厂。有关示例和更多详细信息，请参见 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置] 和 {today-framework-api}/test/context/ContextCustomizerFactories.html[`@ContextCustomizerFactories` javadoc]。

@@ -1,11 +1,9 @@
 [[mvc-test-server-setup-options]]
-= Setup Choices
+= 设置选择
 
-MockMvc can be setup in one of two ways. One is to point directly to the controllers you
-want to test and programmatically configure Web MVC infrastructure. The second is to
-point to Infra configuration with Web MVC and controller infrastructure in it.
+MockMvc 可以通过两种方式之一进行设置。一种是直接指向你要测试的控制器，并以编程方式配置 Web MVC 基础设施。第二种是指向包含 Web MVC 和控制器基础设施的 Infra 配置。
 
-To set up MockMvc for testing a specific controller, use the following:
+要设置 MockMvc 以测试特定控制器，请使用以下代码：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -23,11 +21,9 @@ class MyWebTests {
 }
 ----
 
-Or you can also use this setup when testing through the
-xref:testing/webtestclient.adoc#webtestclient-controller-config[WebTestClient] which delegates to the same builder
-as shown above.
+或者，你也可以在通过 xref:testing/webtestclient.adoc#webtestclient-controller-config[WebTestClient] 进行测试时使用此设置，它委托给如上所示的同一个构建器。
 
-To set up MockMvc through Infra configuration, use the following:
+要通过 Infra 配置设置 MockMvc，请使用以下代码：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -46,20 +42,13 @@ class MyWebTests {
 }
 ----
 
-Or you can also use this setup when testing through the
-xref:testing/webtestclient.adoc#webtestclient-context-config[WebTestClient] which delegates to the same builder
-as shown above.
+或者，你也可以在通过 xref:testing/webtestclient.adoc#webtestclient-context-config[WebTestClient] 进行测试时使用此设置，它委托给如上所示的同一个构建器。
 
 
 
-Which setup option should you use?
+你应该使用哪种设置选项？
 
-The `webAppContextSetup` loads your actual Web MVC configuration, resulting in a more
-complete integration test. Since the TestContext framework caches the loaded Infra
-configuration, it helps keep tests running fast, even as you introduce more tests in your
-test suite. Furthermore, you can inject mock services into controllers through Infra
-configuration to remain focused on testing the web layer. The following example declares
-a mock service with Mockito:
+`webAppContextSetup` 加载你实际的 Web MVC 配置，从而产生更完整的集成测试。由于 TestContext 框架缓存加载的 Infra 配置，即使你在测试套件中引入更多测试，它也有助于保持测试运行速度。此外，你可以通过 Infra 配置将 mock 服务注入控制器，以保持专注于测试 Web 层。以下示例使用 Mockito 声明了一个 mock 服务：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -68,8 +57,7 @@ a mock service with Mockito:
 </bean>
 ----
 
-You can then inject the mock service into the test to set up and verify your
-expectations, as the following example shows:
+然后，你可以将 mock 服务注入到测试中以设置并验证你的期望，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -91,16 +79,7 @@ class AccountTests {
 }
 ----
 
-The `standaloneSetup`, on the other hand, is a little closer to a unit test. It tests one
-controller at a time. You can manually inject the controller with mock dependencies, and
-it does not involve loading Infra configuration. Such tests are more focused on style
-and make it easier to see which controller is being tested, whether any specific Infra
-MVC configuration is required to work, and so on. The `standaloneSetup` is also a very
-convenient way to write ad-hoc tests to verify specific behavior or to debug an issue.
+另一方面，`standaloneSetup` 更接近于单元测试。它一次测试一个控制器。你可以手动注入带有 mock 依赖的控制器，它不涉及加载 Infra 配置。此类测试更侧重于风格，更容易看出正在测试哪个控制器，是否需要任何特定的 Infra MVC 配置才能工作等等。`standaloneSetup` 也是编写临时测试以验证特定行为或调试问题的非常便捷的方式。
 
-As with most "`integration versus unit testing`" debates, there is no right or wrong
-answer. However, using the `standaloneSetup` does imply the need for additional
-`webAppContextSetup` tests in order to verify your Web MVC configuration.
-Alternatively, you can write all your tests with `webAppContextSetup`, in order to always
-test against your actual Web MVC configuration.
-
+正如大多数“`集成与单元测试`”的争论一样，没有正确或错误的答案。但是，使用 `standaloneSetup` 确实意味着需要额外的 `webAppContextSetup` 测试来验证你的 Web MVC 配置。
+或者，你可以使用 `webAppContextSetup` 编写所有测试，以便始终针对实际的 Web MVC 配置进行测试。

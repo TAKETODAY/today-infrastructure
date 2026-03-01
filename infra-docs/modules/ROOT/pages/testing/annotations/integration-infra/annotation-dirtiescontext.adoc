@@ -1,28 +1,13 @@
 [[infra-testing-annotation-dirtiescontext]]
 = `@DirtiesContext`
 
-`@DirtiesContext` indicates that the underlying Infra `ApplicationContext` has been
-dirtied during the execution of a test (that is, the test modified or corrupted it in
-some manner -- for example, by changing the state of a singleton bean) and should be
-closed. When an application context is marked as dirty, it is removed from the testing
-framework's cache and closed. As a consequence, the underlying Infra container is
-rebuilt for any subsequent test that requires a context with the same configuration
-metadata.
+`@DirtiesContext` 指示底层的 Infra `ApplicationContext` 在测试执行期间已被弄脏（即，测试以某种方式修改或破坏了它——例如，通过更改单例 bean 的状态），应该关闭。当应用程序上下文被标记为脏时，它将从测试框架的缓存中移除并关闭。因此，对于任何后续需要具有相同配置元数据的上下文的测试，底层 Infra 容器将被重建。
 
-You can use `@DirtiesContext` as both a class-level and a method-level annotation within
-the same class or class hierarchy. In such scenarios, the `ApplicationContext` is marked
-as dirty before or after any such annotated method as well as before or after the current
-test class, depending on the configured `methodMode` and `classMode`. When
-`@DirtiesContext` is declared at both the class level and the method level, the
-configured modes from both annotations will be honored. For example, if the class mode is
-set to `BEFORE_EACH_TEST_METHOD` and the method mode is set to `AFTER_METHOD`, the
-context will be marked as dirty both before and after the given test method.
+你可以在同一个类或类层次结构中将 `@DirtiesContext` 同时用作类级别和方法级别的注解。在这种情况下，`ApplicationContext` 会在任何此类注解方法之前或之后，以及在当前测试类之前或之后被标记为脏，具体取决于配置的 `methodMode` 和 `classMode`。当在类级别和方法级别都声明 `@DirtiesContext` 时，两个注解的配置模式都将被遵守。例如，如果类模式设置为 `BEFORE_EACH_TEST_METHOD`，而方法模式设置为 `AFTER_METHOD`，则上下文将在给定的测试方法之前和之后都被标记为脏。
 
-The following examples explain when the context would be dirtied for various
-configuration scenarios:
+以下示例解释了在各种配置场景下上下文何时会被标记为脏：
 
-* Before the current test class, when declared on a class with class mode set to
-`BEFORE_CLASS`.
+* 在当前测试类之前，当在类模式设置为 `BEFORE_CLASS` 的类上声明时。
 +
 [tabs]
 ======
@@ -32,14 +17,13 @@ Java::
 ----
 @DirtiesContext(classMode = BEFORE_CLASS) // <1>
 class FreshContextTests {
-  // some tests that require a new Infra container
+  // 一些需要新 Infra 容器的测试
 }
 ----
-<1> Dirty the context before the current test class.
+<1> 在当前测试类之前将上下文标记为脏。
 ======
 
-* After the current test class, when declared on a class with class mode set to
-`AFTER_CLASS` (i.e., the default class mode).
+* 在当前测试类之后，当在类模式设置为 `AFTER_CLASS`（即默认类模式）的类上声明时。
 +
 [tabs]
 ======
@@ -49,15 +33,14 @@ Java::
 ----
 	@DirtiesContext // <1>
 	class ContextDirtyingTests {
-		// some tests that result in the Infra container being dirtied
+		// 一些导致 Infra 容器被弄脏的测试
 	}
 ----
-<1> Dirty the context after the current test class.
+<1> 在当前测试类之后将上下文标记为脏。
 ======
 
 
-* Before each test method in the current test class, when declared on a class with class
-mode set to `BEFORE_EACH_TEST_METHOD.`
+* 在当前测试类中的每个测试方法之前，当在类模式设置为 `BEFORE_EACH_TEST_METHOD` 的类上声明时。
 +
 [tabs]
 ======
@@ -67,15 +50,14 @@ Java::
 ----
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD) // <1>
 class FreshContextTests {
-  // some tests that require a new Infra container
+  // 一些需要新 Infra 容器的测试
 }
 ----
-<1> Dirty the context before each test method.
+<1> 在每个测试方法之前将上下文标记为脏。
 ======
 
 
-* After each test method in the current test class, when declared on a class with class
-mode set to `AFTER_EACH_TEST_METHOD.`
+* 在当前测试类中的每个测试方法之后，当在类模式设置为 `AFTER_EACH_TEST_METHOD` 的类上声明时。
 +
 [tabs]
 ======
@@ -85,15 +67,14 @@ Java::
 ----
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD) // <1>
 class ContextDirtyingTests {
-  // some tests that result in the Infra container being dirtied
+  // 一些导致 Infra 容器被弄脏的测试
 }
 ----
-<1> Dirty the context after each test method.
+<1> 在每个测试方法之后将上下文标记为脏。
 ======
 
 
-* Before the current test, when declared on a method with the method mode set to
-`BEFORE_METHOD`.
+* 在当前测试之前，当在方法模式设置为 `BEFORE_METHOD` 的方法上声明时。
 +
 [tabs]
 ======
@@ -104,14 +85,13 @@ Java::
 @DirtiesContext(methodMode = BEFORE_METHOD) // <1>
 @Test
 void testProcessWhichRequiresFreshAppCtx() {
-  // some logic that requires a new Infra container
+  // 一些需要新 Infra 容器的逻辑
 }
 ----
-<1> Dirty the context before the current test method.
+<1> 在当前测试方法之前将上下文标记为脏。
 ======
 
-* After the current test, when declared on a method with the method mode set to
-`AFTER_METHOD` (i.e., the default method mode).
+* 在当前测试之后，当在方法模式设置为 `AFTER_METHOD`（即默认方法模式）的方法上声明时。
 +
 [tabs]
 ======
@@ -122,22 +102,14 @@ Java::
 @DirtiesContext // <1>
 @Test
 void testProcessWhichDirtiesAppCtx() {
-  // some logic that results in the Infra container being dirtied
+  // 一些导致 Infra 容器被弄脏的逻辑
 }
 ----
-<1> Dirty the context after the current test method.
+<1> 在当前测试方法之后将上下文标记为脏。
 ======
 
 
-If you use `@DirtiesContext` in a test whose context is configured as part of a context
-hierarchy with `@ContextHierarchy`, you can use the `hierarchyMode` flag to control how
-the context cache is cleared. By default, an exhaustive algorithm is used to clear the
-context cache, including not only the current level but also all other context
-hierarchies that share an ancestor context common to the current test. All
-`ApplicationContext` instances that reside in a sub-hierarchy of the common ancestor
-context are removed from the context cache and closed. If the exhaustive algorithm is
-overkill for a particular use case, you can specify the simpler current level algorithm,
-as the following example shows.
+如果你在上下文配置为具有 `@ContextHierarchy` 的上下文层次结构一部分的测试中使用 `@DirtiesContext`，你可以使用 `hierarchyMode` 标志来控制如何清除上下文缓存。默认情况下，使用详尽算法清除上下文缓存，不仅包括当前层级，还包括共享当前测试公共祖先上下文的所有其他上下文层次结构。位于公共祖先上下文子层次结构中的所有 `ApplicationContext` 实例都将从上下文缓存中移除并关闭。如果详尽算法对于特定用例来说是过度杀伤，你可以指定更简单的当前层级算法，如下例所示。
 
 [tabs]
 ======
@@ -158,16 +130,13 @@ class ExtendedTests extends BaseTests {
   @Test
   @DirtiesContext(hierarchyMode = CURRENT_LEVEL) // <1>
   void test() {
-    // some logic that results in the child context being dirtied
+    // 一些导致子上下文被弄脏的逻辑
   }
 }
 ----
-<1> Use the current-level algorithm.
+<1> 使用当前层级算法。
 
 ======
 
 
-For further details regarding the `EXHAUSTIVE` and `CURRENT_LEVEL` algorithms, see the
-{today-framework-api}/test/annotation/DirtiesContext.HierarchyMode.html[`DirtiesContext.HierarchyMode`]
-javadoc.
-
+有关 `EXHAUSTIVE` 和 `CURRENT_LEVEL` 算法的更多详细信息，请参见 {today-framework-api}/test/annotation/DirtiesContext.HierarchyMode.html[`DirtiesContext.HierarchyMode`] javadoc。

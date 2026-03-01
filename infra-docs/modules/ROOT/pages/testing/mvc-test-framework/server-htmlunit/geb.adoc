@@ -1,22 +1,17 @@
 [[mvc-test-server-htmlunit-geb]]
-= MockMvc and Geb
+= MockMvc 和 Geb
 
-In the previous section, we saw how to use MockMvc with WebDriver. In this section, we
-use https://www.gebish.org/[Geb] to make our tests even Groovy-er.
+在上一节中，我们看到了如何将 MockMvc 与 WebDriver 结合使用。在本节中，我们使用 https://www.gebish.org/[Geb] 让我们的测试更具 Groovy 风格。
 
 [[mvc-test-server-htmlunit-geb-why]]
-== Why Geb and MockMvc?
+== 为什么选择 Geb 和 MockMvc？
 
-Geb is backed by WebDriver, so it offers many of the
-xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-why[same benefits] that we get from
-WebDriver. However, Geb makes things even easier by taking care of some of the
-boilerplate code for us.
+Geb 由 WebDriver 支持，因此它提供了许多我们从 WebDriver 获得的 xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-why[相同好处]。然而，Geb 通过为我们处理一些样板代码，让事情变得更加容易。
 
 [[mvc-test-server-htmlunit-geb-setup]]
-== MockMvc and Geb Setup
+== MockMvc 和 Geb 设置
 
-We can easily initialize a Geb `Browser` with a Selenium WebDriver that uses MockMvc, as
-follows:
+我们可以轻松地使用一个使用 MockMvc 的 Selenium WebDriver 初始化一个 Geb `Browser`，如下所示：
 
 [source,groovy]
 ----
@@ -27,27 +22,21 @@ def setup() {
 }
 ----
 
-NOTE: This is a simple example of using `MockMvcHtmlUnitDriverBuilder`. For more advanced
-usage, see xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-advanced-builder[Advanced `MockMvcHtmlUnitDriverBuilder`].
+NOTE: 这是使用 `MockMvcHtmlUnitDriverBuilder` 的一个简单示例。有关更高级的用法，请参阅 xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-advanced-builder[高级 `MockMvcHtmlUnitDriverBuilder`]。
 
-This ensures that any URL referencing `localhost` as the server is directed to our
-`MockMvc` instance without the need for a real HTTP connection. Any other URL is
-requested by using a network connection as normal. This lets us easily test the use of
-CDNs.
+这确保了任何引用 `localhost` 作为服务器的 URL 都会被定向到我们的 `MockMvc` 实例，而无需真正的 HTTP 连接。任何其他 URL 都会像往常一样使用网络连接请求。这让我们能够轻松测试 CDN 的使用。
 
 [[mvc-test-server-htmlunit-geb-usage]]
-== MockMvc and Geb Usage
+== MockMvc 和 Geb 用法
 
-Now we can use Geb as we normally would but without the need to deploy our application to
-a Servlet container. For example, we can request the view to create a message with the
-following:
+现在我们可以像平常一样使用 Geb，而无需将应用程序部署到 Servlet 容器。例如，我们可以请求创建消息的视图，如下所示：
 
 [source,groovy]
 ----
 to CreateMessagePage
 ----
 
-We can then fill out the form and submit it to create a message, as follows:
+然后我们可以填写表单并提交以创建消息，如下所示：
 
 [source,groovy]
 ----
@@ -57,15 +46,9 @@ form.text = expectedMessage
 submit.click(ViewMessagePage)
 ----
 
-Any unrecognized method calls or property accesses or references that are not found are
-forwarded to the current page object. This removes a lot of the boilerplate code we
-needed when using WebDriver directly.
+任何无法识别的方法调用、属性访问或未找到的引用都会转发到当前页面对象。这消除了我们直接使用 WebDriver 时所需的大量样板代码。
 
-As with direct WebDriver usage, this improves on the design of our
-xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-usage[HtmlUnit test] by using the Page Object
-Pattern. As mentioned previously, we can use the Page Object Pattern with HtmlUnit and
-WebDriver, but it is even easier with Geb. Consider our new Groovy-based
-`CreateMessagePage` implementation:
+与直接使用 WebDriver 一样，通过使用 Page Object 模式，这改进了我们的 xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-usage[HtmlUnit 测试] 的设计。如前所述，我们可以将 Page Object 模式与 HtmlUnit 和 WebDriver 一起使用，但在 Geb 中更容易。考虑我们新的基于 Groovy 的 `CreateMessagePage` 实现：
 
 [source,groovy]
 ----
@@ -80,18 +63,14 @@ class CreateMessagePage extends Page {
 }
 ----
 
-Our `CreateMessagePage` extends `Page`. We do not go over the details of `Page`, but, in
-summary, it contains common functionality for all of our pages. We define a URL in which
-this page can be found. This lets us navigate to the page, as follows:
+我们的 `CreateMessagePage` 扩展了 `Page`。我们不详细介绍 `Page`，但总而言之，它包含我们所有页面的通用功能。我们定义了一个可以找到此页面的 URL。这让我们能够导航到该页面，如下所示：
 
 [source,groovy]
 ----
 to CreateMessagePage
 ----
 
-We also have an `at` closure that determines if we are at the specified page. It should
-return `true` if we are on the correct page. This is why we can assert that we are on the
-correct page, as follows:
+我们还有一个 `at` 闭包，用于确定我们是否在指定的页面。如果我们位于正确的页面，它应该返回 `true`。这就是为什么我们可以断言我们位于正确的页面，如下所示：
 
 [source,groovy]
 ----
@@ -100,15 +79,11 @@ at CreateMessagePage
 errors.contains('This field is required.')
 ----
 
-NOTE: We use an assertion in the closure so that we can determine where things went wrong
-if we were at the wrong page.
+NOTE: 我们在闭包中使用断言，以便如果我们位于错误的页面，我们可以确定哪里出了问题。
 
-Next, we create a `content` closure that specifies all the areas of interest within the
-page. We can use a
-https://www.gebish.org/manual/current/#the-jquery-ish-navigator-api[jQuery-ish Navigator
-API] to select the content in which we are interested.
+接下来，我们创建一个 `content` 闭包，指定页面内所有感兴趣的区域。我们可以使用 https://www.gebish.org/manual/current/#the-jquery-ish-navigator-api[jQuery 风格的 Navigator API] 来选择我们感兴趣的内容。
 
-Finally, we can verify that a new message was created successfully, as follows:
+最后，我们可以验证新消息是否成功创建，如下所示：
 
 [source,groovy]
 ----
@@ -121,5 +96,4 @@ summary == expectedSummary
 message == expectedMessage
 ----
 
-For further details on how to get the most out of Geb, see
-https://www.gebish.org/manual/current/[The Book of Geb] user's manual.
+有关如何充分利用 Geb 的更多详细信息，请参阅 https://www.gebish.org/manual/current/[Geb 之书] 用户手册。

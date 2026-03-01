@@ -1,12 +1,9 @@
 [[infra-testing-annotation-testexecutionlisteners]]
 = `@TestExecutionListeners`
 
-`@TestExecutionListeners` is used to register listeners for a particular test class, its
-subclasses, and its nested classes. If you wish to register a listener globally, you
-should register it via the automatic discovery mechanism described in
-xref:testing/testcontext-framework/tel-config.adoc[`TestExecutionListener` Configuration].
+`@TestExecutionListeners` 用于为特定测试类、其子类及其嵌套类注册监听器。如果你希望全局注册监听器，应通过 xref:testing/testcontext-framework/tel-config.adoc[`TestExecutionListener` 配置] 中描述的自动发现机制进行注册。
 
-The following example shows how to register two `TestExecutionListener` implementations:
+以下示例展示了如何注册两个 `TestExecutionListener` 实现：
 
 [tabs]
 ======
@@ -20,16 +17,9 @@ class CustomTestExecutionListenerTests {
   // class body...
 }
 ----
-<1> Register two `TestExecutionListener` implementations.
+<1> 注册两个 `TestExecutionListener` 实现。
 
 ======
 
 
-By default, `@TestExecutionListeners` provides support for inheriting listeners from
-superclasses or enclosing classes. See
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] and the
-{today-framework-api}/test/context/TestExecutionListeners.html[`@TestExecutionListeners`
-javadoc] for an example and further details. If you discover that you need to switch
-back to using the default `TestExecutionListener` implementations, see the note
-in xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-registering-tels[Registering `TestExecutionListener` Implementations].
-
+默认情况下，`@TestExecutionListeners` 支持从超类或封闭类继承监听器。有关示例和更多详细信息，请参见 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置] 和 {today-framework-api}/test/context/TestExecutionListeners.html[`@TestExecutionListeners` javadoc]。如果你发现需要切换回使用默认的 `TestExecutionListener` 实现，请参见 xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-registering-tels[注册 `TestExecutionListener` 实现] 中的说明。

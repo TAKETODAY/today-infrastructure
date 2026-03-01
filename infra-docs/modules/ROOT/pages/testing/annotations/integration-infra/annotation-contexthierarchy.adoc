@@ -1,12 +1,7 @@
 [[infra-testing-annotation-contexthierarchy]]
 = `@ContextHierarchy`
 
-`@ContextHierarchy` is a class-level annotation that is used to define a hierarchy of
-`ApplicationContext` instances for integration tests. `@ContextHierarchy` should be
-declared with a list of one or more `@ContextConfiguration` instances, each of which
-defines a level in the context hierarchy. The following examples demonstrate the use of
-`@ContextHierarchy` within a single test class (`@ContextHierarchy` can also be used
-within a test class hierarchy):
+`@ContextHierarchy` 是一个类级别的注解，用于为集成测试定义 `ApplicationContext` 实例的层次结构。`@ContextHierarchy` 应该声明一个或多个 `@ContextConfiguration` 实例列表，其中每个实例定义上下文层次结构中的一个层级。以下示例演示了在单个测试类中使用 `@ContextHierarchy`（`@ContextHierarchy` 也可以在测试类层次结构中使用）：
 
 [tabs]
 ======
@@ -42,10 +37,4 @@ class WebIntegrationTests {
 
 ======
 
-If you need to merge or override the configuration for a given level of the context
-hierarchy within a test class hierarchy, you must explicitly name that level by supplying
-the same value to the `name` attribute in `@ContextConfiguration` at each corresponding
-level in the class hierarchy. See xref:testing/testcontext-framework/ctx-management/hierarchies.adoc[Context Hierarchies] and the
-{today-framework-api}/test/context/ContextHierarchy.html[`@ContextHierarchy`] javadoc
-for further examples.
-
+如果需要合并或覆盖测试类层次结构中特定层级的配置，必须通过在每个对应层级的 `@ContextConfiguration` 中提供相同的 `name` 属性值来显式命名该层级。有关更多示例，请参见 xref:testing/testcontext-framework/ctx-management/hierarchies.adoc[上下文层次结构] 和 {today-framework-api}/test/context/ContextHierarchy.html[`@ContextHierarchy`] javadoc。

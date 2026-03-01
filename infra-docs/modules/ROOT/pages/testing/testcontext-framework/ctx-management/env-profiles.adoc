@@ -1,17 +1,11 @@
 [[testcontext-ctx-management-env-profiles]]
-= Context Configuration with Environment Profiles
+= 使用环境配置文件进行上下文配置
 
-The TODAY Framework has first-class support for the notion of environments and profiles
-(AKA "bean definition profiles"), and integration tests can be configured to activate
-particular bean definition profiles for various testing scenarios. This is achieved by
-annotating a test class with the `@ActiveProfiles` annotation and supplying a list of
-profiles that should be activated when loading the `ApplicationContext` for the test.
+TODAY Framework 对环境和配置文件（又名 "bean 定义配置文件"）的概念提供了一流的支持，集成测试可以配置为在加载测试的 `ApplicationContext` 时激活特定的 bean 定义配置文件。这是通过使用 `@ActiveProfiles` 注解标注测试类并提供应在加载 `ApplicationContext` 时激活的配置文件列表来实现的。
 
-NOTE: You can use `@ActiveProfiles` with any implementation of the `SmartContextLoader`
-SPI, but `@ActiveProfiles` is not supported with implementations of the older
-`ContextLoader` SPI.
+NOTE: 你可以将 `@ActiveProfiles` 与 `SmartContextLoader` SPI 的任何实现一起使用，但 `@ActiveProfiles` 不支持旧的 `ContextLoader` SPI 的实现。
 
-Consider two examples with XML configuration and `@Configuration` classes:
+考虑两个使用 XML 配置和 `@Configuration` 类的示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -61,7 +55,7 @@ Consider two examples with XML configuration and `@Configuration` classes:
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from "classpath:/app-config.xml"
+// ApplicationContext 将从 "classpath:/app-config.xml" 加载
 @ContextConfiguration("/app-config.xml")
 @ActiveProfiles("dev")
 class TransferServiceTest {
@@ -71,32 +65,18 @@ class TransferServiceTest {
 
   @Test
   void testTransferService() {
-    // test the transferService
+    // 测试 transferService
   }
 }
 ----
 
-When `TransferServiceTest` is run, its `ApplicationContext` is loaded from the
-`app-config.xml` configuration file in the root of the classpath. If you inspect
-`app-config.xml`, you can see that the `accountRepository` bean has a dependency on a
-`dataSource` bean. However, `dataSource` is not defined as a top-level bean. Instead,
-`dataSource` is defined three times: in the `production` profile, in the `dev` profile,
-and in the `default` profile.
+当运行 `TransferServiceTest` 时，其 `ApplicationContext` 从类路径根目录下的 `app-config.xml` 配置文件加载。如果你检查 `app-config.xml`，你会看到 `accountRepository` bean 依赖于 `dataSource` bean。然而，`dataSource` 并没有定义为顶级 bean。相反，`dataSource` 被定义了三次：在 `production` 配置文件中，在 `dev` 配置文件中，以及在 `default` 配置文件中。
 
-By annotating `TransferServiceTest` with `@ActiveProfiles("dev")`, we instruct the Infra
-TestContext Framework to load the `ApplicationContext` with the active profiles set to
-`{"dev"}`. As a result, an embedded database is created and populated with test data, and
-the `accountRepository` bean is wired with a reference to the development `DataSource`.
-That is likely what we want in an integration test.
+通过使用 `@ActiveProfiles("dev")` 标注 `TransferServiceTest`，我们指示 Infra TestContext 框架在加载 `ApplicationContext` 时将活动配置文件设置为 `{"dev"}`。结果是，创建了一个嵌入式数据库并填充了测试数据，并且 `accountRepository` bean 被装配了对开发 `DataSource` 的引用。这很可能就是我们在集成测试中想要的。
 
-It is sometimes useful to assign beans to a `default` profile. Beans within the default
-profile are included only when no other profile is specifically activated. You can use
-this to define "`fallback`" beans to be used in the application's default state. For
-example, you may explicitly provide a data source for `dev` and `production` profiles,
-but define an in-memory data source as a default when neither of these is active.
+有时将 bean 分配给 `default` 配置文件很有用。默认配置文件中的 bean 仅在没有其他配置文件被特别激活时才包含在内。你可以使用它来定义在应用程序默认状态下使用的 "`fallback`" bean。例如，你可以为 `dev` 和 `production` 配置文件显式提供数据源，但在两者均未激活时定义内存数据源作为默认值。
 
-The following code listings demonstrate how to implement the same configuration and
-integration test with `@Configuration` classes instead of XML:
+以下代码清单演示了如何使用 `@Configuration` 类而不是 XML 来实现相同的配置和集成测试：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -184,37 +164,23 @@ class TransferServiceTest {
 
   @Test
   void testTransferService() {
-    // test the transferService
+    // 测试 transferService
   }
 }
 ----
 
-In this variation, we have split the XML configuration into four independent
-`@Configuration` classes:
+在这个变体中，我们将 XML 配置拆分为四个独立的 `@Configuration` 类：
 
-* `TransferServiceConfig`: Acquires a `dataSource` through dependency injection by using
-  `@Autowired`.
-* `StandaloneDataConfig`: Defines a `dataSource` for an embedded database suitable for
-  developer tests.
-* `JndiDataConfig`: Defines a `dataSource` that is retrieved from JNDI in a production
-  environment.
-* `DefaultDataConfig`: Defines a `dataSource` for a default embedded database, in case no
-  profile is active.
+* `TransferServiceConfig`: 通过使用 `@Autowired` 进行依赖注入来获取 `dataSource`。
+* `StandaloneDataConfig`: 为适合开发人员测试的嵌入式数据库定义 `dataSource`。
+* `JndiDataConfig`: 定义从生产环境中的 JNDI 检索的 `dataSource`。
+* `DefaultDataConfig`: 为默认嵌入式数据库定义 `dataSource`，以防没有配置文件处于活动状态。
 
-As with the XML-based configuration example, we still annotate `TransferServiceTest` with
-`@ActiveProfiles("dev")`, but this time we specify all four configuration classes by
-using the `@ContextConfiguration` annotation. The body of the test class itself remains
-completely unchanged.
+与基于 XML 的配置示例一样，我们仍然使用 `@ActiveProfiles("dev")` 标注 `TransferServiceTest`，但这次我们使用 `@ContextConfiguration` 注解指定所有四个配置类。测试类本身的主体完全保持不变。
 
-It is often the case that a single set of profiles is used across multiple test classes
-within a given project. Thus, to avoid duplicate declarations of the `@ActiveProfiles`
-annotation, you can declare `@ActiveProfiles` once on a base class, and subclasses
-automatically inherit the `@ActiveProfiles` configuration from the base class. In the
-following example, the declaration of `@ActiveProfiles` (as well as other annotations)
-has been moved to an abstract superclass, `AbstractIntegrationTest`:
+通常情况下，在给定项目中的多个测试类中使用同一组配置文件。因此，为了避免重复声明 `@ActiveProfiles` 注解，你可以将 `@ActiveProfiles` 声明在基类上一次，子类会自动从基类继承 `@ActiveProfiles` 配置。在以下示例中，`@ActiveProfiles` 的声明（以及其他注解）已移动到抽象超类 `AbstractIntegrationTest` 中：
 
-NOTE: As of TODAY Framework 5.3, test configuration may also be inherited from enclosing
-classes. See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] for details.
+NOTE: 自 TODAY Framework 5.3 起，测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -230,7 +196,7 @@ abstract class AbstractIntegrationTest {
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// "dev" profile inherited from superclass
+// "dev" 配置文件从超类继承
 class TransferServiceTest extends AbstractIntegrationTest {
 
   @Autowired
@@ -238,48 +204,42 @@ class TransferServiceTest extends AbstractIntegrationTest {
 
   @Test
   void testTransferService() {
-    // test the transferService
+    // 测试 transferService
   }
 }
 ----
 
-`@ActiveProfiles` also supports an `inheritProfiles` attribute that can be used to
-disable the inheritance of active profiles, as the following example shows:
+`@ActiveProfiles` 还支持 `inheritProfiles` 属性，可用于禁用活动配置文件的继承，如以下示例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// "dev" profile overridden with "production"
+// "dev" 配置文件被 "production" 覆盖
 @ActiveProfiles(profiles = "production", inheritProfiles = false)
 class ProductionTransferServiceTest extends AbstractIntegrationTest {
-  // test body
+  // 测试主体
 }
 ----
 
 [[testcontext-ctx-management-env-profiles-ActiveProfilesResolver]]
-Furthermore, it is sometimes necessary to resolve active profiles for tests
-programmatically instead of declaratively -- for example, based on:
+此外，有时需要以编程方式而不是声明方式解析测试的活动配置文件——例如，基于：
 
-* The current operating system.
-* Whether tests are being run on a continuous integration build server.
-* The presence of certain environment variables.
-* The presence of custom class-level annotations.
-* Other concerns.
+* 当前操作系统。
+* 测试是否正在持续集成构建服务器上运行。
+* 某些环境变量的存在。
+* 自定义类级注解的存在。
+* 其他关注点。
 
-To resolve active bean definition profiles programmatically, you can implement
-a custom `ActiveProfilesResolver` and register it by using the `resolver`
-attribute of `@ActiveProfiles`. For further information, see the corresponding
-{today-framework-api}/test/context/ActiveProfilesResolver.html[javadoc].
-The following example demonstrates how to implement and register a custom
-`OperatingSystemActiveProfilesResolver`:
+要以编程方式解析活动 bean 定义配置文件，你可以实现自定义 `ActiveProfilesResolver` 并使用 `@ActiveProfiles` 的 `resolver` 属性注册它。有关更多信息，请参阅相应的 {today-framework-api}/test/context/ActiveProfilesResolver.html[javadoc]。
+以下示例演示了如何实现和注册自定义 `OperatingSystemActiveProfilesResolver`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// "dev" profile overridden programmatically via a custom resolver
+// 通过自定义解析器以编程方式覆盖 "dev" 配置文件
 @ActiveProfiles(
     resolver = OperatingSystemActiveProfilesResolver.class,
     inheritProfiles = false)
 class TransferServiceTest extends AbstractIntegrationTest {
-  // test body
+  // 测试主体
 }
 ----
 
@@ -290,7 +250,7 @@ public class OperatingSystemActiveProfilesResolver implements ActiveProfilesReso
   @Override
   public String[] resolve(Class<?> testClass) {
     String profile = ...;
-    // determine the value of profile based on the operating system
+    // 根据操作系统确定 profile 的值
     return new String[] {profile};
   }
 }

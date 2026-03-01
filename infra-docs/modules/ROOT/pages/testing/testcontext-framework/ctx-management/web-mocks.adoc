@@ -1,22 +1,9 @@
 [[testcontext-ctx-management-web-mocks]]
-= Working with Web Mocks
+= 使用 Web Mocks
 
-To provide comprehensive web testing support, the TestContext framework has a
-`MockTestExecutionListener` that is enabled by default. When testing against a
-`WebApplicationContext`, this xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`]
-sets up default thread-local state by using Infra Web's `RequestContextHolder` before
-each test method and creates a `HttpMockRequestImpl`, a `MockHttpResponseImpl`, and
-a `ServletWebRequest` based on the base resource path configured with
-`@WebAppConfiguration`. `MockTestExecutionListener` also ensures that the
-`MockHttpResponseImpl` and `ServletWebRequest` can be injected into the test instance,
-and, once the test is complete, it cleans up thread-local state.
+为了提供全面的 Web 测试支持，TestContext 框架具有默认启用的 `MockTestExecutionListener`。当针对 `WebApplicationContext` 进行测试时，此 xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`] 在每个测试方法之前使用 Infra Web 的 `RequestContextHolder` 设置默认的线程本地状态，并基于使用 `@WebAppConfiguration` 配置的基本资源路径创建 `MockHttpServletRequest`、`MockHttpServletResponse` 和 `ServletWebRequest`。`MockTestExecutionListener` 还确保可以将 `MockHttpServletResponse` 和 `ServletWebRequest` 注入到测试实例中，并且一旦测试完成，它就会清理线程本地状态。
 
-Once you have a `WebApplicationContext` loaded for your test, you might find that you
-need to interact with the web mocks -- for example, to set up your test fixture or to
-perform assertions after invoking your web component. The following example shows which
-mocks can be autowired into your test instance. Note that the `WebApplicationContext` and
-`MockContextImpl` are both cached across the test suite, whereas the other mocks are
-managed per test method by the `MockTestExecutionListener`.
+一旦为测试加载了 `WebApplicationContext`，你可能会发现你需要与 Web mock 进行交互——例如，在调用 Web 组件之后设置测试夹具或执行断言。以下示例显示了哪些 mock 可以自动装配到测试实例中。请注意，`WebApplicationContext` 和 `MockContextImpl` 在整个测试套件中都是缓存的，而其他 mock 则由 `MockTestExecutionListener` 针对每个测试方法进行管理。
 
 [tabs]
 ======
@@ -28,10 +15,10 @@ Injecting mocks::
 class WacTests {
 
   @Autowired
-  WebApplicationContext wac; // cached
+  WebApplicationContext wac; // 缓存的
 
   @Autowired
-  MockServletContext servletContext; // cached
+  MockServletContext servletContext; // 缓存的
 
   @Autowired
   MockHttpSession session;
@@ -49,4 +36,3 @@ class WacTests {
 }
 ----
 ======
-

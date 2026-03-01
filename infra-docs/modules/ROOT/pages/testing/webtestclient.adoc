@@ -1,28 +1,22 @@
 [[webtestclient]]
 = WebTestClient
 
-`WebTestClient` is an HTTP client designed for testing server applications. It wraps
-WebClient and uses it to perform requests
-but exposes a testing facade for verifying responses. `WebTestClient` can be used to
-perform end-to-end HTTP tests. It can also be used to test Web MVC and Infra WebFlux
-applications without a running server via mock server request and response objects.
+`WebTestClient` 是一个设计用于测试服务器应用程序的 HTTP 客户端。它包装了 WebClient 并使用它来执行请求，但暴露了一个测试门面（testing facade）用于验证响应。`WebTestClient` 可用于执行端到端 HTTP 测试。它还可以通过 mock 服务器请求和响应对象，在没有运行服务器的情况下测试 Web MVC 和 Infra WebFlux 应用程序。
 
 
 
 
 [[webtestclient-setup]]
-== Setup
+== 设置
 
-To set up a `WebTestClient` you need to choose a server setup to bind to. This can be one
-of several mock server setup choices or a connection to a live server.
+要设置 `WebTestClient`，你需要选择一个要绑定的服务器设置。这可以是几个 mock 服务器设置选项之一，也可以是连接到一个实时服务器。
 
 
 
 [[webtestclient-controller-config]]
-=== Bind to Controller
+=== 绑定到控制器
 
-This setup allows you to test specific controller(s) via mock request and response objects,
-without a running server.
+此设置允许你通过 mock 请求和响应对象测试特定控制器，而无需运行服务器。
 
 
 [tabs]
@@ -37,11 +31,7 @@ WebTestClient client =
 
 ======
 
-For Web MVC, use the following which delegates to the
-{today-framework-api}/test/web/mockApi/setup/StandaloneMockMvcBuilder.html[StandaloneMockMvcBuilder]
-to load infrastructure equivalent to the xref:web/webmvc/mvc-config.adoc[WebMvc Java config],
-registers the given controller(s), and creates an instance of
-xref:testing/mvc-test-framework.adoc[MockMvc] to handle requests:
+对于 Web MVC，使用以下代码，它委托给 {today-framework-api}/test/web/mockApi/setup/StandaloneMockMvcBuilder.html[StandaloneMockMvcBuilder] 来加载等同于 xref:web/webmvc/mvc-config.adoc[WebMvc Java 配置] 的基础设施，注册给定的控制器，并创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
 
 [tabs]
 ======
@@ -58,16 +48,11 @@ WebTestClient client =
 
 
 [[webtestclient-context-config]]
-=== Bind to `ApplicationContext`
+=== 绑定到 `ApplicationContext`
 
-This setup allows you to load Infra configuration with Web MVC or Infra WebFlux
-infrastructure and controller declarations and use it to handle requests via mock request
-and response objects, without a running server.
+此设置允许你加载带有 Web MVC 或 Infra WebFlux 基础设施和控制器声明的 Infra 配置，并使用它通过 mock 请求和响应对象处理请求，而无需运行服务器。
 
-For Web MVC, use the following where the Infra `ApplicationContext` is passed to
-{today-framework-api}/test/web/mockApi/setup/MockMvcBuilders.html#webAppContextSetup-infra.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup]
-to create a xref:testing/mvc-test-framework.adoc[MockMvc] instance to handle
-requests:
+对于 Web MVC，使用以下代码，其中 Infra `ApplicationContext` 被传递给 {today-framework-api}/test/web/mockApi/setup/MockMvcBuilders.html#webAppContextSetup-infra.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup] 以创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -90,19 +75,17 @@ class MyTests {
   }
 }
 ----
-<1> Specify the configuration to load
-<2> Inject the configuration
-<3> Create the `WebTestClient`
+<1> 指定要加载的配置
+<2> 注入配置
+<3> 创建 `WebTestClient`
 
 
 [[webtestclient-fn-config]]
-=== Bind to Router Function
+=== 绑定到 Router Function
 
-This setup allows you to test functional endpoints via
-mock request and response objects, without a running server.
+此设置允许你通过 mock 请求和响应对象测试函数式端点，而无需运行服务器。
 
-For WebFlux, use the following which delegates to `RouterFunctions.toWebHandler` to
-create a server setup to handle requests:
+对于 WebFlux，使用以下代码，它委托给 `RouterFunctions.toWebHandler` 创建服务器设置以处理请求：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -110,15 +93,14 @@ RouterFunction<?> route = ...
 client = WebTestClient.bindToRouterFunction(route).build();
 ----
 
-For Web MVC there are currently no options to test
-xref:web/webmvc-functional.adoc[WebMvc functional endpoints].
+对于 Web MVC，目前没有选项测试 xref:web/webmvc-functional.adoc[WebMvc 函数式端点]。
 
 
 
 [[webtestclient-server-config]]
-=== Bind to Server
+=== 绑定到服务器
 
-This setup connects to a running server to perform full, end-to-end HTTP tests:
+此设置连接到运行中的服务器以执行完整的端到端 HTTP 测试：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -126,13 +108,9 @@ This setup connects to a running server to perform full, end-to-end HTTP tests:
 ----
 
 [[webtestclient-client-config]]
-=== Client Config
+=== 客户端配置
 
-In addition to the server setup options described earlier, you can also configure client
-options, including base URL, default headers, client filters, and others. These options
-are readily available following `bindToServer()`. For all other configuration options,
-you need to use `configureClient()` to transition from server to client configuration, as
-follows:
+除了前面描述的服务器设置选项外，你还可以配置客户端选项，包括基础 URL、默认头、客户端过滤器等。这些选项在 `bindToServer()` 之后立即可用。对于所有其他配置选项，你需要使用 `configureClient()` 从服务器配置过渡到客户端配置，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -145,17 +123,13 @@ client = WebTestClient.bindToController(new TestController())
 
 
 [[webtestclient-tests]]
-== Writing Tests
+== 编写测试
 
-`WebTestClient` provides an API identical to WebClient
-up to the point of performing a request by using `exchange()`. See the
-WebClient documentation for examples on how to
-prepare a request with any content including form data, multipart data, and more.
+`WebTestClient` 提供了一个与 WebClient 相同的 API，直到使用 `exchange()` 执行请求的那一点。有关如何准备包含表单数据、多部分数据等任何内容的请求的示例，请参阅 WebClient 文档。
 
-After the call to `exchange()`, `WebTestClient` diverges from the `WebClient` and
-instead continues with a workflow to verify responses.
+在调用 `exchange()` 之后，`WebTestClient` 与 `WebClient` 分道扬镳，转而继续执行验证响应的工作流。
 
-To assert the response status and headers, use the following:
+要断言响应状态和头，请使用以下代码：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -166,10 +140,7 @@ client.get().uri("/persons/1")
   .expectHeader().contentType(MediaType.APPLICATION_JSON);
 ----
 
-If you would like for all expectations to be asserted even if one of them fails, you can
-use `expectAll(..)` instead of multiple chained `expect*(..)` calls. This feature is
-similar to the _soft assertions_ support in AssertJ and the `assertAll()` support in
-JUnit Jupiter.
+如果你希望即使其中一个期望失败也能断言所有期望，可以使用 `expectAll(..)` 代替多个链式 `expect*(..)` 调用。此功能类似于 AssertJ 中的 _soft assertions_ 支持和 JUnit Jupiter 中的 `assertAll()` 支持。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -182,13 +153,13 @@ client.get().uri("/persons/1")
   );
 ----
 
-You can then choose to decode the response body through one of the following:
+然后，你可以选择通过以下方式之一解码响应体：
 
-* `expectBody(Class<T>)`: Decode to single object.
-* `expectBodyList(Class<T>)`: Decode and collect objects to `List<T>`.
-* `expectBody()`: Decode to `byte[]` for xref:testing/webtestclient.adoc#webtestclient-json[JSON Content] or an empty body.
+* `expectBody(Class<T>)`: 解码为单个对象。
+* `expectBodyList(Class<T>)`: 解码并收集对象到 `List<T>`。
+* `expectBody()`: 解码为 `byte[]` 以用于 xref:testing/webtestclient.adoc#webtestclient-json[JSON 内容] 或空体。
 
-And perform assertions on the resulting higher level Object(s):
+并对生成的高级对象执行断言：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -199,8 +170,7 @@ And perform assertions on the resulting higher level Object(s):
 ----
 
 
-If the built-in assertions are insufficient, you can consume the object instead and
-perform any other assertions:
+如果内置断言不足够，你可以消费对象并执行任何其他断言：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -211,11 +181,11 @@ client.get().uri("/persons/1")
   .expectStatus().isOk()
   .expectBody(Person.class)
   .consumeWith(result -> {
-    // custom assertions (e.g. AssertJ)...
+    // 自定义断言 (例如 AssertJ)...
   });
 ----
 
-Or you can exit the workflow and obtain an `EntityExchangeResult`:
+或者你可以退出工作流并获取 `EntityExchangeResult`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -227,17 +197,14 @@ EntityExchangeResult<Person> result = client.get().uri("/persons/1")
 ----
 
 
-TIP: When you need to decode to a target type with generics, look for the overloaded methods
-that accept
-{today-framework-api}/core/ParameterizedTypeReference.html[`ParameterizedTypeReference`]
-instead of `Class<T>`.
+TIP: 当你需要解码为带有泛型的目标类型时，请寻找接受 {today-framework-api}/core/ParameterizedTypeReference.html[`ParameterizedTypeReference`] 而不是 `Class<T>` 的重载方法。
 
 
 
 [[webtestclient-no-content]]
-=== No Content
+=== 无内容
 
-If the response is not expected to have content, you can assert that as follows:
+如果预期响应没有内容，你可以按如下方式断言：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -248,8 +215,7 @@ client.post().uri("/persons")
     .expectBody().isEmpty();
 ----
 
-If you want to ignore the response content, the following releases the content without
-any assertions:
+如果你想忽略响应内容，以下代码将释放内容而不进行任何断言：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -261,12 +227,11 @@ client.get().uri("/persons/123")
 
 
 [[webtestclient-json]]
-=== JSON Content
+=== JSON 内容
 
-You can use `expectBody()` without a target type to perform assertions on the raw
-content rather than through higher level Object(s).
+你可以使用不带目标类型的 `expectBody()` 来对原始内容而不是高级对象执行断言。
 
-To verify the full JSON content with https://jsonassert.skyscreamer.org[JSONAssert]:
+要使用 https://jsonassert.skyscreamer.org[JSONAssert] 验证完整的 JSON 内容：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -278,7 +243,7 @@ client.get().uri("/persons/1")
 ----
 
 
-To verify JSON content with https://github.com/jayway/JsonPath[JSONPath]:
+要使用 https://github.com/jayway/JsonPath[JSONPath] 验证 JSON 内容：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -293,11 +258,9 @@ client.get().uri("/persons")
 
 
 [[webtestclient-stream]]
-=== Streaming Responses
+=== 流式响应
 
-To test potentially infinite streams such as `"text/event-stream"` or
-`"application/x-ndjson"`, start by verifying the response status and headers, and then
-obtain a `FluxExchangeResult`:
+要测试潜在的无限流，如 `"text/event-stream"` 或 `"application/x-ndjson"`，首先验证响应状态和头，然后获取 `FluxExchangeResult`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -310,7 +273,7 @@ FluxExchangeResult<MyEvent> result = client.get().uri("/events")
 ----
 
 
-Now you're ready to consume the response stream with `StepVerifier` from `reactor-test`:
+现在你已准备好使用 `reactor-test` 中的 `StepVerifier` 消费响应流：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -326,31 +289,28 @@ StepVerifier.create(eventFlux)
 
 
 [[webtestclient-mockmvc]]
-=== MockMvc Assertions
+=== MockMvc 断言
 
-`WebTestClient` is an HTTP client and as such it can only verify what is in the client
-response including status, headers, and body.
+`WebTestClient` 是一个 HTTP 客户端，因此它只能验证客户端响应中的内容，包括状态、头和体。
 
-When testing a Web MVC application with a MockMvc server setup, you have the extra
-choice to perform further assertions on the server response. To do that start by
-obtaining an `ExchangeResult` after asserting the body:
+当使用 MockMvc 服务器设置测试 Web MVC 应用程序时，你可以额外选择对服务器响应执行进一步断言。为此，请在断言体之后获取 `ExchangeResult`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// For a response with a body
+// 对于带有体的响应
 EntityExchangeResult<Person> result = client.get().uri("/persons/1")
     .exchange()
     .expectStatus().isOk()
     .expectBody(Person.class)
     .returnResult();
 
-// For a response without a body
+// 对于没有体的响应
 EntityExchangeResult<Void> result = client.get().uri("/path")
     .exchange()
     .expectBody().isEmpty();
 ----
 
-Then switch to MockMvc server response assertions:
+然后切换到 MockMvc 服务器响应断言：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -358,5 +318,3 @@ MockMvcWebTestClient.resultActionsFor(result)
     .andExpect(model().attribute("integer", 3))
     .andExpect(model().attribute("string", "a string value"));
 ----
-
-

@@ -1,20 +1,10 @@
 [[infra-testing-annotation-disabledinaotmode]]
 = `@DisabledInAotMode`
 
-`@DisabledInAotMode` signals that an annotated test class is disabled in Infra AOT
-(ahead-of-time) mode, which means that the `ApplicationContext` for the test class will
-not be processed for AOT optimizations at build time.
+`@DisabledInAotMode` 标志着被注解的测试类在 Infra AOT（提前编译）模式下被禁用，这意味着该测试类的 `ApplicationContext` 在构建时不会进行 AOT 优化处理。
 
-If a test class is annotated with `@DisabledInAotMode`, all other test classes which
-specify configuration to load the same `ApplicationContext` must also be annotated with
-`@DisabledInAotMode`. Failure to annotate all such test classes will result in an
-exception, either at build time or run time.
+如果一个测试类被注解为 `@DisabledInAotMode`，那么所有指定加载相同 `ApplicationContext` 配置的其他测试类也必须被注解为 `@DisabledInAotMode`。未能注解所有此类测试类将导致异常，无论是在构建时还是运行时。
 
-When used with JUnit Jupiter based tests, `@DisabledInAotMode` also signals that the
-annotated test class or test method is disabled when running the test suite in Infra AOT
-mode. When applied at the class level, all test methods within that class will be
-disabled. In this sense, `@DisabledInAotMode` has semantics similar to those of JUnit
-Jupiter's `@DisabledInNativeImage` annotation.
+当与基于 JUnit Jupiter 的测试一起使用时，`@DisabledInAotMode` 还标志着当在 Infra AOT 模式下运行测试套件时，被注解的测试类或测试方法被禁用。当应用于类级别时，该类中的所有测试方法都将被禁用。在这个意义上，`@DisabledInAotMode` 的语义类似于 JUnit Jupiter 的 `@DisabledInNativeImage` 注解。
 
-For details on AOT support specific to integration tests, see
-xref:testing/testcontext-framework/aot.adoc[Ahead of Time Support for Tests].
+有关集成测试特定 AOT 支持的详细信息，请参见 xref:testing/testcontext-framework/aot.adoc[测试的提前编译支持]。

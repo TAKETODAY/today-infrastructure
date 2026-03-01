@@ -1,18 +1,14 @@
 [[mvc-test-server-static-imports]]
-= Static Imports
+= 静态导入
 :page-section-summary-toc: 1
 
-When using MockMvc directly to perform requests, you'll need static imports for:
+当直接使用 MockMvc 执行请求时，你需要以下静态导入：
 
 - `MockMvcBuilders.{asterisk}`
 - `MockMvcRequestBuilders.{asterisk}`
 - `MockMvcResultMatchers.{asterisk}`
 - `MockMvcResultHandlers.{asterisk}`
 
-An easy way to remember that is search for `MockMvc*`. If using Eclipse be sure to also
-add the above as "`favorite static members`" in the Eclipse preferences.
+记住这一点的一个简单方法是搜索 `MockMvc*`。如果使用 Eclipse，请务必也将上述内容添加为 Eclipse 首选项中的“`favorite static members`”。
 
-When using MockMvc through the xref:testing/webtestclient.adoc[WebTestClient] you do not need static imports.
-The `WebTestClient` provides a fluent API without static imports.
-
-
+当通过 xref:testing/webtestclient.adoc[WebTestClient] 使用 MockMvc 时，你不需要静态导入。`WebTestClient` 提供了一个流畅的 API，无需静态导入。

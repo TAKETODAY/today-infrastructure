@@ -1,23 +1,8 @@
 [[testcontext-ctx-management-failure-threshold]]
-= Context Failure Threshold
+= 上下文失败阈值
 
-As of TODAY Framework 6.1, a context _failure threshold_ policy is in place which helps
-avoid repeated attempts to load a failing `ApplicationContext`. By default, the failure
-threshold is set to `1` which means that only one attempt will be made to load an
-`ApplicationContext` for a given context cache key (see
-xref:testing/testcontext-framework/ctx-management/caching.adoc[Context Caching]). Any
-subsequent attempt to load the `ApplicationContext` for the same context cache key will
-result in an immediate `IllegalStateException` with an error message which explains that
-the attempt was preemptively skipped. This behavior allows individual test classes and
-test suites to fail faster by avoiding repeated attempts to load an `ApplicationContext`
-that will never successfully load -- for example, due to a configuration error or a missing
-external resource that prevents the context from loading in the current environment.
+自 TODAY Framework 6.1 起，引入了上下文_失败阈值_策略，该策略有助于避免重复尝试加载失败的 `ApplicationContext`。默认情况下，失败阈值设置为 `1`，这意味着对于给定的上下文缓存键（请参阅 xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存]），只会尝试加载一次 `ApplicationContext`。任何后续尝试加载具有相同上下文缓存键的 `ApplicationContext` 都将导致立即抛出 `IllegalStateException`，并附带一条错误消息，解释尝试已被先发制人地跳过。此行为允许各个测试类和测试套件通过避免重复尝试加载永远无法成功加载的 `ApplicationContext`（例如，由于配置错误或缺少阻止上下文在当前环境中加载的外部资源）来更快地失败。
 
-You can configure the context failure threshold from the command line or a build script
-by setting a JVM system property named `infra.test.context.failure.threshold` with a
-positive integer value. As an alternative, you can set the same property via the
-xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
+你可以通过设置名为 `infra.test.context.failure.threshold` 的 JVM 系统属性（值为正整数），从命令行或构建脚本配置上下文失败阈值。作为替代方案，你可以通过 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制设置相同的属性。
 
-NOTE: If you wish to effectively disable the context failure threshold, you can set the
-property to a very large value. For example, from the command line you could set the
-system property via `-Dspring.test.context.failure.threshold=1000000`.
+NOTE: 如果你想有效地禁用上下文失败阈值，可以将属性设置为一个非常大的值。例如，从命令行，你可以通过 `-Dspring.test.context.failure.threshold=1000000` 设置系统属性。

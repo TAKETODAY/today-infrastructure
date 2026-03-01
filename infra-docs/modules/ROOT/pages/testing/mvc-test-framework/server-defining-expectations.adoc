@@ -1,45 +1,33 @@
 [[mvc-test-server-defining-expectations]]
-= Defining Expectations
+= 定义期望
 
-You can define expectations by appending one or more `andExpect(..)` calls after
-performing a request, as the following example shows. As soon as one expectation fails,
-no other expectations will be asserted.
+你可以通过在执行请求后追加一个或多个 `andExpect(..)` 调用来定义期望，如下例所示。一旦有一个期望失败，就不会断言其他期望。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// static import of MockMvcRequestBuilders.* and MockMvcResultMatchers.*
+// MockMvcRequestBuilders.* 和 MockMvcResultMatchers.* 的静态导入
 mockMvc.perform(get("/accounts/1")).andExpect(status().isOk());
 ----
 
 
-You can define multiple expectations by appending `andExpectAll(..)` after performing a
-request, as the following example shows. In contrast to `andExpect(..)`,
-`andExpectAll(..)` guarantees that all supplied expectations will be asserted and that
-all failures will be tracked and reported.
+你可以通过在执行请求后追加 `andExpectAll(..)` 来定义多个期望，如下例所示。与 `andExpect(..)` 相比，`andExpectAll(..)` 保证所有提供的期望都将被断言，并且所有失败都将被跟踪和报告。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// static import of MockMvcRequestBuilders.* and MockMvcResultMatchers.*
+	// MockMvcRequestBuilders.* 和 MockMvcResultMatchers.* 的静态导入
 
 	mockMvc.perform(get("/accounts/1")).andExpectAll(
 		status().isOk(),
 		content().contentType("application/json;charset=UTF-8"));
 ----
 
-`MockMvcResultMatchers.*` provides a number of expectations, some of which are further
-nested with more detailed expectations.
+`MockMvcResultMatchers.*` 提供了许多期望，其中一些进一步嵌套了更详细的期望。
 
-Expectations fall in two general categories. The first category of assertions verifies
-properties of the response (for example, the response status, headers, and content).
-These are the most important results to assert.
+期望分为两大类。第一类断言验证响应的属性（例如，响应状态、头和内容）。这些是要断言的最重要的结果。
 
-The second category of assertions goes beyond the response. These assertions let you
-inspect Web MVC specific aspects, such as which controller method processed the
-request, whether an exception was raised and handled, what the content of the model is,
-what view was selected, what flash attributes were added, and so on. They also let you
-inspect Servlet specific aspects, such as request and session attributes.
+第二类断言超出了响应本身。这些断言让你检查 Web MVC 特定的方面，例如哪个控制器方法处理了请求、是否引发并处理了异常、模型的内容是什么、选择了哪个视图、添加了哪些 flash 属性等等。它们还让你检查 Servlet 特定的方面，例如请求和会话属性。
 
-The following test asserts that binding or validation failed:
+以下测试断言绑定或验证失败：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -48,9 +36,7 @@ mockMvc.perform(post("/persons"))
   .andExpect(model().attributeHasErrors("person"));
 ----
 
-Many times, when writing tests, it is useful to dump the results of the performed
-request. You can do so as follows, where `print()` is a static import from
-`MockMvcResultHandlers`:
+很多时候，在编写测试时，转储已执行请求的结果非常有用。你可以按如下方式操作，其中 `print()` 是来自 `MockMvcResultHandlers` 的静态导入：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -60,18 +46,9 @@ mockMvc.perform(post("/persons"))
   .andExpect(model().attributeHasErrors("person"));
 ----
 
-As long as request processing does not cause an unhandled exception, the `print()` method
-prints all the available result data to `System.out`. There is also a `log()` method and
-two additional variants of the `print()` method, one that accepts an `OutputStream` and
-one that accepts a `Writer`. For example, invoking `print(System.err)` prints the result
-data to `System.err`, while invoking `print(myWriter)` prints the result data to a custom
-writer. If you want to have the result data logged instead of printed, you can invoke the
-`log()` method, which logs the result data as a single `DEBUG` message under the
-`infra.test.web.mockApi.result` logging category.
+只要请求处理不导致未处理的异常，`print()` 方法就会将所有可用的结果数据打印到 `System.out`。还有一个 `log()` 方法和 `print()` 方法的另外两个变体，一个接受 `OutputStream`，另一个接受 `Writer`。例如，调用 `print(System.err)` 将结果数据打印到 `System.err`，而调用 `print(myWriter)` 将结果数据打印到自定义 writer。如果你希望记录结果数据而不是打印它，可以调用 `log()` 方法，它将结果数据作为单个 `DEBUG` 消息记录在 `infra.test.web.mockApi.result` 日志类别下。
 
-In some cases, you may want to get direct access to the result and verify something that
-cannot be verified otherwise. This can be achieved by appending `.andReturn()` after all
-other expectations, as the following example shows:
+在某些情况下，你可能希望直接访问结果并验证某些无法通过其他方式验证的内容。这可以通过在所有其他期望之后追加 `.andReturn()` 来实现，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -79,8 +56,7 @@ MvcResult mvcResult = mockMvc.perform(post("/persons")).andExpect(status().isOk(
 // ...
 ----
 
-If all tests repeat the same expectations, you can set up common expectations once when
-building the `MockMvc` instance, as the following example shows:
+如果所有测试都重复相同的期望，你可以在构建 `MockMvc` 实例时一次性设置通用期望，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -91,8 +67,7 @@ standaloneSetup(new SimpleController())
 ----
 
 
-Note that common expectations are always applied and cannot be overridden without
-creating a separate `MockMvc` instance.
+请注意，通用期望总是被应用，并且无法在不创建单独的 `MockMvc` 实例的情况下被覆盖。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -106,4 +81,3 @@ Map<String, String> ns = Collections.singletonMap("ns", "http://www.w3.org/2005/
 mockMvc.perform(get("/handle").accept(MediaType.APPLICATION_XML))
   .andExpect(xpath("/person/ns:link[@rel='self']/@href", ns).string("http://localhost:8080/people"));
 ----
-

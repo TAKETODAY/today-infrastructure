@@ -1,9 +1,7 @@
 [[infra-testing-annotation-sql]]
 = `@Sql`
 
-`@Sql` is used to annotate a test class or test method to configure SQL scripts to be run
-against a given database during integration tests. The following example shows how to use
-it:
+`@Sql` 用于注解测试类或测试方法，以配置在集成测试期间针对给定数据库运行的 SQL 脚本。以下示例展示了如何使用它：
 
 [tabs]
 ======
@@ -14,12 +12,10 @@ Java::
 @Test
 @Sql({"/test-schema.sql", "/test-user-data.sql"}) // <1>
 void userTest() {
-  // run code that relies on the test schema and test data
+  // 运行依赖于测试架构和测试数据的代码
 }
 ----
-<1> Run two scripts for this test.
+<1> 为此测试运行两个脚本。
 ======
 
-See xref:testing/testcontext-framework/executing-sql.adoc#testcontext-executing-sql-declaratively[Executing SQL scripts declaratively with @Sql] for further details.
-
-
+有关更多详细信息，请参见 xref:testing/testcontext-framework/executing-sql.adoc#testcontext-executing-sql-declaratively[使用 @Sql 声明式执行 SQL 脚本]。

@@ -1,58 +1,36 @@
 [[testcontext-ctx-management-inheritance]]
-= Context Configuration Inheritance
+= 上下文配置继承
 
-`@ContextConfiguration` supports boolean `inheritLocations` and `inheritInitializers`
-attributes that denote whether resource locations or component classes and context
-initializers declared by superclasses should be inherited. The default value for both
-flags is `true`. This means that a test class inherits the resource locations or
-component classes as well as the context initializers declared by any superclasses.
-Specifically, the resource locations or component classes for a test class are appended
-to the list of resource locations or annotated classes declared by superclasses.
-Similarly, the initializers for a given test class are added to the set of initializers
-defined by test superclasses. Thus, subclasses have the option of extending the resource
-locations, component classes, or context initializers.
+`@ContextConfiguration` 支持布尔类型的 `inheritLocations` 和 `inheritInitializers` 属性，用于表示是否应继承超类声明的资源位置或组件类以及上下文初始化器。这两个标志的默认值均为 `true`。这意味着测试类继承任何超类声明的资源位置或组件类以及上下文初始化器。具体来说，测试类的资源位置或组件类被附加到超类声明的资源位置或注解类列表中。同样，给定测试类的初始化器被添加到测试超类定义的初始化器集中。因此，子类可以选择扩展资源位置、组件类或上下文初始化器。
 
-If the `inheritLocations` or `inheritInitializers` attribute in `@ContextConfiguration`
-is set to `false`, the resource locations or component classes and the context
-initializers, respectively, for the test class shadow and effectively replace the
-configuration defined by superclasses.
+如果 `@ContextConfiguration` 中的 `inheritLocations` 或 `inheritInitializers` 属性设置为 `false`，则测试类的资源位置或组件类以及上下文初始化器将分别遮蔽并有效地替换超类定义的配置。
 
-NOTE: As of TODAY Framework 5.3, test configuration may also be inherited from enclosing
-classes. See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] for details.
+NOTE: 自 TODAY Framework 5.3 起，测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
 
-In the next example, which uses XML resource locations, the `ApplicationContext` for
-`ExtendedTest` is loaded from `base-config.xml` and `extended-config.xml`, in that order.
-Beans defined in `extended-config.xml` can, therefore, override (that is, replace) those
-defined in `base-config.xml`. The following example shows how one class can extend
-another and use both its own configuration file and the superclass's configuration file:
+在下一个使用 XML 资源位置的示例中，`ExtendedTest` 的 `ApplicationContext` 按顺序从 `base-config.xml` 和 `extended-config.xml` 加载。因此，在 `extended-config.xml` 中定义的 Bean 可以覆盖（即替换）在 `base-config.xml` 中定义的 Bean。以下示例显示了一个类如何扩展另一个类并同时使用其自己的配置文件和超类的配置文件：
 
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from "/base-config.xml"
-// in the root of the classpath
+// ApplicationContext 将从类路径根目录下的 "/base-config.xml" 加载
 @ContextConfiguration("/base-config.xml") <1>
 class BaseTest {
-  // class body...
+  // 类主体...
 }
 
-// ApplicationContext will be loaded from "/base-config.xml" and
-// "/extended-config.xml" in the root of the classpath
+// ApplicationContext 将从类路径根目录下的 "/base-config.xml" 和
+// "/extended-config.xml" 加载
 @ContextConfiguration("/extended-config.xml") <2>
 class ExtendedTest extends BaseTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Configuration file defined in the superclass.
-<2> Configuration file defined in the subclass.
+<1> 在超类中定义的配置文件。
+<2> 在子类中定义的配置文件。
 
 
-Similarly, in the next example, which uses component classes, the `ApplicationContext`
-for `ExtendedTest` is loaded from the `BaseConfig` and `ExtendedConfig` classes, in that
-order. Beans defined in `ExtendedConfig` can, therefore, override (that is, replace)
-those defined in `BaseConfig`. The following example shows how one class can extend
-another and use both its own configuration class and the superclass's configuration class:
+同样，在下一个使用组件类的示例中，`ExtendedTest` 的 `ApplicationContext` 按顺序从 `BaseConfig` 和 `ExtendedConfig` 类加载。因此，在 `ExtendedConfig` 中定义的 Bean 可以覆盖（即替换）在 `BaseConfig` 中定义的 Bean。以下示例显示了一个类如何扩展另一个类并同时使用其自己的配置类和超类的配置类：
 
 [tabs]
 ======
@@ -60,46 +38,38 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// ApplicationContext will be loaded from BaseConfig
+// ApplicationContext 将从 BaseConfig 加载
 @JUnitConfig(BaseConfig.class) // <1>
 class BaseTest {
-  // class body...
+  // 类主体...
 }
 
-// ApplicationContext will be loaded from BaseConfig and ExtendedConfig
+// ApplicationContext 将从 BaseConfig 和 ExtendedConfig 加载
 @JUnitConfig(ExtendedConfig.class) // <2>
 class ExtendedTest extends BaseTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Configuration class defined in the superclass.
-<2> Configuration class defined in the subclass.
+<1> 在超类中定义的配置类。
+<2> 在子类中定义的配置类。
 ======
 
 
-In the next example, which uses context initializers, the `ApplicationContext` for
-`ExtendedTest` is initialized by using `BaseInitializer` and `ExtendedInitializer`. Note,
-however, that the order in which the initializers are invoked depends on whether they
-implement Infra `Ordered` interface or are annotated with Infra `@Order` annotation
-or the standard `@Priority` annotation. The following example shows how one class can
-extend another and use both its own initializer and the superclass's initializer:
+在下一个使用上下文初始化器的示例中，`ExtendedTest` 的 `ApplicationContext` 使用 `BaseInitializer` 和 `ExtendedInitializer` 进行初始化。但请注意，调用初始化器的顺序取决于它们是否实现了 Infra `Ordered` 接口，或者是否标注了 Infra `@Order` 注解或标准 `@Priority` 注解。以下示例显示了一个类如何扩展另一个类并同时使用其自己的初始化器和超类的初始化器：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// ApplicationContext will be initialized by BaseInitializer
+// ApplicationContext 将由 BaseInitializer 初始化
 @JUnitConfig(initializers = BaseInitializer.class) // <1>
 class BaseTest {
-  // class body...
+  // 类主体...
 }
 
-// ApplicationContext will be initialized by BaseInitializer
-// and ExtendedInitializer
+// ApplicationContext 将由 BaseInitializer 和 ExtendedInitializer 初始化
 @JUnitConfig(initializers = ExtendedInitializer.class) // <2>
 class ExtendedTest extends BaseTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Initializer defined in the superclass.
-<2> Initializer defined in the subclass.
-
-
+<1> 在超类中定义的初始化器。
+<2> 在子类中定义的初始化器。

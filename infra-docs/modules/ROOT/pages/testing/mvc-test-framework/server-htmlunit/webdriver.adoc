@@ -1,30 +1,20 @@
 [[mvc-test-server-htmlunit-webdriver]]
-= MockMvc and WebDriver
+= MockMvc 和 WebDriver
 
-In the previous sections, we have seen how to use MockMvc in conjunction with the raw
-HtmlUnit APIs. In this section, we use additional abstractions within the Selenium
-https://docs.seleniumhq.org/projects/webdriver/[WebDriver] to make things even easier.
+在前面的章节中，我们已经看到了如何结合原始 HtmlUnit API 使用 MockMvc。在本节中，我们在 Selenium https://docs.seleniumhq.org/projects/webdriver/[WebDriver] 中使用额外的抽象，让事情变得更加容易。
 
 [[mvc-test-server-htmlunit-webdriver-why]]
-== Why WebDriver and MockMvc?
+== 为什么选择 WebDriver 和 MockMvc？
 
-We can already use HtmlUnit and MockMvc, so why would we want to use WebDriver? The
-Selenium WebDriver provides a very elegant API that lets us easily organize our code. To
-better show how it works, we explore an example in this section.
+既然我们可以使用 HtmlUnit 和 MockMvc，为什么还要使用 WebDriver 呢？Selenium WebDriver 提供了一个非常优雅的 API，让我们能够轻松组织代码。为了更好地展示它是如何工作的，我们在本节中探索一个示例。
 
-NOTE: Despite being a part of https://docs.seleniumhq.org/[Selenium], WebDriver does not
-require a Selenium Server to run your tests.
+NOTE: 尽管 WebDriver 是 https://docs.seleniumhq.org/[Selenium] 的一部分，但它不需要 Selenium Server 来运行你的测试。
 
-Suppose we need to ensure that a message is created properly. The tests involve finding
-the HTML form input elements, filling them out, and making various assertions.
+假设我们需要确保正确创建了一条消息。测试涉及查找 HTML 表单输入元素，填写它们，并进行各种断言。
 
-This approach results in numerous separate tests because we want to test error conditions
-as well. For example, we want to ensure that we get an error if we fill out only part of
-the form. If we fill out the entire form, the newly created message should be displayed
-afterwards.
+这种方法导致许多单独的测试，因为我们也想测试错误情况。例如，我们要确保如果我们只填写表单的一部分，我们会得到一个错误。如果我们填写整个表单，之后应该显示新创建的消息。
 
-If one of the fields were named "`summary`", we might have something that resembles the
-following repeated in multiple places within our tests:
+如果其中一个字段被命名为“`summary`”，我们可能会在测试中的多个地方重复类似以下的内容：
 
 [tabs]
 ======
@@ -38,9 +28,7 @@ Java::
 
 ======
 
-So what happens if we change the `id` to `smmry`? Doing so would force us to update all
-of our tests to incorporate this change. This violates the DRY principle, so we should
-ideally extract this code into its own method, as follows:
+那么如果我们把 `id` 改成 `smmry` 会发生什么呢？这样做将迫使我们更新所有测试以包含此更改。这违反了 DRY 原则，所以我们应该理想地将这段代码提取到它自己的方法中，如下所示：
 
 [tabs]
 ======
@@ -61,10 +49,9 @@ Java::
 
 ======
 
-Doing so ensures that we do not have to update all of our tests if we change the UI.
+这样做可以确保如果我们更改 UI，我们不必更新所有测试。
 
-We might even take this a step further and place this logic within an `Object` that
-represents the `HtmlPage` we are currently on, as the following example shows:
+我们甚至可以更进一步，将此逻辑放在代表我们当前所在 `HtmlPage` 的 `Object` 中，如下例所示：
 
 [tabs]
 ======
@@ -107,19 +94,14 @@ public class CreateMessagePage {
 
 ======
 
-Formerly, this pattern was known as the
-https://github.com/SeleniumHQ/selenium/wiki/PageObjects[Page Object Pattern]. While we
-can certainly do this with HtmlUnit, WebDriver provides some tools that we explore in the
-following sections to make this pattern much easier to implement.
+以前，这种模式被称为 https://github.com/SeleniumHQ/selenium/wiki/PageObjects[Page Object 模式]。虽然我们当然可以用 HtmlUnit 做到这一点，但 WebDriver 提供了一些我们在以下部分探索的工具，使这种模式更容易实现。
 
 [[mvc-test-server-htmlunit-webdriver-setup]]
-== MockMvc and WebDriver Setup
+== MockMvc 和 WebDriver 设置
 
-To use Selenium WebDriver with the Web MVC Test framework, make sure that your project
-includes a test dependency on `org.seleniumhq.selenium:selenium-htmlunit3-driver`.
+要将 Selenium WebDriver 与 Web MVC Test 框架一起使用，请确保你的项目包含对 `org.seleniumhq.selenium:selenium-htmlunit3-driver` 的测试依赖。
 
-We can easily create a Selenium WebDriver that integrates with MockMvc by using the
-`MockMvcHtmlUnitDriverBuilder` as the following example shows:
+我们可以轻松地创建一个与 MockMvc 集成的 Selenium WebDriver，方法是使用 `MockMvcHtmlUnitDriverBuilder`，如下例所示：
 
 [tabs]
 ======
@@ -139,20 +121,14 @@ void setup(WebApplicationContext context) {
 
 ======
 
-NOTE: This is a simple example of using `MockMvcHtmlUnitDriverBuilder`. For more advanced
-usage, see xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-advanced-builder[Advanced `MockMvcHtmlUnitDriverBuilder`].
+NOTE: 这是使用 `MockMvcHtmlUnitDriverBuilder` 的一个简单示例。有关更高级的用法，请参阅 xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-advanced-builder[高级 `MockMvcHtmlUnitDriverBuilder`]。
 
-The preceding example ensures that any URL that references `localhost` as the server is
-directed to our `MockMvc` instance without the need for a real HTTP connection. Any other
-URL is requested by using a network connection, as normal. This lets us easily test the
-use of CDNs.
+前面的示例确保了任何引用 `localhost` 作为服务器的 URL 都会被定向到我们的 `MockMvc` 实例，而无需真正的 HTTP 连接。任何其他 URL 都会像往常一样使用网络连接请求。这让我们能够轻松测试 CDN 的使用。
 
 [[mvc-test-server-htmlunit-webdriver-usage]]
-== MockMvc and WebDriver Usage
+== MockMvc 和 WebDriver 用法
 
-Now we can use WebDriver as we normally would but without the need to deploy our
-application to a Servlet container. For example, we can request the view to create a
-message with the following:
+现在我们可以像平常一样使用 WebDriver，而无需将应用程序部署到 Servlet 容器。例如，我们可以请求创建消息的视图，如下所示：
 
 --
 [tabs]
@@ -167,7 +143,7 @@ Java::
 ======
 --
 
-We can then fill out the form and submit it to create a message, as follows:
+然后我们可以填写表单并提交以创建消息，如下所示：
 
 --
 [tabs]
@@ -183,11 +159,7 @@ ViewMessagePage viewMessagePage =
 ======
 --
 
-This improves on the design of our xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-usage[HtmlUnit test]
-by leveraging the Page Object Pattern. As we mentioned in
-xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-why[Why WebDriver and MockMvc?], we can use the Page Object Pattern
-with HtmlUnit, but it is much easier with WebDriver. Consider the following
-`CreateMessagePage` implementation:
+这通过利用 Page Object 模式改进了我们的 xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-usage[HtmlUnit 测试] 的设计。正如我们在 xref:testing/mvc-test-framework/server-htmlunit/webdriver.adoc#mvc-test-server-htmlunit-webdriver-why[为什么选择 WebDriver 和 MockMvc？] 中提到的，我们可以将 Page Object 模式与 HtmlUnit 一起使用，但在 WebDriver 中更容易。考虑以下 `CreateMessagePage` 实现：
 
 --
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -218,27 +190,13 @@ public class CreateMessagePage extends AbstractPage { // <1>
   }
 }
 ----
-<1> `CreateMessagePage` extends the `AbstractPage`. We do not go over the details of
-`AbstractPage`, but, in summary, it contains common functionality for all of our pages.
-For example, if our application has a navigational bar, global error messages, and other
-features, we can place this logic in a shared location.
-<2> We have a member variable for each of the parts of the HTML page in which we are
-interested. These are of type `WebElement`. WebDriver's
-https://github.com/SeleniumHQ/selenium/wiki/PageFactory[`PageFactory`] lets us remove a
-lot of code from the HtmlUnit version of `CreateMessagePage` by automatically resolving
-each `WebElement`. The
-https://seleniumhq.github.io/selenium/docs/api/java/org/openqa/selenium/support/PageFactory.html#initElements-org.openqa.selenium.WebDriver-java.lang.Class-[`PageFactory#initElements(WebDriver,Class<T>)`]
-method automatically resolves each `WebElement` by using the field name and looking it up
-by the `id` or `name` of the element within the HTML page.
-<3> We can use the
-https://github.com/SeleniumHQ/selenium/wiki/PageFactory#making-the-example-work-using-annotations[`@FindBy` annotation]
-to override the default lookup behavior. Our example shows how to use the `@FindBy`
-annotation to look up our submit button with a `css` selector (`input[type=submit]`).
+<1> `CreateMessagePage` 扩展了 `AbstractPage`。我们不详细介绍 `AbstractPage`，但总而言之，它包含我们所有页面的通用功能。例如，如果我们的应用程序有一个导航栏、全局错误消息和其他功能，我们可以将此逻辑放在共享位置。
+<2> 我们为我们感兴趣的 HTML 页面的每个部分都有一个成员变量。这些类型为 `WebElement`。WebDriver 的 https://github.com/SeleniumHQ/selenium/wiki/PageFactory[`PageFactory`] 允许我们通过自动解析每个 `WebElement` 来从 `CreateMessagePage` 的 HtmlUnit 版本中删除大量代码。https://seleniumhq.github.io/selenium/docs/api/java/org/openqa/selenium/support/PageFactory.html#initElements-org.openqa.selenium.WebDriver-java.lang.Class-[`PageFactory#initElements(WebDriver,Class<T>)`] 方法通过使用字段名称并在 HTML 页面中通过元素的 `id` 或 `name` 查找它来自动解析每个 `WebElement`。
+<3> 我们可以使用 https://github.com/SeleniumHQ/selenium/wiki/PageFactory#making-the-example-work-using-annotations[`@FindBy` 注解] 来覆盖默认查找行为。我们的示例展示了如何使用 `@FindBy` 注解通过 `css` 选择器 (`input[type=submit]`) 查找我们的提交按钮。
 
 --
 
-Finally, we can verify that a new message was created successfully. The following
-assertions use the {assertj-docs}[AssertJ] assertion library:
+最后，我们可以验证新消息是否成功创建。以下断言使用 {assertj-docs}[AssertJ] 断言库：
 
 --
 +
@@ -250,8 +208,7 @@ assertions use the {assertj-docs}[AssertJ] assertion library:
 
 --
 
-We can see that our `ViewMessagePage` lets us interact with our custom domain model. For
-example, it exposes a method that returns a `Message` object:
+我们可以看到 `ViewMessagePage` 允许我们与自定义领域模型进行交互。例如，它暴露了一个返回 `Message` 对象的方法：
 
 --
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -267,10 +224,9 @@ example, it exposes a method that returns a `Message` object:
 ----
 --
 
-We can then use the rich domain objects in our assertions.
+然后我们可以在断言中使用丰富的领域对象。
 
-Lastly, we must not forget to close the `WebDriver` instance when the test is complete,
-as follows:
+最后，我们不能忘记在测试完成时关闭 `WebDriver` 实例，如下所示：
 
 --
 [tabs]
@@ -289,15 +245,12 @@ Java::
 ======
 --
 
-For additional information on using WebDriver, see the Selenium
-https://github.com/SeleniumHQ/selenium/wiki/Getting-Started[WebDriver documentation].
+有关使用 WebDriver 的更多信息，请参阅 Selenium https://github.com/SeleniumHQ/selenium/wiki/Getting-Started[WebDriver 文档]。
 
 [[mvc-test-server-htmlunit-webdriver-advanced-builder]]
-== Advanced `MockMvcHtmlUnitDriverBuilder`
+== 高级 `MockMvcHtmlUnitDriverBuilder`
 
-In the examples so far, we have used `MockMvcHtmlUnitDriverBuilder` in the simplest way
-possible, by building a `WebDriver` based on the `WebApplicationContext` loaded for us by
-the Infra TestContext Framework. This approach is repeated here, as follows:
+到目前为止的示例中，我们以最简单的方式使用了 `MockMvcHtmlUnitDriverBuilder`，即基于 Infra TestContext 框架为我们加载的 `WebApplicationContext` 构建 `WebDriver`。此方法在这里重复如下：
 
 [tabs]
 ======
@@ -317,7 +270,7 @@ void setup(WebApplicationContext context) {
 
 ======
 
-We can also specify additional configuration options, as follows:
+我们还可以指定其他配置选项，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -326,20 +279,19 @@ WebDriver driver;
 @BeforeEach
 void setup() {
   driver = MockMvcHtmlUnitDriverBuilder
-      // demonstrates applying a MockMvcConfigurer (Infra Security)
+      // 演示应用 MockMvcConfigurer (Infra Security)
       .webAppContextSetup(context, springSecurity())
-      // for illustration only - defaults to ""
+      // 仅用于说明 - 默认为 ""
       .contextPath("")
-      // By default MockMvc is used for localhost only;
-      // the following will use MockMvc for example.com and example.org as well
+      // 默认情况下 MockMvc 仅用于 localhost；
+      // 以下内容也将对 example.com 和 example.org 使用 MockMvc
       .useMockMvcForHosts("example.com","example.org")
       .build();
 }
 ----
 
 
-As an alternative, we can perform the exact same setup by configuring the `MockMvc`
-instance separately and supplying it to the `MockMvcHtmlUnitDriverBuilder`, as follows:
+作为替代方案，我们可以通过单独配置 `MockMvc` 实例并将其提供给 `MockMvcHtmlUnitDriverBuilder` 来执行完全相同的设置，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -350,17 +302,14 @@ MockMvc mockMvc = MockMvcBuilders
 
 driver = MockMvcHtmlUnitDriverBuilder
     .mockMvcSetup(mockMvc)
-    // for illustration only - defaults to ""
+    // 仅用于说明 - 默认为 ""
     .contextPath("")
-    // By default MockMvc is used for localhost only;
-    // the following will use MockMvc for example.com and example.org as well
+    // 默认情况下 MockMvc 仅用于 localhost；
+    // 以下内容也将对 example.com 和 example.org 使用 MockMvc
     .useMockMvcForHosts("example.com","example.org")
     .build();
 ----
 
-This is more verbose, but, by building the `WebDriver` with a `MockMvc` instance, we have
-the full power of MockMvc at our fingertips.
+这更冗长，但是通过使用 `MockMvc` 实例构建 `WebDriver`，我们可以充分利用 MockMvc 的强大功能。
 
-TIP: For additional information on creating a `MockMvc` instance, see
-xref:testing/mvc-test-framework/server-setup-options.adoc[Setup Choices].
-
+TIP: 有关创建 `MockMvc` 实例的更多信息，请参阅 xref:testing/mvc-test-framework/server-setup-options.adoc[设置选择]。

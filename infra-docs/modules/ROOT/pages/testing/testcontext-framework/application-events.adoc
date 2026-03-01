@@ -1,31 +1,27 @@
 [[testcontext-application-events]]
-= Application Events
+= 应用程序事件
 
-Since TODAY Framework 5.3.3, the TestContext framework provides support for recording
-xref:core/beans/context-introduction.adoc#context-functionality-events[application events] published in the
-`ApplicationContext` so that assertions can be performed against those events within
-tests. All events published during the execution of a single test are made available via
-the `ApplicationEvents` API which allows you to process the events as a
-`java.util.Stream`.
+自 TODAY Framework 5.3.3 起，TestContext 框架提供了对记录在 `ApplicationContext` 中发布的
+xref:core/beans/context-introduction.adoc#context-functionality-events[应用程序事件] 的支持，
+以便在测试中对这些事件进行断言。在单个测试执行期间发布的所有事件都可以通过
+`ApplicationEvents` API 获得，该 API 允许你将事件作为 `java.util.Stream` 进行处理。
 
-To use `ApplicationEvents` in your tests, do the following.
+要在测试中使用 `ApplicationEvents`，请执行以下操作。
 
-* Ensure that your test class is annotated or meta-annotated with
-  xref:testing/annotations/integration-infra/annotation-recordapplicationevents.adoc[`@RecordApplicationEvents`].
-* Ensure that the `ApplicationEventsTestExecutionListener` is registered. Note, however,
-  that `ApplicationEventsTestExecutionListener` is registered by default and only needs
-  to be manually registered if you have custom configuration via
-  `@TestExecutionListeners` that does not include the default listeners.
-* Annotate a field of type `ApplicationEvents` with `@Autowired` and use that instance of
-  `ApplicationEvents` in your test and lifecycle methods (such as `@BeforeEach` and
-  `@AfterEach` methods in JUnit Jupiter).
-** When using the xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[InfraExtension for JUnit Jupiter], you may declare a method
-   parameter of type `ApplicationEvents` in a test or lifecycle method as an alternative
-   to an `@Autowired` field in the test class.
+* 确保你的测试类使用了
+  xref:testing/annotations/integration-infra/annotation-recordapplicationevents.adoc[`@RecordApplicationEvents`]
+  注解或元注解。
+* 确保已注册 `ApplicationEventsTestExecutionListener`。但请注意，
+  `ApplicationEventsTestExecutionListener` 默认已注册，只有在通过 `@TestExecutionListeners`
+  进行自定义配置且不包含默认监听器时，才需要手动注册。
+* 使用 `@Autowired` 标注一个 `ApplicationEvents` 类型的字段，并在测试和生命周期方法（如
+  JUnit Jupiter 中的 `@BeforeEach` 和 `@AfterEach` 方法）中使用该 `ApplicationEvents` 实例。
+** 当使用 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[InfraExtension for JUnit Jupiter] 时，
+   你可以在测试或生命周期方法中声明一个 `ApplicationEvents` 类型的方法参数，
+   作为测试类中 `@Autowired` 字段的替代方案。
 
-The following test class uses the `InfraExtension` for JUnit Jupiter and
-{assertj-docs}[AssertJ] to assert the types of application events
-published while invoking a method in a Infra-managed component:
+以下测试类使用 JUnit Jupiter 的 `InfraExtension` 和 {assertj-docs}[AssertJ]
+来断言在调用 Infra 管理的组件中的方法时发布的应用程序事件的类型：
 
 // Don't use "quotes" in the "subs" section because of the asterisks in /* ... */
 [tabs]
@@ -46,21 +42,19 @@ class OrderServiceTests {
 
   @Test
   void submitOrder() {
-    // Invoke method in OrderService that publishes an event
+    // 调用 OrderService 中发布事件的方法
     orderService.submitOrder(new Order(/* ... */));
-    // Verify that an OrderSubmitted event was published
+    // 验证是否发布了一个 OrderSubmitted 事件
     long numEvents = events.stream(OrderSubmitted.class).count(); // <3>
     assertThat(numEvents).isEqualTo(1);
   }
 }
 ----
-<1> Annotate the test class with `@RecordApplicationEvents`.
-<2> Inject the `ApplicationEvents` instance for the current test.
-<3> Use the `ApplicationEvents` API to count how many `OrderSubmitted` events were published.
+<1> 使用 `@RecordApplicationEvents` 标注测试类。
+<2> 为当前测试注入 `ApplicationEvents` 实例。
+<3> 使用 `ApplicationEvents` API 计算发布的 `OrderSubmitted` 事件的数量。
 
 ======
 
-See the
-{today-framework-api}/test/context/event/ApplicationEvents.html[`ApplicationEvents`
-javadoc] for further details regarding the `ApplicationEvents` API.
-
+有关 `ApplicationEvents` API 的更多详细信息，请参阅
+{today-framework-api}/test/context/event/ApplicationEvents.html[`ApplicationEvents` javadoc]。

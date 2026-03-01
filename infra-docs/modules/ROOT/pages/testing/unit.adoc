@@ -1,29 +1,16 @@
 [[unit-testing]]
-= Unit Testing
+= 单元测试
 
-Dependency injection should make your code less dependent on the container than it would
-be with traditional J2EE / Java EE development. The POJOs that make up your application
-should be testable in JUnit or TestNG tests, with objects instantiated by using the `new`
-operator, without Infra or any other container. You can use xref:testing/unit.adoc#mock-objects[mock objects]
-(in conjunction with other valuable testing techniques) to test your code in isolation.
-If you follow the architecture recommendations for Infra, the resulting clean layering
-and componentization of your codebase facilitate easier unit testing. For example,
-you can test service layer objects by stubbing or mocking DAO or repository interfaces,
-without needing to access persistent data while running unit tests.
+相比于传统的 J2EE / Java EE 开发，依赖注入应该能让你的代码减少对容器的依赖。构成应用程序的 POJO 应该可以在 JUnit 或 TestNG 测试中进行测试，对象可以通过 `new` 运算符实例化，而无需 Infra 或任何其他容器。你可以使用 xref:testing/unit.adoc#mock-objects[mock 对象]（结合其他有价值的测试技术）来隔离测试你的代码。如果你遵循 Infra 的架构建议，你的代码库将具有清晰的分层和组件化结构，从而更易于进行单元测试。例如，你可以通过存根（stubbing）或模拟（mocking）DAO 或 repository 接口来测试服务层对象，而无需在运行单元测试时访问持久化数据。
 
-True unit tests typically run extremely quickly, as there is no runtime infrastructure to
-set up. Emphasizing true unit tests as part of your development methodology can boost
-your productivity. You may not need this section of the testing chapter to help you write
-effective unit tests for your IoC-based applications. For certain unit testing scenarios,
-however, the TODAY Framework provides mock objects and testing support classes, which
-are described in this chapter.
+真正的单元测试通常运行得非常快，因为不需要设置运行时基础设施。将真正的单元测试作为开发方法的一部分加以重视，可以提高你的生产力。你可能不需要阅读本测试章节的这一部分就能帮你编写基于 IoC 的应用程序的有效单元测试。然而，对于某些单元测试场景，TODAY Framework 提供了本章中描述的 mock 对象和测试支持类。
 
 
 
 [[mock-objects]]
-== Mock Objects
+== Mock 对象
 
-Infra includes a number of packages dedicated to mocking:
+Infra 包含许多专门用于 mocking 的包：
 
 * xref:testing/unit.adoc#mock-objects-env[Environment]
 * xref:testing/unit.adoc#mock-objects-jndi[JNDI]
@@ -34,133 +21,73 @@ Infra includes a number of packages dedicated to mocking:
 [[mock-objects-env]]
 === Environment
 
-The `infra.mock.env` package contains mock implementations of the
-`Environment` and `PropertySource` abstractions (see
-xref:core/beans/environment.adoc#beans-definition-profiles[Bean Definition Profiles]
-and xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` Abstraction]).
-`MockEnvironment` and `MockPropertySource` are useful for developing
-out-of-container tests for code that depends on environment-specific properties.
+`infra.mock.env` 包包含 `Environment` 和 `PropertySource` 抽象的 mock 实现（参见 xref:core/beans/environment.adoc#beans-definition-profiles[Bean 定义 Profile] 和 xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` 抽象]）。`MockEnvironment` 和 `MockPropertySource` 对于开发依赖于特定环境属性的代码的容器外测试非常有用。
 
 
 [[mock-objects-jndi]]
 === JNDI
 
-The `infra.mock.jndi` package contains a partial implementation of the JNDI
-SPI, which you can use to set up a simple JNDI environment for test suites or stand-alone
-applications. If, for example, JDBC `DataSource` instances get bound to the same JNDI
-names in test code as they do in a Jakarta EE container, you can reuse both application code
-and configuration in testing scenarios without modification.
+`infra.mock.jndi` 包包含 JNDI SPI 的部分实现，你可以使用它为测试套件或独立应用程序设置简单的 JNDI 环境。例如，如果 JDBC `DataSource` 实例在测试代码中绑定的 JNDI 名称与在 Jakarta EE 容器中相同，你就可以在测试场景中重用应用程序代码和配置而无需修改。
 
-WARNING: The mock JNDI support in the `infra.mock.jndi` package is
-officially deprecated as of TODAY Framework 5.2 in favor of complete solutions from third
-parties such as https://github.com/h-thurow/Simple-JNDI[Simple-JNDI].
+WARNING: `infra.mock.jndi` 包中的 mock JNDI 支持自 TODAY Framework 5.2 起已正式弃用，建议使用第三方提供的完整解决方案，如 https://github.com/h-thurow/Simple-JNDI[Simple-JNDI]。
 
 
 [[mock-objects-mockApi]]
 === Mock API
 
-The `infra.mock.web` package contains a comprehensive set of Servlet API
-mock objects that are useful for testing web contexts, controllers, and filters. These
-mock objects are targeted at usage with Infra Web MVC framework and are generally more
-convenient to use than dynamic mock objects (such as https://easymock.org/[EasyMock])
-or alternative Servlet API mock objects (such as http://www.mockobjects.com[MockObjects]).
+`infra.mock.web` 包包含一套全面的 Servlet API mock 对象，对于测试 Web 上下文、控制器和过滤器非常有用。这些 mock 对象旨在与 Infra Web MVC 框架一起使用，并且通常比动态 mock 对象（如 https://easymock.org/[EasyMock]）或其他 Servlet API mock 对象（如 http://www.mockobjects.com[MockObjects]）更易于使用。
 
 
-The Web MVC Test framework builds on the mock Servlet API objects to provide an
-integration testing framework for Web MVC. See xref:testing/mvc-test-framework.adoc[MockMvc].
+Web MVC Test 框架建立在 mock Servlet API 对象之上，为 Web MVC 提供集成测试框架。参见 xref:testing/mvc-test-framework.adoc[MockMvc]。
 
 
 [[mock-objects-web-reactive]]
 === Infra Web Reactive
 
-The `infra.mock.http.server.reactive` package contains mock implementations
-of `ServerHttpRequest` and `ServerHttpResponse` for use in WebFlux applications. The
-`infra.mock.web.server` package contains a mock `ServerWebExchange` that
-depends on those mock request and response objects.
+`infra.mock.http.server.reactive` 包包含 `ServerHttpRequest` 和 `ServerHttpResponse` 的 mock 实现，用于 WebFlux 应用程序。`infra.mock.web.server` 包包含一个依赖于这些 mock 请求和响应对象的 mock `ServerWebExchange`。
 
-Both `MockServerHttpRequest` and `MockServerHttpResponse` extend from the same abstract
-base classes as server-specific implementations and share behavior with them. For
-example, a mock request is immutable once created, but you can use the `mutate()` method
-from `ServerHttpRequest` to create a modified instance.
+`MockServerHttpRequest` 和 `MockServerHttpResponse` 与服务器特定的实现都扩展自相同的抽象基类，并与它们共享行为。例如，mock 请求一旦创建就是不可变的，但你可以使用 `ServerHttpRequest` 中的 `mutate()` 方法来创建一个修改后的实例。
 
-In order for the mock response to properly implement the write contract and return a
-write completion handle (that is, `Mono<Void>`), it by default uses a `Flux` with
-`cache().then()`, which buffers the data and makes it available for assertions in tests.
-Applications can set a custom write function (for example, to test an infinite stream).
+为了让 mock 响应正确实现写入契约并返回写入完成句柄（即 `Mono<Void>`），它默认使用带有 `cache().then()` 的 `Flux`，这会缓冲数据并使其可用于测试中的断言。应用程序可以设置自定义写入函数（例如，用于测试无限流）。
 
-The xref:testing/webtestclient.adoc[WebTestClient] builds on the mock request and response to provide support for
-testing WebFlux applications without an HTTP server. The client can also be used for
-end-to-end tests with a running server.
+xref:testing/webtestclient.adoc[WebTestClient] 建立在 mock 请求和响应之上，为在没有 HTTP 服务器的情况下测试 WebFlux 应用程序提供支持。该客户端也可用于对运行中的服务器进行端到端测试。
 
 
 
 [[unit-testing-support-classes]]
-== Unit Testing Support Classes
+== 单元测试支持类
 
-Infra includes a number of classes that can help with unit testing. They fall into two
-categories:
+Infra 包含许多有助于单元测试的类。它们分为两类：
 
-* xref:testing/unit.adoc#unit-testing-utilities[General Testing Utilities]
-* xref:testing/unit.adoc#unit-testing-mvc[Web MVC Testing Utilities]
+* xref:testing/unit.adoc#unit-testing-utilities[通用测试工具]
+* xref:testing/unit.adoc#unit-testing-mvc[Web MVC 测试工具]
 
 
 [[unit-testing-utilities]]
-=== General Testing Utilities
+=== 通用测试工具
 
-The `infra.test.util` package contains several general purpose utilities
-for use in unit and integration testing.
+`infra.test.util` 包包含几个用于单元和集成测试的通用工具。
 
-{today-framework-api}/test/util/AopTestUtils.html[`AopTestUtils`] is a collection of
-AOP-related utility methods. You can use these methods to obtain a reference to the
-underlying target object hidden behind one or more Infra proxies. For example, if you
-have configured a bean as a dynamic mock by using a library such as EasyMock or Mockito,
-and the mock is wrapped in a Infra proxy, you may need direct access to the underlying
-mock to configure expectations on it and perform verifications. For Infra core AOP
-utilities, see {today-framework-api}/aop/support/AopUtils.html[`AopUtils`] and
-{today-framework-api}/aop/framework/AopProxyUtils.html[`AopProxyUtils`].
+{today-framework-api}/test/util/AopTestUtils.html[`AopTestUtils`] 是一个 AOP 相关工具方法的集合。你可以使用这些方法获取隐藏在一个或多个 Infra 代理背后的底层目标对象的引用。例如，如果你使用 EasyMock 或 Mockito 等库将 bean 配置为动态 mock，并且该 mock 被包装在 Infra 代理中，你可能需要直接访问底层 mock 以对其配置期望并执行验证。有关 Infra 核心 AOP 工具，请参见 {today-framework-api}/aop/support/AopUtils.html[`AopUtils`] 和 {today-framework-api}/aop/framework/AopProxyUtils.html[`AopProxyUtils`]。
 
-{today-framework-api}/test/util/ReflectionTestUtils.html[`ReflectionTestUtils`] is a
-collection of reflection-based utility methods. You can use these methods in testing
-scenarios where you need to change the value of a constant, set a non-`public` field,
-invoke a non-`public` setter method, or invoke a non-`public` configuration or lifecycle
-callback method when testing application code for use cases such as the following:
+{today-framework-api}/test/util/ReflectionTestUtils.html[`ReflectionTestUtils`] 是一个基于反射的工具方法的集合。在测试应用程序代码时，如果你需要更改常量的值、设置非 `public` 字段、调用非 `public` setter 方法，或调用非 `public` 配置或生命周期回调方法，可以使用这些方法。适用场景包括：
 
-* ORM frameworks (such as JPA and Hibernate) that condone `private` or `protected` field
-  access as opposed to `public` setter methods for properties in a domain entity.
-* Infra support for annotations (such as `@Autowired`, `@Inject`, and `@Resource`),
-  that provide dependency injection for `private` or `protected` fields, setter methods,
-  and configuration methods.
-* Use of annotations such as `@PostConstruct` and `@PreDestroy` for lifecycle callback
-  methods.
+* ORM 框架（如 JPA 和 Hibernate），它们允许对领域实体中的属性进行 `private` 或 `protected` 字段访问，而不是 `public` setter 方法。
+* Infra 对注解的支持（如 `@Autowired`、`@Inject` 和 `@Resource`），这些注解为 `private` 或 `protected` 字段、setter 方法和配置方法提供依赖注入。
+* 使用 `@PostConstruct` 和 `@PreDestroy` 等注解进行生命周期回调方法。
 
-{today-framework-api}/test/util/TestSocketUtils.html[`TestSocketUtils`] is a simple
-utility for finding available TCP ports on `localhost` for use in integration testing
-scenarios.
+{today-framework-api}/test/util/TestSocketUtils.html[`TestSocketUtils`] 是一个简单的工具，用于在 `localhost` 上查找可用的 TCP 端口以用于集成测试场景。
 
 [NOTE]
 ====
-`TestSocketUtils` can be used in integration tests which start an external server on an
-available random port. However, these utilities make no guarantee about the subsequent
-availability of a given port and are therefore unreliable. Instead of using
-`TestSocketUtils` to find an available local port for a server, it is recommended that
-you rely on a server's ability to start on a random ephemeral port that it selects or is
-assigned by the operating system. To interact with that server, you should query the
-server for the port it is currently using.
+`TestSocketUtils` 可用于启动外部服务器的集成测试，使其在随机可用端口上运行。然而，这些工具无法保证给定端口的后续可用性，因此并不可靠。建议不要使用 `TestSocketUtils` 为服务器查找可用本地端口，而是依赖服务器自身在操作系统选择或分配的随机临时端口上启动的能力。要与该服务器交互，你应该查询服务器当前正在使用的端口。
 ====
 
 
 [[unit-testing-mvc]]
-=== Web MVC Testing Utilities
+=== Web MVC 测试工具
 
-The `infra.test.web` package contains
-{today-framework-api}/test/web/ModelAndViewAssert.html[`ModelAndViewAssert`], which you
-can use in combination with JUnit, TestNG, or any other testing framework for unit tests
-that deal with Web MVC `ModelAndView` objects.
+`infra.test.web` 包包含 {today-framework-api}/test/web/ModelAndViewAssert.html[`ModelAndViewAssert`]，你可以将其与 JUnit、TestNG 或任何其他测试框架结合使用，用于处理 Web MVC `ModelAndView` 对象的单元测试。
 
-.Unit testing Web MVC Controllers
-TIP: To unit test your Web MVC `Controller` classes as POJOs, use `ModelAndViewAssert`
-combined with `HttpMockRequestImpl`, `MockHttpSession`, and so on from Infra
-xref:testing/unit.adoc#mock-objects-mockApi[Servlet API mocks]. For thorough integration testing of your
-Web MVC and REST `Controller` classes in conjunction with your `WebApplicationContext`
-configuration for Web MVC, use the
-xref:testing/mvc-test-framework.adoc[Web MVC Test Framework] instead.
+.单元测试 Web MVC 控制器
+TIP: 要将 Web MVC `Controller` 类作为 POJO 进行单元测试，请使用 `ModelAndViewAssert` 结合来自 Infra xref:testing/unit.adoc#mock-objects-mockApi[Servlet API mocks] 的 `HttpMockRequestImpl`、`MockHttpSession` 等。要结合 Web MVC 的 `WebApplicationContext` 配置对 Web MVC 和 REST `Controller` 类进行全面的集成测试，请改用 xref:testing/mvc-test-framework.adoc[Web MVC Test Framework]。

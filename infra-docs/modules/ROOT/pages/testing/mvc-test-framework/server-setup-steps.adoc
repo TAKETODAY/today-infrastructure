@@ -1,14 +1,11 @@
 [[mvc-test-server-setup-steps]]
-= Setup Features
+= 设置特性
 
-No matter which MockMvc builder you use, all `MockMvcBuilder` implementations provide
-some common and very useful features. For example, you can declare an `Accept` header for
-all requests and expect a status of 200 as well as a `Content-Type` header in all
-responses, as follows:
+无论你使用哪种 MockMvc 构建器，所有 `MockMvcBuilder` 实现都提供了一些通用且非常有用的功能。例如，你可以为所有请求声明一个 `Accept` 头，并期望所有响应的状态为 200 以及 `Content-Type` 头，如下所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// static import of MockMvcBuilders.standaloneSetup
+// MockMvcBuilders.standaloneSetup 的静态导入
 
 MockMvc mockMvc = standaloneSetup(new MusicController())
   .defaultRequest(get("/").accept(MediaType.APPLICATION_JSON))
@@ -17,23 +14,17 @@ MockMvc mockMvc = standaloneSetup(new MusicController())
   .build();
 ----
 
-In addition, third-party frameworks (and applications) can pre-package setup
-instructions, such as those in a `MockMvcConfigurer`. The TODAY Framework has one such
-built-in implementation that helps to save and re-use the HTTP session across requests.
-You can use it as follows:
+此外，第三方框架（和应用程序）可以预先打包设置指令，例如 `MockMvcConfigurer` 中的指令。TODAY Framework 有一个这样的内置实现，有助于在请求之间保存和重用 HTTP 会话。你可以按如下方式使用它：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// static import of SharedHttpSessionConfigurer.sharedHttpSession
+	// SharedHttpSessionConfigurer.sharedHttpSession 的静态导入
 
 	MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new TestController())
 			.apply(sharedHttpSession())
 			.build();
 
-	// Use mockMvc to perform requests...
+	// 使用 mockMvc 执行请求...
 ----
 
-See the javadoc for
-{today-framework-api}/test/web/mockApi/setup/ConfigurableMockMvcBuilder.html[`ConfigurableMockMvcBuilder`]
-for a list of all MockMvc builder features or use the IDE to explore the available options.
-
+有关所有 MockMvc 构建器功能的列表，请参阅 {today-framework-api}/test/web/mockApi/setup/ConfigurableMockMvcBuilder.html[`ConfigurableMockMvcBuilder`] 的 javadoc，或使用 IDE 探索可用选项。

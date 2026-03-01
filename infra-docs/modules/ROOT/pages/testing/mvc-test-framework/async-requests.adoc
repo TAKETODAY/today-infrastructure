@@ -1,24 +1,17 @@
 [[mvc-test-async-requests]]
-= Async Requests
+= 异步请求
 
-This section shows how to use MockMvc on its own to test asynchronous request handling.
-If using MockMvc through the xref:testing/webtestclient.adoc[WebTestClient], there is nothing special to do to make
-asynchronous requests work as the `WebTestClient` automatically does what is described
-in this section.
+本节展示了如何单独使用 MockMvc 测试异步请求处理。
+如果通过 xref:testing/webtestclient.adoc[WebTestClient] 使用 MockMvc，则无需执行任何特殊操作即可使异步请求工作，因为 `WebTestClient` 会自动执行本节中描述的操作。
 
-Servlet asynchronous requests, xref:web/webmvc/mvc-ann-async.adoc[supported in Web MVC],
-work by exiting the Servlet container thread and allowing the application to compute
-the response asynchronously, after which an async dispatch is made to complete
-processing on a Servlet container thread.
+Servlet 异步请求（xref:web/webmvc/mvc-ann-async.adoc[在 Web MVC 中受支持]）的工作原理是退出 Servlet 容器线程并允许应用程序异步计算响应，之后进行异步分派以在 Servlet 容器线程上完成处理。
 
-In Web MVC Test, async requests can be tested by asserting the produced async value
-first, then manually performing the async dispatch, and finally verifying the response.
-Below is an example test for controller methods that return `DeferredResult`, `Callable`,
-or reactive type such as Reactor `Mono`:
+在 Web MVC Test 中，可以通过首先断言生成的异步值，然后手动执行异步分派，最后验证响应来测试异步请求。
+下面是一个针对返回 `DeferredResult`、`Callable` 或响应式类型（如 Reactor `Mono`）的控制器方法的示例测试：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// static import of MockMvcRequestBuilders.* and MockMvcResultMatchers.*
+// MockMvcRequestBuilders.* 和 MockMvcResultMatchers.* 的静态导入
 
 @Test
 void test() throws Exception {
@@ -33,11 +26,8 @@ void test() throws Exception {
           .andExpect(content().string("body"));
 }
 ----
-<1> Check response status is still unchanged
-<2> Async processing must have started
-<3> Wait and assert the async result
-<4> Manually perform an ASYNC dispatch (as there is no running container)
-<5> Verify the final response
-
-
-
+<1> 检查响应状态仍然未更改
+<2> 异步处理必须已开始
+<3> 等待并断言异步结果
+<4> 手动执行 ASYNC 分派（因为没有运行容器）
+<5> 验证最终响应

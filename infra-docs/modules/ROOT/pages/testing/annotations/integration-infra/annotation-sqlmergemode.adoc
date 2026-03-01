@@ -1,15 +1,11 @@
 [[infra-testing-annotation-sqlmergemode]]
 = `@SqlMergeMode`
 
-`@SqlMergeMode` is used to annotate a test class or test method to configure whether
-method-level `@Sql` declarations are merged with class-level `@Sql` declarations. If
-`@SqlMergeMode` is not declared on a test class or test method, the `OVERRIDE` merge mode
-will be used by default. With the `OVERRIDE` mode, method-level `@Sql` declarations will
-effectively override class-level `@Sql` declarations.
+`@SqlMergeMode` 用于注解测试类或测试方法，以配置是否将方法级别的 `@Sql` 声明与类级别的 `@Sql` 声明合并。如果未在测试类或测试方法上声明 `@SqlMergeMode`，则默认使用 `OVERRIDE` 合并模式。在 `OVERRIDE` 模式下，方法级别的 `@Sql` 声明将有效覆盖类级别的 `@Sql` 声明。
 
-Note that a method-level `@SqlMergeMode` declaration overrides a class-level declaration.
+请注意，方法级别的 `@SqlMergeMode` 声明会覆盖类级别的声明。
 
-The following example shows how to use `@SqlMergeMode` at the class level.
+以下示例展示了如何在类级别使用 `@SqlMergeMode`。
 
 [tabs]
 ======
@@ -25,14 +21,14 @@ class UserTests {
   @Test
   @Sql("/user-test-data-001.sql")
   void standardUserProfile() {
-    // run code that relies on test data set 001
+    // 运行依赖于测试数据集 001 的代码
   }
 }
 ----
-<1> Set the `@Sql` merge mode to `MERGE` for all test methods in the class.
+<1> 将类中所有测试方法的 `@Sql` 合并模式设置为 `MERGE`。
 ======
 
-The following example shows how to use `@SqlMergeMode` at the method level.
+以下示例展示了如何在方法级别使用 `@SqlMergeMode`。
 
 [tabs]
 ======
@@ -48,12 +44,10 @@ class UserTests {
   @Sql("/user-test-data-001.sql")
   @SqlMergeMode(MERGE) // <1>
   void standardUserProfile() {
-    // run code that relies on test data set 001
+    // 运行依赖于测试数据集 001 的代码
   }
 }
 ----
-<1> Set the `@Sql` merge mode to `MERGE` for a specific test method.
+<1> 将特定测试方法的 `@Sql` 合并模式设置为 `MERGE`。
 
 ======
-
-

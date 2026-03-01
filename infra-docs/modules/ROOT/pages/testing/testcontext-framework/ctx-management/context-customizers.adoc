@@ -1,71 +1,37 @@
 [[testcontext-context-customizers]]
-= Configuration Configuration with Context Customizers
+= 使用上下文自定义器进行上下文配置
 
-A `ContextCustomizer` is responsible for customizing the supplied
-`ConfigurableApplicationContext` after bean definitions have been loaded into the context
-but before the context has been refreshed.
+`ContextCustomizer` 负责在 bean 定义加载到上下文中之后但在上下文刷新之前自定义提供的 `ConfigurableApplicationContext`。
 
-A `ContextCustomizerFactory` is responsible for creating a `ContextCustomizer`, based on
-some custom logic which determines if the `ContextCustomizer` is necessary for a given
-test class -- for example, based on the presence of a certain annotation. Factories are
-invoked after `ContextLoaders` have processed context configuration attributes for a test
-class but before the `MergedContextConfiguration` is created.
+`ContextCustomizerFactory` 负责基于某些自定义逻辑（确定给定测试类是否需要 `ContextCustomizer`——例如，基于某个注解的存在）创建 `ContextCustomizer`。工厂在 `ContextLoaders` 处理完测试类的上下文配置属性之后但在创建 `MergedContextConfiguration` 之前调用。
 
-For example, TODAY Framework provides the following `ContextCustomizerFactory`
-implementation which is registered by default:
+例如，TODAY Framework 提供了以下默认注册的 `ContextCustomizerFactory` 实现：
 
-`MockServerContainerContextCustomizerFactory`:: Creates a
-  `MockServerContainerContextCustomizer` if WebSocket support is present in the classpath
-  and the test class or one of its enclosing classes is annotated or meta-annotated with
-  `@WebAppConfiguration`. `MockServerContainerContextCustomizer` instantiates a new
-  `MockServerContainer` and stores it in the `MockContextImpl` under the attribute named
-  `jakarta.websocket.server.ServerContainer`.
+`MockServerContainerContextCustomizerFactory`:: 如果类路径中存在 WebSocket 支持，并且测试类或其封闭类之一标注或元标注了 `@WebAppConfiguration`，则创建 `MockServerContainerContextCustomizer`。`MockServerContainerContextCustomizer` 实例化一个新的 `MockServerContainer` 并将其存储在 `MockContextImpl` 中，属性名为 `jakarta.websocket.server.ServerContainer`。
 
 
 [[testcontext-context-customizers-registration]]
-== Registering `ContextCustomizerFactory` Implementations
+== 注册 `ContextCustomizerFactory` 实现
 
-You can register `ContextCustomizerFactory` implementations explicitly for a test class, its
-subclasses, and its nested classes by using the `@ContextCustomizerFactories` annotation. See
-xref:testing/annotations/integration-infra/annotation-contextcustomizerfactories.adoc[annotation support]
-and the javadoc for
-{today-framework-api}/test/context/ContextCustomizerFactories.html[`@ContextCustomizerFactories`]
-for details and examples.
+你可以使用 `@ContextCustomizerFactories` 注解显式地为测试类、其子类及其嵌套类注册 `ContextCustomizerFactory` 实现。有关详细信息和示例，请参阅 xref:testing/annotations/integration-infra/annotation-contextcustomizerfactories.adoc[注解支持] 和 {today-framework-api}/test/context/ContextCustomizerFactories.html[`@ContextCustomizerFactories`] 的 javadoc。
 
 
 [[testcontext-context-customizers-automatic-discovery]]
-== Automatic Discovery of Default `ContextCustomizerFactory` Implementations
+== 自动发现默认 `ContextCustomizerFactory` 实现
 
-Registering `ContextCustomizerFactory` implementations by using `@ContextCustomizerFactories` is
-suitable for custom factories that are used in limited testing scenarios. However, it can
-become cumbersome if a custom factory needs to be used across an entire test suite. This
-issue is addressed through support for automatic discovery of default
-`ContextCustomizerFactory` implementations through the `InfraFactoriesLoader` mechanism.
+使用 `@ContextCustomizerFactories` 注册 `ContextCustomizerFactory` 实现适用于在有限测试场景中使用的自定义工厂。但是，如果需要在整个测试套件中使用自定义工厂，这可能会变得很麻烦。这个问题通过支持通过 `InfraFactoriesLoader` 机制自动发现默认 `ContextCustomizerFactory` 实现得到了解决。
 
-For example, the modules that make up the testing support in TODAY Framework and Infra
-Boot declare all core default `ContextCustomizerFactory` implementations under the
-`infra.test.context.ContextCustomizerFactory` key in their
-`META-INF/today.strategies` properties files. The `today.strategies` file for the
-`infra-test` module can be viewed
-{today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[here].
-Third-party frameworks and developers can contribute their own `ContextCustomizerFactory`
-implementations to the list of default factories in the same manner through their own
-`today.strategies` files.
+例如，构成 TODAY Framework 和 Infra Boot 测试支持的模块在 `META-INF/today.strategies` 属性文件的 `infra.test.context.ContextCustomizerFactory` 键下声明了所有核心默认 `ContextCustomizerFactory` 实现。`infra-test` 模块的 `today.strategies` 文件可以在 {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[这里] 查看。第三方框架和开发人员可以通过他们自己的 `today.strategies` 文件以相同的方式将他们自己的 `ContextCustomizerFactory` 实现贡献给默认工厂列表。
 
 
 [[testcontext-context-customizers-merging]]
-== Merging `ContextCustomizerFactory` Implementations
+== 合并 `ContextCustomizerFactory` 实现
 
-If a custom `ContextCustomizerFactory` is registered via `@ContextCustomizerFactories`, it
-will be _merged_ with the default factories that have been registered using the aforementioned
-xref:testing/testcontext-framework/ctx-management/context-customizers.adoc#testcontext-context-customizers-automatic-discovery[automatic discovery mechanism].
+如果通过 `@ContextCustomizerFactories` 注册了自定义 `ContextCustomizerFactory`，它将与已使用上述 xref:testing/testcontext-framework/ctx-management/context-customizers.adoc#testcontext-context-customizers-automatic-discovery[自动发现机制] 注册的默认工厂_合并_。
 
-The merging algorithm ensures that duplicates are removed from the list and that locally
-declared factories are appended to the list of default factories when merged.
+合并算法确保从列表中删除重复项，并且在合并时将本地声明的工厂追加到默认工厂列表中。
 
 [TIP]
 ====
-To replace the default factories for a test class, its subclasses, and its nested
-classes, you can set the `mergeMode` attribute of `@ContextCustomizerFactories` to
-`MergeMode.REPLACE_DEFAULTS`.
+要替换测试类、其子类及其嵌套类的默认工厂，可以将 `@ContextCustomizerFactories` 的 `mergeMode` 属性设置为 `MergeMode.REPLACE_DEFAULTS`。
 ====

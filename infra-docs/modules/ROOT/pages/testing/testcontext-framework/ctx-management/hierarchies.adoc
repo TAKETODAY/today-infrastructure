@@ -1,39 +1,15 @@
 [[testcontext-ctx-management-ctx-hierarchies]]
-= Context Hierarchies
+= 上下文层级结构
 
-When writing integration tests that rely on a loaded Infra `ApplicationContext`, it is
-often sufficient to test against a single context. However, there are times when it is
-beneficial or even necessary to test against a hierarchy of `ApplicationContext`
-instances. For example, if you are developing a Web MVC web application, you typically
-have a root `WebApplicationContext` loaded by Infra `ContextLoaderListener` and a
-child `WebApplicationContext` loaded by Infra `MockDispatcher`. This results in a
-parent-child context hierarchy where shared components and infrastructure configuration
-are declared in the root context and consumed in the child context by web-specific
-components. Another use case can be found in Infra Batch applications, where you often
-have a parent context that provides configuration for shared batch infrastructure and a
-child context for the configuration of a specific batch job.
+在编写依赖于已加载的 Infra `ApplicationContext` 的集成测试时，针对单个上下文进行测试通常就足够了。但是，有时针对 `ApplicationContext` 实例的层级结构进行测试是有益的甚至必要的。例如，如果你正在开发 Web MVC web 应用程序，你通常有一个由 Infra `ContextLoaderListener` 加载的根 `WebApplicationContext` 和一个由 Infra `MockDispatcher` 加载的子 `WebApplicationContext`。这导致了一个父子上下文层级结构，其中共享组件和基础设施配置在根上下文中声明，并在子上下文中由特定于 web 的组件使用。另一个用例可以在 Infra Batch 应用程序中找到，你通常有一个父上下文为共享批处理基础设施提供配置，以及一个子上下文用于特定批处理作业的配置。
 
-You can write integration tests that use context hierarchies by declaring context
-configuration with the `@ContextHierarchy` annotation, either on an individual test class
-or within a test class hierarchy. If a context hierarchy is declared on multiple classes
-within a test class hierarchy, you can also merge or override the context configuration
-for a specific, named level in the context hierarchy. When merging configuration for a
-given level in the hierarchy, the configuration resource type (that is, XML configuration
-files or component classes) must be consistent. Otherwise, it is perfectly acceptable to
-have different levels in a context hierarchy configured using different resource types.
+你可以通过在单个测试类上或测试类层次结构中声明带有 `@ContextHierarchy` 注解的上下文配置来编写使用上下文层级结构的集成测试。如果在测试类层次结构中的多个类上声明了上下文层级结构，你还可以合并或覆盖上下文层级结构中特定命名级别的上下文配置。当合并层级结构中给定级别的配置时，配置资源类型（即 XML 配置文件或组件类）必须一致。否则，完全可以接受在上下文层级结构中使用不同的资源类型配置不同的级别。
 
-The remaining JUnit Jupiter based examples in this section show common configuration
-scenarios for integration tests that require the use of context hierarchies.
+本节中其余基于 JUnit Jupiter 的示例展示了需要使用上下文层级结构的集成测试的常见配置场景。
 
-**Single test class with context hierarchy**
+**具有上下文层级结构的单个测试类**
 --
-`ControllerIntegrationTests` represents a typical integration testing scenario for a
-Web MVC web application by declaring a context hierarchy that consists of two levels,
-one for the root `WebApplicationContext` (loaded by using the `TestAppConfig`
-`@Configuration` class) and one for the dispatcher mockApi `WebApplicationContext`
-(loaded by using the `WebConfig` `@Configuration` class). The `WebApplicationContext`
-that is autowired into the test instance is the one for the child context (that is, the
-lowest context in the hierarchy). The following listing shows this configuration scenario:
+`ControllerIntegrationTests` 代表了 Web MVC web 应用程序的典型集成测试场景，它通过声明一个包含两个级别的上下文层级结构来实现，一级用于根 `WebApplicationContext`（使用 `TestAppConfig` `@Configuration` 类加载），另一级用于 dispatcher mockApi `WebApplicationContext`（使用 `WebConfig` `@Configuration` 类加载）。自动装配到测试实例中的 `WebApplicationContext` 是子上下文（即层级结构中最低的上下文）的上下文。以下清单显示了此配置场景：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -54,20 +30,9 @@ class ControllerIntegrationTests {
 
 --
 
-**Class hierarchy with implicit parent context**
+**具有隐式父上下文的类层次结构**
 --
-The test classes in this example define a context hierarchy within a test class
-hierarchy. `AbstractWebTests` declares the configuration for a root
-`WebApplicationContext` in a Infra-powered web application. Note, however, that
-`AbstractWebTests` does not declare `@ContextHierarchy`. Consequently, subclasses of
-`AbstractWebTests` can optionally participate in a context hierarchy or follow the
-standard semantics for `@ContextConfiguration`. `SoapWebServiceTests` and
-`RestWebServiceTests` both extend `AbstractWebTests` and define a context hierarchy by
-using `@ContextHierarchy`. The result is that three application contexts are loaded (one
-for each declaration of `@ContextConfiguration`), and the application context loaded
-based on the configuration in `AbstractWebTests` is set as the parent context for each of
-the contexts loaded for the concrete subclasses. The following listing shows this
-configuration scenario:
+此示例中的测试类在测试类层次结构中定义了上下文层级结构。`AbstractWebTests` 声明了 Infra 驱动的 web 应用程序中根 `WebApplicationContext` 的配置。但请注意，`AbstractWebTests` 没有声明 `@ContextHierarchy`。因此，`AbstractWebTests` 的子类可以选择参与上下文层级结构或遵循 `@ContextConfiguration` 的标准语义。`SoapWebServiceTests` 和 `RestWebServiceTests` 都扩展了 `AbstractWebTests` 并使用 `@ContextHierarchy` 定义了上下文层级结构。结果是加载了三个应用程序上下文（每个 `@ContextConfiguration` 声明一个），并且基于 `AbstractWebTests` 中的配置加载的应用程序上下文被设置为为具体子类加载的每个上下文的父上下文。以下清单显示了此配置场景：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -85,19 +50,9 @@ configuration scenario:
 
 --
 
-**Class hierarchy with merged context hierarchy configuration**
+**具有合并上下文层级结构配置的类层次结构**
 --
-The classes in this example show the use of named hierarchy levels in order to merge the
-configuration for specific levels in a context hierarchy. `BaseTests` defines two levels
-in the hierarchy, `parent` and `child`. `ExtendedTests` extends `BaseTests` and instructs
-the Infra TestContext Framework to merge the context configuration for the `child`
-hierarchy level, by ensuring that the names declared in the `name` attribute in
-`@ContextConfiguration` are both `child`. The result is that three application contexts
-are loaded: one for `/app-config.xml`, one for `/user-config.xml`, and one for
-`{"/user-config.xml", "/order-config.xml"}`. As with the previous example, the
-application context loaded from `/app-config.xml` is set as the parent context for the
-contexts loaded from `/user-config.xml` and `{"/user-config.xml", "/order-config.xml"}`.
-The following listing shows this configuration scenario:
+此示例中的类展示了使用命名层级结构级别来合并上下文层级结构中特定级别的配置。`BaseTests` 在层级结构中定义了两个级别：`parent` 和 `child`。`ExtendedTests` 扩展了 `BaseTests` 并指示 Infra TestContext 框架合并 `child` 层级结构级别的上下文配置，方法是确保 `@ContextConfiguration` 中的 `name` 属性中声明的名称都是 `child`。结果是加载了三个应用程序上下文：一个用于 `/app-config.xml`，一个用于 `/user-config.xml`，以及一个用于 `{"/user-config.xml", "/order-config.xml"}`。与前面的示例一样，从 `/app-config.xml` 加载的应用程序上下文被设置为从 `/user-config.xml` 和 `{"/user-config.xml", "/order-config.xml"}` 加载的上下文的父上下文。以下清单显示了此配置场景：
 
 [tabs]
 ======
@@ -120,14 +75,9 @@ class ExtendedTests extends BaseTests {}
 ======
 --
 
-**Class hierarchy with overridden context hierarchy configuration**
+**具有覆盖上下文层级结构配置的类层次结构**
 --
-In contrast to the previous example, this example demonstrates how to override the
-configuration for a given named level in a context hierarchy by setting the
-`inheritLocations` flag in `@ContextConfiguration` to `false`. Consequently, the
-application context for `ExtendedTests` is loaded only from `/test-user-config.xml` and
-has its parent set to the context loaded from `/app-config.xml`. The following listing
-shows this configuration scenario:
+与前面的示例相比，此示例演示了如何通过将 `@ContextConfiguration` 中的 `inheritLocations` 标志设置为 `false` 来覆盖上下文层级结构中给定命名级别的配置。因此，`ExtendedTests` 的应用程序上下文仅从 `/test-user-config.xml` 加载，并且其父级设置为从 `/app-config.xml` 加载的上下文。以下清单显示了此配置场景：
 
 [tabs]
 ======
@@ -153,11 +103,6 @@ class ExtendedTests extends BaseTests {}
 
 ======
 
-.Dirtying a context within a context hierarchy
-NOTE: If you use `@DirtiesContext` in a test whose context is configured as part of a
-context hierarchy, you can use the `hierarchyMode` flag to control how the context cache
-is cleared. For further details, see the discussion of `@DirtiesContext` in
-xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[Infra Testing Annotations] and the
-{today-framework-api}/test/annotation/DirtiesContext.html[`@DirtiesContext`] javadoc.
+.在上下文层级结构中弄脏上下文
+NOTE: 如果你在上下文配置为上下文层级结构一部分的测试中使用 `@DirtiesContext`，你可以使用 `hierarchyMode` 标志来控制如何清除上下文缓存。有关更多详细信息，请参阅 xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[Infra 测试注解] 中关于 `@DirtiesContext` 的讨论以及 {today-framework-api}/test/annotation/DirtiesContext.html[`@DirtiesContext`] javadoc。
 --
-

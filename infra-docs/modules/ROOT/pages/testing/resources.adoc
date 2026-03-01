@@ -1,30 +1,16 @@
 [[testing-resources]]
-= Further Resources
-See the following resources for more information about testing:
+= 更多资源
+有关测试的更多信息，请参阅以下资源：
 
-* https://www.junit.org/[JUnit]: "A programmer-friendly testing framework for Java and the JVM".
-  Used by the TODAY Framework in its test suite and supported in the
-  xref:testing/testcontext-framework.adoc[Infra TestContext Framework].
-* https://testng.org/[TestNG]: A testing framework inspired by JUnit with added support
-  for test groups, data-driven testing, distributed testing, and other features. Supported
-  in the xref:testing/testcontext-framework.adoc[Infra TestContext Framework]
-* {assertj-docs}[AssertJ]: "Fluent assertions for Java",
-  including support for Java 8 lambdas, streams, and numerous other features.
-* https://en.wikipedia.org/wiki/Mock_Object[Mock Objects]: Article in Wikipedia.
-* http://www.mockobjects.com/[MockObjects.com]: Web site dedicated to mock objects, a
-  technique for improving the design of code within test-driven development.
-* https://mockito.github.io[Mockito]: Java mock library based on the
-  http://xunitpatterns.com/Test%20Spy.html[Test Spy] pattern. Used by the TODAY Framework
-  in its test suite.
-* https://easymock.org/[EasyMock]: Java library "that provides Mock Objects for
-  interfaces (and objects through the class extension) by generating them on the fly using
-  Java's proxy mechanism."
-* https://jmock.org/[JMock]: Library that supports test-driven development of Java code
-  with mock objects.
-* https://www.dbunit.org/[DbUnit]: JUnit extension (also usable with Ant and Maven) that
-  is targeted at database-driven projects and, among other things, puts your database into
-  a known state between test runs.
-* {testcontainers-site}[Testcontainers]: Java library that supports JUnit
-  tests, providing lightweight, throwaway instances of common databases, Selenium web
-  browsers, or anything else that can run in a Docker container.
-* https://sourceforge.net/projects/grinder/[The Grinder]: Java load testing framework.
+* https://www.junit.org/[JUnit]: "一个对程序员友好的 Java 和 JVM 测试框架"。
+  TODAY Framework 的测试套件使用了它，并且 xref:testing/testcontext-framework.adoc[Infra TestContext Framework] 也支持它。
+* https://testng.org/[TestNG]: 一个受 JUnit 启发但增加了对测试组、数据驱动测试、分布式测试和其他功能支持的测试框架。xref:testing/testcontext-framework.adoc[Infra TestContext Framework] 支持它。
+* {assertj-docs}[AssertJ]: "Java 的流畅断言"，包括对 Java 8 lambda、流和众多其他功能的支持。
+* https://en.wikipedia.org/wiki/Mock_Object[Mock Objects]: 维基百科上的文章。
+* http://www.mockobjects.com/[MockObjects.com]: 专门讨论 mock 对象的网站，这是一种改进测试驱动开发中代码设计的技术。
+* https://mockito.github.io[Mockito]: 基于 http://xunitpatterns.com/Test%20Spy.html[Test Spy] 模式的 Java mock 库。TODAY Framework 的测试套件使用了它。
+* https://easymock.org/[EasyMock]: Java 库，"通过使用 Java 的代理机制动态生成接口（以及通过类扩展生成的对象）的 Mock 对象"。
+* https://jmock.org/[JMock]: 支持使用 mock 对象进行 Java 代码测试驱动开发的库。
+* https://www.dbunit.org/[DbUnit]: JUnit 扩展（也可用于 Ant 和 Maven），针对数据库驱动的项目，除其他功能外，它还能在测试运行之间将数据库置于已知状态。
+* {testcontainers-site}[Testcontainers]: 支持 JUnit 测试的 Java 库，提供常见数据库、Selenium web 浏览器或任何其他可以在 Docker 容器中运行的东西的轻量级、一次性实例。
+* https://sourceforge.net/projects/grinder/[The Grinder]: Java 负载测试框架。

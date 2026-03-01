@@ -1,126 +1,53 @@
 [[testcontext-ctx-management-caching]]
-= Context Caching
+= 上下文缓存
 
-Once the TestContext framework loads an `ApplicationContext` (or `WebApplicationContext`)
-for a test, that context is cached and reused for all subsequent tests that declare the
-same unique context configuration within the same test suite. To understand how caching
-works, it is important to understand what is meant by "`unique`" and "`test suite.`"
+一旦 TestContext 框架为测试加载了 `ApplicationContext`（或 `WebApplicationContext`），该上下文将被缓存并重新用于所有在同一测试套件中声明相同唯一上下文配置的后续测试。要了解缓存的工作原理，重要的是要理解 "`唯一`" 和 "`测试套件`" 的含义。
 
-An `ApplicationContext` can be uniquely identified by the combination of configuration
-parameters that is used to load it. Consequently, the unique combination of configuration
-parameters is used to generate a key under which the context is cached. The TestContext
-framework uses the following configuration parameters to build the context cache key:
+`ApplicationContext` 可以通过用于加载它的配置参数组合来唯一标识。因此，配置参数的唯一组合用于生成缓存上下文的键。TestContext 框架使用以下配置参数来构建上下文缓存键：
 
-* `locations` (from `@ContextConfiguration`)
-* `classes` (from `@ContextConfiguration`)
-* `contextInitializerClasses` (from `@ContextConfiguration`)
-* `contextCustomizers` (from `ContextCustomizerFactory`) – this includes
-  `@DynamicPropertySource` methods as well as various features from Infra App's
-  testing support such as `@MockBean` and `@SpyBean`.
-* `contextLoader` (from `@ContextConfiguration`)
-* `parent` (from `@ContextHierarchy`)
-* `activeProfiles` (from `@ActiveProfiles`)
-* `propertySourceDescriptors` (from `@TestPropertySource`)
-* `propertySourceProperties` (from `@TestPropertySource`)
-* `resourceBasePath` (from `@WebAppConfiguration`)
+* `locations`（来自 `@ContextConfiguration`）
+* `classes`（来自 `@ContextConfiguration`）
+* `contextInitializerClasses`（来自 `@ContextConfiguration`）
+* `contextCustomizers`（来自 `ContextCustomizerFactory`）——这包括 `@DynamicPropertySource` 方法以及来自 Infra App 测试支持的各种功能，如 `@MockBean` 和 `@SpyBean`。
+* `contextLoader`（来自 `@ContextConfiguration`）
+* `parent`（来自 `@ContextHierarchy`）
+* `activeProfiles`（来自 `@ActiveProfiles`）
+* `propertySourceDescriptors`（来自 `@TestPropertySource`）
+* `propertySourceProperties`（来自 `@TestPropertySource`）
+* `resourceBasePath`（来自 `@WebAppConfiguration`）
 
-For example, if `TestClassA` specifies `{"app-config.xml", "test-config.xml"}` for the
-`locations` (or `value`) attribute of `@ContextConfiguration`, the TestContext framework
-loads the corresponding `ApplicationContext` and stores it in a `static` context cache
-under a key that is based solely on those locations. So, if `TestClassB` also defines
-`{"app-config.xml", "test-config.xml"}` for its locations (either explicitly or
-implicitly through inheritance) but does not define `@WebAppConfiguration`, a different
-`ContextLoader`, different active profiles, different context initializers, different
-test property sources, or a different parent context, then the same `ApplicationContext`
-is shared by both test classes. This means that the setup cost for loading an application
-context is incurred only once (per test suite), and subsequent test execution is much
-faster.
+例如，如果 `TestClassA` 为 `@ContextConfiguration` 的 `locations`（或 `value`）属性指定了 `{"app-config.xml", "test-config.xml"}`，TestContext 框架将加载相应的 `ApplicationContext` 并将其存储在 `static` 上下文缓存中，键仅基于这些位置。因此，如果 `TestClassB` 也为其位置定义了 `{"app-config.xml", "test-config.xml"}`（显式定义或通过继承隐式定义），但没有定义 `@WebAppConfiguration`、不同的 `ContextLoader`、不同的活动配置文件、不同的上下文初始化器、不同的测试属性源或不同的父上下文，则两个测试类将共享同一个 `ApplicationContext`。这意味着加载应用程序上下文的设置成本仅产生一次（每个测试套件），随后的测试执行速度要快得多。
 
-.Test suites and forked processes
+.测试套件和分叉进程
 [NOTE]
 ====
-The Infra TestContext framework stores application contexts in a static cache. This
-means that the context is literally stored in a `static` variable. In other words, if
-tests run in separate processes, the static cache is cleared between each test
-execution, which effectively disables the caching mechanism.
+Infra TestContext 框架将应用程序上下文存储在静态缓存中。这意味着上下文实际上存储在 `static` 变量中。换句话说，如果测试在单独的进程中运行，静态缓存将在每次测试执行之间清除，这实际上禁用了缓存机制。
 
-To benefit from the caching mechanism, all tests must run within the same process or test
-suite. This can be achieved by executing all tests as a group within an IDE. Similarly,
-when executing tests with a build framework such as Ant, Maven, or Gradle, it is
-important to make sure that the build framework does not fork between tests. For example,
-if the
-https://maven.apache.org/plugins/maven-surefire-plugin/test-mojo.html#forkMode[`forkMode`]
-for the Maven Surefire plug-in is set to `always` or `pertest`, the TestContext framework
-cannot cache application contexts between test classes, and the build process runs
-significantly more slowly as a result.
+为了从缓存机制中受益，所有测试必须在同一进程或测试套件中运行。这可以通过在 IDE 中将所有测试作为一个组执行来实现。同样，当使用 Ant、Maven 或 Gradle 等构建框架执行测试时，确保构建框架不在测试之间分叉非常重要。例如，如果 Maven Surefire 插件的 https://maven.apache.org/plugins/maven-surefire-plugin/test-mojo.html#forkMode[`forkMode`] 设置为 `always` 或 `pertest`，TestContext 框架无法在测试类之间缓存应用程序上下文，导致构建过程运行速度明显变慢。
 ====
 
-The size of the context cache is bounded with a default maximum size of 32. Whenever the
-maximum size is reached, a least recently used (LRU) eviction policy is used to evict and
-close stale contexts. You can configure the maximum size from the command line or a build
-script by setting a JVM system property named `infra.test.context.cache.maxSize`. As an
-alternative, you can set the same property via the
-xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
+上下文缓存的大小是有限的，默认最大大小为 32。每当达到最大大小时，将使用最近最少使用（LRU）驱逐策略来驱逐并关闭陈旧的上下文。你可以通过设置名为 `infra.test.context.cache.maxSize` 的 JVM 系统属性，从命令行或构建脚本配置最大大小。作为替代方案，你可以通过 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制设置相同的属性。
 
-Since having a large number of application contexts loaded within a given test suite can
-cause the suite to take an unnecessarily long time to run, it is often beneficial to
-know exactly how many contexts have been loaded and cached. To view the statistics for
-the underlying context cache, you can set the log level for the
-`infra.test.context.cache` logging category to `DEBUG`.
+由于在给定的测试套件中加载大量应用程序上下文可能会导致套件运行时间不必要地长，因此确切知道已加载和缓存了多少上下文通常是有益的。要查看底层上下文缓存的统计信息，可以将 `infra.test.context.cache` 日志类别的日志级别设置为 `DEBUG`。
 
-In the unlikely case that a test corrupts the application context and requires reloading
-(for example, by modifying a bean definition or the state of an application object), you
-can annotate your test class or test method with `@DirtiesContext` (see the discussion of
-`@DirtiesContext` in xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[Infra Testing Annotations]
-). This instructs Infra to remove the context from the cache and rebuild
-the application context before running the next test that requires the same application
-context. Note that support for the `@DirtiesContext` annotation is provided by the
-`DirtiesContextBeforeModesTestExecutionListener` and the
-`DirtiesContextTestExecutionListener`, which are enabled by default.
+在极少数情况下，如果测试破坏了应用程序上下文并需要重新加载（例如，通过修改 bean 定义或应用程序对象的状态），你可以使用 `@DirtiesContext` 标注你的测试类或测试方法（请参阅 xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[Infra 测试注解] 中关于 `@DirtiesContext` 的讨论）。这指示 Infra 从缓存中移除上下文，并在运行下一个需要相同应用程序上下文的测试之前重建应用程序上下文。请注意，`@DirtiesContext` 注解的支持由 `DirtiesContextBeforeModesTestExecutionListener` 和 `DirtiesContextTestExecutionListener` 提供，它们默认是启用的。
 
-.ApplicationContext lifecycle and console logging
+.ApplicationContext 生命周期和控制台日志记录
 [NOTE]
 ====
-When you need to debug a test executed with the Infra TestContext Framework, it can be
-useful to analyze the console output (that is, output to the `SYSOUT` and `SYSERR`
-streams). Some build tools and IDEs are able to associate console output with a given
-test; however, some console output cannot be easily associated with a given test.
+当你需要调试使用 Infra TestContext 框架执行的测试时，分析控制台输出（即输出到 `SYSOUT` 和 `SYSERR` 流）可能很有用。一些构建工具和 IDE 能够将控制台输出与给定的测试相关联；然而，一些控制台输出无法轻易地与给定的测试相关联。
 
-With regard to console logging triggered by the TODAY Framework itself or by components
-registered in the `ApplicationContext`, it is important to understand the lifecycle of an
-`ApplicationContext` that has been loaded by the Infra TestContext Framework within a
-test suite.
+关于由 TODAY Framework 本身或在 `ApplicationContext` 中注册的组件触发的控制台日志记录，了解由 Infra TestContext 框架在测试套件中加载的 `ApplicationContext` 的生命周期非常重要。
 
-The `ApplicationContext` for a test is typically loaded when an instance of the test
-class is being prepared -- for example, to perform dependency injection into `@Autowired`
-fields of the test instance. This means that any console logging triggered during the
-initialization of the `ApplicationContext` typically cannot be associated with an
-individual test method. However, if the context is closed immediately before the
-execution of a test method according to xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[`@DirtiesContext`]
-semantics, a new instance of the context will be loaded just prior to execution of the
-test method. In the latter scenario, an IDE or build tool may potentially associate
-console logging with the individual test method.
+测试的 `ApplicationContext` 通常在准备测试类的实例时加载——例如，为了对测试实例的 `@Autowired` 字段执行依赖注入。这意味着在 `ApplicationContext` 初始化期间触发的任何控制台日志记录通常无法与单个测试方法相关联。但是，如果根据 xref:testing/annotations/integration-infra/annotation-dirtiescontext.adoc[`@DirtiesContext`] 语义在测试方法执行之前立即关闭上下文，则将在执行测试方法之前加载上下文的新实例。在后一种情况下，IDE 或构建工具可能会将控制台日志记录与单个测试方法相关联。
 
-The `ApplicationContext` for a test can be closed via one of the following scenarios.
+测试的 `ApplicationContext` 可以通过以下场景之一关闭。
 
-* The context is closed according to `@DirtiesContext` semantics.
-* The context is closed because it has been automatically evicted from the cache
-  according to the LRU eviction policy.
-* The context is closed via a JVM shutdown hook when the JVM for the test suite
-  terminates.
+* 根据 `@DirtiesContext` 语义关闭上下文。
+* 上下文因为根据 LRU 驱逐策略被自动从缓存中驱逐而关闭。
+* 当测试套件的 JVM 终止时，通过 JVM 关闭钩子关闭上下文。
 
-If the context is closed according to `@DirtiesContext` semantics after a particular test
-method, an IDE or build tool may potentially associate console logging with the
-individual test method. If the context is closed according to `@DirtiesContext` semantics
-after a test class, any console logging triggered during the shutdown of the
-`ApplicationContext` cannot be associated with an individual test method. Similarly, any
-console logging triggered during the shutdown phase via a JVM shutdown hook cannot be
-associated with an individual test method.
+如果根据 `@DirtiesContext` 语义在特定测试方法之后关闭上下文，IDE 或构建工具可能会将控制台日志记录与单个测试方法相关联。如果根据 `@DirtiesContext` 语义在测试类之后关闭上下文，则在 `ApplicationContext` 关闭期间触发的任何控制台日志记录都无法与单个测试方法相关联。同样，通过 JVM 关闭钩子在关闭阶段触发的任何控制台日志记录也无法与单个测试方法相关联。
 
-When a Infra `ApplicationContext` is closed via a JVM shutdown hook, callbacks executed
-during the shutdown phase are executed on a thread named `ContextShutdownHook`. So,
-if you wish to disable console logging triggered when the `ApplicationContext` is closed
-via a JVM shutdown hook, you may be able to register a custom filter with your logging
-framework that allows you to ignore any logging initiated by that thread.
+当 Infra `ApplicationContext` 通过 JVM 关闭钩子关闭时，在关闭阶段执行的回调在名为 `ContextShutdownHook` 的线程上执行。因此，如果你希望禁用通过 JVM 关闭钩子关闭 `ApplicationContext` 时触发的控制台日志记录，你可以向日志框架注册一个自定义过滤器，以允许你忽略由该线程发起的任何日志记录。
 ====
-

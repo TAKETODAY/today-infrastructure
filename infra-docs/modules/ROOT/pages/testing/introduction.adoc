@@ -1,9 +1,5 @@
 [[testing-introduction]]
-= Introduction to Infra Testing
+= Infra 测试简介
 :page-section-summary-toc: 1
 
-Testing is an integral part of enterprise software development. This chapter focuses on
-the value added by the IoC principle to xref:testing/unit.adoc[unit testing] and on the benefits
-of the TODAY Framework's support for xref:testing/integration.adoc[integration testing]. (A
-thorough treatment of testing in the enterprise is beyond the scope of this reference
-manual.)
+测试是企业软件开发中不可或缺的一部分。本章重点介绍 IoC 原则为 xref:testing/unit.adoc[单元测试] 带来的价值，以及 TODAY Framework 对 xref:testing/integration.adoc[集成测试] 的支持所带来的好处。（关于企业级测试的全面论述超出了本参考手册的范围。）

@@ -1,50 +1,34 @@
 [[testcontext-ctx-management-initializers]]
-= Context Configuration with Context Initializers
+= 使用上下文初始化器进行上下文配置
 
-To configure an `ApplicationContext` for your tests by using context initializers,
-annotate your test class with `@ContextConfiguration` and configure the `initializers`
-attribute with an array that contains references to classes that implement
-`ApplicationContextInitializer`. The declared context initializers are then used to
-initialize the `ConfigurableApplicationContext` that is loaded for your tests. Note that
-the concrete `ConfigurableApplicationContext` type supported by each declared initializer
-must be compatible with the type of `ApplicationContext` created by the
-`SmartContextLoader` in use (typically a `GenericApplicationContext`). Furthermore, the
-order in which the initializers are invoked depends on whether they implement Infra
-`Ordered` interface or are annotated with Infra `@Order` annotation or the standard
-`@Priority` annotation. The following example shows how to use initializers:
+要使用上下文初始化器为测试配置 `ApplicationContext`，请使用 `@ContextConfiguration` 标注测试类，并使用包含对实现 `ApplicationContextInitializer` 的类的引用的数组配置 `initializers` 属性。然后，声明的上下文初始化器用于初始化为测试加载的 `ConfigurableApplicationContext`。请注意，每个声明的初始化器支持的具体 `ConfigurableApplicationContext` 类型必须与使用的 `SmartContextLoader` 创建的 `ApplicationContext` 类型兼容（通常是 `GenericApplicationContext`）。此外，调用初始化器的顺序取决于它们是否实现了 Infra `Ordered` 接口，或者是否标注了 Infra `@Order` 注解或标准 `@Priority` 注解。以下示例显示了如何使用初始化器：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from TestConfig
-// and initialized by TestAppCtxInitializer
+// ApplicationContext 将从 TestConfig 加载
+// 并由 TestAppCtxInitializer 初始化
 @ContextConfiguration(
   classes = TestConfig.class,
   initializers = TestAppCtxInitializer.class) // <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
 
-<1> Specifying configuration by using a configuration class and an initializer.
+<1> 使用配置类和初始化器指定配置。
 
-You can also omit the declaration of XML configuration files, Groovy scripts, or
-component classes in `@ContextConfiguration` entirely and instead declare only
-`ApplicationContextInitializer` classes, which are then responsible for registering beans
-in the context -- for example, by programmatically loading bean definitions from XML
-files or configuration classes. The following example shows how to do so:
+你还可以完全省略 `@ContextConfiguration` 中 XML 配置文件、Groovy 脚本或组件类的声明，而仅声明 `ApplicationContextInitializer` 类，这些类负责在上下文中注册 bean——例如，通过以编程方式从 XML 文件或配置类加载 bean 定义。以下示例显示了如何执行此操作：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be initialized by EntireAppInitializer
-// which presumably registers beans in the context
+// ApplicationContext 将由 EntireAppInitializer 初始化
+// 该初始化器大概会在上下文中注册 bean
 @ContextConfiguration(initializers = EntireAppInitializer.class) <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
 
-<1> Specifying configuration by using only an initializer.
-
-
+<1> 仅使用初始化器指定配置。

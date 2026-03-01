@@ -1,50 +1,29 @@
 [[testcontext-ctx-management-property-sources]]
-= Context Configuration with Test Property Sources
+= 使用测试属性源进行上下文配置
 
-The TODAY Framework has first-class support for the notion of an environment with a
-hierarchy of property sources, and you can configure integration tests with test-specific
-property sources. In contrast to the `@PropertySource` annotation used on
-`@Configuration` classes, you can declare the `@TestPropertySource` annotation on a test
-class to declare resource locations for test properties files or inlined properties.
-These test property sources are added to the set of `PropertySources` in the
-`Environment` for the `ApplicationContext` loaded for the annotated integration test.
+TODAY Framework 对具有属性源层次结构的环境概念提供了一流的支持，你可以使用特定于测试的属性源配置集成测试。与在 `@Configuration` 类上使用的 `@PropertySource` 注解相比，你可以在测试类上声明 `@TestPropertySource` 注解，以声明测试属性文件的资源位置或内联属性。这些测试属性源被添加到为带注解的集成测试加载的 `ApplicationContext` 的 `Environment` 中的 `PropertySources` 集合中。
 
 [NOTE]
 ====
-You can use `@TestPropertySource` with any implementation of the `SmartContextLoader`
-SPI, but `@TestPropertySource` is not supported with implementations of the older
-`ContextLoader` SPI.
+你将 `@TestPropertySource` 与 `SmartContextLoader` SPI 的任何实现一起使用，但 `@TestPropertySource` 不支持旧的 `ContextLoader` SPI 的实现。
 
-Implementations of `SmartContextLoader` gain access to merged test property source values
-through the `getPropertySourceDescriptors()` and `getPropertySourceProperties()` methods in
-`MergedContextConfiguration`.
+`SmartContextLoader` 的实现通过 `MergedContextConfiguration` 中的 `getPropertySourceDescriptors()` 和 `getPropertySourceProperties()` 方法访问合并的测试属性源值。
 ====
 
 [[declaring-test-property-sources]]
-== Declaring Test Property Sources
+== 声明测试属性源
 
-You can configure test properties files by using the `locations` or `value` attribute of
-`@TestPropertySource`.
+你可以使用 `@TestPropertySource` 的 `locations` 或 `value` 属性来配置测试属性文件。
 
-By default, both traditional and XML-based `java.util.Properties` file formats are
-supported -- for example, `"classpath:/com/example/test.properties"` or
-`"file:///path/to/file.xml"`. As of TODAY Framework 6.1, you can configure a custom
-`PropertySourceFactory` via the `factory` attribute in `@TestPropertySource` in order to
-support a different file format such as JSON, YAML, etc.
+默认情况下，支持传统的和基于 XML 的 `java.util.Properties` 文件格式——例如，`"classpath:/com/example/test.properties"` 或 `"file:///path/to/file.xml"`。自 TODAY Framework 6.1 起，你可以通过 `@TestPropertySource` 中的 `factory` 属性配置自定义 `PropertySourceFactory`，以支持不同的文件格式，如 JSON、YAML 等。
 
-Each path is interpreted as a Infra `Resource`. A plain path (for example,
-`"test.properties"`) is treated as a classpath resource that is relative to the package
-in which the test class is defined. A path starting with a slash is treated as an
-absolute classpath resource (for example: `"/org/example/test.xml"`). A path that
-references a URL (for example, a path prefixed with `classpath:`, `file:`, or `http:`) is
-loaded by using the specified resource protocol.
+每个路径都被解释为 Infra `Resource`。普通路径（例如，`"test.properties"`）被视为相对于定义测试类的包的类路径资源。以斜杠开头的路径被视为绝对类路径资源（例如：`"/org/example/test.xml"`）。引用 URL 的路径（例如，以 `classpath:`、`file:` 或 `http:` 为前缀的路径）使用指定的资源协议加载。
 
-Property placeholders in paths (such as `${...}`) will be resolved against the `Environment`.
+路径中的属性占位符（例如 `${...}`）将针对 `Environment` 进行解析。
 
-As of TODAY Framework 6.1, resource location patterns are also supported — for
-example, `"classpath*:/config/*.properties"`.
+自 TODAY Framework 6.1 起，也支持资源位置模式——例如，`"classpath*:/config/*.properties"`。
 
-The following example uses a test properties file:
+以下示例使用测试属性文件：
 
 [tabs]
 ======
@@ -55,21 +34,17 @@ Java::
 @ContextConfiguration
 @TestPropertySource("/test.properties") // <1>
 class MyIntegrationTests {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Specifying a properties file with an absolute path.
+<1> 指定具有绝对路径的属性文件。
 
 ======
 
 
-You can configure inlined properties in the form of key-value pairs by using the
-`properties` attribute of `@TestPropertySource`, as shown in the next example. All
-key-value pairs are added to the enclosing `Environment` as a single test
-`PropertySource` with the highest precedence.
+你可以使用 `@TestPropertySource` 的 `properties` 属性以键值对的形式配置内联属性，如下一个示例所示。所有键值对作为具有最高优先级的单个测试 `PropertySource` 添加到封闭的 `Environment` 中。
 
-The supported syntax for key-value pairs is the same as the syntax defined for entries in
-a Java properties file:
+键值对支持的语法与 Java 属性文件中条目的语法相同：
 
 * `key=value`
 * `key:value`
@@ -77,19 +52,12 @@ a Java properties file:
 
 [TIP]
 ====
-Although properties can be defined using any of the above syntax variants and any number
-of spaces between the key and the value, it is recommended that you use one syntax
-variant and consistent spacing within your test suite — for example, consider always
-using `key = value` instead of `key= value`, `key=value`, etc. Similarly, if you define
-inlined properties using text blocks you should consistently use text blocks for inlined
-properties throughout your test suite.
+虽然可以使用上述任何语法变体以及键和值之间任意数量的空格来定义属性，但建议你在测试套件中使用一种语法变体和一致的间距——例如，考虑始终使用 `key = value` 而不是 `key= value`、`key=value` 等。同样，如果你使用文本块定义内联属性，则应在整个测试套件中一致地使用文本块作为内联属性。
 
-The reason is that the exact strings you provide will be used to determine the key for
-the context cache. Consequently, to benefit from the context cache you must ensure that
-you define inlined properties consistently.
+原因是，你提供的确切字符串将用于确定上下文缓存的键。因此，为了从上下文缓存中受益，必须确保一致地定义内联属性。
 ====
 
-The following example sets two inlined properties:
+以下示例设置了两个内联属性：
 
 [tabs]
 ======
@@ -100,16 +68,14 @@ Java::
 @ContextConfiguration
 @TestPropertySource(properties = {"timezone = GMT", "port = 4242"}) // <1>
 class MyIntegrationTests {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Setting two properties via an array of strings.
+<1> 通过字符串数组设置两个属性。
 
 ======
 
-As of TODAY Framework 6.1, you can use _text blocks_ to define multiple inlined
-properties in a single `String`. The following example sets two inlined properties using
-a text block:
+自 TODAY Framework 6.1 起，你可以使用_文本块_在单个 `String` 中定义多个内联属性。以下示例使用文本块设置两个内联属性：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -119,59 +85,33 @@ a text block:
   port = 4242
   """) // <1>
 class MyIntegrationTests {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Setting two properties via a text block.
+<1> 通过文本块设置两个属性。
 
 
 [NOTE]
 ====
-As of TODAY Framework 5.2, `@TestPropertySource` can be used as _repeatable annotation_.
-That means that you can have multiple declarations of `@TestPropertySource` on a single
-test class, with the `locations` and `properties` from later `@TestPropertySource`
-annotations overriding those from previous `@TestPropertySource` annotations.
+自 TODAY Framework 5.2 起，`@TestPropertySource` 可以用作_可重复注解_。这意味着你可以在单个测试类上拥有多个 `@TestPropertySource` 声明，后面的 `@TestPropertySource` 注解中的 `locations` 和 `properties` 会覆盖前面的 `@TestPropertySource` 注解中的内容。
 
-In addition, you may declare multiple composed annotations on a test class that are each
-meta-annotated with `@TestPropertySource`, and all of those `@TestPropertySource`
-declarations will contribute to your test property sources.
+此外，你可以在测试类上声明多个组合注解，每个组合注解都元标注了 `@TestPropertySource`，所有这些 `@TestPropertySource` 声明都将贡献给你的测试属性源。
 
-Directly present `@TestPropertySource` annotations always take precedence over
-meta-present `@TestPropertySource` annotations. In other words, `locations` and
-`properties` from a directly present `@TestPropertySource` annotation will override the
-`locations` and `properties` from a `@TestPropertySource` annotation used as a
-meta-annotation.
+直接存在的 `@TestPropertySource` 注解始终优先于元存在的 `@TestPropertySource` 注解。换句话说，直接存在的 `@TestPropertySource` 注解中的 `locations` 和 `properties` 将覆盖作为元注解使用的 `@TestPropertySource` 注解中的 `locations` 和 `properties`。
 ====
 
 
 [[default-properties-file-detection]]
-== Default Properties File Detection
+== 默认属性文件检测
 
-If `@TestPropertySource` is declared as an empty annotation (that is, without explicit
-values for the `locations` or `properties` attributes), an attempt is made to detect a
-default properties file relative to the class that declared the annotation. For example,
-if the annotated test class is `com.example.MyTest`, the corresponding default properties
-file is `classpath:com/example/MyTest.properties`. If the default cannot be detected, an
-`IllegalStateException` is thrown.
+如果 `@TestPropertySource` 被声明为空注解（即没有 `locations` 或 `properties` 属性的显式值），则尝试检测相对于声明注解的类的默认属性文件。例如，如果带注解的测试类是 `com.example.MyTest`，则相应的默认属性文件是 `classpath:com/example/MyTest.properties`。如果无法检测到默认值，则抛出 `IllegalStateException`。
 
 [[precedence]]
-== Precedence
+== 优先级
 
-Test properties have higher precedence than those defined in the operating system's
-environment, Java system properties, or property sources added by the application
-declaratively by using `@PropertySource` or programmatically. Thus, test properties can
-be used to selectively override properties loaded from system and application property
-sources. Furthermore, inlined properties have higher precedence than properties loaded
-from resource locations. Note, however, that properties registered via
-xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[`@DynamicPropertySource`] have
-higher precedence than those loaded via `@TestPropertySource`.
+测试属性的优先级高于在操作系统的环境、Java 系统属性中定义的属性，或应用程序通过使用 `@PropertySource` 或以编程方式添加的属性源。因此，测试属性可用于选择性地覆盖从系统和应用程序属性源加载的属性。此外，内联属性的优先级高于从资源位置加载的属性。但请注意，通过 xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[`@DynamicPropertySource`] 注册的属性优先级高于通过 `@TestPropertySource` 加载的属性。
 
-In the next example, the `timezone` and `port` properties and any properties defined in
-`"/test.properties"` override any properties of the same name that are defined in system
-and application property sources. Furthermore, if the `"/test.properties"` file defines
-entries for the `timezone` and `port` properties those are overridden by the inlined
-properties declared by using the `properties` attribute. The following example shows how
-to specify properties both in a file and inline:
+在下一个示例中，`timezone` 和 `port` 属性以及在 `"/test.properties"` 中定义的任何属性将覆盖在系统和应用程序属性源中定义的任何同名属性。此外，如果 `"/test.properties"` 文件定义了 `timezone` 和 `port` 属性的条目，这些条目将被使用 `properties` 属性声明的内联属性覆盖。以下示例显示了如何同时在文件和内联中指定属性：
 
 [tabs]
 ======
@@ -185,37 +125,21 @@ Java::
   properties = {"timezone = GMT", "port = 4242"}
 )
 class MyIntegrationTests {
-  // class body...
+  // 类主体...
 }
 ----
 ======
 
 [[inheriting-and-overriding-test-property-sources]]
-== Inheriting and Overriding Test Property Sources
+== 继承和覆盖测试属性源
 
-`@TestPropertySource` supports boolean `inheritLocations` and `inheritProperties`
-attributes that denote whether resource locations for properties files and inlined
-properties declared by superclasses should be inherited. The default value for both flags
-is `true`. This means that a test class inherits the locations and inlined properties
-declared by any superclasses. Specifically, the locations and inlined properties for a
-test class are appended to the locations and inlined properties declared by superclasses.
-Thus, subclasses have the option of extending the locations and inlined properties. Note
-that properties that appear later shadow (that is, override) properties of the same name
-that appear earlier. In addition, the aforementioned precedence rules apply for inherited
-test property sources as well.
+`@TestPropertySource` 支持布尔类型的 `inheritLocations` 和 `inheritProperties` 属性，用于表示是否应继承超类声明的属性文件资源位置和内联属性。这两个标志的默认值均为 `true`。这意味着测试类继承任何超类声明的位置和内联属性。具体来说，测试类的位置和内联属性被附加到超类声明的位置和内联属性。因此，子类可以选择扩展位置和内联属性。请注意，后面出现的属性会遮蔽（即覆盖）前面出现的同名属性。此外，上述优先级规则也适用于继承的测试属性源。
 
-If the `inheritLocations` or `inheritProperties` attribute in `@TestPropertySource` is
-set to `false`, the locations or inlined properties, respectively, for the test class
-shadow and effectively replace the configuration defined by superclasses.
+如果 `@TestPropertySource` 中的 `inheritLocations` 或 `inheritProperties` 属性设置为 `false`，则测试类的位置或内联属性将分别遮蔽并有效地替换超类定义的配置。
 
-NOTE: As of TODAY Framework 5.3, test configuration may also be inherited from enclosing
-classes. See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] for details.
+NOTE: 自 TODAY Framework 5.3 起，测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
 
-In the next example, the `ApplicationContext` for `BaseTest` is loaded by using only the
-`base.properties` file as a test property source. In contrast, the `ApplicationContext`
-for `ExtendedTest` is loaded by using the `base.properties` and `extended.properties`
-files as test property source locations. The following example shows how to define
-properties in both a subclass and its superclass by using `properties` files:
+在下一个示例中，`BaseTest` 的 `ApplicationContext` 仅使用 `base.properties` 文件作为测试属性源加载。相比之下，`ExtendedTest` 的 `ApplicationContext` 使用 `base.properties` 和 `extended.properties` 文件作为测试属性源位置加载。以下示例显示了如何使用 `properties` 文件在子类及其超类中定义属性：
 
 [tabs]
 ======
@@ -237,10 +161,7 @@ class ExtendedTest extends BaseTest {
 ----
 ======
 
-In the next example, the `ApplicationContext` for `BaseTest` is loaded by using only the
-inlined `key1` property. In contrast, the `ApplicationContext` for `ExtendedTest` is
-loaded by using the inlined `key1` and `key2` properties. The following example shows how
-to define properties in both a subclass and its superclass by using inline properties:
+在下一个示例中，`BaseTest` 的 `ApplicationContext` 仅使用内联 `key1` 属性加载。相比之下，`ExtendedTest` 的 `ApplicationContext` 使用内联 `key1` 和 `key2` 属性加载。以下示例显示了如何使用内联属性在子类及其超类中定义属性：
 
 [tabs]
 ======
@@ -261,4 +182,3 @@ class ExtendedTest extends BaseTest {
 }
 ----
 ======
-

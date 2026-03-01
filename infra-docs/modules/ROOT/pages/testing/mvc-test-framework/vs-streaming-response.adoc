@@ -1,9 +1,7 @@
 [[mvc-test-vs-streaming-response]]
-= Streaming Responses
+= 流式响应
 
-The best way to test streaming responses such as Server-Sent Events is through the
-<<WebTestClient>> which can be used as a test client to connect to a `MockMvc` instance
-to perform tests on Web MVC controllers without a running server. For example:
+测试流式响应（如 Server-Sent Events）的最佳方法是通过 <<WebTestClient>>，它可以用作测试客户端连接到 `MockMvc` 实例，以在没有运行服务器的情况下对 Web MVC 控制器执行测试。例如：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -16,7 +14,7 @@ FluxExchangeResult<Person> exchangeResult = client.get()
     .expectHeader().contentType("text/event-stream")
     .returnResult(Person.class);
 
-// Use StepVerifier from Project Reactor to test the streaming response
+// 使用 Project Reactor 中的 StepVerifier 测试流式响应
 
 StepVerifier.create(exchangeResult.getResponseBody())
     .expectNext(new Person("N0"), new Person("N1"), new Person("N2"))
@@ -26,8 +24,4 @@ StepVerifier.create(exchangeResult.getResponseBody())
     .verify();
 ----
 
-`WebTestClient` can also connect to a live server and perform full end-to-end integration
-tests. This is also supported in Infra App where you can
-{today-framework-reference}/spring-boot-features.html#boot-features-testing-spring-boot-applications-testing-with-running-server[test a running server].
-
-
+`WebTestClient` 还可以连接到实时服务器并执行完整的端到端集成测试。Infra App 也支持这一点，你可以在其中 {today-framework-reference}/spring-boot-features.html#boot-features-testing-spring-boot-applications-testing-with-running-server[测试运行中的服务器]。

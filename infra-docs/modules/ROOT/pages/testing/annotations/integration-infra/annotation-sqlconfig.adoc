@@ -1,8 +1,7 @@
 [[infra-testing-annotation-sqlconfig]]
 = `@SqlConfig`
 
-`@SqlConfig` defines metadata that is used to determine how to parse and run SQL scripts
-configured with the `@Sql` annotation. The following example shows how to use it:
+`@SqlConfig` 定义了用于确定如何解析和运行使用 `@Sql` 注解配置的 SQL 脚本的元数据。以下示例展示了如何使用它：
 
 [tabs]
 ======
@@ -16,10 +15,9 @@ Java::
   config = @SqlConfig(commentPrefix = "`", separator = "@@") // <1>
 )
 void userTest() {
-  // run code that relies on the test data
+  // 运行依赖于测试数据的代码
 }
 ----
-<1> Set the comment prefix and the separator in SQL scripts.
+<1> 设置 SQL 脚本中的注释前缀和分隔符。
 
 ======
-

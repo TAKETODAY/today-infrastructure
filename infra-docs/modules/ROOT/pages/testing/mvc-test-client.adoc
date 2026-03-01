@@ -1,10 +1,7 @@
 [[mvc-test-client]]
-= Testing Client Applications
+= 测试客户端应用程序
 
-You can use client-side tests to test code that internally uses the `RestTemplate`. The
-idea is to declare expected requests and to provide "`stub`" responses so that you can
-focus on testing the code in isolation (that is, without running a server). The following
-example shows how to do so:
+你可以使用客户端测试来测试内部使用 `RestTemplate` 的代码。其思想是声明预期的请求并提供“存根（stub）”响应，以便你可以专注于隔离测试代码（即无需运行服务器）。以下示例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -17,26 +14,16 @@ RestTemplate restTemplate = new RestTemplate();
 MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 mockServer.expect(requestTo("/greeting")).andRespond(withSuccess());
 
-// Test code that uses the above RestTemplate ...
+// 使用上述 RestTemplate 的测试代码 ...
 
 mockServer.verify();
 ----
 
 ======
 
-In the preceding example, `MockRestServiceServer` (the central class for client-side REST
-tests) configures the `RestTemplate` with a custom `ClientHttpRequestFactory` that
-asserts actual requests against expectations and returns "`stub`" responses. In this
-case, we expect a request to `/greeting` and want to return a 200 response with
-`text/plain` content. We can define additional expected requests and stub responses as
-needed. When we define expected requests and stub responses, the `RestTemplate` can be
-used in client-side code as usual. At the end of testing, `mockServer.verify()` can be
-used to verify that all expectations have been satisfied.
+在前面的示例中，`MockRestServiceServer`（客户端 REST 测试的核心类）使用自定义的 `ClientHttpRequestFactory` 配置 `RestTemplate`，该工厂针对期望断言实际请求并返回“存根”响应。在这种情况下，我们期望对 `/greeting` 的请求，并希望返回带有 `text/plain` 内容的 200 响应。我们可以根据需要定义其他预期的请求和存根响应。当我们定义预期的请求和存根响应时，`RestTemplate` 可以像往常一样在客户端代码中使用。在测试结束时，可以使用 `mockServer.verify()` 来验证是否满足了所有期望。
 
-By default, requests are expected in the order in which expectations were declared. You
-can set the `ignoreExpectOrder` option when building the server, in which case all
-expectations are checked (in order) to find a match for a given request. That means
-requests are allowed to come in any order. The following example uses `ignoreExpectOrder`:
+默认情况下，请求是按声明期望的顺序预期的。你可以在构建服务器时设置 `ignoreExpectOrder` 选项，这种情况下，会检查所有期望（按顺序）以查找给定请求的匹配项。这意味着请求可以以任何顺序到来。以下示例使用了 `ignoreExpectOrder`：
 
 [tabs]
 ======
@@ -49,10 +36,7 @@ Java::
 
 ======
 
-Even with unordered requests by default, each request is allowed to run once only.
-The `expect` method provides an overloaded variant that accepts an `ExpectedCount`
-argument that specifies a count range (for example, `once`, `manyTimes`, `max`, `min`,
-`between`, and so on). The following example uses `times`:
+即使默认情况下请求是无序的，每个请求也只允许运行一次。`expect` 方法提供了一个重载变体，它接受一个 `ExpectedCount` 参数，该参数指定计数范围（例如，`once`、`manyTimes`、`max`、`min`、`between` 等）。以下示例使用了 `times`：
 
 [tabs]
 ======
@@ -72,17 +56,9 @@ Java::
 ----
 ======
 
-Note that, when `ignoreExpectOrder` is not set (the default), and, therefore, requests
-are expected in order of declaration, then that order applies only to the first of any
-expected request. For example if "/something" is expected two times followed by
-"/somewhere" three times, then there should be a request to "/something" before there is
-a request to "/somewhere", but, aside from that subsequent "/something" and "/somewhere",
-requests can come at any time.
+请注意，当未设置 `ignoreExpectOrder`（默认情况）时，因此请求是按声明顺序预期的，那么该顺序仅适用于任何预期请求的第一个。例如，如果期望 "/something" 两次，然后是 "/somewhere" 三次，那么在请求 "/somewhere" 之前应该有一个对 "/something" 的请求，但是，除了随后的 "/something" 和 "/somewhere" 之外，请求可以在任何时间到来。
 
-As an alternative to all of the above, the client-side test support also provides a
-`ClientHttpRequestFactory` implementation that you can configure into a `RestTemplate` to
-bind it to a `MockMvc` instance. That allows processing requests using actual server-side
-logic but without running a server. The following example shows how to do so:
+作为上述所有内容的替代方案，客户端测试支持还提供了一个 `ClientHttpRequestFactory` 实现，你可以将其配置到 `RestTemplate` 中以将其绑定到 `MockMvc` 实例。这允许使用实际的服务器端逻辑处理请求，而无需运行服务器。以下示例展示了如何做到这一点：
 
 [tabs]
 ======
@@ -93,13 +69,11 @@ Java::
 MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 this.restTemplate = new RestTemplate(new MockMvcClientHttpRequestFactory(mockMvc));
 
-// Test code that uses the above RestTemplate ...
+// 使用上述 RestTemplate 的测试代码 ...
 ----
 ======
 
-In some cases it may be necessary to perform an actual call to a remote service instead
-of mocking the response. The following example shows how to do that through
-`ExecutingResponseCreator`:
+在某些情况下，可能需要执行对远程服务的实际调用而不是 mock 响应。以下示例展示了如何通过 `ExecutingResponseCreator` 做到这一点：
 
 [tabs]
 ======
@@ -109,46 +83,34 @@ Java::
 ----
 RestTemplate restTemplate = new RestTemplate();
 
-// Create ExecutingResponseCreator with the original request factory
+// 使用原始请求工厂创建 ExecutingResponseCreator
 ExecutingResponseCreator withActualResponse = new ExecutingResponseCreator(restTemplate.getRequestFactory());
 
 MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 mockServer.expect(requestTo("/profile")).andRespond(withSuccess());
 mockServer.expect(requestTo("/quoteOfTheDay")).andRespond(withActualResponse);
 
-// Test code that uses the above RestTemplate ...
+// 使用上述 RestTemplate 的测试代码 ...
 
 mockServer.verify();
 ----
 
 ======
 
-In the preceding example, we create the `ExecutingResponseCreator` using the
-`ClientHttpRequestFactory` from the `RestTemplate` _before_ `MockRestServiceServer` replaces
-it with a different one that mocks responses.
-Then we define expectations with two kinds of responses:
+在前面的示例中，我们在 `MockRestServiceServer` 用另一个 mock 响应的工厂替换 `RestTemplate` 中的 `ClientHttpRequestFactory` _之前_，使用它创建了 `ExecutingResponseCreator`。
+然后我们定义了两种响应的期望：
 
- * a stub `200` response for the `/profile` endpoint (no actual request will be executed)
- * a response obtained through a call to the `/quoteOfTheDay` endpoint
+ * `/profile` 端点的存根 `200` 响应（不会执行实际请求）
+ * 通过调用 `/quoteOfTheDay` 端点获得的响应
 
-In the second case, the request is executed through the `ClientHttpRequestFactory` that was
-captured earlier. This generates a response that could e.g. come from an actual remote server,
-depending on how the `RestTemplate` was originally configured.
+在第二种情况下，请求是通过之前捕获的 `ClientHttpRequestFactory` 执行的。这会生成一个响应，例如可能来自实际的远程服务器，具体取决于 `RestTemplate` 最初的配置方式。
 
 [[mvc-test-client-static-imports]]
-== Static Imports
+== 静态导入
 
-As with server-side tests, the fluent API for client-side tests requires a few static
-imports. Those are easy to find by searching for `MockRest*`. Eclipse users should add
-`MockRestRequestMatchers.{asterisk}` and `MockRestResponseCreators.{asterisk}` as
-"`favorite static members`" in the Eclipse preferences under Java -> Editor -> Content
-Assist -> Favorites. That allows using content assist after typing the first character of
-the static method name. Other IDEs (such IntelliJ) may not require any additional
-configuration. Check for the support for code completion on static members.
+与服务器端测试一样，客户端测试的流式 API 需要一些静态导入。搜索 `MockRest*` 很容易找到这些导入。Eclipse 用户应将 `MockRestRequestMatchers.{asterisk}` 和 `MockRestResponseCreators.{asterisk}` 添加为 Eclipse 首选项中 Java -> Editor -> Content Assist -> Favorites 下的“`favorite static members`”。这允许在键入静态方法名称的第一个字符后使用内容辅助。其他 IDE（如 IntelliJ）可能不需要任何其他配置。检查对静态成员的代码完成支持。
 
 [[mvc-test-client-resources]]
-== Further Examples of Client-side REST Tests
+== 客户端 REST 测试的更多示例
 
-Web MVC Test's own tests include
-{today-framework-code}/infra-test/src/test/java/infra/test/web/client/samples[example
-tests] of client-side REST tests.
+Web MVC Test 自身的测试包括客户端 REST 测试的 {today-framework-code}/infra-test/src/test/java/infra/test/web/client/samples[示例测试]。

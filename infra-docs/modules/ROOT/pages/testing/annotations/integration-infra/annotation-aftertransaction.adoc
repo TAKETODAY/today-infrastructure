@@ -1,11 +1,7 @@
 [[infra-testing-annotation-aftertransaction]]
 = `@AfterTransaction`
 
-`@AfterTransaction` indicates that the annotated `void` method should be run after a
-transaction is ended, for test methods that have been configured to run within a
-transaction by using Infra `@Transactional` annotation. `@AfterTransaction` methods
-are not required to be `public` and may be declared on Java 8-based interface default
-methods.
+`@AfterTransaction` 表示对于已配置为使用 Infra `@Transactional` 注解在事务中运行的测试方法，被注解的 `void` 方法应在事务结束后运行。`@AfterTransaction` 方法不需要是 `public` 的，并且可以在基于 Java 8 的接口默认方法上声明。
 
 [tabs]
 ======
@@ -15,11 +11,9 @@ Java::
 ----
 @AfterTransaction // <1>
 void afterTransaction() {
-  // logic to be run after a transaction has ended
+  // 在事务结束后运行的逻辑
 }
 ----
-<1> Run this method after a transaction.
+<1> 在事务之后运行此方法。
 
 ======
-
-

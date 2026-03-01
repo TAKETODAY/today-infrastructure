@@ -1,70 +1,51 @@
 [[testcontext-ctx-management-javaconfig]]
-= Context Configuration with Component Classes
+= 使用组件类进行上下文配置
 
-To load an `ApplicationContext` for your tests by using component classes (see
-xref:core/beans/java.adoc[Java-based container configuration]), you can annotate your test
-class with `@ContextConfiguration` and configure the `classes` attribute with an array
-that contains references to component classes. The following example shows how to do so:
+要使用组件类（请参阅 xref:core/beans/java.adoc[基于 Java 的容器配置]）为测试加载 `ApplicationContext`，可以使用 `@ContextConfiguration` 标注测试类，并使用包含对组件类的引用的数组配置 `classes` 属性。以下示例显示了如何执行此操作：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExtendWith(InfraExtension.class)
-// ApplicationContext will be loaded from AppConfig and TestConfig
+// ApplicationContext 将从 AppConfig 和 TestConfig 加载
 @ContextConfiguration(classes = {AppConfig.class, TestConfig.class}) // <1>
 class MyTest {
-  // class body...
+  // 类主体...
 }
 ----
-<1> Specifying component classes.
+<1> 指定组件类。
 
 
 [[testcontext-ctx-management-javaconfig-component-classes]]
-.Component Classes
+.组件类
 [TIP]
 ====
-The term "`component class`" can refer to any of the following:
+术语 "`组件类`" 可以指以下任何一种：
 
-* A class annotated with `@Configuration`.
-* A component (that is, a class annotated with `@Component`, `@Service`, `@Repository`, or other stereotype annotations).
-* A JSR-330 compliant class that is annotated with `jakarta.inject` annotations.
-* Any class that contains `@Bean`-methods.
-* Any other class that is intended to be registered as a Infra component (i.e., a Infra
-  bean in the `ApplicationContext`), potentially taking advantage of automatic autowiring
-  of a single constructor without the use of Infra annotations.
+* 标注了 `@Configuration` 的类。
+* 组件（即标注了 `@Component`、`@Service`、`@Repository` 或其他构造型注解的类）。
+* 标注了 `jakarta.inject` 注解的符合 JSR-330 标准的类。
+* 任何包含 `@Bean` 方法的类。
+* 任何其他旨在注册为 Infra 组件的类（即 `ApplicationContext` 中的 Infra bean），可能利用单个构造函数的自动装配，而不使用 Infra 注解。
 
-See the javadoc of
-{today-framework-api}/context/annotation/Configuration.html[`@Configuration`] and
-{today-framework-api}/context/annotation/Bean.html[`@Bean`] for further information
-regarding the configuration and semantics of component classes, paying special attention
-to the discussion of `@Bean` Lite Mode.
+有关组件类的配置和语义的更多信息，请参阅 {today-framework-api}/context/annotation/Configuration.html[`@Configuration`] 和 {today-framework-api}/context/annotation/Bean.html[`@Bean`] 的 javadoc，特别注意关于 `@Bean` Lite 模式的讨论。
 ====
 
-If you omit the `classes` attribute from the `@ContextConfiguration` annotation, the
-TestContext framework tries to detect the presence of default configuration classes.
-Specifically, `AnnotationConfigContextLoader` and `AnnotationConfigWebContextLoader`
-detect all `static` nested classes of the test class that meet the requirements for
-configuration class implementations, as specified in the
-{today-framework-api}/context/annotation/Configuration.html[`@Configuration`] javadoc.
-Note that the name of the configuration class is arbitrary. In addition, a test class can
-contain more than one `static` nested configuration class if desired. In the following
-example, the `OrderServiceTest` class declares a `static` nested configuration class
-named `Config` that is automatically used to load the `ApplicationContext` for the test
-class:
+如果你从 `@ContextConfiguration` 注解中省略 `classes` 属性，TestContext 框架会尝试检测默认配置类的存在。具体来说，`AnnotationConfigContextLoader` 和 `AnnotationConfigWebContextLoader` 会检测测试类的所有 `static` 嵌套类，这些类满足配置类实现的要求，如 {today-framework-api}/context/annotation/Configuration.html[`@Configuration`] javadoc 中所述。请注意，配置类的名称是任意的。此外，如果需要，测试类可以包含多个 `static` 嵌套配置类。在以下示例中，`OrderServiceTest` 类声明了一个名为 `Config` 的 `static` 嵌套配置类，该类会自动用于加载测试类的 `ApplicationContext`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @JUnitConfig <1>
-// ApplicationContext will be loaded from the static nested Config class
+// ApplicationContext 将从静态嵌套类 Config 加载
 class OrderServiceTest {
 
   @Configuration
   static class Config {
 
-    // this bean will be injected into the OrderServiceTest class
+    // 这个 bean 将被注入到 OrderServiceTest 类中
     @Bean
     OrderService orderService() {
       OrderService orderService = new OrderServiceImpl();
-      // set properties, etc.
+      // 设置属性等
       return orderService;
     }
   }
@@ -74,11 +55,9 @@ class OrderServiceTest {
 
   @Test
   void testOrderService() {
-    // test the orderService
+    // 测试 orderService
   }
 
 }
 ----
-<1> Loading configuration information from the nested `Config` class.
-
-
+<1> 从嵌套的 `Config` 类加载配置信息。

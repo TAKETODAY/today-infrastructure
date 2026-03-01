@@ -30,11 +30,11 @@ Conventions::
 ----
 @ExtendWith(InfraExtension.class)
 
-// defaults to "file:src/main/webapp"
+// 默认为 "file:src/main/webapp"
 @WebAppConfiguration
 
-// detects "WacTests-context.xml" in the same package
-// or static nested @Configuration classes
+// 检测同一包中的 "WacTests-context.xml"
+// 或静态嵌套 @Configuration 类
 @ContextConfiguration
 class WacTests {
   //...
@@ -60,10 +60,10 @@ Default resource semantics::
 ----
 @ExtendWith(InfraExtension.class)
 
-// file system resource
+// 文件系统资源
 @WebAppConfiguration("webapp")
 
-// classpath resource
+// 类路径资源
 @ContextConfiguration("/spring/test-servlet-config.xml")
 class WacTests {
   //...
@@ -85,10 +85,10 @@ Explicit resource semantics::
 ----
 @ExtendWith(InfraExtension.class)
 
-// classpath resource
+// 类路径资源
 @WebAppConfiguration("classpath:test-web-resources")
 
-// file system resource
+// 文件系统资源
 @ContextConfiguration("file:src/main/webapp/WEB-INF/servlet-config.xml")
 class WacTests {
   //...
