@@ -126,8 +126,3 @@ NOTE: 如果您使用 JTA，无论您使用什么数据访问技术，无论是 
 
 在所有 Infra 事务设置中，应用程序代码无需更改。您只需更改配置即可更改事务的管理方式，即使该更改意味着从本地事务转移到全局事务，反之亦然。
 
-
-[[transaction-strategies-hibernate]]
-== Hibernate 事务设置
-
-您也可以轻松使用 Hibernate 本地事务，如以下示例所示。在这种情况下，您需要定义一个 Hibernate `LocalSessionFactoryBean`，您的应用程序代码可以使用它来获取 Hibernate `Session` 实例。

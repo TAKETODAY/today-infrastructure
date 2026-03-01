@@ -1,7 +1,7 @@
 [[transaction-event]]
 = 事务绑定事件
 
-从 Infra 4.2 开始，事件的监听器可以绑定到事务的某个阶段。典型的例子是在事务成功完成后处理事件。这使得当当前事务的结果对监听器实际上很重要时，可以更灵活地使用事件。
+从 Infra 4.0 开始，事件的监听器可以绑定到事务的某个阶段。典型的例子是在事务成功完成后处理事件。这使得当当前事务的结果对监听器实际上很重要时，可以更灵活地使用事件。
 
 您可以使用 `@EventListener` 注解注册常规事件监听器。如果您需要将其绑定到事务，请使用 `@TransactionalEventListener`。当您这样做时，默认情况下，监听器绑定到事务的提交阶段。
 
@@ -31,5 +31,9 @@ Java::
 
 [NOTE]
 ====
-从 6.1 开始，`@TransactionalEventListener` 可以与 `PlatformTransactionManager` 管理的线程绑定事务以及 `ReactiveTransactionManager` 管理的响应式事务一起使用。对于前者，保证监听器可以看到当前线程绑定的事务。由于后者使用 Reactor 上下文而不是线程局部变量，因此事务上下文需要包含在作为事件源发布的事件实例中。有关详细信息，请参阅 {today-framework-api}/transaction/reactive/TransactionalEventPublisher.html[`TransactionalEventPublisher`] javadoc。
+从 5.0 开始，`@TransactionalEventListener` 可以与 `PlatformTransactionManager`
+管理的线程绑定事务以及 `ReactiveTransactionManager` 管理的响应式事务一起使用。
+对于前者，保证监听器可以看到当前线程绑定的事务。由于后者使用 Reactor 上下文而不是线程局部变量，
+因此事务上下文需要包含在作为事件源发布的事件实例中。有关详细信息，
+请参阅 {today-framework-api}/transaction/reactive/TransactionalEventPublisher.html[`TransactionalEventPublisher`] javadoc。
 ====
