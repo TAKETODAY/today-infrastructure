@@ -1,37 +1,25 @@
 [[dynamic-language]]
-= Dynamic Language Support
+= 动态语言支持
 
-Infra provides comprehensive support for using classes and objects that have been
-defined by using a dynamic language (such as Groovy) with Infra. This support lets
-you write any number of classes in a supported dynamic language and have the Infra
-container transparently instantiate, configure, and dependency inject the resulting
-objects.
+Infra 为使用由动态语言（如 Groovy）定义的类和对象提供了全面的支持。
+这种支持使您能够用受支持的动态语言编写任意数量的类，并让 Infra 容器透明地实例化、配置和依赖注入生成的对象。
 
-Infra scripting support primarily targets Groovy and BeanShell. Beyond those
-specifically supported languages, the JSR-223 scripting mechanism is supported
-for integration with any JSR-223 capable language provider (as of Infra 4.2),
-e.g. JRuby.
+Infra 脚本支持主要针对 Groovy 和 BeanShell。除了这些特定支持的语言外，JSR-223 脚本机制也被支持，
+用于与任何支持 JSR-223 的语言提供者集成，例如 JRuby。
 
-You can find fully working examples of where this dynamic language support can be
-immediately useful in xref:languages/dynamic.adoc#dynamic-language-scenarios[Scenarios].
+您可以在 xref:languages/dynamic.adoc#dynamic-language-scenarios[场景] 中找到这种动态语言支持可以立即发挥作用的完整工作示例。
 
 
 
 
 [[dynamic-language-a-first-example]]
-== A First Example
+== 第一个示例
 
-The bulk of this chapter is concerned with describing the dynamic language support in
-detail. Before diving into all of the ins and outs of the dynamic language support,
-we look at a quick example of a bean defined in a dynamic language. The dynamic
-language for this first bean is Groovy. (The basis of this example was taken from the
-Infra test suite. If you want to see equivalent examples in any of the other
-supported languages, take a look at the source code).
+本章的大部分内容都在详细描述动态语言支持。在深入研究动态语言支持的所有细节之前，我们先看一个用动态语言定义的 bean 的快速示例。
+这个第一个 bean 的动态语言是 Groovy。（此示例的基础取自 Infra 测试套件。如果您想查看其他任何受支持语言的等效示例，请查看源代码）。
 
-The next example shows the `Messenger` interface, which the Groovy bean is going to
-implement. Note that this interface is defined in plain Java. Dependent objects that
-are injected with a reference to the `Messenger` do not know that the underlying
-implementation is a Groovy script. The following listing shows the `Messenger` interface:
+下一个示例显示了 `Messenger` 接口，Groovy bean 将实现该接口。请注意，此接口是用纯 Java 定义的。
+被注入了对 `Messenger` 引用的依赖对象并不知道底层实现是一个 Groovy 脚本。以下清单显示了 `Messenger` 接口：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -43,7 +31,7 @@ public interface Messenger {
 }
 ----
 
-The following example defines a class that has a dependency on the `Messenger` interface:
+以下示例定义了一个依赖于 `Messenger` 接口的类：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -58,21 +46,21 @@ public class DefaultBookingService implements BookingService {
   }
 
   public void processBooking() {
-    // use the injected Messenger object...
+    // 使用注入的 Messenger 对象...
   }
 }
 ----
 
-The following example implements the `Messenger` interface in Groovy:
+以下示例用 Groovy 实现了 `Messenger` 接口：
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages",fold="none"]
 ----
 package infra.scripting.groovy
 
-// Import the Messenger interface (written in Java) that is to be implemented
+// 导入要实现的 Messenger 接口（用 Java 编写）
 import infra.scripting.Messenger
 
-// Define the implementation in Groovy in file 'Messenger.groovy'
+// 在文件 'Messenger.groovy' 中用 Groovy 定义实现
 class GroovyMessenger implements Messenger {
 
   String message
@@ -81,20 +69,14 @@ class GroovyMessenger implements Messenger {
 
 [NOTE]
 ====
-To use the custom dynamic language tags to define dynamic-language-backed beans, you
-need to have the XML Schema preamble at the top of your Infra XML configuration file.
-You also need to use a Infra `ApplicationContext` implementation as your IoC
-container. Using the dynamic-language-backed beans with a plain `BeanFactory`
-implementation is supported, but you have to manage the plumbing of the Infra internals
-to do so.
+要使用自定义动态语言标签来定义由动态语言支持的 bean，您需要在 Infra XML 配置文件顶部包含 XML Schema 序言。
+您还需要使用 Infra `ApplicationContext` 实现作为您的 IoC 容器。虽然支持使用纯 `BeanFactory` 实现来使用由动态语言支持的 bean，
+但您必须为此管理 Infra 内部的管道。
 
-For more information on schema-based configuration, see xref:languages/dynamic.adoc#xsd-schemas-lang[XML Schema-based Configuration]
-.
+有关基于 Schema 的配置的更多信息，请参阅 xref:languages/dynamic.adoc#xsd-schemas-lang[基于 XML Schema 的配置]。
 ====
 
-Finally, the following example shows the bean definitions that effect the injection of the
-Groovy-defined `Messenger` implementation into an instance of the
-`DefaultBookingService` class:
+最后，以下示例显示了将 Groovy 定义的 `Messenger` 实现注入到 `DefaultBookingService` 类实例中的 bean 定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -105,12 +87,12 @@ Groovy-defined `Messenger` implementation into an instance of the
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/lang https://www.springframework.org/schema/lang/spring-lang.xsd">
 
-  <!-- this is the bean definition for the Groovy-backed Messenger implementation -->
+  <!-- 这是由 Groovy 支持的 Messenger 实现的 bean 定义 -->
   <lang:groovy id="messenger" script-source="classpath:Messenger.groovy">
     <lang:property name="message" value="I Can Do The Frug" />
   </lang:groovy>
 
-  <!-- an otherwise normal bean that will be injected by the Groovy-backed Messenger -->
+  <!-- 一个将被注入 Groovy 支持的 Messenger 的普通 bean -->
   <bean id="bookingService" class="x.y.DefaultBookingService">
     <property name="messenger" ref="messenger" />
   </bean>
@@ -118,111 +100,79 @@ Groovy-defined `Messenger` implementation into an instance of the
 </beans>
 ----
 
-The `bookingService` bean (a `DefaultBookingService`) can now use its private `messenger`
-member variable as normal, because the `Messenger` instance that was injected into it is
-a `Messenger` instance. There is nothing special going on here -- just plain Java and
-plain Groovy.
+`bookingService` bean（一个 `DefaultBookingService`）现在可以像往常一样使用其私有的 `messenger` 成员变量，
+因为注入其中的 `Messenger` 实例就是一个 `Messenger` 实例。这里没有什么特别的事情发生——只是普通的 Java 和普通的 Groovy。
 
-Hopefully, the preceding XML snippet is self-explanatory, but do not worry unduly if it is not.
-Keep reading for the in-depth detail on the whys and wherefores of the preceding configuration.
+希望前面的 XML 代码片段是不言自明的，但如果不是，也不必过分担心。请继续阅读以深入了解上述配置的来龙去脉。
 
 
 
 
 [[dynamic-language-beans]]
-== Defining Beans that Are Backed by Dynamic Languages
+== 定义由动态语言支持的 Bean
 
-This section describes exactly how you define Infra-managed beans in any of the
-supported dynamic languages.
+本节详细描述如何在任何受支持的动态语言中定义 Infra 管理的 bean。
 
-Note that this chapter does not attempt to explain the syntax and idioms of the supported
-dynamic languages. For example, if you want to use Groovy to write certain of the classes
-in your application, we assume that you already know Groovy. If you need further details
-about the dynamic languages themselves, see xref:languages/dynamic.adoc#dynamic-language-resources[Further Resources] at the end of
-this chapter.
+请注意，本章并不试图解释受支持动态语言的语法和习语。例如，如果您想使用 Groovy 编写应用程序中的某些类，我们假设您已经了解 Groovy。
+如果您需要有关动态语言本身的更多详细信息，请参阅本章末尾的 xref:languages/dynamic.adoc#dynamic-language-resources[更多资源]。
 
 
 
 [[dynamic-language-beans-concepts]]
-=== Common Concepts
+=== 通用概念
 
-The steps involved in using dynamic-language-backed beans are as follows:
+使用由动态语言支持的 bean 的步骤如下：
 
-. Write the test for the dynamic language source code (naturally).
-. Then write the dynamic language source code itself.
-. Define your dynamic-language-backed beans by using the appropriate `<lang:language/>`
-  element in the XML configuration (you can define such beans programmatically by
-  using the Infra API, although you will have to consult the source code for
-  directions on how to do this, as this chapter does not cover this type of advanced configuration).
-  Note that this is an iterative step. You need at least one bean definition for each dynamic
-  language source file (although multiple bean definitions can reference the same source file).
+. 编写动态语言源代码的测试（自然地）。
+. 然后编写动态语言源代码本身。
+. 在 XML 配置中使用适当的 `<lang:language/>` 元素定义由动态语言支持的 bean（虽然您可以使用 Infra API 以编程方式定义此类 bean，
+  但您必须查阅源代码以获取有关如何执行此操作的说明，因为本章不涵盖此类高级配置）。
+  请注意，这是一个迭代步骤。每个动态语言源文件至少需要一个 bean 定义（尽管多个 bean 定义可以引用同一个源文件）。
 
-The first two steps (testing and writing your dynamic language source files) are beyond
-the scope of this chapter. See the language specification and reference manual
-for your chosen dynamic language and crack on with developing your dynamic language
-source files. You first want to read the rest of this chapter, though, as
-Infra dynamic language support does make some (small) assumptions about the contents
-of your dynamic language source files.
+前两个步骤（测试和编写动态语言源文件）超出了本章的范围。请参阅您选择的动态语言的语言规范和参考手册，并着手开发您的动态语言源文件。
+不过，您首先要阅读本章的其余部分，因为 Infra 动态语言支持确实对您的动态语言源文件的内容做了一些（小的）假设。
 
 
 [[dynamic-language-beans-concepts-xml-language-element]]
-==== The <lang:language/> element
+==== <lang:language/> 元素
 
-The final step in the list in the xref:languages/dynamic.adoc#dynamic-language-beans-concepts[preceding section]
-involves defining dynamic-language-backed bean definitions, one for each bean that you
-want to configure (this is no different from normal JavaBean configuration). However,
-instead of specifying the fully qualified class name of the class that is to be
-instantiated and configured by the container, you can use the `<lang:language/>`
-element to define the dynamic language-backed bean.
+xref:languages/dynamic.adoc#dynamic-language-beans-concepts[上一节] 列表中最后一步涉及定义由动态语言支持的 bean 定义，
+为您想要配置的每个 bean 定义一个（这与普通的 JavaBean 配置没有什么不同）。但是，您可以使用 `<lang:language/>` 元素来定义由动态语言支持的 bean，
+而不是指定要由容器实例化和配置的类的完全限定类名。
 
-Each of the supported languages has a corresponding `<lang:language/>` element:
+每种受支持的语言都有一个对应的 `<lang:language/>` 元素：
 
 * `<lang:groovy/>` (Groovy)
 * `<lang:bsh/>` (BeanShell)
-* `<lang:std/>` (JSR-223, e.g. with JRuby)
+* `<lang:std/>` (JSR-223, 例如使用 JRuby)
 
-The exact attributes and child elements that are available for configuration depends on
-exactly which language the bean has been defined in (the language-specific sections
-later in this chapter detail this).
+可用于配置的确切属性和子元素取决于 bean 定义所用的确切语言（本章后面的特定语言部分将对此进行详细说明）。
 
 
 [[dynamic-language-refreshable-beans]]
-==== Refreshable Beans
+==== 可刷新 Bean
 
-One of the (and perhaps the single) most compelling value adds of the dynamic language
-support in Infra is the "`refreshable bean`" feature.
+Infra 中动态语言支持的最引人注目的增值之一（也许是唯一的）是“`可刷新 bean`”功能。
 
-A refreshable bean is a dynamic-language-backed bean. With a small amount of
-configuration, a dynamic-language-backed bean can monitor changes in its underlying
-source file resource and then reload itself when the dynamic language source file is
-changed (for example, when you edit and save changes to the file on the file system).
+可刷新 bean 是一个由动态语言支持的 bean。通过少量的配置，由动态语言支持的 bean 可以监视其底层源文件资源的更改，
+并在动态语言源文件更改时（例如，当您在文件系统上编辑并保存对文件的更改时）重新加载自身。
 
-This lets you deploy any number of dynamic language source files as part of an
-application, configure the Infra container to create beans backed by dynamic
-language source files (using the mechanisms described in this chapter), and (later,
-as requirements change or some other external factor comes into play) edit a dynamic
-language source file and have any change they make be reflected in the bean that is
-backed by the changed dynamic language source file. There is no need to shut down a
-running application (or redeploy in the case of a web application). The
-dynamic-language-backed bean so amended picks up the new state and logic from the
-changed dynamic language source file.
+这使您可以将任意数量的动态语言源文件部署为应用程序的一部分，配置 Infra 容器以创建由动态语言源文件支持的 bean（使用本章描述的机制），
+并且（稍后，随着需求的变化或某些其他外部因素的介入）编辑动态语言源文件，并使其所做的任何更改反映在由更改后的动态语言源文件支持的 bean 中。
+无需关闭正在运行的应用程序（或在 Web 应用程序的情况下重新部署）。经如此修改的由动态语言支持的 bean 会从更改后的动态语言源文件中获取新的状态和逻辑。
 
-NOTE: This feature is off by default.
+NOTE: 此功能默认是关闭的。
 
-Now we can take a look at an example to see how easy it is to start using refreshable
-beans. To turn on the refreshable beans feature, you have to specify exactly one
-additional attribute on the `<lang:language/>` element of your bean definition. So,
-if we stick with xref:languages/dynamic.adoc#dynamic-language-a-first-example[the example] from earlier in
-this chapter, the following example shows what we would change in the Infra XML
-configuration to effect refreshable beans:
+现在我们可以看一个例子，看看开始使用可刷新 bean 是多么容易。要打开可刷新 bean 功能，您必须在 bean 定义的 `<lang:language/>` 元素上指定一个附加属性。
+因此，如果我们坚持使用本章前面的 xref:languages/dynamic.adoc#dynamic-language-a-first-example[示例]，以下示例显示了我们需要在 Infra XML 配置中更改什么以实现可刷新 bean：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
 
-  <!-- this bean is now 'refreshable' due to the presence of the 'refresh-check-delay' attribute -->
+  <!-- 由于存在 'refresh-check-delay' 属性，此 bean 现在是 '可刷新' 的 -->
   <lang:groovy id="messenger"
-      refresh-check-delay="5000" <!-- switches refreshing on with 5 seconds between checks -->
+      refresh-check-delay="5000" <!-- 开启刷新，检查间隔为 5 秒 -->
       script-source="classpath:Messenger.groovy">
     <lang:property name="message" value="I Can Do The Frug" />
   </lang:groovy>
@@ -234,21 +184,13 @@ configuration to effect refreshable beans:
 </beans>
 ----
 
-That really is all you have to do. The `refresh-check-delay` attribute defined on the
-`messenger` bean definition is the number of milliseconds after which the bean is
-refreshed with any changes made to the underlying dynamic language source file.
-You can turn off the refresh behavior by assigning a negative value to the
-`refresh-check-delay` attribute. Remember that, by default, the refresh behavior is
-disabled. If you do not want the refresh behavior, do not define the attribute.
+这真的是您所要做的一切。在 `messenger` bean 定义上定义的 `refresh-check-delay` 属性是 bean 在使用底层动态语言源文件的任何更改进行刷新之前的毫秒数。
+您可以通过为 `refresh-check-delay` 属性分配负值来关闭刷新行为。请记住，默认情况下，刷新行为是禁用的。如果您不需要刷新行为，请不要定义该属性。
 
-If we then run the following application, we can exercise the refreshable feature.
-(Please excuse the "`jumping-through-hoops-to-pause-the-execution`" shenanigans
-in this next slice of code.) The `System.in.read()` call is only there so that the
-execution of the program pauses while you (the developer in this scenario) go off
-and edit the underlying dynamic language source file so that the refresh triggers
-on the dynamic-language-backed bean when the program resumes execution.
+如果我们随后运行以下应用程序，我们可以练习可刷新功能。（请原谅下一个代码片段中的“`跳圈暂停执行`”的把戏。）
+`System.in.read()` 调用仅用于在程序执行暂停时让您（此场景中的开发人员）去编辑底层动态语言源文件，以便在程序恢复执行时触发对由动态语言支持的 bean 的刷新。
 
-The following listing shows this sample application:
+以下清单显示了此示例应用程序：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -262,18 +204,15 @@ public final class Boot {
     ApplicationContext ctx = new ClassPathXmlApplicationContext("beans.xml");
     Messenger messenger = (Messenger) ctx.getBean("messenger");
     System.out.println(messenger.getMessage());
-    // pause execution while I go off and make changes to the source file...
+    // 暂停执行，我去对源文件进行更改...
     System.in.read();
     System.out.println(messenger.getMessage());
   }
 }
 ----
 
-Assume then, for the purposes of this example, that all calls to the `getMessage()`
-method of `Messenger` implementations have to be changed such that the message is
-surrounded by quotation marks. The following listing shows the changes that you
-(the developer) should make to the `Messenger.groovy` source file when the
-execution of the program is paused:
+假设为了这个例子的目的，所有对 `Messenger` 实现的 `getMessage()` 方法的调用都必须更改，以便消息被引号包围。
+以下清单显示了当程序执行暂停时，您（开发人员）应该对 `Messenger.groovy` 源文件进行的更改：
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -284,7 +223,7 @@ class GroovyMessenger implements Messenger {
   private String message = "Bingo"
 
   public String getMessage() {
-    // change the implementation to surround the message in quotes
+    // 更改实现以将消息用引号括起来
     return "'" + this.message + "'"
   }
 
@@ -294,36 +233,21 @@ class GroovyMessenger implements Messenger {
 }
 ----
 
-When the program runs, the output before the input pause will be `I Can Do The Frug`.
-After the change to the source file is made and saved and the program resumes execution,
-the result of calling the `getMessage()` method on the dynamic-language-backed
-`Messenger` implementation is `'I Can Do The Frug'` (notice the inclusion of the
-additional quotation marks).
+当程序运行时，输入暂停前的输出将是 `I Can Do The Frug`。在对源文件进行更改并保存且程序恢复执行后，
+在由动态语言支持的 `Messenger` 实现上调用 `getMessage()` 方法的结果是 `'I Can Do The Frug'`（注意包含了额外的引号）。
 
-Changes to a script do not trigger a refresh if the changes occur within the window of
-the `refresh-check-delay` value. Changes to the script are not actually picked up until
-a method is called on the dynamic-language-backed bean. It is only when a method is
-called on a dynamic-language-backed bean that it checks to see if its underlying script
-source has changed. Any exceptions that relate to refreshing the script (such as
-encountering a compilation error or finding that the script file has been deleted)
-results in a fatal exception being propagated to the calling code.
+如果更改发生在 `refresh-check-delay` 值的窗口内，脚本的更改不会触发刷新。实际上，直到在由动态语言支持的 bean 上调用方法时，脚本的更改才会被提取。
+只有在由动态语言支持的 bean 上调用方法时，它才会检查其底层脚本源是否已更改。任何与刷新脚本相关的异常（例如遇到编译错误或发现脚本文件已被删除）都会导致致命异常传播到调用代码。
 
-The refreshable bean behavior described earlier does not apply to dynamic language
-source files defined with the `<lang:inline-script/>` element notation (see
-xref:languages/dynamic.adoc#dynamic-language-beans-inline[Inline Dynamic Language Source Files]). Additionally, it applies only to beans where
-changes to the underlying source file can actually be detected (for example, by code
-that checks the last modified date of a dynamic language source file that exists on the
-file system).
+前面描述的可刷新 bean 行为不适用于使用 `<lang:inline-script/>` 元素表示法定义的动态语言源文件（请参阅 xref:languages/dynamic.adoc#dynamic-language-beans-inline[内联动态语言源文件]）。
+此外，它仅适用于可以实际检测到底层源文件更改的 bean（例如，通过检查文件系统上存在的动态语言源文件的最后修改日期）。
 
 
 [[dynamic-language-beans-inline]]
-==== Inline Dynamic Language Source Files
+==== 内联动态语言源文件
 
-The dynamic language support can also cater to dynamic language source files that are
-embedded directly in Infra bean definitions. More specifically, the
-`<lang:inline-script/>` element lets you define dynamic language source immediately
-inside a Infra configuration file. An example might clarify how the inline script
-feature works:
+动态语言支持还可以满足直接嵌入在 Infra bean 定义中的动态语言源文件的需求。更具体地说，`<lang:inline-script/>` 元素允许您直接在 Infra 配置文件中定义动态语言源代码。
+一个例子可能会阐明内联脚本功能的工作原理：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -343,37 +267,30 @@ feature works:
 </lang:groovy>
 ----
 
-If we put to one side the issues surrounding whether it is good practice to define
-dynamic language source inside a Infra configuration file, the `<lang:inline-script/>`
-element can be useful in some scenarios. For instance, we might want to quickly add a
-Infra `Validator` implementation to a Web MVC `Controller`. This is but a moment's
-work using inline source. (See xref:languages/dynamic.adoc#dynamic-language-scenarios-validators[Scripted Validators] for such an
-example.)
+如果我们把关于在 Infra 配置文件中定义动态语言源代码是否是好的做法的问题放在一边，`<lang:inline-script/>` 元素在某些场景中可能是有用的。
+例如，我们可能想要快速向 Web MVC `Controller` 添加一个 Infra `Validator` 实现。使用内联源代码这只是片刻的工作。
+（有关此类示例，请参阅 xref:languages/dynamic.adoc#dynamic-language-scenarios-validators[脚本化验证器]。）
 
 
 [[dynamic-language-beans-ctor-injection]]
-==== Understanding Constructor Injection in the Context of Dynamic-language-backed Beans
+==== 理解动态语言支持 Bean 上下文中的构造函数注入
 
-There is one very important thing to be aware of with regard to Infra dynamic
-language support. Namely, you can not (currently) supply constructor arguments
-to dynamic-language-backed beans (and, hence, constructor-injection is not available for
-dynamic-language-backed beans). In the interests of making this special handling of
-constructors and properties 100% clear, the following mixture of code and configuration
-does not work:
+关于 Infra 动态语言支持，有一件非常重要的事情需要注意。即，您（目前）不能为由动态语言支持的 bean 提供构造函数参数（因此，构造函数注入不可用于由动态语言支持的 bean）。
+为了使这种对构造函数和属性的特殊处理 100% 清楚，以下代码和配置的混合是行不通的：
 
-.An approach that cannot work
+.一种行不通的方法
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
 package infra.scripting.groovy
 
 import infra.scripting.Messenger
 
-// from the file 'Messenger.groovy'
+// 来自文件 'Messenger.groovy'
 class GroovyMessenger implements Messenger {
 
   GroovyMessenger() {}
 
-  // this constructor is not available for Constructor Injection
+  // 此构造函数不可用于构造函数注入
   GroovyMessenger(String message) {
     this.message = message;
   }
@@ -388,36 +305,31 @@ class GroovyMessenger implements Messenger {
 ----
 <lang:groovy id="badMessenger"
   script-source="classpath:Messenger.groovy">
-  <!-- this next constructor argument will not be injected into the GroovyMessenger -->
-  <!-- in fact, this isn't even allowed according to the schema -->
+  <!-- 下一个构造函数参数将不会注入到 GroovyMessenger 中 -->
+  <!-- 事实上，根据 schema 这甚至是不允许的 -->
   <constructor-arg value="This will not work" />
 
-  <!-- only property values are injected into the dynamic-language-backed object -->
+  <!-- 只有属性值会被注入到由动态语言支持的对象中 -->
   <lang:property name="anotherMessage" value="Passed straight through to the dynamic-language-backed object" />
 
 </lang>
 ----
 
-In practice this limitation is not as significant as it first appears, since setter
-injection is the injection style favored by the overwhelming majority of developers
-(we leave the discussion as to whether that is a good thing to another day).
+在实践中，这种限制并不像最初看起来那么重要，因为 setter 注入是绝大多数开发人员所青睐的注入风格（我们将关于这是否是一件好事的讨论留待改日）。
 
 
 
 [[dynamic-language-beans-groovy]]
 === Groovy Beans
 
-This section describes how to use beans defined in Groovy in Infra.
+本节描述如何在 Infra 中使用用 Groovy 定义的 bean。
 
-The Groovy homepage includes the following description:
+Groovy 主页包含以下描述：
 
-"`Groovy is an agile dynamic language for the Java 2 Platform that has many of the
-features that people like so much in languages like Python, Ruby and Smalltalk, making
-them available to Java developers using a Java-like syntax.`"
+“`Groovy 是一种用于 Java 2 平台的敏捷动态语言，它具有 Python、Ruby 和 Smalltalk 等语言中人们非常喜欢的许多特性，使其可供使用类似 Java 语法的 Java 开发人员使用。`”
 
-If you have read this chapter straight from the top, you have already
-xref:languages/dynamic.adoc#dynamic-language-a-first-example[seen an example] of a Groovy-dynamic-language-backed
-bean. Now consider another example (again using an example from the Infra test suite):
+如果您从头阅读本章，您已经 xref:languages/dynamic.adoc#dynamic-language-a-first-example[看过一个示例] 的 Groovy 动态语言支持的 bean。
+现在考虑另一个示例（再次使用来自 Infra 测试套件的示例）：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -429,13 +341,13 @@ public interface Calculator {
 }
 ----
 
-The following example implements the `Calculator` interface in Groovy:
+以下示例用 Groovy 实现了 `Calculator` 接口：
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
 package infra.scripting.groovy
 
-// from the file 'calculator.groovy'
+// 来自文件 'calculator.groovy'
 class GroovyCalculator implements Calculator {
 
   int add(int x, int y) {
@@ -444,17 +356,17 @@ class GroovyCalculator implements Calculator {
 }
 ----
 
-The following bean definition uses the calculator defined in Groovy:
+以下 bean 定义使用在 Groovy 中定义的计算器：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- from the file 'beans.xml' -->
+<!-- 来自文件 'beans.xml' -->
 <beans>
   <lang:groovy id="calculator" script-source="classpath:calculator.groovy"/>
 </beans>
 ----
 
-Finally, the following small application exercises the preceding configuration:
+最后，以下小程序练习了前面的配置：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -473,24 +385,17 @@ public class Main {
 }
 ----
 
-The resulting output from running the above program is (unsurprisingly) `10`.
-(For more interesting examples, see the dynamic language showcase project for a more
-complex example or see the examples xref:languages/dynamic.adoc#dynamic-language-scenarios[Scenarios] later in this chapter).
+运行上述程序的结果输出（不出所料）是 `10`。（有关更有趣的示例，请参阅动态语言展示项目以获取更复杂的示例，或者参阅本章后面的 xref:languages/dynamic.adoc#dynamic-language-scenarios[场景] 示例）。
 
-You must not define more than one class per Groovy source file. While this is perfectly
-legal in Groovy, it is (arguably) a bad practice. In the interests of a consistent
-approach, you should (in the opinion of the Infra team) respect the standard Java
-conventions of one (public) class per source file.
+每个 Groovy 源文件不得定义超过一个类。虽然这在 Groovy 中是完全合法的，但（可以说）这是一种不好的做法。为了保持一致的方法，您应该（根据 Infra 团队的意见）遵守每个源文件一个（公共）类的标准 Java 约定。
 
 
 [[dynamic-language-beans-groovy-customizer]]
-==== Customizing Groovy Objects by Using a Callback
+==== 使用回调自定义 Groovy 对象
 
-The `GroovyObjectCustomizer` interface is a callback that lets you hook additional
-creation logic into the process of creating a Groovy-backed bean. For example,
-implementations of this interface could invoke any required initialization methods,
-set some default property values, or specify a custom `MetaClass`. The following listing
-shows the `GroovyObjectCustomizer` interface definition:
+`GroovyObjectCustomizer` 接口是一个回调，允许您将额外的创建逻辑挂钩到创建 Groovy 支持的 bean 的过程中。
+例如，此接口的实现可以调用任何所需的初始化方法，设置一些默认属性值，或指定自定义 `MetaClass`。
+以下清单显示了 `GroovyObjectCustomizer` 接口定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -500,11 +405,8 @@ public interface GroovyObjectCustomizer {
 }
 ----
 
-The Infra Framework instantiates an instance of your Groovy-backed bean and then
-passes the created `GroovyObject` to the specified `GroovyObjectCustomizer` (if one
-has been defined). You can do whatever you like with the supplied `GroovyObject`
-reference. We expect that most people want to set a custom `MetaClass` with this
-callback, and the following example shows how to do so:
+Infra Framework 实例化您的 Groovy 支持的 bean 的实例，然后将创建的 `GroovyObject` 传递给指定的 `GroovyObjectCustomizer`（如果已定义）。
+您可以对提供的 `GroovyObject` 引用做任何您想做的事情。我们预计大多数人希望使用此回调设置自定义 `MetaClass`，以下示例显示了如何这样做：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -525,31 +427,27 @@ public final class SimpleMethodTracingCustomizer implements GroovyObjectCustomiz
 }
 ----
 
-A full discussion of meta-programming in Groovy is beyond the scope of the Infra
-reference manual. See the relevant section of the Groovy reference manual or do a
-search online. Plenty of articles address this topic. Actually, making use of a
-`GroovyObjectCustomizer` is easy if you use the Infra namespace support, as the
-following example shows:
+关于 Groovy 中元编程的全面讨论超出了 Infra 参考手册的范围。请参阅 Groovy 参考手册的相关部分或在线搜索。有很多文章涉及这个主题。
+实际上，如果您使用 Infra 命名空间支持，利用 `GroovyObjectCustomizer` 是很容易的，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<!-- define the GroovyObjectCustomizer just like any other bean -->
+<!-- 像定义任何其他 bean 一样定义 GroovyObjectCustomizer -->
 <bean id="tracingCustomizer" class="example.SimpleMethodTracingCustomizer"/>
 
-  <!-- ... and plug it into the desired Groovy bean via the 'customizer-ref' attribute -->
+  <!-- ... 并通过 'customizer-ref' 属性将其插入所需的 Groovy bean -->
   <lang:groovy id="calculator"
     script-source="classpath:infra/scripting/groovy/Calculator.groovy"
     customizer-ref="tracingCustomizer"/>
 ----
 
-If you do not use the Infra namespace support, you can still use the
-`GroovyObjectCustomizer` functionality, as the following example shows:
+如果您不使用 Infra 命名空间支持，您仍然可以使用 `GroovyObjectCustomizer` 功能，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="calculator" class="infra.scripting.groovy.GroovyScriptFactory">
   <constructor-arg value="classpath:infra/scripting/groovy/Calculator.groovy"/>
-  <!-- define the GroovyObjectCustomizer (as an inner bean) -->
+  <!-- 定义 GroovyObjectCustomizer（作为内部 bean） -->
   <constructor-arg>
     <bean id="tracingCustomizer" class="example.SimpleMethodTracingCustomizer"/>
   </constructor-arg>
@@ -558,42 +456,30 @@ If you do not use the Infra namespace support, you can still use the
 <bean class="infra.scripting.support.ScriptFactoryPostProcessor"/>
 ----
 
-NOTE: You may also specify a Groovy `CompilationCustomizer` (such as an `ImportCustomizer`)
-or even a full Groovy `CompilerConfiguration` object in the same place as Infra
-`GroovyObjectCustomizer`. Furthermore, you may set a common `GroovyClassLoader` with custom
-configuration for your beans at the `ConfigurableApplicationContext.setClassLoader` level;
-this also leads to shared `GroovyClassLoader` usage and is therefore recommendable in case of
-a large number of scripted beans (avoiding an isolated `GroovyClassLoader` instance per bean).
+NOTE: 您还可以在与 Infra `GroovyObjectCustomizer` 相同的位置指定 Groovy `CompilationCustomizer`（例如 `ImportCustomizer`）
+甚至完整的 Groovy `CompilerConfiguration` 对象。此外，您可以在 `ConfigurableApplicationContext.setClassLoader` 级别为您的 bean 设置具有自定义配置的通用 `GroovyClassLoader`；
+这也会导致共享 `GroovyClassLoader` 使用，因此在有大量脚本 bean 的情况下是推荐的（避免每个 bean 一个隔离的 `GroovyClassLoader` 实例）。
 
 
 
 [[dynamic-language-beans-bsh]]
 === BeanShell Beans
 
-This section describes how to use BeanShell beans in Infra.
+本节描述如何在 Infra 中使用 BeanShell bean。
 
-The https://beanshell.github.io/intro.html[BeanShell homepage] includes the following
-description:
+https://beanshell.github.io/intro.html[BeanShell 主页] 包含以下描述：
 
 ----
-BeanShell is a small, free, embeddable Java source interpreter with dynamic language
-features, written in Java. BeanShell dynamically runs standard Java syntax and
-extends it with common scripting conveniences such as loose types, commands, and method
-closures like those in Perl and JavaScript.
+BeanShell 是一个小型、免费、可嵌入的 Java 源代码解释器，具有动态语言特性，用 Java 编写。
+BeanShell 动态运行标准 Java 语法，并使用常见的脚本便利扩展它，如松散类型、命令和像 Perl 和 JavaScript 中的方法闭包。
 ----
 
-In contrast to Groovy, BeanShell-backed bean definitions require some (small) additional
-configuration. The implementation of the BeanShell dynamic language support in Infra is
-interesting, because Infra creates a JDK dynamic proxy that implements all of the
-interfaces that are specified in the `script-interfaces` attribute value of the
-`<lang:bsh>` element (this is why you must supply at least one interface in the value
-of the attribute, and, consequently, program to interfaces when you use BeanShell-backed
-beans). This means that every method call on a BeanShell-backed object goes through the
-JDK dynamic proxy invocation mechanism.
+与 Groovy 相比，BeanShell 支持的 bean 定义需要一些（小的）额外配置。Infra 中 BeanShell 动态语言支持的实现很有趣，
+因为 Infra 创建了一个 JDK 动态代理，该代理实现了 `<lang:bsh>` 元素的 `script-interfaces` 属性值中指定的所有接口
+（这就是为什么您必须在属性值中至少提供一个接口，并且因此在使用 BeanShell 支持的 bean 时面向接口编程）。
+这意味着对 BeanShell 支持的对象的每个方法调用都经过 JDK 动态代理调用机制。
 
-Now we can show a fully working example of using a BeanShell-based bean that implements
-the `Messenger` interface that was defined earlier in this chapter. We again show the
-definition of the `Messenger` interface:
+现在我们可以展示一个使用实现本章前面定义的 `Messenger` 接口的 BeanShell bean 的完整工作示例。我们再次展示 `Messenger` 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -605,8 +491,7 @@ public interface Messenger {
 }
 ----
 
-The following example shows the BeanShell "`implementation`" (we use the term loosely here)
-of the `Messenger` interface:
+以下示例显示了 `Messenger` 接口的 BeanShell “`实现`”（我们在这里宽松地使用这个术语）：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -621,8 +506,7 @@ void setMessage(String aMessage) {
 }
 ----
 
-The following example shows the Infra XML that defines an "`instance`" of the above
-"`class`" (again, we use these terms very loosely here):
+以下示例显示了定义上述“`类`”的“`实例`”的 Infra XML（同样，我们在这里非常宽松地使用这些术语）：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -633,47 +517,32 @@ The following example shows the Infra XML that defines an "`instance`" of the ab
 </lang:bsh>
 ----
 
-See xref:languages/dynamic.adoc#dynamic-language-scenarios[Scenarios] for some scenarios where you might want to use
-BeanShell-based beans.
+有关可能想要使用基于 BeanShell 的 bean 的一些场景，请参阅 xref:languages/dynamic.adoc#dynamic-language-scenarios[场景]。
 
 
 
 
 [[dynamic-language-scenarios]]
-== Scenarios
+== 场景
 
-The possible scenarios where defining Infra managed beans in a scripting language would
-be beneficial are many and varied. This section describes two possible use cases for the
-dynamic language support in Infra.
+在脚本语言中定义 Infra 管理的 bean 可能有益的可能场景多种多样。本节描述了 Infra 中动态语言支持的两个可能的用例。
 
 
 
 [[dynamic-language-scenarios-controllers]]
-=== Scripted Web MVC Controllers
+=== 脚本化 Web MVC 控制器
 
-One group of classes that can benefit from using dynamic-language-backed beans is that
-of Web MVC controllers. In pure Web MVC applications, the navigational flow
-through a web application is, to a large extent, determined by code encapsulated within
-your Web MVC controllers. As the navigational flow and other presentation layer logic
-of a web application needs to be updated to respond to support issues or changing
-business requirements, it may well be easier to effect any such required changes by
-editing one or more dynamic language source files and seeing those changes being
-immediately reflected in the state of a running application.
+一类可以从使用由动态语言支持的 bean 中受益的类是 Web MVC 控制器。在纯 Web MVC 应用程序中，通过 Web 应用程序的导航流在很大程度上由封装在 Web MVC 控制器中的代码决定。
+随着 Web 应用程序的导航流和其他表示层逻辑需要更新以响应支持问题或不断变化的业务需求，通过编辑一个或多个动态语言源文件并看到这些更改立即反映在正在运行的应用程序的状态中，可能会更容易实现任何此类所需的更改。
 
-Remember that, in the lightweight architectural model espoused by projects such as
-Infra, you typically aim to have a really thin presentation layer, with all
-the meaty business logic of an application being contained in the domain and service
-layer classes. Developing Web MVC controllers as dynamic-language-backed beans lets
-you change presentation layer logic by editing and saving text files. Any
-changes to such dynamic language source files is (depending on the configuration)
-automatically reflected in the beans that are backed by dynamic language source files.
+请记住，在 Infra 等项目支持的轻量级架构模型中，您通常旨在拥有一个非常薄的表示层，应用程序的所有实质性业务逻辑都包含在领域和服务层类中。
+将 Web MVC 控制器开发为由动态语言支持的 bean 允许您通过编辑和保存文本文件来更改表示层逻辑。
+对这些动态语言源文件的任何更改（取决于配置）都会自动反映在由动态语言源文件支持的 bean 中。
 
-NOTE: To effect this automatic "`pickup`" of any changes to dynamic-language-backed
-beans, you have to enable the "`refreshable beans`" functionality. See
-xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[Refreshable Beans] for a full treatment of this feature.
+NOTE: 要实现对由动态语言支持的 bean 的任何更改的自动“`提取`”，您必须启用“`可刷新 bean`”功能。
+有关此功能的完整处理，请参阅 xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[可刷新 Bean]。
 
-The following example shows an `infra.web.hanler.mvc.Controller` implemented
-by using the Groovy dynamic language:
+以下示例显示了使用 Groovy 动态语言实现的 `infra.web.hanler.mvc.Controller`：
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -687,7 +556,7 @@ import infra.web.mock.mvc.Controller
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 
-// from the file '/WEB-INF/groovy/FortuneController.groovy'
+// 来自文件 '/WEB-INF/groovy/FortuneController.groovy'
 class FortuneController implements Controller {
 
   @Property FortuneService fortuneService
@@ -711,26 +580,19 @@ class FortuneController implements Controller {
 
 
 [[dynamic-language-scenarios-validators]]
-=== Scripted Validators
+=== 脚本化验证器
 
-Another area of application development with Infra that may benefit from the
-flexibility afforded by dynamic-language-backed beans is that of validation. It can
-be easier to express complex validation logic by using a loosely typed dynamic language
-(that may also have support for inline regular expressions) as opposed to regular Java.
+使用 Infra 进行应用程序开发的另一个可能受益于由动态语言支持的 bean 提供的灵活性的领域是验证。
+使用松散类型的动态语言（可能还支持内联正则表达式）表达复杂的验证逻辑可能比使用常规 Java 更容易。
 
-Again, developing validators as dynamic-language-backed beans lets you change
-validation logic by editing and saving a simple text file. Any such changes is
-(depending on the configuration) automatically reflected in the execution of a
-running application and would not require the restart of an application.
+同样，将验证器开发为由动态语言支持的 bean 允许您通过编辑和保存简单的文本文件来更改验证逻辑。
+任何此类更改（取决于配置）都会自动反映在正在运行的应用程序的执行中，而无需重新启动应用程序。
 
-NOTE: To effect the automatic "`pickup`" of any changes to dynamic-language-backed
-beans, you have to enable the 'refreshable beans' feature. See
-xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[Refreshable Beans] for a full and detailed treatment of this feature.
+NOTE: 要实现对由动态语言支持的 bean 的任何更改的自动“`提取`”，您必须启用“可刷新 bean”功能。
+有关此功能的完整和详细处理，请参阅 xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[可刷新 Bean]。
 
-The following example shows a Infra `infra.validation.Validator`
-implemented by using the Groovy dynamic language (see xref:core/validation/validator.adoc[Validation using Infra’s Validator interface]
- for a discussion of the
-`Validator` interface):
+以下示例显示了使用 Groovy 动态语言实现的 Infra `infra.validation.Validator`（有关 `Validator` 接口的讨论，
+请参阅 xref:core/validation/validator.adoc[使用 Infra 的 Validator 接口进行验证]）：
 
 [source,groovy,indent=0,subs="verbatim,quotes"]
 ----
@@ -757,38 +619,31 @@ class TestBeanValidator implements Validator {
 
 
 [[dynamic-language-final-notes]]
-== Additional Details
+== 其他细节
 
-This last section contains some additional details related to the dynamic language support.
+最后一部分包含一些与动态语言支持相关的其他细节。
 
 
 
 [[dynamic-language-final-notes-aop]]
-=== AOP -- Advising Scripted Beans
+=== AOP -- 通知脚本化 Bean
 
-You can use the Infra AOP framework to advise scripted beans. The Infra AOP
-framework actually is unaware that a bean that is being advised might be a scripted
-bean, so all of the AOP use cases and functionality that you use (or aim to use)
-work with scripted beans. When you advise scripted beans, you cannot use class-based
-proxies. You must use xref:core/aop/proxying.adoc[interface-based proxies].
+您可以使用 Infra AOP 框架来通知脚本化 bean。Infra AOP 框架实际上不知道被通知的 bean 可能是脚本化 bean，
+因此您使用（或旨在以使用）的所有 AOP 用例和功能都适用于脚本化 bean。当您通知脚本化 bean 时，您不能使用基于类的代理。
+您必须使用 xref:core/aop/proxying.adoc[基于接口的代理]。
 
-You are not limited to advising scripted beans. You can also write aspects themselves
-in a supported dynamic language and use such beans to advise other Infra beans.
-This really would be an advanced use of the dynamic language support though.
+您不仅限于通知脚本化 bean。您还可以用受支持的动态语言编写切面本身，并使用这些 bean 来通知其他 Infra bean。
+但这确实是动态语言支持的高级用法。
 
 
 
 [[dynamic-language-final-notes-scopes]]
-=== Scoping
+=== 作用域
 
-In case it is not immediately obvious, scripted beans can be scoped in the same way as
-any other bean. The `scope` attribute on the various `<lang:language/>` elements lets
-you control the scope of the underlying scripted bean, as it does with a regular
-bean. (The default scope is xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[singleton],
-as it is with "`regular`" beans.)
+如果这不明显，脚本化 bean 可以像任何其他 bean 一样确定作用域。各种 `<lang:language/>` 元素上的 `scope` 属性允许您控制底层脚本化 bean 的作用域，
+就像它对常规 bean 所做的那样。（默认作用域是 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-singleton[单例]，就像“`常规`”bean 一样。）
 
-The following example uses the `scope` attribute to define a Groovy bean scoped as
-a xref:core/beans/factory-scopes.adoc#beans-factory-scopes-prototype[prototype]:
+以下示例使用 `scope` 属性将 Groovy bean 定义为 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-prototype[原型] 作用域：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -810,24 +665,18 @@ a xref:core/beans/factory-scopes.adoc#beans-factory-scopes-prototype[prototype]:
 </beans>
 ----
 
-See xref:core/beans/factory-scopes.adoc[Bean Scopes] in xref:web/webmvc-view/mvc-xslt.adoc#mvc-view-xslt-beandefs[The IoC Container]
-for a full discussion of the scoping support in the TODAY Framework.
+有关 TODAY Framework 中作用域支持的完整讨论，请参阅 xref:web/webmvc-view/mvc-xslt.adoc#mvc-view-xslt-beandefs[IoC 容器] 中的 xref:core/beans/factory-scopes.adoc[Bean 作用域]。
 
 
 
 [[xsd-schemas-lang]]
-=== The `lang` XML schema
+=== `lang` XML schema
 
-The `lang` elements in Infra XML configuration deal with exposing objects that have been
-written in a dynamic language (such as Groovy or BeanShell) as beans in the Infra container.
+Infra XML 配置中的 `lang` 元素用于将以动态语言（如 Groovy 或 BeanShell）编写的对象作为 bean 暴露在 Infra 容器中。
 
-These elements (and the dynamic language support) are comprehensively covered in
-xref:languages/dynamic.adoc[Dynamic Language Support]. See that section
-for full details on this support and the `lang` elements.
+这些元素（以及动态语言支持）在 xref:languages/dynamic.adoc[动态语言支持] 中有全面介绍。请参阅该部分以获取有关此支持和 `lang` 元素的完整详细信息。
 
-To use the elements in the `lang` schema, you need to have the following preamble at the
-top of your Infra XML configuration file. The text in the following snippet references
-the correct schema so that the tags in the `lang` namespace are available to you:
+要使用 `lang` schema 中的元素，您需要在 Infra XML 配置文件顶部包含以下序言。以下代码段中的文本引用了正确的 schema，以便 `lang` 命名空间中的标签可供您使用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -848,11 +697,10 @@ the correct schema so that the tags in the `lang` namespace are available to you
 
 
 [[dynamic-language-resources]]
-== Further Resources
+== 更多资源
 
-The following links go to further resources about the various dynamic languages referenced
-in this chapter:
+以下链接指向有关本章中引用的各种动态语言的更多资源：
 
-* The https://www.groovy-lang.org/[Groovy] homepage
-* The https://beanshell.github.io/intro.html[BeanShell] homepage
-* The https://www.jruby.org[JRuby] homepage
+* https://www.groovy-lang.org/[Groovy] 主页
+* https://beanshell.github.io/intro.html[BeanShell] 主页
+* https://www.jruby.org[JRuby] 主页

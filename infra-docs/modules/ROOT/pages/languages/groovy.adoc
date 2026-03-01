@@ -2,13 +2,7 @@
 = Apache Groovy
 :page-section-summary-toc: 1
 
-Groovy is a powerful, optionally typed, and dynamic language, with static-typing and static
-compilation capabilities. It offers a concise syntax and integrates smoothly with any
-existing Java application.
+Groovy 是一种强大的、可选类型的动态语言，具有静态类型和静态编译能力。它提供了简洁的语法，并能与任何现有的 Java 应用程序顺利集成。
 
-The Infra Framework provides a dedicated `ApplicationContext` that supports a Groovy-based
-Bean Definition DSL. For more details, see
-xref:core/beans/basics.adoc#groovy-bean-definition-dsl[The Groovy Bean Definition DSL].
 
-Further support for Groovy, including beans written in Groovy, refreshable script beans,
-and more is available in xref:languages/dynamic.adoc[Dynamic Language Support].
+有关 Groovy 的更多支持，包括用 Groovy 编写的 bean、可刷新的脚本 bean 等，请参阅 xref:languages/dynamic.adoc[动态语言支持]。
