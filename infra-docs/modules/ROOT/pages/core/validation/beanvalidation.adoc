@@ -1,16 +1,20 @@
 [[validation-beanvalidation]]
 = Java Bean Validation
 
-TODAY Framework 提供了对 {bean-validation-site}[Java Bean Validation] API 的支持。
+The TODAY Framework provides support for the
+{bean-validation-site}[Java Bean Validation] API.
 
 
 
 [[validation-beanvalidation-overview]]
-== Bean Validation 概述
+== Overview of Bean Validation
 
-Bean Validation 通过约束声明和 Java 应用程序的元数据提供了一种通用的验证方式。要使用它，您可以使用声明性验证约束对领域模型属性进行注解，然后由运行时强制执行这些约束。除了内置约束外，您还可以定义自己的自定义约束。
+Bean Validation provides a common way of validation through constraint declaration and
+metadata for Java applications. To use it, you annotate domain model properties with
+declarative validation constraints which are then enforced by the runtime. There are
+built-in constraints, and you can also define your own custom constraints.
 
-考虑以下示例，它显示了一个具有两个属性的简单 `PersonForm` 模型：
+Consider the following example, which shows a simple `PersonForm` model with two properties:
 
 [tabs]
 ======
@@ -26,7 +30,7 @@ public class PersonForm {
 
 ======
 
-Bean Validation 允许您声明如下示例所示的约束：
+Bean Validation lets you declare constraints as the following example shows:
 
 [tabs]
 ======
@@ -47,16 +51,24 @@ public class PersonForm {
 
 ======
 
-然后，Bean Validation 验证器会根据声明的约束验证此类的实例。有关 API 的一般信息，请参阅 {bean-validation-site}[Bean Validation]。有关特定约束，请参阅 https://hibernate.org/validator/[Hibernate Validator] 文档。要了解如何将 Bean Validation 提供程序设置为 Infra bean，请继续阅读。
+A Bean Validation validator then validates instances of this class based on the declared
+constraints. See {bean-validation-site}[Bean Validation] for general information about
+the API. See the https://hibernate.org/validator/[Hibernate Validator] documentation for
+specific constraints. To learn how to set up a bean validation provider as a Infra
+bean, keep reading.
 
 
 
 [[validation-beanvalidation-spring]]
-== 配置 Bean Validation 提供程序
+== Configuring a Bean Validation Provider
 
-Infra 提供了对 Bean Validation API 的全面支持，包括将 Bean Validation 提供程序引导为 Infra bean。这使您可以在应用程序中需要验证的任何地方注入 `jakarta.validation.ValidatorFactory` 或 `jakarta.validation.Validator`。
+Infra provides full support for the Bean Validation API including the bootstrapping of a
+Bean Validation provider as a Infra bean. This lets you inject a
+`jakarta.validation.ValidatorFactory` or `jakarta.validation.Validator` wherever validation
+is needed in your application.
 
-您可以使用 `LocalValidatorFactoryBean` 将默认验证器配置为 Infra bean，如下例所示：
+You can use the `LocalValidatorFactoryBean` to configure a default Validator as a Infra
+bean, as the following example shows:
 
 [tabs]
 ======
@@ -84,13 +96,18 @@ XML::
 ----
 ======
 
-上例中的基本配置会触发 Bean Validation 使用其默认引导机制进行初始化。Bean Validation 提供程序（如 Hibernate Validator）应存在于类路径中，并将被自动检测到。
+The basic configuration in the preceding example triggers bean validation to initialize by
+using its default bootstrap mechanism. A Bean Validation provider, such as the Hibernate
+Validator, is expected to be present in the classpath and is automatically detected.
 
 
 [[validation-beanvalidation-infra-inject]]
-=== 注入 Jakarta Validator
+=== Inject Jakarta Validator
 
-`LocalValidatorFactoryBean` 实现了 `jakarta.validation.ValidatorFactory` 和 `jakarta.validation.Validator`，因此如果您更喜欢直接使用 Bean Validation API，可以注入后者的引用以应用验证逻辑，如下例所示：
+`LocalValidatorFactoryBean` implements both `jakarta.validation.ValidatorFactory` and
+`jakarta.validation.Validator`, so you can inject a reference to the latter to
+apply validation logic if you prefer to work with the Bean Validation API directly,
+as the following example shows:
 
 [tabs]
 ======
@@ -112,11 +129,13 @@ public class MyService {
 
 
 [[validation-beanvalidation-infra-inject-adapter]]
-=== 注入 Infra Validator
+=== Inject Infra Validator
 
-除了实现 `jakarta.validation.Validator` 之外，`LocalValidatorFactoryBean` 还适配了 `infra.validation.Validator`，因此如果您的 bean 需要 Infra Validation API，可以注入后者的引用。
+In addition to implementing `jakarta.validation.Validator`, `LocalValidatorFactoryBean`
+also adapts to `infra.validation.Validator`, so you can inject a reference
+to the latter if your bean requires the Infra Validation API.
 
-例如：
+For example:
 
 [tabs]
 ======
@@ -136,23 +155,33 @@ public class MyService {
 
 ======
 
-当用作 `infra.validation.Validator` 时，`LocalValidatorFactoryBean` 会调用底层的 `jakarta.validation.Validator`，然后将 ``ContraintViolation`` 适配为 ``FieldError``，并将其注册到传递给 `validate` 方法的 `Errors` 对象中。
+When used as `infra.validation.Validator`, `LocalValidatorFactoryBean`
+invokes the underlying `jakarta.validation.Validator`, and then adapts
+``ContraintViolation``s to ``FieldError``s, and registers them with the `Errors` object
+passed into the `validate` method.
 
 
 
 [[validation-beanvalidation-infra-constraints]]
-=== 配置自定义约束
+=== Configure Custom Constraints
 
-每个 Bean Validation 约束由两部分组成：
+Each bean validation constraint consists of two parts:
 
-* 一个 `@Constraint` 注解，声明约束及其可配置属性。
-* 一个 `jakarta.validation.ConstraintValidator` 接口的实现，实现约束的行为。
+* A `@Constraint` annotation that declares the constraint and its configurable properties.
+* An implementation of the `jakarta.validation.ConstraintValidator` interface that implements
+the constraint's behavior.
 
-要将声明与实现关联起来，每个 `@Constraint` 注解都引用一个相应的 `ConstraintValidator` 实现类。在运行时，当在您的领域模型中遇到约束注解时，`ConstraintValidatorFactory` 会实例化引用的实现。
+To associate a declaration with an implementation, each `@Constraint` annotation
+references a corresponding `ConstraintValidator` implementation class. At runtime, a
+`ConstraintValidatorFactory` instantiates the referenced implementation when the
+constraint annotation is encountered in your domain model.
 
-默认情况下，`LocalValidatorFactoryBean` 配置了一个 `InfraConstraintValidatorFactory`，它使用 Infra 来创建 `ConstraintValidator` 实例。这使您的自定义 `ConstraintValidator` 可以像任何其他 Infra bean 一样受益于依赖注入。
+By default, the `LocalValidatorFactoryBean` configures a `InfraConstraintValidatorFactory`
+that uses Infra to create `ConstraintValidator` instances. This lets your custom
+`ConstraintValidators` benefit from dependency injection like any other Infra bean.
 
-以下示例显示了一个自定义 `@Constraint` 声明，后跟一个使用 Infra 进行依赖注入的关联 `ConstraintValidator` 实现：
+The following example shows a custom `@Constraint` declaration followed by an associated
+`ConstraintValidator` implementation that uses Infra for dependency injection:
 
 [tabs]
 ======
@@ -168,3 +197,249 @@ public @interface MyConstraint {
 ----
 
 ======
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+import jakarta.validation.ConstraintValidator;
+
+public class MyConstraintValidator implements ConstraintValidator {
+
+  @Autowired;
+  private Foo aDependency;
+
+  // ...
+}
+----
+======
+
+
+As the preceding example shows, a `ConstraintValidator` implementation can have its dependencies
+`@Autowired` as any other Infra bean.
+
+
+[[validation-beanvalidation-infra-method]]
+== Infra-driven Method Validation
+
+You can integrate the method validation feature of Bean Validation into a
+Infra context through a `MethodValidationPostProcessor` bean definition:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+import infra.validation.beanvalidation.MethodValidationPostProcessor;
+
+@Configuration
+public class AppConfig {
+
+  @Bean
+  public MethodValidationPostProcessor validationPostProcessor() {
+    return new MethodValidationPostProcessor();
+  }
+}
+
+----
+
+XML::
++
+[source,xml,indent=0,subs="verbatim,quotes",role="secondary"]
+----
+<bean class="infra.validation.beanvalidation.MethodValidationPostProcessor"/>
+----
+======
+
+To be eligible for Infra-driven method validation, target classes need to be annotated
+with Infra `@Validated` annotation, which can optionally also declare the validation
+groups to use. See
+{today-framework-api}/validation/beanvalidation/MethodValidationPostProcessor.html[`MethodValidationPostProcessor`]
+for setup details with the Hibernate Validator and Bean Validation providers.
+
+[TIP]
+====
+Method validation relies on xref:core/aop/introduction-proxies.adoc[AOP Proxies] around the
+target classes, either JDK dynamic proxies for methods on interfaces or CGLIB proxies.
+There are certain limitations with the use of proxies, some of which are described in
+xref:core/aop/proxying.adoc#aop-understanding-aop-proxies[Understanding AOP Proxies]. In addition remember
+to always use methods and accessors on proxied classes; direct field access will not work.
+====
+
+Web MVC and WebFlux have built-in support for the same underlying method validation but without
+the need for AOP. Therefore, do check the rest of this section, and also see the Web MVC
+xref:web/webmvc/mvc-controller/ann-validation.adoc[Validation] and
+xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses] sections.
+
+
+[[validation-beanvalidation-infra-method-exceptions]]
+=== Method Validation Exceptions
+
+By default, `jakarta.validation.ConstraintViolationException` is raised with the set of
+``ConstraintViolation``s returned by `jakarata.validation.Validator`. As an alternative,
+you can have `MethodValidationException` raised instead with ``ConstraintViolation``s
+adapted to `MessageSourceResolvable` errors. To enable set the following flag:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+import infra.validation.beanvalidation.MethodValidationPostProcessor;
+
+@Configuration
+public class AppConfig {
+
+  @Bean
+  public MethodValidationPostProcessor validationPostProcessor() {
+    MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
+    processor.setAdaptConstraintViolations(true);
+    return processor;
+  }
+}
+
+----
+
+XML::
++
+[source,xml,indent=0,subs="verbatim,quotes",role="secondary"]
+----
+<bean class="infra.validation.beanvalidation.MethodValidationPostProcessor">
+  <property name="adaptConstraintViolations" value="true"/>
+</bean>
+----
+======
+
+`MethodValidationException` contains a list of ``ParameterValidationResult``s which
+group errors by method parameter, and each exposes a `MethodParameter`, the argument
+value, and a list of `MessageSourceResolvable` errors adapted from
+``ConstraintViolation``s. For `@Valid` method parameters with cascaded violations on
+fields and properties, the `ParameterValidationResult` is `ParameterErrors` which
+implements `infra.validation.Errors` and exposes validation errors as
+``FieldError``s.
+
+
+[[validation-beanvalidation-infra-method-i18n]]
+=== Customizing Validation Errors
+
+The adapted `MessageSourceResolvable` errors can be turned into error messages to
+display to users through the configured `MessageSource` with locale and language specific
+resource bundles. This section provides an example for illustration.
+
+Given the following class declarations:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+record Person(@Size(min = 1, max = 10) String name) {
+}
+
+@Validated
+public class MyService {
+
+  void addStudent(@Valid Person person, @Max(2) int degrees) {
+    // ...
+  }
+}
+----
+
+======
+
+A `ConstraintViolation` on `Person.name()` is adapted to a `FieldError` with the following:
+
+- Error codes `"Size.student.name"`, `"Size.name"`, `"Size.java.lang.String"`, and `"Size"`
+- Message arguments `"name"`, `10`, and `1` (the field name and the constraint attributes)
+- Default message "size must be between 1 and 10"
+
+To customize the default message, you can add properties to
+xref:core/beans/context-introduction.adoc#context-functionality-messagesource[MessageSource]
+resource bundles using any of the above errors codes and message arguments. Note also that the
+message argument `"name"` is itself a `MessagreSourceResolvable` with error codes
+`"student.name"` and `"name"` and can customized too. For example:
+
+Properties::
++
+[source,properties,indent=0,subs="verbatim,quotes",role="secondary"]
+----
+Size.student.name=Please, provide a {0} that is between {2} and {1} characters long
+student.name=username
+----
+
+A `ConstraintViolation` on the `degrees` method parameter is adapted to a
+`MessageSourceResolvable` with the following:
+
+- Error codes `"Max.myService#addStudent.degrees"`, `"Max.degrees"`, `"Max.int"`, `"Max"`
+- Message arguments "degrees2 and 2 (the field name and the constraint attribute)
+- Default message "must be less than or equal to 2"
+
+To customize the above default message, you can add a property such as:
+
+Properties::
++
+[source,properties,indent=0,subs="verbatim,quotes",role="secondary"]
+----
+Max.degrees=You cannot provide more than {1} {0}
+----
+
+
+[[validation-beanvalidation-infra-other]]
+=== Additional Configuration Options
+
+The default `LocalValidatorFactoryBean` configuration suffices for most
+cases. There are a number of configuration options for various Bean Validation
+constructs, from message interpolation to traversal resolution. See the
+{today-framework-api}/validation/beanvalidation/LocalValidatorFactoryBean.html[`LocalValidatorFactoryBean`]
+javadoc for more information on these options.
+
+
+
+[[validation-binder]]
+== Configuring a `DataBinder`
+
+You can configure a `DataBinder` instance with a `Validator`. Once configured, you can
+invoke the `Validator` by calling `binder.validate()`. Any validation `Errors` are
+automatically added to the binder's `BindingResult`.
+
+The following example shows how to use a `DataBinder` programmatically to invoke validation
+logic after binding to a target object:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+Foo target = new Foo();
+DataBinder binder = new DataBinder(target);
+binder.setValidator(new FooValidator());
+
+// bind to the target object
+binder.bind(propertyValues);
+
+// validate the target object
+binder.validate();
+
+// get BindingResult that includes any validation errors
+BindingResult results = binder.getBindingResult();
+----
+======
+
+You can also configure a `DataBinder` with multiple `Validator` instances through
+`dataBinder.addValidators` and `dataBinder.replaceValidators`. This is useful when
+combining globally configured bean validation with a Infra `Validator` configured
+locally on a DataBinder instance. See
+xref:web/webmvc/mvc-config/validation.adoc[Web MVC Validation Configuration].
+
+
+
+[[validation-mvc]]
+== Web MVC 3 Validation
+
+See xref:web/webmvc/mvc-config/validation.adoc[Validation] in the Web MVC chapter.
