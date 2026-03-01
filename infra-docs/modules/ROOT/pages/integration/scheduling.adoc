@@ -1,83 +1,60 @@
 [[scheduling]]
-= Task Execution and Scheduling
+= 任务执行与调度
 
-The TODAY Framework provides abstractions for the asynchronous execution and scheduling of
-tasks with the `TaskExecutor` and `TaskScheduler` interfaces, respectively. Infra also
-features implementations of those interfaces that support thread pools or delegation to
-CommonJ within an application server environment. Ultimately, the use of these
-implementations behind the common interfaces abstracts away the differences between
-Java SE and Jakarta EE environments.
-
-Infra also features integration classes to support scheduling with the
-https://www.quartz-scheduler.org/[Quartz Scheduler].
-
+TODAY Framework 分别通过 `TaskExecutor` 和 `TaskScheduler` 接口提供了用于异步执行和任务调度的抽象。
+Infra 还提供了这些接口的实现，这些实现支持线程池或在应用服务器环境中委托给 CommonJ。
+最终，在通用接口背后使用这些实现，屏蔽了 Java SE 和 Jakarta EE 环境之间的差异。
 
 
 [[scheduling-task-executor]]
-== The Infra `TaskExecutor` Abstraction
+== Infra `TaskExecutor` 抽象
 
-Executors are the JDK name for the concept of thread pools. The "`executor`" naming is
-due to the fact that there is no guarantee that the underlying implementation is
-actually a pool. An executor may be single-threaded or even synchronous. Infra
-abstraction hides implementation details between the Java SE and Jakarta EE environments.
+Executor 是 JDK 对线程池概念的命名。“`executor`” 这个名称是因为底层实现实际上并不保证是一个池。
+Executor 可以是单线程的，甚至是同步的。Infra 的抽象隐藏了 Java SE 和 Jakarta EE 环境之间的实现细节。
 
-Infra `TaskExecutor` interface is identical to the `java.util.concurrent.Executor`
-interface. In fact, originally, its primary reason for existence was to abstract away
-the need for Java 5 when using thread pools. The interface has a single method
-(`execute(Runnable task)`) that accepts a task for execution based on the semantics
-and configuration of the thread pool.
+Infra 的 `TaskExecutor` 接口与 `java.util.concurrent.Executor` 接口完全相同。
+事实上，最初它存在的主要原因是为了在使用线程池时屏蔽对 Java 5 的需求。
+该接口有一个方法（`execute(Runnable task)`），该方法根据线程池的语义和配置接受一个任务进行执行。
 
-The `TaskExecutor` was originally created to give other Infra components an abstraction
-for thread pooling where needed. Components such as the `ApplicationEventMulticaster`,
-JMS's `AbstractMessageListenerContainer`, and Quartz integration all use the
-`TaskExecutor` abstraction to pool threads. However, if your beans need thread pooling
-behavior, you can also use this abstraction for your own needs.
+`TaskExecutor` 最初是为了给其他需要线程池的 Infra 组件提供一个抽象而创建的。
+诸如 `ApplicationEventMulticaster`、JMS 的 `AbstractMessageListenerContainer` 和 Quartz 集成等组件都使用 `TaskExecutor` 抽象来池化线程。
+但是，如果您的 bean 需要线程池行为，您也可以根据自己的需要使用此抽象。
 
 
 [[scheduling-task-executor-types]]
-=== `TaskExecutor` Types
+=== `TaskExecutor` 类型
 
-Infra includes a number of pre-built implementations of `TaskExecutor`.
-In all likelihood, you should never need to implement your own.
-The variants that Infra provides are as follows:
+Infra 包含许多预构建的 `TaskExecutor` 实现。
+您很可能永远不需要实现自己的。
+Infra 提供的变体如下：
 
-* `SyncTaskExecutor`:
-  This implementation does not run invocations asynchronously. Instead, each
-  invocation takes place in the calling thread. It is primarily used in situations
-  where multi-threading is not necessary, such as in simple test cases.
-* `SimpleAsyncTaskExecutor`:
-  This implementation does not reuse any threads. Rather, it starts up a new thread
-  for each invocation. However, it does support a concurrency limit that blocks
-  any invocations that are over the limit until a slot has been freed up. If you
-  are looking for true pooling, see `ThreadPoolTaskExecutor`, later in this list.
-* `ConcurrentTaskExecutor`:
-  This implementation is an adapter for a `java.util.concurrent.Executor` instance.
-  There is an alternative (`ThreadPoolTaskExecutor`) that exposes the `Executor`
-  configuration parameters as bean properties. There is rarely a need to use
-  `ConcurrentTaskExecutor` directly. However, if the `ThreadPoolTaskExecutor` is not
-  flexible enough for your needs, `ConcurrentTaskExecutor` is an alternative.
-* `ThreadPoolTaskExecutor`:
-  This implementation is most commonly used. It exposes bean properties for configuring
-  a `java.util.concurrent.ThreadPoolExecutor` and wraps it in a `TaskExecutor`.
-  If you need to adapt to a different kind of `java.util.concurrent.Executor`,
-  we recommend that you use a `ConcurrentTaskExecutor` instead.
-* `DefaultManagedTaskExecutor`:
-  This implementation uses a JNDI-obtained `ManagedExecutorService` in a JSR-236
-  compatible runtime environment (such as a Jakarta EE application server),
-  replacing a CommonJ WorkManager for that purpose.
+* `SyncTaskExecutor`：
+  此实现不会异步运行调用。相反，每个调用都在发起调用的线程中进行。
+  它主要用于不需要多线程的情况，例如简单的测试用例。
+* `SimpleAsyncTaskExecutor`：
+  此实现不重用任何线程。相反，它为每次调用启动一个新线程。
+  但是，它支持并发限制，该限制会阻塞任何超过限制的调用，直到有插槽被释放。
+  如果您正在寻找真正的池化，请参阅列表后面的 `ThreadPoolTaskExecutor`。
+* `ConcurrentTaskExecutor`：
+  此实现是 `java.util.concurrent.Executor` 实例的适配器。
+  还有一个替代方案（`ThreadPoolTaskExecutor`），它将 `Executor` 配置参数公开为 bean 属性。
+  很少需要直接使用 `ConcurrentTaskExecutor`。
+  但是，如果 `ThreadPoolTaskExecutor` 不够灵活，无法满足您的需求，`ConcurrentTaskExecutor` 是一个替代方案。
+* `ThreadPoolTaskExecutor`：
+  此实现最常用。它公开了用于配置 `java.util.concurrent.ThreadPoolExecutor` 的 bean 属性，并将其包装在 `TaskExecutor` 中。
+  如果您需要适配不同类型的 `java.util.concurrent.Executor`，我们建议您改用 `ConcurrentTaskExecutor`。
+* `DefaultManagedTaskExecutor`：
+  此实现使用在 JSR-236 兼容的运行时环境（例如 Jakarta EE 应用服务器）中通过 JNDI 获取的 `ManagedExecutorService`，以此取代 CommonJ WorkManager。
 
-As of 6.1, `ThreadPoolTaskExecutor` provides a pause/resume capability and graceful
-shutdown through Infra lifecycle management. There is also a new "virtualThreads"
-option on `SimpleAsyncTaskExecutor` which is aligned with JDK 21's Virtual Threads,
-as well as a graceful shutdown capability for `SimpleAsyncTaskExecutor` as well.
+从 5.0 开始，`ThreadPoolTaskExecutor` 通过 Infra 生命周期管理提供了暂停/恢复功能和优雅关闭功能。
+`SimpleAsyncTaskExecutor` 还有一个新的 "virtualThreads" 选项，该选项与 JDK 21 的虚拟线程保持一致，并且 `SimpleAsyncTaskExecutor` 也具有优雅关闭功能。
 
 
 [[scheduling-task-executor-usage]]
-=== Using a `TaskExecutor`
+=== 使用 `TaskExecutor`
 
-Infra `TaskExecutor` implementations are commonly used with dependency injection.
-In the following example, we define a bean that uses the `ThreadPoolTaskExecutor`
-to asynchronously print out a set of messages:
+Infra 的 `TaskExecutor` 实现通常与依赖注入一起使用。
+在以下示例中，我们定义了一个使用 `ThreadPoolTaskExecutor` 异步打印一组消息的 bean：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -112,11 +89,10 @@ public class TaskExecutorExample {
 }
 ----
 
-As you can see, rather than retrieving a thread from the pool and executing it yourself,
-you add your `Runnable` to the queue. Then the `TaskExecutor` uses its internal rules to
-decide when the task gets run.
+如您所见，您不是从池中检索线程并自己执行它，而是将您的 `Runnable` 添加到队列中。
+然后，`TaskExecutor` 使用其内部规则来决定何时运行任务。
 
-To configure the rules that the `TaskExecutor` uses, we expose simple bean properties:
+为了配置 `TaskExecutor` 使用的规则，我们公开了简单的 bean 属性：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -134,11 +110,10 @@ To configure the rules that the `TaskExecutor` uses, we expose simple bean prope
 
 
 [[scheduling-task-scheduler]]
-== The Infra `TaskScheduler` Abstraction
+== Infra `TaskScheduler` 抽象
 
-In addition to the `TaskExecutor` abstraction, Infra has a `TaskScheduler` SPI with a
-variety of methods for scheduling tasks to run at some point in the future. The following
-listing shows the `TaskScheduler` interface definition:
+除了 `TaskExecutor` 抽象之外，Infra 还有一个 `TaskScheduler` SPI，其中包含各种用于调度任务在未来某个时间点运行的方法。
+以下清单显示了 `TaskScheduler` 接口定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -161,21 +136,18 @@ public interface TaskScheduler {
 }
 ----
 
-The simplest method is the one named `schedule` that takes only a `Runnable` and an `Instant`.
-That causes the task to run once after the specified time. All of the other methods
-are capable of scheduling tasks to run repeatedly. The fixed-rate and fixed-delay
-methods are for simple, periodic execution, but the method that accepts a `Trigger` is
-much more flexible.
+最简单的方法是名为 `schedule` 的方法，它只接受一个 `Runnable` 和一个 `Instant`。
+这会导致任务在指定时间后运行一次。所有其他方法都能够调度任务重复运行。
+固定速率和固定延迟方法用于简单的周期性执行，但接受 `Trigger` 的方法要灵活得多。
 
 
 [[scheduling-trigger-interface]]
-=== `Trigger` Interface
+=== `Trigger` 接口
 
-The `Trigger` interface is essentially inspired by JSR-236. The basic idea of the
-`Trigger` is that execution times may be determined based on past execution outcomes or
-even arbitrary conditions. If these determinations take into account the outcome of the
-preceding execution, that information is available within a `TriggerContext`. The
-`Trigger` interface itself is quite simple, as the following listing shows:
+`Trigger` 接口本质上受 JSR-236 启发。
+`Trigger` 的基本思想是，执行时间可以根据过去的执行结果甚至任意条件来确定。
+如果这些决定考虑了前一次执行的结果，则该信息在 `TriggerContext` 中可用。
+`Trigger` 接口本身非常简单，如下清单所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -185,10 +157,9 @@ public interface Trigger {
 }
 ----
 
-The `TriggerContext` is the most important part. It encapsulates all of
-the relevant data and is open for extension in the future, if necessary. The
-`TriggerContext` is an interface (a `SimpleTriggerContext` implementation is used by
-default). The following listing shows the available methods for `Trigger` implementations.
+`TriggerContext` 是最重要的部分。它封装了所有相关数据，并且如果需要，将来可以进行扩展。
+`TriggerContext` 是一个接口（默认使用 `SimpleTriggerContext` 实现）。
+以下清单显示了 `Trigger` 实现可用的方法。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -206,13 +177,11 @@ public interface TriggerContext {
 
 
 [[scheduling-trigger-implementations]]
-=== `Trigger` Implementations
+=== `Trigger` 实现
 
-Infra provides two implementations of the `Trigger` interface. The most interesting one
-is the `CronTrigger`. It enables the scheduling of tasks based on
-xref:integration/scheduling.adoc#scheduling-cron-expression[cron expressions].
-For example, the following task is scheduled to run 15 minutes past each hour but only
-during the 9-to-5 "business hours" on weekdays:
+Infra 提供了 `Trigger` 接口的两种实现。最有趣的是 `CronTrigger`。
+它支持基于 xref:integration/scheduling.adoc#scheduling-cron-expression[cron 表达式] 的任务调度。
+例如，以下任务被安排在每小时的 15 分运行，但仅限工作日的朝九晚五“工作时间”：
 
 [source,java,indent=0]
 [subs="verbatim"]
@@ -220,57 +189,40 @@ during the 9-to-5 "business hours" on weekdays:
 	scheduler.schedule(task, new CronTrigger("0 15 9-17 * * MON-FRI"));
 ----
 
-The other implementation is a `PeriodicTrigger` that accepts a fixed
-period, an optional initial delay value, and a boolean to indicate whether the period
-should be interpreted as a fixed-rate or a fixed-delay. Since the `TaskScheduler`
-interface already defines methods for scheduling tasks at a fixed rate or with a
-fixed delay, those methods should be used directly whenever possible. The value of the
-`PeriodicTrigger` implementation is that you can use it within components that rely on
-the `Trigger` abstraction. For example, it may be convenient to allow periodic triggers,
-cron-based triggers, and even custom trigger implementations to be used interchangeably.
-Such a component could take advantage of dependency injection so that you can configure
-such `Triggers` externally and, therefore, easily modify or extend them.
+另一个实现是 `PeriodicTrigger`，它接受一个固定周期、一个可选的初始延迟值和一个布尔值，该布尔值指示周期应解释为固定速率还是固定延迟。
+由于 `TaskScheduler` 接口已经定义了以固定速率或固定延迟调度任务的方法，因此应尽可能直接使用这些方法。
+`PeriodicTrigger` 实现的价值在于，您可以在依赖 `Trigger` 抽象的组件中使用它。
+例如，允许周期性触发器、基于 cron 的触发器甚至自定义触发器实现互换使用可能会很方便。
+这样的组件可以利用依赖注入，以便您可以在外部配置此类 `Trigger`，从而轻松地修改或扩展它们。
 
 
 [[scheduling-task-scheduler-implementations]]
-=== `TaskScheduler` implementations
+=== `TaskScheduler` 实现
 
-As with Infra `TaskExecutor` abstraction, the primary benefit of the `TaskScheduler`
-arrangement is that an application's scheduling needs are decoupled from the deployment
-environment. This abstraction level is particularly relevant when deploying to an
-application server environment where threads should not be created directly by the
-application itself. For such scenarios, Infra provides a `DefaultManagedTaskScheduler`
-that delegates to a JSR-236 `ManagedScheduledExecutorService` in a Jakarta EE environment.
+与 Infra `TaskExecutor` 抽象一样，`TaskScheduler` 安排的主要好处是应用程序的调度需求与部署环境解耦。
+当部署到不应由应用程序本身直接创建线程的应用服务器环境时，此抽象级别特别相关。
+对于此类场景，Infra 提供了一个 `DefaultManagedTaskScheduler`，它在 Jakarta EE 环境中委托给 JSR-236 `ManagedScheduledExecutorService`。
 
-Whenever external thread management is not a requirement, a simpler alternative is
-a local `ScheduledExecutorService` setup within the application, which can be adapted
-through Infra `ConcurrentTaskScheduler`. As a convenience, Infra also provides a
-`ThreadPoolTaskScheduler`, which internally delegates to a `ScheduledExecutorService`
-to provide common bean-style configuration along the lines of `ThreadPoolTaskExecutor`.
-These variants work perfectly fine for locally embedded thread pool setups in lenient
-application server environments, as well -- in particular on Tomcat.
+只要不需要外部线程管理，更简单的替代方案是在应用程序内设置本地 `ScheduledExecutorService`，这可以通过 Infra `ConcurrentTaskScheduler` 进行适配。
+为方便起见，Infra 还提供了一个 `ThreadPoolTaskScheduler`，它在内部委托给 `ScheduledExecutorService`，以提供类似于 `ThreadPoolTaskExecutor` 的常见 bean 风格配置。
+这些变体对于宽松的应用服务器环境（特别是 Tomcat）中的本地嵌入式线程池设置也非常有效。
 
-As of 6.1, `ThreadPoolTaskScheduler` provides a pause/resume capability and graceful
-shutdown through Infra lifecycle management. There is also a new option called
-`SimpleAsyncTaskScheduler` which is aligned with JDK 21's Virtual Threads, using a
-single scheduler thread but firing up a new thread for every scheduled task execution
-(except for fixed-delay tasks which all operate on a single scheduler thread, so for
-this virtual-thread-aligned option, fixed rates and cron triggers are recommended).
+从 6.1 开始，`ThreadPoolTaskScheduler` 通过 Infra 生命周期管理提供了暂停/恢复功能和优雅关闭功能。
+还有一个名为 `SimpleAsyncTaskScheduler` 的新选项，它与 JDK 21 的虚拟线程保持一致，使用单个调度器线程，但为每个计划的任务执行启动一个新线程
+（除了固定延迟任务，它们都在单个调度器线程上运行，因此对于这个与虚拟线程对齐的选项，建议使用固定速率和 cron 触发器）。
 
 
 
 [[scheduling-annotation-support]]
-== Annotation Support for Scheduling and Asynchronous Execution
+== 调度和异步执行的注解支持
 
-Infra provides annotation support for both task scheduling and asynchronous method
-execution.
+Infra 为任务调度和异步方法执行都提供了注解支持。
 
 
 [[scheduling-enable-annotation-support]]
-=== Enable Scheduling Annotations
+=== 启用调度注解
 
-To enable support for `@Scheduled` and `@Async` annotations, you can add `@EnableScheduling`
-and `@EnableAsync` to one of your `@Configuration` classes, as the following example shows:
+要启用对 `@Scheduled` 和 `@Async` 注解的支持，您可以将 `@EnableScheduling` 和 `@EnableAsync` 添加到您的一个 `@Configuration` 类中，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -281,16 +233,12 @@ and `@EnableAsync` to one of your `@Configuration` classes, as the following exa
 	}
 ----
 
-You can pick and choose the relevant annotations for your application. For example,
-if you need only support for `@Scheduled`, you can omit `@EnableAsync`. For more
-fine-grained control, you can additionally implement the `SchedulingConfigurer`
-interface, the `AsyncConfigurer` interface, or both. See the
-{today-framework-api}/scheduling/annotation/SchedulingConfigurer.html[`SchedulingConfigurer`]
-and {today-framework-api}/scheduling/annotation/AsyncConfigurer.html[`AsyncConfigurer`]
-javadoc for full details.
+您可以为您的应用程序挑选相关的注解。例如，如果您只需要对 `@Scheduled` 的支持，则可以省略 `@EnableAsync`。
+为了进行更细粒度的控制，您可以另外实现 `SchedulingConfigurer` 接口、`AsyncConfigurer` 接口或两者。
+有关完整的详细信息，请参阅 {today-framework-api}/scheduling/annotation/SchedulingConfigurer.html[`SchedulingConfigurer`]
+和 {today-framework-api}/scheduling/annotation/AsyncConfigurer.html[`AsyncConfigurer`] javadoc。
 
-If you prefer XML configuration, you can use the `<task:annotation-driven>` element,
-as the following example shows:
+如果您更喜欢 XML 配置，可以使用 `<task:annotation-driven>` 元素，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -299,143 +247,121 @@ as the following example shows:
 	<task:scheduler id="myScheduler" pool-size="10"/>
 ----
 
-Note that, with the preceding XML, an executor reference is provided for handling those
-tasks that correspond to methods with the `@Async` annotation, and the scheduler
-reference is provided for managing those methods annotated with `@Scheduled`.
+请注意，在前面的 XML 中，提供了一个执行器引用来处理那些对应于带有 `@Async` 注解的方法的任务，
+并提供了一个调度器引用来管理那些带有 `@Scheduled` 注解的方法。
 
-NOTE: The default advice mode for processing `@Async` annotations is `proxy` which allows
-for interception of calls through the proxy only. Local calls within the same class
-cannot get intercepted that way. For a more advanced mode of interception, consider
-switching to `aspectj` mode in combination with compile-time or load-time weaving.
+NOTE: 处理 `@Async` 注解的默认建议模式是 `proxy`，它仅允许通过代理拦截调用。
+同一类中的本地调用无法以这种方式被拦截。
+对于更高级的拦截模式，请考虑切换到 `aspectj` 模式并结合编译时或加载时编织。
 
 
 [[scheduling-annotation-support-scheduled]]
-=== The `@Scheduled` annotation
+=== `@Scheduled` 注解
 
-You can add the `@Scheduled` annotation to a method, along with trigger metadata. For
-example, the following method is invoked every five seconds (5000 milliseconds) with a
-fixed delay, meaning that the period is measured from the completion time of each
-preceding invocation.
+您可以将 `@Scheduled` 注解连同触发器元数据一起添加到方法中。
+例如，以下方法每五秒（5000 毫秒）以固定延迟调用一次，这意味着周期是从每个前次调用的完成时间开始测量的。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Scheduled(fixedDelay = 5000)
 public void doSomething() {
-  // something that should run periodically
+  // 应周期性运行的一些事情
 }
 ----
 
 [NOTE]
 ====
-By default, milliseconds will be used as the time unit for fixed delay, fixed rate, and
-initial delay values. If you would like to use a different time unit such as seconds or
-minutes, you can configure this via the `timeUnit` attribute in `@Scheduled`.
+默认情况下，毫秒将用作固定延迟、固定速率和初始延迟值的时间单位。
+如果您想使用不同的时间单位，例如秒或分钟，可以通过 `@Scheduled` 中的 `timeUnit` 属性进行配置。
 
-For example, the previous example can also be written as follows.
+例如，前面的示例也可以写成如下形式。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
 public void doSomething() {
-  // something that should run periodically
+  // 应周期性运行的一些事情
 }
 ----
 ====
 
-If you need a fixed-rate execution, you can use the `fixedRate` attribute within the
-annotation. The following method is invoked every five seconds (measured between the
-successive start times of each invocation):
+如果您需要固定速率执行，可以在注解中使用 `fixedRate` 属性。
+以下方法每五秒调用一次（在每次调用的连续开始时间之间测量）：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
 public void doSomething() {
-  // something that should run periodically
+  // 应周期性运行的一些事情
 }
 ----
 
-For fixed-delay and fixed-rate tasks, you can specify an initial delay by indicating
-the amount of time to wait before the first execution of the method, as the following
-`fixedRate` example shows:
+对于固定延迟和固定速率任务，您可以通过指示在第一次执行方法之前等待的时间量来指定初始延迟，如下面的 `fixedRate` 示例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Scheduled(initialDelay = 1000, fixedRate = 5000)
 public void doSomething() {
-  // something that should run periodically
+  // 应周期性运行的一些事情
 }
 ----
 
-For one-time tasks, you can just specify an initial delay by indicating the amount
-of time to wait before the intended execution of the method:
+对于一次性任务，您可以通过指示在方法的预定执行之前等待的时间量来仅指定初始延迟：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Scheduled(initialDelay = 1000)
 public void doSomething() {
-  // something that should run only once
+  // 应该只运行一次的事情
 }
 ----
 
-If simple periodic scheduling is not expressive enough, you can provide a
-xref:integration/scheduling.adoc#scheduling-cron-expression[cron expression].
-The following example runs only on weekdays:
+如果简单的定期调度不够表达，您可以提供一个 xref:integration/scheduling.adoc#scheduling-cron-expression[cron 表达式]。
+以下示例仅在工作日运行：
 
 [source,java,indent=0]
 [subs="verbatim"]
 ----
 @Scheduled(cron="*/5 * * * * MON-FRI")
 public void doSomething() {
-  // something that should run on weekdays only
+  // 应该只在工作日运行的事情
 }
 ----
 
-TIP: You can also use the `zone` attribute to specify the time zone in which the cron
-expression is resolved.
+TIP: 您还可以使用 `zone` 属性来指定解析 cron 表达式的时区。
 
-Notice that the methods to be scheduled must have void returns and must not accept any
-arguments. If the method needs to interact with other objects from the application
-context, those would typically have been provided through dependency injection.
+请注意，要调度的方法必须具有 void 返回值，并且不得接受任何参数。
+如果该方法需要与应用程序上下文中的其他对象交互，则这些对象通常是通过依赖注入提供的。
 
-`@Scheduled` can be used as a repeatable annotation. If several scheduled declarations
-are found on the same method, each of them will be processed independently, with a
-separate trigger firing for each of them. As a consequence, such co-located schedules
-may overlap and execute multiple times in parallel or in immediate succession.
-Please make sure that your specified cron expressions etc do not accidentally overlap.
+`@Scheduled` 可以用作可重复注解。如果在同一个方法上找到多个调度声明，则每个声明都将被独立处理，并为每个声明触发单独的触发器。
+因此，此类共置的调度可能会重叠并多次并行执行或紧接着执行。
+请确保您指定的 cron 表达式等不会意外重叠。
 
 [NOTE]
 ====
-As of TODAY Framework 4.3, `@Scheduled` methods are supported on beans of any scope.
+从 TODAY Framework 4.3 开始，任何范围的 bean 都支持 `@Scheduled` 方法。
 
-Make sure that you are not initializing multiple instances of the same `@Scheduled`
-annotation class at runtime, unless you do want to schedule callbacks to each such
-instance. Related to this, make sure that you do not use `@Configurable` on bean
-classes that are annotated with `@Scheduled` and registered as regular Infra beans
-with the container. Otherwise, you would get double initialization (once through the
-container and once through the `@Configurable` aspect), with the consequence of each
-`@Scheduled` method being invoked twice.
+确保不要在运行时初始化同一个 `@Scheduled` 注解类的多个实例，除非您确实想为每个此类实例调度回调。
+与此相关，请确保不要在使用 `@Scheduled` 注解并作为常规 Infra bean 注册到容器中的 bean 类上使用 `@Configurable`。
+否则，您将获得双重初始化（一次通过容器，一次通过 `@Configurable` 切面），结果是每个 `@Scheduled` 方法被调用两次。
 ====
 
 [[scheduling-annotation-support-scheduled-reactive]]
-=== The `@Scheduled` annotation on Reactive methods or Kotlin suspending functions
+=== 响应式方法或 Kotlin 挂起函数上的 `@Scheduled` 注解
 
-As of TODAY Framework 6.1, `@Scheduled` methods are also supported on several types
-of reactive methods:
+从 TODAY Framework 6.1 开始，几种类型的响应式方法也支持 `@Scheduled` 方法：
 
- - methods with a `Publisher` return type (or any concrete implementation of `Publisher`)
-like in the following example:
+ - 具有 `Publisher` 返回类型（或 `Publisher` 的任何具体实现）的方法，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Scheduled(fixedDelay = 500)
 public Publisher<Void> reactiveSomething() {
-  // return an instance of Publisher
+  // 返回 Publisher 的实例
 }
 ----
 
- - methods with a return type that can be adapted to `Publisher` via the shared instance
-of the `ReactiveAdapterRegistry`, provided the type supports _deferred subscription_ like
-in the following example:
+ - 具有可以通过 `ReactiveAdapterRegistry` 的共享实例适配为 `Publisher` 的返回类型的方法，前提是该类型支持 _延迟订阅_，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -447,24 +373,18 @@ public Single<String> rxjavaNonPublisher() {
 
 [NOTE]
 ====
-The `CompletableFuture` class is an example of a type that can typically be adapted
-to `Publisher` but doesn't support deferred subscription. Its `ReactiveAdapter` in the
-registry denotes that by having the `getDescriptor().isDeferred()` method return `false`.
+`CompletableFuture` 类是一个典型的可以适配为 `Publisher` 但不支持延迟订阅的类型示例。
+其在注册表中的 `ReactiveAdapter` 通过使 `getDescriptor().isDeferred()` 方法返回 `false` 来表示这一点。
 ====
 
-All these types of methods must be declared without any arguments. In the case of Kotlin
-suspending functions, the `kotlinx.coroutines.reactor` bridge must also be present to allow
-the framework to invoke a suspending function as a `Publisher`.
+所有这些类型的方法都必须声明为不带任何参数。如果是 Kotlin 挂起函数，则还必须存在 `kotlinx.coroutines.reactor` 桥接，以允许框架将挂起函数作为 `Publisher` 调用。
 
-The TODAY Framework will obtain a `Publisher` for the annotated method once and will
-schedule a `Runnable` in which it subscribes to said `Publisher`. These inner regular
-subscriptions occur according to the corresponding `cron`/`fixedDelay`/`fixedRate` configuration.
+TODAY Framework 将获取一次被注解方法的 `Publisher`，并调度一个 `Runnable`，在该 `Runnable` 中订阅所述 `Publisher`。
+这些内部常规订阅根据相应的 `cron`/`fixedDelay`/`fixedRate` 配置发生。
 
-If the `Publisher` emits `onNext` signal(s), these are ignored and discarded (the same way
-return values from synchronous `@Scheduled` methods are ignored).
+如果 `Publisher` 发出 `onNext` 信号，这些信号将被忽略并丢弃（就像同步 `@Scheduled` 方法的返回值被忽略一样）。
 
-In the following example, the `Flux` emits `onNext("Hello")`, `onNext("World")` every 5
-seconds, but these values are unused:
+在以下示例中，`Flux` 每 5 秒发出 `onNext("Hello")`、`onNext("World")`，但这些值未被使用：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -474,16 +394,13 @@ public Flux<String> reactiveSomething() {
 }
 ----
 
-If the `Publisher` emits an `onError` signal, it is logged at `WARN` level and recovered.
-Because of the asynchronous and lazy nature of `Publisher` instances, exceptions are
-not thrown from the `Runnable` task: this means that the `ErrorHandler` contract is not
-involved for reactive methods.
+如果 `Publisher` 发出 `onError` 信号，它将以 `WARN` 级别记录并恢复。
+由于 `Publisher` 实例的异步和惰性性质，异常不会从 `Runnable` 任务中抛出：这意味着 `ErrorHandler` 契约不涉及响应式方法。
 
-As a result, further scheduled subscription occurs despite the error.
+结果是，尽管发生了错误，进一步的调度订阅仍会发生。
 
-In the following example, the `Mono` subscription fails twice in the first five seconds.
-Then subscriptions start succeeding, printing a message to the standard output every five
-seconds:
+在以下示例中，`Mono` 订阅在前 5 秒内失败两次。
+然后订阅开始成功，每 5 秒向标准输出打印一条消息：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -502,66 +419,53 @@ public Mono<Void> reactiveSomething() {
 
 [NOTE]
 ====
-When destroying the annotated bean or closing the application context, TODAY Framework cancels
-scheduled tasks, which includes the next scheduled subscription to the `Publisher` as well
-as any past subscription that is still currently active (e.g. for long-running publishers
-or even infinite publishers).
+当销毁带注解的 bean 或关闭应用程序上下文时，TODAY Framework 会取消已调度的任务，这包括下一次对 `Publisher` 的调度订阅以及任何当前仍处于活动状态的过去订阅（例如，对于长时间运行的发布者甚至无限发布者）。
 ====
 
 
 [[scheduling-annotation-support-async]]
-=== The `@Async` annotation
+=== `@Async` 注解
 
-You can provide the `@Async` annotation on a method so that invocation of that method
-occurs asynchronously. In other words, the caller returns immediately upon
-invocation, while the actual execution of the method occurs in a task that has been
-submitted to a Infra `TaskExecutor`. In the simplest case, you can apply the annotation
-to a method that returns `void`, as the following example shows:
+您可以在方法上提供 `@Async` 注解，以便异步调用该方法。
+换句话说，调用者在调用时立即返回，而方法的实际执行发生在已提交给 Infra `TaskExecutor` 的任务中。
+在最简单的情况下，您可以将注解应用于返回 `void` 的方法，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Async
 void doSomething() {
-  // this will be run asynchronously
+  // 这将异步运行
 }
 ----
 
-Unlike the methods annotated with the `@Scheduled` annotation, these methods can expect
-arguments, because they are invoked in the "`normal`" way by callers at runtime rather
-than from a scheduled task being managed by the container. For example, the following
-code is a legitimate application of the `@Async` annotation:
+与使用 `@Scheduled` 注解的方法不同，这些方法可以接受参数，因为它们是由调用者在运行时以“`正常`”方式调用的，而不是由容器管理的调度任务调用的。
+例如，以下代码是 `@Async` 注解的合法应用：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Async
 void doSomething(String s) {
-  // this will be run asynchronously
+  // 这将异步运行
 }
 ----
 
-Even methods that return a value can be invoked asynchronously. However, such methods
-are required to have a `Future`-typed return value. This still provides the benefit of
-asynchronous execution so that the caller can perform other tasks prior to calling
-`get()` on that `Future`. The following example shows how to use `@Async` on a method
-that returns a value:
+即使是返回值的方法也可以异步调用。但是，此类方法需要具有 `Future` 类型的返回值。
+这仍然提供了异步执行的好处，以便调用者在对该 `Future` 调用 `get()` 之前可以执行其他任务。
+以下示例显示了如何在返回值的方法上使用 `@Async`：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Async
 Future<String> returnSomething(int i) {
-  // this will be run asynchronously
+  // 这将异步运行
 }
 ----
 
-TIP: `@Async` methods may not only declare a regular `java.util.concurrent.Future` return
-type but also Infra `infra.util.concurrent.ListenableFuture` or, as of
-Infra 4.2, JDK 8's `java.util.concurrent.CompletableFuture`, for richer interaction with
-the asynchronous task and for immediate composition with further processing steps.
+TIP: `@Async` 方法不仅可以声明常规的 `java.util.concurrent.Future` 返回类型，还可以声明 Infra 的 `infra.util.concurrent.ListenableFuture`，
+或者（从 Infra 4.2 开始）JDK 8 的 `java.util.concurrent.CompletableFuture`，以便与异步任务进行更丰富的交互，并立即与进一步的处理步骤组合。
 
-You can not use `@Async` in conjunction with lifecycle callbacks such as `@PostConstruct`.
-To asynchronously initialize Infra beans, you currently have to use a separate
-initializing Infra bean that then invokes the `@Async` annotated method on the target,
-as the following example shows:
+您不能将 `@Async` 与生命周期回调（如 `@PostConstruct`）结合使用。
+要异步初始化 Infra bean，您目前必须使用单独的初始化 Infra bean，该 bean 在目标上调用 `@Async` 注解的方法，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -590,44 +494,35 @@ public class SampleBeanInitializer {
 }
 ----
 
-NOTE: There is no direct XML equivalent for `@Async`, since such methods should be designed
-for asynchronous execution in the first place, not externally re-declared to be asynchronous.
-However, you can manually set up Infra `AsyncExecutionInterceptor` with Infra AOP,
-in combination with a custom pointcut.
+NOTE: `@Async` 没有直接的 XML 等效项，因为此类方法首先应该设计用于异步执行，而不是在外部重新声明为异步。
+但是，您可以结合自定义切入点，使用 Infra AOP 手动设置 Infra `AsyncExecutionInterceptor`。
 
 
 [[scheduling-annotation-support-qualification]]
-=== Executor Qualification with `@Async`
+=== 使用 `@Async` 限定执行器
 
-By default, when specifying `@Async` on a method, the executor that is used is the
-one xref:integration/scheduling.adoc#scheduling-enable-annotation-support[configured when enabling async support],
-i.e. the "`annotation-driven`" element if you are using XML or your `AsyncConfigurer`
-implementation, if any. However, you can use the `value` attribute of the `@Async`
-annotation when you need to indicate that an executor other than the default should be
-used when executing a given method. The following example shows how to do so:
+默认情况下，在方法上指定 `@Async` 时，使用的执行器是 xref:integration/scheduling.adoc#scheduling-enable-annotation-support[启用异步支持时配置的] 那个，
+即如果您使用 XML 则是“`annotation-driven`”元素，或者您的 `AsyncConfigurer` 实现（如果有）。
+但是，当您需要指示在执行给定方法时应使用除默认执行器之外的执行器时，可以使用 `@Async` 注解的 `value` 属性。
+以下示例显示了如何执行此操作：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Async("otherExecutor")
 void doSomething(String s) {
-  // this will be run asynchronously by "otherExecutor"
+  // 这将由 "otherExecutor" 异步运行
 }
 ----
 
-In this case, `"otherExecutor"` can be the name of any `Executor` bean in the Infra
-container, or it may be the name of a qualifier associated with any `Executor` (for example,
-as specified with the `<qualifier>` element or Infra `@Qualifier` annotation).
+在这种情况下，`"otherExecutor"` 可以是 Infra 容器中任何 `Executor` bean 的名称，也可以是与任何 `Executor` 关联的限定符的名称（例如，使用 `<qualifier>` 元素或 Infra `@Qualifier` 注解指定）。
 
 
 [[scheduling-annotation-support-exception]]
-=== Exception Management with `@Async`
+=== 使用 `@Async` 进行异常管理
 
-When an `@Async` method has a `Future`-typed return value, it is easy to manage
-an exception that was thrown during the method execution, as this exception is
-thrown when calling `get` on the `Future` result. With a `void` return type,
-however, the exception is uncaught and cannot be transmitted. You can provide an
-`AsyncUncaughtExceptionHandler` to handle such exceptions. The following example shows
-how to do so:
+当 `@Async` 方法具有 `Future` 类型的返回值时，很容易管理在方法执行期间抛出的异常，因为此异常在对 `Future` 结果调用 `get` 时抛出。
+但是，对于 `void` 返回类型，异常是未捕获的且无法传输。您可以提供 `AsyncUncaughtExceptionHandler` 来处理此类异常。
+以下示例显示了如何执行此操作：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -635,106 +530,79 @@ public class MyAsyncUncaughtExceptionHandler implements AsyncUncaughtExceptionHa
 
   @Override
   public void handleUncaughtException(Throwable ex, Method method, Object... params) {
-    // handle exception
+    // 处理异常
   }
 }
 ----
 
-By default, the exception is merely logged. You can define a custom `AsyncUncaughtExceptionHandler`
-by using `AsyncConfigurer` or the `<task:annotation-driven/>` XML element.
+默认情况下，仅记录异常。您可以使用 `AsyncConfigurer` 或 `<task:annotation-driven/>` XML 元素定义自定义 `AsyncUncaughtExceptionHandler`。
 
 
 
 [[scheduling-task-namespace]]
-== The `task` Namespace
+== `task` 命名空间
 
-As of version 3.0, Infra includes an XML namespace for configuring `TaskExecutor` and
-`TaskScheduler` instances. It also provides a convenient way to configure tasks to be
-scheduled with a trigger.
+从 3.0 版开始，Infra 包含用于配置 `TaskExecutor` 和 `TaskScheduler` 实例的 XML 命名空间。
+它还提供了一种方便的方法来配置要使用触发器调度的任务。
 
 
 [[scheduling-task-namespace-scheduler]]
-=== The 'scheduler' Element
+=== 'scheduler' 元素
 
-The following element creates a `ThreadPoolTaskScheduler` instance with the
-specified thread pool size:
+以下元素创建一个具有指定线程池大小的 `ThreadPoolTaskScheduler` 实例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <task:scheduler id="scheduler" pool-size="10"/>
 ----
 
-The value provided for the `id` attribute is used as the prefix for thread names
-within the pool. The `scheduler` element is relatively straightforward. If you do not
-provide a `pool-size` attribute, the default thread pool has only a single thread.
-There are no other configuration options for the scheduler.
+为 `id` 属性提供的值用作池内线程名的前缀。`scheduler` 元素相对简单。
+如果您不提供 `pool-size` 属性，则默认线程池只有一个线程。
+调度器没有其他配置选项。
 
 
 [[scheduling-task-namespace-executor]]
-=== The `executor` Element
+=== `executor` 元素
 
-The following creates a `ThreadPoolTaskExecutor` instance:
+以下内容创建一个 `ThreadPoolTaskExecutor` 实例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 	<task:executor id="executor" pool-size="10"/>
 ----
 
-As with the scheduler shown in the xref:integration/scheduling.adoc#scheduling-task-namespace-scheduler[previous section],
-the value provided for the `id` attribute is used as the prefix for thread names within
-the pool. As far as the pool size is concerned, the `executor` element supports more
-configuration options than the `scheduler` element. For one thing, the thread pool for
-a `ThreadPoolTaskExecutor` is itself more configurable. Rather than only a single size,
-an executor's thread pool can have different values for the core and the max size.
-If you provide a single value, the executor has a fixed-size thread pool (the core and
-max sizes are the same). However, the `executor` element's `pool-size` attribute also
-accepts a range in the form of `min-max`. The following example sets a minimum value of
-`5` and a maximum value of `25`:
+与 xref:integration/scheduling.adoc#scheduling-task-namespace-scheduler[上一节] 中显示的调度器一样，为 `id` 属性提供的值用作池内线程名的前缀。
+就池大小而言，`executor` 元素支持比 `scheduler` 元素更多的配置选项。一方面，`ThreadPoolTaskExecutor` 的线程池本身更具可配置性。
+执行器的线程池不仅仅是单个大小，还可以具有不同的核心大小和最大大小值。
+如果您提供单个值，则执行器具有固定大小的线程池（核心大小和最大大小相同）。
+但是，`executor` 元素的 `pool-size` 属性也接受 `min-max` 形式的范围。以下示例设置最小值为 `5`，最大值为 `25`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <task:executor id="executorWithPoolSizeRange" pool-size="5-25" queue-capacity="100"/>
 ----
 
-In the preceding configuration, a `queue-capacity` value has also been provided.
-The configuration of the thread pool should also be considered in light of the
-executor's queue capacity. For the full description of the relationship between pool
-size and queue capacity, see the documentation for
-{java-api}/java.base/java/util/concurrent/ThreadPoolExecutor.html[`ThreadPoolExecutor`].
-The main idea is that, when a task is submitted, the executor first tries to use a
-free thread if the number of active threads is currently less than the core size.
-If the core size has been reached, the task is added to the queue, as long as its
-capacity has not yet been reached. Only then, if the queue's capacity has been
-reached, does the executor create a new thread beyond the core size. If the max size
-has also been reached, then the executor rejects the task.
+在前面的配置中，还提供了一个 `queue-capacity` 值。
+线程池的配置也应根据执行器的队列容量来考虑。有关池大小和队列容量之间关系的完整描述，请参阅
+{java-api}/java.base/java/util/concurrent/ThreadPoolExecutor.html[`ThreadPoolExecutor`] 的文档。
+主要思想是，提交任务时，如果当前活动线程数少于核心大小，则执行器首先尝试使用空闲线程。
+如果已达到核心大小，则只要尚未达到队列容量，就会将任务添加到队列中。
+只有当队列容量已满时，执行器才会创建超出核心大小的新线程。如果也达到了最大大小，则执行器拒绝该任务。
 
-By default, the queue is unbounded, but this is rarely the desired configuration,
-because it can lead to `OutOfMemoryErrors` if enough tasks are added to that queue while
-all pool threads are busy. Furthermore, if the queue is unbounded, the max size has
-no effect at all. Since the executor always tries the queue before creating a new
-thread beyond the core size, a queue must have a finite capacity for the thread pool to
-grow beyond the core size (this is why a fixed-size pool is the only sensible case
-when using an unbounded queue).
+默认情况下，队列是无界的，但这很少是所需的配置，因为如果所有池线程都忙，而向该队列添加了足够多的任务，则可能导致 `OutOfMemoryErrors`。
+此外，如果队列是无界的，则最大大小根本没有影响。由于执行器总是先尝试队列，然后再创建超出核心大小的新线程，因此队列必须具有有限的容量，以便线程池增长到超出核心大小（这就是为什么在使用无界队列时，固定大小的池是唯一合理的情况）。
 
-Consider the case, as mentioned above, when a task is rejected. By default, when a
-task is rejected, a thread pool executor throws a `TaskRejectedException`. However,
-the rejection policy is actually configurable. The exception is thrown when using
-the default rejection policy, which is the `AbortPolicy` implementation.
-For applications where some tasks can be skipped under heavy load, you can instead
-configure either `DiscardPolicy` or `DiscardOldestPolicy`. Another option that works
-well for applications that need to throttle the submitted tasks under heavy load is
-the `CallerRunsPolicy`. Instead of throwing an exception or discarding tasks,
-that policy forces the thread that is calling the submit method to run the task itself.
-The idea is that such a caller is busy while running that task and not able to submit
-other tasks immediately. Therefore, it provides a simple way to throttle the incoming
-load while maintaining the limits of the thread pool and queue. Typically, this allows
-the executor to "`catch up`" on the tasks it is handling and thereby frees up some
-capacity on the queue, in the pool, or both. You can choose any of these options from an
-enumeration of values available for the `rejection-policy` attribute on the `executor`
-element.
+考虑上面提到的任务被拒绝的情况。默认情况下，当任务被拒绝时，线程池执行器会抛出 `TaskRejectedException`。
+但是，拒绝策略实际上是可配置的。使用默认拒绝策略（即 `AbortPolicy` 实现）时会抛出异常。
+对于在高负载下可以跳过某些任务的应用程序，您可以配置 `DiscardPolicy` 或 `DiscardOldestPolicy`。
+对于需要在高负载下限制提交任务的应用程序，另一个效果很好的选项是 `CallerRunsPolicy`。
+该策略不抛出异常或丢弃任务，而是强制调用提交方法的线程自己运行任务。
+这个想法是，这样的调用者在运行该任务时很忙，无法立即提交其他任务。
+因此，它提供了一种简单的方法来限制传入的负载，同时保持线程池和队列的限制。
+通常，这允许执行器在处理的任务上“`赶上`”，从而释放队列、池或两者中的一些容量。
+您可以从 `executor` 元素上的 `rejection-policy` 属性可用的值枚举中选择任何这些选项。
 
-The following example shows an `executor` element with a number of attributes to specify
-various behaviors:
+以下示例显示了一个具有多个属性以指定各种行为的 `executor` 元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -742,12 +610,10 @@ various behaviors:
     pool-size="5-25" queue-capacity="100" rejection-policy="CALLER_RUNS"/>
 ----
 
-Finally, the `keep-alive` setting determines the time limit (in seconds) for which threads
-may remain idle before being stopped. If there are more than the core number of threads
-currently in the pool, after waiting this amount of time without processing a task, excess
-threads get stopped. A time value of zero causes excess threads to stop
-immediately after executing a task without remaining follow-up work in the task queue.
-The following example sets the `keep-alive` value to two minutes:
+最后，`keep-alive` 设置确定线程在停止之前可以保持空闲的时间限制（以秒为单位）。
+如果池中当前有超过核心数量的线程，在等待这段时间没有处理任务后，多余的线程将停止。
+时间值为零会导致多余的线程在执行任务后立即停止，而不会在任务队列中保留后续工作。
+以下示例将 `keep-alive` 值设置为两分钟：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -756,14 +622,12 @@ The following example sets the `keep-alive` value to two minutes:
 
 
 [[scheduling-task-namespace-scheduled-tasks]]
-=== The 'scheduled-tasks' Element
+=== 'scheduled-tasks' 元素
 
-The most powerful feature of Infra task namespace is the support for configuring
-tasks to be scheduled within a Infra Application Context. This follows an approach
-similar to other "`method-invokers`" in Infra, such as that provided by the JMS namespace
-for configuring message-driven POJOs. Basically, a `ref` attribute can point to any
-Infra-managed object, and the `method` attribute provides the name of a method to be
-invoked on that object. The following listing shows a simple example:
+Infra 任务命名空间最强大的功能是支持配置要在 Infra 应用程序上下文中调度的任务。
+这遵循类似于 Infra 中其他“`method-invokers`”的方法，例如 JMS 命名空间提供的用于配置消息驱动 POJO 的方法。
+基本上，`ref` 属性可以指向任何 Infra 管理的对象，`method` 属性提供要在该对象上调用的方法的名称。
+以下清单显示了一个简单的示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -774,17 +638,12 @@ invoked on that object. The following listing shows a simple example:
 <task:scheduler id="myScheduler" pool-size="10"/>
 ----
 
-The scheduler is referenced by the outer element, and each individual
-task includes the configuration of its trigger metadata. In the preceding example,
-that metadata defines a periodic trigger with a fixed delay indicating the number of
-milliseconds to wait after each task execution has completed. Another option is
-`fixed-rate`, indicating how often the method should be run regardless of how long
-any previous execution takes. Additionally, for both `fixed-delay` and `fixed-rate`
-tasks, you can specify an 'initial-delay' parameter, indicating the number of
-milliseconds to wait before the first execution of the method. For more control,
-you can instead provide a `cron` attribute to provide a
-xref:integration/scheduling.adoc#scheduling-cron-expression[cron expression].
-The following example shows these other options:
+调度器由外部元素引用，每个单独的任务都包含其触发器元数据的配置。
+在前面的示例中，该元数据定义了一个具有固定延迟的周期性触发器，指示每次任务执行完成后等待的毫秒数。
+另一个选项是 `fixed-rate`，指示无论任何先前的执行花费多长时间，该方法应运行的频率。
+此外，对于 `fixed-delay` 和 `fixed-rate` 任务，您可以指定一个 'initial-delay' 参数，指示在第一次执行方法之前等待的毫秒数。
+为了获得更多控制，您可以改用 `cron` 属性来提供 xref:integration/scheduling.adoc#scheduling-cron-expression[cron 表达式]。
+以下示例显示了这些其他选项：
 
 [source,xml,indent=0]
 [subs="verbatim"]
@@ -799,111 +658,103 @@ The following example shows these other options:
 ----
 
 
-
 [[scheduling-cron-expression]]
-== Cron Expressions
+== Cron 表达式
 
-All Infra cron expressions have to conform to the same format, whether you are using them in
-xref:integration/scheduling.adoc#scheduling-annotation-support-scheduled[`@Scheduled` annotations],
-xref:integration/scheduling.adoc#scheduling-task-namespace-scheduled-tasks[`task:scheduled-tasks` elements],
-or someplace else. A well-formed cron expression, such as `* * * * * *`, consists of six
-space-separated time and date fields, each with its own range of valid values:
+所有 Infra cron 表达式都必须符合相同的格式，无论您是在
+xref:integration/scheduling.adoc#scheduling-annotation-support-scheduled[`@Scheduled` 注解]、
+xref:integration/scheduling.adoc#scheduling-task-namespace-scheduled-tasks[`task:scheduled-tasks` 元素] 中使用它们，还是在其他地方使用。
+格式良好的 cron 表达式（例如 `* * * * * *`）由六个空格分隔的时间和日期字段组成，每个字段都有自己的有效值范围：
 
 
 ....
- ┌───────────── second (0-59)
- │ ┌───────────── minute (0 - 59)
- │ │ ┌───────────── hour (0 - 23)
- │ │ │ ┌───────────── day of the month (1 - 31)
- │ │ │ │ ┌───────────── month (1 - 12) (or JAN-DEC)
- │ │ │ │ │ ┌───────────── day of the week (0 - 7)
- │ │ │ │ │ │          (0 or 7 is Sunday, or MON-SUN)
+ ┌───────────── 秒 (0-59)
+ │ ┌───────────── 分 (0 - 59)
+ │ │ ┌───────────── 时 (0 - 23)
+ │ │ │ ┌───────────── 月份中的日 (1 - 31)
+ │ │ │ │ ┌───────────── 月 (1 - 12) (或 JAN-DEC)
+ │ │ │ │ │ ┌───────────── 星期中的日 (0 - 7)
+ │ │ │ │ │ │          (0 或 7 是周日, 或 MON-SUN)
  │ │ │ │ │ │
  * * * * * *
 ....
 
-There are some rules that apply:
+有一些适用的规则：
 
-* A field may be an asterisk (`*`), which always stands for "`first-last`".
-For the day-of-the-month or day-of-the-week fields, a question mark (`?`) may be used instead of an
-asterisk.
-* Commas (`,`) are used to separate items of a list.
-* Two numbers separated with a hyphen (`-`) express a range of numbers.
-The specified range is inclusive.
-* Following a range (or `*`) with `/` specifies the interval of the number's value through the range.
-* English names can also be used for the month and day-of-week fields.
-Use the first three letters of the particular day or month (case does not matter).
-* The day-of-month and day-of-week fields can contain an `L` character, which has a different meaning.
-** In the day-of-month field, `L` stands for _the last day of the month_.
-If followed by a negative offset (that is, `L-n`), it means _``n``th-to-last day of the month_.
-** In the day-of-week field, `L` stands for _the last day of the week_.
-If prefixed by a number or three-letter name (`dL` or `DDDL`), it means _the last day of week (`d`
-or `DDD`) in the month_.
-* The day-of-month field can be `nW`, which stands for _the nearest weekday to day of the month ``n``_.
-If `n` falls on Saturday, this yields the Friday before it.
-If `n` falls on Sunday, this yields the Monday after, which also happens if `n` is `1` and falls on
-a Saturday (that is: `1W` stands for _the first weekday of the month_).
-* If the day-of-month field is `LW`, it means _the last weekday of the month_.
-* The day-of-week field can be `d#n` (or `DDD#n`), which stands for _the ``n``th day of week `d`
-(or ``DDD``) in the month_.
+* 字段可以是星号 (`*`)，它总是代表“`first-last`”。
+对于月份中的日或星期中的日字段，可以使用问号 (`?`) 代替星号。
+* 逗号 (`,`) 用于分隔列表中的项目。
+* 用连字符 (`-`) 分隔的两个数字表示数字范围。
+指定的范围是包含的。
+* 在范围（或 `*`）后跟 `/` 指定该范围内数字值的间隔。
+* 英文名称也可用于月和星期中的日字段。
+使用特定日或月的前三个字母（大小写无关）。
+* 月份中的日和星期中的日字段可以包含 `L` 字符，它具有不同的含义。
+** 在月份中的日字段中，`L` 代表 _月份的最后一天_。
+如果后跟负偏移量（即 `L-n`），则表示 _月份的倒数第 n 天_。
+** 在星期中的日字段中，`L` 代表 _星期的最后一天_。
+如果前缀有数字或三个字母的名称（`dL` 或 `DDDL`），则表示 _该月的最后一个星期 d（或 DDD）_。
+* 月份中的日字段可以是 `nW`，代表 _离月份第 n 天最近的工作日_。
+如果 `n` 是星期六，则结果是前一个星期五。
+如果 `n` 是星期日，则结果是后一个星期一，如果 `n` 是 `1` 并且是星期六（即：`1W` 代表 _该月的第一个工作日_），也会发生这种情况。
+* 如果月份中的日字段是 `LW`，则表示 _该月的最后一个工作日_。
+* 星期中的日字段可以是 `d#n`（或 `DDD#n`），代表 _该月的第 n 个星期 d（或 DDD）_。
 
-Here are some examples:
+以下是一些示例：
 
 |===
-| Cron Expression       | Meaning
+| Cron 表达式       | 含义
 
-|`0 0 * * * *`          | top of every hour of every day
-|`*/10 * * * * *`       | every ten seconds
-| `0 0 8-10 * * *`      | 8, 9 and 10 o'clock of every day
-| `0 0 6,19 * * *`      | 6:00 AM and 7:00 PM every day
-| `0 0/30 8-10 * * *`   | 8:00, 8:30, 9:00, 9:30, 10:00 and 10:30 every day
-| `0 0 9-17 * * MON-FRI`| on the hour nine-to-five weekdays
-| `0 0 0 25 DEC ?`       | every Christmas Day at midnight
-| `0 0 0 L * *`         | last day of the month at midnight
-| `0 0 0 L-3 * *`       | third-to-last day of the month at midnight
-| `0 0 0 * * 5L`        | last Friday of the month at midnight
-| `0 0 0 * * THUL`      | last Thursday of the month at midnight
-| `0 0 0 1W * *`        | first weekday of the month at midnight
-| `0 0 0 LW * *`        | last weekday of the month at midnight
-| `0 0 0 ? * 5#2`       | the second Friday in the month at midnight
-| `0 0 0 ? * MON#1`     | the first Monday in the month at midnight
+|`0 0 * * * *`          | 每天每小时整点
+|`*/10 * * * * *`       | 每十秒
+| `0 0 8-10 * * *`      | 每天 8、9 和 10 点
+| `0 0 6,19 * * *`      | 每天早上 6:00 和晚上 7:00
+| `0 0/30 8-10 * * *`   | 每天 8:00、8:30、9:00、9:30、10:00 和 10:30
+| `0 0 9-17 * * MON-FRI`| 工作日朝九晚五的整点
+| `0 0 0 25 DEC ?`       | 每年圣诞节午夜
+| `0 0 0 L * *`         | 每月最后一天午夜
+| `0 0 0 L-3 * *`       | 每月倒数第三天午夜
+| `0 0 0 * * 5L`        | 每月最后一个星期五午夜
+| `0 0 0 * * THUL`      | 每月最后一个星期四午夜
+| `0 0 0 1W * *`        | 每月第一个工作日午夜
+| `0 0 0 LW * *`        | 每月最后一个工作日午夜
+| `0 0 0 ? * 5#2`       | 每月第二个星期五午夜
+| `0 0 0 ? * MON#1`     | 每月第一个星期一午夜
 |===
 
 [[macros]]
-=== Macros
+=== 宏
 
-Expressions such as `0 0 * * * *` are hard for humans to parse and are, therefore,
-hard to fix in case of bugs. To improve readability, Infra supports the following
-macros, which represent commonly used sequences. You can use these macros instead
-of the six-digit value, thus: `@Scheduled(cron = "@hourly")`.
+诸如 `0 0 * * * *` 之类的表达式对人类来说很难解析，因此在出现错误时很难修复。
+为了提高可读性，Infra 支持以下宏，它们代表常用的序列。
+您可以使用这些宏代替六位数值，例如：`@Scheduled(cron = "@hourly")`。
 
 |===
-|Macro                          | Meaning
+|宏                          | 含义
 
-| `@yearly` (or `@annually`)    | once a year (`0 0 0 1 1 *`)
-| `@monthly`                    | once a month (`0 0 0 1 * *`)
-| `@weekly`                     | once a week (`0 0 0 * * 0`)
-| `@daily` (or `@midnight`)     | once a day (`0 0 0 * * *`), or
-| `@hourly`                     | once an hour, (`0 0 * * * *`)
+| `@yearly` (或 `@annually`)    | 每年一次 (`0 0 0 1 1 *`)
+| `@monthly`                    | 每月一次 (`0 0 0 1 * *`)
+| `@weekly`                     | 每周一次 (`0 0 0 * * 0`)
+| `@daily` (或 `@midnight`)     | 每天一次 (`0 0 0 * * *`)，或
+| `@hourly`                     | 每小时一次 (`0 0 * * * *`)
 |===
 
 
 
 [[scheduling-quartz]]
-== Using the Quartz Scheduler
+== 使用 Quartz 调度器
 
-Quartz uses `Trigger`, `Job`, and `JobDetail` objects to realize scheduling of all
-kinds of jobs. For the basic concepts behind Quartz, see the
-https://www.quartz-scheduler.org/[Quartz Web site]. For convenience purposes, Infra
-offers a couple of classes that simplify using Quartz within Infra-based applications.
+Quartz 使用 `Trigger`、`Job` 和 `JobDetail` 对象来实现各种作业的调度。
+有关 Quartz 背后的基本概念，请参阅 https://www.quartz-scheduler.org/[Quartz 网站]。
+为了方便起见，Infra 提供了几个类，简化了在基于 Infra 的应用程序中使用 Quartz。
 
 
 [[scheduling-quartz-jobdetail]]
-=== Using the `JobDetailFactoryBean`
+=== 使用 `JobDetailFactoryBean`
 
-Quartz `JobDetail` objects contain all the information needed to run a job. Infra
-provides a `JobDetailFactoryBean`, which provides bean-style properties for XML
-configuration purposes. Consider the following example:
+Quartz `JobDetail` 对象包含运行作业所需的所有信息。
+Infra 提供了一个 `JobDetailFactoryBean`，它为 XML 配置目的提供了 bean 风格的属性。
+考虑以下示例：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -917,12 +768,9 @@ configuration purposes. Consider the following example:
 </bean>
 ----
 
-The job detail configuration has all the information it needs to run the job (`ExampleJob`).
-The timeout is specified in the job data map. The job data map is available through the
-`JobExecutionContext` (passed to you at execution time), but the `JobDetail` also gets
-its properties from the job data mapped to properties of the job instance. So, in the
-following example, the `ExampleJob` contains a bean property named `timeout`, and the
-`JobDetail` has it applied automatically:
+作业详细信息配置包含运行作业 (`ExampleJob`) 所需的所有信息。
+超时在作业数据映射中指定。作业数据映射通过 `JobExecutionContext`（在执行时传递给您）可用，但 `JobDetail` 也从映射到作业实例属性的作业数据中获取其属性。
+因此，在以下示例中，`ExampleJob` 包含一个名为 `timeout` 的 bean 属性，并且 `JobDetail` 会自动应用它：
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
@@ -941,23 +789,22 @@ public class ExampleJob extends QuartzJobBean {
   }
 
   protected void executeInternal(JobExecutionContext ctx) throws JobExecutionException {
-    // do the actual work
+    // 做实际工作
   }
 }
 ----
 
-All additional properties from the job data map are available to you as well.
+作业数据映射中的所有其他属性也可供您使用。
 
-NOTE: By using the `name` and `group` properties, you can modify the name and the group
-of the job, respectively. By default, the name of the job matches the bean name
-of the `JobDetailFactoryBean` (`exampleJob` in the preceding example above).
+NOTE: 通过使用 `name` 和 `group` 属性，您可以分别修改作业的名称和组。
+默认情况下，作业名称与 `JobDetailFactoryBean` 的 bean 名称匹配（在上面的示例中为 `exampleJob`）。
 
 
 [[scheduling-quartz-method-invoking-job]]
-=== Using the `MethodInvokingJobDetailFactoryBean`
+=== 使用 `MethodInvokingJobDetailFactoryBean`
 
-Often you merely need to invoke a method on a specific object. By using the
-`MethodInvokingJobDetailFactoryBean`, you can do exactly this, as the following example shows:
+通常，您只需要在特定对象上调用一个方法。
+通过使用 `MethodInvokingJobDetailFactoryBean`，您可以完全做到这一点，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -967,17 +814,16 @@ Often you merely need to invoke a method on a specific object. By using the
 </bean>
 ----
 
-The preceding example results in the `doIt` method being called on the
-`exampleBusinessObject` method, as the following example shows:
+前面的示例导致在 `exampleBusinessObject` 方法上调用 `doIt` 方法，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 public class ExampleBusinessObject {
 
-  // properties and collaborators
+  // 属性和协作者
 
   public void doIt() {
-    // do the actual work
+    // 做实际工作
   }
 }
 ----
@@ -987,18 +833,14 @@ public class ExampleBusinessObject {
 	<bean id="exampleBusinessObject" class="examples.ExampleBusinessObject"/>
 ----
 
-By using the `MethodInvokingJobDetailFactoryBean`, you need not create one-line jobs
-that merely invoke a method. You need only create the actual business object and
-wire up the detail object.
+通过使用 `MethodInvokingJobDetailFactoryBean`，您无需创建仅调用方法的一行作业。
+您只需要创建实际的业务对象并连接详细信息对象。
 
-By default, Quartz Jobs are stateless, resulting in the possibility of jobs interfering
-with each other. If you specify two triggers for the same `JobDetail`, it is possible
-that the second one starts before the first job has finished. If `JobDetail` classes
-implement the `Stateful` interface, this does not happen: the second job does not start
-before the first one has finished.
+默认情况下，Quartz 作业是无状态的，导致作业之间可能相互干扰。
+如果为同一个 `JobDetail` 指定两个触发器，则第二个作业可能会在第一个作业完成之前开始。
+如果 `JobDetail` 类实现了 `Stateful` 接口，则不会发生这种情况：第二个作业在第一个作业完成之前不会开始。
 
-To make jobs resulting from the `MethodInvokingJobDetailFactoryBean` be non-concurrent,
-set the `concurrent` flag to `false`, as the following example shows:
+要使 `MethodInvokingJobDetailFactoryBean` 生成的作业成为非并发的，请将 `concurrent` 标志设置为 `false`，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -1009,47 +851,42 @@ set the `concurrent` flag to `false`, as the following example shows:
 </bean>
 ----
 
-NOTE: By default, jobs will run in a concurrent fashion.
+NOTE: 默认情况下，作业将以并发方式运行。
 
 
 [[scheduling-quartz-cron]]
-=== Wiring up Jobs by Using Triggers and `SchedulerFactoryBean`
+=== 使用触发器和 `SchedulerFactoryBean` 连接作业
 
-We have created job details and jobs. We have also reviewed the convenience bean that
-lets you invoke a method on a specific object. Of course, we still need to schedule the
-jobs themselves. This is done by using triggers and a `SchedulerFactoryBean`. Several
-triggers are available within Quartz, and Infra offers two Quartz `FactoryBean`
-implementations with convenient defaults: `CronTriggerFactoryBean` and
-`SimpleTriggerFactoryBean`.
+我们已经创建了作业详细信息和作业。我们还回顾了允许您在特定对象上调用方法的便捷 bean。
+当然，我们仍然需要调度作业本身。这是通过使用触发器和 `SchedulerFactoryBean` 完成的。
+Quartz 中有多种触发器可用，Infra 提供了两个具有便捷默认值的 Quartz `FactoryBean` 实现：`CronTriggerFactoryBean` 和 `SimpleTriggerFactoryBean`。
 
-Triggers need to be scheduled. Infra offers a `SchedulerFactoryBean` that exposes
-triggers to be set as properties. `SchedulerFactoryBean` schedules the actual jobs with
-those triggers.
+触发器需要被调度。Infra 提供了一个 `SchedulerFactoryBean`，它公开了要设置为属性的触发器。
+`SchedulerFactoryBean` 使用这些触发器调度实际作业。
 
-The following listing uses both a `SimpleTriggerFactoryBean` and a `CronTriggerFactoryBean`:
+以下清单同时使用了 `SimpleTriggerFactoryBean` 和 `CronTriggerFactoryBean`：
 
 [source,xml,indent=0]
 [subs="verbatim"]
 ----
 <bean id="simpleTrigger" class="infra.scheduling.quartz.SimpleTriggerFactoryBean">
-  <!-- see the example of method invoking job above -->
+  <!-- 参见上面的方法调用作业示例 -->
   <property name="jobDetail" ref="jobDetail"/>
-  <!-- 10 seconds -->
+  <!-- 10 秒 -->
   <property name="startDelay" value="10000"/>
-  <!-- repeat every 50 seconds -->
+  <!-- 每 50 秒重复一次 -->
   <property name="repeatInterval" value="50000"/>
 </bean>
 
 <bean id="cronTrigger" class="infra.scheduling.quartz.CronTriggerFactoryBean">
   <property name="jobDetail" ref="exampleJob"/>
-  <!-- run every morning at 6 AM -->
+  <!-- 每天早上 6 点运行 -->
   <property name="cronExpression" value="0 0 6 * * ?"/>
 </bean>
 ----
 
-The preceding example sets up two triggers, one running every 50 seconds with a starting
-delay of 10 seconds and one running every morning at 6 AM. To finalize everything,
-we need to set up the `SchedulerFactoryBean`, as the following example shows:
+前面的示例设置了两个触发器，一个每 50 秒运行一次，启动延迟为 10 秒，另一个每天早上 6 点运行。
+为了完成所有设置，我们需要设置 `SchedulerFactoryBean`，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -1063,16 +900,9 @@ we need to set up the `SchedulerFactoryBean`, as the following example shows:
 </bean>
 ----
 
-More properties are available for the `SchedulerFactoryBean`, such as the calendars used by the
-job details, properties to customize Quartz with, and a Infra-provided JDBC DataSource. See
-the {today-framework-api}/scheduling/quartz/SchedulerFactoryBean.html[`SchedulerFactoryBean`]
-javadoc for more information.
+`SchedulerFactoryBean` 还有更多可用属性，例如作业详细信息使用的日历、用于自定义 Quartz 的属性以及 Infra 提供的 JDBC 数据源。
+有关更多信息，请参阅 {today-framework-api}/scheduling/quartz/SchedulerFactoryBean.html[`SchedulerFactoryBean`] javadoc。
 
-NOTE: `SchedulerFactoryBean` also recognizes a `quartz.properties` file in the classpath,
-based on Quartz property keys, as with regular Quartz configuration. Please note that many
-`SchedulerFactoryBean` settings interact with common Quartz settings in the properties file;
-it is therefore not recommended to specify values at both levels. For example, do not set
-an "org.quartz.jobStore.class" property if you mean to rely on a Infra-provided DataSource,
-or specify an `infra.scheduling.quartz.LocalDataSourceJobStore` variant which
-is a full-fledged replacement for the standard `org.quartz.impl.jdbcjobstore.JobStoreTX`.
-
+NOTE: `SchedulerFactoryBean` 还可以识别类路径中的 `quartz.properties` 文件（基于 Quartz 属性键），就像常规 Quartz 配置一样。
+请注意，许多 `SchedulerFactoryBean` 设置与属性文件中的常见 Quartz 设置交互；因此，不建议在两个级别都指定值。
+例如，如果您打算依赖 Infra 提供的数据源，请不要设置 "org.quartz.jobStore.class" 属性，或者指定 `infra.scheduling.quartz.LocalDataSourceJobStore` 变体，它是标准 `org.quartz.impl.jdbcjobstore.JobStoreTX` 的完全替代品。
