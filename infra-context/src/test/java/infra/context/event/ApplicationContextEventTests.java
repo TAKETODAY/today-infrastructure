@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 
 import infra.aop.framework.ProxyFactory;
 import infra.beans.BeansException;
+import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.config.BeanDefinition;
@@ -438,12 +439,15 @@ class ApplicationContextEventTests extends AbstractApplicationEventListenerTests
     RootBeanDefinition listener1Def = new RootBeanDefinition(MyOrderedListener1.class);
     listener1Def.setDependsOn("nestedChild");
     context.registerBeanDefinition("listener1", listener1Def);
+    context.registerBeanDefinition("listenerFb", new RootBeanDefinition(MyFactoryBeanListener.class));
     context.refresh();
 
     MyOrderedListener1 listener1 = context.getBean("listener1", MyOrderedListener1.class);
+    MyFactoryBeanListener listenerFb = context.getBean("&listenerFb", MyFactoryBeanListener.class);
     MyEvent event1 = new MyEvent(context);
     context.publishEvent(event1);
     assertThat(listener1.seenEvents).contains(event1);
+    assertThat(listenerFb.seenEvents).contains(event1);
 
     SimpleApplicationEventMulticaster multicaster = context.getBean(SimpleApplicationEventMulticaster.class);
     assertThat(multicaster.getApplicationListeners()).isNotEmpty();
@@ -824,6 +828,26 @@ class ApplicationContextEventTests extends AbstractApplicationEventListenerTests
       Thread thread = new Thread(() -> this.publisher.publishEvent(new MyEvent(this)));
       thread.start();
       thread.join();
+    }
+  }
+
+  public static class MyFactoryBeanListener implements FactoryBean<String>, ApplicationListener<ApplicationEvent> {
+
+    public final List<ApplicationEvent> seenEvents = new ArrayList<>();
+
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+      this.seenEvents.add(event);
+    }
+
+    @Override
+    public String getObject() {
+      return "";
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      return String.class;
     }
   }
 

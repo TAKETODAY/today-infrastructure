@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import infra.beans.factory.BeanFactory;
+import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.beans.factory.support.MergedBeanDefinitionPostProcessor;
@@ -102,7 +104,8 @@ final class ApplicationListenerDetector
       try {
         ApplicationEventMulticaster multicaster = this.applicationContext.getApplicationEventMulticaster();
         multicaster.removeApplicationListener((ApplicationListener<?>) bean);
-        multicaster.removeApplicationListenerBean(beanName);
+        multicaster.removeApplicationListenerBean(
+                bean instanceof FactoryBean ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName);
       }
       catch (IllegalStateException ex) {
         // ApplicationEventMulticaster not initialized yet - no need to remove a listener
