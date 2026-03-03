@@ -137,7 +137,7 @@ class SimpleAsyncTaskExecutorTests {
 
   @Test
   void taskTerminationTimeout() throws InterruptedException {
-    java.util.concurrent.Future<?> future;
+    Future<?> future;
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setTaskTerminationTimeout(500);
       future = executor.submit(() -> {
@@ -157,7 +157,7 @@ class SimpleAsyncTaskExecutorTests {
   @Test
   void taskTerminationTimeoutWithImmediateCancel() {
     AtomicBoolean finished = new AtomicBoolean();
-    java.util.concurrent.Future<?> future;
+    Future<?> future;
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setTaskTerminationTimeout(100);
       future = executor.submit(() -> {
@@ -173,7 +173,7 @@ class SimpleAsyncTaskExecutorTests {
   @Test
   void taskTerminationTimeoutWithLateInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
-    java.util.concurrent.Future<?> future;
+    Future<?> future;
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setTaskTerminationTimeout(200);
       future = executor.submit(() -> {
@@ -194,7 +194,7 @@ class SimpleAsyncTaskExecutorTests {
   @Test
   void taskTerminationTimeoutWithEarlyInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
-    java.util.concurrent.Future<?> future;
+    Future<?> future;
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setTaskTerminationTimeout(500);
       executor.setCancelRemainingTasksOnClose(true);
