@@ -32,11 +32,11 @@ import infra.session.Session;
 import infra.session.SessionManager;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.WebBindingInitializer;
+import infra.web.context.support.SessionManagerDiscover;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.util.SessionMutexListener;
 import infra.web.util.WebUtils;
@@ -55,32 +55,24 @@ import infra.web.view.ModelAndView;
  * @see RequestMappingHandlerMapping
  * @since 4.0 2022/4/8 22:46
  */
-@SuppressWarnings("NullAway.Init")
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
         implements BeanFactoryAware, InitializingBean {
 
-  @Nullable
-  private ParameterResolvingRegistry resolvingRegistry;
+  private @Nullable ParameterResolvingRegistry resolvingRegistry;
 
-  @Nullable
-  private WebBindingInitializer webBindingInitializer;
+  private @Nullable WebBindingInitializer webBindingInitializer;
 
-  private boolean synchronizeOnSession = false;
+  private @Nullable SessionManagerDiscover sessionManagerDiscover;
 
-  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
-
-  @Nullable
-  private ConfigurableBeanFactory beanFactory;
-
-  @Nullable
-  private SessionManager sessionManager;
-
-  @Nullable
-  private RedirectModelManager redirectModelManager;
+  private @Nullable RedirectModelManager redirectModelManager;
 
   private ControllerMethodResolver methodResolver;
 
   private ModelHandler modelHandler;
+
+  private boolean synchronizeOnSession = false;
+
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
@@ -144,21 +136,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    */
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
-    if (beanFactory instanceof ConfigurableBeanFactory) {
-      this.beanFactory = (ConfigurableBeanFactory) beanFactory;
-    }
-  }
-
-  /**
-   * Return the owning factory of this bean instance, or {@code null} if none.
-   */
-  @Nullable
-  protected ConfigurableBeanFactory getBeanFactory() {
-    return this.beanFactory;
-  }
-
-  public void setSessionManager(@Nullable SessionManager sessionManager) {
-    this.sessionManager = sessionManager;
+    this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
   }
 
   @Override
@@ -218,16 +196,14 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     return returnValue;
   }
 
-  @Nullable
-  private Session getSession(RequestContext request) {
-    Session session = null;
-    if (sessionManager != null) {
-      session = sessionManager.getSession(request, false);
+  private @Nullable Session getSession(RequestContext request) {
+    if (sessionManagerDiscover != null) {
+      SessionManager sessionManager = sessionManagerDiscover.find(request);
+      if (sessionManager != null) {
+        return sessionManager.getSession(request, false);
+      }
     }
-    if (session == null) {
-      session = RequestContextUtils.getSession(request, false);
-    }
-    return session;
+    return null;
   }
 
   /**

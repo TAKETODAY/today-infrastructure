@@ -26,7 +26,11 @@ import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 
 /**
- * Help to find SessionManager in BeanFactory and request-context
+ * Helper class to discover and obtain a {@link SessionManager} instance.
+ * <p>It first attempts to locate the manager in the configured {@link BeanFactory},
+ * utilizing a double-checked locking mechanism for thread-safe lazy initialization.
+ * If not found in the bean factory, it can also attempt to retrieve it from the
+ * current {@link RequestContext}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/30 17:41
@@ -35,21 +39,29 @@ public class SessionManagerDiscover {
 
   private final BeanFactory beanFactory;
 
-  @Nullable
-  private volatile SessionManager sessionManager;
+  private volatile @Nullable SessionManager sessionManager;
 
   private volatile boolean managerLoaded = false;
 
+  /**
+   * Constructs a new SessionManagerDiscover with the given BeanFactory.
+   *
+   * @param beanFactory the BeanFactory to search for the SessionManager
+   */
   public SessionManagerDiscover(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
     this.beanFactory = beanFactory;
   }
 
   /**
-   * Obtain SessionManager in {@link #beanFactory}
+   * Obtains the {@link SessionManager} from the configured {@link #beanFactory}.
+   * <p>This method uses double-checked locking to ensure thread-safe lazy loading.
+   * It first tries to find the bean by name ({@link SessionManager#BEAN_NAME}),
+   * and if not found, it searches by type.
+   *
+   * @return the discovered SessionManager, or {@code null} if not found
    */
-  @Nullable
-  public SessionManager find() {
+  public @Nullable SessionManager find() {
     SessionManager sessionManager = this.sessionManager;
     if (sessionManager == null) {
       synchronized(this) {
@@ -72,15 +84,33 @@ public class SessionManagerDiscover {
   }
 
   /**
-   * Obtain SessionManager
+   * Obtains the {@link SessionManager}, first checking the configured {@link #beanFactory},
+   * and if not found, attempting to retrieve it from the provided {@link RequestContext}.
+   *
+   * @param request the current request context to check for a SessionManager
+   * @return the discovered SessionManager, or {@code null} if not found in either source
    */
-  public SessionManager obtain(RequestContext request) {
+  public @Nullable SessionManager find(RequestContext request) {
     SessionManager sessionManager = find();
     if (sessionManager == null) {
       sessionManager = RequestContextUtils.getSessionManager(request);
-      if (sessionManager == null) {
-        throw new IllegalStateException("No SessionManager in context");
-      }
+    }
+    return sessionManager;
+  }
+
+  /**
+   * Obtains the {@link SessionManager} for the given request.
+   * <p>This method ensures a non-null result by throwing an exception if no
+   * SessionManager can be found in the bean factory or the request context.
+   *
+   * @param request the current request context
+   * @return the discovered SessionManager
+   * @throws IllegalStateException if no SessionManager is found
+   */
+  public SessionManager obtain(RequestContext request) {
+    SessionManager sessionManager = find(request);
+    if (sessionManager == null) {
+      throw new IllegalStateException("No SessionManager in context");
     }
     return sessionManager;
   }

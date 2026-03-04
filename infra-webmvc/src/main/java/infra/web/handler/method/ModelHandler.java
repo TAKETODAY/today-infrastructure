@@ -134,7 +134,7 @@ final class ModelHandler {
         continue;
       }
 
-      String returnValueName = getNameForReturnValue(returnValue, modelMethod);
+      String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
       if (!ann.binding()) {
         container.setBindingDisabled(returnValueName);
       }
@@ -224,16 +224,15 @@ final class ModelHandler {
    * </ol>
    *
    * @param returnValue the value returned from a method invocation
-   * @param handler a descriptor for the method
+   * @param returnType a descriptor for the return type of the method
    * @return the derived name (never {@code null} or empty String)
    */
-  public static String getNameForReturnValue(@Nullable Object returnValue, HandlerMethod handler) {
-    ModelAttribute ann = handler.getMethodAnnotation(ModelAttribute.class);
+  public static String getNameForReturnValue(@Nullable Object returnValue, MethodParameter returnType) {
+    ModelAttribute ann = returnType.getMethodAnnotation(ModelAttribute.class);
     if (ann != null && StringUtils.hasText(ann.value())) {
       return ann.value();
     }
     else {
-      MethodParameter returnType = handler.getReturnType();
       Method method = returnType.getMethod();
       Assert.state(method != null, "No handler method");
       Class<?> containingClass = returnType.getContainingClass();
@@ -245,6 +244,7 @@ final class ModelHandler {
   private static class ModelMethod {
 
     public final InvocableHandlerMethod handlerMethod;
+
     public final HashSet<String> dependencies = new HashSet<>();
 
     public ModelMethod(InvocableHandlerMethod handlerMethod) {

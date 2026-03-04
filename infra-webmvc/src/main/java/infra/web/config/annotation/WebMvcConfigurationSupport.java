@@ -49,7 +49,6 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
-import infra.session.SessionManager;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 import infra.validation.Errors;
@@ -874,7 +873,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
-          @Nullable SessionManager sessionManager,
           @Nullable RedirectModelManager redirectModelManager,
           @Nullable WebBindingInitializer webBindingInitializer,
           ParameterResolvingRegistry parameterResolvingRegistry,
@@ -883,7 +881,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
     var adapter = createRequestMappingHandlerAdapter();
 
-    adapter.setSessionManager(sessionManager);
     adapter.setRedirectModelManager(redirectModelManager);
     adapter.setResolvingRegistry(parameterResolvingRegistry);
     if (webBindingInitializer == null) {

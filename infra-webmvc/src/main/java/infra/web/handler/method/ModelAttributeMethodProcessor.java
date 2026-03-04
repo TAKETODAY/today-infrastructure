@@ -356,7 +356,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null && returnValue != null) {
-      String name = ModelHandler.getNameForReturnValue(returnValue, handlerMethod);
+      String name = ModelHandler.getNameForReturnValue(returnValue, handlerMethod.getReturnType());
       context.binding().addAttribute(name, returnValue);
     }
   }

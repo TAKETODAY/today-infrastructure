@@ -86,6 +86,7 @@ dependencies {
   testImplementation(testFixtures(project(":infra-context")))
   testImplementation(testFixtures(project(":infra-http")))
   testImplementation(testFixtures(project(":infra-test")))
+  testImplementation(testFixtures(project(":infra-webmvc")))
   testImplementation(testFixtures(project(":infra-http-reactive")))
 
   testImplementation("org.mozilla:rhino")

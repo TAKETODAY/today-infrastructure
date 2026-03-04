@@ -692,10 +692,10 @@ public class ResolvableMethod {
       Object proxy = null;
 
       try {
-        proxy = BeanInstantiator.forSerialization(proxyClass);
+        proxy = BeanInstantiator.forSerialization(proxyClass).instantiate();
       }
       catch (Exception ex) {
-        logger.debug("Objenesis failed, falling back to default constructor", ex);
+        logger.debug("instantiate failed, falling back to default constructor", ex);
       }
 
       if (proxy == null) {
