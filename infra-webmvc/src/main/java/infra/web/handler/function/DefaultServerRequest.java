@@ -62,6 +62,7 @@ import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.async.AsyncWebRequest;
 import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
 import infra.web.util.UriBuilder;
@@ -229,7 +230,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T bind(Class<T> bindType, Consumer<RequestContextDataBinder> dataBinderCustomizer) throws BindException {
+  public <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException {
     Assert.notNull(bindType, "BindType is required");
     Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer is required");
 
@@ -287,7 +288,7 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public MultiValueMap<String, Part> multipartData() throws IOException {
+  public MultiValueMap<String, Part> multipartData() {
     MultiValueMap<String, Part> result = this.parts;
     if (result == null) {
       result = requestContext.asMultipartRequest().getParts();

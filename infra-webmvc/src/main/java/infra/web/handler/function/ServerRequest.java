@@ -48,10 +48,11 @@ import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
-import infra.web.server.NotMultipartRequestException;
 import infra.web.multipart.Part;
+import infra.web.server.MultipartException;
+import infra.web.server.NotMultipartRequestException;
 import infra.web.util.UriBuilder;
 
 /**
@@ -174,7 +175,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return a constructed and bound instance of {@code bindType}
    * @throws BindException in case of binding errors
    */
-  <T> T bind(Class<T> bindType, Consumer<RequestContextDataBinder> dataBinderCustomizer) throws BindException;
+  <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException;
 
   /**
    * Get the request attribute value.
@@ -248,6 +249,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the multipart data, mapping from name to part(s)
    * @throws IOException if an I/O error occurred during the retrieval
    * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @throws MultipartException if parsing fails
    * @see RequestContext#asMultipartRequest()
    * @see MultipartRequest#getParts()
    */

@@ -68,7 +68,7 @@ import infra.web.ReturnValueHandler;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncManagerFactory;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
@@ -914,7 +914,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   /**
    * Return the {@link WebBindingInitializer} to use for
-   * initializing all {@link RequestContextDataBinder} instances.
+   * initializing all {@link WebDataBinder} instances.
    */
   protected WebBindingInitializer createWebBindingInitializer(FormattingConversionService mvcConversionService, Validator mvcValidator) {
     var initializer = new ConfigurableWebBindingInitializer();

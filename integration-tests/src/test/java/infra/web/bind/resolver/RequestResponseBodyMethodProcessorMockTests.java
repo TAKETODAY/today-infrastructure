@@ -18,6 +18,7 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -38,7 +39,6 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.validation.BindingResult;
@@ -51,7 +51,7 @@ import infra.web.RequestContext;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.ResponseBody;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
@@ -216,7 +216,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     BindingContext bindingContext = new BindingContext() {
 
       @Override
-      public void initBinder(RequestContextDataBinder dataBinder, RequestContext request) {
+      public void initBinder(WebDataBinder dataBinder, RequestContext request) {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         dataBinder.setValidator(validator);

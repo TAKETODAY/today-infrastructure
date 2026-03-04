@@ -45,6 +45,7 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
@@ -146,7 +147,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     // No BindingResult yet, proceed with binding and validation
     if (bindingResult == null) {
       ResolvableType type = ResolvableType.forMethodParameter(parameter);
-      RequestContextDataBinder binder = bindingContext.createBinder(context, attribute, name, type);
+      WebDataBinder binder = bindingContext.createBinder(context, attribute, name, type);
       if (attribute == null) {
         constructAttribute(binder, context);
         attribute = wrapAsOptionalIfNecessary(parameter, binder.getTarget());
@@ -274,8 +275,10 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param binder the data binder instance to use for the binding
    * @param request the current request
    */
-  protected void constructAttribute(RequestContextDataBinder binder, RequestContext request) {
-    binder.construct(request);
+  protected void constructAttribute(WebDataBinder binder, RequestContext request) {
+    if (binder instanceof RequestContextDataBinder rcdb) {
+      rcdb.construct(request);
+    }
   }
 
   /**
@@ -284,8 +287,10 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param binder the data binder instance to use for the binding
    * @param request the current request
    */
-  protected void bindRequestParameters(RequestContextDataBinder binder, RequestContext request) {
-    binder.bind(request);
+  protected void bindRequestParameters(WebDataBinder binder, RequestContext request) {
+    if (binder instanceof RequestContextDataBinder rcdb) {
+      rcdb.bind(request);
+    }
   }
 
   /**
@@ -296,10 +301,10 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    *
    * @param binder the DataBinder to be used
    * @param parameter the method parameter declaration
-   * @see RequestContextDataBinder#validate(Object...)
+   * @see WebDataBinder#validate(Object...)
    * @see SmartValidator#validate(Object, Errors, Object...)
    */
-  protected void validateIfApplicable(RequestContextDataBinder binder, MethodParameter parameter) {
+  protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
     for (Annotation ann : parameter.getParameterAnnotations()) {
       Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
       if (validationHints != null) {
@@ -318,7 +323,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @return {@code true} if the next method parameter is not of type {@link Errors}
    * @see #isBindExceptionRequired(MethodParameter)
    */
-  protected boolean isBindExceptionRequired(RequestContextDataBinder binder, MethodParameter parameter) {
+  protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
     return isBindExceptionRequired(parameter);
   }
 

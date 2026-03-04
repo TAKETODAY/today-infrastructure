@@ -55,6 +55,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Part;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriComponentsBuilder;
@@ -339,7 +340,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T bind(Class<T> bindType, Consumer<RequestContextDataBinder> dataBinderCustomizer) throws BindException {
+    public <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException {
       Assert.notNull(bindType, "BindType is required");
       Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer is required");
 

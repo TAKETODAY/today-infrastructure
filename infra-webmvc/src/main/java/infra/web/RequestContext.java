@@ -82,6 +82,7 @@ import infra.web.async.WebAsyncManagerFactory;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.multipart.MultipartRequest;
+import infra.web.server.MultipartException;
 import infra.web.util.HtmlUtils;
 import infra.web.util.WebUtils;
 
@@ -894,6 +895,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * }</pre>
    *
    * @return the cached or newly created {@code MultipartRequest} instance
+   * @throws MultipartException if parsing fails
    * @see #isMultipart()
    * @since 4.0
    */
