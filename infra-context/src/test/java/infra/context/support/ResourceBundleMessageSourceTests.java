@@ -21,6 +21,8 @@ package infra.context.support;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +35,7 @@ import infra.context.MessageSourceResolvable;
 import infra.context.NoSuchMessageException;
 import infra.core.i18n.LocaleContextHolder;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -128,8 +131,7 @@ class ResourceBundleMessageSourceTests {
     if (alwaysUseMessageFormat) {
       pvs.add("alwaysUseMessageFormat", Boolean.TRUE);
     }
-    Class<?> clazz = reloadable ?
-                     (Class<?>) ReloadableResourceBundleMessageSource.class : ResourceBundleMessageSource.class;
+    Class<?> clazz = reloadable ? ReloadableResourceBundleMessageSource.class : ResourceBundleMessageSource.class;
     ac.registerSingleton("messageSource", clazz, pvs);
     ac.refresh();
 
@@ -275,23 +277,14 @@ class ResourceBundleMessageSourceTests {
     assertThat(ms.getMessage("code2", null, Locale.GERMAN)).isEqualTo("nachricht2");
   }
 
+
   @Test
   void resourceBundleMessageSourceWithDefaultCharset() {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    ms.setDefaultEncoding("ISO-8859-1");
+    ms.setDefaultCharset(ISO_8859_1);
     assertThat(ms.getMessage("code1", null, Locale.ENGLISH)).isEqualTo("message1");
     assertThat(ms.getMessage("code2", null, Locale.GERMAN)).isEqualTo("nachricht2");
-  }
-
-  @Test
-  void resourceBundleMessageSourceWithInappropriateDefaultCharset() {
-    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
-    ms.setBasename("infra/context/support/messages");
-    ms.setDefaultEncoding("argh");
-    ms.setFallbackToSystemLocale(false);
-    assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-            ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -356,16 +349,16 @@ class ResourceBundleMessageSourceTests {
   void reloadableResourceBundleMessageSourceWithDefaultCharset() {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    ms.setDefaultEncoding("ISO-8859-1");
+    ms.setDefaultCharset(ISO_8859_1);
     assertThat(ms.getMessage("code1", null, Locale.ENGLISH)).isEqualTo("message1");
     assertThat(ms.getMessage("code2", null, Locale.GERMAN)).isEqualTo("nachricht2");
   }
 
   @Test
-  void reloadableResourceBundleMessageSourceWithInappropriateDefaultCharset() {
+  void reloadableResourceBundleMessageSourceWithInappropriateDefaultCharsetName() {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    ms.setDefaultEncoding("unicode");
+    ms.setDefaultCharset(Charset.forName("unicode"));
     Properties fileCharsets = new Properties();
     fileCharsets.setProperty("infra/context/support/messages_de", "unicode");
     ms.setFileEncodings(fileCharsets);
@@ -403,29 +396,19 @@ class ResourceBundleMessageSourceTests {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
 
     List<String> filenames = ms.calculateFilenamesForLocale("messages", Locale.ENGLISH);
-    assertThat(filenames).hasSize(1);
-    assertThat(filenames.get(0)).isEqualTo("messages_en");
+    assertThat(filenames).containsExactly("messages_en");
 
     filenames = ms.calculateFilenamesForLocale("messages", Locale.UK);
-    assertThat(filenames).hasSize(2);
-    assertThat(filenames.get(1)).isEqualTo("messages_en");
-    assertThat(filenames.get(0)).isEqualTo("messages_en_GB");
+    assertThat(filenames).containsExactly("messages_en_GB", "messages_en");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("en", "GB", "POSIX"));
-    assertThat(filenames).hasSize(3);
-    assertThat(filenames.get(2)).isEqualTo("messages_en");
-    assertThat(filenames.get(1)).isEqualTo("messages_en_GB");
-    assertThat(filenames.get(0)).isEqualTo("messages_en_GB_POSIX");
+    assertThat(filenames).containsExactly("messages_en_GB_POSIX", "messages_en_GB", "messages_en");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("en", "", "POSIX"));
-    assertThat(filenames).hasSize(2);
-    assertThat(filenames.get(1)).isEqualTo("messages_en");
-    assertThat(filenames.get(0)).isEqualTo("messages_en__POSIX");
+    assertThat(filenames).containsExactly("messages_en__POSIX", "messages_en");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("", "UK", "POSIX"));
-    assertThat(filenames).hasSize(2);
-    assertThat(filenames.get(1)).isEqualTo("messages__UK");
-    assertThat(filenames.get(0)).isEqualTo("messages__UK_POSIX");
+    assertThat(filenames).containsExactly("messages__UK_POSIX", "messages__UK");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("", "", "POSIX"));
     assertThat(filenames).isEmpty();
@@ -468,12 +451,11 @@ class ResourceBundleMessageSourceTests {
     assertThat(rbg.containsKey("code2")).isTrue();
   }
 
-
-  @Test 
+  @Test
   void messageSourceResourceBundleLocale() {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    
+
     MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.GERMAN);
     assertThat(bundle.getLocale()).isEqualTo(Locale.GERMAN);
   }
@@ -482,7 +464,7 @@ class ResourceBundleMessageSourceTests {
   void messageSourceResourceBundleWithMissingKey() {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    
+
     MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
     assertThat(bundle.containsKey("nonexistent")).isFalse();
     assertThatExceptionOfType(MissingResourceException.class)
@@ -493,7 +475,7 @@ class ResourceBundleMessageSourceTests {
   void messageSourceResourceBundleGetKeys() {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    
+
     MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(bundle::getKeys)
@@ -511,14 +493,14 @@ class ResourceBundleMessageSourceTests {
   void messageSourceResourceBundleWithParent() {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    
+
     // 创建一个父 ResourceBundle
     ResourceBundle parent = ResourceBundle.getBundle("infra/context/support/more-messages");
     MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH, parent);
-    
+
     // 测试从 MessageSource 获取消息
     assertThat(bundle.getString("code1")).isEqualTo("message1");
-    
+
     // 测试从父 bundle 获取消息
     assertThat(bundle.getString("hello")).isEqualTo("{0}, {1}");
   }
@@ -528,10 +510,10 @@ class ResourceBundleMessageSourceTests {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
     MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
-    
+
     // 测试成功获取对象
     assertThat(bundle.handleGetObject("code1")).isEqualTo("message1");
-    
+
     // 测试获取不存在的键
     assertThat(bundle.handleGetObject("nonexistent")).isNull();
   }
@@ -540,15 +522,15 @@ class ResourceBundleMessageSourceTests {
   void messageSourceResourceBundleWithDifferentLocales() {
     ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
     ms.setBasename("infra/context/support/messages");
-    
+
     // 测试英文消息
     MessageSourceResourceBundle bundleEn = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
     assertThat(bundleEn.getString("code1")).isEqualTo("message1");
-    
+
     // 测试德文消息
     MessageSourceResourceBundle bundleDe = new MessageSourceResourceBundle(ms, Locale.GERMAN);
     assertThat(bundleDe.getString("code2")).isEqualTo("nachricht2");
-    
+
     // 测试特定区域的德文消息
     MessageSourceResourceBundle bundleDeAt = new MessageSourceResourceBundle(ms, new Locale("de", "AT"));
     assertThat(bundleDeAt.getString("code2")).isEqualTo("nochricht2");

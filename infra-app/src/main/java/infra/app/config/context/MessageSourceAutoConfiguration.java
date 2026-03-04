@@ -88,7 +88,7 @@ public class MessageSourceAutoConfiguration {
       );
     }
     if (properties.getEncoding() != null) {
-      messageSource.setDefaultEncoding(properties.getEncoding().name());
+      messageSource.setDefaultCharset(properties.getEncoding());
     }
     messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());
     Duration cacheDuration = properties.getCacheDuration();

@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,10 +84,10 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setCacheSeconds
  * @see #setBasenames
- * @see #setDefaultEncoding
  * @see #setFileEncodings
  * @see #setPropertiesPersister
  * @see #setResourceLoader
+ * @see #setDefaultCharset
  * @see DefaultResourceLoader
  * @see ResourceBundleMessageSource
  * @see java.util.ResourceBundle
@@ -98,8 +99,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
 
   private List<String> fileExtensions = List.of(".properties", XML_EXTENSION);
 
-  @Nullable
-  private Properties fileEncodings;
+  private @Nullable Properties fileEncodings;
 
   private boolean concurrentRefresh = true;
 
@@ -108,13 +108,13 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
   // Cache to hold filename lists per Locale
-  private final ConcurrentMap<String, Map<Locale, List<String>>> cachedFilenames = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, Map<Locale, List<String>>> cachedFilenames = new ConcurrentHashMap<>();
 
   // Cache to hold already loaded properties per filename
-  private final ConcurrentMap<String, PropertiesHolder> cachedProperties = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, PropertiesHolder> cachedProperties = new ConcurrentHashMap<>();
 
   // Cache to hold already loaded properties per filename
-  private final ConcurrentMap<Locale, PropertiesHolder> cachedMergedProperties = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Locale, PropertiesHolder> cachedMergedProperties = new ConcurrentHashMap<>();
 
   /**
    * Set the list of supported file extensions.
@@ -136,12 +136,12 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * Set per-file charsets to use for parsing properties files.
    * <p>Only applies to classic properties files, not to XML files.
    *
-   * @param fileEncodings a Properties with filenames as keys and charset
+   * @param fileEncodings a Properties object with filenames as keys and charset
    * names as values. Filenames have to match the basename syntax,
-   * with optional locale-specific components: e.g. "WEB-INF/messages"
+   * with optional locale-specific components: for example, "WEB-INF/messages"
    * or "WEB-INF/messages_en".
    * @see #setBasenames
-   * @see PropertiesPersister#load
+   * @see infra.util.PropertiesPersister#load
    */
   public void setFileEncodings(Properties fileEncodings) {
     this.fileEncodings = fileEncodings;
@@ -152,7 +152,8 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * locked in a refresh attempt for a specific cached properties file whereas
    * other threads keep returning the old properties for the time being, until
    * the refresh attempt has completed.
-   * <p>Default is "true"
+   * <p>Default is "true", minimizing contention between threads. If you prefer
+   * the old behavior, i.e. to fully block on refresh, switch this flag to "false".
    *
    * @see #setCacheSeconds
    */
@@ -178,8 +179,8 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * ResourceLoaderAware interface. Can be manually overridden when
    * running outside an ApplicationContext.
    *
-   * @see DefaultResourceLoader
-   * @see ResourceLoaderAware
+   * @see infra.core.io.DefaultResourceLoader
+   * @see infra.context.ResourceLoaderAware
    */
   @Override
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
@@ -191,8 +192,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * returning the value found in the bundle as-is (without MessageFormat parsing).
    */
   @Override
-  @Nullable
-  protected String resolveCodeWithoutArguments(String code, Locale locale) {
+  protected @Nullable String resolveCodeWithoutArguments(String code, Locale locale) {
     if (getCacheMillis() < 0) {
       PropertiesHolder propHolder = getMergedProperties(locale);
       return propHolder.getProperty(code);
@@ -217,8 +217,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * using a cached MessageFormat instance per message code.
    */
   @Override
-  @Nullable
-  protected MessageFormat resolveCode(String code, Locale locale) {
+  protected @Nullable MessageFormat resolveCode(String code, Locale locale) {
     if (getCacheMillis() < 0) {
       PropertiesHolder propHolder = getMergedProperties(locale);
       return propHolder.getMessageFormat(code, locale);
@@ -245,6 +244,9 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * <p>Only used when caching resource bundle contents forever, i.e.
    * with cacheSeconds &lt; 0. Therefore, merged properties are always
    * cached forever.
+   *
+   * @see #collectPropertiesToMerge
+   * @see #mergeProperties
    */
   protected PropertiesHolder getMergedProperties(Locale locale) {
     PropertiesHolder mergedHolder = this.cachedMergedProperties.get(locale);
@@ -270,7 +272,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    */
   protected List<PropertiesHolder> collectPropertiesToMerge(Locale locale) {
     String[] basenames = StringUtils.toStringArray(getBasenameSet());
-    ArrayList<PropertiesHolder> holders = new ArrayList<>(basenames.length);
+    var holders = new ArrayList<PropertiesHolder>(basenames.length);
     for (int i = basenames.length - 1; i >= 0; i--) {
       List<String> filenames = calculateAllFilenames(basenames[i], locale);
       for (int j = filenames.size() - 1; j >= 0; j--) {
@@ -367,7 +369,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * @return the List of filenames to check
    */
   protected List<String> calculateFilenamesForLocale(String basename, Locale locale) {
-    ArrayList<String> result = new ArrayList<>(3);
+    var result = new ArrayList<String>(3);
     String language = locale.getLanguage();
     String country = locale.getCountry();
     String variant = locale.getVariant();
@@ -532,10 +534,9 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * for other types of resources.
    *
    * @param filename the bundle filename (basename + Locale)
-   * @return the {@code Resource} to use
+   * @return the {@code Resource} to use, or {@code null} if none found
    */
-  @Nullable
-  protected Resource resolveResource(String filename) {
+  protected @Nullable Resource resolveResource(String filename) {
     for (String fileExtension : this.fileExtensions) {
       Resource resource = this.resourceLoader.getResource(filename + fileExtension);
       if (resource.exists()) {
@@ -555,33 +556,36 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    */
   protected Properties loadProperties(Resource resource, String filename) throws IOException {
     Properties props = newProperties();
-    try (InputStream is = resource.getInputStream()) {
+    try (InputStream in = resource.getInputStream()) {
       String resourceFilename = resource.getName();
       if (resourceFilename != null && resourceFilename.endsWith(XML_EXTENSION)) {
         if (logger.isDebugEnabled()) {
           logger.debug("Loading properties [{}]", resource.getName());
         }
-        this.propertiesPersister.loadFromXml(props, is);
+        this.propertiesPersister.loadFromXml(props, in);
       }
       else {
-        String encoding = null;
+        Charset charset = null;
         if (this.fileEncodings != null) {
-          encoding = this.fileEncodings.getProperty(filename);
-        }
-        if (encoding == null) {
-          encoding = getDefaultEncoding();
-        }
-        if (encoding != null) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Loading properties [{}] with encoding '{}'", resource.getName(), encoding);
+          String charsetName = this.fileEncodings.getProperty(filename);
+          if (charsetName != null) {
+            charset = Charset.forName(charsetName);
           }
-          this.propertiesPersister.load(props, new InputStreamReader(is, encoding));
+        }
+        if (charset == null) {
+          charset = getDefaultCharset();
+        }
+        if (charset != null) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Loading properties [{}] with encoding '{}'", resource.getName(), charset);
+          }
+          this.propertiesPersister.load(props, new InputStreamReader(in, charset));
         }
         else {
           if (logger.isDebugEnabled()) {
             logger.debug("Loading properties [{}]", resource.getName());
           }
-          this.propertiesPersister.load(props, is);
+          this.propertiesPersister.load(props, in);
         }
       }
       return props;
@@ -636,8 +640,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    */
   protected class PropertiesHolder {
 
-    @Nullable
-    private final Properties properties;
+    private final @Nullable Properties properties;
 
     private final long fileTimestamp;
 
@@ -659,8 +662,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
       this.fileTimestamp = fileTimestamp;
     }
 
-    @Nullable
-    public Properties getProperties() {
+    public @Nullable Properties getProperties() {
       return this.properties;
     }
 
@@ -676,16 +678,14 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
       return this.refreshTimestamp;
     }
 
-    @Nullable
-    public String getProperty(String code) {
+    public @Nullable String getProperty(String code) {
       if (this.properties == null) {
         return null;
       }
       return this.properties.getProperty(code);
     }
 
-    @Nullable
-    public MessageFormat getMessageFormat(String code, Locale locale) {
+    public @Nullable MessageFormat getMessageFormat(String code, Locale locale) {
       if (this.properties == null) {
         return null;
       }

@@ -26,6 +26,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -59,7 +61,7 @@ import infra.util.ClassUtils;
  * This means that "test.theme" is effectively equivalent to "test/theme".
  *
  * <p>On the classpath, bundle resources will be read with the locally configured
- * {@link #setDefaultEncoding encoding}: by default, ISO-8859-1; consider switching
+ * {@link #setDefaultCharset charset}: by default, ISO-8859-1; consider switching
  * this to UTF-8, or to {@code null} for the platform default encoding. On the JDK 9+
  * module path where locally provided {@code ResourceBundle.Control} handles are not
  * supported, this MessageSource always falls back to {@link ResourceBundle#getBundle}
@@ -77,18 +79,17 @@ import infra.util.ClassUtils;
  * @see ReloadableResourceBundleMessageSource
  * @see java.util.ResourceBundle
  * @see java.text.MessageFormat
+ * @since 4.0
  */
 public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSource implements BeanClassLoaderAware {
 
-  @Nullable
-  private ClassLoader bundleClassLoader;
+  private @Nullable ClassLoader bundleClassLoader;
 
-  @Nullable
-  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+  private @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /**
    * Cache to hold loaded ResourceBundles.
-   * This Map is keyed with the bundle basename, which holds a Map that is
+   * <p>This Map is keyed with the bundle basename, which holds a Map that is
    * keyed with the Locale and in turn holds the ResourceBundle instances.
    * This allows for very efficient hash lookups, significantly faster
    * than the ResourceBundle class's own cache.
@@ -98,7 +99,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
 
   /**
    * Cache to hold already generated MessageFormats.
-   * This Map is keyed with the ResourceBundle, which holds a Map that is
+   * <p>This Map is keyed with the ResourceBundle, which holds a Map that is
    * keyed with the message code, which in turn holds a Map that is keyed
    * with the Locale and holds the MessageFormat values. This allows for
    * very efficient hash lookups without concatenated keys.
@@ -108,19 +109,18 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
   private final ConcurrentHashMap<ResourceBundle, Map<String, Map<Locale, MessageFormat>>> cachedBundleMessageFormats =
           new ConcurrentHashMap<>();
 
-  @Nullable
-  private volatile MessageSourceControl control = new MessageSourceControl();
+  private volatile @Nullable MessageSourceControl control = new MessageSourceControl();
 
   public ResourceBundleMessageSource() {
-    setDefaultEncoding("ISO-8859-1");
+    setDefaultCharset(StandardCharsets.ISO_8859_1);
   }
 
   /**
    * Set the ClassLoader to load resource bundles with.
    * <p>Default is the containing BeanFactory's
-   * {@link BeanClassLoaderAware bean ClassLoader},
+   * {@link infra.beans.factory.BeanClassLoaderAware bean ClassLoader},
    * or the default ClassLoader determined by
-   * {@link ClassUtils#getDefaultClassLoader()}
+   * {@link infra.util.ClassUtils#getDefaultClassLoader()}
    * if not running within a BeanFactory.
    */
   public void setBundleClassLoader(ClassLoader classLoader) {
@@ -133,8 +133,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    *
    * @see #setBundleClassLoader
    */
-  @Nullable
-  protected ClassLoader getBundleClassLoader() {
+  protected @Nullable ClassLoader getBundleClassLoader() {
     return (this.bundleClassLoader != null ? this.bundleClassLoader : this.beanClassLoader);
   }
 
@@ -148,8 +147,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    * returning the value found in the bundle as-is (without MessageFormat parsing).
    */
   @Override
-  @Nullable
-  protected String resolveCodeWithoutArguments(String code, Locale locale) {
+  protected @Nullable String resolveCodeWithoutArguments(String code, Locale locale) {
     Set<String> basenames = getBasenameSet();
     for (String basename : basenames) {
       ResourceBundle bundle = getResourceBundle(basename, locale);
@@ -168,8 +166,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    * using a cached MessageFormat instance per message code.
    */
   @Override
-  @Nullable
-  protected MessageFormat resolveCode(String code, Locale locale) {
+  protected @Nullable MessageFormat resolveCode(String code, Locale locale) {
     Set<String> basenames = getBasenameSet();
     for (String basename : basenames) {
       ResourceBundle bundle = getResourceBundle(basename, locale);
@@ -192,8 +189,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    * @return the resulting ResourceBundle, or {@code null} if none
    * found for the given basename and Locale
    */
-  @Nullable
-  protected ResourceBundle getResourceBundle(String basename, Locale locale) {
+  protected @Nullable ResourceBundle getResourceBundle(String basename, Locale locale) {
     if (getCacheMillis() >= 0) {
       // Fresh ResourceBundle.getBundle call in order to let ResourceBundle
       // do its native caching, at the expense of more extensive lookup steps.
@@ -247,15 +243,16 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
         return ResourceBundle.getBundle(basename, locale, classLoader, control);
       }
       catch (UnsupportedOperationException ex) {
-        // Probably in a Jigsaw environment on JDK 9+
+        // Probably in a Java Module System environment on JDK 9+
         this.control = null;
-        String encoding = getDefaultEncoding();
-        if (encoding != null && logger.isInfoEnabled()) {
-          logger.info("""
-                  ResourceBundleMessageSource is configured to read resources with encoding '%s' but ResourceBundle.Control not supported \
-                  in current system environment: %s - falling back to plain ResourceBundle.getBundle retrieval with the platform default \
-                  encoding. Consider setting the 'defaultEncoding' property to 'null' for participating in the platform default and \
-                  therefore avoiding this log message.""".formatted(encoding, ex.getMessage()));
+        Charset charset = getDefaultCharset();
+        if (charset != null && logger.isInfoEnabled()) {
+          logger.info("ResourceBundleMessageSource is configured to read resources with encoding '" +
+                          "{}' but ResourceBundle.Control is not supported in current system environment: " +
+                          "{} - falling back to plain ResourceBundle.getBundle retrieval with the " +
+                          "platform default encoding. Consider setting the 'defaultCharset' property to 'null' " +
+                          "for participating in the platform default and therefore avoiding this log message.",
+                  charset, ex.getMessage());
         }
       }
     }
@@ -266,7 +263,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
 
   /**
    * Load a property-based resource bundle from the given reader.
-   * <p>This will be called in case of a {@link #setDefaultEncoding "defaultEncoding"},
+   * <p>This will be called in case of a {@linkplain #setDefaultCharset "defaultCharset"},
    * including {@link ResourceBundleMessageSource}'s default ISO-8859-1 encoding.
    * Note that this method can only be called with a {@code ResourceBundle.Control}:
    * When running on the JDK 9+ module path where such control handles are not
@@ -286,9 +283,9 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
   /**
    * Load a property-based resource bundle from the given input stream,
    * picking up the default properties encoding on JDK 9+.
-   * <p>This will only be called with {@link #setDefaultEncoding "defaultEncoding"}
+   * <p>This will only be called with {@linkplain #setDefaultCharset "defaultCharset"}
    * set to {@code null}, explicitly enforcing the platform default encoding
-   * (which is UTF-8 with a ISO-8859-1 fallback on JDK 9+ but configurable
+   * (which is UTF-8 with an ISO-8859-1 fallback on JDK 9+ but configurable
    * through the "java.util.PropertyResourceBundle.encoding" system property).
    * Note that this method can only be called with a {@code ResourceBundle.Control}:
    * When running on the JDK 9+ module path where such control handles are not
@@ -316,8 +313,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    * defined for the given code
    * @throws MissingResourceException if thrown by the ResourceBundle
    */
-  @Nullable
-  protected MessageFormat getMessageFormat(ResourceBundle bundle, String code, Locale locale)
+  protected @Nullable MessageFormat getMessageFormat(ResourceBundle bundle, String code, Locale locale)
           throws MissingResourceException {
 
     Map<String, Map<Locale, MessageFormat>> codeMap = this.cachedBundleMessageFormats.get(bundle);
@@ -362,8 +358,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    * @see ResourceBundle#getString(String)
    * @see ResourceBundle#containsKey(String)
    */
-  @Nullable
-  protected String getStringOrNull(ResourceBundle bundle, String key) {
+  protected @Nullable String getStringOrNull(ResourceBundle bundle, String key) {
     if (bundle.containsKey(key)) {
       try {
         return bundle.getString(key);
@@ -392,8 +387,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
   private final class MessageSourceControl extends ResourceBundle.Control {
 
     @Override
-    @Nullable
-    public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
+    public @Nullable ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
             throws IllegalAccessException, InstantiationException, IOException {
 
       // Special handling of default encoding
@@ -415,9 +409,9 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
           inputStream = loader.getResourceAsStream(resourceName);
         }
         if (inputStream != null) {
-          String encoding = getDefaultEncoding();
-          if (encoding != null) {
-            try (InputStreamReader bundleReader = new InputStreamReader(inputStream, encoding)) {
+          Charset charset = getDefaultCharset();
+          if (charset != null) {
+            try (InputStreamReader bundleReader = new InputStreamReader(inputStream, charset)) {
               return loadBundle(bundleReader);
             }
           }
@@ -438,8 +432,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
     }
 
     @Override
-    @Nullable
-    public Locale getFallbackLocale(String baseName, Locale locale) {
+    public @Nullable Locale getFallbackLocale(String baseName, Locale locale) {
       Locale defaultLocale = getDefaultLocale();
       return defaultLocale != null && !defaultLocale.equals(locale) ? defaultLocale : null;
     }
@@ -447,7 +440,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
     @Override
     public long getTimeToLive(String baseName, Locale locale) {
       long cacheMillis = getCacheMillis();
-      return cacheMillis >= 0 ? cacheMillis : super.getTimeToLive(baseName, locale);
+      return (cacheMillis >= 0 ? cacheMillis : super.getTimeToLive(baseName, locale));
     }
 
     @Override
