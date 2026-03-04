@@ -1245,8 +1245,8 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public MultiValueMap<String, Part> multipartData() throws IOException {
-      return request.multipartData();
+    public MultiValueMap<String, Part> parts() {
+      return request.parts();
     }
 
     @Override

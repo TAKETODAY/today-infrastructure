@@ -288,7 +288,7 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public MultiValueMap<String, Part> multipartData() {
+  public MultiValueMap<String, Part> parts() {
     MultiValueMap<String, Part> result = this.parts;
     if (result == null) {
       result = requestContext.asMultipartRequest().getParts();

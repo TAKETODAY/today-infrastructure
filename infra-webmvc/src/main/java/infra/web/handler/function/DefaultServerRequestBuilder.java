@@ -258,7 +258,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    public MultiValueMap<String, Part> multipartData() throws IOException {
+    public MultiValueMap<String, Part> parts() {
       return requestContext.asMultipartRequest().getParts();
     }
 

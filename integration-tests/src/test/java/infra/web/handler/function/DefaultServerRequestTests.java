@@ -180,7 +180,7 @@ class DefaultServerRequestTests {
   }
 
   @Test
-  void multipartData() throws Exception {
+  void parts() throws Exception {
     MockMemoryPart formPart = new MockMemoryPart("form", "foo".getBytes(UTF_8));
     MockMemoryPart filePart = new MockMemoryPart("file", "foo.txt", "foo".getBytes(UTF_8));
 
@@ -191,7 +191,7 @@ class DefaultServerRequestTests {
     DefaultServerRequest request =
             getRequest(servletRequest);
 
-    MultiValueMap<String, Part> result = request.multipartData();
+    MultiValueMap<String, Part> result = request.parts();
 
     assertThat(result).hasSize(2);
 //    assertThat(result.get("form")).hasSize(1).containsExactly(formPart);

@@ -247,13 +247,12 @@ public interface ServerRequest extends ServerResponse.Context {
    * {@code "multipart/form-data"}, or an exception otherwise.
    *
    * @return the multipart data, mapping from name to part(s)
-   * @throws IOException if an I/O error occurred during the retrieval
    * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
    * @throws MultipartException if parsing fails
    * @see RequestContext#asMultipartRequest()
    * @see MultipartRequest#getParts()
    */
-  MultiValueMap<String, Part> multipartData() throws IOException;
+  MultiValueMap<String, Part> parts() throws MultipartException;
 
   /**
    * Get the path variable with the given name, if present.
