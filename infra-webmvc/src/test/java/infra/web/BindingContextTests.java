@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.core.Conventions;
 import infra.core.ResolvableType;
 import infra.ui.ModelMap;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.view.ModelAndView;
 
@@ -312,7 +312,7 @@ class BindingContextTests {
     BindingContext bindingContext = new BindingContext();
     RequestContext request = mock(RequestContext.class);
 
-    RequestContextDataBinder binder = bindingContext.createBinder(request, "objectName");
+    WebDataBinder binder = bindingContext.createBinder(request, "objectName");
 
     assertThat(binder).isNotNull();
     assertThat(binder.getObjectName()).isEqualTo("objectName");
@@ -325,7 +325,7 @@ class BindingContextTests {
     RequestContext request = mock(RequestContext.class);
     Object target = new Object();
 
-    RequestContextDataBinder binder = bindingContext.createBinder(request, target, "objectName");
+    WebDataBinder binder = bindingContext.createBinder(request, target, "objectName");
 
     assertThat(binder).isNotNull();
     assertThat(binder.getObjectName()).isEqualTo("objectName");
@@ -339,7 +339,7 @@ class BindingContextTests {
     Object target = new Object();
     ResolvableType targetType = ResolvableType.forClass(String.class);
 
-    RequestContextDataBinder binder = bindingContext.createBinder(request, target, "objectName", targetType);
+    WebDataBinder binder = bindingContext.createBinder(request, target, "objectName", targetType);
 
     assertThat(binder).isNotNull();
     assertThat(binder.getObjectName()).isEqualTo("objectName");
@@ -352,7 +352,7 @@ class BindingContextTests {
     RequestContext request = mock(RequestContext.class);
     ResolvableType targetType = ResolvableType.forClass(String.class);
 
-    RequestContextDataBinder binder = bindingContext.createBinder(request, null, "objectName", targetType);
+    WebDataBinder binder = bindingContext.createBinder(request, null, "objectName", targetType);
 
     assertThat(binder).isNotNull();
     assertThat(binder.getObjectName()).isEqualTo("objectName");
@@ -366,10 +366,10 @@ class BindingContextTests {
     RequestContext request = mock(RequestContext.class);
     Object target = new Object();
 
-    RequestContextDataBinder binder = bindingContext.createBinderInstance(target, "objectName", request);
+    WebDataBinder binder = bindingContext.createBinderInstance(target, "objectName", request);
 
     assertThat(binder).isNotNull();
-    assertThat(binder).isInstanceOf(RequestContextDataBinder.class);
+    assertThat(binder).isInstanceOf(WebDataBinder.class);
     assertThat(binder.getObjectName()).isEqualTo("objectName");
     assertThat(binder.getTarget()).isSameAs(target);
   }
@@ -377,7 +377,7 @@ class BindingContextTests {
   @Test
   void initBinder_ShouldNotThrowException() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    RequestContextDataBinder dataBinder = mock(RequestContextDataBinder.class);
+    WebDataBinder dataBinder = mock(WebDataBinder.class);
     RequestContext request = mock(RequestContext.class);
 
     assertThatNoException().isThrownBy(() -> bindingContext.initBinder(dataBinder, request));
