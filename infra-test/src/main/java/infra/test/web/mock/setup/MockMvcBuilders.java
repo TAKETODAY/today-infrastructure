@@ -23,7 +23,6 @@ import infra.mock.api.MockContext;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
 import infra.web.mock.MockDispatcher;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * The main class to import in order to access all available {@link MockMvcBuilder MockMvcBuilders}.
@@ -40,11 +39,12 @@ import infra.web.mock.WebApplicationContext;
  */
 public final class MockMvcBuilders {
 
-  private MockMvcBuilders() { }
+  private MockMvcBuilders() {
+  }
 
   /**
    * Build a {@link MockMvc} instance using the given, fully initialized
-   * (i.e., <em>refreshed</em>) {@link WebApplicationContext}.
+   * (i.e., <em>refreshed</em>) {@link ApplicationContext}.
    * <p>The {@link MockDispatcher DispatcherHandler}
    * will use the context to discover Web MVC infrastructure and application
    * controllers in it. The context must have been configured with a

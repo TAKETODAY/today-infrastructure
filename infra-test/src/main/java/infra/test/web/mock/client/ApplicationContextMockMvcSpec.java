@@ -18,10 +18,10 @@
 
 package infra.test.web.mock.client;
 
+import infra.context.ApplicationContext;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * Simple wrapper around a {@link DefaultMockMvcBuilder}.
@@ -33,7 +33,7 @@ class ApplicationContextMockMvcSpec extends AbstractMockMvcServerSpec<Applicatio
 
   private final DefaultMockMvcBuilder mockMvcBuilder;
 
-  public ApplicationContextMockMvcSpec(WebApplicationContext context) {
+  public ApplicationContextMockMvcSpec(ApplicationContext context) {
     this.mockMvcBuilder = MockMvcBuilders.webAppContextSetup(context);
   }
 

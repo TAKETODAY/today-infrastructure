@@ -22,9 +22,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+import infra.context.ApplicationContext;
 import infra.format.support.FormattingConversionService;
-import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.reactive.client.ClientHttpConnector;
 import infra.mock.api.Filter;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;
@@ -47,7 +48,6 @@ import infra.web.accept.ContentNegotiationManager;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
-import infra.web.mock.WebApplicationContext;
 import infra.web.view.View;
 import infra.web.view.ViewResolver;
 
@@ -91,13 +91,13 @@ public interface MockMvcWebTestClient {
 
   /**
    * Begin creating a {@link WebTestClient} by providing a
-   * {@link WebApplicationContext} with Web MVC infrastructure and
+   * {@link ApplicationContext} with Web MVC infrastructure and
    * controllers.
    * <p>Internally this is delegated to and equivalent to using
    * {@link MockMvcBuilders#webAppContextSetup(infra.context.ApplicationContext)}
    * to initialize {@code MockMvc}.
    */
-  static MockMvcServerSpec<?> bindToApplicationContext(WebApplicationContext context) {
+  static MockMvcServerSpec<?> bindToApplicationContext(ApplicationContext context) {
     return new ApplicationContextMockMvcSpec(context);
   }
 
