@@ -33,6 +33,7 @@ import infra.core.MethodParameter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.lang.Assert;
+import infra.lang.Constant;
 import infra.util.ClassUtils;
 
 /**
@@ -57,16 +58,17 @@ public final class ParameterResolutionDelegate {
 
     @Override
     public Annotation[] getAnnotations() {
-      return new Annotation[0];
+      return Constant.EMPTY_ANNOTATIONS;
     }
 
     @Override
     public Annotation[] getDeclaredAnnotations() {
-      return new Annotation[0];
+      return Constant.EMPTY_ANNOTATIONS;
     }
   };
 
-  private ParameterResolutionDelegate() { }
+  private ParameterResolutionDelegate() {
+  }
 
   /**
    * Determine if the supplied {@link Parameter} can <em>potentially</em> be
