@@ -33,8 +33,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
+import infra.http.ResponseCookie;
 import infra.web.RequestContext;
 import infra.web.annotation.PostMapping;
 import infra.web.annotation.RequestBody;
@@ -123,7 +122,7 @@ class RestTestClientTests {
       RestTestClientTests.this.client.options().uri("/test")
               .exchange()
               .expectStatus().isOk()
-              .expectHeader().valueEquals("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS")
+              .expectHeader().valueEquals("Allow", "GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS,CONNECT")
               .expectBody().isEmpty();
     }
 
@@ -332,9 +331,9 @@ class RestTestClientTests {
 
     @RequestMapping(path = { "/test", "/test/*" }, produces = "application/json")
     public Map<String, Object> handle(
-            @RequestHeader HttpHeaders headers, RequestContext request, HttpMockResponse response) {
+            @RequestHeader HttpHeaders headers, RequestContext request) {
 
-      response.addCookie(new Cookie("session", "abc"));
+      request.addCookie(ResponseCookie.forSimple("session", "abc"));
 
       return Map.of(
               "method", request.getMethod(),
