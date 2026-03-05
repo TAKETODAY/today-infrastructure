@@ -1913,6 +1913,45 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     return this;
   }
 
+  /**
+   * Returns {@code true} if this HttpHeaders contains an entry for the
+   * given header name.
+   *
+   * @param headerName the header name
+   * @since 5.0
+   */
+  public boolean containsHeader(String headerName) {
+    return containsKey(headerName);
+  }
+
+  /**
+   * Returns {@code true} if this HttpHeaders contains exactly the given list
+   * of values for the given header name.
+   *
+   * @param headerName the header name
+   * @param values the expected list of values
+   * @since 5.0
+   */
+  public boolean hasHeaderValues(String headerName, List<String> values) {
+    return ObjectUtils.nullSafeEquals(get(headerName), values);
+  }
+
+  /**
+   * Returns {@code true} if this HttpHeaders contains the given header and
+   * its list of values contains the given value.
+   *
+   * @param headerName the header name
+   * @param value the value expected to be in the list of values
+   * @since 5.0
+   */
+  public boolean containsHeaderValue(String headerName, String value) {
+    List<String> values = get(headerName);
+    if (values == null) {
+      return false;
+    }
+    return values.contains(value);
+  }
+
   // ---------------------------------------------------------------------
   // abstract for subclasses
   // ---------------------------------------------------------------------
