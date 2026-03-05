@@ -28,14 +28,21 @@ import jakarta.validation.executable.ExecutableValidator;
 import jakarta.validation.metadata.BeanDescriptor;
 
 /**
+ * A {@link Validator} implementation that delegates validation calls to a {@link Validator}
+ * instance supplied by a {@link Supplier}. This class supports lazy initialization of the
+ * underlying validator, ensuring it is created only when first accessed.
+ * <p>
+ * This wrapper is useful in scenarios where the actual {@link Validator} instance needs to be
+ * provided dynamically or initialized on demand, such as in modular or plugin-based architectures.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/23 21:03
  */
 public class SuppliedValidator implements Validator {
+
   private final Supplier<Validator> validatorSupplier;
 
-  @Nullable
-  private volatile Validator validator;
+  private volatile @Nullable Validator validator;
 
   public SuppliedValidator(Supplier<Validator> validatorSupplier) {
     Assert.notNull(validatorSupplier, "validatorSupplier is required");

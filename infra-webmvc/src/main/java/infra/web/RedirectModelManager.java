@@ -47,10 +47,14 @@ public interface RedirectModelManager {
   RedirectModel retrieveAndUpdate(RequestContext context);
 
   /**
-   * Set a {@link RedirectModel} to current request context
+   * Save the given {@link RedirectModel} to the underlying storage, making it available
+   * for retrieval during a subsequent request (typically after a redirect).
+   * <p>This method is invoked before performing a redirect when there are flash attributes
+   * that need to be preserved. The saved model will be returned by
+   * {@link #retrieveAndUpdate(RequestContext)} in the next matching request and then removed.
    *
-   * @param context current request context
-   * @param redirectModel value
+   * @param context the current request context
+   * @param redirectModel the {@link RedirectModel} to save, or {@code null} if no model needs saving
    */
   void saveRedirectModel(RequestContext context, @Nullable RedirectModel redirectModel);
 

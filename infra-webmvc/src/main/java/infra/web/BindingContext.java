@@ -20,17 +20,21 @@ package infra.web;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
+import infra.validation.DataBinder;
 import infra.validation.Errors;
+import infra.validation.SmartValidator;
 import infra.web.bind.EscapedErrors;
 import infra.web.bind.RequestContextDataBinder;
 import infra.web.bind.WebDataBinder;
@@ -69,6 +73,8 @@ public class BindingContext {
   protected @Nullable ModelAndView modelAndView;
 
   private @Nullable Map<String, Errors> errorsMap;
+
+  private boolean methodValidationApplicable;
 
   /**
    * Create a new {@code BindingContext}.
@@ -133,6 +139,12 @@ public class BindingContext {
       initializer.initBinder(dataBinder);
     }
     initBinder(dataBinder, request);
+
+    if (methodValidationApplicable && targetType != null) {
+      if (targetType.getSource() instanceof MethodParameter parameter) {
+        MethodValidationInitializer.initBinder(dataBinder, parameter);
+      }
+    }
 
     return dataBinder;
   }
@@ -229,6 +241,17 @@ public class BindingContext {
    * @throws Throwable may arise from {@code @ModelAttribute} methods
    */
   public void initModel(RequestContext request) throws Throwable {
+  }
+
+  /**
+   * Configure flag to signal whether validation will be applied to handler
+   * method arguments, which is the case if Bean Validation is enabled in
+   * Web MVC, and method parameters have {@code @Constraint} annotations.
+   *
+   * @since 5.0
+   */
+  public void setMethodValidationApplicable(boolean methodValidationApplicable) {
+    this.methodValidationApplicable = methodValidationApplicable;
   }
 
   /**
@@ -415,6 +438,21 @@ public class BindingContext {
       sb.append(redirectModel);
     }
     return sb.toString();
+  }
+
+  /**
+   * Excludes Bean Validation if the method parameter has {@code @Valid}.
+   */
+  private static class MethodValidationInitializer {
+
+    public static void initBinder(DataBinder binder, MethodParameter parameter) {
+      for (Annotation annotation : parameter.getParameterAnnotations()) {
+        if (annotation.annotationType().getName().equals("jakarta.validation.Valid")) {
+          binder.setExcludedValidators(v -> v instanceof jakarta.validation.Validator ||
+                  v instanceof SmartValidator sv && sv.unwrap(jakarta.validation.Validator.class) != null);
+        }
+      }
+    }
   }
 
 }

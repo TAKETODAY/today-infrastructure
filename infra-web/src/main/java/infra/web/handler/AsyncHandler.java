@@ -24,6 +24,8 @@ import org.jspecify.annotations.Nullable;
  */
 public interface AsyncHandler {
 
+  // todo move to webmvc
+
   default Object wrapConcurrentResult(@Nullable Object asyncResult) {
     return this;
   }

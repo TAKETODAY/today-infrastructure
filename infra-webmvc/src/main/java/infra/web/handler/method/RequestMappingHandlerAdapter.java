@@ -20,27 +20,34 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
+import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.session.SessionManager;
+import infra.validation.method.MethodValidator;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
+import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.context.support.SessionManagerDiscover;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.util.SessionMutexListener;
 import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
+
+import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
  * Extension of {@link AbstractHandlerMethodAdapter} that supports
@@ -66,6 +73,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   private @Nullable RedirectModelManager redirectModelManager;
 
+  private @Nullable MethodValidator methodValidator;
+
   private ControllerMethodResolver methodResolver;
 
   private ModelHandler modelHandler;
@@ -74,10 +83,16 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
+  /**
+   * Set the {@link RedirectModelManager} to use for managing redirect models.
+   */
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
   }
 
+  /**
+   * Set the {@link ParameterResolvingRegistry} to use for resolving method parameters.
+   */
   public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
   }
@@ -93,8 +108,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   /**
    * Return the configured WebBindingInitializer, or {@code null} if none.
    */
-  @Nullable
-  public WebBindingInitializer getWebBindingInitializer() {
+  public @Nullable WebBindingInitializer getWebBindingInitializer() {
     return this.webBindingInitializer;
   }
 
@@ -150,6 +164,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
             new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer));
 
     this.modelHandler = new ModelHandler(methodResolver);
+
+    if (BEAN_VALIDATION_PRESENT) {
+      this.methodValidator = HandlerMethodValidator.from(
+              webBindingInitializer, this.parameterNameDiscoverer,
+              methodParamPredicate(resolvingRegistry, ModelAttributeMethodProcessor.class),
+              methodParamPredicate(resolvingRegistry, RequestParamMethodArgumentResolver.class));
+    }
   }
 
   /**
@@ -165,9 +186,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     return true;
   }
 
-  @Nullable
   @Override
-  protected Object handleInternal(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected @Nullable Object handleInternal(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
     Object returnValue;
 
     // Execute invokeHandlerMethod in synchronized block if required.
@@ -212,9 +232,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    *
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
-  @Nullable
-  protected Object invokeHandlerMethod(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected @Nullable Object invokeHandlerMethod(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
+    binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
     request.setBinding(binding);
 
     // add last RedirectModel to this request
@@ -226,11 +246,18 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     binding.initModel(request);
 
     if (handlerMethod instanceof InvocableHandlerMethod invocableMethod) {
-      return invocableMethod.invokeAndHandle(request);
+      return invocableMethod.invokeAndHandle(request, methodValidator, null);
     }
 
     return methodResolver.createHandlerMethod(handlerMethod)
-            .invokeAndHandle(request);
+            .invokeAndHandle(request, methodValidator, null);
+  }
+
+  private Predicate<MethodParameter> methodParamPredicate(ParameterResolvingRegistry resolvingRegistry, Class<?> resolverType) {
+    return parameter -> {
+      var strategy = resolvingRegistry.findStrategy(new ResolvableMethodParameter(parameter));
+      return resolverType.isInstance(strategy);
+    };
   }
 
 }

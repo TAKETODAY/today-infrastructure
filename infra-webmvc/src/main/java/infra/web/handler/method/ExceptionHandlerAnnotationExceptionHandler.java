@@ -52,7 +52,6 @@ import infra.web.resource.ResourceHttpRequestHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 19:17
  */
-@SuppressWarnings("NullAway.Init")
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
 
@@ -62,8 +61,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   private final LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
           new LinkedHashMap<>();
 
-  @Nullable
-  private ApplicationContext applicationContext;
+  private @Nullable ApplicationContext applicationContext;
 
   private ResolvableParameterFactory parameterFactory;
 
@@ -125,7 +123,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         metadata.setHandler(exHandler);
       }
 
-      return exHandler.invokeAndHandle(context, arguments);
+      return exHandler.invokeAndHandle(context, null, arguments);
     }
     catch (Throwable invocationEx) {
       if (!disconnectedClientHelper.checkAndLogClientDisconnectedException(invocationEx)) {

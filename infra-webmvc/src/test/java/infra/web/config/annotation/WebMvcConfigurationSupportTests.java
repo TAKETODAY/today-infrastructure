@@ -171,7 +171,7 @@ class WebMvcConfigurationSupportTests {
   @Test
   void requestMappingHandlerAdapter() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(
-            null, null, null,
+            null, null,
             ParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
 
     // ConversionService
@@ -190,8 +190,7 @@ class WebMvcConfigurationSupportTests {
   @Test
   void webBindingInitializer() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(null, null,
-            null, ParameterResolvingRegistry.get(context),
-            this.config.mvcValidator(), this.config.mvcConversionService());
+            ParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
 
     ConfigurableWebBindingInitializer initializer =
             (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();

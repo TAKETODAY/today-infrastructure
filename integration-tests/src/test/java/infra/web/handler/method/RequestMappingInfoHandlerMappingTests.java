@@ -18,6 +18,7 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,6 @@ import infra.core.annotation.AnnotationUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import org.jspecify.annotations.Nullable;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -402,7 +402,6 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(uriVariables.get("cars")).isEqualTo("cars");
     assertThat(uriVariables.get("params")).isEqualTo("");
 
-
     request = new HttpMockRequestImpl("GET", "/a=42;b=c");
     handleMatch(mapping, request, "/{foo}", request.getRequestURI());
 
@@ -481,7 +480,7 @@ class RequestMappingInfoHandlerMappingTests {
 
     context.setBinding(new BindingContext());
     Object result = new InvocableHandlerMethod(handlerMethod, new ResolvableParameterFactory())
-            .invokeForRequest(context);
+            .invokeForRequest(context, null,null);
 
     assertThat(result).isNotNull().isInstanceOf(HttpHeaders.class);
     HttpHeaders headers = (HttpHeaders) result;

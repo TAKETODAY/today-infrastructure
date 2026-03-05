@@ -28,12 +28,18 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AliasFor;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.http.service.annotation.HttpExchange;
+import infra.http.service.annotation.PostExchange;
+import infra.http.service.annotation.PutExchange;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.stereotype.Controller;
@@ -50,9 +56,6 @@ import infra.web.annotation.RestController;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
-import infra.http.service.annotation.HttpExchange;
-import infra.http.service.annotation.PostExchange;
-import infra.http.service.annotation.PutExchange;
 import infra.web.util.pattern.PathPattern;
 import infra.web.view.PathPatternsParameterizedTest;
 
@@ -73,6 +76,7 @@ class RequestMappingHandlerMappingTests {
     RequestMappingHandlerMapping mapping1 = new RequestMappingHandlerMapping();
     StaticWebApplicationContext wac1 = new StaticWebApplicationContext(new MockContextImpl());
     mapping1.setApplicationContext(wac1);
+    mapping1.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
 
     RequestMappingHandlerMapping mapping2 = new RequestMappingHandlerMapping();
     StaticWebApplicationContext wac2 = new StaticWebApplicationContext(new MockContextImpl());
@@ -110,9 +114,12 @@ class RequestMappingHandlerMappingTests {
   void pathPrefix(RequestMappingHandlerMapping mapping) throws Exception {
 
     mapping.setEmbeddedValueResolver(value -> "/${prefix}".equals(value) ? "/api" : value);
-    mapping.setPathPrefixes(Collections.singletonMap(
-            "/${prefix}", HandlerTypePredicate.forAnnotation(RestController.class)));
+    Map<String, Predicate<Class<?>>> prefixes = Collections.singletonMap(
+            "/${prefix}", HandlerTypePredicate.forAnnotation(RestController.class));
+    mapping.setPathPrefixes(prefixes);
     mapping.afterPropertiesSet();
+
+    assertThat(mapping.getPathPrefixes()).isNotNull().isEqualTo(prefixes);
 
     Method method = UserController.class.getMethod("getUser");
     RequestMappingInfo info = mapping.getMappingForMethod(method, UserController.class);

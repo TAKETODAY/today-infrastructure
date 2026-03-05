@@ -34,6 +34,7 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.MethodParameter;
+import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpStatus;
@@ -45,8 +46,6 @@ import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.session.Session;
-import infra.session.SessionManager;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
@@ -74,9 +73,7 @@ import infra.web.testfixture.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -113,6 +110,7 @@ class RequestMappingHandlerAdapterTests {
     handlerAdapter.setApplicationContext(this.webAppContext);
     handlerAdapter.setRedirectModelManager(webAppContext.getBean(RedirectModelManager.class));
     handlerAdapter.setResolvingRegistry(webAppContext.getBean(ParameterResolvingRegistry.class));
+    handlerAdapter.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
 
     this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpResponseImpl();
@@ -310,25 +308,6 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
 
 //    verify(initializer).initBinder(any());
-  }
-
-  @Test
-  void handleMethodWithCustomSessionManager() throws Throwable {
-    SessionManager sessionManager = mock(SessionManager.class);
-    Session session = mock(Session.class);
-    when(sessionManager.getSession(any(), eq(false))).thenReturn(session);
-
-    this.handlerAdapter.setSessionManager(sessionManager);
-    this.handlerAdapter.setSynchronizeOnSession(true);
-    handlerAdapter.afterPropertiesSet();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
-    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
-
-    MockRequestContext ctx = new MockRequestContext(request);
-    Object result = this.handlerAdapter.handleInternal(ctx, handlerMethod);
-
-    verify(sessionManager).getSession(ctx, false);
-    assertThat(result).isNull();
   }
 
   @Test

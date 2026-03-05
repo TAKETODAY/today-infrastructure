@@ -84,11 +84,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   private final RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
-  @Nullable
-  private ParameterResolvingRegistry resolvingRegistry;
+  private @Nullable ResolvableParameterFactory parameterFactory;
 
-  @SuppressWarnings("NullAway.Init")
-  private ResolvableParameterFactory parameterFactory;
+  private @Nullable ParameterResolvingRegistry resolvingRegistry;
 
   private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
@@ -141,6 +139,13 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
+  /**
+   * Set the {@link ParameterResolvingRegistry} to use for resolving method arguments.
+   * <p>If not set, a default registry will be obtained from the application context
+   * during {@link #afterPropertiesSet()}.
+   *
+   * @param resolvingRegistry the registry to use, or {@code null} to use the default
+   */
   public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
   }
@@ -188,6 +193,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Override
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
+    Assert.state(parameterFactory != null, "parameterFactory is required");
     if (handler instanceof String beanName) {
       ApplicationContext context = applicationContext();
       return new InvocableHandlerMethod(beanName,

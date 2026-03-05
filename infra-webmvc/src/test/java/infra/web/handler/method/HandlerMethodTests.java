@@ -20,16 +20,16 @@ package infra.web.handler.method;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.List;
 
-import infra.core.MethodParameter;
 import infra.util.ReflectionUtils;
+import infra.validation.annotation.Validated;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -39,91 +39,231 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HandlerMethodTests {
 
   @Test
-  void shouldFindAnnotationOnMethodInGenericAbstractSuperclass() {
-    Method processTwo = getMethod("processTwo", String.class);
-
-    HandlerMethod annotatedMethod = new HandlerMethod(new GenericInterfaceImpl(), processTwo);
-
-    assertThat(annotatedMethod.hasMethodAnnotation(Handler.class)).isTrue();
+  void shouldValidateArgsWithConstraintsDirectlyInClass() {
+    Object target = new MyClass();
+    testValidateArgs(target, List.of("addIntValue", "addPersonAndIntValue", "addPersons", "addPeople", "addNames"), true);
+    testValidateArgs(target, List.of("addPerson", "getPerson", "getIntValue", "addPersonNotValidated"), false);
   }
 
   @Test
-  void shouldFindAnnotationOnMethodInGenericInterface() {
-    Method processOneAndTwo = getMethod("processOneAndTwo", Long.class, Object.class);
-
-    HandlerMethod annotatedMethod = new HandlerMethod(new GenericInterfaceImpl(), processOneAndTwo);
-
-    assertThat(annotatedMethod.hasMethodAnnotation(Handler.class)).isTrue();
+  void shouldValidateArgsWithConstraintsInInterface() {
+    Object target = new MyInterfaceImpl();
+    testValidateArgs(target, List.of("addIntValue", "addPersonAndIntValue", "addPersons", "addPeople"), true);
+    testValidateArgs(target, List.of("addPerson", "addPersonNotValidated", "getPerson", "getIntValue"), false);
   }
 
   @Test
-  void shouldFindAnnotationOnMethodParameterInGenericAbstractSuperclass() {
-    Method abstractMethod = ReflectionUtils.findMethod(GenericAbstractSuperclass.class, "processTwo", Object.class);
-    assertThat(abstractMethod).isNotNull();
-    assertThat(Modifier.isAbstract(abstractMethod.getModifiers())).as("abstract").isTrue();
-    assertThat(Modifier.isPublic(abstractMethod.getModifiers())).as("public").isFalse();
-
-    Method processTwo = getMethod("processTwo", String.class);
-
-    HandlerMethod annotatedMethod = new HandlerMethod(new GenericInterfaceImpl(), processTwo);
-    MethodParameter[] methodParameters = annotatedMethod.getMethodParameters();
-
-    assertThat(methodParameters).hasSize(1);
-    assertThat(methodParameters[0].hasParameterAnnotation(Param.class)).isTrue();
+  void shouldValidateArgsWithConstraintsInGenericAbstractSuperclass() {
+    Object target = new GenericInterfaceImpl();
+    shouldValidateArguments(getHandlerMethod(target, "processTwo", String.class), true);
   }
 
   @Test
-  void shouldFindAnnotationOnMethodParameterInGenericInterface() {
-    Method processOneAndTwo = getMethod("processOneAndTwo", Long.class, Object.class);
-
-    HandlerMethod annotatedMethod = new HandlerMethod(new Object(), processOneAndTwo);
-    MethodParameter[] methodParameters = annotatedMethod.getMethodParameters();
-
-    assertThat(methodParameters).hasSize(2);
-    assertThat(methodParameters[0].hasParameterAnnotation(Param.class)).isFalse();
-    assertThat(methodParameters[1].hasParameterAnnotation(Param.class)).isTrue();
+  void shouldValidateArgsWithConstraintsInGenericInterface() {
+    Object target = new GenericInterfaceImpl();
+    shouldValidateArguments(getHandlerMethod(target, "processOne", Long.class), false);
+    shouldValidateArguments(getHandlerMethod(target, "processOneAndTwo", Long.class, Object.class), true);
   }
 
-  private static Method getMethod(String name, Class<?>... parameterTypes) {
-    Class<?> clazz = GenericInterfaceImpl.class;
-    Method method = ReflectionUtils.findMethod(clazz, name, parameterTypes);
-    if (method == null) {
-      String parameterNames = stream(parameterTypes).map(Class::getName).collect(joining(", "));
-      throw new IllegalStateException("Expected method not found: %s#%s(%s)"
-              .formatted(clazz.getSimpleName(), name, parameterNames));
+  @Test
+  void shouldValidateReturnValueWithConstraintsDirectlyInClass() {
+    Object target = new MyClass();
+    testValidateReturnValue(target, List.of("getPerson", "getIntValue"), true);
+    testValidateReturnValue(target, List.of("addPerson", "addIntValue", "addPersonNotValidated"), false);
+  }
+
+  @Test
+  void shouldValidateReturnValueWithConstraintsInInterface() {
+    Object target = new MyInterfaceImpl();
+    testValidateReturnValue(target, List.of("getPerson", "getIntValue"), true);
+    testValidateReturnValue(target, List.of("addPerson", "addIntValue", "addPersonNotValidated"), false);
+  }
+
+  @Test
+  void classLevelValidatedAnnotation() {
+    Object target = new MyValidatedClass();
+    testValidateArgs(target, List.of("addPerson"), false);
+    testValidateReturnValue(target, List.of("getPerson"), false);
+  }
+
+  @Test
+  void createWithResolvedBeanSameInstance() {
+    MyClass target = new MyClass();
+    HandlerMethod handlerMethod = getHandlerMethod(target, "addPerson");
+    assertThat(handlerMethod.withBean(target)).isEqualTo(handlerMethod);
+  }
+
+  private static void shouldValidateArguments(HandlerMethod handlerMethod, boolean expected) {
+    if (expected) {
+      assertThat(handlerMethod.shouldValidateArguments()).as(handlerMethod.getMethod().getName()).isTrue();
     }
-    return method;
+    else {
+      assertThat(handlerMethod.shouldValidateArguments()).as(handlerMethod.getMethod().getName()).isFalse();
+    }
   }
 
-  @Retention(RetentionPolicy.RUNTIME)
-  @interface Handler {
+  private static void testValidateArgs(Object target, List<String> methodNames, boolean expected) {
+    for (String methodName : methodNames) {
+      shouldValidateArguments(getHandlerMethod(target, methodName), expected);
+    }
   }
 
-  @Retention(RetentionPolicy.RUNTIME)
-  @interface Param {
+  private static void testValidateReturnValue(Object target, List<String> methodNames, boolean expected) {
+    for (String methodName : methodNames) {
+      assertThat(getHandlerMethod(target, methodName).shouldValidateReturnValue()).isEqualTo(expected);
+    }
+  }
+
+  private static HandlerMethod getHandlerMethod(Object target, String methodName) {
+    return getHandlerMethod(target, methodName, (Class<?>[]) null);
+  }
+
+  private static HandlerMethod getHandlerMethod(Object target, String methodName, Class<?>... parameterTypes) {
+    Method method = ReflectionUtils.getMethod(target.getClass(), methodName, parameterTypes);
+    return new HandlerMethod(target, method).withValidateFlags();
+  }
+
+  @SuppressWarnings("unused")
+  private record Person(@Size(min = 1, max = 10) String name) {
+
+    @Override
+    public String name() {
+      return this.name;
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private static class MyClass {
+
+    public void addPerson(@Valid Person person) {
+    }
+
+    public void addIntValue(@Max(10) int value) {
+    }
+
+    public void addPersonAndIntValue(@Valid Person person, @Max(10) int value) {
+    }
+
+    public void addPersons(@Valid List<Person> persons) {
+    }
+
+    public void addPeople(List<@Valid Person> persons) {
+    }
+
+    public void addNames(List<@NotEmpty String> names) {
+    }
+
+    public void addPersonNotValidated(Person person) {
+    }
+
+    @Valid
+    public Person getPerson() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Max(10)
+    public int getIntValue() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private interface MyInterface {
+
+    void addPerson(@Valid Person person);
+
+    void addIntValue(@Max(10) int value);
+
+    void addPersonAndIntValue(@Valid Person person, @Max(10) int value);
+
+    void addPersons(@Valid List<Person> persons);
+
+    void addPeople(List<@Valid Person> persons);
+
+    void addPersonNotValidated(Person person);
+
+    @Valid
+    Person getPerson();
+
+    @Max(10)
+    int getIntValue();
+  }
+
+  @SuppressWarnings("unused")
+  private static class MyInterfaceImpl implements MyInterface {
+
+    @Override
+    public void addPerson(Person person) {
+    }
+
+    @Override
+    public void addIntValue(int value) {
+    }
+
+    @Override
+    public void addPersonAndIntValue(Person person, int value) {
+    }
+
+    @Override
+    public void addPersons(List<Person> persons) {
+    }
+
+    @Override
+    public void addPeople(List<@Valid Person> persons) {
+    }
+
+    @Override
+    public void addPersonNotValidated(Person person) {
+    }
+
+    @Override
+    public Person getPerson() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntValue() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  @SuppressWarnings("unused")
+  @Validated
+  private static class MyValidatedClass {
+
+    public void addPerson(@Valid Person person) {
+    }
+
+    @Valid
+    public Person getPerson() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   interface GenericInterface<A, B> {
 
-    @Handler
-    void processOneAndTwo(A value1, @Param B value2);
+    void processOne(@Valid A value1);
+
+    void processOneAndTwo(A value1, @Max(42) B value2);
   }
 
   abstract static class GenericAbstractSuperclass<C> implements GenericInterface<Long, C> {
 
     @Override
+    public void processOne(Long value1) {
+    }
+
+    @Override
     public void processOneAndTwo(Long value1, C value2) {
     }
 
-    @Handler
-    // Intentionally NOT public
-    abstract void processTwo(@Param C value);
+    public abstract void processTwo(@Max(42) C value);
   }
 
   static class GenericInterfaceImpl extends GenericAbstractSuperclass<String> {
 
     @Override
-    void processTwo(String value) {
+    public void processTwo(String value) {
     }
   }
 

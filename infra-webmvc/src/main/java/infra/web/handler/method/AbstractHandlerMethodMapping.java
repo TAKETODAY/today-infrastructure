@@ -745,6 +745,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
         handlerMethod.corsConfig = corsConfig;
       }
 
+      // Init validation flags
+      // We do this strictly after using the original instance in the CORS lookups
+      handlerMethod = handlerMethod.withValidateFlags();
+
       registrations.put(mapping, new MappingRegistration<>(
               mapping, handlerMethod, directPaths, name, corsConfig != null));
 
@@ -822,7 +826,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
 
     @Override
-    protected HandlerInterceptor[] createValue(Method method, HandlerMethod handlerMethod) {
+    protected HandlerInterceptor[] createValue(Method method, @Nullable HandlerMethod handlerMethod) {
       Class<?> controllerClass = getControllerClass(method, handlerMethod);
       List<HandlerInterceptor> interceptors = getInterceptors(controllerClass, method);
       return interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY);

@@ -31,6 +31,7 @@ import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
 import infra.http.HttpStatusCode;
 import infra.util.StringUtils;
+import infra.validation.method.MethodValidator;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
 import infra.web.annotation.ResponseStatus;
@@ -53,7 +54,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
-  protected final ResolvableMethodParameter[] resolvableParameters;
+  private final ResolvableMethodParameter[] resolvableParameters;
 
   /**
    * Create an instance from a {@code HandlerMethod}.
@@ -81,41 +82,36 @@ public class InvocableHandlerMethod extends HandlerMethod {
     this.resolvableParameters = factory.getParameters(this);
   }
 
-  private InvocableHandlerMethod(HandlerMethod handlerMethod, Object handler, ResolvableMethodParameter[] resolvableParameters) {
-    super(handlerMethod, handler);
-    this.resolvableParameters = resolvableParameters;
+  private InvocableHandlerMethod(InvocableHandlerMethod handlerMethod, @Nullable Object handler, boolean initValidateFlags) {
+    super(handlerMethod, handler, initValidateFlags);
+    this.resolvableParameters = handlerMethod.resolvableParameters;
   }
 
   @Override
   public HandlerMethod withBean(Object handler) {
-    return new InvocableHandlerMethod(this, handler, resolvableParameters);
+    return new InvocableHandlerMethod(this, handler, false);
+  }
+
+  @Override
+  public HandlerMethod withValidateFlags() {
+    return new InvocableHandlerMethod(this, null, true);
   }
 
   /**
-   * Invoke the method and handle the status
+   * Invoke the method and handle the return value, applying the response status if necessary.
+   * <p>If the return value is {@code null}, checks whether the request is not modified or
+   * a response status is set, returning {@link HttpRequestHandler#NONE_RETURN_VALUE} in such cases.
+   * Additionally, if a response status reason is present, returns {@link HttpRequestHandler#NONE_RETURN_VALUE}.
    *
-   * @param request the current request
+   * @param request the current HTTP request context
+   * @param methodValidator the validator to apply for method arguments and return values, may be {@code null}
+   * @param providedArgs pre-provided argument values to be used directly without resolution, may be {@code null}
+   * @return the processed return value, or {@link HttpRequestHandler#NONE_RETURN_VALUE} if no content should be written
+   * @throws Throwable if the invoked method throws an exception
    */
-  @Nullable
-  public Object invokeAndHandle(RequestContext request) throws Throwable {
-    Object returnValue = invokeForRequest(request, (Object[]) null);
-    applyResponseStatus(request);
-
-    if (returnValue == null) {
-      if (request.isNotModified() || getResponseStatus() != null) {
-        return HttpRequestHandler.NONE_RETURN_VALUE;
-      }
-    }
-    else if (StringUtils.hasText(getResponseStatusReason())) {
-      return HttpRequestHandler.NONE_RETURN_VALUE;
-    }
-
-    return returnValue;
-  }
-
-  @Nullable
-  public Object invokeAndHandle(RequestContext request, Object @Nullable ... providedArgs) throws Throwable {
-    Object returnValue = invokeForRequest(request, providedArgs);
+  public @Nullable Object invokeAndHandle(RequestContext request,
+          @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Throwable {
+    Object returnValue = invokeForRequest(request, methodValidator, providedArgs);
     applyResponseStatus(request);
 
     if (returnValue == null) {
@@ -169,18 +165,27 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * or if the method raised an exception
    * @see #getMethodArgumentValues
    */
-  @Nullable
-  public Object invokeForRequest(RequestContext request, Object @Nullable ... providedArgs) throws Throwable {
+  public @Nullable Object invokeForRequest(RequestContext request,
+          @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Throwable {
     @Nullable Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
       log.trace("Arguments: {}", Arrays.toString(args));
     }
 
+    Object bean = getBean();
+    if (shouldValidateArguments() && methodValidator != null) {
+      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getMethodParameters(), args, getValidationGroups());
+    }
+
     try {
-      return bridgedMethod.invoke(getBean(), args);
+      Object returnValue = bridgedMethod.invoke(bean, args);
+      if (shouldValidateReturnValue() && methodValidator != null) {
+        methodValidator.applyReturnValueValidation(bean, getBridgedMethod(), getReturnType(), returnValue, getValidationGroups());
+      }
+      return returnValue;
     }
     catch (IllegalArgumentException ex) {
-      assertTargetBean(bridgedMethod, getBean(), args);
+      assertTargetBean(bridgedMethod, bean, args);
       String text = (ex.getMessage() == null || ex.getCause() instanceof NullPointerException)
               ? "Illegal argument" : ex.getMessage();
       throw new IllegalStateException(formatInvokeError(text, args), ex);

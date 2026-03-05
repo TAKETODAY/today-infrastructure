@@ -123,7 +123,7 @@ final class ModelHandler {
         continue;
       }
 
-      Object returnValue = modelMethod.invokeForRequest(request, (Object[]) null);
+      Object returnValue = modelMethod.invokeForRequest(request, null, null);
       if (modelMethod.isVoid()) {
         if (StringUtils.hasText(ann.value())) {
           if (log.isDebugEnabled()) {

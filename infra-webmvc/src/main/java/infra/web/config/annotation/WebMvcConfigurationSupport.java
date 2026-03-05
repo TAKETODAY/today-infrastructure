@@ -101,6 +101,7 @@ import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
 
 import static infra.util.ClassUtils.isPresent;
+import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
  * This is the main class providing the configuration behind the MVC Java config.
@@ -937,7 +938,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   public Validator mvcValidator() {
     Validator validator = getValidator();
     if (validator == null) {
-      if (isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
+      if (BEAN_VALIDATION_PRESENT) {
         try {
           validator = new OptionalValidatorFactoryBean();
         }

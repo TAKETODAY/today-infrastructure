@@ -22,12 +22,15 @@ import infra.lang.Assert;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 
 /**
- * ParameterResolvingRegistry ResolvableParameterFactory
+ * A {@link ResolvableParameterFactory} implementation that utilizes a {@link ParameterResolvingRegistry}
+ * to resolve method parameters. This factory creates {@link ResolvableMethodParameter} instances
+ * capable of resolving arguments based on the registered resolvers.
  *
- * @author TODAY 2021/5/9 23:28
+ * @author TODAY
  * @since 3.0.1
  */
 public class RegistryResolvableParameterFactory extends ResolvableParameterFactory {
+
   private final ParameterResolvingRegistry resolvingRegistry;
 
   public RegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {

@@ -40,10 +40,24 @@ import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
 
 /**
+ * Package-private class to assist {@link RequestMappingHandlerAdapter} with
+ * resolving, initializing, and caching annotated methods declared in
+ * {@code @Controller} and {@code @ControllerAdvice} components.
+ *
+ * <p>Assists with the following annotations:
+ * <ul>
+ * <li>{@code @InitBinder}
+ * <li>{@code @ModelAttribute}
+ * <li>{@code @RequestMapping}
+ * <li>{@code @ExceptionHandler}
+ * </ul>
+ *
+ * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/30 22:33
  */
 final class ControllerMethodResolver {
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
@@ -69,10 +83,10 @@ final class ControllerMethodResolver {
 
   private final ConcurrentHashMap<HandlerMethod, InvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
 
-  private final ResolvableParameterFactory resolvableParameterFactory;
+  private final ResolvableParameterFactory parameterFactory;
 
   ControllerMethodResolver(@Nullable ApplicationContext context, ResolvableParameterFactory parameterFactory) {
-    this.resolvableParameterFactory = parameterFactory;
+    this.parameterFactory = parameterFactory;
 
     if (context != null) {
       initControllerAdviceCache(context);
@@ -180,11 +194,11 @@ final class ControllerMethodResolver {
    */
   public InvocableHandlerMethod createHandlerMethod(HandlerMethod handlerMethod) {
     return invocableHandlerMethodMap.computeIfAbsent(handlerMethod,
-            handler -> new InvocableHandlerMethod(handler, resolvableParameterFactory));
+            handler -> new InvocableHandlerMethod(handler, parameterFactory));
   }
 
   private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {
-    return new InvocableHandlerMethod(bean, method, resolvableParameterFactory);
+    return new InvocableHandlerMethod(bean, method, parameterFactory);
   }
 
 }

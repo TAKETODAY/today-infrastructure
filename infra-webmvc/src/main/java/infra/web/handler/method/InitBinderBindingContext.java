@@ -102,7 +102,7 @@ public class InitBinderBindingContext extends BindingContext {
       request.setBinding(binderMethodContext);
       for (InvocableHandlerMethod binderMethod : binderMethods) {
         if (isBinderMethodApplicable(binderMethod, dataBinder)) {
-          Object returnValue = binderMethod.invokeForRequest(request, dataBinder);
+          Object returnValue = binderMethod.invokeForRequest(request, null, new Object[] { dataBinder });
           if (returnValue != null) {
             throw new IllegalStateException(
                     "@InitBinder methods must not return a value (should be void): " + binderMethod);

@@ -21,9 +21,15 @@ package infra.web.handler.method;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
@@ -31,22 +37,28 @@ import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotatedMethod;
+import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.MergedAnnotation;
+import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
 import infra.lang.Assert;
+import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
-import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
+import infra.validation.annotation.Validated;
+import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AsyncHandler;
 import infra.web.handler.HandlerWrapper;
 import infra.web.handler.result.CollectedValuesList;
+
+import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
  * Encapsulates information about a handler method consisting of a
@@ -75,15 +87,17 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
 
   private final Class<?> beanType;
 
-  /** @since 4.0 */
   private final boolean responseBody;
 
-  /**
-   * @since 4.0
-   */
-  private @Nullable MethodParameter returnTypeParameter;
+  private final boolean validateArguments;
+
+  private final boolean validateReturnValue;
 
   private final @Nullable MessageSource messageSource;
+
+  private final Class<?> @Nullable [] validationGroups;
+
+  private @Nullable MethodParameter returnTypeParameter;
 
   private @Nullable HttpStatusCode responseStatus;
 
@@ -116,8 +130,10 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
     this.messageSource = messageSource;
     this.beanType = ClassUtils.getUserClass(bean);
     this.responseBody = computeResponseBody();
+    this.validateArguments = false;
+    this.validateReturnValue = false;
+    this.validationGroups = null;
     evaluateResponseStatus();
-    ReflectionUtils.makeAccessible(bridgedMethod);
   }
 
   /**
@@ -131,8 +147,10 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
     this.messageSource = null;
     this.beanType = ClassUtils.getUserClass(bean);
     this.responseBody = computeResponseBody();
+    this.validateArguments = false;
+    this.validateReturnValue = false;
+    this.validationGroups = null;
     evaluateResponseStatus();
-    ReflectionUtils.makeAccessible(bridgedMethod);
   }
 
   /**
@@ -150,8 +168,10 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
       throw new IllegalStateException("Cannot resolve bean type for bean with name '%s'".formatted(beanName));
     }
     this.beanType = ClassUtils.getUserClass(beanType);
-    ReflectionUtils.makeAccessible(bridgedMethod);
     this.responseBody = computeResponseBody();
+    this.validateArguments = false;
+    this.validateReturnValue = false;
+    this.validationGroups = null;
     evaluateResponseStatus();
   }
 
@@ -159,30 +179,39 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * Copy constructor for use in subclasses.
    */
   protected HandlerMethod(HandlerMethod other) {
-    super(other);
-    this.bean = other.bean;
-    this.messageSource = other.messageSource;
-    this.beanType = other.beanType;
-    this.responseStatus = other.responseStatus;
-    this.responseStatusReason = other.responseStatusReason;
-    this.responseBody = other.responseBody;
-    this.corsConfig = other.corsConfig;
-    this.returnTypeParameter = other.returnTypeParameter;
+    this(other, other.bean, false);
   }
 
   /**
-   * Re-create HandlerMethod with the resolved handler.
+   * Re-create new HandlerMethod instance that copies the given HandlerMethod
+   * but replaces the handler, and optionally checks for the presence of
+   * validation annotations.
+   * <p>Subclasses can override this to ensure that a HandlerMethod is of the
+   * same type if re-created.
+   *
+   * @since 5.0
    */
-  protected HandlerMethod(HandlerMethod other, Object handler) {
+  protected HandlerMethod(HandlerMethod other, @Nullable Object handler, boolean initValidateFlags) {
     super(other);
-    this.bean = handler;
+    this.bean = handler != null ? handler : other.bean;
     this.messageSource = other.messageSource;
     this.beanType = other.beanType;
+    this.responseBody = other.responseBody;
+
+    this.validateArguments = initValidateFlags ?
+            MethodValidationInitializer.checkArguments(this.beanType, getMethodParameters()) :
+            other.validateArguments;
+
+    this.validateReturnValue = initValidateFlags ?
+            MethodValidationInitializer.checkReturnValue(this.beanType, getBridgedMethod()) :
+            other.validateReturnValue;
+
+    this.validationGroups = (handler != null && (shouldValidateArguments() || shouldValidateReturnValue())) ?
+            ValidationAnnotationUtils.determineValidationGroups(handler, getBridgedMethod()) :
+            other.validationGroups;
+
     this.responseStatus = other.responseStatus;
     this.responseStatusReason = other.responseStatusReason;
-    this.responseBody = other.responseBody;
-    this.corsConfig = other.corsConfig;
-    this.returnTypeParameter = other.returnTypeParameter;
   }
 
   /**
@@ -225,6 +254,48 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
   }
 
   /**
+   * Whether the method arguments are a candidate for method validation, which
+   * is the case when there are parameter {@code jakarta.validation.Constraint}
+   * annotations.
+   * <p>The presence of {@code jakarta.validation.Valid} by itself does not
+   * trigger method validation since such parameters are already validated at
+   * the level of argument resolvers.
+   * <p><strong>Note:</strong> if the class is annotated with {@link Validated},
+   * this method returns false, deferring to method validation via AOP proxy.
+   *
+   * @since 5.0
+   */
+  public boolean shouldValidateArguments() {
+    return this.validateArguments;
+  }
+
+  /**
+   * Whether the method return value is a candidate for method validation, which
+   * is the case when there are method {@code jakarta.validation.Constraint}
+   * or {@code jakarta.validation.Valid} annotations.
+   * <p><strong>Note:</strong> if the class is annotated with {@link Validated},
+   * this method returns false, deferring to method validation via AOP proxy.
+   *
+   * @since 5.0
+   */
+  public boolean shouldValidateReturnValue() {
+    return this.validateReturnValue;
+  }
+
+  /**
+   * Return validation groups declared in
+   * {@link infra.validation.annotation.Validated @Validated}
+   * either on the method, or on the containing target class of the method, or
+   * for an AOP proxy without a target (with all behavior in advisors), also
+   * check on proxied interfaces.
+   *
+   * @since 5.0
+   */
+  public Class<?>[] getValidationGroups() {
+    return validationGroups != null ? validationGroups : Constant.EMPTY_CLASSES;
+  }
+
+  /**
    * Return the HandlerMethod return type.
    */
   @Override
@@ -264,12 +335,22 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
   }
 
   /**
+   * Re-create the HandlerMethod and initialize
+   * {@link #shouldValidateArguments()} and {@link #shouldValidateReturnValue()}.
+   *
+   * @since 5.0
+   */
+  public HandlerMethod withValidateFlags() {
+    return new HandlerMethod(this, null, true);
+  }
+
+  /**
    * create with a new bean
    *
    * @since 4.0
    */
   public HandlerMethod withBean(Object handler) {
-    return new HandlerMethod(this, handler);
+    return new HandlerMethod(this, handler, false);
   }
 
   /**
@@ -475,6 +556,75 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
     public ConcurrentResultMethodParameter clone() {
       return new ConcurrentResultMethodParameter(this);
     }
+  }
+
+  /**
+   * Checks for the presence of {@code @Constraint} and {@code @Valid}
+   * annotations on the method and method parameters.
+   */
+  private static class MethodValidationInitializer {
+
+    private static final Predicate<MergedAnnotation<? extends Annotation>> CONSTRAINT_PREDICATE =
+            MergedAnnotationPredicates.typeIn("jakarta.validation.Constraint");
+
+    private static final Predicate<MergedAnnotation<? extends Annotation>> VALID_PREDICATE =
+            MergedAnnotationPredicates.typeIn("jakarta.validation.Valid");
+
+    public static boolean checkArguments(Class<?> beanType, MethodParameter[] parameters) {
+      if (BEAN_VALIDATION_PRESENT && AnnotationUtils.findAnnotation(beanType, Validated.class) == null) {
+        for (MethodParameter param : parameters) {
+          MergedAnnotations merged = MergedAnnotations.from(param.getParameterAnnotations());
+          if (merged.stream().anyMatch(CONSTRAINT_PREDICATE)) {
+            return true;
+          }
+          Class<?> type = param.getParameterType();
+          if (merged.stream().anyMatch(VALID_PREDICATE) && isIndexOrKeyBasedContainer(type)) {
+            return true;
+          }
+          merged = MergedAnnotations.from(getContainerElementAnnotations(param));
+          if (merged.stream().anyMatch(CONSTRAINT_PREDICATE.or(VALID_PREDICATE))) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    public static boolean checkReturnValue(Class<?> beanType, Method method) {
+      if (BEAN_VALIDATION_PRESENT && AnnotationUtils.findAnnotation(beanType, Validated.class) == null) {
+        MergedAnnotations merged = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+        return merged.stream().anyMatch(CONSTRAINT_PREDICATE.or(VALID_PREDICATE));
+      }
+      return false;
+    }
+
+    private static boolean isIndexOrKeyBasedContainer(Class<?> type) {
+      // Index or key-based containers only, or MethodValidationAdapter cannot access
+      // the element given what is exposed in ConstraintViolation.
+      return List.class.isAssignableFrom(type)
+              || Object[].class.isAssignableFrom(type)
+              || Map.class.isAssignableFrom(type);
+    }
+
+    /**
+     * There may be constraints on elements of a container (list, map).
+     */
+    private static Annotation[] getContainerElementAnnotations(MethodParameter param) {
+      List<Annotation> result = null;
+      int i = param.getParameterIndex();
+      Method method = param.getMethod();
+      if (method != null && method.getAnnotatedParameterTypes()[i] instanceof AnnotatedParameterizedType apt) {
+        for (AnnotatedType type : apt.getAnnotatedActualTypeArguments()) {
+          for (Annotation annot : type.getAnnotations()) {
+            result = result != null ? result : new ArrayList<>();
+            result.add(annot);
+          }
+        }
+      }
+
+      return result != null ? result.toArray(Constant.EMPTY_ANNOTATIONS) : Constant.EMPTY_ANNOTATIONS;
+    }
+
   }
 
 }

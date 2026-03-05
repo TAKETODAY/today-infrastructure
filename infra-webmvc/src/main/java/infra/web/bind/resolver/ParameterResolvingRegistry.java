@@ -361,6 +361,8 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
       resolvingRegistry = new ParameterResolvingRegistry();
       resolvingRegistry.setApplicationContext(context);
       resolvingRegistry.registerDefaultStrategies();
+      context.unwrapFactory(ConfigurableBeanFactory.class)
+              .registerSingleton(resolvingRegistry);
     }
     return resolvingRegistry;
   }

@@ -35,6 +35,7 @@ import infra.http.converter.HttpMessageNotWritableException;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.validation.BindException;
+import infra.validation.method.MethodValidationException;
 import infra.web.ErrorResponse;
 import infra.web.ErrorResponseException;
 import infra.web.HttpMediaTypeNotAcceptableException;
@@ -50,6 +51,7 @@ import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
+import infra.web.handler.method.HandlerMethodValidationException;
 import infra.web.server.MultipartException;
 import infra.web.util.WebUtils;
 
@@ -100,6 +102,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
           MissingRequestPartException.class,
           RequestBindingException.class,
           MethodArgumentNotValidException.class,
+          HandlerMethodValidationException.class,
           HandlerNotFoundException.class,
           AsyncRequestTimeoutException.class,
           ErrorResponseException.class,
@@ -108,6 +111,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
           TypeMismatchException.class,
           HttpMessageNotReadableException.class,
           HttpMessageNotWritableException.class,
+          MethodValidationException.class,
           BindException.class
   })
   public final @Nullable ResponseEntity<@Nullable Object> handleException(Exception ex, RequestContext request) throws Exception {
@@ -137,6 +141,9 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
       }
       else if (ex instanceof MethodArgumentNotValidException subEx) {
         return handleMethodArgumentNotValid(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
+      }
+      else if (ex instanceof HandlerMethodValidationException subEx) {
+        return handleHandlerMethodValidationException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof HandlerNotFoundException subEx) {
         return handleHandlerNotFoundException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
@@ -172,6 +179,9 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
     }
     else if (ex instanceof BindException subEx) {
       return handleBindException(subEx, headers, HttpStatus.BAD_REQUEST, request);
+    }
+    else if (ex instanceof MethodValidationException subEx) {
+      return handleMethodValidationException(subEx, headers, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
     else {
       // Unknown exception, typically a wrapper with a common MVC exception as cause
@@ -315,6 +325,24 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMethodArgumentNotValid(
           MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+
+    return handleExceptionInternal(ex, null, headers, status, request);
+  }
+
+  /**
+   * Customize the handling of {@link HandlerMethodValidationException}.
+   * <p>This method delegates to {@link #handleExceptionInternal}.
+   *
+   * @param ex the exception to handle
+   * @param headers the headers to be written to the response
+   * @param status the selected response status
+   * @param request the current request
+   * @return a {@code ResponseEntity} for the response to use, possibly
+   * {@code null} when the response is already committed
+   * @since 5.0
+   */
+  protected @Nullable ResponseEntity<@Nullable Object> handleHandlerMethodValidationException(
+          HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -493,6 +521,28 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
     ProblemDetail body = createProblemDetail(ex, status, "Failed to bind request", null, null, request);
+    return handleExceptionInternal(ex, body, headers, status, request);
+  }
+
+  /**
+   * Customize the handling of {@link MethodValidationException}.
+   * <p>By default this method creates a {@link ProblemDetail} with the status
+   * and a short detail message, and also looks up an override for the detail
+   * via {@link MessageSource}, before delegating to
+   * {@link #handleExceptionInternal}.
+   *
+   * @param ex the exception to handle
+   * @param headers the headers to use for the response
+   * @param status the status code to use for the response
+   * @param request the current request
+   * @return a {@code ResponseEntity} for the response to use, possibly
+   * {@code null} when the response is already committed
+   * @since 5.0
+   */
+  protected @Nullable ResponseEntity<@Nullable Object> handleMethodValidationException(
+          MethodValidationException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+
+    ProblemDetail body = createProblemDetail(ex, status, "Validation failed", null, null, request);
     return handleExceptionInternal(ex, body, headers, status, request);
   }
 

@@ -106,6 +106,7 @@ import infra.web.view.View;
 
 import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
 import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link WebMvcConfigurationSupport}.
@@ -345,7 +346,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   @SuppressWarnings("NullAway")
   public Validator mvcValidator() {
-    if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
+    if (BEAN_VALIDATION_PRESENT) {
       var validatorAdapter = ClassUtils.load(
               "infra.validation.config.ValidatorAdapter", getClass().getClassLoader());
       if (validatorAdapter != null) {

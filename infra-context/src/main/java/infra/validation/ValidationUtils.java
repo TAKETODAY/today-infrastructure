@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -43,6 +44,9 @@ import infra.util.StringUtils;
 public abstract class ValidationUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(ValidationUtils.class);
+
+  public static final boolean BEAN_VALIDATION_PRESENT =
+          ClassUtils.isPresent("jakarta.validation.Validator", ValidationUtils.class);
 
   /**
    * Invoke the given {@link Validator} for the supplied object and
