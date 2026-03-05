@@ -198,7 +198,7 @@ public class WebUtilsTests {
     }
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-//    HttpServletRequest requestToUse = adaptFromForwardedHeaders(request);
+//    HttpMockRequest requestToUse = adaptFromForwardedHeaders(request);
 //    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
 //
 //    assertThat(WebUtils.isSameOrigin(httpRequest)).isTrue();
@@ -215,7 +215,7 @@ public class WebUtilsTests {
     request.addHeader("Forwarded", forwardedHeader);
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-//    HttpServletRequest requestToUse = adaptFromForwardedHeaders(request);
+//    HttpMockRequest requestToUse = adaptFromForwardedHeaders(request);
 //    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
 
   }

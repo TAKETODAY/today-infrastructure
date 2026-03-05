@@ -24,7 +24,7 @@
  * The following is a brief example of typical usage in a servlet, storing
  * the uploaded files on disk.
  * </p>
- * <pre>public void doPost(HttpServletRequest req, HttpServletResponse res) {
+ * <pre>public void doPost(HttpMockRequest req, HttpMockResponse res) {
  *   DiskFileItemFactory factory = new DiskFileItemFactory();
  *   // maximum size that will be stored in memory
  *   factory.setSizeThreshold(4096);

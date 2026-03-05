@@ -38,7 +38,7 @@ import infra.mock.web.HttpMockRequestImpl;
 public interface RequestPostProcessor {
 
   /**
-   * Post-process the given {@code MockHttpServletRequest} after its creation
+   * Post-process the given {@code HttpMockRequestImpl} after its creation
    * and initialization through a {@code MockHttpServletRequestBuilder}.
    *
    * @param request the request to initialize

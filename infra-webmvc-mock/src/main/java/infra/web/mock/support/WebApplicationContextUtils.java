@@ -308,7 +308,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public String toString() {
-      return "Current HttpServletRequest";
+      return "Current HttpMockRequest";
     }
 
   }
@@ -326,7 +326,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public String toString() {
-      return "Current HttpServletResponse";
+      return "Current HttpMockResponse";
     }
   }
 

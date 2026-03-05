@@ -88,12 +88,12 @@ class PrintingResultHandlerTests {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("param", "paramValue");
 
-    assertValue("MockHttpServletRequest", "HTTP Method", this.request.getMethod());
-    assertValue("MockHttpServletRequest", "Request URI", this.request.getRequestURI());
-    assertValue("MockHttpServletRequest", "Parameters", params);
-    assertValue("MockHttpServletRequest", "Headers", headers);
-    assertValue("MockHttpServletRequest", "Body", palindrome);
-    assertValue("MockHttpServletRequest", "Session Attrs", Collections.singletonMap("foo", "bar"));
+    assertValue("HttpMockRequestImpl", "HTTP Method", this.request.getMethod());
+    assertValue("HttpMockRequestImpl", "Request URI", this.request.getRequestURI());
+    assertValue("HttpMockRequestImpl", "Parameters", params);
+    assertValue("HttpMockRequestImpl", "Headers", headers);
+    assertValue("HttpMockRequestImpl", "Body", palindrome);
+    assertValue("HttpMockRequestImpl", "Session Attrs", Collections.singletonMap("foo", "bar"));
   }
 
   @Test
@@ -113,11 +113,11 @@ class PrintingResultHandlerTests {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("param", "paramValue");
 
-    assertValue("MockHttpServletRequest", "HTTP Method", this.request.getMethod());
-    assertValue("MockHttpServletRequest", "Request URI", this.request.getRequestURI());
-    assertValue("MockHttpServletRequest", "Parameters", params);
-    assertValue("MockHttpServletRequest", "Headers", headers);
-    assertValue("MockHttpServletRequest", "Body", palindrome);
+    assertValue("HttpMockRequestImpl", "HTTP Method", this.request.getMethod());
+    assertValue("HttpMockRequestImpl", "Request URI", this.request.getRequestURI());
+    assertValue("HttpMockRequestImpl", "Parameters", params);
+    assertValue("HttpMockRequestImpl", "Headers", headers);
+    assertValue("HttpMockRequestImpl", "Body", palindrome);
   }
 
   @Test
@@ -138,11 +138,11 @@ class PrintingResultHandlerTests {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("param", "paramValue");
 
-    assertValue("MockHttpServletRequest", "HTTP Method", this.request.getMethod());
-    assertValue("MockHttpServletRequest", "Request URI", this.request.getRequestURI());
-    assertValue("MockHttpServletRequest", "Parameters", params);
-    assertValue("MockHttpServletRequest", "Headers", headers);
-    assertValue("MockHttpServletRequest", "Body", palindrome);
+    assertValue("HttpMockRequestImpl", "HTTP Method", this.request.getMethod());
+    assertValue("HttpMockRequestImpl", "Request URI", this.request.getRequestURI());
+    assertValue("HttpMockRequestImpl", "Parameters", params);
+    assertValue("HttpMockRequestImpl", "Headers", headers);
+    assertValue("HttpMockRequestImpl", "Body", palindrome);
   }
 
   @Test
@@ -179,7 +179,7 @@ class PrintingResultHandlerTests {
     headers.setLocation(URI.create("/redirectFoo"));
     headers.put("Set-Cookie", cookieValues);
 
-    String heading = "MockHttpServletResponse";
+    String heading = "MockHttpResponseImpl";
     assertValue(heading, "Status", this.response.getStatus());
     assertValue(heading, "Error message", response.getErrorMessage());
     assertValue(heading, "Headers", headers);
@@ -210,14 +210,14 @@ class PrintingResultHandlerTests {
 
     this.handler.handle(this.mvcResult);
 
-    assertValue("MockHttpServletRequest", "Body", "text");
+    assertValue("HttpMockRequestImpl", "Body", "text");
   }
 
   @Test
   void printRequestWithoutCharacterEncoding() throws Exception {
     this.handler.handle(this.mvcResult);
 
-    assertValue("MockHttpServletRequest", "Body", "<no character encoding set>");
+    assertValue("HttpMockRequestImpl", "Body", "<no character encoding set>");
   }
 
   @Test
@@ -226,7 +226,7 @@ class PrintingResultHandlerTests {
     this.response.getWriter().print("text");
 
     this.handler.handle(this.mvcResult);
-    assertValue("MockHttpServletResponse", "Body", "text");
+    assertValue("MockHttpResponseImpl", "Body", "text");
   }
 
   @Test
@@ -235,7 +235,7 @@ class PrintingResultHandlerTests {
 
     this.handler.handle(this.mvcResult);
 
-    assertValue("MockHttpServletResponse", "Body", "text");
+    assertValue("MockHttpResponseImpl", "Body", "text");
   }
 
   @Test

@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 import infra.mock.api.MockResponseWrapper;
 
 /**
- * Provides a convenient implementation of the HttpServletResponse interface that can be subclassed by developers
+ * Provides a convenient implementation of the HttpMockResponse interface that can be subclassed by developers
  * wishing to adapt the response from a Servlet. This class implements the Wrapper or Decorator pattern. Methods default
  * to calling through to the wrapped response object.
  *

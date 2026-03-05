@@ -157,15 +157,15 @@ public abstract class HttpMock extends GenericMock {
   }
 
   /**
-   * Returns the time the <code>HttpServletRequest</code> object was last modified, in milliseconds since midnight January
+   * Returns the time the <code>HttpMockRequest</code> object was last modified, in milliseconds since midnight January
    * 1, 1970 GMT. If the time is unknown, this method returns a negative number (the default).
    *
    * <p>
    * Servlets that support HTTP GET requests and can quickly determine their last modification time should override this
    * method. This makes browser and proxy caches work more effectively, reducing the load on server and network resources.
    *
-   * @param req the <code>HttpServletRequest</code> object that is sent to the servlet
-   * @return a <code>long</code> integer specifying the time the <code>HttpServletRequest</code> object was last modified,
+   * @param req the <code>HttpMockRequest</code> object that is sent to the servlet
+   * @return a <code>long</code> integer specifying the time the <code>HttpMockRequest</code> object was last modified,
    * in milliseconds since midnight, January 1, 1970 GMT, or -1 if the time is not known
    */
   protected long getLastModified(HttpMockRequest req) {

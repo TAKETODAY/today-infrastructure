@@ -343,7 +343,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
       httpHeaders.addAll(name, headers);
     }
 
-    // HttpServletRequest exposes some headers as properties:
+    // HttpMockRequest exposes some headers as properties:
     // we should include those if not already present
     try {
       MediaType contentType = httpHeaders.getContentType();
@@ -420,7 +420,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
         }
       }
 
-      // HttpServletResponse exposes some headers as properties: we should include those if not already present
+      // HttpMockResponse exposes some headers as properties: we should include those if not already present
       MediaType contentType = headers.getContentType();
       if (response.getContentType() == null && contentType != null) {
         response.setContentType(contentType.toString());

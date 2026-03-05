@@ -736,8 +736,8 @@ public class HttpHeadersTests {
       assertThat(removed).isTrue();
       assertThat(headers.keySet().remove("Alpha")).isFalse();
       assertThat(headers).hasSize(1);
-      assertThat(headers.containsKey("Alpha")).as("Alpha should have been removed").isFalse();
-      assertThat(headers.containsKey("Bravo")).as("Bravo should be present").isTrue();
+      assertThat(headers.containsHeader("Alpha")).as("Alpha should have been removed").isFalse();
+      assertThat(headers.containsHeader("Bravo")).as("Bravo should be present").isTrue();
       assertThat(headers.keySet()).containsOnly("Bravo");
       assertThat(headers.entrySet()).containsOnly(entry("Bravo", List.of("banana")));
     }

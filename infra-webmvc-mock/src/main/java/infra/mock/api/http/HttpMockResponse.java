@@ -32,7 +32,7 @@ import infra.mock.api.MockResponse;
  * example, it has methods to access HTTP headers and cookies.
  *
  * <p>
- * The servlet container creates an <code>HttpServletResponse</code> object and passes it as an argument to the
+ * The servlet container creates an <code>HttpMockResponse</code> object and passes it as an argument to the
  * servlet's service methods (<code>doGet</code>, <code>doPost</code>, etc).
  *
  * @author Various
@@ -65,7 +65,7 @@ public interface HttpMockResponse extends MockResponse {
    * rewriting cannot be used with browsers which do not support cookies.
    *
    * <p>
-   * If the URL is relative, it is always relative to the current HttpServletRequest.
+   * If the URL is relative, it is always relative to the current HttpMockRequest.
    *
    * @param url the url to be encoded.
    * @return the encoded URL if encoding is needed; the unchanged URL otherwise.
@@ -81,11 +81,11 @@ public interface HttpMockResponse extends MockResponse {
    * normal link, this method is separated from the <code>encodeURL</code> method.
    *
    * <p>
-   * All URLs sent to the <code>HttpServletResponse.sendRedirect</code> method should be run through this method.
+   * All URLs sent to the <code>HttpMockResponse.sendRedirect</code> method should be run through this method.
    * Otherwise, URL rewriting cannot be used with browsers which do not support cookies.
    *
    * <p>
-   * If the URL is relative, it is always relative to the current HttpServletRequest.
+   * If the URL is relative, it is always relative to the current HttpMockRequest.
    *
    * @param url the url to be encoded.
    * @return the encoded URL if encoding is needed; the unchanged URL otherwise.
@@ -283,7 +283,7 @@ public interface HttpMockResponse extends MockResponse {
    * {@link #setDateHeader}, {@link #addDateHeader}, {@link #setIntHeader}, or {@link #addIntHeader}, respectively.
    *
    * <p>
-   * Any changes to the returned <code>Collection</code> must not affect this <code>HttpServletResponse</code>.
+   * Any changes to the returned <code>Collection</code> must not affect this <code>HttpMockResponse</code>.
    *
    * @param name the name of the response header whose values to return
    * @return a (possibly empty) <code>Collection</code> of the values of the response header with the given name
@@ -298,7 +298,7 @@ public interface HttpMockResponse extends MockResponse {
    * {@link #setDateHeader}, {@link #addDateHeader}, {@link #setIntHeader}, or {@link #addIntHeader}, respectively.
    *
    * <p>
-   * Any changes to the returned <code>Collection</code> must not affect this <code>HttpServletResponse</code>.
+   * Any changes to the returned <code>Collection</code> must not affect this <code>HttpMockResponse</code>.
    *
    * @return a (possibly empty) <code>Collection</code> of the names of the headers of this response
    */

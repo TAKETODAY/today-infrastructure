@@ -62,7 +62,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
   private boolean exposeSessionAttributes = false;
 
   /**
-   * Whether HttpServletRequest attributes are allowed to override (hide) controller
+   * Whether HttpMockRequest attributes are allowed to override (hide) controller
    * generated model attributes of the same name.
    */
   private boolean allowRequestOverride = false;

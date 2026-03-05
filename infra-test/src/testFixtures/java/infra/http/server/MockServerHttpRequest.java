@@ -78,13 +78,13 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
    * @param mockRequest the servlet request
    */
   public MockServerHttpRequest(HttpMockRequest mockRequest) {
-    Assert.notNull(mockRequest, "HttpServletRequest is required");
+    Assert.notNull(mockRequest, "HttpMockRequest is required");
     this.mockRequest = mockRequest;
     this.method = HttpMethod.valueOf(mockRequest.getMethod());
   }
 
   /**
-   * Returns the {@code HttpServletRequest} this object is based on.
+   * Returns the {@code HttpMockRequest} this object is based on.
    */
   public HttpMockRequest getRequest() {
     return this.mockRequest;
@@ -125,7 +125,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
     catch (URISyntaxException ex) {
       if (!hasQuery) {
         throw new IllegalStateException(
-                "Could not resolve HttpServletRequest as URI: " + urlString, ex);
+                "Could not resolve HttpMockRequest as URI: " + urlString, ex);
       }
       // Maybe a malformed query string... try plain request URL
       try {
@@ -134,7 +134,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
       }
       catch (URISyntaxException ex2) {
         throw new IllegalStateException(
-                "Could not resolve HttpServletRequest as URI: " + urlString, ex2);
+                "Could not resolve HttpMockRequest as URI: " + urlString, ex2);
       }
     }
   }
@@ -149,7 +149,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
         this.headers.addAll(headerName, this.mockRequest.getHeaders(headerName));
       }
 
-      // HttpServletRequest exposes some headers as properties:
+      // HttpMockRequest exposes some headers as properties:
       // we should include those if not already present
       try {
         MediaType contentType = this.headers.getContentType();

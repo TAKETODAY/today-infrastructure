@@ -78,8 +78,8 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
     assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
     assertThat(mockContextIn).as("MockContext should have been autowired from the WAC.").isNotNull();
-    assertThat(request).as("MockHttpServletRequest should have been autowired from the WAC.").isNotNull();
-    assertThat(response).as("MockHttpServletResponse should have been autowired from the WAC.").isNotNull();
+    assertThat(request).as("HttpMockRequestImpl should have been autowired from the WAC.").isNotNull();
+    assertThat(response).as("MockHttpResponseImpl should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("ServletWebRequest should have been autowired from the WAC.").isNotNull();
 

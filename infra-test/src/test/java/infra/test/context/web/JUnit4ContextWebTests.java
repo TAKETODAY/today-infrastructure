@@ -90,8 +90,8 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
     assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
     assertThat(mockContextIm).as("MockContext should have been autowired from the WAC.").isNotNull();
-    assertThat(request).as("MockHttpServletRequest should have been autowired from the WAC.").isNotNull();
-    assertThat(response).as("MockHttpServletResponse should have been autowired from the WAC.").isNotNull();
+    assertThat(request).as("HttpMockRequestImpl should have been autowired from the WAC.").isNotNull();
+    assertThat(response).as("MockHttpResponseImpl should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("RequestContext should have been autowired from the WAC.").isNotNull();
 

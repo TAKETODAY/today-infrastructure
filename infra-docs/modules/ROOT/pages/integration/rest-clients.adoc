@@ -312,7 +312,7 @@ parts.add("fieldPart", "fieldValue");
 parts.add("filePart", new FileSystemResource("...logo.png"));
 parts.add("jsonPart", new Person("Jason"));
 
-HttpHeaders headers = new HttpHeaders();
+HttpHeaders headers = HttpHeaders.forWritable();
 headers.setContentType(MediaType.APPLICATION_XML);
 parts.add("xmlPart", new HttpEntity<>(myBean, headers));
 

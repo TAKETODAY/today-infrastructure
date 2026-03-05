@@ -1032,7 +1032,7 @@ public interface RestClient {
      * @param <T> the type the response will be transformed to
      * @return the value returned from the exchange function
      */
-    default <T> T exchange(ExchangeFunction<T> exchangeFunction) {
+    default <T extends @Nullable Object> T exchange(ExchangeFunction<T> exchangeFunction) {
       return exchange(exchangeFunction, true);
     }
 
@@ -1064,7 +1064,7 @@ public interface RestClient {
      * @param <T> the type the response will be transformed to
      * @return the value returned from the exchange function
      */
-    <T> T exchange(ExchangeFunction<T> exchangeFunction, boolean close);
+    <T extends @Nullable Object> T exchange(ExchangeFunction<T> exchangeFunction, boolean close);
 
     /**
      * Defines the contract for {@link #exchange(ExchangeFunction)}.
@@ -1072,7 +1072,7 @@ public interface RestClient {
      * @param <T> the type the response will be transformed to
      */
     @FunctionalInterface
-    interface ExchangeFunction<T> {
+    interface ExchangeFunction<T extends @Nullable Object> {
 
       /**
        * Exchange the given response into a type {@code T}.

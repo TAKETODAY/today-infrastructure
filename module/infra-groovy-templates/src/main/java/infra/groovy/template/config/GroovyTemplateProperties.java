@@ -121,7 +121,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   private boolean exposeSessionAttributes;
 
   /**
-   * Whether HttpServletRequest attributes are allowed to override (hide) controller
+   * Whether Request attributes are allowed to override (hide) controller
    * generated model attributes of the same name.
    */
   private boolean allowRequestOverride;

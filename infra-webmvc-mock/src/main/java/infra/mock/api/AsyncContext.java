@@ -37,7 +37,7 @@ import infra.mock.api.http.HttpMockRequest;
  * <li>Invoke, at their {@link AsyncListener#onTimeout onTimeout} method, all {@link AsyncListener} instances registered
  * with the ServletRequest on which the asynchronous operation was initiated.</li>
  * <li>If none of the listeners called {@link #complete} or any of the {@link #dispatch} methods, perform an error
- * dispatch with a status code equal to <tt>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</tt>.</li>
+ * dispatch with a status code equal to <tt>HttpMockResponse.SC_INTERNAL_SERVER_ERROR</tt>.</li>
  * <li>If no matching error page was found, or the error page did not call {@link #complete} or any of the
  * {@link #dispatch} methods, call {@link #complete}.</li>
  * </ol>
@@ -114,7 +114,7 @@ public interface AsyncContext {
    *
    * <p>
    * If the asynchronous cycle was started with {@link MockRequest#startAsync(MockRequest, MockResponse)}, and
-   * the request passed is an instance of HttpServletRequest, then the dispatch is to the URI returned by
+   * the request passed is an instance of HttpMockRequest, then the dispatch is to the URI returned by
    * {@link HttpMockRequest#getRequestURI}. Otherwise, the dispatch is to the URI of the request
    * when it was last dispatched by the container.
    *
@@ -172,7 +172,7 @@ public interface AsyncContext {
    * with the ServletRequest for which this AsyncContext was created, and make the caught <tt>Throwable</tt> available via
    * {@link AsyncEvent#getThrowable}.</li>
    * <li>If none of the listeners called {@link #complete} or any of the {@link #dispatch} methods, perform an error
-   * dispatch with a status code equal to <tt>HttpServletResponse.SC_INTERNAL_SERVER_ERROR</tt>, and make the above
+   * dispatch with a status code equal to <tt>HttpMockResponse.SC_INTERNAL_SERVER_ERROR</tt>, and make the above
    * <tt>Throwable</tt> available as the value of the <tt>RequestDispatcher.ERROR_EXCEPTION</tt> request attribute.</li>
    * <li>If no matching error page was found, or the error page did not call {@link #complete} or any of the
    * {@link #dispatch} methods, call {@link #complete}.</li>

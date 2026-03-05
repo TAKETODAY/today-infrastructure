@@ -30,7 +30,7 @@ import java.util.Set;
  * <p>
  * A PushBuilder is obtained by calling {@link HttpMockRequest#newPushBuilder()}. Each call to this method will a new
  * instance of a PushBuilder based off the current {@code
- * HttpServletRequest}, or null. Any mutations to the returned PushBuilder are not reflected on future returns.
+ * HttpMockRequest}, or null. Any mutations to the returned PushBuilder are not reflected on future returns.
  * </p>
  *
  * <p>

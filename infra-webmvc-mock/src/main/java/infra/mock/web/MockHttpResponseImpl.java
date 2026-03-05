@@ -107,7 +107,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
   private Locale locale = Locale.getDefault();
 
   //---------------------------------------------------------------------
-  // HttpServletResponse properties
+  // HttpMockResponse properties
   //---------------------------------------------------------------------
 
   private final List<Cookie> cookies = new ArrayList<>();
@@ -424,7 +424,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
   }
 
   //---------------------------------------------------------------------
-  // HttpServletResponse interface
+  // HttpMockResponse interface
   //---------------------------------------------------------------------
 
   @Override

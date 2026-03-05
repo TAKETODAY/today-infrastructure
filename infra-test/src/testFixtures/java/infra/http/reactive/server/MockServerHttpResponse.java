@@ -80,7 +80,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
           DataBufferFactory bufferFactory, int bufferSize, MockServerHttpRequest request) throws IOException {
     super(bufferFactory, headers);
 
-    Assert.notNull(response, "HttpServletResponse is required");
+    Assert.notNull(response, "HttpMockResponse is required");
     Assert.notNull(bufferFactory, "DataBufferFactory is required");
     Assert.isTrue(bufferSize > 0, "Buffer size must be greater than 0");
 

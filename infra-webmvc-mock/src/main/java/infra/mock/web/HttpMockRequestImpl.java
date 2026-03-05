@@ -216,7 +216,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private DispatcherType dispatcherType = DispatcherType.REQUEST;
 
   // ---------------------------------------------------------------------
-  // HttpServletRequest properties
+  // HttpMockRequest properties
   // ---------------------------------------------------------------------
 
   @Nullable
@@ -250,6 +250,8 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   @Nullable
   private String requestURI;
 
+  private @Nullable String uriTemplate;
+  
   @Nullable
   private HttpSession session;
 
@@ -269,7 +271,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   // ---------------------------------------------------------------------
 
   /**
-   * Create a new {@code MockHttpServletRequest} with a default
+   * Create a new {@code HttpMockRequestImpl} with a default
    * {@link MockContextImpl}.
    *
    * @see #HttpMockRequestImpl(MockContext, String, String)
@@ -279,7 +281,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   /**
-   * Create a new {@code MockHttpServletRequest} with a default
+   * Create a new {@code HttpMockRequestImpl} with a default
    * {@link MockContextImpl}.
    *
    * @param method the request method (may be {@code null})
@@ -293,7 +295,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   /**
-   * Create a new {@code MockHttpServletRequest} with the supplied {@link MockContext}.
+   * Create a new {@code HttpMockRequestImpl} with the supplied {@link MockContext}.
    *
    * @param mockContext the MockContext that the request runs in
    * (may be {@code null} to use a default {@link MockContextImpl})
@@ -304,7 +306,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   /**
-   * Create a new {@code MockHttpServletRequest} with the supplied {@link MockContext},
+   * Create a new {@code HttpMockRequestImpl} with the supplied {@link MockContext},
    * {@code method}, and {@code requestURI}.
    * <p>The preferred locale will be set to {@link Locale#ENGLISH}.
    *
@@ -330,7 +332,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   /**
    * Return the MockContext that this request is associated with. (Not
-   * available in the standard HttpServletRequest interface for some reason.)
+   * available in the standard HttpMockRequest interface for some reason.)
    */
   @Override
   public MockContext getMockContext() {
@@ -993,7 +995,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   // ---------------------------------------------------------------------
-  // HttpServletRequest interface
+  // HttpMockRequest interface
   // ---------------------------------------------------------------------
 
   public void setAuthType(@Nullable String authType) {
@@ -1267,6 +1269,23 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   @Nullable
   public String getRequestURI() {
     return this.requestURI;
+  }
+
+  /**
+   * Set the original URI template used to prepare the request, if any.
+   *
+   * @param uriTemplate the URI template used to set up the request, if any
+   */
+  public void setUriTemplate(@Nullable String uriTemplate) {
+    this.uriTemplate = uriTemplate;
+  }
+
+  /**
+   * Return the original URI template used to prepare the request, if any.
+   *
+   */
+  public @Nullable String getUriTemplate() {
+    return this.uriTemplate;
   }
 
   @Override

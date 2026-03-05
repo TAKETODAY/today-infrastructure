@@ -84,7 +84,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
     if (response instanceof HttpMockResponseWrapper) {
       return getMockHttpResponse(((HttpMockResponseWrapper) response).getResponse());
     }
-    throw new IllegalArgumentException("MockRequestDispatcher requires MockHttpServletResponse");
+    throw new IllegalArgumentException("MockRequestDispatcher requires MockHttpResponseImpl");
   }
 
 }

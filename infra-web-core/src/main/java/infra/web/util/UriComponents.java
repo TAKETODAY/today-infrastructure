@@ -172,7 +172,7 @@ public abstract class UriComponents implements Serializable {
    * @param uriVariableValues the URI variable values
    * @return the expanded URI components
    */
-  public final UriComponents expand(Object... uriVariableValues) {
+  public final UriComponents expand(@Nullable Object... uriVariableValues) {
     Assert.notNull(uriVariableValues, "'uriVariableValues' is required");
     return expandInternal(new VarArgsTemplateVariables(uriVariableValues));
   }
@@ -356,13 +356,12 @@ public abstract class UriComponents implements Serializable {
 
     private final Iterator<Object> valueIterator;
 
-    public VarArgsTemplateVariables(Object... uriVariableValues) {
+    public VarArgsTemplateVariables(@Nullable Object... uriVariableValues) {
       this.valueIterator = Arrays.asList(uriVariableValues).iterator();
     }
 
     @Override
-    @Nullable
-    public Object getValue(@Nullable String name) {
+    public @Nullable Object getValue(@Nullable String name) {
       if (!this.valueIterator.hasNext()) {
         throw new IllegalArgumentException("Not enough variable values available to expand '" + name + "'");
       }

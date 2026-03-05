@@ -45,12 +45,12 @@ import infra.util.CollectionUtils;
  */
 public abstract class MockMvcResultHandlers {
 
-  private static final Logger logger = LoggerFactory.getLogger("infra.test.web.servlet.result");
+  private static final Logger logger = LoggerFactory.getLogger("infra.test.web.mock.result");
 
   /**
    * Log {@link MvcResult} details as a {@code DEBUG} log message via
    * Apache Commons Logging using the log category
-   * {@code infra.test.web.servlet.result}.
+   * {@code infra.test.web.mock.result}.
    *
    * @see #print()
    * @see #print(OutputStream)

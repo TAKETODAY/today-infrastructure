@@ -40,7 +40,7 @@ import infra.web.multipart.Part;
  * Extends the {@link MockRequest} interface to provide request information for HTTP servlets.
  *
  * <p>
- * The servlet container creates an <code>HttpServletRequest</code> object and passes it as an argument to the servlet's
+ * The servlet container creates an <code>HttpMockRequest</code> object and passes it as an argument to the servlet's
  * service methods (<code>doGet</code>, <code>doPost</code>, etc).
  *
  * @author Various
@@ -229,7 +229,7 @@ public interface HttpMockRequest extends MockRequest {
       @Override
       public String toString() {
         return "MappingImpl{" + "matchValue=" + getMatchValue() + ", pattern=" + getPattern() + ", servletName="
-                + getMockName() + ", mappingMatch=" + getMappingMatch() + "} HttpServletRequest {"
+                + getMockName() + ", mappingMatch=" + getMappingMatch() + "} HttpMockRequest {"
                 + HttpMockRequest.this + '}';
       }
 
@@ -470,9 +470,9 @@ public interface HttpMockRequest extends MockRequest {
    * request.
    *
    * <p>
-   * This method may modify and commit the argument <code>HttpServletResponse</code>.
+   * This method may modify and commit the argument <code>HttpMockResponse</code>.
    *
-   * @param response The <code>HttpServletResponse</code> associated with this <code>HttpServletRequest</code>
+   * @param response The <code>HttpMockResponse</code> associated with this <code>HttpMockRequest</code>
    * @return <code>true</code> when non-null values were or have been established as the values returned by
    * <code>getUserPrincipal</code>, <code>getRemoteUser</code>, and <code>getAuthType</code>. Return <code>false</code> if
    * authentication is incomplete and the underlying login mechanism has committed, in the response, the message (e.g.,
@@ -524,7 +524,7 @@ public interface HttpMockRequest extends MockRequest {
    * the returned <code>Collection</code> will be empty.
    *
    * <p>
-   * Any changes to the returned <code>Collection</code> must not affect this <code>HttpServletRequest</code>.
+   * Any changes to the returned <code>Collection</code> must not affect this <code>HttpMockRequest</code>.
    *
    * @return a (possibly empty) <code>Collection</code> of the <code>Part</code> components of this request
    * @throws IOException if an I/O error occurred during the retrieval of the {@link Part} components of this request
@@ -571,8 +571,8 @@ public interface HttpMockRequest extends MockRequest {
    * Get the request trailer fields.
    *
    * <p>
-   * The returned map is not backed by the {@code HttpServletRequest} object, so changes in the returned map are not
-   * reflected in the {@code HttpServletRequest} object, and vice-versa.
+   * The returned map is not backed by the {@code HttpMockRequest} object, so changes in the returned map are not
+   * reflected in the {@code HttpMockRequest} object, and vice-versa.
    * </p>
    *
    * <p>

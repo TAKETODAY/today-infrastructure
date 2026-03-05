@@ -30,7 +30,7 @@ import infra.mock.api.MockRequestWrapper;
 import infra.web.multipart.Part;
 
 /**
- * Provides a convenient implementation of the HttpServletRequest interface that can be subclassed by developers wishing
+ * Provides a convenient implementation of the HttpMockRequest interface that can be subclassed by developers wishing
  * to adapt the request to a Servlet.
  *
  * <p>

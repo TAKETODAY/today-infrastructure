@@ -354,7 +354,7 @@ class DefaultServerRequestTests {
 
 //  @Test
 //  void session() {
-//    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+//    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 //    MockHttpSession session = new MockHttpSession();
 //    servletRequest.setSession(session);
 //

@@ -89,7 +89,7 @@ public class PrintingResultHandler implements ResultHandler {
    */
   @Override
   public final void handle(MvcResult result) throws Exception {
-    this.printer.printHeading("MockHttpServletRequest");
+    this.printer.printHeading("HttpMockRequestImpl");
     printRequest(result.getRequest());
 
     this.printer.printHeading("Handler");
@@ -107,7 +107,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printHeading("RedirectModel");
     printFlashMap(RequestContextUtils.getOutputRedirectModel(result.getRequestContext()));
 
-    this.printer.printHeading("MockHttpServletResponse");
+    this.printer.printHeading("MockHttpResponseImpl");
     printResponse(result.getResponse());
   }
 

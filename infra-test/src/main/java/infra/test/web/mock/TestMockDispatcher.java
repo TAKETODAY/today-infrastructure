@@ -91,7 +91,7 @@ final class TestMockDispatcher extends MockDispatcher {
       }
       else {
         var mockRequest = MockUtils.getNativeRequest(request, HttpMockRequestImpl.class);
-        Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
+        Assert.notNull(mockRequest, "Expected HttpMockRequestImpl");
         asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
         Assert.notNull(asyncContext, () ->
                 "Outer request wrapper " + request.getClass().getName() + " has an AsyncContext," +
@@ -130,7 +130,7 @@ final class TestMockDispatcher extends MockDispatcher {
   }
 
 //  @Override
-//  protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response)
+//  protected void render(ModelAndView mv, HttpMockRequest request, HttpMockResponse response)
 //          throws Exception {
 //
 //    DefaultMvcResult mvcResult = getMvcResult(request);

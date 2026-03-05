@@ -1250,7 +1250,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * Example usage:
    * <pre>{@code
    * protected HttpHeaders createRequestHeaders() {
-   *   HttpHeaders headers = new HttpHeaders();
+   *   HttpHeaders headers = HttpHeaders.forWritable();
    *   headers.set("Content-Type", "application/json");
    *   headers.set("Authorization", "Bearer token123");
    *   return headers;

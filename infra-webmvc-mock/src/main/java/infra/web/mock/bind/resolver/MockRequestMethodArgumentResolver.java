@@ -92,7 +92,7 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
       return userPrincipal;
     }
 
-    // ServletRequest / HttpServletRequest
+    // ServletRequest / HttpMockRequest
     return MockUtils.getNativeRequest(request, paramType);
   }
 
