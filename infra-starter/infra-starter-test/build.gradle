@@ -5,7 +5,6 @@ dependencies {
   api project(':infra-test')
   api project(':infra-test-support')
   api project(':module:infra-app-test')
-  api project(':module:infra-app-resttestclient')
 
   api("com.jayway.jsonpath:json-path")
   api("jakarta.xml.bind:jakarta.xml.bind-api")
