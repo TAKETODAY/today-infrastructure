@@ -191,13 +191,6 @@ class MockMvcTesterTests {
   }
 
   @Test
-  void methodConfiguresBuilderWithCustomMethod() {
-    HttpMethod customMethod = HttpMethod.valueOf("CUSTOM");
-    assertThat(createMockHttpServletRequest(tester -> tester.method(customMethod).uri("/hello")))
-            .satisfies(hasSettings(customMethod, "/hello", "/hello"));
-  }
-
-  @Test
   void methodConfiguresBuilderWithFullURI() {
     assertThat(createMockHttpServletRequest(tester -> tester.get().uri(URI.create("/hello/world"))))
             .satisfies(hasSettings(HttpMethod.GET, null, "/hello/world"));

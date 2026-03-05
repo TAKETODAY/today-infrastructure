@@ -539,7 +539,7 @@ class AbstractJsonContentAssertTests {
     void isLenientlyEqualToWhenExpectedDoesNotExistShouldFail() {
       assertThatIllegalStateException()
               .isThrownBy(() -> assertThat(forJson(SOURCE)).isLenientlyEqualTo("does-not-exist.json"))
-              .withMessage("Unable to load JSON from class path resource [org/springframework/test/json/does-not-exist.json]");
+              .withMessage("Unable to load JSON from class path resource [infra/test/json/does-not-exist.json]");
     }
 
     @Test

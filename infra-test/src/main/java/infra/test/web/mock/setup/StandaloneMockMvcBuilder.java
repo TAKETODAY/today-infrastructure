@@ -223,6 +223,16 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
+   * Set the {@link ApiVersionStrategy} to use when mapping requests.
+   *
+   * @since 5.0
+   */
+  public StandaloneMockMvcBuilder setApiVersionStrategy(@Nullable ApiVersionStrategy versionStrategy) {
+    this.versionStrategy = versionStrategy;
+    return this;
+  }
+
+  /**
    * Add interceptors mapped to all incoming requests.
    */
   public StandaloneMockMvcBuilder addInterceptors(HandlerInterceptor... interceptors) {
@@ -481,6 +491,14 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     @Override
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
       return handlerMappingFactory.get();
+    }
+
+    @Override
+    public @Nullable ApiVersionStrategy mvcApiVersionStrategy() {
+      if (versionStrategy != null) {
+        return versionStrategy;
+      }
+      return super.mvcApiVersionStrategy();
     }
 
     @Override

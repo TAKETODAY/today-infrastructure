@@ -232,7 +232,6 @@ public abstract class AbstractStatusAssertions<E, R> {
    * Consume the response status value as an integer.
    *
    * @param consumer the consumer to use
-   * @since 5.1
    */
   public R value(Consumer<Integer> consumer) {
     int actual = getStatus().value();

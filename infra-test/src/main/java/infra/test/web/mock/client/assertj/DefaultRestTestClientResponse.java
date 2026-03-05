@@ -28,25 +28,23 @@ import infra.test.web.mock.client.ExchangeResult;
  */
 final class DefaultRestTestClientResponse implements RestTestClientResponse {
 
-	private final ExchangeResult exchangeResult;
+  private final ExchangeResult exchangeResult;
 
+  DefaultRestTestClientResponse(ExchangeResult exchangeResult) {
+    this.exchangeResult = exchangeResult;
+  }
 
-	DefaultRestTestClientResponse(ExchangeResult exchangeResult) {
-		this.exchangeResult = exchangeResult;
-	}
+  @Override
+  public ExchangeResult getExchangeResult() {
+    return this.exchangeResult;
+  }
 
-
-	@Override
-	public ExchangeResult getExchangeResult() {
-		return this.exchangeResult;
-	}
-
-	/**
-	 * Use AssertJ's {@link org.assertj.core.api.Assertions#assertThat assertThat} instead.
-	 */
-	@Override
-	public RestTestClientResponseAssert assertThat() {
-		return new RestTestClientResponseAssert(this);
-	}
+  /**
+   * Use AssertJ's {@link org.assertj.core.api.Assertions#assertThat assertThat} instead.
+   */
+  @Override
+  public RestTestClientResponseAssert assertThat() {
+    return new RestTestClientResponseAssert(this);
+  }
 
 }

@@ -80,8 +80,6 @@ public class AsyncControllerJavaConfigTests {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
   }
 
-
-
   @Test
   public void callableInterceptor() throws Exception {
     MvcResult mvcResult = this.mockMvc.perform(get("/callable").accept(MediaType.APPLICATION_JSON))

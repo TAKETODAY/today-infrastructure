@@ -38,6 +38,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.core.io.ClassPathResource;
@@ -72,7 +73,6 @@ import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.mock.MockUtils;
-import infra.web.mock.WebApplicationContext;
 import infra.web.multipart.Part;
 import infra.web.server.ResponseStatusException;
 import infra.web.view.ModelAndView;
@@ -101,7 +101,7 @@ public class MockMvcTesterIntegrationTests {
 
   private final MockMvcTester mvc;
 
-  MockMvcTesterIntegrationTests(WebApplicationContext wac) {
+  MockMvcTesterIntegrationTests(ApplicationContext wac) {
     this.mvc = MockMvcTester.from(wac);
   }
 

@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.nullValue;
  * Integration tests that verify that {@link MockMvc} can be reused multiple
  * times within the same test method without side effects between independent
  * requests.
+ *
  * @author Sam Brannen
  * @author Rob Winch
  * @since 4.0

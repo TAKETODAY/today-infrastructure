@@ -95,7 +95,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void requestUriWithDoubleSlashes() throws URISyntaxException {
     this.builder = new MockHttpRequestBuilder(GET, URI.create("/test//currentlyValid/0"));
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -121,7 +120,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void pathInfoIsDecoded() {
     this.builder = new MockHttpRequestBuilder(GET, "/travel/hotels 42");
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -241,7 +239,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void requestParameterFromQueryNull() {
     this.builder = new MockHttpRequestBuilder(GET, "/?foo");
 
@@ -253,7 +250,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void requestParameterFromMultiValueMap() throws Exception {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("foo", "bar");
@@ -336,7 +332,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void contentTypeViaHeader() {
     this.builder.header("Content-Type", MediaType.TEXT_HTML_VALUE);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -354,7 +349,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void contentTypeViaMultipleHeaderValues() {
     this.builder.header("Content-Type", MediaType.TEXT_HTML_VALUE, MediaType.ALL_VALUE);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -518,7 +512,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void mergeInvokesDefaultRequestPostProcessorFirst() {
     final String ATTR = "ATTR";
     final String EXPECTED = "override";
@@ -537,7 +530,6 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-
   void arbitraryMethod() {
     String httpMethod = "REPort";
     URI url = UriComponentsBuilder.forPath("/foo/{bar}").buildAndExpand(42).toURI();

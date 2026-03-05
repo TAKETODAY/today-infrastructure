@@ -18,8 +18,6 @@
 
 package infra.test.web.mock.client;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -41,6 +39,8 @@ import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.lang.Assert;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.test.json.JsonConverterDelegate;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -65,7 +65,7 @@ public class ExchangeResult {
           MediaType.parseMediaType("application/*+json"), MediaType.APPLICATION_XML,
           MediaType.parseMediaType("text/*"), MediaType.APPLICATION_FORM_URLENCODED);
 
-  private static final Log logger = LogFactory.getLog(ExchangeResult.class);
+  private static final Logger logger = LoggerFactory.getLogger(ExchangeResult.class);
 
   private final HttpRequest request;
 
@@ -80,12 +80,11 @@ public class ExchangeResult {
   /** Ensure single logging; for example, for expectAll. */
   private boolean diagnosticsLogged;
 
-  ExchangeResult(
-          HttpRequest request, ClientResponse response, @Nullable String uriTemplate,
+  ExchangeResult(HttpRequest request, ClientResponse response, @Nullable String uriTemplate,
           byte[] requestBody, @Nullable JsonConverterDelegate converter) {
 
-    Assert.notNull(request, "HttpRequest must not be null");
-    Assert.notNull(response, "ClientHttpResponse must not be null");
+    Assert.notNull(request, "HttpRequest is required");
+    Assert.notNull(response, "ClientHttpResponse is required");
     this.request = request;
     this.clientResponse = response;
     this.uriTemplate = uriTemplate;
