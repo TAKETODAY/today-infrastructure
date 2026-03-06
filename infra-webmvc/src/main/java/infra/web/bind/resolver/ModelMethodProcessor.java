@@ -89,8 +89,10 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
         // RedirectModel is a special case:
         RedirectModel existRedirectModel = bindingContext.getRedirectModel();
         if (existRedirectModel != null) {
-          // RedirectModel is already present: update model
-          existRedirectModel.addAllAttributes(redirectModel);
+          if (existRedirectModel != redirectModel) {
+            // RedirectModel is already present: update model
+            existRedirectModel.addAllAttributes(redirectModel);
+          }
         }
         else {
           // No RedirectModel is present: just set
