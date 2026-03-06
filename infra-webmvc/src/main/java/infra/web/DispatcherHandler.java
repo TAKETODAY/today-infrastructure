@@ -659,8 +659,7 @@ public class DispatcherHandler extends InfraHandler {
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {
       // not found a suitable handler to handle this exception,
-      // throw it to top level to handle
-      throw ex;
+      return handleUnresolvedException(request, ex, handler);
     }
     else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       if (log.isTraceEnabled()) {
@@ -671,6 +670,11 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
     return returnValue;
+  }
+
+  protected @Nullable Object handleUnresolvedException(RequestContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
+    // throw it to top level to handle
+    throw unresolved;
   }
 
   /**
