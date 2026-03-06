@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockRequest;
 import infra.test.web.mock.client.RestTestClient;
+import infra.web.RequestContext;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.PathApiVersionResolver;
@@ -97,7 +97,7 @@ public class ApiVersionTests {
     private static final String HEADER = "API-Version";
 
     @GetMapping(path = "/**", version = "1.2")
-    Map<String, String> handle(HttpMockRequest request) {
+    Map<String, String> handle(RequestContext request) {
       String query = request.getQueryString();
       String versionHeader = request.getHeader(HEADER);
       return Map.of("path", request.getRequestURI(),

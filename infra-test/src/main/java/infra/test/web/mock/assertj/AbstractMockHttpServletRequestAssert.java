@@ -18,7 +18,11 @@
 
 package infra.test.web.mock.assertj;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.mock.web.HttpMockRequestImpl;
+import infra.test.web.mock.MvcResult;
+import infra.web.RequestContext;
 
 /**
  * AssertJ {@linkplain org.assertj.core.api.Assert assertions} that can be applied
@@ -29,10 +33,23 @@ import infra.mock.web.HttpMockRequestImpl;
  * @since 5.0
  */
 public abstract class AbstractMockHttpServletRequestAssert<SELF extends AbstractMockHttpServletRequestAssert<SELF>>
-        extends infra.test.web.mock.assertj.AbstractHttpServletRequestAssert<SELF, HttpMockRequestImpl> {
+        extends AbstractHttpServletRequestAssert<SELF, HttpMockRequestImpl> {
 
-  protected AbstractMockHttpServletRequestAssert(HttpMockRequestImpl request, Class<?> selfType) {
-    super(request, selfType);
+  private final @Nullable MvcResult result;
+
+  protected AbstractMockHttpServletRequestAssert(HttpMockRequestImpl result, Class<?> selfType) {
+    super(result, selfType);
+    this.result = null;
+  }
+
+  protected AbstractMockHttpServletRequestAssert(MvcResult result, Class<?> selfType) {
+    super(result.getRequest(), selfType);
+    this.result = result;
+  }
+
+  @Override
+  protected @Nullable RequestContext getRequestContext() {
+    return result != null ? result.getRequestContext() : null;
   }
 
 }

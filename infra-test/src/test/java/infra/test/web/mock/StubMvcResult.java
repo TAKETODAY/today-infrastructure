@@ -18,6 +18,8 @@
 
 package infra.test.web.mock;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
@@ -48,6 +50,8 @@ public class StubMvcResult implements MvcResult {
   private MockHttpResponseImpl response;
   final RequestContext requestContext;
 
+  private final @Nullable Throwable unresolvedException;
+
   public StubMvcResult(HttpMockRequestImpl request,
           Object handler,
           HandlerInterceptor[] interceptors,
@@ -55,6 +59,17 @@ public class StubMvcResult implements MvcResult {
           ModelAndView mav,
           RedirectModel flashMap,
           MockHttpResponseImpl response) {
+    this(request, handler, interceptors, resolvedException, mav, flashMap, response, null);
+  }
+
+  public StubMvcResult(HttpMockRequestImpl request,
+          Object handler,
+          HandlerInterceptor[] interceptors,
+          Exception resolvedException,
+          ModelAndView mav,
+          RedirectModel flashMap,
+          MockHttpResponseImpl response,
+          @Nullable Throwable unresolvedException) {
     this.request = request;
     this.handler = handler;
     this.interceptors = interceptors;
@@ -62,7 +77,7 @@ public class StubMvcResult implements MvcResult {
     this.mav = mav;
     this.flashMap = flashMap;
     this.response = response;
-
+    this.unresolvedException = unresolvedException;
     this.requestContext = new MockRequestContext(null, request, response);
   }
 
@@ -84,6 +99,11 @@ public class StubMvcResult implements MvcResult {
   @Override
   public Exception getResolvedException() {
     return resolvedException;
+  }
+
+  @Override
+  public @Nullable Throwable getUnresolvedException() {
+    return unresolvedException;
   }
 
   @Override

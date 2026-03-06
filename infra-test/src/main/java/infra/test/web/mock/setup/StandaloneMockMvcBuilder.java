@@ -615,7 +615,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     @Override
-    public void renderView(RequestContext context, View view, @Nullable Map<String, Object> model) {
+    public void renderView(RequestContext context, View view, @Nullable Map<String, @Nullable Object> model) {
       super.renderView(context, view, model);
       context.setAttribute(MvcResult.VIEW_ATTRIBUTE, view);
     }

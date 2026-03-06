@@ -41,9 +41,11 @@ import infra.test.web.mock.MockMvcBuilderSupport;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.ResultHandler;
 import infra.test.web.mock.ResultMatcher;
+import infra.test.web.mock.request.AbstractMockHttpServletRequestBuilder;
 import infra.test.web.mock.request.ConfigurableSmartRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.request.RequestPostProcessor;
+import infra.web.client.ApiVersionInserter;
 import infra.web.mock.WebApplicationContext;
 
 /**
@@ -67,11 +69,11 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
 
   private final List<Filter> filters = new ArrayList<>();
 
-  @Nullable
-  private RequestBuilder defaultRequestBuilder;
+  private @Nullable RequestBuilder defaultRequestBuilder;
 
-  @Nullable
-  private Charset defaultResponseCharacterEncoding;
+  private @Nullable ApiVersionInserter apiVersionInserter;
+
+  private @Nullable Charset defaultResponseCharacterEncoding;
 
   private final List<ResultMatcher> globalResultMatchers = new ArrayList<>();
 
@@ -114,6 +116,12 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @Override
   public final <T extends B> T defaultRequest(RequestBuilder requestBuilder) {
     this.defaultRequestBuilder = requestBuilder;
+    return self();
+  }
+
+  @Override
+  public <T extends B> T apiVersionInserter(@Nullable ApiVersionInserter versionInserter) {
+    this.apiVersionInserter = versionInserter;
     return self();
   }
 
@@ -166,16 +174,15 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   public final MockMvc build() {
     ApplicationContext ctx = initWebAppContext();
     MockContext mockContext;
-    MockMockConfig mockServletConfig;
 
     if (ctx instanceof WebApplicationContext wac) {
       mockContext = wac.getMockContext();
-      mockServletConfig = new MockMockConfig(mockContext);
     }
     else {
       mockContext = new MockContextImpl();
-      mockServletConfig = new MockMockConfig(mockContext);
     }
+
+    MockMockConfig mockServletConfig = new MockMockConfig(mockContext);
 
     for (MockMvcConfigurer configurer : this.configurers) {
       RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, ctx);
@@ -198,6 +205,15 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
         catch (MockException ex) {
           throw new IllegalStateException("Failed to initialize Filter " + filter, ex);
         }
+      }
+    }
+
+    if (this.apiVersionInserter != null) {
+      if (this.defaultRequestBuilder == null) {
+        this.defaultRequestBuilder = MockMvcRequestBuilders.get("/");
+      }
+      if (this.defaultRequestBuilder instanceof AbstractMockHttpServletRequestBuilder<?> srb) {
+        srb.apiVersionInserter(this.apiVersionInserter);
       }
     }
 

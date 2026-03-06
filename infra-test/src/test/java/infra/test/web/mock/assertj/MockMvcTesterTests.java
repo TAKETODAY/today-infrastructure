@@ -143,9 +143,8 @@ class MockMvcTesterTests {
   void performWithUnresolvedExceptionSetsException() {
     MockMvcTester mockMvc = MockMvcTester.of(HelloController.class);
     MvcTestResult result = mockMvc.perform(get("/error"));
-    assertThat(result.getUnresolvedException()).isInstanceOf(Exception.class)
-            .cause().isInstanceOf(IllegalStateException.class).hasMessage("Expected");
-    assertThat(result).hasFieldOrPropertyWithValue("mvcResult", null);
+    assertThat(result.getUnresolvedException()).isInstanceOf(IllegalStateException.class).hasMessage("Expected");
+    assertThat(result).extracting("mvcResult").isNotNull();
   }
 
   @Test

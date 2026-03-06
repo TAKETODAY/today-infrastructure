@@ -52,26 +52,24 @@ class DefaultMvcResult implements MvcResult {
   private static final Object RESULT_NONE = new Object();
 
   private final HttpMockRequestImpl mockRequest;
+
   private final MockHttpResponseImpl mockResponse;
-
-  private RequestContext requestContext;
-
-  @Nullable
-  private Object handler;
-
-  @Nullable
-  private HandlerInterceptor[] interceptors;
-
-  @Nullable
-  private ModelAndView modelAndView;
-
-  @Nullable
-  private Throwable resolvedException;
 
   private final AtomicReference<Object> asyncResult = new AtomicReference<>(RESULT_NONE);
 
-  @Nullable
-  private CountDownLatch asyncDispatchLatch;
+  private RequestContext requestContext;
+
+  private @Nullable Object handler;
+
+  private HandlerInterceptor @Nullable [] interceptors;
+
+  private @Nullable ModelAndView modelAndView;
+
+  private @Nullable Throwable resolvedException;
+
+  private @Nullable Throwable unresolvedException;
+
+  private @Nullable CountDownLatch asyncDispatchLatch;
 
   /**
    * Create a new instance with the given request and response.
@@ -109,13 +107,12 @@ class DefaultMvcResult implements MvcResult {
     return this.handler;
   }
 
-  public void setInterceptors(@Nullable HandlerInterceptor... interceptors) {
+  public void setInterceptors(HandlerInterceptor @Nullable ... interceptors) {
     this.interceptors = interceptors;
   }
 
   @Override
-  @Nullable
-  public HandlerInterceptor[] getInterceptors() {
+  public HandlerInterceptor @Nullable [] getInterceptors() {
     return this.interceptors;
   }
 
@@ -127,6 +124,15 @@ class DefaultMvcResult implements MvcResult {
   @Nullable
   public Throwable getResolvedException() {
     return this.resolvedException;
+  }
+
+  public void setUnresolvedException(@Nullable Throwable unresolvedException) {
+    this.unresolvedException = unresolvedException;
+  }
+
+  @Override
+  public @Nullable Throwable getUnresolvedException() {
+    return unresolvedException;
   }
 
   public void setModelAndView(@Nullable ModelAndView mav) {

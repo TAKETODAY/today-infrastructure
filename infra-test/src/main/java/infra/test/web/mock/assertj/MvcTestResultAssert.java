@@ -77,7 +77,7 @@ public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<M
    * object that uses the {@link HttpMockRequestImpl} as the object to test.
    */
   public AbstractMockHttpServletRequestAssert<?> request() {
-    return new MockHttpRequestAssert(getMvcResult().getRequest());
+    return new MockHttpRequestAssert(getMvcResult());
   }
 
   /**
@@ -211,7 +211,7 @@ public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<M
   }
 
   private @Nullable Throwable getFailure() {
-    Exception unresolvedException = this.actual.getUnresolvedException();
+    Throwable unresolvedException = this.actual.getUnresolvedException();
     if (unresolvedException != null) {
       return unresolvedException;
     }
@@ -226,7 +226,7 @@ public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<M
   }
 
   protected MvcResult getMvcResult() {
-    Exception unresolvedException = this.actual.getUnresolvedException();
+    Throwable unresolvedException = this.actual.getUnresolvedException();
     if (unresolvedException != null) {
       throw Failures.instance().failure(this.info,
               new RequestFailedUnexpectedly(unresolvedException));
@@ -236,14 +236,14 @@ public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<M
 
   private static final class MockHttpRequestAssert extends AbstractMockHttpServletRequestAssert<MockHttpRequestAssert> {
 
-    private MockHttpRequestAssert(HttpMockRequestImpl request) {
-      super(request, MockHttpRequestAssert.class);
+    private MockHttpRequestAssert(MvcResult result) {
+      super(result, MockHttpRequestAssert.class);
     }
   }
 
   private static final class RequestFailedUnexpectedly extends BasicErrorMessageFactory {
 
-    private RequestFailedUnexpectedly(Exception ex) {
+    private RequestFailedUnexpectedly(Throwable ex) {
       super("%nRequest failed unexpectedly:%n%s", unquotedString(getIndentedStackTraceAsString(ex)));
     }
 

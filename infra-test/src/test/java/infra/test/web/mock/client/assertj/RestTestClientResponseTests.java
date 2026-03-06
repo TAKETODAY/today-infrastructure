@@ -58,7 +58,7 @@ public class RestTestClientResponseTests {
     assertThat(response).hasStatusOk();
     assertThat(response).headers()
             .containsOnlyHeaders(HttpHeaders.CONTENT_TYPE, HttpHeaders.CONTENT_LENGTH)
-            .hasValue(HttpHeaders.CONTENT_TYPE, "text/plain;charset=ISO-8859-1")
+            .hasValue(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
             .hasValue(HttpHeaders.CONTENT_LENGTH, 11);
   }
 
@@ -68,7 +68,7 @@ public class RestTestClientResponseTests {
 
     RestTestClientResponse response = RestTestClientResponse.from(spec);
     assertThat(response).hasStatusOk();
-    assertThat(response).contentType().isEqualTo("text/plain;charset=ISO-8859-1");
+    assertThat(response).contentType().isEqualTo("text/plain;charset=UTF-8");
     assertThat(response).hasContentTypeCompatibleWith(MediaType.TEXT_PLAIN);
   }
 

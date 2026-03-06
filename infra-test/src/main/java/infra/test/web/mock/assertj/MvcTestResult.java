@@ -80,6 +80,10 @@ public interface MvcTestResult extends AssertProvider<MvcTestResultAssert> {
    * Return the exception that was thrown unexpectedly while processing the
    * request, if any.
    */
-  @Nullable Exception getUnresolvedException();
+  @Nullable
+  Throwable getUnresolvedException();
+
+  @Nullable
+  Throwable getResolvedException();
 
 }

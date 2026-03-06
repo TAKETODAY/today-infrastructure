@@ -77,8 +77,7 @@ public interface MvcResult {
    *
    * @return interceptors, or {@code null} if none were selected
    */
-  @Nullable
-  HandlerInterceptor[] getInterceptors();
+  HandlerInterceptor @Nullable [] getInterceptors();
 
   /**
    * Return the {@code ModelAndView} prepared by the handler.
@@ -96,6 +95,13 @@ public interface MvcResult {
    */
   @Nullable
   Throwable getResolvedException();
+
+  /**
+   * Return the exception that was thrown unexpectedly while processing the
+   * request, if any.
+   */
+  @Nullable
+  Throwable getUnresolvedException();
 
   /**
    * Return the "output" flash attributes saved during request processing.

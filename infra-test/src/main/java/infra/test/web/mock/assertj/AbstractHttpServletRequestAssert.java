@@ -21,8 +21,9 @@ package infra.test.web.mock.assertj;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.MapAssert;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -32,7 +33,10 @@ import java.util.function.Supplier;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.session.Session;
 import infra.util.function.SingletonSupplier;
+import infra.web.RequestContext;
+import infra.web.RequestContextUtils;
 import infra.web.async.DeferredResult;
 
 /**
@@ -58,15 +62,26 @@ public abstract class AbstractHttpServletRequestAssert<SELF extends AbstractHttp
   }
 
   private static MapAssert<String, Object> createAttributesAssert(HttpMockRequest request) {
-    Map<String, Object> map = toMap(request.getAttributeNames(), request::getAttribute);
+    Map<String, Object> map = toMap(request.getAttributeNames().asIterator(), request::getAttribute);
     return Assertions.assertThat(map).as("Request Attributes");
   }
 
-  private static MapAssert<String, Object> createSessionAttributesAssert(HttpMockRequest request) {
-    HttpSession session = request.getSession();
-    Assertions.assertThat(session).as("HTTP session").isNotNull();
-    Map<String, Object> map = toMap(session.getAttributeNames(), session::getAttribute);
+  protected MapAssert<String, Object> createSessionAttributesAssert(HttpMockRequest request) {
+    HttpSession httpSession = request.getSession();
+    Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
+    Map<String, Object> map = toMap(httpSession.getAttributeNames().asIterator(), httpSession::getAttribute);
+    RequestContext requestContext = getRequestContext();
+    if (requestContext != null) {
+      Session session = RequestContextUtils.getSession(requestContext);
+      if (session != null) {
+        map.putAll(session.getAttributes());
+      }
+    }
     return Assertions.assertThat(map).as("Session Attributes");
+  }
+
+  protected @Nullable RequestContext getRequestContext() {
+    return null;
   }
 
   /**
@@ -111,10 +126,10 @@ public abstract class AbstractHttpServletRequestAssert<SELF extends AbstractHttp
     return this.myself;
   }
 
-  private static Map<String, Object> toMap(Enumeration<String> keys, Function<String, Object> valueProvider) {
+  private static Map<String, Object> toMap(Iterator<String> keys, Function<String, Object> valueProvider) {
     Map<String, Object> map = new LinkedHashMap<>();
-    while (keys.hasMoreElements()) {
-      String key = keys.nextElement();
+    while (keys.hasNext()) {
+      String key = keys.next();
       map.put(key, valueProvider.apply(key));
     }
     return map;

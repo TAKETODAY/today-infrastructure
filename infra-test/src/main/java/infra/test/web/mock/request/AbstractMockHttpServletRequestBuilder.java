@@ -718,10 +718,10 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
       this.uri = parentBuilder.uri;
       this.uriTemplate = parentBuilder.uriTemplate;
     }
-    if (!StringUtils.hasText(this.contextPath)) {
+    if (StringUtils.isBlank(this.contextPath)) {
       this.contextPath = parentBuilder.contextPath;
     }
-    if (!StringUtils.hasText(this.servletPath)) {
+    if (StringUtils.isBlank(this.servletPath)) {
       this.servletPath = parentBuilder.servletPath;
     }
     if ("".equals(this.pathInfo)) {
@@ -892,7 +892,7 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
       }
     });
 
-    if (!ObjectUtils.isEmpty(this.content) &&
+    if (ObjectUtils.isNotEmpty(this.content) &&
             !this.headers.containsKey(HttpHeaders.CONTENT_LENGTH) &&
             !this.headers.containsKey(HttpHeaders.TRANSFER_ENCODING)) {
 

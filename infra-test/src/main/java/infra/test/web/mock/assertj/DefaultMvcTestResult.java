@@ -55,10 +55,14 @@ final class DefaultMvcTestResult implements MvcTestResult {
   }
 
   @Override
-  public @Nullable Exception getUnresolvedException() {
+  public @Nullable Throwable getUnresolvedException() {
+    if (unresolvedException == null) {
+      return mvcResult != null ? mvcResult.getUnresolvedException() : null;
+    }
     return this.unresolvedException;
   }
 
+  @Override
   public @Nullable Throwable getResolvedException() {
     return getMvcResult().getResolvedException();
   }

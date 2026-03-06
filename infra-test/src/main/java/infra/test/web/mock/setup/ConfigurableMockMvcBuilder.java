@@ -36,6 +36,7 @@ import infra.test.web.mock.ResultMatcher;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultHandlers;
 import infra.test.web.mock.result.MockMvcResultMatchers;
+import infra.web.client.ApiVersionInserter;
 import infra.web.mock.MockDispatcher;
 
 /**
@@ -98,6 +99,18 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * {@link MockMvcRequestBuilders}
    */
   <T extends B> T defaultRequest(RequestBuilder requestBuilder);
+
+  /**
+   * Set the {@link ApiVersionInserter} to use to apply to versions specified via
+   * {@link infra.test.web.mock.request.AbstractMockHttpServletRequestBuilder#apiVersion(Object)}.
+   * <p>{@code ApiVersionInserter} exposes shortcut methods for several
+   * built-in inserter implementation types. See the class-level Javadoc
+   * of {@link ApiVersionInserter} for a list of choices.
+   *
+   * @param versionInserter the inserter to use
+   * @since 5.0
+   */
+  <T extends B> T apiVersionInserter(@Nullable ApiVersionInserter versionInserter);
 
   /**
    * Define the default character encoding to be applied to every response.

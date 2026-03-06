@@ -35,6 +35,7 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockAsyncContext;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
+import infra.web.ReturnValueHandler;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
@@ -43,6 +44,8 @@ import infra.web.mock.MockDispatcher;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.view.ModelAndView;
+import infra.web.view.ViewRef;
+import infra.web.view.ViewReturnValueHandler;
 
 /**
  * A subclass of {@code DispatcherHandler} that saves the result in an
@@ -129,15 +132,6 @@ final class TestMockDispatcher extends MockDispatcher {
     return handler;
   }
 
-//  @Override
-//  protected void render(ModelAndView mv, HttpMockRequest request, HttpMockResponse response)
-//          throws Exception {
-//
-//    DefaultMvcResult mvcResult = getMvcResult(request);
-//    mvcResult.setModelAndView(mv);
-//    super.render(mv, request, response);
-//  }
-
   @Nullable
   @Override
   protected Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
@@ -151,6 +145,29 @@ final class TestMockDispatcher extends MockDispatcher {
       mvcResult.setModelAndView(modelAndView);
     }
     return mav;
+  }
+
+  @Override
+  protected @Nullable Object handleUnresolvedException(RequestContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
+    getMvcResult(request).setUnresolvedException(unresolved);
+    return super.handleUnresolvedException(request, unresolved, handler);
+  }
+
+  @Override
+  protected void handleReturnValue(ReturnValueHandler selected, RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    if (selected instanceof ViewReturnValueHandler) {
+      if (returnValue instanceof ModelAndView mv) {
+        request.setAttribute(MvcResult.MODEL_AND_VIEW_ATTRIBUTE, mv);
+      }
+      else if (returnValue instanceof String viewName) {
+        request.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, viewName);
+      }
+      else if (returnValue instanceof ViewRef viewRef) {
+        String viewName = viewRef.getViewName();
+        request.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, viewName);
+      }
+    }
+    super.handleReturnValue(selected, request, handler, returnValue);
   }
 
   class MvcResultProcessingInterceptor

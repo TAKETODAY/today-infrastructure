@@ -39,7 +39,7 @@ class AbstractMockHttpServletRequestAssertTests {
     return new RequestAssert(request);
   }
 
-  private static final class RequestAssert extends infra.test.web.mock.assertj.AbstractMockHttpServletRequestAssert<RequestAssert> {
+  private static final class RequestAssert extends AbstractMockHttpServletRequestAssert<RequestAssert> {
 
     RequestAssert(HttpMockRequestImpl actual) {
       super(actual, RequestAssert.class);

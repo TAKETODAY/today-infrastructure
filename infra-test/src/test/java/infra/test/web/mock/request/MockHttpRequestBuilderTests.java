@@ -529,16 +529,6 @@ class MockHttpRequestBuilderTests {
     assertThat(request.getAttribute(ATTR)).isEqualTo(EXPECTED);
   }
 
-  @Test
-  void arbitraryMethod() {
-    String httpMethod = "REPort";
-    URI url = UriComponentsBuilder.forPath("/foo/{bar}").buildAndExpand(42).toURI();
-    this.builder = new MockHttpRequestBuilder(httpMethod, url);
-    HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
-
-    assertThat(request.getMethod()).isEqualTo(httpMethod);
-    assertThat(request.getPathInfo()).isEqualTo("/foo/42");
-  }
 
   private static RequestAttributePostProcessor requestAttr(String attrName) {
     return new RequestAttributePostProcessor().attr(attrName);

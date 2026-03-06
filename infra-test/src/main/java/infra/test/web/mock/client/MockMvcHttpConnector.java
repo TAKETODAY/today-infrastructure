@@ -269,9 +269,8 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
       return this.mvcResult.getHandler();
     }
 
-    @Nullable
     @Override
-    public HandlerInterceptor[] getInterceptors() {
+    public HandlerInterceptor @Nullable [] getInterceptors() {
       return this.mvcResult.getInterceptors();
     }
 
@@ -285,6 +284,11 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     @Override
     public Throwable getResolvedException() {
       return this.mvcResult.getResolvedException();
+    }
+
+    @Override
+    public @Nullable Throwable getUnresolvedException() {
+      return mvcResult.getUnresolvedException();
     }
 
     @Override
