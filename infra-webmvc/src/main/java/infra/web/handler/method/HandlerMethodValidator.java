@@ -171,7 +171,7 @@ public final class HandlerMethodValidator implements MethodValidator {
   /**
    * ObjectNameResolver for web controller methods.
    */
-  private static class WebObjectNameResolver implements MethodValidationAdapter.ObjectNameResolver {
+  private static final class WebObjectNameResolver implements MethodValidationAdapter.ObjectNameResolver {
 
     @Override
     public String resolveName(MethodParameter param, @Nullable Object value) {

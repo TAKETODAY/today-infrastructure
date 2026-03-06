@@ -562,7 +562,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * Checks for the presence of {@code @Constraint} and {@code @Valid}
    * annotations on the method and method parameters.
    */
-  private static class MethodValidationInitializer {
+  private static final class MethodValidationInitializer {
 
     private static final Predicate<MergedAnnotation<? extends Annotation>> CONSTRAINT_PREDICATE =
             MergedAnnotationPredicates.typeIn("jakarta.validation.Constraint");

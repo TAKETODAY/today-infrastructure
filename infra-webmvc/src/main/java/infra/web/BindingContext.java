@@ -443,7 +443,7 @@ public class BindingContext {
   /**
    * Excludes Bean Validation if the method parameter has {@code @Valid}.
    */
-  private static class MethodValidationInitializer {
+  private static final class MethodValidationInitializer {
 
     public static void initBinder(DataBinder binder, MethodParameter parameter) {
       for (Annotation annotation : parameter.getParameterAnnotations()) {
