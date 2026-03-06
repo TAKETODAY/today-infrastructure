@@ -289,13 +289,11 @@ class DefaultRestTestClient implements RestTestClient {
 
     @Override
     public ResponseSpec exchange() {
-      return new DefaultResponseSpec(
-              this.requestHeadersUriSpec.exchange((request, response) -> {
-                byte[] requestBody = wiretapInterceptor.getRequestContent(this.requestId);
-                return new ExchangeResult(
-                        request, response, this.uriTemplate, requestBody, converterDelegate);
-              }, false),
-              DefaultRestTestClient.this.entityResultConsumer);
+      return new DefaultResponseSpec(this.requestHeadersUriSpec.exchange((request, response) -> {
+        byte[] requestBody = wiretapInterceptor.getRequestContent(this.requestId);
+        return new ExchangeResult(
+                request, response, this.uriTemplate, requestBody, converterDelegate);
+      }, false), DefaultRestTestClient.this.entityResultConsumer);
     }
 
     @Override
@@ -516,7 +514,7 @@ class DefaultRestTestClient implements RestTestClient {
     }
   }
 
-  private static class WiretapInterceptor implements ClientHttpRequestInterceptor {
+  private static final class WiretapInterceptor implements ClientHttpRequestInterceptor {
 
     private final Map<String, byte[]> requestContentMap = new ConcurrentHashMap<>();
 
@@ -539,7 +537,7 @@ class DefaultRestTestClient implements RestTestClient {
     }
   }
 
-  private static class JsonPathConfigurationProvider {
+  private static final class JsonPathConfigurationProvider {
 
     static Configuration getConfiguration(EntityExchangeResult<?> result) {
       Configuration config = Configuration.defaultConfiguration();

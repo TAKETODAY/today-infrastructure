@@ -6,6 +6,6 @@
  */
 
 @NullMarked
-package infra.test.web.mock.client;
+package infra.web.client;
 
 import org.jspecify.annotations.NullMarked;
