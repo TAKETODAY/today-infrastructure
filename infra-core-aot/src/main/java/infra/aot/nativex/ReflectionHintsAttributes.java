@@ -147,12 +147,11 @@ class ReflectionHintsAttributes {
     return attributes;
   }
 
-  @SuppressWarnings("removal")
   private void handleCategories(Map<String, Object> attributes, Set<MemberCategory> categories) {
     categories.stream().sorted().forEach(category -> {
               switch (category) {
                 case ACCESS_PUBLIC_FIELDS -> attributes.put("allPublicFields", true);
-                case ACCESS_DECLARED_FIELDS, DECLARED_FIELDS -> attributes.put("allDeclaredFields", true);
+                case ACCESS_DECLARED_FIELDS -> attributes.put("allDeclaredFields", true);
                 case INVOKE_PUBLIC_CONSTRUCTORS -> attributes.put("allPublicConstructors", true);
                 case INVOKE_DECLARED_CONSTRUCTORS -> attributes.put("allDeclaredConstructors", true);
                 case INVOKE_PUBLIC_METHODS -> attributes.put("allPublicMethods", true);

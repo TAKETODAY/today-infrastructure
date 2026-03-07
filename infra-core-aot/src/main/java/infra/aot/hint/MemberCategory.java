@@ -35,19 +35,6 @@ import java.lang.reflect.Method;
 public enum MemberCategory {
 
   /**
-   * A category that represents reflective field access on
-   * {@linkplain Class#getDeclaredFields() declared fields}: all fields defined by the
-   * class but not inherited fields.
-   *
-   * @see Class#getDeclaredFields()
-   * @see Field#get(Object)
-   * @see Field#set(Object, Object)
-   * @deprecated in favor of {@link #ACCESS_DECLARED_FIELDS} with similar semantics.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  DECLARED_FIELDS,
-
-  /**
    * A category that represents reflective field access on public {@linkplain Field fields}..
    *
    * @see Field#get(Object)

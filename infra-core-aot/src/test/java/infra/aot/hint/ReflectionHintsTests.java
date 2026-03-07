@@ -49,16 +49,16 @@ class ReflectionHintsTests {
   @Test
   void registerType() {
     this.reflectionHints.registerType(TypeReference.of(String.class),
-            hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS));
+            hint -> hint.withMembers(MemberCategory.ACCESS_PUBLIC_FIELDS));
     assertThat(this.reflectionHints.typeHints()).singleElement().satisfies(
-            typeWithMemberCategories(String.class, MemberCategory.DECLARED_FIELDS));
+            typeWithMemberCategories(String.class, MemberCategory.ACCESS_PUBLIC_FIELDS));
   }
 
   @Test
   void registerTypeIfPresentRegistersExistingClass() {
-    this.reflectionHints.registerTypeIfPresent(null, String.class.getName(), MemberCategory.DECLARED_FIELDS);
+    this.reflectionHints.registerTypeIfPresent(null, String.class.getName(), MemberCategory.ACCESS_PUBLIC_FIELDS);
     assertThat(this.reflectionHints.typeHints()).singleElement().satisfies(
-            typeWithMemberCategories(String.class, MemberCategory.DECLARED_FIELDS));
+            typeWithMemberCategories(String.class, MemberCategory.ACCESS_PUBLIC_FIELDS));
   }
 
   @Test
@@ -72,16 +72,16 @@ class ReflectionHintsTests {
   @Test
   void getTypeUsingType() {
     this.reflectionHints.registerType(TypeReference.of(String.class),
-            hint -> hint.withMembers(MemberCategory.DECLARED_FIELDS));
+            hint -> hint.withMembers(MemberCategory.ACCESS_PUBLIC_FIELDS));
     assertThat(this.reflectionHints.getTypeHint(String.class)).satisfies(
-            typeWithMemberCategories(String.class, MemberCategory.DECLARED_FIELDS));
+            typeWithMemberCategories(String.class, MemberCategory.ACCESS_PUBLIC_FIELDS));
   }
 
   @Test
   void getTypeUsingTypeReference() {
-    this.reflectionHints.registerType(String.class, MemberCategory.DECLARED_FIELDS);
+    this.reflectionHints.registerType(String.class, MemberCategory.ACCESS_PUBLIC_FIELDS);
     assertThat(this.reflectionHints.getTypeHint(TypeReference.of(String.class))).satisfies(
-            typeWithMemberCategories(String.class, MemberCategory.DECLARED_FIELDS));
+            typeWithMemberCategories(String.class, MemberCategory.ACCESS_PUBLIC_FIELDS));
   }
 
   @Test

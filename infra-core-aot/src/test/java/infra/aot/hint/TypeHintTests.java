@@ -154,11 +154,10 @@ class TypeHintTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void createWithMemberCategory() {
     TypeHint hint = TypeHint.of(TypeReference.of(String.class))
-            .withMembers(MemberCategory.DECLARED_FIELDS).build();
-    assertThat(hint.getMemberCategories()).containsOnly(MemberCategory.DECLARED_FIELDS);
+            .withMembers(MemberCategory.ACCESS_PUBLIC_FIELDS).build();
+    assertThat(hint.getMemberCategories()).containsOnly(MemberCategory.ACCESS_PUBLIC_FIELDS);
   }
 
   @Test
@@ -168,12 +167,11 @@ class TypeHintTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void builtWithAppliesMemberCategories() {
     TypeHint.Builder builder = new TypeHint.Builder(TypeReference.of(String.class));
     assertThat(builder.build().getMemberCategories()).isEmpty();
-    TypeHint.builtWith(MemberCategory.DECLARED_FIELDS).accept(builder);
-    assertThat(builder.build().getMemberCategories()).containsExactly(MemberCategory.DECLARED_FIELDS);
+    TypeHint.builtWith(MemberCategory.ACCESS_PUBLIC_FIELDS).accept(builder);
+    assertThat(builder.build().getMemberCategories()).containsExactly(MemberCategory.ACCESS_PUBLIC_FIELDS);
   }
 
 }

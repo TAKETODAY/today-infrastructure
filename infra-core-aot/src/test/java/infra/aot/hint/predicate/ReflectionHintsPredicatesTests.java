@@ -400,13 +400,6 @@ class ReflectionHintsPredicatesTests {
     }
 
     @Test
-    @SuppressWarnings("removal")
-    void privateFieldAccessMatchesDeclaredFieldsHint() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.DECLARED_FIELDS);
-      assertPredicateMatches(reflection.onFieldAccess(SampleClass.class, "privateField"));
-    }
-
-    @Test
     void privateFieldAccessMatchesAccessDeclaredFieldsHint() {
       runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.ACCESS_DECLARED_FIELDS);
       assertPredicateMatches(reflection.onFieldAccess(SampleClass.class, "privateField"));

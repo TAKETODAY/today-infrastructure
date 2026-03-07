@@ -433,14 +433,12 @@ public class ReflectionHintsPredicates {
       return memberCategoryMatch(typeHint) || exactMatch(typeHint);
     }
 
-    @SuppressWarnings("removal")
     private boolean memberCategoryMatch(TypeHint typeHint) {
       if (Modifier.isPublic(this.field.getModifiers())) {
         return typeHint.getMemberCategories().contains(MemberCategory.ACCESS_PUBLIC_FIELDS);
       }
       else {
-        return typeHint.getMemberCategories().contains(MemberCategory.ACCESS_DECLARED_FIELDS)
-                || typeHint.getMemberCategories().contains(MemberCategory.DECLARED_FIELDS);
+        return typeHint.getMemberCategories().contains(MemberCategory.ACCESS_DECLARED_FIELDS);
       }
     }
 
