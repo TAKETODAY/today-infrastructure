@@ -46,7 +46,7 @@ import infra.test.web.mock.setup.StandaloneMockMvcBuilder;
 import infra.web.mock.MockDispatcherHandler;
 
 /**
- * {@code MockMvcTester} provides support for testing Spring MVC applications
+ * {@code MockMvcTester} provides support for testing Web MVC applications
  * with {@link MockMvc} for server request handling using
  * {@linkplain org.assertj.core.api.Assertions AssertJ}.
  *
@@ -190,7 +190,7 @@ public final class MockMvcTester {
 
   /**
    * Create an instance by registering one or more {@code @Controller} instances
-   * and configuring Spring MVC infrastructure programmatically.
+   * and configuring Web MVC infrastructure programmatically.
    * <p>This allows full control over the instantiation and initialization of
    * controllers and their dependencies, similar to plain unit tests while
    * also making it possible to test one controller at a time.
@@ -200,7 +200,7 @@ public final class MockMvcTester {
    * into an instance
    * @param customizations a function that creates a {@link MockMvc} instance
    * based on a {@link StandaloneMockMvcBuilder}, typically to configure the
-   * Spring MVC infrastructure
+   * Web MVC infrastructure
    * @see MockMvcBuilders#standaloneSetup(Object...)
    */
   public static MockMvcTester of(Collection<?> controllers,
