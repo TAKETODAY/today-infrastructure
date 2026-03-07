@@ -19,9 +19,6 @@
 package infra.gradle.tasks.buildinfo;
 
 import org.gradle.api.Project;
-import org.gradle.api.internal.artifacts.DefaultBuildIdentifier;
-import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.internal.properties.GradlePropertiesController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -174,11 +171,7 @@ class BuildInfoTests {
 
   private Project createProject(String projectName) {
     File projectDir = new File(this.temp, projectName);
-    Project project = GradleProjectBuilder.builder().withProjectDir(projectDir).withName(projectName).build();
-    ((ProjectInternal) project).getServices()
-            .get(GradlePropertiesController.class)
-            .loadGradleProperties(new DefaultBuildIdentifier(((ProjectInternal) project).getBuildPath()), projectDir, false);
-    return project;
+    return GradleProjectBuilder.builder().withProjectDir(projectDir).withName(projectName).build();
   }
 
   private BuildInfo createTask(Project project) {
