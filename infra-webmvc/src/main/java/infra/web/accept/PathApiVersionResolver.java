@@ -18,6 +18,10 @@
 
 package infra.web.accept;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.function.Predicate;
+
 import infra.http.server.PathContainer;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
@@ -34,6 +38,8 @@ public class PathApiVersionResolver implements ApiVersionResolver {
 
   private final int pathSegmentIndex;
 
+  private final @Nullable Predicate<RequestPath> versionPathPredicate;
+
   /**
    * Create a resolver instance.
    *
@@ -41,20 +47,37 @@ public class PathApiVersionResolver implements ApiVersionResolver {
    * the API version
    */
   public PathApiVersionResolver(int pathSegmentIndex) {
+    this(pathSegmentIndex, null);
+  }
+
+  /**
+   * Constructor variant of {@link #PathApiVersionResolver(int)} with an
+   * additional {@code Predicate<RequestPath>} to help determine whether
+   * a given path is versioned (true) or not (false).
+   */
+  public PathApiVersionResolver(int pathSegmentIndex, @Nullable Predicate<RequestPath> versionPathPredicate) {
     Assert.isTrue(pathSegmentIndex >= 0, "'pathSegmentIndex' must be >= 0");
     this.pathSegmentIndex = pathSegmentIndex;
+    this.versionPathPredicate = versionPathPredicate;
   }
 
   @Override
-  public String resolveVersion(RequestContext request) {
+  public @Nullable String resolveVersion(RequestContext request) {
     RequestPath path = request.getRequestPath();
+    if (!isVersionedPath(path)) {
+      return null;
+    }
     int i = 0;
-    for (PathContainer.Element e : path.pathWithinApplication().elements()) {
-      if (e instanceof PathContainer.PathSegment && i++ == this.pathSegmentIndex) {
-        return e.value();
+    for (PathContainer.Element element : path.pathWithinApplication().elements()) {
+      if (element instanceof PathContainer.PathSegment && i++ == this.pathSegmentIndex) {
+        return element.value();
       }
     }
     throw new InvalidApiVersionException("No path segment at index " + this.pathSegmentIndex);
+  }
+
+  private boolean isVersionedPath(RequestPath path) {
+    return versionPathPredicate == null || versionPathPredicate.test(path);
   }
 
 }

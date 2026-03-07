@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import infra.http.MediaType;
+import infra.http.server.RequestPath;
 import infra.lang.Assert;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
@@ -92,7 +93,21 @@ public class ApiVersionConfigurer {
    * "/{version}/..." use index 0, for "/api/{version}/..." index 1.
    */
   public ApiVersionConfigurer usePathSegment(int index) {
-    this.versionResolvers.add(new PathApiVersionResolver(index));
+    return usePathSegment(index, null);
+  }
+
+  /**
+   * Variant of {@link #usePathSegment(int)} with a {@code Predicate<RequestPath>}
+   * to determine whether a given path is versioned, providing additional
+   * flexibility, and the option to resolve the version to {@code null}.
+   *
+   * @param index the index of the path segment to check; e.g. for URL's like
+   * {@code "/{version}/..."} use index 0, for {@code "/api/{version}/..."} index 1.
+   * @param versionPathPredicate used to decide if a path is versioned (true)
+   * or not (false).
+   */
+  public ApiVersionConfigurer usePathSegment(int index, @Nullable Predicate<RequestPath> versionPathPredicate) {
+    this.versionResolvers.add(new PathApiVersionResolver(index, versionPathPredicate));
     return this;
   }
 

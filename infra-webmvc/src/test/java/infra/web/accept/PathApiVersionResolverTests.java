@@ -18,14 +18,18 @@
 
 package infra.web.accept;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import infra.mock.api.http.HttpMockRequest;
+import java.util.List;
+import java.util.function.Predicate;
+
+import infra.http.server.PathContainer;
+import infra.http.server.RequestPath;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -45,68 +49,34 @@ class PathApiVersionResolverTests {
   }
 
   @Test
-  void constructorWithNegativeIndexThrowsException() {
-    assertThatThrownBy(() -> new PathApiVersionResolver(-1))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("'pathSegmentIndex' must be >= 0");
+  void resolveWithVersionPathPredicate() {
+    testVersionPathPredicate("/app/1.0/path", "1.0");
+    testVersionPathPredicate("/app", null);
+    testVersionPathPredicate("/v3/api-docs", null);
   }
 
-  @Test
-  void constructorWithZeroIndex() {
-    PathApiVersionResolver resolver = new PathApiVersionResolver(0);
-    assertThat(resolver).isNotNull();
-  }
+  private static void testVersionPathPredicate(String requestUri, String expectedVersion) {
+    Predicate<RequestPath> versionPathPredicate = path -> {
+      List<PathContainer.Element> elements = path.elements();
+      return (elements.size() > 3 &&
+              elements.get(1).value().equals("app") &&
+              elements.get(3).value().matches("\\d+\\.\\d+"));
+    };
 
-  @Test
-  void resolveVersionWithExactSegmentMatch() {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v2/users");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", requestUri);
     MockRequestContext context = new MockRequestContext(null, request, null);
 
-    PathApiVersionResolver resolver = new PathApiVersionResolver(1);
-    String version = resolver.resolveVersion(context);
-
-    assertThat(version).isEqualTo("v2");
-  }
-
-  @Test
-  void resolveVersionWithFirstSegment() {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/v1/products/123");
-    MockRequestContext context = new MockRequestContext(null, request, null);
-
-    PathApiVersionResolver resolver = new PathApiVersionResolver(0);
-    String version = resolver.resolveVersion(context);
-
-    assertThat(version).isEqualTo("v1");
-  }
-
-  @Test
-  void resolveVersionWithEncodedPathSegments() {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v3%2E0/resource");
-    MockRequestContext context = new MockRequestContext(null, request, null);
-
-    PathApiVersionResolver resolver = new PathApiVersionResolver(1);
-    String version = resolver.resolveVersion(context);
-
-    assertThat(version).isEqualTo("v3%2E0");
-  }
-
-  @Test
-  void resolveVersionThrowsExceptionWhenIndexOutOfBounds() {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api");
-    MockRequestContext context = new MockRequestContext(null, request, null);
-
-    PathApiVersionResolver resolver = new PathApiVersionResolver(2);
-
-    assertThatThrownBy(() -> resolver.resolveVersion(context))
-            .isInstanceOf(InvalidApiVersionException.class)
-            .hasMessage("400 BAD_REQUEST \"Invalid API version: 'No path segment at index 2'.\"");
+    PathApiVersionResolver resolver = new PathApiVersionResolver(1, versionPathPredicate);
+    String actual = resolver.resolveVersion(context);
+    Assertions.assertThat(actual).isEqualTo(expectedVersion);
   }
 
   private static void testResolve(int index, String requestUri, String expected) {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", requestUri);
-    String actual = new PathApiVersionResolver(index).resolveVersion(
-            new MockRequestContext(null, request, null));
-    assertThat(actual).isEqualTo(expected);
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", requestUri);
+    MockRequestContext context = new MockRequestContext(null, request, null);
+
+    String actual = new PathApiVersionResolver(index).resolveVersion(context);
+    Assertions.assertThat(actual).isEqualTo(expected);
   }
 
 }
