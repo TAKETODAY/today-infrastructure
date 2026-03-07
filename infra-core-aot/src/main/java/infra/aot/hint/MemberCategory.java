@@ -35,16 +35,6 @@ import java.lang.reflect.Method;
 public enum MemberCategory {
 
   /**
-   * A category that represents reflective field access on public {@linkplain Field fields}.
-   *
-   * @see Field#get(Object)
-   * @see Field#set(Object, Object)
-   * @deprecated in favor of {@link #ACCESS_PUBLIC_FIELDS} with similar semantics.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  PUBLIC_FIELDS,
-
-  /**
    * A category that represents reflective field access on
    * {@linkplain Class#getDeclaredFields() declared fields}: all fields defined by the
    * class but not inherited fields.
@@ -133,18 +123,6 @@ public enum MemberCategory {
   INTROSPECT_PUBLIC_METHODS,
 
   /**
-   * A category that defines {@linkplain Class#getDeclaredMethods() all
-   * methods}, excluding inherited ones, can be introspected but not invoked.
-   *
-   * @see Class#getDeclaredMethods()
-   * @see ExecutableMode#INTROSPECT
-   * @deprecated with no replacement since introspection is added by default
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  INTROSPECT_DECLARED_METHODS,
-
-  /**
    * A category that defines public {@linkplain Method methods}, including
    * inherited ones, can be invoked.
    *
@@ -161,32 +139,6 @@ public enum MemberCategory {
    * @see ExecutableMode#INVOKE
    */
   INVOKE_DECLARED_METHODS,
-
-  /**
-   * A category that represents public {@linkplain Class#getClasses() inner
-   * classes}.
-   * <p>Contrary to other categories, this does not register any particular
-   * reflection for inner classes but rather makes sure they are available
-   * via a call to {@link Class#getClasses}.
-   *
-   * @deprecated with no replacement since introspection is included
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  PUBLIC_CLASSES,
-
-  /**
-   * A category that represents all {@linkplain Class#getDeclaredClasses()
-   * inner classes}.
-   * <p>Contrary to other categories, this does not register any particular
-   * reflection for inner classes but rather makes sure they are available
-   * via a call to {@link Class#getDeclaredClasses}.
-   *
-   * @deprecated with no replacement since introspection is included
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  DECLARED_CLASSES,
 
   /**
    * A category that represents the need for

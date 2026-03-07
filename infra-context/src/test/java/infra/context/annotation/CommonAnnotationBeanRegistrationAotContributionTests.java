@@ -167,7 +167,6 @@ class CommonAnnotationBeanRegistrationAotContributionTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   @CompileWithForkedClassLoader
   void contributeWhenPackagePrivateMethodInjectionInjectsUsingMethodInvocation() {
     this.beanFactory.registerSingleton("one", "1");

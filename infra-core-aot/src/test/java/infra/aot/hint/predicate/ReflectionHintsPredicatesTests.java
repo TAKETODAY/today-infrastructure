@@ -95,7 +95,7 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void typeWithMemberCategoryFailsWithNullCategory() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.INTROSPECT_PUBLIC_METHODS);
+      runtimeHints.reflection().registerType(SampleClass.class);
       assertThatIllegalArgumentException().isThrownBy(() ->
               reflection.onType(SampleClass.class).withMemberCategory(null));
     }
@@ -299,7 +299,6 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void methodInvocationDoesNotMatchIntrospectDeclaredMethods() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.INTROSPECT_DECLARED_METHODS);
       assertPredicateDoesNotMatch(reflection.onMethodInvocation(SampleClass.class, "publicMethod"));
     }
 
@@ -324,7 +323,7 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void privateMethodIntrospectionMatchesIntrospectDeclaredMethods() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.INTROSPECT_DECLARED_METHODS);
+      runtimeHints.reflection().registerType(SampleClass.class);
       assertPredicateMatches(reflection.onMethod(SampleClass.class, "privateMethod").introspect());
     }
 
@@ -362,7 +361,6 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void privateMethodInvocationDoesNotMatchIntrospectDeclaredMethods() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.INTROSPECT_DECLARED_METHODS);
       assertPredicateDoesNotMatch(reflection.onMethodInvocation(SampleClass.class, "privateMethod"));
     }
 
@@ -391,13 +389,6 @@ class ReflectionHintsPredicatesTests {
     @Test
     void publicFieldAccessMatchesFieldHint() {
       runtimeHints.reflection().registerType(SampleClass.class, typeHint -> typeHint.withField("publicField"));
-      assertPredicateMatches(reflection.onFieldAccess(SampleClass.class, "publicField"));
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void publicFieldAccessMatchesPublicFieldsHint() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.PUBLIC_FIELDS);
       assertPredicateMatches(reflection.onFieldAccess(SampleClass.class, "publicField"));
     }
 
