@@ -35,6 +35,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.http.converter.GenericHttpMessageConverter;
 import infra.util.ObjectUtils;
@@ -146,6 +147,19 @@ public abstract class AbstractJsonValueAssert<SELF extends AbstractJsonValueAsse
   public <T> AbstractObjectAssert<?, T> convertTo(Class<T> target) {
     isNotNull();
     T value = convertToTargetType(target);
+    return Assertions.assertThat(value);
+  }
+
+  /**
+   * Verify that the actual value can be converted to an instance of the
+   * given {@code target}, and produce a new {@linkplain AbstractObjectAssert
+   * assertion} object narrowed to that type.
+   *
+   * @param target the {@linkplain Class type} to convert the actual value to
+   */
+  public <T> AbstractObjectAssert<?, T> convertTo(ParameterizedTypeReference<T> target) {
+    isNotNull();
+    T value = convertToTargetType(target.getType());
     return Assertions.assertThat(value);
   }
 

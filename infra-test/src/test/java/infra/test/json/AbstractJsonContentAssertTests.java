@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import infra.core.ParameterizedTypeReference;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
@@ -112,6 +113,10 @@ class AbstractJsonContentAssertTests {
     void convertToTargetType() {
       assertThat(forJson(SIMPSONS, jsonContentConverter))
               .convertTo(Family.class)
+              .satisfies(family -> assertThat(family.familyMembers()).hasSize(5));
+
+      assertThat(forJson(SIMPSONS, jsonContentConverter))
+              .convertTo(new ParameterizedTypeReference<Family>() { })
               .satisfies(family -> assertThat(family.familyMembers()).hasSize(5));
     }
 
@@ -315,6 +320,10 @@ class AbstractJsonContentAssertTests {
     void convertToTargetType() {
       assertThat(forJson(SIMPSONS, jsonContentConverter))
               .extractingPath("$.familyMembers[0]").convertTo(Member.class)
+              .satisfies(member -> assertThat(member.name).isEqualTo("Homer"));
+
+      assertThat(forJson(SIMPSONS, jsonContentConverter))
+              .extractingPath("$.familyMembers[0]").convertTo(new ParameterizedTypeReference<Member>() { })
               .satisfies(member -> assertThat(member.name).isEqualTo("Homer"));
     }
 
