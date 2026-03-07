@@ -81,22 +81,6 @@ public class ReflectionHintsPredicates {
   }
 
   /**
-   * Return a predicate that checks whether a reflection hint is registered for the given constructor.
-   * By default, both introspection and invocation hints match.
-   * <p>The returned type exposes additional methods that refine the predicate behavior.
-   *
-   * @param constructor the constructor
-   * @return the {@link RuntimeHints} predicate
-   * @deprecated since 5.0 in favor of {@link #onConstructorInvocation(Constructor)}
-   * or {@link #onType(Class)}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public ConstructorHintPredicate onConstructor(Constructor<?> constructor) {
-    Assert.notNull(constructor, "'constructor' is required");
-    return new ConstructorHintPredicate(constructor);
-  }
-
-  /**
    * Return a predicate that checks whether an invocation hint is registered for the given constructor.
    *
    * @param constructor the constructor
@@ -130,10 +114,7 @@ public class ReflectionHintsPredicates {
    * @param methodName the method name
    * @return the {@link RuntimeHints} predicate
    * @throws IllegalArgumentException if the method cannot be found or if multiple methods are found with the same name.
-   * @deprecated since 5.0 in favor of {@link #onMethodInvocation(Class, String)}
-   * or {@link #onType(Class)}.
    */
-  @Deprecated(since = "5.0", forRemoval = true)
   public MethodHintPredicate onMethod(Class<?> type, String methodName) {
     Assert.notNull(type, "'type' is required");
     Assert.hasText(methodName, "'methodName' must not be empty");
@@ -154,27 +135,6 @@ public class ReflectionHintsPredicates {
     Assert.notNull(type, "'type' is required");
     Assert.hasText(methodName, "'methodName' must not be empty");
     return new MethodHintPredicate(getMethod(type, methodName)).invoke();
-  }
-
-  /**
-   * Return a predicate that checks whether a reflection hint is registered for the method that matches the given selector.
-   * This looks up a method on the given type with the expected name, if unique.
-   * By default, both introspection and invocation hints match.
-   * <p>The returned type exposes additional methods that refine the predicate behavior.
-   *
-   * @param className the name of the class holding the method
-   * @param methodName the method name
-   * @return the {@link RuntimeHints} predicate
-   * @throws ClassNotFoundException if the class cannot be resolved.
-   * @throws IllegalArgumentException if the method cannot be found or if multiple methods are found with the same name.
-   * @deprecated since 5.0 in favor of {@link #onMethodInvocation(String, String)}
-   * or {@link #onType(Class)}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public MethodHintPredicate onMethod(String className, String methodName) throws ClassNotFoundException {
-    Assert.hasText(className, "'className' must not be empty");
-    Assert.hasText(methodName, "'methodName' must not be empty");
-    return onMethod(Class.forName(className), methodName);
   }
 
   /**
@@ -216,21 +176,6 @@ public class ReflectionHintsPredicates {
    * @param fieldName the field name
    * @return the {@link RuntimeHints} predicate
    * @throws IllegalArgumentException if a field cannot be found with the given name.
-   * @deprecated since 5.0 in favor of {@link #onFieldAccess(Class, String)} with similar semantics.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public Predicate<RuntimeHints> onField(Class<?> type, String fieldName) {
-    return onFieldAccess(type, fieldName);
-  }
-
-  /**
-   * Return a predicate that checks whether a reflective field access hint is registered for the field.
-   * This looks up a field on the given type with the expected name, if present.
-   *
-   * @param type the type holding the field
-   * @param fieldName the field name
-   * @return the {@link RuntimeHints} predicate
-   * @throws IllegalArgumentException if a field cannot be found with the given name.
    * @since 5.0
    */
   public Predicate<RuntimeHints> onFieldAccess(Class<?> type, String fieldName) {
@@ -241,22 +186,6 @@ public class ReflectionHintsPredicates {
       throw new IllegalArgumentException("No field named '%s' on class %s".formatted(fieldName, type.getName()));
     }
     return new FieldHintPredicate(field);
-  }
-
-  /**
-   * Return a predicate that checks whether a reflective field access hint is registered for the field.
-   * This looks up a field on the given type with the expected name, if present.
-   *
-   * @param className the name of the class holding the field
-   * @param fieldName the field name
-   * @return the {@link RuntimeHints} predicate
-   * @throws ClassNotFoundException if the class cannot be resolved.
-   * @throws IllegalArgumentException if a field cannot be found with the given name.
-   * @deprecated since 5.0 in favor of {@link #onFieldAccess(String, String)} with similar semantics.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public Predicate<RuntimeHints> onField(String className, String fieldName) throws ClassNotFoundException {
-    return onFieldAccess(className, fieldName);
   }
 
   /**
@@ -274,18 +203,6 @@ public class ReflectionHintsPredicates {
     Assert.hasText(className, "'className' must not be empty");
     Assert.hasText(fieldName, "'fieldName' must not be empty");
     return onFieldAccess(Class.forName(className), fieldName);
-  }
-
-  /**
-   * Return a predicate that checks whether a reflective field access hint is registered for the given field.
-   *
-   * @param field the field
-   * @return the {@link RuntimeHints} predicate
-   * @deprecated since 5.0 in favor of {@link #onFieldAccess(Field)} with similar semantics.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public Predicate<RuntimeHints> onField(Field field) {
-    return onFieldAccess(field);
   }
 
   /**
@@ -388,8 +305,6 @@ public class ReflectionHintsPredicates {
     }
   }
 
-  @Deprecated(since = "5.0", forRemoval = true)
-  @SuppressWarnings("removal")
   public abstract static class ExecutableHintPredicate<T extends Executable> implements Predicate<RuntimeHints> {
 
     protected final T executable;
@@ -436,8 +351,6 @@ public class ReflectionHintsPredicates {
     }
   }
 
-  @Deprecated(since = "5.0", forRemoval = true)
-  @SuppressWarnings("removal")
   public static class ConstructorHintPredicate extends ExecutableHintPredicate<Constructor<?>> {
 
     ConstructorHintPredicate(Constructor<?> constructor) {
@@ -470,8 +383,6 @@ public class ReflectionHintsPredicates {
     }
   }
 
-  @Deprecated(since = "5.0", forRemoval = true)
-  @SuppressWarnings("removal")
   public static class MethodHintPredicate extends ExecutableHintPredicate<Method> {
 
     MethodHintPredicate(Method method) {
@@ -505,7 +416,6 @@ public class ReflectionHintsPredicates {
     }
   }
 
-  @Deprecated(since = "5.0", forRemoval = true)
   public static class FieldHintPredicate implements Predicate<RuntimeHints> {
 
     private final Field field;

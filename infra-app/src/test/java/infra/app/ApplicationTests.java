@@ -1289,15 +1289,14 @@ class ApplicationTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void shouldRegisterHints() {
     RuntimeHints hints = new RuntimeHints();
     new Application.ApplicationRuntimeHints().registerHints(hints, getClass().getClassLoader());
     assertThat(RuntimeHintsPredicates.reflection().onType(Application.class)).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "setBannerMode"))
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(Application.class, "setBannerMode"))
             .accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "getSources")).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "setSources")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(Application.class, "getSources")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(Application.class, "setSources")).accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "load")).accepts(hints);
   }
 

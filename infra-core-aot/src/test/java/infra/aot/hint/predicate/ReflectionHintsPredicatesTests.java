@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * @author Brian Clozel
  */
-@SuppressWarnings("deprecation")
 class ReflectionHintsPredicatesTests {
 
   private static Constructor<?> privateConstructor;
@@ -256,7 +255,7 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void methodIntrospectionFailsForUnknownType() {
-      assertThatThrownBy(() -> reflection.onMethod("com.example.DoesNotExist", "publicMethod").introspect())
+      assertThatThrownBy(() -> reflection.onMethodInvocation("com.example.DoesNotExist", "publicMethod"))
               .isInstanceOf(ClassNotFoundException.class);
     }
 

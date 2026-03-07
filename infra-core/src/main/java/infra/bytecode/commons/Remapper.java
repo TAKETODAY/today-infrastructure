@@ -257,20 +257,6 @@ public abstract class Remapper {
    *
    * @param signatureVisitor the SignatureVisitor the remapper must delegate to.
    * @return the newly created remapper.
-   * @deprecated use {@link #createSignatureRemapper} instead.
-   */
-  @Deprecated(forRemoval = false)
-  protected SignatureVisitor createRemappingSignatureAdapter(
-          final SignatureVisitor signatureVisitor) {
-    return createSignatureRemapper(signatureVisitor);
-  }
-
-  /**
-   * Constructs a new remapper for signatures. The default implementation of this method returns a
-   * new {@link SignatureRemapper}.
-   *
-   * @param signatureVisitor the SignatureVisitor the remapper must delegate to.
-   * @return the newly created remapper.
    */
   protected SignatureVisitor createSignatureRemapper(final SignatureVisitor signatureVisitor) {
     return new SignatureRemapper(signatureVisitor, this);

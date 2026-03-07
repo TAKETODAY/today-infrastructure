@@ -68,7 +68,7 @@ public class JsonPathExpectationsHelper {
    * @param expression the {@link JsonPath} expression; never {@code null} or empty
    */
   public JsonPathExpectationsHelper(String expression) {
-    this(expression, (Configuration) null);
+    this(expression, null);
   }
 
   /**
@@ -83,18 +83,6 @@ public class JsonPathExpectationsHelper {
     this.expression = expression;
     this.jsonPath = JsonPath.compile(this.expression);
     this.configuration = (configuration != null) ? configuration : Configuration.defaultConfiguration();
-  }
-
-  /**
-   * Construct a new {@code JsonPathExpectationsHelper}.
-   *
-   * @param expression the {@link JsonPath} expression; never {@code null} or empty
-   * @param args arguments to parameterize the {@code JsonPath} expression with,
-   * using formatting specifiers defined in {@link String#format(String, Object...)}
-   */
-  @Deprecated(forRemoval = true)
-  public JsonPathExpectationsHelper(String expression, Object... args) {
-    this(expression.formatted(args), (Configuration) null);
   }
 
   /**
