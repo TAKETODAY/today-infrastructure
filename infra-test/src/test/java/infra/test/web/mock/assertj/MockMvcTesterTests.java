@@ -35,6 +35,7 @@ import infra.core.ResolvableType;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.api.MockContext;
 import infra.mock.web.HttpMockRequestImpl;
@@ -119,6 +120,28 @@ class MockMvcTesterTests {
   void createWithControllerCanConfigureHttpMessageConverters() {
     MockMvcTester mockMvc = MockMvcTester.of(HelloController.class)
             .withHttpMessageConverters(List.of(jsonHttpMessageConverter));
+    assertThat(mockMvc.perform(get("/json"))).hasStatusOk().bodyJson()
+            .extractingPath("$").convertTo(Message.class).satisfies(message -> {
+              assertThat(message.message()).isEqualTo("Hello World");
+              assertThat(message.counter()).isEqualTo(42);
+            });
+  }
+
+  @Test
+  void withHttpMessageConverters() {
+    MockMvcTester mockMvc = MockMvcTester.of(HelloController.class)
+            .withHttpMessageConverters(HttpMessageConverters.forClient().addCustomConverter(jsonHttpMessageConverter).build());
+    assertThat(mockMvc.perform(get("/json"))).hasStatusOk().bodyJson()
+            .extractingPath("$").convertTo(Message.class).satisfies(message -> {
+              assertThat(message.message()).isEqualTo("Hello World");
+              assertThat(message.counter()).isEqualTo(42);
+            });
+  }
+
+  @Test
+  void withHttpMessageConvertersClientBuilder() {
+    MockMvcTester mockMvc = MockMvcTester.of(HelloController.class)
+            .withHttpMessageConverters(clientBuilder -> clientBuilder.addCustomConverter(jsonHttpMessageConverter));
     assertThat(mockMvc.perform(get("/json"))).hasStatusOk().bodyJson()
             .extractingPath("$").convertTo(Message.class).satisfies(message -> {
               assertThat(message.message()).isEqualTo("Hello World");

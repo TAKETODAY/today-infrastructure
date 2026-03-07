@@ -25,11 +25,13 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpMethod;
 import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
 import infra.mock.api.DispatcherType;
 import infra.mock.web.HttpMockRequestImpl;
@@ -240,6 +242,37 @@ public final class MockMvcTester {
    */
   public MockMvcTester withHttpMessageConverters(Iterable<HttpMessageConverter<?>> httpMessageConverters) {
     return new MockMvcTester(this.mockMvc, JsonConverterDelegate.of(httpMessageConverters));
+  }
+
+  /**
+   * Return a new instance using the specified {@link HttpMessageConverters}.
+   * <p>If no converters are specified, only basic assertions on the response body can
+   * be performed. Consider registering a suitable JSON converter for asserting
+   * against JSON data structures.
+   *
+   * @param httpMessageConverters the message converters to use
+   * @return a new instance using the specified converters
+   */
+  public MockMvcTester withHttpMessageConverters(HttpMessageConverters httpMessageConverters) {
+    return new MockMvcTester(this.mockMvc, JsonConverterDelegate.of(httpMessageConverters));
+  }
+
+  /**
+   * Return a new instance configured with message converters created by the
+   * given {@link Consumer} acting on a {@link HttpMessageConverters.ClientBuilder}.
+   * <p>This method allows for programmatic configuration of the message converters
+   * using a builder pattern. If no converters are registered, only basic assertions
+   * on the response body can be performed. Consider registering a suitable JSON
+   * converter for asserting against JSON data structures.
+   *
+   * @param consumer a consumer that configures the {@link HttpMessageConverters.ClientBuilder}
+   * @return a new instance using the configured converters
+   * @see HttpMessageConverters#forClient()
+   */
+  public MockMvcTester withHttpMessageConverters(Consumer<HttpMessageConverters.ClientBuilder> consumer) {
+    var builder = HttpMessageConverters.forClient();
+    consumer.accept(builder);
+    return new MockMvcTester(this.mockMvc, JsonConverterDelegate.of(builder.build()));
   }
 
   /**
