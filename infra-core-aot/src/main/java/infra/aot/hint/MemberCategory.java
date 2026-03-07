@@ -112,18 +112,6 @@ public enum MemberCategory {
 
   /**
    * A category that defines public {@linkplain Method methods}, including
-   * inherited ones, can be introspected but not invoked.
-   *
-   * @see Class#getMethods()
-   * @see ExecutableMode#INTROSPECT
-   * @deprecated with no replacement since introspection is added by default
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  INTROSPECT_PUBLIC_METHODS,
-
-  /**
-   * A category that defines public {@linkplain Method methods}, including
    * inherited ones, can be invoked.
    *
    * @see Class#getMethods()
