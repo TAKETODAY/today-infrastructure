@@ -41,7 +41,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Stephane Nicoll
  * @author Sebastien Deleuze
  */
-@SuppressWarnings("removal")
 class ReflectionHintsTests {
 
   private final ReflectionHints reflectionHints = new ReflectionHints();

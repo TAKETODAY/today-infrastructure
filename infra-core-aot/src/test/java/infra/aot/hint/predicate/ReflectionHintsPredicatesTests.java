@@ -67,7 +67,6 @@ class ReflectionHintsPredicatesTests {
   }
 
   @Nested
-  @SuppressWarnings("removal")
   class ReflectionOnType {
 
     @Test
@@ -220,7 +219,6 @@ class ReflectionHintsPredicatesTests {
   }
 
   @Nested
-  @SuppressWarnings("removal")
   class ReflectionOnMethod {
 
     @Test
