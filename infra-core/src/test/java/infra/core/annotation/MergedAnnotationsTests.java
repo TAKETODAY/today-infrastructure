@@ -2014,7 +2014,7 @@ class MergedAnnotationsTests {
   }
 
   private void assertToStringForWebMappingWithPathAndValue(RequestMapping webMapping) {
-    assertThat(webMapping.toString())
+    assertThat(webMapping).asString()
             .startsWith("@infra.core.annotation.MergedAnnotationsTests.RequestMapping(")
             .contains(
                     // Strings
@@ -2027,7 +2027,7 @@ class MergedAnnotationsTests {
                     "clazz=infra.core.annotation.MergedAnnotationsTests.RequestMethod.class",
                     "classes=[int[][].class, infra.core.annotation.MergedAnnotationsTests.RequestMethod[].class]",
                     // Bytes
-                    "byteValue=(byte) 0xFF", "bytes=[(byte) 0xFF]",
+                    "byteValue=(byte)0xff", "bytes=[(byte)0xff]",
                     // Shorts
                     "shortValue=9876", "shorts=[9876]",
                     // Longs
@@ -2035,9 +2035,22 @@ class MergedAnnotationsTests {
                     // Floats
                     "floatValue=3.14f", "floats=[3.14f]",
                     // Doubles
-                    "doubleValue=99.999d", "doubles=[99.999d]"
+                    "doubleValue=99.999", "doubles=[99.999]"
             )
             .endsWith(")");
+  }
+
+  @Test
+  void toStringForSynthesizedAnnotationsWithSingleValueAttributes() {
+    MyRepeatable myRepeatable = MergedAnnotations.from(SingleMyRepeatableClass.class)
+            .get(MyRepeatable.class).synthesize();
+    assertThat(myRepeatable).asString()
+            .isEqualTo("@%s('meta')", MyRepeatable.class.getCanonicalName());
+
+    ValueAttribute valueAttribute = MergedAnnotations.from(ValueAttributeMetaMetaClass.class)
+            .get(ValueAttribute.class).synthesize();
+    assertThat(valueAttribute).asString()
+            .isEqualTo("@%s(['FromValueAttributeMeta'])", ValueAttribute.class.getCanonicalName());
   }
 
   @Test
@@ -3069,6 +3082,16 @@ class MergedAnnotationsTests {
   @MyRepeatableContainer({ @MyRepeatable("B"), @MyRepeatable("C") })
   @MyRepeatableMeta1
   static class MyRepeatableClass {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @MyRepeatable("meta")
+  @interface SingleMyRepeatable {
+  }
+
+  @SingleMyRepeatable
+  static class SingleMyRepeatableClass {
   }
 
   static class SubMyRepeatableClass extends MyRepeatableClass {
