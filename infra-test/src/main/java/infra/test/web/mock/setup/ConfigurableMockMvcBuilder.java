@@ -37,7 +37,7 @@ import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultHandlers;
 import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.web.client.ApiVersionInserter;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 
 /**
  * Defines common methods for building a {@code MockMvc}.
@@ -146,7 +146,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
 
   /**
    * A more advanced that allows
-   * customizing any {@link MockDispatcher}
+   * customizing any {@link MockDispatcherHandler}
    * property.
    */
   <T extends B> T addDispatcherCustomizer(DispatcherCustomizer customizer);

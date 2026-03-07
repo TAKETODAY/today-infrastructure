@@ -46,7 +46,7 @@ import infra.mock.api.http.HttpMock;
  *
  * @author Various
  */
-public abstract class GenericMock implements MockApi, MockConfig, java.io.Serializable {
+public abstract class GenericMock implements MockHandler, MockConfig, java.io.Serializable {
   @Serial
   private static final long serialVersionUID = -8592279577370996712L;
 
@@ -139,7 +139,7 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
 
   /**
    * Returns information about the servlet, such as author, version, and copyright. By default, this method returns an
-   * empty string. Override this method to have it return a meaningful value. See {@link MockApi#getMockInfo}.
+   * empty string. Override this method to have it return a meaningful value. See {@link MockHandler#getMockInfo}.
    *
    * @return String information about this servlet, by default an empty string
    */
@@ -150,7 +150,7 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
 
   /**
    * Called by the servlet container to indicate to a servlet that the servlet is being placed into service. See
-   * {@link MockApi#init}.
+   * {@link MockHandler#init}.
    *
    * <p>
    * This implementation stores the {@link MockConfig} object it receives from the servlet container for later use.
@@ -201,7 +201,7 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
   }
 
   /**
-   * Called by the servlet container to allow the servlet to respond to a request. See {@link MockApi#service}.
+   * Called by the servlet container to allow the servlet to respond to a request. See {@link MockHandler#service}.
    *
    * <p>
    * This method is declared abstract so subclasses, such as <code>HttpServlet</code>, must override it.

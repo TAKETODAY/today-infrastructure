@@ -46,7 +46,12 @@ mockMvc.perform(post("/persons"))
   .andExpect(model().attributeHasErrors("person"));
 ----
 
-只要请求处理不导致未处理的异常，`print()` 方法就会将所有可用的结果数据打印到 `System.out`。还有一个 `log()` 方法和 `print()` 方法的另外两个变体，一个接受 `OutputStream`，另一个接受 `Writer`。例如，调用 `print(System.err)` 将结果数据打印到 `System.err`，而调用 `print(myWriter)` 将结果数据打印到自定义 writer。如果你希望记录结果数据而不是打印它，可以调用 `log()` 方法，它将结果数据作为单个 `DEBUG` 消息记录在 `infra.test.web.mockApi.result` 日志类别下。
+只要请求处理不导致未处理的异常，`print()` 方法就会将所有可用的结果数据打印到 `System.out`。
+还有一个 `log()` 方法和 `print()` 方法的另外两个变体，一个接受 `OutputStream`，
+另一个接受 `Writer`。例如，调用 `print(System.err)` 将结果数据打印到 `System.err`，
+而调用 `print(myWriter)` 将结果数据打印到自定义 writer。如果你希望记录结果数据而不是打印它，
+可以调用 `log()` 方法，它将结果数据作为单个 `DEBUG` 消息记录在 `infra.test.web.mock.result`
+日志类别下。
 
 在某些情况下，你可能希望直接访问结果并验证某些无法通过其他方式验证的内容。这可以通过在所有其他期望之后追加 `.andReturn()` 来实现，如下例所示：
 

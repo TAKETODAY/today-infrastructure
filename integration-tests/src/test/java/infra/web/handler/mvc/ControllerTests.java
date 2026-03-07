@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
@@ -126,27 +126,27 @@ class ControllerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
-    swc.setMockClass(TestMockApi.class);
+    swc.setMockClass(TestMockHandler.class);
     swc.setMockName("action");
     Properties props = new Properties();
     props.setProperty("config", "myValue");
     swc.setInitParameters(props);
 
     swc.afterPropertiesSet();
-    assertThat(TestMockApi.config).isNotNull();
-    assertThat(TestMockApi.config.getMockName()).isEqualTo("action");
-    assertThat(TestMockApi.config.getInitParameter("config")).isEqualTo("myValue");
-    assertThat(TestMockApi.request).isNull();
-    assertThat(TestMockApi.destroyed).isFalse();
+    assertThat(TestMockHandler.config).isNotNull();
+    assertThat(TestMockHandler.config.getMockName()).isEqualTo("action");
+    assertThat(TestMockHandler.config.getInitParameter("config")).isEqualTo("myValue");
+    assertThat(TestMockHandler.request).isNull();
+    assertThat(TestMockHandler.destroyed).isFalse();
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
 
     assertThat(swc.handleRequest(mockRequestContext)).isNull();
-    assertThat(TestMockApi.request).isEqualTo(request);
-    assertThat(TestMockApi.response).isEqualTo(response);
-    assertThat(TestMockApi.destroyed).isFalse();
+    assertThat(TestMockHandler.request).isEqualTo(request);
+    assertThat(TestMockHandler.response).isEqualTo(response);
+    assertThat(TestMockHandler.destroyed).isFalse();
 
     swc.destroy();
-    assertThat(TestMockApi.destroyed).isTrue();
+    assertThat(TestMockHandler.destroyed).isTrue();
   }
 
   @Test
@@ -155,33 +155,33 @@ class ControllerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
-    swc.setMockClass(TestMockApi.class);
+    swc.setMockClass(TestMockHandler.class);
     swc.setBeanName("action");
 
     swc.afterPropertiesSet();
-    assertThat(TestMockApi.config).isNotNull();
-    assertThat(TestMockApi.config.getMockName()).isEqualTo("action");
-    assertThat(TestMockApi.request).isNull();
-    assertThat(TestMockApi.destroyed).isFalse();
+    assertThat(TestMockHandler.config).isNotNull();
+    assertThat(TestMockHandler.config.getMockName()).isEqualTo("action");
+    assertThat(TestMockHandler.request).isNull();
+    assertThat(TestMockHandler.destroyed).isFalse();
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
 
     assertThat(swc.handleRequest(mockRequestContext)).isNull();
-    assertThat(TestMockApi.request).isEqualTo(request);
-    assertThat(TestMockApi.response).isEqualTo(response);
-    assertThat(TestMockApi.destroyed).isFalse();
+    assertThat(TestMockHandler.request).isEqualTo(request);
+    assertThat(TestMockHandler.response).isEqualTo(response);
+    assertThat(TestMockHandler.destroyed).isFalse();
 
     swc.destroy();
-    assertThat(TestMockApi.destroyed).isTrue();
+    assertThat(TestMockHandler.destroyed).isTrue();
   }
 
-  public static class TestMockApi implements MockApi {
+  public static class TestMockHandler implements MockHandler {
 
     private static MockConfig config;
     private static MockRequest request;
     private static MockResponse response;
     private static boolean destroyed;
 
-    public TestMockApi() {
+    public TestMockHandler() {
       config = null;
       request = null;
       response = null;

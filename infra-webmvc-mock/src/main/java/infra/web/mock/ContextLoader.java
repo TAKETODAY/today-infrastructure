@@ -373,7 +373,7 @@ public class ContextLoader {
       }
       else {
         // Generate default id...
-        wac.setId(MockDispatcher.APPLICATION_CONTEXT_ID_PREFIX + ObjectUtils.getDisplayString(sc));
+        wac.setId(MockDispatcherHandler.APPLICATION_CONTEXT_ID_PREFIX + ObjectUtils.getDisplayString(sc));
       }
     }
 

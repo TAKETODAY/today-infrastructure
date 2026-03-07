@@ -14,7 +14,7 @@
 | `SimpleMappingExceptionHandler`
 | 异常类名和错误视图名之间的映射。用于在浏览器应用程序中渲染错误页面。
 
-| {today-framework-api}/web/mockApi/mvc/support/DefaultHandlerExceptionHandler.html[`DefaultHandlerExceptionHandler`]
+| {today-framework-api}/web/handler/SimpleHandlerExceptionHandler.html[`SimpleHandlerExceptionHandler`]
 | 解析 Web MVC 引发的异常并将它们映射到 HTTP 状态代码。
   另请参见替代方案 `ResponseEntityExceptionHandler` 和 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应]。
 

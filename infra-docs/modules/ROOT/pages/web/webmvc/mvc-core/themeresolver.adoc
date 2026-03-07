@@ -52,7 +52,7 @@ background=/themes/cool/img/coolBg.jpg
 == 解析主题
 
 在定义主题后（如 xref:web/webmvc/mvc-core/themeresolver.adoc#mvc-themeresolver-defining[上一节] 所述），
-您决定使用哪个主题。`MockDispatcher` 寻找名为 `themeResolver` 的 bean，以找出要使用的 `ThemeResolver` 实现。
+您决定使用哪个主题。`MockDispatcherHandler` 寻找名为 `themeResolver` 的 bean，以找出要使用的 `ThemeResolver` 实现。
 主题解析器的工作方式与 `LocaleResolver` 非常相似。它检测用于特定请求的主题，也可以更改请求的主题。
 下表描述了 Infra 提供的主题解析器：
 

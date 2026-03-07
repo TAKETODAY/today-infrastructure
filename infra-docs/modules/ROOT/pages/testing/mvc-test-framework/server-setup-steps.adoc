@@ -27,4 +27,4 @@ MockMvc mockMvc = standaloneSetup(new MusicController())
 	// 使用 mockMvc 执行请求...
 ----
 
-有关所有 MockMvc 构建器功能的列表，请参阅 {today-framework-api}/test/web/mockApi/setup/ConfigurableMockMvcBuilder.html[`ConfigurableMockMvcBuilder`] 的 javadoc，或使用 IDE 探索可用选项。
+有关所有 MockMvc 构建器功能的列表，请参阅 {today-framework-api}/test/web/mock/setup/ConfigurableMockMvcBuilder.html[`ConfigurableMockMvcBuilder`] 的 javadoc，或使用 IDE 探索可用选项。

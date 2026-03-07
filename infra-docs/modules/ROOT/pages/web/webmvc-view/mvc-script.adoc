@@ -104,7 +104,7 @@ public class SampleController {
 
 * `String template`: 模板内容
 * `Map model`: 视图模型
-* `RenderingContext renderingContext`: {today-framework-api}/web/mockApi/view/script/RenderingContext.html[`RenderingContext`]，提供对应用程序上下文、区域设置、模板加载器和 URL（自 5.0 起）的访问
+* `RenderingContext renderingContext`: {today-framework-api}/web/view/script/RenderingContext.html[`RenderingContext`]，提供对应用程序上下文、区域设置、模板加载器和 URL（自 5.0 起）的访问
 
 `Mustache.render()` 与此签名原生兼容，因此您可以直接调用它。
 
@@ -162,6 +162,6 @@ function render(template, model) {
 ----
 
 查看 TODAY Framework 单元测试，
-{today-framework-code}/infra-web/src/test/java/infra/web/mockApi/view/script[Java] 和
-{today-framework-code}/infra-web/src/test/resources/infra/web/mockApi/view/script[资源]，
+{today-framework-code}/infra-web/src/test/java/infra/web/view/script[Java] 和
+{today-framework-code}/infra-web/src/test/resources/infra/web/view/script[资源]，
 了解更多配置示例。

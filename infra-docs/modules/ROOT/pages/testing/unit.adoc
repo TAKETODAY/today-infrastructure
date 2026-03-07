@@ -90,4 +90,4 @@ Infra 包含许多有助于单元测试的类。它们分为两类：
 `infra.test.web` 包包含 {today-framework-api}/test/web/ModelAndViewAssert.html[`ModelAndViewAssert`]，你可以将其与 JUnit、TestNG 或任何其他测试框架结合使用，用于处理 Web MVC `ModelAndView` 对象的单元测试。
 
 .单元测试 Web MVC 控制器
-TIP: 要将 Web MVC `Controller` 类作为 POJO 进行单元测试，请使用 `ModelAndViewAssert` 结合来自 Infra xref:testing/unit.adoc#mock-objects-mockApi[Servlet API mocks] 的 `HttpMockRequestImpl`、`MockHttpSession` 等。要结合 Web MVC 的 `WebApplicationContext` 配置对 Web MVC 和 REST `Controller` 类进行全面的集成测试，请改用 xref:testing/mvc-test-framework.adoc[Web MVC Test Framework]。
+TIP: 要将 Web MVC `Controller` 类作为 POJO 进行单元测试，请使用 `ModelAndViewAssert` 结合来自 Infra xref:testing/unit.adoc#mock-objects-mockApi[API mocks] 的 `HttpMockRequestImpl`、`MockHttpSession` 等。要结合 Web MVC 的 `WebApplicationContext` 配置对 Web MVC 和 REST `Controller` 类进行全面的集成测试，请改用 xref:testing/mvc-test-framework.adoc[Web MVC Test Framework]。

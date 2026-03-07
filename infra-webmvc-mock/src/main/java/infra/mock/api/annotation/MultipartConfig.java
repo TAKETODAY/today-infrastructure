@@ -25,12 +25,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.http.HttpMockRequest;
 import infra.web.multipart.Part;
 
 /**
- * Annotation that may be specified on a {@link MockApi} class, indicating that instances of the
+ * Annotation that may be specified on a {@link MockHandler} class, indicating that instances of the
  * <tt>Servlet</tt> expect requests that conform to the <tt>multipart/form-data</tt> MIME type.
  *
  * <p>

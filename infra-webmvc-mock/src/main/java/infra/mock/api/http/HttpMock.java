@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 import java.util.Enumeration;
 
 import infra.mock.api.GenericMock;
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockException;
 import infra.mock.api.MockOutputStream;
@@ -468,13 +468,13 @@ public abstract class HttpMock extends GenericMock {
   /**
    * Receives standard HTTP requests from the public <code>service</code> method and dispatches them to the
    * <code>do</code><i>XXX</i> methods defined in this class. This method is an HTTP-specific version of the
-   * {@link MockApi#service} method. There's no need to override this method.
+   * {@link MockHandler#service} method. There's no need to override this method.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param resp the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the HTTP request
    * @throws MockException if the HTTP request cannot be handled
-   * @see MockApi#service
+   * @see MockHandler#service
    */
   protected void service(HttpMockRequest req, HttpMockResponse resp) throws MockException, IOException {
     String method = req.getMethod();
@@ -542,7 +542,7 @@ public abstract class HttpMock extends GenericMock {
    * @throws IOException if an input or output error occurs while the servlet is handling the HTTP request
    * @throws MockException if the HTTP request cannot be handled or if either parameter is not an instance of its
    * respective {@link HttpMockRequest} or {@link HttpMockResponse} counterparts.
-   * @see MockApi#service
+   * @see MockHandler#service
    */
   @Override
   public void service(MockRequest req, MockResponse res) throws MockException, IOException {

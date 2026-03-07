@@ -22,7 +22,7 @@ import infra.context.ApplicationContext;
 import infra.mock.api.MockContext;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 
 /**
  * The main class to import in order to access all available {@link MockMvcBuilder MockMvcBuilders}.
@@ -45,7 +45,7 @@ public final class MockMvcBuilders {
   /**
    * Build a {@link MockMvc} instance using the given, fully initialized
    * (i.e., <em>refreshed</em>) {@link ApplicationContext}.
-   * <p>The {@link MockDispatcher DispatcherHandler}
+   * <p>The {@link MockDispatcherHandler DispatcherHandler}
    * will use the context to discover Web MVC infrastructure and application
    * controllers in it. The context must have been configured with a
    * {@link MockContext MockContext}.
@@ -62,7 +62,7 @@ public final class MockMvcBuilders {
    * controllers and their dependencies, similar to plain unit tests while
    * also making it possible to test one controller at a time.
    * <p>When this builder is used, the minimum infrastructure required by the
-   * {@link MockDispatcher DispatcherServlet}
+   * {@link MockDispatcherHandler DispatcherServlet}
    * to serve requests with annotated controllers is created automatically
    * and can be customized, resulting in configuration that is equivalent to
    * what MVC Java configuration provides except using builder-style methods.

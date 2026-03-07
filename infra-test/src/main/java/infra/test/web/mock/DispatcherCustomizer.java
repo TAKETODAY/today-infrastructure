@@ -18,10 +18,10 @@
 
 package infra.test.web.mock;
 
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 
 /**
- * Strategy interface for customizing {@link MockDispatcher} instances that are
+ * Strategy interface for customizing {@link MockDispatcherHandler} instances that are
  * managed by {@link MockMvc}.
  *
  * @author Stephane Nicoll
@@ -32,11 +32,11 @@ import infra.web.mock.MockDispatcher;
 public interface DispatcherCustomizer {
 
   /**
-   * Customize the supplied {@link MockDispatcher} <em>before</em> it is
+   * Customize the supplied {@link MockDispatcherHandler} <em>before</em> it is
    * initialized.
    *
    * @param dispatcher the dispatcher mock to customize
    */
-  void customize(MockDispatcher dispatcher);
+  void customize(MockDispatcherHandler dispatcher);
 
 }

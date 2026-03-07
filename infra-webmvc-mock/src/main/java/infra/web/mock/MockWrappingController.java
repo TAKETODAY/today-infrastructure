@@ -25,7 +25,7 @@ import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
@@ -78,7 +78,7 @@ public class MockWrappingController extends AbstractController
         implements BeanNameAware, InitializingBean, DisposableBean, MockContextAware {
 
   @Nullable
-  private Class<? extends MockApi> mockClass;
+  private Class<? extends MockHandler> mockClass;
 
   @Nullable
   private String mockName;
@@ -89,7 +89,7 @@ public class MockWrappingController extends AbstractController
   private String beanName;
 
   @Nullable
-  private MockApi mockApiInstance;
+  private MockHandler mockHandlerInstance;
 
   private MockContext mockContext;
 
@@ -102,9 +102,9 @@ public class MockWrappingController extends AbstractController
    * Set the class of the servlet to wrap.
    * Needs to implement {@code infra.mock.api.Servlet}.
    *
-   * @see MockApi
+   * @see MockHandler
    */
-  public void setMockClass(@Nullable Class<? extends MockApi> servletClass) {
+  public void setMockClass(@Nullable Class<? extends MockHandler> servletClass) {
     this.mockClass = servletClass;
   }
 
@@ -132,7 +132,7 @@ public class MockWrappingController extends AbstractController
   /**
    * Initialize the wrapped Servlet instance.
    *
-   * @see MockApi#init(MockConfig)
+   * @see MockHandler#init(MockConfig)
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -142,21 +142,21 @@ public class MockWrappingController extends AbstractController
     if (this.mockName == null) {
       this.mockName = this.beanName;
     }
-    this.mockApiInstance = ReflectionUtils.accessibleConstructor(this.mockClass).newInstance();
-    this.mockApiInstance.init(new DelegatingMockConfig());
+    this.mockHandlerInstance = ReflectionUtils.accessibleConstructor(this.mockClass).newInstance();
+    this.mockHandlerInstance.init(new DelegatingMockConfig());
   }
 
   /**
    * Invoke the wrapped Servlet instance.
    *
-   * @see MockApi#service(MockRequest, MockResponse)
+   * @see MockHandler#service(MockRequest, MockResponse)
    */
   @Override
   protected @Nullable ModelAndView handleRequestInternal(RequestContext request) throws Exception {
     MockRequestContext nativeContext = WebUtils.getNativeContext(request, MockRequestContext.class);
     Assert.state(nativeContext != null, "Not run in servlet");
-    Assert.state(this.mockApiInstance != null, "No Servlet instance");
-    this.mockApiInstance.service(nativeContext.getRequest(), nativeContext.getResponse());
+    Assert.state(this.mockHandlerInstance != null, "No Servlet instance");
+    this.mockHandlerInstance.service(nativeContext.getRequest(), nativeContext.getResponse());
     return null;
   }
 
@@ -166,8 +166,8 @@ public class MockWrappingController extends AbstractController
    */
   @Override
   public void destroy() {
-    if (this.mockApiInstance != null) {
-      this.mockApiInstance.destroy();
+    if (this.mockHandlerInstance != null) {
+      this.mockHandlerInstance.destroy();
     }
   }
 

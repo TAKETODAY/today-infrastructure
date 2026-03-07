@@ -27,7 +27,7 @@ import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.support.GenericXmlApplicationContext;
 import infra.util.PathMatcher;
 import infra.web.mock.ContextLoader;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.WebApplicationContext;
 
 /**
@@ -44,7 +44,7 @@ import infra.web.mock.WebApplicationContext;
  *
  * <p>The config location defaults can be overridden via the "contextConfigLocation"
  * context-param of {@link ContextLoader} and servlet
- * init-param of {@link MockDispatcher}. Config locations
+ * init-param of {@link MockDispatcherHandler}. Config locations
  * can either denote concrete files like "/WEB-INF/context.xml" or Ant-style patterns
  * like "/WEB-INF/*-context.xml" (see {@link PathMatcher}
  * javadoc for pattern details).

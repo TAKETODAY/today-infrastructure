@@ -22,7 +22,7 @@ package infra.mock.api;
 
 import java.io.IOException;
 
-public interface MockApi {
+public interface MockHandler {
 
   /**
    * Called by the mock container to indicate to a mock that the mock is being placed into service.

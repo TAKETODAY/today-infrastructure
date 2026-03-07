@@ -31,7 +31,7 @@ WebTestClient client =
 
 ======
 
-对于 Web MVC，使用以下代码，它委托给 {today-framework-api}/test/web/mockApi/setup/StandaloneMockMvcBuilder.html[StandaloneMockMvcBuilder] 来加载等同于 xref:web/webmvc/mvc-config.adoc[WebMvc Java 配置] 的基础设施，注册给定的控制器，并创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
+对于 Web MVC，使用以下代码，它委托给 {today-framework-api}/test/web/mock/setup/StandaloneMockMvcBuilder.html[StandaloneMockMvcBuilder] 来加载等同于 xref:web/webmvc/mvc-config.adoc[WebMvc Java 配置] 的基础设施，注册给定的控制器，并创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
 
 [tabs]
 ======
@@ -52,7 +52,7 @@ WebTestClient client =
 
 此设置允许你加载带有 Web MVC 或 Infra WebFlux 基础设施和控制器声明的 Infra 配置，并使用它通过 mock 请求和响应对象处理请求，而无需运行服务器。
 
-对于 Web MVC，使用以下代码，其中 Infra `ApplicationContext` 被传递给 {today-framework-api}/test/web/mockApi/setup/MockMvcBuilders.html#webAppContextSetup-infra.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup] 以创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
+对于 Web MVC，使用以下代码，其中 Infra `ApplicationContext` 被传递给 {today-framework-api}/test/web/mock/setup/MockMvcBuilders.html#webAppContextSetup-infra.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup] 以创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

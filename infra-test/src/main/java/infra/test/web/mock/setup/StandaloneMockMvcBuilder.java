@@ -76,7 +76,7 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.WebApplicationContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -93,7 +93,7 @@ import infra.web.view.ViewReturnValueHandler;
  * making it possible to test one controller at a time.
  *
  * <p>This builder creates the minimum infrastructure required by the
- * {@link MockDispatcher} to serve requests with annotated controllers and
+ * {@link MockDispatcherHandler} to serve requests with annotated controllers and
  * also provides methods for customization. The resulting configuration and
  * customization options are equivalent to using MVC Java config except
  * using builder style methods.

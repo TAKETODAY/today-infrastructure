@@ -66,7 +66,7 @@ import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.server.MultipartException;
@@ -363,7 +363,7 @@ class ResponseEntityExceptionHandlerTests {
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
     manager.registerDefaultHandlers();
 
-    MockDispatcher servlet = new MockDispatcher(ctx);
+    MockDispatcherHandler servlet = new MockDispatcherHandler(ctx);
     servlet.init(new MockMockConfig());
     servlet.service(this.mockRequest, this.mockResponse);
 
@@ -383,7 +383,7 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.refresh();
 
-    MockDispatcher servlet = new MockDispatcher(ctx);
+    MockDispatcherHandler servlet = new MockDispatcherHandler(ctx);
     servlet.init(new MockMockConfig());
     try {
       servlet.service(this.mockRequest, this.mockResponse);

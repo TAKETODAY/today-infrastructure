@@ -9,4 +9,4 @@
 	mockMvc = standaloneSetup(new PersonController()).addFilters(new CharacterEncodingFilter()).build();
 ----
 
-注册的过滤器通过 `infra-test` 中的 `MockFilterChain` 调用，最后一个过滤器委托给 `MockDispatcher`。
+注册的过滤器通过 `infra-test` 中的 `MockFilterChain` 调用，最后一个过滤器委托给 `MockDispatcherHandler`。

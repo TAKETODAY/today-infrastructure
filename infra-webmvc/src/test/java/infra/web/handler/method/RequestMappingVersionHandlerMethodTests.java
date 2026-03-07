@@ -35,7 +35,7 @@ import infra.web.annotation.RestController;
 import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RequestMappingVersionHandlerMethodTests {
 
-  private MockDispatcher dispatcher;
+  private MockDispatcherHandler dispatcher;
 
   @BeforeEach
   void setUp() {
@@ -56,7 +56,7 @@ public class RequestMappingVersionHandlerMethodTests {
     context.register(WebConfig.class, TestController.class);
     context.afterPropertiesSet();
 
-    this.dispatcher = new MockDispatcher(context);
+    this.dispatcher = new MockDispatcherHandler(context);
     this.dispatcher.init(new MockMockConfig());
   }
 

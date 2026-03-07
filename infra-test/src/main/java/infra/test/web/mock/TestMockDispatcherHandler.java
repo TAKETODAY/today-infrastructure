@@ -40,7 +40,7 @@ import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.handler.HandlerExecutionChain;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.view.ModelAndView;
@@ -57,17 +57,17 @@ import infra.web.view.ViewReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class TestMockDispatcher extends MockDispatcher {
+final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private static final String KEY = TestMockDispatcher.class.getName() + ".interceptor";
+  private static final String KEY = TestMockDispatcherHandler.class.getName() + ".interceptor";
 
   /**
    * Create a new instance with the given web application context.
    */
-  public TestMockDispatcher(ApplicationContext webApplicationContext) {
+  public TestMockDispatcherHandler(ApplicationContext webApplicationContext) {
     super(webApplicationContext);
   }
 

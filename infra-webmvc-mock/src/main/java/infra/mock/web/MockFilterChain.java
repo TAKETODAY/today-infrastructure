@@ -30,7 +30,7 @@ import infra.lang.Assert;
 import infra.mock.api.Filter;
 import infra.mock.api.FilterChain;
 import infra.mock.api.FilterConfig;
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
@@ -76,23 +76,23 @@ public class MockFilterChain implements FilterChain {
   /**
    * @since 4.0
    */
-  public MockFilterChain(MockApi mockApi) {
-    this.filters = initFilterList(mockApi);
+  public MockFilterChain(MockHandler mockHandler) {
+    this.filters = initFilterList(mockHandler);
   }
 
   /**
-   * @param mockApi the {@link MockApi} to invoke in this {@link FilterChain}
+   * @param mockHandler the {@link MockHandler} to invoke in this {@link FilterChain}
    * @param filters the {@link Filter}'s to invoke in this {@link FilterChain}
    * @since 4.0
    */
-  public MockFilterChain(MockApi mockApi, Filter... filters) {
+  public MockFilterChain(MockHandler mockHandler, Filter... filters) {
     Assert.notNull(filters, "filters cannot be null");
     Assert.noNullElements(filters, "filters cannot contain null values");
-    this.filters = initFilterList(mockApi, filters);
+    this.filters = initFilterList(mockHandler, filters);
   }
 
-  private static List<Filter> initFilterList(MockApi mockApi, Filter... filters) {
-    Filter[] allFilters = ObjectUtils.addObjectToArray(filters, new MockFilterProxy(mockApi));
+  private static List<Filter> initFilterList(MockHandler mockHandler, Filter... filters) {
+    Filter[] allFilters = ObjectUtils.addObjectToArray(filters, new MockFilterProxy(mockHandler));
     return Arrays.asList(allFilters);
   }
 
@@ -113,7 +113,7 @@ public class MockFilterChain implements FilterChain {
   }
 
   /**
-   * Invoke registered {@link Filter Filters} and/or {@link MockApi} also saving the
+   * Invoke registered {@link Filter Filters} and/or {@link MockHandler} also saving the
    * request and response.
    */
   @Override
@@ -149,18 +149,18 @@ public class MockFilterChain implements FilterChain {
    */
   private static final class MockFilterProxy implements Filter {
 
-    private final MockApi delegateMockApi;
+    private final MockHandler delegateMockHandler;
 
-    private MockFilterProxy(MockApi mockApi) {
-      Assert.notNull(mockApi, "servlet cannot be null");
-      this.delegateMockApi = mockApi;
+    private MockFilterProxy(MockHandler mockHandler) {
+      Assert.notNull(mockHandler, "servlet cannot be null");
+      this.delegateMockHandler = mockHandler;
     }
 
     @Override
     public void doFilter(MockRequest request, MockResponse response, FilterChain chain)
             throws IOException, MockException {
 
-      this.delegateMockApi.service(request, response);
+      this.delegateMockHandler.service(request, response);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class MockFilterChain implements FilterChain {
 
     @Override
     public String toString() {
-      return this.delegateMockApi.toString();
+      return this.delegateMockHandler.toString();
     }
   }
 

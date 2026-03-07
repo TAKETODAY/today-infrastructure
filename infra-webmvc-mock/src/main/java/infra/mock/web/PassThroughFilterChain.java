@@ -26,7 +26,7 @@ import infra.lang.Assert;
 import infra.mock.api.Filter;
 import infra.mock.api.FilterChain;
 import infra.mock.api.FilterConfig;
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
@@ -39,7 +39,7 @@ import infra.mock.api.MockResponse;
  *
  * @author Juergen Hoeller
  * @see Filter
- * @see MockApi
+ * @see MockHandler
  * @see MockFilterChain
  * @since 4.0
  */
@@ -52,7 +52,7 @@ public class PassThroughFilterChain implements FilterChain {
   private FilterChain nextFilterChain;
 
   @Nullable
-  private MockApi mockApi;
+  private MockHandler mockHandler;
 
   /**
    * Create a new PassThroughFilterChain that delegates to the given Filter,
@@ -71,11 +71,11 @@ public class PassThroughFilterChain implements FilterChain {
   /**
    * Create a new PassThroughFilterChain that delegates to the given A Mock API.
    *
-   * @param mockApi the Mock to delegate to
+   * @param mockHandler the Mock to delegate to
    */
-  public PassThroughFilterChain(MockApi mockApi) {
-    Assert.notNull(mockApi, "Mock API is required");
-    this.mockApi = mockApi;
+  public PassThroughFilterChain(MockHandler mockHandler) {
+    Assert.notNull(mockHandler, "Mock API is required");
+    this.mockHandler = mockHandler;
   }
 
   @Override
@@ -84,8 +84,8 @@ public class PassThroughFilterChain implements FilterChain {
       this.filter.doFilter(request, response, this.nextFilterChain);
     }
     else {
-      Assert.state(this.mockApi != null, "Neither a Filter not a Mock API set");
-      this.mockApi.service(request, response);
+      Assert.state(this.mockHandler != null, "Neither a Filter not a Mock API set");
+      this.mockHandler.service(request, response);
     }
   }
 

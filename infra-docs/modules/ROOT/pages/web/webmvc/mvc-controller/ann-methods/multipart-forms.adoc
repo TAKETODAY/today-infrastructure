@@ -35,8 +35,6 @@ public class FileUploadController {
 当 `@RequestParam` 注解声明为 `Map<String, MultipartFile>` 或 `MultiValueMap<String, MultipartFile>` 时，
 如果在注解中没有指定参数名称，则映射将填充每个给定参数名称的多部分文件。
 
-NOTE: 使用 Servlet 多部分解析时，您也可以声明 `jakarta.mockApi.http.Part` 而不是 Infra Web `Part`，
-作为方法参数或集合值类型。
 
 您还可以将多部分内容用作数据绑定到 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[命令对象] 的一部分。
 例如，前面示例中的表单字段和文件可以是表单对象上的字段，如下例所示：

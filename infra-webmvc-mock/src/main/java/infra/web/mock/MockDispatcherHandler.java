@@ -29,7 +29,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Assert;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
@@ -52,7 +52,7 @@ import infra.web.mock.support.WebApplicationContextUtils;
  * @since 2.0 2018-06-25 19:47:14
  */
 @SuppressWarnings("NullAway")
-public class MockDispatcher extends DispatcherHandler implements MockApi, Serializable {
+public class MockDispatcherHandler extends DispatcherHandler implements MockHandler, Serializable {
 
   /**
    * Prefix for ApplicationContext ids that refer to context path
@@ -66,7 +66,7 @@ public class MockDispatcher extends DispatcherHandler implements MockApi, Serial
    * Prefix for the MockContext attribute for the ApplicationContext.
    * The completion is the servlet name.
    */
-  public static final String CONTEXT_PREFIX = MockDispatcher.class.getName() + ".CONTEXT.";
+  public static final String CONTEXT_PREFIX = MockDispatcherHandler.class.getName() + ".CONTEXT.";
 
   private transient MockConfig mockConfig;
 
@@ -77,7 +77,7 @@ public class MockDispatcher extends DispatcherHandler implements MockApi, Serial
   /** Should we publish the context as a MockContext attribute?. */
   private boolean publishContext = true;
 
-  public MockDispatcher() {
+  public MockDispatcherHandler() {
   }
 
   /**
@@ -117,7 +117,7 @@ public class MockDispatcher extends DispatcherHandler implements MockApi, Serial
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
-  public MockDispatcher(ApplicationContext context) {
+  public MockDispatcherHandler(ApplicationContext context) {
     super(context);
   }
 

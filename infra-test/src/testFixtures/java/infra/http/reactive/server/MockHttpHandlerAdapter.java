@@ -34,7 +34,7 @@ import infra.mock.api.AsyncContext;
 import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockApi;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
@@ -52,7 +52,7 @@ import infra.mock.api.http.HttpMockResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockHttpHandlerAdapter implements MockApi {
+public class MockHttpHandlerAdapter implements MockHandler {
   private static final Logger logger = HttpLogging.forLogName(MockHttpHandlerAdapter.class);
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;

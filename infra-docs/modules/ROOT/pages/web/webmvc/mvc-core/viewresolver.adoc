@@ -80,7 +80,7 @@ xref:web/webmvc/mvc-config.adoc[MVC 配置] 为 xref:web/webmvc/mvc-config/view-
 [[mvc-multiple-representations]]
 == 内容协商
 
-{today-framework-api}/web/mockApi/view/ContentNegotiatingViewResolver.html[`ContentNegotiatingViewResolver`]
+{today-framework-api}/web/view/ContentNegotiatingViewResolver.html[`ContentNegotiatingViewResolver`]
 本身不解析视图，而是委托给其他视图解析器，并选择类似于客户端请求的表示形式的视图。
 表示形式可以根据 `Accept` 头或查询参数（例如 `"/path?format=pdf"`）确定。
 

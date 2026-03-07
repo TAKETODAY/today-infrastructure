@@ -43,7 +43,7 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.ResponseEntityExceptionHandler;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.util.UriUtils;
 
@@ -74,7 +74,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo.css");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    MockDispatcher servlet = initDispatcher(WebConfig.class);
+    MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
     servlet.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
@@ -89,7 +89,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo with spaces.css");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    MockDispatcher servlet = initDispatcher(WebConfig.class);
+    MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
     servlet.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
@@ -106,7 +106,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     context.register(GlobalExceptionHandler.class);
     context.refresh();
 
-    MockDispatcher servlet = new MockDispatcher();
+    MockDispatcherHandler servlet = new MockDispatcherHandler();
     servlet.setApplicationContext(context);
     servlet.init(this.mockConfig);
 
@@ -126,13 +126,13 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 //        """);
   }
 
-  private MockDispatcher initDispatcher(Class<?>... configClasses) {
+  private MockDispatcherHandler initDispatcher(Class<?>... configClasses) {
     var context = new AnnotationConfigWebApplicationContext();
     context.setMockContext(this.mockContext);
     context.register(configClasses);
     context.refresh();
 
-    MockDispatcher servlet = new MockDispatcher(context);
+    MockDispatcherHandler servlet = new MockDispatcherHandler(context);
     servlet.init(this.mockConfig);
     return servlet;
   }

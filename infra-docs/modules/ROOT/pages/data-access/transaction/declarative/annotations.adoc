@@ -184,7 +184,7 @@ NOTE: 处理 `@Transactional` 注解的默认通知模式是 `proxy`，它仅允
 
 NOTE: `proxy-target-class` 属性控制为使用 `@Transactional` 注解的类创建什么类型的事务代理。如果 `proxy-target-class` 设置为 `true`，则创建基于类的代理。如果 `proxy-target-class` 为 `false` 或省略该属性，则创建标准 JDK 基于接口的代理。（有关不同代理类型的讨论，请参阅 xref:core/aop/proxying.adoc[代理机制]。）
 
-NOTE: `@EnableTransactionManagement` 和 `<tx:annotation-driven/>` 仅在定义它们的同一个应用程序上下文中查找 `@Transactional` bean。这意味着，如果您将注解驱动的配置放在 `MockDispatcher` 的 `WebApplicationContext` 中，它只会检查控制器中的 `@Transactional` bean，而不会检查服务中的。有关更多信息，请参阅 xref:web/webmvc/mvc-core.adoc[MVC]。
+NOTE: `@EnableTransactionManagement` 和 `<tx:annotation-driven/>` 仅在定义它们的同一个应用程序上下文中查找 `@Transactional` bean。这意味着，如果您将注解驱动的配置放在 `MockDispatcherHandler` 的 `WebApplicationContext` 中，它只会检查控制器中的 `@Transactional` bean，而不会检查服务中的。有关更多信息，请参阅 xref:web/webmvc/mvc-core.adoc[MVC]。
 
 在评估方法的事务设置时，最具体的定义位置优先。在以下示例中，`DefaultFooService` 类在类级别使用了只读事务的设置进行注解，但同一类中 `updateFoo(Foo)` 方法上的 `@Transactional` 注解优先于在类级别定义的事务设置。
 

@@ -32,7 +32,7 @@ import infra.http.converter.HttpMessageConverters;
 import infra.mock.web.MockMockConfig;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.WebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
 
@@ -52,16 +52,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractMockHandlerMethodTests {
 
   @Nullable
-  protected MockDispatcher mockapi;
+  protected MockDispatcherHandler handler;
 
-  protected MockDispatcher getMockApi() {
-    assertThat(mockapi).as("DispatcherMockApi not initialized").isNotNull();
-    return mockapi;
+  protected MockDispatcherHandler getMockHandler() {
+    assertThat(handler).as("MockDispatcherHandler not initialized").isNotNull();
+    return handler;
   }
 
   @AfterEach
   public void tearDown() {
-    this.mockapi = null;
+    this.handler = null;
   }
 
   protected WebApplicationContext initDispatcher() {
@@ -84,7 +84,7 @@ public abstract class AbstractMockHandlerMethodTests {
 
     final GenericWebApplicationContext wac = new GenericWebApplicationContext();
 
-    mockapi = new MockDispatcher() {
+    handler = new MockDispatcherHandler() {
 
       @Override
       protected ApplicationContext createApplicationContext(@Nullable ApplicationContext parent) {
@@ -114,7 +114,7 @@ public abstract class AbstractMockHandlerMethodTests {
     wac.setMockConfig(config);
     wac.setMockContext(config.getMockContext());
 
-    mockapi.init(config);
+    handler.init(config);
     return wac;
   }
 

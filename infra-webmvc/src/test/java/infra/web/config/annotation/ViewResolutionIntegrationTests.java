@@ -33,7 +33,7 @@ import infra.mock.web.MockMockConfig;
 import infra.stereotype.Controller;
 import infra.ui.ModelMap;
 import infra.web.annotation.GetMapping;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
@@ -207,7 +207,7 @@ class ViewResolutionIntegrationTests {
     context.register(configClass);
     context.setMockContext(mockContext);
     context.refresh();
-    MockDispatcher dispatcher = new MockDispatcher(context);
+    MockDispatcherHandler dispatcher = new MockDispatcherHandler(context);
     dispatcher.init(mockConfig);
     dispatcher.service(request, response);
     return response;

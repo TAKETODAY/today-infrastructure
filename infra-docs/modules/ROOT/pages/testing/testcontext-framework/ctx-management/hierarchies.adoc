@@ -1,7 +1,7 @@
 [[testcontext-ctx-management-ctx-hierarchies]]
 = 上下文层级结构
 
-在编写依赖于已加载的 Infra `ApplicationContext` 的集成测试时，针对单个上下文进行测试通常就足够了。但是，有时针对 `ApplicationContext` 实例的层级结构进行测试是有益的甚至必要的。例如，如果你正在开发 Web MVC web 应用程序，你通常有一个由 Infra `ContextLoaderListener` 加载的根 `WebApplicationContext` 和一个由 Infra `MockDispatcher` 加载的子 `WebApplicationContext`。这导致了一个父子上下文层级结构，其中共享组件和基础设施配置在根上下文中声明，并在子上下文中由特定于 web 的组件使用。另一个用例可以在 Infra Batch 应用程序中找到，你通常有一个父上下文为共享批处理基础设施提供配置，以及一个子上下文用于特定批处理作业的配置。
+在编写依赖于已加载的 Infra `ApplicationContext` 的集成测试时，针对单个上下文进行测试通常就足够了。但是，有时针对 `ApplicationContext` 实例的层级结构进行测试是有益的甚至必要的。例如，如果你正在开发 Web MVC web 应用程序，你通常有一个由 Infra `ContextLoaderListener` 加载的根 `WebApplicationContext` 和一个由 Infra `MockDispatcherHandler` 加载的子 `WebApplicationContext`。这导致了一个父子上下文层级结构，其中共享组件和基础设施配置在根上下文中声明，并在子上下文中由特定于 web 的组件使用。另一个用例可以在 Infra Batch 应用程序中找到，你通常有一个父上下文为共享批处理基础设施提供配置，以及一个子上下文用于特定批处理作业的配置。
 
 你可以通过在单个测试类上或测试类层次结构中声明带有 `@ContextHierarchy` 注解的上下文配置来编写使用上下文层级结构的集成测试。如果在测试类层次结构中的多个类上声明了上下文层级结构，你还可以合并或覆盖上下文层级结构中特定命名级别的上下文配置。当合并层级结构中给定级别的配置时，配置资源类型（即 XML 配置文件或组件类）必须一致。否则，完全可以接受在上下文层级结构中使用不同的资源类型配置不同的级别。
 
@@ -9,7 +9,7 @@
 
 **具有上下文层级结构的单个测试类**
 --
-`ControllerIntegrationTests` 代表了 Web MVC web 应用程序的典型集成测试场景，它通过声明一个包含两个级别的上下文层级结构来实现，一级用于根 `WebApplicationContext`（使用 `TestAppConfig` `@Configuration` 类加载），另一级用于 dispatcher mockApi `WebApplicationContext`（使用 `WebConfig` `@Configuration` 类加载）。自动装配到测试实例中的 `WebApplicationContext` 是子上下文（即层级结构中最低的上下文）的上下文。以下清单显示了此配置场景：
+`ControllerIntegrationTests` 代表了 Web MVC web 应用程序的典型集成测试场景，它通过声明一个包含两个级别的上下文层级结构来实现，一级用于根 `WebApplicationContext`（使用 `TestAppConfig` `@Configuration` 类加载），另一级用于 dispatcher Handler `WebApplicationContext`（使用 `WebConfig` `@Configuration` 类加载）。自动装配到测试实例中的 `WebApplicationContext` 是子上下文（即层级结构中最低的上下文）的上下文。以下清单显示了此配置场景：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

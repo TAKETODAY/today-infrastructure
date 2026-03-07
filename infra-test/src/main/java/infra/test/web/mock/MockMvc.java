@@ -43,7 +43,7 @@ import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
-import infra.web.mock.MockDispatcher;
+import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockRequestContext;
 
 /**
@@ -77,7 +77,7 @@ import infra.web.mock.MockRequestContext;
  */
 public final class MockMvc {
 
-  private final TestMockDispatcher mock;
+  private final TestMockDispatcherHandler mock;
 
   private final Filter[] filters;
 
@@ -98,7 +98,7 @@ public final class MockMvc {
    *
    * @see MockMvcBuilders
    */
-  MockMvc(TestMockDispatcher mock, Filter... filters) {
+  MockMvc(TestMockDispatcherHandler mock, Filter... filters) {
     Assert.notNull(mock, "DispatcherHandler is required");
     Assert.notNull(filters, "Filters cannot be null");
     Assert.noNullElements(filters, "Filters cannot contain null values");
@@ -147,7 +147,7 @@ public final class MockMvc {
   }
 
   /**
-   * Return the underlying {@link MockDispatcher} instance that this
+   * Return the underlying {@link MockDispatcherHandler} instance that this
    * {@code MockMvc} was initialized with.
    * <p>This is intended for use in custom request processing scenario where a
    * request handling component happens to delegate to the {@code Dispatcher}
@@ -156,7 +156,7 @@ public final class MockMvc {
    * or if you need to configure the {@code DispatcherServlet}, provide a
    * {@link DispatcherCustomizer} to the {@code MockMvcBuilder}.
    */
-  public MockDispatcher getDispatcher() {
+  public MockDispatcherHandler getDispatcher() {
     return this.mock;
   }
 

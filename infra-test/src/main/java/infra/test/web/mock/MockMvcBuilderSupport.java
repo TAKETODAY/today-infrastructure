@@ -69,7 +69,7 @@ public abstract class MockMvcBuilderSupport {
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
 
-    TestMockDispatcher dispatcherServlet = new TestMockDispatcher(webAppContext);
+    TestMockDispatcherHandler dispatcherServlet = new TestMockDispatcherHandler(webAppContext);
     if (dispatcherCustomizers != null) {
       for (DispatcherCustomizer customizers : dispatcherCustomizers) {
         customizers.customize(dispatcherServlet);

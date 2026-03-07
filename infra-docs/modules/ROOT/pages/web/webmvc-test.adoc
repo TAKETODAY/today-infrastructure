@@ -10,7 +10,7 @@
 包括在测试方法之间高效缓存加载的配置，并支持使用 `MockContextImpl` 加载 `WebApplicationContext`。
 有关详细信息，请参阅 xref:testing/testcontext-framework.adoc[TestContext Framework]。
 
-* Web MVC Test: 一个框架，也称为 `MockMvc`，用于通过 `MockDispatcher`（即支持注解）
+* Web MVC Test: 一个框架，也称为 `MockMvc`，用于通过 `MockDispatcherHandler`（即支持注解）
 测试带有完整 Web MVC 基础设施但没有 HTTP 服务器的注解控制器。有关详细信息，
 请参阅 xref:testing/mvc-test-framework.adoc[Web MVC Test]。
 

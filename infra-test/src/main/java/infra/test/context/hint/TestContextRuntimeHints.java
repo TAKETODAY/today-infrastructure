@@ -46,7 +46,7 @@ class TestContextRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
   public void registerHints(RuntimeHints runtimeHints, ClassLoader classLoader) {
-    boolean servletPresent = ClassUtils.isPresent("infra.mock.api.MockApi", classLoader);
+    boolean servletPresent = ClassUtils.isPresent("infra.mock.api.MockHandler", classLoader);
     boolean groovyPresent = ClassUtils.isPresent("groovy.lang.Closure", classLoader);
 
     ReflectionHints reflectionHints = runtimeHints.reflection();

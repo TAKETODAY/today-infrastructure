@@ -47,7 +47,7 @@ import infra.mock.api.annotation.WebListener;
  * provides the servlet when the servlet is initialized.
  *
  * @author Various
- * @see MockApi#getMockConfig
+ * @see MockHandler#getMockConfig
  * @see MockConfig#getMockContext
  */
 public interface MockContext {

@@ -43,6 +43,7 @@ import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.test.web.mock.setup.StandaloneMockMvcBuilder;
+import infra.web.mock.MockDispatcherHandler;
 
 /**
  * {@code MockMvcTester} provides support for testing Spring MVC applications
@@ -213,7 +214,7 @@ public final class MockMvcTester {
    * Shortcut to create an instance by registering one or more {@code @Controller}
    * instances.
    * <p>The minimum infrastructure required by the
-   * {@link infra.web.mock.MockDispatcher MockDispatcher}
+   * {@link MockDispatcherHandler MockDispatcher}
    * to serve requests with annotated controllers is created. Consider using
    * {@link #of(Collection, Function)} if additional configuration of the MVC
    * infrastructure is required.

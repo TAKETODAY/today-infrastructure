@@ -17,9 +17,11 @@
 
 回滚规则可以通过 `rollback-for` 和 `no-rollback-for` 属性在 XML 中配置，这允许将规则定义为模式。当使用 xref:data-access/transaction/declarative/annotations.adoc#transaction-declarative-attransactional-settings[`@Transactional`] 时，可以通过 `rollbackFor`/`noRollbackFor` 和 `rollbackForClassName`/`noRollbackForClassName` 属性配置回滚规则，这分别允许基于异常类型或模式定义规则。
 
-当使用异常类型定义回滚规则时，该类型将用于匹配抛出的异常及其超类型的类型，从而提供类型安全性并避免在使用模式时可能发生的任何意外匹配。例如，`jakarta.mockApi.ServletException.class` 的值将仅匹配 `jakarta.mockApi.ServletException` 及其子类型的抛出异常。
+当使用异常类型定义回滚规则时，该类型将用于匹配抛出的异常及其超类型的类型，
+从而提供类型安全性并避免在使用模式时可能发生的任何意外匹配。
 
-当使用异常模式定义回滚规则时，模式可以是完全限定的类名或异常类型（必须是 `Throwable` 的子类）的完全限定类名的子字符串，目前不支持通配符。例如，`"jakarta.mockApi.ServletException"` 或 `"ServletException"` 的值将匹配 `jakarta.mockApi.ServletException` 及其子类。
+当使用异常模式定义回滚规则时，模式可以是完全限定的类名或异常类型（必须是 `Throwable` 的子类）
+的完全限定类名的子字符串，目前不支持通配符。
 
 [WARNING]
 =====
