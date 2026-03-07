@@ -78,7 +78,7 @@ import infra.web.util.UriUtils;
  * @author Kamill Sokol
  * @since 5.0
  */
-public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMockHttpServletRequestBuilder<B>>
+public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockHttpMockRequestBuilder<B>>
         implements ConfigurableSmartRequestBuilder<B>, Mergeable {
 
   private static final SimpleDateFormat simpleDateFormat;
@@ -93,10 +93,6 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
   private @Nullable String uriTemplate;
 
   private @Nullable URI uri;
-
-  private String contextPath = "";
-
-  private String servletPath = "";
 
   private @Nullable String pathInfo = "";
 
@@ -143,7 +139,7 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
    *
    * @param httpMethod the HTTP method (GET, POST, etc.)
    */
-  protected AbstractMockHttpServletRequestBuilder(HttpMethod httpMethod) {
+  protected AbstractMockHttpMockRequestBuilder(HttpMethod httpMethod) {
     Assert.notNull(httpMethod, "'httpMethod' is required");
     this.method = httpMethod;
   }
@@ -179,45 +175,6 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
             () -> "'uri' should start with a path or be a complete HTTP URI: " + uri);
     String uriString = (uri.isEmpty() ? "/" : uri);
     return UriComponentsBuilder.forURIString(uriString).buildAndExpand(vars).encode().toURI();
-  }
-
-  /**
-   * Specify the portion of the requestURI that represents the context path.
-   * The context path, if specified, must match to the start of the request URI.
-   * <p>In most cases, tests can be written by omitting the context path from
-   * the requestURI. This is because most applications don't actually depend
-   * on the name under which they're deployed. If specified here, the context
-   * path must start with a "/" and must not end with a "/".
-   */
-  public B contextPath(String contextPath) {
-    if (StringUtils.hasText(contextPath)) {
-      Assert.isTrue(contextPath.startsWith("/"), "Context path must start with a '/'");
-      Assert.isTrue(!contextPath.endsWith("/"), "Context path must not end with a '/'");
-    }
-    this.contextPath = contextPath;
-    return self();
-  }
-
-  /**
-   * Specify the portion of the requestURI that represents the path to which
-   * the Servlet is mapped. This is typically a portion of the requestURI
-   * after the context path.
-   * <p>In most cases, tests can be written by omitting the servlet path from
-   * the requestURI. This is because most applications don't actually depend
-   * on the prefix to which a servlet is mapped. For example if a Servlet is
-   * mapped to {@code "/main/*"}, tests can be written with the requestURI
-   * {@code "/accounts/1"} as opposed to {@code "/main/accounts/1"}.
-   * If specified here, the servletPath must start with a "/" and must not
-   * end with a "/".
-   *
-   */
-  public B servletPath(String servletPath) {
-    if (StringUtils.hasText(servletPath)) {
-      Assert.isTrue(servletPath.startsWith("/"), "Servlet path must start with a '/'");
-      Assert.isTrue(!servletPath.endsWith("/"), "Servlet path must not end with a '/'");
-    }
-    this.servletPath = servletPath;
-    return self();
   }
 
   /**
@@ -711,18 +668,12 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
     if (parent == null) {
       return this;
     }
-    if (!(parent instanceof AbstractMockHttpServletRequestBuilder<?> parentBuilder)) {
+    if (!(parent instanceof AbstractMockHttpMockRequestBuilder<?> parentBuilder)) {
       throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
     }
     if (this.uri == null) {
       this.uri = parentBuilder.uri;
       this.uriTemplate = parentBuilder.uriTemplate;
-    }
-    if (StringUtils.isBlank(this.contextPath)) {
-      this.contextPath = parentBuilder.contextPath;
-    }
-    if (StringUtils.isBlank(this.servletPath)) {
-      this.servletPath = parentBuilder.servletPath;
     }
     if ("".equals(this.pathInfo)) {
       this.pathInfo = parentBuilder.pathInfo;
@@ -977,22 +928,12 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
   }
 
   /**
-   * Update the contextPath, servletPath, and pathInfo of the request.
+   * Update the pathInfo of the request.
    */
   private void updatePathRequestProperties(HttpMockRequestImpl request, String requestUri) {
-    if (!requestUri.startsWith(this.contextPath)) {
-      throw new IllegalArgumentException(
-              "Request URI [" + requestUri + "] does not start with context path [" + this.contextPath + "]");
-    }
-//    request.setContextPath(this.contextPath);
-//    request.setServletPath(this.servletPath);
-
     String path = this.pathInfo;
     if ("".equals(path)) {
-      Assert.isTrue(requestUri.startsWith(this.contextPath + this.servletPath),
-              () -> "Invalid servlet path [" + this.servletPath + "] for request URI [" + requestUri + "]");
-      String other = requestUri.substring(this.contextPath.length() + this.servletPath.length());
-      path = (StringUtils.hasText(other) ? UriUtils.decode(other, StandardCharsets.UTF_8) : null);
+      path = StringUtils.hasText(requestUri) ? UriUtils.decode(requestUri, StandardCharsets.UTF_8) : null;
     }
     request.setPathInfo(path);
   }
@@ -1037,7 +978,7 @@ public abstract class AbstractMockHttpServletRequestBuilder<B extends AbstractMo
     HttpInputMessage message = new HttpInputMessage() {
       @Override
       public InputStream getBody() {
-        byte[] bodyContent = AbstractMockHttpServletRequestBuilder.this.content;
+        byte[] bodyContent = AbstractMockHttpMockRequestBuilder.this.content;
         return (bodyContent != null ? new ByteArrayInputStream(bodyContent) : InputStream.nullInputStream());
       }
 

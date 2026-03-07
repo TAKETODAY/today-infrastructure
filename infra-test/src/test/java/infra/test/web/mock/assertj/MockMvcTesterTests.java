@@ -66,7 +66,7 @@ class MockMvcTesterTests {
   private static final JacksonJsonHttpMessageConverter jsonHttpMessageConverter =
           new JacksonJsonHttpMessageConverter();
 
-  private final MockContext servletContext = new MockContextImpl();
+  private final MockContext mockContext = new MockContextImpl();
 
   @Test
   void createShouldRejectNullMockMvc() {
@@ -149,55 +149,55 @@ class MockMvcTesterTests {
 
   @Test
   void getConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.get().uri("/hello/{id}", "world")))
+    assertThat(createMockHttpRequest(tester -> tester.get().uri("/hello/{id}", "world")))
             .satisfies(hasSettings(HttpMethod.GET, "/hello/{id}", "/hello/world"));
   }
 
   @Test
   void headConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.head().uri("/download/{file}", "test.json")))
+    assertThat(createMockHttpRequest(tester -> tester.head().uri("/download/{file}", "test.json")))
             .satisfies(hasSettings(HttpMethod.HEAD, "/download/{file}", "/download/test.json"));
   }
 
   @Test
   void postConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.post().uri("/save/{id}", 123)))
+    assertThat(createMockHttpRequest(tester -> tester.post().uri("/save/{id}", 123)))
             .satisfies(hasSettings(HttpMethod.POST, "/save/{id}", "/save/123"));
   }
 
   @Test
   void putConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.put().uri("/save/{id}", 123)))
+    assertThat(createMockHttpRequest(tester -> tester.put().uri("/save/{id}", 123)))
             .satisfies(hasSettings(HttpMethod.PUT, "/save/{id}", "/save/123"));
   }
 
   @Test
   void patchConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.patch().uri("/update/{id}", 123)))
+    assertThat(createMockHttpRequest(tester -> tester.patch().uri("/update/{id}", 123)))
             .satisfies(hasSettings(HttpMethod.PATCH, "/update/{id}", "/update/123"));
   }
 
   @Test
   void deleteConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.delete().uri("/users/{id}", 42)))
+    assertThat(createMockHttpRequest(tester -> tester.delete().uri("/users/{id}", 42)))
             .satisfies(hasSettings(HttpMethod.DELETE, "/users/{id}", "/users/42"));
   }
 
   @Test
   void optionsConfiguresBuilder() {
-    assertThat(createMockHttpServletRequest(tester -> tester.options().uri("/users/{id}", 42)))
+    assertThat(createMockHttpRequest(tester -> tester.options().uri("/users/{id}", 42)))
             .satisfies(hasSettings(HttpMethod.OPTIONS, "/users/{id}", "/users/42"));
   }
 
   @Test
   void methodConfiguresBuilderWithFullURI() {
-    assertThat(createMockHttpServletRequest(tester -> tester.get().uri(URI.create("/hello/world"))))
+    assertThat(createMockHttpRequest(tester -> tester.get().uri(URI.create("/hello/world"))))
             .satisfies(hasSettings(HttpMethod.GET, null, "/hello/world"));
   }
 
-  private HttpMockRequestImpl createMockHttpServletRequest(Function<MockMvcTester, MockMvcRequestBuilder> builder) {
+  private HttpMockRequestImpl createMockHttpRequest(Function<MockMvcTester, MockMvcRequestBuilder> builder) {
     MockMvcTester mockMvcTester = MockMvcTester.of(HelloController.class);
-    return builder.apply(mockMvcTester).buildRequest(this.servletContext);
+    return builder.apply(mockMvcTester).buildRequest(this.mockContext);
   }
 
   private Consumer<HttpMockRequestImpl> hasSettings(HttpMethod method, @Nullable String uriTemplate, String uri) {

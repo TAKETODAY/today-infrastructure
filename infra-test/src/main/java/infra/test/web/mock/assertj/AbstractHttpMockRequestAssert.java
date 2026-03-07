@@ -48,14 +48,14 @@ import infra.web.async.DeferredResult;
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractHttpServletRequestAssert<SELF extends AbstractHttpServletRequestAssert<SELF, ACTUAL>, ACTUAL extends HttpMockRequest>
+public abstract class AbstractHttpMockRequestAssert<SELF extends AbstractHttpMockRequestAssert<SELF, ACTUAL>, ACTUAL extends HttpMockRequest>
         extends AbstractObjectAssert<SELF, ACTUAL> {
 
   private final Supplier<MapAssert<String, Object>> attributesAssertProvider;
 
   private final Supplier<MapAssert<String, Object>> sessionAttributesAssertProvider;
 
-  protected AbstractHttpServletRequestAssert(ACTUAL actual, Class<?> selfType) {
+  protected AbstractHttpMockRequestAssert(ACTUAL actual, Class<?> selfType) {
     super(actual, selfType);
     this.attributesAssertProvider = SingletonSupplier.of(() -> createAttributesAssert(actual));
     this.sessionAttributesAssertProvider = SingletonSupplier.of(() -> createSessionAttributesAssert(actual));

@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 import infra.mock.web.HttpMockRequestImpl;
 
 /**
- * Tests for {@link infra.test.web.mock.assertj.AbstractMockHttpServletRequestAssert}.
+ * Tests for {@link AbstractMockHttpMockRequestAssert}.
  *
  * @author Stephane Nicoll
  */
-class AbstractMockHttpServletRequestAssertTests {
+class AbstractMockHttpMockRequestAssertTests {
 
   @Test
   void requestCanBeAsserted() {
@@ -39,7 +39,7 @@ class AbstractMockHttpServletRequestAssertTests {
     return new RequestAssert(request);
   }
 
-  private static final class RequestAssert extends AbstractMockHttpServletRequestAssert<RequestAssert> {
+  private static final class RequestAssert extends AbstractMockHttpMockRequestAssert<RequestAssert> {
 
     RequestAssert(HttpMockRequestImpl actual) {
       super(actual, RequestAssert.class);

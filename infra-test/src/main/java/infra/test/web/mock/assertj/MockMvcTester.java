@@ -37,8 +37,8 @@ import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
-import infra.test.web.mock.request.AbstractMockHttpServletRequestBuilder;
-import infra.test.web.mock.request.AbstractMockMultipartHttpServletRequestBuilder;
+import infra.test.web.mock.request.AbstractMockHttpMockRequestBuilder;
+import infra.test.web.mock.request.AbstractMockMultipartHttpMockRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
@@ -437,7 +437,7 @@ public final class MockMvcTester {
   /**
    * A builder for {@link HttpMockRequestImpl} that supports AssertJ.
    */
-  public final class MockMvcRequestBuilder extends AbstractMockHttpServletRequestBuilder<MockMvcRequestBuilder>
+  public final class MockMvcRequestBuilder extends AbstractMockHttpMockRequestBuilder<MockMvcRequestBuilder>
           implements AssertProvider<MvcTestResultAssert> {
 
     private final HttpMethod httpMethod;
@@ -506,7 +506,7 @@ public final class MockMvcTester {
   }
 
   public final class MockMultipartMvcRequestBuilder
-          extends AbstractMockMultipartHttpServletRequestBuilder<MockMultipartMvcRequestBuilder>
+          extends AbstractMockMultipartHttpMockRequestBuilder<MockMultipartMvcRequestBuilder>
           implements AssertProvider<MvcTestResultAssert> {
 
     private MockMultipartMvcRequestBuilder(MockMvcRequestBuilder currentBuilder) {

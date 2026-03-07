@@ -45,7 +45,7 @@ import infra.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockHttpRequestBuilder extends AbstractMockHttpServletRequestBuilder<MockHttpRequestBuilder> {
+public class MockHttpRequestBuilder extends AbstractMockHttpMockRequestBuilder<MockHttpRequestBuilder> {
 
   /**
    * Package private constructor. To get an instance, use static factory

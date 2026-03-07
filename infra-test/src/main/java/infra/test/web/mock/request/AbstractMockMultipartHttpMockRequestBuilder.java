@@ -48,14 +48,14 @@ import infra.web.multipart.Part;
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractMockMultipartHttpServletRequestBuilder<B extends AbstractMockMultipartHttpServletRequestBuilder<B>>
-        extends AbstractMockHttpServletRequestBuilder<B> {
+public abstract class AbstractMockMultipartHttpMockRequestBuilder<B extends AbstractMockMultipartHttpMockRequestBuilder<B>>
+        extends AbstractMockHttpMockRequestBuilder<B> {
 
   private final List<MockMemoryFilePart> files = new ArrayList<>();
 
   private final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
 
-  protected AbstractMockMultipartHttpServletRequestBuilder(HttpMethod httpMethod) {
+  protected AbstractMockMultipartHttpMockRequestBuilder(HttpMethod httpMethod) {
     super(httpMethod);
     super.contentType(MediaType.MULTIPART_FORM_DATA);
   }
@@ -99,9 +99,9 @@ public abstract class AbstractMockMultipartHttpServletRequestBuilder<B extends A
     if (parent == null) {
       return this;
     }
-    if (parent instanceof AbstractMockHttpServletRequestBuilder<?>) {
+    if (parent instanceof AbstractMockHttpMockRequestBuilder<?>) {
       super.merge(parent);
-      if (parent instanceof AbstractMockMultipartHttpServletRequestBuilder<?> parentBuilder) {
+      if (parent instanceof AbstractMockMultipartHttpMockRequestBuilder<?> parentBuilder) {
         this.files.addAll(parentBuilder.files);
         parentBuilder.parts.keySet().forEach(name ->
                 this.parts.putIfAbsent(name, parentBuilder.parts.get(name)));

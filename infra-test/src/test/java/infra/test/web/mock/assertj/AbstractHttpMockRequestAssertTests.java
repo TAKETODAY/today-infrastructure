@@ -32,11 +32,11 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link infra.test.web.mock.assertj.AbstractHttpServletRequestAssert}.
+ * Tests for {@link AbstractHttpMockRequestAssert}.
  *
  * @author Stephane Nicoll
  */
-public class AbstractHttpServletRequestAssertTests {
+public class AbstractHttpMockRequestAssertTests {
 
   @Nested
   class AttributesTests {
@@ -131,7 +131,7 @@ public class AbstractHttpServletRequestAssertTests {
     return new RequestAssert(request);
   }
 
-  private static final class RequestAssert extends AbstractHttpServletRequestAssert<RequestAssert, HttpMockRequest> {
+  private static final class RequestAssert extends AbstractHttpMockRequestAssert<RequestAssert, HttpMockRequest> {
 
     RequestAssert(HttpMockRequest actual) {
       super(actual, RequestAssert.class);

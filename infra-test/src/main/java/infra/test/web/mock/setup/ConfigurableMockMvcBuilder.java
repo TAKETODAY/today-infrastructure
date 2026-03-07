@@ -33,6 +33,7 @@ import infra.test.web.mock.MockMvcBuilder;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.ResultHandler;
 import infra.test.web.mock.ResultMatcher;
+import infra.test.web.mock.request.AbstractMockHttpMockRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultHandlers;
 import infra.test.web.mock.result.MockMvcResultMatchers;
@@ -102,7 +103,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
 
   /**
    * Set the {@link ApiVersionInserter} to use to apply to versions specified via
-   * {@link infra.test.web.mock.request.AbstractMockHttpServletRequestBuilder#apiVersion(Object)}.
+   * {@link AbstractMockHttpMockRequestBuilder#apiVersion(Object)}.
    * <p>{@code ApiVersionInserter} exposes shortcut methods for several
    * built-in inserter implementation types. See the class-level Javadoc
    * of {@link ApiVersionInserter} for a list of choices.

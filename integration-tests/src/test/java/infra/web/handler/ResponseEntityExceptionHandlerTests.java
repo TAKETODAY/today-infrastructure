@@ -158,7 +158,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  void servletRequestBindingException() {
+  void mockRequestBindingException() {
     testException(new RequestBindingException("message"));
   }
 

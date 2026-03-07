@@ -16,6 +16,7 @@
 
 package infra.http.reactive.server;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -28,15 +29,14 @@ import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpLogging;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.logging.Logger;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockException;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.http.HttpMock;
@@ -84,19 +84,6 @@ public class MockHttpHandlerAdapter implements MockHandler {
    */
   public int getBufferSize() {
     return this.bufferSize;
-  }
-
-  /**
-   * Return the Servlet path under which the Servlet is deployed by checking
-   * the Servlet registration from {@link #init(MockConfig)}.
-   *
-   * @return the path, or an empty string if the Servlet is deployed without
-   * a prefix (i.e. "/" or "/*"), or {@code null} if this method is invoked
-   * before the {@link #init(MockConfig)} Servlet container callback.
-   */
-  @Nullable
-  public String getServletPath() {
-    return this.mockPath;
   }
 
   public void setDataBufferFactory(DataBufferFactory dataBufferFactory) {

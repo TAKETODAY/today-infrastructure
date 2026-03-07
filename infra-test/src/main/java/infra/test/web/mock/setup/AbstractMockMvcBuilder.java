@@ -41,7 +41,7 @@ import infra.test.web.mock.MockMvcBuilderSupport;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.ResultHandler;
 import infra.test.web.mock.ResultMatcher;
-import infra.test.web.mock.request.AbstractMockHttpServletRequestBuilder;
+import infra.test.web.mock.request.AbstractMockHttpMockRequestBuilder;
 import infra.test.web.mock.request.ConfigurableSmartRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.request.RequestPostProcessor;
@@ -212,7 +212,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
       if (this.defaultRequestBuilder == null) {
         this.defaultRequestBuilder = MockMvcRequestBuilders.get("/");
       }
-      if (this.defaultRequestBuilder instanceof AbstractMockHttpServletRequestBuilder<?> srb) {
+      if (this.defaultRequestBuilder instanceof AbstractMockHttpMockRequestBuilder<?> srb) {
         srb.apiVersionInserter(this.apiVersionInserter);
       }
     }

@@ -33,11 +33,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link infra.test.web.mock.assertj.AbstractMockHttpServletResponseAssert}.
+ * Tests for {@link AbstractMockHttpMockResponseAssert}.
  *
  * @author Stephane Nicoll
  */
-public class AbstractMockHttpServletResponseAssertTests {
+public class AbstractMockHttpMockResponseAssertTests {
 
   @Test
   void bodyText() {
@@ -136,7 +136,7 @@ public class AbstractMockHttpServletResponseAssertTests {
     return () -> new ResponseAssert(response);
   }
 
-  private static final class ResponseAssert extends infra.test.web.mock.assertj.AbstractMockHttpServletResponseAssert<ResponseAssert, MockHttpResponseImpl> {
+  private static final class ResponseAssert extends AbstractMockHttpMockResponseAssert<ResponseAssert, MockHttpResponseImpl> {
 
     ResponseAssert(MockHttpResponseImpl actual) {
       super((JsonConverterDelegate) null, actual, ResponseAssert.class);

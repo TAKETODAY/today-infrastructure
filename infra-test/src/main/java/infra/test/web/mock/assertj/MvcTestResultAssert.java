@@ -51,7 +51,7 @@ import infra.web.view.ModelAndView;
  * @author Brian Clozel
  * @since 5.0
  */
-public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<MvcTestResultAssert, MvcTestResult> {
+public class MvcTestResultAssert extends AbstractMockHttpMockResponseAssert<MvcTestResultAssert, MvcTestResult> {
 
   MvcTestResultAssert(MvcTestResult actual, @Nullable JsonConverterDelegate converterDelegate) {
     super(converterDelegate, actual, MvcTestResultAssert.class);
@@ -73,10 +73,10 @@ public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<M
   }
 
   /**
-   * Return a new {@linkplain AbstractMockHttpServletRequestAssert assertion}
+   * Return a new {@linkplain AbstractMockHttpMockRequestAssert assertion}
    * object that uses the {@link HttpMockRequestImpl} as the object to test.
    */
-  public AbstractMockHttpServletRequestAssert<?> request() {
+  public AbstractMockHttpMockRequestAssert<?> request() {
     return new MockHttpRequestAssert(getMvcResult());
   }
 
@@ -234,7 +234,7 @@ public class MvcTestResultAssert extends AbstractMockHttpServletResponseAssert<M
     return this.actual.getMvcResult();
   }
 
-  private static final class MockHttpRequestAssert extends AbstractMockHttpServletRequestAssert<MockHttpRequestAssert> {
+  private static final class MockHttpRequestAssert extends AbstractMockHttpMockRequestAssert<MockHttpRequestAssert> {
 
     private MockHttpRequestAssert(MvcResult result) {
       super(result, MockHttpRequestAssert.class);

@@ -32,17 +32,17 @@ import infra.web.RequestContext;
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractMockHttpServletRequestAssert<SELF extends AbstractMockHttpServletRequestAssert<SELF>>
-        extends AbstractHttpServletRequestAssert<SELF, HttpMockRequestImpl> {
+public abstract class AbstractMockHttpMockRequestAssert<SELF extends AbstractMockHttpMockRequestAssert<SELF>>
+        extends AbstractHttpMockRequestAssert<SELF, HttpMockRequestImpl> {
 
   private final @Nullable MvcResult result;
 
-  protected AbstractMockHttpServletRequestAssert(HttpMockRequestImpl result, Class<?> selfType) {
+  protected AbstractMockHttpMockRequestAssert(HttpMockRequestImpl result, Class<?> selfType) {
     super(result, selfType);
     this.result = null;
   }
 
-  protected AbstractMockHttpServletRequestAssert(MvcResult result, Class<?> selfType) {
+  protected AbstractMockHttpMockRequestAssert(MvcResult result, Class<?> selfType) {
     super(result.getRequest(), selfType);
     this.result = result;
   }

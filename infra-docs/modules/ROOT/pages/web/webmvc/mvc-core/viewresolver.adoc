@@ -63,18 +63,9 @@ xref:web/webmvc/mvc-config.adoc[MVC 配置] 为 xref:web/webmvc/mvc-config/view-
 将其识别为需要重定向的指令。视图名称的其余部分是重定向 URL。
 
 净效果与控制器返回 `RedirectView` 相同，但现在控制器本身可以按照逻辑视图名称进行操作。
-逻辑视图名称（如 `redirect:/myapp/some/resource`）相对于当前 Servlet 上下文进行重定向，
+逻辑视图名称（如 `redirect:/myapp/some/resource`）相对于当前上下文进行重定向，
 而名称如 `redirect:https://myhost.com/some/arbitrary/path` 则重定向到绝对 URL。
 
-
-[[mvc-redirecting-forward-prefix]]
-== 转发
-
-您还可以对视图名称使用特殊的 `forward:` 前缀，这些名称最终由 `UrlBasedViewResolver` 及其子类解析。
-这将创建一个 `InternalResourceView`，它执行 `RequestDispatcher.forward()`。
-因此，此前缀对 `InternalResourceViewResolver` 和 `InternalResourceView`（用于 JSP）没有用，
-但如果您使用其他视图技术但仍想强制将资源转发给 Servlet/JSP 引擎处理，它可能会有所帮助。
-请注意，您也可以链接多个视图解析器。
 
 
 [[mvc-multiple-representations]]
