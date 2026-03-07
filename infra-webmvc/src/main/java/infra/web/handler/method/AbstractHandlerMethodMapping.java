@@ -366,8 +366,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   /**
    * Extract and return the CORS configuration for the mapping.
    */
-  @Nullable
-  protected CorsConfiguration initCorsConfiguration(Object handler, HandlerMethod handlerMethod, Method method, T mapping) {
+  protected @Nullable CorsConfiguration initCorsConfiguration(Object handler, HandlerMethod handlerMethod, Method method, T mapping) {
     return null;
   }
 
@@ -696,24 +695,21 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     /**
      * Return matches for the given URL path. Not thread-safe.
      */
-    @Nullable
-    public List<T> getDirectPathMappings(String urlPath) {
+    public @Nullable List<T> getDirectPathMappings(String urlPath) {
       return pathLookup.get(urlPath);
     }
 
     /**
      * Return handler methods by mapping name. Thread-safe for concurrent use.
      */
-    @Nullable
-    public List<HandlerMethod> getHandlerMethodsByMappingName(String mappingName) {
+    public @Nullable List<HandlerMethod> getHandlerMethodsByMappingName(String mappingName) {
       return this.nameLookup.get(mappingName);
     }
 
     /**
      * Return CORS configuration.
      */
-    @Nullable
-    public CorsConfiguration getCorsConfiguration(HandlerMethod handlerMethod) {
+    public @Nullable CorsConfiguration getCorsConfiguration(HandlerMethod handlerMethod) {
       return handlerMethod.corsConfig;
     }
 

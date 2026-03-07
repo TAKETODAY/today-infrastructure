@@ -104,12 +104,11 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
   private @Nullable String responseStatusReason;
 
   /**
-   * cors config cache
+   * The CORS configuration associated with this handler method.
    *
    * @since 4.0
    */
-  @Nullable
-  CorsConfiguration corsConfig;
+  @Nullable CorsConfiguration corsConfig;
 
   /**
    * Create an instance from a bean instance and a method.
@@ -210,7 +209,9 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
             ValidationAnnotationUtils.determineValidationGroups(handler, getBridgedMethod()) :
             other.validationGroups;
 
+    this.corsConfig = other.corsConfig;
     this.responseStatus = other.responseStatus;
+    this.returnTypeParameter = other.returnTypeParameter;
     this.responseStatusReason = other.responseStatusReason;
   }
 

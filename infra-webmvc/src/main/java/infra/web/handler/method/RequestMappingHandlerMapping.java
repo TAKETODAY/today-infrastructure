@@ -211,8 +211,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * @see #getCustomCondition(AnnotatedElement)
    */
   @Override
-  @Nullable
-  protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+  protected @Nullable RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
     RequestMappingInfo info = createRequestMappingInfo(method);
     if (info != null) {
       if (info.isCombine()) {
@@ -237,8 +236,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     return info;
   }
 
-  @Nullable
-  String getPathPrefix(Class<?> handlerType) {
+  @Nullable String getPathPrefix(Class<?> handlerType) {
     for (Map.Entry<String, Predicate<Class<?>>> entry : pathPrefixes.entrySet()) {
       if (entry.getValue().test(handlerType)) {
         String prefix = entry.getKey();
@@ -311,8 +309,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * @param element the handler method or handler type for which to create the condition
    * @return the condition, or {@code null}
    */
-  @Nullable
-  protected RequestCondition<?> getCustomCondition(AnnotatedElement element) {
+  protected @Nullable RequestCondition<?> getCustomCondition(AnnotatedElement element) {
     return null;
   }
 
@@ -426,9 +423,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     }
   }
 
-  @Nullable
   @Override
-  protected CorsConfiguration initCorsConfiguration(Object handler,
+  protected @Nullable CorsConfiguration initCorsConfiguration(Object handler,
           HandlerMethod handlerMethod, Method method, RequestMappingInfo mappingInfo) {
     Class<?> beanType = handlerMethod.getBeanType();
     CrossOrigin typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(beanType, CrossOrigin.class);
