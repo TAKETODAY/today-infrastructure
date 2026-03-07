@@ -100,7 +100,7 @@ class ReflectionHintsAttributes {
     handleFields(attributes, hint.fields());
     handleExecutables(attributes, Stream.concat(
             hint.constructors(), hint.methods()).sorted().toList());
-    handleSerializable(attributes, hint.getSerializable());
+    handleSerializable(attributes, hint.hasJavaSerialization());
     return attributes;
   }
 
@@ -172,13 +172,13 @@ class ReflectionHintsAttributes {
     Map<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, hint);
     attributes.put("type", Map.of("proxy", hint.getProxiedInterfaces()));
-    handleSerializable(attributes, hint.getSerializable());
+    handleSerializable(attributes, hint.hasJavaSerialization());
     return attributes;
   }
 
-  private void handleSerializable(Map<String, Object> attributes, @Nullable Boolean serializable) {
-    if (serializable != null) {
-      attributes.put("serializable", serializable);
+  private void handleSerializable(Map<String, Object> attributes, boolean javaSerialization) {
+    if (javaSerialization) {
+      attributes.put("serializable", javaSerialization);
     }
   }
 

@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -218,27 +217,29 @@ public class ReflectionHintsPredicates {
   }
 
   /**
-   * Return a predicate that checks whether Java serialization is configured according to the given flag.
+   * Return a predicate that checks whether Java serialization is configured
+   * for the type according to the given flag.
    *
    * @param type the type to check
-   * @param serializable the expected serializable flag
+   * @param serializable whether the type is expected to be registered for Java serialization
    * @return the {@link RuntimeHints} predicate
    * @since 5.0
    */
-  public Predicate<RuntimeHints> onJavaSerialization(Class<?> type, @Nullable Boolean serializable) {
+  public Predicate<RuntimeHints> onJavaSerialization(Class<?> type, boolean serializable) {
     Assert.notNull(type, "'type' is required");
     return new SerializationdHintPredicate(TypeReference.of(type), serializable);
   }
 
   /**
-   * Return a predicate that checks whether Java serialization is configured according to the given flag.
+   * Return a predicate that checks whether Java serialization is configured
+   * for the type according to the given flag.
    *
    * @param typeReference the type reference to check
-   * @param serializable the expected serializable flag
+   * @param serializable whether the type is expected to be registered for Java serialization
    * @return the {@link RuntimeHints} predicate
    * @since 5.0
    */
-  public Predicate<RuntimeHints> onJavaSerialization(TypeReference typeReference, @Nullable Boolean serializable) {
+  public Predicate<RuntimeHints> onJavaSerialization(TypeReference typeReference, boolean serializable) {
     Assert.notNull(typeReference, "'typeReference' is required");
     return new SerializationdHintPredicate(typeReference, serializable);
   }
@@ -452,11 +453,11 @@ public class ReflectionHintsPredicates {
 
     private final TypeReference typeReference;
 
-    private final @Nullable Boolean serializable;
+    private final boolean javaSerialization;
 
-    SerializationdHintPredicate(TypeReference typeReference, @Nullable Boolean serializable) {
+    SerializationdHintPredicate(TypeReference typeReference, boolean javaSerialization) {
       this.typeReference = typeReference;
-      this.serializable = serializable;
+      this.javaSerialization = javaSerialization;
     }
 
     @Override
@@ -465,7 +466,7 @@ public class ReflectionHintsPredicates {
       if (typeHint == null) {
         return false;
       }
-      return Objects.equals(typeHint.getSerializable(), this.serializable);
+      return typeHint.hasJavaSerialization() == this.javaSerialization;
     }
   }
 

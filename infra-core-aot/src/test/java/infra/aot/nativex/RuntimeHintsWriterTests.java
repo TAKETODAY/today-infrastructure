@@ -209,7 +209,7 @@ class RuntimeHintsWriterTests {
     }
 
     @Test
-    void serializationEnabled() throws JSONException {
+    void javaSerializationEnabled() throws JSONException {
       RuntimeHints hints = new RuntimeHints();
       hints.reflection().registerType(Integer.class, builder -> builder.withJavaSerialization(true));
 
@@ -654,11 +654,11 @@ class RuntimeHintsWriterTests {
     }
 
     @Test
-    void shouldWriteSerialization() throws JSONException {
+    void shouldWriteSerializable() throws JSONException {
       RuntimeHints hints = new RuntimeHints();
       hints.proxies().registerJdkProxy(hint -> {
         hint.proxiedInterfaces(Function.class);
-        hint.javaSerialization(true);
+        hint.withJavaSerialization(true);
       });
       assertEquals("""
               {
