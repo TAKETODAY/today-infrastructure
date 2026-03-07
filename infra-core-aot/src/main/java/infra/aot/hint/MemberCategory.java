@@ -70,30 +70,6 @@ public enum MemberCategory {
 
   /**
    * A category that defines public {@linkplain Constructor constructors} can
-   * be introspected but not invoked.
-   *
-   * @see Class#getConstructors()
-   * @see ExecutableMode#INTROSPECT
-   * @deprecated with no replacement since introspection is included
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  INTROSPECT_PUBLIC_CONSTRUCTORS,
-
-  /**
-   * A category that defines {@linkplain Class#getDeclaredConstructors() all
-   * constructors} can be introspected but not invoked.
-   *
-   * @see Class#getDeclaredConstructors()
-   * @see ExecutableMode#INTROSPECT
-   * @deprecated with no replacement since introspection is included
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  INTROSPECT_DECLARED_CONSTRUCTORS,
-
-  /**
-   * A category that defines public {@linkplain Constructor constructors} can
    * be invoked.
    *
    * @see Class#getConstructors()

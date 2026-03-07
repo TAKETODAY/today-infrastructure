@@ -114,13 +114,6 @@ class ReflectionHintsPredicatesTests {
     }
 
     @Test
-    void typeWithMemberCategoriesDoesNotMatchMissingCategory() {
-      runtimeHints.reflection().registerType(SampleClass.class);
-      assertPredicateDoesNotMatch(reflection.onType(SampleClass.class)
-              .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_CONSTRUCTORS));
-    }
-
-    @Test
     void typeWithAnyMemberCategoryFailsWithNullCategories() {
       runtimeHints.reflection().registerType(SampleClass.class);
       assertThatIllegalArgumentException().isThrownBy(() ->
@@ -164,7 +157,7 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void constructorInvocationDoesNotMatchIntrospectPublicConstructors() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.INTROSPECT_PUBLIC_CONSTRUCTORS);
+      runtimeHints.reflection().registerType(SampleClass.class);
       assertPredicateDoesNotMatch(reflection.onConstructorInvocation(publicConstructor));
     }
 
@@ -202,7 +195,7 @@ class ReflectionHintsPredicatesTests {
 
     @Test
     void privateConstructorInvocationDoesNotMatchIntrospectPublicConstructors() {
-      runtimeHints.reflection().registerType(SampleClass.class, MemberCategory.INTROSPECT_PUBLIC_CONSTRUCTORS);
+      runtimeHints.reflection().registerType(SampleClass.class);
       assertPredicateDoesNotMatch(reflection.onConstructorInvocation(privateConstructor));
     }
 
