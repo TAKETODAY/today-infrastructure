@@ -46,12 +46,10 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:13
  */
-@SuppressWarnings("NullAway")
 @ConfigurationProperties(prefix = "datasource")
 public class DataSourceProperties implements BeanClassLoaderAware, InitializingBean {
 
-  @Nullable
-  private ClassLoader classLoader;
+  private @Nullable ClassLoader classLoader;
 
   /**
    * Whether to generate a random datasource name.
@@ -62,58 +60,49 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    * Datasource name to use if "generate-unique-name" is false. Defaults to "testdb"
    * when using an embedded database, otherwise null.
    */
-  @Nullable
-  private String name;
+  private @Nullable String name;
 
   /**
    * Fully qualified name of the connection pool implementation to use. By default, it
    * is auto-detected from the classpath.
    */
-  @Nullable
-  private Class<? extends DataSource> type;
+  private @Nullable Class<? extends DataSource> type;
 
   /**
    * Fully qualified name of the JDBC driver. Auto-detected based on the URL by default.
    */
-  @Nullable
-  private String driverClassName;
+  private @Nullable String driverClassName;
 
   /**
    * JDBC URL of the database.
    */
-  @Nullable
-  private String url;
+  private @Nullable String url;
 
   /**
    * Login username of the database.
    */
-  @Nullable
-  private String username;
+  private @Nullable String username;
 
   /**
    * Login password of the database.
    */
-  @Nullable
-  private String password;
+  private @Nullable String password;
 
   /**
    * JNDI location of the datasource. Class, url, username and password are ignored when
    * set.
    */
-  @Nullable
-  private String jndiName;
+  private @Nullable String jndiName;
 
   /**
    * Connection details for an embedded database. Defaults to the most suitable embedded
    * database that is available on the classpath.
    */
-  @Nullable
-  private EmbeddedDatabaseConnection embeddedDatabaseConnection;
+  private @Nullable EmbeddedDatabaseConnection embeddedDatabaseConnection;
 
   private Xa xa = new Xa();
 
-  @Nullable
-  private String uniqueName;
+  private @Nullable String uniqueName;
 
   @Override
   public void setBeanClassLoader(ClassLoader classLoader) {
@@ -150,8 +139,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     this.generateUniqueName = generateUniqueName;
   }
 
-  @Nullable
-  public String getName() {
+  public @Nullable String getName() {
     return this.name;
   }
 
@@ -159,8 +147,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     this.name = name;
   }
 
-  @Nullable
-  public Class<? extends DataSource> getType() {
+  public @Nullable Class<? extends DataSource> getType() {
     return this.type;
   }
 
@@ -174,8 +161,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    * @return the configured driver
    * @see #determineDriverClassName()
    */
-  @Nullable
-  public String getDriverClassName() {
+  public @Nullable String getDriverClassName() {
     return this.driverClassName;
   }
 
@@ -230,8 +216,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    * @return the configured url
    * @see #determineUrl()
    */
-  @Nullable
-  public String getUrl() {
+  public @Nullable String getUrl() {
     return this.url;
   }
 
@@ -263,8 +248,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    *
    * @return the database name to use or {@code null}
    */
-  @Nullable
-  public String determineDatabaseName() {
+  public @Nullable String determineDatabaseName() {
     if (this.generateUniqueName) {
       if (this.uniqueName == null) {
         this.uniqueName = UUID.randomUUID().toString();
@@ -286,8 +270,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    * @return the configured username
    * @see #determineUsername()
    */
-  @Nullable
-  public String getUsername() {
+  public @Nullable String getUsername() {
     return this.username;
   }
 
@@ -300,8 +283,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    *
    * @return the username to use
    */
-  @Nullable
-  public String determineUsername() {
+  public @Nullable String determineUsername() {
     if (StringUtils.hasText(this.username)) {
       return this.username;
     }
@@ -317,8 +299,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    * @return the configured password
    * @see #determinePassword()
    */
-  @Nullable
-  public String getPassword() {
+  public @Nullable String getPassword() {
     return this.password;
   }
 
@@ -331,8 +312,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    *
    * @return the password to use
    */
-  @Nullable
-  public String determinePassword() {
+  public @Nullable String determinePassword() {
     if (StringUtils.hasText(this.password)) {
       return this.password;
     }
@@ -342,8 +322,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return null;
   }
 
-  @Nullable
-  public String getJndiName() {
+  public @Nullable String getJndiName() {
     return this.jndiName;
   }
 
@@ -358,8 +337,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     this.jndiName = jndiName;
   }
 
-  @Nullable
-  public EmbeddedDatabaseConnection getEmbeddedDatabaseConnection() {
+  public @Nullable EmbeddedDatabaseConnection getEmbeddedDatabaseConnection() {
     return this.embeddedDatabaseConnection;
   }
 
@@ -367,8 +345,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     this.embeddedDatabaseConnection = embeddedDatabaseConnection;
   }
 
-  @Nullable
-  public ClassLoader getClassLoader() {
+  public @Nullable ClassLoader getClassLoader() {
     return this.classLoader;
   }
 
