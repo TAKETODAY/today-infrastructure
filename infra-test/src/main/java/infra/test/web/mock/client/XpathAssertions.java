@@ -35,8 +35,7 @@ import infra.test.web.support.AbstractXpathAssertions;
  */
 public class XpathAssertions extends AbstractXpathAssertions<RestTestClient.BodyContentSpec> {
 
-  XpathAssertions(
-          RestTestClient.BodyContentSpec spec,
+  XpathAssertions(RestTestClient.BodyContentSpec spec,
           String expression, @Nullable Map<String, String> namespaces, Object... args) {
 
     super(spec, expression, namespaces, args);
