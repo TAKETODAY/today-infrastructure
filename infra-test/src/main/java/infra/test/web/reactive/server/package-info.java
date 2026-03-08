@@ -1,4 +1,3 @@
-
 @NullMarked
 package infra.test.web.reactive.server;
 

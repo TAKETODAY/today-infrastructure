@@ -1,4 +1,3 @@
-
 /**
  * Custom JUnit 4 {@code Rules} used in the <em>TestContext Framework</em>.
  */

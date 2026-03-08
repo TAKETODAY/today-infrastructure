@@ -1,4 +1,3 @@
-
 /**
  * This package contains mock implementations of the
  * {@link infra.core.env.Environment Environment} and

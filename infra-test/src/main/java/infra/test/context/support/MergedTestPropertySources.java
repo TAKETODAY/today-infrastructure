@@ -128,9 +128,9 @@ class MergedTestPropertySources {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("descriptors", this.descriptors)
-        .append("properties", this.properties)
-        .toString();
+            .append("descriptors", this.descriptors)
+            .append("properties", this.properties)
+            .toString();
   }
 
 }

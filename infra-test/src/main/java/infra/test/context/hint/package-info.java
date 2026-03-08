@@ -1,4 +1,3 @@
-
 /**
  * Support for registering hints for reflection and resources in the
  * <em>Infra TestContext Framework</em>.

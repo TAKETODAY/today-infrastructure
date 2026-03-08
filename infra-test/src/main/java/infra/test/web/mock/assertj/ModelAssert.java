@@ -80,7 +80,8 @@ public class ModelAssert extends AbstractMapAssert<ModelAssert, Map<String, Obje
    * Verify that the actual model does not have any errors.
    */
   public ModelAssert doesNotHaveErrors() {
-    int count = getAllErrors(); if (count > 0) {
+    int count = getAllErrors();
+    if (count > 0) {
       throw unexpectedModel("to not have an error, but got %s", count);
     }
     return this.myself;

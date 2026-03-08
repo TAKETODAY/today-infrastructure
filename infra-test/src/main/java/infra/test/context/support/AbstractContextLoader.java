@@ -220,7 +220,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
 
   private String[] processLocationsInternal(Class<?> clazz, String... locations) {
     return (ObjectUtils.isEmpty(locations) && isGenerateDefaultLocations()) ?
-           generateDefaultLocations(clazz) : modifyLocations(clazz, locations);
+            generateDefaultLocations(clazz) : modifyLocations(clazz, locations);
   }
 
   /**

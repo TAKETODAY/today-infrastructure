@@ -1,4 +1,3 @@
-
 /**
  * Support classes for tests based on JDBC.
  */

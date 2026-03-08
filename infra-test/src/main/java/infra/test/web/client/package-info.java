@@ -1,4 +1,3 @@
-
 /**
  * Contains client-side REST testing support.
  *

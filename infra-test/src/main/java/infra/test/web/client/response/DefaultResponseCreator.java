@@ -159,8 +159,8 @@ public class DefaultResponseCreator implements ResponseCreator {
   @Override
   public ClientHttpResponse createResponse(@Nullable ClientHttpRequest request) throws IOException {
     MockClientHttpResponse response = (this.contentResource != null ?
-                                       new MockClientHttpResponse(this.contentResource.getInputStream(), this.statusCode) :
-                                       new MockClientHttpResponse(this.content, this.statusCode));
+            new MockClientHttpResponse(this.contentResource.getInputStream(), this.statusCode) :
+            new MockClientHttpResponse(this.content, this.statusCode));
     response.getHeaders().putAll(this.headers);
     return response;
   }

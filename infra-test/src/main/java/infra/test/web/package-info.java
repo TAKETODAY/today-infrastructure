@@ -1,4 +1,3 @@
-
 /**
  * Helper classes for unit tests based on Framework's web support.
  */

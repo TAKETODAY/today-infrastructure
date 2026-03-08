@@ -1,4 +1,3 @@
-
 /**
  * Ahead-of-time (AOT) support for the <em>Infra TestContext Framework</em>.
  */

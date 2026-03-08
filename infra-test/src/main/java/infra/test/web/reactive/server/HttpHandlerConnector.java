@@ -124,7 +124,7 @@ public class HttpHandlerConnector implements ClientHttpConnector {
               return response != null ? new FailureAfterResponseCompletedException(response, ex) : ex;
             })
             .then(Mono.fromCallable(() -> savedResponse[0] != null ?
-                                          savedResponse[0] : adaptResponse(mockServerResponse, Flux.empty())));
+                    savedResponse[0] : adaptResponse(mockServerResponse, Flux.empty())));
   }
 
   private void log(String message, HttpMethod httpMethod, URI uri) {

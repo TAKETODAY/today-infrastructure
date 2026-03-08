@@ -48,7 +48,7 @@ import infra.core.annotation.AliasFor;
  * @see ActiveProfilesResolver
  * @see infra.context.ApplicationContext
  * @see Profile
- *@since 4.0
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

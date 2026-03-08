@@ -125,7 +125,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
         logger.info(reason);
       }
       result = (enabledOnTrue ? ConditionEvaluationResult.enabled(reason)
-                              : ConditionEvaluationResult.disabled(reason));
+              : ConditionEvaluationResult.disabled(reason));
     }
     else {
       String adjective = (enabledOnTrue ? "disabled" : "enabled");
@@ -135,7 +135,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
         logger.debug(reason);
       }
       result = (enabledOnTrue ? ConditionEvaluationResult.disabled(reason) :
-                ConditionEvaluationResult.enabled(reason));
+              ConditionEvaluationResult.enabled(reason));
     }
 
     // If we eagerly loaded the ApplicationContext to evaluate SpEL expressions

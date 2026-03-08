@@ -1,4 +1,3 @@
-
 /**
  * Custom JUnit 4 {@code Statements} used in the <em>TestContext Framework</em>.
  */
