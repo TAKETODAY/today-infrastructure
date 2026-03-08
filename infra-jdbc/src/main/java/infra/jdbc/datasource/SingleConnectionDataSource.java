@@ -65,16 +65,13 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   private boolean rollbackBeforeClose;
 
   /** Override auto-commit state? */
-  @Nullable
-  private Boolean autoCommit;
+  private @Nullable Boolean autoCommit;
 
   /** Wrapped Connection. */
-  @Nullable
-  private Connection target;
+  private @Nullable Connection target;
 
   /** Proxy Connection. */
-  @Nullable
-  private Connection connection;
+  private @Nullable Connection connection;
 
   /** Lifecycle lock for the shared Connection. */
   private final Lock connectionLock = new ReentrantLock();
@@ -182,7 +179,6 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public Connection getConnection() throws SQLException {
     this.connectionLock.lock();
     try {

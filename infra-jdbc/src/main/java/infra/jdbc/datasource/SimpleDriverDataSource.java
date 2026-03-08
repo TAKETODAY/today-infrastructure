@@ -59,13 +59,13 @@ import infra.lang.Assert;
  */
 public class SimpleDriverDataSource extends AbstractDriverBasedDataSource {
 
-  @Nullable
-  private Driver driver;
+  private @Nullable Driver driver;
 
   /**
    * Constructor for bean-style configuration.
    */
-  public SimpleDriverDataSource() { }
+  public SimpleDriverDataSource() {
+  }
 
   /**
    * Create a new DriverManagerDataSource with the given standard Driver parameters.
@@ -134,8 +134,7 @@ public class SimpleDriverDataSource extends AbstractDriverBasedDataSource {
   /**
    * Return the JDBC Driver instance to use.
    */
-  @Nullable
-  public Driver getDriver() {
+  public @Nullable Driver getDriver() {
     return this.driver;
   }
 

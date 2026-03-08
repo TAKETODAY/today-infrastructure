@@ -48,21 +48,17 @@ import infra.util.CollectionUtils;
  */
 public abstract class AbstractRoutingDataSource extends AbstractDataSource implements InitializingBean {
 
-  @Nullable
-  private Map<Object, Object> targetDataSources;
-
-  @Nullable
-  private Object defaultTargetDataSource;
+  private DataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
 
   private boolean lenientFallback = true;
 
-  private DataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
+  private @Nullable Map<Object, Object> targetDataSources;
 
-  @Nullable
-  private Map<Object, DataSource> resolvedDataSources;
+  private @Nullable Object defaultTargetDataSource;
 
-  @Nullable
-  private DataSource resolvedDefaultDataSource;
+  private @Nullable Map<Object, DataSource> resolvedDataSources;
+
+  private @Nullable DataSource resolvedDefaultDataSource;
 
   /**
    * Specify the map of target DataSources, with the lookup key as key.
@@ -207,8 +203,7 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
    * @return the default DataSource, or {@code null} if none or not resolved yet
    * @see #setDefaultTargetDataSource
    */
-  @Nullable
-  public DataSource getResolvedDefaultDataSource() {
+  public @Nullable DataSource getResolvedDefaultDataSource() {
     return this.resolvedDefaultDataSource;
   }
 
@@ -275,7 +270,6 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
    * to match the stored lookup key type, as resolved by the
    * {@link #resolveSpecifiedLookupKey} method.
    */
-  @Nullable
-  protected abstract Object determineCurrentLookupKey();
+  protected abstract @Nullable Object determineCurrentLookupKey();
 
 }

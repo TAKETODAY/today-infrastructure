@@ -18,11 +18,11 @@
 
 package infra.jdbc.config;
 
-import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.context.annotation.Configuration;
 import infra.context.properties.EnableConfigurationProperties;
+import infra.core.io.ResourceLoader;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import infra.stereotype.Component;
@@ -40,20 +40,12 @@ import infra.stereotype.Component;
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(DataSourceProperties.class)
-public class EmbeddedDataSourceConfiguration implements BeanClassLoaderAware {
-
-  @SuppressWarnings("NullAway.Init")
-  private ClassLoader classLoader;
-
-  @Override
-  public void setBeanClassLoader(ClassLoader classLoader) {
-    this.classLoader = classLoader;
-  }
+public class EmbeddedDataSourceConfiguration {
 
   @Component(destroyMethod = "shutdown")
-  public EmbeddedDatabase dataSource(DataSourceProperties properties) {
-    return new EmbeddedDatabaseBuilder()
-            .setType(EmbeddedDatabaseConnection.get(this.classLoader).getType())
+  public static EmbeddedDatabase dataSource(ResourceLoader resourceLoader, DataSourceProperties properties) {
+    return new EmbeddedDatabaseBuilder(resourceLoader)
+            .setType(EmbeddedDatabaseConnection.get(resourceLoader.getClassLoader()).getType())
             .setName(properties.determineDatabaseName())
             .build();
   }
