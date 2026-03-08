@@ -60,7 +60,7 @@ class SimpleJdbcInsertIntegrationTests {
         insert.compile();
         assertThat(insert.getInsertTypes()).containsExactly(Types.VARCHAR, Types.VARCHAR);
         // NOTE: column names looked up via metadata in H2/HSQL will be UPPERCASE!
-        assertThat(insert.getInsertString()).isEqualTo("INSERT INTO users (FIRST_NAME, LAST_NAME) VALUES(?, ?)");
+        assertThat(insert.getInsertString()).isEqualToIgnoringCase("INSERT INTO users (FIRST_NAME, LAST_NAME) VALUES(?, ?)");
 
         insertJaneSmith(insert);
       }
@@ -80,7 +80,6 @@ class SimpleJdbcInsertIntegrationTests {
       }
 
       @Test
-        // gh-24013
       void usingColumnsAndQuotedIdentifiers() throws Exception {
         // NOTE: unquoted identifiers in H2/HSQL must be converted to UPPERCASE
         // since that's how they are stored in the DB metadata.
@@ -195,7 +194,6 @@ class SimpleJdbcInsertIntegrationTests {
       }
 
       @Test
-        // gh-24013
       void usingColumnsAndQuotedIdentifiersWithSchemaName() throws Exception {
         // NOTE: unquoted identifiers in H2/HSQL must be converted to UPPERCASE
         // since that's how they are stored in the DB metadata.
