@@ -73,7 +73,8 @@ public class DriverManagerDataSource extends AbstractDriverBasedDataSource {
   /**
    * Constructor for bean-style configuration.
    */
-  public DriverManagerDataSource() { }
+  public DriverManagerDataSource() {
+  }
 
   /**
    * Create a new DriverManagerDataSource with the given JDBC URL,

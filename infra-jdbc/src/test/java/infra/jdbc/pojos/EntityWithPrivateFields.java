@@ -16,6 +16,8 @@
 
 package infra.jdbc.pojos;
 
+import infra.persistence.Column;
+
 /**
  * Created by IntelliJ IDEA. User: lars Date: 11/19/11 Time: 5:30 PM To change
  * this template use File | Settings | File Templates.
@@ -24,6 +26,7 @@ public class EntityWithPrivateFields {
 
   private int id;
 
+  @Column("val")
   private String value;
 
   public int getId() {

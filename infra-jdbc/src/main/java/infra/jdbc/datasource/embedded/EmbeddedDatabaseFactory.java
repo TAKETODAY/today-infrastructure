@@ -78,14 +78,11 @@ public class EmbeddedDatabaseFactory {
 
   private DataSourceFactory dataSourceFactory = new SimpleDriverDataSourceFactory();
 
-  @Nullable
-  private EmbeddedDatabaseConfigurer databaseConfigurer;
+  private @Nullable EmbeddedDatabaseConfigurer databaseConfigurer;
 
-  @Nullable
-  private DatabasePopulator databasePopulator;
+  private @Nullable DatabasePopulator databasePopulator;
 
-  @Nullable
-  private DataSource dataSource;
+  private @Nullable DataSource dataSource;
 
   /**
    * Set the {@code generateUniqueDatabaseName} flag to enable or disable
@@ -155,7 +152,6 @@ public class EmbeddedDatabaseFactory {
    * Factory method that returns the {@linkplain EmbeddedDatabase embedded database}
    * instance, which is also a {@link DataSource}.
    */
-  @SuppressWarnings("NullAway")
   public EmbeddedDatabase getDatabase() {
     if (this.dataSource == null) {
       initDatabase();
@@ -239,8 +235,7 @@ public class EmbeddedDatabaseFactory {
    * or if the database has been shut down. Subclasses may call this method to
    * access the {@code DataSource} instance directly.
    */
-  @Nullable
-  protected final DataSource getDataSource() {
+  protected final @Nullable DataSource getDataSource() {
     return this.dataSource;
   }
 
