@@ -25,7 +25,6 @@ import java.lang.invoke.VarHandle;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.ReentrantLock;
 
 import infra.util.concurrent.Awaiter;
 import io.netty.buffer.ByteBuf;
@@ -46,8 +45,6 @@ class BodyInputStream extends InputStream {
 
   private static final VarHandle WORK_AMOUNT;
 
-  private final ReentrantLock lock;
-
   private final int capacity;
 
   private final Awaiter awaiter;
@@ -55,6 +52,9 @@ class BodyInputStream extends InputStream {
   private int workAmount;
 
   private final Queue<ByteBuf> queue;
+
+  // 用于检测并发读取
+  private volatile boolean reading = false;
 
   private volatile boolean closed;
 
@@ -80,7 +80,6 @@ class BodyInputStream extends InputStream {
     this.awaiter = awaiter;
     this.capacity = capacity;
     this.queue = new ConcurrentLinkedQueue<>();
-    this.lock = new ReentrantLock(false);
   }
 
   public void onDataReceived(ByteBuf buffer) {
@@ -160,13 +159,14 @@ class BodyInputStream extends InputStream {
 
   @Override
   public int read() throws IOException {
-    if (!this.lock.tryLock()) {
+    if (this.reading) {
       if (this.closed) {
         return -1;
       }
       throw new IOException("Concurrent access is not allowed");
     }
 
+    this.reading = true;
     try {
       ByteBuf next = getNextOrAwait();
 
@@ -196,7 +196,7 @@ class BodyInputStream extends InputStream {
       throw readFailed(ex);
     }
     finally {
-      this.lock.unlock();
+      this.reading = false;
     }
   }
 
@@ -207,13 +207,14 @@ class BodyInputStream extends InputStream {
       return 0;
     }
 
-    if (!this.lock.tryLock()) {
+    if (this.reading) {
       if (this.closed) {
         return -1;
       }
       throw new IOException("Concurrent access is not allowed");
     }
 
+    this.reading = true;
     try {
       for (int j = 0; j < len; ) {
         ByteBuf next = getNextOrAwait();
@@ -253,7 +254,7 @@ class BodyInputStream extends InputStream {
       throw readFailed(ex);
     }
     finally {
-      this.lock.unlock();
+      this.reading = false;
     }
   }
 
@@ -326,20 +327,15 @@ class BodyInputStream extends InputStream {
 
     this.closed = true;
 
-    if (!this.lock.tryLock()) {
+    if (this.reading) {
       if (addWork() == 0) {
         resume();
       }
       return;
     }
 
-    try {
-      cancel();
-      cleanAndFinalize();
-    }
-    finally {
-      this.lock.unlock();
-    }
+    cancel();
+    cleanAndFinalize();
   }
 
   private void cancel() {
