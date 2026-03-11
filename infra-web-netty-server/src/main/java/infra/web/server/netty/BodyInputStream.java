@@ -45,6 +45,13 @@ class BodyInputStream extends InputStream {
 
   private static final VarHandle WORK_AMOUNT;
 
+  private static final VarHandle STATE;
+
+  private static final int READING = 1 << 0;
+  private static final int CLOSED = 1 << 1;
+  private static final int CANCELLED = 1 << 2;
+  private static final int DONE = 1 << 3;
+
   private final int capacity;
 
   private final Awaiter awaiter;
@@ -53,14 +60,7 @@ class BodyInputStream extends InputStream {
 
   private final Queue<ByteBuf> queue;
 
-  // 用于检测并发读取
-  private volatile boolean reading = false;
-
-  private volatile boolean closed;
-
-  private volatile boolean cancelled = false;
-
-  private boolean done;
+  private int state;
 
   private @Nullable ByteBuf available;
 
@@ -83,7 +83,8 @@ class BodyInputStream extends InputStream {
   }
 
   public void onDataReceived(ByteBuf buffer) {
-    if (this.done || this.cancelled) {
+    int state = getState();
+    if ((state & DONE) != 0 || (state & CANCELLED) != 0) {
       discard(buffer);
       return;
     }
@@ -91,7 +92,7 @@ class BodyInputStream extends InputStream {
     if (queue.size() >= capacity) {
       discard(buffer);
       this.error = new IOException("Buffer overflow");
-      this.done = true;
+      setState(state | DONE);
       return;
     }
 
@@ -112,11 +113,12 @@ class BodyInputStream extends InputStream {
   }
 
   public void onError(IOException io) {
-    if (this.done) {
+    int state = getState();
+    if ((state & DONE) != 0) {
       return;
     }
     this.error = io;
-    this.done = true;
+    setState(state | DONE);
 
     if (addWork() == 0) {
       resume();
@@ -124,11 +126,12 @@ class BodyInputStream extends InputStream {
   }
 
   public void onComplete() {
-    if (this.done) {
+    int state = getState();
+    if ((state & DONE) != 0) {
       return;
     }
 
-    this.done = true;
+    setState(state | DONE);
 
     if (addWork() == 0) {
       resume();
@@ -159,20 +162,22 @@ class BodyInputStream extends InputStream {
 
   @Override
   public int read() throws IOException {
-    if (this.reading) {
-      if (this.closed) {
+    int state = getState();
+    if ((state & READING) != 0) {
+      if ((state & CLOSED) != 0) {
         return -1;
       }
       throw new IOException("Concurrent access is not allowed");
     }
 
-    this.reading = true;
+    setState(state | READING);
     try {
       ByteBuf next = getNextOrAwait();
 
       if (next == null) {
-        if (done) {
-          this.closed = true;
+        state = getState();
+        if ((state & DONE) != 0) {
+          setState(state | CLOSED);
           cleanAndFinalize();
           if (this.error == null) {
             return -1;
@@ -181,7 +186,7 @@ class BodyInputStream extends InputStream {
             throw this.error;
           }
         }
-        else if (closed) {
+        else if ((state & CLOSED) != 0) {
           cleanAndFinalize();
           return -1;
         }
@@ -196,7 +201,8 @@ class BodyInputStream extends InputStream {
       throw readFailed(ex);
     }
     finally {
-      this.reading = false;
+      state = getState();
+      setState(state & ~READING);
     }
   }
 
@@ -207,34 +213,36 @@ class BodyInputStream extends InputStream {
       return 0;
     }
 
-    if (this.reading) {
-      if (this.closed) {
+    int state = getState();
+    if ((state & READING) != 0) {
+      if ((state & CLOSED) != 0) {
         return -1;
       }
       throw new IOException("Concurrent access is not allowed");
     }
 
-    this.reading = true;
+    setState(state | READING);
     try {
       for (int j = 0; j < len; ) {
         ByteBuf next = getNextOrAwait();
 
         if (next == null) {
-          if (done) {
+          state = getState();
+          if ((state & DONE) != 0) {
             cleanAndFinalize();
             if (this.error == null) {
-              this.closed = true;
+              setState(state | CLOSED);
               return j == 0 ? -1 : j;
             }
             else {
               if (j == 0) {
-                this.closed = true;
+                setState(state | CLOSED);
                 throw this.error;
               }
               return j;
             }
           }
-          else if (closed) {
+          else if ((state & CLOSED) != 0) {
             cancel();
             cleanAndFinalize();
             return -1;
@@ -254,12 +262,14 @@ class BodyInputStream extends InputStream {
       throw readFailed(ex);
     }
     finally {
-      this.reading = false;
+      state = getState();
+      setState(state & ~READING);
     }
   }
 
   private IOException readFailed(Throwable ex) {
-    this.closed = true;
+    int state = getState();
+    setState(state | CLOSED);
     cancel();
     cleanAndFinalize();
     if (ex instanceof IOException e) {
@@ -276,18 +286,19 @@ class BodyInputStream extends InputStream {
 
       int actualWorkAmount = (int) WORK_AMOUNT.getAcquire(this);
       for (; ; ) {
-        if (this.closed || this.cancelled) {
+        int state = getState();
+        if ((state & CLOSED) != 0 || (state & CANCELLED) != 0) {
           return null;
         }
 
-        boolean done = this.done;
+        boolean isDone = (state & DONE) != 0;
         ByteBuf buffer = queue.poll();
         if (buffer != null) {
           this.available = buffer;
           break;
         }
 
-        if (done) {
+        if (isDone) {
           return null;
         }
 
@@ -321,13 +332,14 @@ class BodyInputStream extends InputStream {
 
   @Override
   public void close() {
-    if (this.closed) {
+    int state = getState();
+    if ((state & CLOSED) != 0) {
       return;
     }
 
-    this.closed = true;
+    setState(state | CLOSED);
 
-    if (this.reading) {
+    if ((state & READING) != 0) {
       if (addWork() == 0) {
         resume();
       }
@@ -339,11 +351,16 @@ class BodyInputStream extends InputStream {
   }
 
   private void cancel() {
-    cancelled = true;
+    int state = getState();
+    setState(state | CANCELLED);
   }
 
-  protected void requestNext() {
-//    channel.read();
+  private void setState(int state) {
+    STATE.setRelease(this, state);
+  }
+
+  private int getState() {
+    return (int) STATE.getAcquire(this);
   }
 
   private void discard(@Nullable ByteBuf buffer) {
@@ -352,9 +369,15 @@ class BodyInputStream extends InputStream {
     }
   }
 
+  protected void requestNext() {
+//    channel.read();
+  }
+
   static {
     try {
-      WORK_AMOUNT = MethodHandles.lookup().findVarHandle(BodyInputStream.class, "workAmount", int.class);
+      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      WORK_AMOUNT = lookup.findVarHandle(BodyInputStream.class, "workAmount", int.class);
+      STATE = lookup.findVarHandle(BodyInputStream.class, "state", int.class);
     }
     catch (Exception e) {
       throw new ExceptionInInitializerError(e);
