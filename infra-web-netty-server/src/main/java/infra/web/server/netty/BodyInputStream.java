@@ -20,10 +20,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.util.concurrent.Awaiter;
@@ -43,13 +44,15 @@ import io.netty.buffer.ByteBuf;
  */
 class BodyInputStream extends InputStream {
 
+  private static final VarHandle WORK_AMOUNT;
+
   private final ReentrantLock lock;
 
   private final int capacity;
 
   private final Awaiter awaiter;
 
-  private final AtomicInteger workAmount = new AtomicInteger();
+  private int workAmount;
 
   private final Queue<ByteBuf> queue;
 
@@ -135,7 +138,7 @@ class BodyInputStream extends InputStream {
 
   int addWork() {
     for (; ; ) {
-      int produced = this.workAmount.getPlain();
+      int produced = this.workAmount;
 
       if (produced == Integer.MIN_VALUE) {
         return Integer.MIN_VALUE;
@@ -143,7 +146,7 @@ class BodyInputStream extends InputStream {
 
       int nextProduced = (produced == Integer.MAX_VALUE ? 1 : produced + 1);
 
-      if (this.workAmount.weakCompareAndSetRelease(produced, nextProduced)) {
+      if (WORK_AMOUNT.weakCompareAndSetRelease(this, produced, nextProduced)) {
         return produced;
       }
     }
@@ -270,7 +273,7 @@ class BodyInputStream extends InputStream {
       discard(this.available);
       this.available = null;
 
-      int actualWorkAmount = this.workAmount.getAcquire();
+      int actualWorkAmount = (int) WORK_AMOUNT.getAcquire(this);
       for (; ; ) {
         if (this.closed || this.cancelled) {
           return null;
@@ -287,7 +290,7 @@ class BodyInputStream extends InputStream {
           return null;
         }
 
-        actualWorkAmount = this.workAmount.addAndGet(-actualWorkAmount);
+        actualWorkAmount = (int) WORK_AMOUNT.getAndAdd(this, -actualWorkAmount) - actualWorkAmount;
         if (actualWorkAmount == 0) {
           requestNext();
           awaiter.await();
@@ -303,13 +306,13 @@ class BodyInputStream extends InputStream {
     this.available = null;
 
     for (; ; ) {
-      int workAmount = this.workAmount.getPlain();
+      int currentWorkAmount = workAmount;
       ByteBuf value;
       while ((value = queue.poll()) != null) {
         discard(value);
       }
 
-      if (this.workAmount.weakCompareAndSetPlain(workAmount, Integer.MIN_VALUE)) {
+      if (WORK_AMOUNT.weakCompareAndSetPlain(this, currentWorkAmount, Integer.MIN_VALUE)) {
         return;
       }
     }
@@ -350,6 +353,15 @@ class BodyInputStream extends InputStream {
   private void discard(@Nullable ByteBuf buffer) {
     if (buffer != null) {
       buffer.release();
+    }
+  }
+
+  static {
+    try {
+      WORK_AMOUNT = MethodHandles.lookup().findVarHandle(BodyInputStream.class, "workAmount", int.class);
+    }
+    catch (Exception e) {
+      throw new ExceptionInInitializerError(e);
     }
   }
 
