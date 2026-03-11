@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,8 +31,13 @@ import infra.util.concurrent.Awaiter;
 import io.netty.buffer.ByteBuf;
 
 /**
- * An {@link InputStream} backed by {@link Flow.Subscriber Flow.Subscriber}
- * receiving byte buffers from a source.
+ * An {@link InputStream} implementation that reads HTTP request body data
+ * from a queue of Netty {@link ByteBuf} objects.
+ * <p>
+ * This class handles backpressure by suspending the upstream data source
+ * when the internal buffer queue reaches its capacity, and resuming it
+ * when data is consumed. It ensures thread-safe access to the underlying
+ * byte buffers using a reentrant lock.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
