@@ -41,19 +41,18 @@ import io.netty.handler.codec.http.LastHttpContent;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpMethod.HEAD;
 
 final class HttpContext extends NettyRequestContext implements Runnable {
 
   private final HttpTrafficHandler httpTrafficHandler;
 
+  private final @Nullable BodyInputStream requestBody;
+
   private final long contentLength;
 
   private long receivedBytes = 0;
-
-  @Nullable
-  private volatile BodyInputStream requestBody;
-
-  private volatile boolean readCompleted;
 
   private volatile boolean continueExpected = false;
 
@@ -62,9 +61,19 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     super(context, channel, request, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
     this.contentLength = HttpUtil.getContentLength(request, -1L);
+    this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
     if (request instanceof HttpContent content) {
       onDataReceived(content);
     }
+  }
+
+  private BodyInputStream createRequestBody() {
+    Awaiter awaiter = config.awaiterFactory.apply(this);
+    if (config.autoRead) {
+      return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+    }
+    channel.config().setAutoRead(false);
+    return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
   }
 
   public void onDataReceived(HttpContent httpContent) {
@@ -73,8 +82,6 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
     if (received > config.maxContentLength && !continueExpected) {
       httpContent.release();
-      readCompleted = true;
-      BodyInputStream requestBody = this.requestBody;
       if (requestBody != null) {
         requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
       }
@@ -84,22 +91,17 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     receivedBytes = received;
 
     if (httpContent instanceof LastHttpContent) {
-      readCompleted = true;
-      BodyInputStream inputStream = this.requestBody;
-      if (inputStream != null) {
+      if (requestBody != null) {
         if (chunkSize > 0) {
-          inputStream.onDataReceived(httpContent.content());
+          requestBody.onDataReceived(httpContent.content());
         }
-        inputStream.onComplete();
-      }
-      else if (chunkSize > 0) {
-        inputStream = requestBody();
-        inputStream.onDataReceived(httpContent.content());
-        inputStream.onComplete();
+        requestBody.onComplete();
       }
     }
     else {
-      requestBody().onDataReceived(httpContent.content());
+      if (requestBody != null) {
+        requestBody.onDataReceived(httpContent.content());
+      }
     }
   }
 
@@ -108,36 +110,9 @@ final class HttpContext extends NettyRequestContext implements Runnable {
     return contentLength;
   }
 
-  private BodyInputStream requestBody() {
-    BodyInputStream requestBody = this.requestBody;
-    if (requestBody == null) {
-      synchronized(this) {
-        requestBody = this.requestBody;
-        if (requestBody == null) {
-          if (config.autoRead) {
-            requestBody = new BodyInputStream(config.awaiterFactory.apply(this), config.dataReceivedQueueCapacity);
-          }
-          else {
-            channel.config().setAutoRead(false);
-            requestBody = new ManualReadingBodyInputStream(config.awaiterFactory.apply(this), config.dataReceivedQueueCapacity);
-          }
-        }
-        this.requestBody = requestBody;
-      }
-    }
-    return requestBody;
-  }
-
   @Override
   protected InputStream createInputStream() {
-    if (readCompleted) {
-      BodyInputStream requestBody = this.requestBody;
-      if (requestBody == null) {
-        return InputStream.nullInputStream();
-      }
-      return requestBody;
-    }
-    return requestBody();
+    return requestBody != null ? requestBody : InputStream.nullInputStream();
   }
 
   @Override
@@ -189,15 +164,12 @@ final class HttpContext extends NettyRequestContext implements Runnable {
   }
 
   private void cleanup(@Nullable IOException error) {
-    BodyInputStream requestBody = this.requestBody;
     if (requestBody != null) {
       if (error != null) {
         requestBody.onError(error);
       }
       requestBody.close();
-      this.requestBody = null;
     }
-
   }
 
   public void channelInactive() {
