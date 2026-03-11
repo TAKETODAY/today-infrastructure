@@ -56,9 +56,9 @@ class BodyInputStream extends InputStream {
 
   private final Awaiter awaiter;
 
-  private int workAmount;
-
   private final Queue<ByteBuf> queue;
+
+  private int workAmount;
 
   private int state;
 
