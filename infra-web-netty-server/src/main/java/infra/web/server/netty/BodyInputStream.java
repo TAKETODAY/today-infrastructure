@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -52,11 +51,11 @@ class BodyInputStream extends InputStream {
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
-  private final AtomicBoolean cancelled = new AtomicBoolean();
-
   private final Queue<ByteBuf> queue;
 
   private volatile boolean closed;
+
+  private volatile boolean cancelled = false;
 
   private boolean done;
 
@@ -82,7 +81,7 @@ class BodyInputStream extends InputStream {
   }
 
   public void onDataReceived(ByteBuf buffer) {
-    if (this.done || this.cancelled.get()) {
+    if (this.done || this.cancelled) {
       discard(buffer);
       return;
     }
@@ -273,7 +272,7 @@ class BodyInputStream extends InputStream {
 
       int actualWorkAmount = this.workAmount.getAcquire();
       for (; ; ) {
-        if (this.closed || this.cancelled.get()) {
+        if (this.closed || this.cancelled) {
           return null;
         }
 
@@ -341,7 +340,7 @@ class BodyInputStream extends InputStream {
   }
 
   private void cancel() {
-    cancelled.set(true);
+    cancelled = true;
   }
 
   protected void requestNext() {
