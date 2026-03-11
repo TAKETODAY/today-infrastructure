@@ -200,9 +200,11 @@ class CheckMethodAdapterTests extends AsmTest implements Opcodes {
   }
 
   @Test
+  @SuppressWarnings("removal")
   void testVisitFrame_illegalPrimitiveType() {
     checkMethodAdapter.visitCode();
     checkMethodAdapter.visitInsn(NOP);
+    @SuppressWarnings("all")
     Integer invalidFrameValue = new Integer(0); // NOPMD(IntegerInstantiation): needed to build an invalid value.
 
     Executable visitFrame =
