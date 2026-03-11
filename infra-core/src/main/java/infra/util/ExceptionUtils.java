@@ -221,6 +221,12 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * Executes the given {@link ThrowingRunnable}, sneaking any checked exception thrown by it.
+   * <p>This method allows you to call code that throws checked exceptions without having to
+   * catch them or declare them in your method signature.
+   *
+   * @param action the {@link ThrowingRunnable} to execute
+   * @throws RuntimeException if the action throws a throwable, which is rethrown sneakily
    * @since 4.0
    */
   public static void sneakyThrow(ThrowingRunnable action) {
@@ -233,6 +239,15 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * Executes the given {@link ThrowingSupplier}, sneaking any checked exception thrown by it,
+   * and returns the result.
+   * <p>This method allows you to call code that throws checked exceptions without having to
+   * catch them or declare them in your method signature.
+   *
+   * @param action the {@link ThrowingSupplier} to execute
+   * @param <T> the type of the result produced by the supplier
+   * @return the result produced by the supplier
+   * @throws RuntimeException if the action throws a throwable, which is rethrown sneakily
    * @since 4.0
    */
   public static <T extends @Nullable Object> T sneakyThrow(ThrowingSupplier<T> action) {
@@ -245,6 +260,13 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * Wraps the given {@link ThrowingRunnable} into a standard {@link Runnable}.
+   * <p>Any checked exception thrown by the underlying action will be sneaked,
+   * allowing the returned {@code Runnable} to be used in contexts that do not
+   * allow declared checked exceptions.
+   *
+   * @param action the {@link ThrowingRunnable} to wrap
+   * @return a {@link Runnable} that executes the given action with sneaky exception handling
    * @since 5.0
    */
   public static Runnable sneaky(ThrowingRunnable action) {
