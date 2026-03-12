@@ -180,7 +180,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   private boolean mayHaveBody(HttpMethod method) {
     int code = getRawStatusCode();
     return !((code >= 100 && code < 200) || code == 204 || code == 205 ||
-            method.equals(HttpMethod.HEAD) || getHeaders().getContentLength() == 0);
+            method.equals(HttpMethod.HEAD) || getContentLength() == 0);
   }
 
   @Override

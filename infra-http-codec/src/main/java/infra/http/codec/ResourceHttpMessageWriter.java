@@ -149,21 +149,18 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
         headers.setOrRemove(HttpHeaders.ACCEPT_RANGES, "bytes");
       }
 
-      if (headers.getContentLength() < 0) {
-        return lengthOf(resource)
-                .flatMap(contentLength -> {
-                  headers.setContentLength(contentLength);
-                  return Mono.empty();
-                });
-      }
-      else {
+      if (headers.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
         return Mono.empty();
       }
+      return lengthOf(resource)
+              .flatMap(contentLength -> {
+                headers.setContentLength(contentLength);
+                return Mono.empty();
+              });
     });
   }
 
-  private static MediaType getResourceMediaType(
-          @Nullable MediaType mediaType, Resource resource, Map<String, Object> hints) {
+  private static MediaType getResourceMediaType(@Nullable MediaType mediaType, Resource resource, Map<String, Object> hints) {
     if (mediaType != null && mediaType.isConcrete() && !mediaType.equals(MediaType.APPLICATION_OCTET_STREAM)) {
       return mediaType;
     }
@@ -179,7 +176,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
     // Don't consume InputStream...
     if (InputStreamResource.class != resource.getClass()) {
       return Mono.fromCallable(resource::contentLength)
-              .filter(length -> length != -1)
+              .filter(length -> length != -1L)
               .onErrorComplete(IOException.class)
               .subscribeOn(Schedulers.boundedElastic());
     }
@@ -188,8 +185,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
     }
   }
 
-  @Nullable
-  private static Mono<Void> zeroCopy(Resource resource,
+  private static @Nullable Mono<Void> zeroCopy(Resource resource,
           @Nullable ResourceRegion region, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
     if (message instanceof ZeroCopyHttpOutputMessage zchom && resource.isFile()) {

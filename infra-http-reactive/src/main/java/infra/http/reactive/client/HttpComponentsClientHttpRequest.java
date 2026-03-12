@@ -62,8 +62,7 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
   private final HttpClientContext context;
 
-  @Nullable
-  private Flux<ByteBuffer> byteBufferFlux;
+  private @Nullable Flux<ByteBuffer> byteBufferFlux;
 
   private transient long contentLength = -1;
 
