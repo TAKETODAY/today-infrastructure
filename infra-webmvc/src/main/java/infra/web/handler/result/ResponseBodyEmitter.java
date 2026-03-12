@@ -21,6 +21,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
@@ -72,11 +73,9 @@ import infra.web.async.DeferredResult;
  */
 public class ResponseBodyEmitter {
 
-  @Nullable
-  private final Long timeout;
+  private final @Nullable Long timeout;
 
-  @Nullable
-  private final MediaType contentType;
+  private final @Nullable MediaType contentType;
 
   private final DefaultCallback timeoutCallback = new DefaultCallback();
 
@@ -99,11 +98,9 @@ public class ResponseBodyEmitter {
   /**
    * Store an error before the handler is initialized.
    */
-  @Nullable
-  private Throwable failure;
+  private @Nullable Throwable failure;
 
-  @Nullable
-  private Handler handler;
+  private @Nullable Handler handler;
 
   /**
    * Store successful completion before the handler is initialized.
@@ -128,8 +125,7 @@ public class ResponseBodyEmitter {
   /**
    * Return the configured timeout value, if any.
    */
-  @Nullable
-  public Long getTimeout() {
+  public @Nullable Long getTimeout() {
     return timeout;
   }
 
@@ -443,20 +439,34 @@ public class ResponseBodyEmitter {
    * @since 5.0
    */
   public static SseEmitter forServerSentEvents() {
-    return new SseEmitter(null);
+    return new SseEmitter(null, null);
   }
 
   /**
-   * Create a SseEmitter with a custom timeout value.
+   * Create a SseEmitter with a custom charset.
    * <p>By default, not set in which case the default configured in the MVC
    * Java Config or the MVC namespace is used, or if that's not set, then the
-   * timeout depends on the default of the underlying server.
+   * charset depends on the default of the underlying server.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param charset response character set
    * @since 5.0
    */
-  public static SseEmitter forServerSentEvents(@Nullable Long timeout) {
-    return new SseEmitter(timeout);
+  public static SseEmitter forServerSentEvents(@Nullable Charset charset) {
+    return new SseEmitter(null, charset);
+  }
+
+  /**
+   * Create a SseEmitter with a custom timeout value and charset.
+   * <p>By default, not set in which case the default configured in the MVC
+   * Java Config or the MVC namespace is used, or if that's not set, then the
+   * timeout and charset depend on the default of the underlying server.
+   *
+   * @param timeout the timeout value in milliseconds
+   * @param charset response character set
+   * @since 5.0
+   */
+  public static SseEmitter forServerSentEvents(@Nullable Long timeout, @Nullable Charset charset) {
+    return new SseEmitter(timeout, charset);
   }
 
   /**
@@ -496,8 +506,7 @@ public class ResponseBodyEmitter {
 
     public final Object data;
 
-    @Nullable
-    public final MediaType mediaType;
+    public final @Nullable MediaType mediaType;
 
     public DataWithMediaType(Object data, @Nullable MediaType mediaType) {
       this.data = data;

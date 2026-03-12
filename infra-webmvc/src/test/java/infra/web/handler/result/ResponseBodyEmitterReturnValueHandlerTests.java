@@ -258,7 +258,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void responseEntitySse() throws Exception {
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, SseEmitter.class);
-    SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
+    SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents(null, null);
     ResponseEntity<SseEmitter> entity = ResponseEntity.ok().header("foo", "bar").body(emitter);
     this.handler.handleReturnValue(webRequest, type, entity);
     emitter.complete();
@@ -350,7 +350,6 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     assertThat(this.response.getHeaders("X-Custom")).containsExactly("value");
 
     assertThat(webRequest.isConcurrentHandlingStarted()).isTrue();
-
 
     assertThat(webRequest.asyncManager().getConcurrentResult()).isEqualTo("foo");
   }

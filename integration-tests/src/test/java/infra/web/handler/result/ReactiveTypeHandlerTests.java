@@ -286,7 +286,6 @@ class ReactiveTypeHandlerTests {
     emitter.initialize(emitterHandler);
 
     MockRequestContext requestContext = new MockRequestContext(null, null, mockResponse);
-//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     emitter.extendResponse(requestContext);
 
     Bar bar1 = new Bar("foo");
@@ -313,7 +312,6 @@ class ReactiveTypeHandlerTests {
     emitter.initialize(emitterHandler);
 
     MockRequestContext requestContext = new MockRequestContext(null, null, mockResponse);
-//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     emitter.extendResponse(requestContext);
 
     Bar bar1 = new Bar("foo");
@@ -386,7 +384,6 @@ class ReactiveTypeHandlerTests {
   }
 
   private void testEmitterContentType(String expected) throws Exception {
-//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, forClass(String.class));
     emitter.extendResponse(webRequest);
     assertThat(webRequest.responseHeaders().getContentType().toString()).isEqualTo(expected);

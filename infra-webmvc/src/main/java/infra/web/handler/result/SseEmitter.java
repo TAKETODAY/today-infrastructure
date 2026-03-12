@@ -21,6 +21,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,10 +50,11 @@ public class SseEmitter extends ResponseBodyEmitter {
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value in milliseconds; if null, uses default configuration
+   * @param charset the character set to use for the text/event-stream content type; if null, uses default charset
    */
-  public SseEmitter(@Nullable Long timeout) {
-    super(timeout, MediaType.TEXT_EVENT_STREAM);
+  public SseEmitter(@Nullable Long timeout, @Nullable Charset charset) {
+    super(timeout, MediaType.TEXT_EVENT_STREAM.withCharset(charset));
   }
 
   /**
