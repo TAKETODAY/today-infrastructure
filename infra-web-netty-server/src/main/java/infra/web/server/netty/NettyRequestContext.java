@@ -156,26 +156,19 @@ public abstract class NettyRequestContext extends RequestContext {
 
   private final boolean http2;
 
-  @Nullable
-  private String remoteAddress;
-
-  // response
-  @Nullable
-  private Boolean keepAlive;
-
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
-  @Nullable
-  private /* volatile ?*/ ByteBuf responseBody;
+  private @Nullable String remoteAddress;
 
-  @Nullable
-  private Object fileToSend;
+  private @Nullable Boolean keepAlive;
 
-  @Nullable
-  private Integer queryStringIndex;
+  private @Nullable ByteBuf responseBody;
 
-  @Nullable
-  private ServerHttpResponse httpOutputMessage;
+  private @Nullable Object fileToSend;
+
+  private @Nullable Integer queryStringIndex;
+
+  private @Nullable ServerHttpResponse outputMessage;
 
   protected NettyRequestContext(ApplicationContext context, Channel channel,
           HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
@@ -302,9 +295,8 @@ public abstract class NettyRequestContext extends RequestContext {
     return request.headers().get(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
-  @Nullable
   @Override
-  public String getResponseContentType() {
+  public @Nullable String getResponseContentType() {
     String contentType = this.responseContentType;
     if (contentType == null) {
       contentType = nettyResponseHeaders.get(DefaultHttpHeaders.CONTENT_TYPE);
@@ -460,10 +452,10 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   public ServerHttpResponse asHttpOutputMessage() {
-    ServerHttpResponse response = this.httpOutputMessage;
+    ServerHttpResponse response = this.outputMessage;
     if (response == null) {
       response = new NettyHttpOutputMessage();
-      this.httpOutputMessage = response;
+      this.outputMessage = response;
     }
     return response;
   }
