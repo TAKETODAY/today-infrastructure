@@ -930,6 +930,11 @@ public abstract class NettyRequestContext extends RequestContext {
     }
 
     @Override
+    public boolean containsHeaderValue(String headerName, String value) {
+      return nettyResponseHeaders.containsValue(headerName, value, true);
+    }
+
+    @Override
     public void setStatusCode(HttpStatusCode status) {
       setStatus(status);
     }

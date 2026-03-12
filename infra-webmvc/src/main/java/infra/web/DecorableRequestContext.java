@@ -339,6 +339,11 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
+  public boolean containsHeaderValue(String headerName, String value) {
+    return delegate().containsHeaderValue(headerName, value);
+  }
+
+  @Override
   public Locale getLocale() {
     return delegate().getLocale();
   }
