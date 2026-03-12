@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.lang.Constant;
@@ -147,24 +146,6 @@ class NettyRequestConfigTests {
 
     // then
     assertThat(config.responseBodyFactory).isEqualTo(factory);
-  }
-
-  @Test
-  void shouldSetTrailerHeadersConsumer() {
-    // given
-    SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    MultipartParser multipartParser = mock(MultipartParser.class);
-    Consumer consumer = mock(Consumer.class);
-
-    // when
-    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(sendErrorHandler)
-            .multipartParser(multipartParser)
-            .trailerHeadersConsumer(consumer)
-            .build();
-
-    // then
-    assertThat(config.trailerHeadersConsumer).isEqualTo(consumer);
   }
 
   @Test

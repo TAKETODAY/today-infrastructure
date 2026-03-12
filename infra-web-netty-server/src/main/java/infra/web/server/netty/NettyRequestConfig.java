@@ -19,7 +19,6 @@ package infra.web.server.netty;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.http.HttpRequest;
@@ -33,7 +32,6 @@ import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
@@ -88,9 +86,6 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  * @since 2021/3/30 17:46
  */
 public final class NettyRequestConfig {
-
-  @Nullable
-  public final Consumer<? super HttpHeaders> trailerHeadersConsumer;
 
   public final ServerCookieEncoder cookieEncoder;
 
@@ -173,7 +168,6 @@ public final class NettyRequestConfig {
     this.sendErrorHandler = builder.sendErrorHandler;
     this.httpHeadersFactory = builder.httpHeadersFactory;
     this.responseBodyFactory = builder.responseBodyFactory;
-    this.trailerHeadersConsumer = builder.trailerHeadersConsumer;
     this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
     this.postRequestDecoderCharset = builder.postRequestDecoderCharset == null
@@ -206,11 +200,7 @@ public final class NettyRequestConfig {
     return new Builder(secure);
   }
 
-  @SuppressWarnings("NullAway.Init")
   public static class Builder {
-
-    @Nullable
-    private Consumer<? super HttpHeaders> trailerHeadersConsumer;
 
     private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
 
@@ -280,32 +270,6 @@ public final class NettyRequestConfig {
      */
     public Builder sendErrorHandler(SendErrorHandler sendErrorHandler) {
       this.sendErrorHandler = sendErrorHandler;
-      return this;
-    }
-
-    /**
-     * Sets a consumer to handle trailer headers in the HTTP response.
-     * <p>
-     * Trailer headers are additional headers sent after the main body of an HTTP response.
-     * This method allows you to define a custom consumer that processes these headers
-     * when they are received. The consumer can be set to {@code null} if no processing
-     * is required.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   builder.trailerHeadersConsumer(trailerHeaders -> {
-     *     // Process trailer headers
-     *     System.out.println("Trailer headers: " + trailerHeaders);
-     *   });
-     * }</pre>
-     *
-     * @param consumer the consumer to process trailer headers. If {@code null}, no
-     * processing will be applied to the trailer headers.
-     * @return the current {@link Builder} instance, enabling method chaining
-     */
-    public Builder trailerHeadersConsumer(@Nullable Consumer<? super HttpHeaders> consumer) {
-      this.trailerHeadersConsumer = consumer;
       return this;
     }
 

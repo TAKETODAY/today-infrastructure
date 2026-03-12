@@ -28,10 +28,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,10 +60,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
@@ -499,45 +496,13 @@ public abstract class NettyRequestContext extends RequestContext {
 
     flush();
 
-    LastHttpContent lastHttpContent = LastHttpContent.EMPTY_LAST_CONTENT;
-    // https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2
-    // A trailer allows the sender to include additional fields at the end
-    // of a chunked message in order to supply metadata that might be
-    // dynamically generated while the message body is sent, such as a
-    // message integrity check, digital signature, or post-processing
-    // status.
-    if (config.trailerHeadersConsumer != null && isTransferEncodingChunked(nettyResponseHeaders)) {
-      // https://datatracker.ietf.org/doc/html/rfc7230#section-4.4
-      // When a message includes a message body encoded with the chunked
-      // transfer coding and the sender desires to send metadata in the form
-      // of trailer fields at the end of the message, the sender SHOULD
-      // generate a Trailer header field before the message body to indicate
-      // which fields will be present in the trailers.
-      String declaredHeaderNames = nettyResponseHeaders.get(DefaultHttpHeaders.TRAILER);
-      if (declaredHeaderNames != null) {
-        HttpHeaders trailerHeaders = new TrailerHeaders(declaredHeaderNames);
-        try {
-          config.trailerHeadersConsumer.accept(trailerHeaders);
-        }
-        catch (IllegalArgumentException e) {
-          // A sender MUST NOT generate a trailer when header names are
-          // TrailerHeaders.DISALLOWED_TRAILER_HEADER_NAMES
-        }
-        if (!trailerHeaders.isEmpty()) {
-          lastHttpContent = new DefaultLastHttpContent();
-          lastHttpContent.trailingHeaders().set(trailerHeaders);
-        }
-      }
-    }
-
     if (isKeepAlive()) {
-      channel.writeAndFlush(lastHttpContent);
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
     }
     else {
-      channel.writeAndFlush(lastHttpContent)
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
               .addListener(ChannelFutureListener.CLOSE);
     }
-
   }
 
   /**
@@ -564,7 +529,7 @@ public abstract class NettyRequestContext extends RequestContext {
           headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
         }
         else if (!isTransferEncodingChunked(headers)) {
-          if (headers.get(DefaultHttpHeaders.CONTENT_LENGTH) == null) {
+          if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
             ByteBuf responseBody = this.responseBody;
             if (responseBody == null) {
               if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
@@ -885,75 +850,6 @@ public abstract class NettyRequestContext extends RequestContext {
       strBuf.append(new String(buf, 0, bufIdx, StandardCharsets.UTF_8));
     }
     return strBuf.toString();
-  }
-
-  private static final class TrailerHeaders extends io.netty.handler.codec.http.DefaultHttpHeaders {
-
-    static final HashSet<String> DISALLOWED_TRAILER_HEADER_NAMES = new HashSet<>(14);
-
-    static {
-      // https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2
-      // A sender MUST NOT generate a trailer that contains a field necessary
-      // for message framing (e.g., Transfer-Encoding and Content-Length),
-      // routing (e.g., Host), request modifiers (e.g., controls and
-      // conditionals in Section 5 of [RFC7231]), authentication (e.g., see
-      // [RFC7235] and [RFC6265]), response control data (e.g., see Section
-      // 7.1 of [RFC7231]), or determining how to process the payload (e.g.,
-      // Content-Encoding, Content-Type, Content-Range, and Trailer).
-      DISALLOWED_TRAILER_HEADER_NAMES.add("age");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("cache-control");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("content-encoding");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("content-length");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("content-range");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("content-type");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("date");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("expires");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("location");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("retry-after");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("trailer");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("transfer-encoding");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("vary");
-      DISALLOWED_TRAILER_HEADER_NAMES.add("warning");
-    }
-
-    TrailerHeaders(String declaredHeaderNames) {
-      super(true, new TrailerNameValidator(filterHeaderNames(declaredHeaderNames)));
-    }
-
-    static HashSet<String> filterHeaderNames(String declaredHeaderNames) {
-      HashSet<String> result = new HashSet<>();
-      String[] names = declaredHeaderNames.split(",", -1);
-      for (String name : names) {
-        String trimmedStr = name.trim();
-        if (trimmedStr.isEmpty() ||
-                DISALLOWED_TRAILER_HEADER_NAMES.contains(trimmedStr.toLowerCase(Locale.ENGLISH))) {
-          continue;
-        }
-        result.add(trimmedStr);
-      }
-      return result;
-    }
-
-  }
-
-  static final class TrailerNameValidator implements DefaultHeaders.NameValidator<CharSequence> {
-
-    /**
-     * Contains the headers names specified with {@link DefaultHttpHeaders#TRAILER}
-     */
-    final HashSet<String> declaredHeaderNames;
-
-    TrailerNameValidator(HashSet<String> declaredHeaderNames) {
-      this.declaredHeaderNames = declaredHeaderNames;
-    }
-
-    @Override
-    public void validateName(CharSequence name) {
-      if (!declaredHeaderNames.contains(name.toString())) {
-        throw new IllegalArgumentException("Trailer header name [%s] not declared with [Trailer] header, or it is not a valid trailer header name"
-                .formatted(name));
-      }
-    }
   }
 
   static final class NoBodyOutputStream extends OutputStream {
