@@ -124,8 +124,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
   /**
    * Return the default character set, if any.
    */
-  @Nullable
-  public Charset getDefaultCharset() {
+  public @Nullable Charset getDefaultCharset() {
     return this.defaultCharset;
   }
 
@@ -265,9 +264,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
       }
     }
 
-    if (!MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentTypeString)
-            && !message.containsHeader(HttpHeaders.TRANSFER_ENCODING)
-            && message.getContentLength() < 0) {
+    if (message.getContentLength() < 0L && !message.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
       Long contentLength = getContentLength(t, message);
       if (contentLength != null) {
         message.setContentLength(contentLength);
@@ -285,8 +282,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * @param t the type to return the content type for
    * @return the content type, or {@code null} if not known
    */
-  @Nullable
-  protected MediaType getDefaultContentType(T t) throws IOException {
+  protected @Nullable MediaType getDefaultContentType(T t) throws IOException {
     List<MediaType> mediaTypes = getSupportedMediaTypes();
     return !mediaTypes.isEmpty() ? mediaTypes.get(0) : null;
   }
@@ -299,8 +295,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * @param t the type to return the content length for
    * @return the content length, or {@code null} if not known
    */
-  @Nullable
-  protected Long getContentLength(T t, HttpOutputMessage message) throws IOException {
+  protected @Nullable Long getContentLength(T t, HttpOutputMessage message) throws IOException {
     return null;
   }
 
