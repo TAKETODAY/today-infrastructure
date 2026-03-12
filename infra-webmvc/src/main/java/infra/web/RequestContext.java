@@ -231,6 +231,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   protected String responseContentType;
 
+  protected long responseContentLength = -1L;
+
   /** @since 4.0 */
   @Nullable
   protected MultipartRequest multipartRequest;

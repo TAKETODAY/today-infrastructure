@@ -565,6 +565,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   public void setContentLength(long length) {
+    responseContentLength = length;
     nettyResponseHeaders.set(DefaultHttpHeaders.CONTENT_LENGTH, length);
   }
 
@@ -966,6 +967,28 @@ public abstract class NettyRequestContext extends RequestContext {
     @Override
     public @Nullable String getContentTypeAsString() {
       return NettyRequestContext.this.getResponseContentType();
+    }
+
+    @Override
+    public long getContentLength() {
+      long contentLength = responseContentLength;
+      if (contentLength == -1L) {
+        String value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_LENGTH);
+        if (value != null) {
+          contentLength = parseLong(value);
+          responseContentLength = contentLength;
+        }
+      }
+      return contentLength;
+    }
+
+    private static long parseLong(String value) {
+      try {
+        return Long.parseLong(value);
+      }
+      catch (NumberFormatException e) {
+        return -1;
+      }
     }
 
     @Override
