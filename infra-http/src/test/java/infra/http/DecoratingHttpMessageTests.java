@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/12/10 22:13
  */
 class DecoratingHttpMessageTests {
+
   @Test
   void delegateReturnsWrappedHttpMessage() {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
@@ -124,6 +125,35 @@ class DecoratingHttpMessageTests {
 
     assertThat(decorator.getContentLength()).isEqualTo(1024L);
     verify(mockHttpMessage).getContentLength();
+  }
+
+  @Test
+  void containsHeader() {
+    HttpMessage mockHttpMessage = mock(HttpMessage.class);
+    when(mockHttpMessage.containsHeader("name")).thenReturn(true);
+    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+
+    assertThat(decorator.containsHeader("name")).isEqualTo(true);
+    verify(mockHttpMessage).containsHeader("name");
+  }
+
+  @Test
+  void containsHeaderValue() {
+    HttpMessage mockHttpMessage = mock(HttpMessage.class);
+    when(mockHttpMessage.containsHeaderValue("name", "value")).thenReturn(true);
+    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+
+    assertThat(decorator.containsHeaderValue("name", "value")).isEqualTo(true);
+    verify(mockHttpMessage).containsHeaderValue("name", "value");
+  }
+
+  @Test
+  void toString_() {
+    HttpMessage mockHttpMessage = mock(HttpMessage.class);
+    when(mockHttpMessage.toString()).thenReturn("string");
+    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+
+    assertThat(decorator.toString()).isEqualTo("DecoratingHttpMessage [delegate=string]");
   }
 
 }

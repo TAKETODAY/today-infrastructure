@@ -52,6 +52,18 @@ public interface HttpMessage {
   }
 
   /**
+   * Returns {@code true} if this HttpMessage contains the given header and
+   * its list of values contains the given value.
+   *
+   * @param headerName the header name
+   * @param value the value expected to be in the list of values
+   * @since 5.0
+   */
+  default boolean containsHeaderValue(String headerName, String value) {
+    return getHeaders().containsHeaderValue(headerName, value);
+  }
+
+  /**
    * Return the first header value for the given header name, if any.
    *
    * @param name the header name
