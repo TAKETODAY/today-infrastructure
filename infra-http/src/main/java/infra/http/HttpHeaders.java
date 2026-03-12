@@ -455,27 +455,39 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
-  public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
-
-  // X-Requested-With
-
-  public static final String X_REQUESTED_WITH = "X-Requested-With";
-
   // WebSocket
 
+  /**
+   * The WebSocket {@code Sec-WebSocket-Origin} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-10">Draft IETF HyBi WebSocket Protocol</a>
+   */
   public static final String SEC_WEBSOCKET_ORIGIN = "Sec-WebSocket-Origin";
+
+  /**
+   * The WebSocket {@code Sec-WebSocket-Accept} header field name.
+   */
   public static final String SEC_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
+
+  /**
+   * The WebSocket {@code Sec-WebSocket-Version} header field name.
+   */
   public static final String SEC_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
+
+  /**
+   * The WebSocket {@code Sec-WebSocket-Protocol} header field name.
+   */
   public static final String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
+
+  /**
+   * The WebSocket {@code Sec-WebSocket-Extensions} header field name.
+   */
   public static final String SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
 
-  public static final String SEC_WEBSOCKET_LOCATION = "Sec-WebSocket-Location";
-
+  /**
+   * The WebSocket {@code Sec-WebSocket-Key} header field name.
+   */
   public static final String SEC_WEBSOCKET_KEY = "Sec-WebSocket-Key";
-  public static final String WEBSOCKET_LOCATION = "WebSocket-Location";
-  public static final String WEBSOCKET_PROTOCOL = "WebSocket-Protocol";
-  public static final String SEC_WEBSOCKET_KEY1 = "Sec-WebSocket-Key1";
-  public static final String SEC_WEBSOCKET_KEY2 = "Sec-WebSocket-Key2";
 
   //  ====================
   // Header values
@@ -507,7 +519,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   public static final String CONTINUE = "100-continue";
   public static final String NO_TRANSFORM = "no-transform";
   public static final String ONLY_IF_CACHED = "only-if-cached";
-  public static final String XML_HTTP_REQUEST = "XMLHttpRequest";
   public static final String MUST_REVALIDATE = "must-revalidate";
   public static final String PROXY_REVALIDATE = "proxy-revalidate";
   public static final String QUOTED_PRINTABLE = "quoted-printable";
