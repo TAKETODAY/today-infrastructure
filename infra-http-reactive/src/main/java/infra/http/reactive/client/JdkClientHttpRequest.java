@@ -137,9 +137,10 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
 
     Flow.Publisher<ByteBuffer> bodyFlow = JdkFlowAdapter.publisherToFlowPublisher(byteBufferBody);
 
-    return (getContentLength() > 0 ?
-            HttpRequest.BodyPublishers.fromPublisher(bodyFlow, getContentLength()) :
-            HttpRequest.BodyPublishers.fromPublisher(bodyFlow));
+    long contentLength = getContentLength();
+    return contentLength > 0 ?
+            HttpRequest.BodyPublishers.fromPublisher(bodyFlow, contentLength) :
+            HttpRequest.BodyPublishers.fromPublisher(bodyFlow);
   }
 
   private ByteBuffer toByteBuffer(DataBuffer dataBuffer) {
