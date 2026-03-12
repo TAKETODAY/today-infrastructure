@@ -21,6 +21,8 @@ package infra.http;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -514,6 +516,16 @@ class MediaTypeTests {
       assertThat(result).containsExactlyElementsOf(expected);
 
     }
+  }
+
+  @Test
+  void withCharset() {
+    assertThat(MediaType.APPLICATION_JSON.withCharset(null)).isSameAs(MediaType.APPLICATION_JSON)
+            .isEqualTo(new MediaType(MediaType.APPLICATION_JSON, (Charset) null));
+    assertThat(MediaType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8))
+            .isEqualTo(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+            .isEqualTo(new MediaType("application", "json", StandardCharsets.UTF_8));
+
   }
 
 }

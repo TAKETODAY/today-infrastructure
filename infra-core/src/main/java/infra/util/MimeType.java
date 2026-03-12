@@ -297,12 +297,17 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    * @see #withCharset(Charset)
    */
-  public MimeType(MimeType other, Charset charset) {
+  public MimeType(MimeType other, @Nullable Charset charset) {
     this.type = other.type;
     this.subtype = other.subtype;
     var map = new LinkedCaseInsensitiveMap<String>(other.parameters.size() + 1, Locale.ROOT);
     map.putAll(other.parameters);
-    map.put(PARAM_CHARSET, charset.name());
+    if (charset != null) {
+      map.put(PARAM_CHARSET, charset.name());
+    }
+    else {
+      map.remove(PARAM_CHARSET);
+    }
     this.parameters = Collections.unmodifiableMap(map);
     this.resolvedCharset = charset;
   }
@@ -517,7 +522,10 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param charset the character set
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    */
-  public MimeType withCharset(Charset charset) {
+  public MimeType withCharset(@Nullable Charset charset) {
+    if (getCharset() == charset) {
+      return this;
+    }
     return new MimeType(this, charset);
   }
 

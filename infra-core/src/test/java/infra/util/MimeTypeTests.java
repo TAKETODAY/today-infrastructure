@@ -20,6 +20,7 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -456,6 +457,15 @@ class MimeTypeTests {
     assertThat(type.getSubtypeSuffix()).isEqualTo("");
     type = new MimeType("application", "vdn.some+thing+json");
     assertThat(type.getSubtypeSuffix()).isEqualTo("json");
+  }
+
+  @Test
+  void withCharset() {
+    assertThat(MimeType.APPLICATION_JSON.withCharset(null)).isSameAs(MimeType.APPLICATION_JSON)
+            .isEqualTo(new MimeType(MimeType.APPLICATION_JSON, (Charset) null));
+    assertThat(MimeType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8))
+            .isEqualTo(new MimeType(MimeType.APPLICATION_JSON, StandardCharsets.UTF_8))
+            .isEqualTo(new MimeType("application", "json", StandardCharsets.UTF_8));
   }
 
 }

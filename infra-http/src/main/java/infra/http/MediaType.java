@@ -293,7 +293,7 @@ public class MediaType extends MimeType implements Serializable {
    * @throws IllegalArgumentException if any of the parameters contain illegal characters
    * @see #withCharset(Charset)
    */
-  public MediaType(MediaType other, Charset charset) {
+  public MediaType(MediaType other, @Nullable Charset charset) {
     super(other, charset);
   }
 
@@ -451,7 +451,10 @@ public class MediaType extends MimeType implements Serializable {
    * @throws IllegalArgumentException if any of the parameters contain illegal characters
    */
   @Override
-  public MediaType withCharset(Charset charset) {
+  public MediaType withCharset(@Nullable Charset charset) {
+    if (getCharset() == charset) {
+      return this;
+    }
     return new MediaType(this, charset);
   }
 
