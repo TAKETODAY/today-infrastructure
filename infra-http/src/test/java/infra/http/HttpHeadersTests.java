@@ -755,7 +755,7 @@ public class HttpHeadersTests {
 
       assertThat(headers).isEmpty();
       headers.add(headerName, headerValue);
-      assertThat(headers.containsKey(headerName)).isTrue();
+      assertThat(headers.containsHeader(headerName)).isTrue();
       headers.keySet().removeIf(key -> key.equals(headerName));
       assertThat(headers).isEmpty();
       headers.add(headerName, headerValue);
@@ -769,7 +769,7 @@ public class HttpHeadersTests {
 
       assertThat(headers).isEmpty();
       headers.add(headerName, headerValue);
-      assertThat(headers.containsKey(headerName)).isTrue();
+      assertThat(headers.containsHeader(headerName)).isTrue();
       headers.entrySet().removeIf(entry -> entry.getKey().equals(headerName));
       assertThat(headers).isEmpty();
       headers.add(headerName, headerValue);

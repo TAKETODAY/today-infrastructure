@@ -38,6 +38,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ErrorResponseTests {
 
   @Test
+  void createWithHttpHeader() {
+    ErrorResponse response = ErrorResponse
+            .builder(new IllegalStateException(), HttpStatus.BAD_REQUEST, "test")
+            .header("header", "value")
+            .build();
+    assertThat(response.getHeaders().containsHeaderValue("header", "value")).isTrue();
+  }
+
+  @Test
+  void createWithHttpHeadersConsumer() {
+    ErrorResponse response = ErrorResponse.builder(new IllegalStateException(), HttpStatus.BAD_REQUEST, "test")
+            .header("header", "value")
+            .headers(headers -> {
+              headers.add("header", "value2");
+              headers.add("another", "value3");
+            }).build();
+    assertThat(response.getHeaders().get("header")).containsExactly("value", "value2");
+    assertThat(response.getHeaders().get("another")).containsExactly("value3");
+  }
+
+  @Test
   void getDefaultTypeMessageCodeReturnsExpectedFormat() {
     String code = ErrorResponse.getDefaultTypeMessageCode(TestException.class);
     assertThat(code).isEqualTo("problemDetail.type.infra.web.ErrorResponseTests$TestException");
