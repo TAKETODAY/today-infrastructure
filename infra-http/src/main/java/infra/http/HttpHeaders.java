@@ -1138,6 +1138,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * {@code Content-Length} header.
    */
   public void setContentLength(long contentLength) {
+    if (contentLength < 0) {
+      throw new IllegalArgumentException("Content-Length must be a non-negative number");
+    }
     setHeader(CONTENT_LENGTH, Long.toString(contentLength));
   }
 
@@ -1149,7 +1152,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   public long getContentLength() {
     String value = getFirst(CONTENT_LENGTH);
-    return (value != null ? Long.parseLong(value) : -1);
+    return value != null ? Long.parseLong(value) : -1;
   }
 
   /**

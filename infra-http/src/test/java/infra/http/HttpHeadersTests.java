@@ -189,6 +189,12 @@ public class HttpHeadersTests {
   }
 
   @Test
+  void setContentLengthWithNegativeValue() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            headers.setContentLength(-1));
+  }
+
+  @Test
   void contentType() {
     MediaType contentType = new MediaType("text", "html", StandardCharsets.UTF_8);
     headers.setContentType(contentType);
