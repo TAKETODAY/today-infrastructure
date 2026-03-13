@@ -370,7 +370,6 @@ class BodyInputStream extends InputStream {
   }
 
   protected void requestNext() {
-//    channel.read();
   }
 
   static {
