@@ -153,7 +153,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
 
   @Override
   public Set<String> keySet() {
-    return new HeaderNames();
+    return headers.names();
   }
 
   @Override
@@ -219,52 +219,6 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
       List<String> previousValues = headers.getAll(this.key);
       headers.set(this.key, value);
       return previousValues;
-    }
-  }
-
-  private final class HeaderNames extends AbstractSet<String> {
-
-    @Override
-    public Iterator<String> iterator() {
-      return new HeaderNamesIterator(headers.names().iterator());
-    }
-
-    @Override
-    public int size() {
-      return headers.names().size();
-    }
-  }
-
-  private final class HeaderNamesIterator implements Iterator<String> {
-    private final Iterator<String> iterator;
-
-    @Nullable
-    private String currentName;
-
-    private HeaderNamesIterator(Iterator<String> iterator) {
-      this.iterator = iterator;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return this.iterator.hasNext();
-    }
-
-    @Override
-    public String next() {
-      this.currentName = this.iterator.next();
-      return this.currentName;
-    }
-
-    @Override
-    public void remove() {
-      if (this.currentName == null) {
-        throw new IllegalStateException("No current Header in iterator");
-      }
-      if (!headers.contains(this.currentName)) {
-        throw new IllegalStateException("Header not present: " + this.currentName);
-      }
-      headers.remove(this.currentName);
     }
   }
 
