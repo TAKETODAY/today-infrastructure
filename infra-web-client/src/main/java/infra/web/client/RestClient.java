@@ -704,6 +704,7 @@ public interface RestClient {
      * @param headerName the header name
      * @param headerValues the header value(s)
      * @return this builder
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
     S header(String headerName, String... headerValues);
 
