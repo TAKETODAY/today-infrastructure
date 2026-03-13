@@ -121,6 +121,16 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
+  public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setAll(@Nullable Map<String, List<String>> values) {
     throw new UnsupportedOperationException();
   }

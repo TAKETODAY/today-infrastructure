@@ -26,7 +26,8 @@ import java.util.Map;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -130,6 +131,23 @@ class ReadOnlyHttpHeadersTests {
   }
 
   @Test
+  void setOrRemove() {
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> readOnlyHeaders.setOrRemove("Custom-Header", List.of("value")));
+
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> readOnlyHeaders.setOrRemove("Custom-Header", new String[] { "value" }));
+  }
+
+  @Test
+  void setHeader() {
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> readOnlyHeaders.setHeader("Custom-Header", "value"));
+  }
+
+  @Test
   void setAllThrowsUnsupportedOperationException() {
     ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
     Map<String, List<String>> values = Map.of("Custom-Header", List.of("value"));
@@ -203,6 +221,5 @@ class ReadOnlyHttpHeadersTests {
 
     assertThat(result).isSameAs(readOnlyHeaders);
   }
-
 
 }
