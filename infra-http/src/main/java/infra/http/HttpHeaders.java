@@ -2366,38 +2366,18 @@ public abstract class HttpHeaders implements Serializable {
   }
 
   /**
-   * Copies all entries from the target map into a new {@code HttpHeaders} instance.
-   *
-   * @param targetMap the source map containing header names and values; can be {@code null}
-   * @return a new modifiable {@code HttpHeaders} instance containing the copied headers,
-   * or an empty instance if the target map is {@code null} or empty
-   * @since 4.0
-   */
-  @Modifiable
-  public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
-    HttpHeaders result = HttpHeaders.forWritable();
-    result.addAll(targetMap);
-    return result;
-  }
-
-  /**
    * Create a new, mutable {@code HttpHeaders} instance and copy the supplied
    * headers to that new instance.
    * <p>Changes to the returned {@code HttpHeaders} will not affect the
    * supplied headers map.
    *
    * @param headers the headers to copy
-   * @since 5.0
+   * @since 4.0
    */
   @Modifiable
-  public static HttpHeaders copyOf(MultiValueMap<String, String> headers) {
+  public static HttpHeaders copyOf(@Nullable Map<String, List<String>> headers) {
     HttpHeaders result = HttpHeaders.forWritable();
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-      List<String> values = headers.get(entry.getKey());
-      if (values != null) {
-        result.set(entry.getKey(), new ArrayList<>(values));
-      }
-    }
+    result.addAll(headers);
     return result;
   }
 
@@ -2411,14 +2391,8 @@ public abstract class HttpHeaders implements Serializable {
    * @since 5.0
    */
   @Modifiable
-  public static HttpHeaders copyOf(HttpHeaders headers) {
+  public static HttpHeaders copyOf(@Nullable HttpHeaders headers) {
     HttpHeaders result = HttpHeaders.forWritable();
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-      List<String> values = entry.getValue();
-      if (values != null) {
-        result.add(entry.getKey(), values);
-      }
-    }
     result.addAll(headers);
     return result;
   }
