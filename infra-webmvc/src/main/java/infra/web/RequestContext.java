@@ -175,106 +175,71 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
-  protected HttpCookie @Nullable [] cookies;
-
-  @Nullable
-  protected PrintWriter writer;
-
-  @Nullable
-  protected BufferedReader reader;
-
-  @Nullable
-  protected InputStream inputStream;
-
-  @Nullable
-  protected OutputStream outputStream;
-
-  /** @since 3.0 */
-  @Nullable
-  protected HttpHeaders requestHeaders;
-  /** @since 3.0 */
-  @Nullable
-  protected HttpHeaders responseHeaders;
-
-  /** @since 3.0 */
-  @Nullable
-  protected String requestURI;
-
-  /** @since 4.0 */
-  @Nullable
-  protected RequestPath requestPath;
-  /** @since 3.0 */
-  @Nullable
-  protected MultiValueMap<String, String> parameters;
-  /** @since 3.0 */
-  @Nullable
-  protected String queryString;
-
-  /** @since 3.0 */
-  @Nullable
-  protected ArrayList<ResponseCookie> responseCookies;
-
-  /** @since 4.0 */
-  @Nullable
-  protected URI uri;
-
-  /** @since 4.0 */
-  @Nullable
-  protected HttpMethod httpMethod;
-
-  /** @since 4.0 */
-  @Nullable
-  protected Locale locale;
-
-  /** @since 4.0 */
-  @Nullable
-  protected String responseContentType;
-
   protected long responseContentLength = -1L;
-
-  /** @since 4.0 */
-  @Nullable
-  protected MultipartRequest multipartRequest;
-
-  /** @since 4.0 */
-  @Nullable
-  protected AsyncWebRequest asyncRequest;
-
-  @Nullable
-  protected WebAsyncManager webAsyncManager;
 
   protected boolean notModified = false;
 
-  @Nullable
-  private HandlerMatchingMetadata matchingMetadata;
+  protected HttpCookie @Nullable [] cookies;
 
-  @Nullable
-  protected BindingContext bindingContext;
+  protected @Nullable PrintWriter writer;
 
-  @Nullable
-  protected Object redirectModel;
+  protected @Nullable BufferedReader reader;
 
-  @Nullable
-  protected Boolean multipartFlag;
+  protected @Nullable InputStream inputStream;
 
-  @Nullable
-  protected Boolean preFlightRequestFlag;
+  protected @Nullable OutputStream outputStream;
 
-  @Nullable
-  protected Boolean corsRequestFlag;
+  protected @Nullable HttpHeaders requestHeaders;
+
+  protected @Nullable HttpHeaders responseHeaders;
+
+  protected @Nullable String requestURI;
+
+  protected @Nullable RequestPath requestPath;
+
+  protected @Nullable MultiValueMap<String, String> parameters;
+
+  protected @Nullable String queryString;
+
+  protected @Nullable ArrayList<ResponseCookie> responseCookies;
+
+  protected @Nullable URI uri;
+
+  protected @Nullable HttpMethod httpMethod;
+
+  protected @Nullable Locale locale;
+
+  protected @Nullable String responseContentType;
+
+  protected @Nullable MultipartRequest multipartRequest;
+
+  protected @Nullable AsyncWebRequest asyncRequest;
+
+  protected @Nullable WebAsyncManager webAsyncManager;
+
+  protected @Nullable BindingContext bindingContext;
+
+  protected @Nullable Object redirectModel;
+
+  protected @Nullable Boolean multipartFlag;
+
+  protected @Nullable Boolean preFlightRequestFlag;
+
+  protected @Nullable Boolean corsRequestFlag;
 
   /** Map from attribute name String to destruction callback Runnable.  @since 5.0 */
-  @Nullable
-  protected LinkedHashMap<String, Runnable> destructionCallbacks;
+  protected @Nullable LinkedHashMap<String, Runnable> destructionCallbacks;
 
   protected @Nullable MediaType contentType;
-
-  private long requestCompletedTimeMillis;
 
   protected final DispatcherHandler dispatcherHandler;
 
   /** @since 4.0 */
   protected final ApplicationContext applicationContext;
+
+  private @Nullable HandlerMatchingMetadata matchingMetadata;
+
+  private long requestCompletedTimeMillis;
 
   protected RequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -548,8 +513,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * method returns <code>null</code> if no target cookie were sent.
    * @since 2.3.7
    */
-  @Nullable
-  public HttpCookie getCookie(String name) {
+  public @Nullable HttpCookie getCookie(String name) {
     for (HttpCookie cookie : getCookies()) {
       if (Objects.equals(name, cookie.getName())) {
         return cookie;
@@ -598,8 +562,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a list of {@link HttpCookie} objects that were removed, or null
    * if no cookies were found or the internal cookie list is null
    */
-  @Nullable
-  public List<ResponseCookie> removeCookie(String name) {
+
+  public @Nullable List<ResponseCookie> removeCookie(String name) {
     if (responseCookies != null) {
       ArrayList<ResponseCookie> toRemove = new ArrayList<>(2);
       for (ResponseCookie responseCookie : responseCookies) {
@@ -757,8 +721,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> representing the single value of the parameter
    * @see #getParameters(String)
    */
-  @Nullable
-  public String getParameter(String name) {
+  public @Nullable String getParameter(String name) {
     String[] parameters = getParameters(name);
     if (ObjectUtils.isNotEmpty(parameters)) {
       return parameters[0];
@@ -1209,8 +1172,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
-  @Nullable
-  public abstract String getContentTypeAsString();
+  public abstract @Nullable String getContentTypeAsString();
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers
@@ -1618,8 +1580,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return the {@code HandlerMatchingMetadata} associated with this instance,
    * or {@code null} if no metadata is available
    */
-  @Nullable
-  public HandlerMatchingMetadata getMatchingMetadata() {
+  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
     return this.matchingMetadata;
   }
 
@@ -1696,8 +1657,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * is associated with this instance
    * @since 4.0
    */
-  @Nullable
-  public BindingContext getBinding() {
+  public @Nullable BindingContext getBinding() {
     return bindingContext;
   }
 
@@ -1724,8 +1684,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a RedirectModel, or {@code null} if not found
    * @see RedirectModel
    */
-  @Nullable
-  public RedirectModel getInputRedirectModel() {
+  public @Nullable RedirectModel getInputRedirectModel() {
     return getInputRedirectModel(null);
   }
 
@@ -1736,8 +1695,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a RedirectModel, or {@code null} if not found
    * @see RedirectModel
    */
-  @Nullable
-  public RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
+  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
     if (redirectModel instanceof RedirectModel ret) {
       return ret;
     }

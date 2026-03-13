@@ -84,7 +84,21 @@ import io.netty.util.internal.PlatformDependent;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
- * Netty Request context
+ * Netty-based implementation of the {@link RequestContext}, providing access to the
+ * underlying Netty {@link Channel}, {@link HttpRequest}, and response handling mechanisms.
+ * <p>
+ * This class serves as the bridge between the Netty transport layer and the web framework,
+ * managing request parsing, response commitment, header manipulation, cookie handling,
+ * and asynchronous processing. It supports both HTTP/1.1 and HTTP/2 protocols.
+ * <p>
+ * Key features include:
+ * <ul>
+ *   <li>Lazy initialization of response body buffers and output streams</li>
+ *   <li>Support for chunked file transfers with SSL awareness</li>
+ *   <li>Configurable query parameter parsing (HTML vs RFC 3986 rules)</li>
+ *   <li>Built-in protection against HashDOS via query parameter limits</li>
+ *   <li>Integration with {@link SendErrorHandler} for standardized error responses</li>
+ * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:24
