@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1263,44 +1262,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * headers for the request
    */
   protected abstract HttpHeaders createRequestHeaders();
-
-  /**
-   * Returns the value of the specified request header as a {@code String}.
-   * If the request does not have a header with the specified name,
-   * this method returns {@code null}.
-   *
-   * @param name the name of the request header
-   * @return the value of the specified request header, or {@code null}
-   * if the header does not exist
-   * @since 5.0
-   */
-  public @Nullable String getHeader(String name) {
-    return requestHeaders().getFirst(name);
-  }
-
-  /**
-   * Returns the values of the specified request header as a {@code List<String>}.
-   * If the request does not have a header with the specified name,
-   * this method returns an empty list.
-   *
-   * @param name the name of the request header
-   * @return the values of the specified request header, or an empty
-   * list if the header does not exist
-   * @since 5.0
-   */
-  public List<String> getHeaders(String name) {
-    return requestHeaders().getOrEmpty(name);
-  }
-
-  /**
-   * Get the header names provided for this request.
-   *
-   * @return a Collection of all the header names provided for this request.
-   * @since 5.0
-   */
-  public Collection<String> getHeaderNames() {
-    return requestHeaders().keySet();
-  }
 
   /**
    * Returns the preferred <code>Locale</code> that the client will

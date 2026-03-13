@@ -28,6 +28,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -288,6 +289,57 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
     return new Netty4HttpHeaders(request.headers());
+  }
+
+  @Override
+  public boolean containsHeader(String name) {
+    return request.headers().contains(name);
+  }
+
+  @Override
+  public boolean containsHeaderValue(String headerName, String value) {
+    return request.headers().containsValue(headerName, value, true);
+  }
+
+  /**
+   * Returns the value of the specified request header as a {@code String}.
+   * If the request does not have a header with the specified name,
+   * this method returns {@code null}.
+   *
+   * @param name the name of the request header
+   * @return the value of the specified request header, or {@code null}
+   * if the header does not exist
+   * @since 5.0
+   */
+  @Override
+  public @Nullable String getHeader(String name) {
+    return request.headers().get(name);
+  }
+
+  /**
+   * Returns the values of the specified request header as a {@code List<String>}.
+   * If the request does not have a header with the specified name,
+   * this method returns an empty list.
+   *
+   * @param name the name of the request header
+   * @return the values of the specified request header, or an empty
+   * list if the header does not exist
+   * @since 5.0
+   */
+  @Override
+  public List<String> getHeaders(String name) {
+    return request.headers().getAll(name);
+  }
+
+  /**
+   * Get the header names provided for this request.
+   *
+   * @return a Collection of all the header names provided for this request.
+   * @since 5.0
+   */
+  @Override
+  public Collection<String> getHeaderNames() {
+    return request.headers().names();
   }
 
   @Override
@@ -889,8 +941,11 @@ public abstract class NettyRequestContext extends RequestContext {
 
   private final class NettyHttpOutputMessage implements ServerHttpResponse {
 
+    private @Nullable MediaType contentType;
+
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
+      this.contentType = mediaType;
       NettyRequestContext.this.setContentType(mediaType);
     }
 
@@ -927,6 +982,19 @@ public abstract class NettyRequestContext extends RequestContext {
     @Override
     public boolean containsHeader(String name) {
       return NettyRequestContext.this.containsResponseHeader(name);
+    }
+
+    @Override
+    public @Nullable MediaType getContentType() {
+      MediaType contentType = this.contentType;
+      if (contentType == null) {
+        String string = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_TYPE);
+        if (string != null) {
+          contentType = MediaType.parseMediaType(string);
+          this.contentType = contentType;
+        }
+      }
+      return contentType;
     }
 
     @Override
@@ -967,6 +1035,11 @@ public abstract class NettyRequestContext extends RequestContext {
     @Override
     public List<String> getHeaders(String name) {
       return nettyResponseHeaders.getAll(name);
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+      return nettyResponseHeaders.names();
     }
 
     @Override
