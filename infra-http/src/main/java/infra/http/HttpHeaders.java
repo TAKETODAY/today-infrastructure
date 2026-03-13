@@ -628,7 +628,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @throws IllegalArgumentException if the value cannot be converted to a language range
    */
-  @SuppressWarnings("NullAway")
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
     if (StringUtils.hasText(value)) {
@@ -764,8 +763,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the value of the {@code Access-Control-Allow-Origin} response header.
    */
-  @Nullable
-  public String getAccessControlAllowOrigin() {
+  public @Nullable String getAccessControlAllowOrigin() {
     return getFieldValues(ACCESS_CONTROL_ALLOW_ORIGIN);
   }
 
@@ -836,8 +834,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the value of the {@code Access-Control-Request-Method} request header.
    */
-  @Nullable
-  public HttpMethod getAccessControlRequestMethod() {
+  public @Nullable HttpMethod getAccessControlRequestMethod() {
     String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
     if (StringUtils.isEmpty(first)) {
       return null;
@@ -1012,8 +1009,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the value of the {@code Cache-Control} header.
    */
-  @Nullable
-  public String getCacheControl() {
+  public @Nullable String getCacheControl() {
     return getFieldValues(CACHE_CONTROL);
   }
 
@@ -1124,8 +1120,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * content languages.
    * </p>
    */
-  @Nullable
-  public Locale getContentLanguage() {
+  public @Nullable Locale getContentLanguage() {
     return getValuesAsList(CONTENT_LANGUAGE)
             .stream()
             .findFirst()
@@ -1188,8 +1183,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
-  @Nullable
-  public MediaType getContentType() throws InvalidMediaTypeException {
+  public @Nullable MediaType getContentType() throws InvalidMediaTypeException {
     String value = getFirst(CONTENT_TYPE);
     return StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null;
   }
@@ -1261,8 +1255,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the entity tag of the body, as specified by the {@code ETag} header.
    */
-  @Nullable
-  public String getETag() {
+  public @Nullable String getETag() {
     return getFirst(ETAG);
   }
 
@@ -1334,8 +1327,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * {@linkplain InetSocketAddress#getPort() port} in the returned address will be
    * {@code 0}.
    */
-  @Nullable
-  public InetSocketAddress getHost() {
+  public @Nullable InetSocketAddress getHost() {
     String value = getFirst(HOST);
     if (value == null) {
       return null;
@@ -1545,8 +1537,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * <p>
    * Returns {@code null} when the location is unknown.
    */
-  @Nullable
-  public URI getLocation() {
+  public @Nullable URI getLocation() {
     String value = getFirst(LOCATION);
     return value != null ? URI.create(value) : null;
   }
@@ -1561,8 +1552,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the value of the {@code Origin} header.
    */
-  @Nullable
-  public String getOrigin() {
+  public @Nullable String getOrigin() {
     return getFirst(ORIGIN);
   }
 
@@ -1576,8 +1566,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the value of the {@code Pragma} header.
    */
-  @Nullable
-  public String getPragma() {
+  public @Nullable String getPragma() {
     return getFirst(PRAGMA);
   }
 
@@ -1608,8 +1597,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Return the value of the {@code Upgrade} header.
    */
-  @Nullable
-  public String getUpgrade() {
+  public @Nullable String getUpgrade() {
     return getFirst(UPGRADE);
   }
 
@@ -1710,8 +1698,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param headerName the header name
    * @return the parsed date header, or {@code null} if none
    */
-  @Nullable
-  public ZonedDateTime getFirstZonedDateTime(String headerName) {
+  public @Nullable ZonedDateTime getFirstZonedDateTime(String headerName) {
     return getFirstZonedDateTime(headerName, true);
   }
 
@@ -1727,8 +1714,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * {@code null} in that case ({@code false})
    * @return the parsed date header, or {@code null} if none (or invalid)
    */
-  @Nullable
-  public ZonedDateTime getFirstZonedDateTime(String headerName, boolean rejectInvalid) {
+  public @Nullable ZonedDateTime getFirstZonedDateTime(String headerName, boolean rejectInvalid) {
     String headerValue = getFirst(headerName);
     if (headerValue == null) {
       // No header value sent at all
@@ -1878,8 +1864,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param name the header name
    * @return the combined result
    */
-  @Nullable
-  public String getFieldValues(String name) {
+  public @Nullable String getFieldValues(String name) {
     return toCommaDelimitedString(get(name));
   }
 
@@ -1889,8 +1874,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param value the list of header values
    * @return a combined result with comma delimitation
    */
-  @Nullable
-  protected String toCommaDelimitedString(@Nullable Collection<? extends @Nullable Object> value) {
+  protected @Nullable String toCommaDelimitedString(@Nullable Collection<? extends @Nullable Object> value) {
     if (value == null) {
       return null;
     }
@@ -2019,9 +2003,8 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param name the header name
    * @return the first header value, or {@code null} if none
    */
-  @Nullable
   @Override
-  public abstract String getFirst(String name);
+  public abstract @Nullable String getFirst(String name);
 
   /**
    * Add the given, single header value under the given name.
@@ -2163,7 +2146,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
-   * @return returns empty http-headers
+   * Returns an empty, unmodifiable {@code HttpHeaders} instance.
+   *
+   * @return an empty read-only HTTP headers object
    * @since 4.0
    */
   @Unmodifiable
@@ -2172,7 +2157,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
-   * @return returns a new DefaultHttpHeaders
+   * Returns a new, modifiable {@link DefaultHttpHeaders} instance.
+   *
+   * @return a new writable HTTP headers object
    * @since 4.0
    */
   @Modifiable
@@ -2211,10 +2198,11 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
-   * copy targetMap’s all entries to a new HttpHeaders
+   * Copies all entries from the target map into a new {@code HttpHeaders} instance.
    *
-   * @param targetMap can be null
-   * @return returns a new HttpHeaders with copy headers
+   * @param targetMap the source map containing header names and values; can be {@code null}
+   * @return a new modifiable {@code HttpHeaders} instance containing the copied headers,
+   * or an empty instance if the target map is {@code null} or empty
    * @since 4.0
    */
   @Modifiable
