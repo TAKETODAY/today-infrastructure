@@ -22,9 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-import infra.util.CollectionUtils;
-import infra.util.MultiValueMap;
-
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.
  * <p>
@@ -91,7 +88,7 @@ public class HttpEntity<T extends @Nullable Object> {
    *
    * @param headers the entity headers
    */
-  public HttpEntity(@Nullable MultiValueMap<String, String> headers) {
+  public HttpEntity(@Nullable HttpHeaders headers) {
     this(null, headers);
   }
 
@@ -101,13 +98,8 @@ public class HttpEntity<T extends @Nullable Object> {
    * @param body the entity body
    * @param headers the entity headers
    */
-  public HttpEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers) {
+  public HttpEntity(@Nullable T body, @Nullable HttpHeaders headers) {
     this.body = body;
-    this.headers = headers != null ? HttpHeaders.copyOf(headers) : null;
-  }
-
-  private HttpEntity(HttpHeaders headers) {
-    this.body = null;
     this.headers = headers;
   }
 
@@ -151,7 +143,7 @@ public class HttpEntity<T extends @Nullable Object> {
    * @since 5.0
    */
   public boolean hasHeader(String name) {
-    return headers != null && headers.containsKey(name);
+    return headers != null && headers.containsHeader(name);
   }
 
   /**
@@ -160,7 +152,7 @@ public class HttpEntity<T extends @Nullable Object> {
    * @since 5.0
    */
   public boolean hasHeaders() {
-    return CollectionUtils.isNotEmpty(headers);
+    return HttpHeaders.isNotEmpty(headers);
   }
 
   /**

@@ -42,7 +42,6 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.RedirectModel;
 import infra.web.mock.MockRequestContext;
-import infra.web.util.UriComponentsBuilder;
 
 import static infra.http.HttpMethod.GET;
 import static infra.http.HttpMethod.POST;
@@ -384,7 +383,7 @@ class MockHttpRequestBuilderTests {
   void headers() {
     HttpHeaders httpHeaders = HttpHeaders.forWritable();
     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-    httpHeaders.put("foo", Arrays.asList("bar", "baz"));
+    httpHeaders.set("foo", Arrays.asList("bar", "baz"));
     this.builder.headers(httpHeaders);
 
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);

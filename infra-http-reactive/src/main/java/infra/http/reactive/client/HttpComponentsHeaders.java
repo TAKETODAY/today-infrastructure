@@ -24,8 +24,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -34,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.http.HttpHeaders;
-import infra.util.CollectionUtils;
+import infra.util.ObjectUtils;
 
 /**
  * {@code HttpHeaders} implementation for wrapping Apache HttpComponents
@@ -44,36 +42,12 @@ import infra.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class HttpComponentsHeaders extends HttpHeaders {
+final class HttpComponentsHeaders extends HttpHeaders {
 
   private final HttpMessage message;
 
   HttpComponentsHeaders(HttpMessage message) {
     this.message = message;
-  }
-
-  @Nullable
-  @Override
-  public String getFirst(String name) {
-    Header header = this.message.getFirstHeader(name);
-    return header != null ? header.getValue() : null;
-  }
-
-  @Override
-  public void add(String name, @Nullable String value) {
-    this.message.addHeader(name, value);
-  }
-
-  @Override
-  protected void setHeader(String name, String value) {
-    this.message.setHeader(name, value);
-  }
-
-  @Override
-  public Map<String, String> toSingleValueMap() {
-    Map<String, String> map = CollectionUtils.newLinkedHashMap(size());
-    this.message.headerIterator().forEachRemaining(h -> map.putIfAbsent(h.getName(), h.getValue()));
-    return map;
   }
 
   @Override
@@ -87,33 +61,48 @@ class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  public boolean containsKey(Object key) {
-    return key instanceof String headerName && this.message.containsHeader(headerName);
+  public boolean containsHeader(String name) {
+    return this.message.containsHeader(name);
   }
 
   @Override
-  public boolean containsValue(Object value) {
-    return value instanceof String
-            && Arrays.stream(this.message.getHeaders()).anyMatch(h -> h.getValue().equals(value));
+  public void clear() {
+    this.message.setHeaders();
   }
 
-  @Nullable
   @Override
-  public List<String> get(Object name) {
-    ArrayList<String> values = null;
-    if (containsKey(name)) {
-      Header[] headers = message.getHeaders((String) name);
-      values = new ArrayList<>(headers.length);
+  public void add(String name, @Nullable String value) {
+    if (value != null) {
+      this.message.addHeader(name, value);
+    }
+  }
+
+  @Override
+  protected void setHeader(String name, String value) {
+    this.message.setHeader(name, value);
+  }
+
+  @Override
+  public @Nullable String getFirst(String name) {
+    Header header = this.message.getFirstHeader(name);
+    return header != null ? header.getValue() : null;
+  }
+
+  @Override
+  public @Nullable List<String> get(String name) {
+    Header[] headers = message.getHeaders(name);
+    if (ObjectUtils.isNotEmpty(headers)) {
+      var values = new ArrayList<String>(headers.length);
       for (Header header : headers) {
         values.add(header.getValue());
       }
+      return values;
     }
-    return values;
+    return null;
   }
 
-  @Nullable
   @Override
-  public List<String> put(String key, List<String> values) {
+  public @Nullable List<String> set(String key, List<String> values) {
     List<String> oldValues = remove(key);
     for (String value : values) {
       add(key, value);
@@ -121,27 +110,11 @@ class HttpComponentsHeaders extends HttpHeaders {
     return oldValues;
   }
 
-  @Nullable
   @Override
-  public List<String> remove(Object name) {
-    if (name instanceof String headerName) {
-      List<String> oldValues = get(name);
-      message.removeHeaders(headerName);
-      return oldValues;
-    }
-    return null;
-  }
-
-  @Override
-  public void putAll(Map<? extends String, ? extends List<String>> map) {
-    for (var entry : map.entrySet()) {
-      put(entry.getKey(), entry.getValue());
-    }
-  }
-
-  @Override
-  public void clear() {
-    this.message.setHeaders();
+  public @Nullable List<String> remove(String name) {
+    List<String> oldValues = get(name);
+    message.removeHeaders(name);
+    return oldValues;
   }
 
   @Override
@@ -151,15 +124,6 @@ class HttpComponentsHeaders extends HttpHeaders {
       keys.add(header.getName());
     }
     return keys;
-  }
-
-  @Override
-  public Collection<List<String>> values() {
-    ArrayList<List<String>> values = new ArrayList<>(size());
-    for (Header header : message.getHeaders()) {
-      values.add(get(header.getName()));
-    }
-    return values;
   }
 
   @Override
@@ -214,7 +178,7 @@ class HttpComponentsHeaders extends HttpHeaders {
     @Override
     public List<String> setValue(List<String> value) {
       List<String> previousValues = getValue();
-      HttpComponentsHeaders.this.put(this.key, value);
+      HttpComponentsHeaders.this.set(this.key, value);
       return previousValues;
     }
   }

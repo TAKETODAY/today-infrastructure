@@ -151,7 +151,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
         headers.setContentLength(contentLength);
       }
     }
-    return (headers != null ? headers : headerValues);
+    return (headers != null ? headers.asMultiValueMap() : headerValues);
   }
 
   @Override

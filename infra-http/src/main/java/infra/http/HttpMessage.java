@@ -48,7 +48,7 @@ public interface HttpMessage {
    * @since 5.0
    */
   default boolean containsHeader(String name) {
-    return getHeaders().containsKey(name);
+    return getHeaders().containsHeader(name);
   }
 
   /**

@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,10 +80,10 @@ class DefaultHttpHeadersTests {
 
   @Test
   void constructor_withEmptyMultiValueMap_shouldCreateNewMap() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders(HttpHeaders.EMPTY);
+    DefaultHttpHeaders headers = new DefaultHttpHeaders(MultiValueMap.empty());
 
-    headers.add("Test-Header", "test-value");
-    assertThat(headers.getFirst("Test-Header")).isEqualTo("test-value");
+    assertThatThrownBy(() -> headers.add("Test-Header", "test-value"))
+            .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
@@ -136,14 +135,6 @@ class DefaultHttpHeadersTests {
     headers.add("Test-Header", "value2");
 
     assertThat(headers.get("Test-Header")).containsExactly("value1", "value2");
-  }
-
-  @Test
-  void add_withNullValue_shouldAddNullValue() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Test-Header", null);
-
-    assertThat(headers.get("Test-Header")).containsExactly((String) null);
   }
 
   @Test
@@ -236,7 +227,7 @@ class DefaultHttpHeadersTests {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
 
-    List<String> oldValues = headers.setOrRemove("Test-Header", (Collection<String>) null);
+    List<String> oldValues = headers.setOrRemove("Test-Header", (List<String>) null);
 
     assertThat(headers.get("Test-Header")).isNull();
     assertThat(oldValues).containsExactly("value");
@@ -288,29 +279,19 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void containsKey_shouldReturnTrueForExistingHeader() {
+  void containsHeader_shouldReturnTrueForExistingHeader() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
 
-    assertThat(headers.containsKey("Test-Header")).isTrue();
-    assertThat(headers.containsKey("test-header")).isTrue();
+    assertThat(headers.containsHeader("Test-Header")).isTrue();
+    assertThat(headers.containsHeader("test-header")).isTrue();
   }
 
   @Test
-  void containsKey_shouldReturnFalseForNonExistentHeader() {
+  void containsHeader_shouldReturnFalseForNonExistentHeader() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
-    assertThat(headers.containsKey("Non-Existent")).isFalse();
-  }
-
-  @Test
-  void containsValue_shouldReturnTrueForExistingValue() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Test-Header", "test-value");
-
-    List<String> valueList = new ArrayList<>();
-    valueList.add("test-value");
-    assertThat(headers.containsValue(valueList)).isTrue();
+    assertThat(headers.containsHeader("Non-Existent")).isFalse();
   }
 
   @Test
@@ -332,21 +313,21 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void put_shouldReplaceAllValuesForHeader() {
+  void set_shouldReplaceAllValuesForHeader() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "old-value");
 
     List<String> newValues = new ArrayList<>();
     newValues.add("new-value1");
     newValues.add("new-value2");
-    List<String> oldValues = headers.put("Test-Header", newValues);
+    List<String> oldValues = headers.set("Test-Header", newValues);
 
     assertThat(headers.get("Test-Header")).containsExactly("new-value1", "new-value2");
     assertThat(oldValues).containsExactly("old-value");
   }
 
   @Test
-  void putAll_shouldAddAllHeadersFromMap() {
+  void setAll_shouldAddAllHeadersFromMap() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
     Map<String, List<String>> newHeaders = new HashMap<>();
@@ -358,7 +339,7 @@ class DefaultHttpHeadersTests {
     newHeaders.put("Header-1", values1);
     newHeaders.put("Header-2", values2);
 
-    headers.putAll(newHeaders);
+    headers.setAll(newHeaders);
 
     assertThat(headers.get("Header-1")).containsExactly("value1", "value2");
     assertThat(headers.get("Header-2")).containsExactly("value3");
@@ -383,17 +364,6 @@ class DefaultHttpHeadersTests {
 
     Set<String> keySet = headers.keySet();
     assertThat(keySet).containsExactlyInAnyOrder("Header-1", "Header-2");
-  }
-
-  @Test
-  void values_shouldReturnAllHeaderValues() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Header-1", "value1");
-    headers.add("Header-2", "value2");
-    headers.add("Header-2", "value3");
-
-    Collection<List<String>> values = headers.values();
-    assertThat(values).hasSize(2);
   }
 
   @Test
@@ -433,25 +403,25 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void putIfAbsent_shouldAddHeaderIfNotExists() {
+  void setIfAbsent_shouldAddHeaderIfNotExists() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
     List<String> values = new ArrayList<>();
     values.add("value");
-    List<String> result = headers.putIfAbsent("Test-Header", values);
+    List<String> result = headers.setIfAbsent("Test-Header", values);
 
     assertThat(result).isNull();
     assertThat(headers.get("Test-Header")).containsExactly("value");
   }
 
   @Test
-  void putIfAbsent_shouldNotAddHeaderIfExists() {
+  void setIfAbsent_shouldNotAddHeaderIfExists() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "existing-value");
 
     List<String> values = new ArrayList<>();
     values.add("new-value");
-    List<String> result = headers.putIfAbsent("Test-Header", values);
+    List<String> result = headers.setIfAbsent("Test-Header", values);
 
     assertThat(result).containsExactly("existing-value");
     assertThat(headers.get("Test-Header")).containsExactly("existing-value");
@@ -526,33 +496,6 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void toArrayMap_shouldConvertToMapWithStringArrayValues() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Header-1", "value1");
-    headers.add("Header-1", "value2");
-    headers.add("Header-2", "value3");
-
-    Map<String, String[]> arrayMap = headers.toArrayMap(String[]::new);
-
-    assertThat(arrayMap).hasSize(2);
-    assertThat(arrayMap.get("Header-1")).containsExactly("value1", "value2");
-    assertThat(arrayMap.get("Header-2")).containsExactly("value3");
-  }
-
-  @Test
-  void copyToArrayMap_shouldPopulateProvidedMap() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Header-1", "value1");
-    headers.add("Header-1", "value2");
-
-    Map<String, String[]> targetMap = new HashMap<>();
-    headers.copyToArrayMap(targetMap, String[]::new);
-
-    assertThat(targetMap).hasSize(1);
-    assertThat(targetMap.get("Header-1")).containsExactly("value1", "value2");
-  }
-
-  @Test
   void setHeader_withMultipleValues_shouldReplaceWithSingleValue() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value1");
@@ -588,25 +531,25 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void put_withCaseInsensitiveKey_shouldReplaceValues() {
+  void set_withCaseInsensitiveKey_shouldReplaceValues() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "old-value");
 
     List<String> newValues = new ArrayList<>();
     newValues.add("new-value");
-    List<String> oldValues = headers.put("test-header", newValues);
+    List<String> oldValues = headers.set("test-header", newValues);
 
     assertThat(oldValues).containsExactly("old-value");
     assertThat(headers.getFirst("Test-Header")).isEqualTo("new-value");
   }
 
   @Test
-  void containsKey_caseInsensitive_shouldReturnTrue() {
+  void containsHeader_caseInsensitive_shouldReturnTrue() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
 
-    assertThat(headers.containsKey("test-header")).isTrue();
-    assertThat(headers.containsKey("TEST-HEADER")).isTrue();
+    assertThat(headers.containsHeader("test-header")).isTrue();
+    assertThat(headers.containsHeader("TEST-HEADER")).isTrue();
   }
 
   @Test
@@ -622,13 +565,13 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void putIfAbsent_caseInsensitive_shouldNotAddIfExist() {
+  void setIfAbsent_caseInsensitive_shouldNotAddIfExist() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "existing-value");
 
     List<String> newValues = new ArrayList<>();
     newValues.add("new-value");
-    List<String> result = headers.putIfAbsent("test-header", newValues);
+    List<String> result = headers.setIfAbsent("test-header", newValues);
 
     assertThat(result).containsExactly("existing-value");
     assertThat(headers.getFirst("Test-Header")).isEqualTo("existing-value");
@@ -733,20 +676,20 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void put_shouldMaintainCaseInsensitivity() {
+  void set_shouldMaintainCaseInsensitivity() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "old-value");
 
     List<String> newValues = new ArrayList<>();
     newValues.add("new-value");
-    List<String> oldValues = headers.put("test-header", newValues);
+    List<String> oldValues = headers.set("test-header", newValues);
 
     assertThat(oldValues).containsExactly("old-value");
     assertThat(headers.getFirst("Test-Header")).isEqualTo("new-value");
   }
 
   @Test
-  void putAll_shouldMaintainCaseInsensitivity() {
+  void setAll_shouldMaintainCaseInsensitivity() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
     Map<String, List<String>> newHeaders = new HashMap<>();
@@ -754,7 +697,7 @@ class DefaultHttpHeadersTests {
     values.add("value");
     newHeaders.put("content-type", values);
 
-    headers.putAll(newHeaders);
+    headers.setAll(newHeaders);
 
     assertThat(headers.getFirst("Content-Type")).isEqualTo("value");
   }
@@ -768,21 +711,6 @@ class DefaultHttpHeadersTests {
     Set<String> keySet = headers.keySet();
 
     assertThat(keySet).containsExactlyInAnyOrder("Test-Header", "Another-Header");
-  }
-
-  @Test
-  void values_shouldReturnAllCollections() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Header-1", "value1");
-    headers.add("Header-2", "value2");
-    headers.add("Header-2", "value3");
-
-    Collection<List<String>> values = headers.values();
-
-    assertThat(values).containsExactlyInAnyOrder(
-            List.of("value1"),
-            List.of("value2", "value3")
-    );
   }
 
   @Test
@@ -801,12 +729,12 @@ class DefaultHttpHeadersTests {
   @Test
   void toSingleValueMap_shouldHandleNullValues() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.add("Header-With-Null", null);
+    headers.setHeader("Header-With-Null", null);
     headers.add("Header-With-Value", "value");
 
     Map<String, String> singleValueMap = headers.toSingleValueMap();
 
-    assertThat(singleValueMap).hasSize(2);
+    assertThat(singleValueMap).hasSize(1);
     assertThat(singleValueMap.get("Header-With-Null")).isNull();
     assertThat(singleValueMap.get("Header-With-Value")).isEqualTo("value");
   }
@@ -827,13 +755,13 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void putIfAbsent_shouldMaintainCaseInsensitivity() {
+  void setIfAbsent_shouldMaintainCaseInsensitivity() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "existing");
 
     List<String> newValues = new ArrayList<>();
     newValues.add("new-value");
-    List<String> result = headers.putIfAbsent("test-header", newValues);
+    List<String> result = headers.setIfAbsent("test-header", newValues);
 
     assertThat(result).containsExactly("existing");
     assertThat(headers.getFirst("Test-Header")).isEqualTo("existing");
@@ -990,28 +918,18 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void containsKey_withEmptyHeaders_shouldReturnFalse() {
+  void containsHeader_withEmptyHeaders_shouldReturnFalse() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
-    assertThat(headers.containsKey("Any-Key")).isFalse();
+    assertThat(headers.containsHeader("Any-Key")).isFalse();
   }
 
   @Test
-  void containsValue_withEmptyHeaders_shouldReturnFalse() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-
-    List<String> values = new ArrayList<>();
-    values.add("any-value");
-
-    assertThat(headers.containsValue(values)).isFalse();
-  }
-
-  @Test
-  void put_withNullValue_shouldRemoveEntry() {
+  void set_withNullValue_shouldRemoveEntry() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "old-value");
 
-    List<String> oldValues = headers.put("Test-Header", null);
+    List<String> oldValues = headers.set("Test-Header", (List) null);
 
     assertThat(oldValues).containsExactly("old-value");
     assertThat(headers.get("Test-Header")).isNull();
@@ -1032,15 +950,6 @@ class DefaultHttpHeadersTests {
     Set<String> keySet = headers.keySet();
 
     assertThat(keySet).isEmpty();
-  }
-
-  @Test
-  void values_onEmptyHeaders_shouldReturnEmptyCollection() {
-    DefaultHttpHeaders headers = new DefaultHttpHeaders();
-
-    Collection<List<String>> values = headers.values();
-
-    assertThat(values).isEmpty();
   }
 
   @Test

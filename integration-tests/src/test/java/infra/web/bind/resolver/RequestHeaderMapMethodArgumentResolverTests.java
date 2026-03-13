@@ -161,7 +161,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     Object result = resolver.resolveArgument(webRequest, paramHttpHeaders);
 
     assertThat(result instanceof HttpHeaders).isTrue();
-    assertThat(((HttpHeaders) result)).isEmpty();
+    assertThat(((HttpHeaders) result).isEmpty()).isTrue();
   }
 
   @Test

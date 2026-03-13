@@ -26,9 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +76,7 @@ class HttpComponentsHeadersTests {
   void addWithNullValue() {
     HttpMessage message = mock(HttpMessage.class);
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    headers.add("test", null);
+    headers.add("test", (String) null);
 
     verify(message).addHeader("test", null);
   }
@@ -139,7 +137,7 @@ class HttpComponentsHeadersTests {
     when(message.containsHeader("existing")).thenReturn(true);
 
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsKey("existing")).isTrue();
+    assertThat(headers.containsHeader("existing")).isTrue();
   }
 
   @Test
@@ -148,41 +146,7 @@ class HttpComponentsHeadersTests {
     when(message.containsHeader("nonexistent")).thenReturn(false);
 
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsKey("nonexistent")).isFalse();
-  }
-
-  @Test
-  void containsKeyReturnsFalseForNonStringKey() {
-    HttpMessage message = mock(HttpMessage.class);
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsKey(123)).isFalse();
-  }
-
-  @Test
-  void containsValueReturnsTrueForExistingValue() {
-    HttpMessage message = mock(HttpMessage.class);
-    Header[] headersArray = new Header[] { createMockHeader("test", "existing-value") };
-    when(message.getHeaders()).thenReturn(headersArray);
-
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsValue("existing-value")).isTrue();
-  }
-
-  @Test
-  void containsValueReturnsFalseForNonExistingValue() {
-    HttpMessage message = mock(HttpMessage.class);
-    Header[] headersArray = new Header[] { createMockHeader("test", "value") };
-    when(message.getHeaders()).thenReturn(headersArray);
-
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsValue("nonexistent-value")).isFalse();
-  }
-
-  @Test
-  void containsValueReturnsFalseForNonStringValue() {
-    HttpMessage message = mock(HttpMessage.class);
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsValue(123)).isFalse();
+    assertThat(headers.containsHeader("nonexistent")).isFalse();
   }
 
   @Test
@@ -211,21 +175,6 @@ class HttpComponentsHeadersTests {
   }
 
   @Test
-  void getReturnsNullForNonStringKey() {
-    HttpMessage message = mock(HttpMessage.class);
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.get(123)).isNull();
-  }
-
-  @Test
-  void removeReturnsNullForNonStringKey() {
-    HttpMessage message = mock(HttpMessage.class);
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.remove(123)).isNull();
-    verify(message, never()).removeHeaders(anyString());
-  }
-
-  @Test
   void putAllAddsAllHeadersFromMap() {
     HttpMessage message = mock(HttpMessage.class);
 
@@ -234,7 +183,7 @@ class HttpComponentsHeadersTests {
             "header1", List.of("value1", "value2"),
             "header2", List.of("value3")
     );
-    headers.putAll(map);
+    headers.setAll(map);
 
     verify(message).addHeader("header1", "value1");
     verify(message).addHeader("header1", "value2");

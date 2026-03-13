@@ -340,7 +340,12 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     while (headerNames.hasMoreElements()) {
       String name = headerNames.nextElement();
       Enumeration<String> headers = request.getHeaders(name);
-      httpHeaders.addAll(name, headers);
+      if (headers != null) {
+        while (headers.hasMoreElements()) {
+          String s = headers.nextElement();
+          httpHeaders.add(name, s);
+        }
+      }
     }
 
     // HttpMockRequest exposes some headers as properties:

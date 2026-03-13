@@ -63,20 +63,12 @@ public class RequestHeaderMapMethodArgumentResolver implements ParameterResolvin
     // @RequestHeader
 
     if (MultiValueMap.class.isAssignableFrom(paramType)) {
-      if (MultiValueMap.class == paramType) {
-        return headers;
-      }
-      else {
-        // target map
-        Map<Object, Object> map = CollectionUtils.createMap(paramType, null, headers.size());
-        map.putAll(headers);
-        return map;
-      }
+      return headers.asMultiValueMap();
     }
     else {
       Map<String, String> singleValueMap = headers.toSingleValueMap();
       if (Map.class == paramType) {
-        return singleValueMap; //
+        return singleValueMap;
       }
       // target map
       Map<Object, Object> map = CollectionUtils.createMap(paramType, null, headers.size());

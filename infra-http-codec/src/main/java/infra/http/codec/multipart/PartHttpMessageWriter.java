@@ -30,8 +30,8 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.codec.HttpMessageWriter;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -93,7 +93,7 @@ public class PartHttpMessageWriter extends MultipartWriterSupport implements Htt
   private Flux<DataBuffer> encodePart(byte[] boundary, Part part, DataBufferFactory bufferFactory) {
     DefaultHttpHeaders headers = new DefaultHttpHeaders(part.headers());
     String name = part.name();
-    if (!headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)) {
+    if (!headers.containsHeader(HttpHeaders.CONTENT_DISPOSITION)) {
       headers.setContentDispositionFormData(
               name, part instanceof FilePart ? ((FilePart) part).filename() : null);
     }

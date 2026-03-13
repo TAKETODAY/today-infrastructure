@@ -104,7 +104,7 @@ public class DefaultPartHttpMessageReaderTests {
 
     StepVerifier.create(result)
             .consumeNextWith(part -> {
-              assertThat(part.headers()).isEmpty();
+              assertThat(part.headers().isEmpty()).isTrue();
               part.content().subscribe(DataBuffer.RELEASE_CONSUMER);
             })
             .verifyComplete();
@@ -267,7 +267,7 @@ public class DefaultPartHttpMessageReaderTests {
     CountDownLatch latch = new CountDownLatch(1);
     StepVerifier.create(result)
             .consumeNextWith(part -> {
-              assertThat(part.headers()).containsEntry("Føø", Collections.singletonList("Bår"));
+              assertThat(part.headers().asMultiValueMap()).containsEntry("Føø", Collections.singletonList("Bår"));
               testPart(part, null, "This is plain ASCII text.", latch);
             })
             .verifyComplete();

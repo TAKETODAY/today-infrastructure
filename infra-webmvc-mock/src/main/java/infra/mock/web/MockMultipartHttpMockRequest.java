@@ -31,9 +31,9 @@ import infra.mock.api.MockContext;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.server.MultipartException;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
+import infra.web.server.MultipartException;
 import infra.web.util.WebUtils;
 
 /**
@@ -142,7 +142,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
         if (part != null) {
           HttpHeaders headers = HttpHeaders.forWritable();
           for (String headerName : part.getHeaderNames()) {
-            headers.put(headerName, new ArrayList<>(part.getHeaders(headerName)));
+            headers.set(headerName, new ArrayList<>(part.getHeaders(headerName)));
           }
           return headers;
         }

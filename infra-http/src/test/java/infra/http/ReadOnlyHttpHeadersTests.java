@@ -18,8 +18,6 @@ package infra.http;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -112,15 +110,7 @@ class ReadOnlyHttpHeadersTests {
   void addAllWithCollectionThrowsUnsupportedOperationException() {
     ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> readOnlyHeaders.addAll("Custom-Header", List.of("value1", "value2")));
-  }
-
-  @Test
-  void addAllWithEnumerationThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
-    Enumeration<String> enumeration = Collections.enumeration(List.of("value1", "value2"));
-    assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> readOnlyHeaders.addAll("Custom-Header", enumeration));
+            .isThrownBy(() -> readOnlyHeaders.add("Custom-Header", List.of("value1", "value2")));
   }
 
   @Test
@@ -156,10 +146,10 @@ class ReadOnlyHttpHeadersTests {
   }
 
   @Test
-  void putThrowsUnsupportedOperationException() {
+  void setThrowsUnsupportedOperationException() {
     ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> readOnlyHeaders.put("Custom-Header", List.of("value")));
+            .isThrownBy(() -> readOnlyHeaders.set("Custom-Header", List.of("value")));
   }
 
   @Test
@@ -167,14 +157,6 @@ class ReadOnlyHttpHeadersTests {
     ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.remove("Custom-Header"));
-  }
-
-  @Test
-  void putAllThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
-    Map<String, List<String>> map = Map.of("Custom-Header", List.of("value"));
-    assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> readOnlyHeaders.putAll(map));
   }
 
   @Test

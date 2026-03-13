@@ -30,9 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import infra.util.CollectionUtils;
 import infra.util.DataSize;
-import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 
 /**
@@ -119,7 +117,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param method the method
    * @param uri the URL
    */
-  public RequestEntity(MultiValueMap<String, String> headers, HttpMethod method, URI uri) {
+  public RequestEntity(HttpHeaders headers, HttpMethod method, URI uri) {
     this(null, headers, method, uri, null);
   }
 
@@ -131,7 +129,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param method the method
    * @param uri the URL
    */
-  public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, @Nullable HttpMethod method, URI uri) {
+  public RequestEntity(@Nullable T body, @Nullable HttpHeaders headers, @Nullable HttpMethod method, URI uri) {
     this(body, headers, method, uri, null);
   }
 
@@ -144,7 +142,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param uri the URL
    * @param type the type used for generic type resolution
    */
-  public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
+  public RequestEntity(@Nullable T body, @Nullable HttpHeaders headers,
           @Nullable HttpMethod method, @Nullable URI uri, @Nullable Type type) {
     super(body, headers);
     this.method = method;
@@ -454,7 +452,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
      * Manipulate this entity's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
      * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
-     * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
+     * {@linkplain HttpHeaders#remove(String) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
      * @param headersConsumer a function that consumes the {@code HttpHeaders}
@@ -571,7 +569,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
      * @param body the body of the request entity
      * @return the built request entity
      */
-    <T> RequestEntity<T> body(@Nullable T body);
+    <T extends @Nullable Object> RequestEntity<T> body(T body);
 
     /**
      * Set the body and type of the request entity and build the RequestEntity.
@@ -581,7 +579,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
      * @param type the type of the body, useful for generic type resolution
      * @return the built request entity
      */
-    <T> RequestEntity<T> body(@Nullable T body, Type type);
+    <T extends @Nullable Object> RequestEntity<T> body(T body, Type type);
   }
 
   static class DefaultBodyBuilder implements BodyBuilder {
@@ -634,7 +632,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
 
     @Override
     public BodyBuilder headers(@Nullable HttpHeaders headers) {
-      if (CollectionUtils.isNotEmpty(headers)) {
+      if (HttpHeaders.isNotEmpty(headers)) {
         headers().setAll(headers);
       }
       return this;
@@ -721,16 +719,16 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
     }
 
     @Override
-    public <T> RequestEntity<T> body(@Nullable T body) {
+    public <T extends @Nullable Object> RequestEntity<T> body(@Nullable T body) {
       return buildInternal(body, null);
     }
 
     @Override
-    public <T> RequestEntity<T> body(@Nullable T body, Type type) {
+    public <T extends @Nullable Object> RequestEntity<T> body(@Nullable T body, Type type) {
       return buildInternal(body, type);
     }
 
-    private <T> RequestEntity<T> buildInternal(@Nullable T body, @Nullable Type type) {
+    private <T extends @Nullable Object> RequestEntity<T> buildInternal(@Nullable T body, @Nullable Type type) {
       if (this.uri != null) {
         return new RequestEntity<>(body, this.headers, this.method, this.uri, type);
       }
@@ -757,7 +755,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
 
     private final @Nullable Map<String, ?> uriVarsMap;
 
-    UriTemplateRequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
+    UriTemplateRequestEntity(@Nullable T body, @Nullable HttpHeaders headers,
             @Nullable HttpMethod method, @Nullable Type type, String uriTemplate,
             Object @Nullable [] uriVarsArray, @Nullable Map<String, ?> uriVarsMap) {
 

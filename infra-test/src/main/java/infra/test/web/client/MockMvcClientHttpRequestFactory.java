@@ -84,7 +84,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
       }
 
       MockClientHttpResponse clientResponse = new MockClientHttpResponse(body, status);
-      clientResponse.getHeaders().putAll(getResponseHeaders(servletResponse));
+      clientResponse.getHeaders().setAll(getResponseHeaders(servletResponse));
       return clientResponse;
     }
     catch (Exception ex) {

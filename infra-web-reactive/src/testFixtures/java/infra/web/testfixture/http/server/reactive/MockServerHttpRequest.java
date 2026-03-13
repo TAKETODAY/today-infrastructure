@@ -18,6 +18,7 @@
 
 package infra.web.testfixture.http.server.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.net.InetSocketAddress;
@@ -39,7 +40,6 @@ import infra.http.MediaType;
 import infra.http.reactive.server.AbstractServerHttpRequest;
 import infra.http.reactive.server.SslInfo;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;
@@ -331,6 +331,13 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
     B headers(MultiValueMap<String, String> headers);
 
     /**
+     * Add the given header values.
+     *
+     * @param headers the header values
+     */
+    B headers(HttpHeaders headers);
+
+    /**
      * Set the list of acceptable {@linkplain MediaType media types}, as
      * specified by the {@code Accept} header.
      *
@@ -528,7 +535,13 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     @Override
     public BodyBuilder headers(MultiValueMap<String, String> headers) {
-      this.headers.putAll(headers);
+      this.headers.setAll(headers);
+      return this;
+    }
+
+    @Override
+    public BodyBuilder headers(HttpHeaders headers) {
+      this.headers.setAll(headers);
       return this;
     }
 

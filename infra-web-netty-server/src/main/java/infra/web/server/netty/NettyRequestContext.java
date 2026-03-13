@@ -81,6 +81,7 @@ import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
 
+import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
@@ -385,7 +386,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   public void setHeaders(infra.http.@Nullable HttpHeaders headers) {
-    if (CollectionUtils.isNotEmpty(headers)) {
+    if (isNotEmpty(headers)) {
       for (var entry : headers.entrySet()) {
         nettyResponseHeaders.set(entry.getKey(), entry.getValue());
       }
@@ -399,7 +400,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   public void addHeaders(infra.http.@Nullable HttpHeaders headers) {
-    if (CollectionUtils.isNotEmpty(headers)) {
+    if (isNotEmpty(headers)) {
       for (var entry : headers.entrySet()) {
         nettyResponseHeaders.add(entry.getKey(), entry.getValue());
       }

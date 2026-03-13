@@ -154,7 +154,7 @@ class ResponseCreatorsTests {
     MockClientHttpResponse response = (MockClientHttpResponse) responseCreator.createResponse(null);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
-    assertThat(response.getHeaders()).doesNotContainKey(HttpHeaders.RETRY_AFTER);
+    assertThat(response.getHeaders().asMultiValueMap()).doesNotContainKey(HttpHeaders.RETRY_AFTER);
     assertThat(StreamUtils.copyToByteArray(response.getBody()).length).isEqualTo(0);
   }
 

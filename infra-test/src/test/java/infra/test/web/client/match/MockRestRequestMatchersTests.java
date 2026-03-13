@@ -90,7 +90,7 @@ public class MockRestRequestMatchersTests {
 
   @Test
   public void header() throws Exception {
-    this.request.getHeaders().put("foo", Arrays.asList("bar", "baz"));
+    this.request.getHeaders().set("foo", Arrays.asList("bar", "baz"));
 
     MockRestRequestMatchers.header("foo", "bar", "baz").match(this.request);
   }
@@ -102,7 +102,7 @@ public class MockRestRequestMatchersTests {
     MockRestRequestMatchers.headerDoesNotExist("foo").match(this.request);
 
     List<String> values = Arrays.asList("bar", "baz");
-    this.request.getHeaders().put("foo", values);
+    this.request.getHeaders().set("foo", values);
     assertThatThrownBy(() -> MockRestRequestMatchers.headerDoesNotExist("foo").match(this.request))
             .isInstanceOf(AssertionError.class)
             .hasMessage("Expected header <foo> not to exist, but it exists with values: " + values);
@@ -117,7 +117,7 @@ public class MockRestRequestMatchersTests {
 
   @Test
   public void headerMissingValue() throws Exception {
-    this.request.getHeaders().put("foo", Arrays.asList("bar", "baz"));
+    this.request.getHeaders().set("foo", Arrays.asList("bar", "baz"));
 
     assertThatThrownBy(() -> MockRestRequestMatchers.header("foo", "bad").match(this.request))
             .isInstanceOf(AssertionError.class)
@@ -126,7 +126,7 @@ public class MockRestRequestMatchersTests {
 
   @Test
   public void headerContains() throws Exception {
-    this.request.getHeaders().put("foo", Arrays.asList("bar", "baz"));
+    this.request.getHeaders().set("foo", Arrays.asList("bar", "baz"));
 
     MockRestRequestMatchers.header("foo", containsString("ba")).match(this.request);
   }
@@ -140,7 +140,7 @@ public class MockRestRequestMatchersTests {
 
   @Test
   public void headerContainsWithMissingValue() throws Exception {
-    this.request.getHeaders().put("foo", Arrays.asList("bar", "baz"));
+    this.request.getHeaders().set("foo", Arrays.asList("bar", "baz"));
 
     assertThatThrownBy(() -> MockRestRequestMatchers.header("foo", containsString("bx")).match(this.request))
             .isInstanceOf(AssertionError.class)
@@ -149,7 +149,7 @@ public class MockRestRequestMatchersTests {
 
   @Test
   public void headers() throws Exception {
-    this.request.getHeaders().put("foo", Arrays.asList("bar", "baz"));
+    this.request.getHeaders().set("foo", Arrays.asList("bar", "baz"));
 
     MockRestRequestMatchers.header("foo", "bar", "baz").match(this.request);
   }
@@ -163,7 +163,7 @@ public class MockRestRequestMatchersTests {
 
   @Test
   public void headersWithMissingValue() throws Exception {
-    this.request.getHeaders().put("foo", Collections.singletonList("bar"));
+    this.request.getHeaders().set("foo", Collections.singletonList("bar"));
 
     assertThatThrownBy(() -> MockRestRequestMatchers.header("foo", "bar", "baz").match(this.request))
             .isInstanceOf(AssertionError.class)

@@ -134,7 +134,7 @@ public class DefaultResponseCreator implements ResponseCreator {
    * Copy all given headers.
    */
   public DefaultResponseCreator headers(HttpHeaders headers) {
-    this.headers.putAll(headers);
+    this.headers.setAll(headers);
     return this;
   }
 
@@ -161,7 +161,7 @@ public class DefaultResponseCreator implements ResponseCreator {
     MockClientHttpResponse response = (this.contentResource != null ?
             new MockClientHttpResponse(this.contentResource.getInputStream(), this.statusCode) :
             new MockClientHttpResponse(this.content, this.statusCode));
-    response.getHeaders().putAll(this.headers);
+    response.getHeaders().setAll(this.headers);
     return response;
   }
 

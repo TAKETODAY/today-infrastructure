@@ -333,6 +333,8 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
      */
     B headers(MultiValueMap<String, String> headers);
 
+    B headers(HttpHeaders headers);
+
     /**
      * Set the list of acceptable {@linkplain MediaType media types}, as
      * specified by the {@code Accept} header.
@@ -531,6 +533,12 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     @Override
     public BodyBuilder headers(MultiValueMap<String, String> headers) {
+      this.headers.addAll(headers);
+      return this;
+    }
+
+    @Override
+    public BodyBuilder headers(HttpHeaders headers) {
       this.headers.addAll(headers);
       return this;
     }

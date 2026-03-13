@@ -64,9 +64,9 @@ public class HttpHeadersTests {
   @Test
   void constructorUnwrapsReadonly() {
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpHeaders readOnly = HttpHeaders.readOnlyHttpHeaders(headers);
+    HttpHeaders readOnly = headers.asReadOnly();
     assertThat(readOnly.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    HttpHeaders writable = HttpHeaders.forWritable(readOnly);
+    HttpHeaders writable = readOnly.asWritable();
     writable.setContentType(MediaType.TEXT_PLAIN);
     // content-type value is cached by ReadOnlyHttpHeaders
     assertThat(readOnly.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
@@ -75,9 +75,9 @@ public class HttpHeadersTests {
 
   @Test
   void writableHttpHeadersUnwrapsMultiple() {
-    HttpHeaders originalExchangeHeaders = HttpHeaders.readOnlyHttpHeaders(HttpHeaders.forWritable());
-    HttpHeaders firewallHeaders = HttpHeaders.forWritable(originalExchangeHeaders);
-    HttpHeaders writeable = HttpHeaders.forWritable(firewallHeaders);
+    HttpHeaders originalExchangeHeaders = HttpHeaders.forWritable().asReadOnly();
+    HttpHeaders firewallHeaders = originalExchangeHeaders.asWritable();
+    HttpHeaders writeable = HttpHeaders.forWritable(firewallHeaders.asMultiValueMap());
     writeable.setContentType(MediaType.APPLICATION_JSON);
   }
 
@@ -86,7 +86,7 @@ public class HttpHeadersTests {
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.add("X-Project", "Infra");
     headers.add("X-Project", "Framework");
-    HttpHeaders readOnly = HttpHeaders.readOnlyHttpHeaders(headers);
+    HttpHeaders readOnly = headers.asReadOnly();
     assertThat(readOnly.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
     HttpHeaders writable = HttpHeaders.copyOf(readOnly);
@@ -698,17 +698,17 @@ public class HttpHeadersTests {
       // remove()
       assertThat(keySet.remove("Alpha")).isTrue();
       assertThat(keySet).hasSize(1);
-      assertThat(headers).hasSize(1);
+      assertThat(headers.size()).isEqualTo(1);
       assertThat(keySet.remove("Alpha")).isFalse();
       assertThat(keySet).hasSize(1);
-      assertThat(headers).hasSize(1);
+      assertThat(headers.size()).isEqualTo(1);
 
       // clear()
       keySet.clear();
       assertThat(keySet).isEmpty();
       assertThat(keySet).isEmpty();
-      assertThat(headers).isEmpty();
-      assertThat(headers).isEmpty();
+      assertThat(headers.isEmpty()).isTrue();
+      assertThat(headers.isEmpty()).isTrue();
 
       // Unsupported operations
       assertThatExceptionOfType(UnsupportedOperationException.class)
@@ -727,7 +727,7 @@ public class HttpHeadersTests {
       // --- Given ---
       headers.add("Alpha", "apple");
       headers.add("Bravo", "banana");
-      assertThat(headers).containsOnlyKeys("Alpha", "Bravo");
+      assertThat(headers.keySet()).contains("Alpha", "Bravo");
 
       // --- When ---
       boolean removed = headers.keySet().remove("Alpha");
@@ -741,7 +741,7 @@ public class HttpHeadersTests {
 
       assertThat(removed).isTrue();
       assertThat(headers.keySet().remove("Alpha")).isFalse();
-      assertThat(headers).hasSize(1);
+      assertThat(headers.size()).isEqualTo(1);
       assertThat(headers.containsHeader("Alpha")).as("Alpha should have been removed").isFalse();
       assertThat(headers.containsHeader("Bravo")).as("Bravo should be present").isTrue();
       assertThat(headers.keySet()).containsOnly("Bravo");
@@ -753,11 +753,11 @@ public class HttpHeadersTests {
       String headerName = "MyHeader";
       String headerValue = "value";
 
-      assertThat(headers).isEmpty();
+      assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
       assertThat(headers.containsHeader(headerName)).isTrue();
       headers.keySet().removeIf(key -> key.equals(headerName));
-      assertThat(headers).isEmpty();
+      assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
       assertThat(headers.get(headerName)).containsExactly(headerValue);
     }
@@ -767,11 +767,11 @@ public class HttpHeadersTests {
       String headerName = "MyHeader";
       String headerValue = "value";
 
-      assertThat(headers).isEmpty();
+      assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
       assertThat(headers.containsHeader(headerName)).isTrue();
       headers.entrySet().removeIf(entry -> entry.getKey().equals(headerName));
-      assertThat(headers).isEmpty();
+      assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
       assertThat(headers.get(headerName)).containsExactly(headerValue);
     }
@@ -788,7 +788,7 @@ public class HttpHeadersTests {
 
       assertThat(headers.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
-      HttpHeaders readOnlyHttpHeaders = HttpHeaders.readOnlyHttpHeaders(headers);
+      HttpHeaders readOnlyHttpHeaders = headers.asReadOnly();
       assertThat(readOnlyHttpHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
     }
 
@@ -802,14 +802,14 @@ public class HttpHeadersTests {
 
       String[] expectedKeys = new String[] { "aardvark", "beaver", "cat", "dog", "elephant" };
 
-      HttpHeaders readOnlyHttpHeaders = HttpHeaders.readOnlyHttpHeaders(headers);
+      HttpHeaders readOnlyHttpHeaders = headers.asReadOnly();
 
       HttpHeaders forEachHeaders = HttpHeaders.forWritable();
-      readOnlyHttpHeaders.forEach(forEachHeaders::putIfAbsent);
+      readOnlyHttpHeaders.forEach(forEachHeaders::setIfAbsent);
       assertThat(forEachHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
       HttpHeaders putAllHeaders = HttpHeaders.forWritable();
-      putAllHeaders.putAll(readOnlyHttpHeaders);
+      putAllHeaders.setAll(readOnlyHttpHeaders);
       assertThat(putAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
       HttpHeaders addAllHeaders = HttpHeaders.forWritable();
@@ -818,10 +818,9 @@ public class HttpHeadersTests {
     }
 
     @Test
-      // gh-25034
     void equalsUnwrapsHttpHeaders() {
       HttpHeaders headers1 = HttpHeaders.forWritable();
-      HttpHeaders headers2 = HttpHeaders.forWritable(HttpHeaders.forWritable(headers1));
+      HttpHeaders headers2 = HttpHeaders.forWritable(HttpHeaders.forWritable(headers1.asMultiValueMap()).asMultiValueMap());
 
       assertThat(headers1).isEqualTo(headers2);
       assertThat(headers2).isEqualTo(headers1);

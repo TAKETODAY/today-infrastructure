@@ -99,8 +99,8 @@ class HttpServiceIntegrationTests {
 
   private void assertHeaders(@Nullable HttpHeaders headers) {
     assertThat(headers).isNotNull();
-    assertThat(headers).containsEntry("Connection", List.of("keep-alive"));
-    assertThat(headers).containsEntry("Access-Control-Allow-Credentials", List.of("true"));
+    assertThat(headers.asMultiValueMap()).containsEntry("Connection", List.of("keep-alive"));
+    assertThat(headers.asMultiValueMap()).containsEntry("Access-Control-Allow-Credentials", List.of("true"));
 
   }
 

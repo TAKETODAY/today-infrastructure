@@ -22,15 +22,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
 
+import infra.http.DefaultHttpHeaders;
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
 import infra.util.CollectionUtils;
 
 /**
@@ -41,18 +37,15 @@ import infra.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/12 16:15
  */
-public class WebSocketHttpHeaders extends HttpHeaders {
+public class WebSocketHttpHeaders extends DefaultHttpHeaders {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  private final HttpHeaders headers;
 
   /**
    * Create a new instance.
    */
   public WebSocketHttpHeaders() {
-    this(HttpHeaders.forWritable());
   }
 
   /**
@@ -62,8 +55,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param headers the HTTP headers to wrap
    */
   public WebSocketHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "headers is required");
-    this.headers = headers;
+    super(headers);
   }
 
   /**
@@ -80,8 +72,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    *
    * @return the value of the header
    */
-  @Nullable
-  public String getSecWebSocketAccept() {
+  public @Nullable String getSecWebSocketAccept() {
     return getFirst(SEC_WEBSOCKET_ACCEPT);
   }
 
@@ -132,8 +123,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    *
    * @return the value of the header
    */
-  @Nullable
-  public String getSecWebSocketKey() {
+  public @Nullable String getSecWebSocketKey() {
     return getFirst(SEC_WEBSOCKET_KEY);
   }
 
@@ -187,175 +177,8 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    *
    * @return the value of the header
    */
-  @Nullable
-  public String getSecWebSocketVersion() {
+  public @Nullable String getSecWebSocketVersion() {
     return getFirst(SEC_WEBSOCKET_VERSION);
-  }
-
-  // Single string methods
-
-  /**
-   * Return the first header value for the given header name, if any.
-   *
-   * @param name the header name
-   * @return the first header value; or {@code null}
-   */
-  @Override
-  @Nullable
-  public String getFirst(String name) {
-    return this.headers.getFirst(name);
-  }
-
-  /**
-   * Add the given, single header value under the given name.
-   *
-   * @param name the header name
-   * @param value the header value
-   * @throws UnsupportedOperationException if adding headers is not supported
-   * @see #put(String, List)
-   * @see #setOrRemove(String, String)
-   */
-  @Override
-  public void add(String name, @Nullable String value) {
-    this.headers.add(name, value);
-  }
-
-  /**
-   * Set the given, single header value under the given name.
-   *
-   * @param name the header name
-   * @param value the header value
-   * @throws UnsupportedOperationException if adding headers is not supported
-   * @see #put(String, List)
-   * @see #add(String, String)
-   */
-  @Override
-  protected void setHeader(String name, String value) {
-    this.headers.setOrRemove(name, value);
-  }
-
-  @Nullable
-  @Override
-  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
-    return headers.setOrRemove(name, value);
-  }
-
-  @Nullable
-  @Override
-  public List<String> setOrRemove(String name, String @Nullable [] value) {
-    return headers.setOrRemove(name, value);
-  }
-
-  @Override
-  public void setAll(@Nullable Map<String, List<String>> values) {
-    this.headers.setAll(values);
-  }
-
-  @Override
-  public Map<String, String> toSingleValueMap() {
-    return this.headers.toSingleValueMap();
-  }
-
-  @Override
-  public Map<String, String> asSingleValueMap() {
-    return headers.asSingleValueMap();
-  }
-
-  // Map implementation
-
-  @Override
-  public int size() {
-    return this.headers.size();
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return this.headers.isEmpty();
-  }
-
-  @Override
-  public boolean containsKey(Object key) {
-    return this.headers.containsKey(key);
-  }
-
-  @Override
-  public boolean containsValue(Object value) {
-    return this.headers.containsValue(value);
-  }
-
-  @Nullable
-  @Override
-  public List<String> get(Object name) {
-    return this.headers.get(name);
-  }
-
-  @Nullable
-  @Override
-  public List<String> put(String key, List<String> value) {
-    return this.headers.put(key, value);
-  }
-
-  @Nullable
-  @Override
-  public List<String> remove(Object name) {
-    return this.headers.remove(name);
-  }
-
-  @Override
-  public void putAll(Map<? extends String, ? extends List<String>> m) {
-    this.headers.putAll(m);
-  }
-
-  @Override
-  public void clear() {
-    this.headers.clear();
-  }
-
-  @Override
-  public Set<String> keySet() {
-    return this.headers.keySet();
-  }
-
-  @Override
-  public Collection<List<String>> values() {
-    return this.headers.values();
-  }
-
-  @Override
-  public Set<Map.Entry<String, List<String>>> entrySet() {
-    return this.headers.entrySet();
-  }
-
-  @Override
-  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
-    this.headers.forEach(action);
-  }
-
-  @Nullable
-  @Override
-  public List<String> putIfAbsent(String key, List<String> value) {
-    return this.headers.putIfAbsent(key, value);
-  }
-
-  @Override
-  public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof WebSocketHttpHeaders otherHeaders)) {
-      return false;
-    }
-    return this.headers.equals(otherHeaders.headers);
-  }
-
-  @Override
-  public int hashCode() {
-    return this.headers.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return this.headers.toString();
   }
 
 }

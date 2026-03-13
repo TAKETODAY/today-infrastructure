@@ -61,7 +61,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
     Assert.notNull(other, "RenderingResponse is required");
     this.name = other.name();
     this.status = other.statusCode();
-    this.headers.putAll(other.headers());
+    this.headers.setAll(other.headers());
     this.model.putAll(other.model());
   }
 

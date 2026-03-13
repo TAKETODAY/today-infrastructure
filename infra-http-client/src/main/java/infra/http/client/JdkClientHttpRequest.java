@@ -181,8 +181,8 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
             .uri(this.uri);
 
     if (this.compression) {
-      if (!headers.containsKey(HttpHeaders.ACCEPT_ENCODING)) {
-        headers.addAll(HttpHeaders.ACCEPT_ENCODING, SUPPORTED_ENCODINGS);
+      if (!headers.containsHeader(HttpHeaders.ACCEPT_ENCODING)) {
+        headers.add(HttpHeaders.ACCEPT_ENCODING, SUPPORTED_ENCODINGS);
       }
     }
 

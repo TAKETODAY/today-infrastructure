@@ -55,7 +55,7 @@ class HttpEntityTests {
     MultiValueMap<String, String> map = new MappingMultiValueMap<>();
     map.setOrRemove("Content-Type", "text/plain");
     String body = "foo";
-    HttpEntity<String> entity = new HttpEntity<>(body, map);
+    HttpEntity<String> entity = new HttpEntity<>(body, new DefaultHttpHeaders(map));
     assertThat(entity.getBody()).isEqualTo(body);
     assertThat(entity.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
     assertThat(entity.headers().getFirst("Content-Type")).isEqualTo("text/plain");
@@ -80,8 +80,8 @@ class HttpEntityTests {
     assertThat(new HttpEntity<>("foo", null).equals(new HttpEntity<String>(null, null))).isFalse();
     assertThat(new HttpEntity<String>(null, null).equals(new HttpEntity<>("bar", null))).isFalse();
 
-    assertThat(new HttpEntity<>("foo", map1).equals(new HttpEntity<>("foo", map1))).isTrue();
-    assertThat(new HttpEntity<>("foo", map1).equals(new HttpEntity<>("bar", map1))).isFalse();
+    assertThat(new HttpEntity<>("foo", HttpHeaders.forWritable(map1)).equals(new HttpEntity<>("foo", HttpHeaders.forWritable(map1)))).isTrue();
+    assertThat(new HttpEntity<>("foo", HttpHeaders.forWritable(map1)).equals(new HttpEntity<>("bar", HttpHeaders.forWritable(map1)))).isFalse();
   }
 
   @Test

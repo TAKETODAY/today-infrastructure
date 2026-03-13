@@ -202,8 +202,8 @@ final class StreamingServerResponse extends AbstractServerResponse {
 
       public MutableHeadersServerHttpResponse(ServerHttpResponse delegate, HttpHeaders headers) {
         super(delegate);
-        this.mutableHeaders.putAll(delegate.getHeaders());
-        this.mutableHeaders.putAll(headers);
+        this.mutableHeaders.setAll(delegate.getHeaders());
+        this.mutableHeaders.setAll(headers);
       }
 
       @Override

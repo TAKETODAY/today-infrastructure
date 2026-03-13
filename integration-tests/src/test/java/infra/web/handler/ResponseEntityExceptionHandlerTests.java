@@ -283,7 +283,7 @@ class ResponseEntityExceptionHandlerTests {
     ResponseEntity<Object> responseEntity =
             testException(new HandlerNotFoundException("GET", "/resource", requestHeaders));
 
-    assertThat(responseEntity.headers()).isEmpty();
+    assertThat(responseEntity.headers().isEmpty()).isTrue();
   }
 
 //  @Test

@@ -617,7 +617,7 @@ class DefaultServerResponseBuilderTests {
             .header("X-Custom") // No values should remove the header
             .build();
 
-    assertThat(response.headers().containsKey("X-Custom")).isFalse();
+    assertThat(response.headers().containsHeader("X-Custom")).isFalse();
   }
 
   @Test

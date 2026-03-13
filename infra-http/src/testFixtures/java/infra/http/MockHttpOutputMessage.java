@@ -83,7 +83,7 @@ public class MockHttpOutputMessage extends AttributeAccessorSupport implements H
       return;
     }
     this.headersWritten = true;
-    this.writtenHeaders.putAll(this.headers);
+    this.writtenHeaders.setAll(this.headers);
   }
 
 }

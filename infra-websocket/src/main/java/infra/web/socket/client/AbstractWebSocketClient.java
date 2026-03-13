@@ -70,7 +70,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
         String header = entry.getKey();
         List<String> values = entry.getValue();
         if (values != null && !specialHeaders.contains(header.toLowerCase(Locale.ROOT))) {
-          headersToUse.put(header, values);
+          headersToUse.set(header, values);
         }
       }
 

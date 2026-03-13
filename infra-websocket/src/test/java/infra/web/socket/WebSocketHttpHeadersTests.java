@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,7 @@ class WebSocketHttpHeadersTests {
     List<String> extensions = new ArrayList<>();
     extensions.add("x-foo-extension, x-bar-extension");
     extensions.add("x-test-extension");
-    this.headers.put(WebSocketHttpHeaders.SEC_WEBSOCKET_EXTENSIONS, extensions);
+    this.headers.set(WebSocketHttpHeaders.SEC_WEBSOCKET_EXTENSIONS, extensions);
 
     List<WebSocketExtension> parsedExtensions = this.headers.getSecWebSocketExtensions();
     assertThat(parsedExtensions).hasSize(3);
@@ -136,8 +135,8 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void putAndGetHeaders() {
-    headers.put("X-Custom-Header", List.of("value1", "value2"));
+  void setAndGetHeaders() {
+    headers.set("X-Custom-Header", List.of("value1", "value2"));
     assertThat(headers.get("X-Custom-Header")).containsExactly("value1", "value2");
   }
 
@@ -167,9 +166,9 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void containsKeyForExistingHeader() {
+  void containsHeaderForExistingHeader() {
     headers.setSecWebSocketKey("key");
-    assertThat(headers.containsKey(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isTrue();
+    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isTrue();
   }
 
   @Test
@@ -190,7 +189,7 @@ class WebSocketHttpHeadersTests {
   @Test
   void containsValueFindsExistingValue() {
     headers.setSecWebSocketKey("key");
-    assertThat(headers.containsValue(List.of("key"))).isTrue();
+    assertThat(headers.asMultiValueMap().containsValue(List.of("key"))).isTrue();
   }
 
   @Test
@@ -199,9 +198,9 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void putIfAbsentDoesNotOverwriteExistingValue() {
+  void setIfAbsentDoesNotOverwriteExistingValue() {
     headers.setSecWebSocketKey("key1");
-    headers.putIfAbsent(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, List.of("key2"));
+    headers.setIfAbsent(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, List.of("key2"));
     assertThat(headers.getSecWebSocketKey()).isEqualTo("key1");
   }
 
@@ -219,29 +218,19 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void valuesReturnsAllHeaderValues() {
-    headers.setSecWebSocketKey("key");
-    headers.setSecWebSocketVersion("13");
-
-    Collection<List<String>> values = headers.values();
-    assertThat(values).hasSize(2)
-            .contains(List.of("key"), List.of("13"));
-  }
-
-  @Test
   void setHeaderOverwritesExistingValues() {
     headers.add("X-Custom", "value1");
-    headers.setHeader("X-Custom", "value2");
+    headers.set("X-Custom", "value2");
     assertThat(headers.getFirst("X-Custom")).isEqualTo("value2");
   }
 
   @Test
-  void putAllAddsMultipleHeaders() {
+  void setAllAddsMultipleHeaders() {
     Map<String, List<String>> map = Map.of(
             "X-Custom1", List.of("value1"),
             "X-Custom2", List.of("value2")
     );
-    headers.putAll(map);
+    headers.setAll(map);
     assertThat(headers.keySet()).containsExactlyInAnyOrder("X-Custom1", "X-Custom2");
   }
 
@@ -263,21 +252,21 @@ class WebSocketHttpHeadersTests {
   void setOrRemoveWithNullValueRemovesHeader() {
     headers.setSecWebSocketKey("key");
     headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (String) null);
-    assertThat(headers.containsKey(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
+    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
   }
 
   @Test
   void setOrRemoveWithNullArrayRemovesHeader() {
     headers.setSecWebSocketKey("key");
     headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (String[]) null);
-    assertThat(headers.containsKey(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
+    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
   }
 
   @Test
   void setOrRemoveWithNullCollectionRemovesHeader() {
     headers.setSecWebSocketKey("key");
-    headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (Collection<String>) null);
-    assertThat(headers.containsKey(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
+    headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (List<String>) null);
+    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
   }
 
   @Test
@@ -407,7 +396,7 @@ class WebSocketHttpHeadersTests {
 
   @Test
   void multipleSecWebSocketProtocolValues() {
-    headers.addAll(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, List.of("chat", "superchat"));
+    headers.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, List.of("chat", "superchat"));
     assertThat(headers.getSecWebSocketProtocol()).containsExactly("chat", "superchat");
   }
 

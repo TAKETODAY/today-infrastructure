@@ -18,6 +18,8 @@
 
 package infra.http.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,7 +42,6 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.HttpMockRequest;
 import infra.util.ArrayIterator;
@@ -146,7 +147,10 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
 
       for (Enumeration<String> names = this.mockRequest.getHeaderNames(); names.hasMoreElements(); ) {
         String headerName = names.nextElement();
-        this.headers.addAll(headerName, this.mockRequest.getHeaders(headerName));
+        Enumeration<String> enumeration = this.mockRequest.getHeaders(headerName);
+        while (enumeration.hasMoreElements()) {
+          this.headers.add(headerName, enumeration.nextElement());
+        }
       }
 
       // HttpMockRequest exposes some headers as properties:
@@ -247,7 +251,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
     writer.flush();
 
     byte[] bytes = bos.toByteArray();
-    if (bytes.length > 0 && getHeaders().containsKey(HttpHeaders.CONTENT_LENGTH)) {
+    if (bytes.length > 0 && getHeaders().containsHeader(HttpHeaders.CONTENT_LENGTH)) {
       getHeaders().setContentLength(bytes.length);
     }
 

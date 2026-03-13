@@ -123,7 +123,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
     if (other.defaultHeaders != null) {
       this.defaultHeaders = HttpHeaders.forWritable();
-      this.defaultHeaders.putAll(other.defaultHeaders);
+      this.defaultHeaders.setAll(other.defaultHeaders);
     }
     else {
       this.defaultHeaders = null;

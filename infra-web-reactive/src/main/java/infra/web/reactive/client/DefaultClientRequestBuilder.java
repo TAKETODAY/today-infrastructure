@@ -272,7 +272,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
       HttpHeaders requestHeaders = request.getHeaders();
       if (!this.headers.isEmpty()) {
         for (var entry : this.headers.entrySet()) {
-          requestHeaders.putIfAbsent(entry.getKey(), entry.getValue());
+          requestHeaders.setIfAbsent(entry.getKey(), entry.getValue());
         }
       }
 

@@ -30,9 +30,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import infra.lang.Assert;
-import infra.util.CollectionUtils;
 import infra.util.DataSize;
-import infra.util.MultiValueMap;
 
 /**
  * Extension of {@link HttpEntity} that adds a {@link HttpStatusCode} status code.
@@ -97,7 +95,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param headers the entity headers
    * @param status the status code
    */
-  public ResponseEntity(@Nullable MultiValueMap<String, String> headers, HttpStatusCode status) {
+  public ResponseEntity(@Nullable HttpHeaders headers, HttpStatusCode status) {
     this(null, headers, status);
   }
 
@@ -108,7 +106,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param headers the entity headers
    * @param status the status code
    */
-  public ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, HttpStatusCode status) {
+  public ResponseEntity(@Nullable T body, @Nullable HttpHeaders headers, HttpStatusCode status) {
     super(body, headers);
     Assert.notNull(status, "HttpStatusCode is required");
     this.status = status;
@@ -122,7 +120,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param rawStatus the status code value
    * @since 4.0
    */
-  public ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, int rawStatus) {
+  public ResponseEntity(@Nullable T body, @Nullable HttpHeaders headers, int rawStatus) {
     this(body, headers, (Object) rawStatus);
   }
 
@@ -134,7 +132,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * @param headers the entity headers
    * @param status the status code (as {@code HttpStatusCode} or as {@code Integer} value)
    */
-  private ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, Object status) {
+  private ResponseEntity(@Nullable T body, @Nullable HttpHeaders headers, Object status) {
     super(body, headers);
     Assert.notNull(status, "HttpStatusCode is required");
     this.status = status;
@@ -370,7 +368,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
      * Manipulate this entity's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
      * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
-     * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
+     * {@linkplain HttpHeaders#remove(String) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
      * @param headersConsumer a function that consumes the {@code HttpHeaders}
@@ -546,7 +544,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
 
     @Override
     public BodyBuilder headers(@Nullable HttpHeaders headers) {
-      if (CollectionUtils.isNotEmpty(headers)) {
+      if (HttpHeaders.isNotEmpty(headers)) {
         headers().setAll(headers);
       }
       return this;

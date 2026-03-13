@@ -21,7 +21,6 @@ package infra.http.codec.multipart;
 import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -121,7 +120,7 @@ public final class MultipartBodyBuilder {
       PartBuilder builder = asyncPart(name, partObject.content(), DataBuffer.class);
       if (!partObject.headers().isEmpty()) {
         builder.headers(headers -> {
-          headers.putAll(partObject.headers());
+          headers.setAll(partObject.headers());
           String filename = headers.getContentDisposition().getFilename();
           // reset to parameter name
           headers.setContentDispositionFormData(name, filename);
@@ -247,7 +246,7 @@ public final class MultipartBodyBuilder {
      * @param headerName the part header name
      * @param headerValues the part header value(s)
      * @return this builder
-     * @see HttpHeaders#addAll(Object, Collection)
+     * @see HttpHeaders#setOrRemove(String, List)
      */
     PartBuilder header(String headerName, String... headerValues);
 
@@ -264,11 +263,9 @@ public final class MultipartBodyBuilder {
 
     private final String name;
 
-    @Nullable
-    protected HttpHeaders headers;
+    protected @Nullable HttpHeaders headers;
 
-    @Nullable
-    protected final Object body;
+    protected final @Nullable Object body;
 
     public DefaultPartBuilder(String name, @Nullable HttpHeaders headers, @Nullable Object body) {
       this.name = name;
@@ -353,7 +350,7 @@ public final class MultipartBodyBuilder {
 
     private final ResolvableType resolvableType;
 
-    PublisherEntity(@Nullable MultiValueMap<String, String> headers, P publisher, ResolvableType resolvableType) {
+    PublisherEntity(@Nullable HttpHeaders headers, P publisher, ResolvableType resolvableType) {
       super(publisher, headers);
       Assert.notNull(publisher, "'publisher' is required");
       Assert.notNull(resolvableType, "'resolvableType' is required");

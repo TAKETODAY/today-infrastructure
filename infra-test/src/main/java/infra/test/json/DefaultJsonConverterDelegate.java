@@ -146,7 +146,7 @@ final class DefaultJsonConverterDelegate implements JsonConverterDelegate {
 
   private static HttpInputMessage fromHttpOutputMessage(MockHttpOutputMessage message) {
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(message.getBodyAsBytes());
-    inputMessage.getHeaders().addAll(message.getHeaders());
+    inputMessage.getHeaders().setAll(message.getHeaders());
     return inputMessage;
   }
 

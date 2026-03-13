@@ -106,9 +106,7 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
    * @param contextPath the context path for the request
    * @param headers the headers for the request (as {@link MultiValueMap})
    */
-  public AbstractServerHttpRequest(HttpMethod method, URI uri,
-          @Nullable String contextPath, MultiValueMap<String, String> headers) {
-
+  public AbstractServerHttpRequest(HttpMethod method, URI uri, @Nullable String contextPath, HttpHeaders headers) {
     Assert.notNull(method, "Method is required");
     Assert.notNull(uri, "Uri is required");
     Assert.notNull(headers, "Headers is required");
@@ -116,7 +114,7 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
     this.method = method;
     this.uri = uri;
     this.path = RequestPath.parse(uri, contextPath);
-    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+    this.headers = headers.asReadOnly();
   }
 
   @Override

@@ -496,10 +496,10 @@ class DefaultWebClient implements WebClient {
     @Override
     public void accept(HttpHeaders headers) {
       if (defaultHeaders != null && !defaultHeaders.isEmpty()) {
-        headers.putAll(defaultHeaders);
+        headers.setAll(defaultHeaders);
       }
       if (this.headers != null && !this.headers.isEmpty()) {
-        headers.putAll(this.headers);
+        headers.setAll(this.headers);
       }
       Object version = getApiVersionOrDefault();
       if (version != null) {

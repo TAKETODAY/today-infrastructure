@@ -133,7 +133,7 @@ class HttpHeadersAssertTests {
   @SuppressWarnings("unchecked")
   void hasHeaderSatisfying() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("first", "second", "third"));
+    headers.add("header", List.of("first", "second", "third"));
     Consumer<List<String>> mock = mock(Consumer.class);
     assertThatNoException().isThrownBy(() -> assertThat(headers).hasHeaderSatisfying("header", mock));
     verify(mock).accept(List.of("first", "second", "third"));
@@ -142,7 +142,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasHeaderSatisfyingWithExceptionInConsumer() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("first", "second", "third"));
+    headers.add("header", List.of("first", "second", "third"));
     IllegalStateException testException = new IllegalStateException("test");
     assertThatIllegalStateException()
             .isThrownBy(() -> assertThat(headers).hasHeaderSatisfying("header", values -> {
@@ -153,7 +153,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasHeaderSatisfyingWithFailingAssertion() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("first", "second", "third"));
+    headers.add("header", List.of("first", "second", "third"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasHeaderSatisfying("header", values ->
                     Assertions.assertThat(values).hasSize(42)))
@@ -163,14 +163,14 @@ class HttpHeadersAssertTests {
   @Test
   void hasValueWithStringMatch() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("Header", List.of("a", "b", "c"));
+    headers.add("Header", List.of("a", "b", "c"));
     assertThat(headers).hasValue("hEADer", "a");
   }
 
   @Test
   void hasValueWithStringMatchOnSecondaryValue() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("first", "second", "third"));
+    headers.add("header", List.of("first", "second", "third"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasValue("header", "second"))
             .withMessageContainingAll("check primary value for HTTP header 'header'", "first", "second");
@@ -179,7 +179,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasValueWithNoStringMatch() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("first", "second", "third"));
+    headers.add("header", List.of("first", "second", "third"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasValue("wrong-name", "second"))
             .withMessageContainingAll("HTTP header", "header", "wrong-name");
@@ -197,14 +197,14 @@ class HttpHeadersAssertTests {
   @Test
   void hasValueWithLongMatch() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("123", "456", "789"));
+    headers.add("header", List.of("123", "456", "789"));
     assertThat(headers).hasValue("header", 123);
   }
 
   @Test
   void hasValueWithLongMatchOnSecondaryValue() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("123", "456", "789"));
+    headers.add("header", List.of("123", "456", "789"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasValue("header", 456))
             .withMessageContainingAll("check primary long value for HTTP header 'header'", "123", "456");
@@ -213,7 +213,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasValueWithNoLongMatch() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("123", "456", "789"));
+    headers.add("header", List.of("123", "456", "789"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasValue("wrong-name", 456))
             .withMessageContainingAll("HTTP header", "header", "wrong-name");
@@ -257,7 +257,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasSingleValueWithSecondaryValues() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("first", "second", "third"));
+    headers.add("header", List.of("first", "second", "third"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasSingleValue("header", "first"))
             .withMessage("Expected HTTP header 'header' to be present without secondary values, " +
@@ -274,7 +274,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasSingleValueWithLongMatchButSecondaryValues() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("header", List.of("123", "456", "789"));
+    headers.add("header", List.of("123", "456", "789"));
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasSingleValue("header", 123))
             .withMessage("Expected HTTP header 'header' to be present without secondary values, " +
@@ -304,7 +304,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValues() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThat(headers).hasExactlyValues("name", List.of("value1", "value2"));
   }
@@ -312,7 +312,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesWithMissingOne() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasExactlyValues("name", List.of("value1", "value2", "value3")))
@@ -324,7 +324,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesWithExtraOne() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasExactlyValues("name", List.of("value1")))
@@ -336,7 +336,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesWithWrongOrder() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasExactlyValues("name", List.of("value2", "value1")))
@@ -350,7 +350,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesInAnyOrder() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThat(headers).hasExactlyValuesInAnyOrder("name", List.of("value1", "value2"));
   }
@@ -358,7 +358,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesInAnyOrderWithDifferentOrder() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThat(headers).hasExactlyValuesInAnyOrder("name", List.of("value2", "value1"));
   }
@@ -366,7 +366,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesInAnyOrderWithMissingOne() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasExactlyValuesInAnyOrder("name",
@@ -379,7 +379,7 @@ class HttpHeadersAssertTests {
   @Test
   void hasExactlyValuesInAnyOrderWithExtraOne() {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.addAll("name", List.of("value1", "value2"));
+    headers.add("name", List.of("value1", "value2"));
     headers.add("otherName", "otherValue");
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(headers).hasExactlyValuesInAnyOrder("name", List.of("value1")))

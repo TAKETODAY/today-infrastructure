@@ -179,7 +179,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                               MockMemoryPart mockPart = (part instanceof FilePart filePart ?
                                       new MockMemoryPart(part.name(), filePart.filename(), partBytes) :
                                       new MockMemoryPart(part.name(), partBytes));
-                              mockPart.getHeaders().putAll(part.headers());
+                              mockPart.getHeaders().setAll(part.headers());
                               requestBuilder.part(mockPart);
                             }))
             .blockLast(TIMEOUT);

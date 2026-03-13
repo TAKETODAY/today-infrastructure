@@ -99,7 +99,7 @@ public class MockServerHttpResponseTests {
 
     assertThat(this.response.getHeaders().getFirst(headerName)).isEqualTo(headerValue);
     assertThat(this.response.getHeaders().get(headerName)).containsExactly(headerValue);
-    assertThat(this.response.getHeaders()).containsKey(headerName);
+    assertThat(this.response.getHeaders().asMultiValueMap()).containsKey(headerName);
     assertThat(this.response.getHeaders().getAccessControlAllowOrigin()).isEqualTo(headerValue);
   }
 

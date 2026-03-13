@@ -3578,7 +3578,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     @RequestMapping("/httpHeaders")
     public void httpHeaders(@RequestHeader HttpHeaders headers, Writer writer) throws IOException {
       assertThat(headers.getContentType()).as("Invalid Content-Type").isEqualTo(new MediaType("text", "html"));
-      multiValueMap(headers, writer);
+      multiValueMap(headers.asMultiValueMap(), writer);
     }
   }
 

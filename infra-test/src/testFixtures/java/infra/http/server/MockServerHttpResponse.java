@@ -18,6 +18,8 @@
 
 package infra.http.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serial;
@@ -32,9 +34,8 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
-import infra.util.CollectionUtils;
 import infra.mock.api.http.HttpMockResponse;
+import infra.util.CollectionUtils;
 
 /**
  * {@link ServerHttpResponse} implementation that is based on a {@link HttpMockResponse}.
@@ -154,8 +155,8 @@ public class MockServerHttpResponse implements ServerHttpResponse {
     private static final long serialVersionUID = 3410708522401046302L;
 
     @Override
-    public boolean containsKey(Object key) {
-      return super.containsKey(key) || (get(key) != null);
+    public boolean containsHeader(String key) {
+      return super.containsHeader(key) || (get(key) != null);
     }
 
     @Override
@@ -173,10 +174,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
     }
 
     @Override
-    public List<String> get(Object name) {
-      Assert.isInstanceOf(String.class, name, "Key must be a String-based header name");
-
-      String headerName = (String) name;
+    public List<String> get(String headerName) {
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so don't merge
         String value = getFirst(headerName);
@@ -189,7 +187,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
       }
       boolean isEmpty1 = CollectionUtils.isEmpty(values1);
 
-      List<String> values2 = super.get(name);
+      List<String> values2 = super.get(headerName);
       boolean isEmpty2 = CollectionUtils.isEmpty(values2);
 
       if (isEmpty1 && isEmpty2) {

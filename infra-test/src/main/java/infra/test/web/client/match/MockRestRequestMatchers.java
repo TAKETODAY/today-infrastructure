@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.client.ClientHttpRequest;
 import infra.lang.Assert;
@@ -126,7 +127,7 @@ public abstract class MockRestRequestMatchers {
   public static RequestMatcher queryParam(String name, Matcher<? super String>... matchers) {
     return request -> {
       MultiValueMap<String, String> params = getQueryParams(request);
-      assertValueCount("query param", name, params, matchers.length);
+      assertValueCount(name, params, matchers.length);
       for (int i = 0; i < matchers.length; i++) {
         assertThat("Query param", params.get(name).get(i), matchers[i]);
       }
@@ -139,7 +140,7 @@ public abstract class MockRestRequestMatchers {
   public static RequestMatcher queryParam(String name, String... expectedValues) {
     return request -> {
       MultiValueMap<String, String> params = getQueryParams(request);
-      assertValueCount("query param", name, params, expectedValues.length);
+      assertValueCount(name, params, expectedValues.length);
       for (int i = 0; i < expectedValues.length; i++) {
         assertEquals("Query param [" + name + "]", expectedValues[i], params.get(name).get(i));
       }
@@ -150,26 +151,13 @@ public abstract class MockRestRequestMatchers {
     return UriComponentsBuilder.forURI(request.getURI()).build().getQueryParams();
   }
 
-  private static void assertValueCount(
-          String valueType, String name, MultiValueMap<String, String> map, int count) {
-
-    List<String> values = map.get(name);
-    String message = "Expected " + valueType + " <" + name + ">";
-    if (values == null) {
-      fail(message + " to exist but was null");
-    }
-    if (count > values.size()) {
-      fail(message + " to have at least <" + count + "> values but found " + values);
-    }
-  }
-
   /**
    * Assert request header values with the given Hamcrest matcher(s).
    */
   @SafeVarargs
   public static RequestMatcher header(String name, Matcher<? super String>... matchers) {
     return request -> {
-      assertValueCount("header", name, request.getHeaders(), matchers.length);
+      assertValueCount(name, request.getHeaders(), matchers.length);
       List<String> headerValues = request.getHeaders().get(name);
       Assert.state(headerValues != null, "No header values");
       for (int i = 0; i < matchers.length; i++) {
@@ -183,7 +171,7 @@ public abstract class MockRestRequestMatchers {
    */
   public static RequestMatcher header(String name, String... expectedValues) {
     return request -> {
-      assertValueCount("header", name, request.getHeaders(), expectedValues.length);
+      assertValueCount(name, request.getHeaders(), expectedValues.length);
       List<String> headerValues = request.getHeaders().get(name);
       Assert.state(headerValues != null, "No header values");
       for (int i = 0; i < expectedValues.length; i++) {
@@ -268,6 +256,28 @@ public abstract class MockRestRequestMatchers {
           throws XPathExpressionException {
 
     return new XpathRequestMatchers(expression, namespaces, args);
+  }
+
+  private static void assertValueCount(String name, MultiValueMap<String, String> map, int count) {
+    List<String> values = map.get(name);
+    String message = "Expected query param <" + name + ">";
+    if (values == null) {
+      fail(message + " to exist but was null");
+    }
+    else if (count > values.size()) {
+      fail(message + " to have at least <" + count + "> values but found " + values);
+    }
+  }
+
+  private static void assertValueCount(String name, HttpHeaders headers, int count) {
+    List<String> values = headers.get(name);
+    String message = "Expected header <" + name + ">";
+    if (values == null) {
+      fail(message + " to exist but was null");
+    }
+    else if (count > values.size()) {
+      fail(message + " to have at least <" + count + "> values but found " + values);
+    }
   }
 
 }

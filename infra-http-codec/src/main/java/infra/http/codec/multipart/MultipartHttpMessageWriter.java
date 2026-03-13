@@ -40,11 +40,11 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.codec.EncoderHttpMessageWriter;
 import infra.http.codec.FormHttpMessageWriter;
 import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.ResourceHttpMessageWriter;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.lang.Assert;
 import infra.util.LogFormatUtils;
 import infra.util.MultiValueMap;
@@ -258,7 +258,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
       resolvableType = ResolvableType.forClass(body.getClass());
     }
 
-    if (!headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)) {
+    if (!headers.containsHeader(HttpHeaders.CONTENT_DISPOSITION)) {
       if (body instanceof Resource resource) {
         headers.setContentDispositionFormData(name, resource.getName());
       }

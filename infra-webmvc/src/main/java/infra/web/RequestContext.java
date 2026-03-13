@@ -2113,7 +2113,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 3.0
    */
   public void addHeaders(@Nullable HttpHeaders headers) {
-    if (CollectionUtils.isNotEmpty(headers)) {
+    if (HttpHeaders.isNotEmpty(headers)) {
       responseHeaders().addAll(headers);
     }
   }
@@ -2154,7 +2154,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean containsResponseHeader(String name) {
-    return responseHeaders != null && responseHeaders.containsKey(name);
+    return responseHeaders != null && responseHeaders.containsHeader(name);
   }
 
   /**

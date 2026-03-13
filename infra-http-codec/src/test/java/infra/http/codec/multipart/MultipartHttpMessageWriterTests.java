@@ -175,7 +175,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     part = requestParts.getFirst("filePublisher");
     assertThat(part).isNotNull();
     assertThat(part.name()).isEqualTo("filePublisher");
-    assertThat(part.headers()).containsEntry("foo", Collections.singletonList("bar"));
+    assertThat(part.headers().asMultiValueMap()).containsEntry("foo", Collections.singletonList("bar"));
     assertThat(((FilePart) part).filename()).isEqualTo("file.txt");
     value = decodeToString(part);
     assertThat(value).isEqualTo("AaBbCc");

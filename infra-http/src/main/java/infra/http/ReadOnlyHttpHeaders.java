@@ -21,9 +21,7 @@ package infra.http;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -48,13 +46,15 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   @SuppressWarnings("unchecked")
   public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(MultiValueMap.EMPTY);
 
-  @Nullable
-  private MediaType cachedContentType;
+  private @Nullable MediaType cachedContentType;
 
-  @Nullable
-  private List<MediaType> cachedAccept;
+  private @Nullable List<MediaType> cachedAccept;
 
   ReadOnlyHttpHeaders(MultiValueMap<String, String> headers) {
+    super(headers);
+  }
+
+  ReadOnlyHttpHeaders(HttpHeaders headers) {
     super(headers);
   }
 
@@ -88,13 +88,6 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
     // No-op.
   }
 
-  @Nullable
-  @Override
-  public List<String> get(Object name) {
-    List<String> values = this.headers.get(name);
-    return (values != null ? Collections.unmodifiableList(values) : null);
-  }
-
   @Override
   public void add(String name, @Nullable String value) {
     throw new UnsupportedOperationException();
@@ -106,12 +99,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public void addAll(String key, @Nullable Collection<? extends String> values) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addAll(String key, @Nullable Enumeration<? extends String> values) {
+  public void add(String key, @Nullable List<String> values) {
     throw new UnsupportedOperationException();
   }
 
@@ -126,7 +114,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+  public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
     throw new UnsupportedOperationException();
   }
 
@@ -136,33 +124,29 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public List<String> put(String key, List<String> value) {
+  public List<String> set(String key, List<String> value) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public List<String> remove(Object name) {
+  public List<String> remove(String name) {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void putAll(Map<? extends String, ? extends List<String>> map) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Map<String, String> toSingleValueMap() {
-    return Collections.unmodifiableMap(this.headers.toSingleValueMap());
-  }
-
-  @Override
-  public Map<String, String> asSingleValueMap() {
-    return Collections.unmodifiableMap(this.headers.asSingleValueMap());
   }
 
   @Override
   public void clear() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public @Nullable List<String> get(String name) {
+    List<String> values = this.headers.get(name);
+    return values != null ? Collections.unmodifiableList(values) : null;
+  }
+
+  @Override
+  public Map<String, String> toSingleValueMap() {
+    return Collections.unmodifiableMap(this.headers.toSingleValueMap());
   }
 
   @Override

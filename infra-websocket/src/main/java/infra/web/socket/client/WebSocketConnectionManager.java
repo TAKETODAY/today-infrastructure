@@ -118,7 +118,7 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport impleme
    */
   public void setHeaders(HttpHeaders headers) {
     this.headers.clear();
-    this.headers.putAll(headers);
+    this.headers.setAll(headers);
   }
 
   /**

@@ -21,15 +21,11 @@ package infra.http.support;
 import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
-import infra.util.CollectionUtils;
 import io.netty.handler.codec.http.HttpHeaders;
 
 /**
@@ -50,105 +46,60 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  public @Nullable String getFirst(String name) {
-    return this.headers.get(name);
-  }
-
-  @Override
   public void add(String name, @Nullable String value) {
     if (value != null) {
-      this.headers.add(name, value);
-    }
-  }
-
-  @Override
-  public void addAll(String key, @Nullable Collection<? extends String> values) {
-    if (values != null) {
-      this.headers.add(key, values);
+      headers.add(name, value);
     }
   }
 
   @Override
   public void setHeader(String name, String value) {
-    this.headers.set(name, value);
-  }
-
-  @Override
-  public Map<String, String> toSingleValueMap() {
-    Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(headers.size());
-    for (final Entry<String, String> entry : headers) {
-      if (!singleValueMap.containsKey(entry.getKey())) {
-        singleValueMap.put(entry.getKey(), entry.getValue());
-      }
-    }
-    return singleValueMap;
+    headers.set(name, value);
   }
 
   @Override
   public int size() {
-    return this.headers.names().size();
+    return headers.names().size();
   }
 
   @Override
   public boolean isEmpty() {
-    return this.headers.isEmpty();
+    return headers.isEmpty();
   }
 
   @Override
-  public boolean containsKey(Object key) {
-    return (key instanceof String headerName && this.headers.contains(headerName));
+  public boolean containsHeader(String name) {
+    return headers.contains(name);
   }
 
   @Override
-  public boolean containsValue(Object value) {
-    if (value instanceof String) {
-      for (final Entry<String, String> header : headers) {
-        if (Objects.equals(header.getValue(), value)) {
-          return true;
-        }
-      }
-    }
-    return false;
+  public @Nullable String getFirst(String name) {
+    return headers.get(name);
   }
 
   @Override
-  @Nullable
-  public List<String> get(Object name) {
-    if (containsKey(name)) {
-      return this.headers.getAll((String) name);
-    }
-    return null;
+  public @Nullable List<String> get(String name) {
+    List<String> list = headers.getAll(name);
+    return list.isEmpty() ? null : list;
   }
 
-  @Nullable
   @Override
-  public List<String> put(String key, @Nullable List<String> value) {
-    List<String> previousValues = this.headers.getAll(key);
-    this.headers.set(key, value);
+  public @Nullable List<String> set(String key, @Nullable List<String> value) {
+    List<String> previousValues = headers.getAll(key);
+    headers.set(key, value);
     return previousValues;
   }
 
-  @Nullable
   @Override
-  public List<String> remove(Object key) {
-    if (key instanceof String name && this.headers.contains(name)) {
-      List<String> previousValues = this.headers.getAll(name);
-      this.headers.remove(name);
-      return previousValues;
-    }
-    return null;
-  }
-
-  @Override
-  public void putAll(Map<? extends String, ? extends List<String>> m) {
-    for (var entry : m.entrySet()) {
-      headers.set(entry.getKey(), entry.getValue());
-    }
+  public @Nullable List<String> remove(String name) {
+    List<String> previousValues = headers.getAll(name);
+    headers.remove(name);
+    return previousValues;
   }
 
   @Override
   public void clear() {
-    this.headers.clear();
+    headers.clear();
   }
 
   @Override
@@ -157,18 +108,9 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  public Collection<List<String>> values() {
-    final var headers = this.headers;
-    final ArrayList<List<String>> ret = new ArrayList<>(headers.size());
-    for (final String name : headers.names()) {
-      ret.add(headers.getAll(name));
-    }
-    return ret;
-  }
-
-  @Override
   public Set<Map.Entry<String, List<String>>> entrySet() {
     return new AbstractSet<>() {
+
       @Override
       public Iterator<Map.Entry<String, List<String>>> iterator() {
         return new EntryIterator();

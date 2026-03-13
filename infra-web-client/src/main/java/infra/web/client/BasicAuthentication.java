@@ -36,10 +36,10 @@ import infra.lang.Assert;
 class BasicAuthentication {
 
   private final String username;
+
   private final String password;
 
-  @Nullable
-  private final Charset charset;
+  private final @Nullable Charset charset;
 
   BasicAuthentication(String username, String password, @Nullable Charset charset) {
     Assert.notNull(username, "Username is required");
@@ -50,7 +50,7 @@ class BasicAuthentication {
   }
 
   void applyTo(HttpHeaders headers) {
-    if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
+    if (!headers.containsHeader(HttpHeaders.AUTHORIZATION)) {
       headers.setBasicAuth(this.username, this.password, this.charset);
     }
   }

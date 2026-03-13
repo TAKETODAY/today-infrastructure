@@ -124,7 +124,7 @@ public class MockServerHttpRequestTests {
 
     HttpHeaders headers = request.getHeaders();
     assertThat(headers).as("No HttpHeaders returned").isNotNull();
-    assertThat(headers.containsKey(headerName)).as("Invalid headers returned").isTrue();
+    assertThat(headers.containsHeader(headerName)).as("Invalid headers returned").isTrue();
     List<String> headerValues = headers.get(headerName);
     assertThat(headerValues.size()).as("Invalid header values returned").isEqualTo(2);
     assertThat(headerValues.contains(headerValue1)).as("Invalid header values returned").isTrue();
@@ -145,7 +145,7 @@ public class MockServerHttpRequestTests {
 
     HttpHeaders headers = request.getHeaders();
     assertThat(headers).as("No HttpHeaders returned").isNotNull();
-    assertThat(headers.containsKey(headerName)).as("Invalid headers returned").isTrue();
+    assertThat(headers.containsHeader(headerName)).as("Invalid headers returned").isTrue();
     List<String> headerValues = headers.get(headerName);
     assertThat(headerValues.size()).as("Invalid header values returned").isEqualTo(2);
     assertThat(headerValues.contains(headerValue1)).as("Invalid header values returned").isTrue();
@@ -157,7 +157,7 @@ public class MockServerHttpRequestTests {
   void getHeadersWithWildcardContentType() {
     mockRequest.setContentType("*/*");
     mockRequest.removeHeader("Content-Type");
-    assertThat(request.getHeaders()).as("Invalid content-type should not raise exception").hasSize(0);
+    assertThat(request.getHeaders().size()).as("Invalid content-type should not raise exception").isEqualTo(0);
   }
 
   @Test

@@ -113,7 +113,7 @@ public class ServerHttpResponseTests {
     assertThat(response.statusCodeWritten).isFalse();
     assertThat(response.headersWritten).isFalse();
     assertThat(response.cookiesWritten).isFalse();
-    assertThat(headers).doesNotContainKeys(HttpHeaders.CONTENT_TYPE, HttpHeaders.CONTENT_LENGTH,
+    assertThat(headers.asMultiValueMap()).doesNotContainKeys(HttpHeaders.CONTENT_TYPE, HttpHeaders.CONTENT_LENGTH,
             HttpHeaders.CONTENT_ENCODING);
     assertThat(response.body.isEmpty()).isTrue();
   }
@@ -182,7 +182,7 @@ public class ServerHttpResponseTests {
       assertThat(response.headersWritten).isFalse();
       assertThat(response.cookiesWritten).isFalse();
       assertThat(response.isCommitted()).isFalse();
-      assertThat(response.getHeaders()).isEmpty();
+      assertThat(response.getHeaders().isEmpty()).isTrue();
 
       // Handle the error
       response.setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);

@@ -23,13 +23,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import infra.http.HttpHeaders;
 import infra.http.support.Netty4HttpHeaders;
-import infra.util.LinkedCaseInsensitiveMap;
-import infra.util.MultiValueMap;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.ReadOnlyHttpHeaders;
@@ -47,20 +44,19 @@ class DefaultServerHttpRequestBuilderTests {
 
   @ParameterizedTest
   @MethodSource("headers")
-  void containerImmutableHeadersAreCopied(MultiValueMap<String, String> headerMap, boolean isMutableMap) {
-    HttpHeaders originalHeaders = HttpHeaders.forWritable(headerMap);
+  void containerImmutableHeadersAreCopied(HttpHeaders originalHeaders, boolean isMutableMap) {
     ServerHttpRequest mockRequest = createMockRequest(originalHeaders);
     final DefaultServerHttpRequestBuilder builder = new DefaultServerHttpRequestBuilder(mockRequest);
 
     //perform mutations on the map adapter of the container's headers if possible
     if (isMutableMap) {
-      headerMap.setOrRemove("CaseInsensitive", "original");
+      originalHeaders.setOrRemove("CaseInsensitive", "original");
       assertThat(originalHeaders.getFirst("caseinsensitive"))
               .as("original mutated")
               .isEqualTo("original");
     }
     else {
-      assertThatRuntimeException().isThrownBy(() -> headerMap.setOrRemove("CaseInsensitive", "original"));
+      assertThatRuntimeException().isThrownBy(() -> originalHeaders.setOrRemove("CaseInsensitive", "original"));
       assertThat(originalHeaders.getFirst("caseinsensitive"))
               .as("original not mutable")
               .isEqualTo("unmodified");
@@ -93,14 +89,14 @@ class DefaultServerHttpRequestBuilderTests {
     return mock;
   }
 
-  static Arguments initHeader(String description, MultiValueMap<String, String> headerMap) {
+  static Arguments initHeader(String description, HttpHeaders headerMap) {
     headerMap.add("CaseInsensitive", "unmodified");
     return argumentSet(description, headerMap, true);
   }
 
   static Stream<Arguments> headers() {
     return Stream.of(
-            initHeader("Map", MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH))),
+            initHeader("Map", HttpHeaders.forWritable()),
             initHeader("Netty", new Netty4HttpHeaders(new DefaultHttpHeaders())),
             //immutable versions of some headers
             argumentSet("Netty immutable", new Netty4HttpHeaders(new ReadOnlyHttpHeaders(false,

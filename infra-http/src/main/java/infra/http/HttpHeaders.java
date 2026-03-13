@@ -20,7 +20,6 @@ package infra.http;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -40,14 +39,17 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import infra.lang.Assert;
+import infra.lang.Contract;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
@@ -83,10 +85,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2020-01-28 17:15
  */
-public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap<String, String>, Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
+public abstract class HttpHeaders implements Serializable {
 
   /**
    * The HTTP {@code Accept} header field name.
@@ -552,12 +551,26 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Get the list of header values for the given header name, if any.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @return the list of header values, or an empty list
    */
-  public List<String> getOrEmpty(String headerName) {
-    List<String> values = get(headerName);
-    return (values != null ? values : Collections.emptyList());
+  @Unmodifiable
+  public List<String> getOrEmpty(String name) {
+    return getOrDefault(name, Collections.emptyList());
+  }
+
+  /**
+   * Get the list of header values for the given header name, or the given
+   * default list of values if the header is not present.
+   *
+   * @param name the header name
+   * @param defaultValue the fallback list if header is not present
+   * @return the list of header values, or a default list of values
+   * @since 5.0
+   */
+  public List<String> getOrDefault(String name, List<String> defaultValue) {
+    List<String> values = get(name);
+    return values != null ? values : defaultValue;
   }
 
   /**
@@ -597,6 +610,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * <p>
    * Returns an empty list when the acceptable media types are unspecified.
    */
+  @Unmodifiable
   public List<MediaType> getAccept() {
     return MediaType.parseMediaTypes(get(ACCEPT));
   }
@@ -1894,8 +1908,8 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return a read-only variant of the headers, or the original headers as-is
    * @since 4.0
    */
-  @Override
   public HttpHeaders asReadOnly() {
+    // todo
     return new ReadOnlyHttpHeaders(this);
   }
 
@@ -1906,7 +1920,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return a writable variant of the headers, or the original headers as-is
    * @since 4.0
    */
-  @Override
   public HttpHeaders asWritable() {
     return this;
   }
@@ -1915,11 +1928,11 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * Returns {@code true} if this HttpHeaders contains an entry for the
    * given header name.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @since 5.0
    */
-  public boolean containsHeader(String headerName) {
-    return containsKey(headerName);
+  public boolean containsHeader(String name) {
+    return get(name) != null;
   }
 
   /**
@@ -1950,17 +1963,23 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     return values.contains(value);
   }
 
-  // ---------------------------------------------------------------------
-  // abstract for subclasses
-  // ---------------------------------------------------------------------
-
-  @Override
+  /**
+   * Set the given header value, or remove the header if {@code null}.
+   *
+   * @param name the header name
+   * @param value the header value, or {@code null} for none
+   */
   public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
     return setOrRemove(name, ObjectUtils.isEmpty(value) ? null : toCommaDelimitedString(Arrays.asList(value)));
   }
 
-  @Override
-  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+  /**
+   * Set the given header value, or remove the header if {@code null}.
+   *
+   * @param name the header name
+   * @param value the header value, or {@code null} for none
+   */
+  public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
     return setOrRemove(name, CollectionUtils.isEmpty(value) ? null : toCommaDelimitedString(value));
   }
 
@@ -1971,7 +1990,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param value the header value, or {@code null} for none
    * @return returns {@code null} if value is not {@code null}
    */
-  @Override
   public @Nullable List<String> setOrRemove(String name, @Nullable String value) {
     if (value != null) {
       setHeader(name, value);
@@ -1998,12 +2016,153 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
+   * Perform an action over each header, as when iterated via
+   * {@link #entrySet()}.
+   *
+   * @param action the action to be performed for each entry
+   */
+  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
+    entrySet().forEach(e -> action.accept(e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Copy all entries from the given map into this header structure.
+   * <p>For each entry, the key is treated as the header name and the value
+   * as a list of header values to be added.
+   *
+   * @param values the map of header names to header values; may be {@code null}
+   */
+  public void addAll(@Nullable Map<String, List<String>> values) {
+    if (CollectionUtils.isNotEmpty(values)) {
+      for (Map.Entry<String, List<String>> entry : values.entrySet()) {
+        add(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  /**
+   * Copy all entries from the given {@link HttpHeaders} into this header structure.
+   * <p>For each entry, the key is treated as the header name and the value
+   * as a list of header values to be added.
+   *
+   * @param headers the headers to copy; may be {@code null}
+   */
+  public void addAll(@Nullable HttpHeaders headers) {
+    if (isNotEmpty(headers)) {
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        add(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  /**
+   * Add all values from the given collection under the specified header name.
+   *
+   * @param name the header name
+   * @param values the collection of header values to add; may be {@code null}
+   */
+  public void add(String name, @Nullable List<String> values) {
+    if (CollectionUtils.isNotEmpty(values)) {
+      for (String element : values) {
+        add(name, element);
+      }
+    }
+  }
+
+  /**
+   * Copy all entries from the given {@link HttpHeaders} into this header structure.
+   * <p>For each entry, the key is treated as the header name and the value
+   * as a list of header values to be set (replacing any existing values).
+   *
+   * @param headers the headers to copy; may be {@code null}
+   */
+  public void setAll(@Nullable HttpHeaders headers) {
+    if (isNotEmpty(headers)) {
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        set(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  /**
+   * Copy all entries from the given map into this header structure.
+   * <p>For each entry, the key is treated as the header name and the value
+   * as a list of header values to be set (replacing any existing values).
+   *
+   * @param values the map of header names to header values; may be {@code null}
+   */
+  public void setAll(@Nullable Map<String, List<String>> values) {
+    if (CollectionUtils.isNotEmpty(values)) {
+      for (Map.Entry<String, List<String>> entry : values.entrySet()) {
+        set(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  /**
+   * Set header values for the given header name if that header name isn't
+   * already present in this HttpHeaders and return {@code null}. If the
+   * header is already present, returns the associated value list instead.
+   *
+   * @param name the header name
+   * @param values the header values to set if header is not present
+   * @return the previous value or {@code null}
+   */
+  public @Nullable List<String> setIfAbsent(String name, List<String> values) {
+    var v = get(name);
+    if (v == null) {
+      v = set(name, values);
+    }
+    return v;
+  }
+
+  /**
+   * Return this HttpHeaders as a {@code Map} with the first values for each
+   * header name. This method is susceptible to include multiple
+   * casing variants of a given header name, see {@link #asMultiValueMap()}
+   * javadoc.
+   * <p>this method returns a copy of the headers
+   *
+   * @return a single value representation of these headers
+   */
+  public Map<String, String> toSingleValueMap() {
+    LinkedHashMap<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(size());
+    for (Map.Entry<String, List<String>> entry : entrySet()) {
+      List<String> values = entry.getValue();
+      if (CollectionUtils.isNotEmpty(values)) {
+        singleValueMap.put(entry.getKey(), values.get(0));
+      }
+    }
+    return singleValueMap;
+  }
+
+  /**
+   * Return this HttpHeaders as a {@code MultiValueMap} with the full list
+   * of values for each header name.
+   * <p>Note that some backing server headers implementations can store header
+   * names in a case-sensitive manner, which will lead to duplicates during
+   * iteration in methods like {@code entrySet()}, where multiple occurrences
+   * of a header name can surface depending on letter casing but each such
+   * entry has the full {@code List} of values.
+   *
+   * @return a MultiValueMap representation of these headers
+   * @since 5.0
+   */
+  public MultiValueMap<String, String> asMultiValueMap() {
+    var result = MultiValueMap.<String, String>forLinkedHashMap();
+    return result;
+  }
+
+  // ---------------------------------------------------------------------
+  // abstract for subclasses
+  // ---------------------------------------------------------------------
+
+  /**
    * Return the first header value for the given header name, if any.
    *
    * @param name the header name
    * @return the first header value, or {@code null} if none
    */
-  @Override
   public abstract @Nullable String getFirst(String name);
 
   /**
@@ -2015,8 +2174,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @see #setOrRemove(String, String)
    * @see ReadOnlyHttpHeaders
    */
-  @Override
   public abstract void add(String name, @Nullable String value);
+
+  public abstract @Nullable List<String> set(String name, List<String> values);
 
   /**
    * Set the given, single header value under the given name.
@@ -2029,6 +2189,20 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   protected abstract void setHeader(String name, String value);
 
   /**
+   * Remove all headers from this HttpHeaders instance.
+   */
+  public abstract void clear();
+
+  /**
+   * Return the number of headers in the collection.
+   * <p>This can be inflated: see the {@link HttpHeaders class level javadoc}
+   * for details.
+   */
+  public abstract int size();
+
+  public abstract boolean isEmpty();
+
+  /**
    * Get the list of values associated with the given header name, or null.
    * <p>To ensure support for double-quoted values, see also
    * {@link #getValuesAsList(String)}.
@@ -2036,8 +2210,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param name the header name
    * @see #getValuesAsList(String)
    */
-  @Override
-  public abstract @Nullable List<String> get(Object name);
+  public abstract @Nullable List<String> get(String name);
 
   /**
    * Removes the header with the given name.
@@ -2046,8 +2219,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return the previous value associated with the specified header name,
    * or {@code null} if there was no mapping for the name
    */
-  @Override
-  public abstract @Nullable List<String> remove(Object name);
+  public abstract @Nullable List<String> remove(String name);
 
   /**
    * Returns a {@link Set} view of the header names contained in this header.
@@ -2057,7 +2229,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @return a set of the header names
    */
-  @Override
   public abstract Set<String> keySet();
 
   /**
@@ -2068,19 +2239,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @return a set view of the mappings contained in this header
    */
-  @Override
-  public abstract Set<Entry<String, List<String>>> entrySet();
-
-  /**
-   * Returns a {@link Collection} view of the values contained in this header.
-   * <p>
-   * This method is generally used for traversing header values rather than modifying them.
-   * To modify headers, use the corresponding methods within this class.
-   *
-   * @return a collection view of the values contained in this header
-   */
-  @Override
-  public abstract Collection<List<String>> values();
+  public abstract Set<Map.Entry<String, List<String>>> entrySet();
 
   @Override
   public String toString() {
@@ -2099,7 +2258,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param headers the headers to format
    * @return the headers to a String
    */
-  public static String formatHeaders(MultiValueMap<String, String> headers) {
+  public static String formatHeaders(HttpHeaders headers) {
     return headers.entrySet().stream()
             .map(entry -> {
               List<String> values = entry.getValue();
@@ -2143,6 +2302,17 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     String credentialsString = username + ":" + password;
     byte[] encodedBytes = Base64.getEncoder().encode(credentialsString.getBytes(charset));
     return new String(encodedBytes, charset);
+  }
+
+  /**
+   * Checks if the given {@link HttpHeaders} is not null and contains at least one header entry.
+   *
+   * @param headers the headers to check, may be {@code null}
+   * @return {@code true} if the headers are not null and not empty; {@code false} otherwise
+   */
+  @Contract("null -> false")
+  public static boolean isNotEmpty(@Nullable HttpHeaders headers) {
+    return headers != null && !headers.isEmpty();
   }
 
   /**
@@ -2192,9 +2362,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   @Unmodifiable
   public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
-    return headers instanceof HttpHeaders
-            ? ((HttpHeaders) headers).asReadOnly()
-            : new ReadOnlyHttpHeaders(headers);
+    return new ReadOnlyHttpHeaders(headers);
   }
 
   /**
@@ -2209,6 +2377,49 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
     HttpHeaders result = HttpHeaders.forWritable();
     result.addAll(targetMap);
+    return result;
+  }
+
+  /**
+   * Create a new, mutable {@code HttpHeaders} instance and copy the supplied
+   * headers to that new instance.
+   * <p>Changes to the returned {@code HttpHeaders} will not affect the
+   * supplied headers map.
+   *
+   * @param headers the headers to copy
+   * @since 5.0
+   */
+  @Modifiable
+  public static HttpHeaders copyOf(MultiValueMap<String, String> headers) {
+    HttpHeaders result = HttpHeaders.forWritable();
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      List<String> values = headers.get(entry.getKey());
+      if (values != null) {
+        result.set(entry.getKey(), new ArrayList<>(values));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Create a new, mutable {@code HttpHeaders} instance and copy the supplied
+   * headers to that new instance.
+   * <p>Changes to the returned {@code HttpHeaders} will not affect the
+   * supplied {@code HttpHeaders}.
+   *
+   * @param headers the headers to copy
+   * @since 5.0
+   */
+  @Modifiable
+  public static HttpHeaders copyOf(HttpHeaders headers) {
+    HttpHeaders result = HttpHeaders.forWritable();
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      List<String> values = entry.getValue();
+      if (values != null) {
+        result.add(entry.getKey(), values);
+      }
+    }
+    result.addAll(headers);
     return result;
   }
 

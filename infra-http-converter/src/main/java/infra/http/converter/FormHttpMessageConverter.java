@@ -577,7 +577,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       }
       multipartMessage.getHeaders().setContentDisposition(cd.build());
       if (!partHeaders.isEmpty()) {
-        multipartMessage.getHeaders().putAll(partHeaders);
+        multipartMessage.getHeaders().setAll(partHeaders);
       }
       converter.write(partBody, partContentType, multipartMessage);
       return;

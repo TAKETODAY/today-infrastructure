@@ -100,7 +100,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
       if (part != null) {
         HttpHeaders headers = HttpHeaders.forWritable();
         for (String headerName : part.getHeaderNames()) {
-          headers.addAll(headerName, part.getHeaders(headerName));
+          headers.add(headerName, part.getHeaders(headerName));
         }
         return headers;
       }

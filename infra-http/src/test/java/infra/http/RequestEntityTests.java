@@ -18,7 +18,6 @@
 
 package infra.http;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -104,7 +103,7 @@ class RequestEntityTests {
             ifNoneMatch(ifNoneMatch).
             contentLength(contentLength).
             contentType(contentType).
-            headers(headers -> Assertions.assertThat(headers).hasSize(6)).
+            headers(headers -> assertThat(headers.size()).isEqualTo(6)).
             build();
 
     assertThat(responseEntity).isNotNull();
@@ -201,8 +200,8 @@ class RequestEntityTests {
     assertThat(entity.getMethod()).isEqualTo(method);
     assertThat(entity.getURI()).isEqualTo(uri);
     assertThat(entity.getBody()).isNull();
-    assertThat(entity.headers()).isEmpty();
-    assertThat(entity.getHeaders()).isEmpty();
+    assertThat(entity.headers().isEmpty()).isTrue();
+    assertThat(entity.getHeaders().isEmpty()).isTrue();
   }
 
   @Test
@@ -215,8 +214,8 @@ class RequestEntityTests {
     assertThat(entity.getMethod()).isEqualTo(method);
     assertThat(entity.getURI()).isEqualTo(uri);
     assertThat(entity.getBody()).isEqualTo(body);
-    assertThat(entity.headers()).isEmpty();
-    assertThat(entity.getHeaders()).isEmpty();
+    assertThat(entity.headers().isEmpty()).isTrue();
+    assertThat(entity.getHeaders().isEmpty()).isTrue();
     assertThat(entity.getHeaders()).isSameAs(entity.headers());
   }
 
@@ -231,8 +230,8 @@ class RequestEntityTests {
     assertThat(entity.getURI()).isEqualTo(uri);
     assertThat(entity.getBody()).isEqualTo(body);
     assertThat(entity.getType()).isEqualTo(String.class);
-    assertThat(entity.headers()).isEmpty();
-    assertThat(entity.getHeaders()).isEmpty();
+    assertThat(entity.headers().isEmpty()).isTrue();
+    assertThat(entity.getHeaders().isEmpty()).isTrue();
     assertThat(entity.getHeaders()).isSameAs(entity.headers());
   }
 
@@ -247,7 +246,7 @@ class RequestEntityTests {
     assertThat(entity.getMethod()).isEqualTo(method);
     assertThat(entity.getURI()).isEqualTo(uri);
     assertThat(entity.getBody()).isNull();
-    assertThat(entity.getHeaders()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
+    assertThat(entity.getHeaders().asMultiValueMap()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
   }
 
   @Test
@@ -262,7 +261,7 @@ class RequestEntityTests {
     assertThat(entity.getMethod()).isEqualTo(method);
     assertThat(entity.getURI()).isEqualTo(uri);
     assertThat(entity.getBody()).isEqualTo(body);
-    assertThat(entity.getHeaders()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
+    assertThat(entity.headers().asMultiValueMap()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
   }
 
   @Test
@@ -379,7 +378,7 @@ class RequestEntityTests {
     builder.headers(headers);
 
     RequestEntity<String> entity = builder.body("test");
-    assertThat(entity.getHeaders()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
+    assertThat(entity.getHeaders().asMultiValueMap()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
   }
 
   @Test
@@ -458,7 +457,7 @@ class RequestEntityTests {
     assertThat(entity.getURI()).isEqualTo(uri);
     assertThat(entity.getBody()).isEqualTo(body);
     assertThat(entity.getType()).isEqualTo(String.class);
-    assertThat(entity.getHeaders()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
+    assertThat(entity.headers().asMultiValueMap()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
   }
 
   @Test
@@ -525,7 +524,7 @@ class RequestEntityTests {
     builder.header("Custom-Header", "value1", "value2");
 
     RequestEntity<String> entity = builder.body("test");
-    assertThat(entity.getHeaders()).containsEntry("Custom-Header", Arrays.asList("value1", "value2"));
+    assertThat(entity.getHeaders().asMultiValueMap()).containsEntry("Custom-Header", Arrays.asList("value1", "value2"));
   }
 
   @Test
@@ -534,8 +533,8 @@ class RequestEntityTests {
     builder.headers(HttpHeaders.forWritable());
 
     RequestEntity<String> entity = builder.body("test");
-    assertThat(entity.headers()).isEmpty();
-    assertThat(entity.getHeaders()).isEmpty();
+    assertThat(entity.headers().isEmpty()).isTrue();
+    assertThat(entity.getHeaders().isEmpty()).isTrue();
   }
 
   @Test
@@ -544,7 +543,7 @@ class RequestEntityTests {
     builder.headers(headers -> headers.set("Custom-Header", "custom-value"));
 
     RequestEntity<String> entity = builder.body("test");
-    assertThat(entity.getHeaders()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
+    assertThat(entity.getHeaders().asMultiValueMap()).containsEntry("Custom-Header", Collections.singletonList("custom-value"));
   }
 
   @Test
@@ -753,7 +752,7 @@ class RequestEntityTests {
     builder.headers(headers -> headers.remove("ToRemove-Header"));
 
     RequestEntity<String> entity = builder.body("test");
-    assertThat(entity.getHeaders().containsKey("ToRemove-Header")).isFalse();
+    assertThat(entity.getHeaders().containsHeader("ToRemove-Header")).isFalse();
   }
 
   @Test
@@ -1025,7 +1024,7 @@ class RequestEntityTests {
     RequestEntity<String> entity = builder.body("test");
 
     assertThat(entity.getHeaders().getFirst("X-Original")).isEqualTo("replaced-value");
-    assertThat(entity.getHeaders().containsKey("X-To-Be-Removed")).isFalse();
+    assertThat(entity.getHeaders().containsHeader("X-To-Be-Removed")).isFalse();
     assertThat(entity.getHeaders().getFirst("X-Added-Later")).isEqualTo("added-value");
   }
 

@@ -107,7 +107,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
         this.builder.header(entry.getKey(), value);
       }
     }
-    if (!getHeaders().containsKey(HttpHeaders.ACCEPT)) {
+    if (!getHeaders().containsHeader(HttpHeaders.ACCEPT)) {
       this.builder.header(HttpHeaders.ACCEPT, "*/*");
     }
   }

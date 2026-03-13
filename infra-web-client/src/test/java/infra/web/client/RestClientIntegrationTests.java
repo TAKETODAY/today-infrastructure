@@ -1316,7 +1316,7 @@ class RestClientIntegrationTests {
 
     String result = this.restClient.get()
             .uri("/greeting")
-            .httpRequest(request -> request.getHeaders().add("X-Test-Header", null))
+            .httpRequest(request -> request.getHeaders().add("X-Test-Header", (String) null))
             .retrieve()
             .body(String.class);
 

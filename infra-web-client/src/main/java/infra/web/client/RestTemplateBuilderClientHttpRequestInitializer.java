@@ -66,7 +66,7 @@ class RestTemplateBuilderClientHttpRequestInitializer implements ClientHttpReque
       this.basicAuthentication.applyTo(headers);
     }
     for (Map.Entry<String, List<String>> entry : defaultHeaders.entrySet()) {
-      headers.putIfAbsent(entry.getKey(), entry.getValue());
+      headers.setIfAbsent(entry.getKey(), entry.getValue());
     }
 
     LambdaSafe.callbacks(RestTemplateRequestCustomizer.class, requestCustomizers, request)

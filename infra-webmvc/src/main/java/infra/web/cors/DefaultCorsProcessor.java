@@ -100,7 +100,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return false;
     }
 
-    if (responseHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)) {
+    if (responseHeaders.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)) {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }

@@ -188,7 +188,7 @@ class HttpRequestValuesTests {
             .setUriTemplate("/api")
             .build();
 
-    assertThat(requestValues.getHeaders()).isEmpty();
+    assertThat(requestValues.getHeaders().isEmpty()).isTrue();
     assertThat(requestValues.getCookies()).isEmpty();
   }
 

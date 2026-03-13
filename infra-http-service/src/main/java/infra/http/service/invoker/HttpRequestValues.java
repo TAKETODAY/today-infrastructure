@@ -542,7 +542,7 @@ public class HttpRequestValues {
       HttpHeaders headers = HttpHeaders.empty();
       if (this.headers != null) {
         headers = HttpHeaders.forWritable();
-        headers.putAll(this.headers);
+        headers.setAll(this.headers);
       }
 
       MultiValueMap<String, String> cookies = this.cookies != null

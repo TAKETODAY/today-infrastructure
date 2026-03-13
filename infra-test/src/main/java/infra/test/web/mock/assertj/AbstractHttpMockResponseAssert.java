@@ -65,7 +65,7 @@ public abstract class AbstractHttpMockResponseAssert<R extends HttpMockResponse,
 
   private static HttpHeaders getHttpHeaders(HttpMockResponse response) {
     HttpHeaders headers = HttpHeaders.forWritable();
-    response.getHeaderNames().forEach(name -> headers.put(name, new ArrayList<>(response.getHeaders(name))));
+    response.getHeaderNames().forEach(name -> headers.set(name, new ArrayList<>(response.getHeaders(name))));
     return headers;
   }
 

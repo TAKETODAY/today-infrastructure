@@ -370,7 +370,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    * @param httpHeaders the headers and values to add
    */
   public B headers(HttpHeaders httpHeaders) {
-    httpHeaders.forEach(this.headers::addAll);
+    headers.addAll(httpHeaders);
     return self();
   }
 
@@ -704,8 +704,8 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
 
     parentBuilder.headers.forEach((headerName, values) -> {
       values.forEach(value -> {
-        if (!this.headers.containsKey(headerName)) {
-          this.headers.put(headerName, values);
+        if (!this.headers.containsHeader(headerName)) {
+          this.headers.set(headerName, values);
         }
       });
     });
@@ -844,8 +844,8 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
     });
 
     if (ObjectUtils.isNotEmpty(this.content) &&
-            !this.headers.containsKey(HttpHeaders.CONTENT_LENGTH) &&
-            !this.headers.containsKey(HttpHeaders.TRANSFER_ENCODING)) {
+            !this.headers.containsHeader(HttpHeaders.CONTENT_LENGTH) &&
+            !this.headers.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
 
       request.addHeader(HttpHeaders.CONTENT_LENGTH, this.content.length);
     }

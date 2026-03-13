@@ -185,7 +185,7 @@ public abstract class AbstractHeaderAssertions<E, R> {
    * Expect that the header with the given name is present.
    */
   public R exists(String name) {
-    if (!getResponseHeaders().containsKey(name)) {
+    if (!getResponseHeaders().containsHeader(name)) {
       String message = getMessage(name) + " does not exist";
       assertWithDiagnostics(() -> fail(message));
     }
@@ -196,7 +196,7 @@ public abstract class AbstractHeaderAssertions<E, R> {
    * Expect that the header with the given name is not present.
    */
   public R doesNotExist(String name) {
-    if (getResponseHeaders().containsKey(name)) {
+    if (getResponseHeaders().containsHeader(name)) {
       String message = getMessage(name) + " exists with value=[" + getResponseHeaders().getFirst(name) + "]";
       assertWithDiagnostics(() -> fail(message));
     }

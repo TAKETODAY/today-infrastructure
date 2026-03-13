@@ -177,7 +177,7 @@ class PrintingResultHandlerTests {
     headers.setOrRemove("header", "headerValue");
     headers.setContentType(MediaType.TEXT_PLAIN);
     headers.setLocation(URI.create("/redirectFoo"));
-    headers.put("Set-Cookie", cookieValues);
+    headers.set("Set-Cookie", cookieValues);
 
     String heading = "MockHttpResponseImpl";
     assertValue(heading, "Status", this.response.getStatus());

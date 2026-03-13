@@ -57,8 +57,6 @@ import infra.web.bind.resolver.ParameterResolverNotFoundException;
 import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.server.MultipartException;
-import infra.web.server.NotMultipartRequestException;
 import infra.web.multipart.parsing.ItemSkippedException;
 import infra.web.multipart.parsing.MalformedStreamException;
 import infra.web.multipart.parsing.MultipartBoundaryException;
@@ -66,6 +64,8 @@ import infra.web.multipart.parsing.MultipartFieldCountLimitException;
 import infra.web.multipart.parsing.MultipartSizeException;
 import infra.web.server.InternalServerException;
 import infra.web.server.MethodNotAllowedException;
+import infra.web.server.MultipartException;
+import infra.web.server.NotMultipartRequestException;
 import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.ResponseStatusException;
 import infra.web.server.UnsupportedMediaTypeStatusException;
@@ -284,7 +284,7 @@ class ExceptionTests {
       assertThat(exception.getStatusCode()).isEqualTo(status);
       assertThat(exception.getCause()).isSameAs(cause);
       assertThat(exception.getBody().getStatus()).isEqualTo(status.value());
-      assertThat(exception.getHeaders()).isEmpty();
+      assertThat(exception.getHeaders().isEmpty()).isTrue();
     }
 
     @Test

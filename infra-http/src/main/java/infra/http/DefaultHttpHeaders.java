@@ -19,13 +19,11 @@ package infra.http;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.IntFunction;
 
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
@@ -65,10 +63,25 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   /**
    * Construct with a user input header map
+   *
+   * @see #addAll(Map)
    */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
     this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(headers.size(), Locale.ROOT));
     addAll(headers);
+  }
+
+  /**
+   * Construct a new {@code HttpHeaders} instance backed by the supplied map.
+   * <p>This constructor is available as an optimization for adapting to existing
+   * headers map structures, primarily for internal use within the framework.
+   *
+   * @param headers the headers map (expected to operate with case-insensitive keys)
+   * @since 5.0
+   */
+  public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
+    Assert.notNull(headers, "MultiValueMap is required");
+    this.headers = headers;
   }
 
   /**
@@ -78,31 +91,32 @@ public class DefaultHttpHeaders extends HttpHeaders {
    *
    * @param headers the headers map (expected to operate with case-insensitive keys)
    */
-  public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
+  public DefaultHttpHeaders(HttpHeaders headers) {
     Assert.notNull(headers, "MultiValueMap is required");
-    if (headers == EMPTY) {
-      this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
-    }
-    else if (headers instanceof DefaultHttpHeaders httpHeaders) {
-      while (httpHeaders.headers instanceof DefaultHttpHeaders wrapped) {
-        httpHeaders = wrapped;
-      }
-      this.headers = httpHeaders.headers;
+    if (headers instanceof DefaultHttpHeaders httpHeaders) {
+      this.headers = DefaultHttpHeaders.unwrap(httpHeaders);
     }
     else {
-      this.headers = headers;
+      this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
+      setAll(headers);
     }
   }
 
-  @Nullable
   @Override
-  public String getFirst(String name) {
+  public @Nullable String getFirst(String name) {
     return headers.getFirst(name);
   }
 
   @Override
   public void add(String name, @Nullable String value) {
-    headers.add(name, value);
+    if (value != null) {
+      headers.add(name, value);
+    }
+  }
+
+  @Override
+  public @Nullable List<String> set(String name, List<String> values) {
+    return headers.put(name, values);
   }
 
   @Override
@@ -110,20 +124,18 @@ public class DefaultHttpHeaders extends HttpHeaders {
     headers.setOrRemove(name, value);
   }
 
-  @Nullable
   @Override
-  public List<String> setOrRemove(String name, String @Nullable [] value) {
+  public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
     return headers.setOrRemove(name, ObjectUtils.isEmpty(value) ? null : value);
   }
 
-  @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+  public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
     return headers.setOrRemove(name, CollectionUtils.isEmpty(value) ? null : value);
   }
 
   @Override
-  public List<String> remove(Object name) {
+  public @Nullable List<String> remove(String name) {
     return headers.remove(name);
   }
 
@@ -142,30 +154,13 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public boolean containsKey(Object key) {
-    return headers.containsKey(key);
+  public boolean containsHeader(String name) {
+    return headers.containsKey(name);
   }
 
   @Override
-  public boolean containsValue(Object value) {
-    return headers.containsValue(value);
-  }
-
-  @Nullable
-  @Override
-  public List<String> get(Object name) {
+  public @Nullable List<String> get(String name) {
     return headers.get(name);
-  }
-
-  @Nullable
-  @Override
-  public List<String> put(String key, List<String> value) {
-    return headers.put(key, value);
-  }
-
-  @Override
-  public void putAll(Map<? extends String, ? extends List<String>> m) {
-    headers.putAll(m);
   }
 
   @Override
@@ -184,56 +179,24 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   /**
-   * Return a {@link Collection} view of all the header values, reconstructed
-   * from iterating over the {@link #keySet()}. This can include duplicates if
-   * multiple casing variants of a given header name are tracked, see
-   * {@link HttpHeaders class level javadoc}.
-   */
-  @Override
-  public Collection<List<String>> values() {
-    return headers.values();
-  }
-
-  /**
    * Return a {@link Set} views of header entries, reconstructed from
    * iterating over the {@link #keySet()}. This can include duplicate entries
    * if multiple casing variants of a given header name are tracked, see
    * {@link HttpHeaders class level javadoc}.
    */
   @Override
-  public Set<Entry<String, List<String>>> entrySet() {
+  public Set<Map.Entry<String, List<String>>> entrySet() {
     return headers.entrySet();
   }
 
-  /**
-   * Return this HttpHeaders as a {@code Map} with the first values for each
-   * header name. This method is susceptible to include multiple
-   * casing variants of a given header name, see {@link MultiValueMap}
-   * javadoc.
-   * <p>The difference between this method and {@link #asSingleValueMap()} is
-   * that this method returns a copy of the headers, whereas the latter
-   * returns a view.
-   *
-   * @return a single value representation of these headers
-   */
   @Override
   public Map<String, String> toSingleValueMap() {
     return headers.toSingleValueMap();
   }
 
   @Override
-  public Map<String, String> asSingleValueMap() {
-    return headers.asSingleValueMap();
-  }
-
-  @Override
-  public Map<String, String[]> toArrayMap(IntFunction<String[]> mappingFunction) {
-    return headers.toArrayMap(mappingFunction);
-  }
-
-  @Override
-  public void copyToArrayMap(Map<String, String[]> newMap, IntFunction<String[]> function) {
-    headers.copyToArrayMap(newMap, function);
+  public MultiValueMap<String, String> asMultiValueMap() {
+    return headers;
   }
 
   /**
@@ -249,10 +212,9 @@ public class DefaultHttpHeaders extends HttpHeaders {
     this.headers.forEach(action);
   }
 
-  @Nullable
   @Override
-  public List<String> putIfAbsent(String key, List<String> value) {
-    return this.headers.putIfAbsent(key, value);
+  public @Nullable List<String> setIfAbsent(String name, List<String> values) {
+    return this.headers.putIfAbsent(name, values);
   }
 
   @Override
