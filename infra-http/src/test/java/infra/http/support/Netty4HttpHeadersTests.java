@@ -256,9 +256,9 @@ class Netty4HttpHeadersTests {
     Set<String> keySet = nettyHeaders.keySet();
     Iterator<String> iterator = keySet.iterator();
     iterator.next();
-    iterator.remove();
+    iterator.remove(); // keySet 只是一个视图，不影响原有 headers
 
-    assertThat(underlyingHeaders.size()).isEqualTo(1);
+    assertThat(underlyingHeaders.size()).isEqualTo(2);
   }
 
   @Test

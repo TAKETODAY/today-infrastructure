@@ -1970,15 +1970,13 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   // abstract for subclasses
   // ---------------------------------------------------------------------
 
-  @Nullable
   @Override
-  public List<String> setOrRemove(String name, String @Nullable [] value) {
+  public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
     return setOrRemove(name, ObjectUtils.isEmpty(value) ? null : toCommaDelimitedString(Arrays.asList(value)));
   }
 
-  @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
     return setOrRemove(name, CollectionUtils.isEmpty(value) ? null : toCommaDelimitedString(value));
   }
 
@@ -1989,9 +1987,8 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param value the header value, or {@code null} for none
    * @return returns {@code null} if value is not {@code null}
    */
-  @Nullable
   @Override
-  public List<String> setOrRemove(String name, @Nullable String value) {
+  public @Nullable List<String> setOrRemove(String name, @Nullable String value) {
     if (value != null) {
       setHeader(name, value);
       return null;
@@ -2056,13 +2053,51 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param name the header name
    * @see #getValuesAsList(String)
    */
-  @Nullable
   @Override
-  public abstract List<String> get(Object name);
+  public abstract @Nullable List<String> get(Object name);
 
-  @Nullable
+  /**
+   * Removes the header with the given name.
+   *
+   * @param name the header name
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   */
   @Override
-  public abstract List<String> remove(Object name);
+  public abstract @Nullable List<String> remove(Object name);
+
+  /**
+   * Returns a {@link Set} view of the header names contained in this header.
+   * <p>
+   * This method is generally used for traversing headers rather than modifying them.
+   * To modify headers, use the corresponding method within this class.
+   *
+   * @return a set of the header names
+   */
+  @Override
+  public abstract Set<String> keySet();
+
+  /**
+   * Returns a {@link Set} view of the mappings contained in this header.
+   * <p>
+   * This method is generally used for traversing headers rather than modifying them.
+   * To modify headers, use the corresponding method within this class.
+   *
+   * @return a set view of the mappings contained in this header
+   */
+  @Override
+  public abstract Set<Entry<String, List<String>>> entrySet();
+
+  /**
+   * Returns a {@link Collection} view of the values contained in this header.
+   * <p>
+   * This method is generally used for traversing header values rather than modifying them.
+   * To modify headers, use the corresponding methods within this class.
+   *
+   * @return a collection view of the values contained in this header
+   */
+  @Override
+  public abstract Collection<List<String>> values();
 
   @Override
   public String toString() {
