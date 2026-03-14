@@ -2177,12 +2177,7 @@ public abstract class HttpHeaders implements Serializable {
    * @since 5.0
    */
   public MultiValueMap<String, String> asMultiValueMap() {
-    // todo 避免复制
-    var result = MultiValueMap.<String, String>forLinkedHashMap();
-    for (Map.Entry<String, List<String>> entry : entrySet()) {
-      result.addAll(entry.getKey(), entry.getValue());
-    }
-    return result;
+    return new HeadersMultiValueMap(this);
   }
 
   // ---------------------------------------------------------------------
