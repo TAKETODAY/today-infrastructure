@@ -64,12 +64,11 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResol
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.hasParameterAnnotation(RequestHeader.class)
-            && !parameter.isAssignableTo(Map.class);
+            && (!parameter.isAssignableTo(Map.class) && !parameter.isAssignableTo(HttpHeaders.class));
   }
 
-  @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+  protected @Nullable Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
     final HttpHeaders httpHeaders = context.requestHeaders();
     List<String> headerValues = httpHeaders.get(name);
     if (headerValues != null) {

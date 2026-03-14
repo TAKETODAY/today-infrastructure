@@ -24,6 +24,9 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 
 /**
+ * Represents a method parameter that can be resolved using a {@link ParameterResolvingStrategy}.
+ * <p>This class caches the resolved strategy to avoid repeated lookups for the same parameter.
+ *
  * @author TODAY 2020/9/26 20:06
  * @since 3.0
  */
@@ -31,8 +34,7 @@ final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
 
   private final ParameterResolvingRegistry resolvers;
 
-  @Nullable
-  private ParameterResolvingStrategy strategy;
+  private @Nullable ParameterResolvingStrategy strategy;
 
   ParameterResolverMethodParameter(MethodParameter parameter, ParameterResolvingRegistry resolvers) {
     super(parameter);
