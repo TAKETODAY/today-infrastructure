@@ -19,6 +19,7 @@ package infra.http;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,10 +27,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import infra.lang.Assert;
-import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
-import infra.util.ObjectUtils;
 
 /**
  * Default implementation of {@link HttpHeaders}.
@@ -115,23 +114,23 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  protected @Nullable List<String> setHeader(String name, List<String> values) {
-    return headers.put(name, values);
+  protected @Nullable List<String> setHeader(String name, Collection<String> values) {
+    return headers.setOrRemove(name, values);
   }
 
   @Override
-  protected void setHeader(String name, String value) {
-    headers.setOrRemove(name, value);
+  protected @Nullable List<String> setHeader(String name, String value) {
+    return headers.setOrRemove(name, value);
   }
 
   @Override
   public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
-    return headers.setOrRemove(name, ObjectUtils.isEmpty(value) ? null : value);
+    return headers.setOrRemove(name, value);
   }
 
   @Override
-  public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
-    return headers.setOrRemove(name, CollectionUtils.isEmpty(value) ? null : value);
+  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+    return headers.setOrRemove(name, value);
   }
 
   @Override

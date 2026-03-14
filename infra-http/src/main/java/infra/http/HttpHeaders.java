@@ -1964,14 +1964,20 @@ public abstract class HttpHeaders implements Serializable {
 
   /**
    * Set the given header value, or remove the header if {@code null}.
+   * <p>If the supplied array is empty (i.e., contains no elements), the header will be set
+   * with an empty list of values. This is different from passing {@code null}, which removes
+   * the header entirely.
    *
    * @param name the header name
-   * @param value the header value, or {@code null} for none
+   * @param value the header value array, or {@code null} for removal
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   * @see #remove(String)
+   * @since 5.0
    */
   public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
     if (value != null) {
-      setHeader(name, CollectionUtils.newArrayList(value));
-      return null;
+      return setHeader(name, CollectionUtils.newArrayList(value));
     }
     else {
       return remove(name);
@@ -1980,14 +1986,22 @@ public abstract class HttpHeaders implements Serializable {
 
   /**
    * Set the given header value, or remove the header if {@code null}.
+   * <p>If the supplied collection is empty (i.e., contains no elements), the header will be set
+   * with an empty list of values. This is different from passing {@code null}, which removes
+   * the header entirely.
+   * <p><strong>Note:</strong> Passing an empty collection results in a header with no values,
+   * which may be semantically different from removing the header depending on your use case.
    *
    * @param name the header name
-   * @param value the header value, or {@code null} for none
+   * @param value the header value collection, or {@code null} for removal
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   * @see #remove(String)
+   * @since 5.0
    */
-  public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
+  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
     if (value != null) {
-      setHeader(name, value);
-      return null;
+      return setHeader(name, value);
     }
     else {
       return remove(name);
@@ -1996,15 +2010,18 @@ public abstract class HttpHeaders implements Serializable {
 
   /**
    * Set the given header value, or remove the header if {@code null}.
+   * <p>If the supplied string is empty (i.e., ""), the header will be set with an empty
+   * string value. This is different from passing {@code null}, which removes the header entirely.
    *
    * @param name the header name
-   * @param value the header value, or {@code null} for none
-   * @return returns {@code null} if value is not {@code null}
+   * @param value the header value, or {@code null} for removal
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   * @see #remove(String)
    */
   public @Nullable List<String> setOrRemove(String name, @Nullable String value) {
     if (value != null) {
-      setHeader(name, value);
-      return null;
+      return setHeader(name, value);
     }
     else {
       return remove(name);
@@ -2072,7 +2089,7 @@ public abstract class HttpHeaders implements Serializable {
    * @param name the header name
    * @param values the collection of header values to add; may be {@code null}
    */
-  public void add(String name, @Nullable List<String> values) {
+  public void add(String name, @Nullable Collection<String> values) {
     if (CollectionUtils.isNotEmpty(values)) {
       for (String element : values) {
         add(name, element);
@@ -2216,7 +2233,7 @@ public abstract class HttpHeaders implements Serializable {
    * @throws UnsupportedOperationException if adding headers is not supported
    * @see ReadOnlyHttpHeaders
    */
-  protected abstract void setHeader(String name, String value);
+  protected abstract @Nullable List<String> setHeader(String name, String value);
 
   /**
    * Set the header values for the given header name, replacing any existing values.
@@ -2229,7 +2246,7 @@ public abstract class HttpHeaders implements Serializable {
    * @see ReadOnlyHttpHeaders
    * @since 5.0
    */
-  protected abstract @Nullable List<String> setHeader(String name, List<String> values);
+  protected abstract @Nullable List<String> setHeader(String name, Collection<String> values);
 
   /**
    * Remove all headers from this HttpHeaders instance.

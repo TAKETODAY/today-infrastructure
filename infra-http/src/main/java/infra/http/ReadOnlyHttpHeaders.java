@@ -21,6 +21,7 @@ package infra.http;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -89,12 +90,12 @@ final class ReadOnlyHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  protected void setHeader(String name, String value) {
+  protected @Nullable List<String> setHeader(String name, String value) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void add(String key, @Nullable List<String> values) {
+  public void add(String key, @Nullable Collection<String> values) {
     throw new UnsupportedOperationException();
   }
 
@@ -109,7 +110,7 @@ final class ReadOnlyHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
+  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
     throw new UnsupportedOperationException();
   }
 
@@ -119,7 +120,7 @@ final class ReadOnlyHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  protected List<String> setHeader(String key, List<String> value) {
+  protected List<String> setHeader(String key, Collection<String> value) {
     throw new UnsupportedOperationException();
   }
 

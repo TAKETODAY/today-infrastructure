@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -71,18 +72,6 @@ final class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  public void add(String name, @Nullable String value) {
-    if (value != null) {
-      this.message.addHeader(name, value);
-    }
-  }
-
-  @Override
-  protected void setHeader(String name, String value) {
-    this.message.setHeader(name, value);
-  }
-
-  @Override
   public @Nullable String getFirst(String name) {
     Header header = this.message.getFirstHeader(name);
     return header != null ? header.getValue() : null;
@@ -102,10 +91,24 @@ final class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  protected @Nullable List<String> setHeader(String key, List<String> values) {
-    List<String> oldValues = remove(key);
+  public void add(String name, @Nullable String value) {
+    if (value != null) {
+      this.message.addHeader(name, value);
+    }
+  }
+
+  @Override
+  protected @Nullable List<String> setHeader(String name, String value) {
+    List<String> oldValues = get(name);
+    this.message.setHeader(name, value);
+    return oldValues;
+  }
+
+  @Override
+  protected @Nullable List<String> setHeader(String name, Collection<String> values) {
+    List<String> oldValues = remove(name);
     for (String value : values) {
-      add(key, value);
+      this.message.addHeader(name, value);
     }
     return oldValues;
   }

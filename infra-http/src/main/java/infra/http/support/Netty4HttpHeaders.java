@@ -21,6 +21,7 @@ package infra.http.support;
 import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,18 +44,6 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
 
   public Netty4HttpHeaders(HttpHeaders headers) {
     this.headers = headers;
-  }
-
-  @Override
-  public void add(String name, @Nullable String value) {
-    if (value != null) {
-      headers.add(name, value);
-    }
-  }
-
-  @Override
-  public void setHeader(String name, String value) {
-    headers.set(name, value);
   }
 
   @Override
@@ -84,9 +73,23 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  protected @Nullable List<String> setHeader(String key, @Nullable List<String> value) {
-    List<String> previous = headers.getAll(key);
-    headers.set(key, value);
+  public void add(String name, @Nullable String value) {
+    if (value != null) {
+      headers.add(name, value);
+    }
+  }
+
+  @Override
+  public @Nullable List<String> setHeader(String name, String value) {
+    List<String> previous = headers.getAll(name);
+    headers.set(name, value);
+    return previous;
+  }
+
+  @Override
+  protected @Nullable List<String> setHeader(String name, @Nullable Collection<String> value) {
+    List<String> previous = headers.getAll(name);
+    headers.set(name, value);
     return previous;
   }
 
