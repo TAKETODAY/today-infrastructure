@@ -65,7 +65,7 @@ final class DefaultErrorResponseBuilder implements ErrorResponse.Builder {
   }
 
   @Override
-  public ErrorResponse.Builder header(String headerName, String... headerValues) {
+  public ErrorResponse.Builder header(String headerName, String @Nullable ... headerValues) {
     httpHeaders().setOrRemove(headerName, headerValues);
     return this;
   }

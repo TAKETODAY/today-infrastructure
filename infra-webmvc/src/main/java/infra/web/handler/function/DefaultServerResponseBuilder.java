@@ -73,7 +73,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse.BodyBuilder header(String headerName, String... headerValues) {
+  public ServerResponse.BodyBuilder header(String headerName, String @Nullable ... headerValues) {
     this.headers.setOrRemove(headerName, headerValues);
     return this;
   }

@@ -123,7 +123,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
   }
 
   @Override
-  public ServerRequest.Builder header(String headerName, String... headerValues) {
+  public ServerRequest.Builder header(String headerName, String @Nullable ... headerValues) {
     headers.setOrRemove(headerName, headerValues);
     return this;
   }

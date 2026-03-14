@@ -204,7 +204,7 @@ class DefaultRestTestClient implements RestTestClient {
     }
 
     @Override
-    public RequestBodySpec header(String headerName, String... headerValues) {
+    public RequestBodySpec header(String headerName, String @Nullable ... headerValues) {
       this.requestHeadersUriSpec.header(headerName, headerValues);
       return this;
     }

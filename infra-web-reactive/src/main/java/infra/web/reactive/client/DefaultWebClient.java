@@ -262,7 +262,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
+    public DefaultRequestBodyUriSpec header(String headerName, String @Nullable ... headerValues) {
       headers().setOrRemove(headerName, headerValues);
       return this;
     }

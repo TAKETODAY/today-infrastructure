@@ -18,6 +18,8 @@
 
 package infra.web.reactive.client;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -358,13 +360,13 @@ public interface ClientResponse {
      * @return this builder
      * @see HttpHeaders#setOrRemove(String, String[])
      */
-    Builder header(String headerName, String... headerValues);
+    Builder header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate this response's headers with the given consumer.
      * <p>The headers provided to the consumer are "live", so that the consumer
      * can be used to {@linkplain HttpHeaders#setOrRemove(String, String) overwrite}
-     * existing header values, {@linkplain HttpHeaders#remove(Object) remove}
+     * existing header values, {@linkplain HttpHeaders#remove(String) remove}
      * values, or use any of the other {@link HttpHeaders} methods.
      *
      * @param headersConsumer a function that consumes the {@code HttpHeaders}

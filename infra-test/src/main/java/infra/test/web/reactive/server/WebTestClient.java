@@ -256,13 +256,13 @@ public interface WebTestClient {
      * @param headerName the header name
      * @param headerValues the header values
      */
-    Builder defaultHeader(String headerName, String... headerValues);
+    Builder defaultHeader(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate the default headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
      * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
-     * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
+     * {@linkplain HttpHeaders#remove(String) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
      * @param headersConsumer a function that consumes the {@code HttpHeaders}
@@ -514,13 +514,13 @@ public interface WebTestClient {
      * @param headerValues the header value(s)
      * @return the same instance
      */
-    S header(String headerName, String... headerValues);
+    S header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate the request's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
      * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
-     * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
+     * {@linkplain HttpHeaders#remove(String) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
      * @param headersConsumer a function that consumes the {@code HttpHeaders}

@@ -103,7 +103,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
-  public ClientRequest.Builder header(String headerName, String... headerValues) {
+  public ClientRequest.Builder header(String headerName, String @Nullable ... headerValues) {
     headers.setOrRemove(headerName, headerValues);
     return this;
   }

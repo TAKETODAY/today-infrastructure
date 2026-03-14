@@ -289,7 +289,7 @@ class ModelAndViewRenderingResponseBuilderTests {
 
     ModelAndViewRenderingResponseBuilder builder = new ModelAndViewRenderingResponseBuilder(modelAndView);
     RenderingResponse response = builder.header("X-Custom-Header", "value")
-            .header("X-Custom-Header") // This should remove the header
+            .header("X-Custom-Header", (String[]) null) // This should remove the header
             .build();
 
     assertThat(response.headers().containsHeader("X-Custom-Header")).isFalse();

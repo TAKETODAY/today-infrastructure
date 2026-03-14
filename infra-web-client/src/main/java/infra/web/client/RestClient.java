@@ -353,8 +353,9 @@ public interface RestClient {
      * @param header the header name
      * @param values the header values
      * @return this builder
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
-    Builder defaultHeader(String header, String... values);
+    Builder defaultHeader(String header, String @Nullable ... values);
 
     /**
      * Provide a consumer to access to every {@linkplain #defaultHeader(String, String...)
@@ -706,7 +707,7 @@ public interface RestClient {
      * @return this builder
      * @see HttpHeaders#setOrRemove(String, String[])
      */
-    S header(String headerName, String... headerValues);
+    S header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Provides access to every header declared so far with the possibility

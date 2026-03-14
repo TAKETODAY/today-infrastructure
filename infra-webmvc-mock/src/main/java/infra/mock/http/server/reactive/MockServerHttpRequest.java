@@ -321,9 +321,9 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
      *
      * @param headerName the header name
      * @param headerValues the header value(s)
-     * @see HttpHeaders#add(String, String)
+     * @see HttpHeaders#setOrRemove(String, String)
      */
-    B header(String headerName, String... headerValues);
+    B header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Add the given header values.
@@ -524,10 +524,8 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
     }
 
     @Override
-    public BodyBuilder header(String headerName, String... headerValues) {
-      for (String headerValue : headerValues) {
-        this.headers.add(headerName, headerValue);
-      }
+    public BodyBuilder header(String headerName, String @Nullable ... headerValues) {
+      headers.setOrRemove(headerName, headerValues);
       return this;
     }
 

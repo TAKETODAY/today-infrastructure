@@ -571,8 +571,9 @@ public interface WebClient {
      * @param headerName the header name
      * @param headerValues the header value(s)
      * @return this builder
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
-    S header(String headerName, String... headerValues);
+    S header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Provides access to every header declared so far with the possibility

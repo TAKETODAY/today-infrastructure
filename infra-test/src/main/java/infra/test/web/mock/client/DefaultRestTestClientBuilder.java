@@ -85,7 +85,7 @@ class DefaultRestTestClientBuilder<B extends RestTestClient.Builder<B>> implemen
   }
 
   @Override
-  public <T extends B> T defaultHeader(String headerName, String... headerValues) {
+  public <T extends B> T defaultHeader(String headerName, String @Nullable ... headerValues) {
     this.restClientBuilder.defaultHeader(headerName, headerValues);
     return self();
   }

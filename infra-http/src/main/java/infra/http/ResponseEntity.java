@@ -351,9 +351,9 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
      * @param headerName the header name
      * @param headerValues the header value(s)
      * @return this builder
-     * @see HttpHeaders#add(String, String)
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
-    B header(String headerName, String... headerValues);
+    B header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Copy the given headers into the entity's headers map.
@@ -537,7 +537,7 @@ public class ResponseEntity<T extends @Nullable Object> extends HttpEntity<T> {
     }
 
     @Override
-    public BodyBuilder header(String headerName, String... headerValues) {
+    public BodyBuilder header(String headerName, String @Nullable ... headerValues) {
       headers().setOrRemove(headerName, headerValues);
       return this;
     }

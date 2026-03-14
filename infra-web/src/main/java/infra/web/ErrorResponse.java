@@ -261,14 +261,14 @@ public interface ErrorResponse extends HttpStatusProvider {
      * @param headerName the header name
      * @param headerValues the header value(s)
      * @return the same builder instance
-     * @see HttpHeaders#add(String, String)
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
-    Builder header(String headerName, String... headerValues);
+    Builder header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate this response's headers with the given consumer. This is
      * useful to {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} or
-     * {@linkplain HttpHeaders#remove(Object) remove} existing values, or
+     * {@linkplain HttpHeaders#remove(String) remove} existing values, or
      * use any other {@link HttpHeaders} methods.
      *
      * @param headersConsumer a function that consumes the {@code HttpHeaders}

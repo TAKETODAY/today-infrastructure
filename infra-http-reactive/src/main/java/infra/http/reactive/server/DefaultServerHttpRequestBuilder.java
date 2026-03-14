@@ -115,7 +115,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
   }
 
   @Override
-  public ServerHttpRequest.Builder header(String headerName, String... headerValues) {
+  public ServerHttpRequest.Builder header(String headerName, String @Nullable ... headerValues) {
     this.headers.setOrRemove(headerName, headerValues);
     return this;
   }

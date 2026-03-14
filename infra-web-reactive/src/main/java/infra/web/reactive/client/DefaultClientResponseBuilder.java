@@ -173,7 +173,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   }
 
   @Override
-  public ClientResponse.Builder header(String headerName, String... headerValues) {
+  public ClientResponse.Builder header(String headerName, String @Nullable ... headerValues) {
     getHeaders().setOrRemove(headerName, headerValues);
     return this;
   }

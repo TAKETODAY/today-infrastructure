@@ -218,8 +218,9 @@ public interface RestTestClient {
      * @param headerName the header name
      * @param headerValues the header values
      * @return this builder
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
-    <T extends B> T defaultHeader(String headerName, String... headerValues);
+    <T extends B> T defaultHeader(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate the default headers with the given consumer. The headers
@@ -474,8 +475,9 @@ public interface RestTestClient {
      * @param headerName the header name
      * @param headerValues the header value(s)
      * @return this spec for further declaration of the request
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
-    S header(String headerName, String... headerValues);
+    S header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate the request's headers with the given consumer. The

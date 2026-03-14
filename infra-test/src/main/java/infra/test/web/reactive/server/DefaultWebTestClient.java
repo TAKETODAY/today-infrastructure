@@ -241,7 +241,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public RequestBodySpec header(String headerName, String... headerValues) {
+    public RequestBodySpec header(String headerName, String @Nullable ... headerValues) {
       getHeaders().setOrRemove(headerName, headerValues);
       return this;
     }

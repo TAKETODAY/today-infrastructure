@@ -246,9 +246,9 @@ public final class MultipartBodyBuilder {
      * @param headerName the part header name
      * @param headerValues the part header value(s)
      * @return this builder
-     * @see HttpHeaders#setOrRemove(String, List)
+     * @see HttpHeaders#setOrRemove
      */
-    PartBuilder header(String headerName, String... headerValues);
+    PartBuilder header(String headerName, String @Nullable ... headerValues);
 
     /**
      * Manipulate the part headers through the given consumer.
@@ -286,7 +286,7 @@ public final class MultipartBodyBuilder {
     }
 
     @Override
-    public PartBuilder header(String headerName, String... headerValues) {
+    public PartBuilder header(String headerName, String @Nullable ... headerValues) {
       headers().setOrRemove(headerName, headerValues);
       return this;
     }

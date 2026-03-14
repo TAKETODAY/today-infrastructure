@@ -158,7 +158,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   }
 
   @Override
-  public RenderingResponse.Builder header(String headerName, String... headerValues) {
+  public RenderingResponse.Builder header(String headerName, String @Nullable ... headerValues) {
     headers.setOrRemove(headerName, headerValues);
     return this;
   }

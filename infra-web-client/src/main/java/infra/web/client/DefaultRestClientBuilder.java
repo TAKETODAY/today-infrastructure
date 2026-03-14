@@ -221,7 +221,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Override
-  public RestClient.Builder defaultHeader(String header, String... values) {
+  public RestClient.Builder defaultHeader(String header, String @Nullable ... values) {
     initHeaders().setOrRemove(header, values);
     return this;
   }
