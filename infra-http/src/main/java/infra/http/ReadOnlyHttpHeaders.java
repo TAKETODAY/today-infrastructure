@@ -24,8 +24,7 @@ import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import infra.util.MultiValueMap;
+import java.util.Set;
 
 /**
  * {@code HttpHeaders} object that can only be read, not written to.
@@ -35,7 +34,7 @@ import infra.util.MultiValueMap;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/5 16:46
  */
-class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
+final class ReadOnlyHttpHeaders extends HttpHeaders {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -43,24 +42,20 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   /**
    * An empty {@code HttpHeaders} instance (immutable).
    */
-  @SuppressWarnings("unchecked")
-  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(MultiValueMap.EMPTY);
+  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultHttpHeaders());
+
+  private final HttpHeaders headers;
 
   private @Nullable MediaType cachedContentType;
 
   private @Nullable List<MediaType> cachedAccept;
 
-  ReadOnlyHttpHeaders(MultiValueMap<String, String> headers) {
-    super(headers);
-  }
-
   ReadOnlyHttpHeaders(HttpHeaders headers) {
-    super(headers);
+    this.headers = headers;
   }
 
-  @Nullable
   @Override
-  public MediaType getContentType() {
+  public @Nullable MediaType getContentType() {
     if (this.cachedContentType != null) {
       return this.cachedContentType;
     }
@@ -124,7 +119,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public List<String> setHeader(String key, List<String> value) {
+  protected List<String> setHeader(String key, List<String> value) {
     throw new UnsupportedOperationException();
   }
 
@@ -134,8 +129,28 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
+  public Set<String> keySet() {
+    return Collections.unmodifiableSet(headers.keySet());
+  }
+
+  @Override
+  public Set<Map.Entry<String, List<String>>> entrySet() {
+    return Collections.unmodifiableSet(headers.entrySet());
+  }
+
+  @Override
   public void clear() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int size() {
+    return headers.size();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return headers.isEmpty();
   }
 
   @Override
@@ -147,6 +162,11 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   @Override
   public Map<String, String> toSingleValueMap() {
     return Collections.unmodifiableMap(this.headers.toSingleValueMap());
+  }
+
+  @Override
+  public @Nullable String getFirst(String name) {
+    return headers.getFirst(name);
   }
 
   @Override

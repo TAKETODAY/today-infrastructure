@@ -115,7 +115,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public @Nullable List<String> setHeader(String name, List<String> values) {
+  protected @Nullable List<String> setHeader(String name, List<String> values) {
     return headers.put(name, values);
   }
 
@@ -215,11 +215,6 @@ public class DefaultHttpHeaders extends HttpHeaders {
   @Override
   public @Nullable List<String> setIfAbsent(String name, List<String> values) {
     return this.headers.putIfAbsent(name, values);
-  }
-
-  @Override
-  public HttpHeaders asReadOnly() {
-    return new ReadOnlyHttpHeaders(headers);
   }
 
   @Override

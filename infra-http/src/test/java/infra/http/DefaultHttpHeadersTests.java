@@ -159,7 +159,7 @@ class DefaultHttpHeadersTests {
   void setHeader_withNullValue_shouldRemoveHeader() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
-    headers.setHeader("Test-Header", null);
+    headers.setHeader("Test-Header", (List) null);
 
     assertThat(headers.get("Test-Header")).isNull();
   }
@@ -729,7 +729,7 @@ class DefaultHttpHeadersTests {
   @Test
   void toSingleValueMap_shouldHandleNullValues() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.setHeader("Header-With-Null", null);
+    headers.setHeader("Header-With-Null", (List) null);
     headers.add("Header-With-Value", "value");
 
     Map<String, String> singleValueMap = headers.toSingleValueMap();
@@ -929,7 +929,7 @@ class DefaultHttpHeadersTests {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "old-value");
 
-    List<String> oldValues = headers.set("Test-Header", (List) null);
+    List<String> oldValues = headers.setHeader("Test-Header", (List) null);
 
     assertThat(oldValues).containsExactly("old-value");
     assertThat(headers.get("Test-Header")).isNull();

@@ -86,7 +86,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
           AsyncContext asyncContext, String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
 
-    super(initUri(request), servletPath, initHeaders(headers, request));
+    super(initUri(request), servletPath, HttpHeaders.forWritable(initHeaders(headers, request)).asReadOnly());
 
     Assert.notNull(bufferFactory, "'bufferFactory' is required");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be higher than 0");

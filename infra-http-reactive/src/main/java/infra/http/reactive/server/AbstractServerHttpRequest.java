@@ -54,36 +54,17 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
 
   private final HttpHeaders headers;
 
-  @Nullable
-  private MultiValueMap<String, String> queryParams;
+  private @Nullable MultiValueMap<String, String> queryParams;
 
-  @Nullable
-  private MultiValueMap<String, HttpCookie> cookies;
+  private @Nullable MultiValueMap<String, HttpCookie> cookies;
 
-  @Nullable
-  private SslInfo sslInfo;
+  private @Nullable SslInfo sslInfo;
 
-  @Nullable
-  private String id;
+  private @Nullable String id;
 
-  @Nullable
-  private String logPrefix;
+  private @Nullable String logPrefix;
 
-  @Nullable
-  private HttpMethod method;
-
-  /**
-   * Constructor with the URI and headers for the request.
-   *
-   * @param uri the URI for the request
-   * @param contextPath the context path for the request
-   * @param headers the headers for the request (as {@link MultiValueMap})
-   */
-  public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, MultiValueMap<String, String> headers) {
-    this.uri = uri;
-    this.path = RequestPath.parse(uri, contextPath);
-    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-  }
+  private @Nullable HttpMethod method;
 
   /**
    * Constructor with the URI and headers for the request.
@@ -132,8 +113,7 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
    * Obtain the request id to use, or {@code null} in which case the Object
    * identity of this request instance is used.
    */
-  @Nullable
-  protected String initId() {
+  protected @Nullable String initId() {
     return null;
   }
 
@@ -221,9 +201,8 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
    */
   protected abstract MultiValueMap<String, HttpCookie> initCookies();
 
-  @Nullable
   @Override
-  public SslInfo getSslInfo() {
+  public @Nullable SslInfo getSslInfo() {
     if (this.sslInfo == null) {
       this.sslInfo = initSslInfo();
     }
@@ -235,8 +214,7 @@ public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport
    *
    * @return the session information, or {@code null} if none available
    */
-  @Nullable
-  protected abstract SslInfo initSslInfo();
+  protected abstract @Nullable SslInfo initSslInfo();
 
   /**
    * Return the underlying server response.

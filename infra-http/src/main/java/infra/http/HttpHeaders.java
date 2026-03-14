@@ -1909,7 +1909,6 @@ public abstract class HttpHeaders implements Serializable {
    * @since 4.0
    */
   public HttpHeaders asReadOnly() {
-    // todo
     return new ReadOnlyHttpHeaders(this);
   }
 
@@ -2386,20 +2385,6 @@ public abstract class HttpHeaders implements Serializable {
   @Modifiable
   public static DefaultHttpHeaders forWritable(MultiValueMap<String, String> headers) {
     return new DefaultHttpHeaders(headers);
-  }
-
-  /**
-   * Apply a read-only {@code HttpHeaders} wrapper around the given headers, if necessary.
-   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
-   *
-   * @param headers the headers to expose
-   * @return a read-only variant of the headers, or the original headers as-is
-   * (in case it happens to be a read-only {@code HttpHeaders} instance already)
-   * @since 4.0
-   */
-  @Unmodifiable
-  public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
-    return new ReadOnlyHttpHeaders(headers);
   }
 
   /**

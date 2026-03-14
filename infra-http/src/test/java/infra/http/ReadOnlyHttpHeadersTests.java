@@ -47,7 +47,7 @@ class ReadOnlyHttpHeadersTests {
     headers.add("Accept", "text/plain");
     headers.add("Accept", "application/json");
 
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     assertThat(readOnlyHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     assertThat(readOnlyHeaders.getAccept()).containsExactly(MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON);
   }
@@ -58,7 +58,7 @@ class ReadOnlyHttpHeadersTests {
     headers.add("Custom-Header", "value1");
     headers.add("Custom-Header", "value2");
 
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     List<String> values = readOnlyHeaders.get("Custom-Header");
 
     assertThat(values).isNotNull();
@@ -68,7 +68,7 @@ class ReadOnlyHttpHeadersTests {
 
   @Test
   void getWithNonExistentHeaderReturnsNull() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new DefaultHttpHeaders());
     assertThat(readOnlyHeaders.get("Non-Existent")).isNull();
   }
 
@@ -77,7 +77,7 @@ class ReadOnlyHttpHeadersTests {
     MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     headers.add("Content-Type", "application/json;charset=UTF-8");
 
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     MediaType contentType1 = readOnlyHeaders.getContentType();
     MediaType contentType2 = readOnlyHeaders.getContentType();
 
@@ -91,7 +91,7 @@ class ReadOnlyHttpHeadersTests {
     headers.add("Accept", "text/plain");
     headers.add("Accept", "application/json");
 
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     List<MediaType> accept1 = readOnlyHeaders.getAccept();
     List<MediaType> accept2 = readOnlyHeaders.getAccept();
 
@@ -101,28 +101,28 @@ class ReadOnlyHttpHeadersTests {
 
   @Test
   void addThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.add("Custom-Header", "value"));
   }
 
   @Test
   void addAllWithCollectionThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.add("Custom-Header", List.of("value1", "value2")));
   }
 
   @Test
   void setOrRemoveThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.setOrRemove("Custom-Header", "value"));
   }
 
   @Test
   void setOrRemove() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.setOrRemove("Custom-Header", List.of("value")));
 
@@ -132,14 +132,14 @@ class ReadOnlyHttpHeadersTests {
 
   @Test
   void setHeader() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.setHeader("Custom-Header", "value"));
   }
 
   @Test
   void setAllThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     Map<String, List<String>> values = Map.of("Custom-Header", List.of("value"));
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.setAll(values));
@@ -147,21 +147,21 @@ class ReadOnlyHttpHeadersTests {
 
   @Test
   void setThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.set("Custom-Header", List.of("value")));
   }
 
   @Test
   void removeThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> readOnlyHeaders.remove("Custom-Header"));
   }
 
   @Test
   void clearThrowsUnsupportedOperationException() {
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(new LinkedMultiValueMap<>());
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable());
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(readOnlyHeaders::clear);
   }
@@ -172,7 +172,7 @@ class ReadOnlyHttpHeadersTests {
     headers.add("Content-Type", "application/json");
     headers.add("Content-Length", "100");
 
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     readOnlyHeaders.clearContentHeaders(); // Should not throw exception
 
     assertThat(readOnlyHeaders.getContentType()).isNotNull();
@@ -184,7 +184,7 @@ class ReadOnlyHttpHeadersTests {
     MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     headers.add("Custom-Header", "value");
 
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     HttpHeaders writableHeaders = readOnlyHeaders.asWritable();
 
     assertThat(writableHeaders).isNotSameAs(readOnlyHeaders);
@@ -198,7 +198,7 @@ class ReadOnlyHttpHeadersTests {
   @Test
   void asReadOnlyReturnsSameInstance() {
     MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(headers);
+    ReadOnlyHttpHeaders readOnlyHeaders = new ReadOnlyHttpHeaders(HttpHeaders.forWritable(headers));
     HttpHeaders result = readOnlyHeaders.asReadOnly();
 
     assertThat(result).isSameAs(readOnlyHeaders);
