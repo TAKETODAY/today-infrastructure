@@ -1969,7 +1969,13 @@ public abstract class HttpHeaders implements Serializable {
    * @param value the header value, or {@code null} for none
    */
   public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
-    return setOrRemove(name, ObjectUtils.isEmpty(value) ? null : toCommaDelimitedString(Arrays.asList(value)));
+    if (value != null) {
+      setHeader(name, CollectionUtils.newArrayList(value));
+      return null;
+    }
+    else {
+      return remove(name);
+    }
   }
 
   /**
@@ -1979,7 +1985,13 @@ public abstract class HttpHeaders implements Serializable {
    * @param value the header value, or {@code null} for none
    */
   public @Nullable List<String> setOrRemove(String name, @Nullable List<String> value) {
-    return setOrRemove(name, CollectionUtils.isEmpty(value) ? null : toCommaDelimitedString(value));
+    if (value != null) {
+      setHeader(name, value);
+      return null;
+    }
+    else {
+      return remove(name);
+    }
   }
 
   /**
