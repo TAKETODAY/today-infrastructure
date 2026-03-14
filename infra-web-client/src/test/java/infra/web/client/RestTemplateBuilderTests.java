@@ -305,7 +305,7 @@ class RestTemplateBuilderTests {
   void basicAuthenticationShouldApply() {
     RestTemplate template = this.builder.basicAuthentication("spring", "boot", StandardCharsets.UTF_8).build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders().keySet()).containsOnly(HttpHeaders.AUTHORIZATION);
+    assertThat(request.getHeaders().names()).containsOnly(HttpHeaders.AUTHORIZATION);
     assertThat(request.getHeaders().get(HttpHeaders.AUTHORIZATION)).containsExactly("Basic c3ByaW5nOmJvb3Q=");
   }
 
@@ -313,7 +313,7 @@ class RestTemplateBuilderTests {
   void defaultHeaderAddsHeader() {
     RestTemplate template = this.builder.defaultHeader("spring", "boot").build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders().entrySet()).contains(entry("spring", Collections.singletonList("boot")));
+    assertThat(request.getHeaders().entries()).contains(entry("spring", Collections.singletonList("boot")));
   }
 
   @Test
@@ -322,7 +322,7 @@ class RestTemplateBuilderTests {
     String[] values = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE };
     RestTemplate template = this.builder.defaultHeader(name, values).build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders().entrySet()).contains(entry(name, Arrays.asList(values)));
+    assertThat(request.getHeaders().entries()).contains(entry(name, Arrays.asList(values)));
   }
 
   @Test
@@ -331,7 +331,7 @@ class RestTemplateBuilderTests {
     RestTemplate template = this.builder.defaultHeader("spring", "boot").build();
     MockRestServiceServer.bindTo(template).build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders().entrySet()).contains(entry("spring", Collections.singletonList("boot")));
+    assertThat(request.getHeaders().entries()).contains(entry("spring", Collections.singletonList("boot")));
   }
 
   @Test
@@ -355,7 +355,7 @@ class RestTemplateBuilderTests {
             .requestCustomizers((request) -> request.getHeaders().add("spring", "framework"))
             .build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders().entrySet()).contains(entry("spring", Collections.singletonList("framework")));
+    assertThat(request.getHeaders().entries()).contains(entry("spring", Collections.singletonList("framework")));
   }
 
   @Test
@@ -365,7 +365,7 @@ class RestTemplateBuilderTests {
             .additionalRequestCustomizers((request) -> request.getHeaders().add("for", "java"))
             .build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders().entrySet()).contains(entry("spring", Collections.singletonList("framework")))
+    assertThat(request.getHeaders().entries()).contains(entry("spring", Collections.singletonList("framework")))
             .contains(entry("for", Collections.singletonList("java")));
   }
 

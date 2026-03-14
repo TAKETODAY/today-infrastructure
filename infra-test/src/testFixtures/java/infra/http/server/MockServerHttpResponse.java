@@ -117,7 +117,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   private void writeHeaders() {
     if (!headersWritten) {
       HttpHeaders headers = getHeaders();
-      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (Map.Entry<String, List<String>> entry : headers.entries()) {
         String headerName = entry.getKey();
         for (String headerValue : entry.getValue()) {
           mockResponse.addHeader(headerName, headerValue);
@@ -155,8 +155,8 @@ public class MockServerHttpResponse implements ServerHttpResponse {
     private static final long serialVersionUID = 3410708522401046302L;
 
     @Override
-    public boolean containsHeader(String key) {
-      return super.containsHeader(key) || (get(key) != null);
+    public boolean contains(String key) {
+      return super.contains(key) || (get(key) != null);
     }
 
     @Override

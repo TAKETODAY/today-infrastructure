@@ -678,7 +678,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     private void writeHeaders() throws IOException {
       if (!this.headersWritten) {
-        for (Map.Entry<String, List<String>> entry : this.headers.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : this.headers.entries()) {
           byte[] headerName = getBytes(entry.getKey());
           for (String headerValueString : entry.getValue()) {
             byte[] headerValue = getBytes(headerValueString);

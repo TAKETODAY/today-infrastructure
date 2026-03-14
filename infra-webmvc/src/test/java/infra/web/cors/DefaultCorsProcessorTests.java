@@ -764,7 +764,7 @@ class DefaultCorsProcessorTests {
     MockRequestContext request = mock(MockRequestContext.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     given(request.requestHeaders()).willReturn(headers);
-    given(headers.keySet()).willReturn(Set.of("Header1", "Header2"));
+    given(headers.names()).willReturn(Set.of("Header1", "Header2"));
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
 

@@ -130,15 +130,15 @@ class Netty4HttpHeadersTests {
   }
 
   @Test
-  void containsHeader_withExistingHeader_shouldReturnTrue() {
+  void containsHeader_withExisting_shouldReturnTrue() {
     underlyingHeaders.add("Header1", "value1");
-    boolean contains = nettyHeaders.containsHeader("Header1");
+    boolean contains = nettyHeaders.contains("Header1");
     assertThat(contains).isTrue();
   }
 
   @Test
-  void containsHeader_withNonExistentHeader_shouldReturnFalse() {
-    boolean contains = nettyHeaders.containsHeader("Non-Existent");
+  void containsHeader_withNonExistent_shouldReturnFalse() {
+    boolean contains = nettyHeaders.contains("Non-Existent");
     assertThat(contains).isFalse();
   }
 
@@ -202,20 +202,20 @@ class Netty4HttpHeadersTests {
   }
 
   @Test
-  void keySet_shouldReturnHeaderNames() {
+  void names_shouldReturnHeaderNames() {
     underlyingHeaders.add("Header1", "value1");
     underlyingHeaders.add("Header2", "value2");
 
-    Set<String> keySet = nettyHeaders.keySet();
+    Set<String> keySet = nettyHeaders.names();
     assertThat(keySet).containsExactlyInAnyOrder("Header1", "Header2");
   }
 
   @Test
-  void keySet_iterator_shouldAllowRemoval() {
+  void names_iterator_shouldAllowRemoval() {
     underlyingHeaders.add("Header1", "value1");
     underlyingHeaders.add("Header2", "value2");
 
-    Set<String> keySet = nettyHeaders.keySet();
+    Set<String> keySet = nettyHeaders.names();
     Iterator<String> iterator = keySet.iterator();
     iterator.next();
     iterator.remove(); // keySet 只是一个视图，不影响原有 headers
@@ -224,12 +224,12 @@ class Netty4HttpHeadersTests {
   }
 
   @Test
-  void entrySet_shouldReturnHeaderEntries() {
+  void entries_shouldReturnHeaderEntries() {
     underlyingHeaders.add("Header1", "value1");
     underlyingHeaders.add("Header1", "value2");
     underlyingHeaders.add("Header2", "value3");
 
-    Set<Map.Entry<String, List<String>>> entrySet = new HashSet<>(nettyHeaders.entrySet());
+    Set<Map.Entry<String, List<String>>> entrySet = new HashSet<>(nettyHeaders.entries());
     assertThat(entrySet).hasSize(2);
 
     boolean foundHeader1 = false;
@@ -251,10 +251,10 @@ class Netty4HttpHeadersTests {
   }
 
   @Test
-  void entrySet_iterator_shouldAllowSetValue() {
+  void entriesValue() {
     underlyingHeaders.add("Header1", "old-value");
 
-    Set<Map.Entry<String, List<String>>> entrySet = nettyHeaders.entrySet();
+    Set<Map.Entry<String, List<String>>> entrySet = nettyHeaders.entries();
     Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
     Map.Entry<String, List<String>> entry = iterator.next();
     List<String> oldValue = entry.setValue(Arrays.asList("new-value"));
@@ -267,6 +267,55 @@ class Netty4HttpHeadersTests {
   void constructor_withNullHeaders_shouldCreateInstance() {
     Netty4HttpHeaders headers = new Netty4HttpHeaders(null);
     assertThat(headers).isNotNull();
+  }
+
+  @Test
+  void equals_shouldReturnTrueForEqualHeaders() {
+    Netty4HttpHeaders headers1 = new Netty4HttpHeaders(new DefaultHttpHeaders());
+    Netty4HttpHeaders headers2 = new Netty4HttpHeaders(new DefaultHttpHeaders());
+
+    assertThat(headers1).isEqualTo(headers1);
+
+    // 两个空头部应相等
+
+    assertThat(headers1).isEqualTo(headers2);
+
+    // 添加相同内容后应相等
+    headers1.add("Content-Type", "application/json");
+    headers1.add("X-Custom", "value");
+    headers2.add("Content-Type", "application/json");
+    headers2.add("X-Custom", "value");
+    assertThat(headers1).isEqualTo(headers2);
+
+    // 内容不同应不相等
+    headers2.add("X-Custom", "different-value");
+    assertThat(headers1).isNotEqualTo(headers2);
+
+    // 与 null 比较应返回 false
+    assertThat(headers1).isNotEqualTo(null);
+
+    // 与不同类型的对象比较应返回 false
+    assertThat(headers1).isNotEqualTo("not a header");
+  }
+
+  @Test
+  void hashCode_shouldBeConsistentWithEquals() {
+    Netty4HttpHeaders headers1 = new Netty4HttpHeaders(new DefaultHttpHeaders());
+    Netty4HttpHeaders headers2 = new Netty4HttpHeaders(new DefaultHttpHeaders());
+
+    // 两个空头部应相等，hashCode 也应相同
+    assertThat(headers1.hashCode()).isEqualTo(headers2.hashCode());
+
+    // 添加相同内容后应相等，hashCode 也应相同
+    headers1.add("Content-Type", "application/json");
+    headers1.add("X-Custom", "value");
+    headers2.add("Content-Type", "application/json");
+    headers2.add("X-Custom", "value");
+    assertThat(headers1.hashCode()).isEqualTo(headers2.hashCode());
+
+    // 内容不同应不相等，hashCode 通常也不同（不强制，但大概率不同）
+    headers2.add("X-Custom", "different-value");
+    assertThat(headers1).isNotEqualTo(headers2);
   }
 
 }

@@ -752,7 +752,7 @@ class RequestEntityTests {
     builder.headers(headers -> headers.remove("ToRemove-Header"));
 
     RequestEntity<String> entity = builder.body("test");
-    assertThat(entity.getHeaders().containsHeader("ToRemove-Header")).isFalse();
+    assertThat(entity.getHeaders().contains("ToRemove-Header")).isFalse();
   }
 
   @Test
@@ -1024,7 +1024,7 @@ class RequestEntityTests {
     RequestEntity<String> entity = builder.body("test");
 
     assertThat(entity.getHeaders().getFirst("X-Original")).isEqualTo("replaced-value");
-    assertThat(entity.getHeaders().containsHeader("X-To-Be-Removed")).isFalse();
+    assertThat(entity.getHeaders().contains("X-To-Be-Removed")).isFalse();
     assertThat(entity.getHeaders().getFirst("X-Added-Later")).isEqualTo("added-value");
   }
 

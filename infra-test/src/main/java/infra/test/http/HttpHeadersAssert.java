@@ -49,7 +49,7 @@ public class HttpHeadersAssert extends AbstractObjectAssert<HttpHeadersAssert, H
     super(actual, HttpHeadersAssert.class);
     as("HTTP headers");
     // Use case-insensitive comparator until https://github.com/assertj/assertj/issues/4157
-    this.namesAssert = Assertions.assertThat(actual.keySet())
+    this.namesAssert = Assertions.assertThat(actual.names())
             .usingElementComparator(String.CASE_INSENSITIVE_ORDER)
             .as("HTTP header names");
   }

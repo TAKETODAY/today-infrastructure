@@ -676,7 +676,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     HttpHeaders responseHeaders = response.responseHeaders();
     if (resource instanceof HttpResource httpResource) {
       HttpHeaders resourceHeaders = httpResource.getResponseHeaders();
-      for (Map.Entry<String, List<String>> entry : resourceHeaders.entrySet()) {
+      for (Map.Entry<String, List<String>> entry : resourceHeaders.entries()) {
         boolean first = true;
         String headerName = entry.getKey();
         List<String> headerValues = entry.getValue();

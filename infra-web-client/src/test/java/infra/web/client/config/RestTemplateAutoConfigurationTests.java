@@ -165,7 +165,7 @@ class RestTemplateAutoConfigurationTests {
       given(requestFactory.createRequest(any(), any())).willReturn(request);
       RestTemplate restTemplate = builder.requestFactory(() -> requestFactory).build();
       restTemplate.getForEntity("http://localhost:8080/test", String.class);
-      assertThat(request.getHeaders().entrySet()).contains(entry("infra", Collections.singletonList("app")));
+      assertThat(request.getHeaders().entries()).contains(entry("infra", Collections.singletonList("app")));
     });
   }
 

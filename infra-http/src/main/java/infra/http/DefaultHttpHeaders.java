@@ -153,7 +153,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public boolean containsHeader(String name) {
+  public boolean contains(String name) {
     return headers.containsKey(name);
   }
 
@@ -173,18 +173,18 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * {@link HttpHeaders class level javadoc}.
    */
   @Override
-  public Set<String> keySet() {
+  public Set<String> names() {
     return headers.keySet();
   }
 
   /**
    * Return a {@link Set} views of header entries, reconstructed from
-   * iterating over the {@link #keySet()}. This can include duplicate entries
+   * iterating over the {@link #names()}. This can include duplicate entries
    * if multiple casing variants of a given header name are tracked, see
    * {@link HttpHeaders class level javadoc}.
    */
   @Override
-  public Set<Map.Entry<String, List<String>>> entrySet() {
+  public Set<Map.Entry<String, List<String>>> entries() {
     return headers.entrySet();
   }
 
@@ -200,7 +200,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   /**
    * Perform an action over each header, as when iterated via
-   * {@link #entrySet()}. This can include duplicate entries
+   * {@link #entries()}. This can include duplicate entries
    * if multiple casing variants of a given header name are tracked, see
    * {@link HttpHeaders class level javadoc}.
    *

@@ -795,7 +795,7 @@ public class DispatcherHandler extends InfraHandler {
         if (!httpHeaders.isEmpty()) {
           if (isEnableLoggingRequestDetails()) {
             // first
-            Iterator<String> headerNames = httpHeaders.keySet().iterator();
+            Iterator<String> headerNames = httpHeaders.names().iterator();
             if (headerNames.hasNext()) {
               String name = headerNames.next();
               headers.append(name)
@@ -844,7 +844,7 @@ public class DispatcherHandler extends InfraHandler {
         if (log.isTraceEnabled()) {
           HttpHeaders httpHeaders = request.responseHeaders();
           if (isEnableLoggingRequestDetails()) {
-            headers = httpHeaders.entrySet().stream()
+            headers = httpHeaders.entries().stream()
                     .map(entry -> entry.getKey() + ":" + entry.getValue())
                     .collect(Collectors.joining(", "));
           }

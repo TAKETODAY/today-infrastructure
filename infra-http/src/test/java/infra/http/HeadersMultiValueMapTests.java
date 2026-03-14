@@ -92,7 +92,7 @@ class HeadersMultiValueMapTests {
     List<String> oldValue = adapter.setOrRemove("X-Custom-Header", (String) null);
 
     assertThat(oldValue).containsExactly("value1", "value2");
-    assertThat(headers.containsHeader("X-Custom-Header")).isFalse();
+    assertThat(headers.contains("X-Custom-Header")).isFalse();
   }
 
   @Test
@@ -194,7 +194,7 @@ class HeadersMultiValueMapTests {
     List<String> removed = adapter.remove("X-Custom-Header");
 
     assertThat(removed).containsExactly("value1", "value2");
-    assertThat(headers.containsHeader("X-Custom-Header")).isFalse();
+    assertThat(headers.contains("X-Custom-Header")).isFalse();
   }
 
   @Test
@@ -487,7 +487,7 @@ class HeadersMultiValueMapTests {
     List<String> oldValue = adapter.setOrRemove("Content-Type", Collections.emptyList());
 
     assertThat(oldValue).containsExactly("application/json");
-    assertThat(headers.containsHeader("Content-Type")).isTrue();
+    assertThat(headers.contains("Content-Type")).isTrue();
     assertThat(headers.get("Content-Type")).isEqualTo(List.of());
   }
 
@@ -500,7 +500,7 @@ class HeadersMultiValueMapTests {
     List<String> oldValue = adapter.setOrRemove("Content-Type", (String[]) null);
 
     assertThat(oldValue).containsExactly("application/json");
-    assertThat(headers.containsHeader("Content-Type")).isFalse();
+    assertThat(headers.contains("Content-Type")).isFalse();
   }
 
   @Test
@@ -527,7 +527,7 @@ class HeadersMultiValueMapTests {
     List<String> oldValue = adapter.put("Content-Type", null);
 
     assertThat(oldValue).containsExactly("application/json");
-    assertThat(headers.containsHeader("Content-Type")).isFalse();
+    assertThat(headers.contains("Content-Type")).isFalse();
   }
 
   @Test
@@ -539,7 +539,7 @@ class HeadersMultiValueMapTests {
     List<String> oldValue = adapter.put("Content-Type", Collections.emptyList());
 
     assertThat(oldValue).containsExactly("application/json");
-    assertThat(headers.containsHeader("Content-Type")).isTrue();
+    assertThat(headers.contains("Content-Type")).isTrue();
     assertThat(headers.hasHeaderValues("Content-Type", List.of())).isTrue();
   }
 
@@ -603,7 +603,7 @@ class HeadersMultiValueMapTests {
     List<String> oldValue = adapter.setOrRemove("Content-Type", new String[0]);
 
     assertThat(oldValue).containsExactly("application/json");
-    assertThat(headers.containsHeader("Content-Type")).isTrue();
+    assertThat(headers.contains("Content-Type")).isTrue();
     assertThat(headers.get("Content-Type")).isEqualTo(List.of());
   }
 
@@ -704,7 +704,7 @@ class HeadersMultiValueMapTests {
     assertThat(adapter.remove(new StringBuilder("Content-Type"))).isNull();
     assertThat(adapter.remove(123)).isNull();
     assertThat(adapter.remove(null)).isNull();
-    assertThat(headers.containsHeader("Content-Type")).isTrue();
+    assertThat(headers.contains("Content-Type")).isTrue();
   }
 
   @Test

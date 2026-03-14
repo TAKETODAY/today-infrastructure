@@ -54,7 +54,7 @@ class ResponseEntityTests {
 
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(responseEntity.headers().containsHeader(headerName)).isTrue();
+    assertThat(responseEntity.headers().contains(headerName)).isTrue();
     List<String> list = responseEntity.headers().get(headerName);
     assertThat(list.size()).isEqualTo(2);
     assertThat(list.get(0)).isEqualTo(headerValue1);
@@ -107,7 +107,7 @@ class ResponseEntityTests {
 
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    assertThat(responseEntity.headers().containsHeader(HttpHeaders.LOCATION)).isTrue();
+    assertThat(responseEntity.headers().contains(HttpHeaders.LOCATION)).isTrue();
     assertThat(responseEntity.headers().getFirst(HttpHeaders.LOCATION)).isEqualTo(location.toString());
     assertThat(responseEntity.getBody()).isNull();
 
@@ -267,7 +267,7 @@ class ResponseEntityTests {
 
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(responseEntity.headers().containsHeader(HttpHeaders.CACHE_CONTROL)).isTrue();
+    assertThat(responseEntity.headers().contains(HttpHeaders.CACHE_CONTROL)).isTrue();
     assertThat(responseEntity.getBody()).isEqualTo((int) entity);
     String cacheControlHeader = responseEntity.headers().getCacheControl();
     assertThat(cacheControlHeader).isEqualTo(
@@ -285,7 +285,7 @@ class ResponseEntityTests {
 
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(responseEntity.headers().containsHeader(HttpHeaders.CACHE_CONTROL)).isTrue();
+    assertThat(responseEntity.headers().contains(HttpHeaders.CACHE_CONTROL)).isTrue();
     assertThat((int) responseEntity.getBody()).isEqualTo((int) entity);
 
     String cacheControlHeader = responseEntity.headers().getCacheControl();

@@ -129,7 +129,7 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
 
   @Override
   protected void applyHeaders() {
-    for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+    for (Map.Entry<String, List<String>> entry : getHeaders().entries()) {
       request.requestHeaders().set(entry.getKey(), entry.getValue());
     }
   }

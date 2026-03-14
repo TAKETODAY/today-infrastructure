@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
@@ -1930,7 +1931,7 @@ public abstract class HttpHeaders implements Serializable {
    * @param name the header name
    * @since 5.0
    */
-  public boolean containsHeader(String name) {
+  public boolean contains(String name) {
     return get(name) != null;
   }
 
@@ -2045,12 +2046,12 @@ public abstract class HttpHeaders implements Serializable {
 
   /**
    * Perform an action over each header, as when iterated via
-   * {@link #entrySet()}.
+   * {@link #entries()}.
    *
    * @param action the action to be performed for each entry
    */
   public void forEach(BiConsumer<? super String, ? super List<String>> action) {
-    entrySet().forEach(e -> action.accept(e.getKey(), e.getValue()));
+    entries().forEach(e -> action.accept(e.getKey(), e.getValue()));
   }
 
   /**
@@ -2077,7 +2078,7 @@ public abstract class HttpHeaders implements Serializable {
    */
   public void addAll(@Nullable HttpHeaders headers) {
     if (isNotEmpty(headers)) {
-      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (Map.Entry<String, List<String>> entry : headers.entries()) {
         add(entry.getKey(), entry.getValue());
       }
     }
@@ -2106,7 +2107,7 @@ public abstract class HttpHeaders implements Serializable {
    */
   public void setAll(@Nullable HttpHeaders headers) {
     if (isNotEmpty(headers)) {
-      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (Map.Entry<String, List<String>> entry : headers.entries()) {
         set(entry.getKey(), entry.getValue());
       }
     }
@@ -2155,7 +2156,7 @@ public abstract class HttpHeaders implements Serializable {
    */
   public Map<String, String> toSingleValueMap() {
     LinkedHashMap<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(size());
-    for (Map.Entry<String, List<String>> entry : entrySet()) {
+    for (Map.Entry<String, List<String>> entry : entries()) {
       List<String> values = entry.getValue();
       if (CollectionUtils.isNotEmpty(values)) {
         singleValueMap.put(entry.getKey(), values.get(0));
@@ -2289,7 +2290,7 @@ public abstract class HttpHeaders implements Serializable {
    *
    * @return a set of the header names
    */
-  public abstract Set<String> keySet();
+  public abstract Set<String> names();
 
   /**
    * Returns a {@link Set} view of the mappings contained in this header.
@@ -2299,7 +2300,21 @@ public abstract class HttpHeaders implements Serializable {
    *
    * @return a set view of the mappings contained in this header
    */
-  public abstract Set<Map.Entry<String, List<String>>> entrySet();
+  public abstract Set<Map.Entry<String, List<String>>> entries();
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    return obj instanceof HttpHeaders other &&
+            Objects.equals(entries(), other.entries());
+  }
+
+  @Override
+  public int hashCode() {
+    return entries().hashCode();
+  }
 
   @Override
   public String toString() {
@@ -2319,7 +2334,7 @@ public abstract class HttpHeaders implements Serializable {
    * @return the headers to a String
    */
   public static String formatHeaders(HttpHeaders headers) {
-    return headers.entrySet().stream()
+    return headers.entries().stream()
             .map(entry -> {
               List<String> values = entry.getValue();
               return "%s:%s".formatted(entry.getKey(), values.size() == 1

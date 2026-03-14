@@ -68,12 +68,12 @@ final class HeadersMultiValueMap extends AbstractMap<String, List<String>> imple
 
   @Override
   public boolean containsKey(Object key) {
-    return key instanceof String name && headers.containsHeader(name);
+    return key instanceof String name && headers.contains(name);
   }
 
   @Override
   public boolean containsValue(Object value) {
-    for (Entry<String, List<String>> entry : headers.entrySet()) {
+    for (Entry<String, List<String>> entry : headers.entries()) {
       for (String string : entry.getValue()) {
         if (Objects.equals(string, value)) {
           return true;
@@ -116,17 +116,17 @@ final class HeadersMultiValueMap extends AbstractMap<String, List<String>> imple
 
   @Override
   public Set<String> keySet() {
-    return headers.keySet();
+    return headers.names();
   }
 
   @Override
   public Collection<List<String>> values() {
-    return headers.entrySet().stream().map(Entry::getValue).toList();
+    return headers.entries().stream().map(Entry::getValue).toList();
   }
 
   @Override
   public Set<Entry<String, List<String>>> entrySet() {
-    return headers.entrySet();
+    return headers.entries();
   }
 
   @Override

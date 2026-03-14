@@ -659,6 +659,55 @@ public class HttpHeadersTests {
     assertThat(authorization).isEqualTo("Bearer foo");
   }
 
+  @Test
+  void equals() {
+    HttpHeaders headers1 = HttpHeaders.forWritable();
+    HttpHeaders headers2 = HttpHeaders.forWritable();
+
+    // 两个空头部应相等
+    assertThat(headers1).isEqualTo(headers2);
+    assertThat(headers2).isEqualTo(headers1);
+
+    // 添加相同内容后应相等
+    headers1.setContentType(MediaType.APPLICATION_JSON);
+    headers1.add("X-Custom", "value");
+    headers2.setContentType(MediaType.APPLICATION_JSON);
+    headers2.add("X-Custom", "value");
+    assertThat(headers1).isEqualTo(headers2);
+    assertThat(headers2).isEqualTo(headers1);
+
+    // 内容不同应不相等
+    headers2.setContentType(MediaType.TEXT_PLAIN);
+    assertThat(headers1).isNotEqualTo(headers2);
+    assertThat(headers2).isNotEqualTo(headers1);
+
+    // 与 null 比较
+    assertThat(headers1).isNotEqualTo(null);
+
+    // 与非 HttpHeaders 对象比较
+    assertThat(headers1).isNotEqualTo("not a header");
+  }
+
+  @Test
+  void hashCode_() {
+    HttpHeaders headers1 = HttpHeaders.forWritable();
+    HttpHeaders headers2 = HttpHeaders.forWritable();
+
+    // 两个空头部应具有相同的哈希码
+    assertThat(headers1.hashCode()).isEqualTo(headers2.hashCode());
+
+    // 添加相同内容后哈希码应相等
+    headers1.setContentType(MediaType.APPLICATION_JSON);
+    headers1.add("X-Custom", "value");
+    headers2.setContentType(MediaType.APPLICATION_JSON);
+    headers2.add("X-Custom", "value");
+    assertThat(headers1.hashCode()).isEqualTo(headers2.hashCode());
+
+    // 内容不同哈希码应不同（通常情况，不保证绝对不同但概率极低）
+    headers2.setContentType(MediaType.TEXT_PLAIN);
+    assertThat(headers1.hashCode()).isNotEqualTo(headers2.hashCode());
+  }
+
   @Nested
   class MapEntriesTests {
 
@@ -666,7 +715,7 @@ public class HttpHeadersTests {
     void keySetOperations() {
       headers.add("Alpha", "apple");
       headers.add("Bravo", "banana");
-      Set<String> keySet = headers.keySet();
+      Set<String> keySet = headers.names();
 
       // Please DO NOT simplify the following with AssertJ's fluent API.
       //
@@ -727,10 +776,10 @@ public class HttpHeadersTests {
       // --- Given ---
       headers.add("Alpha", "apple");
       headers.add("Bravo", "banana");
-      assertThat(headers.keySet()).contains("Alpha", "Bravo");
+      assertThat(headers.names()).contains("Alpha", "Bravo");
 
       // --- When ---
-      boolean removed = headers.keySet().remove("Alpha");
+      boolean removed = headers.names().remove("Alpha");
 
       // --- Then ---
 
@@ -740,12 +789,12 @@ public class HttpHeadersTests {
       // the behavior of the entire contract.
 
       assertThat(removed).isTrue();
-      assertThat(headers.keySet().remove("Alpha")).isFalse();
+      assertThat(headers.names().remove("Alpha")).isFalse();
       assertThat(headers.size()).isEqualTo(1);
-      assertThat(headers.containsHeader("Alpha")).as("Alpha should have been removed").isFalse();
-      assertThat(headers.containsHeader("Bravo")).as("Bravo should be present").isTrue();
-      assertThat(headers.keySet()).containsOnly("Bravo");
-      assertThat(headers.entrySet()).containsOnly(entry("Bravo", List.of("banana")));
+      assertThat(headers.contains("Alpha")).as("Alpha should have been removed").isFalse();
+      assertThat(headers.contains("Bravo")).as("Bravo should be present").isTrue();
+      assertThat(headers.names()).containsOnly("Bravo");
+      assertThat(headers.entries()).containsOnly(entry("Bravo", List.of("banana")));
     }
 
     @Test
@@ -755,8 +804,8 @@ public class HttpHeadersTests {
 
       assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
-      assertThat(headers.containsHeader(headerName)).isTrue();
-      headers.keySet().removeIf(key -> key.equals(headerName));
+      assertThat(headers.contains(headerName)).isTrue();
+      headers.names().removeIf(key -> key.equals(headerName));
       assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
       assertThat(headers.get(headerName)).containsExactly(headerValue);
@@ -769,8 +818,8 @@ public class HttpHeadersTests {
 
       assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
-      assertThat(headers.containsHeader(headerName)).isTrue();
-      headers.entrySet().removeIf(entry -> entry.getKey().equals(headerName));
+      assertThat(headers.contains(headerName)).isTrue();
+      headers.entries().removeIf(entry -> entry.getKey().equals(headerName));
       assertThat(headers.isEmpty()).isTrue();
       headers.add(headerName, headerValue);
       assertThat(headers.get(headerName)).containsExactly(headerValue);
@@ -786,10 +835,10 @@ public class HttpHeadersTests {
 
       String[] expectedKeys = new String[] { "aardvark", "beaver", "cat", "dog", "elephant" };
 
-      assertThat(headers.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+      assertThat(headers.entries()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
       HttpHeaders readOnlyHttpHeaders = headers.asReadOnly();
-      assertThat(readOnlyHttpHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+      assertThat(readOnlyHttpHeaders.entries()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
     }
 
     @Test
@@ -806,15 +855,15 @@ public class HttpHeadersTests {
 
       HttpHeaders forEachHeaders = HttpHeaders.forWritable();
       readOnlyHttpHeaders.forEach(forEachHeaders::setIfAbsent);
-      assertThat(forEachHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+      assertThat(forEachHeaders.entries()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
       HttpHeaders putAllHeaders = HttpHeaders.forWritable();
       putAllHeaders.setAll(readOnlyHttpHeaders);
-      assertThat(putAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+      assertThat(putAllHeaders.entries()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
       HttpHeaders addAllHeaders = HttpHeaders.forWritable();
       addAllHeaders.addAll(readOnlyHttpHeaders);
-      assertThat(addAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+      assertThat(addAllHeaders.entries()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
     }
 
     @Test

@@ -292,7 +292,7 @@ class ModelAndViewRenderingResponseBuilderTests {
             .header("X-Custom-Header", (String[]) null) // This should remove the header
             .build();
 
-    assertThat(response.headers().containsHeader("X-Custom-Header")).isFalse();
+    assertThat(response.headers().contains("X-Custom-Header")).isFalse();
   }
 
   @Test

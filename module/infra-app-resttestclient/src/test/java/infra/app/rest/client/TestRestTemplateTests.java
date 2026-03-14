@@ -456,10 +456,10 @@ class TestRestTemplateTests {
             "createRequest", URI.create("http://localhost"), HttpMethod.POST);
     assertThat(request).isNotNull();
     if (username == null) {
-      assertThat(request.getHeaders().keySet()).doesNotContain(HttpHeaders.AUTHORIZATION);
+      assertThat(request.getHeaders().names()).doesNotContain(HttpHeaders.AUTHORIZATION);
     }
     else {
-      assertThat(request.getHeaders().keySet()).contains(HttpHeaders.AUTHORIZATION);
+      assertThat(request.getHeaders().names()).contains(HttpHeaders.AUTHORIZATION);
       assertThat(request.getHeaders().get(HttpHeaders.AUTHORIZATION)).containsExactly("Basic "
               + Base64.getEncoder().encodeToString(String.format("%s:%s", username, password).getBytes()));
     }

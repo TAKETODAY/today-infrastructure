@@ -143,7 +143,7 @@ public class HttpEntity<T extends @Nullable Object> {
    * @since 5.0
    */
   public boolean hasHeader(String name) {
-    return headers != null && headers.containsHeader(name);
+    return headers != null && headers.contains(name);
   }
 
   /**

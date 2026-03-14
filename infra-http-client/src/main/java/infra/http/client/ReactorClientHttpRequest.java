@@ -141,7 +141,7 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
           HttpClientRequest reactorRequest, NettyOutbound nettyOutbound) {
 
     var entries = reactorRequest.requestHeaders();
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : headers.entries()) {
       entries.set(entry.getKey(), entry.getValue());
     }
 

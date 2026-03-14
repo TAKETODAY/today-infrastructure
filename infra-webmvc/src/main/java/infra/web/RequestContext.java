@@ -2154,7 +2154,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean containsResponseHeader(String name) {
-    return responseHeaders != null && responseHeaders.containsHeader(name);
+    return responseHeaders != null && responseHeaders.contains(name);
   }
 
   /**

@@ -20,7 +20,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpMessage;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +77,7 @@ class HttpComponentsHeadersTests {
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
     headers.add("test", (String) null);
 
-    verify(message).addHeader("test", null);
+    assertThat(headers.get("test")).isNull();
   }
 
   @Test
@@ -88,25 +87,6 @@ class HttpComponentsHeadersTests {
     headers.setHeader("test", "value");
 
     verify(message).setHeader("test", "value");
-  }
-
-  @Test
-  void toSingleValueMapReturnsMapWithFirstValues() {
-    HttpMessage message = mock(HttpMessage.class);
-    Header[] headersArray = new Header[] {
-            createMockHeader("test", "value1"),
-            createMockHeader("test", "value2"),
-            createMockHeader("another", "value3")
-    };
-    when(message.getHeaders()).thenReturn(headersArray);
-    when(message.headerIterator()).thenReturn(Arrays.asList(headersArray).iterator());
-
-    HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    Map<String, String> singleValueMap = headers.toSingleValueMap();
-
-    assertThat(singleValueMap).containsEntry("test", "value1");
-    assertThat(singleValueMap).containsEntry("another", "value3");
-    assertThat(singleValueMap.size()).isEqualTo(2);
   }
 
   @Test
@@ -137,7 +117,7 @@ class HttpComponentsHeadersTests {
     when(message.containsHeader("existing")).thenReturn(true);
 
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsHeader("existing")).isTrue();
+    assertThat(headers.contains("existing")).isTrue();
   }
 
   @Test
@@ -146,7 +126,7 @@ class HttpComponentsHeadersTests {
     when(message.containsHeader("nonexistent")).thenReturn(false);
 
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    assertThat(headers.containsHeader("nonexistent")).isFalse();
+    assertThat(headers.contains("nonexistent")).isFalse();
   }
 
   @Test
@@ -200,7 +180,7 @@ class HttpComponentsHeadersTests {
   }
 
   @Test
-  void keySetReturnsAllHeaderNames() {
+  void namesReturnsAllHeaderNames() {
     HttpMessage message = mock(HttpMessage.class);
     Header[] headersArray = new Header[] {
             createMockHeader("test1", "value1"),
@@ -210,7 +190,7 @@ class HttpComponentsHeadersTests {
     when(message.getHeaders()).thenReturn(headersArray);
 
     HttpComponentsHeaders headers = new HttpComponentsHeaders(message);
-    Set<String> keySet = headers.keySet();
+    Set<String> keySet = headers.names();
 
     assertThat(keySet).containsExactlyInAnyOrder("test1", "test2");
   }

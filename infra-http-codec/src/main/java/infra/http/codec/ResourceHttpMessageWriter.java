@@ -149,7 +149,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
         headers.setOrRemove(HttpHeaders.ACCEPT_RANGES, "bytes");
       }
 
-      if (headers.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
+      if (headers.contains(HttpHeaders.CONTENT_LENGTH)) {
         return Mono.empty();
       }
       return lengthOf(resource)

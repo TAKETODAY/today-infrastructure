@@ -100,7 +100,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return false;
     }
 
-    if (responseHeaders.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)) {
+    if (responseHeaders.contains(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)) {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
@@ -220,7 +220,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     if (isPreFlight) {
       return context.requestHeaders().getAccessControlRequestHeaders();
     }
-    return new ArrayList<>(context.requestHeaders().keySet());
+    return new ArrayList<>(context.requestHeaders().names());
   }
 
 }

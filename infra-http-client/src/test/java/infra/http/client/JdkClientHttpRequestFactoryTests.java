@@ -121,9 +121,9 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
     ClientHttpRequest request = this.factory.createRequest(uri, HttpMethod.POST);
     StreamUtils.copy("Payload to compress", StandardCharsets.UTF_8, request.getBody());
     try (ClientHttpResponse response = request.execute()) {
-      assertThat(request.getHeaders().containsHeader("Accept-Encoding")).isFalse();
+      assertThat(request.getHeaders().contains("Accept-Encoding")).isFalse();
       assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
-      assertThat(response.getHeaders().containsHeader("Content-Encoding")).isTrue();
+      assertThat(response.getHeaders().contains("Content-Encoding")).isTrue();
       assertThat(StreamUtils.copyToString(response.getBody(), StandardCharsets.UTF_8))
               .as("Body should not be decompressed")
               .doesNotContain("Payload to compress");

@@ -124,7 +124,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
   @Override
   protected void applyHeaders() {
     HttpHeaders httpHeaders = getHeaders();
-    for (Map.Entry<String, List<String>> entry : httpHeaders.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : httpHeaders.entries()) {
       String headerName = entry.getKey();
       for (String headerValue : entry.getValue()) {
         response.addHeader(headerName, headerValue);

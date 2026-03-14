@@ -387,7 +387,7 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   public void setHeaders(infra.http.@Nullable HttpHeaders headers) {
     if (isNotEmpty(headers)) {
-      for (var entry : headers.entrySet()) {
+      for (var entry : headers.entries()) {
         nettyResponseHeaders.set(entry.getKey(), entry.getValue());
       }
     }
@@ -401,7 +401,7 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   public void addHeaders(infra.http.@Nullable HttpHeaders headers) {
     if (isNotEmpty(headers)) {
-      for (var entry : headers.entrySet()) {
+      for (var entry : headers.entries()) {
         nettyResponseHeaders.add(entry.getKey(), entry.getValue());
       }
     }

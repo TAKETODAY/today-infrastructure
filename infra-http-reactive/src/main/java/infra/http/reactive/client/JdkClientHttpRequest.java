@@ -98,7 +98,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected void applyHeaders() {
-    for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+    for (Map.Entry<String, List<String>> entry : getHeaders().entries()) {
       if (entry.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
         // content-length is specified when writing
         continue;
@@ -107,7 +107,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
         this.builder.header(entry.getKey(), value);
       }
     }
-    if (!getHeaders().containsHeader(HttpHeaders.ACCEPT)) {
+    if (!getHeaders().contains(HttpHeaders.ACCEPT)) {
       this.builder.header(HttpHeaders.ACCEPT, "*/*");
     }
   }

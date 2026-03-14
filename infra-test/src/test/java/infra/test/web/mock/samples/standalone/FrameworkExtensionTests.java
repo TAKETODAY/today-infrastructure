@@ -91,7 +91,7 @@ public class FrameworkExtensionTests {
 
     @Override
     public HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request) {
-      for (String headerName : this.headers.keySet()) {
+      for (String headerName : this.headers.names()) {
         request.addHeader(headerName, this.headers.get(headerName));
       }
       return request;

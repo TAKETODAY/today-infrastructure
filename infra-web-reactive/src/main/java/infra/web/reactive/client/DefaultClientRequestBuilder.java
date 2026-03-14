@@ -271,7 +271,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     public Mono<Void> writeTo(ClientHttpRequest request, ExchangeStrategies strategies) {
       HttpHeaders requestHeaders = request.getHeaders();
       if (!this.headers.isEmpty()) {
-        for (var entry : this.headers.entrySet()) {
+        for (var entry : this.headers.entries()) {
           requestHeaders.setIfAbsent(entry.getKey(), entry.getValue());
         }
       }

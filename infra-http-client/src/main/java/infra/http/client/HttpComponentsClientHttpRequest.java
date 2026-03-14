@@ -114,7 +114,7 @@ final class HttpComponentsClientHttpRequest extends AbstractStreamingClientHttpR
    * @param headers the headers to add
    */
   static void addHeaders(ClassicHttpRequest httpRequest, HttpHeaders headers) {
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : headers.entries()) {
       String headerName = entry.getKey();
       if (HttpHeaders.COOKIE.equalsIgnoreCase(headerName)) {  // RFC 6265
         String headerValue = StringUtils.collectionToDelimitedString(entry.getValue(), "; ");

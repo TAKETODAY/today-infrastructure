@@ -30,14 +30,14 @@ class DefaultRestTestClientBuilderTests {
     RestTestClient.Builder<?> builder = new DefaultRestTestClientBuilder<>().baseURI("http://localhost");
     RestTestClient client = builder.build();
     builder.defaultHeader("foo", "bar");
-    client.mutate().defaultHeaders(headers -> assertThat(headers.containsHeader("foo")).isFalse());
+    client.mutate().defaultHeaders(headers -> assertThat(headers.contains("foo")).isFalse());
   }
 
   @Test
   void mutateSameClientTwiceHasNoSideEffects() {
     RestTestClient client = new DefaultRestTestClientBuilder<>().baseURI("http://localhost").build();
     client.mutate().defaultHeader("foo", "bar").build();
-    client.mutate().defaultHeaders(headers -> assertThat(headers.containsHeader("foo")).isFalse());
+    client.mutate().defaultHeaders(headers -> assertThat(headers.contains("foo")).isFalse());
   }
 
 }

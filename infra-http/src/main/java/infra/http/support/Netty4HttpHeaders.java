@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import io.netty.handler.codec.http.HttpHeaders;
@@ -57,7 +58,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  public boolean containsHeader(String name) {
+  public boolean contains(String name) {
     return headers.contains(name);
   }
 
@@ -106,12 +107,12 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  public Set<String> keySet() {
+  public Set<String> names() {
     return headers.names();
   }
 
   @Override
-  public Set<Map.Entry<String, List<String>>> entrySet() {
+  public Set<Map.Entry<String, List<String>>> entries() {
     return new AbstractSet<>() {
 
       @Override
@@ -165,6 +166,22 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
       headers.set(this.key, value);
       return previousValues;
     }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(key) ^ Objects.hashCode(getValue());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == this)
+        return true;
+
+      return o instanceof Map.Entry<?, ?> e
+              && Objects.equals(key, e.getKey())
+              && Objects.equals(getValue(), e.getValue());
+    }
+
   }
 
 }

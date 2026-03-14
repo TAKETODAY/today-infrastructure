@@ -704,7 +704,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
 
     parentBuilder.headers.forEach((headerName, values) -> {
       values.forEach(value -> {
-        if (!this.headers.containsHeader(headerName)) {
+        if (!this.headers.contains(headerName)) {
           this.headers.set(headerName, values);
         }
       });
@@ -844,8 +844,8 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
     });
 
     if (ObjectUtils.isNotEmpty(this.content) &&
-            !this.headers.containsHeader(HttpHeaders.CONTENT_LENGTH) &&
-            !this.headers.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
+            !this.headers.contains(HttpHeaders.CONTENT_LENGTH) &&
+            !this.headers.contains(HttpHeaders.TRANSFER_ENCODING)) {
 
       request.addHeader(HttpHeaders.CONTENT_LENGTH, this.content.length);
     }

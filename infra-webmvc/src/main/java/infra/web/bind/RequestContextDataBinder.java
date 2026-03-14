@@ -227,7 +227,7 @@ public class RequestContextDataBinder extends WebDataBinder {
       }
     }
 
-    for (String name : request.getHeaders().keySet()) {
+    for (String name : request.getHeaders().names()) {
       Object value = getHeaderValue(request, name);
       if (value != null) {
         name = normalizeHeaderName(name);
@@ -381,7 +381,7 @@ public class RequestContextDataBinder extends WebDataBinder {
         set.addAll(uriVars.keySet());
       }
 
-      for (String name : request.getHeaders().keySet()) {
+      for (String name : request.getHeaders().names()) {
         if (headerPredicate.test(name)) {
           set.add(normalizeHeaderName(name));
         }

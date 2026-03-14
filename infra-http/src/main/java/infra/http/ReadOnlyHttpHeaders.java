@@ -130,13 +130,13 @@ final class ReadOnlyHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public Set<String> keySet() {
-    return Collections.unmodifiableSet(headers.keySet());
+  public Set<String> names() {
+    return Collections.unmodifiableSet(headers.names());
   }
 
   @Override
-  public Set<Map.Entry<String, List<String>>> entrySet() {
-    return Collections.unmodifiableSet(headers.entrySet());
+  public Set<Map.Entry<String, List<String>>> entries() {
+    return Collections.unmodifiableSet(headers.entries());
   }
 
   @Override

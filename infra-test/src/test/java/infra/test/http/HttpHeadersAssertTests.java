@@ -45,12 +45,12 @@ import static org.mockito.Mockito.verify;
 class HttpHeadersAssertTests {
 
   @Test
-  void containsHeader() {
+  void contains() {
     assertThat(Map.of("first", "1")).containsHeader("first");
   }
 
   @Test
-  void containsHeaderWithNameNotPresent() {
+  void containsWithNameNotPresent() {
     Map<String, String> map = Map.of("first", "1");
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(map).containsHeader("wrong-name"))

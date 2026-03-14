@@ -181,12 +181,12 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
             .uri(this.uri);
 
     if (this.compression) {
-      if (!headers.containsHeader(HttpHeaders.ACCEPT_ENCODING)) {
+      if (!headers.contains(HttpHeaders.ACCEPT_ENCODING)) {
         headers.add(HttpHeaders.ACCEPT_ENCODING, SUPPORTED_ENCODINGS);
       }
     }
 
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : headers.entries()) {
       String headerName = entry.getKey();
       if (!DISALLOWED_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))) {
         for (String headerValue : entry.getValue()) {

@@ -66,7 +66,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
 
     HttpHeaders headersToUse = HttpHeaders.forWritable();
     if (headers != null) {
-      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (Map.Entry<String, List<String>> entry : headers.entries()) {
         String header = entry.getKey();
         List<String> values = entry.getValue();
         if (values != null && !specialHeaders.contains(header.toLowerCase(Locale.ROOT))) {

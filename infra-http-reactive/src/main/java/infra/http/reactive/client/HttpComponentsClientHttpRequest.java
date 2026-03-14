@@ -125,7 +125,7 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   protected void applyHeaders() {
     HttpHeaders headers = getHeaders();
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : headers.entries()) {
       String key = entry.getKey();
       if (!HttpHeaders.CONTENT_LENGTH.equals(key)) {
         for (String v : entry.getValue()) {

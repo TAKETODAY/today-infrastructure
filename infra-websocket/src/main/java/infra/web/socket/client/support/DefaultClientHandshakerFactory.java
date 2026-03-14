@@ -146,12 +146,12 @@ public class DefaultClientHandshakerFactory implements ClientHandshakerFactory {
   private DefaultHttpHeaders createHeaders(HttpHeaders headers) {
     DefaultHttpHeaders entries = new DefaultHttpHeaders();
     if (defaultHeaders != null) {
-      for (var entry : defaultHeaders.entrySet()) {
+      for (var entry : defaultHeaders.entries()) {
         entries.add(entry.getKey(), entry.getValue());
       }
     }
 
-    for (var entry : headers.entrySet()) {
+    for (var entry : headers.entries()) {
       entries.add(entry.getKey(), entry.getValue());
     }
     return entries;

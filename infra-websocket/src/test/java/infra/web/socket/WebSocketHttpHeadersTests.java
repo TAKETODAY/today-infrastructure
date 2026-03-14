@@ -166,9 +166,9 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void containsHeaderForExistingHeader() {
+  void containsHeaderForExisting() {
     headers.setSecWebSocketKey("key");
-    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isTrue();
+    assertThat(headers.contains(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isTrue();
   }
 
   @Test
@@ -231,7 +231,7 @@ class WebSocketHttpHeadersTests {
             "X-Custom2", List.of("value2")
     );
     headers.setAll(map);
-    assertThat(headers.keySet()).containsExactlyInAnyOrder("X-Custom1", "X-Custom2");
+    assertThat(headers.names()).containsExactlyInAnyOrder("X-Custom1", "X-Custom2");
   }
 
   @Test
@@ -252,21 +252,21 @@ class WebSocketHttpHeadersTests {
   void setOrRemoveWithNullValueRemovesHeader() {
     headers.setSecWebSocketKey("key");
     headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (String) null);
-    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
+    assertThat(headers.contains(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
   }
 
   @Test
   void setOrRemoveWithNullArrayRemovesHeader() {
     headers.setSecWebSocketKey("key");
     headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (String[]) null);
-    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
+    assertThat(headers.contains(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
   }
 
   @Test
   void setOrRemoveWithNullCollectionRemovesHeader() {
     headers.setSecWebSocketKey("key");
     headers.setOrRemove(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY, (List<String>) null);
-    assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
+    assertThat(headers.contains(WebSocketHttpHeaders.SEC_WEBSOCKET_KEY)).isFalse();
   }
 
   @Test
@@ -290,11 +290,11 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void entrySetContainsAllEntries() {
+  void entriesContainsAllEntries() {
     headers.setSecWebSocketKey("key");
     headers.setSecWebSocketVersion("13");
 
-    Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
+    Set<Map.Entry<String, List<String>>> entries = headers.entries();
     assertThat(entries).hasSize(2);
   }
 

@@ -251,7 +251,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
     writer.flush();
 
     byte[] bytes = bos.toByteArray();
-    if (bytes.length > 0 && getHeaders().containsHeader(HttpHeaders.CONTENT_LENGTH)) {
+    if (bytes.length > 0 && getHeaders().contains(HttpHeaders.CONTENT_LENGTH)) {
       getHeaders().setContentLength(bytes.length);
     }
 

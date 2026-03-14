@@ -182,7 +182,7 @@ class DefaultHttpHeadersTests {
 
     List<String> oldValues = headers.setOrRemove("Test-Header", new String[] {});
 
-    assertThat(headers.get("Test-Header")).isNull();
+    assertThat(headers.get("Test-Header")).isEmpty();
     assertThat(oldValues).containsExactly("value");
   }
 
@@ -218,7 +218,7 @@ class DefaultHttpHeadersTests {
 
     List<String> oldValues = headers.setOrRemove("Test-Header", new ArrayList<>());
 
-    assertThat(headers.get("Test-Header")).isNull();
+    assertThat(headers.get("Test-Header")).isEmpty();
     assertThat(oldValues).containsExactly("value");
   }
 
@@ -279,19 +279,19 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void containsHeader_shouldReturnTrueForExistingHeader() {
+  void containsHeader_shouldReturnTrueForExisting() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
 
-    assertThat(headers.containsHeader("Test-Header")).isTrue();
-    assertThat(headers.containsHeader("test-header")).isTrue();
+    assertThat(headers.contains("Test-Header")).isTrue();
+    assertThat(headers.contains("test-header")).isTrue();
   }
 
   @Test
-  void containsHeader_shouldReturnFalseForNonExistentHeader() {
+  void containsHeader_shouldReturnFalseForNonExistent() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
-    assertThat(headers.containsHeader("Non-Existent")).isFalse();
+    assertThat(headers.contains("Non-Existent")).isFalse();
   }
 
   @Test
@@ -357,22 +357,22 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void keySet_shouldReturnAllHeaderNames() {
+  void names_shouldReturnAllHeaderNames() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Header-1", "value");
     headers.add("Header-2", "value");
 
-    Set<String> keySet = headers.keySet();
+    Set<String> keySet = headers.names();
     assertThat(keySet).containsExactlyInAnyOrder("Header-1", "Header-2");
   }
 
   @Test
-  void entrySet_shouldReturnAllHeaderEntries() {
+  void entries_shouldReturnAllHeaderEntries() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Header-1", "value1");
     headers.add("Header-2", "value2");
 
-    Set<Map.Entry<String, List<String>>> entrySet = headers.entrySet();
+    Set<Map.Entry<String, List<String>>> entrySet = headers.entries();
     assertThat(entrySet).hasSize(2);
   }
 
@@ -544,12 +544,12 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void containsHeader_caseInsensitive_shouldReturnTrue() {
+  void contains_caseInsensitive_shouldReturnTrue() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
 
-    assertThat(headers.containsHeader("test-header")).isTrue();
-    assertThat(headers.containsHeader("TEST-HEADER")).isTrue();
+    assertThat(headers.contains("test-header")).isTrue();
+    assertThat(headers.contains("TEST-HEADER")).isTrue();
   }
 
   @Test
@@ -703,23 +703,23 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void keySet_shouldReflectActualKeys() {
+  void names_shouldReflectActualKeys() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
     headers.add("Another-Header", "value");
 
-    Set<String> keySet = headers.keySet();
+    Set<String> keySet = headers.names();
 
     assertThat(keySet).containsExactlyInAnyOrder("Test-Header", "Another-Header");
   }
 
   @Test
-  void entrySet_shouldProvideAccessToAllEntries() {
+  void entries_shouldProvideAccessToAllEntries() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Header-1", "value1");
     headers.add("Header-2", "value2");
 
-    Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
+    Set<Map.Entry<String, List<String>>> entries = headers.entries();
 
     assertThat(entries).hasSize(2);
     assertThat(entries.stream().map(Map.Entry::getKey))
@@ -918,10 +918,10 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void containsHeader_withEmptyHeaders_shouldReturnFalse() {
+  void contains_withEmptyHeaders_shouldReturnFalse() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
-    assertThat(headers.containsHeader("Any-Key")).isFalse();
+    assertThat(headers.contains("Any-Key")).isFalse();
   }
 
   @Test
@@ -944,19 +944,19 @@ class DefaultHttpHeadersTests {
   }
 
   @Test
-  void keySet_onEmptyHeaders_shouldReturnEmptySet() {
+  void names() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
-    Set<String> keySet = headers.keySet();
+    Set<String> keySet = headers.names();
 
     assertThat(keySet).isEmpty();
   }
 
   @Test
-  void entrySet_onEmptyHeaders_shouldReturnEmptySet() {
+  void entries() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
-    Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
+    Set<Map.Entry<String, List<String>>> entries = headers.entries();
 
     assertThat(entries).isEmpty();
   }

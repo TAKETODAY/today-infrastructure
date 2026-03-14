@@ -48,7 +48,7 @@ public interface HttpMessage {
    * @since 5.0
    */
   default boolean containsHeader(String name) {
-    return getHeaders().containsHeader(name);
+    return getHeaders().contains(name);
   }
 
   /**
@@ -95,7 +95,7 @@ public interface HttpMessage {
    * @since 5.0
    */
   default Collection<String> getHeaderNames() {
-    return getHeaders().keySet();
+    return getHeaders().names();
   }
 
   /**

@@ -418,7 +418,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   protected void writeHeaders() {
     if (!headersWritten) {
       HttpHeaders headers = responseHeaders();
-      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (Map.Entry<String, List<String>> entry : headers.entries()) {
         String headerName = entry.getKey();
         for (String headerValue : entry.getValue()) {
           response.addHeader(headerName, headerValue);

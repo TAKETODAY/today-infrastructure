@@ -89,12 +89,12 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
               WebClient webClientOne = getWebClient(clientOne);
               assertThat(getUriComponentsBuilder(webClientOne).toUriString()).isEqualTo("https://example.com/one");
-              assertThat(getHttpHeaders(webClientOne).entrySet())
+              assertThat(getHttpHeaders(webClientOne).entries())
                       .containsExactlyInAnyOrder(Map.entry("test", List.of("true")));
               TestClientTwo clientTwo = context.getBean(TestClientTwo.class);
               WebClient webClientTwo = getWebClient(clientTwo);
               assertThat(getUriComponentsBuilder(webClientTwo).toUriString()).isEqualTo("https://example.com/two");
-              assertThat(getHttpHeaders(webClientTwo).entrySet())
+              assertThat(getHttpHeaders(webClientTwo).entries())
                       .containsExactlyInAnyOrder(Map.entry("test", List.of("true")), Map.entry("two", List.of("iam2")));
             });
   }
@@ -162,7 +162,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
               WebClient webClientOne = getWebClient(clientOne);
-              assertThat(getHttpHeaders(webClientOne).entrySet())
+              assertThat(getHttpHeaders(webClientOne).entries())
                       .containsExactlyInAnyOrder(Map.entry("customized", List.of("true")));
             });
   }
@@ -174,7 +174,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);
               WebClient webClientOne = getWebClient(clientOne);
-              assertThat(getHttpHeaders(webClientOne).entrySet())
+              assertThat(getHttpHeaders(webClientOne).entries())
                       .containsExactlyInAnyOrder(Map.entry("customizedgroup", List.of("true")));
             });
   }

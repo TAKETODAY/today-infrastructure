@@ -61,7 +61,7 @@ class BasicAuthenticationInterceptorTests {
 
     ClientHttpResponse result = interceptor.intercept(request, body, execution);
 
-    assertThat(headers.containsHeader(HttpHeaders.AUTHORIZATION)).isTrue();
+    assertThat(headers.contains(HttpHeaders.AUTHORIZATION)).isTrue();
     assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
     assertThat(result).isSameAs(response);
   }
@@ -97,7 +97,7 @@ class BasicAuthenticationInterceptorTests {
 
     ClientHttpResponse result = interceptor.intercept(request, body, execution);
 
-    assertThat(headers.containsHeader(HttpHeaders.AUTHORIZATION)).isTrue();
+    assertThat(headers.contains(HttpHeaders.AUTHORIZATION)).isTrue();
     assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
     assertThat(result).isSameAs(response);
   }

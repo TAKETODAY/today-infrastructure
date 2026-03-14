@@ -221,9 +221,9 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       HttpHeaders entityHeaders = httpEntity.headers();
       HttpHeaders outputHeaders = context.responseHeaders();
 
-      for (var entry : entityHeaders.entrySet()) {
+      for (var entry : entityHeaders.entries()) {
         String key = entry.getKey();
-        if (HttpHeaders.VARY.equals(key) && outputHeaders.containsHeader(HttpHeaders.VARY)) {
+        if (HttpHeaders.VARY.equals(key) && outputHeaders.contains(HttpHeaders.VARY)) {
           List<String> values = getVaryRequestHeadersToAdd(outputHeaders, entityHeaders);
           if (!values.isEmpty()) {
             outputHeaders.setVary(values);

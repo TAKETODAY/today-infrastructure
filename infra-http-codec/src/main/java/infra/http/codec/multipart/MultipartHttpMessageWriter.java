@@ -258,7 +258,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
       resolvableType = ResolvableType.forClass(body.getClass());
     }
 
-    if (!headers.containsHeader(HttpHeaders.CONTENT_DISPOSITION)) {
+    if (!headers.contains(HttpHeaders.CONTENT_DISPOSITION)) {
       if (body instanceof Resource resource) {
         headers.setContentDispositionFormData(name, resource.getName());
       }

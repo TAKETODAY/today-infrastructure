@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import infra.http.HttpHeaders;
@@ -62,7 +63,7 @@ final class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  public boolean containsHeader(String name) {
+  public boolean contains(String name) {
     return this.message.containsHeader(name);
   }
 
@@ -121,7 +122,7 @@ final class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  public Set<String> keySet() {
+  public Set<String> names() {
     LinkedHashSet<String> keys = new LinkedHashSet<>(size());
     for (Header header : message.getHeaders()) {
       keys.add(header.getName());
@@ -130,7 +131,7 @@ final class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  public Set<Map.Entry<String, List<String>>> entrySet() {
+  public Set<Map.Entry<String, List<String>>> entries() {
     return new AbstractSet<>() {
       @Override
       public Iterator<Map.Entry<String, List<String>>> iterator() {
@@ -184,6 +185,22 @@ final class HttpComponentsHeaders extends HttpHeaders {
       HttpComponentsHeaders.this.set(this.key, value);
       return previousValues;
     }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(key) ^ Objects.hashCode(getValue());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == this)
+        return true;
+
+      return o instanceof Map.Entry<?, ?> e
+              && Objects.equals(key, e.getKey())
+              && Objects.equals(getValue(), e.getValue());
+    }
+
   }
 
 }
