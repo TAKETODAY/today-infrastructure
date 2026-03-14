@@ -102,7 +102,7 @@ final class HttpComponentsHeaders extends HttpHeaders {
   }
 
   @Override
-  public @Nullable List<String> set(String key, List<String> values) {
+  public @Nullable List<String> setHeader(String key, List<String> values) {
     List<String> oldValues = remove(key);
     for (String value : values) {
       add(key, value);

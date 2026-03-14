@@ -124,7 +124,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public List<String> set(String key, List<String> value) {
+  public List<String> setHeader(String key, List<String> value) {
     throw new UnsupportedOperationException();
   }
 

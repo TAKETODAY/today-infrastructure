@@ -115,7 +115,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public @Nullable List<String> set(String name, List<String> values) {
+  public @Nullable List<String> setHeader(String name, List<String> values) {
     return headers.put(name, values);
   }
 

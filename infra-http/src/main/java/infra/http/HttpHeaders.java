@@ -2149,7 +2149,11 @@ public abstract class HttpHeaders implements Serializable {
    * @since 5.0
    */
   public MultiValueMap<String, String> asMultiValueMap() {
+    // todo 避免复制
     var result = MultiValueMap.<String, String>forLinkedHashMap();
+    for (Map.Entry<String, List<String>> entry : entrySet()) {
+      result.addAll(entry.getKey(), entry.getValue());
+    }
     return result;
   }
 
@@ -2176,7 +2180,22 @@ public abstract class HttpHeaders implements Serializable {
    */
   public abstract void add(String name, @Nullable String value);
 
-  public abstract @Nullable List<String> set(String name, List<String> values);
+  /**
+   * Set the header values for the given header name, replacing any existing values.
+   *
+   * @param name the header name
+   * @param values the list of header values
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   * @throws UnsupportedOperationException if setting headers is not supported
+   * @see ReadOnlyHttpHeaders
+   * @since 5.0
+   */
+  public @Nullable List<String> set(String name, List<String> values) {
+    Assert.notNull(name, "name is required");
+    Assert.notNull(values, "values is required");
+    return setHeader(name, values);
+  }
 
   /**
    * Set the given, single header value under the given name.
@@ -2187,6 +2206,19 @@ public abstract class HttpHeaders implements Serializable {
    * @see ReadOnlyHttpHeaders
    */
   protected abstract void setHeader(String name, String value);
+
+  /**
+   * Set the header values for the given header name, replacing any existing values.
+   *
+   * @param name the header name
+   * @param values the list of header values
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   * @throws UnsupportedOperationException if setting headers is not supported
+   * @see ReadOnlyHttpHeaders
+   * @since 5.0
+   */
+  protected abstract @Nullable List<String> setHeader(String name, List<String> values);
 
   /**
    * Remove all headers from this HttpHeaders instance.
@@ -2200,6 +2232,11 @@ public abstract class HttpHeaders implements Serializable {
    */
   public abstract int size();
 
+  /**
+   * Returns {@code true} if this HttpHeaders contains no header entries.
+   *
+   * @return {@code true} if this map contains no mappings
+   */
   public abstract boolean isEmpty();
 
   /**
