@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +43,7 @@ import infra.lang.Assert;
  * @see LinkedMultiValueMap
  * @since 4.0 2022/4/25 14:39
  */
-public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializable {
+public class MultiValueMapAdapter<K, V> extends AbstractMap<K, List<V>> implements MultiValueMap<K, V>, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -189,16 +190,6 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
   @Override
   public void forEach(BiConsumer<? super K, ? super List<V>> action) {
     this.targetMap.forEach(action);
-  }
-
-  @Override
-  public boolean equals(@Nullable Object other) {
-    return (this == other || this.targetMap.equals(other));
-  }
-
-  @Override
-  public int hashCode() {
-    return this.targetMap.hashCode();
   }
 
   @Override
