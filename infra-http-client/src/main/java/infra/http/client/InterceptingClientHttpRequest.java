@@ -102,7 +102,7 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
     @Override
     public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
       ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), request.getMethod());
-      delegate.getHeaders().setAll(request.getHeaders());
+      delegate.getHeaders().addAll(request.getHeaders());
 
       if (request.hasAttributes()) {
         delegate.copyFrom(request);
