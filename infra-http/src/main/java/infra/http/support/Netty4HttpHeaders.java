@@ -81,24 +81,24 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
-  public @Nullable List<String> setHeader(String name, String value) {
-    List<String> previous = headers.getAll(name);
+  protected @Nullable List<String> setHeader(String name, String value) {
+    List<String> previous = get(name);
     headers.set(name, value);
     return previous;
   }
 
   @Override
   protected @Nullable List<String> setHeader(String name, @Nullable Collection<String> value) {
-    List<String> previous = headers.getAll(name);
+    List<String> previous = get(name);
     headers.set(name, value);
     return previous;
   }
 
   @Override
   public @Nullable List<String> remove(String name) {
-    List<String> previousValues = headers.getAll(name);
+    List<String> previous = get(name);
     headers.remove(name);
-    return previousValues;
+    return previous;
   }
 
   @Override
