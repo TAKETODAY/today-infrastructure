@@ -318,4 +318,16 @@ class Netty4HttpHeadersTests {
     assertThat(headers1).isNotEqualTo(headers2);
   }
 
+  @Test
+  void forEach() {
+    Netty4HttpHeaders headers1 = new Netty4HttpHeaders(new DefaultHttpHeaders());
+    Netty4HttpHeaders headers2 = new Netty4HttpHeaders(new DefaultHttpHeaders());
+    headers1.add("Content-Type", "application/json");
+    headers1.add("X-Custom", "value");
+
+    headers1.forEach(headers2::add);
+    assertThat(headers1).isEqualTo(headers2);
+
+  }
+
 }
