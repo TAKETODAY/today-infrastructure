@@ -65,14 +65,6 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   private List<HttpMessageConverter<?>> messageConverters;
 
   /**
-   * For internal use from the RestTemplate, to pass the message converters
-   * to use to decode error content.
-   */
-  void setMessageConverters(List<HttpMessageConverter<?>> converters) {
-    this.messageConverters = Collections.unmodifiableList(converters);
-  }
-
-  /**
    * Delegates to {@link #hasError(HttpStatusCode)} with the response status code.
    *
    * @see ClientHttpResponse#getStatusCode()
@@ -201,6 +193,14 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   @Nullable
   protected Charset getCharset(ClientHttpResponse response) {
     return RestClientUtils.getCharset(response);
+  }
+
+  /**
+   * For internal use from the RestTemplate, to pass the message converters
+   * to use to decode error content.
+   */
+  protected void setMessageConverters(List<HttpMessageConverter<?>> converters) {
+    this.messageConverters = Collections.unmodifiableList(converters);
   }
 
   /**
