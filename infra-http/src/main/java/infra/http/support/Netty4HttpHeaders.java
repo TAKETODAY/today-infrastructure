@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import io.netty.handler.codec.http.HttpHeaders;
 
@@ -125,6 +126,14 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
         return headers.size();
       }
     };
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
+    HttpHeaders headers = this.headers;
+    for (String name : headers.names()) {
+      action.accept(name, headers.getAll(name));
+    }
   }
 
   private final class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
