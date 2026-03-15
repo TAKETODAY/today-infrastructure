@@ -394,11 +394,16 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
   }
 
   private int calculateHashCode() {
-    return pathPatternsCondition.hashCode() * 31 +
-            this.methodsCondition.hashCode() +
-            this.paramsCondition.hashCode() + this.headersCondition.hashCode() +
-            this.consumesCondition.hashCode() + this.producesCondition.hashCode() +
-            this.versionCondition.hashCode() + this.customConditionHolder.hashCode();
+    int result = pathPatternsCondition.hashCode();
+
+    result = 31 * result + this.methodsCondition.hashCode();
+    result = 31 * result + this.paramsCondition.hashCode();
+    result = 31 * result + this.headersCondition.hashCode();
+    result = 31 * result + this.consumesCondition.hashCode();
+    result = 31 * result + this.producesCondition.hashCode();
+    result = 31 * result + this.versionCondition.hashCode();
+    result = 31 * result + this.customConditionHolder.hashCode();
+    return result;
   }
 
   @Override
