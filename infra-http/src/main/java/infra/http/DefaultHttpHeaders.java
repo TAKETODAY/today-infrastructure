@@ -66,8 +66,8 @@ public class DefaultHttpHeaders extends HttpHeaders {
    *
    * @see #addAll(Map)
    */
-  public DefaultHttpHeaders(Map<String, List<String>> headers) {
-    this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(headers.size(), Locale.ROOT));
+  public DefaultHttpHeaders(@Nullable Map<String, List<String>> headers) {
+    this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(headers == null ? 8 : headers.size(), Locale.ROOT));
     addAll(headers);
   }
 

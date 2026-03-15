@@ -823,9 +823,10 @@ class DefaultHttpHeadersTests {
     map.put("Header-One", values1);
     map.put("Header-Two", values2);
 
-    DefaultHttpHeaders headers = new DefaultHttpHeaders(map);
+    HttpHeaders headers = HttpHeaders.copyOf(map);
 
     assertThat(headers.get("Header-One")).containsExactly("value1", "value2");
+    assertThat(headers.get("header-one")).containsExactly("value1", "value2");
     assertThat(headers.get("Header-Two")).containsExactly("value3");
     assertThat(headers.size()).isEqualTo(2);
   }

@@ -2432,9 +2432,7 @@ public abstract class HttpHeaders implements Serializable {
    */
   @Modifiable
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> headers) {
-    HttpHeaders result = HttpHeaders.forWritable();
-    result.addAll(headers);
-    return result;
+    return new DefaultHttpHeaders(headers);
   }
 
   /**
