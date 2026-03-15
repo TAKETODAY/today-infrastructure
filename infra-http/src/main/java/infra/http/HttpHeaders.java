@@ -72,7 +72,6 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  * <li>{@link #setOrRemove(String, String)} sets the header value to a single string value</li>
  * </ul>
  *
- *
  * <p>This class is meant to reference "well-known" headers supported by Infra.
  * If your application or library relies on other headers defined in RFCs,
  * please use methods that accept the header name as a parameter.
@@ -2166,13 +2165,9 @@ public abstract class HttpHeaders implements Serializable {
   }
 
   /**
-   * Return this HttpHeaders as a {@code MultiValueMap} with the full list
-   * of values for each header name.
-   * <p>Note that some backing server headers implementations can store header
-   * names in a case-sensitive manner, which will lead to duplicates during
-   * iteration in methods like {@code entrySet()}, where multiple occurrences
-   * of a header name can surface depending on letter casing but each such
-   * entry has the full {@code List} of values.
+   * Return this HttpHeaders as a {@link MultiValueMap}.
+   * <p>The returned map is backed by this headers instance, so changes to the
+   * returned map will be reflected in these headers, and vice versa.
    *
    * @return a MultiValueMap representation of these headers
    * @since 5.0

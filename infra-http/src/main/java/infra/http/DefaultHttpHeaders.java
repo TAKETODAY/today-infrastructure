@@ -33,14 +33,15 @@ import infra.util.MultiValueMap;
 /**
  * Default implementation of {@link HttpHeaders}.
  *
- * <p>Note that {@code HttpHeaders} instances created by the default constructor
- * treat header names in a case-insensitive manner. Instances created with the
- * {@link #DefaultHttpHeaders(MultiValueMap)} constructor like those instantiated
+ * <p>Note that {@code DefaultHttpHeaders} instances created by the default constructor
+ * treat header names in a case-insensitive manner; whereas, instances created with
+ * the {@link #DefaultHttpHeaders(MultiValueMap)} constructor &mdash; like those instantiated
  * internally by the framework to adapt to existing HTTP headers data structures
- * do guarantee per-header get/set/add operations to be case-insensitive as
- * mandated by the HTTP specification. However, it is not necessarily the case
- * for operations that deal with the collection as a whole (like {@code size()},
- * {@code values()}, {@code keySet()} and {@code entrySet()}).
+ * &mdash; guarantee per-header get/set/add operations to be case-insensitive as
+ * mandated by the HTTP specification. However, it is not necessarily how
+ * entries are actually stored, and this can lead to the reported {@link #size()}
+ * being inflated. Prefer using {@link #entries()} or {@link #names()}
+ * to ensure a case-insensitive view.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2020-01-30 18:31
@@ -91,7 +92,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * @param headers the headers map (expected to operate with case-insensitive keys)
    */
   public DefaultHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "MultiValueMap is required");
+    Assert.notNull(headers, "headers is required");
     if (headers instanceof DefaultHttpHeaders httpHeaders) {
       this.headers = DefaultHttpHeaders.unwrap(httpHeaders);
     }

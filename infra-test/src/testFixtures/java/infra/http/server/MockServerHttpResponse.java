@@ -30,12 +30,14 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.DefaultHttpHeaders;
+import infra.http.HeadersMultiValueMap;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.http.HttpMockResponse;
 import infra.util.CollectionUtils;
+import infra.util.MultiValueMap;
 
 /**
  * {@link ServerHttpResponse} implementation that is based on a {@link HttpMockResponse}.
@@ -174,7 +176,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
     }
 
     @Override
-    public List<String> get(String headerName) {
+    public @Nullable List<String> get(String headerName) {
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so don't merge
         String value = getFirst(headerName);
@@ -203,6 +205,12 @@ public class MockServerHttpResponse implements ServerHttpResponse {
       }
       return values;
     }
+
+    @Override
+    public MultiValueMap<String, String> asMultiValueMap() {
+      return new HeadersMultiValueMap(this);
+    }
+
   }
 
 }

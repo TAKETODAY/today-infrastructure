@@ -14,11 +14,15 @@ import infra.util.MultiValueMap;
 
 /**
  * Adapter that exposes {@link HttpHeaders} as a {@link MultiValueMap}.
+ * <p>
+ * This class provides a view of the given {@code HttpHeaders} instance, allowing it to be
+ * manipulated using the {@link MultiValueMap} interface. All operations are delegated directly
+ * to the underlying {@code HttpHeaders} object.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/3/14 20:35
  */
-final class HeadersMultiValueMap extends AbstractMap<String, List<String>> implements MultiValueMap<String, String> {
+public final class HeadersMultiValueMap extends AbstractMap<String, List<String>> implements MultiValueMap<String, String> {
 
   private final HttpHeaders headers;
 
