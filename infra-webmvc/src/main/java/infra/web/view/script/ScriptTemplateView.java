@@ -52,6 +52,7 @@ import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
+import infra.web.resource.ResourceHandlerUtils;
 import infra.web.view.AbstractUrlBasedView;
 import infra.web.view.ViewRenderingException;
 
@@ -343,14 +344,27 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
     }
   }
 
-  @Nullable
-  protected Resource getResource(String location) {
-    if (resourceLoaderPaths != null) {
+  protected @Nullable Resource getResource(String location) {
+    String normalizedLocation = ResourceHandlerUtils.normalizeInputPath(location);
+    if (this.resourceLoaderPaths != null && !ResourceHandlerUtils.shouldIgnoreInputPath(normalizedLocation)) {
       ApplicationContext context = applicationContext();
-      for (String path : resourceLoaderPaths) {
-        Resource resource = context.getResource(path + location);
-        if (resource.exists()) {
-          return resource;
+      for (String path : this.resourceLoaderPaths) {
+        Resource resource = context.getResource(path + normalizedLocation);
+        try {
+          if (resource.exists() && ResourceHandlerUtils.isResourceUnderLocation(context.getResource(path), resource)) {
+            return resource;
+          }
+        }
+        catch (IOException ex) {
+          if (logger.isDebugEnabled()) {
+            String error = "Skip location [%s] due to error".formatted(normalizedLocation);
+            if (logger.isTraceEnabled()) {
+              logger.trace(error, ex);
+            }
+            else {
+              logger.debug(error + ": " + ex.getMessage());
+            }
+          }
         }
       }
     }
