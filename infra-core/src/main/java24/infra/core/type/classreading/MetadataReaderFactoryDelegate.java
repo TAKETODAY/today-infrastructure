@@ -33,6 +33,10 @@ import infra.core.io.ResourceLoader;
  */
 abstract class MetadataReaderFactoryDelegate {
 
+  static MetadataReaderFactory create() {
+    return new ClassFileMetadataReaderFactory();
+  }
+
   static MetadataReaderFactory create(@Nullable ResourceLoader resourceLoader) {
     return new ClassFileMetadataReaderFactory(resourceLoader);
   }
