@@ -628,7 +628,7 @@ dependencies {
   api(platform("org.mockito:mockito-bom:5.22.0"))
   api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
   api(platform("tools.jackson:jackson-bom:3.1.0"))
-  api(platform("com.google.protobuf:protobuf-bom:4.33.4"))
+  api(platform("com.google.protobuf:protobuf-bom:4.34.0"))
   api(platform(project(":infra-bom")))
 
   constraints {
@@ -712,7 +712,7 @@ dependencies {
     api("org.webjars:underscorejs:1.8.3")
     api("org.webjars:webjars-locator-core:0.55")
     api("org.webjars:webjars-locator-lite:1.0.0")
-    api("org.yaml:snakeyaml:2.5")
+    api("org.yaml:snakeyaml:2.6")
     api("org.projectlombok:lombok:1.18.42")
     api("org.htmlunit:htmlunit:3.1.0")
     api("org.seleniumhq.selenium:htmlunit-driver:4.8.1")
