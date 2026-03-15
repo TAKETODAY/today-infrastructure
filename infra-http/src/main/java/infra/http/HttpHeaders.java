@@ -2037,10 +2037,27 @@ public abstract class HttpHeaders implements Serializable {
    * @see ReadOnlyHttpHeaders
    * @since 5.0
    */
-  public void set(String name, String value) {
+  public @Nullable List<String> set(String name, String value) {
     Assert.notNull(name, "name is required");
     Assert.notNull(value, "value is required");
-    setHeader(name, value);
+    return setHeader(name, value);
+  }
+
+  /**
+   * Set the header values for the given header name, replacing any existing values.
+   *
+   * @param name the header name
+   * @param values the list of header values
+   * @return the previous value associated with the specified header name,
+   * or {@code null} if there was no mapping for the name
+   * @throws UnsupportedOperationException if setting headers is not supported
+   * @see ReadOnlyHttpHeaders
+   * @since 5.0
+   */
+  public @Nullable List<String> set(String name, List<String> values) {
+    Assert.notNull(name, "name is required");
+    Assert.notNull(values, "values is required");
+    return setHeader(name, values);
   }
 
   /**
@@ -2198,23 +2215,6 @@ public abstract class HttpHeaders implements Serializable {
    * @see ReadOnlyHttpHeaders
    */
   public abstract void add(String name, @Nullable String value);
-
-  /**
-   * Set the header values for the given header name, replacing any existing values.
-   *
-   * @param name the header name
-   * @param values the list of header values
-   * @return the previous value associated with the specified header name,
-   * or {@code null} if there was no mapping for the name
-   * @throws UnsupportedOperationException if setting headers is not supported
-   * @see ReadOnlyHttpHeaders
-   * @since 5.0
-   */
-  public @Nullable List<String> set(String name, List<String> values) {
-    Assert.notNull(name, "name is required");
-    Assert.notNull(values, "values is required");
-    return setHeader(name, values);
-  }
 
   /**
    * Set the given, single header value under the given name.
