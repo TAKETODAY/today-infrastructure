@@ -63,8 +63,7 @@ public class MultiValueMapAdapter<K, V> extends AbstractMap<K, List<V>> implemen
   // MultiValueMap implementation
 
   @Override
-  @Nullable
-  public V getFirst(K key) {
+  public @Nullable V getFirst(K key) {
     List<V> values = this.targetMap.get(key);
     return values != null && !values.isEmpty() ? values.get(0) : null;
   }
@@ -77,17 +76,15 @@ public class MultiValueMapAdapter<K, V> extends AbstractMap<K, List<V>> implemen
   }
 
   @Override
-  @SuppressWarnings("NullAway")
-  public void addAll(K key, Collection<? extends V> values) {
+  public void addAll(K key, @Nullable Collection<? extends V> values) {
     if (CollectionUtils.isNotEmpty(values)) {
       targetMap.computeIfAbsent(key, k -> new ArrayList<>(values.size()))
               .addAll(values);
     }
   }
 
-  @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable V value) {
+  public @Nullable List<V> setOrRemove(K key, @Nullable V value) {
     if (value != null) {
       ArrayList<V> values = new ArrayList<>(1);
       values.add(value);
@@ -98,18 +95,16 @@ public class MultiValueMapAdapter<K, V> extends AbstractMap<K, List<V>> implemen
     }
   }
 
-  @Nullable
   @Override
-  public List<V> setOrRemove(K key, V @Nullable [] value) {
+  public @Nullable List<V> setOrRemove(K key, V @Nullable [] value) {
     if (value != null) {
       return targetMap.put(key, CollectionUtils.newArrayList(value));
     }
     return targetMap.remove(key);
   }
 
-  @Nullable
   @Override
-  public List<V> setOrRemove(K key, @Nullable Collection<V> value) {
+  public @Nullable List<V> setOrRemove(K key, @Nullable Collection<V> value) {
     if (value != null) {
       return targetMap.put(key, new ArrayList<>(value));
     }
@@ -139,26 +134,22 @@ public class MultiValueMapAdapter<K, V> extends AbstractMap<K, List<V>> implemen
   }
 
   @Override
-  @Nullable
-  public List<V> get(Object key) {
+  public @Nullable List<V> get(Object key) {
     return this.targetMap.get(key);
   }
 
   @Override
-  @Nullable
-  public List<V> put(K key, List<V> value) {
+  public @Nullable List<V> put(K key, List<V> value) {
     return this.targetMap.put(key, value);
   }
 
   @Override
-  @Nullable
-  public List<V> putIfAbsent(K key, List<V> value) {
+  public @Nullable List<V> putIfAbsent(K key, List<V> value) {
     return this.targetMap.putIfAbsent(key, value);
   }
 
   @Override
-  @Nullable
-  public List<V> remove(Object key) {
+  public @Nullable List<V> remove(Object key) {
     return this.targetMap.remove(key);
   }
 

@@ -51,7 +51,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  final MultiValueMap<String, String> headers;
+  private final MultiValueMap<String, String> headers;
 
   /**
    * Construct a case-insensitive header map
@@ -121,16 +121,6 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   @Override
   protected @Nullable List<String> setHeader(String name, String value) {
-    return headers.setOrRemove(name, value);
-  }
-
-  @Override
-  public @Nullable List<String> setOrRemove(String name, String @Nullable [] value) {
-    return headers.setOrRemove(name, value);
-  }
-
-  @Override
-  public @Nullable List<String> setOrRemove(String name, @Nullable Collection<String> value) {
     return headers.setOrRemove(name, value);
   }
 
