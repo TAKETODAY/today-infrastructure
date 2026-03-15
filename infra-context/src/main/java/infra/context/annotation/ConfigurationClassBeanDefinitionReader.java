@@ -288,8 +288,8 @@ class ConfigurationClassBeanDefinitionReader {
 
     // Replace the original bean definition with the target one, if necessary
     if (logger.isTraceEnabled()) {
-      logger.trace("Registering bean definition for @Component method {}.{}()",
-              configClassMetadata.getClassName(), beanName);
+      logger.trace("Registering bean definition for @Component method {}.{}() with bean name '{}'",
+              configClass.metadata.getClassName(), methodName, beanName);
     }
 
     bootstrapContext.registerBeanDefinition(beanName, beanDefToRegister);
