@@ -41,6 +41,13 @@ import infra.core.annotation.Order;
  * created. A {@code BeanFactoryPostProcessor} may also be registered
  * programmatically with a {@code ConfigurableApplicationContext}.
  *
+ * <p>When registering a {@code BeanFactoryPostProcessor} via an {@code @Bean} method
+ * in a {@code @Configuration} class, use a {@code static} method to avoid eager
+ * initialization of other beans in the configuration class. See the
+ * "BeanFactoryPostProcessor-returning {@code @Bean} methods" section in
+ * {@link infra.context.annotation.Bean @Bean}'s Javadoc for details
+ * and an example.
+ *
  * <h3>Ordering</h3>
  * <p>
  * {@code BeanFactoryPostProcessor} beans that are autodetected in an
