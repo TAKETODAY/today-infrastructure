@@ -29,12 +29,9 @@ import infra.core.io.ResourceLoader;
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MetadataReaderFactory
+ * @since 5.0
  */
 abstract class MetadataReaderFactoryDelegate {
-
-  static MetadataReaderFactory create() {
-    return new ClassFileMetadataReaderFactory();
-  }
 
   static MetadataReaderFactory create(@Nullable ResourceLoader resourceLoader) {
     return new ClassFileMetadataReaderFactory(resourceLoader);
@@ -43,4 +40,5 @@ abstract class MetadataReaderFactoryDelegate {
   static MetadataReaderFactory create(@Nullable ClassLoader classLoader) {
     return new ClassFileMetadataReaderFactory(classLoader);
   }
+
 }

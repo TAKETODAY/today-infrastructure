@@ -33,7 +33,7 @@ import infra.core.io.ResourceLoader;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
+final class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
 
   /**
    * Create a new ClassFileMetadataReaderFactory for the default class loader.
@@ -45,7 +45,7 @@ class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
   /**
    * Create a new ClassFileMetadataReaderFactory for the given resource loader.
    *
-   * @param resourceLoader the Infra ResourceLoader to use
+   * @param resourceLoader the Spring ResourceLoader to use
    * (also determines the ClassLoader to use)
    */
   public ClassFileMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {
@@ -65,4 +65,5 @@ class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
   public MetadataReader getMetadataReader(Resource resource) throws IOException {
     return new ClassFileMetadataReader(resource, getResourceLoader().getClassLoader());
   }
+
 }

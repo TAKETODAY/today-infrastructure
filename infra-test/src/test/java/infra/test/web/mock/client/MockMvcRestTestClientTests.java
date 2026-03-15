@@ -34,7 +34,7 @@ import infra.web.annotation.RestController;
  *
  * @author Rob Worsnop
  * @author Sam Brannen
- * @since 7.0
+ * @since 5.0
  */
 class MockMvcRestTestClientTests {
 

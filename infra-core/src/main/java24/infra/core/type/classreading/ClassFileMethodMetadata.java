@@ -42,15 +42,15 @@ import infra.util.ClassUtils;
  *
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
  */
-class ClassFileMethodMetadata implements MethodMetadata {
+final class ClassFileMethodMetadata implements MethodMetadata {
 
   private final String methodName;
 
   private final AccessFlags accessFlags;
 
-  @Nullable
-  private final String declaringClassName;
+  private final @Nullable String declaringClassName;
 
   private final String returnTypeName;
 
@@ -59,7 +59,9 @@ class ClassFileMethodMetadata implements MethodMetadata {
 
   private final MergedAnnotations annotations;
 
-  ClassFileMethodMetadata(String methodName, AccessFlags accessFlags, @Nullable String declaringClassName, String returnTypeName, Object source, MergedAnnotations annotations) {
+  ClassFileMethodMetadata(String methodName, AccessFlags accessFlags, @Nullable String declaringClassName,
+          String returnTypeName, Object source, MergedAnnotations annotations) {
+
     this.methodName = methodName;
     this.accessFlags = accessFlags;
     this.declaringClassName = declaringClassName;
@@ -73,9 +75,8 @@ class ClassFileMethodMetadata implements MethodMetadata {
     return this.methodName;
   }
 
-  @Nullable
   @Override
-  public String getDeclaringClassName() {
+  public @Nullable String getDeclaringClassName() {
     return this.declaringClassName;
   }
 
@@ -136,7 +137,7 @@ class ClassFileMethodMetadata implements MethodMetadata {
     return this.source.toString();
   }
 
-  static ClassFileMethodMetadata of(MethodModel methodModel, @Nullable ClassLoader classLoader) {
+  static ClassFileMethodMetadata of(MethodModel methodModel, ClassLoader classLoader) {
     String methodName = methodModel.methodName().stringValue();
     AccessFlags flags = methodModel.flags();
     String declaringClassName = methodModel.parent().map(parent -> ClassUtils.convertResourcePathToClassName(parent.thisClass().name().stringValue())).orElse(null);
@@ -146,7 +147,7 @@ class ClassFileMethodMetadata implements MethodMetadata {
     MergedAnnotations annotations = methodModel.elementStream()
             .filter(element -> element instanceof RuntimeVisibleAnnotationsAttribute)
             .findFirst()
-            .map(element -> ClassFileAnnotationMetadata.createMergedAnnotations(methodName, (RuntimeVisibleAnnotationsAttribute) element, classLoader))
+            .map(element -> ClassFileAnnotationDelegate.createMergedAnnotations(methodName, (RuntimeVisibleAnnotationsAttribute) element, classLoader))
             .orElse(MergedAnnotations.valueOf(Collections.emptyList()));
     return new ClassFileMethodMetadata(methodName, flags, declaringClassName, returnTypeName, source, annotations);
   }
