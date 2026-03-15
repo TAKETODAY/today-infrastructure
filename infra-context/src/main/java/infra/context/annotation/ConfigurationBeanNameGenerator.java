@@ -39,11 +39,12 @@ import infra.stereotype.Component;
 public interface ConfigurationBeanNameGenerator extends BeanNameGenerator {
 
   /**
-   * Derive a default bean name for the given {@link Component @Component} method,
-   * providing the {@link Component#name() name} attribute specified.
+   * Derive a default bean name for the given {@link Component @Bean} method,
+   * taking into account the specified {@link Component#name() name} attribute.
    *
-   * @param beanMethod the method metadata for the {@link Component @Component} method
-   * @param beanName the {@link Component#name() name} attribute or {@code null} if non is specified
+   * @param beanMethod the method metadata for the {@link Component @Bean} method
+   * @param beanName the {@link Component#name() name} attribute or {@code null} if
+   * none is specified
    * @return the default bean name to use
    */
   String deriveBeanName(MethodMetadata beanMethod, @Nullable String beanName);
