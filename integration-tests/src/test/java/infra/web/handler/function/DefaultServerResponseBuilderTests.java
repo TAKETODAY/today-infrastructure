@@ -614,7 +614,7 @@ class DefaultServerResponseBuilderTests {
   @Test
   void headerRemoval() {
     ServerResponse response = ServerResponse.ok()
-            .header("X-Custom") // No values should remove the header
+            .header("X-Custom", (String[]) null)// No values should remove the header
             .build();
 
     assertThat(response.headers().contains("X-Custom")).isFalse();

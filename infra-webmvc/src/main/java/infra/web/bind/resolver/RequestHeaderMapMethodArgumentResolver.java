@@ -20,6 +20,7 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 
 import infra.http.HttpHeaders;
@@ -62,7 +63,12 @@ public class RequestHeaderMapMethodArgumentResolver implements ParameterResolvin
     // @RequestHeader
 
     if (MultiValueMap.class.isAssignableFrom(paramType)) {
-      return headers.asMultiValueMap();
+      if (paramType == MultiValueMap.class) {
+        return headers.asMultiValueMap();
+      }
+      Map<String, List<String>> map = CollectionUtils.createMap(paramType, null, headers.size());
+      map.putAll(headers.asMultiValueMap());
+      return map;
     }
     else {
       Map<String, String> singleValueMap = headers.toSingleValueMap();
