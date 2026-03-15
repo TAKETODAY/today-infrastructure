@@ -30,6 +30,7 @@ import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
 import infra.http.MediaType;
+import infra.http.ServerSentEvent;
 import infra.http.codec.json.JacksonJsonEncoder;
 import infra.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
@@ -64,7 +65,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     assertThat(this.messageWriter.canWrite(forClass(Object.class), new MediaType("foo", "bar"))).isFalse();
 
     assertThat(this.messageWriter.canWrite(null, MediaType.TEXT_EVENT_STREAM)).isTrue();
-    assertThat(this.messageWriter.canWrite(forClass(infra.http.ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
+    assertThat(this.messageWriter.canWrite(forClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
 
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, MediaType.TEXT_EVENT_STREAM)).isTrue();
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, new MediaType("foo", "bar"))).isFalse();
@@ -74,12 +75,12 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   void writeServerSentEvent(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
-    infra.http.ServerSentEvent<?> event = infra.http.ServerSentEvent.builder().data("bar").id("c42").event("foo")
+    ServerSentEvent<?> event = ServerSentEvent.builder().data("bar").id("c42").event("foo")
             .comment("bla\nbla bla\nbla bla bla").retry(Duration.ofMillis(123L)).build();
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
-    Mono<infra.http.ServerSentEvent> source = Mono.just(event);
-    testWrite(source, outputMessage, infra.http.ServerSentEvent.class);
+    Mono<ServerSentEvent> source = Mono.just(event);
+    testWrite(source, outputMessage, ServerSentEvent.class);
 
     StepVerifier.create(outputMessage.getBody())
             .consumeNextWith(stringConsumer(
@@ -108,12 +109,13 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     super.bufferFactory = bufferFactory;
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
-    Flux<String> source = Flux.just("foo\nbar", "foo\nbaz");
+    Flux<String> source = Flux.just("first\nsecond", "first\rsecond", "first\r\nsecond");
     testWrite(source, outputMessage, String.class);
 
     StepVerifier.create(outputMessage.getBody())
-            .consumeNextWith(stringConsumer("data:foo\ndata:bar\n\n"))
-            .consumeNextWith(stringConsumer("data:foo\ndata:baz\n\n"))
+            .consumeNextWith(stringConsumer("data:first\ndata:second\n\n"))
+            .consumeNextWith(stringConsumer("data:first\ndata:second\n\n"))
+            .consumeNextWith(stringConsumer("data:first\ndata:second\n\n"))
             .expectComplete()
             .verify();
   }
@@ -171,14 +173,18 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
     StepVerifier.create(outputMessage.getBody())
             .consumeNextWith(stringConsumer("data:"))
-            .consumeNextWith(stringConsumer("{\n" +
-                    "data:  \"foo\" : \"foofoo\",\n" +
-                    "data:  \"bar\" : \"barbar\"\n" + "data:}"))
+            .consumeNextWith(stringConsumer("""
+                    {
+                    data:  "foo" : "foofoo",
+                    data:  "bar" : "barbar"
+                    data:}"""))
             .consumeNextWith(stringConsumer("\n\n"))
             .consumeNextWith(stringConsumer("data:"))
-            .consumeNextWith(stringConsumer("{\n" +
-                    "data:  \"foo\" : \"foofoofoo\",\n" +
-                    "data:  \"bar\" : \"barbarbar\"\n" + "data:}"))
+            .consumeNextWith(stringConsumer("""
+                    {
+                    data:  "foo" : "foofoofoo",
+                    data:  "bar" : "barbarbar"
+                    data:}"""))
             .consumeNextWith(stringConsumer("\n\n"))
             .expectComplete()
             .verify();

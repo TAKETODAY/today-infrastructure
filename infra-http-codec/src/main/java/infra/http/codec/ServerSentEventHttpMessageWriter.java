@@ -39,7 +39,6 @@ import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.logging.Logger;
-import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -130,8 +129,9 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
         result = Flux.just(encodeText(sseText + "\n", mediaType, factory));
       }
       else if (data instanceof String text) {
-        text = StringUtils.replace(text, "\n", "\ndata:");
-        result = Flux.just(encodeText(sseText + text + "\n\n", mediaType, factory));
+        StringBuilder sb = new StringBuilder(sseText);
+        writeStringData(text, sb);
+        result = Flux.just(encodeText(sb.toString(), mediaType, factory));
       }
       else {
         result = encodeEvent(sseText, data, dataType, mediaType, factory, hints);
@@ -139,6 +139,31 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
 
       return result.doOnDiscard(DataBuffer.class, DataBuffer::release);
     });
+  }
+
+  private void writeStringData(String input, StringBuilder sb) {
+    if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
+      sb.append(input);
+    }
+    else {
+      int length = input.length();
+      for (int i = 0; i < length; i++) {
+        char c = input.charAt(i);
+        if (c == '\r') {
+          if (i + 1 < length && input.charAt(i + 1) == '\n') {
+            i++;
+          }
+          sb.append("\ndata:");
+        }
+        else if (c == '\n') {
+          sb.append("\ndata:");
+        }
+        else {
+          sb.append(c);
+        }
+      }
+    }
+    sb.append("\n\n");
   }
 
   @SuppressWarnings("unchecked")

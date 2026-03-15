@@ -28,8 +28,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 import infra.http.MediaType;
+import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.web.view.ModelAndView;
 
 /**
  * A specialization of {@link ResponseBodyEmitter} for sending
@@ -177,19 +179,23 @@ public class SseEmitter extends ResponseBodyEmitter {
 
     private static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
 
-    private final ArrayList<DataWithMediaType> dataToSend = new ArrayList<>(1);
+    private final ArrayList<DataWithMediaType> dataToSend = new ArrayList<>(4);
 
-    @Nullable
-    private StringBuilder sb;
+    private final StringBuilder sb = new StringBuilder();
+
+    private boolean hasName;
 
     @Override
     public SseEventBuilder id(String id) {
+      checkEvent(id);
       append("id:").append(id).append('\n');
       return this;
     }
 
     @Override
     public SseEventBuilder name(String name) {
+      checkEvent(name);
+      this.hasName = true;
       append("event:").append(name).append('\n');
       return this;
     }
@@ -202,7 +208,7 @@ public class SseEmitter extends ResponseBodyEmitter {
 
     @Override
     public SseEventBuilder comment(String comment) {
-      append(':').append(comment).append('\n');
+      append(':').append(StringUtils.replace(comment, "\n", "\n:")).append('\n');
       return this;
     }
 
@@ -213,28 +219,57 @@ public class SseEmitter extends ResponseBodyEmitter {
 
     @Override
     public SseEventBuilder data(Object object, @Nullable MediaType mediaType) {
-      append("data:");
-      saveAppendedText();
-      if (object instanceof String text) {
-        object = StringUtils.replace(text, "\n", "\ndata:");
+      if (object instanceof ModelAndView mav && !this.hasName && mav.getViewName() != null) {
+        name(mav.getViewName());
       }
-      this.dataToSend.add(new DataWithMediaType(object, mediaType));
+      append("data:");
+      saveAppendedText(TEXT_PLAIN);
+      if (object instanceof String text) {
+        writeStringData(text, mediaType);
+      }
+      else {
+        this.dataToSend.add(new DataWithMediaType(object, mediaType));
+      }
       append('\n');
       return this;
     }
 
-    SseEventBuilderImpl append(String text) {
-      if (this.sb == null) {
-        this.sb = new StringBuilder();
+    private static void checkEvent(String content) {
+      Assert.isTrue(content.indexOf('\n') == -1 && content.indexOf('\r') == -1,
+              "illegal character '\\n' or '\\r' in event content");
+    }
+
+    private void writeStringData(String input, @Nullable MediaType mediaType) {
+      if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
+        this.dataToSend.add(new DataWithMediaType(input, mediaType));
       }
+      else {
+        int length = input.length();
+        for (int i = 0; i < length; i++) {
+          char c = input.charAt(i);
+          if (c == '\r') {
+            if (i + 1 < length && input.charAt(i + 1) == '\n') {
+              i++;
+            }
+            this.sb.append("\ndata:");
+          }
+          else if (c == '\n') {
+            this.sb.append("\ndata:");
+          }
+          else {
+            this.sb.append(c);
+          }
+        }
+        saveAppendedText(mediaType);
+      }
+    }
+
+    SseEventBuilderImpl append(String text) {
       this.sb.append(text);
       return this;
     }
 
     SseEventBuilderImpl append(char ch) {
-      if (this.sb == null) {
-        this.sb = new StringBuilder();
-      }
       this.sb.append(ch);
       return this;
     }
@@ -245,14 +280,14 @@ public class SseEmitter extends ResponseBodyEmitter {
         return Collections.emptySet();
       }
       append('\n');
-      saveAppendedText();
+      saveAppendedText(TEXT_PLAIN);
       return this.dataToSend;
     }
 
-    private void saveAppendedText() {
-      if (this.sb != null) {
-        this.dataToSend.add(new DataWithMediaType(this.sb.toString(), TEXT_PLAIN));
-        this.sb = null;
+    private void saveAppendedText(@Nullable MediaType mediaType) {
+      if (StringUtils.isNotEmpty(this.sb)) {
+        this.dataToSend.add(new DataWithMediaType(this.sb.toString(), mediaType));
+        this.sb.setLength(0);
       }
     }
   }

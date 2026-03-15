@@ -21,6 +21,9 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,11 +31,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import infra.http.MediaType;
 
 import static infra.web.handler.result.SseEmitter.event;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -47,14 +52,14 @@ class SseEmitterTests {
   private TestHandler handler;
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
     this.handler = new TestHandler();
     this.emitter = ResponseBodyEmitter.forServerSentEvents(null);
     this.emitter.initialize(this.handler);
   }
 
   @Test
-  public void send() throws Exception {
+  void send() throws Exception {
     this.emitter.send("foo");
     this.handler.assertSentObjectCount(3);
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
@@ -64,7 +69,7 @@ class SseEmitterTests {
   }
 
   @Test
-  public void sendWithMediaType() throws Exception {
+  void sendWithMediaType() throws Exception {
     this.emitter.send("foo", MediaType.TEXT_PLAIN);
     this.handler.assertSentObjectCount(3);
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
@@ -74,14 +79,14 @@ class SseEmitterTests {
   }
 
   @Test
-  public void sendEventEmpty() throws Exception {
+  void sendEventEmpty() throws Exception {
     this.emitter.send(event());
     this.handler.assertSentObjectCount(0);
     this.handler.assertWriteCount(0);
   }
 
   @Test
-  public void sendEventWithDataLine() throws Exception {
+  void sendEventWithDataLine() throws Exception {
     this.emitter.send(event().data("foo"));
     this.handler.assertSentObjectCount(3);
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
@@ -91,7 +96,7 @@ class SseEmitterTests {
   }
 
   @Test
-  public void sendEventWithTwoDataLines() throws Exception {
+  void sendEventWithTwoDataLines() throws Exception {
     this.emitter.send(event().data("foo").data("bar"));
     this.handler.assertSentObjectCount(5);
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
@@ -102,9 +107,10 @@ class SseEmitterTests {
     this.handler.assertWriteCount(1);
   }
 
-  @Test
-  public void sendEventWithMultiline() throws Exception {
-    this.emitter.send(event().data("foo\nbar\nbaz"));
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("newLineCharacters")
+  void sendEventWithMultiline(String newLineChars, String description) throws Exception {
+    this.emitter.send(event().data("foo" + newLineChars + "bar" + newLineChars + "baz"));
     this.handler.assertSentObjectCount(3);
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(1, "foo\ndata:bar\ndata:baz");
@@ -112,8 +118,19 @@ class SseEmitterTests {
     this.handler.assertWriteCount(1);
   }
 
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("newLineCharacters")
+  void sendEventWithMultilineWithMediaType(String newLineChars, String description) throws Exception {
+    this.emitter.send(event().data("foo" + newLineChars + "bar" + newLineChars + "baz", MediaType.TEXT_PLAIN));
+    this.handler.assertSentObjectCount(3);
+    this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
+    this.handler.assertObject(1, "foo\ndata:bar\ndata:baz", MediaType.TEXT_PLAIN);
+    this.handler.assertObject(2, "\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
+  }
+
   @Test
-  public void sendEventFull() throws Exception {
+  void sendEventFull() throws Exception {
     this.emitter.send(event().comment("blah").name("test").reconnectTime(5000L).id("1").data("foo"));
     this.handler.assertSentObjectCount(3);
     this.handler.assertObject(0, ":blah\nevent:test\nretry:5000\nid:1\ndata:", TEXT_PLAIN_UTF8);
@@ -123,7 +140,7 @@ class SseEmitterTests {
   }
 
   @Test
-  public void sendEventFullWithTwoDataLinesInTheMiddle() throws Exception {
+  void sendEventFullWithTwoDataLinesInTheMiddle() throws Exception {
     this.emitter.send(event().comment("blah").data("foo").data("bar").name("test").reconnectTime(5000L).id("1"));
     this.handler.assertSentObjectCount(5);
     this.handler.assertObject(0, ":blah\ndata:", TEXT_PLAIN_UTF8);
@@ -132,6 +149,28 @@ class SseEmitterTests {
     this.handler.assertObject(3, "bar");
     this.handler.assertObject(4, "\nevent:test\nretry:5000\nid:1\n\n", TEXT_PLAIN_UTF8);
     this.handler.assertWriteCount(1);
+  }
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("newLineCharacters")
+  void rejectInvalidId(String newLineChars, String description) {
+    assertThatIllegalArgumentException().isThrownBy(() -> this.emitter
+            .send(event().id("first" + newLineChars + "second")));
+  }
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("newLineCharacters")
+  void rejectInvalidName(String newLineChars, String description) {
+    assertThatIllegalArgumentException().isThrownBy(() -> this.emitter
+            .send(event().name("first" + newLineChars + "second")));
+  }
+
+  private static Stream<Arguments> newLineCharacters() {
+    return Stream.of(
+            Arguments.of("\n", "LF"),
+            Arguments.of("\r", "CR"),
+            Arguments.of("\r\n", "CRLF")
+    );
   }
 
   private static class TestHandler implements ResponseBodyEmitter.Handler {
@@ -161,7 +200,7 @@ class SseEmitterTests {
     }
 
     @Override
-    public void send(Object data, @Nullable MediaType mediaType) throws IOException {
+    public void send(Object data, @Nullable MediaType mediaType) {
       this.objects.add(data);
       this.mediaTypes.add(mediaType);
       this.writeCount++;
