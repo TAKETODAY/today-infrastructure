@@ -18,6 +18,8 @@
 
 package infra.core;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -43,7 +45,7 @@ import infra.lang.Assert;
  * @see <a href="https://gafter.blogspot.nl/2006/12/super-type-tokens.html">Neal Gafter on Super Type Tokens</a>
  * @since 3.0 2021/1/6 22:11
  */
-public abstract class ParameterizedTypeReference<T> {
+public abstract class ParameterizedTypeReference<T extends @Nullable Object> {
 
   private final Type type;
 
@@ -94,7 +96,8 @@ public abstract class ParameterizedTypeReference<T> {
    * {@code TypeReference}-accepting methods
    */
   public static <T> ParameterizedTypeReference<T> forType(Type type) {
-    return new ParameterizedTypeReference<T>(type) { };
+    return new ParameterizedTypeReference<T>(type) {
+    };
   }
 
   private static Class<?> findTypeReferenceSubclass(Class<?> child) {
