@@ -29,6 +29,7 @@ import org.yaml.snakeyaml.reader.UnicodeReader;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import infra.core.io.Resource;
@@ -200,25 +202,28 @@ public class YamlProcessor {
   }
 
   private boolean process(MatchCallback callback, Yaml yaml, Resource resource) {
-    int count = 0;
+    AtomicInteger count = new AtomicInteger();
     try {
-      log.debug("Loading from YAML: {}", resource);
-      try (UnicodeReader reader = new UnicodeReader(resource.getInputStream())) {
+      if (log.isDebugEnabled()) {
+        log.debug("Loading from YAML: {}", resource);
+      }
+      resource.consumeContent(inputStream -> {
+        Reader reader = new UnicodeReader(inputStream);
         for (Object object : yaml.loadAll(reader)) {
           if (object != null && process(asMap(object), callback)) {
-            count++;
+            count.incrementAndGet();
             if (this.resolutionMethod == ResolutionMethod.FIRST_FOUND) {
               break;
             }
           }
         }
-        log.debug("Loaded {} document {} from YAML resource: {}", count, (count > 1 ? "s" : Constant.BLANK), resource);
-      }
+        log.debug("Loaded {} document {} from YAML resource: {}", count, (count.get() > 1 ? "s" : Constant.BLANK), resource);
+      });
     }
     catch (IOException ex) {
       handleProcessError(resource, ex);
     }
-    return (count > 0);
+    return count.get() > 0;
   }
 
   private void handleProcessError(Resource resource, IOException ex) {

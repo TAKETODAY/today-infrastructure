@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -345,12 +346,16 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
               "Detected cyclic loading of " + encodedResource + " - check your import definitions!");
     }
 
-    try (InputStream inputStream = encodedResource.getResource().getInputStream()) {
-      InputSource inputSource = new InputSource(inputStream);
-      if (encodedResource.getEncoding() != null) {
-        inputSource.setEncoding(encodedResource.getEncoding());
-      }
-      return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
+    try {
+      AtomicInteger count = new AtomicInteger();
+      encodedResource.getResource().consumeContent(inputStream -> {
+        InputSource inputSource = new InputSource(inputStream);
+        if (encodedResource.getEncoding() != null) {
+          inputSource.setEncoding(encodedResource.getEncoding());
+        }
+        count.addAndGet(doLoadBeanDefinitions(inputSource, encodedResource.getResource()));
+      });
+      return count.get();
     }
     catch (IOException ex) {
       throw new BeanDefinitionStoreException(

@@ -20,11 +20,19 @@ package infra.core.io;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +43,9 @@ import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
+import infra.util.function.IOConsumer;
+
+import static infra.core.io.PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX;
 
 /**
  * Default implementation of the {@link ResourceLoader} interface.
@@ -185,6 +196,9 @@ public class DefaultResourceLoader implements ResourceLoader {
               location.substring(CLASSPATH_URL_PREFIX.length()), StandardCharsets.UTF_8);
       return new ClassPathResource(path, getClassLoader());
     }
+    else if (location.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
+      return new ClassPathAllResource(location.substring(CLASSPATH_ALL_URL_PREFIX.length()), getClassLoader());
+    }
     else {
       try {
         // Try to parse the location as a URL...
@@ -212,6 +226,97 @@ public class DefaultResourceLoader implements ResourceLoader {
    */
   protected Resource getResourceByPath(String path) {
     return new ClassPathContextResource(path, getClassLoader());
+  }
+
+  /**
+   * A multi-content ClassPathResource handle that can expose the content
+   * from all matching resources in the classpath.
+   *
+   * @since 5.0
+   */
+  protected static class ClassPathAllResource extends ClassPathResource {
+
+    public ClassPathAllResource(String path, @Nullable ClassLoader classLoader) {
+      super(path, classLoader);
+    }
+
+    @Override
+    public boolean isFile() {
+      return false;
+    }
+
+    @Override
+    public URL getURL() throws IOException {
+      throw new FileNotFoundException(
+              this + " cannot be resolved to single URL or File - use 'classpath:' instead");
+    }
+
+    @Override
+    public long contentLength() throws IOException {
+      long combinedLength = 0;
+      ClassLoader cl = getClassLoader();
+      Enumeration<URL> urls = cl != null ? cl.getResources(getPath()) : ClassLoader.getSystemResources(getPath());
+      while (urls.hasMoreElements()) {
+        URLConnection con = urls.nextElement().openConnection();
+        long length = con.getContentLengthLong();
+        if (length < 0) {
+          return -1;
+        }
+        combinedLength += length;
+      }
+      return combinedLength;
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+      List<InputStream> streams = new ArrayList<>();
+      ClassLoader cl = getClassLoader();
+      Enumeration<URL> urls = (cl != null ? cl.getResources(getPath()) : ClassLoader.getSystemResources(getPath()));
+      while (urls.hasMoreElements()) {
+        try {
+          streams.add(urls.nextElement().openStream());
+        }
+        catch (IOException ex) {
+          streams.forEach(stream -> {
+            try {
+              stream.close();
+            }
+            catch (IOException ex2) {
+              ex.addSuppressed(ex2);
+            }
+          });
+          throw ex;
+        }
+      }
+      return switch (streams.size()) {
+        case 0 -> InputStream.nullInputStream();
+        case 1 -> streams.get(0);
+        default -> new SequenceInputStream(Collections.enumeration(streams));
+      };
+    }
+
+    @Override
+    public void consumeContent(IOConsumer<InputStream> consumer) throws IOException {
+      ClassLoader cl = getClassLoader();
+      Enumeration<URL> urls = (cl != null ? cl.getResources(getPath()) : ClassLoader.getSystemResources(getPath()));
+      while (urls.hasMoreElements()) {
+        try (InputStream inputStream = urls.nextElement().openStream()) {
+          consumer.accept(inputStream);
+        }
+      }
+    }
+
+    @Override
+    public Resource createRelative(String relativePath) {
+      String pathToUse = StringUtils.applyRelativePath(getPath(), relativePath);
+      return new ClassPathAllResource(pathToUse, getClassLoader());
+    }
+
+    @Override
+    public String toString() {
+      return "'classpath*:' resource [%s]".formatted(getPath());
+    }
+
   }
 
   /**

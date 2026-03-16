@@ -21,8 +21,6 @@ package infra.beans.factory.support;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -260,14 +258,9 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 
     Properties props = new Properties();
     try {
-      try (InputStream is = encodedResource.getResource().getInputStream()) {
-        if (encodedResource.getEncoding() != null) {
-          getPropertiesPersister().load(props, new InputStreamReader(is, encodedResource.getEncoding()));
-        }
-        else {
-          getPropertiesPersister().load(props, is);
-        }
-      }
+      encodedResource.consumeContent(reader -> {
+        getPropertiesPersister().load(props, reader);
+      });
 
       int count = registerBeanDefinitions(props, prefix, encodedResource.getResource().toString());
       if (logger.isDebugEnabled()) {

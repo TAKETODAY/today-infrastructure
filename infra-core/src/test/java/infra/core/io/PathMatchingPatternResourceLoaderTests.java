@@ -23,9 +23,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
@@ -51,12 +54,14 @@ import java.util.zip.ZipEntry;
 
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
+import infra.util.FileCopyUtils;
 import infra.util.FileSystemUtils;
 import infra.util.ResourceUtils;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -119,6 +124,56 @@ class PathMatchingPatternResourceLoaderTests {
       String actualProtocol = resource.getURL().getProtocol();
       assertEquals(protocol, actualProtocol);
       assertFilenameIn(resource, filenames);
+    }
+  }
+
+  @Nested
+  class InvalidPatterns {
+
+    @Test
+    void invalidPrefixWithPatternElementInItThrowsException() {
+      assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(() -> resolver.getResources("xx**:**/*.xy"));
+    }
+  }
+
+  @Nested
+  class ClassPathAll {
+
+    @Test
+    void getResourcesVsGetResource() throws IOException {
+      StringBuilder content1 = new StringBuilder(200000);
+      long length1 = 0;
+      Resource[] resources1 = resolver.getResourcesArray("classpath*:META-INF/MANIFEST.MF");
+      for (Resource resource : resources1) {
+        assertThat(resource.exists()).isTrue();
+        assertThat(resource.isReadable()).isTrue();
+        assertThat(resource.isFile()).isFalse();
+        length1 += resource.contentLength();
+        resource.consumeContent(inputStream ->
+                content1.append(FileCopyUtils.copyToString(new InputStreamReader(inputStream))));
+      }
+      String content = content1.toString();
+
+      StringBuilder content2 = new StringBuilder(200000);
+      Resource resource2 = resolver.getResource("classpath*:META-INF/MANIFEST.MF");
+      assertThat(resource2.exists()).isTrue();
+      assertThat(resource2.isReadable()).isTrue();
+      assertThat(resource2.isFile()).isFalse();
+      resource2.consumeContent(inputStream ->
+              content2.append(FileCopyUtils.copyToString(new InputStreamReader(inputStream))));
+      assertThat(content.contentEquals(content2)).isTrue();
+      assertThat(resource2.contentLength()).isEqualTo(length1);
+
+      String content3 = FileCopyUtils.copyToString(new InputStreamReader(resource2.getInputStream()));
+      assertThat(content.contentEquals(content3)).isTrue();
+
+      String content4 = new EncodedResource(resource2).getContentAsString();
+      assertThat(content.contentEquals(content4)).isTrue();
+
+      StringWriter content5 = new StringWriter(200000);
+      EncodedResource resource5 = new EncodedResource(resource2);
+      resource5.consumeContent(reader -> FileCopyUtils.copy(reader, content5));
+      assertThat(content.contentEquals(content5.getBuffer())).isTrue();
     }
   }
 

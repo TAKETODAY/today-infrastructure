@@ -25,9 +25,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.Objects;
 
 import infra.lang.Assert;
+import infra.util.ObjectUtils;
+import infra.util.function.IOConsumer;
 
 /**
  * Holder that combines a {@link Resource} descriptor with a specific encoding
@@ -48,17 +49,15 @@ import infra.lang.Assert;
  */
 public class EncodedResource implements InputStreamSource {
 
-  @Nullable
-  private final String encoding;
-
-  @Nullable
-  private final Charset charset;
-
   private final Resource resource;
 
+  private final @Nullable String encoding;
+
+  private final @Nullable Charset charset;
+
   /**
-   * Create a new {@code EncodedResource} for the given {@code Resource}, not
-   * specifying an explicit encoding or {@code Charset}.
+   * Create a new {@code EncodedResource} for the given {@code Resource},
+   * not specifying an explicit encoding or {@code Charset}.
    *
    * @param resource the {@code Resource} to hold (never {@code null})
    */
@@ -67,8 +66,8 @@ public class EncodedResource implements InputStreamSource {
   }
 
   /**
-   * Create a new {@code EncodedResource} for the given {@code Resource}, using
-   * the specified {@code encoding}.
+   * Create a new {@code EncodedResource} for the given {@code Resource},
+   * using the specified {@code encoding}.
    *
    * @param resource the {@code Resource} to hold (never {@code null})
    * @param encoding the encoding to use for reading from the resource
@@ -78,8 +77,8 @@ public class EncodedResource implements InputStreamSource {
   }
 
   /**
-   * Create a new {@code EncodedResource} for the given {@code Resource}, using
-   * the specified {@code Charset}.
+   * Create a new {@code EncodedResource} for the given {@code Resource},
+   * using the specified {@code Charset}.
    *
    * @param resource the {@code Resource} to hold (never {@code null})
    * @param charset the {@code Charset} to use for reading from the resource
@@ -89,6 +88,7 @@ public class EncodedResource implements InputStreamSource {
   }
 
   private EncodedResource(Resource resource, @Nullable String encoding, @Nullable Charset charset) {
+    super();
     Assert.notNull(resource, "Resource is required");
     this.resource = resource;
     this.encoding = encoding;
@@ -103,27 +103,25 @@ public class EncodedResource implements InputStreamSource {
   }
 
   /**
-   * Return the encoding to use for reading from the {@linkplain #getResource()
-   * resource}, or {@code null} if none specified.
+   * Return the encoding to use for reading from the {@linkplain #getResource() resource},
+   * or {@code null} if none specified.
    */
-  @Nullable
-  public final String getEncoding() {
+  public final @Nullable String getEncoding() {
     return this.encoding;
   }
 
   /**
-   * Return the {@code Charset} to use for reading from the
-   * {@linkplain #getResource() resource}, or {@code null} if none specified.
+   * Return the {@code Charset} to use for reading from the {@linkplain #getResource() resource},
+   * or {@code null} if none specified.
    */
-  @Nullable
-  public final Charset getCharset() {
+  public final @Nullable Charset getCharset() {
     return this.charset;
   }
 
   /**
-   * Determine whether a {@link Reader} is required as opposed to an
-   * {@link InputStream}, i.e. whether an {@linkplain #getEncoding() encoding} or
-   * a {@link #getCharset() Charset} has been specified.
+   * Determine whether a {@link Reader} is required as opposed to an {@link InputStream},
+   * i.e. whether an {@linkplain #getEncoding() encoding} or a {@link #getCharset() Charset}
+   * has been specified.
    *
    * @see #getReader()
    * @see #getInputStream()
@@ -133,30 +131,8 @@ public class EncodedResource implements InputStreamSource {
   }
 
   /**
-   * Open a {@code java.io.Reader} for the specified resource, using the specified
-   * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding} (if
-   * any).
-   *
-   * @throws IOException if opening the Reader failed
-   * @see #requiresReader()
-   * @see #getInputStream()
-   */
-  public Reader getReader() throws IOException {
-    if (this.charset != null) {
-      return new InputStreamReader(this.resource.getInputStream(), this.charset);
-    }
-    else if (this.encoding != null) {
-      return new InputStreamReader(this.resource.getInputStream(), this.encoding);
-    }
-    else {
-      return new InputStreamReader(this.resource.getInputStream());
-    }
-  }
-
-  /**
-   * Open an {@code InputStream} for the specified resource, ignoring any
-   * specified {@link #getCharset() Charset} or {@linkplain #getEncoding()
-   * encoding}.
+   * Open an {@code InputStream} for the specified resource, ignoring any specified
+   * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding}.
    *
    * @throws IOException if opening the InputStream failed
    * @see #requiresReader()
@@ -168,12 +144,54 @@ public class EncodedResource implements InputStreamSource {
   }
 
   /**
+   * Open a {@code java.io.Reader} for the specified resource, using the specified
+   * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding}
+   * (if any).
+   *
+   * @throws IOException if opening the Reader failed
+   * @see #requiresReader()
+   * @see #getInputStream()
+   */
+  public Reader getReader() throws IOException {
+    return getReader(this.resource.getInputStream());
+  }
+
+  private Reader getReader(InputStream inputStream) throws IOException {
+    if (this.charset != null) {
+      return new InputStreamReader(inputStream, this.charset);
+    }
+    else if (this.encoding != null) {
+      return new InputStreamReader(inputStream, this.encoding);
+    }
+    else {
+      return new InputStreamReader(inputStream);
+    }
+  }
+
+  /**
+   * Process the contents of this resource through the given consumer callback.
+   * <p>The given consumer will be invoked a single time by default - but may
+   * also be invoked multiple times in case of a multi-content resource handle,
+   * for example returned from a
+   * {@link ResourceLoader#getResource getResource("classpath*:..."} call.
+   * While {@link #getReader()} returns a merged sequence of content
+   * in such a case, this method performs one callback per file content.
+   *
+   * @param consumer a consumer for each Reader
+   * @throws IOException in case of general resolution/reading failures
+   * @see Resource#consumeContent
+   * @since 5.0
+   */
+  public void consumeContent(IOConsumer<Reader> consumer) throws IOException {
+    this.resource.consumeContent(inputStream -> consumer.accept(getReader(inputStream)));
+  }
+
+  /**
    * Returns the contents of the specified resource as a string, using the specified
    * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding} (if any).
    *
    * @throws IOException if opening the resource failed
    * @see Resource#getContentAsString(Charset)
-   * @since 4.0
    */
   public String getContentAsString() throws IOException {
     Charset charset;
@@ -190,16 +208,12 @@ public class EncodedResource implements InputStreamSource {
   }
 
   @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof EncodedResource o)) {
-      return false;
-    }
-    return this.resource.equals(o.resource)
-            && Objects.equals(this.charset, o.charset)
-            && Objects.equals(this.encoding, o.encoding);
+  public boolean equals(@Nullable Object other) {
+    return this == other || (
+            other instanceof EncodedResource that
+                    && this.resource.equals(that.resource)
+                    && ObjectUtils.nullSafeEquals(this.charset, that.charset)
+                    && ObjectUtils.nullSafeEquals(this.encoding, that.encoding));
   }
 
   @Override

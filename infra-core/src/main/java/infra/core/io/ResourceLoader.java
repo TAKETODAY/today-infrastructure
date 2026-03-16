@@ -51,27 +51,31 @@ public interface ResourceLoader {
   String CLASSPATH_URL_PREFIX = "classpath:";
 
   /**
-   * Return a Resource handle for the specified resource location.
-   * <p>
-   * The handle should always be a reusable resource descriptor, allowing for
-   * multiple {@link Resource#getInputStream()} calls.
-   * <p>
-   * <ul>
-   * <li>Must support fully qualified URLs, e.g. "file:C:/test.dat".
-   * <li>Must support classpath pseudo-URLs, e.g. "classpath:test.dat".
-   * <li>Should support relative file paths, e.g. "WEB-INF/test.dat". (This will
-   * be implementation-specific, typically provided by an ApplicationContext
-   * implementation.)
+   * Return a {@code Resource} handle for the specified resource location.
+   * <p>The handle should always be a reusable resource descriptor,
+   * allowing for multiple {@link Resource#getInputStream()} calls.
+   * <p><ul>
+   * <li>Must support fully qualified URLs, for example, "file:C:/test.properties".
+   * <li>Must support classpath pseudo-URLs, for example, "classpath:test.properties".
+   * (Exposing the "nearest" resource in the classpath; see {@link ClassLoader#getResource}.)
+   * <li>Should support classpath-all URLs, for example, "classpath*:test.properties".
+   * (If supported, the returned {@code Resource} needs to expose the entire content of
+   * all same-named resources in the classpath through {@link Resource#consumeContent};
+   * see {@link ClassLoader#getResources}.
+   * For individual access to each such matching resource in the classpath, use
+   * {@link infra.core.io.PatternResourceLoader#getResources}.)
+   * <li>Should support relative file paths, for example, "WEB-INF/test.properties".
+   * (This will be implementation-specific, typically provided by an
+   * ApplicationContext implementation.)
    * </ul>
-   * <p>
-   * Note that a Resource handle does not imply an existing resource; you need to
-   * invoke {@link Resource#exists} to check for existence.
+   * <p>Note that a {@code Resource} handle does not imply an existing resource;
+   * you need to invoke {@link Resource#exists} to check for existence.
    *
    * @param location the resource location
-   * @return a corresponding Resource handle (never {@code null})
+   * @return a corresponding {@code Resource} handle (never {@code null})
    * @see #CLASSPATH_URL_PREFIX
    * @see Resource#exists()
-   * @see Resource#getInputStream()
+   * @see Resource#consumeContent
    */
   Resource getResource(String location);
 
