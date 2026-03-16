@@ -18,7 +18,6 @@ package infra.beans.factory.support;
 
 import org.jspecify.annotations.Nullable;
 
-import java.lang.reflect.Parameter;
 import java.util.Set;
 
 import infra.beans.TypeConverter;
@@ -26,25 +25,31 @@ import infra.beans.factory.config.DependencyDescriptor;
 import infra.core.style.ToStringBuilder;
 
 /**
- * resolve dependency
+ * Strategy interface for resolving dependencies during bean creation.
+ * <p>Implementations define how to resolve a dependency described by a
+ * {@link DependencyDescriptor} within a given resolution {@link Context}.
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:36</a>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
 public interface DependencyResolvingStrategy {
 
   /**
-   * Resolve dependency from DependencyDescriptor
+   * Resolve a dependency described by the given {@link DependencyDescriptor} within the
+   * provided resolution {@link Context}.
    *
-   * @param descriptor Target method {@link Parameter} or a {@link java.lang.reflect.Field}
-   * @param context resolving context never {@code null}
+   * @param descriptor the dependency descriptor containing metadata about the dependency to resolve
+   * @param context the resolution context providing access to the requesting bean name,
+   * dependent beans, and type converter
+   * @return the resolved dependency object, or {@code null} if no matching dependency is found
    */
   @Nullable
   Object resolveDependency(DependencyDescriptor descriptor, Context context);
 
   /**
-   * context
+   * Context holder for dependency resolution, providing access to the requesting bean name,
+   * dependent beans, and type converter during the resolution process.
    */
   class Context {
 
@@ -62,7 +67,10 @@ public interface DependencyResolvingStrategy {
     }
 
     /**
-     * add dependent bean
+     * Adds the specified bean name to the set of dependent beans.
+     * <p>This method has no effect if the {@code dependentBeans} set is {@code null}.
+     *
+     * @param beanName the name of the bean to add as a dependent
      */
     public void addDependentBean(String beanName) {
       if (dependentBeans != null) {

@@ -26,7 +26,9 @@ import infra.lang.TodayStrategies;
 import infra.logging.LoggerFactory;
 
 /**
- * Composite DependencyResolvingStrategy
+ * Composite {@link DependencyResolvingStrategy} that delegates to a list of strategies.
+ * <p>This implementation iterates through the registered strategies and returns the
+ * first non-null result from {@link #resolveDependency(DependencyDescriptor, Context)}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/16 22:50

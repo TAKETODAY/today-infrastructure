@@ -17,11 +17,21 @@
 package infra.beans.factory.support;
 
 /**
- * @author TODAY 2021/9/7 23:08
- * @since 4.0
+ * Provider for {@link DependencyInjector} instances.
+ * <p>This interface defines a contract for components that can supply
+ * a {@code DependencyInjector} to be used for injecting dependencies
+ * into target objects.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 4.0 2021/9/7 23:08
  */
 public interface DependencyInjectorProvider {
 
+  /**
+   * Retrieves the {@link DependencyInjector} instance.
+   *
+   * @return the dependency injector instance
+   */
   DependencyInjector getInjector();
 
 }
