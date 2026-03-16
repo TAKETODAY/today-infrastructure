@@ -64,6 +64,11 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
   }
 
   @Override
+  public boolean contains(String name, String value) {
+    return headers.contains(name, value, true);
+  }
+
+  @Override
   public @Nullable String getFirst(String name) {
     return headers.get(name);
   }

@@ -1938,12 +1938,12 @@ public abstract class HttpHeaders implements Serializable {
    * Returns {@code true} if this HttpHeaders contains the given header and
    * its list of values contains the given value.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @param value the value expected to be in the list of values
    * @since 5.0
    */
-  public boolean contains(String headerName, String value) {
-    List<String> values = get(headerName);
+  public boolean contains(String name, String value) {
+    List<String> values = get(name);
     if (values == null) {
       return false;
     }
@@ -1954,12 +1954,12 @@ public abstract class HttpHeaders implements Serializable {
    * Returns {@code true} if this HttpHeaders contains the given header and
    * its list of values contains the given value.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @param value the value expected to be in the list of values
    * @since 5.0
    */
-  public boolean contains(String headerName, String @Nullable ... value) {
-    List<String> values = get(headerName);
+  public boolean contains(String name, String @Nullable ... value) {
+    List<String> values = get(name);
     if (values == null || value == null) {
       return false;
     }
@@ -1975,12 +1975,12 @@ public abstract class HttpHeaders implements Serializable {
    * Returns {@code true} if this HttpHeaders contains the given header and
    * its list of values contains the given value.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @param value the value expected to be in the list of values
    * @since 5.0
    */
-  public boolean contains(String headerName, @Nullable List<String> value) {
-    List<String> values = get(headerName);
+  public boolean contains(String name, @Nullable List<String> value) {
+    List<String> values = get(name);
     if (values == null || value == null) {
       return false;
     }
@@ -1991,12 +1991,12 @@ public abstract class HttpHeaders implements Serializable {
    * Returns {@code true} if this HttpHeaders contains exactly the given list
    * of values for the given header name.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @param values the expected list of values
    * @since 5.0
    */
-  public boolean hasValues(String headerName, List<String> values) {
-    return ObjectUtils.nullSafeEquals(get(headerName), values);
+  public boolean hasValues(String name, List<String> values) {
+    return ObjectUtils.nullSafeEquals(get(name), values);
   }
 
   /**
