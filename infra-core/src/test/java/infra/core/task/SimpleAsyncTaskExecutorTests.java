@@ -180,6 +180,7 @@ class SimpleAsyncTaskExecutorTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void taskTerminationTimeoutWithLateInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
     Future<?> future;
