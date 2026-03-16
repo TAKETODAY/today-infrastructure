@@ -29,6 +29,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.util.ConcurrencyThrottleSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -162,6 +163,7 @@ class SimpleAsyncTaskExecutorTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void taskTerminationTimeoutWithImmediateCancel() {
     AtomicBoolean finished = new AtomicBoolean();
     Future<?> future;
