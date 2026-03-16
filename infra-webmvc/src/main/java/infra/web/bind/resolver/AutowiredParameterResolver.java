@@ -26,8 +26,11 @@ import infra.web.RequestContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
- * @author TODAY 2021/4/2 23:21
- * @since 3.0
+ * Resolves method parameters annotated with {@link Autowired} by injecting dependencies
+ * from the application context.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 3.0 2021/4/2 23:21
  */
 public class AutowiredParameterResolver implements ParameterResolvingStrategy {
 
@@ -42,10 +45,9 @@ public class AutowiredParameterResolver implements ParameterResolvingStrategy {
     return resolvable.hasParameterAnnotation(Autowired.class);
   }
 
-  @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), true));
+  public @Nullable Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), resolvable.isRequired()));
   }
 
 }

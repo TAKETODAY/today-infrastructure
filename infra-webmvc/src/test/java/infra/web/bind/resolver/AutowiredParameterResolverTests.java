@@ -25,6 +25,7 @@ import infra.beans.factory.config.DependencyDescriptor;
 import infra.beans.factory.support.DependencyInjector;
 import infra.beans.factory.support.DependencyInjectorProvider;
 import infra.core.MethodParameter;
+import infra.core.ParameterNameDiscoverer;
 import infra.web.RequestContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -64,6 +65,7 @@ class AutowiredParameterResolverTests {
   public void resolveArgumentSuccessfully() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    parameter.getParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     DependencyInjector injector = mock(DependencyInjector.class);
 
@@ -81,6 +83,7 @@ class AutowiredParameterResolverTests {
   public void resolveArgumentReturnsNull() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    parameter.getParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     DependencyInjector injector = mock(DependencyInjector.class);
 
@@ -94,9 +97,11 @@ class AutowiredParameterResolverTests {
   }
 
   @SuppressWarnings("unused")
-  private void handleAutowiredParam(@Autowired String param) { }
+  private void handleAutowiredParam(@Autowired String param) {
+  }
 
   @SuppressWarnings("unused")
-  private void handleNonAutowiredParam(String param) { }
+  private void handleNonAutowiredParam(String param) {
+  }
 
 }
