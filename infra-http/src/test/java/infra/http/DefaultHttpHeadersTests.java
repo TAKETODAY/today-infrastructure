@@ -1062,4 +1062,33 @@ class DefaultHttpHeadersTests {
     assertThat(headers.get("Test-Header")).containsExactly("value1", null, "value2");
   }
 
+  @Test
+  void contains() {
+    DefaultHttpHeaders headers = new DefaultHttpHeaders();
+    headers.add("Test-Header", "value");
+
+    assertThat(headers.contains("test-header")).isTrue();
+    assertThat(headers.contains("TEST-HEADER")).isTrue();
+    assertThat(headers.contains("test-header", "value")).isTrue();
+    assertThat(headers.contains("test-header", List.of("value"))).isTrue();
+    assertThat(headers.contains("test-header", "value1")).isFalse();
+    assertThat(headers.contains("test-header", "value", "value1")).isFalse();
+    assertThat(headers.contains("test-header", List.of("value", "value1"))).isFalse();
+
+    assertThat(headers.contains("test-header1", List.of("value", "value1"))).isFalse();
+    assertThat(headers.contains("test-header1", List.of("value"))).isFalse();
+    assertThat(headers.contains("test-header1")).isFalse();
+    assertThat(headers.contains("test-header1", "value")).isFalse();
+    assertThat(headers.contains("test-header1", "value", "v1")).isFalse();
+    assertThat(headers.contains("test-header1", (String[]) null)).isFalse();
+    assertThat(headers.contains("test-header", (String[]) null)).isFalse();
+
+    headers.add("Test-Header", "value1");
+    assertThat(headers.contains("test-header", "value", "value1")).isTrue();
+    assertThat(headers.contains("test-header", "value", "value1", "v2")).isFalse();
+    assertThat(headers.contains("test-header", List.of("value", "value1"))).isTrue();
+    assertThat(headers.contains("test-header", List.of("value", "value1", "vb"))).isFalse();
+    assertThat(headers.contains("test-header", (List<String>) null)).isFalse();
+  }
+
 }

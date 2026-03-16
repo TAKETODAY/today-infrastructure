@@ -21,6 +21,7 @@ package infra.web;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Locale;
 
 import infra.context.support.StaticMessageSource;
@@ -43,7 +44,9 @@ class ErrorResponseTests {
             .builder(new IllegalStateException(), HttpStatus.BAD_REQUEST, "test")
             .header("header", "value")
             .build();
-    assertThat(response.getHeaders().containsHeaderValue("header", "value")).isTrue();
+    assertThat(response.getHeaders().contains("header", "value")).isTrue();
+    assertThat(response.getHeaders().contains("header", List.of("value"))).isTrue();
+    assertThat(response.getHeaders().contains("header", "value", "v2")).isFalse();
   }
 
   @Test

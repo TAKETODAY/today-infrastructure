@@ -187,7 +187,7 @@ class WebSocketHttpHeadersTests {
   }
 
   @Test
-  void containsValueFindsExistingValue() {
+  void containsValueFindsExisting() {
     headers.setSecWebSocketKey("key");
     assertThat(headers.asMultiValueMap().containsValue(List.of("key"))).isTrue();
   }

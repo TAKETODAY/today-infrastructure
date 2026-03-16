@@ -60,7 +60,7 @@ public interface HttpMessage {
    * @since 5.0
    */
   default boolean containsHeaderValue(String headerName, String value) {
-    return getHeaders().containsHeaderValue(headerName, value);
+    return getHeaders().contains(headerName, value);
   }
 
   /**

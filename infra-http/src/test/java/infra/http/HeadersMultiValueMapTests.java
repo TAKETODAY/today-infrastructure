@@ -540,7 +540,7 @@ class HeadersMultiValueMapTests {
 
     assertThat(oldValue).containsExactly("application/json");
     assertThat(headers.contains("Content-Type")).isTrue();
-    assertThat(headers.hasHeaderValues("Content-Type", List.of())).isTrue();
+    assertThat(headers.hasValues("Content-Type", List.of())).isTrue();
   }
 
   @Test
