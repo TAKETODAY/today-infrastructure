@@ -45,6 +45,14 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
 
+/**
+ * Internal {@link NettyRequestContext} implementation that handles the lifecycle of an HTTP request
+ * within the Netty transport layer. This class manages request body streaming, content length validation,
+ * {@code 100 Continue} expectation handling, and delegates request processing to the configured
+ * {@link DispatcherHandler}.
+ *
+ * @since 5.0
+ */
 final class HttpContext extends NettyRequestContext implements Runnable {
 
   private final HttpTrafficHandler httpTrafficHandler;
