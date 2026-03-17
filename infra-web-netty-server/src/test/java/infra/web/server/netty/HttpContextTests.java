@@ -27,10 +27,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -144,6 +146,18 @@ class HttpContextTests {
 
     // Then
     // Stream should be created, data delivered and completed
+  }
+
+  @Test
+  void getContentLength() {
+    DefaultHttpRequest message = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+    message.headers().set(HttpHeaderNames.CONTENT_LENGTH, "150");
+    assertThat(HttpContext.getContentLength(message)).isEqualTo(150L);
+    message.headers().set(HttpHeaderNames.CONTENT_LENGTH, "0");
+    assertThat(HttpContext.getContentLength(message)).isEqualTo(0L);
+
+    message.headers().remove(HttpHeaderNames.CONTENT_LENGTH);
+    assertThat(HttpContext.getContentLength(message)).isEqualTo(-1L);
   }
 
   private static NettyRequestConfig createRequestConfig() {

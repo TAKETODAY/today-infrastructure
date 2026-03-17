@@ -33,6 +33,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -60,7 +61,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
-    long contentLength = HttpUtil.getContentLength(request, -1L);
+    long contentLength = getContentLength(request);
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
     if (request instanceof HttpContent content) {
       onDataReceived(content);
@@ -205,6 +206,23 @@ final class HttpContext extends NettyRequestContext implements Runnable {
             config.httpHeadersFactory, trailersFactory());
     response.headers().set(CONTENT_LENGTH, 0);
     return response;
+  }
+
+  /**
+   * Returns the length of the content or the specified default value if the message does not have the {@code
+   * "Content-Length" header}. Please note that this value is not retrieved from {@link HttpContent#content()} but
+   * from the {@code "Content-Length"} header, and thus they are independent from each other.
+   *
+   * @param message the message
+   * @return the content length or the specified default value
+   * @throws NumberFormatException if the {@code "Content-Length"} header does not parse as a long
+   */
+  static long getContentLength(HttpMessage message) {
+    String value = message.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+    if (value != null) {
+      return Long.parseLong(value);
+    }
+    return -1L;
   }
 
   private final class ManualReadingBodyInputStream extends BodyInputStream {
