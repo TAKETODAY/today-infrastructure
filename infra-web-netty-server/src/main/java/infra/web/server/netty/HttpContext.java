@@ -60,11 +60,12 @@ final class HttpContext extends NettyRequestContext implements Runnable {
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
-    this.contentLength = HttpUtil.getContentLength(request, -1L);
+    long contentLength = HttpUtil.getContentLength(request, -1L);
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
     if (request instanceof HttpContent content) {
       onDataReceived(content);
     }
+    this.contentLength = contentLength;
   }
 
   private BodyInputStream createRequestBody() {
