@@ -51,6 +51,7 @@ import static io.netty.handler.codec.http.HttpMethod.HEAD;
  * {@code 100 Continue} expectation handling, and delegates request processing to the configured
  * {@link DispatcherHandler}.
  *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 final class HttpContext extends NettyRequestContext implements Runnable {
