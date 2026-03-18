@@ -227,9 +227,11 @@ class SimpleAsyncTaskExecutorTests {
   void cancelRemainingTasksOnClose() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
     Future<?> future;
+    CountDownLatch latch = new CountDownLatch(1);
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setCancelRemainingTasksOnClose(true);
       future = executor.submit(() -> {
+        latch.countDown();
         try {
           Thread.sleep(200);
         }
@@ -238,7 +240,7 @@ class SimpleAsyncTaskExecutorTests {
           interrupted.set(true);
         }
       });
-      Thread.sleep(100);
+      latch.await();
     }
     assertThatNoException().isThrownBy(future::get);
     assertThat(interrupted).isTrue();
