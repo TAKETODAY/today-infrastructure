@@ -97,8 +97,6 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
 
   private final Class<?> @Nullable [] validationGroups;
 
-  private @Nullable MethodParameter returnTypeParameter;
-
   private @Nullable HttpStatusCode responseStatus;
 
   private @Nullable String responseStatusReason;
@@ -198,7 +196,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
     this.responseBody = other.responseBody;
 
     this.validateArguments = initValidateFlags ?
-            MethodValidationInitializer.checkArguments(this.beanType, getMethodParameters()) :
+            MethodValidationInitializer.checkArguments(this.beanType, getParameters()) :
             other.validateArguments;
 
     this.validateReturnValue = initValidateFlags ?
@@ -211,7 +209,6 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
 
     this.corsConfig = other.corsConfig;
     this.responseStatus = other.responseStatus;
-    this.returnTypeParameter = other.returnTypeParameter;
     this.responseStatusReason = other.responseStatusReason;
   }
 
@@ -297,19 +294,6 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
   }
 
   /**
-   * Return the HandlerMethod return type.
-   */
-  @Override
-  public MethodParameter getReturnType() {
-    MethodParameter returnType = returnTypeParameter;
-    if (returnType == null) {
-      returnType = super.getReturnType();
-      this.returnTypeParameter = returnType;
-    }
-    return returnType;
-  }
-
-  /**
    * Indicates whether the {@link ResponseBody} annotation is present on the method or its declaring class.
    *
    * @return {@code true} if the {@link ResponseBody} annotation is present, {@code false} otherwise
@@ -391,7 +375,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
   }
 
   private void evaluateResponseStatus() {
-    ResponseStatus annotation = getMethodAnnotation(ResponseStatus.class);
+    ResponseStatus annotation = getAnnotation(ResponseStatus.class);
     if (annotation == null) {
       annotation = AnnotatedElementUtils.findMergedAnnotation(getBeanType(), ResponseStatus.class);
     }
@@ -479,16 +463,16 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
      */
     @Nullable
     @Override
-    public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
-      return target.getMethodAnnotation(annotationType);
+    public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+      return target.getAnnotation(annotationType);
     }
 
     /**
      * Bridge to controller method-level annotations.
      */
     @Override
-    public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-      return target.hasMethodAnnotation(annotationType);
+    public <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType) {
+      return target.isAnnotationPresent(annotationType);
     }
 
     @Override

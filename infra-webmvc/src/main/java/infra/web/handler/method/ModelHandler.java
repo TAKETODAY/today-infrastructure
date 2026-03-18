@@ -114,7 +114,7 @@ final class ModelHandler {
 
     while (!modelMethods.isEmpty()) {
       InvocableHandlerMethod modelMethod = getNextModelMethod(container, modelMethods).handlerMethod;
-      ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
+      ModelAttribute ann = modelMethod.getAnnotation(ModelAttribute.class);
       Assert.state(ann != null, "No ModelAttribute annotation");
       if (container.containsAttribute(ann.name())) {
         if (!ann.binding()) {
@@ -249,7 +249,7 @@ final class ModelHandler {
 
     public ModelMethod(InvocableHandlerMethod handlerMethod) {
       this.handlerMethod = handlerMethod;
-      for (MethodParameter parameter : handlerMethod.getMethodParameters()) {
+      for (MethodParameter parameter : handlerMethod.getParameters()) {
         if (parameter.hasParameterAnnotation(ModelAttribute.class)) {
           dependencies.add(getNameForParameter(parameter));
         }

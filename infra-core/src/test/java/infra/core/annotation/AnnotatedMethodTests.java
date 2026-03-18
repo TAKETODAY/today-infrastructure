@@ -26,7 +26,7 @@ class AnnotatedMethodTests {
 
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(processTwo);
 
-    assertThat(annotatedMethod.hasMethodAnnotation(Handler.class)).isTrue();
+    assertThat(annotatedMethod.isAnnotationPresent(Handler.class)).isTrue();
   }
 
   @Test
@@ -35,7 +35,7 @@ class AnnotatedMethodTests {
 
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(processOneAndTwo);
 
-    assertThat(annotatedMethod.hasMethodAnnotation(Handler.class)).isTrue();
+    assertThat(annotatedMethod.isAnnotationPresent(Handler.class)).isTrue();
   }
 
   @Test
@@ -49,7 +49,7 @@ class AnnotatedMethodTests {
     Method processTwo = getMethod("processTwo", String.class);
 
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(processTwo);
-    MethodParameter[] methodParameters = annotatedMethod.getMethodParameters();
+    MethodParameter[] methodParameters = annotatedMethod.getParameters();
 
     assertThat(methodParameters).hasSize(1);
     assertThat(methodParameters[0].hasParameterAnnotation(Param.class)).isTrue();
@@ -60,7 +60,7 @@ class AnnotatedMethodTests {
     Method processOneAndTwo = getMethod("processOneAndTwo", Long.class, Object.class);
 
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(processOneAndTwo);
-    MethodParameter[] methodParameters = annotatedMethod.getMethodParameters();
+    MethodParameter[] methodParameters = annotatedMethod.getParameters();
 
     assertThat(methodParameters).hasSize(2);
     assertThat(methodParameters[0].hasParameterAnnotation(Param.class)).isFalse();
@@ -71,7 +71,7 @@ class AnnotatedMethodTests {
   void shouldFindProvidedArgumentWhenMatchingTypeExists() {
     Method method = ReflectionUtils.findMethod(GenericInterfaceImpl.class, "processTwo", String.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object[] providedArgs = { "testString", 123, new Object() };
     Object result = AnnotatedMethod.findProvidedArgument(parameter, providedArgs);
@@ -83,7 +83,7 @@ class AnnotatedMethodTests {
   void shouldReturnNullWhenNoMatchingTypeExists() {
     Method method = ReflectionUtils.findMethod(GenericInterfaceImpl.class, "processTwo", String.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object[] providedArgs = { 123, 456L, new Object() };
     Object result = AnnotatedMethod.findProvidedArgument(parameter, providedArgs);
@@ -95,7 +95,7 @@ class AnnotatedMethodTests {
   void shouldReturnNullWhenProvidedArgsIsNull() {
     Method method = ReflectionUtils.findMethod(GenericInterfaceImpl.class, "processTwo", String.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object result = AnnotatedMethod.findProvidedArgument(parameter, null);
 
@@ -106,7 +106,7 @@ class AnnotatedMethodTests {
   void shouldReturnNullWhenProvidedArgsIsEmpty() {
     Method method = ReflectionUtils.findMethod(GenericInterfaceImpl.class, "processTwo", String.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object result = AnnotatedMethod.findProvidedArgument(parameter, new Object[0]);
 
@@ -117,7 +117,7 @@ class AnnotatedMethodTests {
   void shouldFindProvidedArgumentWithInheritance() {
     Method method = ReflectionUtils.findMethod(GenericInterfaceImpl.class, "processTwo", String.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object[] providedArgs = { new StringBuilder("test") };
     Object result = AnnotatedMethod.findProvidedArgument(parameter, providedArgs);
@@ -130,7 +130,7 @@ class AnnotatedMethodTests {
   void shouldFindFirstMatchingArgumentWhenMultipleExist() {
     Method method = ReflectionUtils.findMethod(GenericInterfaceImpl.class, "processTwo", String.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object[] providedArgs = { "first", "second", "third" };
     Object result = AnnotatedMethod.findProvidedArgument(parameter, providedArgs);
@@ -146,7 +146,7 @@ class AnnotatedMethodTests {
 
     Method method = ReflectionUtils.findMethod(TestClass.class, "primitiveMethod", int.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object[] providedArgs = { 42, "string", new Object() };
     Object result = AnnotatedMethod.findProvidedArgument(parameter, providedArgs);
@@ -162,7 +162,7 @@ class AnnotatedMethodTests {
 
     Method method = ReflectionUtils.findMethod(TestClass.class, "wrapperMethod", Integer.class);
     AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
-    MethodParameter parameter = annotatedMethod.getMethodParameters()[0];
+    MethodParameter parameter = annotatedMethod.getParameters()[0];
 
     Object[] providedArgs = { Integer.valueOf(42), "string", new Object() };
     Object result = AnnotatedMethod.findProvidedArgument(parameter, providedArgs);

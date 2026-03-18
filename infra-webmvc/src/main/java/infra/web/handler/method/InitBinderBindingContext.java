@@ -124,7 +124,7 @@ public class InitBinderBindingContext extends BindingContext {
    * check the specified attribute names in the annotation value, if any.
    */
   protected boolean isBinderMethodApplicable(HandlerMethod initBinderMethod, WebDataBinder dataBinder) {
-    InitBinder ann = initBinderMethod.getMethodAnnotation(InitBinder.class);
+    InitBinder ann = initBinderMethod.getAnnotation(InitBinder.class);
     Assert.state(ann != null, "No InitBinder annotation");
     String[] names = ann.value();
     return ObjectUtils.isEmpty(names) || ObjectUtils.containsElement(names, dataBinder.getObjectName());

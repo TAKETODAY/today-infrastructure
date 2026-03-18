@@ -223,7 +223,7 @@ class RequestResponseBodyMethodProcessorTests {
   public void resolveArgumentTypeVariable() throws Throwable {
     Method method = MyParameterizedController.class.getMethod("handleDto", Identifiable.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
-    MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParam = handlerMethod.getParameters()[0];
 
     String content = "{\"name\" : \"Jad\"}";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -243,7 +243,7 @@ class RequestResponseBodyMethodProcessorTests {
   public void resolveParameterizedWithTypeVariableArgument() throws Throwable {
     Method method = MyParameterizedControllerWithList.class.getMethod("handleDto", List.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedControllerWithList(), method);
-    ResolvableMethodParameter methodParam = new ResolvableMethodParameter(handlerMethod.getMethodParameters()[0]);
+    ResolvableMethodParameter methodParam = new ResolvableMethodParameter(handlerMethod.getParameters()[0]);
 
     String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -266,7 +266,7 @@ class RequestResponseBodyMethodProcessorTests {
   public void resolveArgumentTypeVariableWithNonGenericConverter() throws Throwable {
     Method method = MyParameterizedController.class.getMethod("handleDto", Identifiable.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
-    MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParam = handlerMethod.getParameters()[0];
 
     String content = "{\"name\" : \"Jad\"}";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -631,7 +631,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = JacksonController.class.getMethod("handleRequestBody", JacksonViewBean.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonJsonHttpMessageConverter());
@@ -656,7 +656,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = JacksonController.class.getMethod("handleHttpEntity", HttpEntity.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonJsonHttpMessageConverter());
@@ -686,7 +686,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = JacksonController.class.getMethod("handleRequestBody", JacksonViewBean.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonXmlHttpMessageConverter());
@@ -714,7 +714,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = JacksonController.class.getMethod("handleHttpEntity", HttpEntity.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonXmlHttpMessageConverter());
@@ -795,7 +795,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = MyControllerImplementingInterface.class.getMethod("handle", Object.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MyControllerImplementingInterface(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonJsonHttpMessageConverter());
@@ -815,7 +815,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = SubControllerImplementingInterface.class.getMethod("handle", Object.class);
     HandlerMethod handlerMethod = new HandlerMethod(new SubControllerImplementingInterface(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonJsonHttpMessageConverter());
@@ -835,7 +835,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = SubControllerImplementingAbstractMethod.class.getMethod("handle", Object.class);
     HandlerMethod handlerMethod = new HandlerMethod(new SubControllerImplementingAbstractMethod(), method);
-    MethodParameter methodParameter = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParameter = handlerMethod.getParameters()[0];
 
     List<HttpMessageConverter<?>> converters = List.of(new JacksonJsonHttpMessageConverter());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);

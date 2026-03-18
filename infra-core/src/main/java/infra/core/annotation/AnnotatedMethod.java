@@ -49,8 +49,8 @@ import infra.util.StringUtils;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see #getMethodAnnotation(Class)
- * @see #getMethodParameters()
+ * @see #getAnnotation(Class)
+ * @see #getParameters()
  * @see AnnotatedElementUtils
  * @see SynthesizingMethodParameter
  * @since 5.0
@@ -68,6 +68,8 @@ public class AnnotatedMethod {
   private final Map<Class<? extends Annotation>, Object> annotations;
 
   private volatile @Nullable List<Annotation[][]> inheritedParameterAnnotations;
+
+  private @Nullable MethodParameter returnTypeParameter;
 
   /**
    * Create an instance that wraps the given {@link Method}.
@@ -94,6 +96,7 @@ public class AnnotatedMethod {
     this.parameters = other.parameters;
     this.annotations = other.annotations;
     this.returnType = other.returnType;
+    this.returnTypeParameter = other.returnTypeParameter;
     this.inheritedParameterAnnotations = other.inheritedParameterAnnotations;
   }
 
@@ -124,7 +127,7 @@ public class AnnotatedMethod {
   /**
    * Return the method parameters for this {@code AnnotatedMethod}.
    */
-  public final MethodParameter[] getMethodParameters() {
+  public final MethodParameter[] getParameters() {
     return this.parameters;
   }
 
@@ -154,7 +157,12 @@ public class AnnotatedMethod {
    * Return a {@link MethodParameter} for the declared return type.
    */
   public MethodParameter getReturnType() {
-    return new AnnotatedMethodParameter(-1);
+    MethodParameter returnType = returnTypeParameter;
+    if (returnType == null) {
+      returnType = new AnnotatedMethodParameter(-1);
+      this.returnTypeParameter = returnType;
+    }
+    return returnType;
   }
 
   /**
@@ -208,7 +216,7 @@ public class AnnotatedMethod {
    * @see AnnotatedElementUtils#findMergedAnnotation
    */
   @SuppressWarnings("unchecked")
-  public <A extends Annotation> @Nullable A getMethodAnnotation(Class<A> annotationType) {
+  public <A extends Annotation> @Nullable A getAnnotation(Class<A> annotationType) {
     Object result = this.annotations.computeIfAbsent(annotationType, key -> {
       Object value = AnnotatedElementUtils.findMergedAnnotation(this.method, annotationType);
       return value == null ? NullValue.INSTANCE : value;
@@ -223,8 +231,8 @@ public class AnnotatedMethod {
    * @param annotationType the annotation type to look for
    * @see AnnotatedElementUtils#hasAnnotation
    */
-  public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return (getMethodAnnotation(annotationType) != null);
+  public <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType) {
+    return getAnnotation(annotationType) != null;
   }
 
   private List<Annotation[][]> getInheritedParameterAnnotations() {
@@ -338,12 +346,12 @@ public class AnnotatedMethod {
 
     @Override
     public <T extends Annotation> @Nullable T getMethodAnnotation(Class<T> annotationType) {
-      return AnnotatedMethod.this.getMethodAnnotation(annotationType);
+      return AnnotatedMethod.this.getAnnotation(annotationType);
     }
 
     @Override
     public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
-      return AnnotatedMethod.this.hasMethodAnnotation(annotationType);
+      return AnnotatedMethod.this.isAnnotationPresent(annotationType);
     }
 
     @Override

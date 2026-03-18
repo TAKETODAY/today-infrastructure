@@ -89,7 +89,7 @@ class HandlerMethodValidationExceptionTests {
   private static <T> HandlerMethod handlerMethod(T controller, Consumer<T> mockCallConsumer) {
     Method method = ResolvableMethod.on((Class<T>) controller.getClass()).mockCall(mockCallConsumer).method();
     HandlerMethod hm = new HandlerMethod(controller, method);
-    for (MethodParameter parameter : hm.getMethodParameters()) {
+    for (MethodParameter parameter : hm.getParameters()) {
       parameter.initParameterNameDiscovery(parameterNameDiscoverer);
     }
     return hm;
@@ -98,7 +98,7 @@ class HandlerMethodValidationExceptionTests {
   private static MethodValidationResult createMethodValidationResult(HandlerMethod handlerMethod) {
     return MethodValidationResult.create(
             handlerMethod.getBean(), handlerMethod.getMethod(),
-            Arrays.stream(handlerMethod.getMethodParameters())
+            Arrays.stream(handlerMethod.getParameters())
                     .map(param -> {
                       if (param.hasParameterAnnotation(Valid.class)) {
                         Errors errors = new BeanPropertyBindingResult(person, param.getParameterName());

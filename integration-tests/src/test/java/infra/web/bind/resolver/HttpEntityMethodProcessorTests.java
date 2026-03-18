@@ -161,7 +161,7 @@ class HttpEntityMethodProcessorTests {
   public void resolveArgumentTypeVariable() throws Exception {
     Method method = MySimpleParameterizedController.class.getMethod("handleDto", HttpEntity.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
-    MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
+    MethodParameter methodParam = handlerMethod.getParameters()[0];
 
     String content = "{\"name\" : \"Jad\"}";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));

@@ -174,7 +174,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
     Object bean = getBean();
     if (shouldValidateArguments() && methodValidator != null) {
-      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getMethodParameters(), args, getValidationGroups());
+      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getParameters(), args, getValidationGroups());
     }
 
     try {

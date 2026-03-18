@@ -68,7 +68,7 @@ public class ResolvableParameterFactory {
    * @return an array of {@link ResolvableMethodParameter}, or an empty array if no parameters exist
    */
   public ResolvableMethodParameter[] createArray(HandlerMethod handlerMethod) {
-    MethodParameter[] parameters = handlerMethod.getMethodParameters();
+    MethodParameter[] parameters = handlerMethod.getParameters();
     if (ObjectUtils.isEmpty(parameters)) {
       return EMPTY;
     }

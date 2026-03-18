@@ -413,7 +413,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   private void updateConsumesCondition(RequestMappingInfo info, HandlerMethod handlerMethod) {
     ConsumesRequestCondition condition = info.getConsumesCondition();
     if (!condition.isEmpty()) {
-      for (MethodParameter parameter : handlerMethod.getMethodParameters()) {
+      for (MethodParameter parameter : handlerMethod.getParameters()) {
         RequestBody requestBody = parameter.getParameterAnnotation(RequestBody.class);
         if (requestBody != null) {
           condition.setBodyRequired(requestBody.required());
