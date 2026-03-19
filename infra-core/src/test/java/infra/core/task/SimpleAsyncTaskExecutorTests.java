@@ -231,8 +231,8 @@ class SimpleAsyncTaskExecutorTests {
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setCancelRemainingTasksOnClose(true);
       future = executor.submit(() -> {
-        latch.countDown();
         try {
+          latch.countDown();
           Thread.sleep(200);
         }
         catch (InterruptedException ex) {
