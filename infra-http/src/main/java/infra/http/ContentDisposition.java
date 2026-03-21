@@ -21,11 +21,14 @@ package infra.http;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.BitSet;
 import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Objects;
@@ -61,30 +64,15 @@ public final class ContentDisposition {
   private static final String INVALID_HEADER_FIELD_PARAMETER_FORMAT =
           "Invalid header field parameter format (as defined in RFC 5987)";
 
-  private static final BitSet PRINTABLE = new BitSet(256);
+  private static final HexFormat HEX_FORMAT = HexFormat.of().withUpperCase();
 
-  static {
-    // RFC 2045, Section 6.7, and RFC 2047, Section 4.2
-    for (int i = 33; i <= 126; i++) {
-      PRINTABLE.set(i);
-    }
-    PRINTABLE.set(34, false); // "
-    PRINTABLE.set(61, false); // =
-    PRINTABLE.set(63, false); // ?
-    PRINTABLE.set(95, false); // _
-  }
+  private final @Nullable String type;
 
-  @Nullable
-  private final String type;
+  private final @Nullable String name;
 
-  @Nullable
-  private final String name;
+  private final @Nullable String filename;
 
-  @Nullable
-  private final String filename;
-
-  @Nullable
-  private final Charset charset;
+  private final @Nullable Charset charset;
 
   /**
    * Private constructor. See static factory methods in this class.
@@ -130,16 +118,14 @@ public final class ContentDisposition {
    * @see #isFormData()
    * @see #isInline()
    */
-  @Nullable
-  public String getType() {
+  public @Nullable String getType() {
     return this.type;
   }
 
   /**
    * Return the value of the {@literal name} parameter, or {@code null} if not defined.
    */
-  @Nullable
-  public String getName() {
+  public @Nullable String getName() {
     return this.name;
   }
 
@@ -148,16 +134,14 @@ public final class ContentDisposition {
    * from BASE64 encoding based on RFC 2047, or of the {@literal filename*}
    * parameter, possibly decoded as defined in the RFC 5987.
    */
-  @Nullable
-  public String getFilename() {
+  public @Nullable String getFilename() {
     return this.filename;
   }
 
   /**
    * Return the charset defined in {@literal filename*} parameter, or {@code null} if not defined.
    */
-  @Nullable
-  public Charset getCharset() {
+  public @Nullable Charset getCharset() {
     return this.charset;
   }
 
@@ -197,7 +181,7 @@ public final class ContentDisposition {
       }
       else {
         sb.append("; filename=\"");
-        sb.append(encodeQuotedPrintableFilename(this.filename, this.charset)).append('\"');
+        sb.append(toIso88591(encodeQuotedPairs(this.filename))).append('\"');
         sb.append("; filename*=");
         sb.append(encodeRfc5987Filename(this.filename, this.charset));
       }
@@ -262,9 +246,9 @@ public final class ContentDisposition {
       int eqIndex = part.indexOf('=');
       if (eqIndex != -1) {
         String attribute = part.substring(0, eqIndex).toLowerCase(Locale.ROOT);
-        String value = (part.startsWith("\"", eqIndex + 1) && part.endsWith("\"") ?
+        String value = part.startsWith("\"", eqIndex + 1) && part.endsWith("\"") ?
                 part.substring(eqIndex + 2, part.length() - 1) :
-                part.substring(eqIndex + 1));
+                part.substring(eqIndex + 1);
         if (attribute.equals("name")) {
           name = value;
         }
@@ -429,11 +413,8 @@ public final class ContentDisposition {
         index++;
       }
       else if (b == '=' && index < value.length - 2) {
-        int i1 = Character.digit((char) value[index + 1], 16);
-        int i2 = Character.digit((char) value[index + 2], 16);
-        if (i1 == -1 || i2 == -1) {
-          throw new IllegalArgumentException("Not a valid hex sequence: " + filename.substring(index));
-        }
+        int i1 = HexFormat.fromHexDigit(value[index + 1]);
+        int i2 = HexFormat.fromHexDigit(value[index + 2]);
         baos.write((i1 << 4) | i2);
         index += 3;
       }
@@ -445,45 +426,16 @@ public final class ContentDisposition {
     return StreamUtils.copyToString(baos, charset);
   }
 
-  /**
-   * Encode the given header field param as described in RFC 2047.
-   *
-   * @param filename the filename
-   * @param charset the charset for the filename
-   * @return the encoded header field param
-   * @see <a href="https://tools.ietf.org/html/rfc2047">RFC 2047</a>
-   */
-  private static String encodeQuotedPrintableFilename(String filename, Charset charset) {
-    byte[] source = filename.getBytes(charset);
-    StringBuilder sb = new StringBuilder(source.length << 1);
-    sb.append("=?");
-    sb.append(charset.name());
-    sb.append("?Q?");
-    for (byte b : source) {
-      if (b == 32) { // RFC 2047, section 4.2, rule (2)
-        sb.append('_');
-      }
-      else if (isPrintable(b)) {
-        sb.append((char) b);
-      }
-      else {
-        sb.append('=');
-        char ch1 = hexDigit(b >> 4);
-        char ch2 = hexDigit(b);
-        sb.append(ch1);
-        sb.append(ch2);
-      }
+  private static String toIso88591(String input) {
+    CharsetEncoder encoder = ISO_8859_1.newEncoder()
+            .onUnmappableCharacter(CodingErrorAction.REPLACE)
+            .replaceWith(new byte[] { (byte) '_' });
+    try {
+      return ISO_8859_1.decode(encoder.encode(CharBuffer.wrap(input))).toString();
     }
-    sb.append("?=");
-    return sb.toString();
-  }
-
-  private static boolean isPrintable(byte c) {
-    int b = c;
-    if (b < 0) {
-      b = 256 + b;
+    catch (CharacterCodingException exc) {
+      throw new IllegalArgumentException("Failed to convert to ISO 8859-1", exc);
     }
-    return PRINTABLE.get(b);
   }
 
   private static String encodeQuotedPairs(String filename) {
@@ -544,17 +496,10 @@ public final class ContentDisposition {
       }
       else {
         sb.append('%');
-        char hex1 = hexDigit(b >> 4);
-        char hex2 = hexDigit(b);
-        sb.append(hex1);
-        sb.append(hex2);
+        HEX_FORMAT.toHexDigits(sb, b);
       }
     }
     return sb.toString();
-  }
-
-  private static char hexDigit(int b) {
-    return Character.toUpperCase(Character.forDigit(b & 0xF, 16));
   }
 
   /**
@@ -564,14 +509,11 @@ public final class ContentDisposition {
 
     private final String type;
 
-    @Nullable
-    private String name;
+    private @Nullable String name;
 
-    @Nullable
-    private String filename;
+    private @Nullable String filename;
 
-    @Nullable
-    private Charset charset;
+    private @Nullable Charset charset;
 
     public Builder(String type) {
       Assert.hasText(type, "'type' must not be not empty");
