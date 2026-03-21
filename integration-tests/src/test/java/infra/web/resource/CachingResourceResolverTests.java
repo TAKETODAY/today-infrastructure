@@ -277,9 +277,7 @@ class CachingResourceResolverTests {
   void computeKeyShouldReturnKeyWithEncodingWhenAcceptEncodingHeaderIsPresent() {
     CachingResourceResolver resolver = new CachingResourceResolver(mock(Cache.class));
     RequestContext request = mock(RequestContext.class);
-    HttpHeaders headers = HttpHeaders.forWritable();
-    headers.add("Accept-Encoding", "gzip, br");
-    when(request.getHeaders()).thenReturn(headers);
+    when(request.getHeader("Accept-Encoding")).thenReturn("gzip, br");
     String requestPath = "css/style.css";
 
     String key = resolver.computeKey(request, requestPath);
@@ -292,9 +290,7 @@ class CachingResourceResolverTests {
     CachingResourceResolver resolver = new CachingResourceResolver(mock(Cache.class));
     resolver.setContentCodings(List.of("gzip", "deflate"));
     RequestContext request = mock(RequestContext.class);
-    HttpHeaders headers = HttpHeaders.forWritable();
-    headers.add("Accept-Encoding", "br, gzip, identity");
-    when(request.getHeaders()).thenReturn(headers);
+    when(request.getHeader("Accept-Encoding")).thenReturn("br, gzip, identity");
     String requestPath = "js/script.js";
 
     String key = resolver.computeKey(request, requestPath);
@@ -320,9 +316,7 @@ class CachingResourceResolverTests {
   void getContentCodingKeyShouldParseAndFilterCodingWithParameters() {
     CachingResourceResolver resolver = new CachingResourceResolver(mock(Cache.class));
     RequestContext request = mock(RequestContext.class);
-    HttpHeaders headers = HttpHeaders.forWritable();
-    headers.add("Accept-Encoding", "gzip;q=0.8, deflate;q=1.0, br");
-    when(request.getHeaders()).thenReturn(headers);
+    when(request.getHeader("Accept-Encoding")).thenReturn("gzip;q=0.8, deflate;q=1.0, br");
 
     // Using reflection to test private method
     String key = resolver.getContentCodingKey(request);

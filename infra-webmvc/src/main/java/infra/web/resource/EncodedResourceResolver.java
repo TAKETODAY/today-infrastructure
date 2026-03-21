@@ -182,7 +182,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
    */
   static List<String> parseAcceptEncoding(RequestContext request) {
     String header = request.getHeader("Accept-Encoding");
-    if (!StringUtils.hasText(header)) {
+    if (StringUtils.isBlank(header)) {
       return Collections.emptyList();
     }
     header = header.toLowerCase(Locale.ROOT);
