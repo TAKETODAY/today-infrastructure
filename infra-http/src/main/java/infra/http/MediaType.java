@@ -142,12 +142,6 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static final String APPLICATION_NDJSON_VALUE = "application/x-ndjson";
 
-  /** Public constant media type for {@code application/stream+json}. */
-  public static final MediaType APPLICATION_STREAM_JSON = new MediaType("application", "stream+json");
-
-  /** A String equivalent of {@link MediaType#APPLICATION_STREAM_JSON}. */
-  public static final String APPLICATION_STREAM_JSON_VALUE = "application/stream+json";
-
   /** Public constant media type for {@code application/xhtml+xml}. */
   public static final MediaType APPLICATION_XHTML_XML = new MediaType("application", "xhtml+xml");
 
@@ -230,6 +224,21 @@ public class MediaType extends MimeType implements Serializable {
    * @since 5.0
    */
   public static final String APPLICATION_PROTOBUF_VALUE = "application/x-protobuf";
+
+  /**
+   * Media type for {@code application/jsonl} (JSON Lines).
+   *
+   * @see <a href="https://jsonlines.org/">JSON Lines</a>
+   * @since 5.0
+   */
+  public static final MediaType APPLICATION_JSONL = new MediaType("application", "jsonl");
+
+  /**
+   * A String equivalent of {@link MediaType#APPLICATION_JSONL}.
+   *
+   * @since 5.0
+   */
+  public static final String APPLICATION_JSONL_VALUE = "application/jsonl";
 
   private static final String PARAM_QUALITY_FACTOR = "q";
 

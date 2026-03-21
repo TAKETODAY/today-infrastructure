@@ -131,6 +131,22 @@ public interface CodecConfigurer {
     void jacksonJsonEncoder(Encoder<?> encoder);
 
     /**
+     * Override the default Gson {@code Decoder}.
+     *
+     * @param decoder the decoder instance to use
+     * @see infra.http.codec.json.GsonDecoder
+     */
+    void gsonDecoder(Decoder<?> decoder);
+
+    /**
+     * Override the default Gson {@code Encoder}.
+     *
+     * @param encoder the encoder instance to use
+     * @see infra.http.codec.json.GsonEncoder
+     */
+    void gsonEncoder(Encoder<?> encoder);
+
+    /**
      * Override the default Jackson 3.x Smile {@code Decoder}.
      * <p>Note that {@link #maxInMemorySize(int)}, if configured, will be
      * applied to the given decoder.

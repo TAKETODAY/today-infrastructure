@@ -55,6 +55,8 @@ import infra.http.codec.ServerSentEventHttpMessageReader;
 import infra.http.codec.ServerSentEventHttpMessageWriter;
 import infra.http.codec.cbor.JacksonCborDecoder;
 import infra.http.codec.cbor.JacksonCborEncoder;
+import infra.http.codec.json.GsonDecoder;
+import infra.http.codec.json.GsonEncoder;
 import infra.http.codec.json.JacksonJsonDecoder;
 import infra.http.codec.json.JacksonJsonEncoder;
 import infra.http.codec.multipart.DefaultPartHttpMessageReader;
@@ -89,10 +91,13 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   private static final boolean PROTOBUF_PRESENT;
 
+  static final boolean GSON_PRESENT;
+
   static final boolean NETTY_BYTE_BUF_PRESENT;
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
+    GSON_PRESENT = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
     JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
     JACKSON_SMILE_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.smile.SmileMapper", classLoader);
     JACKSON_CBOR_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.cbor.CBORMapper", classLoader);
@@ -201,6 +206,19 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   @Override
   public void jacksonJsonEncoder(Encoder<?> encoder) {
     this.jacksonJsonEncoder = encoder;
+    initObjectWriters();
+    initTypedWriters();
+  }
+
+  @Override
+  public void gsonDecoder(Decoder<?> decoder) {
+    this.gsonDecoder = decoder;
+    initObjectReaders();
+  }
+
+  @Override
+  public void gsonEncoder(Encoder<?> encoder) {
+    this.gsonEncoder = encoder;
     initObjectWriters();
     initTypedWriters();
   }
@@ -477,6 +495,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (JACKSON_PRESENT) {
       addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJacksonJsonDecoder()));
     }
+    else if (GSON_PRESENT) {
+      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getGsonDecoder()));
+    }
     if (JACKSON_SMILE_PRESENT) {
       addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJacksonSmileDecoder()));
     }
@@ -597,6 +618,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (JACKSON_PRESENT) {
       addCodec(writers, new EncoderHttpMessageWriter<>(getJacksonJsonEncoder()));
     }
+    else if (GSON_PRESENT) {
+      addCodec(writers, new EncoderHttpMessageWriter<>(getGsonEncoder()));
+    }
     if (JACKSON_SMILE_PRESENT) {
       addCodec(writers, new EncoderHttpMessageWriter<>(getJacksonSmileEncoder()));
     }
@@ -711,6 +735,20 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
       }
     }
     return this.jacksonCborEncoder;
+  }
+
+  protected Decoder<?> getGsonDecoder() {
+    if (this.gsonDecoder == null) {
+      this.gsonDecoder = new GsonDecoder();
+    }
+    return this.gsonDecoder;
+  }
+
+  protected Encoder<?> getGsonEncoder() {
+    if (this.gsonEncoder == null) {
+      this.gsonEncoder = new GsonEncoder();
+    }
+    return this.gsonEncoder;
   }
 
   /**

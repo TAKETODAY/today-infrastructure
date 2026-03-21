@@ -18,6 +18,7 @@ dependencies {
   optional("tools.jackson.dataformat:jackson-dataformat-yaml")
   optional("com.google.protobuf:protobuf-java-util")
 
+  optional 'com.google.code.gson:gson'
 
   testImplementation project(':infra-test-support')
   testImplementation project(':module:infra-app-test')

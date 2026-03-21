@@ -21,6 +21,8 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,18 +133,6 @@ class ReactiveTypeHandlerTests {
 
     assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
             .isEqualTo(MediaType.APPLICATION_NDJSON);
-  }
-
-  @Test
-  void findsConcreteStreamingMediaType_plainStreamingJsonFirst() {
-    final List<MediaType> accept = List.of(
-            MediaType.ALL,
-            MediaType.APPLICATION_STREAM_JSON,
-            MediaType.parseMediaType("application/*+x-ndjson"),
-            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
-
-    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
-            .isEqualTo(MediaType.APPLICATION_STREAM_JSON);
   }
 
   @Test
@@ -274,10 +264,11 @@ class ReactiveTypeHandlerTests {
     assertThat(emitterHandler.getValuesAsText()).isEqualTo("id:1\ndata:foo\n\nid:2\ndata:bar\n\nid:3\ndata:baz\n\n");
   }
 
-  @Test
-  public void writeStreamJson() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = { "application/jsonl", "application/x-ndjson" })
+  void writeStreamJson(String mediaType) throws Exception {
 
-    this.mockRequest.addHeader("Accept", "application/x-ndjson");
+    this.mockRequest.addHeader("Accept", mediaType);
 
     Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
     ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, forClass(Bar.class));
@@ -295,7 +286,7 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(requestContext.responseHeaders().getContentType().toString()).isEqualTo("application/x-ndjson");
+    assertThat(requestContext.responseHeaders().getContentType()).hasToString(mediaType);
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 

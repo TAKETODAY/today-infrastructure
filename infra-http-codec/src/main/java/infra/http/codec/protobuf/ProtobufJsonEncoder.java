@@ -35,6 +35,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.MediaType;
 import infra.http.codec.HttpMessageEncoder;
+import infra.lang.Constant;
 import infra.util.FastByteArrayOutputStream;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
@@ -56,8 +57,6 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
-
-  private static final byte[] EMPTY_BYTES = new byte[0];
 
   private static final ResolvableType MESSAGE_TYPE = ResolvableType.forClass(Message.class);
 
@@ -82,7 +81,7 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
 
   @Override
   public List<MediaType> getStreamingMediaTypes() {
-    return List.of(MediaType.APPLICATION_NDJSON);
+    return List.of(MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_JSONL);
   }
 
   @Override
@@ -163,11 +162,11 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
         return COMMA_SEPARATOR;
       }
       this.firstItemEmitted = true;
-      return EMPTY_BYTES;
+      return Constant.EMPTY_BYTES;
     }
 
     public byte[] getPrefix() {
-      return (this.firstItemEmitted ? EMPTY_BYTES : OPEN_BRACKET);
+      return (this.firstItemEmitted ? Constant.EMPTY_BYTES : OPEN_BRACKET);
     }
 
     public byte[] getSuffix() {

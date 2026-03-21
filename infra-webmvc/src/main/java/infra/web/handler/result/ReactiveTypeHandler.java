@@ -153,11 +153,11 @@ final class ReactiveTypeHandler {
   }
 
   /**
-   * Attempts to find a concrete {@code MediaType} that can be streamed (as json separated
-   * by newlines in the response body). This method considers two concrete types
-   * {@code APPLICATION_NDJSON} and {@code APPLICATION_STREAM_JSON}) as well as any
-   * subtype of application that has the {@code +x-ndjson} suffix. In the later case,
-   * the media type MUST be concrete for it to be considered.
+   * Attempts to find a concrete {@code MediaType} that can be streamed (as JSON payloads
+   * separated by newlines in the response body). This method considers {@code APPLICATION_JSONL},
+   * {@code APPLICATION_NDJSON}, and any subtype of application
+   * that has the {@code +x-ndjson} suffix. In the latter case, the media type MUST be
+   * concrete for it to be considered.
    *
    * <p>For example {@code application/vnd.myapp+x-ndjson} is considered a streaming type
    * while {@code application/*+x-ndjson} isn't.
@@ -166,8 +166,7 @@ final class ReactiveTypeHandler {
    * @return the concrete streaming {@code MediaType} if one could be found or {@code null}
    * if none could be found
    */
-  @Nullable
-  static MediaType findConcreteStreamingMediaType(Collection<MediaType> acceptedMediaTypes) {
+  static @Nullable MediaType findConcreteStreamingMediaType(Collection<MediaType> acceptedMediaTypes) {
     for (MediaType acceptedType : acceptedMediaTypes) {
       if (WILDCARD_SUBTYPE_SUFFIXED_BY_NDJSON.includes(acceptedType)) {
         if (acceptedType.isConcrete()) {
@@ -184,14 +183,13 @@ final class ReactiveTypeHandler {
       else if (MediaType.APPLICATION_NDJSON.includes(acceptedType)) {
         return MediaType.APPLICATION_NDJSON;
       }
-      else if (MediaType.APPLICATION_STREAM_JSON.includes(acceptedType)) {
-        return MediaType.APPLICATION_STREAM_JSON;
+      else if (MediaType.APPLICATION_JSONL.includes(acceptedType)) {
+        return MediaType.APPLICATION_JSONL;
       }
     }
     return null; // not a concrete streaming type
   }
 
-  @SuppressWarnings("NullAway")
   @Unmodifiable
   private Collection<MediaType> getMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
@@ -214,17 +212,15 @@ final class ReactiveTypeHandler {
 
     private final TaskExecutor taskExecutor;
 
-    @Nullable
-    private Subscription subscription;
-
-    private final AtomicReference<Object> elementRef = new AtomicReference<>();
-
-    @Nullable
-    private Throwable error;
-
-    private volatile boolean terminated;
+    private final AtomicReference<@Nullable Object> elementRef = new AtomicReference<>();
 
     private final AtomicLong executing = new AtomicLong();
+
+    private @Nullable Subscription subscription;
+
+    private @Nullable Throwable error;
+
+    private volatile boolean terminated;
 
     private volatile boolean done;
 
