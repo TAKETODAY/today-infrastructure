@@ -182,7 +182,7 @@ public class GsonEncoder extends AbstractEncoder<Object> implements HttpMessageE
     return false;
   }
 
-  private static class JsonArrayJoinHelper {
+  private static final class JsonArrayJoinHelper {
 
     private static final byte[] COMMA_SEPARATOR = { ',' };
 
