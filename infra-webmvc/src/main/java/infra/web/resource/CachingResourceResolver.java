@@ -21,16 +21,13 @@ package infra.web.resource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import infra.cache.Cache;
 import infra.cache.CacheManager;
 import infra.core.io.Resource;
-import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
@@ -138,23 +135,19 @@ public class CachingResourceResolver extends AbstractResourceResolver {
   }
 
   @Nullable String getContentCodingKey(RequestContext request) {
-    String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
-    if (StringUtils.hasText(header)) {
-      return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))
-              .map(token -> {
-                int index = token.indexOf(';');
-                return (index >= 0 ? token.substring(0, index) : token).trim().toLowerCase(Locale.ROOT);
-              })
-              .filter(this.contentCodings::contains)
-              .sorted()
-              .collect(Collectors.joining(","));
+    List<String> acceptedCodings = EncodedResourceResolver.parseAcceptEncoding(request);
+    if (acceptedCodings.isEmpty()) {
+      return null;
     }
-    return null;
+    return acceptedCodings
+            .stream()
+            .filter(this.contentCodings::contains)
+            .sorted()
+            .collect(Collectors.joining(","));
   }
 
-  @Nullable
   @Override
-  protected String resolveUrlPathInternal(
+  protected @Nullable String resolveUrlPathInternal(
           String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String key = RESOLVED_URL_PATH_CACHE_KEY_PREFIX + resourceUrlPath;

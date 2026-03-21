@@ -31,6 +31,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +41,7 @@ import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
+import infra.util.StringUtils;
 import infra.web.RequestContext;
 
 /**
@@ -133,9 +135,8 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     this.extensions.put(coding, extension.startsWith(".") ? extension : "." + extension);
   }
 
-  @Nullable
   @Override
-  protected Resource resolveResourceInternal(@Nullable RequestContext request,
+  protected @Nullable Resource resolveResourceInternal(@Nullable RequestContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resource = chain.resolveResource(request, requestPath, locations);
@@ -143,35 +144,29 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
       return resource;
     }
 
-    String acceptEncoding = getAcceptEncoding(request);
-    if (acceptEncoding == null) {
+    List<String> acceptedCodings = parseAcceptEncoding(request);
+    if (acceptedCodings.isEmpty()) {
       return resource;
     }
 
-    for (String coding : contentCodings) {
-      if (acceptEncoding.contains(coding)) {
+    for (String acceptedCoding : acceptedCodings) {
+      if (this.contentCodings.contains(acceptedCoding)) {
         try {
-          String extension = getExtension(coding);
-          Resource encoded = new EncodedResource(resource, coding, extension);
+          String extension = getExtension(acceptedCoding);
+          Resource encoded = new EncodedResource(resource, acceptedCoding, extension);
           if (encoded.exists()) {
             return encoded;
           }
         }
         catch (IOException ex) {
           if (logger.isTraceEnabled()) {
-            logger.trace("No {} resource for [{}]", coding, resource.getName(), ex);
+            logger.trace("No {} resource for [{}]", acceptedCoding, resource.getName(), ex);
           }
         }
       }
     }
 
     return resource;
-  }
-
-  @Nullable
-  private String getAcceptEncoding(RequestContext request) {
-    String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
-    return header != null ? header.toLowerCase(Locale.ROOT) : null;
   }
 
   String getExtension(String coding) {
@@ -182,9 +177,25 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     return extension;
   }
 
-  @Nullable
+  /**
+   * Parse the accepted encodings from the given HTTP request.
+   */
+  static List<String> parseAcceptEncoding(RequestContext request) {
+    String header = request.getHeader("Accept-Encoding");
+    if (!StringUtils.hasText(header)) {
+      return Collections.emptyList();
+    }
+    header = header.toLowerCase(Locale.ROOT);
+    return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))
+            .map(token -> {
+              int index = token.indexOf(';');
+              return (index >= 0 ? token.substring(0, index) : token).trim();
+            })
+            .toList();
+  }
+
   @Override
-  protected String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
+  protected @Nullable String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     return chain.resolveUrlPath(resourceUrlPath, locations);
   }
 
