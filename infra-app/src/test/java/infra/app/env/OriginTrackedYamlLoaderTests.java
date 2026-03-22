@@ -41,6 +41,7 @@ import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Tests for {@link OriginTrackedYamlLoader}.
@@ -156,9 +157,8 @@ class OriginTrackedYamlLoaderTests {
 
   @Test
   @WithTestYamlResource
-  void emptyMapsAreDropped() {
-    Object emptyMap = getValue("emptymap");
-    assertThat(emptyMap).isNull();
+  void emptyMapsOrObjectsAreNotDropped() {
+    assertThat(getFirstResult()).contains(entry("emptymap", ""));
   }
 
   @Test
@@ -252,10 +252,15 @@ class OriginTrackedYamlLoaderTests {
 
   @SuppressWarnings("unchecked")
   private <T> @Nullable T getValue(String name) {
+    return (T) getFirstResult().get(name);
+  }
+
+  private Map<String, Object> getFirstResult() {
     if (this.result == null) {
       this.result = this.loader.load();
     }
-    return (T) this.result.get(0).get(name);
+    Map<String, Object> map = this.result.get(0);
+    return map;
   }
 
   private String getLocation(OriginTrackedValue value) {
