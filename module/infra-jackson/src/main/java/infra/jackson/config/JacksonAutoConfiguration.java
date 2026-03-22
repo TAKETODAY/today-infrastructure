@@ -41,6 +41,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.beans.BeanUtils;
 import infra.beans.factory.annotation.NonOrdered;
+import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Primary;
@@ -51,6 +52,7 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.http.ProblemDetail;
+import infra.http.support.JacksonHandlerInstantiator;
 import infra.http.support.ProblemDetailJacksonMixin;
 import infra.http.support.ProblemDetailJacksonXmlMixin;
 import infra.jackson.JacksonComponentModule;
@@ -73,6 +75,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.PropertyNamingStrategy;
 import tools.jackson.databind.cfg.ConstructorDetector;
+import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.cbor.CBORFactory;
@@ -139,6 +142,11 @@ public final class JacksonAutoConfiguration {
     return builder.build();
   }
 
+  @Component
+  public static JacksonHandlerInstantiator jacksonHandlerInstantiator(AutowireCapableBeanFactory beanFactory) {
+    return new JacksonHandlerInstantiator(beanFactory);
+  }
+
   @Configuration(proxyBeanMethods = false)
   static class JacksonMixinConfiguration {
 
@@ -167,9 +175,9 @@ public final class JacksonAutoConfiguration {
     }
 
     @Component
-    static StandardJsonMapperBuilderCustomizer standardJsonMapperBuilderCustomizer(
-            JacksonProperties properties, @NonOrdered List<JacksonModule> modules) {
-      return new StandardJsonMapperBuilderCustomizer(properties, modules);
+    static StandardJsonMapperBuilderCustomizer standardJsonMapperBuilderCustomizer(JacksonProperties properties,
+            @NonOrdered List<JacksonModule> modules, HandlerInstantiator handlerInstantiator) {
+      return new StandardJsonMapperBuilderCustomizer(properties, modules, handlerInstantiator);
     }
 
     static final class StandardJsonFactoryBuilderCustomizer extends AbstractFactoryBuilderCustomizer<JsonFactoryBuilder>
@@ -190,8 +198,8 @@ public final class JacksonAutoConfiguration {
             extends AbstractMapperBuilderCustomizer<JsonMapper.Builder> implements JsonMapperBuilderCustomizer {
 
       StandardJsonMapperBuilderCustomizer(JacksonProperties jacksonProperties,
-              Collection<JacksonModule> modules) {
-        super(jacksonProperties, modules);
+              Collection<JacksonModule> modules, HandlerInstantiator handlerInstantiator) {
+        super(jacksonProperties, modules, handlerInstantiator);
       }
 
       @Override
@@ -263,8 +271,9 @@ public final class JacksonAutoConfiguration {
 
     @Component
     static StandardCborMapperBuilderCustomizer standardCborMapperBuilderCustomizer(
-            JacksonProperties properties, @NonOrdered List<JacksonModule> modules, JacksonCborProperties cborProperties) {
-      return new StandardCborMapperBuilderCustomizer(properties, modules, cborProperties);
+            JacksonProperties properties, @NonOrdered List<JacksonModule> modules,
+            JacksonCborProperties cborProperties, HandlerInstantiator handlerInstantiator) {
+      return new StandardCborMapperBuilderCustomizer(properties, modules, cborProperties, handlerInstantiator);
     }
 
     static final class StandardCborFactoryBuilderCustomizer extends AbstractFactoryBuilderCustomizer<CBORFactoryBuilder>
@@ -286,8 +295,9 @@ public final class JacksonAutoConfiguration {
 
       private final JacksonCborProperties cborProperties;
 
-      StandardCborMapperBuilderCustomizer(JacksonProperties properties, Collection<JacksonModule> modules, JacksonCborProperties cborProperties) {
-        super(properties, modules);
+      StandardCborMapperBuilderCustomizer(JacksonProperties properties, Collection<JacksonModule> modules,
+              JacksonCborProperties cborProperties, HandlerInstantiator handlerInstantiator) {
+        super(properties, modules, handlerInstantiator);
         this.cborProperties = cborProperties;
       }
 
@@ -340,8 +350,9 @@ public final class JacksonAutoConfiguration {
 
     @Component
     static StandardXmlMapperBuilderCustomizer standardXmlMapperBuilderCustomizer(
-            JacksonProperties properties, @NonOrdered List<JacksonModule> modules, JacksonXmlProperties xmlProperties) {
-      return new StandardXmlMapperBuilderCustomizer(properties, modules, xmlProperties);
+            JacksonProperties properties, @NonOrdered List<JacksonModule> modules,
+            JacksonXmlProperties xmlProperties, HandlerInstantiator handlerInstantiator) {
+      return new StandardXmlMapperBuilderCustomizer(properties, modules, xmlProperties, handlerInstantiator);
     }
 
     @Configuration(proxyBeanMethods = false)
@@ -383,8 +394,9 @@ public final class JacksonAutoConfiguration {
 
       private final JacksonXmlProperties xmlProperties;
 
-      StandardXmlMapperBuilderCustomizer(JacksonProperties properties, Collection<JacksonModule> modules, JacksonXmlProperties xmlProperties) {
-        super(properties, modules);
+      StandardXmlMapperBuilderCustomizer(JacksonProperties properties, Collection<JacksonModule> modules,
+              JacksonXmlProperties xmlProperties, HandlerInstantiator handlerInstantiator) {
+        super(properties, modules, handlerInstantiator);
         this.xmlProperties = xmlProperties;
       }
 
@@ -443,9 +455,12 @@ public final class JacksonAutoConfiguration {
 
     protected final Collection<JacksonModule> modules;
 
-    AbstractMapperBuilderCustomizer(JacksonProperties properties, Collection<JacksonModule> modules) {
+    private final HandlerInstantiator handlerInstantiator;
+
+    AbstractMapperBuilderCustomizer(JacksonProperties properties, Collection<JacksonModule> modules, HandlerInstantiator handlerInstantiator) {
       this.properties = properties;
       this.modules = modules;
+      this.handlerInstantiator = handlerInstantiator;
     }
 
     @Override
@@ -465,6 +480,7 @@ public final class JacksonAutoConfiguration {
       if (properties.timeZone != null) {
         builder.defaultTimeZone(properties.timeZone);
       }
+      builder.handlerInstantiator(this.handlerInstantiator);
       configureVisibility(builder, properties.visibility);
       configureFeatures(builder, properties.deserialization, builder::configure);
       configureFeatures(builder, properties.serialization, builder::configure);

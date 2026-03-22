@@ -43,7 +43,7 @@ import tools.jackson.databind.util.Converter;
 /**
  * Allows for creating Jackson 3.x ({@link ValueSerializer}, {@link ValueDeserializer},
  * {@link KeyDeserializer}, {@link TypeResolverBuilder}, and {@link TypeIdResolver})
- * beans with autowiring against a Spring {@code ApplicationContext}.
+ * beans with autowiring against Infra {@code ApplicationContext}.
  *
  * <p>Also overrides all factory methods in {@link HandlerInstantiator},
  * including non-abstract methods for {@link ValueInstantiator}, {@link ObjectIdGenerator},

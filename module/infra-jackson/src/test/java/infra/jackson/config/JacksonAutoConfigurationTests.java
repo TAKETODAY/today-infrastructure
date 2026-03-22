@@ -47,6 +47,7 @@ import infra.context.annotation.config.AutoConfigurationPackage;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.annotation.Order;
 import infra.http.ProblemDetail;
+import infra.http.support.JacksonHandlerInstantiator;
 import infra.jackson.JacksonComponent;
 import infra.jackson.JacksonMixin;
 import infra.jackson.JacksonMixinModule;
@@ -811,6 +812,17 @@ class JacksonAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       StreamWriteConstraints streamWriteConstraints = mapperType.getFactory(context).streamWriteConstraints();
       assertThat(streamWriteConstraints.getMaxNestingDepth()).isEqualTo(StreamReadConstraints.DEFAULT_MAX_DEPTH);
+    });
+  }
+
+  @EnumSource
+  @ParameterizedTest
+  void mapperHasASpringBeanHandlerInstantiator(MapperType mapperType) {
+    this.contextRunner.run((context) -> {
+      assertThat(mapperType.getMapper(context).deserializationConfig().getHandlerInstantiator())
+              .isInstanceOf(JacksonHandlerInstantiator.class);
+      assertThat(mapperType.getMapper(context).serializationConfig().getHandlerInstantiator())
+              .isInstanceOf(JacksonHandlerInstantiator.class);
     });
   }
 
