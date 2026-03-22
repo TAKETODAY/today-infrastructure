@@ -166,6 +166,60 @@ class ValueObjectBinderTests {
   }
 
   @Test
+  void bindToClassWhenNoValuesShouldNotBind() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    this.sources.add(source);
+    assertThat(this.binder.bind("foo", Bindable.of(ExampleNestedBean.class)).isBound()).isFalse();
+  }
+
+  @Test
+  void bindToClassWhenParentOfEmptyStringAndSubValuesShouldFail() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo.value-bean", "");
+    source.put("foo.value-bean.int-value", "123");
+    source.put("foo.value-bean.long-value", "34");
+    source.put("foo.value-bean.string-value", "foo");
+    this.sources.add(source);
+    ExampleNestedBean bean = this.binder.bind("foo", Bindable.of(ExampleNestedBean.class)).get();
+    assertThat(bean.getValueBean().getIntValue()).isEqualTo(123);
+    assertThat(bean.getValueBean().getLongValue()).isEqualTo(34);
+    assertThat(bean.getValueBean().isBooleanValue()).isFalse();
+    assertThat(bean.getValueBean().getStringValue()).isEqualTo("foo");
+    assertThat(bean.getValueBean().getEnumValue()).isNull();
+  }
+
+  @Test
+  void bindToClassWhenParentOfEmptyStringAndNoSubValuesShouldFail() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo.value-bean", "");
+    this.sources.add(source);
+    ExampleNestedBean bean = this.binder.bind("foo", Bindable.of(ExampleNestedBean.class)).get();
+    assertThat(bean.getValueBean().getIntValue()).isEqualTo(0);
+    assertThat(bean.getValueBean().getLongValue()).isEqualTo(0);
+    assertThat(bean.getValueBean().isBooleanValue()).isFalse();
+    assertThat(bean.getValueBean().getStringValue()).isNull();
+    assertThat(bean.getValueBean().getEnumValue()).isNull();
+  }
+
+  @Test
+  void bindToClassWhenParentOfNullAndNoSubValuesShouldNotBind() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo.value-bean", null);
+    this.sources.add(source);
+    BindResult<ExampleNestedBean> bindResult = this.binder.bind("foo", Bindable.of(ExampleNestedBean.class));
+    assertThat(bindResult.isBound()).isFalse();
+  }
+
+  @Test
+  void bindToEmptyRecordWhenParentOfEmptyString() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo", "");
+    this.sources.add(source);
+    EmptyRecord emptyRecord = this.binder.bind("foo", Bindable.of(EmptyRecord.class)).get();
+    assertThat(emptyRecord).isNotNull();
+  }
+
+  @Test
   void bindToClassWithNoValueForPrimitiveShouldUseDefault() {
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.string-value", "foo");
@@ -434,7 +488,7 @@ class ValueObjectBinderTests {
     this.sources.add(source.nonIterable());
     Bindable<CharacterIndex> target = Bindable.of(CharacterIndex.class).withBindMethod(BindMethod.VALUE_OBJECT);
     assertThatExceptionOfType(BindException.class).isThrownBy(() -> this.binder.bindOrCreate("test", target))
-            /*.withStackTraceContaining("Ensure that the compiler uses the '-parameters' flag")*/;
+    /*.withStackTraceContaining("Ensure that the compiler uses the '-parameters' flag")*/;
   }
 
   private void verifyJsonPathParametersCannotBeResolved() throws NoSuchFieldException {
@@ -940,4 +994,7 @@ class ValueObjectBinderTests {
 
   }
 
+  record EmptyRecord() {
+
+  }
 }

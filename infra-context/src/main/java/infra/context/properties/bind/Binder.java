@@ -47,6 +47,7 @@ import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.ObjectUtils;
 
 /**
  * A container object which Binds objects from one or more
@@ -435,14 +436,15 @@ public class Binder {
       }
       catch (ConverterNotFoundException ex) {
         // We might still be able to bind it using the recursive binders
-        Object instance = bindDataObject(name, target, handler, context, allowRecursiveBinding);
+        boolean fallbackToDefaultValue = ObjectUtils.isEmpty(property.getValue());
+        Object instance = bindDataObject(name, target, handler, context, allowRecursiveBinding, fallbackToDefaultValue);
         if (instance != null) {
           return instance;
         }
         throw ex;
       }
     }
-    return bindDataObject(name, target, handler, context, allowRecursiveBinding);
+    return bindDataObject(name, target, handler, context, allowRecursiveBinding, false);
   }
 
   @Nullable
@@ -496,7 +498,7 @@ public class Binder {
 
   @Nullable
   private Object bindDataObject(ConfigurationPropertyName name, Bindable<?> target,
-          BindHandler handler, Context context, boolean allowRecursiveBinding) {
+          BindHandler handler, Context context, boolean allowRecursiveBinding, boolean fallbackToDefaultValue) {
     if (isUnbindableBean(name, target, context)) {
       return null;
     }
@@ -508,7 +510,7 @@ public class Binder {
     DataObjectPropertyBinder propertyBinder = (propertyName, propertyTarget) -> bind(name.append(propertyName),
             propertyTarget, handler, context, false, false);
     return context.withDataObject(type, () -> fromDataObjectBinders(bindMethod,
-            dataObjectBinder -> dataObjectBinder.bind(name, target, context, propertyBinder)));
+            dataObjectBinder -> dataObjectBinder.bind(name, target, context, propertyBinder, fallbackToDefaultValue)));
   }
 
   @Nullable

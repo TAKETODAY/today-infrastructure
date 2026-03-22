@@ -24,6 +24,7 @@ import java.util.List;
 
 import infra.core.env.PropertySource;
 import infra.core.io.ClassPathResource;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,6 +90,22 @@ class PropertiesPropertySourceLoaderTests {
             new ClassPathResource("test-xml.xml", getClass()));
     PropertySource<?> source = loaded.get(0);
     assertThat(source.getProperty("test")).isEqualTo("xml");
+  }
+
+  @Test
+  @WithResource(name = "test.properties", content = """
+          one=1
+          none
+          zero=
+          two=2
+          """)
+  void loadWithEmptyValues() throws Exception {
+    List<PropertySource<?>> loaded = this.loader.load("test.properties", new ClassPathResource("test.properties"));
+    PropertySource<?> source = loaded.get(0);
+    assertThat(source.getProperty("one")).isEqualTo("1");
+    assertThat(source.getProperty("none")).isEqualTo("");
+    assertThat(source.getProperty("zero")).isEqualTo("");
+    assertThat(source.getProperty("two")).isEqualTo("2");
   }
 
 }

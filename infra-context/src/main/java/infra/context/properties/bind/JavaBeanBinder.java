@@ -62,10 +62,9 @@ class JavaBeanBinder implements DataObjectBinder {
 
   static final JavaBeanBinder INSTANCE = new JavaBeanBinder();
 
-  @Nullable
   @Override
-  public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
-          Binder.Context context, DataObjectPropertyBinder propertyBinder) {
+  public <T> @Nullable T bind(ConfigurationPropertyName name, Bindable<T> target, Binder.Context context,
+          DataObjectPropertyBinder propertyBinder, boolean fallbackToDefaultValue) {
     boolean hasKnownBindableProperties = target.getValue() != null && hasKnownBindableProperties(name, context);
     Bean<T> bean = Bean.get(target, context, hasKnownBindableProperties);
     if (bean == null) {
@@ -76,10 +75,9 @@ class JavaBeanBinder implements DataObjectBinder {
     return (bound ? beanSupplier.get() : null);
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T create(Bindable<T> target, Binder.Context context) {
+  public <T> @Nullable T create(Bindable<T> target, Binder.Context context) {
     Class<T> type = (Class<T>) target.getType().resolve();
     return type != null ? BeanUtils.newInstance(type) : null;
   }

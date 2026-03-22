@@ -45,6 +45,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionException;
+import infra.lang.Assert;
 import infra.lang.NullValue;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
@@ -71,34 +72,37 @@ class ValueObjectBinder implements DataObjectBinder {
     this.constructorProvider = constructorProvider;
   }
 
-  @SuppressWarnings("NullAway")
-  @Nullable
   @Override
-  public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
-          Binder.Context context, DataObjectPropertyBinder propertyBinder) {
-
+  public <T> @Nullable T bind(ConfigurationPropertyName name, Bindable<T> target, Binder.Context context,
+          DataObjectPropertyBinder propertyBinder, boolean fallbackToDefaultValue) {
     ValueObject<T> valueObject = ValueObject.get(target, context, this.constructorProvider, Discoverer.LENIENT);
-    if (valueObject == null) {
-      return null;
+    if (valueObject != null) {
+      Class<?> targetType = target.getType().resolve();
+      Assert.state(targetType != null, "'targetType' is required");
+      context.pushConstructorBoundTypes(targetType);
+      List<ConstructorParameter> parameters = valueObject.getConstructorParameters();
+      List<@Nullable Object> args = new ArrayList<>(parameters.size());
+      boolean bound = false;
+      for (ConstructorParameter parameter : parameters) {
+        Object arg = parameter.bind(propertyBinder);
+        bound = bound || arg != null;
+        arg = (arg != null) ? arg : getDefaultValue(context, parameter);
+        args.add(arg);
+      }
+      context.clearConfigurationProperty();
+      context.popConstructorBoundTypes();
+      if (bound) {
+        return valueObject.instantiate(args);
+      }
     }
-    context.pushConstructorBoundTypes(target.getType().resolve());
-    List<ConstructorParameter> parameters = valueObject.getConstructorParameters();
-    ArrayList<Object> args = new ArrayList<>(parameters.size());
-    boolean bound = false;
-    for (ConstructorParameter parameter : parameters) {
-      Object arg = parameter.bind(propertyBinder);
-      bound = bound || arg != null;
-      arg = (arg != null) ? arg : getDefaultValue(context, parameter);
-      args.add(arg);
+    if (fallbackToDefaultValue) {
+      return getNewDefaultValueInstanceIfPossible(context, target.getType());
     }
-    context.clearConfigurationProperty();
-    context.popConstructorBoundTypes();
-    return bound ? valueObject.instantiate(args) : null;
+    return null;
   }
 
-  @Nullable
   @Override
-  public <T> T create(Bindable<T> target, Binder.Context context) {
+  public <T> @Nullable T create(Bindable<T> target, Binder.Context context) {
     ValueObject<T> valueObject = ValueObject.get(target, context, this.constructorProvider, Discoverer.LENIENT);
     if (valueObject == null) {
       return null;
@@ -206,7 +210,7 @@ class ValueObjectBinder implements DataObjectBinder {
       this.constructor = constructor;
     }
 
-    T instantiate(List<Object> args) {
+    T instantiate(List<@Nullable Object> args) {
       return BeanUtils.newInstance(this.constructor, args.toArray());
     }
 
