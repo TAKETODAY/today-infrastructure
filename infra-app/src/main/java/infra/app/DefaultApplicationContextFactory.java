@@ -39,18 +39,18 @@ class DefaultApplicationContextFactory implements ApplicationContextFactory {
 
   @Override
   public @Nullable Class<? extends ConfigurableEnvironment> getEnvironmentType(@Nullable ApplicationType webApplicationType) {
-    return getFromSpringFactories(webApplicationType, ApplicationContextFactory::getEnvironmentType, null);
+    return getFromStrategies(webApplicationType, ApplicationContextFactory::getEnvironmentType, null);
   }
 
   @Override
   public @Nullable ConfigurableEnvironment createEnvironment(@Nullable ApplicationType webApplicationType) {
-    return getFromSpringFactories(webApplicationType, ApplicationContextFactory::createEnvironment, null);
+    return getFromStrategies(webApplicationType, ApplicationContextFactory::createEnvironment, null);
   }
 
   @Override
   public @Nullable ConfigurableApplicationContext create(@Nullable ApplicationType webApplicationType) {
     try {
-      return getFromSpringFactories(webApplicationType, ApplicationContextFactory::create,
+      return getFromStrategies(webApplicationType, ApplicationContextFactory::create,
               this::createDefaultApplicationContext);
     }
     catch (Exception ex) {
@@ -67,7 +67,7 @@ class DefaultApplicationContextFactory implements ApplicationContextFactory {
   }
 
   @Contract("_, _, !null -> !null")
-  private <T> @Nullable T getFromSpringFactories(@Nullable ApplicationType webApplicationType,
+  private <T> @Nullable T getFromStrategies(@Nullable ApplicationType webApplicationType,
           BiFunction<ApplicationContextFactory, @Nullable ApplicationType, @Nullable T> action,
           @Nullable Supplier<T> defaultResult) {
     for (ApplicationContextFactory candidate : TodayStrategies.find(ApplicationContextFactory.class, getClass().getClassLoader())) {
