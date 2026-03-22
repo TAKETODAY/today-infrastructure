@@ -122,11 +122,15 @@ class ConfigDataEnvironmentTests {
     this.environment.setProperty("app.config.import", "i1,i2");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
-    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().root
+    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors()
+            .root
             .getChildren(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    Object[] imports = children.stream().filter((child) -> child.kind == Kind.INITIAL_IMPORT)
-            .map(ConfigDataEnvironmentContributor::getImports).map(Object::toString).toArray();
-    assertThat(imports).containsExactly("[i2]", "[i1]", "[a2]", "[a1]", "[l2]", "[l1]");
+    Object[] imports = children.stream()
+            .filter((child) -> child.kind == Kind.INITIAL_IMPORT)
+            .map(ConfigDataEnvironmentContributor::getImports)
+            .map(Object::toString)
+            .toArray();
+    assertThat(imports).containsExactly("[i1, i2]", "[a1, a2]", "[l1, l2]");
   }
 
   @Test
