@@ -82,6 +82,13 @@ runs:
     - name: Set Up Gradle
       uses: gradle/actions/setup-gradle@v5
 
+    - name: Install libpcre on macOS
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        brew update
+        brew install pcre2
+
     - name: Build
       id: build
       if: ${{ inputs.publish == 'false' }}

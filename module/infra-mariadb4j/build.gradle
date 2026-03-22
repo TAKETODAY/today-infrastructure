@@ -1,0 +1,22 @@
+description = ""
+
+dependencies {
+  api project(":infra-context")
+  api project(":infra-jdbc")
+
+  implementation 'ch.vorburger.exec:exec:3.3.2'
+  implementation 'commons-io:commons-io'
+  implementation 'org.apache.commons:commons-lang3'
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  testImplementation project(":infra-test")
+  testImplementation project(':infra-test-support')
+  testImplementation project(":module:infra-app-test")
+  testImplementation 'com.zaxxer:HikariCP'
+
+  api 'ch.vorburger.mariaDB4j:mariaDB4j-db-macos-arm64'
+  api 'ch.vorburger.mariaDB4j:mariaDB4j-db-linux64'
+  api 'ch.vorburger.mariaDB4j:mariaDB4j-db-winx64'
+}
