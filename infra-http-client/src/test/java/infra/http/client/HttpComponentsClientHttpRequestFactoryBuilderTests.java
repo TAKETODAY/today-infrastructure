@@ -21,12 +21,15 @@ package infra.http.client;
 import org.apache.hc.client5.http.HttpRoute;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +104,28 @@ class HttpComponentsClientHttpRequestFactoryBuilderTests
             .with((builder) -> builder.withHttpClientCustomizer(customizer))
             .build();
     customizer.assertCalled();
+  }
+
+  @Test
+  void defaultCookieHandling() {
+    HttpComponentsClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.httpComponents()
+            .build(HttpClientSettings.defaults());
+    assertThat(factory).extracting("httpClient.defaultConfig.cookieSpec").isNull();
+  }
+
+  @Test
+  void cookieHandlingDisabled() {
+    HttpComponentsClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.httpComponents()
+            .build(HttpClientSettings.defaults().withCookieHandling(HttpCookieHandling.DISABLE));
+    assertThat(factory).extracting("httpClient.defaultConfig.cookieSpec").isEqualTo(StandardCookieSpec.IGNORE);
+  }
+
+  @ParameterizedTest
+  @EnumSource(names = { "ENABLE", "ENABLE_WHEN_POSSIBLE" })
+  void cookieHandlingEnabled(HttpCookieHandling cookieHandling) {
+    HttpComponentsClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.httpComponents()
+            .build(HttpClientSettings.defaults().withCookieHandling(cookieHandling));
+    assertThat(factory).extracting("httpClient.defaultConfig.cookieSpec").isEqualTo(StandardCookieSpec.STRICT);
   }
 
   @Override

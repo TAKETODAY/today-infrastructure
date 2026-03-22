@@ -20,6 +20,8 @@ package infra.http.client;
 
 import org.jspecify.annotations.Nullable;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.util.concurrent.Executor;
@@ -87,6 +89,13 @@ public final class JdkHttpClientBuilder {
     Assert.isTrue(settings.readTimeout() == null, "'settings' must not have a 'readTimeout'");
     HttpClient.Builder builder = HttpClient.newBuilder();
 
+    if (settings.cookieHandling() != null) {
+      CookieHandler cookieHandler = asCookieHandler(settings.cookieHandling());
+      if (cookieHandler != null) {
+        builder.cookieHandler(cookieHandler);
+      }
+    }
+
     builder.followRedirects(asHttpClientRedirect(settings.redirects()));
 
     if (settings.connectTimeout() != null) {
@@ -108,6 +117,13 @@ public final class JdkHttpClientBuilder {
     parameters.setCipherSuites(options.getCiphers());
     parameters.setProtocols(options.getEnabledProtocols());
     return parameters;
+  }
+
+  private @Nullable CookieHandler asCookieHandler(HttpCookieHandling cookieHandling) {
+    return switch (cookieHandling) {
+      case ENABLE_WHEN_POSSIBLE, ENABLE -> new CookieManager();
+      case DISABLE -> null;
+    };
   }
 
   private Redirect asHttpClientRedirect(@Nullable HttpRedirects redirects) {

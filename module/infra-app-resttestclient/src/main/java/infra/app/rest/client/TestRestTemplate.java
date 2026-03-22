@@ -18,8 +18,6 @@
 
 package infra.app.rest.client;
 
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.ssl.TLS;
@@ -34,7 +32,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import javax.net.ssl.SSLContext;
@@ -52,6 +49,7 @@ import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpComponentsClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpComponentsHttpClientBuilder;
+import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
@@ -164,8 +162,7 @@ public class TestRestTemplate {
 
   private static HttpComponentsClientHttpRequestFactoryBuilder applyHttpClientOptions(
           HttpComponentsClientHttpRequestFactoryBuilder builder, HttpClientOption[] httpClientOptions) {
-    builder = builder.withDefaultRequestConfigCustomizer(
-            new CookieSpecCustomizer(HttpClientOption.ENABLE_COOKIES.isPresent(httpClientOptions)));
+
     if (HttpClientOption.SSL.isPresent(httpClientOptions)) {
       builder = builder.withTlsSocketStrategyFactory(new SelfSignedTlsSocketStrategyFactory());
     }
@@ -1009,6 +1006,20 @@ public class TestRestTemplate {
 
   /**
    * Creates a new {@code TestRestTemplate} with the same configuration as this one,
+   * except that it will apply the given {@link HttpCookieHandling}. The request factory
+   * used is a new instance of the underlying {@link RestTemplate}'s request factory
+   * type (when possible).
+   *
+   * @param cookieHandling the new cookie handling
+   * @return the new template
+   * @since 5.0
+   */
+  public TestRestTemplate withCookieHandling(HttpCookieHandling cookieHandling) {
+    return withClientSettings((settings) -> settings.withCookieHandling(cookieHandling));
+  }
+
+  /**
+   * Creates a new {@code TestRestTemplate} with the same configuration as this one,
    * except that it will apply the given {@link HttpClientSettings}. The request factory
    * used is a new instance of the underlying {@link RestTemplate}'s request factory
    * type (when possible).
@@ -1070,11 +1081,6 @@ public class TestRestTemplate {
   public enum HttpClientOption {
 
     /**
-     * Enable cookies.
-     */
-    ENABLE_COOKIES,
-
-    /**
      * Use a {@link TlsSocketStrategy} that trusts self-signed certificates.
      */
     SSL;
@@ -1115,21 +1121,6 @@ public class TestRestTemplate {
     @Override
     public boolean isTrusted(X509Certificate[] chain, String authType) {
       return chain.length == 1;
-    }
-
-  }
-
-  private static class CookieSpecCustomizer implements Consumer<RequestConfig.Builder> {
-
-    private final boolean enableCookies;
-
-    CookieSpecCustomizer(boolean enableCookies) {
-      this.enableCookies = enableCookies;
-    }
-
-    @Override
-    public void accept(RequestConfig.Builder builder) {
-      builder.setCookieSpec(this.enableCookies ? StandardCookieSpec.STRICT : StandardCookieSpec.IGNORE);
     }
 
   }

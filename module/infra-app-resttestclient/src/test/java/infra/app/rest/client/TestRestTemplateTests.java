@@ -19,6 +19,7 @@
 package infra.app.rest.client;
 
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.impl.classic.RedirectExec;
 import org.apache.hc.client5.http.protocol.RedirectStrategy;
@@ -48,6 +49,7 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
+import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.mock.http.client.MockClientHttpRequest;
@@ -112,7 +114,6 @@ class TestRestTemplateTests {
     assertThat(restTemplate.getRequestFactory()).isEqualTo(customFactory).hasSameClassAs(customFactory);
   }
 
-
   @Test
   void authenticated() {
     TestRestTemplate restTemplate = new TestRestTemplate("user", "password");
@@ -120,9 +121,22 @@ class TestRestTemplateTests {
   }
 
   @Test
-  void options() {
-    RequestConfig config = getRequestConfig(new TestRestTemplate(HttpClientOption.ENABLE_COOKIES));
-    assertThat(config.getCookieSpec()).isEqualTo("strict");
+  void defaultCookieSpecMatchesRestTemplate() {
+    RequestConfig config = getRequestConfig(new TestRestTemplate());
+    assertThat(config.getCookieSpec()).isNull();
+  }
+
+  @Test
+  void withCookieHandling() {
+    TestRestTemplate template = new TestRestTemplate();
+    assertThat(getRequestConfig(template).getCookieSpec()).isNull();
+    assertThat(getRequestConfig(template.withCookieHandling(HttpCookieHandling.ENABLE)).getCookieSpec())
+            .isEqualTo(StandardCookieSpec.STRICT);
+    assertThat(
+            getRequestConfig(template.withCookieHandling(HttpCookieHandling.ENABLE_WHEN_POSSIBLE)).getCookieSpec())
+            .isEqualTo(StandardCookieSpec.STRICT);
+    assertThat(getRequestConfig(template.withCookieHandling(HttpCookieHandling.DISABLE)).getCookieSpec())
+            .isEqualTo(StandardCookieSpec.IGNORE);
   }
 
   @Test

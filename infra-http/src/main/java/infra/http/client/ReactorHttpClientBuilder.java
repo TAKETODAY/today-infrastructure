@@ -120,6 +120,11 @@ public final class ReactorHttpClientBuilder {
     }
 
     httpClient = httpClient.followRedirect(followRedirects(settings.redirects()));
+
+    if (HttpCookieHandling.ENABLE.equals(settings.cookieHandling())) {
+      throw new IllegalArgumentException("Reactor Netty HTTP client does not support cookie handling");
+    }
+
     return this.customizer.apply(httpClient);
   }
 

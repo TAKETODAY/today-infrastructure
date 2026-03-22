@@ -77,6 +77,9 @@ final class ReflectiveComponentsClientHttpRequestFactoryBuilder<T extends Client
     Assert.state(settings.sslBundle() == null, "Unable to set SSL bundle using reflection");
     Assert.state(settings.redirects() == null || settings.redirects() == HttpRedirects.FOLLOW_WHEN_POSSIBLE,
             "Unable to set redirect follow using reflection");
+    Assert.state(settings.cookieHandling() == null || settings.cookieHandling() == HttpCookieHandling.ENABLE_WHEN_POSSIBLE,
+            "Unable to set HTTP cookie handling using reflection");
+
     ClientHttpRequestFactory unwrapped = unwrapRequestFactoryIfNecessary(requestFactory);
 
     if (settings.connectTimeout() != null) {

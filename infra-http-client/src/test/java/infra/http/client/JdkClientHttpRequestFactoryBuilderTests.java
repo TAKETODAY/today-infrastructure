@@ -19,6 +19,8 @@
 package infra.http.client;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -67,6 +69,34 @@ class JdkClientHttpRequestFactoryBuilderTests
     TestCustomizer<HttpClient.Builder> customizer = new TestCustomizer<>();
     ClientHttpRequestFactoryBuilder.jdk().with((builder) -> builder.withHttpClientCustomizer(customizer)).build();
     customizer.assertCalled();
+  }
+
+  @Test
+  void defaultCookieHandling() {
+    JdkClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.jdk()
+            .build(HttpClientSettings.defaults());
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(factory, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.cookieHandler()).isEmpty();
+  }
+
+  @Test
+  void cookieHandlingDisabled() {
+    JdkClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.jdk()
+            .build(HttpClientSettings.defaults().withCookieHandling(HttpCookieHandling.DISABLE));
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(factory, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.cookieHandler()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(names = { "ENABLE", "ENABLE_WHEN_POSSIBLE" })
+  void cookieHandlingEnabled(HttpCookieHandling cookieHandling) {
+    JdkClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.jdk()
+            .build(HttpClientSettings.defaults().withCookieHandling(cookieHandling));
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(factory, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.cookieHandler()).isNotEmpty();
   }
 
   @Override

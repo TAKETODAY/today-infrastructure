@@ -41,6 +41,7 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactoryBuilder;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
@@ -508,6 +509,21 @@ public class RestTemplateBuilder {
             this.messageConverters, this.interceptors, this.requestFactoryBuilder,
             this.uriTemplateHandler, this.errorHandler, this.basicAuthentication, this.defaultHeaders,
             this.customizers, this.requestCustomizers);
+  }
+
+  /**
+   * Sets the cookie handling strategy on the underlying
+   * {@link ClientHttpRequestFactory}.
+   *
+   * @param cookieHandling the cookie handling strategy
+   * @return a new builder instance.
+   * @since 5.0
+   */
+  public RestTemplateBuilder cookieHandling(HttpCookieHandling cookieHandling) {
+    return new RestTemplateBuilder(this.clientSettings.withCookieHandling(cookieHandling),
+            this.detectRequestFactory, this.messageConverters, this.interceptors,
+            this.requestFactoryBuilder, this.uriTemplateHandler, this.errorHandler, this.basicAuthentication,
+            this.defaultHeaders, this.customizers, this.requestCustomizers);
   }
 
   /**

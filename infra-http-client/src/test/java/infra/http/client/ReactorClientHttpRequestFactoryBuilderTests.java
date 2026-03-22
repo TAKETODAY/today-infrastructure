@@ -19,6 +19,8 @@
 package infra.http.client;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ import io.netty.channel.ChannelOption;
 import reactor.netty.http.client.HttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.spy;
 
@@ -97,6 +101,19 @@ class ReactorClientHttpRequestFactoryBuilderTests
             .with((builder) -> builder.withHttpClientFactory(httpClientFactory))
             .build();
     assertThat(called).containsExactly(true);
+  }
+
+  @ParameterizedTest
+  @EnumSource(names = { "DISABLE", "ENABLE_WHEN_POSSIBLE" })
+  void doesNotThrowWhenCookieHandlingNotEnabled(HttpCookieHandling cookieHandling) {
+    assertThatNoException().isThrownBy(() -> ClientHttpRequestFactoryBuilder.reactor()
+            .build(HttpClientSettings.defaults().withCookieHandling(cookieHandling)));
+  }
+
+  @Test
+  void throwsWhenCookieHandlingEnabled() {
+    assertThatIllegalArgumentException().isThrownBy(() -> ClientHttpRequestFactoryBuilder.reactor()
+            .build(HttpClientSettings.defaults().withCookieHandling(HttpCookieHandling.ENABLE)));
   }
 
   @Override

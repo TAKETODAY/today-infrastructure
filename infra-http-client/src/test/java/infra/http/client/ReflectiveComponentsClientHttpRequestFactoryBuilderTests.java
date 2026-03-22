@@ -71,6 +71,20 @@ class ReflectiveComponentsClientHttpRequestFactoryBuilderTests extends AbstractC
     testRedirect(null, HttpMethod.valueOf(httpMethod), ALWAYS_FOUND);
   }
 
+  @Test
+  void cookieHandlingEnable() {
+    HttpClientSettings settings = HttpClientSettings.defaults().withCookieHandling(HttpCookieHandling.ENABLE);
+    assertThatIllegalStateException().isThrownBy(() -> ofTestRequestFactory().build(settings))
+            .withMessage("Unable to set HTTP cookie handling using reflection");
+  }
+
+  @Test
+  void cookieHandlingDisable() {
+    HttpClientSettings settings = HttpClientSettings.defaults().withCookieHandling(HttpCookieHandling.DISABLE);
+    assertThatIllegalStateException().isThrownBy(() -> ofTestRequestFactory().build(settings))
+            .withMessage("Unable to set HTTP cookie handling using reflection");
+  }
+
   @Override
   void connectWithSslBundleAndOptionsMismatch(String httpMethod) throws Exception {
     assertThatIllegalStateException().isThrownBy(() -> super.connectWithSslBundleAndOptionsMismatch(httpMethod))

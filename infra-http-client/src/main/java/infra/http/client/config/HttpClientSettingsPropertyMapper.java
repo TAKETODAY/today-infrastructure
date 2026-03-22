@@ -62,6 +62,10 @@ public class HttpClientSettingsPropertyMapper {
       if (properties.ssl.bundle != null) {
         settings = settings.withSslBundle(getSslBundle(properties.ssl.bundle));
       }
+
+      if (properties.cookieHandling != null) {
+        settings.withCookieHandling(properties.cookieHandling);
+      }
     }
     return settings.orElse(this.settings);
   }

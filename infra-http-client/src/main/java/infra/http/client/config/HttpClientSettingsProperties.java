@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 
 import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 
 /**
@@ -49,6 +50,11 @@ public abstract class HttpClientSettingsProperties {
    * Default read timeout for a client HTTP request.
    */
   public @Nullable Duration readTimeout;
+
+  /**
+   * Handling for HTTP cookies.
+   */
+  public @Nullable HttpCookieHandling cookieHandling;
 
   /**
    * Default SSL configuration for a client HTTP request.
