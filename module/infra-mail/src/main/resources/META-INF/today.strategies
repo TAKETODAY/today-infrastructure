@@ -1,0 +1,4 @@
+#
+# Failure Analyzers
+infra.app.diagnostics.FailureAnalyzer=\
+  infra.mail.config.NoSuchMailSenderBeanFailureAnalyzer
