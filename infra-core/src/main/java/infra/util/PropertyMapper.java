@@ -179,7 +179,7 @@ public final class PropertyMapper {
         T value = getValue();
         return (value != null) ? value : fallback.get();
       };
-      return new Source<>(supplier, this.predicate);
+      return new Source<>(supplier, v -> true);
     }
 
     /**

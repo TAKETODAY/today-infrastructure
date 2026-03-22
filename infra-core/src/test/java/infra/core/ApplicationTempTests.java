@@ -197,6 +197,19 @@ class ApplicationTempTests {
     Path file = temp.createFile(subDir, "test");
     assertThat(file).exists();
     assertThat(file.getParent()).isEqualTo(temp.getDir(subDir));
+
+    file.toFile().deleteOnExit();
+  }
+
+  @Test
+  void getDir() {
+    ApplicationTemp temp = new ApplicationTemp();
+    String subDir = "/nonexistent/subdirectory";
+    Path file = temp.createFile(subDir, "test");
+    assertThat(file).exists();
+    assertThat(file.getParent()).isEqualTo(temp.getDir(subDir));
+
+    file.toFile().deleteOnExit();
   }
 
   @Test

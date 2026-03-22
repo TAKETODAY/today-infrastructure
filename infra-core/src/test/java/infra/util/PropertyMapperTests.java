@@ -80,6 +80,17 @@ class PropertyMapperTests {
   }
 
   @Test
+  void orFromWhenSuppliedWithNonNull1() {
+    assertThat(this.map.from((String) null).as(Integer::parseInt).orFrom(() -> 1).toInstance(Function.identity()))
+            .isEqualTo(1);
+
+    assertThat(this.map.from((String) null).as(Integer::parseInt)
+            .as(Object::toString).as(Integer::parseInt)
+            .orFrom(() -> 1).toInstance(Function.identity()))
+            .isEqualTo(1);
+  }
+
+  @Test
   @SuppressWarnings("NullAway")
     // Test null check
   void toWhenConsumerIsNullShouldThrowException() {

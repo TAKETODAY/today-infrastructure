@@ -98,6 +98,9 @@ public class ApplicationTemp {
    */
   public Path getDir(@Nullable String subDir) throws UncheckedIOException {
     if (subDir != null) {
+      if (subDir.startsWith("/")) {
+        subDir = subDir.substring(1);
+      }
       return createDirectory(getPath().resolve(subDir));
     }
     return getPath();
