@@ -136,7 +136,7 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @param url the JDBC url
    * @return this builder
    */
-  public DataSourceBuilder<T> url(String url) {
+  public DataSourceBuilder<T> url(@Nullable String url) {
     set(DataSourceProperty.URL, url);
     return this;
   }
@@ -147,7 +147,7 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @param driverClassName the driver class name
    * @return this builder
    */
-  public DataSourceBuilder<T> driverClassName(String driverClassName) {
+  public DataSourceBuilder<T> driverClassName(@Nullable String driverClassName) {
     set(DataSourceProperty.DRIVER_CLASS_NAME, driverClassName);
     return this;
   }
