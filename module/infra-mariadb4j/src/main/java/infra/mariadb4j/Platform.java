@@ -32,7 +32,7 @@ import org.apache.commons.lang3.SystemUtils;
  *
  * @author <a href="https://www.vorburger.ch/">Michael Vorburger.ch</a>
  */
-final class Platform {
+abstract class Platform {
 
   enum OS {
     LINUX,
