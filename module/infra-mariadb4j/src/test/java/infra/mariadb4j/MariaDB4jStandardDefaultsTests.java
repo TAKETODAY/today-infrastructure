@@ -54,10 +54,10 @@ class MariaDB4jStandardDefaultsTests {
 
   @Test
   public void testStandardDefaults() {
-    assertNotEquals(3306, s.db.getConfiguration().getPort());
-    assertTrue(s.db.getConfiguration().getBaseDir().toString().contains(ApplicationTemp.instance.toString()));
-    assertTrue(s.db.getConfiguration().getDataDir().toString().contains(ApplicationTemp.instance.toString()));
-    assertTrue(s.db.getConfiguration().getTmpDir().toString().contains(ApplicationTemp.instance.toString()));
+    assertNotEquals(3306, s.mariaDb.getConfiguration().getPort());
+    assertTrue(s.mariaDb.getConfiguration().getBaseDir().toString().contains(ApplicationTemp.instance.toString()));
+    assertTrue(s.mariaDb.getConfiguration().getDataDir().toString().contains(ApplicationTemp.instance.toString()));
+    assertTrue(s.mariaDb.getConfiguration().getTmpDir().toString().contains(ApplicationTemp.instance.toString()));
   }
 
   @AfterEach

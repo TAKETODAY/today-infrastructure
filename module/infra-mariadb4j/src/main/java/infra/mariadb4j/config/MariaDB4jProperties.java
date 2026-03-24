@@ -17,6 +17,8 @@ import infra.context.properties.ConfigurationProperties;
 @ConfigurationProperties("mariadb4j")
 public class MariaDB4jProperties {
 
+  public boolean enabled = true;
+
   /**
    * The port number on which the MariaDB server should listen.
    */

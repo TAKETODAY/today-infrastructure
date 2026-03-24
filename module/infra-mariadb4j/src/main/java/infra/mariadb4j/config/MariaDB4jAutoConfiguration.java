@@ -25,14 +25,16 @@ import javax.sql.DataSource;
 
 import ch.vorburger.exec.ManagedProcessException;
 import infra.context.annotation.DependsOn;
-import infra.context.annotation.config.AutoConfiguration;
+import infra.context.annotation.config.DisableDIAutoConfiguration;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
+import infra.jdbc.config.DataSourceAutoConfiguration;
 import infra.jdbc.config.DataSourceBuilder;
 import infra.jdbc.config.DataSourceProperties;
-import infra.mariadb4j.DB;
 import infra.mariadb4j.DBConfigurationBuilder;
+import infra.mariadb4j.MariaDB;
 import infra.mariadb4j.MariaDB4jLifecycle;
 import infra.stereotype.Component;
 import infra.util.PropertyMapper;
@@ -43,17 +45,18 @@ import infra.util.PropertyMapper;
  * This configuration sets up an embedded MariaDB instance using MariaDB4j,
  * along with the necessary {@link javax.sql.DataSource} bean for database access.
  * It is enabled when the relevant properties are configured and no existing
- * {@link infra.mariadb4j.DB} bean is present.
+ * {@link MariaDB} bean is present.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@AutoConfiguration
+@DisableDIAutoConfiguration(before = DataSourceAutoConfiguration.class)
+@ConditionalOnBooleanProperty(name = "mariadb4j.enabled", matchIfMissing = true)
 @EnableConfigurationProperties({ DataSourceProperties.class, MariaDB4jProperties.class })
 public final class MariaDB4jAutoConfiguration {
 
   @Component
-  @DependsOn("mariaDB4j")
+  @DependsOn("mariadb")
   public static DataSource dataSource(DataSourceProperties properties) {
     return DataSourceBuilder.create()
             .driverClassName(properties.getDriverClassName())
@@ -65,7 +68,7 @@ public final class MariaDB4jAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public static DB mariaDB4j(MariaDB4jProperties properties, @Nullable ApplicationTemp applicationTemp) throws ManagedProcessException {
+  public static MariaDB mariadb(MariaDB4jProperties properties, @Nullable ApplicationTemp applicationTemp) throws ManagedProcessException {
     if (applicationTemp == null) {
       applicationTemp = ApplicationTemp.instance;
     }
@@ -84,11 +87,11 @@ public final class MariaDB4jAutoConfiguration {
     mapper.from(properties.libDir).as(File::new).to(builder::setLibDir);
     mapper.from(properties.baseDir).as(File::new).orFrom(basePath::toFile).to(builder::setBaseDir);
 
-    return DB.newEmbeddedDB(builder.build());
+    return MariaDB.newEmbeddedDB(builder.build());
   }
 
   @Component
-  public static MariaDB4jLifecycle mariaDB4jLifecycle(DB mariaDB4j) {
+  public static MariaDB4jLifecycle mariaDB4jLifecycle(MariaDB mariaDB4j) {
     return new MariaDB4jLifecycle(mariaDB4j);
   }
 

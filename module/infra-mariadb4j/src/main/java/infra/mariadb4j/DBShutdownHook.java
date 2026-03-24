@@ -65,9 +65,9 @@ import infra.logging.LoggerFactory;
  */
 class DBShutdownHook extends Thread implements FileVisitor<Path> {
 
-  private static final Logger logger = LoggerFactory.getLogger(DB.class);
+  private static final Logger logger = LoggerFactory.getLogger(MariaDB.class);
 
-  private final DB db;
+  private final MariaDB mariaDb;
   private final Supplier<ManagedProcess> mysqldProcessSupplier;
   private final Supplier<File> dataDirSupplier;
   private final Supplier<File> baseDirSupplier;
@@ -79,7 +79,7 @@ class DBShutdownHook extends Thread implements FileVisitor<Path> {
    * Constructor.
    *
    * @param threadName a {@link String} object
-   * @param db a {@link DB} object
+   * @param mariaDb a {@link MariaDB} object
    * @param mysqldProcessSupplier a {@link Supplier} object
    * @param baseDirSupplier a {@link Supplier} object
    * @param tmpDirSupplier a {@link Supplier} object
@@ -88,14 +88,14 @@ class DBShutdownHook extends Thread implements FileVisitor<Path> {
    */
   public DBShutdownHook(
           String threadName,
-          DB db,
+          MariaDB mariaDb,
           Supplier<ManagedProcess> mysqldProcessSupplier,
           Supplier<File> baseDirSupplier,
           Supplier<File> tmpDirSupplier,
           Supplier<File> dataDirSupplier,
           DBConfiguration configuration) {
     super(threadName);
-    this.db = db;
+    this.mariaDb = mariaDb;
     this.mysqldProcessSupplier = mysqldProcessSupplier;
     this.baseDirSupplier = baseDirSupplier;
     this.dataDirSupplier = dataDirSupplier;
@@ -321,7 +321,7 @@ class DBShutdownHook extends Thread implements FileVisitor<Path> {
       // Shut up and don't log if it was already stop() before
       if (mysqldProcess != null && mysqldProcess.isAlive()) {
         logger.info("cleanupOnExit() ShutdownHook now stopping database");
-        db.stop();
+        mariaDb.stop();
       }
     }
     catch (ManagedProcessException e) {

@@ -3,6 +3,7 @@ description = ""
 dependencies {
   api project(":infra-context")
   api project(":infra-jdbc")
+  api project(":module:infra-sql")
 
   implementation 'ch.vorburger.exec:exec:3.3.2'
   implementation 'commons-io:commons-io'

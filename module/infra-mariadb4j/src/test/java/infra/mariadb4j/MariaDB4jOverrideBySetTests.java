@@ -63,11 +63,11 @@ class MariaDB4jOverrideBySetTests {
 
   @Test
   public void testOverrideBySet() {
-    assertEquals(5677, s.db.getConfiguration().getPort());
+    assertEquals(5677, s.mariaDb.getConfiguration().getPort());
 
-    assertEquals(new File("build/MariaDB4jOverrideBySetTests/baseDir"), s.db.getConfiguration().getBaseDir());
-    assertEquals(new File("build/MariaDB4jOverrideBySetTests/dataDir"), s.db.getConfiguration().getDataDir());
-    assertEquals(new File("build/MariaDB4jOverrideBySetTests/baseDir/libs"), s.db.getConfiguration().getLibDir());
+    assertEquals(new File("build/MariaDB4jOverrideBySetTests/baseDir"), s.mariaDb.getConfiguration().getBaseDir());
+    assertEquals(new File("build/MariaDB4jOverrideBySetTests/dataDir"), s.mariaDb.getConfiguration().getDataDir());
+    assertEquals(new File("build/MariaDB4jOverrideBySetTests/baseDir/libs"), s.mariaDb.getConfiguration().getLibDir());
   }
 
   @AfterEach

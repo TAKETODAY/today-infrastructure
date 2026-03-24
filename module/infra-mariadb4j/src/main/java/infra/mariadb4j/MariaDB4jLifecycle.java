@@ -24,7 +24,7 @@ import infra.stereotype.Component;
 
 /**
  * Lifecycle implementation for managing an embedded MariaDB instance using MariaDB4j.
- * <p>This component wraps a {@link DB} instance to provide start, stop, and status checking
+ * <p>This component wraps a {@link MariaDB} instance to provide start, stop, and status checking
  * capabilities within the Infra lifecycle management system.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -33,20 +33,20 @@ import infra.stereotype.Component;
 @Component
 public class MariaDB4jLifecycle implements Lifecycle {
 
-  @Nullable DB db;
+  @Nullable MariaDB mariaDb;
 
   private ManagedProcessException lastException;
 
-  public MariaDB4jLifecycle(@Nullable DB db) {
-    this.db = db;
+  public MariaDB4jLifecycle(@Nullable MariaDB mariaDb) {
+    this.mariaDb = mariaDb;
   }
 
   /** {@inheritDoc} */
   @Override
   public void start() {
     try {
-      if (db != null) {
-        db.start();
+      if (mariaDb != null) {
+        mariaDb.start();
       }
     }
     catch (ManagedProcessException e) {
@@ -59,10 +59,10 @@ public class MariaDB4jLifecycle implements Lifecycle {
   @Override
   public void stop() {
     try {
-      if (db != null) {
-        db.stop();
+      if (mariaDb != null) {
+        mariaDb.stop();
       }
-      db = null;
+      mariaDb = null;
     }
     catch (ManagedProcessException e) {
       lastException = e;
@@ -72,7 +72,7 @@ public class MariaDB4jLifecycle implements Lifecycle {
 
   @Override
   public boolean isRunning() {
-    return db != null;
+    return mariaDb != null;
   }
 
   public ManagedProcessException getLastException() {

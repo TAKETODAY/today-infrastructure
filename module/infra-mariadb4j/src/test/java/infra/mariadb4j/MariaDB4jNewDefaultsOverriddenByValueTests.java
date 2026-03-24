@@ -56,7 +56,7 @@ class MariaDB4jNewDefaultsOverriddenByValueTests {
 
   @Test
   public void testNewDefaults() {
-    assertEquals(5678, lifecycle.db.getConfiguration().getPort());
+    assertEquals(5678, lifecycle.mariaDb.getConfiguration().getPort());
   }
 
   @AfterEach

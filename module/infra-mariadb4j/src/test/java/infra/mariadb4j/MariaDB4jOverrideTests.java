@@ -62,19 +62,19 @@ class MariaDB4jOverrideTests {
 
   @Test
   public void testOverrideBySpringValue() {
-    assertEquals(5679, s.db.getConfiguration().getPort());
+    assertEquals(5679, s.mariaDb.getConfiguration().getPort());
     assertEquals(
             new File("build/MariaDB4jOverrideTests/baseDir"),
-            s.db.getConfiguration().getBaseDir());
+            s.mariaDb.getConfiguration().getBaseDir());
     assertEquals(
             new File("build/MariaDB4jOverrideTests/baseDir/libs"),
-            s.db.getConfiguration().getLibDir());
+            s.mariaDb.getConfiguration().getLibDir());
     assertEquals(
             new File("build/MariaDB4jOverrideTests/dataDir"),
-            s.db.getConfiguration().getDataDir());
+            s.mariaDb.getConfiguration().getDataDir());
     assertEquals(
             new File("build/MariaDB4jOverrideTests/tmpDir"),
-            s.db.getConfiguration().getTmpDir());
+            s.mariaDb.getConfiguration().getTmpDir());
   }
 
   @AfterEach

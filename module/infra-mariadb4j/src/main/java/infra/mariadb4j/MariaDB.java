@@ -60,10 +60,11 @@ import static infra.mariadb4j.DBConfiguration.Executable.Server;
  * @author Michael Vorburger
  * @author Michael Seaton
  * @author Gordon Little
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-public class DB {
+public class MariaDB {
 
-  private static final Logger logger = LoggerFactory.getLogger(DB.class);
+  private static final Logger logger = LoggerFactory.getLogger(MariaDB.class);
 
   protected final DBConfiguration configuration;
 
@@ -75,7 +76,7 @@ public class DB {
 
   protected int dbStartMaxWaitInMS = 30000;
 
-  protected DB(DBConfiguration config) {
+  protected MariaDB(DBConfiguration config) {
     configuration = config;
   }
 
@@ -98,9 +99,9 @@ public class DB {
    * @return a new DB instance
    * @throws ManagedProcessException if something fatal went wrong
    */
-  public static DB newEmbeddedDB(DBConfiguration config) throws ManagedProcessException {
-    DB db = new DB(config);
-    db.prepareDirectories();
+  public static MariaDB newEmbeddedDB(DBConfiguration config) throws ManagedProcessException {
+    MariaDB mariaDb = new MariaDB(config);
+    mariaDb.prepareDirectories();
     // If the data dir does not already exist and is empty, proceed to install normally.
     // Otherwise, we will reuse the existing data directory.
     try {
@@ -108,8 +109,8 @@ public class DB {
       if (Files.isDirectory(absPath)) {
         try (Stream<Path> entries = Files.list(absPath)) {
           if (entries.findFirst().isEmpty()) {
-            db.unpackEmbeddedDb();
-            db.install();
+            mariaDb.unpackEmbeddedDb();
+            mariaDb.install();
           }
         }
       }
@@ -119,7 +120,7 @@ public class DB {
       throw new ManagedProcessException(e.getMessage(), e);
     }
 
-    return db;
+    return mariaDb;
   }
 
   /**
@@ -131,14 +132,14 @@ public class DB {
    * @return a new DB instance
    * @throws ManagedProcessException if something fatal went wrong
    */
-  public static DB newEmbeddedDB(int port) throws ManagedProcessException {
+  public static MariaDB newEmbeddedDB(int port) throws ManagedProcessException {
     DBConfigurationBuilder config = new DBConfigurationBuilder();
     config.setPort(port);
     return newEmbeddedDB(config.build());
   }
 
   protected ManagedProcess createDBInstallProcess() throws ManagedProcessException, IOException {
-    logger.info("Installing a new embedded database to: " + baseDir);
+    logger.info("Installing a new embedded database to: {}", baseDir);
     File installDbCmdFile = configuration.getExecutable(Executable.InstallDB);
     ManagedProcessBuilder builder = new ManagedProcessBuilder(installDbCmdFile);
     builder.setOutputStreamLogDispatcher(getOutputStreamLogDispatcher("mysql_install_db"));
@@ -246,7 +247,7 @@ public class DB {
     // because cleanupOnExit() just installed our (class DB) own
     // Shutdown hook, we don't need the one from ManagedProcess:
     builder.setDestroyOnShutdown(false);
-    logger.info("mysqld executable: " + builder.getExecutable());
+    logger.info("mysqld executable: {}", builder.getExecutable());
     return builder.build();
   }
 
@@ -526,7 +527,7 @@ public class DB {
       throw new ManagedProcessException(
               "An error occurred while running a " + logInfoText, e);
     }
-    logger.info("Successfully ran the " + logInfoText);
+    logger.info("Successfully ran the {}", logInfoText);
   }
 
   /**
@@ -627,9 +628,9 @@ public class DB {
    */
   protected void cleanupOnExit() {
     String threadName = "Shutdown Hook Deletion Thread for Temporary DB " + dataDir.toString();
-    final DB db = this;
+    final MariaDB mariaDb = this;
     Runtime.getRuntime().addShutdownHook(new DBShutdownHook(
-            threadName, db,
+            threadName, mariaDb,
             () -> mysqldProcess,
             () -> baseDir,
             () -> dataDir,

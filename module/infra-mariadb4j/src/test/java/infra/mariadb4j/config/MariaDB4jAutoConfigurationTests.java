@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.mariadb4j.DB;
+import infra.mariadb4j.MariaDB;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -20,6 +20,6 @@ class MariaDB4jAutoConfigurationTests {
 
   @Test
   public void shouldAutoConfigureEmbeddedMariaDB() {
-    contextRunner.run(context -> assertFalse(context.getBeansOfType(DB.class).isEmpty()));
+    contextRunner.run(context -> assertFalse(context.getBeansOfType(MariaDB.class).isEmpty()));
   }
 }
