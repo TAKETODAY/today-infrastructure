@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  * beans to handle dependency requirements defined by {@code @RequiredBy}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see RequiredBy
  * @since 5.0 2026/3/24 23:27
  */
 @Target(ElementType.TYPE)
