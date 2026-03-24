@@ -112,10 +112,6 @@ class TestRestTemplateContextCustomizer implements ContextCustomizer {
 
     }
 
-    @Override
-    public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
-    }
-
   }
 
   /**

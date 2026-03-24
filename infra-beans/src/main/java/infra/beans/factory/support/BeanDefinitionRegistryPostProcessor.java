@@ -54,7 +54,6 @@ public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProc
    */
   @Override
   default void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
-
   }
 
 }
