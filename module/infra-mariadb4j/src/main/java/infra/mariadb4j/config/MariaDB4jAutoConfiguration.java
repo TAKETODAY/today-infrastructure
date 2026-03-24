@@ -24,14 +24,14 @@ import java.nio.file.Path;
 import javax.sql.DataSource;
 
 import ch.vorburger.exec.ManagedProcessException;
-import infra.context.annotation.DependsOn;
+import infra.context.annotation.EnableRequiredBy;
+import infra.context.annotation.RequiredBy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
 import infra.jdbc.config.DataSourceAutoConfiguration;
-import infra.jdbc.config.DataSourceBuilder;
 import infra.jdbc.config.DataSourceProperties;
 import infra.mariadb4j.DBConfigurationBuilder;
 import infra.mariadb4j.MariaDB;
@@ -50,24 +50,15 @@ import infra.util.PropertyMapper;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
+@EnableRequiredBy
 @DisableDIAutoConfiguration(before = DataSourceAutoConfiguration.class)
 @ConditionalOnBooleanProperty(name = "mariadb4j.enabled", matchIfMissing = true)
 @EnableConfigurationProperties({ DataSourceProperties.class, MariaDB4jProperties.class })
 public final class MariaDB4jAutoConfiguration {
 
   @Component
-  @DependsOn("mariadb")
-  public static DataSource dataSource(DataSourceProperties properties) {
-    return DataSourceBuilder.create()
-            .driverClassName(properties.getDriverClassName())
-            .url(properties.getUrl())
-            .username(properties.getUsername())
-            .password(properties.getPassword())
-            .build();
-  }
-
-  @Component
   @ConditionalOnMissingBean
+  @RequiredBy(types = DataSource.class)
   public static MariaDB mariadb(MariaDB4jProperties properties, @Nullable ApplicationTemp applicationTemp) throws ManagedProcessException {
     if (applicationTemp == null) {
       applicationTemp = ApplicationTemp.instance;

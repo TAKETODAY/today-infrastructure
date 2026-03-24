@@ -20,7 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import ch.vorburger.exec.ManagedProcessException;
 import infra.context.Lifecycle;
-import infra.stereotype.Component;
 
 /**
  * Lifecycle implementation for managing an embedded MariaDB instance using MariaDB4j.
@@ -30,7 +29,6 @@ import infra.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/3/22 09:22
  */
-@Component
 public class MariaDB4jLifecycle implements Lifecycle {
 
   @Nullable MariaDB mariaDb;
