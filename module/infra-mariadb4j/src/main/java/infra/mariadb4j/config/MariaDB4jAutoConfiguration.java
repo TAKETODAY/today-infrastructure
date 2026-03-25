@@ -78,7 +78,9 @@ public final class MariaDB4jAutoConfiguration {
     mapper.from(properties.libDir).as(File::new).to(builder::setLibDir);
     mapper.from(properties.baseDir).as(File::new).orFrom(basePath::toFile).to(builder::setBaseDir);
 
-    return MariaDB.newEmbeddedDB(builder.build());
+    MariaDB mariaDB = MariaDB.newEmbeddedDB(builder.build());
+    mariaDB.start();
+    return mariaDB;
   }
 
   @Component

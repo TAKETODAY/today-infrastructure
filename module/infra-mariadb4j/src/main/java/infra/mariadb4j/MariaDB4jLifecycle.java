@@ -31,21 +31,24 @@ import infra.context.Lifecycle;
  */
 public class MariaDB4jLifecycle implements Lifecycle {
 
-  @Nullable MariaDB mariaDb;
+  @Nullable MariaDB mariadb;
 
-  private ManagedProcessException lastException;
+  private volatile boolean running;
 
-  public MariaDB4jLifecycle(@Nullable MariaDB mariaDb) {
-    this.mariaDb = mariaDb;
+  private @Nullable ManagedProcessException lastException;
+
+  public MariaDB4jLifecycle(@Nullable MariaDB mariadb) {
+    this.mariadb = mariadb;
   }
 
   /** {@inheritDoc} */
   @Override
   public void start() {
     try {
-      if (mariaDb != null) {
-        mariaDb.start();
+      if (mariadb != null && !mariadb.isReady()) {
+        mariadb.start();
       }
+      running = true;
     }
     catch (ManagedProcessException e) {
       lastException = e;
@@ -57,10 +60,10 @@ public class MariaDB4jLifecycle implements Lifecycle {
   @Override
   public void stop() {
     try {
-      if (mariaDb != null) {
-        mariaDb.stop();
+      if (mariadb != null) {
+        mariadb.stop();
       }
-      mariaDb = null;
+      running = false;
     }
     catch (ManagedProcessException e) {
       lastException = e;
@@ -70,10 +73,10 @@ public class MariaDB4jLifecycle implements Lifecycle {
 
   @Override
   public boolean isRunning() {
-    return mariaDb != null;
+    return running || (mariadb != null && mariadb.isReady());
   }
 
-  public ManagedProcessException getLastException() {
+  public @Nullable ManagedProcessException getLastException() {
     return lastException;
   }
 

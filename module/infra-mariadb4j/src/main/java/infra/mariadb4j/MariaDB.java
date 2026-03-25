@@ -25,6 +25,7 @@ package infra.mariadb4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -72,9 +73,12 @@ public class MariaDB {
   private File libDir;
   private File dataDir;
   private File tmpDir;
-  private ManagedProcess mysqldProcess;
+
+  private @Nullable ManagedProcess mysqldProcess;
 
   protected int dbStartMaxWaitInMS = 30000;
+
+  volatile boolean ready;
 
   protected MariaDB(DBConfiguration config) {
     configuration = config;
@@ -184,12 +188,9 @@ public class MariaDB {
    */
   public synchronized void start() throws ManagedProcessException {
     logger.info("Starting up the database...");
-    boolean ready = false;
     try {
       mysqldProcess = startPreparation();
-      ready =
-              mysqldProcess.startAndWaitForConsoleMessageMaxMs(
-                      getReadyForConnectionsTag(), dbStartMaxWaitInMS);
+      ready = mysqldProcess.startAndWaitForConsoleMessageMaxMs(getReadyForConnectionsTag(), dbStartMaxWaitInMS);
     }
     catch (Exception e) {
       logger.error("failed to start mysqld", e);
@@ -200,13 +201,14 @@ public class MariaDB {
         mysqldProcess.destroy();
       }
       throw new ManagedProcessException(
-              "Database does not seem to have started up correctly? Magic string not seen in "
-                      + dbStartMaxWaitInMS
-                      + "ms: "
-                      + getReadyForConnectionsTag()
-                      + mysqldProcess.getLastConsoleLines());
+              "Database does not seem to have started up correctly? Magic string not seen in %dms: %s%s"
+                      .formatted(dbStartMaxWaitInMS, getReadyForConnectionsTag(), mysqldProcess != null ? mysqldProcess.getLastConsoleLines() : ""));
     }
     logger.info("Database startup complete.");
+  }
+
+  boolean isReady() {
+    return ready;
   }
 
   protected String getReadyForConnectionsTag() {
@@ -563,6 +565,7 @@ public class MariaDB {
    * @throws ManagedProcessException if something fatal went wrong
    */
   public synchronized void stop() throws ManagedProcessException {
+    ready = false;
     if (mysqldProcess != null && mysqldProcess.isAlive()) {
       logger.debug("Stopping the database...");
       mysqldProcess.destroy();
