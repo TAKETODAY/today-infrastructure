@@ -42,7 +42,7 @@ public class ClasspathUnpackerTest {
 
   @Test
   public void testClasspathUnpackerFromUniqueClasspath() throws IOException {
-    File toDir = new File("target/testUnpack1");
+    File toDir = new File("build/testUnpack1");
     FileUtils.deleteDirectory(toDir);
     Util.extractFromClasspathToFile("org/apache/commons/exec", toDir);
     assertTrue(new File(toDir, "CommandLine.class").exists());
@@ -52,7 +52,7 @@ public class ClasspathUnpackerTest {
   @Disabled
   // Not yet implemented... not really important
   public void testClasspathUnpackerFromDuplicateClasspath() throws IOException {
-    File toDir = new File("target/testUnpack3");
+    File toDir = new File("build/testUnpack3");
     FileUtils.deleteDirectory(toDir);
     assertThrows(
             IOException.class,
@@ -63,7 +63,7 @@ public class ClasspathUnpackerTest {
 
   @Test
   public void testClasspathUnpackerFromFilesystem() throws IOException {
-    File toDir = new File("target/testUnpack3");
+    File toDir = new File("build/testUnpack3");
     FileUtils.deleteDirectory(toDir);
     int c1 = Util.extractFromClasspathToFile("test", toDir);
     assertEquals(3, c1);
@@ -78,7 +78,7 @@ public class ClasspathUnpackerTest {
 
   @Test
   public void testClasspathUnpackerPathDoesNotExist() throws IOException {
-    File toDir = new File("target/testUnpack4");
+    File toDir = new File("build/testUnpack4");
     FileUtils.deleteDirectory(toDir);
     assertThrows(
             IOException.class,
@@ -89,7 +89,7 @@ public class ClasspathUnpackerTest {
 
   @Test
   public void testClasspathUnpackerPackageExistsButIsEmpty() throws IOException {
-    File toDir = new File("target/testUnpack4");
+    File toDir = new File("build/testUnpack4");
     FileUtils.deleteDirectory(toDir);
     assertThrows(
             IOException.class,
