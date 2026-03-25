@@ -338,7 +338,7 @@ public class DBConfigurationBuilder {
       String portStr = String.valueOf(getPort());
       // Use /tmp instead getBaseDir() here, else we too easily hit
       // the "mysqld ERROR The socket file path is too long (> 107)" issue
-      return ApplicationTemp.instance.getDir("/MariaDB4j." + portStr + ".sock").toFile();
+      return ApplicationTemp.instance.getDir("MariaDB4j").resolve(portStr + ".sock").toFile();
     }
     return new File(socket);
   }
