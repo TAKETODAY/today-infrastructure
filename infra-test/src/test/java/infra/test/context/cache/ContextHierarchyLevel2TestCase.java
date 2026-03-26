@@ -24,13 +24,13 @@ import infra.test.context.ContextHierarchy;
 
 /**
  * @author Sam Brannen
- * @since 7.0
+ * @since 5.0
  */
 @ContextHierarchy(@ContextConfiguration)
 class ContextHierarchyLevel2TestCase extends ContextHierarchyLevel1TestCase {
 
-	@Configuration
-	static class Level2Config {
-	}
+  @Configuration
+  static class Level2Config {
+  }
 
 }

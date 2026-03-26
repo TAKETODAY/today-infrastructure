@@ -18,6 +18,9 @@
 
 package infra.test.context.cache;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import infra.context.ApplicationEvent;
 import infra.context.event.ApplicationContextEvent;
 import infra.context.event.ContextClosedEvent;
@@ -30,61 +33,57 @@ import infra.test.context.event.TestContextEvent;
 import infra.test.context.event.annotation.AfterTestClass;
 import infra.test.context.event.annotation.BeforeTestClass;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Sam Brannen
- * @since 7.0
+ * @since 5.0
  */
 @Component
 class EventTracker {
 
-	static final List<String> events = new ArrayList<>();
+  static final List<String> events = new ArrayList<>();
 
+  @EventListener(ContextRefreshedEvent.class)
+  public void contextRefreshed(ContextRefreshedEvent event) {
+    trackApplicationContextEvent(event);
+  }
 
-	@EventListener(ContextRefreshedEvent.class)
-	void contextRefreshed(ContextRefreshedEvent event) {
-		trackApplicationContextEvent(event);
-	}
+  @EventListener(ContextRestartedEvent.class)
+  public void contextRestarted(ContextRestartedEvent event) {
+    trackApplicationContextEvent(event);
+  }
 
-	@EventListener(ContextRestartedEvent.class)
-	void contextRestarted(ContextRestartedEvent event) {
-		trackApplicationContextEvent(event);
-	}
+  @EventListener(ContextPausedEvent.class)
+  public void contextPaused(ContextPausedEvent event) {
+    trackApplicationContextEvent(event);
+  }
 
-	@EventListener(ContextPausedEvent.class)
-	void contextPaused(ContextPausedEvent event) {
-		trackApplicationContextEvent(event);
-	}
+  @EventListener(ContextClosedEvent.class)
+  public void contextClosed(ContextClosedEvent event) {
+    trackApplicationContextEvent(event);
+  }
 
-	@EventListener(ContextClosedEvent.class)
-	void contextClosed(ContextClosedEvent event) {
-		trackApplicationContextEvent(event);
-	}
+  @BeforeTestClass
+  public void beforeTestClass(TestContextEvent event) {
+    trackTestContextEvent(event);
+  }
 
-	@BeforeTestClass
-	void beforeTestClass(TestContextEvent event) {
-		trackTestContextEvent(event);
-	}
+  @AfterTestClass
+  public void afterTestClass(TestContextEvent event) {
+    trackTestContextEvent(event);
+  }
 
-	@AfterTestClass
-	void afterTestClass(TestContextEvent event) {
-		trackTestContextEvent(event);
-	}
+  private static void trackApplicationContextEvent(ApplicationContextEvent event) {
+    events.add(eventName(event) + ":" + event.getSource().getDisplayName());
+  }
 
-	private static void trackApplicationContextEvent(ApplicationContextEvent event) {
-		events.add(eventName(event) + ":" + event.getSource().getDisplayName());
-	}
+  private static void trackTestContextEvent(TestContextEvent event) {
+    events.add(eventName(event) + ":" +
+            event.getSource().getTestClass().getSimpleName());
+  }
 
-	private static void trackTestContextEvent(TestContextEvent event) {
-		events.add(eventName(event) + ":" +
-				event.getSource().getTestClass().getSimpleName());
-	}
-
-	private static String eventName(ApplicationEvent event) {
-		String name = event.getClass().getSimpleName();
-		return name.substring(0, name.length() - "Event".length());
-	}
+  private static String eventName(ApplicationEvent event) {
+    String name = event.getClass().getSimpleName();
+    return name.substring(0, name.length() - "Event".length());
+  }
 
 }

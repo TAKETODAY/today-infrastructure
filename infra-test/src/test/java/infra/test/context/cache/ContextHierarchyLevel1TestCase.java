@@ -19,6 +19,7 @@
 package infra.test.context.cache;
 
 import org.junit.jupiter.api.Test;
+
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.test.context.ContextCustomizerFactories;
@@ -26,20 +27,20 @@ import infra.test.context.junit.jupiter.JUnitConfig;
 
 /**
  * @author Sam Brannen
- * @since 7.0
+ * @since 5.0
  */
 @JUnitConfig
 @ContextCustomizerFactories(DisplayNameCustomizerFactory.class)
 class ContextHierarchyLevel1TestCase {
 
-	@Test
-	void test() {
-		// no-op
-	}
+  @Test
+  void test() {
+    // no-op
+  }
 
-	@Configuration
-	@Import(EventTracker.class)
-	static class Level1Config {
-	}
+  @Configuration
+  @Import(EventTracker.class)
+  static class Level1Config {
+  }
 
 }

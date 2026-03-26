@@ -43,7 +43,7 @@ import org.junit.platform.suite.api.Suite;
  * </pre>
  *
  * @author Sam Brannen
- * @since 7.0.3
+ * @since 5.0
  */
 @Suite
 @IncludeEngines("junit-jupiter")
@@ -51,8 +51,8 @@ import org.junit.platform.suite.api.Suite;
 @IncludeClassNamePatterns(".*Tests$")
 @ExcludeTags("failing-test-case")
 @ConfigurationParameter(
-	key = ClassOrderer.DEFAULT_ORDER_PROPERTY_NAME,
-	value = "org.junit.jupiter.api.ClassOrderer$ClassName"
+        key = ClassOrderer.DEFAULT_ORDER_PROPERTY_NAME,
+        value = "org.junit.jupiter.api.ClassOrderer$ClassName"
 )
 class ContextCacheTestSuite {
 }

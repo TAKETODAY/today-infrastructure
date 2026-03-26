@@ -19,6 +19,9 @@
 package infra.test.context.cache;
 
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+
 import infra.context.ConfigurableApplicationContext;
 import infra.context.support.AbstractApplicationContext;
 import infra.test.context.ContextConfigurationAttributes;
@@ -26,44 +29,41 @@ import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.MergedContextConfiguration;
 
-import java.util.List;
-
 /**
  * @author Sam Brannen
- * @since 7.0
+ * @since 5.0
  */
 class DisplayNameCustomizerFactory implements ContextCustomizerFactory {
 
-	@Override
-	public ContextCustomizer createContextCustomizer(Class<?> testClass,
-			List<ContextConfigurationAttributes> configAttributes) {
+  @Override
+  public ContextCustomizer createContextCustomizer(Class<?> testClass,
+          List<ContextConfigurationAttributes> configAttributes) {
 
-		return new DisplayNameCustomizer(testClass.getSimpleName());
-	}
+    return new DisplayNameCustomizer(testClass.getSimpleName());
+  }
 
+  private static class DisplayNameCustomizer implements ContextCustomizer {
 
-	private static class DisplayNameCustomizer implements ContextCustomizer {
+    private final String displayName;
 
-		private final String displayName;
+    DisplayNameCustomizer(String displayName) {
+      this.displayName = displayName;
+    }
 
-		DisplayNameCustomizer(String displayName) {
-			this.displayName = displayName;
-		}
+    @Override
+    public void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
+      ((AbstractApplicationContext) context).setDisplayName(this.displayName);
+    }
 
-		@Override
-		public void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
-			((AbstractApplicationContext) context).setDisplayName(this.displayName);
-		}
+    @Override
+    public boolean equals(@Nullable Object other) {
+      return (this == other || (other != null && getClass() == other.getClass()));
+    }
 
-		@Override
-		public boolean equals(@Nullable Object other) {
-			return (this == other || (other != null && getClass() == other.getClass()));
-		}
-
-		@Override
-		public int hashCode() {
-			return getClass().hashCode();
-		}
-	}
+    @Override
+    public int hashCode() {
+      return getClass().hashCode();
+    }
+  }
 
 }

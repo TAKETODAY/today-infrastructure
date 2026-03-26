@@ -23,7 +23,7 @@ import infra.test.context.ContextHierarchy;
 
 /**
  * @author Sam Brannen
- * @since 7.0
+ * @since 5.0
  */
 @ContextHierarchy(@ContextConfiguration(classes = ContextHierarchyLevel3a1TestCase.Level3a1Config.class))
 class ContextHierarchyLevel3a2TestCase extends ContextHierarchyLevel2TestCase {
