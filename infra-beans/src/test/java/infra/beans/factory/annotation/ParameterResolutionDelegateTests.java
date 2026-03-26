@@ -41,26 +41,26 @@ import static org.mockito.Mockito.mock;
 class ParameterResolutionDelegateTests {
 
   @Test
-  public void isAutowirablePreconditions() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    ParameterResolutionDelegate.isAutowirable(null, 0))
+  void isAutowirablePreconditions() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.isAutowirable(null, 0))
             .withMessageContaining("Parameter is required");
   }
 
   @Test
-  public void annotatedParametersInMethodAreCandidatesForAutowiring() throws Exception {
+  void annotatedParametersInMethodAreCandidatesForAutowiring() throws Exception {
     Method method = getClass().getDeclaredMethod("autowirableMethod", String.class, String.class, String.class, String.class);
     assertAutowirableParameters(method);
   }
 
   @Test
-  public void annotatedParametersInTopLevelClassConstructorAreCandidatesForAutowiring() throws Exception {
+  void annotatedParametersInTopLevelClassConstructorAreCandidatesForAutowiring() throws Exception {
     Constructor<?> constructor = AutowirableClass.class.getConstructor(String.class, String.class, String.class, String.class);
     assertAutowirableParameters(constructor);
   }
 
   @Test
-  public void annotatedParametersInInnerClassConstructorAreCandidatesForAutowiring() throws Exception {
+  void annotatedParametersInInnerClassConstructorAreCandidatesForAutowiring() throws Exception {
     Class<?> innerClass = AutowirableClass.InnerAutowirableClass.class;
     assertThat(ClassUtils.isInnerClass(innerClass)).isTrue();
     Constructor<?> constructor = innerClass.getConstructor(AutowirableClass.class, String.class, String.class);
@@ -68,8 +68,8 @@ class ParameterResolutionDelegateTests {
   }
 
   private void assertAutowirableParameters(Executable executable) {
-    int startIndex = (executable instanceof Constructor)
-                             && ClassUtils.isInnerClass(executable.getDeclaringClass()) ? 1 : 0;
+    int startIndex = (executable instanceof Constructor) &&
+            ClassUtils.isInnerClass(executable.getDeclaringClass()) ? 1 : 0;
     Parameter[] parameters = executable.getParameters();
     for (int parameterIndex = startIndex; parameterIndex < parameters.length; parameterIndex++) {
       Parameter parameter = parameters[parameterIndex];
@@ -78,34 +78,35 @@ class ParameterResolutionDelegateTests {
   }
 
   @Test
-  public void nonAnnotatedParametersInTopLevelClassConstructorAreNotCandidatesForAutowiring() throws Exception {
+  void nonAnnotatedParametersInTopLevelClassConstructorAreNotCandidatesForAutowiring() throws Exception {
     Constructor<?> notAutowirableConstructor = AutowirableClass.class.getConstructor(String.class);
 
     Parameter[] parameters = notAutowirableConstructor.getParameters();
     for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
       Parameter parameter = parameters[parameterIndex];
-      assertThat(ParameterResolutionDelegate.isAutowirable(parameter, parameterIndex)).as("Parameter " + parameter + " must not be autowirable").isFalse();
+      assertThat(ParameterResolutionDelegate.isAutowirable(parameter, parameterIndex))
+              .as("Parameter " + parameter + " must not be autowirable").isFalse();
     }
   }
 
   @Test
-  public void resolveDependencyPreconditionsForParameter() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    ParameterResolutionDelegate.resolveDependency(null, 0, null, mock(AutowireCapableBeanFactory.class)))
+  void resolveDependencyPreconditionsForParameter() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.resolveDependency(null, 0, null, mock()))
             .withMessageContaining("Parameter is required");
   }
 
   @Test
-  public void resolveDependencyPreconditionsForContainingClass() throws Exception {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    ParameterResolutionDelegate.resolveDependency(getParameter(), 0, null, null))
+  void resolveDependencyPreconditionsForContainingClass() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.resolveDependency(getParameter(), 0, null, null))
             .withMessageContaining("Containing class is required");
   }
 
   @Test
-  public void resolveDependencyPreconditionsForBeanFactory() throws Exception {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    ParameterResolutionDelegate.resolveDependency(getParameter(), 0, getClass(), null))
+  void resolveDependencyPreconditionsForBeanFactory() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.resolveDependency(getParameter(), 0, getClass(), null))
             .withMessageContaining("AutowireCapableBeanFactory is required");
   }
 
@@ -115,10 +116,10 @@ class ParameterResolutionDelegateTests {
   }
 
   @Test
-  public void resolveDependencyForAnnotatedParametersInTopLevelClassConstructor() throws Exception {
+  void resolveDependencyForAnnotatedParametersInTopLevelClassConstructor() throws Exception {
     Constructor<?> constructor = AutowirableClass.class.getConstructor(String.class, String.class, String.class, String.class);
 
-    AutowireCapableBeanFactory beanFactory = mock(AutowireCapableBeanFactory.class);
+    AutowireCapableBeanFactory beanFactory = mock();
     // Configure the mocked BeanFactory to return the DependencyDescriptor for convenience and
     // to avoid using an ArgumentCaptor.
     given(beanFactory.resolveDependency(any(), isNull())).willAnswer(invocation -> invocation.getArgument(0));
@@ -130,7 +131,62 @@ class ParameterResolutionDelegateTests {
               parameter, parameterIndex, AutowirableClass.class, beanFactory);
       assertThat(intermediateDependencyDescriptor.getAnnotatedElement()).isEqualTo(constructor);
       assertThat(intermediateDependencyDescriptor.getMethodParameter().getParameter()).isEqualTo(parameter);
+      assertThat(intermediateDependencyDescriptor.usesStandardBeanLookup()).isTrue();
     }
+  }
+
+  @Test
+  void resolveDependencyWithCustomParameterNamePreconditionsForParameter() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.resolveDependency(null, 0, "customName", getClass(), mock()))
+            .withMessageContaining("Parameter is required");
+  }
+
+  @Test
+  void resolveDependencyWithCustomParameterNamePreconditionsForContainingClass() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.resolveDependency(getParameter(), 0, "customName", null, mock()))
+            .withMessageContaining("Containing class is required");
+  }
+
+  @Test
+  void resolveDependencyWithCustomParameterNamePreconditionsForBeanFactory() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ParameterResolutionDelegate.resolveDependency(getParameter(), 0, "customName", getClass(), null))
+            .withMessageContaining("AutowireCapableBeanFactory is required");
+  }
+
+  @Test
+  void resolveDependencyWithNullCustomParameterNameFallsBackToDefaultParameterNameDiscovery() throws Exception {
+    Constructor<?> constructor = AutowirableClass.class.getConstructor(String.class, String.class, String.class, String.class);
+    AutowireCapableBeanFactory beanFactory = mock();
+    given(beanFactory.resolveDependency(any(), isNull())).willAnswer(invocation -> invocation.getArgument(0));
+
+    Parameter[] parameters = constructor.getParameters();
+    for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
+      Parameter parameter = parameters[parameterIndex];
+      DependencyDescriptor via4ArgMethod = (DependencyDescriptor) ParameterResolutionDelegate.resolveDependency(
+              parameter, parameterIndex, AutowirableClass.class, beanFactory);
+      DependencyDescriptor via5ArgMethod = (DependencyDescriptor) ParameterResolutionDelegate.resolveDependency(
+              parameter, parameterIndex, null, AutowirableClass.class, beanFactory);
+      assertThat(via5ArgMethod.getDependencyName()).isEqualTo(via4ArgMethod.getDependencyName());
+    }
+  }
+
+  @Test
+  void resolveDependencyWithCustomParameterName() throws Exception {
+    Constructor<?> constructor = AutowirableClass.class.getConstructor(String.class, String.class, String.class, String.class);
+    AutowireCapableBeanFactory beanFactory = mock();
+    given(beanFactory.resolveDependency(any(), isNull())).willAnswer(invocation -> invocation.getArgument(0));
+
+    Parameter parameter = constructor.getParameters()[0];
+    DependencyDescriptor descriptor = (DependencyDescriptor) ParameterResolutionDelegate.resolveDependency(
+            parameter, 0, "customBeanName", AutowirableClass.class, beanFactory);
+
+    assertThat(descriptor.getAnnotatedElement()).isEqualTo(constructor);
+    assertThat(descriptor.getMethodParameter().getParameter()).isEqualTo(parameter);
+    assertThat(descriptor.getDependencyName()).isEqualTo("customBeanName");
+    assertThat(descriptor.usesStandardBeanLookup()).isTrue();
   }
 
   void autowirableMethod(
