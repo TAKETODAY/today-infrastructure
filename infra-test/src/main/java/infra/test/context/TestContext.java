@@ -42,6 +42,7 @@ import infra.test.annotation.DirtiesContext.HierarchyMode;
  * that executes tests concurrently.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see TestContextManager
  * @see TestExecutionListener
  * @since 4.0
@@ -54,7 +55,8 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * Determine if the {@linkplain ApplicationContext application context} for
    * this test context is known to be available.
    * <p>If this method returns {@code true}, a subsequent invocation of
-   * {@link #getApplicationContext()} should succeed.
+   * {@link #getApplicationContext()} or {@link #markApplicationContextUnused()}
+   * should succeed.
    * <p>The default implementation of this method always returns {@code false}.
    * Custom {@code TestContext} implementations are therefore highly encouraged
    * to override this method with a more meaningful implementation. Note that
@@ -63,6 +65,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    *
    * @return {@code true} if the application context has already been loaded
    * @see #getApplicationContext()
+   * @see #markApplicationContextUnused()
    */
   default boolean hasApplicationContext() {
     return false;
@@ -79,6 +82,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @throws IllegalStateException if an error occurs while retrieving the
    * application context
    * @see #hasApplicationContext()
+   * @see #markApplicationContextUnused()
    */
   ApplicationContext getApplicationContext();
 
@@ -92,6 +96,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @param eventFactory factory for lazy creation of the {@code ApplicationEvent}
    * @see #hasApplicationContext()
    * @see #getApplicationContext()
+   * @since 5.2
    */
   default void publishEvent(Function<TestContext, ? extends ApplicationEvent> eventFactory) {
     if (hasApplicationContext()) {
@@ -101,8 +106,23 @@ public interface TestContext extends AttributeAccessor, Serializable {
 
   /**
    * Get the {@linkplain Class test class} for this test context.
+   * <p>Since JUnit Jupiter 5.12, if the
+   * {@link infra.test.context.junit.jupiter.InfraExtension
+   * InfraExtension} is used with a {@linkplain
+   * org.junit.jupiter.api.extension.TestInstantiationAwareExtension.ExtensionContextScope#TEST_METHOD
+   * test-method scoped} {@link org.junit.jupiter.api.extension.ExtensionContext
+   * ExtensionContext}, the {@code Class} returned from this method may refer
+   * to the test class for the current {@linkplain #getTestMethod() test method},
+   * which may be a {@link org.junit.jupiter.api.Nested @Nested} test class
+   * within the class for the {@linkplain #getTestInstance() test instance}.
+   * Thus, if you need consistent access to the class for the current test
+   * instance within an implementation of
+   * {@link TestExecutionListener#prepareTestInstance(TestContext)}, you should
+   * invoke {@code testContext.getTestInstance().getClass()} instead of
+   * {@code testContext.getTestClass()}.
    *
    * @return the test class (never {@code null})
+   * @see infra.test.context.junit.jupiter.InfraExtensionConfig @InfraExtensionConfig
    */
   Class<?> getTestClass();
 
@@ -132,8 +152,25 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @return the exception that was thrown, or {@code null} if no exception was thrown
    * @see #updateState(Object, Method, Throwable)
    */
-  @Nullable
-  Throwable getTestException();
+  @Nullable Throwable getTestException();
+
+  /**
+   * Call this method to signal that the {@linkplain #getTestClass() test class}
+   * is no longer using the {@linkplain ApplicationContext application context}
+   * associated with this test context.
+   * <p>This informs the context cache that the application context can be safely
+   * {@linkplain infra.context.ConfigurableApplicationContext#pause() paused}
+   * if no other test classes are actively using the same application context.
+   * <p>This method is intended to be invoked after execution of the test class
+   * has ended and should not be invoked unless the application context for this
+   * test context is known to be {@linkplain #hasApplicationContext() available}.
+   * <p>This feature is primarily intended for use within the framework.
+   *
+   * @see TestContextManager#afterTestClass()
+   * @since 5.0
+   */
+  default void markApplicationContextUnused() {
+  }
 
   /**
    * Call this method to signal that the {@linkplain ApplicationContext application
@@ -161,5 +198,30 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * or {@code null} if no exception was thrown
    */
   void updateState(@Nullable Object testInstance, @Nullable Method testMethod, @Nullable Throwable testException);
+
+  /**
+   * Set the {@link MethodInvoker} to use.
+   * <p>By default, this method does nothing.
+   * <p>Concrete implementations should track the supplied {@code MethodInvoker}
+   * and return it from {@link #getMethodInvoker()}. Note that the standard
+   * {@code TestContext} implementation in Infra overrides this method appropriately.
+   *
+   * @since 5.0
+   */
+  default void setMethodInvoker(MethodInvoker methodInvoker) {
+  }
+
+  /**
+   * Get the {@link MethodInvoker} to use.
+   * <p>By default, this method returns {@link MethodInvoker#DEFAULT_INVOKER}.
+   * <p>Concrete implementations should return the {@code MethodInvoker} supplied
+   * to {@link #setMethodInvoker(MethodInvoker)}. Note that the standard
+   * {@code TestContext} implementation in Infra overrides this method appropriately.
+   *
+   * @since 5.0
+   */
+  default MethodInvoker getMethodInvoker() {
+    return MethodInvoker.DEFAULT_INVOKER;
+  }
 
 }

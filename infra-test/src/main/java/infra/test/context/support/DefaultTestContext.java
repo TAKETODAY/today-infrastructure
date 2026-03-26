@@ -34,6 +34,7 @@ import infra.lang.Assert;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.MergedContextConfiguration;
+import infra.test.context.MethodInvoker;
 import infra.test.context.TestContext;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
@@ -60,14 +61,13 @@ public class DefaultTestContext implements TestContext {
 
   private final Class<?> testClass;
 
-  @Nullable
-  private volatile Object testInstance;
+  private volatile @Nullable Object testInstance;
 
-  @Nullable
-  private volatile Method testMethod;
+  private volatile @Nullable Method testMethod;
 
-  @Nullable
-  private volatile Throwable testException;
+  private volatile @Nullable Throwable testException;
+
+  private volatile MethodInvoker methodInvoker = MethodInvoker.DEFAULT_INVOKER;
 
   /**
    * <em>Copy constructor</em> for creating a new {@code DefaultTestContext}
@@ -133,7 +133,7 @@ public class DefaultTestContext implements TestContext {
   public ApplicationContext getApplicationContext() {
     ApplicationContext context = this.cacheAwareContextLoaderDelegate.loadContext(this.mergedConfig);
     if (context instanceof ConfigurableApplicationContext cac) {
-      Assert.state(cac.isActive(), """
+      Assert.state(cac.isActive(), () -> """
               The ApplicationContext loaded for %s is not active. \
               This may be due to one of the following reasons: \
               1) the context was closed programmatically by user code; \
@@ -142,7 +142,23 @@ public class DefaultTestContext implements TestContext {
               from the ContextCache due to a maximum cache size policy."""
               .formatted(mergedConfig));
     }
+    this.cacheAwareContextLoaderDelegate.registerContextUsage(this.mergedConfig, this.testClass);
     return context;
+  }
+
+  /**
+   * Mark the {@linkplain ApplicationContext application context} associated
+   * with this test context as <em>unused</em> so that it can be safely
+   * {@linkplain infra.context.ConfigurableApplicationContext#pause() paused}
+   * if no other test classes are actively using the same application context.
+   * <p>The default implementation delegates to the {@link CacheAwareContextLoaderDelegate}
+   * that was supplied when this {@code TestContext} was constructed.
+   *
+   * @see CacheAwareContextLoaderDelegate#unregisterContextUsage(MergedContextConfiguration, Class)
+   */
+  @Override
+  public void markApplicationContextUnused() {
+    this.cacheAwareContextLoaderDelegate.unregisterContextUsage(this.mergedConfig, this.testClass);
   }
 
   /**
@@ -179,8 +195,7 @@ public class DefaultTestContext implements TestContext {
   }
 
   @Override
-  @Nullable
-  public final Throwable getTestException() {
+  public final @Nullable Throwable getTestException() {
     return this.testException;
   }
 
@@ -189,6 +204,17 @@ public class DefaultTestContext implements TestContext {
     this.testInstance = testInstance;
     this.testMethod = testMethod;
     this.testException = testException;
+  }
+
+  @Override
+  public final void setMethodInvoker(MethodInvoker methodInvoker) {
+    Assert.notNull(methodInvoker, "MethodInvoker is required");
+    this.methodInvoker = methodInvoker;
+  }
+
+  @Override
+  public final MethodInvoker getMethodInvoker() {
+    return this.methodInvoker;
   }
 
   @Override
@@ -227,7 +253,7 @@ public class DefaultTestContext implements TestContext {
     Assert.notNull(computeFunction, "Compute function is required");
     Object value = this.attributes.computeIfAbsent(name, computeFunction);
     Assert.state(value != null,
-            () -> String.format("Compute function must not return null for attribute named '%s'", name));
+            () -> "Compute function must not return null for attribute named '%s'".formatted(name));
     return (T) value;
   }
 
@@ -280,7 +306,7 @@ public class DefaultTestContext implements TestContext {
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
+    return ToStringBuilder.forInstance(this)
             .append("testClass", this.testClass)
             .append("testInstance", this.testInstance)
             .append("testMethod", this.testMethod)

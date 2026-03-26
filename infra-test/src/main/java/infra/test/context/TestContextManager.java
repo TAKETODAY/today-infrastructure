@@ -24,15 +24,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.test.context.junit4.rules.InfraMethodRule;
-import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.util.ClassUtils;
+import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 
 /**
@@ -97,7 +95,7 @@ public class TestContextManager {
 
   private static final Logger log = LoggerFactory.getLogger(TestContextManager.class);
 
-  private static final Set<Class<? extends Throwable>> skippedExceptionTypes = new LinkedHashSet<>(4);
+  private static final Set<Class<? extends Throwable>> skippedExceptionTypes = CollectionUtils.newLinkedHashSet(3);
 
   static {
     // JUnit Jupiter
@@ -121,7 +119,7 @@ public class TestContextManager {
    * {@link BootstrapWith @BootstrapWith} annotation is present on the test
    * class, either directly or as a meta-annotation, then its
    * {@link BootstrapWith#value value} will be used as the bootstrapper type;
-   * otherwise, the {@link DefaultTestContextBootstrapper
+   * otherwise, the {@link infra.test.context.support.DefaultTestContextBootstrapper
    * DefaultTestContextBootstrapper} will be used.
    *
    * @param testClass the test class to be managed
@@ -173,7 +171,7 @@ public class TestContextManager {
   public void registerTestExecutionListeners(TestExecutionListener... testExecutionListeners) {
     for (TestExecutionListener listener : testExecutionListeners) {
       if (log.isTraceEnabled()) {
-        log.trace("Registering TestExecutionListener: {}", typeName(listener));
+        log.trace("Registering TestExecutionListener: " + typeName(listener));
       }
       this.testExecutionListeners.add(listener);
     }
@@ -182,7 +180,7 @@ public class TestContextManager {
   /**
    * Get the current {@link TestExecutionListener TestExecutionListeners}
    * registered for this {@code TestContextManager}.
-   * <p>Allows for modifications, e.g. adding a listener to the beginning of the list.
+   * <p>Allows for modifications, for example, adding a listener to the beginning of the list.
    * However, make sure to keep the list stable while actually executing tests.
    */
   public final List<TestExecutionListener> getTestExecutionListeners() {
@@ -214,20 +212,25 @@ public class TestContextManager {
    * @see #getTestExecutionListeners()
    */
   public void beforeTestClass() throws Exception {
-    Class<?> testClass = getTestContext().getTestClass();
-    if (log.isTraceEnabled()) {
-      log.trace("beforeTestClass(): class [{}]", typeName(testClass));
-    }
-    getTestContext().updateState(null, null, null);
+    try {
+      Class<?> testClass = getTestContext().getTestClass();
+      if (log.isTraceEnabled()) {
+        log.trace("beforeTestClass(): class [" + typeName(testClass) + "]");
+      }
+      getTestContext().updateState(null, null, null);
 
-    for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
-      try {
-        testExecutionListener.beforeTestClass(getTestContext());
+      for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
+        try {
+          testExecutionListener.beforeTestClass(getTestContext());
+        }
+        catch (Throwable ex) {
+          logException(ex, "beforeTestClass", testExecutionListener, testClass);
+          ReflectionUtils.rethrowException(ex);
+        }
       }
-      catch (Throwable ex) {
-        logException(ex, "beforeTestClass", testExecutionListener, testClass);
-        ReflectionUtils.rethrowException(ex);
-      }
+    }
+    finally {
+      resetMethodInvoker();
     }
   }
 
@@ -236,7 +239,7 @@ public class TestContextManager {
    * test methods &mdash; for example, to inject dependencies.
    * <p>This method should be called immediately after instantiation of the test
    * class or as soon after instantiation as possible (as is the case with the
-   * {@link InfraMethodRule
+   * {@link infra.test.context.junit4.rules.InfraMethodRule
    * InfraMethodRule}). In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The managed {@link TestContext} will be updated with the supplied
@@ -251,32 +254,37 @@ public class TestContextManager {
    * @see #getTestExecutionListeners()
    */
   public void prepareTestInstance(Object testInstance) throws Exception {
-    if (log.isTraceEnabled()) {
-      log.trace("prepareTestInstance(): instance [{}]", testInstance);
-    }
-    getTestContext().updateState(testInstance, null, null);
-
-    for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
-      try {
-        testExecutionListener.prepareTestInstance(getTestContext());
+    try {
+      if (log.isTraceEnabled()) {
+        log.trace("prepareTestInstance(): instance [" + testInstance + "]");
       }
-      catch (Throwable ex) {
-        if (isSkippedException(ex)) {
-          if (log.isInfoEnabled()) {
-            log.info("""
+      getTestContext().updateState(testInstance, null, null);
+
+      for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
+        try {
+          testExecutionListener.prepareTestInstance(getTestContext());
+        }
+        catch (Throwable ex) {
+          if (isSkippedException(ex)) {
+            if (log.isInfoEnabled()) {
+              log.info("""
+                      Caught exception while allowing TestExecutionListener [%s] to \
+                      prepare test instance [%s]"""
+                      .formatted(typeName(testExecutionListener), testInstance), ex);
+            }
+          }
+          else if (log.isWarnEnabled()) {
+            log.warn("""
                     Caught exception while allowing TestExecutionListener [%s] to \
                     prepare test instance [%s]"""
                     .formatted(typeName(testExecutionListener), testInstance), ex);
           }
+          ReflectionUtils.rethrowException(ex);
         }
-        else if (log.isWarnEnabled()) {
-          log.warn("""
-                  Caught exception while allowing TestExecutionListener [%s] to \
-                  prepare test instance [%s]"""
-                  .formatted(typeName(testExecutionListener), testInstance), ex);
-        }
-        ReflectionUtils.rethrowException(ex);
       }
+    }
+    finally {
+      resetMethodInvoker();
     }
   }
 
@@ -309,16 +317,21 @@ public class TestContextManager {
    * @see #getTestExecutionListeners()
    */
   public void beforeTestMethod(Object testInstance, Method testMethod) throws Exception {
-    String callbackName = "beforeTestMethod";
-    prepareForBeforeCallback(callbackName, testInstance, testMethod);
+    try {
+      String callbackName = "beforeTestMethod";
+      prepareForBeforeCallback(callbackName, testInstance, testMethod);
 
-    for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
-      try {
-        testExecutionListener.beforeTestMethod(getTestContext());
+      for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
+        try {
+          testExecutionListener.beforeTestMethod(getTestContext());
+        }
+        catch (Throwable ex) {
+          handleBeforeException(ex, callbackName, testExecutionListener, testInstance, testMethod);
+        }
       }
-      catch (Throwable ex) {
-        handleBeforeException(ex, callbackName, testExecutionListener, testInstance, testMethod);
-      }
+    }
+    finally {
+      resetMethodInvoker();
     }
   }
 
@@ -348,16 +361,21 @@ public class TestContextManager {
    * @see #getTestExecutionListeners()
    */
   public void beforeTestExecution(Object testInstance, Method testMethod) throws Exception {
-    String callbackName = "beforeTestExecution";
-    prepareForBeforeCallback(callbackName, testInstance, testMethod);
+    try {
+      String callbackName = "beforeTestExecution";
+      prepareForBeforeCallback(callbackName, testInstance, testMethod);
 
-    for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
-      try {
-        testExecutionListener.beforeTestExecution(getTestContext());
+      for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
+        try {
+          testExecutionListener.beforeTestExecution(getTestContext());
+        }
+        catch (Throwable ex) {
+          handleBeforeException(ex, callbackName, testExecutionListener, testInstance, testMethod);
+        }
       }
-      catch (Throwable ex) {
-        handleBeforeException(ex, callbackName, testExecutionListener, testInstance, testMethod);
-      }
+    }
+    finally {
+      resetMethodInvoker();
     }
   }
 
@@ -377,8 +395,8 @@ public class TestContextManager {
    * have executed, the first caught exception will be rethrown with any
    * subsequent exceptions {@linkplain Throwable#addSuppressed suppressed} in
    * the first exception.
-   * <p>Note that registered listeners will be executed in the opposite
-   * order in which they were registered.
+   * <p>Note that listeners will be executed in the opposite order in which they
+   * were registered.
    *
    * @param testInstance the current test instance
    * @param testMethod the test method which has just been executed on the
@@ -396,29 +414,34 @@ public class TestContextManager {
   public void afterTestExecution(Object testInstance, Method testMethod, @Nullable Throwable exception)
           throws Exception {
 
-    String callbackName = "afterTestExecution";
-    prepareForAfterCallback(callbackName, testInstance, testMethod, exception);
-    Throwable afterTestExecutionException = null;
+    try {
+      String callbackName = "afterTestExecution";
+      prepareForAfterCallback(callbackName, testInstance, testMethod, exception);
+      Throwable afterTestExecutionException = null;
 
-    // Traverse the TestExecutionListeners in reverse order to ensure proper
-    // "wrapper"-style execution of listeners.
-    for (TestExecutionListener testExecutionListener : getReversedTestExecutionListeners()) {
-      try {
-        testExecutionListener.afterTestExecution(getTestContext());
+      // Traverse the TestExecutionListeners in reverse order to ensure proper
+      // "wrapper"-style execution of listeners.
+      for (TestExecutionListener testExecutionListener : getReversedTestExecutionListeners()) {
+        try {
+          testExecutionListener.afterTestExecution(getTestContext());
+        }
+        catch (Throwable ex) {
+          logException(ex, callbackName, testExecutionListener, testInstance, testMethod);
+          if (afterTestExecutionException == null) {
+            afterTestExecutionException = ex;
+          }
+          else {
+            afterTestExecutionException.addSuppressed(ex);
+          }
+        }
       }
-      catch (Throwable ex) {
-        logException(ex, callbackName, testExecutionListener, testInstance, testMethod);
-        if (afterTestExecutionException == null) {
-          afterTestExecutionException = ex;
-        }
-        else {
-          afterTestExecutionException.addSuppressed(ex);
-        }
+
+      if (afterTestExecutionException != null) {
+        ReflectionUtils.rethrowException(afterTestExecutionException);
       }
     }
-
-    if (afterTestExecutionException != null) {
-      ReflectionUtils.rethrowException(afterTestExecutionException);
+    finally {
+      resetMethodInvoker();
     }
   }
 
@@ -442,7 +465,8 @@ public class TestContextManager {
    * have executed, the first caught exception will be rethrown with any
    * subsequent exceptions {@linkplain Throwable#addSuppressed suppressed} in
    * the first exception.
-   * <p>Note that registered listeners will be executed in the opposite
+   * <p>Note that listeners will be executed in the opposite order in which they
+   * were registered.
    *
    * @param testInstance the current test instance
    * @param testMethod the test method which has just been executed on the
@@ -459,29 +483,34 @@ public class TestContextManager {
   public void afterTestMethod(Object testInstance, Method testMethod, @Nullable Throwable exception)
           throws Exception {
 
-    String callbackName = "afterTestMethod";
-    prepareForAfterCallback(callbackName, testInstance, testMethod, exception);
-    Throwable afterTestMethodException = null;
+    try {
+      String callbackName = "afterTestMethod";
+      prepareForAfterCallback(callbackName, testInstance, testMethod, exception);
+      Throwable afterTestMethodException = null;
 
-    // Traverse the TestExecutionListeners in reverse order to ensure proper
-    // "wrapper"-style execution of listeners.
-    for (TestExecutionListener testExecutionListener : getReversedTestExecutionListeners()) {
-      try {
-        testExecutionListener.afterTestMethod(getTestContext());
+      // Traverse the TestExecutionListeners in reverse order to ensure proper
+      // "wrapper"-style execution of listeners.
+      for (TestExecutionListener testExecutionListener : getReversedTestExecutionListeners()) {
+        try {
+          testExecutionListener.afterTestMethod(getTestContext());
+        }
+        catch (Throwable ex) {
+          logException(ex, callbackName, testExecutionListener, testInstance, testMethod);
+          if (afterTestMethodException == null) {
+            afterTestMethodException = ex;
+          }
+          else {
+            afterTestMethodException.addSuppressed(ex);
+          }
+        }
       }
-      catch (Throwable ex) {
-        logException(ex, callbackName, testExecutionListener, testInstance, testMethod);
-        if (afterTestMethodException == null) {
-          afterTestMethodException = ex;
-        }
-        else {
-          afterTestMethodException.addSuppressed(ex);
-        }
+
+      if (afterTestMethodException != null) {
+        ReflectionUtils.rethrowException(afterTestMethodException);
       }
     }
-
-    if (afterTestMethodException != null) {
-      ReflectionUtils.rethrowException(afterTestMethodException);
+    finally {
+      resetMethodInvoker();
     }
   }
 
@@ -496,16 +525,21 @@ public class TestContextManager {
    * have executed, the first caught exception will be rethrown with any
    * subsequent exceptions {@linkplain Throwable#addSuppressed suppressed} in
    * the first exception.
-   * <p>Note that registered listeners will be executed in the opposite
+   * <p>Note that listeners will be executed in the opposite order in which they
+   * were registered.
+   * <p>this method also ensures that the application
+   * context for the current {@link #getTestContext() TestContext} is marked as
+   * {@linkplain TestContext#markApplicationContextUnused() unused}.
    *
    * @throws Exception if a registered TestExecutionListener throws an exception
    * @see #getTestExecutionListeners()
    * @see Throwable#addSuppressed(Throwable)
+   * @see TestContext#markApplicationContextUnused()
    */
   public void afterTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();
     if (log.isTraceEnabled()) {
-      log.trace("afterTestClass(): class [{}]", typeName(testClass));
+      log.trace("afterTestClass(): class [" + typeName(testClass) + "]");
     }
     getTestContext().updateState(null, null, null);
 
@@ -527,11 +561,34 @@ public class TestContextManager {
       }
     }
 
+    try {
+      if (getTestContext().hasApplicationContext()) {
+        getTestContext().markApplicationContextUnused();
+      }
+    }
+    catch (Throwable ex) {
+      if (afterTestClassException == null) {
+        afterTestClassException = ex;
+      }
+      else {
+        afterTestClassException.addSuppressed(ex);
+      }
+    }
+
     this.testContextHolder.remove();
 
     if (afterTestClassException != null) {
       ReflectionUtils.rethrowException(afterTestClassException);
     }
+  }
+
+  /**
+   * Reset the {@link MethodInvoker} to the default to ensure that a custom
+   * {@code MethodInvoker} for the current test execution is not retained for
+   * subsequent test executions.
+   */
+  private void resetMethodInvoker() {
+    getTestContext().setMethodInvoker(MethodInvoker.DEFAULT_INVOKER);
   }
 
   private void prepareForBeforeCallback(String callbackName, Object testInstance, Method testMethod) {
@@ -622,7 +679,7 @@ public class TestContextManager {
     return testContext;
   }
 
-  private static String typeName(@Nullable Object obj) {
+  private static String typeName(Object obj) {
     if (obj == null) {
       return "null";
     }
