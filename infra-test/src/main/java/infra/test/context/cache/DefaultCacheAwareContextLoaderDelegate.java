@@ -193,6 +193,22 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
     }
   }
 
+  @Override
+  public void registerContextUsage(MergedContextConfiguration mergedConfig, Class<?> testClass) {
+    mergedConfig = replaceIfNecessary(mergedConfig);
+    synchronized(this.contextCache) {
+      this.contextCache.registerContextUsage(mergedConfig, testClass);
+    }
+  }
+
+  @Override
+  public void unregisterContextUsage(MergedContextConfiguration mergedConfig, Class<?> testClass) {
+    mergedConfig = replaceIfNecessary(mergedConfig);
+    synchronized(this.contextCache) {
+      this.contextCache.unregisterContextUsage(mergedConfig, testClass);
+    }
+  }
+
   /**
    * Get the {@link ContextCache} used by this context loader delegate.
    */

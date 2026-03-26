@@ -62,19 +62,19 @@ class InfraExtensionContextCacheTests {
   static void verifyInitialCacheState() {
     dirtiedApplicationContext = null;
     resetContextCache();
-    assertContextCacheStatistics("BeforeClass", 0, 0, 0);
+    assertContextCacheStatistics("BeforeClass", 0, 0, 0, 0);
   }
 
   @AfterAll
   static void verifyFinalCacheState() {
-    assertContextCacheStatistics("AfterClass", 1, 1, 2);
+    assertContextCacheStatistics("AfterClass", 1, 1, 1, 2);
   }
 
   @Test
   @DirtiesContext
   @Order(1)
   void dirtyContext() {
-    assertContextCacheStatistics("dirtyContext()", 1, 0, 1);
+    assertContextCacheStatistics("dirtyContext()", 1, 1, 0, 1);
     assertThat(this.applicationContext).as("The application context should have been autowired.").isNotNull();
     InfraExtensionContextCacheTests.dirtiedApplicationContext = this.applicationContext;
   }
@@ -82,7 +82,7 @@ class InfraExtensionContextCacheTests {
   @Test
   @Order(2)
   void verifyContextDirty() {
-    assertContextCacheStatistics("verifyContextWasDirtied()", 1, 0, 2);
+    assertContextCacheStatistics("verifyContextWasDirtied()", 1, 1, 0, 2);
     assertThat(this.applicationContext).as("The application context should have been autowired.").isNotNull();
     assertThat(this.applicationContext).as("The application context should have been 'dirtied'.").isNotSameAs(InfraExtensionContextCacheTests.dirtiedApplicationContext);
     InfraExtensionContextCacheTests.dirtiedApplicationContext = this.applicationContext;
@@ -91,7 +91,7 @@ class InfraExtensionContextCacheTests {
   @Test
   @Order(3)
   void verifyContextNotDirty() {
-    assertContextCacheStatistics("verifyContextWasNotDirtied()", 1, 1, 2);
+    assertContextCacheStatistics("verifyContextWasNotDirtied()", 1, 1, 1, 2);
     assertThat(this.applicationContext).as("The application context should have been autowired.").isNotNull();
     assertThat(this.applicationContext).as("The application context should NOT have been 'dirtied'.").isSameAs(InfraExtensionContextCacheTests.dirtiedApplicationContext);
   }

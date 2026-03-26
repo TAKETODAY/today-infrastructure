@@ -20,6 +20,7 @@ package infra.test.context.cache;
 
 import infra.lang.TodayStrategies;
 import infra.test.context.CacheAwareContextLoaderDelegate;
+import infra.test.context.cache.ContextCache.PauseMode;
 import infra.util.StringUtils;
 
 /**
@@ -33,7 +34,7 @@ public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the maximum size of the {@link ContextCache}.
-   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
    * property named {@value ContextCache#MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME}.
    * <p>Defaults to {@value ContextCache#DEFAULT_MAX_CONTEXT_CACHE_SIZE}
    * if no such property has been set or if the property is not an integer.
@@ -49,7 +50,7 @@ public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the <em>failure threshold</em> for application context loading.
-   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
    * property named {@value CacheAwareContextLoaderDelegate#CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME}.
    * <p>Defaults to {@value CacheAwareContextLoaderDelegate#DEFAULT_CONTEXT_FAILURE_THRESHOLD}
    * if no such property has been set or if the property is not an integer.
@@ -62,6 +63,31 @@ public abstract class ContextCacheUtils {
     String propertyName = CacheAwareContextLoaderDelegate.CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME;
     int defaultValue = CacheAwareContextLoaderDelegate.DEFAULT_CONTEXT_FAILURE_THRESHOLD;
     return retrieveProperty(propertyName, defaultValue);
+  }
+
+  /**
+   * Retrieve the {@link PauseMode} for the {@link ContextCache}.
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
+   * property named {@value ContextCache#CONTEXT_CACHE_PAUSE_PROPERTY_NAME}.
+   * <p>Defaults to {@link PauseMode#ON_CONTEXT_SWITCH} if no such property has
+   * been set.
+   *
+   * @return the configured or default {@code PauseMode}
+   * @see ContextCache#CONTEXT_CACHE_PAUSE_PROPERTY_NAME
+   * @see PauseMode#from(String)
+   * @since 5.0
+   */
+  public static PauseMode retrievePauseMode() {
+    String value = TodayStrategies.getProperty(ContextCache.CONTEXT_CACHE_PAUSE_PROPERTY_NAME);
+    if (StringUtils.hasText(value)) {
+      PauseMode pauseMode = PauseMode.from(value);
+      if (pauseMode == null) {
+        throw new IllegalArgumentException("Unsupported value '%s' for property '%s'"
+                .formatted(value, ContextCache.CONTEXT_CACHE_PAUSE_PROPERTY_NAME));
+      }
+      return pauseMode;
+    }
+    return PauseMode.ON_CONTEXT_SWITCH;
   }
 
   private static int retrieveProperty(String key, int defaultValue) {
