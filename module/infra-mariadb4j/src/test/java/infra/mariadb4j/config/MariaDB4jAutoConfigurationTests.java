@@ -20,6 +20,8 @@ class MariaDB4jAutoConfigurationTests {
 
   @Test
   public void shouldAutoConfigureEmbeddedMariaDB() {
-    contextRunner.run(context -> assertFalse(context.getBeansOfType(MariaDB.class).isEmpty()));
+    contextRunner
+            .withPropertyValues("mariadb4j.socket=/tmp/mariadb.sock")
+            .run(context -> assertFalse(context.getBeansOfType(MariaDB.class).isEmpty()));
   }
 }

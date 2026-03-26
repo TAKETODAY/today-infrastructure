@@ -28,6 +28,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.core.ApplicationTemp;
 import infra.mariadb4j.config.MariaDB4jAutoConfiguration;
 import infra.test.context.ContextConfiguration;
+import infra.test.context.TestPropertySource;
 import infra.test.context.junit.jupiter.InfraExtension;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -40,6 +41,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @ExtendWith(InfraExtension.class)
 @ContextConfiguration(classes = MariaDB4jAutoConfiguration.class)
+@TestPropertySource(properties = {
+        "mariadb4j.socket=/tmp/mariadb.sock",
+})
 class MariaDB4jStandardDefaultsTests {
 
   @Autowired
