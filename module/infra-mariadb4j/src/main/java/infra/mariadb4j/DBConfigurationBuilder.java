@@ -23,6 +23,7 @@
 package infra.mariadb4j;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,8 @@ import java.util.function.Supplier;
 
 import ch.vorburger.exec.ManagedProcessListener;
 import infra.core.ApplicationTemp;
+import infra.core.io.PathMatchingPatternResourceLoader;
+import infra.core.io.PatternResourceLoader;
 import infra.mariadb4j.DBConfiguration.Executable;
 
 import static infra.mariadb4j.DBConfiguration.Executable.Client;
@@ -93,8 +96,11 @@ public class DBConfigurationBuilder {
   private boolean frozen = false;
   private ManagedProcessListener listener;
 
-  protected String defaultCharacterSet = null;
+  protected @Nullable String defaultCharacterSet;
+
   protected Map<Executable, Supplier<File>> executables = new HashMap<>();
+
+  private PatternResourceLoader resourceLoader = new PathMatchingPatternResourceLoader();
 
   public static DBConfigurationBuilder newBuilder() {
     return new DBConfigurationBuilder();
@@ -265,7 +271,7 @@ public class DBConfigurationBuilder {
     }
 
     frozen = true;
-    return new DBConfiguration.Impl(
+    return new DBConfigurationImpl(
             _getPort(),
             _getSocket(),
             _getBinariesClassPathLocation(),
@@ -281,7 +287,7 @@ public class DBConfigurationBuilder {
             this::getURL,
             getDefaultCharacterSet(),
             _getExecutables(),
-            getProcessListener());
+            getProcessListener(), resourceLoader);
   }
 
   /**
@@ -389,7 +395,7 @@ public class DBConfigurationBuilder {
     };
   }
 
-  protected String _getBinariesClassPathLocation() {
+  protected @Nullable String _getBinariesClassPathLocation() {
     if (isUnpackingFromClasspath) {
       return getBinariesClassPathLocation();
     }
@@ -414,13 +420,13 @@ public class DBConfigurationBuilder {
     return args;
   }
 
-  public DBConfigurationBuilder setDefaultCharacterSet(String defaultCharacterSet) {
+  public DBConfigurationBuilder setDefaultCharacterSet(@Nullable String defaultCharacterSet) {
     checkIfFrozen("setDefaultCharacterSet");
     this.defaultCharacterSet = defaultCharacterSet;
     return this;
   }
 
-  public String getDefaultCharacterSet() {
+  public @Nullable String getDefaultCharacterSet() {
     return defaultCharacterSet;
   }
 
@@ -494,6 +500,11 @@ public class DBConfigurationBuilder {
 
   protected String getExtension() {
     return isWindows() ? ".exe" : "";
+  }
+
+  public DBConfigurationBuilder resourceLoader(PatternResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+    return this;
   }
 
 }
