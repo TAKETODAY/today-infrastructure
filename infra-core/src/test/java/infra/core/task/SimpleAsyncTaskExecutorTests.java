@@ -180,14 +180,15 @@ class SimpleAsyncTaskExecutorTests {
   }
 
   @Test
-  @DisabledIfInContinuousIntegration
   void taskTerminationTimeoutWithLateInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
     Future<?> future;
+    CountDownLatch latch = new CountDownLatch(1);
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setTaskTerminationTimeout(200);
       future = executor.submit(() -> {
         try {
+          latch.countDown();
           Thread.sleep(500);
         }
         catch (InterruptedException ex) {
@@ -195,6 +196,7 @@ class SimpleAsyncTaskExecutorTests {
           interrupted.set(true);
         }
       });
+      latch.await();
       Thread.sleep(100);
     }
     assertThatNoException().isThrownBy(future::get);
@@ -205,11 +207,13 @@ class SimpleAsyncTaskExecutorTests {
   void taskTerminationTimeoutWithEarlyInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
     Future<?> future;
+    CountDownLatch latch = new CountDownLatch(1);
     try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
       executor.setTaskTerminationTimeout(500);
       executor.setCancelRemainingTasksOnClose(true);
       future = executor.submit(() -> {
         try {
+          latch.countDown();
           Thread.sleep(200);
         }
         catch (InterruptedException ex) {
@@ -217,6 +221,7 @@ class SimpleAsyncTaskExecutorTests {
           interrupted.set(true);
         }
       });
+      latch.await();
       Thread.sleep(100);
     }
     assertThatNoException().isThrownBy(future::get);
