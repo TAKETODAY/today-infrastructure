@@ -225,6 +225,13 @@ class ResolvableTypeTests {
   }
 
   @Test
+  void forConstructorParameterWithImplementationClassMustNotBeNull() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ResolvableType.forConstructorParameter(null, 0, TypedConstructors.class))
+            .withMessage("Executable is required");
+  }
+
+  @Test
   void forMethodParameterByIndex() throws Exception {
     Method method = Methods.class.getMethod("charSequenceParameter", List.class);
     ResolvableType type = ResolvableType.forMethodParameter(method, 0);
@@ -236,6 +243,13 @@ class ResolvableTypeTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forMethodParameter(null, 0))
             .withMessage("Method is required");
+  }
+
+  @Test
+  void forMethodParameterByIndexWithImplementationClassMustNotBeNull() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ResolvableType.forMethodParameter(null, 0, TypedMethods.class))
+            .withMessage("Executable is required");
   }
 
   @Test
@@ -1303,6 +1317,13 @@ class ResolvableTypeTests {
   void classWithGenericsAs() {
     ResolvableType type = ResolvableType.forClassWithGenerics(MultiValueMap.class, Integer.class, String.class);
     assertThat(type.asMap().toString()).isEqualTo("java.util.Map<java.lang.Integer, java.util.List<java.lang.String>>");
+  }
+
+  @Test
+  void forClassWithGenericsClassMustNotBeNull() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ResolvableType.forClassWithGenerics(null, String.class))
+            .withMessage("Class is required");
   }
 
   @Test
