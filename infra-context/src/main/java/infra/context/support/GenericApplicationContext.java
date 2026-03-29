@@ -740,7 +740,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * of the BeanDefinitionRegistryPostProcessor PriorityOrdered phase,
    * right after a potential ConfigurationClassPostProcessor.
    */
-  private class DeferredRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
+  private final class DeferredRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
 
     private final List<DeferredBeanRegistrar> registrars = new ArrayList<>();
 
