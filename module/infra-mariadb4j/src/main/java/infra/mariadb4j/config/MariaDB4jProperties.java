@@ -65,4 +65,16 @@ public class MariaDB4jProperties {
    */
   public boolean unpack = true;
 
+  /**
+   * The name of the database to create automatically upon server startup.
+   * If specified, a database with this name will be created if it does not already exist.
+   */
+  public @Nullable String createDatabase;
+
+  /**
+   * The classpath resource location of the SQL script to execute after the database is initialized.
+   * This script is typically used for schema creation or initial data population.
+   */
+  public @Nullable String scriptResource;
+
 }

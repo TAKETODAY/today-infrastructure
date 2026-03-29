@@ -801,6 +801,7 @@ public class MethodParameter implements AnnotatedElement {
    * @return the corresponding MethodParameter instance
    */
   public static MethodParameter forParameter(Parameter parameter) {
+    Assert.notNull(parameter, "Parameter is required");
     return forExecutable(parameter.getDeclaringExecutable(), ReflectionUtils.getParameterIndex(parameter));
   }
 

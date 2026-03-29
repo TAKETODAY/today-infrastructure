@@ -36,8 +36,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import ch.vorburger.exec.ManagedProcess;
@@ -45,6 +45,7 @@ import ch.vorburger.exec.ManagedProcessBuilder;
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.exec.ManagedProcessListener;
 import ch.vorburger.exec.OutputStreamLogDispatcher;
+import infra.core.io.Resource;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mariadb4j.DBConfiguration.Executable;
@@ -104,8 +105,8 @@ public class MariaDB {
    * @throws ManagedProcessException if something fatal went wrong
    */
   public static MariaDB newEmbeddedDB(DBConfiguration config) throws ManagedProcessException {
-    MariaDB mariaDb = new MariaDB(config);
-    mariaDb.prepareDirectories();
+    MariaDB mariadb = new MariaDB(config);
+    mariadb.prepareDirectories();
     // If the data dir does not already exist and is empty, proceed to install normally.
     // Otherwise, we will reuse the existing data directory.
     try {
@@ -113,8 +114,8 @@ public class MariaDB {
       if (Files.isDirectory(absPath)) {
         try (Stream<Path> entries = Files.list(absPath)) {
           if (entries.findFirst().isEmpty()) {
-            mariaDb.unpackEmbeddedDb();
-            mariaDb.install();
+            mariadb.unpackEmbeddedDb();
+            mariadb.install();
           }
         }
       }
@@ -124,7 +125,7 @@ public class MariaDB {
       throw new ManagedProcessException(e.getMessage(), e);
     }
 
-    return mariaDb;
+    return mariadb;
   }
 
   /**
@@ -142,7 +143,7 @@ public class MariaDB {
     return newEmbeddedDB(config.build());
   }
 
-  protected ManagedProcess createDBInstallProcess() throws ManagedProcessException, IOException {
+  protected ManagedProcess createDBInstallProcess() throws IOException {
     logger.info("Installing a new embedded database to: {}", baseDir);
     File installDbCmdFile = configuration.getExecutable(Executable.InstallDB);
     ManagedProcessBuilder builder = new ManagedProcessBuilder(installDbCmdFile);
@@ -215,7 +216,7 @@ public class MariaDB {
     return ": ready for connections.";
   }
 
-  synchronized ManagedProcess startPreparation() throws ManagedProcessException, IOException {
+  synchronized ManagedProcess startPreparation() throws IOException {
     ManagedProcessBuilder builder =
             new ManagedProcessBuilder(configuration.getExecutable(Server));
     builder.setOutputStreamLogDispatcher(getOutputStreamLogDispatcher("mysqld"));
@@ -262,8 +263,7 @@ public class MariaDB {
     return false;
   }
 
-  protected void addPortAndMaybeSocketArguments(ManagedProcessBuilder builder)
-          throws IOException {
+  protected void addPortAndMaybeSocketArguments(ManagedProcessBuilder builder) throws IOException {
     builder.addArgument("--port=" + configuration.getPort());
     if (!configuration.isWindows()) {
       builder.addFileArgument("--socket", getAbsoluteSocketFile());
@@ -294,11 +294,10 @@ public class MariaDB {
   /**
    * Source.
    *
-   * @param resource a {@link String} object
-   * @throws ManagedProcessException if any.
+   * @param locationPattern a {@link String} object
    */
-  public void source(String resource) throws ManagedProcessException {
-    source(resource, null, null, null);
+  public void source(String locationPattern) throws IOException {
+    source(locationPattern, null, null, null);
   }
 
   /**
@@ -314,12 +313,11 @@ public class MariaDB {
   /**
    * Source.
    *
-   * @param resource a {@link String} object
+   * @param locationPattern a {@link String} object
    * @param dbName a {@link String} object
-   * @throws ManagedProcessException if any.
    */
-  public void source(String resource, String dbName) throws ManagedProcessException {
-    source(resource, null, null, dbName);
+  public void source(String locationPattern, @Nullable String dbName) throws IOException {
+    source(locationPattern, null, null, dbName);
   }
 
   /**
@@ -329,7 +327,7 @@ public class MariaDB {
    * @param dbName a {@link String} object
    * @throws ManagedProcessException if any.
    */
-  public void source(InputStream resource, String dbName) throws ManagedProcessException {
+  public void source(InputStream resource, @Nullable String dbName) throws ManagedProcessException {
     source(resource, null, null, dbName);
   }
 
@@ -342,8 +340,7 @@ public class MariaDB {
    * @param dbName the name of the database (schema) to source into
    * @throws ManagedProcessException if something fatal went wrong
    */
-  public void source(InputStream resource, String username, String password, String dbName)
-          throws ManagedProcessException {
+  public void source(InputStream resource, @Nullable String username, @Nullable String password, @Nullable String dbName) throws ManagedProcessException {
     run("script file sourced from an InputStream", resource, username, password, dbName, false);
   }
 
@@ -351,47 +348,33 @@ public class MariaDB {
    * Takes in a string that represents a resource on the classpath and sources it via the mysql
    * command line tool.
    *
-   * @param resource the path to a resource on the classpath to source
+   * @param locationPattern the path to a resource on the classpath to source
    * @param username the username used to login to the database
    * @param password the password used to login to the database
    * @param dbName the name of the database (schema) to source into
-   * @throws ManagedProcessException if something fatal went wrong
    */
-  public void source(String resource, String username, String password, String dbName)
-          throws ManagedProcessException {
-    source(resource, username, password, dbName, false);
+  public void source(String locationPattern, @Nullable String username, @Nullable String password, @Nullable String dbName) throws IOException {
+    source(locationPattern, username, password, dbName, false);
   }
 
   /**
    * Takes in a string that represents a resource on the classpath and sources it via the mysql
    * command line tool. Optionally force continue if individual statements fail.
    *
-   * @param resource the path to a resource on the classpath to source
+   * @param locationPattern the path to a resource on the classpath to source
    * @param username the username used to login to the database
    * @param password the password used to login to the database
    * @param dbName the name of the database (schema) to source into
    * @param force if true then continue on error (mysql --force)
-   * @throws ManagedProcessException if something fatal went wrong
    */
-  public void source(
-          String resource, String username, String password, String dbName, boolean force)
-          throws ManagedProcessException {
-    try (InputStream from = getClass().getClassLoader().getResourceAsStream(resource)) {
-      if (from == null) {
-        throw new IllegalArgumentException(
-                "Could not find script file on the classpath at: " + resource);
+  public void source(String locationPattern, @Nullable String username, @Nullable String password,
+          @Nullable String dbName, boolean force) throws IOException {
+    Set<Resource> resources = configuration.getResourceLoader().getResources(locationPattern);
+    for (Resource resource : resources) {
+      try (InputStream inputStream = resource.getInputStream()) {
+        run("script file sourced from the classpath at: " + resource,
+                inputStream, username, password, dbName, force);
       }
-      run(
-              "script file sourced from the classpath at: " + resource,
-              from,
-              username,
-              password,
-              dbName,
-              force);
-    }
-    catch (IOException ioe) {
-      logger.warn(
-              "Issue trying to close source InputStream. Raise warning and continue.", ioe);
     }
   }
 
@@ -402,10 +385,8 @@ public class MariaDB {
    * @param username a {@link String} object
    * @param password a {@link String} object
    * @param dbName a {@link String} object
-   * @throws ManagedProcessException if any.
    */
-  public void run(String command, String username, String password, String dbName)
-          throws ManagedProcessException {
+  public void run(String command, @Nullable String username, @Nullable String password, @Nullable String dbName) {
     run(command, username, password, dbName, false, true);
   }
 
@@ -413,9 +394,8 @@ public class MariaDB {
    * Run.
    *
    * @param command a {@link String} object
-   * @throws ManagedProcessException if any.
    */
-  public void run(String command) throws ManagedProcessException {
+  public void run(String command) {
     run(command, null, null, null);
   }
 
@@ -425,10 +405,8 @@ public class MariaDB {
    * @param command a {@link String} object
    * @param username a {@link String} object
    * @param password a {@link String} object
-   * @throws ManagedProcessException if any.
    */
-  public void run(String command, String username, String password)
-          throws ManagedProcessException {
+  public void run(String command, @Nullable String username, @Nullable String password) {
     run(command, username, password, null);
   }
 
@@ -440,10 +418,8 @@ public class MariaDB {
    * @param password a {@link String} object
    * @param dbName a {@link String} object
    * @param force a boolean
-   * @throws ManagedProcessException if any.
    */
-  public void run(String command, String username, String password, String dbName, boolean force)
-          throws ManagedProcessException {
+  public void run(String command, @Nullable String username, @Nullable String password, @Nullable String dbName, boolean force) {
     run(command, username, password, dbName, force, true);
   }
 
@@ -456,40 +432,24 @@ public class MariaDB {
    * @param dbName a {@link String} object
    * @param force a boolean
    * @param verbose a boolean
-   * @throws ManagedProcessException if any.
    */
-  public void run(
-          String command,
-          String username,
-          String password,
-          String dbName,
-          boolean force,
-          boolean verbose)
-          throws ManagedProcessException {
+  public void run(String command, @Nullable String username, @Nullable String password, @Nullable String dbName, boolean force, boolean verbose) {
     // If resource is created here, it should probably be released here also (as opposed to in
     // protected run method)
     // Also move to try-with-resource syntax to remove closeQuietly deprecation errors.
     try (InputStream from = IOUtils.toInputStream(command, Charset.defaultCharset())) {
       final String logInfoText =
-              verbose
-                      ? "command: " + command
+              verbose ? "command: " + command
                       : "command (" + command.length() / 1_024 + " KiB long)";
       run(logInfoText, from, username, password, dbName, force);
     }
     catch (IOException ioe) {
-      logger.warn(
-              "Issue trying to close source InputStream. Raise warning and continue.", ioe);
+      logger.warn("Issue trying to close source InputStream. Raise warning and continue.", ioe);
     }
   }
 
-  protected void run(
-          String logInfoText,
-          InputStream fromIS,
-          String username,
-          String password,
-          String dbName,
-          boolean force)
-          throws ManagedProcessException {
+  protected void run(String logInfoText, @Nullable InputStream fromIS,
+          @Nullable String username, @Nullable String password, @Nullable String dbName, boolean force) throws ManagedProcessException {
     logger.info("Running a {}", logInfoText);
     try {
       ManagedProcessBuilder builder =
@@ -536,10 +496,9 @@ public class MariaDB {
    * CreateDB.
    *
    * @param dbName a {@link String} object
-   * @throws ManagedProcessException if any.
    */
-  public void createDB(String dbName) throws ManagedProcessException {
-    this.run("create database if not exists `" + dbName + "`;");
+  public void createDB(String dbName) {
+    run("create database if not exists `" + dbName + "`;");
   }
 
   /**
@@ -548,11 +507,9 @@ public class MariaDB {
    * @param dbName a {@link String} object
    * @param username a {@link String} object
    * @param password a {@link String} object
-   * @throws ManagedProcessException if any.
    */
-  public void createDB(String dbName, String username, String password)
-          throws ManagedProcessException {
-    this.run("create database if not exists `" + dbName + "`;", username, password);
+  public void createDB(String dbName, String username, String password) {
+    run("create database if not exists `" + dbName + "`;", username, password);
   }
 
   protected OutputStreamLogDispatcher getOutputStreamLogDispatcher(@SuppressWarnings("unused") String exec) {
@@ -630,7 +587,7 @@ public class MariaDB {
    * temporary data directories are cleaned up.
    */
   protected void cleanupOnExit() {
-    String threadName = "Shutdown Hook Deletion Thread for Temporary DB " + dataDir.toString();
+    String threadName = "Shutdown Hook Deletion Thread for Temporary DB " + dataDir;
     final MariaDB mariaDb = this;
     Runtime.getRuntime().addShutdownHook(new DBShutdownHook(
             threadName, mariaDb,
@@ -657,11 +614,9 @@ public class MariaDB {
    * @param password a {@link String} object
    * @return a {@link ManagedProcess} object
    * @throws IOException if any.
-   * @throws ManagedProcessException if any.
    */
-  public ManagedProcess dumpXML(File outputFile, String dbName, String user, String password)
-          throws IOException, ManagedProcessException {
-    return dump(outputFile, Arrays.asList(dbName), true, true, true, user, password);
+  public ManagedProcess dumpXML(File outputFile, String dbName, String user, String password) throws IOException {
+    return dump(outputFile, List.of(dbName), true, true, true, user, password);
   }
 
   /**
@@ -673,28 +628,16 @@ public class MariaDB {
    * @param password a {@link String} object
    * @return a {@link ManagedProcess} object
    * @throws IOException if any.
-   * @throws ManagedProcessException if any.
    */
-  public ManagedProcess dumpSQL(File outputFile, String dbName, String user, String password)
-          throws IOException, ManagedProcessException {
-    return dump(outputFile, Arrays.asList(dbName), true, true, false, user, password);
+  public ManagedProcess dumpSQL(File outputFile, String dbName, String user, String password) throws IOException {
+    return dump(outputFile, List.of(dbName), true, true, false, user, password);
   }
 
-  protected ManagedProcess dump(
-          File outputFile,
-          List<String> dbNamesToDump,
-          boolean compactDump,
-          boolean lockTables,
-          boolean asXml,
-          String user,
-          String password)
-          throws ManagedProcessException, IOException {
+  protected ManagedProcess dump(File outputFile, List<String> dbNamesToDump,
+          boolean compactDump, boolean lockTables, boolean asXml, String user, String password) throws IOException {
 
-    ManagedProcessBuilder builder =
-            new ManagedProcessBuilder(configuration.getExecutable(Dump));
-
-    BufferedOutputStream outputStream =
-            new BufferedOutputStream(new FileOutputStream(outputFile));
+    ManagedProcessBuilder builder = new ManagedProcessBuilder(configuration.getExecutable(Dump));
+    BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
     builder.addStdOut(outputStream);
     builder.setOutputStreamLogDispatcher(getOutputStreamLogDispatcher("mysqldump"));
     builder.addArgument("--port=" + configuration.getPort());
@@ -720,29 +663,29 @@ public class MariaDB {
     }
     builder.addArgument(StringUtils.join(dbNamesToDump, StringUtils.SPACE));
     builder.setDestroyOnShutdown(true);
-    builder.setProcessListener(
-            new ManagedProcessListener() {
-              @Override
-              public void onProcessComplete(int i) {
-                closeOutputStream();
-              }
+    builder.setProcessListener(new ManagedProcessListener() {
 
-              @Override
-              public void onProcessFailed(int i, Throwable throwable) {
-                closeOutputStream();
-              }
+      @Override
+      public void onProcessComplete(int i) {
+        closeOutputStream();
+      }
 
-              private void closeOutputStream() {
-                try {
-                  outputStream.close();
-                }
-                catch (IOException exception) {
-                  logger.error(
-                          "Problem while trying to close the stream to the file containing the DB dump",
-                          exception);
-                }
-              }
-            });
+      @Override
+      public void onProcessFailed(int i, Throwable throwable) {
+        closeOutputStream();
+      }
+
+      private void closeOutputStream() {
+        try {
+          outputStream.close();
+        }
+        catch (IOException exception) {
+          logger.error(
+                  "Problem while trying to close the stream to the file containing the DB dump",
+                  exception);
+        }
+      }
+    });
     return builder.build();
   }
 }

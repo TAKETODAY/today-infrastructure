@@ -26,13 +26,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.cache.Cache;
 import infra.cache.CacheManager;
 import infra.cache.interceptor.CacheResolver;
 import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheResolver;
 import infra.core.annotation.AliasFor;
-import infra.util.function.ThrowingFunction;
 
 /**
  * Annotation indicating that the result of invoking a method (or all methods
@@ -200,8 +198,17 @@ public @interface Cacheable {
    * This is effectively a hint and the chosen cache provider might not actually
    * support it in a synchronized fashion. Check your provider documentation for
    * more details on the actual semantics.
+   * <p>Note that `sync=true` leads to a combined callback operation against the
+   * cache provider. If this combined operation fails on initial cache access,
+   * there is no separate put operation to attempt anymore. Whereas for a default
+   * `sync=false` setup, there are independent get and put steps: If the get step
+   * fails but its error is suppressed in the {@code CacheErrorHandler} setup,
+   * there will still be a put attempt after calling the underlying method.
    *
-   * @see Cache#get(Object, ThrowingFunction)
+   * @see infra.cache.Cache#get
+   * @see infra.cache.Cache#put(Object, Object)
+   * @see infra.cache.interceptor.CacheErrorHandler#handleCacheGetError
+   * @see infra.cache.interceptor.CacheErrorHandler#handleCachePutError
    */
   boolean sync() default false;
 

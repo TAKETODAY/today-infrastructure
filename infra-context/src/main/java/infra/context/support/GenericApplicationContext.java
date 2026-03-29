@@ -48,6 +48,10 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
+import infra.context.DeferredBeanRegistrar;
+import infra.core.Ordered;
+import infra.core.PriorityOrdered;
+import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.ProtocolResolver;
@@ -104,10 +108,12 @@ import infra.util.CollectionUtils;
  */
 public class GenericApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
+  private static final String DEFERRED_REGISTRY_POST_PROCESSOR_BEAN_NAME =
+          GenericApplicationContext.class.getName() + ".deferredRegistryPostProcessor";
+
   protected final StandardBeanFactory beanFactory;
 
-  @Nullable
-  private ResourceLoader resourceLoader;
+  private @Nullable ResourceLoader resourceLoader;
 
   private boolean customClassLoader = false;
 
@@ -714,7 +720,45 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    */
   public void register(BeanRegistrar... registrars) {
     for (BeanRegistrar registrar : registrars) {
-      new BeanRegistryAdapter(this.beanFactory, getEnvironment(), registrar.getClass()).register(registrar);
+      if (registrar instanceof DeferredBeanRegistrar deferredRegistrar) {
+        DeferredRegistryPostProcessor pp = (DeferredRegistryPostProcessor)
+                this.beanFactory.getSingleton(DEFERRED_REGISTRY_POST_PROCESSOR_BEAN_NAME);
+        if (pp == null) {
+          pp = new DeferredRegistryPostProcessor();
+          this.beanFactory.registerSingleton(DEFERRED_REGISTRY_POST_PROCESSOR_BEAN_NAME, pp);
+        }
+        pp.addRegistrar(deferredRegistrar);
+      }
+      else {
+        new BeanRegistryAdapter(this.beanFactory, getEnvironment(), registrar.getClass()).register(registrar);
+      }
+    }
+  }
+
+  /**
+   * Internal post-processor for invoking DeferredBeanRegistrars at the end
+   * of the BeanDefinitionRegistryPostProcessor PriorityOrdered phase,
+   * right after a potential ConfigurationClassPostProcessor.
+   */
+  private class DeferredRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor, PriorityOrdered {
+
+    private final List<DeferredBeanRegistrar> registrars = new ArrayList<>();
+
+    public void addRegistrar(DeferredBeanRegistrar registrar) {
+      this.registrars.add(registrar);
+    }
+
+    @Override
+    public int getOrder() {
+      return Ordered.LOWEST_PRECEDENCE;  // within PriorityOrdered, 1 behind ConfigurationClassPostProcessor
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+      AnnotationAwareOrderComparator.sort(this.registrars);
+      for (DeferredBeanRegistrar registrar : this.registrars) {
+        new BeanRegistryAdapter(beanFactory, getEnvironment(), registrar.getClass()).register(registrar);
+      }
     }
   }
 

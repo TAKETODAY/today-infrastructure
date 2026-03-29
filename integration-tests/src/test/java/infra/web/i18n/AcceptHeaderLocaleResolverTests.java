@@ -29,11 +29,11 @@ import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
 import static java.util.Locale.CANADA;
+import static java.util.Locale.CHINA;
 import static java.util.Locale.ENGLISH;
 import static java.util.Locale.GERMAN;
 import static java.util.Locale.GERMANY;
 import static java.util.Locale.JAPAN;
-import static java.util.Locale.JAPANESE;
 import static java.util.Locale.KOREA;
 import static java.util.Locale.UK;
 import static java.util.Locale.US;
@@ -97,14 +97,23 @@ class AcceptHeaderLocaleResolverTests {
 
   @Test
   public void defaultLocale() {
-    this.resolver.setDefaultLocale(JAPANESE);
+    this.resolver.setDefaultLocale(CHINA);
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockRequestContext context = new MockRequestContext(null, request, null);
-    assertThat(this.resolver.resolveLocale(context)).isEqualTo(JAPANESE);
+    assertThat(this.resolver.resolveLocale(context)).isEqualTo(CHINA);
 
     context.requestHeaders().setOrRemove("Accept-Language", US.toLanguageTag());
     request.setPreferredLocales(Collections.singletonList(US));
     assertThat(this.resolver.resolveLocale(context)).isEqualTo(US);
+  }
+
+  @Test
+  void defaultLocaleWithBlankAcceptLanguageHeader() {
+    this.resolver.setDefaultLocale(CHINA);
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    request.addHeader("Accept-Language", "");
+    MockRequestContext context = new MockRequestContext(null, request, null);
+    assertThat(this.resolver.resolveLocale(context)).isEqualTo(CHINA);
   }
 
   private RequestContext request(Locale... locales) {

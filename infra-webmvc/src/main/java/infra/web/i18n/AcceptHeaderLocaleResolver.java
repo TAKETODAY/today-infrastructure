@@ -43,6 +43,7 @@ import infra.web.RequestContext;
  *
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see RequestContext#getLocale()
  * @since 4.0
  */
@@ -50,8 +51,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
   private final List<Locale> supportedLocales = new ArrayList<>(4);
 
-  @Nullable
-  private Locale defaultLocale;
+  private @Nullable Locale defaultLocale;
 
   /**
    * Configure the list of supported locales to compare and match against
@@ -100,15 +100,14 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
    * The configured default locale, if any.
    * <p>This method may be overridden in subclasses.
    */
-  @Nullable
-  public Locale getDefaultLocale() {
+  public @Nullable Locale getDefaultLocale() {
     return this.defaultLocale;
   }
 
   @Override
   public Locale resolveLocale(RequestContext request) {
     Locale defaultLocale = getDefaultLocale();
-    if (defaultLocale != null && request.requestHeaders().get(HttpHeaders.ACCEPT_LANGUAGE) == null) {
+    if (defaultLocale != null && StringUtils.isBlank(request.getHeader(HttpHeaders.ACCEPT_LANGUAGE))) {
       return defaultLocale;
     }
     Locale requestLocale = request.getLocale();
@@ -123,8 +122,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
     return defaultLocale != null ? defaultLocale : requestLocale;
   }
 
-  @Nullable
-  private Locale findSupportedLocale(RequestContext request, List<Locale> supportedLocales) {
+  private @Nullable Locale findSupportedLocale(RequestContext request, List<Locale> supportedLocales) {
     Locale languageMatch = null;
     List<Locale> requestLocales = request.requestHeaders().getAcceptLanguageAsLocales();
     for (Locale locale : requestLocales) {

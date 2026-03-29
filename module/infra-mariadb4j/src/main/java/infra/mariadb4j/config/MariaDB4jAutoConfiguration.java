@@ -19,11 +19,11 @@ package infra.mariadb4j.config;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 import javax.sql.DataSource;
 
-import ch.vorburger.exec.ManagedProcessException;
 import infra.context.annotation.EnableRequiredBy;
 import infra.context.annotation.RequiredBy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -31,6 +31,7 @@ import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
+import infra.core.io.PatternResourceLoader;
 import infra.jdbc.config.DataSourceAutoConfiguration;
 import infra.jdbc.config.DataSourceProperties;
 import infra.mariadb4j.DBConfigurationBuilder;
@@ -38,6 +39,7 @@ import infra.mariadb4j.MariaDB;
 import infra.mariadb4j.MariaDB4jLifecycle;
 import infra.stereotype.Component;
 import infra.util.PropertyMapper;
+import infra.util.StringUtils;
 
 /**
  * Auto-configuration for MariaDB4j embedded database.
@@ -59,13 +61,15 @@ public final class MariaDB4jAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @RequiredBy(types = DataSource.class)
-  public static MariaDB mariadb(MariaDB4jProperties properties, @Nullable ApplicationTemp applicationTemp) throws ManagedProcessException {
+  public static MariaDB mariadb(MariaDB4jProperties properties,
+          PatternResourceLoader resourceLoader, @Nullable ApplicationTemp applicationTemp) throws IOException {
     if (applicationTemp == null) {
       applicationTemp = ApplicationTemp.instance;
     }
 
     Path basePath = applicationTemp.getDir("mariaDB4j");
-    DBConfigurationBuilder builder = DBConfigurationBuilder.newBuilder();
+    DBConfigurationBuilder builder = DBConfigurationBuilder.newBuilder()
+            .resourceLoader(resourceLoader);
 
     PropertyMapper mapper = PropertyMapper.get();
     mapper.from(properties.port).to(builder::setPort);
@@ -80,6 +84,14 @@ public final class MariaDB4jAutoConfiguration {
 
     MariaDB mariaDB = MariaDB.newEmbeddedDB(builder.build());
     mariaDB.start();
+
+    if (StringUtils.hasText(properties.createDatabase)) {
+      mariaDB.createDB(properties.createDatabase);
+    }
+
+    if (StringUtils.hasText(properties.scriptResource)) {
+      mariaDB.source(properties.scriptResource);
+    }
     return mariaDB;
   }
 

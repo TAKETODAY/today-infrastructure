@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class MBeanExporterOperationsTests extends AbstractMBeanServerTests {
 
   @Test
-  void testRegisterManagedResourceWithUserSuppliedObjectName() throws Exception {
-    ObjectName objectName = ObjectNameManager.getInstance("spring:name=Foo");
+  void registerManagedResourceWithUserSuppliedObjectName() throws Exception {
+    ObjectName objectName = ObjectNameManager.getInstance("infra:name=Foo");
 
     JmxTestBean bean = new JmxTestBean();
     bean.setName("Rob Harrop");
@@ -56,8 +56,8 @@ class MBeanExporterOperationsTests extends AbstractMBeanServerTests {
   }
 
   @Test
-  void testRegisterExistingMBeanWithUserSuppliedObjectName() throws Exception {
-    ObjectName objectName = ObjectNameManager.getInstance("spring:name=Foo");
+  void registerExistingMBeanWithUserSuppliedObjectName() throws Exception {
+    ObjectName objectName = ObjectNameManager.getInstance("infra:name=Foo");
     ModelMBeanInfo info = new ModelMBeanInfoSupport("myClass", "myDescription", null, null, null, null);
     RequiredModelMBean bean = new RequiredModelMBean(info);
 
@@ -70,8 +70,37 @@ class MBeanExporterOperationsTests extends AbstractMBeanServerTests {
   }
 
   @Test
-  void testRegisterManagedResourceWithGeneratedObjectName() throws Exception {
-    final ObjectName objectNameTemplate = ObjectNameManager.getInstance("spring:type=Test");
+  void registerManagedResourceWithUserSuppliedBeanKey() throws Exception {
+    ObjectName objectName = ObjectNameManager.getInstance("infra:name=Foo");
+
+    JmxTestBean bean = new JmxTestBean();
+    bean.setName("Rob Harrop");
+
+    MBeanExporter exporter = new MBeanExporter();
+    exporter.setServer(getServer());
+    exporter.registerManagedResource(bean, "infra:name=Foo");
+
+    String name = (String) getServer().getAttribute(objectName, "Name");
+    assertThat(bean.getName()).as("Incorrect name on MBean").isEqualTo(name);
+  }
+
+  @Test
+  void registerExistingMBeanWithUserSuppliedBeanKey() throws Exception {
+    ObjectName objectName = ObjectNameManager.getInstance("infra:name=Foo");
+    ModelMBeanInfo info = new ModelMBeanInfoSupport("myClass", "myDescription", null, null, null, null);
+    RequiredModelMBean bean = new RequiredModelMBean(info);
+
+    MBeanExporter exporter = new MBeanExporter();
+    exporter.setServer(getServer());
+    exporter.registerManagedResource(bean, "infra:name=Foo");
+
+    MBeanInfo infoFromServer = getServer().getMBeanInfo(objectName);
+    assertThat(infoFromServer).isEqualTo(info);
+  }
+
+  @Test
+  void registerManagedResourceWithGeneratedObjectName() throws Exception {
+    final ObjectName objectNameTemplate = ObjectNameManager.getInstance("infra:type=Test");
 
     MBeanExporter exporter = new MBeanExporter();
     exporter.setServer(getServer());
@@ -91,8 +120,8 @@ class MBeanExporterOperationsTests extends AbstractMBeanServerTests {
   }
 
   @Test
-  void testRegisterManagedResourceWithGeneratedObjectNameWithoutUniqueness() throws Exception {
-    final ObjectName objectNameTemplate = ObjectNameManager.getInstance("spring:type=Test");
+  void registerManagedResourceWithGeneratedObjectNameWithoutUniqueness() throws Exception {
+    final ObjectName objectNameTemplate = ObjectNameManager.getInstance("infra:type=Test");
 
     MBeanExporter exporter = new MBeanExporter();
     exporter.setServer(getServer());

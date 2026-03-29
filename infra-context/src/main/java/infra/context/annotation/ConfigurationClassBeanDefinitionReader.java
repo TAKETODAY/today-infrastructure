@@ -45,6 +45,7 @@ import infra.beans.factory.support.BeanRegistryAdapter;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.BootstrapContext;
+import infra.context.DeferredBeanRegistrar;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
@@ -429,8 +430,10 @@ class ConfigurationClassBeanDefinitionReader {
   private void loadBeanDefinitionsFromBeanRegistrars(MultiValueMap<String, BeanRegistrar> registrars) {
     for (var registrarList : registrars.values()) {
       for (BeanRegistrar registrar : registrarList) {
-        registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
-                bootstrapContext.getBeanFactory(), bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
+        if (!(registrar instanceof DeferredBeanRegistrar)) {
+          registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
+                  bootstrapContext.getBeanFactory(), bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
+        }
       }
     }
   }
