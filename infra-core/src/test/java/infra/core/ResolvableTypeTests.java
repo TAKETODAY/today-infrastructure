@@ -34,6 +34,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -208,6 +209,29 @@ class ResolvableTypeTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forField(null))
             .withMessage("Field is required");
+  }
+
+  @Test
+  void forParameterForMethod() throws Exception {
+    Method method = Methods.class.getMethod("charSequenceParameter", List.class);
+    Parameter parameter = method.getParameters()[0];
+    ResolvableType type = ResolvableType.forParameter(parameter);
+    assertThat(type.getType()).isEqualTo(method.getGenericParameterTypes()[0]);
+  }
+
+  @Test
+  void forParameterForConstructor() throws Exception {
+    Constructor<Constructors> constructor = Constructors.class.getConstructor(List.class);
+    Parameter parameter = constructor.getParameters()[0];
+    ResolvableType type = ResolvableType.forParameter(parameter);
+    assertThat(type.getType()).isEqualTo(constructor.getGenericParameterTypes()[0]);
+  }
+
+  @Test
+  void forParameterMustNotBeNull() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ResolvableType.forParameter(null))
+            .withMessage("Parameter is required");
   }
 
   @Test
