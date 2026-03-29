@@ -28,6 +28,7 @@ import java.util.function.Function;
 import infra.beans.BeanUtils;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.BeanRegistry;
 import infra.beans.factory.ObjectProvider;
@@ -174,6 +175,22 @@ public class BeanRegistryAdapter implements BeanRegistry {
   public void register(BeanRegistrar registrar) {
     Assert.notNull(registrar, "'registrar' is required");
     registrar.register(this, this.environment);
+  }
+
+  @Override
+  public boolean containsBean(String name) {
+    return this.beanFactory.containsBean(name);
+  }
+
+  @Override
+  public boolean containsBean(Class<?> beanType) {
+    return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory, beanType).length > 0;
+  }
+
+  @Override
+  public <T> boolean containsBean(ParameterizedTypeReference<T> beanType) {
+    ResolvableType resolvableType = ResolvableType.forType(beanType);
+    return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory, resolvableType).length > 0;
   }
 
   /**

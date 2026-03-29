@@ -143,7 +143,7 @@ public class PersistenceExceptionTranslationInterceptor
         PersistenceExceptionTranslator translator = this.persistenceExceptionTranslator;
         if (translator == null) {
           Assert.state(this.beanFactory != null,
-                  "Cannot use PersistenceExceptionTranslator auto-detection without ListableBeanFactory");
+                  "Cannot use PersistenceExceptionTranslator auto-detection without BeanFactory");
           try {
             translator = detectPersistenceExceptionTranslators(this.beanFactory);
           }

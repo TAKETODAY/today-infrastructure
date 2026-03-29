@@ -24,6 +24,7 @@ import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
+import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.testfixture.beans.factory.BarRegistrar;
 import infra.context.testfixture.beans.factory.FooRegistrar;
@@ -37,6 +38,9 @@ import infra.context.testfixture.context.annotation.registrar.BeanRegistrarConfi
 import infra.context.testfixture.context.annotation.registrar.GenericBeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.ImportAwareBeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.MultipleBeanRegistrarsConfiguration;
+import infra.context.testfixture.context.annotation.registrar.MyDeferredBeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.MyRegularBeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.TestBeanConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -46,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * @author Sebastien Deleuze
  */
-public class BeanRegistrarConfigurationTests {
+class BeanRegistrarConfigurationTests {
 
   @Test
   void beanRegistrar() {
@@ -105,6 +109,43 @@ public class BeanRegistrarConfigurationTests {
     context.refresh();
     assertThat(context.getBean(FooRegistrar.Foo.class)).isNotNull();
     assertThat(context.getBean(BarRegistrar.Bar.class)).isNotNull();
+  }
+
+  @Test
+  void regularBeanRegistrarWithConditionMet() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(TestBeanConfiguration.class);
+    context.register(MyRegularBeanRegistrarConfiguration.class);
+    context.refresh();
+    assertThat(context.containsBean("myTestBean")).isTrue();
+    assertThat(context.getBean("myTestBean")).isInstanceOf(TestBean.class);
+  }
+
+  @Test
+  void regularBeanRegistrarWithConditionNotMet() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(MyRegularBeanRegistrarConfiguration.class);
+    context.register(TestBeanConfiguration.class);
+    context.refresh();
+    assertThat(context.containsBean("myTestBean")).isFalse();
+  }
+
+  @Test
+  void deferredBeanRegistrarWithConditionMet() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(MyDeferredBeanRegistrarConfiguration.class);
+    context.register(TestBeanConfiguration.class);
+    context.refresh();
+    assertThat(context.containsBean("myTestBean")).isTrue();
+    assertThat(context.getBean("myTestBean")).isInstanceOf(TestBean.class);
+  }
+
+  @Test
+  void deferredBeanRegistrarWithConditionNotMet() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(MyDeferredBeanRegistrarConfiguration.class);
+    context.refresh();
+    assertThat(context.containsBean("myTestBean")).isFalse();
   }
 
 }

@@ -39,7 +39,6 @@
 ----
   [0.064s][info][class,load] infra.core.env.EnvironmentCapable source: shared objects file (top)
   [0.064s][info][class,load] infra.beans.factory.BeanFactory source: shared objects file (top)
-  [0.064s][info][class,load] infra.beans.factory.ListableBeanFactory source: shared objects file (top)
   [0.064s][info][class,load] infra.beans.factory.HierarchicalBeanFactory source: shared objects file (top)
   [0.065s][info][class,load] infra.context.MessageSource source: shared objects file (top)
 ----

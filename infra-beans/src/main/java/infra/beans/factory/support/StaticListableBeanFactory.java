@@ -297,7 +297,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   //---------------------------------------------------------------------
-  // Implementation of ListableBeanFactory interface
+  // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
   @Override
