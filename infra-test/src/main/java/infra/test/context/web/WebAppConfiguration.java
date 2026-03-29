@@ -54,7 +54,7 @@ import infra.web.mock.WebApplicationContext;
  * @author Sam Brannen
  * @see WebApplicationContext
  * @see ContextConfiguration
- * @see MockTestExecutionListener
+ * @see WebMockTestExecutionListener
  * @since 4.0
  */
 @Target(ElementType.TYPE)

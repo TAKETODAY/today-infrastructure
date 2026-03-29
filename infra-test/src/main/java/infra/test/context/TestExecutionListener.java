@@ -30,7 +30,7 @@ import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import infra.test.context.support.DirtiesContextTestExecutionListener;
 import infra.test.context.transaction.TransactionalTestExecutionListener;
-import infra.test.context.web.MockTestExecutionListener;
+import infra.test.context.web.WebMockTestExecutionListener;
 
 /**
  * {@code TestExecutionListener} defines a <em>listener</em> API for reacting to
@@ -77,7 +77,7 @@ import infra.test.context.web.MockTestExecutionListener;
  * {@code Ordered} and is registered automatically by default.
  *
  * <ul>
- * <li>{@link MockTestExecutionListener
+ * <li>{@link WebMockTestExecutionListener
  * ServletTestExecutionListener}</li>
  * <li>{@link DirtiesContextBeforeModesTestExecutionListener
  * DirtiesContextBeforeModesTestExecutionListener}</li>

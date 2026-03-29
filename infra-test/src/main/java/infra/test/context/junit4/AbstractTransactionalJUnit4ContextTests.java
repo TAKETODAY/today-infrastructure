@@ -45,7 +45,7 @@ import infra.test.context.support.DirtiesContextTestExecutionListener;
 import infra.test.context.transaction.AfterTransaction;
 import infra.test.context.transaction.BeforeTransaction;
 import infra.test.context.transaction.TransactionalTestExecutionListener;
-import infra.test.context.web.MockTestExecutionListener;
+import infra.test.context.web.WebMockTestExecutionListener;
 import infra.test.jdbc.JdbcTestUtils;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.annotation.Transactional;
@@ -97,7 +97,7 @@ import infra.transaction.annotation.Transactional;
  * @see JdbcTestUtils
  * @since 4.0
  */
-@TestExecutionListeners(listeners = { MockTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
+@TestExecutionListeners(listeners = { WebMockTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
         ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class,
         SqlScriptsTestExecutionListener.class, EventPublishingTestExecutionListener.class }, inheritListeners = false)

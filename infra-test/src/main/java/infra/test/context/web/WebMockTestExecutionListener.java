@@ -64,7 +64,7 @@ import infra.web.mock.WebApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockTestExecutionListener extends AbstractTestExecutionListener {
+public class WebMockTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
@@ -74,7 +74,7 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          MockTestExecutionListener.class, "resetRequestContextHolder");
+          WebMockTestExecutionListener.class, "resetRequestContextHolder");
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that
@@ -83,7 +83,7 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          MockTestExecutionListener.class, "populatedRequestContextHolder");
+          WebMockTestExecutionListener.class, "populatedRequestContextHolder");
 
   /**
    * Attribute name for a request attribute which indicates that the
@@ -93,7 +93,7 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String CREATED_BY_THE_TESTCONTEXT_FRAMEWORK = Conventions.getQualifiedAttributeName(
-          MockTestExecutionListener.class, "createdByTheTestContextFramework");
+          WebMockTestExecutionListener.class, "createdByTheTestContextFramework");
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that the
@@ -103,9 +103,9 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String ACTIVATE_LISTENER = Conventions.getQualifiedAttributeName(
-          MockTestExecutionListener.class, "activateListener");
+          WebMockTestExecutionListener.class, "activateListener");
 
-  private static final Logger logger = LoggerFactory.getLogger(MockTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(WebMockTestExecutionListener.class);
 
   /**
    * Returns {@code 1000}.

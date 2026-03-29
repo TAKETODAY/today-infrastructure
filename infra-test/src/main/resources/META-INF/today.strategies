@@ -1,7 +1,7 @@
 # Default TestExecutionListeners for the TestContext Framework
 #
 infra.test.context.TestExecutionListener=\
-	infra.test.context.web.MockTestExecutionListener,\
+	infra.test.context.web.WebMockTestExecutionListener,\
 	infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener,\
 	infra.test.context.event.ApplicationEventsTestExecutionListener,\
 	infra.test.context.support.DependencyInjectionTestExecutionListener,\

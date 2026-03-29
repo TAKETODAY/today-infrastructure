@@ -1,9 +1,9 @@
 [[testcontext-ctx-management-web-mocks]]
 = 使用 Web Mocks
 
-为了提供全面的 Web 测试支持，TestContext 框架具有默认启用的 `MockTestExecutionListener`。当针对 `WebApplicationContext` 进行测试时，此 xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`] 在每个测试方法之前使用 Infra Web 的 `RequestContextHolder` 设置默认的线程本地状态，并基于使用 `@WebAppConfiguration` 配置的基本资源路径创建 `MockHttpServletRequest`、`MockHttpServletResponse` 和 `ServletWebRequest`。`MockTestExecutionListener` 还确保可以将 `MockHttpServletResponse` 和 `ServletWebRequest` 注入到测试实例中，并且一旦测试完成，它就会清理线程本地状态。
+为了提供全面的 Web 测试支持，TestContext 框架具有默认启用的 `WebMockTestExecutionListener`。当针对 `WebApplicationContext` 进行测试时，此 xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`] 在每个测试方法之前使用 Infra Web 的 `RequestContextHolder` 设置默认的线程本地状态，并基于使用 `@WebAppConfiguration` 配置的基本资源路径创建 `MockHttpServletRequest`、`MockHttpServletResponse` 和 `ServletWebRequest`。`WebMockTestExecutionListener` 还确保可以将 `MockHttpServletResponse` 和 `ServletWebRequest` 注入到测试实例中，并且一旦测试完成，它就会清理线程本地状态。
 
-一旦为测试加载了 `WebApplicationContext`，你可能会发现你需要与 Web mock 进行交互——例如，在调用 Web 组件之后设置测试夹具或执行断言。以下示例显示了哪些 mock 可以自动装配到测试实例中。请注意，`WebApplicationContext` 和 `MockContextImpl` 在整个测试套件中都是缓存的，而其他 mock 则由 `MockTestExecutionListener` 针对每个测试方法进行管理。
+一旦为测试加载了 `WebApplicationContext`，你可能会发现你需要与 Web mock 进行交互——例如，在调用 Web 组件之后设置测试夹具或执行断言。以下示例显示了哪些 mock 可以自动装配到测试实例中。请注意，`WebApplicationContext` 和 `MockContextImpl` 在整个测试套件中都是缓存的，而其他 mock 则由 `WebMockTestExecutionListener` 针对每个测试方法进行管理。
 
 [tabs]
 ======

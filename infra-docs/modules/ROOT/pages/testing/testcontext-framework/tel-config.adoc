@@ -3,7 +3,7 @@
 
 Infra 提供了以下默认注册的 `TestExecutionListener` 实现，顺序如下：
 
-* `MockTestExecutionListener`：为 `WebApplicationContext` 配置 Servlet API 模拟对象。
+* `WebMockTestExecutionListener`：为 `WebApplicationContext` 配置 Servlet API 模拟对象。
 * `DirtiesContextBeforeModesTestExecutionListener`：处理 "`before`" 模式的 `@DirtiesContext` 注解。
 * `ApplicationEventsTestExecutionListener`：提供对 xref:testing/testcontext-framework/application-events.adoc[`ApplicationEvents`] 的支持。
 * `DependencyInjectionTestExecutionListener`：为测试实例提供依赖注入。
@@ -102,7 +102,7 @@ class MyTest {
 如果监听器实现了 `Ordered` 或使用 `@Order` 进行了注解，它可以影响其与默认值合并的位置。
 否则，本地声明的监听器在合并时将追加到默认监听器列表的末尾。
 
-例如，如果上一个示例中的 `MyCustomTestExecutionListener` 类将其 `order` 值（例如 `500`）配置为小于 `MockTestExecutionListener` 的顺序（恰好是 `1000`），则 `MyCustomTestExecutionListener` 可以自动合并到 `MockTestExecutionListener` 前面的默认值列表中，并且可以将前面的示例替换为以下内容：
+例如，如果上一个示例中的 `MyCustomTestExecutionListener` 类将其 `order` 值（例如 `500`）配置为小于 `WebMockTestExecutionListener` 的顺序（恰好是 `1000`），则 `MyCustomTestExecutionListener` 可以自动合并到 `WebMockTestExecutionListener` 前面的默认值列表中，并且可以将前面的示例替换为以下内容：
 
 [tabs]
 ======

@@ -28,13 +28,13 @@ import infra.web.mock.MockUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * JUnit-based integration tests for {@link MockTestExecutionListener}.
+ * JUnit-based integration tests for {@link WebMockTestExecutionListener}.
  *
  * @author Sam Brannen
  * @since 4.0
  */
 @JUnitWebConfig
-class MockTestExecutionListenerJUnitIntegrationTests {
+class WebMockTestExecutionListenerJUnitIntegrationTests {
 
   @Configuration
   static class Config {

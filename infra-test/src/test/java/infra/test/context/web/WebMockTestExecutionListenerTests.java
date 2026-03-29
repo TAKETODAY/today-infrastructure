@@ -30,8 +30,8 @@ import infra.web.RequestContextHolder;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.WebApplicationContext;
 
-import static infra.test.context.web.MockTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
-import static infra.test.context.web.MockTestExecutionListener.RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
+import static infra.test.context.web.WebMockTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
+import static infra.test.context.web.WebMockTestExecutionListener.RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -39,19 +39,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit tests for {@link MockTestExecutionListener}.
+ * Unit tests for {@link WebMockTestExecutionListener}.
  *
  * @author Sam Brannen
  * @author Phillip Webb
  */
-class MockTestExecutionListenerTests {
+class WebMockTestExecutionListenerTests {
 
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 
   private final WebApplicationContext wac = mock(WebApplicationContext.class);
   private final MockContextImpl mockContext = new MockContextImpl();
   private final TestContext testContext = mock(TestContext.class);
-  private final MockTestExecutionListener listener = new MockTestExecutionListener();
+  private final WebMockTestExecutionListener listener = new WebMockTestExecutionListener();
 
   @BeforeEach
   void setUp() {
@@ -158,7 +158,7 @@ class MockTestExecutionListenerTests {
   @Test
   void activateListenerWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(NoAtWebAppConfigWebTestCase.class);
-    given(testContext.getAttribute(MockTestExecutionListener.ACTIVATE_LISTENER)).willReturn(true);
+    given(testContext.getAttribute(WebMockTestExecutionListener.ACTIVATE_LISTENER)).willReturn(true);
 
     RequestContextHolder.cleanup();
     listener.beforeTestClass(testContext);

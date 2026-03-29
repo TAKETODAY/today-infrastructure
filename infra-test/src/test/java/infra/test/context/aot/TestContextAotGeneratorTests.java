@@ -68,7 +68,7 @@ import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import infra.test.context.support.DirtiesContextTestExecutionListener;
 import infra.test.context.transaction.TransactionalTestExecutionListener;
-import infra.test.context.web.MockTestExecutionListener;
+import infra.test.context.web.WebMockTestExecutionListener;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.context.web.WebDelegatingSmartContextLoader;
 import infra.test.context.web.WebTestContextBootstrapper;
@@ -206,7 +206,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
             DirtiesContextBeforeModesTestExecutionListener.class,
             DirtiesContextTestExecutionListener.class,
             TransactionalTestExecutionListener.class,
-            MockTestExecutionListener.class
+            WebMockTestExecutionListener.class
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_DECLARED_CONSTRUCTORS));
 
     // ContextCustomizerFactory

@@ -36,7 +36,7 @@ import infra.test.context.junit4.rules.InfraMethodRule;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import infra.test.context.support.DirtiesContextTestExecutionListener;
-import infra.test.context.web.MockTestExecutionListener;
+import infra.test.context.web.WebMockTestExecutionListener;
 
 /**
  * Abstract base test class which integrates the <em>Infra TestContext
@@ -69,7 +69,7 @@ import infra.test.context.web.MockTestExecutionListener;
  * @see TestContext
  * @see TestContextManager
  * @see TestExecutionListeners
- * @see MockTestExecutionListener
+ * @see WebMockTestExecutionListener
  * @see DirtiesContextBeforeModesTestExecutionListener
  * @see ApplicationEventsTestExecutionListener
  * @see DependencyInjectionTestExecutionListener
@@ -79,7 +79,7 @@ import infra.test.context.web.MockTestExecutionListener;
  * @since 4.0
  */
 @RunWith(InfraRunner.class)
-@TestExecutionListeners({ MockTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
+@TestExecutionListeners({ WebMockTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
         ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class, EventPublishingTestExecutionListener.class })
 public abstract class AbstractJUnit4ContextTests implements ApplicationContextAware {

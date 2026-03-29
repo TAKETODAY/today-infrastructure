@@ -38,6 +38,7 @@ import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import infra.test.context.support.DirtiesContextTestExecutionListener;
 import infra.test.context.transaction.TransactionalTestExecutionListener;
+import infra.test.context.web.WebMockTestExecutionListener;
 
 import static infra.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 import static java.util.stream.Collectors.toList;
@@ -62,6 +63,7 @@ class TestExecutionListenersTests {
   @Test
   void defaultListeners() {
     List<Class<?>> expected = List.of(//
+            WebMockTestExecutionListener.class,
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
             BeanOverrideTestExecutionListener.class,//
@@ -83,6 +85,7 @@ class TestExecutionListenersTests {
   void defaultListenersMergedWithCustomListenerPrepended() {
     List<Class<?>> expected = List.of(//
             QuuxTestExecutionListener.class,//
+            WebMockTestExecutionListener.class,
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
             BeanOverrideTestExecutionListener.class,//
@@ -97,12 +100,10 @@ class TestExecutionListenersTests {
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerPrependedTestCase.class, expected);
   }
 
-  /**
-   * @since 4.1
-   */
   @Test
   void defaultListenersMergedWithCustomListenerAppended() {
     List<Class<?>> expected = List.of(//
+            WebMockTestExecutionListener.class,
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
             BeanOverrideTestExecutionListener.class,//
@@ -121,6 +122,7 @@ class TestExecutionListenersTests {
   @Test
   void defaultListenersMergedWithCustomListenerInserted() {
     List<Class<?>> expected = List.of(//
+            WebMockTestExecutionListener.class,
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
             BeanOverrideTestExecutionListener.class,//
@@ -218,7 +220,6 @@ class TestExecutionListenersTests {
     TestContextManager testContextManager = new TestContextManager(testClass);
     assertThat(names(classes(testContextManager))).as("TELs registered for " + testClass.getSimpleName()).isEqualTo(names(expected));
   }
-
 
   private void assertNumRegisteredListeners(Class<?> testClass, int expected) {
     TestContextManager testContextManager = new TestContextManager(testClass);
