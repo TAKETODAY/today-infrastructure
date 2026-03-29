@@ -454,9 +454,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    *
    * @param message error message to append the HandlerMethod details to
    */
-  protected String getDetailedErrorMessage(Object bean, String message) {
-    return "%s\nHandlerMethod details: \nBean [%s]\nMethod [%s]\n"
-            .formatted(message, bean.getClass().getName(), this.targetMethod.toGenericString());
+  protected String getDetailedErrorMessage(Object bean, @Nullable String message) {
+    StringBuilder sb = StringUtils.isNotEmpty(message) ? new StringBuilder(message).append('\n') : new StringBuilder();
+    sb.append("ApplicationListenerMethodAdapter details: \n");
+    sb.append("Bean [").append(bean.getClass().getName()).append("]\n");
+    sb.append("Method [").append(this.method.toGenericString()).append("]\n");
+    return sb.toString();
   }
 
   /**
