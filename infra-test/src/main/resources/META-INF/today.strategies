@@ -10,7 +10,8 @@ infra.test.context.TestExecutionListener=\
 	infra.test.context.jdbc.SqlScriptsTestExecutionListener,\
 	infra.test.context.event.EventPublishingTestExecutionListener,\
     infra.test.context.bean.override.BeanOverrideTestExecutionListener,\
-  	infra.test.context.bean.override.mockito.MockitoResetTestExecutionListener
+  	infra.test.context.bean.override.mockito.MockitoResetTestExecutionListener,\
+    infra.test.context.support.CommonCachesTestExecutionListener
 
 
 # Default ContextCustomizerFactory implementations for the TestContext Framework
