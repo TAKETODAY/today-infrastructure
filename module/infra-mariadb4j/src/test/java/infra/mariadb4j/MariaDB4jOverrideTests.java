@@ -61,7 +61,7 @@ class MariaDB4jOverrideTests {
   }
 
   @Test
-  public void testOverrideBySpringValue() {
+  public void testOverrideByInfraValue() {
     assertEquals(5679, s.mariadb.getConfiguration().getPort());
     assertEquals(
             new File("build/MariaDB4jOverrideTests/baseDir"),
