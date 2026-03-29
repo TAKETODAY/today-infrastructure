@@ -151,6 +151,11 @@ import infra.util.StringUtils;
  */
 public class TransactionalTestExecutionListener extends AbstractTestExecutionListener {
 
+  /**
+   * The {@link #getOrder() order} value for this listener: {@value}.
+   */
+  public static final int ORDER = 4000;
+
   private static final Logger logger = LoggerFactory.getLogger(TransactionalTestExecutionListener.class);
 
   // Do not require @Transactional test methods to be public.
@@ -158,7 +163,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   protected final TransactionAttributeSource attributeSource = new AnnotationTransactionAttributeSource(false) {
 
     @Override
-    protected TransactionAttribute findTransactionAttribute(Class<?> clazz) {
+    protected @Nullable TransactionAttribute findTransactionAttribute(Class<?> clazz) {
       // @Transactional present in inheritance hierarchy?
       TransactionAttribute result = super.findTransactionAttribute(clazz);
       if (result != null) {
@@ -168,8 +173,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
       return findTransactionAttributeInEnclosingClassHierarchy(clazz);
     }
 
-    @Nullable
-    private TransactionAttribute findTransactionAttributeInEnclosingClassHierarchy(Class<?> clazz) {
+    private @Nullable TransactionAttribute findTransactionAttributeInEnclosingClassHierarchy(Class<?> clazz) {
       if (TestContextAnnotationUtils.searchEnclosingClass(clazz)) {
         return findTransactionAttribute(clazz.getEnclosingClass());
       }
@@ -178,11 +182,16 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   };
 
   /**
-   * Returns {@code 4000}.
+   * Returns {@value #ORDER}, which ensures that the {@code TransactionalTestExecutionListener}
+   * is ordered after the
+   * {@link infra.test.context.support.CommonCachesTestExecutionListener
+   * CommonCachesTestExecutionListener} and before the
+   * {@link infra.test.context.jdbc.SqlScriptsTestExecutionListener
+   * SqlScriptsTestExecutionListener}.
    */
   @Override
   public final int getOrder() {
-    return 4000;
+    return ORDER;
   }
 
   /**
@@ -198,10 +207,11 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
    * @see #getTransactionManager(TestContext, String)
    */
   @Override
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
   public void beforeTestMethod(final TestContext testContext) throws Exception {
     Method testMethod = testContext.getTestMethod();
     Class<?> testClass = testContext.getTestClass();
-    Assert.notNull(testMethod, "Test method of supplied TestContext is required");
+    Assert.notNull(testMethod, "Test method of supplied TestContext must not be null");
 
     TransactionContext txContext = TransactionContextHolder.removeCurrentTransactionContext();
     Assert.state(txContext == null, "Cannot start new transaction without ending existing transaction");
@@ -213,9 +223,13 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
       transactionAttribute = TestContextTransactionUtils.createDelegatingTransactionAttribute(testContext,
               transactionAttribute);
 
-      if (logger.isDebugEnabled()) {
-        logger.debug("Explicit transaction definition [" + transactionAttribute +
-                "] found for test context " + testContext);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Explicit transaction definition [%s] found for test context %s"
+                .formatted(transactionAttribute, testContext));
+      }
+      else if (logger.isDebugEnabled()) {
+        logger.debug("Explicit transaction definition [%s] found for test class [%s] and test method [%s]"
+                .formatted(transactionAttribute, testClass.getName(), testMethod.getName()));
       }
 
       if (transactionAttribute.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NOT_SUPPORTED ||
@@ -246,7 +260,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   @Override
   public void afterTestMethod(TestContext testContext) throws Exception {
     Method testMethod = testContext.getTestMethod();
-    Assert.notNull(testMethod, "The test method of the supplied TestContext is required");
+    Assert.notNull(testMethod, "The test method of the supplied TestContext must not be null");
 
     TransactionContext txContext = TransactionContextHolder.removeCurrentTransactionContext();
     // If there was (or perhaps still is) a transaction...
@@ -275,20 +289,25 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
    */
   protected void runBeforeTransactionMethods(TestContext testContext) throws Exception {
     try {
-      List<Method> methods = getAnnotatedMethods(testContext.getTestClass(), BeforeTransaction.class);
+      Class<?> testClass = testContext.getTestClass();
+      List<Method> methods = getAnnotatedMethods(testClass, BeforeTransaction.class);
       Collections.reverse(methods);
       for (Method method : methods) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Executing @BeforeTransaction method [" + method + "] for test context " + testContext);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Executing @BeforeTransaction method [%s] for test context %s"
+                  .formatted(method, testContext));
         }
-        ReflectionUtils.makeAccessible(method);
-        method.invoke(testContext.getTestInstance());
+        else if (logger.isDebugEnabled()) {
+          logger.debug("Executing @BeforeTransaction method [%s] for test class [%s]"
+                  .formatted(method, testClass.getName()));
+        }
+        testContext.getMethodInvoker().invoke(method, testContext.getTestInstance());
       }
     }
     catch (InvocationTargetException ex) {
       if (logger.isErrorEnabled()) {
         logger.error("Exception encountered while executing @BeforeTransaction methods for test context " +
-                testContext + ".", ex.getTargetException());
+                testContext, ex.getTargetException());
       }
       ReflectionUtils.rethrowException(ex.getTargetException());
     }
@@ -306,14 +325,19 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   protected void runAfterTransactionMethods(TestContext testContext) throws Exception {
     Throwable afterTransactionException = null;
 
-    List<Method> methods = getAnnotatedMethods(testContext.getTestClass(), AfterTransaction.class);
+    Class<?> testClass = testContext.getTestClass();
+    List<Method> methods = getAnnotatedMethods(testClass, AfterTransaction.class);
     for (Method method : methods) {
       try {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Executing @AfterTransaction method [" + method + "] for test context " + testContext);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Executing @AfterTransaction method [%s] for test context %s"
+                  .formatted(method, testContext));
         }
-        ReflectionUtils.makeAccessible(method);
-        method.invoke(testContext.getTestInstance());
+        else if (logger.isDebugEnabled()) {
+          logger.debug("Executing @AfterTransaction method [%s] for test class [%s]"
+                  .formatted(method, testClass.getName()));
+        }
+        testContext.getMethodInvoker().invoke(method, testContext.getTestInstance());
       }
       catch (InvocationTargetException ex) {
         Throwable targetException = ex.getTargetException();
@@ -351,8 +375,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
    * @throws BeansException if an error occurs while retrieving the transaction manager
    * @see #getTransactionManager(TestContext)
    */
-  @Nullable
-  protected PlatformTransactionManager getTransactionManager(TestContext testContext, @Nullable String qualifier) {
+  protected @Nullable PlatformTransactionManager getTransactionManager(TestContext testContext, @Nullable String qualifier) {
     // Look up by type and qualifier from @Transactional
     if (StringUtils.hasText(qualifier)) {
       try {
@@ -391,13 +414,12 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
    * exists in the ApplicationContext
    * @see #getTransactionManager(TestContext, String)
    */
-  @Nullable
-  protected PlatformTransactionManager getTransactionManager(TestContext testContext) {
+  protected @Nullable PlatformTransactionManager getTransactionManager(TestContext testContext) {
     return TestContextTransactionUtils.retrieveTransactionManager(testContext, null);
   }
 
   /**
-   * Determine whether or not to rollback transactions by default for the
+   * Determine whether to rollback transactions by default for the
    * supplied {@linkplain TestContext test context}.
    * <p>Supports {@link Rollback @Rollback} or {@link Commit @Commit} at the
    * class-level.
@@ -407,6 +429,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
    * @return the <em>default rollback</em> flag for the supplied test context
    * @throws Exception if an error occurs while determining the default rollback flag
    */
+  @SuppressWarnings("NullAway")
   protected final boolean isDefaultRollback(TestContext testContext) throws Exception {
     Class<?> testClass = testContext.getTestClass();
     Rollback rollback = TestContextAnnotationUtils.findMergedAnnotation(testClass, Rollback.class);
@@ -426,7 +449,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   }
 
   /**
-   * Determine whether or not to rollback transactions for the supplied
+   * Determine whether to rollback transactions for the supplied
    * {@linkplain TestContext test context} by taking into consideration the
    * {@linkplain #isDefaultRollback(TestContext) default rollback} flag and a
    * possible method-level override via the {@link Rollback @Rollback}
@@ -439,22 +462,28 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
    */
   protected final boolean isRollback(TestContext testContext) throws Exception {
     boolean rollback = isDefaultRollback(testContext);
-    Rollback rollbackAnnotation =
-            AnnotatedElementUtils.findMergedAnnotation(testContext.getTestMethod(), Rollback.class);
+    Method testMethod = testContext.getTestMethod();
+    Rollback rollbackAnnotation = AnnotatedElementUtils.findMergedAnnotation(testMethod, Rollback.class);
     if (rollbackAnnotation != null) {
       boolean rollbackOverride = rollbackAnnotation.value();
-      if (logger.isDebugEnabled()) {
-        logger.debug(String.format(
-                "Method-level @Rollback(%s) overrides default rollback [%s] for test context %s.",
-                rollbackOverride, rollback, testContext));
+      if (logger.isTraceEnabled()) {
+        logger.trace("Method-level @Rollback(%s) overrides default rollback [%s] for test context %s"
+                .formatted(rollbackOverride, rollback, testContext));
+      }
+      else if (logger.isDebugEnabled()) {
+        logger.debug("Method-level @Rollback(%s) overrides default rollback [%s] for test method [%s]"
+                .formatted(rollbackOverride, rollback, testMethod));
       }
       rollback = rollbackOverride;
     }
     else {
-      if (logger.isDebugEnabled()) {
-        logger.debug(String.format(
-                "No method-level @Rollback override: using default rollback [%s] for test context %s.",
-                rollback, testContext));
+      if (logger.isTraceEnabled()) {
+        logger.trace("No method-level @Rollback override: using default rollback [%s] for test context %s"
+                .formatted(rollback, testContext));
+      }
+      else if (logger.isDebugEnabled()) {
+        logger.debug("No method-level @Rollback override: using default rollback [%s] for test method [%s]"
+                .formatted(rollback, testMethod));
       }
     }
     return rollback;
