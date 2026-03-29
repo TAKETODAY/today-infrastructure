@@ -731,6 +731,8 @@ dependencies {
     api 'ch.vorburger.mariaDB4j:mariaDB4j-db-macos-arm64:11.4.5'
     api 'ch.vorburger.mariaDB4j:mariaDB4j-db-linux64:11.4.5'
     api 'ch.vorburger.mariaDB4j:mariaDB4j-db-winx64:11.4.5'
+
+    api("org.easymock:easymock:5.6.0")
   }
 }
 

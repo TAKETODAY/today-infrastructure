@@ -17,7 +17,12 @@
 package infra.aop.framework;
 
 /**
+ * Marker interface implemented by all AOP proxies. Used to detect
+ * whether objects are Infra-generated proxies.
+ *
+ * @author Rob Harrop
  * @author TODAY 2020/11/7 18:09
+ * @see infra.aop.support.AopUtils#isAopProxy(Object)
  */
 public interface StandardProxy {
 }

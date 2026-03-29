@@ -36,7 +36,7 @@ import infra.jdbc.PersistenceException;
  * <pre>{@code
  *   public void validateEntity(Entity entity) {
  *     if (entity.getId() == null) {
- *       throw new IllegalEntityException("Entity ID must not be null");
+ *       throw new IllegalEntityException("Entity ID is required");
  *     }
  *   }
  * }</pre>
