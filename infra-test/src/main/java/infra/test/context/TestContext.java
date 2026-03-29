@@ -96,7 +96,6 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @param eventFactory factory for lazy creation of the {@code ApplicationEvent}
    * @see #hasApplicationContext()
    * @see #getApplicationContext()
-   * @since 5.2
    */
   default void publishEvent(Function<TestContext, ? extends ApplicationEvent> eventFactory) {
     if (hasApplicationContext()) {

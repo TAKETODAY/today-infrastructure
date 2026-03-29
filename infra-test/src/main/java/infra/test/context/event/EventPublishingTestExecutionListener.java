@@ -121,6 +121,8 @@ public class EventPublishingTestExecutionListener extends AbstractTestExecutionL
    * is ordered after the
    * {@link infra.test.context.jdbc.SqlScriptsTestExecutionListener
    * SqlScriptsTestExecutionListener} and before the
+   * {@link infra.test.context.bean.override.mockito.MockitoResetTestExecutionListener
+   * MockitoResetTestExecutionListener}.
    */
   @Override
   public final int getOrder() {

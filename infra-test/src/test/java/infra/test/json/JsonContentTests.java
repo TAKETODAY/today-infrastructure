@@ -43,7 +43,7 @@ class JsonContentTests {
     assertThatIllegalArgumentException()
             .isThrownBy(
                     () -> new JsonContent(null))
-            .withMessageContaining("JSON must not be null");
+            .withMessageContaining("JSON is required");
   }
 
   @Test

@@ -136,7 +136,6 @@ public abstract class TestConstructorUtils {
    * if there is no fallback support
    * @return {@code true} if the executable is an autowirable constructor
    * @see TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME
-   * @since 6.2.13
    */
   public static boolean isAutowirableConstructor(Executable executable,
           @Nullable PropertyProvider fallbackPropertyProvider) {

@@ -45,7 +45,7 @@ public final class JsonContent implements AssertProvider<JsonContentAssert> {
    * @param converterDelegate the content converter to use
    */
   public JsonContent(String json, @Nullable JsonConverterDelegate converterDelegate) {
-    Assert.notNull(json, "JSON must not be null");
+    Assert.notNull(json, "JSON is required");
     this.json = json;
     this.converterDelegate = converterDelegate;
   }

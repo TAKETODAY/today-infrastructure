@@ -435,7 +435,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
    * @return the {@code TestContextManager} (never {@code null})
    */
   static TestContextManager getTestContextManager(ExtensionContext context) {
-    Assert.notNull(context, "ExtensionContext must not be null");
+    Assert.notNull(context, "ExtensionContext is required");
     Class<?> testClass = context.getRequiredTestClass();
     Store store = getStore(context);
     return store.computeIfAbsent(testClass, TestContextManager::new, TestContextManager.class);
