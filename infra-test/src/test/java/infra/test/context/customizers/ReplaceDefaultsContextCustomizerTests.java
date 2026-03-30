@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
+import infra.test.context.ContextCustomizerFactories;
 import infra.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0
  */
 @JUnitConfig({})
+@ContextCustomizerFactories(factories = { FooContextCustomizerFactory.class, BarContextCustomizerFactory.class },
+        mergeMode = ContextCustomizerFactories.MergeMode.REPLACE_DEFAULTS)
 class ReplaceDefaultsContextCustomizerTests {
 
   // GlobalFruitContextCustomizerFactory is registered via today.strategies

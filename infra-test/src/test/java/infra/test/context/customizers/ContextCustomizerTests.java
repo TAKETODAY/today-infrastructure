@@ -26,6 +26,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
 import infra.test.context.BootstrapWith;
 import infra.test.context.ContextCustomizer;
+import infra.test.context.ContextCustomizerFactories;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.junit.jupiter.JUnitConfig;
 import infra.test.context.support.AbstractTestContextBootstrapper;
