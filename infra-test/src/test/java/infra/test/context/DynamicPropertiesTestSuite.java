@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-// Modifications Copyright 2017 - 2026 the TODAY authors.
+package infra.test.context;
 
-package infra.test.context.cache;
-
-import org.junit.jupiter.api.ClassOrderer;
-import org.junit.platform.suite.api.ConfigurationParameter;
-import org.junit.platform.suite.api.ExcludeTags;
-import org.junit.platform.suite.api.IncludeClassNamePatterns;
-import org.junit.platform.suite.api.IncludeEngines;
-import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 /**
- * JUnit Platform based test suite for tests that involve the {@link ContextCache}
- * in the Infra TestContext Framework.
+ * JUnit Platform based test suite for tests that involve the Infra TestContext
+ * Framework and dynamic properties.
  *
  * <p><strong>This suite is only intended to be used manually within an IDE.</strong>
  *
@@ -46,13 +39,17 @@ import org.junit.platform.suite.api.Suite;
  * @since 5.0
  */
 @Suite
-@IncludeEngines("junit-jupiter")
-@SelectPackages("infra.test.context.cache")
-@IncludeClassNamePatterns(".*Tests$")
-@ExcludeTags("failing-test-case")
-@ConfigurationParameter(
-        key = ClassOrderer.DEFAULT_ORDER_PROPERTY_NAME,
-        value = "org.junit.jupiter.api.ClassOrderer$ClassName"
+@SelectClasses(
+        value = {
+                DynamicPropertyRegistrarIntegrationTests.class,
+                DynamicPropertySourceIntegrationTests.class
+        },
+        names = {
+                "infra.test.context.junit.jupiter.nested.DynamicPropertySourceNestedTests",
+                "infra.test.context.support.DefaultTestPropertySourcesIntegrationTests",
+                "infra.test.context.support.DynamicPropertiesContextCustomizerFactoryTests",
+                "infra.test.context.support.DynamicValuesPropertySourceTests"
+        }
 )
-class ContextCacheTestSuite {
+class DynamicPropertiesTestSuite {
 }

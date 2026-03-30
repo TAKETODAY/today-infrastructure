@@ -21,6 +21,7 @@ package infra.test.context.support;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,20 +39,20 @@ import infra.test.context.TestContextAnnotationUtils;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DynamicPropertiesContextCustomizer
  * @since 4.0
  */
 class DynamicPropertiesContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
-  @Nullable
-  public DynamicPropertiesContextCustomizer createContextCustomizer(Class<?> testClass,
+  public @Nullable DynamicPropertiesContextCustomizer createContextCustomizer(Class<?> testClass,
           List<ContextConfigurationAttributes> configAttributes) {
 
     Set<Method> methods = new LinkedHashSet<>();
     findMethods(testClass, methods);
     if (methods.isEmpty()) {
-      return null;
+      methods = Collections.emptySet();
     }
     return new DynamicPropertiesContextCustomizer(methods);
   }

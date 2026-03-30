@@ -68,9 +68,9 @@ import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import infra.test.context.support.DirtiesContextTestExecutionListener;
 import infra.test.context.transaction.TransactionalTestExecutionListener;
-import infra.test.context.web.WebMockTestExecutionListener;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.context.web.WebDelegatingSmartContextLoader;
+import infra.test.context.web.WebMockTestExecutionListener;
 import infra.test.context.web.WebTestContextBootstrapper;
 import infra.test.web.mock.MockMvc;
 import infra.util.function.ThrowingConsumer;
@@ -400,6 +400,8 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "infra/test/context/aot/samples/management/ManagementConfiguration__TestContext001_BeanDefinitions.java",
           "infra/test/context/aot/samples/management/ManagementMessageService__TestContext001_ManagementBeanDefinitions.java",
 
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext001_BeanDefinitions.java",
+
           // BasicInfraJupiterTests -- not generated b/c already generated for BasicInfraJupiterSharedConfigTests.
           // BasicInfraJupiterTests.NestedTests
           "infra/context/event/DefaultEventListenerFactory__TestContext002_BeanDefinitions.java",
@@ -412,12 +414,17 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "infra/test/context/aot/samples/management/ManagementConfiguration__TestContext002_BeanDefinitions.java",
           "infra/test/context/aot/samples/management/ManagementMessageService__TestContext002_ManagementBeanDefinitions.java",
 
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext002_BeanDefinitions.java",
+
           // BasicInfraVintageTests
           "infra/context/event/DefaultEventListenerFactory__TestContext003_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext003_BeanDefinitions.java",
           "infra/test/context/aot/samples/basic/BasicInfraVintageTests__TestContext003_ApplicationContextInitializer.java",
           "infra/test/context/aot/samples/basic/BasicInfraVintageTests__TestContext003_BeanFactoryRegistrations.java",
           "infra/test/context/aot/samples/basic/BasicTestConfiguration__TestContext003_BeanDefinitions.java",
+
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext003_BeanDefinitions.java",
+
           // SqlScriptsInfraJupiterTests
           "infra/context/event/DefaultEventListenerFactory__TestContext004_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext004_BeanDefinitions.java",
@@ -437,6 +444,10 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "infra/test/context/aot/samples/common/DefaultMessageService__TestContext006_BeanDefinitions.java",
           "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext006_ApplicationContextInitializer.java",
           "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext006_BeanFactoryRegistrations.java",
+
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext004_BeanDefinitions.java",
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext005_BeanDefinitions.java",
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext006_BeanDefinitions.java",
 
           "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_EnvironmentPostProcessor.java"
   };

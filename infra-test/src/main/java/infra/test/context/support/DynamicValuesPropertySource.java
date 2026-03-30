@@ -18,11 +18,20 @@
 
 package infra.test.context.support;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.EnumerablePropertySource;
 import infra.core.env.MapPropertySource;
+import infra.core.env.PropertySource;
+import infra.core.env.PropertySources;
+import infra.lang.Assert;
+import infra.test.context.DynamicPropertyRegistry;
 import infra.util.function.SupplierUtils;
 
 /**
@@ -36,14 +45,48 @@ import infra.util.function.SupplierUtils;
  */
 class DynamicValuesPropertySource extends MapPropertySource {
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  DynamicValuesPropertySource(String name, Map<String, Supplier<Object>> valueSuppliers) {
-    super(name, (Map) valueSuppliers);
+  static final String PROPERTY_SOURCE_NAME = "Dynamic Test Properties";
+
+  final DynamicPropertyRegistry dynamicPropertyRegistry;
+
+  DynamicValuesPropertySource() {
+    this(Collections.synchronizedMap(new LinkedHashMap<>()));
+  }
+
+  DynamicValuesPropertySource(Map<String, Supplier<Object>> valueSuppliers) {
+    super(PROPERTY_SOURCE_NAME, Collections.unmodifiableMap(valueSuppliers));
+    this.dynamicPropertyRegistry = (name, valueSupplier) -> {
+      Assert.hasText(name, "'name' must not be null or blank");
+      Assert.notNull(valueSupplier, "'valueSupplier' must not be null");
+      valueSuppliers.put(name, valueSupplier);
+    };
   }
 
   @Override
-  public Object getProperty(String name) {
+  public @Nullable Object getProperty(String name) {
     return SupplierUtils.resolve(super.getProperty(name));
+  }
+
+  /**
+   * Get the {@code DynamicValuesPropertySource} registered in the environment
+   * or create and register a new {@code DynamicValuesPropertySource} in the
+   * environment.
+   */
+  static DynamicValuesPropertySource getOrCreate(ConfigurableEnvironment environment) {
+    PropertySources propertySources = environment.getPropertySources();
+    PropertySource<?> propertySource = propertySources.get(PROPERTY_SOURCE_NAME);
+    if (propertySource instanceof DynamicValuesPropertySource dynamicValuesPropertySource) {
+      return dynamicValuesPropertySource;
+    }
+    else if (propertySource == null) {
+      DynamicValuesPropertySource dynamicValuesPropertySource = new DynamicValuesPropertySource();
+      propertySources.addFirst(dynamicValuesPropertySource);
+      return dynamicValuesPropertySource;
+    }
+    else {
+      throw new IllegalStateException("PropertySource with name '%s' must be a DynamicValuesPropertySource"
+              .formatted(PROPERTY_SOURCE_NAME));
+    }
   }
 
 }
