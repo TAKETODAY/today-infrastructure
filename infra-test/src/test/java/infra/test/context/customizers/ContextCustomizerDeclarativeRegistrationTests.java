@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @CustomizeWithFruit
 @CustomizeWithFoo
 @CustomizeWithBar
+@ContextCustomizerFactories(EnigmaContextCustomizerFactory.class)
 class ContextCustomizerDeclarativeRegistrationTests {
 
   // GlobalFruitContextCustomizerFactory is registered via today.strategies
