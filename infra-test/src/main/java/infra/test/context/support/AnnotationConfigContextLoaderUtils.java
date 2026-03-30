@@ -18,8 +18,6 @@
 
 package infra.test.context.support;
 
-import org.jspecify.annotations.Nullable;
-
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,13 +104,12 @@ public abstract class AnnotationConfigContextLoaderUtils {
    * @param clazz the class to check
    * @return {@code true} if the supplied class meets the candidate criteria
    */
-  private static boolean isDefaultConfigurationClassCandidate(@Nullable Class<?> clazz) {
-    return (clazz != null && isStaticNonPrivateAndNonFinal(clazz) &&
-            AnnotatedElementUtils.hasAnnotation(clazz, Configuration.class));
+  private static boolean isDefaultConfigurationClassCandidate(Class<?> clazz) {
+    return isStaticNonPrivateAndNonFinal(clazz) &&
+            AnnotatedElementUtils.hasAnnotation(clazz, Configuration.class);
   }
 
   private static boolean isStaticNonPrivateAndNonFinal(Class<?> clazz) {
-    Assert.notNull(clazz, "Class is required");
     int modifiers = clazz.getModifiers();
     return (Modifier.isStatic(modifiers) && !Modifier.isPrivate(modifiers) && !Modifier.isFinal(modifiers));
   }
