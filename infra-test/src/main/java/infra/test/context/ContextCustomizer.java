@@ -20,7 +20,6 @@ package infra.test.context;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.test.context.support.AbstractContextLoader;
-import infra.test.context.support.ContextCustomizerFactories;
 
 /**
  * Strategy interface for customizing {@link ConfigurableApplicationContext

@@ -23,14 +23,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.test.context.support.ContextCustomizerFactories;
-
 /**
  * @author Sam Brannen
  * @since 4.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@ContextCustomizerFactories(BarContextCustomizerFactory.class)
 @interface CustomizeWithBar {
 }

@@ -29,7 +29,6 @@ import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.junit.jupiter.JUnitConfig;
 import infra.test.context.support.AbstractTestContextBootstrapper;
-import infra.test.context.support.ContextCustomizerFactories;
 import infra.test.context.support.DefaultTestContextBootstrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;

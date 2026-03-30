@@ -40,6 +40,7 @@ import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
+import infra.test.context.ContextCustomizerFactories;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.ContextLoader;
