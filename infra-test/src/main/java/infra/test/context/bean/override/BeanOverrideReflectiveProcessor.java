@@ -42,7 +42,7 @@ class BeanOverrideReflectiveProcessor implements ReflectiveProcessor {
     Optional.ofNullable(MergedAnnotations.from(element)
                     .get(BeanOverride.class)
                     .synthesize(MergedAnnotation::isPresent))
-            
+
             .map(BeanOverride::value)
             .ifPresent(clazz -> hints.registerType(clazz, INVOKE_DECLARED_CONSTRUCTORS));
   }
