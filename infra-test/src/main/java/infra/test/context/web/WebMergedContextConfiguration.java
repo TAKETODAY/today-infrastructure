@@ -108,9 +108,9 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
+  public WebMergedContextConfiguration(Class<?> testClass, String @Nullable [] locations, Class<?> @Nullable [] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
-          @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
+          String @Nullable [] activeProfiles, String @Nullable [] propertySourceLocations, String @Nullable [] propertySourceProperties,
           String resourceBasePath, ContextLoader contextLoader,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
 
@@ -144,9 +144,9 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
+  public WebMergedContextConfiguration(Class<?> testClass, String @Nullable [] locations, Class<?> @Nullable [] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
-          @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
+          String @Nullable [] activeProfiles, String @Nullable [] propertySourceLocations, String @Nullable [] propertySourceProperties,
           @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
 
@@ -180,10 +180,10 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
    */
-  public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, Class<?> @Nullable [] classes,
+  public WebMergedContextConfiguration(Class<?> testClass, String @Nullable [] locations, Class<?> @Nullable [] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
-          @Nullable String[] activeProfiles,
-          List<PropertySourceDescriptor> propertySourceDescriptors, @Nullable String[] propertySourceProperties,
+          String @Nullable [] activeProfiles,
+          List<PropertySourceDescriptor> propertySourceDescriptors, String @Nullable [] propertySourceProperties,
           @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
 

@@ -23,19 +23,19 @@ import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import infra.beans.BeanUtils;
-import infra.lang.TodayStrategies;
+import infra.core.annotation.MergedAnnotation;
+import infra.core.annotation.MergedAnnotationPredicates;
+import infra.core.annotation.MergedAnnotations;
+import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
-import infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
-import infra.test.context.support.DefaultBootstrapContext;
-import infra.test.context.support.DefaultTestContextBootstrapper;
-import infra.test.context.web.WebAppConfiguration;
-import infra.test.context.web.WebTestContextBootstrapper;
 import infra.util.ClassUtils;
-import infra.util.StringUtils;
 
 /**
  * {@code BootstrapUtils} is a collection of utility methods to assist with
@@ -67,57 +67,44 @@ public abstract class BootstrapUtils {
   private static final String WEB_APP_CONFIGURATION_ANNOTATION_CLASS_NAME =
           "infra.test.context.web.WebAppConfiguration";
 
-  private static final Class<? extends Annotation> webAppConfigurationClass = loadWebAppConfigurationClass();
+  private static final Class<? extends Annotation> WEB_APP_CONFIGURATION_CLASS = loadWebAppConfigurationClass();
 
   private static final Logger log = LoggerFactory.getLogger(BootstrapUtils.class);
 
   /**
    * Create the {@code BootstrapContext} for the specified {@linkplain Class test class}.
-   * <p>Uses reflection to create a {@link DefaultBootstrapContext}
-   * that uses a default {@link CacheAwareContextLoaderDelegate} &mdash; configured
-   * via the {@link CacheAwareContextLoaderDelegate#DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME}
-   * system property or falling back to the
-   * {@link DefaultCacheAwareContextLoaderDelegate}
-   * if the system property is not defined.
+   * <p>Uses reflection to create a {@link infra.test.context.support.DefaultBootstrapContext}.
+   * that uses a {@link infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate}.
    *
    * @param testClass the test class for which the bootstrap context should be created
    * @return a new {@code BootstrapContext}; never {@code null}
    */
   static BootstrapContext createBootstrapContext(Class<?> testClass) {
     CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate = createCacheAwareContextLoaderDelegate();
-    Class<? extends BootstrapContext> clazz = null;
+    String className = DEFAULT_BOOTSTRAP_CONTEXT_CLASS_NAME;
+    Class<? extends BootstrapContext> clazz;
     try {
-      clazz = ClassUtils.forName(
-              DEFAULT_BOOTSTRAP_CONTEXT_CLASS_NAME, BootstrapUtils.class.getClassLoader());
-      Constructor<? extends BootstrapContext> constructor = clazz.getConstructor(
-              Class.class, CacheAwareContextLoaderDelegate.class);
-
-      log.debug("Instantiating BootstrapContext using constructor [{}]", constructor);
+      clazz = ClassUtils.forName(className, BootstrapUtils.class.getClassLoader());
+      Constructor<? extends BootstrapContext> constructor =
+              clazz.getConstructor(Class.class, CacheAwareContextLoaderDelegate.class);
+      log.trace("Instantiating BootstrapContext using constructor [{}]", constructor);
       return BeanUtils.newInstance(constructor, testClass, cacheAwareContextLoaderDelegate);
     }
     catch (Throwable ex) {
-      throw new IllegalStateException("Could not load BootstrapContext [" + clazz + "]", ex);
+      throw new IllegalStateException("Could not load BootstrapContext [%s]".formatted(className), ex);
     }
   }
 
   private static CacheAwareContextLoaderDelegate createCacheAwareContextLoaderDelegate() {
-    String className = TodayStrategies.getProperty(
-            CacheAwareContextLoaderDelegate.DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME);
-    if (StringUtils.hasText(className)) {
-      className = className.trim();
-    }
-    else {
-      className = DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_CLASS_NAME;
-    }
+    String className = DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_CLASS_NAME;
+    Class<? extends CacheAwareContextLoaderDelegate> clazz;
     try {
-      Class<CacheAwareContextLoaderDelegate> clazz =
-              ClassUtils.forName(className, BootstrapUtils.class.getClassLoader());
-
-      log.debug("Instantiating CacheAwareContextLoaderDelegate from class [{}]", className);
+      clazz = ClassUtils.forName(className, BootstrapUtils.class.getClassLoader());
+      log.trace("Instantiating CacheAwareContextLoaderDelegate from class [{}]", className);
       return BeanUtils.newInstance(clazz);
     }
     catch (Throwable ex) {
-      throw new IllegalStateException("Could not create CacheAwareContextLoaderDelegate [" + className + "]", ex);
+      throw new IllegalStateException("Could not load CacheAwareContextLoaderDelegate [%s]".formatted(className), ex);
     }
   }
 
@@ -129,11 +116,11 @@ public abstract class BootstrapUtils {
    * the test class, either directly or as a meta-annotation, then its
    * {@link BootstrapWith#value value} will be used as the bootstrapper type.
    * Otherwise, either the
-   * {@link DefaultTestContextBootstrapper
+   * {@link infra.test.context.support.DefaultTestContextBootstrapper
    * DefaultTestContextBootstrapper} or the
-   * {@link WebTestContextBootstrapper
+   * {@link infra.test.context.web.WebTestContextBootstrapper
    * WebTestContextBootstrapper} will be used, depending on the presence of
-   * {@link WebAppConfiguration @WebAppConfiguration}.
+   * {@link infra.test.context.web.WebAppConfiguration @WebAppConfiguration}.
    *
    * @param testClass the test class for which the bootstrapper should be created
    * @return a fully configured {@code TestContextBootstrapper}
@@ -150,11 +137,11 @@ public abstract class BootstrapUtils {
    * the test class, either directly or as a meta-annotation, then its
    * {@link BootstrapWith#value value} will be used as the bootstrapper type.
    * Otherwise, either the
-   * {@link DefaultTestContextBootstrapper
+   * {@link infra.test.context.support.DefaultTestContextBootstrapper
    * DefaultTestContextBootstrapper} or the
-   * {@link WebTestContextBootstrapper
+   * {@link infra.test.context.web.WebTestContextBootstrapper
    * WebTestContextBootstrapper} will be used, depending on the presence of
-   * {@link WebAppConfiguration @WebAppConfiguration}.
+   * {@link infra.test.context.web.WebAppConfiguration @WebAppConfiguration}.
    *
    * @param bootstrapContext the bootstrap context to use
    * @return a fully configured {@code TestContextBootstrapper}
@@ -162,15 +149,15 @@ public abstract class BootstrapUtils {
   static TestContextBootstrapper resolveTestContextBootstrapper(BootstrapContext bootstrapContext) {
     Class<?> testClass = bootstrapContext.getTestClass();
 
-    Class<? extends TestContextBootstrapper> clazz = null;
+    Class<?> clazz = null;
     try {
       clazz = resolveExplicitTestContextBootstrapper(testClass);
       if (clazz == null) {
         clazz = resolveDefaultTestContextBootstrapper(testClass);
       }
-      log.debug("Instantiating TestContextBootstrapper for test class [{}] from class [{}]",
+      log.trace("Instantiating TestContextBootstrapper for test class [{}] from class [{}]",
               testClass.getName(), clazz.getName());
-      TestContextBootstrapper testContextBootstrapper = BeanUtils.newInstance(clazz);
+      TestContextBootstrapper testContextBootstrapper = (TestContextBootstrapper) BeanUtils.newInstance(clazz);
       testContextBootstrapper.setBootstrapContext(bootstrapContext);
       return testContextBootstrapper;
     }
@@ -178,33 +165,40 @@ public abstract class BootstrapUtils {
       throw ex;
     }
     catch (Throwable ex) {
-      throw new IllegalStateException("Could not load TestContextBootstrapper [" + clazz +
-              "]. Specify @BootstrapWith's 'value' attribute or make the default bootstrapper class available.",
-              ex);
+      throw new IllegalStateException("""
+              Could not load TestContextBootstrapper [%s]. Specify @BootstrapWith's 'value' \
+              attribute or make the default bootstrapper class available.""".formatted(clazz), ex);
     }
   }
 
-  @Nullable
-  static Class<? extends TestContextBootstrapper> resolveExplicitTestContextBootstrapper(Class<?> testClass) {
-    LinkedHashSet<BootstrapWith> annotations = new LinkedHashSet<>();
-    AnnotationDescriptor<BootstrapWith> descriptor =
-            TestContextAnnotationUtils.findAnnotationDescriptor(testClass, BootstrapWith.class);
-    while (descriptor != null) {
-      annotations.addAll(descriptor.findAllLocalMergedAnnotations());
-      descriptor = descriptor.next();
-    }
+  private static @Nullable Class<?> resolveExplicitTestContextBootstrapper(Class<?> testClass) {
+    Map<Integer, Set<BootstrapWith>> distanceToAnnotationsMap = MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
+            .withEnclosingClasses(TestContextAnnotationUtils::searchEnclosingClass)
+            .from(testClass)
+            .stream(BootstrapWith.class)
+            // The following effectively filters out annotations in the type and
+            // enclosing class hierarchies once annotations have already been found
+            // on a particular class or interface.
+            .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
+            // Grouping by "meta-distance" enables us to allow a directly-present
+            // annotation to override annotations that are meta-present.
+            // Collecting synthesized annotations for each meta-distance enables
+            // us to filter out duplicates.
+            .collect(Collectors.groupingBy(MergedAnnotation::getDistance, TreeMap::new,
+                    Collectors.mapping(MergedAnnotation::synthesize, Collectors.toCollection(LinkedHashSet::new))));
 
-    if (annotations.isEmpty()) {
+    if (distanceToAnnotationsMap.isEmpty()) {
       return null;
     }
-    if (annotations.size() == 1) {
-      return annotations.iterator().next().value();
-    }
 
-    // Allow directly-present annotation to override annotations that are meta-present.
-    BootstrapWith bootstrapWith = testClass.getDeclaredAnnotation(BootstrapWith.class);
-    if (bootstrapWith != null) {
-      return bootstrapWith.value();
+    Set<BootstrapWith> annotations = new LinkedHashSet<>();
+    for (Set<BootstrapWith> currentAnnotations : distanceToAnnotationsMap.values()) {
+      // If we have found a single, non-competing @BootstrapWith annotation, return it.
+      if (annotations.isEmpty() && currentAnnotations.size() == 1) {
+        return currentAnnotations.iterator().next().value();
+      }
+      // Otherwise, track all discovered annotations for error reporting.
+      annotations.addAll(currentAnnotations);
     }
 
     throw new IllegalStateException(String.format(
@@ -212,8 +206,8 @@ public abstract class BootstrapUtils {
             testClass.getName(), annotations));
   }
 
-  static Class<TestContextBootstrapper> resolveDefaultTestContextBootstrapper(Class<?> testClass) throws Exception {
-    boolean webApp = TestContextAnnotationUtils.hasAnnotation(testClass, webAppConfigurationClass);
+  private static Class<?> resolveDefaultTestContextBootstrapper(Class<?> testClass) throws Exception {
+    boolean webApp = TestContextAnnotationUtils.hasAnnotation(testClass, WEB_APP_CONFIGURATION_CLASS);
     String bootstrapperClassName = (webApp ? DEFAULT_WEB_TEST_CONTEXT_BOOTSTRAPPER_CLASS_NAME :
             DEFAULT_TEST_CONTEXT_BOOTSTRAPPER_CLASS_NAME);
     return ClassUtils.forName(bootstrapperClassName, BootstrapUtils.class.getClassLoader());

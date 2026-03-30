@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithInfraRulesTests
  * @since 4.0
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2002-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package infra.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.TestInstantiationAwareExtension.ExtensionContextScope;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Configuration;
@@ -34,15 +35,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
  * {@link TestPropertySource @TestPropertySource} in conjunction with the
- * {@link InfraExtension} in a JUnit Jupiter environment.
+ * {@link InfraExtension} in a JUnit Jupiter environment with
+ * {@link ExtensionContextScope#TEST_METHOD}.
  *
  * @author Sam Brannen
- * @since 4.0
+ * @since 5.0
  */
-@JUnitConfig(TestPropertySourceNestedTests.Config.class)
+@JUnitConfig
 @TestPropertySource(properties = "p1 = v1")
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
-class TestPropertySourceNestedTests {
+class TestPropertySourceTestMethodScopedExtensionContextNestedTests {
 
   @Autowired
   Environment env1;
@@ -54,16 +56,15 @@ class TestPropertySourceNestedTests {
 
   @Nested
   @NestedTestConfiguration(INHERIT)
-  class InheritedConfigTests {
+  class InheritedCfgTests {
 
     @Autowired
     Environment env2;
 
     @Test
     void propertiesInEnvironment() {
-      assertThat(env1.getProperty("p1")).isEqualTo("v1");
-      assertThat(env2.getProperty("p1")).isEqualTo("v1");
       assertThat(env1).isSameAs(env2);
+      assertThat(env2.getProperty("p1")).isEqualTo("v1");
     }
   }
 
@@ -77,8 +78,7 @@ class TestPropertySourceNestedTests {
 
     @Test
     void propertiesInEnvironment() {
-      assertThat(env1.getProperty("p1")).isEqualTo("v1");
-      assertThat(env1).isNotSameAs(env2);
+      assertThat(env1).isSameAs(env2);
       assertThat(env2.getProperty("p1")).isNull();
       assertThat(env2.getProperty("p2")).isEqualTo("v2");
     }
@@ -88,15 +88,14 @@ class TestPropertySourceNestedTests {
   @NestedTestConfiguration(INHERIT)
   @TestPropertySource(properties = "p2a = v2a")
   @TestPropertySource(properties = "p2b = v2b")
-  class InheritedAndExtendedConfigTests {
+  class InheritedAndExtendedCfgTests {
 
     @Autowired
     Environment env2;
 
     @Test
     void propertiesInEnvironment() {
-      assertThat(env1.getProperty("p1")).isEqualTo("v1");
-      assertThat(env1).isNotSameAs(env2);
+      assertThat(env1).isSameAs(env2);
       assertThat(env2.getProperty("p1")).isEqualTo("v1");
       assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
       assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
@@ -106,19 +105,14 @@ class TestPropertySourceNestedTests {
     @NestedTestConfiguration(OVERRIDE)
     @JUnitConfig(Config.class)
     @TestPropertySource(properties = "p3 = v3")
-    class L3WithOverriddenConfigTests {
+    class L3OverriddenCfgTests {
 
       @Autowired
       Environment env3;
 
       @Test
       void propertiesInEnvironment() {
-        assertThat(env1.getProperty("p1")).isEqualTo("v1");
-        assertThat(env1).isNotSameAs(env2);
-        assertThat(env2.getProperty("p1")).isEqualTo("v1");
-        assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
-        assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
-        assertThat(env2).isNotSameAs(env3);
+        assertThat(env1).isSameAs(env2).isSameAs(env3);
         assertThat(env3.getProperty("p1")).isNull();
         assertThat(env3.getProperty("p2")).isNull();
         assertThat(env3.getProperty("p3")).isEqualTo("v3");
@@ -127,23 +121,14 @@ class TestPropertySourceNestedTests {
       @Nested
       @NestedTestConfiguration(INHERIT)
       @TestPropertySource(properties = { "p3 = v34", "p4 = v4" }, inheritProperties = false)
-      class L4WithInheritedConfigButOverriddenTestPropertiesTests {
+      class L4InheritedCfgButOverriddenTestPropsTests {
 
         @Autowired
         Environment env4;
 
         @Test
         void propertiesInEnvironment() {
-          assertThat(env1.getProperty("p1")).isEqualTo("v1");
-          assertThat(env1).isNotSameAs(env2);
-          assertThat(env2.getProperty("p1")).isEqualTo("v1");
-          assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
-          assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
-          assertThat(env2).isNotSameAs(env3);
-          assertThat(env3.getProperty("p1")).isNull();
-          assertThat(env3.getProperty("p2")).isNull();
-          assertThat(env3.getProperty("p3")).isEqualTo("v3");
-          assertThat(env3).isNotSameAs(env4);
+          assertThat(env1).isSameAs(env2).isSameAs(env3).isSameAs(env4);
           assertThat(env4.getProperty("p1")).isNull();
           assertThat(env4.getProperty("p2")).isNull();
           assertThat(env4.getProperty("p3")).isEqualTo("v34");
@@ -151,20 +136,20 @@ class TestPropertySourceNestedTests {
         }
 
         @Nested
-        class L5WithInheritedConfigAndTestInterfaceTests implements TestInterface {
+        class L5InheritedCfgAndTestInterfaceTests implements TestInterface {
 
           @Autowired
           Environment env5;
 
           @Test
           void propertiesInEnvironment() {
-            assertThat(env4).isNotSameAs(env5);
-            assertThat(env5.getProperty("foo")).isEqualTo("bar");
-            assertThat(env5.getProperty("enigma")).isEqualTo("42");
+            assertThat(env4).isSameAs(env5);
             assertThat(env5.getProperty("p1")).isNull();
             assertThat(env5.getProperty("p2")).isNull();
             assertThat(env5.getProperty("p3")).isEqualTo("v34");
             assertThat(env5.getProperty("p4")).isEqualTo("v4");
+            assertThat(env5.getProperty("foo")).isEqualTo("bar");
+            assertThat(env5.getProperty("enigma")).isEqualTo("42");
           }
         }
       }

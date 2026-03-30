@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2002-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package infra.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.TestInstantiationAwareExtension.ExtensionContextScope;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
@@ -26,8 +27,8 @@ import infra.context.annotation.Configuration;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.NestedTestConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
+import infra.test.context.junit.jupiter.InfraExtensionConfig;
 import infra.test.context.junit.jupiter.JUnitConfig;
-import infra.test.context.junit4.nested.NestedTestsWithInfraRulesTests;
 
 import static infra.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static infra.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -36,16 +37,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
  * {@link ContextConfiguration @ContextConfiguration} in conjunction with the
- * {@link InfraExtension} in a JUnit Jupiter environment.
+ * {@link InfraExtension} in a JUnit Jupiter environment with test class
+ * {@link ExtensionContextScope}.
  *
  * @author Sam Brannen
- * @see ConstructorInjectionNestedTests
- * @see NestedTestsWithInfraRulesTests
- * @since 4.0
+ * @see ConstructorInjectionTestClassScopedExtensionContextNestedTests
+ * @see infra.test.context.junit4.nested.NestedTestsWithInfraRulesTests
+ * @since 5.0
  */
-@JUnitConfig(ContextConfigurationNestedTests.TopLevelConfig.class)
+@JUnitConfig(ContextConfigurationTestClassScopedExtensionContextNestedTests.TopLevelConfig.class)
+@InfraExtensionConfig(useTestClassScopedExtensionContext = true)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
-class ContextConfigurationNestedTests {
+class ContextConfigurationTestClassScopedExtensionContextNestedTests {
 
   private static final String FOO = "foo";
   private static final String BAR = "bar";
@@ -83,7 +86,7 @@ class ContextConfigurationNestedTests {
 
   @Nested
   @NestedTestConfiguration(INHERIT)
-  class NestedTestCaseWithInheritedConfigTests {
+  class NestedWithInheritedConfigTests {
 
     @Autowired(required = false)
     @Qualifier("foo")

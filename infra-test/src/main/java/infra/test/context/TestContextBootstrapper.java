@@ -20,7 +20,6 @@ package infra.test.context;
 
 import java.util.List;
 
-import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.TodayStrategies;
 import infra.test.context.support.AbstractTestContextBootstrapper;
 import infra.test.context.support.DefaultTestContextBootstrapper;
@@ -82,7 +81,6 @@ public interface TestContextBootstrapper {
    *
    * @return a new {@link TestContext}, never {@code null}
    * @see #buildMergedContextConfiguration()
-   * @since 4.0
    */
   TestContext buildTestContext();
 
@@ -125,7 +123,7 @@ public interface TestContextBootstrapper {
    * <em>present</em> on the test class in the {@code BootstrapContext},
    * <em>default</em> listeners should be returned. Furthermore, default
    * listeners must be sorted using
-   * {@link AnnotationAwareOrderComparator
+   * {@link infra.core.annotation.AnnotationAwareOrderComparator
    * AnnotationAwareOrderComparator}.
    * <p>Concrete implementations are free to determine what comprises the
    * set of default listeners. However, by default, the Infra TestContext
@@ -137,7 +135,8 @@ public interface TestContextBootstrapper {
    * flag of {@link TestExecutionListeners @TestExecutionListeners} must be
    * taken into consideration. Specifically, if the {@code inheritListeners}
    * flag is set to {@code true}, listeners declared for a given test class must
-   * be appended to the end of the list of listeners declared in superclasses.
+   * be appended to the end of the list of listeners declared in superclasses
+   * or enclosing classes.
    *
    * @return a list of {@code TestExecutionListener} instances
    */
