@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.InfraConfiguration;
 import infra.app.test.context.InfraTest;
-import infra.app.test.mock.mockito.MockBean;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Import;
 import infra.stereotype.Component;
+import infra.test.context.bean.override.mockito.MockitoBean;
 
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.times;
 @Import(InheritedNestedTestConfigurationTests.ActionPerformer.class)
 class InheritedNestedTestConfigurationTests {
 
-  @MockBean
+  @MockitoBean
   Action action;
 
   @Autowired
