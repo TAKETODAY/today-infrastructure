@@ -44,8 +44,8 @@ import infra.lang.Constant;
  * <li>{@code ?} matches one character</li>
  * <li>{@code *} matches zero or more characters</li>
  * <li>{@code **} matches zero or more <em>directories</em> in a path</li>
- * <li>{@code {spring:[a-z]+}} matches the regexp {@code [a-z]+} as a path
- * variable named "spring"</li>
+ * <li>{@code {infra:[a-z]+}} matches the regexp {@code [a-z]+} as a path
+ * variable named "infra"</li>
  * </ul>
  *
  * <h3>Examples</h3>

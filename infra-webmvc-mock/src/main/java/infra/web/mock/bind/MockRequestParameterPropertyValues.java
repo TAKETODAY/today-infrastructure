@@ -77,7 +77,7 @@ public class MockRequestParameterPropertyValues extends PropertyValues {
    * @param request the HTTP request
    * @param prefix the prefix for parameters (the full prefix will
    * consist of this plus the separator)
-   * @param prefixSeparator separator delimiting prefix (e.g. "spring")
+   * @param prefixSeparator separator delimiting prefix (e.g. "infra")
    * and the rest of the parameter name ("param1", "param2")
    */
   public MockRequestParameterPropertyValues(

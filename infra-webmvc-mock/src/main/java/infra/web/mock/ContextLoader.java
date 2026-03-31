@@ -61,7 +61,7 @@ import infra.web.mock.support.XmlWebApplicationContext;
  * file paths which can be separated by any number of commas and spaces, e.g.
  * "WEB-INF/applicationContext1.xml, WEB-INF/applicationContext2.xml".
  * Ant-style path patterns are supported as well, e.g.
- * "WEB-INF/*Context.xml,WEB-INF/spring*.xml" or "WEB-INF/&#42;&#42;/*Context.xml".
+ * "WEB-INF/*Context.xml,WEB-INF/bean*.xml" or "WEB-INF/&#42;&#42;/*Context.xml".
  * If not explicitly specified, the context implementation is supposed to use a
  * default location (with XmlWebApplicationContext: "/WEB-INF/applicationContext.xml").
  *

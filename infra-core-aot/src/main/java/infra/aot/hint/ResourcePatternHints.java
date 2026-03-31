@@ -85,8 +85,6 @@ public final class ResourcePatternHints {
      * all parent directories for the ultimate resource or resources.
      * <p>This is necessary to support classpath scanning within a GraalVM
      * native image.
-     *
-     * @see <a href="https://github.com/spring-projects/spring-framework/issues/29403">gh-29403</a>
      */
     private List<String> expandToIncludeDirectories(String includePattern) {
       // Resource in root or no explicit subdirectories?

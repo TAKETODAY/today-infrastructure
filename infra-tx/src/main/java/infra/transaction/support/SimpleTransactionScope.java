@@ -59,7 +59,7 @@ public class SimpleTransactionScope implements Scope {
       info.bindResource(this, scopedObjects);
     }
     // NOTE: Do NOT modify the following to use Map::computeIfAbsent. For details,
-    // see https://github.com/spring-projects/spring-framework/issues/25801.
+    // see spr-25801.
     Object scopedObject = scopedObjects.scopedInstances.get(name);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();
