@@ -88,6 +88,67 @@ class MockitoBeanConfigurationErrorTests {
                     List.of("bean1", "bean2"));
   }
 
+  @Test
+  void cannotOverrideBeanByNameWithNoSuchBeanNameOnConstructorParameter() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBean("anotherBean", String.class, () -> "example");
+    BeanOverrideContextCustomizerTestUtils.customizeApplicationContext(FailureByNameLookupOnConstructorParameter.class, context);
+    assertThatIllegalStateException()
+            .isThrownBy(context::refresh)
+            .withMessage("""
+                            Unable to replace bean: there is no bean with name 'beanToOverride' and type \
+                            java.lang.String (as required by parameter 'example' in constructor for %s). \
+                            If the bean is defined in a @Bean method, make sure the return type is the most \
+                            specific type possible (for example, the concrete implementation type).""",
+                    FailureByNameLookupOnConstructorParameter.class.getName());
+  }
+
+  @Test
+  void cannotOverrideBeanByNameWithBeanOfWrongTypeOnConstructorParameter() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBean("beanToOverride", Integer.class, () -> 42);
+    BeanOverrideContextCustomizerTestUtils.customizeApplicationContext(FailureByNameLookupOnConstructorParameter.class, context);
+    assertThatIllegalStateException()
+            .isThrownBy(context::refresh)
+            .withMessage("""
+                            Unable to replace bean: there is no bean with name 'beanToOverride' and type \
+                            java.lang.String (as required by parameter 'example' in constructor for %s). \
+                            If the bean is defined in a @Bean method, make sure the return type is the most \
+                            specific type possible (for example, the concrete implementation type).""",
+                    FailureByNameLookupOnConstructorParameter.class.getName());
+  }
+
+  @Test
+    // gh-36096
+  void cannotOverrideBeanByTypeWithNoSuchBeanTypeOnConstructorParameter() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    BeanOverrideContextCustomizerTestUtils.customizeApplicationContext(FailureByTypeLookupOnConstructorParameter.class, context);
+    assertThatIllegalStateException()
+            .isThrownBy(context::refresh)
+            .withMessage("""
+                            Unable to override bean: there are no beans of type java.lang.String \
+                            (as required by parameter 'example' in constructor for %s). \
+                            If the bean is defined in a @Bean method, make sure the return type is the most \
+                            specific type possible (for example, the concrete implementation type).""",
+                    FailureByTypeLookupOnConstructorParameter.class.getName());
+  }
+
+  @Test
+    // gh-36096
+  void cannotOverrideBeanByTypeWithTooManyBeansOfThatTypeOnConstructorParameter() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBean("bean1", String.class, () -> "example1");
+    context.registerBean("bean2", String.class, () -> "example2");
+    BeanOverrideContextCustomizerTestUtils.customizeApplicationContext(FailureByTypeLookupOnConstructorParameter.class, context);
+    assertThatIllegalStateException()
+            .isThrownBy(context::refresh)
+            .withMessage("""
+                            Unable to select a bean to override: found 2 beans of type java.lang.String \
+                            (as required by parameter 'example' in constructor for %s): %s""",
+                    FailureByTypeLookupOnConstructorParameter.class.getName(),
+                    List.of("bean1", "bean2"));
+  }
+
   static class FailureByTypeLookup {
 
     @MockitoBean(enforceOverride = true)
@@ -98,7 +159,18 @@ class MockitoBeanConfigurationErrorTests {
 
     @MockitoBean(name = "beanToOverride", enforceOverride = true)
     String example;
+  }
 
+  static class FailureByTypeLookupOnConstructorParameter {
+
+    FailureByTypeLookupOnConstructorParameter(@MockitoBean(enforceOverride = true) String example) {
+    }
+  }
+
+  static class FailureByNameLookupOnConstructorParameter {
+
+    FailureByNameLookupOnConstructorParameter(@MockitoBean(name = "beanToOverride", enforceOverride = true) String example) {
+    }
   }
 
 }

@@ -43,6 +43,7 @@ import infra.test.context.bean.override.BeanOverride;
  * <li>On a non-static field in an enclosing class for a {@code @Nested} test class
  * or in any class in the type hierarchy or enclosing class hierarchy above the
  * {@code @Nested} test class.</li>
+ * <li>On a parameter in the constructor for the test class.</li>
  * <li>At the type level on a test class or any superclass or implemented interface
  * in the type hierarchy above the test class.</li>
  * <li>At the type level on an enclosing class for a {@code @Nested} test class
@@ -50,13 +51,14 @@ import infra.test.context.bean.override.BeanOverride;
  * above the {@code @Nested} test class.</li>
  * </ul>
  *
- * <p>When {@code @MockitoBean} is declared on a field, the bean to mock is inferred
- * from the type of the annotated field. If multiple candidates exist in the
- * {@code ApplicationContext}, a {@code @Qualifier} annotation can be declared
- * on the field to help disambiguate. In the absence of a {@code @Qualifier}
- * annotation, the name of the annotated field will be used as a <em>fallback
- * qualifier</em>. Alternatively, you can explicitly specify a bean name to mock
- * by setting the {@link #value() value} or {@link #name() name} attribute.
+ * <p>When {@code @MockitoBean} is declared on a field or parameter, the bean to
+ * mock is inferred from the type of the annotated field or parameter. If multiple
+ * candidates exist in the {@code ApplicationContext}, a {@code @Qualifier} annotation
+ * can be declared on the field or parameter to help disambiguate. In the absence
+ * of a {@code @Qualifier} annotation, the name of the annotated field or parameter
+ * will be used as a <em>fallback qualifier</em>. Alternatively, you can explicitly
+ * specify a bean name to mock by setting the {@link #value() value} or
+ * {@link #name() name} attribute.
  *
  * <p>When {@code @MockitoBean} is declared at the type level, the type of bean
  * (or beans) to mock must be supplied via the {@link #types() types} attribute.
@@ -72,7 +74,7 @@ import infra.test.context.bean.override.BeanOverride;
  *
  * <p>Dependencies that are known to the application context but are not beans
  * (such as those
- * {@linkplain infra.beans.factory.config.ConfigurableBeanFactory#registerResolvableDependency(Class, Object)
+ * {@linkplain infra.beans.factory.config.ConfigurableListableBeanFactory#registerResolvableDependency(Class, Object)
  * registered directly}) will not be found, and a mocked bean will be added to
  * the context alongside the existing dependency.
  *
@@ -113,12 +115,13 @@ import infra.test.context.bean.override.BeanOverride;
  *
  * @author Simon Baslé
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see infra.test.context.bean.override.mockito.MockitoBeans @MockitoBeans
  * @see infra.test.context.bean.override.mockito.MockitoSpyBean @MockitoSpyBean
  * @see infra.test.context.bean.override.convention.TestBean @TestBean
  * @since 5.0
  */
-@Target({ ElementType.FIELD, ElementType.TYPE })
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Repeatable(MockitoBeans.class)
@@ -138,9 +141,9 @@ public @interface MockitoBean {
   /**
    * Name of the bean to mock.
    * <p>If left unspecified, the bean to mock is selected according to the
-   * configured {@link #types() types} or the annotated field's type, taking
-   * qualifiers into account if necessary. See the {@linkplain MockitoBean
-   * class-level documentation} for details.
+   * configured {@link #types() types} or the type of the annotated field or
+   * parameter, taking qualifiers into account if necessary. See the
+   * {@linkplain MockitoBean class-level documentation} for details.
    *
    * @see #value()
    */
@@ -152,12 +155,11 @@ public @interface MockitoBean {
    * <p>Defaults to none.
    * <p>Each type specified will result in a mock being created and registered
    * with the {@code ApplicationContext}.
-   * <p>Types must be omitted when the annotation is used on a field.
+   * <p>Types must be omitted when the annotation is used on a field or parameter.
    * <p>When {@code @MockitoBean} also defines a {@link #name name}, this attribute
    * can only contain a single value.
    *
    * @return the types to mock
-   * @since 5.0
    */
   Class<?>[] types() default {};
 
@@ -171,7 +173,6 @@ public @interface MockitoBean {
    *
    * @see infra.test.context.ContextHierarchy @ContextHierarchy
    * @see infra.test.context.ContextConfiguration#name() @ContextConfiguration(name=...)
-   * @since 5.0
    */
   String contextName() default "";
 

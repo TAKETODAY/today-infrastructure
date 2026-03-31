@@ -200,7 +200,7 @@ class MockitoBeanOverrideHandlerTests {
 
   private MockitoBeanOverrideHandler createHandler(Class<?> clazz) {
     MockitoBean annotation = AnnotatedElementUtils.getMergedAnnotation(clazz, MockitoBean.class);
-    return new MockitoBeanOverrideHandler(null, ResolvableType.forClass(annotation.types()[0]), annotation);
+    return new MockitoBeanOverrideHandler((Field) null, ResolvableType.forClass(annotation.types()[0]), annotation);
   }
 
   static class SampleOneMock {

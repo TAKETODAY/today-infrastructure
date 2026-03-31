@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link ExtensionContextScope}.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 5.0
  */
 @JUnitConfig(ActiveProfilesTestClassScopedExtensionContextNestedTests.Config1.class)
 @InfraExtensionConfig(useTestClassScopedExtensionContext = true)

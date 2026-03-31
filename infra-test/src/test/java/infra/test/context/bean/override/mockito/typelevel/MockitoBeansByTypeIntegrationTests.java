@@ -62,8 +62,14 @@ class MockitoBeansByTypeIntegrationTests implements MockTestInterface01 {
   @Autowired
   Service06 service06;
 
+  final ConstructorService01 constructorService01;
+
   @MockitoBean
   Service07 service07;
+
+  MockitoBeansByTypeIntegrationTests(@MockitoBean ConstructorService01 constructorService01) {
+    this.constructorService01 = constructorService01;
+  }
 
   @BeforeEach
   void configureMocks() {
@@ -73,6 +79,7 @@ class MockitoBeansByTypeIntegrationTests implements MockTestInterface01 {
     assertIsMock(service04, "service04");
     assertIsMock(service05, "service05");
     assertIsMock(service06, "service06");
+    assertIsMock(constructorService01, "constructorService01");
     assertIsMock(service07, "service07");
 
     given(service01.greeting()).willReturn("mock 01");
@@ -81,6 +88,7 @@ class MockitoBeansByTypeIntegrationTests implements MockTestInterface01 {
     given(service04.greeting()).willReturn("mock 04");
     given(service05.greeting()).willReturn("mock 05");
     given(service06.greeting()).willReturn("mock 06");
+    given(constructorService01.greeting()).willReturn("mock constructor 01");
     given(service07.greeting()).willReturn("mock 07");
   }
 
@@ -92,6 +100,7 @@ class MockitoBeansByTypeIntegrationTests implements MockTestInterface01 {
     assertThat(service04.greeting()).isEqualTo("mock 04");
     assertThat(service05.greeting()).isEqualTo("mock 05");
     assertThat(service06.greeting()).isEqualTo("mock 06");
+    assertThat(constructorService01.greeting()).isEqualTo("mock constructor 01");
     assertThat(service07.greeting()).isEqualTo("mock 07");
   }
 
@@ -129,6 +138,7 @@ class MockitoBeansByTypeIntegrationTests implements MockTestInterface01 {
       assertIsMock(service04, "service04");
       assertIsMock(service05, "service05");
       assertIsMock(service06, "service06");
+      assertIsMock(constructorService01, "constructorService01");
       assertIsMock(service07, "service07");
       assertIsMock(service08, "service08");
       assertIsMock(service09, "service09");
@@ -153,6 +163,7 @@ class MockitoBeansByTypeIntegrationTests implements MockTestInterface01 {
       assertThat(service04.greeting()).isEqualTo("mock 04");
       assertThat(service05.greeting()).isEqualTo("mock 05");
       assertThat(service06.greeting()).isEqualTo("mock 06");
+      assertThat(constructorService01.greeting()).isEqualTo("mock constructor 01");
       assertThat(service07.greeting()).isEqualTo("mock 07");
       assertThat(service08.greeting()).isEqualTo("mock 08");
       assertThat(service09.greeting()).isEqualTo("mock 09");

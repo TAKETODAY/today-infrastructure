@@ -43,7 +43,7 @@ class MockitoBeansTests {
     Stream<Class<?>> mockedServices = getRegisteredMockTypes(MockitoBeansByTypeIntegrationTests.class);
     assertThat(mockedServices).containsExactly(
             Service01.class, Service02.class, Service03.class, Service04.class,
-            Service05.class, Service06.class, Service07.class);
+            Service05.class, Service06.class, ConstructorService01.class, Service07.class);
   }
 
   @Test
@@ -51,8 +51,8 @@ class MockitoBeansTests {
     Stream<Class<?>> mockedServices = getRegisteredMockTypes(MockitoBeansByTypeIntegrationTests.NestedTests.class);
     assertThat(mockedServices).containsExactly(
             Service01.class, Service02.class, Service03.class, Service04.class,
-            Service05.class, Service06.class, Service07.class, Service08.class,
-            Service09.class, Service10.class, Service11.class, Service12.class,
+            Service05.class, Service06.class, ConstructorService01.class, Service07.class,
+            Service08.class, Service09.class, Service10.class, Service11.class, Service12.class,
             Service13.class);
   }
 

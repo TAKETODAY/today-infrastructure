@@ -18,8 +18,11 @@
 
 package infra.test.context.bean.override;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,6 +60,30 @@ public interface BeanOverrideProcessor {
    * @see #createHandlers(Annotation, Class)
    */
   BeanOverrideHandler createHandler(Annotation overrideAnnotation, Class<?> testClass, Field field);
+
+  /**
+   * Create a {@link BeanOverrideHandler} for the given test class constructor
+   * parameter.
+   * <p>This method will only be invoked when a {@link BeanOverride @BeanOverride}
+   * annotation is declared on a constructor parameter &mdash; for example, if
+   * the supplied constructor parameter is annotated with {@code @MockitoBean}.
+   * <p>The default implementation returns {@code null}, signaling that this
+   * {@code BeanOverrideProcessor} does not support {@code @BeanOverride}
+   * declarations on constructor parameters. Can be overridden by concrete
+   * implementations to support constructor parameter use cases.
+   *
+   * @param overrideAnnotation the composed annotation that declares the
+   * {@code @BeanOverride} annotation which registers this processor
+   * @param testClass the test class to process
+   * @param parameter the annotated constructor parameter
+   * @return the {@code BeanOverrideHandler} that should handle the given constructor
+   * parameter
+   * @see #createHandler(Annotation, Class, Field)
+   * @see #createHandlers(Annotation, Class)
+   */
+  default @Nullable BeanOverrideHandler createHandler(Annotation overrideAnnotation, Class<?> testClass, Parameter parameter) {
+    return null;
+  }
 
   /**
    * Create a list of {@link BeanOverrideHandler} instances for the given override

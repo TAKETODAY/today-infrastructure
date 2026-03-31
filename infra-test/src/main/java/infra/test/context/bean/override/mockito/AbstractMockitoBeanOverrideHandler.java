@@ -21,6 +21,7 @@ package infra.test.context.bean.override.mockito;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 
 import infra.beans.factory.config.SingletonBeanRegistry;
 import infra.core.ResolvableType;
@@ -34,6 +35,7 @@ import infra.test.context.bean.override.BeanOverrideStrategy;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 abstract class AbstractMockitoBeanOverrideHandler extends BeanOverrideHandler {
@@ -42,10 +44,18 @@ abstract class AbstractMockitoBeanOverrideHandler extends BeanOverrideHandler {
 
   protected AbstractMockitoBeanOverrideHandler(@Nullable Field field, ResolvableType beanType,
           @Nullable String beanName, String contextName, BeanOverrideStrategy strategy,
-          MockReset reset) {
+          @Nullable MockReset reset) {
 
     super(field, beanType, beanName, contextName, strategy);
-    this.reset = (reset != null ? reset : MockReset.AFTER);
+    this.reset = reset != null ? reset : MockReset.AFTER;
+  }
+
+  protected AbstractMockitoBeanOverrideHandler(Parameter parameter, ResolvableType beanType,
+          @Nullable String beanName, String contextName, BeanOverrideStrategy strategy,
+          @Nullable MockReset reset) {
+
+    super(parameter, beanType, beanName, contextName, strategy);
+    this.reset = reset != null ? reset : MockReset.AFTER;
   }
 
   /**
@@ -93,6 +103,7 @@ abstract class AbstractMockitoBeanOverrideHandler extends BeanOverrideHandler {
   public String toString() {
     return new ToStringBuilder(this)
             .append("field", getField())
+            .append("parameter", getParameter())
             .append("beanType", getBeanType())
             .append("beanName", getBeanName())
             .append("contextName", getContextName())

@@ -26,6 +26,7 @@ import org.mockito.listeners.VerificationStartedEvent;
 import org.mockito.listeners.VerificationStartedListener;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -50,11 +51,17 @@ class MockitoSpyBeanOverrideHandler extends AbstractMockitoBeanOverrideHandler {
           new InfraAopBypassingVerificationStartedListener();
 
   MockitoSpyBeanOverrideHandler(ResolvableType typeToSpy, MockitoSpyBean spyBean) {
-    this(null, typeToSpy, spyBean);
+    this((Field) null, typeToSpy, spyBean);
   }
 
   MockitoSpyBeanOverrideHandler(@Nullable Field field, ResolvableType typeToSpy, MockitoSpyBean spyBean) {
     super(field, typeToSpy, (StringUtils.hasText(spyBean.name()) ? spyBean.name() : null),
+            spyBean.contextName(), BeanOverrideStrategy.WRAP, spyBean.reset());
+    Assert.notNull(typeToSpy, "typeToSpy is required");
+  }
+
+  MockitoSpyBeanOverrideHandler(Parameter parameter, ResolvableType typeToSpy, MockitoSpyBean spyBean) {
+    super(parameter, typeToSpy, (StringUtils.hasText(spyBean.name()) ? spyBean.name() : null),
             spyBean.contextName(), BeanOverrideStrategy.WRAP, spyBean.reset());
     Assert.notNull(typeToSpy, "typeToSpy is required");
   }

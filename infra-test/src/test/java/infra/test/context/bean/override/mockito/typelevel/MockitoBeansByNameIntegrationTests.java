@@ -47,6 +47,10 @@ import static org.mockito.BDDMockito.given;
 @MockitoBean(name = "s2", types = ExampleService.class)
 class MockitoBeansByNameIntegrationTests {
 
+  final ExampleService service0A;
+  final ExampleService service0B;
+  final ExampleService service0C;
+
   @Autowired
   ExampleService s1;
 
@@ -59,6 +63,15 @@ class MockitoBeansByNameIntegrationTests {
   @Autowired
   @Qualifier("s4")
   ExampleService service4;
+
+  MockitoBeansByNameIntegrationTests(@MockitoBean ExampleService s0A,
+          @MockitoBean(name = "s0B") ExampleService service0B,
+          @MockitoBean @Qualifier("s0C") ExampleService service0C) {
+
+    this.service0A = s0A;
+    this.service0B = service0B;
+    this.service0C = service0C;
+  }
 
   @BeforeEach
   void configureMocks() {
@@ -82,6 +95,21 @@ class MockitoBeansByNameIntegrationTests {
 
   @Configuration
   static class Config {
+
+    @Bean
+    ExampleService s0A() {
+      return () -> "prod 0A";
+    }
+
+    @Bean
+    ExampleService s0B() {
+      return () -> "prod 0B";
+    }
+
+    @Bean
+    ExampleService s0C() {
+      return () -> "prod 0C";
+    }
 
     @Bean
     ExampleService s1() {

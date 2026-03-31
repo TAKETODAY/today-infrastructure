@@ -14,19 +14,7 @@
  * limitations under the License.
  */
 
-package infra.test.context.bean.override.example;
+package infra.test.context.bean.override.mockito.typelevel;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import infra.beans.factory.annotation.Qualifier;
-
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Qualifier
-public @interface CustomQualifier {
+interface ConstructorService01 extends Service {
 }

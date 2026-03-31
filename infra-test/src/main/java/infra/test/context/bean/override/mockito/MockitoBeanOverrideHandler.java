@@ -24,6 +24,7 @@ import org.mockito.MockSettings;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -59,11 +60,17 @@ class MockitoBeanOverrideHandler extends AbstractMockitoBeanOverrideHandler {
   private final boolean serializable;
 
   MockitoBeanOverrideHandler(ResolvableType typeToMock, MockitoBean mockitoBean) {
-    this(null, typeToMock, mockitoBean);
+    this((Field) null, typeToMock, mockitoBean);
   }
 
   MockitoBeanOverrideHandler(@Nullable Field field, ResolvableType typeToMock, MockitoBean mockitoBean) {
     this(field, typeToMock, (!mockitoBean.name().isBlank() ? mockitoBean.name() : null),
+            mockitoBean.contextName(), (mockitoBean.enforceOverride() ? REPLACE : REPLACE_OR_CREATE),
+            mockitoBean.reset(), mockitoBean.extraInterfaces(), mockitoBean.answers(), mockitoBean.serializable());
+  }
+
+  MockitoBeanOverrideHandler(Parameter parameter, ResolvableType typeToMock, MockitoBean mockitoBean) {
+    this(parameter, typeToMock, (!mockitoBean.name().isBlank() ? mockitoBean.name() : null),
             mockitoBean.contextName(), (mockitoBean.enforceOverride() ? REPLACE : REPLACE_OR_CREATE),
             mockitoBean.reset(), mockitoBean.extraInterfaces(), mockitoBean.answers(), mockitoBean.serializable());
   }
@@ -73,6 +80,17 @@ class MockitoBeanOverrideHandler extends AbstractMockitoBeanOverrideHandler {
           Answers answers, boolean serializable) {
 
     super(field, typeToMock, beanName, contextName, strategy, reset);
+    Assert.notNull(typeToMock, "'typeToMock' is required");
+    this.extraInterfaces = asClassSet(extraInterfaces);
+    this.answers = answers;
+    this.serializable = serializable;
+  }
+
+  private MockitoBeanOverrideHandler(Parameter parameter, ResolvableType typeToMock, @Nullable String beanName,
+          String contextName, BeanOverrideStrategy strategy, MockReset reset, Class<?>[] extraInterfaces,
+          Answers answers, boolean serializable) {
+
+    super(parameter, typeToMock, beanName, contextName, strategy, reset);
     Assert.notNull(typeToMock, "'typeToMock' is required");
     this.extraInterfaces = asClassSet(extraInterfaces);
     this.answers = answers;
@@ -143,9 +161,6 @@ class MockitoBeanOverrideHandler extends AbstractMockitoBeanOverrideHandler {
     if (other == this) {
       return true;
     }
-    if (other == null || other.getClass() != getClass()) {
-      return false;
-    }
     return (other instanceof MockitoBeanOverrideHandler that && super.equals(that) &&
             (this.serializable == that.serializable) && (this.answers == that.answers) &&
             Objects.equals(this.extraInterfaces, that.extraInterfaces));
@@ -160,6 +175,7 @@ class MockitoBeanOverrideHandler extends AbstractMockitoBeanOverrideHandler {
   public String toString() {
     return new ToStringBuilder(this)
             .append("field", getField())
+            .append("parameter", getParameter())
             .append("beanType", getBeanType())
             .append("beanName", getBeanName())
             .append("contextName", getContextName())

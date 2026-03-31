@@ -61,6 +61,9 @@ import infra.lang.TodayStrategies;
 import infra.test.context.MethodInvoker;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.TestContextManager;
+import infra.test.context.bean.override.BeanOverride;
+import infra.test.context.bean.override.BeanOverrideHandler;
+import infra.test.context.bean.override.BeanOverrideUtils;
 import infra.test.context.event.ApplicationEvents;
 import infra.test.context.event.RecordApplicationEvents;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
@@ -231,8 +234,8 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
       return (methodsWithErrors.length == 0 ? NO_VIOLATIONS_DETECTED :
               String.format(
                       "Test methods and test lifecycle methods must not be annotated with @Autowired. " +
-                              "You should instead annotate individual method parameters with @Autowired, " +
-                              "@Qualifier, or @Value. Offending methods in test class %s: %s",
+                      "You should instead annotate individual method parameters with @Autowired, " +
+                      "@Qualifier, or @Value. Offending methods in test class %s: %s",
                       testClass.getName(), Arrays.toString(methodsWithErrors)));
     }, String.class);
 
@@ -369,6 +372,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
             extensionContext.getConfigurationParameter(propertyName).orElse(null);
     return (TestConstructorUtils.isAutowirableConstructor(executable, junitPropertyProvider) ||
             ApplicationContext.class.isAssignableFrom(parameterType) ||
+            isBeanOverride(parameter) ||
             supportsApplicationEvents(parameterType, executable) ||
             ParameterResolutionDelegate.isAutowirable(parameter, parameterContext.getIndex()));
   }
@@ -402,6 +406,15 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
     }
 
     ApplicationContext applicationContext = getApplicationContext(extensionContext);
+
+    // If the parameter is a @BeanOverride with an explicit name, we simply look
+    // up the bean by name instead of performing full dependency resolution.
+    if (isBeanOverride(parameter)) {
+      BeanOverrideHandler handler = BeanOverrideUtils.resolveHandlerForParameter(parameter, testClass);
+      if (handler != null && handler.getBeanName() != null) {
+        return applicationContext.getBean(handler.getBeanName());
+      }
+    }
     return ParameterResolutionDelegate.resolveDependency(parameter, index, testClass,
             applicationContext.getAutowireCapableBeanFactory());
   }
@@ -467,6 +480,11 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
       }
     }
     return false;
+  }
+
+  private static boolean isBeanOverride(Parameter parameter) {
+    return (parameter.getDeclaringExecutable() instanceof Constructor &&
+            MergedAnnotations.from(parameter).isPresent(BeanOverride.class));
   }
 
   /**

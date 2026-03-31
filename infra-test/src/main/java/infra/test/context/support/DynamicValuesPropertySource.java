@@ -57,7 +57,7 @@ class DynamicValuesPropertySource extends MapPropertySource {
     super(PROPERTY_SOURCE_NAME, Collections.unmodifiableMap(valueSuppliers));
     this.dynamicPropertyRegistry = (name, valueSupplier) -> {
       Assert.hasText(name, "'name' must not be null or blank");
-      Assert.notNull(valueSupplier, "'valueSupplier' must not be null");
+      Assert.notNull(valueSupplier, "'valueSupplier' is required");
       valueSuppliers.put(name, valueSupplier);
     };
   }

@@ -83,7 +83,7 @@ class DynamicPropertiesContextCustomizerTests {
     ConfigurableApplicationContext context = new StaticApplicationContext();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> customizer.customizeContext(context, mock()))
-            .withMessage("'valueSupplier' must not be null");
+            .withMessage("'valueSupplier' is required");
   }
 
   @Test
