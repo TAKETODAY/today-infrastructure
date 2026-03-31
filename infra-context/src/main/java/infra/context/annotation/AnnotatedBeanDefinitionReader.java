@@ -38,7 +38,6 @@ import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 
 /**
@@ -58,15 +57,13 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
 
   private final BeanDefinitionRegistry registry;
 
-  @Nullable
-  private final ResourceLoader resourceLoader;
+  private final @Nullable ResourceLoader resourceLoader;
 
   private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
-  @Nullable
-  private ConditionEvaluator conditionEvaluator;
+  private @Nullable ConditionEvaluator conditionEvaluator;
 
   private Environment environment;
 
@@ -335,11 +332,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     }
 
     // static customize
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      for (BeanDefinitionCustomizer customizer : customizers) {
-        customizer.customize(definition);
-      }
-    }
-
+    customize(definition);
   }
 }

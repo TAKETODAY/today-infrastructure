@@ -25,18 +25,21 @@ import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 
 /**
+ * Container for {@link BeanDefinitionCustomizer} instances.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/24 17:37
  */
 public class BeanDefinitionCustomizers {
 
-  @Nullable
-  protected List<BeanDefinitionCustomizer> customizers;
+  protected @Nullable List<BeanDefinitionCustomizer> customizers;
 
   /**
-   * clear exist customizers and set
+   * Sets the customizers to be applied to bean definitions.
+   * <p>If customizers are provided, they are added to the existing list.
+   * If {@code null} or empty, the existing list of customizers is cleared.
    *
-   * @param customizers new customizers
+   * @param customizers the customizers to add, or {@code null} to clear existing ones
    */
   public void setCustomizers(BeanDefinitionCustomizer @Nullable ... customizers) {
     if (ObjectUtils.isNotEmpty(customizers)) {
@@ -51,12 +54,28 @@ public class BeanDefinitionCustomizers {
   }
 
   /**
-   * set customizers
+   * Sets the list of customizers to be applied to bean definitions.
+   * <p>This method replaces any existing customizers with the provided list.
+   * If {@code null} is provided, the customizers field will be set to {@code null}.
    *
-   * @param customizers new customizers
+   * @param customizers the list of customizers to set, or {@code null} to clear
    */
   public void setCustomizers(@Nullable List<BeanDefinitionCustomizer> customizers) {
     this.customizers = customizers;
+  }
+
+  /**
+   * Customizes the given bean definition by applying all registered customizers.
+   * <p>If no customizers are registered, this method does nothing.
+   *
+   * @param definition the bean definition to customize
+   */
+  protected final void customize(BeanDefinition definition) {
+    if (CollectionUtils.isNotEmpty(customizers)) {
+      for (BeanDefinitionCustomizer definitionCustomizer : customizers) {
+        definitionCustomizer.customize(definition);
+      }
+    }
   }
 
   private List<BeanDefinitionCustomizer> customizers() {
