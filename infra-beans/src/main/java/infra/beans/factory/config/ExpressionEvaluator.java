@@ -58,7 +58,7 @@ public class ExpressionEvaluator {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> @Nullable T evaluate(@Nullable String expression, Class<T> expectedType) {
+  public <T extends @Nullable Object> T evaluate(@Nullable String expression, Class<T> expectedType) {
     expression = beanFactory.resolveEmbeddedValue(expression);
     Object evaluated;
     if (expression != null) {
