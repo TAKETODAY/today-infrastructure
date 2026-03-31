@@ -225,8 +225,9 @@ public class ApiVersionConfigurer {
    *
    * @param predicate the predicate to use
    */
-  public void setSupportedVersionPredicate(@Nullable Predicate<Comparable<?>> predicate) {
+  public ApiVersionConfigurer setSupportedVersionPredicate(@Nullable Predicate<Comparable<?>> predicate) {
     this.supportedVersionPredicate = predicate;
+    return this;
   }
 
   @Nullable
