@@ -52,6 +52,11 @@ import infra.test.context.support.AbstractTestExecutionListener;
 public class ApplicationEventsTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
+   * The {@link #getOrder() order} value for this listener: {@value}.
+   */
+  public static final int ORDER = 1800;
+
+  /**
    * Attribute name for a {@link TestContext} attribute which indicates
    * whether the test class for the given test context is annotated with
    * {@link RecordApplicationEvents @RecordApplicationEvents}.
@@ -63,11 +68,18 @@ public class ApplicationEventsTestExecutionListener extends AbstractTestExecutio
   private static final Object applicationEventsMonitor = new Object();
 
   /**
-   * Returns {@code 1800}.
+   * Returns {@value #ORDER}, which ensures that the {@code ApplicationEventsTestExecutionListener}
+   * is ordered after the
+   * {@link infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener
+   * DirtiesContextBeforeModesTestExecutionListener} and before the
+   * {@link infra.test.context.bean.override.BeanOverrideTestExecutionListener
+   * BeanOverrideTestExecutionListener} and the
+   * {@link infra.test.context.support.DependencyInjectionTestExecutionListener
+   * DependencyInjectionTestExecutionListener}.
    */
   @Override
   public final int getOrder() {
-    return 1800;
+    return ORDER;
   }
 
   @Override

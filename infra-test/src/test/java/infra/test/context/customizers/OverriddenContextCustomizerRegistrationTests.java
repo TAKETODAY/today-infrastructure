@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
-import infra.test.context.support.ContextCustomizerFactories;
+import infra.test.context.ContextCustomizerFactories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0
  */
 @ContextCustomizerFactories(factories = { BarContextCustomizerFactory.class, EnigmaContextCustomizerFactory.class },
-                            inheritFactories = false)
+        inheritFactories = false)
 class OverriddenContextCustomizerRegistrationTests extends LocalContextCustomizerRegistrationTests {
 
   @Autowired

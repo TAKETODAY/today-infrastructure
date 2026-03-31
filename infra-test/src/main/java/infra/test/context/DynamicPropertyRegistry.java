@@ -21,12 +21,24 @@ package infra.test.context;
 import java.util.function.Supplier;
 
 /**
- * Registry used with {@link DynamicPropertySource @DynamicPropertySource}
- * methods so that they can add properties to the {@code Environment} that have
- * dynamically resolved values.
+ * Registry that is used to add properties with dynamically resolved values to
+ * the {@code Environment}.
+ *
+ * <p>A {@code DynamicPropertyRegistry} is supplied as an argument to static
+ * {@link DynamicPropertySource @DynamicPropertySource} methods in integration
+ * test classes.
+ *
+ * <p>As of Infra Framework 5.0, a {@code DynamicPropertyRegistry} is also
+ * supplied to {@link DynamicPropertyRegistrar} beans in the test's
+ * {@code ApplicationContext}, making it possible to register dynamic properties
+ * based on beans in the context. For example, a {@code @Bean} method can return
+ * a {@code DynamicPropertyRegistrar} that registers a property whose value is
+ * dynamically sourced from another bean in the context. See the documentation
+ * for {@code DynamicPropertyRegistrar} for an example.
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DynamicPropertySource
  * @since 4.0
  */

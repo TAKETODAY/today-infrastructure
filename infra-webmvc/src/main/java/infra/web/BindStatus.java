@@ -255,7 +255,7 @@ public class BindStatus {
    */
   public String getErrorCode() {
     return (this.errorCodes.length > 0 ? Objects.requireNonNull(this.errorCodes[0],
-            "Error code must not be null") : "");
+            "Error code is required") : "");
   }
 
   /**

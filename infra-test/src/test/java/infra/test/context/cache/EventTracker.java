@@ -1,0 +1,89 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.test.context.cache;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import infra.context.ApplicationEvent;
+import infra.context.event.ApplicationContextEvent;
+import infra.context.event.ContextClosedEvent;
+import infra.context.event.ContextPausedEvent;
+import infra.context.event.ContextRefreshedEvent;
+import infra.context.event.ContextRestartedEvent;
+import infra.context.event.EventListener;
+import infra.stereotype.Component;
+import infra.test.context.event.TestContextEvent;
+import infra.test.context.event.annotation.AfterTestClass;
+import infra.test.context.event.annotation.BeforeTestClass;
+
+/**
+ * @author Sam Brannen
+ * @since 5.0
+ */
+@Component
+class EventTracker {
+
+  static final List<String> events = new ArrayList<>();
+
+  @EventListener(ContextRefreshedEvent.class)
+  public void contextRefreshed(ContextRefreshedEvent event) {
+    trackApplicationContextEvent(event);
+  }
+
+  @EventListener(ContextRestartedEvent.class)
+  public void contextRestarted(ContextRestartedEvent event) {
+    trackApplicationContextEvent(event);
+  }
+
+  @EventListener(ContextPausedEvent.class)
+  public void contextPaused(ContextPausedEvent event) {
+    trackApplicationContextEvent(event);
+  }
+
+  @EventListener(ContextClosedEvent.class)
+  public void contextClosed(ContextClosedEvent event) {
+    trackApplicationContextEvent(event);
+  }
+
+  @BeforeTestClass
+  public void beforeTestClass(TestContextEvent event) {
+    trackTestContextEvent(event);
+  }
+
+  @AfterTestClass
+  public void afterTestClass(TestContextEvent event) {
+    trackTestContextEvent(event);
+  }
+
+  private static void trackApplicationContextEvent(ApplicationContextEvent event) {
+    events.add(eventName(event) + ":" + event.getSource().getDisplayName());
+  }
+
+  private static void trackTestContextEvent(TestContextEvent event) {
+    events.add(eventName(event) + ":" +
+            event.getSource().getTestClass().getSimpleName());
+  }
+
+  private static String eventName(ApplicationEvent event) {
+    String name = event.getClass().getSimpleName();
+    return name.substring(0, name.length() - "Event".length());
+  }
+
+}

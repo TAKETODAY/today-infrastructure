@@ -5,3 +5,6 @@ infra.test.context.TestExecutionListener = org.example.FooListener
 infra.test.context.ContextCustomizerFactory =\
 	infra.test.context.aot.samples.basic.ImportsContextCustomizerFactory,\
   infra.test.context.customizers.GlobalFruitContextCustomizerFactory
+
+infra.test.context.ApplicationContextFailureProcessor =\
+	infra.test.context.failures.TrackingApplicationContextFailureProcessor

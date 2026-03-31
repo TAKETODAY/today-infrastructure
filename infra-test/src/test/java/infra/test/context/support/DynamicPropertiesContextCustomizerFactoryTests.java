@@ -42,10 +42,11 @@ class DynamicPropertiesContextCustomizerFactoryTests {
   private final List<ContextConfigurationAttributes> configAttributes = Collections.emptyList();
 
   @Test
-  void createContextCustomizerWhenNoAnnotatedMethodsReturnsNull() {
+  void createContextCustomizerWhenNoAnnotatedMethodsReturnsCustomizerWithEmptyMethods() {
     DynamicPropertiesContextCustomizer customizer = this.factory.createContextCustomizer(
             NoDynamicPropertySource.class, this.configAttributes);
-    assertThat(customizer).isNull();
+    assertThat(customizer).isNotNull();
+    assertThat(customizer.getMethods()).isEmpty();
   }
 
   @Test

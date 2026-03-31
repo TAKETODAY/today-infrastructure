@@ -69,7 +69,7 @@ class AotMergedContextConfigurationTests {
   }
 
   static class DemoApplicationContextInitializer implements ApplicationContextInitializer {
-    
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
 

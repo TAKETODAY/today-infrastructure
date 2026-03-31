@@ -112,11 +112,21 @@ import infra.test.context.support.AbstractTestExecutionListener;
 public class EventPublishingTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
-   * Returns {@code 10000}.
+   * The {@link #getOrder() order} value for this listener: {@value}.
+   */
+  public static final int ORDER = 10_000;
+
+  /**
+   * Returns {@value #ORDER}, which ensures that the {@code EventPublishingTestExecutionListener}
+   * is ordered after the
+   * {@link infra.test.context.jdbc.SqlScriptsTestExecutionListener
+   * SqlScriptsTestExecutionListener} and before the
+   * {@link infra.test.context.bean.override.mockito.MockitoResetTestExecutionListener
+   * MockitoResetTestExecutionListener}.
    */
   @Override
   public final int getOrder() {
-    return 10_000;
+    return ORDER;
   }
 
   /**

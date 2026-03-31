@@ -1,0 +1,156 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.test.context.bean.override.convention;
+
+import org.junit.jupiter.api.Test;
+
+import infra.beans.factory.annotation.Qualifier;
+import infra.context.ApplicationContext;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.Bean;
+import infra.context.annotation.Configuration;
+import infra.context.annotation.Scope;
+import infra.test.context.bean.override.example.CustomQualifier;
+import infra.test.context.bean.override.example.ExampleService;
+import infra.test.context.bean.override.example.RealExampleService;
+import infra.test.context.junit.jupiter.JUnitConfig;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Integration tests for {@link TestBean} that use by-type lookup.
+ *
+ * @author Simon Baslé
+ * @author Sam Brannen
+ * @since 5.0
+ */
+@JUnitConfig
+public class TestBeanByTypeLookupIntegrationTests {
+
+  @TestBean
+  MessageService messageService;
+
+  @TestBean
+  ExampleService anyNameForService;
+
+  @TestBean(methodName = "someString")
+  @Qualifier("prefer")
+  StringBuilder anyNameForStringBuilder;
+
+  @TestBean(methodName = "someString2")
+  @CustomQualifier
+  StringBuilder anyNameForStringBuilder2;
+
+  @TestBean
+  Number prototypeNumber;
+
+  static MessageService messageService() {
+    return () -> "mocked nonexistent bean definition";
+  }
+
+  static ExampleService anyNameForService() {
+    return new RealExampleService("Mocked greeting");
+  }
+
+  static StringBuilder someString() {
+    return new StringBuilder("Prefer TestBean String");
+  }
+
+  static StringBuilder someString2() {
+    return new StringBuilder("CustomQualifier TestBean String");
+  }
+
+  static Number prototypeNumber() {
+    return 42;
+  }
+
+  @Test
+  void overrideIsFoundByTypeForNonexistentBeanDefinition(ApplicationContext ctx) {
+    assertThat(this.messageService).isSameAs(ctx.getBean(MessageService.class));
+    assertThat(this.messageService.getMessage()).isEqualTo("mocked nonexistent bean definition");
+  }
+
+  @Test
+  void overrideIsFoundByType(ApplicationContext ctx) {
+    assertThat(this.anyNameForService)
+            .isSameAs(ctx.getBean("example"))
+            .isSameAs(ctx.getBean(ExampleService.class));
+
+    assertThat(this.anyNameForService.greeting()).isEqualTo("Mocked greeting");
+  }
+
+  @Test
+  void overrideIsFoundByTypeWithQualifierDisambiguation(ApplicationContext ctx) {
+    assertThat(this.anyNameForStringBuilder)
+            .as("direct qualifier")
+            .isSameAs(ctx.getBean("two"))
+            .hasToString("Prefer TestBean String");
+
+    assertThat(this.anyNameForStringBuilder2)
+            .as("meta qualifier")
+            .isSameAs(ctx.getBean("three"))
+            .hasToString("CustomQualifier TestBean String");
+
+    assertThat(ctx.getBean("one")).as("no qualifier needed").hasToString("Prod One");
+  }
+
+  @Test
+  void overrideIsFoundByTypeForPrototypeBeanDefinition(ConfigurableApplicationContext ctx) {
+    assertThat(ctx.getBeanFactory().getBeanDefinition("prototypeNumber").isSingleton()).as("isSingleton").isTrue();
+    assertThat(this.prototypeNumber).isSameAs(ctx.getBean(Number.class));
+    assertThat(this.prototypeNumber).isEqualTo(42);
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class Config {
+
+    @Bean("example")
+    ExampleService bean1() {
+      return new RealExampleService("Production hello");
+    }
+
+    @Bean("one")
+    StringBuilder beanString1() {
+      return new StringBuilder("Prod One");
+    }
+
+    @Bean("two")
+    @Qualifier("prefer")
+    StringBuilder beanString2() {
+      return new StringBuilder("Prod Two");
+    }
+
+    @Bean("three")
+    @CustomQualifier
+    StringBuilder beanString3() {
+      return new StringBuilder("Prod Three");
+    }
+
+    @Bean
+    @Scope("prototype")
+    Number prototypeNumber() {
+      return -999;
+    }
+  }
+
+  @FunctionalInterface
+  public interface MessageService {
+
+    String getMessage();
+  }
+
+}

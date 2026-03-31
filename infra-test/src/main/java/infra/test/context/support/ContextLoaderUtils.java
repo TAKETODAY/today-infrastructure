@@ -33,10 +33,14 @@ import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.TestContextAnnotationUtils;
+import infra.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
+import infra.test.context.TestContextAnnotationUtils.UntypedAnnotationDescriptor;
 import infra.util.StringUtils;
 
 import static infra.core.annotation.AnnotationUtils.getAnnotation;
 import static infra.core.annotation.AnnotationUtils.isAnnotationDeclaredLocally;
+import static infra.test.context.TestContextAnnotationUtils.findAnnotationDescriptor;
+import static infra.test.context.TestContextAnnotationUtils.findAnnotationDescriptorForTypes;
 
 /**
  * Utility methods for resolving {@link ContextConfigurationAttributes} from the
@@ -60,17 +64,17 @@ abstract class ContextLoaderUtils {
   /**
    * Resolve the list of lists of {@linkplain ContextConfigurationAttributes context
    * configuration attributes} for the supplied {@linkplain Class test class} and its
-   * superclasses, taking into account context hierarchies declared via
-   * {@link ContextHierarchy @ContextHierarchy} and
+   * superclasses and enclosing classes, taking into account context hierarchies
+   * declared via {@link ContextHierarchy @ContextHierarchy} and
    * {@link ContextConfiguration @ContextConfiguration}.
    * <p>The outer list represents a top-down ordering of context configuration
    * attributes, where each element in the list represents the context configuration
-   * declared on a given test class in the class hierarchy. Each nested list
-   * contains the context configuration attributes declared either via a single
-   * instance of {@code @ContextConfiguration} on the particular class or via
-   * multiple instances of {@code @ContextConfiguration} declared within a
-   * single {@code @ContextHierarchy} instance on the particular class.
-   * Furthermore, each nested list maintains the order in which
+   * declared on a given test class in the class hierarchy or enclosing class
+   * hierarchy. Each nested list contains the context configuration attributes
+   * declared either via a single instance of {@code @ContextConfiguration} on
+   * the particular class or via multiple instances of {@code @ContextConfiguration}
+   * declared within a single {@code @ContextHierarchy} instance on the particular
+   * class. Furthermore, each nested list maintains the order in which
    * {@code @ContextConfiguration} instances are declared.
    * <p>Note that the {@link ContextConfiguration#inheritLocations inheritLocations} and
    * {@link ContextConfiguration#inheritInitializers() inheritInitializers} flags of
@@ -89,8 +93,8 @@ abstract class ContextLoaderUtils {
    * in the class hierarchy declares both {@code @ContextConfiguration} and
    * {@code @ContextHierarchy} as top-level annotations.
    * @see #buildContextHierarchyMap(Class)
+   * @see #resolveDefaultContextConfigurationAttributes(Class)
    * @see #resolveContextConfigurationAttributes(Class)
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   static List<List<ContextConfigurationAttributes>> resolveContextHierarchyAttributes(Class<?> testClass) {
@@ -100,8 +104,8 @@ abstract class ContextLoaderUtils {
     Class<ContextHierarchy> contextHierarchyType = ContextHierarchy.class;
     List<List<ContextConfigurationAttributes>> hierarchyAttributes = new ArrayList<>();
 
-    TestContextAnnotationUtils.UntypedAnnotationDescriptor desc =
-            TestContextAnnotationUtils.findAnnotationDescriptorForTypes(testClass, contextConfigType, contextHierarchyType);
+    UntypedAnnotationDescriptor desc =
+            findAnnotationDescriptorForTypes(testClass, contextConfigType, contextHierarchyType);
     Assert.notNull(desc, () -> String.format(
             "Could not find an 'annotation declaring class' for annotation type [%s] or [%s] and test class [%s]",
             contextConfigType.getName(), contextHierarchyType.getName(), testClass.getName()));
@@ -155,14 +159,14 @@ abstract class ContextLoaderUtils {
 
   /**
    * Build a <em>context hierarchy map</em> for the supplied {@linkplain Class
-   * test class} and its superclasses, taking into account context hierarchies
-   * declared via {@link ContextHierarchy @ContextHierarchy} and
-   * {@link ContextConfiguration @ContextConfiguration}.
+   * test class} and its superclasses and enclosing classes, taking into account
+   * context hierarchies declared via {@link ContextHierarchy @ContextHierarchy}
+   * and {@link ContextConfiguration @ContextConfiguration}.
    * <p>Each value in the map represents the consolidated list of {@linkplain
    * ContextConfigurationAttributes context configuration attributes} for a
    * given level in the context hierarchy (potentially across the test class
-   * hierarchy), keyed by the {@link ContextConfiguration#name() name} of the
-   * context hierarchy level.
+   * hierarchy and enclosing class hierarchy), keyed by the
+   * {@link ContextConfiguration#name() name} of the context hierarchy level.
    * <p>If a given level in the context hierarchy does not have an explicit
    * name (i.e., configured via {@link ContextConfiguration#name}), a name will
    * be generated for that hierarchy level by appending the numerical level to
@@ -176,7 +180,6 @@ abstract class ContextLoaderUtils {
    * attributes for each level in the {@code @ContextHierarchy} do not define
    * unique context configuration within the overall hierarchy.
    * @see #resolveContextHierarchyAttributes(Class)
-   * @since 4.0
    */
   static Map<String, List<ContextConfigurationAttributes>> buildContextHierarchyMap(Class<?> testClass) {
     Map<String, List<ContextConfigurationAttributes>> map = new LinkedHashMap<>();
@@ -187,7 +190,7 @@ abstract class ContextLoaderUtils {
         String name = configAttributes.getName();
 
         // Assign a generated name?
-        if (StringUtils.isBlank(name)) {
+        if (!StringUtils.hasText(name)) {
           name = GENERATED_CONTEXT_HIERARCHY_LEVEL_PREFIX + hierarchyLevel;
         }
 
@@ -215,9 +218,47 @@ abstract class ContextLoaderUtils {
   }
 
   /**
+   * Resolve the list of <em>default</em> {@linkplain ContextConfigurationAttributes
+   * context configuration attributes} for the supplied {@linkplain Class test class}
+   * and its superclasses and enclosing classes.
+   * <p>Use this method instead of {@link #resolveContextConfigurationAttributes(Class)}
+   * if neither {@link ContextConfiguration @ContextConfiguration} nor
+   * {@link ContextHierarchy @ContextHierarchy} is present in the class hierarchy
+   * of the supplied test class.
+   *
+   * @param testClass the class for which to resolve the configuration attributes
+   * (must not be {@code null})
+   * @return the list of configuration attributes for the specified class, ordered
+   * <em>bottom-up</em> (i.e., as if we were traversing up the class hierarchy
+   * and enclosing class hierarchy); never {@code null}
+   * @throws IllegalArgumentException if the supplied class is {@code null}
+   */
+  static List<ContextConfigurationAttributes> resolveDefaultContextConfigurationAttributes(Class<?> testClass) {
+    Assert.notNull(testClass, "Class is required");
+    List<ContextConfigurationAttributes> results = new ArrayList<>();
+    resolveDefaultContextConfigurationAttributes(results, testClass);
+    return results;
+  }
+
+  private static void resolveDefaultContextConfigurationAttributes(
+          List<ContextConfigurationAttributes> results, Class<?> testClass) {
+
+    results.add(new ContextConfigurationAttributes(testClass));
+
+    Class<?> superclass = testClass.getSuperclass();
+    if (superclass != null && superclass != Object.class) {
+      resolveDefaultContextConfigurationAttributes(results, superclass);
+    }
+
+    if (TestContextAnnotationUtils.searchEnclosingClass(testClass)) {
+      resolveDefaultContextConfigurationAttributes(results, testClass.getEnclosingClass());
+    }
+  }
+
+  /**
    * Resolve the list of {@linkplain ContextConfigurationAttributes context
-   * configuration attributes} for the supplied {@linkplain Class test class} and its
-   * superclasses.
+   * configuration attributes} for the supplied {@linkplain Class test class}
+   * and its superclasses and enclosing classes.
    * <p>Note that the {@link ContextConfiguration#inheritLocations inheritLocations} and
    * {@link ContextConfiguration#inheritInitializers() inheritInitializers} flags of
    * {@link ContextConfiguration @ContextConfiguration} will <strong>not</strong>
@@ -227,16 +268,17 @@ abstract class ContextLoaderUtils {
    * @param testClass the class for which to resolve the configuration attributes
    * (must not be {@code null})
    * @return the list of configuration attributes for the specified class, ordered
-   * <em>bottom-up</em> (i.e., as if we were traversing up the class hierarchy);
-   * never {@code null}
+   * <em>bottom-up</em> (i.e., as if we were traversing up the class hierarchy
+   * and enclosing class hierarchy); never {@code null}
    * @throws IllegalArgumentException if the supplied class is {@code null} or if
    * {@code @ContextConfiguration} is not <em>present</em> on the supplied class
    */
+  @SuppressWarnings("NullAway") // Dataflow analysis limitation
   static List<ContextConfigurationAttributes> resolveContextConfigurationAttributes(Class<?> testClass) {
     Assert.notNull(testClass, "Class is required");
 
     Class<ContextConfiguration> annotationType = ContextConfiguration.class;
-    TestContextAnnotationUtils.AnnotationDescriptor<ContextConfiguration> descriptor = TestContextAnnotationUtils.findAnnotationDescriptor(testClass, annotationType);
+    AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(testClass, annotationType);
     Assert.notNull(descriptor, () -> String.format(
             "Could not find an 'annotation declaring class' for annotation type [%s] and class [%s]",
             annotationType.getName(), testClass.getName()));
@@ -251,8 +293,8 @@ abstract class ContextLoaderUtils {
       // annotated class.
       if (currentAnnotation.equals(previousAnnotation) && hasResources(currentAnnotation)) {
         if (logger.isDebugEnabled()) {
-          logger.debug(String.format("Ignoring duplicate %s declaration on [%s], "
-                          + "since it is also declared on [%s].", currentAnnotation,
+          logger.debug(String.format("Ignoring duplicate %s declaration on [%s], " +
+                          "since it is also declared on [%s].", currentAnnotation,
                   previousDeclaringClass.getName(), descriptor.getRootDeclaringClass().getName()));
         }
       }

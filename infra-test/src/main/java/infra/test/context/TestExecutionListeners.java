@@ -36,7 +36,7 @@ import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import infra.test.context.support.DirtiesContextTestExecutionListener;
 import infra.test.context.transaction.TransactionalTestExecutionListener;
-import infra.test.context.web.MockTestExecutionListener;
+import infra.test.context.web.WebMockTestExecutionListener;
 
 /**
  * {@code TestExecutionListeners} defines class-level metadata for configuring
@@ -93,7 +93,7 @@ public @interface TestExecutionListeners {
    * <p>This attribute may <strong>not</strong> be used in conjunction with
    * {@link #value}, but it may be used instead of {@link #value}.
    *
-   * @see MockTestExecutionListener
+   * @see WebMockTestExecutionListener
    * @see DirtiesContextBeforeModesTestExecutionListener
    * @see ApplicationEventsTestExecutionListener
    * @see DependencyInjectionTestExecutionListener

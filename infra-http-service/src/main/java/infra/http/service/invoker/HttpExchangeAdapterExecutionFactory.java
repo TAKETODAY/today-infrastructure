@@ -263,7 +263,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
       return request -> client.exchangeForEntityFlux(request, bodyType)
               .map(entity -> {
                 Flux<?> entityBody = entity.getBody();
-                Assert.state(entityBody != null, "Entity body must not be null");
+                Assert.state(entityBody != null, "Entity body is required");
                 Object body = reactiveAdapter.fromPublisher(entityBody);
                 return new ResponseEntity<>(body, entity.getHeaders(), entity.getStatusCode());
               });

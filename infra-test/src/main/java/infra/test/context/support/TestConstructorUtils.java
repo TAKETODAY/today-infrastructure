@@ -76,21 +76,6 @@ public abstract class TestConstructorUtils {
   }
 
   /**
-   * Determine if the supplied executable for the given test class is an
-   * autowirable constructor.
-   * <p>This method delegates to {@link #isAutowirableConstructor(Executable, Class, PropertyProvider)}
-   * will a value of {@code null} for the fallback {@link PropertyProvider}.
-   *
-   * @param executable an executable for the test class
-   * @param testClass the test class
-   * @return {@code true} if the executable is an autowirable constructor
-   * @see #isAutowirableConstructor(Executable, Class, PropertyProvider)
-   */
-  public static boolean isAutowirableConstructor(Executable executable, Class<?> testClass) {
-    return isAutowirableConstructor(executable, testClass, null);
-  }
-
-  /**
    * Determine if the supplied constructor for the given test class is
    * autowirable.
    * <p>This method delegates to {@link #isAutowirableConstructor(Constructor, Class, PropertyProvider)}
@@ -124,6 +109,39 @@ public abstract class TestConstructorUtils {
 
     return (executable instanceof Constructor<?> constructor &&
             isAutowirableConstructor(constructor, testClass, fallbackPropertyProvider));
+  }
+
+  /**
+   * Determine if the supplied {@link Executable} is an autowirable {@link Constructor}.
+   *
+   * <p>A constructor is considered to be autowirable if one of the following
+   * conditions is {@code true}.
+   *
+   * <ol>
+   * <li>The constructor is annotated with {@link Autowired @Autowired} or
+   * {@link jakarta.inject.Inject @jakarta.inject.Inject}.</li>
+   * <li>{@link TestConstructor @TestConstructor} is <em>present</em> or
+   * <em>meta-present</em> on the test class with
+   * {@link TestConstructor#autowireMode() autowireMode} set to
+   * {@link TestConstructor.AutowireMode#ALL ALL}.</li>
+   * <li>The default <em>test constructor autowire mode</em> has been set to
+   * {@code ALL} in {@link TodayStrategies} or in the supplied fallback
+   * {@link PropertyProvider}.</li>
+   * </ol>
+   *
+   * @param executable an {@code Executable} for a test class
+   * @param fallbackPropertyProvider fallback property provider used to look up
+   * the value for {@value TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME}
+   * if no such value is found in {@link TodayStrategies}; may be {@code null}
+   * if there is no fallback support
+   * @return {@code true} if the executable is an autowirable constructor
+   * @see TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME
+   */
+  public static boolean isAutowirableConstructor(Executable executable,
+          @Nullable PropertyProvider fallbackPropertyProvider) {
+
+    return executable instanceof Constructor<?> constructor &&
+            isAutowirableConstructor(constructor, constructor.getDeclaringClass(), fallbackPropertyProvider);
   }
 
   /**

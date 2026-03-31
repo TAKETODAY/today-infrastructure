@@ -41,6 +41,7 @@ import static infra.transaction.annotation.Propagation.REQUIRED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -51,7 +52,7 @@ import static org.mockito.Mockito.mock;
  */
 class TransactionalTestExecutionListenerTests {
 
-  private final PlatformTransactionManager tm = mock(PlatformTransactionManager.class);
+  private final PlatformTransactionManager tm = mock();
 
   private final TransactionalTestExecutionListener listener = new TransactionalTestExecutionListener() {
     @Override
@@ -60,7 +61,7 @@ class TransactionalTestExecutionListenerTests {
     }
   };
 
-  private final TestContext testContext = mock(TestContext.class);
+  private final TestContext testContext = mock(CALLS_REAL_METHODS);
 
   @AfterEach
   void cleanUpThreadLocalStateForSubsequentTestClassesInSuite() {
@@ -68,7 +69,6 @@ class TransactionalTestExecutionListenerTests {
   }
 
   @Test
-
   void transactionalTestWithoutTransactionManager() throws Exception {
     TransactionalTestExecutionListener listener = new TransactionalTestExecutionListener() {
       @Override
@@ -284,7 +284,7 @@ class TransactionalTestExecutionListenerTests {
 
   @Transactional
   @Retention(RetentionPolicy.RUNTIME)
-  private static @interface MetaTxWithOverride {
+  private @interface MetaTxWithOverride {
 
     @AliasFor(annotation = Transactional.class)
     String transactionManager() default "";

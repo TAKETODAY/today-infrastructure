@@ -20,8 +20,12 @@ package infra.test.context.cache;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Locale;
+
 import infra.context.ApplicationContext;
 import infra.lang.TodayStrategies;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
 import infra.test.context.MergedContextConfiguration;
 
@@ -84,6 +88,26 @@ public interface ContextCache {
   String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "infra.test.context.cache.maxSize";
 
   /**
+   * System property used to configure whether inactive application contexts
+   * stored in the {@link ContextCache} should be paused: {@value}.
+   * <p>Defaults to {@code on_context_switch}. Can be set to {@code always} or
+   * {@code never} to disable pausing of inactive application contexts &mdash;
+   * for example:
+   * <p>{@code -Dinfra.test.context.cache.pause=never}
+   * <p>May alternatively be configured via the
+   * {@link infra.lang.TodayStrategies} mechanism.
+   * <p>Note that implementations of {@code ContextCache} are not required to
+   * support context pausing. Consult the documentation of the corresponding
+   * implementation for details.
+   *
+   * @see PauseMode
+   * @see infra.context.ConfigurableApplicationContext#pause()
+   * @see #unregisterContextUsage(MergedContextConfiguration, Class)
+   * @since 5.0
+   */
+  String CONTEXT_CACHE_PAUSE_PROPERTY_NAME = "infra.test.context.cache.pause";
+
+  /**
    * Determine whether there is a cached context for the given key.
    *
    * @param key the context key (never {@code null})
@@ -112,6 +136,26 @@ public interface ContextCache {
    * @param context the {@code ApplicationContext} instance (never {@code null})
    */
   void put(MergedContextConfiguration key, ApplicationContext context);
+
+  /**
+   * Explicitly add an {@link ApplicationContext} to the cache under the given
+   * key, potentially honoring a custom eviction policy.
+   * <p>The supplied {@link LoadFunction} will be invoked to load the
+   * {@code ApplicationContext}.
+   * <p>Concrete implementations which honor a custom eviction policy must
+   * override this method to ensure that an evicted context is removed from the
+   * cache and closed before a new context is loaded via the supplied
+   * {@code LoadFunction}.
+   *
+   * @param key the context key; never {@code null}
+   * @param loadFunction a function which loads the context for the supplied key;
+   * never {@code null}
+   * @return the {@code ApplicationContext}; never {@code null}
+   * @see #get(MergedContextConfiguration)
+   * @see #put(MergedContextConfiguration, ApplicationContext)
+   * @since 5.0
+   */
+  ApplicationContext put(MergedContextConfiguration key, LoadFunction loadFunction);
 
   /**
    * Remove the context with the given key from the cache and explicitly
@@ -159,7 +203,66 @@ public interface ContextCache {
    * @see #getFailureCount(MergedContextConfiguration)
    */
   default void incrementFailureCount(MergedContextConfiguration key) {
+  }
 
+  /**
+   * Register usage of the {@link ApplicationContext} for the supplied
+   * {@link MergedContextConfiguration} and any of its parents.
+   * <p>The default implementation of this method does nothing. Concrete
+   * implementations are therefore highly encouraged to override this
+   * method, {@link #unregisterContextUsage(MergedContextConfiguration, Class)},
+   * and {@link #getContextUsageCount()} with appropriate behavior. Note that
+   * the standard {@code ContextContext} implementation in Infra overrides
+   * these methods appropriately.
+   *
+   * @param key the context key; never {@code null}
+   * @param testClass the test class that is using the application context(s)
+   * @see #unregisterContextUsage(MergedContextConfiguration, Class)
+   * @see #getContextUsageCount()
+   * @since 5.0
+   */
+  default void registerContextUsage(MergedContextConfiguration key, Class<?> testClass) {
+    /* no-op */
+  }
+
+  /**
+   * Unregister usage of the {@link ApplicationContext} for the supplied
+   * {@link MergedContextConfiguration} and any of its parents.
+   * <p>If no other test classes are actively using the same application
+   * context(s), the application context(s) should be
+   * {@linkplain infra.context.ConfigurableApplicationContext#pause()
+   * paused} according to the configured {@link PauseMode}.
+   * <p>The default implementation of this method does nothing. Concrete
+   * implementations are therefore highly encouraged to override this
+   * method, {@link #registerContextUsage(MergedContextConfiguration, Class)},
+   * and {@link #getContextUsageCount()} with appropriate behavior. Note that
+   * the standard {@code ContextContext} implementation in Infra overrides
+   * these methods appropriately.
+   *
+   * @param key the context key; never {@code null}
+   * @param testClass the test class that is no longer using the application context(s)
+   * @see #registerContextUsage(MergedContextConfiguration, Class)
+   * @see #getContextUsageCount()
+   * @since 5.0
+   */
+  default void unregisterContextUsage(MergedContextConfiguration key, Class<?> testClass) {
+  }
+
+  /**
+   * Determine the number of contexts within the cache that are currently in use.
+   * <p>The default implementation of this method always returns {@code 0}.
+   * Concrete implementations are therefore highly encouraged to override this
+   * method, {@link #registerContextUsage(MergedContextConfiguration, Class)},
+   * and {@link #unregisterContextUsage(MergedContextConfiguration, Class)} with
+   * appropriate behavior. Note that the standard {@code ContextContext}
+   * implementation in Infra overrides these methods appropriately.
+   *
+   * @see #registerContextUsage(MergedContextConfiguration, Class)
+   * @see #unregisterContextUsage(MergedContextConfiguration, Class)
+   * @since 5.0
+   */
+  default int getContextUsageCount() {
+    return 0;
   }
 
   /**
@@ -221,5 +324,82 @@ public interface ContextCache {
    * </ul>
    */
   void logStatistics();
+
+  /**
+   * Represents a function that loads an {@link ApplicationContext}.
+   *
+   * @since 5.0
+   */
+  @FunctionalInterface
+  interface LoadFunction {
+
+    /**
+     * Load a new {@link ApplicationContext} based on the supplied
+     * {@link MergedContextConfiguration} and return the context in a fully
+     * <em>refreshed</em> state.
+     *
+     * @param mergedConfig the merged context configuration to use to load the
+     * application context
+     * @return a new application context; never {@code null}
+     * @see infra.test.context.SmartContextLoader#loadContext(MergedContextConfiguration)
+     */
+    ApplicationContext loadContext(MergedContextConfiguration mergedConfig);
+
+  }
+
+  /**
+   * Enumeration of <em>modes</em> that dictate whether inactive application contexts
+   * stored in the {@link ContextCache} should be
+   * {@linkplain infra.context.ConfigurableApplicationContext#pause() paused}.
+   *
+   * @see #ALWAYS
+   * @see #ON_CONTEXT_SWITCH
+   * @see #NEVER
+   * @see ContextCache#CONTEXT_CACHE_PAUSE_PROPERTY_NAME
+   * @since 5.0
+   */
+  enum PauseMode {
+
+    /**
+     * Always pause inactive application contexts.
+     */
+    ALWAYS,
+
+    /**
+     * Only pause inactive application contexts if the next context
+     * retrieved from the cache is a different context.
+     */
+    ON_CONTEXT_SWITCH,
+
+    /**
+     * Never pause inactive application contexts, effectively disabling the
+     * pausing feature of the {@link ContextCache}.
+     */
+    NEVER;
+
+    /**
+     * Get the {@code PauseMode} enum constant with the supplied name,
+     * {@linkplain String#strip() stripped} and ignoring case.
+     *
+     * @param name the name of the enum constant to retrieve
+     * @return the corresponding enum constant or {@code null} if not found
+     * @see PauseMode#valueOf(String)
+     */
+    public static @Nullable PauseMode from(@Nullable String name) {
+      if (name == null) {
+        return null;
+      }
+      try {
+        return PauseMode.valueOf(name.strip().toUpperCase(Locale.ROOT));
+      }
+      catch (IllegalArgumentException ex) {
+        Logger logger = LoggerFactory.getLogger(PauseMode.class);
+        if (logger.isDebugEnabled()) {
+          logger.debug("Failed to parse PauseMode from '{}': {}", name, ex.getMessage());
+        }
+        return null;
+      }
+    }
+  }
 
 }

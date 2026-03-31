@@ -170,7 +170,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   private static URI initUri(String uri, @Nullable Object[] vars) {
-    Assert.notNull(uri, "'uri' must not be null");
+    Assert.notNull(uri, "'uri' is required");
     Assert.isTrue(uri.isEmpty() || uri.startsWith("/") || uri.startsWith("http://") || uri.startsWith("https://"),
             () -> "'uri' should start with a path or be a complete HTTP URI: " + uri);
     String uriString = (uri.isEmpty() ? "/" : uri);
@@ -262,7 +262,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    * @param contentType the content type
    */
   public B contentType(MediaType contentType) {
-    Assert.notNull(contentType, "'contentType' must not be null");
+    Assert.notNull(contentType, "'contentType' is required");
     this.contentType = contentType.toString();
     return self();
   }
@@ -274,7 +274,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    * @param contentType the content type
    */
   public B contentType(String contentType) {
-    Assert.notNull(contentType, "'contentType' must not be null");
+    Assert.notNull(contentType, "'contentType' is required");
     this.contentType = contentType;
     return self();
   }
@@ -604,7 +604,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    * @param session the HTTP session
    */
   public B session(MockHttpSession session) {
-    Assert.notNull(session, "'session' must not be null");
+    Assert.notNull(session, "'session' is required");
     this.session = session;
     return self();
   }
@@ -615,7 +615,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    * @param principal the principal
    */
   public B principal(Principal principal) {
-    Assert.notNull(principal, "'principal' must not be null");
+    Assert.notNull(principal, "'principal' is required");
     this.principal = principal;
     return self();
   }
@@ -1008,7 +1008,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
 
   private static void addToMap(Map<String, Object> map, String name, Object value) {
     Assert.hasLength(name, "'name' must not be empty");
-    Assert.notNull(value, "'value' must not be null");
+    Assert.notNull(value, "'value' is required");
     map.put(name, value);
   }
 

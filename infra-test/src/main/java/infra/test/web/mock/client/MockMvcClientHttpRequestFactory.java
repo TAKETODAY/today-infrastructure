@@ -56,7 +56,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
    * Constructor with a MockMvc instance to perform requests with.
    */
   public MockMvcClientHttpRequestFactory(MockMvc mockMvc) {
-    Assert.notNull(mockMvc, "MockMvc must not be null");
+    Assert.notNull(mockMvc, "MockMvc is required");
     this.mockMvc = mockMvc;
   }
 

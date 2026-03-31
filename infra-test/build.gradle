@@ -104,6 +104,7 @@ dependencies {
 //  testImplementation("ch.qos.logback:logback-classic")
   testImplementation("de.bechte.junit:junit-hierarchicalcontextrunner")
   testImplementation("org.awaitility:awaitility")
+  testImplementation("org.easymock:easymock")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {
     exclude group: "junit", module: "junit"
   }
@@ -126,15 +127,15 @@ configurations.optional {
 test {
   description = "Runs JUnit 4, JUnit Jupiter, and TestNG tests."
   useJUnitPlatform {
-    includeEngines "junit-vintage", "junit-jupiter", "testng"
+    includeEngines "junit-vintage", "junit-jupiter"
     excludeTags "failing-test-case"
   }
-  // We use `include` instead of `filter.includeTestsMatching`, since
-  // the latter results in some tests being executed/reported
-  // multiple times.
-  include(["**/*Tests.class", "**/*Test.class"])
+
+  // `include` test filters and system properties are configured in
+  // TestConventions in buildSrc.
   filter.excludeTestsMatching("*TestCase")
   systemProperty("testGroups", project.properties.get("testGroups"))
-  // Java Util Logging for the JUnit Platform.
+  systemProperty("junit.vintage.discovery.issue.reporting.enabled", "false")
+  // Optionally configure Java Util Logging for the JUnit Platform.
   // systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
 }

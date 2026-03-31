@@ -55,7 +55,7 @@ public interface CacheAwareContextLoaderDelegate {
    * System property used to configure the failure threshold for errors
    * encountered while attempting to load an application context: {@value}.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies} mechanism.
+   * {@link infra.lang.TodayStrategies} mechanism.
    * <p>Implementations of {@code CacheAwareContextLoaderDelegate} are not
    * required to support this feature. Consult the documentation of the
    * corresponding implementation for details. Note, however, that the standard
@@ -86,20 +86,20 @@ public interface CacheAwareContextLoaderDelegate {
    * <p>Implementations of this method <strong>must not</strong> load the
    * application context as a side effect. In addition, implementations of
    * this method should not log the cache statistics via
-   * {@link ContextCache#logStatistics()}.
+   * {@link infra.test.context.cache.ContextCache#logStatistics()}.
    * <p>The default implementation of this method always returns {@code false}.
    * Custom {@code CacheAwareContextLoaderDelegate} implementations are
    * therefore highly encouraged to override this method with a more meaningful
    * implementation. Note that the standard {@code CacheAwareContextLoaderDelegate}
    * implementation in Infra overrides this method appropriately.
    *
-   * @param mergedContextConfiguration the merged context configuration used
-   * to load the application context; never {@code null}
+   * @param mergedConfig the merged context configuration used to load the
+   * application context; never {@code null}
    * @return {@code true} if the application context has been loaded
    * @see #loadContext
    * @see #closeContext
    */
-  default boolean isContextLoaded(MergedContextConfiguration mergedContextConfiguration) {
+  default boolean isContextLoaded(MergedContextConfiguration mergedConfig) {
     return false;
   }
 
@@ -125,7 +125,8 @@ public interface CacheAwareContextLoaderDelegate {
    * configured failure threshold has been exceeded. Note that the {@code ContextCache}
    * provides support for tracking and incrementing the failure count for a given
    * context cache key.
-   * <p>The cache statistics should be logged by invoking {@link ContextCache#logStatistics()}.
+   * <p>The cache statistics should be logged by invoking
+   * {@link infra.test.context.cache.ContextCache#logStatistics()}.
    *
    * @param mergedConfig the merged context configuration to use to load the
    * application context; never {@code null}
@@ -134,6 +135,7 @@ public interface CacheAwareContextLoaderDelegate {
    * the application context
    * @see #isContextLoaded
    * @see #closeContext
+   * @see #CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME
    */
   ApplicationContext loadContext(MergedContextConfiguration mergedConfig);
 
@@ -150,13 +152,47 @@ public interface CacheAwareContextLoaderDelegate {
    * with the context) or if the context needs to be prematurely removed from
    * the cache.
    *
-   * @param mergedContextConfiguration the merged context configuration for the
-   * application context to close; never {@code null}
+   * @param mergedConfig the merged context configuration for the application
+   * context to close; never {@code null}
    * @param hierarchyMode the hierarchy mode; may be {@code null} if the context
    * is not part of a hierarchy
    * @see #isContextLoaded
    * @see #loadContext
    */
-  void closeContext(MergedContextConfiguration mergedContextConfiguration, @Nullable HierarchyMode hierarchyMode);
+  void closeContext(MergedContextConfiguration mergedConfig, @Nullable HierarchyMode hierarchyMode);
+
+  /**
+   * Register usage of the {@linkplain ApplicationContext application context}
+   * for the supplied {@link MergedContextConfiguration} as well as usage of the
+   * application context for its {@linkplain MergedContextConfiguration#getParent()
+   * parent}, recursively.
+   * <p>This is intended to be invoked whenever a
+   * {@link infra.test.context.TestExecutionListener TestExecutionListener}
+   * interacts with the application context(s) on behalf of the supplied test class.
+   *
+   * @param key the context key; never {@code null}
+   * @param testClass the test class that is using the application context(s)
+   * @see #unregisterContextUsage(MergedContextConfiguration, Class)
+   * @since 5.0
+   */
+  default void registerContextUsage(MergedContextConfiguration key, Class<?> testClass) {
+  }
+
+  /**
+   * Unregister usage of the {@linkplain ApplicationContext application context}
+   * for the supplied {@link MergedContextConfiguration} as well as usage of the
+   * application context for its {@linkplain MergedContextConfiguration#getParent()
+   * parent}, recursively.
+   * <p>This informs the {@code ContextCache} that the application context(s) can be safely
+   * {@linkplain infra.context.ConfigurableApplicationContext#pause() paused}
+   * if no other test classes are actively using the same application context(s).
+   *
+   * @param key the context key; never {@code null}
+   * @param testClass the test class that is no longer using the application context(s)
+   * @see #registerContextUsage(MergedContextConfiguration, Class)
+   * @since 5.0
+   */
+  default void unregisterContextUsage(MergedContextConfiguration key, Class<?> testClass) {
+  }
 
 }
