@@ -29,6 +29,7 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanFactoryUtils;
+import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionCustomizer;
 import infra.beans.factory.config.BeanDefinitionCustomizers;
@@ -64,14 +65,12 @@ import infra.core.type.classreading.MetadataReaderFactory;
 import infra.lang.Assert;
 import infra.lang.ClassInstantiator;
 import infra.stereotype.Component;
-import infra.util.CollectionUtils;
 
 /**
- * Startup(Refresh) Context
+ * Bootstrap Context for application startup and refresh.
  *
- * <p>
- * BootstrapContext is can instantiate the class may implement any of the following
- * {@link Aware Aware} interfaces
+ * <p>This context is responsible for instantiating classes that may implement any of the following
+ * {@link Aware} interfaces:
  * <ul>
  * <li>{@link EnvironmentAware}</li>
  * <li>{@link BeanFactoryAware}</li>
@@ -80,7 +79,8 @@ import infra.util.CollectionUtils;
  * <li>{@link BootstrapContextAware}</li>
  * <li>{@link ApplicationContextAware}</li>
  * </ul>
- * and it's {@link Constructor#getParameters()} can be following types
+ *
+ * <p>Additionally, the constructor parameters of such classes can be resolved from the following types:
  * <ul>
  * <li>{@link Environment}</li>
  * <li>{@link BeanFactory}</li>
@@ -91,8 +91,8 @@ import infra.util.CollectionUtils;
  * <li>{@link BeanDefinitionRegistry}</li>
  * <li>{@link ExpressionEvaluator}</li>
  * </ul>
- * <p>
- *  This bootstrap context is containing many components that for context(IoC) startup
+ *
+ * <p>This bootstrap context contains various components required for the IoC container startup process.
  *
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
@@ -105,39 +105,46 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
 
   private final ConfigurableBeanFactory beanFactory;
 
-  @Nullable
-  private final ApplicationContext applicationContext;
-
-  @Nullable
-  ConditionEvaluator conditionEvaluator;
-
-  @Nullable
-  private MetadataReaderFactory metadataReaderFactory;
-
-  @Nullable
-  private PatternResourceLoader resourceLoader;
-
-  @Nullable
-  private ScopeMetadataResolver scopeMetadataResolver;
-
-  @Nullable
-  private PropertySourceFactory propertySourceFactory;
+  private final @Nullable ApplicationContext applicationContext;
 
   /* Using short class names as default bean names by default. */
   private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
-  @Nullable
-  private Environment environment;
+  private @Nullable MetadataReaderFactory metadataReaderFactory;
 
-  @Nullable
-  ExpressionEvaluator expressionEvaluator;
+  private @Nullable PatternResourceLoader resourceLoader;
 
+  private @Nullable ScopeMetadataResolver scopeMetadataResolver;
+
+  private @Nullable PropertySourceFactory propertySourceFactory;
+
+  private @Nullable Environment environment;
+
+  @Nullable ConditionEvaluator conditionEvaluator;
+
+  @Nullable ExpressionEvaluator expressionEvaluator;
+
+  /**
+   * Construct a new BootstrapContext with the given ApplicationContext.
+   * <p>This constructor delegates to {@link #BootstrapContext(ConfigurableBeanFactory, ApplicationContext)},
+   * unwrapping the underlying {@link ConfigurableBeanFactory} from the provided context.
+   *
+   * @param context the application context to wrap; must not be null
+   */
   public BootstrapContext(ApplicationContext context) {
     this(context.unwrapFactory(ConfigurableBeanFactory.class), context);
   }
 
+  /**
+   * Construct a new BootstrapContext with the given ConfigurableBeanFactory and ApplicationContext.
+   * <p>The internal {@link BeanDefinitionRegistry} is obtained by unwrapping the bean factory.
+   * If an ApplicationContext is provided, it is also used as the {@link ResourceLoader}.
+   *
+   * @param beanFactory the configurable bean factory to use; must not be null
+   * @param context the application context, or {@code null} if not available
+   */
   public BootstrapContext(ConfigurableBeanFactory beanFactory, @Nullable ApplicationContext context) {
     Assert.notNull(beanFactory, "beanFactory is required");
     this.registry = beanFactory.unwrap(BeanDefinitionRegistry.class);
@@ -146,17 +153,34 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     this.applicationContext = context;
   }
 
+  /**
+   * Construct a new BootstrapContext with the given Environment and ConfigurableBeanFactory.
+   * <p>This constructor creates a context without an associated ApplicationContext.
+   * The provided environment is set explicitly via {@link #setEnvironment(Environment)}.
+   *
+   * @param environment the environment to use, or {@code null} to defer initialization
+   * @param beanFactory the configurable bean factory to use; must not be null
+   */
   public BootstrapContext(@Nullable Environment environment, ConfigurableBeanFactory beanFactory) {
     this(beanFactory, null);
     setEnvironment(environment);
   }
 
+  /**
+   * Return the underlying {@link BeanDefinitionRegistry} used by this context.
+   *
+   * @return the bean definition registry
+   */
   public BeanDefinitionRegistry getRegistry() {
     return registry;
   }
 
-  @Nullable
-  public ApplicationContext getApplicationContext() {
+  /**
+   * Return the underlying {@link ApplicationContext} if available.
+   *
+   * @return the application context, or {@code null} if not available
+   */
+  public @Nullable ApplicationContext getApplicationContext() {
     return applicationContext;
   }
 
@@ -184,14 +208,26 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     this.environment = environment;
   }
 
+  /**
+   * Return the underlying {@link ConfigurableBeanFactory} used by this context.
+   *
+   * @return the configurable bean factory
+   */
   public ConfigurableBeanFactory getBeanFactory() {
     return beanFactory;
   }
 
   /**
-   * unwrap bean-factory to {@code requiredType}
+   * Unwrap the underlying bean factory to the specified required type.
+   * <p>
+   * If an {@link ApplicationContext} is available, this method delegates to
+   * {@link ApplicationContext#unwrapFactory(Class)}. Otherwise, it delegates to
+   * the underlying {@link ConfigurableBeanFactory#unwrap(Class)}.
    *
-   * @throws IllegalArgumentException not a requiredType
+   * @param <T> the target type to unwrap to
+   * @param requiredType the class of the target type
+   * @return an instance of the specified type from the underlying bean factory
+   * @throws IllegalArgumentException if the bean factory cannot be unwrapped to the required type
    */
   public <T> T unwrapFactory(Class<T> requiredType) {
     if (applicationContext != null) {
@@ -201,9 +237,16 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   }
 
   /**
-   * unwrap this ApplicationContext to {@code requiredType}
+   * Unwrap the underlying {@link ApplicationContext} to the specified required type.
+   * <p>
+   * This method delegates to {@link ApplicationContext#unwrap(Class)} to obtain an instance
+   * of the given type from the application context.
    *
-   * @throws IllegalArgumentException not a requiredType
+   * @param <T> the target type to unwrap to
+   * @param requiredType the class of the target type
+   * @return an instance of the specified type from the application context
+   * @throws IllegalArgumentException if the application context cannot be unwrapped to the required type
+   * @throws IllegalStateException if no {@link ApplicationContext} is available
    */
   public <T> T unwrapContext(Class<T> requiredType) {
     Assert.state(applicationContext != null, "No ApplicationContext available");
@@ -223,6 +266,14 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return beanNameGenerator.generateBeanName(definition, registry);
   }
 
+  /**
+   * Get the {@link ConditionEvaluator} for this context.
+   * <p>
+   * If the evaluator has not been initialized, it will be created based on the
+   * available {@link ApplicationContext} or {@link Environment}.
+   *
+   * @return the condition evaluator instance
+   */
   public ConditionEvaluator getConditionEvaluator() {
     if (conditionEvaluator == null) {
       if (applicationContext != null) {
@@ -235,39 +286,84 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return conditionEvaluator;
   }
 
+  /**
+   * Register a bean definition with the given name in the underlying registry.
+   * <p>
+   * Before registration, this method ensures that the bean definition has a scope set.
+   * If no scope is present, it resolves the scope name using the configured
+   * {@link ScopeMetadataResolver}. Additionally, any registered
+   * {@link BeanDefinitionCustomizer}s are applied to the definition.
+   *
+   * @param beanName the name of the bean to register
+   * @param definition the bean definition to register
+   */
   public void registerBeanDefinition(String beanName, BeanDefinition definition) {
     if (definition.getScope() == null) {
       definition.setScope(resolveScopeName(definition));
     }
 
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      for (BeanDefinitionCustomizer definitionCustomizer : customizers) {
-        definitionCustomizer.customize(definition);
-      }
-    }
+    customize(definition);
     registry.registerBeanDefinition(beanName, definition);
   }
 
+  /**
+   * Register an alias for the specified bean name.
+   *
+   * @param beanName the canonical bean name
+   * @param alias the alias to register
+   */
   public void registerAlias(String beanName, String alias) {
     registry.registerAlias(beanName, alias);
   }
 
+  /**
+   * Check whether a bean definition with the given name exists in the registry.
+   *
+   * @param beanName the name of the bean to check
+   * @return {@code true} if a bean definition with the given name exists
+   */
   public boolean containsBeanDefinition(String beanName) {
     return registry.containsBeanDefinition(beanName);
   }
 
+  /**
+   * Remove the bean definition with the given name from the registry.
+   *
+   * @param beanName the name of the bean definition to remove
+   */
   public void removeBeanDefinition(String beanName) {
     registry.removeBeanDefinition(beanName);
   }
 
+  /**
+   * Return the bean definition for the given bean name.
+   *
+   * @param beanName the name of the bean to look up
+   * @return the bean definition for the given name
+   * @throws NoSuchBeanDefinitionException if no bean definition with the given name exists
+   */
   public BeanDefinition getBeanDefinition(String beanName) {
     return registry.getBeanDefinition(beanName);
   }
 
+  /**
+   * Determine whether the annotated type matches the conditions for the given configuration phase.
+   *
+   * @param metadata the annotated type metadata to check
+   * @param phase the configuration phase to evaluate against (may be {@code null})
+   * @return {@code true} if the conditions pass
+   */
   public boolean passCondition(AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
     return getConditionEvaluator().passCondition(metadata, phase);
   }
 
+  /**
+   * Determine whether the annotated type should be skipped during processing for the given configuration phase.
+   *
+   * @param metadata the annotated type metadata to check (may be {@code null})
+   * @param phase the configuration phase to evaluate against (may be {@code null})
+   * @return {@code true} if the type should be skipped
+   */
   public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
     return getConditionEvaluator().shouldSkip(metadata, phase);
   }
@@ -311,7 +407,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
    * @see ConstructorNotFoundException If there is no suitable constructor
    */
   @Override
-  @SuppressWarnings("NullAway")
   public <T> T instantiate(Class<T> clazz) {
     Assert.notNull(clazz, "Class is required");
     if (clazz.isInterface()) {
@@ -351,8 +446,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return (T) instantiate(clazz);
   }
 
-  @Nullable
-  private Object findProvided(Parameter parameter) {
+  private @Nullable Object findProvided(Parameter parameter) {
     Class<?> parameterType = parameter.getType();
     if (Environment.class.isAssignableFrom(parameterType)
             && parameterType.isInstance(getEnvironment())) {
@@ -387,7 +481,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     throw new IllegalStateException("Illegal method parameter type: " + parameterType.getName());
   }
 
-  @SuppressWarnings("NullAway")
   public void invokeAwareMethods(Object bean) {
     if (bean instanceof Aware) {
       if (bean instanceof BeanClassLoaderAware aware) {
@@ -430,6 +523,15 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
   }
 
+  /**
+   * Return the {@link PatternResourceLoader} used by this context.
+   * <p>If the loader has not been initialized, it will be created based on the
+   * available {@link ApplicationContext} or a default {@link PathMatchingPatternResourceLoader}.
+   * Additionally, if the {@link MetadataReaderFactory} is not yet initialized, it will be
+   * created using the resolved resource loader.
+   *
+   * @return the pattern resource loader instance; never {@code null}
+   */
   public PatternResourceLoader getResourceLoader() {
     if (this.resourceLoader == null) {
       if (applicationContext != null) {
@@ -446,6 +548,16 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return this.resourceLoader;
   }
 
+  /**
+   * Resolve the given location string into a {@link Resource} handle.
+   * <p>This method delegates to the configured {@link PatternResourceLoader}
+   * to perform the actual resource resolution.
+   *
+   * @param location the resource location (e.g., a file path, classpath location, or URL)
+   * @return the corresponding {@link Resource} handle; never {@code null}
+   * @see #getResourceLoader()
+   * @see PatternResourceLoader#getResource(String)
+   */
   public Resource getResource(String location) {
     return getResourceLoader().getResource(location);
   }
@@ -464,7 +576,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   /**
    * Return the MetadataReaderFactory used by this component provider.
    */
-  @SuppressWarnings("NullAway")
   public final MetadataReaderFactory getMetadataReaderFactory() {
     if (this.metadataReaderFactory == null) {
       // try to bind ResourceLoader to MetadataReaderFactory
@@ -485,10 +596,31 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return this.metadataReaderFactory;
   }
 
+  /**
+   * Obtain the {@link AnnotationMetadata} for the specified class name.
+   * <p>This method retrieves a {@link MetadataReader} for the given class and extracts
+   * its annotation metadata, including information about annotations present on the class,
+   * its methods, fields, and constructors.
+   *
+   * @param className the fully qualified name of the class to read
+   * @return the annotation metadata for the specified class
+   * @throws IOException if an I/O error occurs while reading the class resource
+   * @see #getMetadataReader(String)
+   */
   public AnnotationMetadata getAnnotationMetadata(String className) throws IOException {
     return getMetadataReader(className).getAnnotationMetadata();
   }
 
+  /**
+   * Obtain a {@link MetadataReader} for the specified class name.
+   * <p>This method delegates to the configured {@link MetadataReaderFactory}
+   * to read and parse the class metadata, including annotations and class hierarchy information.
+   *
+   * @param className the fully qualified name of the class to read
+   * @return a {@code MetadataReader} instance for the specified class
+   * @throws IOException if an I/O error occurs while reading the class resource
+   * @see #getMetadataReaderFactory()
+   */
   public MetadataReader getMetadataReader(String className) throws IOException {
     MetadataReaderFactory metadataFactory = getMetadataReaderFactory();
     return metadataFactory.getMetadataReader(className);
@@ -513,23 +645,40 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   //---------------------------------------------------------------------
 
   /**
-   * evaluate expression
+   * Evaluate the given expression and return the result as a {@link String}.
+   * <p>This is a convenience method that delegates to
+   * {@link #evaluateExpression(String, Class)} with {@code String.class} as the required type.
+   *
+   * @param expression the expression to evaluate
+   * @return the evaluation result as a {@code String}, or {@code null} if the result is absent
+   * @see #evaluateExpression(String, Class)
    */
-  @Nullable
-  public String evaluateExpression(String expression) {
+  public @Nullable String evaluateExpression(String expression) {
     return evaluateExpression(expression, String.class);
   }
 
   /**
-   * evaluate expression
+   * Evaluate the given expression and return the result as the specified required type.
+   * <p>This method delegates to the configured {@link ExpressionEvaluator} to perform
+   * the actual expression evaluation against the current context.
+   *
+   * @param <T> the required result type
+   * @param expression the expression to evaluate (e.g., SpEL, property placeholder)
+   * @param requiredType the class of the required result type
+   * @return the evaluation result as an instance of {@code T}, or {@code null} if the result is absent
+   * @see #getExpressionEvaluator()
+   * @see ExpressionEvaluator#evaluate(String, Class)
    */
-  @Nullable
-  public <T> T evaluateExpression(String expression, Class<T> requiredType) {
+  public <T extends @Nullable Object> T evaluateExpression(String expression, Class<T> requiredType) {
     return getExpressionEvaluator().evaluate(expression, requiredType);
   }
 
   /**
-   * Get ExpressionEvaluator
+   * Return the {@link ExpressionEvaluator} used by this context.
+   * <p>If the evaluator has not been initialized, it will be created based on the
+   * available {@link ApplicationContext} or the underlying {@link BeanFactory}.
+   *
+   * @return the expression evaluator instance; never {@code null}
    */
   public ExpressionEvaluator getExpressionEvaluator() {
     ExpressionEvaluator expressionEvaluator = this.expressionEvaluator;
@@ -547,11 +696,24 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
 
   // ScopeMetadataResolver
 
+  /**
+   * Set the {@link ScopeMetadataResolver} to use for resolving scope metadata.
+   * <p>The default is an {@link AnnotationScopeMetadataResolver}.
+   *
+   * @param scopeMetadataResolver the scope metadata resolver; must not be null
+   */
   public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
     Assert.notNull(scopeMetadataResolver, "ScopeMetadataResolver is required");
     this.scopeMetadataResolver = scopeMetadataResolver;
   }
 
+  /**
+   * Return the {@link ScopeMetadataResolver} used by this context.
+   * <p>If no resolver has been explicitly set, a default {@link AnnotationScopeMetadataResolver}
+   * will be created and returned.
+   *
+   * @return the scope metadata resolver; never {@code null}
+   */
   public ScopeMetadataResolver getScopeMetadataResolver() {
     if (scopeMetadataResolver == null) {
       scopeMetadataResolver = new AnnotationScopeMetadataResolver();
@@ -560,8 +722,12 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   }
 
   /**
-   * Get the name of the scope.
+   * Resolve the scope name for the given bean definition.
+   * <p>This method delegates to {@link #resolveScopeMetadata(BeanDefinition)} to obtain
+   * the {@link ScopeMetadata} and then extracts the scope name from it.
    *
+   * @param definition the bean definition to resolve the scope name for
+   * @return the resolved scope name; never {@code null}
    * @see #resolveScopeMetadata(BeanDefinition)
    */
   public String resolveScopeName(BeanDefinition definition) {
@@ -586,14 +752,22 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   }
 
   /**
-   * setting default PropertySourceFactory
+   * Set the {@link PropertySourceFactory} to use for creating property sources from resources.
+   * <p>The default is a {@link DefaultPropertySourceFactory}.
    *
-   * @param propertySourceFactory PropertySourceFactory
+   * @param propertySourceFactory the property source factory, or {@code null} to use the default
    */
   public void setPropertySourceFactory(@Nullable PropertySourceFactory propertySourceFactory) {
     this.propertySourceFactory = propertySourceFactory;
   }
 
+  /**
+   * Return the {@link PropertySourceFactory} used by this context.
+   * <p>If no factory has been explicitly set, a default {@link DefaultPropertySourceFactory}
+   * will be created and returned.
+   *
+   * @return the property source factory; never {@code null}
+   */
   public PropertySourceFactory getPropertySourceFactory() {
     if (propertySourceFactory == null) {
       propertySourceFactory = new DefaultPropertySourceFactory();
@@ -609,6 +783,13 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     this.beanNameGenerator = beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE;
   }
 
+  /**
+   * Return the {@link BeanNameGenerator} used by this context.
+   * <p>If no generator has been explicitly set, a default {@link AnnotationBeanNameGenerator}
+   * will be used.
+   *
+   * @return the bean name generator; never {@code null}
+   */
   public BeanNameGenerator getBeanNameGenerator() {
     return beanNameGenerator;
   }
@@ -623,16 +804,44 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     this.problemReporter = problemReporter != null ? problemReporter : new FailFastProblemReporter();
   }
 
+  /**
+   * Return the {@link ProblemReporter} used by this context.
+   * <p>This reporter is responsible for handling problems detected during
+   * {@link Configuration} or {@link Component} processing, such as invalid method signatures.
+   * The default implementation is a {@link FailFastProblemReporter}.
+   *
+   * @return the problem reporter; never {@code null}
+   * @see #setProblemReporter(ProblemReporter)
+   */
   public ProblemReporter getProblemReporter() {
     return problemReporter;
   }
 
+  /**
+   * Report a problem using the configured {@link ProblemReporter}.
+   * <p>This method delegates to {@link ProblemReporter#error(Problem)} to handle
+   * the given problem, which may result in an exception being thrown depending
+   * on the reporter's configuration (e.g., fail-fast behavior).
+   *
+   * @param problem the problem to report; must not be null
+   * @see ProblemReporter#error(Problem)
+   */
   public void reportError(Problem problem) {
     problemReporter.error(problem);
   }
 
-  @Nullable
-  public ClassLoader getClassLoader() {
+  /**
+   * Return the {@link ClassLoader} to use for loading classes and resources.
+   * <p>This method first attempts to obtain the class loader from the underlying
+   * {@link ConfigurableBeanFactory}. If that returns {@code null}, it falls back to the
+   * class loader of the configured {@link ResourceLoader}.
+   *
+   * @return the class loader, or {@code null} if neither the bean factory nor
+   * the resource loader provides one
+   * @see ConfigurableBeanFactory#getBeanClassLoader()
+   * @see ResourceLoader#getClassLoader()
+   */
+  public @Nullable ClassLoader getClassLoader() {
     ClassLoader classLoader = beanFactory.getBeanClassLoader();
     if (classLoader == null) {
       classLoader = getResourceLoader().getClassLoader();
@@ -659,16 +868,14 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return context;
   }
 
-  @Nullable
-  static ApplicationContext deduceContext(BeanFactory beanFactory) {
+  static @Nullable ApplicationContext deduceContext(BeanFactory beanFactory) {
     if (beanFactory instanceof ApplicationContext context) {
       return context;
     }
     return null;
   }
 
-  @Nullable
-  private static BootstrapContext findContext(BeanFactory beanFactory) {
+  private static @Nullable BootstrapContext findContext(BeanFactory beanFactory) {
     return BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, BootstrapContext.class);
   }
 
