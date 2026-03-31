@@ -307,6 +307,12 @@ public class BeanRegistryAdapter implements BeanRegistry {
               supplier.apply(new SupplierContextAdapter(this.beanFactory)));
       return this;
     }
+
+    @Override
+    public Spec<T> disableDependencyInjection() {
+      beanDefinition.setEnableDependencyInjection(false);
+      return this;
+    }
   }
 
   private static class SupplierContextAdapter implements SupplierContext {

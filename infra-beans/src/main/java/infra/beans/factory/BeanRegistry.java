@@ -267,6 +267,16 @@ public interface BeanRegistry {
      * @see AbstractBeanDefinition#setInstanceSupplier(Supplier)
      */
     Spec<T> supplier(Function<SupplierContext, T> supplier);
+
+    /**
+     * Configure this bean to skip dependency injection.
+     * <p>When enabled, the container will not attempt to apply {@link DependenciesBeanPostProcessor}
+     * for this bean instance.
+     *
+     * @see BeanDefinition#setEnableDependencyInjection(boolean)
+     * @see DependenciesBeanPostProcessor
+     */
+    Spec<T> disableDependencyInjection();
   }
 
   /**
