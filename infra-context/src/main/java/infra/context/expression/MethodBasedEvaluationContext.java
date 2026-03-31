@@ -71,8 +71,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
   }
 
   @Override
-  @Nullable
-  public Object lookupVariable(String name) {
+  public @Nullable Object lookupVariable(String name) {
     Object variable = super.lookupVariable(name);
     if (variable != null) {
       return variable;

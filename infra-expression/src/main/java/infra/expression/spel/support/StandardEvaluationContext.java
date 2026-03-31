@@ -85,29 +85,21 @@ public class StandardEvaluationContext implements EvaluationContext {
   @SuppressWarnings("NullAway.Init")
   private TypedValue rootObject;
 
-  @Nullable
-  private volatile List<PropertyAccessor> propertyAccessors;
+  private volatile @Nullable List<PropertyAccessor> propertyAccessors;
 
-  @Nullable
-  private volatile List<ConstructorResolver> constructorResolvers;
+  private volatile @Nullable List<ConstructorResolver> constructorResolvers;
 
-  @Nullable
-  private volatile List<MethodResolver> methodResolvers;
+  private volatile @Nullable List<MethodResolver> methodResolvers;
 
-  @Nullable
-  private volatile List<IndexAccessor> indexAccessors;
+  private volatile @Nullable List<IndexAccessor> indexAccessors;
 
-  @Nullable
-  private volatile ReflectiveMethodResolver reflectiveMethodResolver;
+  private volatile @Nullable ReflectiveMethodResolver reflectiveMethodResolver;
 
-  @Nullable
-  private BeanResolver beanResolver;
+  private @Nullable BeanResolver beanResolver;
 
-  @Nullable
-  private TypeLocator typeLocator;
+  private @Nullable TypeLocator typeLocator;
 
-  @Nullable
-  private TypeConverter typeConverter;
+  private @Nullable TypeConverter typeConverter;
 
   private TypeComparator typeComparator = TypeComparator.STANDARD;
 
@@ -135,10 +127,10 @@ public class StandardEvaluationContext implements EvaluationContext {
   /**
    * Create a {@code StandardEvaluationContext} with the given root object.
    */
-  @SuppressWarnings("NullAway")
   protected StandardEvaluationContext(StandardEvaluationContext shared) {
     this.typeLocator = shared.getTypeLocator();
     this.typeConverter = shared.getTypeConverter();
+    this.indexAccessors = new ArrayList<>(shared.getIndexAccessors());
     this.methodResolvers = new ArrayList<>(shared.getMethodResolvers());
     this.propertyAccessors = new ArrayList<>(shared.getPropertyAccessors());
     this.constructorResolvers = new ArrayList<>(shared.getConstructorResolvers());
