@@ -34,7 +34,7 @@ public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the maximum size of the {@link ContextCache}.
-   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
    * property named {@value ContextCache#MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME}.
    * <p>Defaults to {@value ContextCache#DEFAULT_MAX_CONTEXT_CACHE_SIZE}
    * if no such property has been set or if the property is not an integer.
@@ -50,7 +50,7 @@ public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the <em>failure threshold</em> for application context loading.
-   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
    * property named {@value CacheAwareContextLoaderDelegate#CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME}.
    * <p>Defaults to {@value CacheAwareContextLoaderDelegate#DEFAULT_CONTEXT_FAILURE_THRESHOLD}
    * if no such property has been set or if the property is not an integer.
@@ -67,7 +67,7 @@ public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the {@link PauseMode} for the {@link ContextCache}.
-   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
    * property named {@value ContextCache#CONTEXT_CACHE_PAUSE_PROPERTY_NAME}.
    * <p>Defaults to {@link PauseMode#ON_CONTEXT_SWITCH} if no such property has
    * been set.

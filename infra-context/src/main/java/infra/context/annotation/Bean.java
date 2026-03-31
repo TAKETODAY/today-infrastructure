@@ -210,7 +210,7 @@ import infra.stereotype.Component;
  *
  * <h3>{@code BeanPostProcessor}-returning {@code @Bean} methods</h3>
  *
- * <p>Similarly, special consideration must be taken for {@code @Bean} methods that return Spring
+ * <p>Similarly, special consideration must be taken for {@code @Bean} methods that return Infra
  * {@link infra.beans.factory.config.BeanPostProcessor BeanPostProcessor}
  * ({@code BPP}) types. Because {@code BPP} objects must be instantiated early in the container
  * lifecycle, a non-static {@code @Bean} method that returns a {@code BPP} will cause eager

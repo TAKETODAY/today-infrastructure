@@ -143,7 +143,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
     // user asked for the ApplicationContext to be closed via @DirtiesContext,
     // since the DirtiesContextTestExecutionListener will never be invoked for
     // a disabled test class.
-    // See https://github.com/spring-projects/spring-framework/issues/26694
+    // See gh-26694
     if (loadContext && result.isDisabled() && element instanceof Class<?> testClass) {
       DirtiesContext dirtiesContext = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
       if (dirtiesContext != null) {

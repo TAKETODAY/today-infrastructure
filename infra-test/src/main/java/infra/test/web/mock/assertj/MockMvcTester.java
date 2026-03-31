@@ -161,7 +161,7 @@ public final class MockMvcTester {
    * <p>If no further customization of the underlying {@link MockMvc} instance
    * is required, use {@link #from(ApplicationContext)}.
    *
-   * @param applicationContext the application context to detect the Spring
+   * @param applicationContext the application context to detect the Infra
    * MVC infrastructure and application controllers from
    * @param customizations a function that creates a {@link MockMvc}
    * instance based on a {@link DefaultMockMvcBuilder}
@@ -182,7 +182,7 @@ public final class MockMvcTester {
    * further customization of the underlying {@link MockMvc} instance is
    * required.
    *
-   * @param applicationContext the application context to detect the Spring
+   * @param applicationContext the application context to detect the Infra
    * MVC infrastructure and application controllers from
    * @see MockMvcBuilders#webAppContextSetup(ApplicationContext)
    */

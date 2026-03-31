@@ -1,5 +1,5 @@
 /**
- * Support case-by-case Bean overriding in Spring tests.
+ * Support case-by-case Bean overriding in Infra tests.
  */
 @NullMarked
 package infra.test.context.bean.override;

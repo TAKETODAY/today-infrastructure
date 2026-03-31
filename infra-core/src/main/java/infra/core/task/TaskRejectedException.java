@@ -27,7 +27,7 @@ import java.util.concurrent.RejectedExecutionException;
  * a given task for execution.
  *
  * <p>Extends {@link RejectedExecutionException} as a common base class,
- * allowing for custom catch blocks to cover both Spring scenarios and
+ * allowing for custom catch blocks to cover both Infra scenarios and
  * {@link java.util.concurrent.ExecutorService} rejection exceptions.
  *
  * @author Juergen Hoeller

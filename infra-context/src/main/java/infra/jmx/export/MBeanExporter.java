@@ -473,7 +473,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
 
   /**
    * Register the supplied resource with JMX. If the resource is not a valid MBean already,
-   * Spring will generate a management interface for it. The exact interface generated will
+   * Infra will generate a management interface for it. The exact interface generated will
    * depend on the implementation and its configuration. This call also generates an
    * {@link ObjectName} for the managed resource and returns this to the caller.
    *
@@ -481,7 +481,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @param beanKey the corresponding bean key for {@link ObjectNamingStrategy} purposes
    * (making the generated {@code ObjectName} unique without the need for an identity key)
    * @return the {@link ObjectName} under which the resource was exposed
-   * @throws MBeanExportException if Spring is unable to generate an {@link ObjectName}
+   * @throws MBeanExportException if Infra is unable to generate an {@link ObjectName}
    * or register the MBean
    * @see ObjectNamingStrategy#getObjectName(Object, String)
    * @since 5.0
