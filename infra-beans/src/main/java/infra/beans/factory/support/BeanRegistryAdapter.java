@@ -121,51 +121,38 @@ public class BeanRegistryAdapter implements BeanRegistry {
 
   @Override
   public <T> void registerBean(String name, Class<T> beanClass) {
+    registerBean(name, beanClass, null);
+  }
+
+  @Override
+  public <T> void registerBean(String name, Class<T> beanClass, @Nullable Consumer<Spec<T>> customizer) {
     BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
-    if (this.customizers != null && this.customizers.containsKey(name)) {
-      for (BeanDefinitionCustomizer customizer : this.customizers.get(name)) {
-        customizer.customize(beanDefinition);
-      }
-    }
-    this.beanRegistry.registerBeanDefinition(name, beanDefinition);
+    registerBean(name, customizer, beanDefinition);
   }
 
   @Override
   public <T> void registerBean(String name, ParameterizedTypeReference<T> beanType) {
+    registerBean(name, beanType, null);
+  }
+
+  @Override
+  public <T> void registerBean(String name, ParameterizedTypeReference<T> beanType, @Nullable Consumer<Spec<T>> customizer) {
     ResolvableType resolvableType = ResolvableType.forType(beanType);
     Class<?> beanClass = Objects.requireNonNull(resolvableType.resolve());
     BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
     beanDefinition.setTargetType(resolvableType);
-    if (this.customizers != null && this.customizers.containsKey(name)) {
-      for (BeanDefinitionCustomizer customizer : this.customizers.get(name)) {
-        customizer.customize(beanDefinition);
-      }
-    }
-    this.beanRegistry.registerBeanDefinition(name, beanDefinition);
+
+    registerBean(name, customizer, beanDefinition);
   }
 
-  @Override
-  public <T> void registerBean(String name, Class<T> beanClass, Consumer<Spec<T>> customizer) {
-    BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
-    customizer.accept(new BeanSpecAdapter<>(beanDefinition, this.beanFactory));
-    if (this.customizers != null && this.customizers.containsKey(name)) {
-      for (BeanDefinitionCustomizer registryCustomizer : this.customizers.get(name)) {
-        registryCustomizer.customize(beanDefinition);
-      }
+  private <T> void registerBean(String name, @Nullable Consumer<Spec<T>> customizer, BeanRegistrarBeanDefinition beanDefinition) {
+    if (customizer != null) {
+      customizer.accept(new BeanSpecAdapter<>(beanDefinition, this.beanFactory));
     }
-    this.beanRegistry.registerBeanDefinition(name, beanDefinition);
-  }
 
-  @Override
-  public <T> void registerBean(String name, ParameterizedTypeReference<T> beanType, Consumer<Spec<T>> customizer) {
-    ResolvableType resolvableType = ResolvableType.forType(beanType);
-    Class<?> beanClass = Objects.requireNonNull(resolvableType.resolve());
-    BeanRegistrarBeanDefinition beanDefinition = new BeanRegistrarBeanDefinition(beanClass, this.beanRegistrarClass);
-    beanDefinition.setTargetType(resolvableType);
-    customizer.accept(new BeanSpecAdapter<>(beanDefinition, this.beanFactory));
     if (this.customizers != null && this.customizers.containsKey(name)) {
-      for (BeanDefinitionCustomizer registryCustomizer : this.customizers.get(name)) {
-        registryCustomizer.customize(beanDefinition);
+      for (BeanDefinitionCustomizer defCustomizer : this.customizers.get(name)) {
+        defCustomizer.customize(beanDefinition);
       }
     }
     this.beanRegistry.registerBeanDefinition(name, beanDefinition);
