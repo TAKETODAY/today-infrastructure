@@ -55,7 +55,7 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
   private boolean argumentsLoaded = false;
 
   public MethodBasedEvaluationContext(@Nullable Object rootObject, Method method,
-          Object @Nullable [] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
+          @Nullable Object @Nullable [] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
     super(rootObject);
     this.method = method;
     this.arguments = arguments;
