@@ -137,7 +137,7 @@ public abstract class ConfigurationClassUtils {
     }
 
     MergedAnnotation<Configuration> config = metadata.getAnnotation(Configuration.class);
-    if (config.isPresent() && !Boolean.FALSE.equals(config.getBoolean("proxyBeanMethods"))) {
+    if (config.isPresent() && config.getBoolean("proxyBeanMethods")) {
       beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
     }
     else if (config.isPresent()
