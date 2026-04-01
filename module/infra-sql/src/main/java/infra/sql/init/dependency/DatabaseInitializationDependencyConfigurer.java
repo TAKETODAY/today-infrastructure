@@ -37,7 +37,6 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionBuilder;
-import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.BootstrapContext;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
@@ -70,13 +69,12 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
 
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-    BeanDefinitionRegistry registry = context.getRegistry();
     String name = DependsOnDatabaseInitializationPostProcessor.class.getName();
-    if (!registry.containsBeanDefinition(name)) {
+    if (!context.containsBeanDefinition(name)) {
       BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DependsOnDatabaseInitializationPostProcessor.class)
               .setEnableDependencyInjection(false)
               .setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-      registry.registerBeanDefinition(name, builder.getBeanDefinition());
+      context.registerBeanDefinition(name, builder.getBeanDefinition());
     }
   }
 
