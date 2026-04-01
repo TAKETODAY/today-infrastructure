@@ -22,6 +22,8 @@ import infra.beans.factory.Aware;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
+import infra.beans.factory.config.ExpressionEvaluator;
+import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import infra.beans.factory.support.BeanNameGenerator;
 import infra.context.ApplicationContext;
@@ -33,6 +35,7 @@ import infra.context.ResourceLoaderAware;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotationMetadata;
+import infra.core.type.classreading.MetadataReaderFactory;
 
 /**
  * Interface to be implemented by types that register additional bean definitions when
@@ -64,6 +67,9 @@ import infra.core.type.AnnotationMetadata;
  * <li>{@link ResourceLoader ResourceLoader}</li>
  * <li>{@link BootstrapContext BootstrapContext}</li>
  * <li>{@link ApplicationContext ApplicationContext}</li>
+ * <li>{@link ExpressionEvaluator ExpressionEvaluator}</li>
+ * <li>{@link MetadataReaderFactory MetadataReaderFactory}</li>
+ * <li>{@link BeanDefinitionRegistry BeanDefinitionRegistry}</li>
  * </ul>
  *
  * <p>See implementations and associated unit tests for usage examples.

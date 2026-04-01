@@ -18,7 +18,11 @@
 
 package infra.beans.factory;
 
+import infra.beans.factory.config.ExpressionEvaluator;
+import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.core.env.Environment;
+import infra.core.io.ResourceLoader;
+import infra.core.type.classreading.MetadataReaderFactory;
 
 /**
  * Contract for registering beans programmatically, typically imported with an
@@ -58,6 +62,33 @@ import infra.core.env.Environment;
  * <p>A {@code BeanRegistrar} implementing {@link infra.context.annotation.ImportAware}
  * can optionally introspect import metadata when used in an import scenario, otherwise the
  * {@code setImportMetadata} method is simply not being called.
+ *
+ * <p>An {@link BeanRegistrar} may implement any of the following
+ * {@link Aware Aware} interfaces,
+ * and their respective methods will be called prior to {@link #register}:
+ * <ul>
+ * <li>{@link infra.context.EnvironmentAware}</li>
+ * <li>{@link infra.beans.factory.BeanFactoryAware}</li>
+ * <li>{@link infra.beans.factory.BeanClassLoaderAware}</li>
+ * <li>{@link infra.context.annotation.ImportAware}</li>
+ * <li>{@link infra.context.ResourceLoaderAware}</li>
+ * <li>{@link infra.context.BootstrapContextAware}</li>
+ * <li>{@link infra.context.ApplicationContextAware}</li>
+ * </ul>
+ *
+ * <p>Alternatively, the class may provide a single constructor with one or more of
+ * the following supported parameter types:
+ * <ul>
+ * <li>{@link Environment Environment}</li>
+ * <li>{@link BeanFactory BeanFactory}</li>
+ * <li>{@link java.lang.ClassLoader ClassLoader}</li>
+ * <li>{@link ResourceLoader ResourceLoader}</li>
+ * <li>{@link infra.context.BootstrapContext BootstrapContext}</li>
+ * <li>{@link infra.context.ApplicationContext ApplicationContext}</li>
+ * <li>{@link ExpressionEvaluator ExpressionEvaluator}</li>
+ * <li>{@link MetadataReaderFactory MetadataReaderFactory}</li>
+ * <li>{@link BeanDefinitionRegistry BeanDefinitionRegistry}</li>
+ * </ul>
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

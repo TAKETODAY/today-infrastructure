@@ -26,6 +26,8 @@ import infra.beans.factory.Aware;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
+import infra.beans.factory.config.ExpressionEvaluator;
+import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.BootstrapContext;
@@ -35,6 +37,7 @@ import infra.context.ResourceLoaderAware;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotationMetadata;
+import infra.core.type.classreading.MetadataReaderFactory;
 import infra.lang.Constant;
 
 /**
@@ -61,8 +64,11 @@ import infra.lang.Constant;
  * <li>{@link BeanFactory BeanFactory}</li>
  * <li>{@link java.lang.ClassLoader ClassLoader}</li>
  * <li>{@link ResourceLoader ResourceLoader}</li>
- * <li>{@link infra.context.BootstrapContext BootstrapContext}</li>
+ * <li>{@link BootstrapContext BootstrapContext}</li>
  * <li>{@link ApplicationContext ApplicationContext}</li>
+ * <li>{@link ExpressionEvaluator ExpressionEvaluator}</li>
+ * <li>{@link MetadataReaderFactory MetadataReaderFactory}</li>
+ * <li>{@link BeanDefinitionRegistry BeanDefinitionRegistry}</li>
  * </ul>
  *
  * @author Chris Beams
