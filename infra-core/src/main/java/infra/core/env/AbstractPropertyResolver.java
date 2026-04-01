@@ -82,17 +82,13 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    *
    * @since 5.0
    */
-  @Nullable
-  static volatile Character defaultEscapeCharacter = UNDEFINED_ESCAPE_CHARACTER;
+  static volatile @Nullable Character defaultEscapeCharacter = UNDEFINED_ESCAPE_CHARACTER;
 
-  @Nullable
-  private volatile ConfigurableConversionService conversionService;
+  private volatile @Nullable ConfigurableConversionService conversionService;
 
-  @Nullable
-  private PropertyPlaceholderHandler nonStrictHelper;
+  private @Nullable PropertyPlaceholderHandler nonStrictHelper;
 
-  @Nullable
-  private PropertyPlaceholderHandler strictHelper;
+  private @Nullable PropertyPlaceholderHandler strictHelper;
 
   private boolean ignoreUnresolvableNestedPlaceholders = false;
 
@@ -100,14 +96,11 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   private String placeholderSuffix = PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX;
 
-  @Nullable
-  private String valueSeparator = PropertyPlaceholderHandler.VALUE_SEPARATOR;
+  private @Nullable String valueSeparator = PropertyPlaceholderHandler.VALUE_SEPARATOR;
 
-  @Nullable
-  private Character escapeCharacter = PropertyPlaceholderHandler.ESCAPE_CHARACTER;
+  private @Nullable Character escapeCharacter = PropertyPlaceholderHandler.ESCAPE_CHARACTER;
 
-  @Nullable
-  private LinkedHashSet<String> requiredProperties;
+  private @Nullable LinkedHashSet<String> requiredProperties;
 
   @Override
   public ConfigurableConversionService getConversionService() {
@@ -247,7 +240,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
   }
 
   @Override
-  public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+  public <T extends @Nullable Object> T getProperty(String key, Class<T> targetType, T defaultValue) {
     T value = getProperty(key, targetType);
     return value != null ? value : defaultValue;
   }

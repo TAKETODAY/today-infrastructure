@@ -81,7 +81,7 @@ public interface PropertyResolver {
    * @param defaultValue the default value to return if no value is found
    * @see #getRequiredProperty(String, Class)
    */
-  <T> T getProperty(String key, Class<T> targetType, T defaultValue);
+  <T extends @Nullable Object> T getProperty(String key, Class<T> targetType, T defaultValue);
 
   /**
    * Return the property value associated with the given key (never {@code null}).

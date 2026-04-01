@@ -40,8 +40,7 @@ public class MapPropertyResolver extends TypedPropertyResolver implements Iterab
 
   private static final Logger log = LoggerFactory.getLogger(MapPropertyResolver.class);
 
-  @Nullable
-  private final Map<String, Object> keyValues;
+  private final @Nullable Map<String, Object> keyValues;
 
   /**
    * Create a new resolver against the given Map.
