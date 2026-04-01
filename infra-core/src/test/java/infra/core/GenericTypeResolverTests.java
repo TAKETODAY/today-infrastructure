@@ -247,11 +247,11 @@ class GenericTypeResolverTests {
 
   @Test
   void resolveTypeFromNestedParameterizedType() {
-    Type resolvedType = resolveType(method(MyInterfaceType.class, "get").getGenericReturnType(), MyCollectionInterfaceType.class);
-    assertThat(resolvedType).isEqualTo(method(MyCollectionInterfaceType.class, "get").getGenericReturnType());
+    Type resolvedType = resolveType(BridgeMethodResolver.findBridgedMethod(method(MyInterfaceType.class, "get")).getGenericReturnType(), MyCollectionInterfaceType.class);
+    assertThat(resolvedType).isEqualTo(BridgeMethodResolver.findBridgedMethod(method(MyCollectionInterfaceType.class, "get")).getGenericReturnType());
 
-    resolvedType = resolveType(method(MyInterfaceType.class, "get").getGenericReturnType(), MyOptionalInterfaceType.class);
-    assertThat(resolvedType).isEqualTo(method(MyOptionalInterfaceType.class, "get").getGenericReturnType());
+    resolvedType = resolveType(BridgeMethodResolver.findBridgedMethod(method(MyInterfaceType.class, "get")).getGenericReturnType(), MyOptionalInterfaceType.class);
+    assertThat(resolvedType).isEqualTo(BridgeMethodResolver.findBridgedMethod(method(MyOptionalInterfaceType.class, "get")).getGenericReturnType());
   }
 
   private static Method method(Class<?> target, String methodName, Class<?>... parameterTypes) {

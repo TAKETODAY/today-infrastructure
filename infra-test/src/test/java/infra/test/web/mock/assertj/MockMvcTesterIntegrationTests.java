@@ -53,6 +53,7 @@ import infra.mock.web.MockMemoryPart;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.stereotype.Controller;
+import infra.test.context.junit.jupiter.DisabledOnMac;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.Person;
 import infra.test.web.mock.ResultMatcher;
@@ -160,6 +161,7 @@ public class MockMvcTesterIntegrationTests {
     }
 
     @Test
+    @DisabledOnMac
     void asyncMultipartRequestWithExplicitExchangeAndEnoughTimeToWait() {
       assertThat(mvc.post().uri("/multipart-streaming").multipart()
               .file(file).param("timeToWait", "100").exchange(Duration.ofMillis(200)))

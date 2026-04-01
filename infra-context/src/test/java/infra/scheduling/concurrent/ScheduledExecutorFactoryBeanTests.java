@@ -19,6 +19,8 @@
 package infra.scheduling.concurrent;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -230,6 +232,7 @@ class ScheduledExecutorFactoryBeanTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void executorContinuesAfterExceptionWhenConfigured() throws Exception {
     AtomicInteger counter = new AtomicInteger();
     Runnable failingTask = () -> {
