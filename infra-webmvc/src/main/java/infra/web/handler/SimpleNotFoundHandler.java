@@ -23,14 +23,24 @@ import infra.web.NotFoundHandler;
 import infra.web.RequestContext;
 
 /**
- * Process Handler not found
+ * A simple implementation of {@link NotFoundHandler} that handles requests
+ * where no matching handler was found.
+ * <p>
+ * This implementation logs a warning message and sends an HTTP 404 (Not Found)
+ * error response to the client.
  *
  * @author TODAY 2019-12-20 19:15
  */
 public class SimpleNotFoundHandler implements NotFoundHandler {
 
   /**
-   * Process not found
+   * Handles the situation where no handler is found for the given request.
+   * <p>
+   * This method logs the missing mapping and sends an HTTP 404 error response.
+   *
+   * @param request the current request context
+   * @return {@code null} as there is no return value for error handling
+   * @throws IOException if an I/O error occurs while sending the error response
    */
   @Override
   public Object handleNotFound(RequestContext request) throws IOException {
@@ -40,6 +50,13 @@ public class SimpleNotFoundHandler implements NotFoundHandler {
     return NONE_RETURN_VALUE;
   }
 
+  /**
+   * Logs a warning message indicating that no mapping was found for the request.
+   * <p>
+   * The log message includes the HTTP method and the request URI.
+   *
+   * @param context the request context containing method and URI information
+   */
   public static void logNotFound(RequestContext context) {
     if (pageNotFoundLogger.isWarnEnabled()) {
       pageNotFoundLogger.warn("No mapping for {} {}", context.getMethodAsString(), context.getRequestURI());

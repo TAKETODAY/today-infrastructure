@@ -23,7 +23,11 @@ import infra.logging.LoggerFactory;
 import infra.web.handler.SimpleNotFoundHandler;
 
 /**
- * Handler for processing requests when no appropriate handler is found
+ * Handler for processing requests when no appropriate handler is found.
+ *
+ * <p>This interface defines the contract for handling HTTP requests that do not match
+ * any registered handler mappings. Implementations are responsible for generating
+ * appropriate error responses (e.g., 404 Not Found) or performing custom fallback logic.</p>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/1/9 23:05
@@ -50,11 +54,16 @@ public interface NotFoundHandler {
   SimpleNotFoundHandler sharedInstance = new SimpleNotFoundHandler();
 
   /**
-   * Handle the request when no appropriate handler is found
+   * Handles the request when no appropriate handler is found for the given path.
    *
-   * @param request current request context
-   * @return handler return value or {@link #NONE_RETURN_VALUE} if no value returned or already processed
-   * @throws Throwable in case of errors during handling
+   * <p>Implementations should generate an appropriate error response (typically HTTP 404)
+   * or perform custom fallback logic. If the response has been fully processed within this
+   * method, {@link #NONE_RETURN_VALUE} should be returned.</p>
+   *
+   * @param request the current request context containing request details and response access
+   * @return the handler return value, or {@link #NONE_RETURN_VALUE} if no value is returned
+   * or the response has already been processed
+   * @throws Throwable if an error occurs during the handling process
    */
   @Nullable
   Object handleNotFound(RequestContext request) throws Throwable;
