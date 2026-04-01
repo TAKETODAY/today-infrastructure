@@ -59,8 +59,11 @@ import infra.core.env.Environment;
  * @since 4.0
  */
 final class ContextAwareProcessor implements InitializationBeanPostProcessor {
+
   private final ConfigurableApplicationContext context;
+
   private final EmbeddedValueResolver embeddedValueResolver;
+
   private final BootstrapContext bootstrapContext;
 
   /**

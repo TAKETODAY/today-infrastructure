@@ -24,7 +24,10 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import infra.beans.factory.support.BeanNameGenerator;
+import infra.context.ApplicationContext;
+import infra.context.ApplicationContextAware;
 import infra.context.BootstrapContext;
+import infra.context.BootstrapContextAware;
 import infra.context.EnvironmentAware;
 import infra.context.ResourceLoaderAware;
 import infra.core.env.Environment;
@@ -48,6 +51,8 @@ import infra.core.type.AnnotationMetadata;
  * <li>{@link BeanFactoryAware BeanFactoryAware}
  * <li>{@link BeanClassLoaderAware BeanClassLoaderAware}
  * <li>{@link ResourceLoaderAware ResourceLoaderAware}
+ * <li>{@link BootstrapContextAware BootstrapContextAware}
+ * <li>{@link ApplicationContextAware ApplicationContextAware}
  * </ul>
  *
  * <p>Alternatively, the class may provide a single constructor with one or more of
@@ -57,6 +62,8 @@ import infra.core.type.AnnotationMetadata;
  * <li>{@link BeanFactory BeanFactory}</li>
  * <li>{@link java.lang.ClassLoader ClassLoader}</li>
  * <li>{@link ResourceLoader ResourceLoader}</li>
+ * <li>{@link BootstrapContext BootstrapContext}</li>
+ * <li>{@link ApplicationContext ApplicationContext}</li>
  * </ul>
  *
  * <p>See implementations and associated unit tests for usage examples.
@@ -83,7 +90,6 @@ public interface ImportBeanDefinitionRegistrar {
    * @param context Bean definition loading context
    */
   default void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-
   }
 
   /**

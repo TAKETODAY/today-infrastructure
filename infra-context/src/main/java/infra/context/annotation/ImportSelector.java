@@ -26,6 +26,9 @@ import infra.beans.factory.Aware;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
+import infra.context.ApplicationContext;
+import infra.context.ApplicationContextAware;
+import infra.context.BootstrapContext;
 import infra.context.BootstrapContextAware;
 import infra.context.EnvironmentAware;
 import infra.context.ResourceLoaderAware;
@@ -48,6 +51,7 @@ import infra.lang.Constant;
  * <li>{@link BeanClassLoaderAware BeanClassLoaderAware}</li>
  * <li>{@link ResourceLoaderAware ResourceLoaderAware}</li>
  * <li>{@link BootstrapContextAware BootstrapContextAware}</li>
+ * <li>{@link ApplicationContextAware ApplicationContextAware}</li>
  * </ul>
  *
  * <p>Alternatively, the class may provide a single constructor with one or more of
@@ -58,6 +62,7 @@ import infra.lang.Constant;
  * <li>{@link java.lang.ClassLoader ClassLoader}</li>
  * <li>{@link ResourceLoader ResourceLoader}</li>
  * <li>{@link infra.context.BootstrapContext BootstrapContext}</li>
+ * <li>{@link ApplicationContext ApplicationContext}</li>
  * </ul>
  *
  * @author Chris Beams

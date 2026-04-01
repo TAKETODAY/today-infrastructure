@@ -19,10 +19,27 @@ package infra.context;
 import infra.beans.factory.Aware;
 
 /**
+ * Interface to be implemented by any object that wishes to be notified of the
+ * {@link BootstrapContext} that it runs in.
+ *
+ * <p>Implementing this interface allows an object to access the bootstrap context
+ * programmatically, enabling initialization logic that depends on the context's
+ * state or configuration before the main application context is refreshed.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/1 23:38
  */
 public interface BootstrapContextAware extends Aware {
 
+  /**
+   * Set the {@link BootstrapContext} that this object runs in.
+   *
+   * <p>This method is invoked after the population of basic properties and
+   * before any initialization methods such as {@code afterPropertiesSet} or
+   * custom init-methods are called.
+   *
+   * @param context the bootstrap context instance
+   */
   void setBootstrapContext(BootstrapContext context);
+
 }
