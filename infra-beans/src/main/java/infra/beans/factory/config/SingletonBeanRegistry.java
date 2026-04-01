@@ -103,13 +103,6 @@ public interface SingletonBeanRegistry {
   Object getSingleton(String name);
 
   /**
-   * remove a singleton with given name
-   *
-   * @param name bean name
-   */
-  void removeSingleton(String name);
-
-  /**
    * contains instance with given name?
    *
    * @param name bean name

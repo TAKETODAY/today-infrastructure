@@ -53,14 +53,14 @@ import infra.util.ObjectUtils;
  * @since 4.0 2022/1/16 15:49
  */
 public final class ConditionEvaluationReport {
+
   public static final String BEAN_NAME = "autoConfigurationReport";
 
   private static final AncestorsMatchedCondition ANCESTOR_CONDITION = new AncestorsMatchedCondition();
 
   private boolean addedAncestorOutcomes;
 
-  @Nullable
-  private ConditionEvaluationReport parent;
+  private @Nullable ConditionEvaluationReport parent;
 
   private final ArrayList<String> exclusions = new ArrayList<>();
 
@@ -73,7 +73,8 @@ public final class ConditionEvaluationReport {
    *
    * @see #get(ConfigurableBeanFactory)
    */
-  private ConditionEvaluationReport() { }
+  private ConditionEvaluationReport() {
+  }
 
   /**
    * Record the occurrence of condition evaluation.
@@ -178,8 +179,7 @@ public final class ConditionEvaluationReport {
    *
    * @return the parent report (or null if there isn't one)
    */
-  @Nullable
-  public ConditionEvaluationReport getParent() {
+  public @Nullable ConditionEvaluationReport getParent() {
     return this.parent;
   }
 

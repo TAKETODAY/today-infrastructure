@@ -20,6 +20,7 @@ package infra.app.config.logging;
 
 import infra.app.context.event.ApplicationFailedEvent;
 import infra.app.logging.LogLevel;
+import infra.beans.factory.support.DefaultSingletonBeanRegistry;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ApplicationEvent;
 import infra.context.ConfigurableApplicationContext;
@@ -99,20 +100,21 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-      ConditionEvaluationReport report = getReport();
-      var logger = new ConditionEvaluationReportLogger(logLevelForReport, report);
-      if (event instanceof ContextRefreshedEvent contextRefreshedEvent) {
-        if (contextRefreshedEvent.getApplicationContext() == this.context) {
+      var logger = new ConditionEvaluationReportLogger(logLevelForReport, getReport());
+      if (event instanceof ContextRefreshedEvent refreshedEvent) {
+        if (refreshedEvent.getApplicationContext() == this.context) {
           logger.logReport(false);
         }
       }
-      else if (event instanceof ApplicationFailedEvent applicationFailedEvent
-              && applicationFailedEvent.getApplicationContext() == this.context) {
+      else if (event instanceof ApplicationFailedEvent failedEvent
+              && failedEvent.getApplicationContext() == this.context) {
         logger.logReport(true);
       }
 
       context.removeApplicationListener(this);
-      context.getBeanFactory().removeSingleton(ConditionEvaluationReport.BEAN_NAME);
+      if (context.getBeanFactory() instanceof DefaultSingletonBeanRegistry registry) {
+        registry.destroySingleton(ConditionEvaluationReport.BEAN_NAME);
+      }
     }
 
   }
