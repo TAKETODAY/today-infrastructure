@@ -64,7 +64,6 @@ import infra.util.StringUtils;
  * @see EnableAutoConfiguration
  * @since 4.0 2022/2/1 02:37
  */
-@SuppressWarnings("NullAway")
 public class AutoConfigurationImportSelector implements DeferredImportSelector,
         BeanClassLoaderAware, BootstrapContextAware, Ordered, Predicate<String> {
 
@@ -261,7 +260,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       excluded.addAll(asList(attributes, "exclude"));
       excluded.addAll(asList(attributes, "excludeName"));
     }
-    excluded.addAll(getExcludeAutoConfigurationsProperty());
+    CollectionUtils.addAll(excluded, getExcludeAutoConfigurationsProperty());
     return getAutoConfigurationReplacements().replaceAll(excluded);
   }
 
@@ -271,8 +270,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    *
    * @return excluded auto-configurations
    */
-  @SuppressWarnings("NullAway")
-  protected List<String> getExcludeAutoConfigurationsProperty() {
+  protected @Nullable List<String> getExcludeAutoConfigurationsProperty() {
     Environment environment = getEnvironment();
     if (environment == null) {
       return Collections.emptyList();
@@ -281,10 +279,10 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       Binder binder = Binder.get((ConfigurableEnvironment) environment);
       return binder.bind(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class)
               .map(Arrays::asList)
-              .orElse(Collections.emptyList());
+              .orElse(null);
     }
     String[] excludes = environment.getProperty(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class);
-    return excludes != null ? Arrays.asList(excludes) : Collections.emptyList();
+    return excludes != null ? Arrays.asList(excludes) : null;
   }
 
   protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {

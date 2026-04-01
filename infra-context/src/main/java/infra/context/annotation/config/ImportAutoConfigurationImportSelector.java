@@ -143,7 +143,8 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
         }
       }
     }
-    exclusions.addAll(getExcludeAutoConfigurationsProperty());
+
+    CollectionUtils.addAll(exclusions, getExcludeAutoConfigurationsProperty());
     return exclusions;
   }
 

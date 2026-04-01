@@ -39,7 +39,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.BootstrapContext;
-import infra.context.BootstrapContextAware;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.core.Ordered;
@@ -85,14 +84,11 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
    * {@link BeanFactoryPostProcessor} used to configure database initialization
    * dependency relationships.
    */
-  static class DependsOnDatabaseInitializationPostProcessor
-          implements BeanFactoryPostProcessor, BootstrapContextAware, Ordered {
+  static class DependsOnDatabaseInitializationPostProcessor implements BeanFactoryPostProcessor, Ordered {
 
-    @SuppressWarnings("NullAway.Init")
-    private BootstrapContext context;
+    private final BootstrapContext context;
 
-    @Override
-    public void setBootstrapContext(BootstrapContext context) {
+    DependsOnDatabaseInitializationPostProcessor(BootstrapContext context) {
       this.context = context;
     }
 
