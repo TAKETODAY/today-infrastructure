@@ -525,6 +525,10 @@ bom {
   }
 
   library("SLF4J", "2.0.17") {
+    prohibit {
+      contains "-alpha"
+      because "we don't want alphas"
+    }
     group("org.slf4j") {
       modules = [
           "jcl-over-slf4j",

@@ -25,7 +25,6 @@ final class Slf4jLoggerFactory extends LoggerFactory {
 
   Slf4jLoggerFactory() {
     org.slf4j.Logger.class.getName();
-    SLF4JBridgeHandler.install(); // @since 4.0
   }
 
   @Override

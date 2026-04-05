@@ -3,4 +3,5 @@ description = 'Starter for logging using Logback'
 dependencies {
   api project(':infra-starter')
   api "ch.qos.logback:logback-classic"
+  api("org.slf4j:jul-to-slf4j")
 }

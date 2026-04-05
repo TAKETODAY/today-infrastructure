@@ -19,6 +19,7 @@
 package infra.app.logging.logback;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +37,6 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeHint;
 import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
-import infra.logging.SLF4JBridgeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,6 +77,8 @@ class LogbackRuntimeHintsTests {
 
   private Class<?> loadClass(Resource resource) {
     try {
+      String filename = resource.getName();
+      assertThat(filename).isNotNull();
       return getClass().getClassLoader()
               .loadClass("infra.app.logging.logback." + resource.getName().replace(".class", ""));
     }

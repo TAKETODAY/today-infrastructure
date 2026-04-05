@@ -54,10 +54,8 @@ class LogbackRuntimeHints implements RuntimeHintsRegistrar {
   private void registerHintsForLogbackLoggingSystemTypeChecks(ReflectionHints reflection,
           @Nullable ClassLoader classLoader) {
     reflection.registerType(LoggerContext.class);
-    reflection.registerTypeIfPresent(classLoader,
-            "infra.logging.SLF4JBridgeHandler", (typeHint) -> {
-
-            });
+    reflection.registerTypeIfPresent(classLoader, "org.slf4j.bridge.SLF4JBridgeHandler", (typeHint) -> {
+    });
   }
 
   private void registerHintsForBuiltInLogbackConverters(ReflectionHints reflection) {

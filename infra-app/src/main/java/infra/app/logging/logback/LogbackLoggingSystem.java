@@ -23,6 +23,7 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.helpers.SubstituteLoggerFactory;
 
 import java.net.URL;
@@ -66,7 +67,6 @@ import infra.core.env.Environment;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.VisibleForTesting;
-import infra.logging.SLF4JBridgeHandler;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
@@ -82,19 +82,24 @@ import infra.util.StringUtils;
  */
 public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanFactoryInitializationAotProcessor {
 
+  private static final String BRIDGE_HANDLER = "org.slf4j.bridge.SLF4JBridgeHandler";
+
   private static final String CONFIGURATION_FILE_PROPERTY = "logback.configurationFile";
 
-  private static final LogLevels<Level> LEVELS = new LogLevels<>();
+  private static final LogLevels<Level> LEVELS = createLogLevels();
 
-  static {
-    LEVELS.map(LogLevel.TRACE, Level.TRACE);
-    LEVELS.map(LogLevel.TRACE, Level.ALL);
-    LEVELS.map(LogLevel.DEBUG, Level.DEBUG);
-    LEVELS.map(LogLevel.INFO, Level.INFO);
-    LEVELS.map(LogLevel.WARN, Level.WARN);
-    LEVELS.map(LogLevel.ERROR, Level.ERROR);
-    LEVELS.map(LogLevel.FATAL, Level.ERROR);
-    LEVELS.map(LogLevel.OFF, Level.OFF);
+  @SuppressWarnings("deprecation")
+  private static LogLevels<Level> createLogLevels() {
+    LogLevels<Level> levels = new LogLevels<>();
+    levels.map(LogLevel.TRACE, Level.TRACE);
+    levels.map(LogLevel.TRACE, Level.ALL);
+    levels.map(LogLevel.DEBUG, Level.DEBUG);
+    levels.map(LogLevel.INFO, Level.INFO);
+    levels.map(LogLevel.WARN, Level.WARN);
+    levels.map(LogLevel.ERROR, Level.ERROR);
+    levels.map(LogLevel.FATAL, Level.ERROR);
+    levels.map(LogLevel.OFF, Level.OFF);
+    return levels;
   }
 
   private static final TurboFilter SUPPRESS_ALL_FILTER = new TurboFilter() {
@@ -137,12 +142,28 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
 
   private void configureJdkLoggingBridgeHandler() {
     try {
-      removeJdkLoggingBridgeHandler();
-      SLF4JBridgeHandler.install();
+      if (isBridgeJulIntoSlf4j()) {
+        removeJdkLoggingBridgeHandler();
+        SLF4JBridgeHandler.install();
+      }
     }
     catch (Throwable ex) {
       // Ignore. No java.util.logging bridge is installed.
     }
+  }
+
+  private boolean isBridgeJulIntoSlf4j() {
+    return isBridgeHandlerAvailable() && isJulUsingASingleConsoleHandlerAtMost();
+  }
+
+  private boolean isBridgeHandlerAvailable() {
+    return ClassUtils.isPresent(BRIDGE_HANDLER, getClassLoader());
+  }
+
+  private boolean isJulUsingASingleConsoleHandlerAtMost() {
+    java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+    Handler[] handlers = rootLogger.getHandlers();
+    return handlers.length == 0 || (handlers.length == 1 && handlers[0] instanceof ConsoleHandler);
   }
 
   private void removeJdkLoggingBridgeHandler() {
@@ -292,7 +313,10 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   private boolean isBridgeHandlerInstalled() {
-    var rootLogger = LogManager.getLogManager().getLogger("");
+    if (!isBridgeHandlerAvailable()) {
+      return false;
+    }
+    java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
     Handler[] handlers = rootLogger.getHandlers();
     return handlers.length == 1 && handlers[0] instanceof SLF4JBridgeHandler;
   }

@@ -26,8 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.File;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
@@ -74,9 +79,9 @@ import infra.core.env.Environment;
 import infra.core.env.MapPropertySource;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.format.support.ApplicationConversionService;
-import infra.logging.SLF4JBridgeHandler;
 import infra.mock.env.MockEnvironment;
 import infra.test.classpath.ClassPathOverrides;
+import infra.test.classpath.resources.WithResource;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
 
@@ -136,8 +141,9 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @Test
+  @WithIncludeDefaultsXmlResource
   void logbackDefaultsConfigurationDoesNotTriggerDeprecation(CapturedOutput output) {
-    initialize(this.initializationContext, "classpath:logback-include-defaults.xml", null);
+    initialize(this.initializationContext, "classpath:include-defaults.xml", null);
     this.logger.info("Hello world");
     assertThat(getLineWithText(output, "Hello world")).isEqualTo("[INFO] - Hello world");
     assertThat(output.toString()).doesNotContain("WARN").doesNotContain("deprecated");
@@ -736,9 +742,10 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
 
   @Test
   @DisabledIfInContinuousIntegration
+  @WithIncludeDefaultsXmlResource
   void logbackSystemStatusListenerShouldBeRegisteredWhenUsingCustomLogbackXml(CapturedOutput output) {
     this.loggingSystem.beforeInitialize();
-    initialize(this.initializationContext, "classpath:logback-include-defaults.xml", null);
+    initialize(this.initializationContext, "classpath:include-defaults.xml", null);
     LoggerContext loggerContext = this.logger.getLoggerContext();
     assertThat(loggerContext.getStatusManager().getCopyOfStatusListenerList()).allSatisfy((listener) -> {
       assertThat(listener).isInstanceOf(SystemStatusListener.class);
@@ -1111,4 +1118,22 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
 
   }
 
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  @WithResource(name = "include-defaults.xml", content = """
+          <configuration>
+          	<include resource="infra/app/logging/logback/defaults.xml"/>
+          	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+          		<encoder>
+          			<pattern>[%p] - %m%n</pattern>
+          		</encoder>
+          	</appender>
+          	<root level="INFO">
+          		<appender-ref ref="CONSOLE"/>
+          	</root>
+          </configuration>
+          """)
+  private @interface WithIncludeDefaultsXmlResource {
+
+  }
 }

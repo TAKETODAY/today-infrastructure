@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Handler;
 import java.util.logging.LogManager;
 
 import ch.qos.logback.classic.Level;
@@ -74,7 +76,6 @@ import infra.core.ApplicationPid;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
-import infra.logging.SLF4JBridgeHandler;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.ReflectionTestUtils;
 
@@ -602,7 +603,14 @@ class LoggingApplicationListenerTests {
   }
 
   private boolean bridgeHandlerInstalled() {
-    return SLF4JBridgeHandler.isInstalled();
+    java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+    Handler[] handlers = rootLogger.getHandlers();
+    for (Handler handler : handlers) {
+      if (handler instanceof SLF4JBridgeHandler) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void addPropertiesToEnvironment(ConfigurableApplicationContext context, String... pairs) {
