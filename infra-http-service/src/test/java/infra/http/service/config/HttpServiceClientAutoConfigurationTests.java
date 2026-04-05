@@ -242,7 +242,7 @@ class HttpServiceClientAutoConfigurationTests {
     }
 
     private MockRestServiceServer addMock(HttpServiceGroup group, RestClient.Builder client) {
-      return this.mocks.put(group.name(), MockRestServiceServer.bindTo(client).build());
+      return this.mocks.put(group.name(), MockRestServiceServer.createServer(client));
     }
 
     MockRestServiceServer getMock(String name) {

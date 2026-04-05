@@ -186,6 +186,17 @@ public final class MockRestServiceServer {
   }
 
   /**
+   * A shortcut for {@code bindTo(clientBuilder).build()}.
+   *
+   * @param clientBuilder the RestClient builder to set up for mock testing
+   * @return the mock server
+   * @since 5.0
+   */
+  public static MockRestServiceServer createServer(RestClient.Builder clientBuilder) {
+    return bindTo(clientBuilder).build();
+  }
+
+  /**
    * Builder to create a {@code MockRestServiceServer}.
    */
   public interface MockRestServiceServerBuilder {
