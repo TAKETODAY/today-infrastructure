@@ -28,6 +28,7 @@ import java.lang.constant.MethodTypeDesc;
 import java.lang.reflect.AccessFlag;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -163,15 +164,29 @@ final class ClassFileMethodMetadata implements MethodMetadata {
   record Source(@Nullable String declaringClassName, AccessFlags flags, String methodName, MethodTypeDesc descriptor) {
 
     @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Source source)) {
+        return false;
+      }
+      return Objects.equals(this.flags.flagsMask(), source.flags.flagsMask()) &&
+              Objects.equals(this.methodName, source.methodName) &&
+              Objects.equals(this.declaringClassName, source.declaringClassName) &&
+              Objects.equals(this.descriptor.descriptorString(), source.descriptor.descriptorString());
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.declaringClassName, this.flags.flagsMask(), this.methodName, this.descriptor.descriptorString());
+    }
+
+    @Override
     public String toString() {
       StringBuilder builder = new StringBuilder();
       this.flags.flags().forEach(flag -> {
         builder.append(flag.name().toLowerCase(Locale.ROOT));
         builder.append(' ');
       });
-      builder.append(this.descriptor.returnType().packageName());
-      builder.append(".");
-      builder.append(this.descriptor.returnType().displayName());
+      builder.append(ClassFileAnnotationMetadata.resolveTypeName(this.descriptor.returnType()));
       builder.append(' ');
       builder.append(this.declaringClassName);
       builder.append('.');

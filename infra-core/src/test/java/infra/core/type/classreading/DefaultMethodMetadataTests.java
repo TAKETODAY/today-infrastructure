@@ -23,11 +23,12 @@ import infra.core.type.AnnotationMetadata;
 
 /**
  * Tests for {@link SimpleMethodMetadata} and
- * {@link SimpleMethodMetadataReadingVisitor}.
+ * {@link SimpleMethodMetadataReadingVisitor} on Java < 24,
+ * and for the ClassFile API variant on Java >= 24.
  *
  * @author Phillip Webb
  */
-class SimpleMethodMetadataTests extends AbstractMethodMetadataTests {
+class DefaultMethodMetadataTests extends AbstractMethodMetadataTests {
 
   @Override
   protected AnnotationMetadata get(Class<?> source) {

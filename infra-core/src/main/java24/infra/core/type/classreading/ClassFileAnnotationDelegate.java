@@ -24,14 +24,12 @@ import java.lang.classfile.Annotation;
 import java.lang.classfile.AnnotationElement;
 import java.lang.classfile.AnnotationValue;
 import java.lang.classfile.attribute.RuntimeVisibleAnnotationsAttribute;
-import java.lang.constant.ClassDesc;
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,19 +52,18 @@ abstract class ClassFileAnnotationDelegate {
   static MergedAnnotations createMergedAnnotations(
           String className, RuntimeVisibleAnnotationsAttribute annotationAttribute, @Nullable ClassLoader classLoader) {
 
-    Set<MergedAnnotation<?>> annotations = annotationAttribute.annotations()
+    List<MergedAnnotation<?>> annotations = annotationAttribute.annotations()
             .stream()
             .map(ann -> createMergedAnnotation(className, ann, classLoader))
             .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
     return MergedAnnotations.valueOf(annotations);
   }
 
-  @SuppressWarnings("unchecked")
   private static <A extends java.lang.annotation.Annotation> @Nullable MergedAnnotation<A> createMergedAnnotation(
           String className, Annotation annotation, @Nullable ClassLoader classLoader) {
 
-    String typeName = fromTypeDescriptor(annotation.className().stringValue());
+    String typeName = ClassFileAnnotationMetadata.resolveTypeName(annotation.classSymbol());
     if (AnnotationFilter.PLAIN.matches(typeName)) {
       return null;
     }
@@ -100,7 +97,7 @@ abstract class ClassFileAnnotationDelegate {
         return createMergedAnnotation(className, annotationValue.annotation(), classLoader);
       }
       case AnnotationValue.OfClass classValue -> {
-        return fromTypeDescriptor(classValue.className().stringValue());
+        return ClassFileAnnotationMetadata.resolveTypeName(classValue.classSymbol());
       }
       case AnnotationValue.OfEnum enumValue -> {
         return parseEnum(enumValue, classLoader);
@@ -109,12 +106,6 @@ abstract class ClassFileAnnotationDelegate {
         return parseArrayValue(className, classLoader, arrayValue);
       }
     }
-  }
-
-  private static String fromTypeDescriptor(String descriptor) {
-    ClassDesc classDesc = ClassDesc.ofDescriptor(descriptor);
-    return (classDesc.isPrimitive() ? classDesc.displayName() :
-            classDesc.packageName() + "." + classDesc.displayName());
   }
 
   private static Object parseArrayValue(String className, @Nullable ClassLoader classLoader, AnnotationValue.OfArray arrayValue) {
@@ -148,8 +139,13 @@ abstract class ClassFileAnnotationDelegate {
   }
 
   private static Class<?> loadEnumClass(AnnotationValue.OfEnum enumValue, @Nullable ClassLoader classLoader) {
-    String className = fromTypeDescriptor(enumValue.className().stringValue());
-    return ClassUtils.resolveClassName(className, classLoader);
+    String className = ClassFileAnnotationMetadata.resolveTypeName(enumValue.classSymbol());
+    try {
+      return ClassUtils.forName(className, classLoader);
+    }
+    catch (ClassNotFoundException | LinkageError ex) {
+      throw new TypeNotPresentException(className, ex);
+    }
   }
 
   private static Class<?> resolveArrayElementType(List<AnnotationValue> values, @Nullable ClassLoader classLoader) {
