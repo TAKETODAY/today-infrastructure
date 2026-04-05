@@ -334,6 +334,25 @@ class RestClientAdapterTests {
     assertThat(entity.getBody().name()).isEqualTo("Karl");
   }
 
+  @Test
+  void greetingWithDefaultApiVersion() throws Exception {
+    prepareResponse(builder ->
+            builder.setHeader("Content-Type", "text/plain").setBody("Hello Infra 2!"));
+
+    RestClient restClient = RestClient.builder()
+            .baseURI(anotherServer.url("/").toString())
+            .defaultApiVersion("1.0")
+            .apiVersionInserter(ApiVersionInserter.forHeader("X-Version"))
+            .build();
+
+    String actualResponse = HttpServiceProxyFactory.forAdapter(RestClientAdapter.create(restClient)).build()
+            .createClient(Service.class).getGreeting();
+
+    RecordedRequest request = anotherServer.takeRequest();
+    assertThat(request.getHeaders().get("X-Version")).isEqualTo("1.0");
+    assertThat(actualResponse).isEqualTo("Hello Infra 2!");
+  }
+
   private void prepareResponse(Function<MockResponse, MockResponse> f) {
     MockResponse builder = new MockResponse();
     this.anotherServer.enqueue(f.apply(builder));

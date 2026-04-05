@@ -45,6 +45,7 @@ import infra.web.annotation.RequestAttribute;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
+import infra.web.client.ApiVersionInserter;
 import infra.web.multipart.Part;
 import infra.web.reactive.client.WebClient;
 import infra.web.testfixture.MockMultipartFile;
@@ -238,6 +239,25 @@ class WebClientAdapterTests {
     ResponseEntity<Person> entity = initService(PersonClient.class).getEntity();
 
     assertThat(entity.getBody().getName()).isEqualTo("Karl");
+  }
+
+  @Test
+  void greetingWithDefaultApiVersion() throws InterruptedException {
+    prepareResponse(builder -> builder.setHeader("Content-Type", "text/plain").setBody("Hello Infra 2!"));
+
+    WebClient webClient = WebClient.builder()
+            .baseURI(this.server.url("/").toString())
+            .defaultApiVersion("1.0")
+            .apiVersionInserter(ApiVersionInserter.forHeader("X-Version"))
+            .build();
+
+    StepVerifier.create(initService(webClient, Service.class).getGreeting())
+            .expectNext("Hello Infra 2!")
+            .expectComplete()
+            .verify(Duration.ofSeconds(5));
+
+    RecordedRequest request = this.server.takeRequest();
+    assertThat(request.getHeaders().get("X-Version")).isEqualTo("1.0");
   }
 
   private static MockWebServer anotherServer() {
