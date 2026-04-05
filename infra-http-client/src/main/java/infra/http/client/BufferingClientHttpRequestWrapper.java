@@ -31,7 +31,7 @@ import infra.http.HttpMethod;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHttpRequest {
+public final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHttpRequest {
 
   private final ClientHttpRequest request;
 

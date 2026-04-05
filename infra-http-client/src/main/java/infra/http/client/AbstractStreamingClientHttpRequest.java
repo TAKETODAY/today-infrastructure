@@ -45,13 +45,11 @@ import infra.util.concurrent.Future;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/1 22:47
  */
-abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequest implements StreamingHttpOutputMessage {
+public abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequest implements StreamingHttpOutputMessage {
 
-  @Nullable
-  private Body body;
+  private @Nullable Body body;
 
-  @Nullable
-  private FastByteArrayOutputStream bodyStream;
+  private @Nullable FastByteArrayOutputStream bodyStream;
 
   /**
    * Implements the {@link HttpOutputMessage} contract for request body content.
