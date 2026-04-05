@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
 
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.annotation.Autowired;
-import infra.context.DeferredBeanRegistrar;
 
 /**
  * Indicates one or more <em>component classes</em> to import &mdash; typically
@@ -34,7 +33,7 @@ import infra.context.DeferredBeanRegistrar;
  * <p>Provides functionality equivalent to the {@code <import/>} element in Infra XML.
  *
  * <p>Allows for importing {@code @Configuration} classes, {@link ImportSelector},
- * {@link ImportBeanDefinitionRegistrar}, and {@link BeanRegistrar}/{@link DeferredBeanRegistrar}
+ * {@link ImportBeanDefinitionRegistrar}, and {@link BeanRegistrar}
  * implementations, as well as regular component classes
  * (analogous to {@link AnnotationConfigApplicationContext#register}).
  *
@@ -70,8 +69,7 @@ public @interface Import {
 
   /**
    * {@link Configuration @Configuration}, {@link ImportSelector},
-   * {@link ImportBeanDefinitionRegistrar},
-   * {@link BeanRegistrar}/{@link DeferredBeanRegistrar},
+   * {@link ImportBeanDefinitionRegistrar}, {@link BeanRegistrar},
    * or regular component classes to import.
    */
   Class<?>[] value();

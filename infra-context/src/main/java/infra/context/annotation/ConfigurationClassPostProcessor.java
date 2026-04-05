@@ -90,12 +90,10 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.BootstrapContext;
 import infra.context.BootstrapContextAware;
-import infra.context.DeferredBeanRegistrar;
 import infra.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
 import infra.core.ReactiveStreams;
-import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.ClassPathResource;
@@ -194,7 +192,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   @Override
   public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE - 1;  // within PriorityOrdered, 1 before DeferredRegistryPostProcessor
+    return Ordered.LOWEST_PRECEDENCE;  // within PriorityOrdered
   }
 
   /**
@@ -413,24 +411,6 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
     while (!candidates.isEmpty());
 
-    // Process DeferredBeanRegistrars, if any.
-    List<DeferredBeanRegistrar> deferredBeanRegistrars = new ArrayList<>();
-    for (List<BeanRegistrar> registrars : this.beanRegistrars.values()) {
-      for (BeanRegistrar registrar : registrars) {
-        if (registrar instanceof DeferredBeanRegistrar deferredRegistrar) {
-          deferredBeanRegistrars.add(deferredRegistrar);
-        }
-      }
-    }
-    AnnotationAwareOrderComparator.sort(deferredBeanRegistrars);
-    for (DeferredBeanRegistrar registrar : deferredBeanRegistrars) {
-      if (!(registry instanceof BeanFactory beanFactory)) {
-        throw new IllegalStateException("Cannot support bean registrars since " +
-                registry.getClass().getName() + " does not implement BeanFactory");
-      }
-      registrar.register(new BeanRegistryAdapter(
-              registry, beanFactory, bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
-    }
     // Register the ImportRegistry as a bean in order to support ImportAware @Configuration classes
     if (sbr != null && !sbr.containsSingleton(IMPORT_REGISTRY_BEAN_NAME)) {
       sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.importRegistry);

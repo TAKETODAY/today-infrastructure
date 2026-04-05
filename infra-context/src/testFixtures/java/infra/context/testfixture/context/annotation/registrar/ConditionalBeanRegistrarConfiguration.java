@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.context.testfixture.context.annotation.registrar;
 
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.context.testfixture.beans.factory.MyRegularBeanRegistrar;
+import infra.context.testfixture.beans.factory.ConditionalBeanRegistrar;
 
 @Configuration
-@Import(MyRegularBeanRegistrar.class)
-public class MyRegularBeanRegistrarConfiguration {
+@Import(ConditionalBeanRegistrar.class)
+public class ConditionalBeanRegistrarConfiguration {
 }

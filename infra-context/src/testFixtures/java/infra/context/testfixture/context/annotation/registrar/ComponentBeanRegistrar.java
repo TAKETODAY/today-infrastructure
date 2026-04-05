@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package infra.context.testfixture.beans.factory;
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.context.testfixture.context.annotation.registrar;
 
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.BeanRegistry;
-import infra.beans.testfixture.beans.TestBean;
-import infra.core.ParameterizedTypeReference;
 import infra.core.env.Environment;
+import infra.stereotype.Component;
 
-public class MyRegularBeanRegistrar implements BeanRegistrar {
+@Component
+public class ComponentBeanRegistrar implements BeanRegistrar {
 
   @Override
   public void register(BeanRegistry registry, Environment env) {
-    if (registry.containsBean("testBean") &&
-            registry.containsBean(TestBean.class) &&
-            registry.containsBean(new ParameterizedTypeReference<Comparable<Object>>() {
-            })) {
-      registry.registerBean("myTestBean", TestBean.class);
-    }
+    registry.registerBean(IgnoredFromComponent.class);
   }
+
+  public record IgnoredFromComponent() { }
+
 }

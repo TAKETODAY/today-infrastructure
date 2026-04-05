@@ -18,16 +18,33 @@
 
 package infra.context.testfixture.context.annotation.registrar;
 
-import infra.beans.testfixture.beans.TestBean;
+import infra.beans.factory.BeanRegistrar;
+import infra.beans.factory.BeanRegistry;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.core.env.Environment;
 
 @Configuration
-public class TestBeanConfiguration {
+public class ConfigurationBeanRegistrar implements BeanRegistrar {
 
-  @Bean
-  public TestBean testBean() {
-    return new TestBean();
+  @Override
+  public void register(BeanRegistry registry, Environment env) {
+    registry.registerBean(IgnoredFromConfiguration.class);
   }
 
+  @Bean
+  BeanBeanRegistrar beanBeanRegistrar() {
+    return new BeanBeanRegistrar();
+  }
+
+  public static class BeanBeanRegistrar implements BeanRegistrar {
+    @Override
+    public void register(BeanRegistry registry, Environment env) {
+      registry.registerBean(IgnoredFromBean.class);
+    }
+  }
+
+  public record IgnoredFromConfiguration() { }
+
+  public record IgnoredFromBean() { }
 }

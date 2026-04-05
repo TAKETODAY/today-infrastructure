@@ -50,9 +50,8 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
+import infra.context.testfixture.beans.factory.ConditionalBeanRegistrar;
 import infra.context.testfixture.beans.factory.ImportAwareBeanRegistrar;
-import infra.context.testfixture.beans.factory.MyDeferredBeanRegistrar;
-import infra.context.testfixture.beans.factory.MyRegularBeanRegistrar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar;
 import infra.core.DecoratingProxy;
 import infra.core.env.ConfigurableEnvironment;
@@ -647,40 +646,21 @@ class GenericApplicationContextTests {
   }
 
   @Test
-  void regularBeanRegistrarWithConditionMet() {
+  void beanRegistrarWithConditionNotMet() {
     GenericApplicationContext context = new GenericApplicationContext();
-    context.registerBean("testBean", TestBean.class);
-    context.register(new MyRegularBeanRegistrar());
-    context.refresh();
-    assertThat(context.containsBean("myTestBean")).isTrue();
-    assertThat(context.getBean("myTestBean")).isInstanceOf(TestBean.class);
-  }
-
-  @Test
-  void regularBeanRegistrarWithConditionNotMet() {
-    GenericApplicationContext context = new GenericApplicationContext();
-    context.register(new MyRegularBeanRegistrar());
-    context.registerBean("testBean", TestBean.class);
+    context.register(new ConditionalBeanRegistrar());
     context.refresh();
     assertThat(context.containsBean("myTestBean")).isFalse();
   }
 
   @Test
-  void deferredBeanRegistrarWithConditionMet() {
+  void beanRegistrarWithConditionMet() {
     GenericApplicationContext context = new GenericApplicationContext();
-    context.register(new MyDeferredBeanRegistrar());
+    context.register(new ConditionalBeanRegistrar());
     context.registerBean("testBean", TestBean.class);
     context.refresh();
     assertThat(context.containsBean("myTestBean")).isTrue();
     assertThat(context.getBean("myTestBean")).isInstanceOf(TestBean.class);
-  }
-
-  @Test
-  void deferredBeanRegistrarWithConditionNotMet() {
-    GenericApplicationContext context = new GenericApplicationContext();
-    context.register(new MyDeferredBeanRegistrar());
-    context.refresh();
-    assertThat(context.containsBean("myTestBean")).isFalse();
   }
 
   private MergedBeanDefinitionPostProcessor registerMockMergedBeanDefinitionPostProcessor(GenericApplicationContext context) {

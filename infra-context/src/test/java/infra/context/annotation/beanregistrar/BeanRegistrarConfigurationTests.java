@@ -27,6 +27,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.testfixture.beans.factory.BarRegistrar;
+import infra.context.testfixture.beans.factory.ConditionalBeanRegistrar;
 import infra.context.testfixture.beans.factory.FooRegistrar;
 import infra.context.testfixture.beans.factory.GenericBeanRegistrar;
 import infra.context.testfixture.beans.factory.ImportAwareBeanRegistrar;
@@ -35,14 +36,20 @@ import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Baz;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Foo;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Init;
 import infra.context.testfixture.context.annotation.registrar.BeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.ComponentBeanRegistrar;
+import infra.context.testfixture.context.annotation.registrar.ConditionalBeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.ConfigurationBeanRegistrar;
+import infra.context.testfixture.context.annotation.registrar.ConfigurationBeanRegistrar.BeanBeanRegistrar;
+import infra.context.testfixture.context.annotation.registrar.ConfigurationBeanRegistrar.IgnoredFromBean;
+import infra.context.testfixture.context.annotation.registrar.ConfigurationBeanRegistrar.IgnoredFromConfiguration;
 import infra.context.testfixture.context.annotation.registrar.GenericBeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.ImportAwareBeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.MultipleBeanRegistrarsConfiguration;
-import infra.context.testfixture.context.annotation.registrar.MyDeferredBeanRegistrarConfiguration;
-import infra.context.testfixture.context.annotation.registrar.MyRegularBeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.TestBeanConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -63,6 +70,36 @@ class BeanRegistrarConfigurationTests {
     assertThat(beanDefinition.getScope()).isEqualTo(BeanDefinition.SCOPE_PROTOTYPE);
     assertThat(beanDefinition.isLazyInit()).isTrue();
     assertThat(beanDefinition.getDescription()).isEqualTo("Custom description");
+  }
+
+  @Test
+  void beanRegistrarIgnoreBeans() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ConfigurationBeanRegistrar.class);
+    assertThatNoException().isThrownBy(() -> context.getBean(ConfigurationBeanRegistrar.class));
+    assertThatNoException().isThrownBy(() -> context.getBean(BeanBeanRegistrar.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(IgnoredFromConfiguration.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(IgnoredFromBean.class));
+  }
+
+  @Test
+  void beanRegistrarWithClasspathScanningIgnoreBeans() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.scan("infra.context.testfixture.context.annotation.registrar");
+    context.refresh();
+
+    assertThatNoException().isThrownBy(() -> context.getBean(ConfigurationBeanRegistrar.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(IgnoredFromConfiguration.class));
+
+    assertThatNoException().isThrownBy(() -> context.getBean(BeanBeanRegistrar.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(IgnoredFromBean.class));
+
+    assertThatNoException().isThrownBy(() -> context.getBean(ComponentBeanRegistrar.class));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> context.getBean(ComponentBeanRegistrar.IgnoredFromComponent.class));
   }
 
   @Test
@@ -112,40 +149,41 @@ class BeanRegistrarConfigurationTests {
   }
 
   @Test
-  void regularBeanRegistrarWithConditionMet() {
+  void programmaticBeanRegistrarIsInvokedBeforeConfigurationClassPostProcessor() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(TestBeanConfiguration.class);
-    context.register(MyRegularBeanRegistrarConfiguration.class);
+    context.register(new ConditionalBeanRegistrar());
+    context.refresh();
+    assertThat(context.containsBean("myTestBean")).isFalse();
+  }
+
+  @Test
+  void programmaticBeanRegistrarHandlesProgrammaticRegisteredBean() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(new ConditionalBeanRegistrar());
+    context.registerBean("testBean", TestBean.class);
     context.refresh();
     assertThat(context.containsBean("myTestBean")).isTrue();
     assertThat(context.getBean("myTestBean")).isInstanceOf(TestBean.class);
   }
 
   @Test
-  void regularBeanRegistrarWithConditionNotMet() {
+  void importedBeanRegistrarWithConditionNotMet() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(MyRegularBeanRegistrarConfiguration.class);
+    context.register(ConditionalBeanRegistrarConfiguration.class);
     context.register(TestBeanConfiguration.class);
     context.refresh();
     assertThat(context.containsBean("myTestBean")).isFalse();
   }
 
   @Test
-  void deferredBeanRegistrarWithConditionMet() {
+  void importedBeanRegistrarWithConditionMet() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(MyDeferredBeanRegistrarConfiguration.class);
     context.register(TestBeanConfiguration.class);
+    context.register(ConditionalBeanRegistrarConfiguration.class);
     context.refresh();
     assertThat(context.containsBean("myTestBean")).isTrue();
     assertThat(context.getBean("myTestBean")).isInstanceOf(TestBean.class);
-  }
-
-  @Test
-  void deferredBeanRegistrarWithConditionNotMet() {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(MyDeferredBeanRegistrarConfiguration.class);
-    context.refresh();
-    assertThat(context.containsBean("myTestBean")).isFalse();
   }
 
 }

@@ -16,13 +16,13 @@
 
 package infra.context.testfixture.beans.factory;
 
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.BeanRegistry;
 import infra.beans.testfixture.beans.TestBean;
-import infra.context.DeferredBeanRegistrar;
 import infra.core.ParameterizedTypeReference;
 import infra.core.env.Environment;
 
-public class MyDeferredBeanRegistrar implements DeferredBeanRegistrar {
+public class ConditionalBeanRegistrar implements BeanRegistrar {
 
   @Override
   public void register(BeanRegistry registry, Environment env) {
@@ -33,5 +33,4 @@ public class MyDeferredBeanRegistrar implements DeferredBeanRegistrar {
       registry.registerBean("myTestBean", TestBean.class);
     }
   }
-
 }
