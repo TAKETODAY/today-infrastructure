@@ -549,8 +549,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * @return a String representation identifying this method
    * @see ClassUtils#getQualifiedMethodName
    */
-  @Nullable
-  protected String methodIdentification(Method method, @Nullable Class<?> targetClass) {
+  protected @Nullable String methodIdentification(Method method, @Nullable Class<?> targetClass) {
     return null;
   }
 

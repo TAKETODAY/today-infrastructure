@@ -60,7 +60,6 @@ import infra.lang.Assert;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -285,21 +284,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       }
     }
     this.initialized = true;
-  }
-
-  /**
-   * Convenience method to return a String representation of this Method
-   * for use in logging. Can be overridden in subclasses to provide a
-   * different identifier for the given method.
-   *
-   * @param method the method we're interested in
-   * @param targetClass class the method is on
-   * @return log message identifying this method
-   * @see ClassUtils#getQualifiedMethodName
-   */
-  protected String methodIdentification(Method method, Class<?> targetClass) {
-    Method specificMethod = ReflectionUtils.getMostSpecificMethod(method, targetClass);
-    return ClassUtils.getQualifiedMethodName(specificMethod);
   }
 
   protected Collection<? extends Cache> getCaches(CacheOperationInvocationContext<CacheOperation> context, CacheResolver cacheResolver) {
