@@ -102,8 +102,11 @@ public enum JavaVersion {
 
   private final boolean available;
 
+  final Class<?> versionSpecificClass;
+
   JavaVersion(String name, Class<?> versionSpecificClass, String versionSpecificMethod, Class<?>... paramTypes) {
     this.name = name;
+    this.versionSpecificClass = versionSpecificClass;
     this.available = ReflectionUtils.hasMethod(versionSpecificClass, versionSpecificMethod, paramTypes);
   }
 

@@ -1,4 +1,5 @@
 infra.aot.hint.RuntimeHintsRegistrar=\
 infra.aot.hint.support.ObjectToObjectConverterRuntimeHints,\
 infra.aot.hint.support.TodayStrategiesRuntimeHints,\
-infra.aot.hint.support.TodayPropertiesRuntimeHints
+infra.aot.hint.support.TodayPropertiesRuntimeHints,\
+infra.core.JavaVersionHints
