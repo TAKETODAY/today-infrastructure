@@ -59,6 +59,53 @@ import infra.core.type.classreading.MetadataReaderFactory;
  *     }
  * }}</pre>
  *
+ * <p>{@code BeanRegistrar} implementations are not Infra components: they must have
+ * a no-arg constructor and cannot rely on dependency injection or any other
+ * component-model feature. They can be used in two distinct ways depending on the
+ * application context setup.
+ *
+ * <h3>With the {@code @Configuration} model</h3>
+ *
+ * <p>A {@code BeanRegistrar} must be imported via
+ * {@link infra.context.annotation.Import @Import} on a
+ * {@link infra.context.annotation.Configuration @Configuration} class:
+ *
+ * <pre>{@code
+ * @Configuration
+ * @Import(MyBeanRegistrar.class)
+ * class MyConfiguration {
+ * }}</pre>
+ *
+ * <p>This is the only mechanism that triggers bean registration in the annotation-based
+ * configuration model. Annotating an implementation with {@code @Configuration} or
+ * {@code @Component}, or returning an instance from a {@code @Bean} method, registers
+ * it as a bean but does <strong>not</strong> invoke its
+ * {@link #register(BeanRegistry, Environment) register} method.
+ *
+ * <p>When imported, the registrar is invoked in the order it is encountered during
+ * configuration class processing. It can therefore check for and build on beans that
+ * have already been defined, but has no visibility into beans that will be registered
+ * by classes processed later.
+ *
+ * <h3>Programmatic usage</h3>
+ *
+ * <p>A {@code BeanRegistrar} can also be applied directly to a
+ * {@link infra.context.support.GenericApplicationContext}:
+ *
+ * <pre>{@code
+ * GenericApplicationContext context = new GenericApplicationContext();
+ * context.register(new MyBeanRegistrar());
+ * context.registerBean("myBean", MyBean.class);
+ * context.refresh();
+ * }</pre>
+ *
+ * <p>This mode is primarily intended for fully programmatic application context setups.
+ * Registrars applied this way are invoked before any {@code @Configuration} class is
+ * processed. They can therefore observe beans registered programmatically (e.g., via
+ * one of the {@code GenericApplicationContext#registerBean} methods), but will
+ * <strong>not</strong> see any beans defined in {@code @Configuration} classes also
+ * registered with the context.
+ *
  * <p>A {@code BeanRegistrar} implementing {@link infra.context.annotation.ImportAware}
  * can optionally introspect import metadata when used in an import scenario, otherwise the
  * {@code setImportMetadata} method is simply not being called.
