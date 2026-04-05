@@ -31,6 +31,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
 import infra.mock.http.MockHttpOutputMessage;
 import infra.util.concurrent.Future;
+import infra.web.util.UriComponentsBuilder;
 
 /**
  * Mock implementation of {@link ClientHttpRequest}.
@@ -69,6 +70,16 @@ public class MockClientHttpRequest extends MockHttpOutputMessage implements Clie
   public MockClientHttpRequest(HttpMethod httpMethod, URI uri) {
     this.httpMethod = httpMethod;
     this.uri = uri;
+  }
+
+  /**
+   * Create a {@code MockClientHttpRequest} with the given {@link HttpMethod},
+   * URI template, and URI template variable values.
+   *
+   * @since 5.0
+   */
+  public MockClientHttpRequest(HttpMethod httpMethod, String uriTemplate, Object... vars) {
+    this(httpMethod, UriComponentsBuilder.forURIString(uriTemplate).buildAndExpand(vars).encode().toURI());
   }
 
   public void setMethod(HttpMethod httpMethod) {
