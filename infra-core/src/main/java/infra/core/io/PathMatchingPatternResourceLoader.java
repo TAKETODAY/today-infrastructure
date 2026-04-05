@@ -219,8 +219,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   private static final Set<String> systemModuleNames =
           NativeDetector.inNativeImage() ? Collections.emptySet() :
                   ModuleFinder.ofSystem().findAll().stream()
-                          .map(moduleReference -> moduleReference.descriptor().name())
-                          .collect(Collectors.toSet());
+                  .map(moduleReference -> moduleReference.descriptor().name())
+                  .collect(Collectors.toSet());
   /**
    * {@link Predicate} that tests whether the supplied {@link ResolvedModule}
    * is not a {@linkplain ModuleFinder#ofSystem() system module}.
@@ -1069,6 +1069,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @since 4.0
    */
   protected void findAllModulePathResources(String locationPattern, SmartResourceConsumer consumer) throws IOException {
+    // Skip scanning the module path when running in a native image.
+    if (NativeDetector.inNativeImage()) {
+      return;
+    }
+
     String resourcePattern = stripLeadingSlash(locationPattern);
     PathMatcher pathMatcher = getPathMatcher();
     boolean pattern = pathMatcher.isPattern(resourcePattern);
