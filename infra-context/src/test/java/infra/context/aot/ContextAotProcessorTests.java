@@ -113,9 +113,7 @@ class ContextAotProcessorTests {
               .resolve("resource/META-INF/native-image/com.example/example/native-image.properties");
       assertThat(nativeImagePropertiesFile).exists().isRegularFile().hasContent("""
               Args = -H:Class=infra.context.aot.ContextAotProcessorTests$SampleApplication \\
-              --report-unsupported-elements-at-runtime \\
-              --no-fallback \\
-              --install-exit-handlers
+              --no-fallback
               """);
     };
   }
