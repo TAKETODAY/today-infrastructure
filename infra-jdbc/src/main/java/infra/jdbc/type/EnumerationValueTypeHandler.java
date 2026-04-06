@@ -31,9 +31,16 @@ import infra.lang.Assert;
 import infra.lang.TodayStrategies;
 
 /**
- * resolve EnumerationValue
+ * A {@link TypeHandler} for enum types that implements {@link EnumerationValue}.
+ * <p>
+ * This handler converts enum constants to their associated values (annotated with
+ * {@link EnumerationValue}) when writing to the database, and converts database values
+ * back to the corresponding enum constants when reading from the database.
+ * <p>
+ * If no property is annotated with {@link EnumerationValue}, it falls back to using
+ * the enum constant's name or a configurable property (default: "value").
  *
- * @param <T> value type
+ * @param <T> the enum type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnumerationValue
  * @since 4.0 2022/8/2 20:42
@@ -49,9 +56,8 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
 
   private final TypeHandler delegate;
 
-  private final Function<T, Object> valueSupplier;
+  private final Function<T, @Nullable Object> valueSupplier;
 
-  @SuppressWarnings("NullAway")
   public EnumerationValueTypeHandler(Class<T> type, TypeHandlerManager registry) {
     Assert.notNull(type, "Type argument is required");
     BeanProperty annotatedProperty = getAnnotatedProperty(type);
@@ -67,11 +73,10 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
     }
   }
 
-  @Nullable
-  static <T> BeanProperty getAnnotatedProperty(Class<T> type) {
+  static <T> @Nullable BeanProperty getAnnotatedProperty(Class<T> type) {
     BeanProperty annotatedProperty = null;
     BeanMetadata metadata = BeanMetadata.forClass(type);
-    for (BeanProperty beanProperty : metadata) {
+    for (BeanProperty beanProperty : metadata.beanProperties()) {
       if (beanProperty.mergedAnnotations().isPresent(EnumerationValue.class)) {
         Assert.state(annotatedProperty == null, "@EnumerationValue must annotated on one property");
         annotatedProperty = beanProperty;
@@ -96,9 +101,8 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
     }
   }
 
-  @Nullable
   @Override
-  public T getResult(ResultSet rs, String columnName) throws SQLException {
+  public @Nullable T getResult(ResultSet rs, String columnName) throws SQLException {
     // get value in DB
     Object propertyValueInDb = delegate.getResult(rs, columnName);
     if (propertyValueInDb == null) {
@@ -109,9 +113,8 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
     return convertToEnum(propertyValueInDb);
   }
 
-  @Nullable
   @Override
-  public T getResult(ResultSet rs, int columnIndex) throws SQLException {
+  public @Nullable T getResult(ResultSet rs, int columnIndex) throws SQLException {
     // get value in DB
     Object propertyValueInDb = delegate.getResult(rs, columnIndex);
     if (propertyValueInDb == null) {
@@ -122,9 +125,8 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
     return convertToEnum(propertyValueInDb);
   }
 
-  @Nullable
   @Override
-  public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
+  public @Nullable T getResult(CallableStatement cs, int columnIndex) throws SQLException {
     // get value in DB
     Object propertyValueInDb = delegate.getResult(cs, columnIndex);
     if (propertyValueInDb == null) {
@@ -137,8 +139,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
 
   //
 
-  @Nullable
-  private T convertToEnum(Object propertyValueInDb) {
+  private @Nullable T convertToEnum(Object propertyValueInDb) {
     for (T enumConstant : enumConstants) {
       Object propertyValue = valueSupplier.apply(enumConstant);
       if (Objects.equals(propertyValueInDb, propertyValue)) {

@@ -31,9 +31,11 @@ import infra.lang.Enumerable;
 import infra.util.ReflectionUtils;
 
 /**
- * TypeHandler for Enumerable
+ * A {@link TypeHandler} for {@link Enumerable} enum types.
+ * <p>This handler delegates the conversion of the enum's value to an appropriate
+ * {@link TypeHandler} based on the return type of the {@code getValue()} method.
  *
- * @param <V> value type
+ * @param <V> the type of the value held by the {@link Enumerable} enum
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/1 22:15
  */

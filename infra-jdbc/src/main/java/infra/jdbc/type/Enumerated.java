@@ -31,9 +31,13 @@ import java.lang.annotation.Target;
  * <p> Example:
  * <pre>{@code
  *
- *   public enum EmployeeStatus {FULL_TIME, PART_TIME, CONTRACT}
+ *   public enum EmployeeStatus {
+ *     FULL_TIME, PART_TIME, CONTRACT
+ *   }
  *
- *   public enum SalaryRate {JUNIOR, SENIOR, MANAGER, EXECUTIVE}
+ *   public enum SalaryRate {
+ *     JUNIOR, SENIOR, MANAGER, EXECUTIVE
+ *   }
  *
  *   public class Employee {
  *       public EmployeeStatus getStatus() {...}

@@ -44,21 +44,18 @@ public final class AnyTypeHandler<T> implements TypeHandler<T> {
     ps.setObject(parameterIndex, arg);
   }
 
-  @Nullable
   @Override
-  public T getResult(ResultSet rs, String columnName) throws SQLException {
+  public @Nullable T getResult(ResultSet rs, String columnName) throws SQLException {
     return rs.getObject(columnName, type);
   }
 
-  @Nullable
   @Override
-  public T getResult(ResultSet rs, int columnIndex) throws SQLException {
+  public @Nullable T getResult(ResultSet rs, int columnIndex) throws SQLException {
     return rs.getObject(columnIndex, type);
   }
 
-  @Nullable
   @Override
-  public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
+  public @Nullable T getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return cs.getObject(columnIndex, type);
   }
 
