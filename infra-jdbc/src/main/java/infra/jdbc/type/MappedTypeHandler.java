@@ -24,12 +24,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Annotation for mapping a property to a specific type handler.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/7/30 23:17
  */
+@Reflective
 @Documented
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)

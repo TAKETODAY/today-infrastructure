@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Enumeration value marker
  *
@@ -45,6 +47,7 @@ import java.lang.annotation.Target;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/2 17:41
  */
+@Reflective
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.ANNOTATION_TYPE })

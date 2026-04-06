@@ -24,6 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * The annotation that specify java types to map {@link TypeHandler}.
  *
@@ -42,6 +44,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Reflective
 public @interface MappedTypes {
 
   /**
