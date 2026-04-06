@@ -111,6 +111,9 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | 用于 是否需要忽略完全 `java.sql.ParameterMetaData.getParameterType`。 详见：
 xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量操作].
 
+| `jdbc.type-handler.duration-storage-format`
+| 用于 DurationTypeHandler 配置 JVM 级别的 duration 存储格式.
+
 | `sql.logToStdout`
 | SQL 调式打印 是否使用 _STDOUT_ ，如果对应的 Logger（`today.SQL`） 调试级别开启会使用 Logger 记录。默认值：`false`。 详见 `SqlStatementLogger`
 
