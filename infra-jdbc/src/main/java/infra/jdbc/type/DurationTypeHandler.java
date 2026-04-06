@@ -26,56 +26,131 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 
+import infra.lang.Assert;
+
 /**
- * Duration Type handler
+ * A configurable {@link java.time.Duration} type handler that supports multiple storage formats.
+ * <p>
+ * Supported storage formats and their corresponding database column types:
+ * <ul>
+ *   <li>{@link StorageFormat#NANOSECONDS} &rarr; Database {@code BIGINT},
+ *   stores total nanoseconds (range approx. &plusmn;292 years)</li>
+ *   <li>{@link StorageFormat#MILLISECONDS} &rarr; Database {@code BIGINT},
+ *   stores total milliseconds (range approx. &plusmn;292 million years)</li>
+ *   <li>{@link StorageFormat#SECONDS} &rarr; Database {@code BIGINT},
+ *   stores total seconds (nanosecond precision lost, range approx. &plusmn;292 billion years)</li>
+ *   <li>{@link StorageFormat#ISO_STRING} &rarr; Database {@code VARCHAR},
+ *   stores ISO-8601 format (e.g., "PT10M5.123S")</li>
+ * </ul>
+ * <p>
+ * Defaults to {@link StorageFormat#NANOSECONDS} to maintain compatibility with previous behavior.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/7/11 14:23
  */
 public class DurationTypeHandler extends BasicTypeHandler<Duration> {
 
-  @Override
-  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Duration arg) throws SQLException {
-    ps.setLong(parameterIndex, arg.toNanos());
+  private final StorageFormat format;
+
+  public enum StorageFormat {
+    NANOSECONDS, MILLISECONDS, SECONDS, ISO_STRING
   }
 
-  @Nullable
-  @Override
-  public Duration getResult(ResultSet rs, String columnName) throws SQLException {
-    long nanos = rs.getLong(columnName);
-    if (nanos == 0) {
-      if (rs.wasNull()) {
-        return null;
-      }
-      return Duration.ZERO;
-    }
-    return Duration.ofNanos(nanos);
+  public DurationTypeHandler() {
+    this(StorageFormat.NANOSECONDS);
   }
 
-  @Nullable
-  @Override
-  public Duration getResult(ResultSet rs, int columnIndex) throws SQLException {
-    long nanos = rs.getLong(columnIndex);
-    if (nanos == 0) {
-      if (rs.wasNull()) {
-        return null;
-      }
-      return Duration.ZERO;
-    }
-    return Duration.ofNanos(nanos);
+  public DurationTypeHandler(StorageFormat format) {
+    Assert.notNull(format, "format is required");
+    this.format = format;
   }
 
-  @Nullable
   @Override
-  public Duration getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    long nanos = cs.getLong(columnIndex);
-    if (nanos == 0) {
-      if (cs.wasNull()) {
-        return null;
-      }
-      return Duration.ZERO;
+  public void setNonNullParameter(PreparedStatement ps, int idx, Duration parameter) throws SQLException {
+    switch (format) {
+      case NANOSECONDS -> ps.setLong(idx, parameter.toNanos());
+      case MILLISECONDS -> ps.setLong(idx, parameter.toMillis());
+      case SECONDS -> ps.setLong(idx, parameter.getSeconds());
+      case ISO_STRING -> ps.setString(idx, parameter.toString());
     }
-    return Duration.ofNanos(nanos);
+  }
+
+  @Override
+  public @Nullable Duration getResult(ResultSet rs, String columnName) throws SQLException {
+    return extractDuration(rs, columnName);
+  }
+
+  @Override
+  public @Nullable Duration getResult(ResultSet rs, int columnIndex) throws SQLException {
+    return extractDuration(rs, columnIndex);
+  }
+
+  @Override
+  public @Nullable Duration getResult(CallableStatement cs, int columnIndex) throws SQLException {
+    return extractDuration(cs, columnIndex);
+  }
+
+  private @Nullable Duration extractDuration(ResultSet rs, String columnName) throws SQLException {
+    return switch (format) {
+      case NANOSECONDS -> {
+        long nanos = rs.getLong(columnName);
+        yield rs.wasNull() ? null : Duration.ofNanos(nanos);
+      }
+      case MILLISECONDS -> {
+        long millis = rs.getLong(columnName);
+        yield rs.wasNull() ? null : Duration.ofMillis(millis);
+      }
+      case SECONDS -> {
+        long seconds = rs.getLong(columnName);
+        yield rs.wasNull() ? null : Duration.ofSeconds(seconds);
+      }
+      case ISO_STRING -> {
+        String str = rs.getString(columnName);
+        yield str == null ? null : Duration.parse(str);
+      }
+    };
+  }
+
+  private @Nullable Duration extractDuration(ResultSet rs, int columnIndex) throws SQLException {
+    return switch (format) {
+      case NANOSECONDS -> {
+        long nanos = rs.getLong(columnIndex);
+        yield rs.wasNull() ? null : Duration.ofNanos(nanos);
+      }
+      case MILLISECONDS -> {
+        long millis = rs.getLong(columnIndex);
+        yield rs.wasNull() ? null : Duration.ofMillis(millis);
+      }
+      case SECONDS -> {
+        long seconds = rs.getLong(columnIndex);
+        yield rs.wasNull() ? null : Duration.ofSeconds(seconds);
+      }
+      case ISO_STRING -> {
+        String str = rs.getString(columnIndex);
+        yield str == null ? null : Duration.parse(str);
+      }
+    };
+  }
+
+  private @Nullable Duration extractDuration(CallableStatement cs, int columnIndex) throws SQLException {
+    return switch (format) {
+      case NANOSECONDS -> {
+        long nanos = cs.getLong(columnIndex);
+        yield cs.wasNull() ? null : Duration.ofNanos(nanos);
+      }
+      case MILLISECONDS -> {
+        long millis = cs.getLong(columnIndex);
+        yield cs.wasNull() ? null : Duration.ofMillis(millis);
+      }
+      case SECONDS -> {
+        long seconds = cs.getLong(columnIndex);
+        yield cs.wasNull() ? null : Duration.ofSeconds(seconds);
+      }
+      case ISO_STRING -> {
+        String str = cs.getString(columnIndex);
+        yield str == null ? null : Duration.parse(str);
+      }
+    };
   }
 
 }
