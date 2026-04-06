@@ -5,6 +5,7 @@ dependencies {
   api(project(":infra-jdbc"))
 
   optional(project(":infra-context"))
+  optional(project(":infra-core-aot"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

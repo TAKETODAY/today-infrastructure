@@ -22,6 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
 import infra.core.annotation.AliasFor;
 
 /**
@@ -42,6 +43,7 @@ import infra.core.annotation.AliasFor;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 21:05
  */
+@Reflective
 @Documented
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

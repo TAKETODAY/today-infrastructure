@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Specifies the primary table ref for the annotated entity
  *
@@ -43,6 +45,7 @@ import java.lang.annotation.Target;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/11 13:36
  */
+@Reflective
 @Documented
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
