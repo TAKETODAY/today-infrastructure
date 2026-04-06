@@ -21,6 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Represents a logical OR condition in the context of persistence operations.
  * This annotation can be applied to types, methods, or fields to denote
@@ -29,6 +31,7 @@ import java.lang.annotation.Target;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2025/5/9 17:34
  */
+@Reflective
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OR {

@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Specifies the primary key of an entity.
  * The field or property to which the <code>GeneratedId</code> annotation
@@ -48,6 +50,7 @@ import java.lang.annotation.Target;
  * @since 4.0 2024/2/14 21:11
  */
 @Id
+@Reflective
 @Documented
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

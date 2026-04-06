@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Specifies the version field or property of an entity class that
  * serves as its optimistic lock value.  The version is used to ensure
@@ -56,6 +58,7 @@ import java.lang.annotation.Target;
  * @since 4.0 2022/8/16 21:07
  */
 @Documented
+@Reflective
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Version {

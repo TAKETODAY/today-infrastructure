@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.aot.hint.annotation.Reflective;
+
 /**
  * Specifies the update by field or property
  * <pre>{@code
@@ -51,6 +53,7 @@ import java.lang.annotation.Target;
  * @since 4.0 2024/4/11 10:43
  */
 @Documented
+@Reflective
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UpdateBy {
