@@ -26,7 +26,11 @@ import java.sql.SQLException;
 import infra.lang.Assert;
 
 /**
- * @param <T> value type
+ * A {@link TypeHandler} that maps any type to JDBC {@code setObject} and {@code getObject} methods.
+ * <p>This handler is suitable for generic types where specific conversion logic is not required,
+ * relying on the JDBC driver's default object mapping capabilities.
+ *
+ * @param <T> the type of the value to handle
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/6/20 22:22
  */
