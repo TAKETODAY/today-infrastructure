@@ -37,10 +37,12 @@ import infra.util.MapCache;
 import infra.util.ReflectionUtils;
 
 /**
- * Bean Metadata
+ * Provides metadata information for a Java bean class.
  *
- * <p>This class provides metadata information about a Java bean class,
- * including its properties, instantiation methods, and property accessors.
+ * <p>This class encapsulates details about a bean's structure, including its properties,
+ * instantiation strategies, and property accessors (getters/setters). It serves as a central
+ * registry for introspecting bean classes efficiently, often utilizing caching mechanisms
+ * to avoid repeated reflection costs.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 3.0 2021/1/27 22:26
