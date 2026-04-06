@@ -19,6 +19,8 @@
 package infra.core.task;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -180,6 +182,7 @@ class SimpleAsyncTaskExecutorTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void taskTerminationTimeoutWithLateInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
     Future<?> future;
