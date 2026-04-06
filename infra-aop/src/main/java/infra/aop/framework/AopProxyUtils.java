@@ -31,6 +31,7 @@ import infra.aop.support.AopUtils;
 import infra.aop.target.SingletonTargetSource;
 import infra.core.DecoratingProxy;
 import infra.lang.Assert;
+import infra.lang.Constant;
 import infra.util.ClassUtils;
 
 /**
@@ -57,8 +58,7 @@ public abstract class AopProxyUtils {
    * @see Advised#getTargetSource()
    * @see SingletonTargetSource#getTarget()
    */
-  @Nullable
-  public static Object getSingletonTarget(Object candidate) {
+  public static @Nullable Object getSingletonTarget(Object candidate) {
     if (candidate instanceof Advised) {
       TargetSource targetSource = ((Advised) candidate).getTargetSource();
       if (targetSource instanceof SingletonTargetSource) {
@@ -121,17 +121,18 @@ public abstract class AopProxyUtils {
    * @since 4.0
    */
   public static Class<?>[] completeJdkProxyInterfaces(Class<?>... userInterfaces) {
-    List<Class<?>> completedInterfaces = new ArrayList<>(userInterfaces.length + 3);
+    ArrayList<Class<?>> completedInterfaces = new ArrayList<>(userInterfaces.length + 3);
     for (Class<?> ifc : userInterfaces) {
       Assert.notNull(ifc, "'userInterfaces' must not contain null values");
-      Assert.isTrue(ifc.isInterface() && !ifc.isSealed(),
-              () -> ifc.getName() + " must be a non-sealed interface");
+      if (!ifc.isInterface() || ifc.isSealed()) {
+        throw new IllegalArgumentException(ifc.getName() + " must be a non-sealed interface");
+      }
       completedInterfaces.add(ifc);
     }
     completedInterfaces.add(StandardProxy.class);
     completedInterfaces.add(Advised.class);
     completedInterfaces.add(DecoratingProxy.class);
-    return completedInterfaces.toArray(Class<?>[]::new);
+    return completedInterfaces.toArray(Constant.EMPTY_CLASSES);
   }
 
   /**
