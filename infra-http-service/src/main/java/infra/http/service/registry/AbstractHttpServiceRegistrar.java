@@ -152,6 +152,7 @@ public abstract class AbstractHttpServiceRegistrar implements
       proxyBeanDef.setBeanClassName(type);
       proxyBeanDef.setAttribute(HTTP_SERVICE_GROUP_NAME_ATTRIBUTE, groupName);
       proxyBeanDef.setInstanceSupplier(() -> getProxyInstance(groupName, type));
+      proxyBeanDef.setEnableDependencyInjection(false);
       String beanName = (groupName + "#" + type);
       if (!context.containsBeanDefinition(beanName)) {
         context.registerBeanDefinition(beanName, proxyBeanDef);
