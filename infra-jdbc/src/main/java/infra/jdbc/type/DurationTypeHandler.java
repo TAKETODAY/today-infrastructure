@@ -25,8 +25,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.util.Locale;
 
 import infra.lang.Assert;
+import infra.lang.TodayStrategies;
 
 /**
  * A configurable {@link java.time.Duration} type handler that supports multiple storage formats.
@@ -50,6 +52,10 @@ import infra.lang.Assert;
  */
 public class DurationTypeHandler extends BasicTypeHandler<Duration> {
 
+  public static final String DEFAULT_FORMAT_KEY = "jdbc.type-handler.duration-storage-format";
+
+  private static final StorageFormat defaultFormat = findDefaultFormat();
+
   private final StorageFormat format;
 
   public enum StorageFormat {
@@ -57,7 +63,7 @@ public class DurationTypeHandler extends BasicTypeHandler<Duration> {
   }
 
   public DurationTypeHandler() {
-    this(StorageFormat.NANOSECONDS);
+    this(defaultFormat);
   }
 
   public DurationTypeHandler(StorageFormat format) {
@@ -151,6 +157,18 @@ public class DurationTypeHandler extends BasicTypeHandler<Duration> {
         yield str == null ? null : Duration.parse(str);
       }
     };
+  }
+
+  private static StorageFormat findDefaultFormat() {
+    String property = TodayStrategies.getProperty(DEFAULT_FORMAT_KEY);
+    if (property != null) {
+      try {
+        return StorageFormat.valueOf(property.toUpperCase(Locale.ROOT));
+      }
+      catch (Throwable ignored) {
+      }
+    }
+    return StorageFormat.NANOSECONDS;
   }
 
 }
