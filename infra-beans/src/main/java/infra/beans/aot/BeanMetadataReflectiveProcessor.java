@@ -22,6 +22,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -73,8 +74,10 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
     log.debug("Registering bean metadata reflection hints for {} classes", targetClasses.size());
 
     for (Class<?> beanClass : targetClasses) {
-      registerBeanClassHints(hints, beanClass);
-      registerBeanPropertiesHints(hints, beanClass);
+      if (!Modifier.isAbstract(beanClass.getModifiers())) {
+        registerBeanClassHints(hints, beanClass);
+        registerBeanPropertiesHints(hints, beanClass);
+      }
     }
   }
 

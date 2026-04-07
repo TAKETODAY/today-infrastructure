@@ -373,6 +373,230 @@ class BeanMetadataReflectiveProcessorTests {
             .contains(MemberCategory.INVOKE_PUBLIC_METHODS);
   }
 
+  @Test
+  void registerReflectionHints_withExcludeSelfAndNoExtra() {
+    processor.registerReflectionHints(hints, ConfigExcludeSelfNoExtra.class);
+
+    assertThat(hints.typeHints()).isEmpty();
+  }
+
+  @Test
+  void registerReflectionHints_withOnlyExtraClassNames() {
+    processor.registerReflectionHints(hints, ConfigOnlyExtraNames.class);
+
+    assertThat(hints.getTypeHint(ConfigOnlyExtraNames.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(Order.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_excludeSelfWithOnlyClassNames() {
+    processor.registerReflectionHints(hints, ConfigExcludeSelfOnlyNames.class);
+
+    assertThat(hints.getTypeHint(ConfigExcludeSelfOnlyNames.class)).isNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withGenericCollection() {
+    processor.registerReflectionHints(hints, BeanWithGenericCollection.class);
+
+    assertThat(hints.getTypeHint(BeanWithGenericCollection.class)).isNotNull();
+    assertThat(hints.getTypeHint(List.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withMultipleLevelsNesting() {
+    processor.registerReflectionHints(hints, Level1Bean.class);
+
+    assertThat(hints.getTypeHint(Level1Bean.class)).isNotNull();
+    assertThat(hints.getTypeHint(Level2Bean.class)).isNotNull();
+    assertThat(hints.getTypeHint(Level3Bean.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withAbstractPropertyType() {
+    processor.registerReflectionHints(hints, BeanWithAbstractType.class);
+
+    assertThat(hints.getTypeHint(BeanWithAbstractType.class)).isNotNull();
+    assertThat(hints.getTypeHint(List.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withStaticField() {
+    Field field = ReflectionUtils.findField(BeanWithStaticField.class, "STATIC_VALUE");
+    assertThat(field).isNotNull();
+
+    processor.registerReflectionHints(hints, field);
+
+    assertThat(hints.getTypeHint(String.class)).isNull();
+  }
+
+  @Test
+  void registerReflectionHints_withTransientField() {
+    processor.registerReflectionHints(hints, BeanWithTransientField.class);
+
+    assertThat(hints.getTypeHint(BeanWithTransientField.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withFinalField() {
+    processor.registerReflectionHints(hints, BeanWithFinalField.class);
+
+    assertThat(hints.getTypeHint(BeanWithFinalField.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+  }
+
+  @RegisterBeanMetadata(excludeSelf = true)
+  static class ConfigExcludeSelfNoExtra {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(extraNames = {
+          "infra.beans.aot.BeanMetadataReflectiveProcessorTests$User",
+          "infra.beans.aot.BeanMetadataReflectiveProcessorTests$Order"
+  })
+  static class ConfigOnlyExtraNames {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(excludeSelf = true, extraNames = {
+          "infra.beans.aot.BeanMetadataReflectiveProcessorTests$User"
+  })
+  static class ConfigExcludeSelfOnlyNames {
+    private String config;
+  }
+
+  @RegisterBeanMetadata
+  static class BeanWithNestedComplex {
+    private Address address;
+
+    public Address getAddress() {
+      return address;
+    }
+
+    public void setAddress(Address address) {
+      this.address = address;
+    }
+  }
+
+  static class City {
+    private String name;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class BeanWithGenericCollection {
+    private List<User> users;
+
+    public List<User> getUsers() {
+      return users;
+    }
+
+    public void setUsers(List<User> users) {
+      this.users = users;
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class Level1Bean {
+    private Level2Bean level2;
+
+    public Level2Bean getLevel2() {
+      return level2;
+    }
+
+    public void setLevel2(Level2Bean level2) {
+      this.level2 = level2;
+    }
+  }
+
+  static class Level2Bean {
+    private Level3Bean level3;
+
+    public Level3Bean getLevel3() {
+      return level3;
+    }
+
+    public void setLevel3(Level3Bean level3) {
+      this.level3 = level3;
+    }
+  }
+
+  static class Level3Bean {
+    private String value;
+
+    public String getValue() {
+      return value;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class BeanWithAbstractType {
+    private List<String> items;
+
+    public List<String> getItems() {
+      return items;
+    }
+
+    public void setItems(List<String> items) {
+      this.items = items;
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class BeanWithStaticField {
+    public static final String STATIC_VALUE = "test";
+  }
+
+  @RegisterBeanMetadata
+  static class BeanWithTransientField {
+    private transient User user;
+
+    public User getUser() {
+      return user;
+    }
+
+    public void setUser(User user) {
+      this.user = user;
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class BeanWithFinalField {
+    private final User user = new User();
+
+    public User getUser() {
+      return user;
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class PackagePrivateBean {
+    String value;
+
+    String getValue() {
+      return value;
+    }
+
+    void setValue(String value) {
+      this.value = value;
+    }
+  }
+
   @RegisterBeanMetadata(excludeSelf = true, extra = { User.class, Order.class })
   static class ConfigWithExcludedSelf {
     private String config;
