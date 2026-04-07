@@ -20,8 +20,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 
 import infra.aot.hint.BindingReflectionHintsRegistrar;
 import infra.aot.hint.ExecutableMode;
@@ -32,9 +32,12 @@ import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.beans.BeanUtils;
 import infra.beans.support.BeanInstantiator;
+import infra.core.annotation.AnnotatedElementUtils;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.reflect.PropertyAccessor;
+import infra.util.ClassUtils;
+import infra.util.StringUtils;
 
 /**
  * A {@link ReflectiveProcessor} implementation that registers reflection hints for bean metadata.
@@ -57,18 +60,71 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
 
   @Override
   public void registerReflectionHints(ReflectionHints hints, AnnotatedElement element) {
-    if (!(element instanceof Class<?> beanClass)) {
-      log.warn("@RegisterBeanMetadata can only be applied to classes, but was found on: {}", element);
+    RegisterBeanMetadata annotation = AnnotatedElementUtils.findMergedAnnotation(element, RegisterBeanMetadata.class);
+    if (annotation == null) {
+      log.warn("@RegisterBeanMetadata not found on element: {}", element);
       return;
     }
 
-    if (Modifier.isAbstract(beanClass.getModifiers())) {
+    Set<Class<?>> targetClasses = resolveTargetClasses(annotation, element);
+    if (targetClasses.isEmpty()) {
+      log.warn("No target classes resolved from @RegisterBeanMetadata on: {}", element);
       return;
     }
 
-    log.debug("Registering bean metadata reflection hints for: [{}]", beanClass.getName());
-    registerBeanClassHints(hints, beanClass);
-    registerBeanPropertiesHints(hints, beanClass);
+    log.debug("Registering bean metadata reflection hints for {} classes", targetClasses.size());
+
+    for (Class<?> beanClass : targetClasses) {
+      registerBeanClassHints(hints, beanClass);
+      registerBeanPropertiesHints(hints, beanClass);
+    }
+  }
+
+  /**
+   * Resolve target classes from the annotation attributes.
+   * The annotated class is always included, plus any extra classes specified.
+   */
+  private Set<Class<?>> resolveTargetClasses(RegisterBeanMetadata annotation, AnnotatedElement element) {
+    Set<Class<?>> targetClasses = new HashSet<>();
+
+    if (element instanceof Method method) {
+      Class<?> returnType = method.getReturnType();
+      if (!BeanUtils.isSimpleValueType(returnType)) {
+        targetClasses.add(returnType);
+      }
+    }
+    else if (element instanceof Field field) {
+      Class<?> returnType = field.getType();
+      if (!BeanUtils.isSimpleValueType(returnType)) {
+        targetClasses.add(returnType);
+      }
+    }
+    else if (element instanceof Class<?> currentClass) {
+      targetClasses.add(currentClass);
+    }
+
+    Class<?>[] extraClasses = annotation.extra();
+    String[] extraClassNames = annotation.extraNames();
+
+    for (Class<?> clazz : extraClasses) {
+      if (clazz != Object.class) {
+        targetClasses.add(clazz);
+      }
+    }
+
+    for (String className : extraClassNames) {
+      if (StringUtils.hasText(className)) {
+        try {
+          Class<?> clazz = ClassUtils.forName(className, null);
+          targetClasses.add(clazz);
+        }
+        catch (ClassNotFoundException ex) {
+          log.warn("Could not load class [{}], skipping", className, ex);
+        }
+      }
+    }
+
+    return targetClasses;
   }
 
   /**
@@ -105,7 +161,7 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
 
     bindingRegistrar.registerReflectionHints(hints, property.getResolvableType().getType());
 
-    if (propertyType != Optional.class && !BeanUtils.isSimpleValueType(propertyType)) {
+    if (!BeanUtils.isSimpleValueType(propertyType)) {
       BeanInstantiator instantiator = BeanInstantiator.forConstructor(propertyType);
       Constructor<?> constructor = instantiator.getConstructor();
       if (constructor != null) {
