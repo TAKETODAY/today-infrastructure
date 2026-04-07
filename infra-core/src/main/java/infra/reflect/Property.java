@@ -63,53 +63,43 @@ public class Property implements Member, AnnotatedElement, Serializable {
   private static final ConcurrentReferenceHashMap<Property, Annotation[]>
           annotationCache = new ConcurrentReferenceHashMap<>();
 
-  @Nullable
-  protected transient Field field;
-
   /** @since 3.0.4 */
-  @Nullable
-  private transient TypeDescriptor typeDescriptor;
-
-  protected final String name;
-
-  /** @since 4.0 */
-  @Nullable
-  protected final Method readMethod;
-
-  /** @since 4.0 */
-  @Nullable
-  protected final Method writeMethod;
+  private transient @Nullable TypeDescriptor typeDescriptor;
 
   /** @since 5.0 */
   private final boolean writeableField;
 
   /** @since 4.0 */
-  @Nullable
-  private Class<?> propertyType;
+  private @Nullable Class<?> propertyType;
 
   /** @since 4.0 */
-  @Nullable
-  private Class<?> declaringClass;
+  private @Nullable Class<?> declaringClass;
 
   /** @since 4.0 */
   private boolean fieldIsNull;
 
   private transient Annotation @Nullable [] annotations;
 
-  @Nullable
-  private transient MergedAnnotations mergedAnnotations;
+  private transient @Nullable MergedAnnotations mergedAnnotations;
 
   // @since 4.0
-  @Nullable
-  private ResolvableType resolvableType;
+  private transient @Nullable ResolvableType resolvableType;
 
   // @since 4.0
-  @Nullable
-  private transient MethodParameter methodParameter;
+  private transient @Nullable MethodParameter methodParameter;
 
   // @since 4.0
-  @Nullable
-  protected transient MethodParameter writeMethodParameter;
+  protected transient @Nullable MethodParameter writeMethodParameter;
+
+  protected transient @Nullable Field field;
+
+  protected final String name;
+
+  /** @since 4.0 */
+  protected final @Nullable Method readMethod;
+
+  /** @since 4.0 */
+  protected final @Nullable Method writeMethod;
 
   /**
    * @since 5.0
@@ -244,8 +234,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
    *
    * @return returns null show that isSynthetic
    */
-  @Nullable
-  public Field getField() {
+  public @Nullable Field getField() {
     if (field == null && !fieldIsNull) {
       String name = getName();
       if (StringUtils.isEmpty(name)) {
@@ -363,7 +352,6 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   @Override
-  @SuppressWarnings("NullAway")
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
       if (readMethod != null) {
@@ -379,13 +367,21 @@ public class Property implements Member, AnnotatedElement, Serializable {
     return declaringClass;
   }
 
-  @Nullable
-  public Method getReadMethod() {
+  /**
+   * Returns the read method for this property, if any.
+   *
+   * @return the read method, or {@code null} if none
+   */
+  public @Nullable Method getReadMethod() {
     return readMethod;
   }
 
-  @Nullable
-  public Method getWriteMethod() {
+  /**
+   * Returns the write method for this property, if any.
+   *
+   * @return the write method, or {@code null} if none
+   */
+  public @Nullable Method getWriteMethod() {
     return writeMethod;
   }
 
@@ -396,8 +392,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
     return readMethod != null || writeMethod != null;
   }
 
-  @Nullable
-  public MethodParameter getWriteMethodParameter() {
+  public @Nullable MethodParameter getWriteMethodParameter() {
     MethodParameter writeMethodParameter = this.writeMethodParameter;
     if (writeMethodParameter == null && writeMethod != null) {
       writeMethodParameter = new MethodParameter(writeMethod, 0)
@@ -439,8 +434,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
     return write;
   }
 
-  @Nullable
-  private MethodParameter resolveReadMethodParameter() {
+  private @Nullable MethodParameter resolveReadMethodParameter() {
     if (getReadMethod() == null) {
       return null;
     }
@@ -472,9 +466,8 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   @Override
-  @Nullable
   @SuppressWarnings("unchecked")
-  public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+  public <T extends Annotation> @Nullable T getAnnotation(Class<T> annotationClass) {
     for (Annotation annotation : getAnnotations(false)) {
       if (annotation.annotationType() == annotationClass) {
         return (T) annotation;
@@ -549,7 +542,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   //---------------------------------------------------------------------
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (o instanceof Property other) {

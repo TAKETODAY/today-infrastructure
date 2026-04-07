@@ -102,11 +102,9 @@ public class BeanProperty extends Property {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Nullable
-  private transient PropertyAccessor accessor;
+  private transient @Nullable PropertyAccessor accessor;
 
-  @Nullable
-  private transient BeanInstantiator instantiator;
+  private transient @Nullable BeanInstantiator instantiator;
 
   protected BeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
     super(field, readMethod, writeMethod);
@@ -206,8 +204,7 @@ public class BeanProperty extends Property {
    * @return the value of the property, or {@code null} if the property value is null or
    * if the property cannot be accessed
    */
-  @Nullable
-  public Object getValue(Object object) {
+  public @Nullable Object getValue(Object object) {
     return accessor().get(object);
   }
 
@@ -353,8 +350,7 @@ public class BeanProperty extends Property {
   }
 
   // @since 4.0
-  @Nullable
-  static Object handleOptional(@Nullable Object value, Class<?> propertyType) {
+  static @Nullable Object handleOptional(@Nullable Object value, Class<?> propertyType) {
     // convertedValue == null
     if (value == null && propertyType == Optional.class) {
       value = Optional.empty();
