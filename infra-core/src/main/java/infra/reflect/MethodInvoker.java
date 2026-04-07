@@ -102,7 +102,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    */
   public static MethodInvoker forMethod(Method executable) {
     Assert.notNull(executable, "method is required");
-    return new MethodInvokerGenerator(executable).create();
+    return new MethodInvokerGenerator(executable).generate();
   }
 
   /**
@@ -115,7 +115,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    */
   public static MethodInvoker forMethod(Method executable, Class<?> targetClass) {
     Assert.notNull(executable, "method is required");
-    return new MethodInvokerGenerator(executable, targetClass).create();
+    return new MethodInvokerGenerator(executable, targetClass).generate();
   }
 
   /**
@@ -130,7 +130,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   public static MethodInvoker forMethod(Class<?> beanClass, String name, Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
-      return new MethodInvokerGenerator(targetMethod, beanClass).create();
+      return new MethodInvokerGenerator(targetMethod, beanClass).generate();
     }
     catch (NoSuchMethodException e) {
       throw new ReflectionException("No such method: '%s' in %s".formatted(name, beanClass), e);

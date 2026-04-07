@@ -32,6 +32,7 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.CodeGenerationException;
 import infra.bytecode.core.DefaultGeneratorStrategy;
 import infra.bytecode.core.EmitUtils;
+import infra.core.NativeDetector;
 import infra.core.NestedRuntimeException;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
@@ -51,35 +52,33 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
 
-  @Nullable
-  protected String className;
+  private static final boolean inNativeImage = NativeDetector.inNativeImage(NativeDetector.Context.RUN);
 
-  @Nullable
-  protected ClassLoader classLoader;
+  protected @Nullable String className;
+
+  protected @Nullable ClassLoader classLoader;
 
   protected final Class<?> targetClass;
-
-  protected static final MapCache<Object, Accessor, GeneratorSupport<?>> mappings = new MapCache<>() {
-    @Override
-    protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
-      try {
-        return generator.createInternal();
-      }
-      catch (Exception e) {
-        return generator.fallbackIfNecessary(e);
-      }
-    }
-  };
 
   protected GeneratorSupport(Class<?> targetClass) {
     Assert.notNull(targetClass, "targetClass is required");
     this.targetClass = targetClass;
   }
 
-  @SuppressWarnings("unchecked")
-  public T create() {
-    Object cacheKey = cacheKey();
-    return (T) mappings.get(cacheKey, this);
+  public T generate() {
+    if (inNativeImage) {
+      return create();
+    }
+    return Cache.compute(cacheKey(), this);
+  }
+
+  private T create() {
+    try {
+      return createInternal();
+    }
+    catch (Exception e) {
+      return fallbackIfNecessary(e);
+    }
   }
 
   protected T fallbackIfNecessary(Exception exception) {
@@ -290,6 +289,21 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   public static char convert(@Nullable Character value) {
     return value == null ? 0 : value;
+  }
+
+  protected static final class Cache {
+
+    @SuppressWarnings("unchecked")
+    public static <T> T compute(Object cacheKey, GeneratorSupport<?> generator) {
+      return (T) Cache.mappings.get(cacheKey, generator);
+    }
+
+    private static final MapCache<Object, Accessor, GeneratorSupport<?>> mappings = new MapCache<>() {
+      @Override
+      protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
+        return generator.create();
+      }
+    };
   }
 
 }

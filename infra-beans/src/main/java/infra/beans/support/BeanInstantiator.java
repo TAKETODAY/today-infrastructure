@@ -229,7 +229,7 @@ public abstract class BeanInstantiator {
    * @throws IllegalArgumentException if the provided constructor is null
    */
   public static BeanInstantiator forConstructor(Constructor<?> constructor) {
-    return new BeanInstantiatorGenerator(constructor).create();
+    return new BeanInstantiatorGenerator(constructor).generate();
   }
 
   /**

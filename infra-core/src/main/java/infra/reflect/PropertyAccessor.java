@@ -163,7 +163,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
     // public field
     if (Modifier.isPublic(field.getModifiers())) {
-      return new PublicPropertyAccessorGenerator(field, writeMethod).create();
+      return new PublicPropertyAccessorGenerator(field, writeMethod).generate();
     }
 
     if (writeMethod != null) {
