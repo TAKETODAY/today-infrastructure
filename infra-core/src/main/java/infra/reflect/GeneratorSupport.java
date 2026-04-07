@@ -85,15 +85,15 @@ public abstract class GeneratorSupport<T extends Accessor> {
   protected T fallback(Exception exception) {
     if (exception instanceof InvocationTargetException) {
       if (((InvocationTargetException) exception).getTargetException() instanceof SecurityException) {
-        return fallbackInstance();
+        return fallbackInstance(exception);
       }
     }
     else if (exception instanceof SecurityException) {
-      return fallbackInstance();
+      return fallbackInstance(exception);
     }
     else if (exception instanceof NestedRuntimeException &&
             ((NestedRuntimeException) exception).getRootCause() instanceof SecurityException) {
-      return fallbackInstance();
+      return fallbackInstance(exception);
     }
     throw new CodeGenerationException(exception);
   }
@@ -104,7 +104,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
    */
   private T createInternal() throws Exception {
     if (cannotAccess()) {
-      return fallbackInstance();
+      return fallbackInstance(null);
     }
     Class<T> accessorClass = generateIfNecessary(getClassLoader());
     return newInstance(accessorClass);
@@ -132,7 +132,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   protected abstract Object cacheKey();
 
-  protected abstract T fallbackInstance();
+  protected abstract T fallbackInstance(@Nullable Throwable exception);
 
   protected abstract boolean cannotAccess();
 

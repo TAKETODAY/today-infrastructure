@@ -231,14 +231,11 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     @Override
-    protected MethodInvoker fallback(Exception exception) {
-      LoggerFactory.getLogger(MethodInvokerGenerator.class)
-              .warn("Cannot access a Method: [{}], using fallback instance", targetMethod, exception);
-      return super.fallback(exception);
-    }
-
-    @Override
-    protected MethodInvoker fallbackInstance() {
+    protected MethodInvoker fallbackInstance(@Nullable Throwable exception) {
+      if (exception != null) {
+        LoggerFactory.getLogger(MethodInvokerGenerator.class)
+                .warn("Cannot access a Method: [{}], using fallback instance", targetMethod, exception);
+      }
       return forReflective(targetMethod);
     }
 

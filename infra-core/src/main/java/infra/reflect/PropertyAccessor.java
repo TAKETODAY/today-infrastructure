@@ -306,7 +306,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
     }
 
     @Override
-    protected PropertyAccessor fallbackInstance() {
+    protected PropertyAccessor fallbackInstance(@Nullable Throwable exception) {
       return forReflective(field);
     }
 

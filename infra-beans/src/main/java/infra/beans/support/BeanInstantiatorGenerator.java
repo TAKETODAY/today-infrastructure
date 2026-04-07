@@ -16,6 +16,8 @@
 
 package infra.beans.support;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
@@ -115,13 +117,15 @@ class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> im
 
   @Override
   protected ConstructorAccessor fallback(Exception exception) {
-    LoggerFactory.getLogger(BeanInstantiatorGenerator.class)
-            .warn("Cannot access a Constructor: [{}], using fallback instance", targetConstructor, exception);
     return super.fallback(exception);
   }
 
   @Override
-  protected ConstructorAccessor fallbackInstance() {
+  protected ConstructorAccessor fallbackInstance(@Nullable Throwable exception) {
+    if (exception != null) {
+      LoggerFactory.getLogger(BeanInstantiatorGenerator.class)
+              .warn("Cannot access a Constructor: [{}], using fallback instance", targetConstructor, exception);
+    }
     return BeanInstantiator.forReflective(targetConstructor);
   }
 
