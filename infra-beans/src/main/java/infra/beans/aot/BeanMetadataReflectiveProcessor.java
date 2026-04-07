@@ -66,13 +66,6 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
   public void registerReflectionHints(ReflectionHints hints, AnnotatedElement element) {
     RegisterBeanMetadata annotation = AnnotatedElementUtils.findMergedAnnotation(element, RegisterBeanMetadata.class);
     Set<Class<?>> targetClasses = resolveTargetClasses(annotation, element);
-    if (targetClasses.isEmpty()) {
-      log.warn("No target classes resolved from @RegisterBeanMetadata on: {}", element);
-      return;
-    }
-
-    log.debug("Registering bean metadata reflection hints for {} classes", targetClasses.size());
-
     for (Class<?> beanClass : targetClasses) {
       if (!Modifier.isAbstract(beanClass.getModifiers())) {
         registerBeanClassHints(hints, beanClass);
