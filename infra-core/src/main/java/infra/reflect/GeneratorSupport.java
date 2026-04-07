@@ -66,7 +66,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
         return generator.createInternal();
       }
       catch (Exception e) {
-        return generator.fallback(e);
+        return generator.fallbackIfNecessary(e);
       }
     }
   };
@@ -82,7 +82,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return (T) mappings.get(cacheKey, this);
   }
 
-  protected T fallback(Exception exception) {
+  protected T fallbackIfNecessary(Exception exception) {
     if (exception instanceof InvocationTargetException) {
       if (((InvocationTargetException) exception).getTargetException() instanceof SecurityException) {
         return fallbackInstance(exception);
@@ -94,6 +94,9 @@ public abstract class GeneratorSupport<T extends Accessor> {
     else if (exception instanceof NestedRuntimeException &&
             ((NestedRuntimeException) exception).getRootCause() instanceof SecurityException) {
       return fallbackInstance(exception);
+    }
+    if (exception instanceof CodeGenerationException ge) {
+      throw ge;
     }
     throw new CodeGenerationException(exception);
   }

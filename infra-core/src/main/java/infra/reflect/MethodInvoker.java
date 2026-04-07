@@ -214,7 +214,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     /**
-     * @throws NoSuchMethodException handle in fallback {@link #fallback(Exception)}
+     * @throws NoSuchMethodException handle in fallback {@link #fallbackIfNecessary(Exception)}
      * @since 3.0.2
      */
     @Override
