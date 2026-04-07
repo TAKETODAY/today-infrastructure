@@ -136,8 +136,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * Returns {@link TypeDescriptor} for this property
+   * Returns the {@link TypeDescriptor} for this property.
+   * <p>This method caches the result to avoid repeated construction.
    *
+   * @return the type descriptor for this property
    * @since 3.0.4
    */
   public final TypeDescriptor getTypeDescriptor() {
@@ -149,6 +151,13 @@ public class Property implements Member, AnnotatedElement, Serializable {
     return typeDescriptor;
   }
 
+  /**
+   * Returns the {@link ResolvableType} for this property.
+   * <p>This method caches the result to avoid repeated resolution.
+   *
+   * @return the resolvable type for this property
+   * @since 4.0
+   */
   public final ResolvableType getResolvableType() {
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
@@ -230,9 +239,13 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * get or find a Field
+   * Retrieves the underlying {@link Field} for this property.
+   * <p>If the field is not directly available (e.g., in method-based properties),
+   * this method attempts to locate it by name within the declaring class,
+   * trying the original name, uncapitalized name, and capitalized name.
    *
-   * @return returns null show that isSynthetic
+   * @return the corresponding {@code Field}, or {@code null} if no matching field is found
+   * (which typically indicates a synthetic property or one based solely on methods)
    */
   public @Nullable Field getField() {
     if (field == null && !fieldIsNull) {
@@ -254,7 +267,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * original property name
+   * Returns the name of this property.
+   *
+   * @return the property name
    */
   @Override
   public String getName() {
@@ -290,8 +305,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * can write
+   * Determine whether this property is writable.
+   * <p>A property is considered writable if it has a non-final field or a write method (setter).
    *
+   * @return {@code true} if the property can be written to, {@code false} otherwise
    * @since 4.0
    */
   public boolean isWriteable() {
@@ -299,8 +316,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * can read
+   * Determine whether this property is readable.
+   * <p>A property is considered readable if it has a read method (getter) or an accessible field.
    *
+   * @return {@code true} if the property can be read from, {@code false} otherwise
    * @since 4.0
    */
   public boolean isReadable() {
@@ -386,12 +405,22 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
+   * Determine whether this property is based on a getter/setter method pair
+   * rather than a direct field access.
+   *
+   * @return {@code true} if the property is accessed via methods, {@code false} otherwise
    * @since 5.0
    */
   public boolean isMethodBased() {
     return readMethod != null || writeMethod != null;
   }
 
+  /**
+   * Returns the {@link MethodParameter} for the write method of this property.
+   * <p>This is typically used for validation or conversion purposes on the setter parameter.
+   *
+   * @return the write method parameter, or {@code null} if no write method exists
+   */
   public @Nullable MethodParameter getWriteMethodParameter() {
     MethodParameter writeMethodParameter = this.writeMethodParameter;
     if (writeMethodParameter == null && writeMethod != null) {
@@ -403,7 +432,17 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * If method based bean-property
+   * Returns the {@link MethodParameter} for this property.
+   * <p>If the property is method-based (i.e., accessed via getter/setter), this returns
+   * the parameter descriptor for the read or write method, preferring the read method
+   * if both are available and compatible. If the property is field-based, this method
+   * will still return a valid {@code MethodParameter} derived from the underlying field's
+   * context if possible, or throw an exception if no method or field information is available.
+   * <p>The result is cached to avoid repeated resolution.
+   *
+   * @return the method parameter descriptor for this property
+   * @throws IllegalStateException if the property is neither readable nor writeable
+   * @since 4.0
    */
   public MethodParameter getMethodParameter() {
     MethodParameter methodParameter = this.methodParameter;
@@ -444,6 +483,11 @@ public class Property implements Member, AnnotatedElement, Serializable {
   // AnnotatedElement
 
   /**
+   * Returns the {@link MergedAnnotations} for this property.
+   * <p>This method merges annotations from the read method, write method, and underlying field,
+   * prioritizing interface methods where applicable. The result is cached to avoid repeated resolution.
+   *
+   * @return the merged annotations for this property
    * @since 5.0
    */
   public MergedAnnotations mergedAnnotations() {
