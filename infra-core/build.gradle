@@ -64,7 +64,7 @@ dependencies {
 }
 
 jar {
-  manifest.attributes["Dependencies"] = "jdk.unsupported"  // for WildFly (-> Objenesis 3.2)
+  manifest.attributes["Dependencies"] = "jdk.unsupported"  // for sun.reflect.ReflectionFactory
 }
 
 test {

@@ -22,7 +22,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import infra.lang.Assert;
-import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
 /**
@@ -39,15 +38,16 @@ import infra.util.ReflectionUtils;
  * @author TODAY 2021/9/5 16:42
  * @since 4.0
  */
-@SuppressWarnings("NullAway")
 public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
+
   private static final Object reflectionFactory;
+
   private static final Method newConstructorForSerialization;
+
   private static final Constructor<Object> javaLangObjectConstructor;
 
   static {
-    Class<?> reflectionFactoryClass = ClassUtils.resolveClassName(
-            "sun.reflect.ReflectionFactory", null);
+    Class<?> reflectionFactoryClass = getReflectionFactoryClass();
     javaLangObjectConstructor = ReflectionUtils.getConstructor(Object.class);
     newConstructorForSerialization = ReflectionUtils.getMethod(
             reflectionFactoryClass, "newConstructorForSerialization", Class.class, Constructor.class);
@@ -82,6 +82,20 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   public static <T> Constructor<T> newConstructorForSerialization(Class<T> type, Constructor<?> constructor) {
     Assert.notNull(type, "type is required");
     return (Constructor<T>) ReflectionUtils.invokeMethod(newConstructorForSerialization, reflectionFactory, type, constructor);
+  }
+
+  private static Class<?> getReflectionFactoryClass() {
+    try {
+      return Class.forName("sun.reflect.ReflectionFactory");
+    }
+    catch (ClassNotFoundException e) {
+      try {
+        return Class.forName("jdk.internal.reflect.ReflectionFactory");
+      }
+      catch (ClassNotFoundException var2) {
+        throw new IllegalStateException("You might need to add the unsupported module with --add-modules jdk.unsupported", e);
+      }
+    }
   }
 
 }

@@ -17,3 +17,7 @@ dependencies {
   testFixturesImplementation("org.assertj:assertj-core")
 
 }
+
+jar {
+  manifest.attributes["Dependencies"] = "jdk.unsupported" // sun.reflect.ReflectionFactory
+}
