@@ -30,7 +30,7 @@ import infra.core.annotation.AliasFor;
  *
  * <p>This annotation triggers the registration of reflection hints for:
  * <ul>
- *   <li>The annotated bean class itself</li>
+ *   <li>The annotated bean class itself (unless excluded)</li>
  *   <li>All bean properties (getters/setters/fields)</li>
  *   <li>Property types that require instantiation</li>
  * </ul>
@@ -50,7 +50,16 @@ import infra.core.annotation.AliasFor;
  * }
  * }</pre>
  *
- * <p>2. Register hints for additional classes along with the current class:
+ * <p>2. Register hints for extra classes only, excluding the current class:
+ * <pre>{@code
+ * @Configuration
+ * @RegisterBeanMetadata(excludeSelf = true, extra = {User.class, Order.class})
+ * public class AppConfig {
+ *     // Only User and Order will have metadata registered, AppConfig is excluded
+ * }
+ * }</pre>
+ *
+ * <p>3. Register hints for both current class and extra classes:
  * <pre>{@code
  * @Configuration
  * @RegisterBeanMetadata(extra = {User.class, Order.class})
@@ -59,7 +68,7 @@ import infra.core.annotation.AliasFor;
  * }
  * }</pre>
  *
- * <p>3. Register hints using class names:
+ * <p>4. Register hints using class names:
  * <pre>{@code
  * @Configuration
  * @RegisterBeanMetadata(extraNames = {"com.example.User", "com.example.Order"})
@@ -68,7 +77,7 @@ import infra.core.annotation.AliasFor;
  * }
  * }</pre>
  *
- * <p>4. Use as a meta-annotation on custom stereotypes:
+ * <p>5. Use as a meta-annotation on custom stereotypes:
  * <pre>{@code
  * @Target(ElementType.TYPE)
  * @Retention(RetentionPolicy.RUNTIME)
@@ -87,8 +96,7 @@ import infra.core.annotation.AliasFor;
  * @see BeanMetadataReflectiveProcessor
  * @since 5.0
  */
-@Target({ ElementType.TYPE, ElementType.METHOD,
-        ElementType.FIELD, ElementType.ANNOTATION_TYPE })
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Reflective(BeanMetadataReflectiveProcessor.class)
@@ -98,14 +106,16 @@ public @interface RegisterBeanMetadata {
    * Extra classes for which bean metadata reflection hints should be registered,
    * in addition to the annotated class itself.
    *
-   * <p>The annotated class is always included. This attribute allows you to specify
-   * extra classes that also need their bean metadata registered.
+   * <p>The annotated class is included by default unless {@link #excludeSelf()}
+   * is set to {@code true}. This attribute allows you to specify extra classes that
+   * also need their bean metadata registered.
    *
    * <p>If both {@code extra} and {@code extraNames} are specified, they are merged
    * into a single set of additional target classes.
    *
    * @return extra classes to register reflection hints for
    * @see #extraNames()
+   * @see #excludeSelf()
    */
   @AliasFor("extra")
   Class<?>[] value() default {};
@@ -114,8 +124,9 @@ public @interface RegisterBeanMetadata {
    * Extra classes for which bean metadata reflection hints should be registered,
    * in addition to the annotated class itself.
    *
-   * <p>The annotated class is always included. This attribute allows you to specify
-   * extra classes that also need their bean metadata registered.
+   * <p>The annotated class is included by default unless {@link #excludeSelf()}
+   * is set to {@code true}. This attribute allows you to specify extra classes that
+   * also need their bean metadata registered.
    *
    * <p>If both {@code extra} and {@code extraNames} are specified, they are merged
    * into a single set of additional target classes.
@@ -123,6 +134,7 @@ public @interface RegisterBeanMetadata {
    * @return extra classes to register reflection hints for
    * @see #value()
    * @see #extraNames()
+   * @see #excludeSelf()
    */
   @AliasFor("value")
   Class<?>[] extra() default {};
@@ -133,8 +145,9 @@ public @interface RegisterBeanMetadata {
    * <p>This is useful when the target classes are not directly accessible in the current scope
    * or when you want to avoid compile-time dependencies on those classes.
    *
-   * <p>The annotated class is always included. This attribute allows you to specify
-   * extra classes that also need their bean metadata registered.
+   * <p>The annotated class is included by default unless {@link #excludeSelf()}
+   * is set to {@code true}. This attribute allows you to specify extra classes that
+   * also need their bean metadata registered.
    *
    * <p>If both {@code extra} and {@code extraNames} are specified, they are merged
    * into a single set of additional target classes.
@@ -143,5 +156,22 @@ public @interface RegisterBeanMetadata {
    * @see #extra()
    */
   String[] extraNames() default {};
+
+  /**
+   * Whether to exclude the annotated class itself from metadata registration.
+   *
+   * <p>By default, the annotated class is always included. Set this to {@code true}
+   * to exclude it and only register metadata for classes specified via
+   * {@link #extra()} or {@link #extraNames()}.
+   *
+   * <p>This is useful for configuration classes that need to register metadata for
+   * other domain classes but don't need their own metadata registered.
+   *
+   * <p>Default is {@code false}, meaning the current class is included.
+   *
+   * @return {@code true} to exclude the annotated class itself, {@code false} to include it
+   * @since 5.0
+   */
+  boolean excludeSelf() default false;
 
 }

@@ -87,20 +87,22 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
   private Set<Class<?>> resolveTargetClasses(RegisterBeanMetadata annotation, AnnotatedElement element) {
     Set<Class<?>> targetClasses = new HashSet<>();
 
-    if (element instanceof Method method) {
-      Class<?> returnType = method.getReturnType();
-      if (!BeanUtils.isSimpleValueType(returnType)) {
-        targetClasses.add(returnType);
+    if (!annotation.excludeSelf()) {
+      if (element instanceof Method method) {
+        Class<?> returnType = method.getReturnType();
+        if (!BeanUtils.isSimpleValueType(returnType)) {
+          targetClasses.add(returnType);
+        }
       }
-    }
-    else if (element instanceof Field field) {
-      Class<?> returnType = field.getType();
-      if (!BeanUtils.isSimpleValueType(returnType)) {
-        targetClasses.add(returnType);
+      else if (element instanceof Field field) {
+        Class<?> returnType = field.getType();
+        if (!BeanUtils.isSimpleValueType(returnType)) {
+          targetClasses.add(returnType);
+        }
       }
-    }
-    else if (element instanceof Class<?> currentClass) {
-      targetClasses.add(currentClass);
+      else if (element instanceof Class<?> currentClass) {
+        targetClasses.add(currentClass);
+      }
     }
 
     Class<?>[] extraClasses = annotation.extra();
