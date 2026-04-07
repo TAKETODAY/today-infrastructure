@@ -151,9 +151,9 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
    */
   @Override
   protected void applyAttributes() {
-    if (hasAttributes()) {
+    if (attributes != null) {
       ((ChannelOperations<?, ?>) this.request).channel()
-              .attr(ReactorClientHttpConnector.ATTRIBUTES_KEY).set(getAttributes());
+              .attr(ReactorClientHttpConnector.ATTRIBUTES_KEY).set(attributes);
     }
   }
 

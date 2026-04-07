@@ -61,7 +61,7 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
    *
    * @since 5.0
    */
-  public static final AttributeKey<Map<String, Object>> ATTRIBUTES_KEY =
+  public static final AttributeKey<@Nullable Map<String, Object>> ATTRIBUTES_KEY =
           AttributeKey.valueOf(ReactorClientHttpRequest.class.getName() + ".ATTRIBUTES");
 
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpConnector.class);
