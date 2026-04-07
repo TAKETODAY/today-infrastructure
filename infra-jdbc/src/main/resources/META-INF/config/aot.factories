@@ -1,3 +1,6 @@
 infra.aot.hint.RuntimeHintsRegistrar=\
 infra.jdbc.datasource.embedded.EmbeddedDatabaseFactoryRuntimeHints,\
 infra.jdbc.config.DataSourceBuilderRuntimeHints
+
+infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+infra.jdbc.type.TypeHandlerManager.AotProcessor

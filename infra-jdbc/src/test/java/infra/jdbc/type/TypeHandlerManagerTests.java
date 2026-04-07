@@ -24,12 +24,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import infra.aot.generate.GenerationContext;
+import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
+import infra.beans.BeanUtils;
+import infra.beans.factory.aot.BeanFactoryInitializationCode;
+import infra.beans.factory.support.StandardBeanFactory;
 import infra.jdbc.model.UserModel;
+import infra.jdbc.type.TypeHandlerManager.AotContribution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -79,6 +88,23 @@ class TypeHandlerManagerTests {
     TypeHandler<String> typeHandler = manager.getTypeHandler(name);
     assertThat(typeHandler).isInstanceOf(SmartTypeHandler0.class);
 
+  }
+
+  @Test
+  void processAheadOfTime() {
+    RuntimeHints runtimeHints = new RuntimeHints();
+
+    TypeHandlerManager.AotProcessor aotProcessor = new TypeHandlerManager.AotProcessor();
+    StandardBeanFactory factory = new StandardBeanFactory();
+    factory.registerSingleton(TypeHandlerManager.sharedInstance);
+
+    AotContribution aotContribution = aotProcessor.processAheadOfTime(factory);
+    GenerationContext generationContext = mock(GenerationContext.class);
+    given(generationContext.getRuntimeHints()).willReturn(runtimeHints);
+
+    aotContribution.applyTo(generationContext, mock(BeanFactoryInitializationCode.class));
+    assertThat(RuntimeHintsPredicates.reflection().onType(EnumerationValueTypeHandler.class)).accepts(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(BeanUtils.getConstructor(EnumerationValueTypeHandler.class))).accepts(runtimeHints);
   }
 
   static class AnyTypeHandlerResolver implements TypeHandlerResolver {

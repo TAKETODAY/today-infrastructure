@@ -38,16 +38,26 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
+import infra.aot.generate.GenerationContext;
+import infra.aot.hint.ExecutableMode;
+import infra.aot.hint.ReflectionHints;
 import infra.beans.BeanProperty;
 import infra.beans.BeanUtils;
+import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
+import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
+import infra.beans.factory.aot.BeanFactoryInitializationCode;
+import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Enumerable;
+
+import static infra.aot.hint.MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS;
 
 /**
  * A manager for handling and resolving {@link TypeHandler} instances. This class provides
@@ -429,4 +439,35 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     registry.register(OffsetDateTime.class, new AnyTypeHandler<>(OffsetDateTime.class));
   }
 
+  static class AotProcessor implements BeanFactoryInitializationAotProcessor {
+
+    @Override
+    public AotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
+      return new AotContribution(beanFactory.getBeans(TypeHandlerManager.class));
+    }
+  }
+
+  static class AotContribution implements BeanFactoryInitializationAotContribution {
+
+    private final List<TypeHandlerManager> handlerManagers;
+
+    public AotContribution(List<TypeHandlerManager> handlerManagers) {
+      this.handlerManagers = handlerManagers;
+    }
+
+    @Override
+    public void applyTo(GenerationContext generationContext, BeanFactoryInitializationCode beanFactoryInitializationCode) {
+      ReflectionHints reflection = generationContext.getRuntimeHints().reflection();
+      for (TypeHandlerManager manager : handlerManagers) {
+        Constructor<?> constructor = BeanUtils.getConstructor(manager.defaultEnumTypeHandler);
+        reflection.registerType(manager.defaultEnumTypeHandler, INVOKE_PUBLIC_CONSTRUCTORS);
+
+        if (constructor != null) {
+          reflection.registerConstructor(constructor, ExecutableMode.INVOKE);
+        }
+      }
+    }
+  }
+
 }
+
