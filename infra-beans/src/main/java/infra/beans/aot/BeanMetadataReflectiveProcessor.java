@@ -16,11 +16,14 @@
 
 package infra.beans.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import infra.aot.hint.BindingReflectionHintsRegistrar;
@@ -61,11 +64,6 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
   @Override
   public void registerReflectionHints(ReflectionHints hints, AnnotatedElement element) {
     RegisterBeanMetadata annotation = AnnotatedElementUtils.findMergedAnnotation(element, RegisterBeanMetadata.class);
-    if (annotation == null) {
-      log.warn("@RegisterBeanMetadata not found on element: {}", element);
-      return;
-    }
-
     Set<Class<?>> targetClasses = resolveTargetClasses(annotation, element);
     if (targetClasses.isEmpty()) {
       log.warn("No target classes resolved from @RegisterBeanMetadata on: {}", element);
@@ -84,10 +82,10 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
    * Resolve target classes from the annotation attributes.
    * The annotated class is always included, plus any extra classes specified.
    */
-  private Set<Class<?>> resolveTargetClasses(RegisterBeanMetadata annotation, AnnotatedElement element) {
+  private Set<Class<?>> resolveTargetClasses(@Nullable RegisterBeanMetadata annotation, AnnotatedElement element) {
     Set<Class<?>> targetClasses = new HashSet<>();
 
-    if (!annotation.excludeSelf()) {
+    if (annotation == null || !annotation.excludeSelf()) {
       if (element instanceof Method method) {
         Class<?> returnType = method.getReturnType();
         if (!BeanUtils.isSimpleValueType(returnType)) {
@@ -105,23 +103,25 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
       }
     }
 
-    Class<?>[] extraClasses = annotation.extra();
-    String[] extraClassNames = annotation.extraNames();
+    if (annotation != null) {
+      Class<?>[] extraClasses = annotation.extra();
+      String[] extraClassNames = annotation.extraNames();
 
-    for (Class<?> clazz : extraClasses) {
-      if (clazz != Object.class) {
-        targetClasses.add(clazz);
-      }
-    }
-
-    for (String className : extraClassNames) {
-      if (StringUtils.hasText(className)) {
-        try {
-          Class<?> clazz = ClassUtils.forName(className, null);
+      for (Class<?> clazz : extraClasses) {
+        if (clazz != Object.class) {
           targetClasses.add(clazz);
         }
-        catch (ClassNotFoundException ex) {
-          log.warn("Could not load class [{}], skipping", className, ex);
+      }
+
+      for (String className : extraClassNames) {
+        if (StringUtils.hasText(className)) {
+          try {
+            Class<?> clazz = ClassUtils.forName(className, null);
+            targetClasses.add(clazz);
+          }
+          catch (ClassNotFoundException ex) {
+            log.warn("Could not load class [{}], skipping", className, ex);
+          }
         }
       }
     }
@@ -133,6 +133,7 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
    * Register reflection hints for the bean class itself.
    */
   private void registerBeanClassHints(ReflectionHints hints, Class<?> beanClass) {
+    hints.registerType(beanClass);
     bindingRegistrar.registerReflectionHints(hints, beanClass);
 
     BeanMetadata beanMetadata = BeanMetadata.forClass(beanClass);
@@ -163,7 +164,7 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
 
     bindingRegistrar.registerReflectionHints(hints, property.getResolvableType().getType());
 
-    if (!BeanUtils.isSimpleValueType(propertyType)) {
+    if (propertyType != Optional.class && !BeanUtils.isSimpleValueType(propertyType)) {
       BeanInstantiator instantiator = BeanInstantiator.forConstructor(propertyType);
       Constructor<?> constructor = instantiator.getConstructor();
       if (constructor != null) {

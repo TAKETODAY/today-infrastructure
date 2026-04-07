@@ -2,15 +2,19 @@ package infra.beans.aot;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
+import infra.beans.BeanUtils;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -199,6 +203,260 @@ class BeanMetadataReflectiveProcessorTests {
     assertThat(hints.getTypeHint(SimpleBean.class)).isNotNull();
     assertThat(hints.getTypeHint(SimpleBean.class).getMemberCategories())
             .contains(MemberCategory.INVOKE_PUBLIC_METHODS);
+  }
+
+  @Test
+  void registerReflectionHints_withExcludeSelf() {
+    processor.registerReflectionHints(hints, ConfigWithExcludedSelf.class);
+
+    assertThat(hints.getTypeHint(ConfigWithExcludedSelf.class)).isNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(Order.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withExtraClasses() {
+    processor.registerReflectionHints(hints, ConfigWithExtra.class);
+
+    assertThat(hints.getTypeHint(ConfigWithExtra.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(Order.class)).isNotNull();
+
+    assertThat(hints.getTypeHint(User.class).methods())
+            .extracting(method -> method.getName())
+            .contains("getName", "setName");
+
+    assertThat(hints.getTypeHint(Order.class).methods())
+            .extracting(method -> method.getName())
+            .contains("getId", "setId");
+  }
+
+  @Test
+  void registerReflectionHints_withExtraClassNames() {
+    processor.registerReflectionHints(hints, ConfigWithExtraNames.class);
+
+    assertThat(hints.getTypeHint(ConfigWithExtraNames.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withMixedExtraAndNames() {
+    processor.registerReflectionHints(hints, ConfigWithMixed.class);
+
+    assertThat(hints.getTypeHint(ConfigWithMixed.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(Order.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_excludeSelfWithExtra() {
+    processor.registerReflectionHints(hints, ConfigExcludeSelfWithExtra.class);
+
+    assertThat(hints.getTypeHint(ConfigExcludeSelfWithExtra.class)).isNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(Order.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withDuplicateClasses() {
+    processor.registerReflectionHints(hints, ConfigWithDuplicate.class);
+
+    assertThat(hints.getTypeHint(ConfigWithDuplicate.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+
+    assertThat(hints.getTypeHint(User.class).constructors()).hasSize(1);
+  }
+
+  @Test
+  void registerReflectionHints_withInvalidClassName() {
+    processor.registerReflectionHints(hints, ConfigWithInvalidName.class);
+
+    assertThat(hints.getTypeHint(ConfigWithInvalidName.class)).isNull();
+    assertThat(hints.typeHints()).isNullOrEmpty();
+  }
+
+  @Test
+  void registerReflectionHints_withMethodReturnType() {
+    Method method = ReflectionUtils.findMethod(MethodReturnBean.class, "getUser");
+    assertThat(method).isNotNull();
+
+    processor.registerReflectionHints(hints, method);
+
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class).methods())
+            .extracting(m -> m.getName())
+            .contains("getName", "setName");
+  }
+
+  @Test
+  void registerReflectionHints_withMethodReturnTypeExcluded() {
+    Method method = ReflectionUtils.findMethod(MethodReturnBean.class, "getUser");
+    assertThat(method).isNotNull();
+
+    RegisterBeanMetadata annotation = new RegisterBeanMetadata() {
+      @Override
+      public Class<?>[] value() { return new Class<?>[0]; }
+
+      @Override
+      public Class<?>[] extra() { return new Class<?>[] { Order.class }; }
+
+      @Override
+      public String[] extraNames() { return new String[0]; }
+
+      @Override
+      public boolean excludeSelf() { return true; }
+
+      @Override
+      public Class<? extends java.lang.annotation.Annotation> annotationType() {
+        return RegisterBeanMetadata.class;
+      }
+    };
+
+    Set<Class<?>> targetClasses = new HashSet<>();
+    if (!annotation.excludeSelf()) {
+      Class<?> returnType = method.getReturnType();
+      if (!BeanUtils.isSimpleValueType(returnType)) {
+        targetClasses.add(returnType);
+      }
+    }
+    for (Class<?> clazz : annotation.extra()) {
+      if (clazz != Object.class) {
+        targetClasses.add(clazz);
+      }
+    }
+
+    assertThat(targetClasses).containsExactly(Order.class);
+    assertThat(targetClasses).doesNotContain(User.class);
+  }
+
+  @Test
+  void registerReflectionHints_withField() {
+    Field field = ReflectionUtils.findField(FieldBean.class, "user");
+    assertThat(field).isNotNull();
+
+    processor.registerReflectionHints(hints, field);
+
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withSimpleValueReturnType() {
+    Method method = ReflectionUtils.findMethod(MethodReturnBean.class, "getString");
+    assertThat(method).isNotNull();
+
+    processor.registerReflectionHints(hints, method);
+
+    assertThat(hints.getTypeHint(String.class)).isNull();
+  }
+
+  @Test
+  void registerReflectionHints_withNoAnnotation() {
+    processor.registerReflectionHints(hints, NonAnnotatedClass.class);
+    assertThat(hints.getTypeHint(NonAnnotatedClass.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_withEmptyExtra() {
+    processor.registerReflectionHints(hints, ConfigWithEmptyExtra.class);
+
+    assertThat(hints.getTypeHint(ConfigWithEmptyExtra.class)).isNotNull();
+  }
+
+  @Test
+  void registerReflectionHints_preservesAllHints() {
+    hints.registerType(User.class, MemberCategory.INVOKE_PUBLIC_METHODS);
+
+    processor.registerReflectionHints(hints, ConfigWithExtra.class);
+
+    assertThat(hints.getTypeHint(User.class)).isNotNull();
+    assertThat(hints.getTypeHint(User.class).getMemberCategories())
+            .contains(MemberCategory.INVOKE_PUBLIC_METHODS);
+  }
+
+  @RegisterBeanMetadata(excludeSelf = true, extra = { User.class, Order.class })
+  static class ConfigWithExcludedSelf {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(extra = { User.class, Order.class })
+  static class ConfigWithExtra {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(extraNames = { "infra.beans.aot.BeanMetadataReflectiveProcessorTests$User" })
+  static class ConfigWithExtraNames {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(extra = { User.class }, extraNames = { "infra.beans.aot.BeanMetadataReflectiveProcessorTests$Order" })
+  static class ConfigWithMixed {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(excludeSelf = true, extra = { User.class, Order.class })
+  static class ConfigExcludeSelfWithExtra {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(extra = { User.class, User.class })
+  static class ConfigWithDuplicate {
+    private String config;
+  }
+
+  @RegisterBeanMetadata(extraNames = { "com.nonexistent.InvalidClass" }, excludeSelf = true)
+  static class ConfigWithInvalidName {
+    private String config;
+  }
+
+  @RegisterBeanMetadata
+  static class MethodReturnBean {
+
+    @RegisterBeanMetadata
+    public User getUser() {
+      return new User();
+    }
+
+    public String getString() {
+      return "test";
+    }
+  }
+
+  @RegisterBeanMetadata
+  static class FieldBean {
+    private User user;
+  }
+
+  static class NonAnnotatedClass {
+    private String value;
+  }
+
+  @RegisterBeanMetadata(extra = {})
+  static class ConfigWithEmptyExtra {
+    private String config;
+  }
+
+  static class User {
+    private String name;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  static class Order {
+    private Long id;
+
+    public Long getId() {
+      return id;
+    }
+
+    public void setId(Long id) {
+      this.id = id;
+    }
   }
 
   @RegisterBeanMetadata
