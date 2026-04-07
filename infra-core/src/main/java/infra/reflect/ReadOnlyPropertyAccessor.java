@@ -37,8 +37,8 @@ public abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
   }
 
   @Override
-  public final Method getWriteMethod() {
-    throw new ReflectionException("Readonly property");
+  public final @Nullable Method getWriteMethod() {
+    return null;
   }
 
   @Override

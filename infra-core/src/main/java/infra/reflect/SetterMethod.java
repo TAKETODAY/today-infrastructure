@@ -44,7 +44,6 @@ public interface SetterMethod {
    * Returns the write method for this property.
    *
    * @return the write method, or {@code null} if this property is read-only
-   * @throws ReflectionException if the property is read-only
    * @since 3.0
    */
   @Nullable
