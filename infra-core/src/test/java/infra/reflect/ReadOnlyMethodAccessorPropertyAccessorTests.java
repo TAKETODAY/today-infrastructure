@@ -87,14 +87,12 @@ class ReadOnlyMethodAccessorPropertyAccessorTests {
   }
 
   @Test
-  void shouldThrowExceptionWhenGettingWriteMethod() throws NoSuchMethodException {
+  void writeMethod() throws NoSuchMethodException {
     Method method = TestBean.class.getDeclaredMethod("getValue");
     MethodInvoker invoker = MethodInvoker.forMethod(method);
     ReadOnlyMethodAccessorPropertyAccessor accessor = new ReadOnlyMethodAccessorPropertyAccessor(invoker);
 
-    assertThatThrownBy(() -> accessor.getWriteMethod())
-            .isInstanceOf(ReflectionException.class)
-            .hasMessage("Readonly property");
+    assertThat(accessor.getWriteMethod()).isNull();
   }
 
   static class TestBean {

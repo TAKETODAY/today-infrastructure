@@ -49,7 +49,7 @@ class ReadOnlyPropertyAccessorTests {
   }
 
   @Test
-  void shouldThrowExceptionWhenGettingWriteMethod() {
+  void writeMethod() {
     ReadOnlyPropertyAccessor accessor = new ReadOnlyPropertyAccessor() {
       @Nullable
       @Override
@@ -58,9 +58,7 @@ class ReadOnlyPropertyAccessorTests {
       }
     };
 
-    assertThatThrownBy(() -> accessor.getWriteMethod())
-            .isInstanceOf(ReflectionException.class)
-            .hasMessage("Readonly property");
+    assertThat(accessor.getWriteMethod()).isNull();
   }
 
   @Test
