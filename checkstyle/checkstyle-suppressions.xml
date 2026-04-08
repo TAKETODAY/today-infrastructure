@@ -155,5 +155,6 @@
   <suppress files="Msg.java" checks=".*" />
   <suppress files="SecondMsg.java" checks=".*" />
   <suppress files="OuterSample.java" checks=".*" />
+  <suppress files="UnsafeUtils" checks=".*" />
 
 </suppressions>
