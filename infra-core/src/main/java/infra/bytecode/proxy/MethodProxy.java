@@ -58,18 +58,18 @@ public final class MethodProxy {
    * for similar functionality.
    */
   @SuppressWarnings({ "rawtypes" })
-  public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {
-    MethodProxy proxy = new MethodProxy(new CreateInfo(c1, c2));
+  public static MethodProxy create(Class parent, Class sub, String desc, String name1, String name2) {
+    MethodProxy proxy = new MethodProxy(new CreateInfo(parent, sub));
     proxy.sig1 = new MethodSignature(name1, desc);
     proxy.sig2 = new MethodSignature(name2, desc);
 
-    if (!c1.isInterface() && c1 != Object.class && !Factory.class.isAssignableFrom(c2)) {
+    if (parent != Object.class && parent.isAssignableFrom(sub.getSuperclass()) && !Factory.class.isAssignableFrom(sub)) {
       // Try early initialization for overridden methods on specifically purposed subclasses
       try {
         proxy.init();
       }
-      catch (CodeGenerationException ex) {
-        // Ignore - to be retried when actually needed later on (possibly not at all)
+      catch (CodeGenerationException ignored) {
+        // to be retried when actually needed later on (possibly not at all)
       }
     }
     return proxy;

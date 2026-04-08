@@ -577,7 +577,7 @@ class ConfigurationClassEnhancer {
       enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
 
       // Ideally create enhanced FactoryBean proxy without constructor side effects,
-      // analogous to AOP proxy creation in ObjenesisCglibAopProxy...
+      // analogous to AOP proxy creation in SerializationCglibAopProxy...
       Class<?> fbClass = enhancer.createClass();
       Object fbProxy;
       try {
@@ -598,7 +598,7 @@ class ConfigurationClassEnhancer {
         if (method.getName().equals("getObject") && args.length == 0) {
           return beanFactory.getBean(beanName);
         }
-        return proxy.invoke(factoryBean, args);
+        return method.invoke(factoryBean, args);
       });
 
       return fbProxy;

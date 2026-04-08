@@ -144,7 +144,7 @@ public abstract class MethodAccess {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return o == this || (o instanceof MethodAccess && type.equals(((MethodAccess) o).type));
   }
 
@@ -190,7 +190,7 @@ public abstract class MethodAccess {
       return type.getClassLoader();
     }
 
-    protected ProtectionDomain getProtectionDomain() {
+    protected @Nullable ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(type);
     }
 
