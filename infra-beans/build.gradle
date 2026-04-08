@@ -21,3 +21,7 @@ dependencies {
 jar {
   manifest.attributes["Dependencies"] = "jdk.unsupported" // sun.reflect.ReflectionFactory
 }
+
+compileJava {
+  options.compilerArgs << "-Xlint:-sunapi"
+}
