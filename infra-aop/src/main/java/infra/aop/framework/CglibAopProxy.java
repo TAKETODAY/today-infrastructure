@@ -395,7 +395,7 @@ class CglibAopProxy implements AopProxy, Serializable {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     return (this == other || (other instanceof CglibAopProxy &&
             AopProxyUtils.equalsInProxy(config, ((CglibAopProxy) other).config)));
   }
@@ -409,8 +409,7 @@ class CglibAopProxy implements AopProxy, Serializable {
    * Invoke the given method with a CGLIB MethodProxy if possible, falling back
    * to a plain reflection invocation in case of a fast-class generation failure.
    */
-  @SuppressWarnings("NullAway")
-  private static Object invokeMethod(@Nullable Object target,
+  private static @Nullable Object invokeMethod(@Nullable Object target,
           Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
     try {
       return methodProxy.invoke(target, args);
@@ -425,8 +424,7 @@ class CglibAopProxy implements AopProxy, Serializable {
    * Process a return value. Wraps a return of {@code this} if necessary to be the
    * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
    */
-  @Nullable
-  private static Object processReturnValue(Object proxy,
+  private static @Nullable Object processReturnValue(Object proxy,
           @Nullable Object target, Method method, @Nullable Object retVal) {
     // Massage return value if necessary
     if (retVal != null && retVal == target
@@ -483,8 +481,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
-    @Nullable
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public @Nullable Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object retVal = invokeMethod(target, method, args, methodProxy);
       return processReturnValue(proxy, target, method, retVal);
     }
@@ -498,9 +495,8 @@ class CglibAopProxy implements AopProxy, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Nullable
     @Override
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public @Nullable Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;
       try {
         oldProxy = AopContext.setCurrentProxy(proxy);
@@ -523,8 +519,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
-    @Nullable
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public @Nullable Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object target = targetSource.getTarget();
       try {
         Object retVal = invokeMethod(target, method, args, methodProxy);
@@ -546,8 +541,7 @@ class CglibAopProxy implements AopProxy, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
-    @Nullable
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public @Nullable Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;
       Object target = targetSource.getTarget();
       try {
@@ -573,9 +567,8 @@ class CglibAopProxy implements AopProxy, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Nullable
     @Override
-    public Object loadObject() {
+    public @Nullable Object loadObject() {
       return this.target;
     }
   }
@@ -643,11 +636,9 @@ class CglibAopProxy implements AopProxy, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Nullable
-    final Object target;
+    final @Nullable Object target;
 
-    @Nullable
-    final Class<?> targetClass;
+    final @Nullable Class<?> targetClass;
 
     final org.aopalliance.intercept.MethodInterceptor[] adviceChain;
 
@@ -657,9 +648,8 @@ class CglibAopProxy implements AopProxy, Serializable {
       this.target = config.getTargetSource().getTarget();
     }
 
-    @Nullable
     @Override
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public @Nullable Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object retVal = createInvocation(proxy, method, args, methodProxy, target, targetClass, adviceChain)
               .proceed();
       return processReturnValue(proxy, target, method, retVal);
@@ -675,9 +665,8 @@ class CglibAopProxy implements AopProxy, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Nullable
     @Override
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public @Nullable Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;
       boolean restore = false;
       Object target = null;
@@ -745,9 +734,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Gives a marginal performance improvement versus using reflection to
      * invoke the target when invoking public methods.
      */
-    @Nullable
     @Override
-    protected Object invokeJoinPoint() throws Throwable {
+    protected @Nullable Object invokeJoinPoint() throws Throwable {
       try {
         return methodProxy.invoke(target, args);
       }
@@ -898,14 +886,14 @@ class CglibAopProxy implements AopProxy, Serializable {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
       if (this == other) {
         return true;
       }
-      if (!(other instanceof ProxyCallbackFilter otherCallbackFilter)) {
+      if (!(other instanceof ProxyCallbackFilter filter)) {
         return false;
       }
-      AdvisedSupport otherAdvised = otherCallbackFilter.advised;
+      AdvisedSupport otherAdvised = filter.advised;
       return (this.advised.advisorKey.equals(otherAdvised.advisorKey) &&
               AopProxyUtils.equalsProxiedInterfaces(this.advised, otherAdvised) &&
               ObjectUtils.nullSafeEquals(this.advised.getTargetClass(), otherAdvised.getTargetClass()) &&
