@@ -17,11 +17,23 @@
 package infra.persistence;
 
 /**
+ * Indicates whether an entity is new (not yet persisted).
+ * <p>
+ * Implementations of this interface provide a mechanism to determine if an entity
+ * has been saved to the database. This is typically used by persistence frameworks
+ * to decide whether to perform an INSERT or UPDATE operation.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/2/3 14:21
  */
 public interface NewEntityIndicator {
 
+  /**
+   * Returns {@code true} if the entity is new and has not been persisted yet,
+   * {@code false} otherwise.
+   *
+   * @return {@code true} if the entity is new, {@code false} if it already exists in the database
+   */
   @Transient
   boolean isNew();
 

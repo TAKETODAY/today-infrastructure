@@ -88,7 +88,7 @@ import infra.util.ClassUtils;
  */
 public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
-  private PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"))
+  private PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class", "new"))
           .and(PropertyFilter.forTransientAnnotation());
 
   private TableNameGenerator tableNameGenerator = TableNameGenerator.defaultStrategy();

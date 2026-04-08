@@ -32,8 +32,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <pre>{@code
  *    @Table
  *    public class Employee {
- *        @infra.persistence.Id int id;
- *        @infra.persistence.Transient User currentUser;
+ *        @Id int id;
+ *        @Transient User currentUser;
  *        ...
  *    }
  * }
