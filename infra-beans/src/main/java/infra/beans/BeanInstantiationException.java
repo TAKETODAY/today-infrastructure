@@ -42,7 +42,7 @@ public class BeanInstantiationException extends FatalBeanException {
   @Nullable
   private final Constructor<?> constructor;
 
-  public BeanInstantiationException(String msg, @Nullable Throwable cause) {
+  public BeanInstantiationException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
     this.beanClass = null;
     this.constructor = null;

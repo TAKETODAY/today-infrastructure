@@ -162,6 +162,14 @@ class BeanInstantiatorTests {
             .instantiate()).isEqualTo(new TestBean("createTestBean"));
   }
 
+  @Test
+  void forUnsafe() {
+    BeanInstantiator instantiator = BeanInstantiator.forUnsafe(BeanConstructorTestsBean.class);
+    assertThat(instantiator.instantiate()).isInstanceOf(BeanConstructorTestsBean.class);
+    assertThat(instantiator.instantiate()).extracting("code").isEqualTo(0);
+
+  }
+
   static class BeanConstructorTestsBean {
     final int code;
 

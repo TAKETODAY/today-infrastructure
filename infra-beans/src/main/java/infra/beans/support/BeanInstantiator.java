@@ -574,4 +574,32 @@ public abstract class BeanInstantiator {
     return new SunReflectionFactoryInstantiator(target);
   }
 
+  /**
+   * Creates a {@code BeanInstantiator} for the given target class using {@code sun.misc.Unsafe}.
+   * This method allows instantiation of objects without invoking any constructor, which can be
+   * useful for deserialization or creating instances of classes with no accessible constructors.
+   *
+   * <p><b>Note:</b> This method relies on internal JDK APIs ({@code Unsafe}) and may not work
+   * on all Java versions or configurations. Use with caution.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * Class<?> targetClass = MyClass.class;
+   * BeanInstantiator instantiator = BeanInstantiator.forUnsafe(targetClass);
+   *
+   * // Create an instance without calling any constructor
+   * Object instance = instantiator.instantiate();
+   * }</pre>
+   *
+   * @param target the {@code Class} object representing the target class for which an instantiator
+   * is to be created; must not be null
+   * @return a {@code BeanInstantiator} instance capable of creating objects of the specified
+   * target class without invoking its constructor
+   * @throws IllegalArgumentException if the provided target class is null
+   * @since 5.0
+   */
+  public static BeanInstantiator forUnsafe(final Class<?> target) {
+    return new UnsafeBeanInstantiator(target);
+  }
+
 }

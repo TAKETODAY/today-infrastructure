@@ -35,7 +35,7 @@ public class FatalBeanException extends BeansException {
    *
    * @param msg the detail message
    */
-  public FatalBeanException(String msg) {
+  public FatalBeanException(@Nullable String msg) {
     super(msg);
   }
 
@@ -46,7 +46,7 @@ public class FatalBeanException extends BeansException {
    * @param msg the detail message
    * @param cause the root cause
    */
-  public FatalBeanException(String msg, @Nullable Throwable cause) {
+  public FatalBeanException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
