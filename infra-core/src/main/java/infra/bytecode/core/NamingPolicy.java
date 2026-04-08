@@ -54,8 +54,13 @@ public interface NamingPolicy {
    * correctly implement <code>equals</code> and <code>hashCode</code> to avoid
    * generating too many classes.
    */
-  boolean equals(Object o);
+  boolean equals(@Nullable Object o);
 
+  /**
+   * Returns the standard naming policy used for TODAY Infrastructure.
+   *
+   * @return the infrastructure naming policy instance
+   */
   static InfraNamingPolicy forInfrastructure() {
     return InfraNamingPolicy.INSTANCE;
   }

@@ -84,7 +84,7 @@ public class DefaultNamingPolicy implements NamingPolicy {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return o instanceof DefaultNamingPolicy policy && policy.getTag().equals(getTag());
   }
 
