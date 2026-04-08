@@ -21,6 +21,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import infra.aot.hint.MemberCategory;
+import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.app.config.ConditionalOnWebApplication;
 import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
@@ -31,6 +34,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
+import infra.context.annotation.ImportRuntimeHints;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Role;
 import infra.context.annotation.config.AutoConfigureOrder;
@@ -90,6 +94,8 @@ import static infra.app.config.task.TaskExecutionAutoConfiguration.threadPoolTas
 })
 public final class NettyWebServerFactoryAutoConfiguration {
 
+  private static final String VirtualThreadServiceExecutorClassName = "infra.web.server.support.VirtualThreadServiceExecutor";
+
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -98,14 +104,14 @@ public final class NettyWebServerFactoryAutoConfiguration {
     return new HttpTrafficHandler(requestConfig, context, dispatcherHandler, executor);
   }
 
+  @ImportRuntimeHints(VirtualThreadHints.class)
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ServiceExecutor serviceExecutor(ServerProperties serverProperties,
           @Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor) {
     if (serverProperties.useVirtualThreadServiceExecutor) {
-      return BeanUtils.newInstance("infra.web.server.support.VirtualThreadServiceExecutor",
-              ClassUtils.getDefaultClassLoader());
+      return BeanUtils.newInstance(VirtualThreadServiceExecutorClassName, ClassUtils.getDefaultClassLoader());
     }
     if (executor == null) {
       ThreadPoolTaskExecutor taskExecutor = TaskExecutorConfiguration.applicationTaskExecutor(
@@ -200,6 +206,14 @@ public final class NettyWebServerFactoryAutoConfiguration {
               .build();
     }
 
+  }
+
+  static class VirtualThreadHints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+      hints.reflection().registerTypeIfPresent(classLoader, VirtualThreadServiceExecutorClassName, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
+    }
   }
 
 }
