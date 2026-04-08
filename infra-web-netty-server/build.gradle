@@ -11,6 +11,7 @@ dependencies {
 
   optional project(":infra-app")
   optional project(":infra-websocket")
+  optional project(":infra-core-aot")
   optional("io.netty:netty-buffer")
   optional("io.netty:netty-handler")
   optional("io.netty:netty-transport")
