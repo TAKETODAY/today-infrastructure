@@ -362,7 +362,7 @@ public abstract class BeanInstantiator {
    * BeanInstantiator instantiator = BeanInstantiator.forStaticMethod(accessor);
    *
    * // Use the instantiator to create bean instances
-   * Object beanInstance = instantiator.newInstance();
+   * Object beanInstance = instantiator.instantiate();
    * }</pre>
    *
    * @param accessor the {@link MethodAccessor} that provides access to the
@@ -387,7 +387,7 @@ public abstract class BeanInstantiator {
    * BeanInstantiator instantiator = BeanInstantiator.forStaticMethod(method);
    *
    * // Use the instantiator to invoke the static method
-   * Object result = instantiator.newInstance();
+   * Object result = instantiator.instantiate();
    * }</pre>
    *
    * @param method the {@link Method} object representing the static method to be used
@@ -410,7 +410,7 @@ public abstract class BeanInstantiator {
    *   BeanInstantiator instantiator = BeanInstantiator.forClass(MyBean.class);
    *
    *   // Use the instantiator to create instances of MyBean
-   *   MyBean instance = (MyBean) instantiator.newInstance();
+   *   MyBean instance = (MyBean) instantiator.instantiate();
    * }</pre>
    *
    * @param targetClass the class for which a {@code BeanInstantiator} is to be created.
@@ -480,15 +480,15 @@ public abstract class BeanInstantiator {
    * <pre>{@code
    * // Instantiating a simple class with a default constructor
    * BeanInstantiator<MyClass> instantiator = BeanInstantiator.forConstructor(MyClass.class);
-   * MyClass instance = instantiator.newInstance();
+   * MyClass instance = instantiator.instantiate();
    *
    * // Instantiating an array type
    * BeanInstantiator<String[]> arrayInstantiator = BeanInstantiator.forConstructor(String[].class);
-   * String[] arrayInstance = arrayInstantiator.newInstance();
+   * String[] arrayInstance = arrayInstantiator.instantiate();
    *
    * // Instantiating a collection type
    * BeanInstantiator<List<String>> listInstantiator = BeanInstantiator.forConstructor(ArrayList.class);
-   * List<String> listInstance = listInstantiator.newInstance();
+   * List<String> listInstance = listInstantiator.instantiate();
    * }</pre>
    *
    * @param <T> the type of the target class to be instantiated
@@ -534,7 +534,7 @@ public abstract class BeanInstantiator {
    * Constructor<MyClass> constructor = MyClass.class.getDeclaredConstructor(String.class);
    * ConstructorAccessor accessor = forReflective(constructor);
    *
-   * MyClass instance = (MyClass) accessor.newInstance("example");
+   * MyClass instance = (MyClass) accessor.instantiate("example");
    * }</pre>
    *
    * @param constructor the constructor to be used for reflective instantiation;
@@ -562,7 +562,7 @@ public abstract class BeanInstantiator {
    *   BeanInstantiator instantiator = BeanInstantiator.forSerialization(targetClass);
    *
    *   // Use the instantiator to create an instance of the target class
-   *   Object instance = instantiator.newInstance();
+   *   Object instance = instantiator.instantiate();
    * }</pre>
    *
    * @param target the {@code Class} object representing the target class
