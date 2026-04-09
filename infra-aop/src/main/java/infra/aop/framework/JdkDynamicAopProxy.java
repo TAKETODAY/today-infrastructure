@@ -168,8 +168,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
    * unless a hook method throws an exception.
    */
   @Override
-  @Nullable
-  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+  public @Nullable Object invoke(Object proxy, Method method, @Nullable Object @Nullable [] args) throws Throwable {
     Object oldProxy = null;
     boolean setProxyContext = false;
 
@@ -220,7 +219,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
         // We can skip creating a MethodInvocation: just invoke the target directly
         // Note that the final invoker must be an InvokerInterceptor so we know it does
         // nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
-        Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
+        @Nullable Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
         retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
       }
       else {
@@ -268,7 +267,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
    * or a dynamic proxy wrapping a JdkDynamicAopProxy instance.
    */
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (other == this) {
       return true;
     }
