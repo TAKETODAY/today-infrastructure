@@ -49,6 +49,7 @@ import infra.bytecode.proxy.MethodInterceptor;
 import infra.bytecode.proxy.MethodProxy;
 import infra.bytecode.proxy.NoOp;
 import infra.bytecode.transform.UndeclaredThrowableStrategy;
+import infra.core.NativeDetector;
 import infra.core.SmartClassLoader;
 import infra.lang.Assert;
 import infra.logging.Logger;
@@ -410,8 +411,11 @@ class CglibAopProxy implements AopProxy, Serializable {
    * to a plain reflection invocation in case of a fast-class generation failure.
    */
   private static @Nullable Object invokeMethod(@Nullable Object target,
-          Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+          Method method, @Nullable Object[] args, MethodProxy methodProxy) throws Throwable {
     try {
+      if (NativeDetector.inNativeImage()) {
+        return AopUtils.invokeJoinpointUsingReflection(target, method, args);
+      }
       return methodProxy.invoke(target, args);
     }
     catch (CodeGenerationException ex) {
@@ -444,7 +448,7 @@ class CglibAopProxy implements AopProxy, Serializable {
   private static DefaultMethodInvocation createInvocation(Object proxy, Method method, Object[] args,
           MethodProxy methodProxy, @Nullable Object target, @Nullable Class<?> targetClass, org.aopalliance.intercept.MethodInterceptor[] chain) {
 
-    if (isMethodProxyCompatible(method)) {
+    if (!NativeDetector.inNativeImage() && isMethodProxyCompatible(method)) {
       return new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, chain);
     }
     return new DefaultMethodInvocation(proxy, target, method, targetClass, args, chain);
@@ -692,7 +696,7 @@ class CglibAopProxy implements AopProxy, Serializable {
           // Note that the final invoker must be an InvokerInterceptor, so we know
           // it does nothing but a reflective operation on the target, and no hot
           // swapping or fancy proxying.
-          Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
+          @Nullable Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
           retVal = invokeMethod(target, method, argsToUse, methodProxy);
         }
         else {
