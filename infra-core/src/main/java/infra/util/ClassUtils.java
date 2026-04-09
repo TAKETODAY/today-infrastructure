@@ -1026,7 +1026,7 @@ public abstract class ClassUtils {
    * @param arguments the given arguments
    * @return a cloned argument array, or the original if no adaptation is needed
    */
-  public static Object[] adaptArgumentsIfNecessary(Method method, Object @Nullable [] arguments) {
+  public static @Nullable Object[] adaptArgumentsIfNecessary(Method method, @Nullable Object @Nullable [] arguments) {
     if (ObjectUtils.isEmpty(arguments)) {
       return Constant.EMPTY_OBJECTS;
     }

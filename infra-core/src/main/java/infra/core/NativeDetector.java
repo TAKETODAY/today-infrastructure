@@ -33,7 +33,7 @@ public abstract class NativeDetector {
 
   private static final @Nullable String imageCode = System.getProperty("org.graalvm.nativeimage.imagecode");
 
-  public static final boolean inNativeImage = imageCode != null;
+  private static final boolean inNativeImage = imageCode != null;
 
   /**
    * Returns {@code true} if running in a native image context (for example
