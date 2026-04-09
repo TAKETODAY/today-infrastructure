@@ -37,14 +37,19 @@ import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
 
 /**
- * Fast Method Invoker
+ * A high-performance method invoker that uses bytecode generation to invoke methods,
+ * avoiding the overhead of standard Java reflection.
+ * <p>
+ * This class serves as the base for generated subclasses that implement efficient
+ * method invocation logic. It caches method metadata and provides a unified interface
+ * for invoking methods on target objects.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-10-18 22:35
  */
 public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
-  private final Method method;
+  protected final Method method;
 
   public MethodInvoker(Method method) {
     Assert.notNull(method, "method is required");
