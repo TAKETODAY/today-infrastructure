@@ -30,6 +30,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
+import infra.lang.Modifiable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
@@ -63,14 +64,30 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    */
   private @Nullable BeanPropertiesHolder propertyHolder;
 
+  /**
+   * Constructs a new {@code BeanMetadata} instance for the specified bean class.
+   *
+   * @param beanClass the class of the bean to introspect
+   */
   public BeanMetadata(Class<?> beanClass) {
     this.beanClass = beanClass;
   }
 
+  /**
+   * Returns the type of the bean class associated with this metadata.
+   *
+   * @return the bean class
+   */
   public Class<?> getType() {
     return this.beanClass;
   }
 
+  /**
+   * Returns the {@link BeanInstantiator} for creating instances of this bean class.
+   * The instantiator is created lazily and cached for subsequent calls.
+   *
+   * @return the bean instantiator
+   */
   public BeanInstantiator getInstantiator() {
     BeanInstantiator instantiator = this.instantiator;
     if (instantiator == null) {
@@ -99,21 +116,23 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Get {@link BeanProperty} with given name
+   * Retrieves the {@link BeanProperty} associated with the specified property name.
    *
-   * @param propertyName property name
-   * @return target {@link BeanProperty}
+   * @param propertyName the name of the property to retrieve
+   * @return the {@link BeanProperty} instance, or {@code null} if no such property exists
    */
   public @Nullable BeanProperty getBeanProperty(String propertyName) {
     return getBeanProperties().get(propertyName);
   }
 
   /**
-   * Get {@link BeanProperty} with given name
+   * Obtains the {@link BeanProperty} associated with the specified property name.
    *
-   * @param propertyName property name
-   * @return target {@link BeanProperty}
-   * @throws NoSuchPropertyException If no such property
+   * <p>If the property does not exist, a {@link NoSuchPropertyException} is thrown.
+   *
+   * @param propertyName the name of the property to obtain
+   * @return the {@link BeanProperty} instance
+   * @throws NoSuchPropertyException if no property with the given name exists
    */
   public BeanProperty obtainBeanProperty(String propertyName) {
     BeanProperty beanProperty = getBeanProperty(propertyName);
@@ -124,13 +143,13 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Set a value to root object
+   * Sets the value of the specified property on the given root object.
    *
-   * @param root Root object
-   * @param propertyName Property name
-   * @param value new value to set
-   * @throws NotWritablePropertyException If this property is read only
-   * @throws NoSuchPropertyException If no such property
+   * @param root the target object on which to set the property value
+   * @param propertyName the name of the property to set
+   * @param value the new value to assign to the property
+   * @throws NotWritablePropertyException if the property is read-only and cannot be written to
+   * @throws NoSuchPropertyException if no property with the given name exists
    * @see #obtainBeanProperty(String)
    */
   public void setProperty(Object root, String propertyName, Object value) {
@@ -138,11 +157,12 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Get property value
+   * Retrieves the value of the specified property from the given root object.
    *
-   * @param root Root object
-   * @param propertyName Property name
-   * @throws NoSuchPropertyException If no such property
+   * @param root the target object from which to retrieve the property value
+   * @param propertyName the name of the property to retrieve
+   * @return the value of the property, or {@code null} if the property value is null
+   * @throws NoSuchPropertyException if no property with the given name exists
    * @see #obtainBeanProperty(String)
    */
   public @Nullable Object getProperty(Object root, String propertyName) {
@@ -150,10 +170,11 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Get property type
+   * Retrieves the type of the specified property.
    *
-   * @param propertyName Property name
-   * @throws NoSuchPropertyException If no such property
+   * @param propertyName the name of the property whose type is to be retrieved
+   * @return the class representing the type of the property
+   * @throws NoSuchPropertyException if no property with the given name exists
    * @see #obtainBeanProperty(String)
    */
   public Class<?> getPropertyType(String propertyName) {
@@ -161,27 +182,35 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Get properties mapping
+   * Returns a map of all bean properties, keyed by property name.
    *
-   * @return map of properties
+   * <p>The returned map is modifiable and reflects the internal state of the bean metadata.
+   * Modifications to this map will affect subsequent operations on this {@code BeanMetadata} instance.
+   *
+   * @return a modifiable map containing all {@link BeanProperty} instances
    */
+  @Modifiable
   public HashMap<String, BeanProperty> getBeanProperties() {
     return propertyHolder().mapping;
   }
 
   /**
-   * Get list of properties
+   * Returns a list of all bean properties.
    *
-   * <p>
-   * Note: not read-only
+   * <p>The returned list is modifiable and reflects the internal state of the bean metadata.
+   * Modifications to this list will affect subsequent operations on this {@code BeanMetadata} instance.
    *
-   * @return list of properties
+   * @return a modifiable list of {@link BeanProperty} instances
    */
+  @Modifiable
   public ArrayList<BeanProperty> beanProperties() {
     return propertyHolder().beanProperties;
   }
 
   /**
+   * Returns the number of properties defined in this bean.
+   *
+   * @return the count of bean properties
    * @since 4.0
    */
   public int getPropertySize() {
@@ -189,6 +218,10 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
+   * Checks whether a property with the specified name exists in this bean.
+   *
+   * @param name the name of the property to check
+   * @return {@code true} if the property exists, {@code false} otherwise
    * @since 4.0
    */
   public boolean containsProperty(String name) {
@@ -243,7 +276,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof BeanMetadata that))
@@ -276,14 +309,17 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   //---------------------------------------------------------------------
-  // static factory method
+  // Static factory methods
   //---------------------------------------------------------------------
 
   /**
-   * Create a {@link BeanMetadata} with given bean class
+   * Creates a {@link BeanMetadata} instance for the specified bean class.
    *
-   * @param beanClass target bean class cannot be simple class
-   * @return {@link BeanMetadata}
+   * <p>The metadata is cached to avoid repeated introspection costs. Subsequent calls with the same
+   * class will return the cached instance.
+   *
+   * @param beanClass the target bean class; should not be a simple type (e.g., primitive wrappers, String)
+   * @return the {@link BeanMetadata} for the given class
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata forClass(Class<?> beanClass) {
@@ -291,10 +327,14 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Create a {@link BeanMetadata} with given bean class
+   * Creates a {@link BeanMetadata} instance for the specified bean object.
    *
-   * @param object target bean cannot be simple object
-   * @return {@link BeanMetadata}
+   * <p>This is a convenience method that delegates to {@link #forClass(Class)} using the runtime
+   * class of the provided object. The metadata is cached based on the class type.
+   *
+   * @param object the target bean object; should not be a simple type instance
+   * @return the {@link BeanMetadata} for the object's class
+   * @see #forClass(Class)
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata forInstance(Object object) {
