@@ -446,7 +446,6 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @see #isCancelled()
    * @since 5.0
    */
-  @SuppressWarnings("NullAway")
   public final Future<V> onCancelled(FailureCallback callback) {
     Assert.notNull(callback, "cancelledCallback is required");
     return onCompleted(future -> {
