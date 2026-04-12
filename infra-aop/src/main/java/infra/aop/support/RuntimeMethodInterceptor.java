@@ -36,6 +36,7 @@ import infra.lang.Assert;
 public final class RuntimeMethodInterceptor implements MethodInterceptor {
 
   private final MethodMatcher methodMatcher;
+
   private final MethodInterceptor interceptor;
 
   public RuntimeMethodInterceptor(MethodInterceptor interceptor, MethodMatcher methodMatcher) {
@@ -48,8 +49,9 @@ public final class RuntimeMethodInterceptor implements MethodInterceptor {
   }
 
   @Override
-  @Nullable
-  public Object invoke(MethodInvocation invocation) throws Throwable {
+  public @Nullable Object invoke(MethodInvocation invocation) throws Throwable {
+//    ProxyMethodInvocation pi = (ProxyMethodInvocation) invocation;
+//    if (methodMatcher.matches(invocation.getMethod(), pi.getTargetClass(), pi.getArguments())) {
     if (methodMatcher.matches(invocation)) {
       return interceptor.invoke(invocation);
     }

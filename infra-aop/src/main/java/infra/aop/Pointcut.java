@@ -128,7 +128,6 @@ public interface Pointcut {
    * @param args arguments to the method
    * @return whether there's a runtime match
    */
-  @SuppressWarnings("NullAway")
   static boolean matches(Pointcut pointcut, Method method, Class<?> targetClass, Object... args) {
     Assert.notNull(pointcut, "Pointcut is required");
     if (pointcut == Pointcut.TRUE) {
