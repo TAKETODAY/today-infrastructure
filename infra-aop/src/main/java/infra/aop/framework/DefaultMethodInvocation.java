@@ -44,7 +44,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
 
   private final Object proxy;
 
-  protected Object[] args;
+  protected @Nullable Object[] args;
 
   @Nullable
   protected final Object target;
@@ -63,7 +63,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
 
   private final int adviceLength;
 
-  public DefaultMethodInvocation(Object proxy, Method method, Class<?> targetClass, Object[] arguments) {
+  public DefaultMethodInvocation(Object proxy, Method method, Class<?> targetClass, @Nullable Object @Nullable [] arguments) {
     this(proxy, null, method, targetClass, arguments, EMPTY_INTERCEPTOR);
   }
 
@@ -71,7 +71,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
    * @throws NullPointerException if advices is {@code null}
    */
   public DefaultMethodInvocation(Object proxy, @Nullable Object target,
-          Method method, @Nullable Class<?> targetClass, Object[] arguments, MethodInterceptor[] advices) {
+          Method method, @Nullable Class<?> targetClass, @Nullable Object @Nullable [] arguments, MethodInterceptor[] advices) {
     this.proxy = proxy;
     this.target = target;
     this.method = method;
@@ -102,9 +102,8 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
    * @see CglibAopProxy.CglibMethodInvocation
    * @see DefaultMethodInvocation
    */
-  @Nullable
   @Override
-  public Object proceed() throws Throwable {
+  public @Nullable Object proceed() throws Throwable {
     if (currentAdviceIndex < adviceLength) {
       // It's an interceptor, so we just invoke it
       // runtime interceptor will automatically matches MethodInvocation
@@ -115,13 +114,13 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
   }
 
   /**
-   * Invoke jon-point
+   * Invoke the joinpoint using reflection.
+   * Subclasses can override this to use custom invocation.
    *
-   * @return the result of the call to {@link MethodInvocation#proceed()}, might be
-   * intercepted by the interceptor.
+   * @return the return value of the joinpoint
+   * @throws Throwable if invoking the joinpoint resulted in an exception
    */
-  @Nullable
-  protected Object invokeJoinPoint() throws Throwable {
+  protected @Nullable Object invokeJoinPoint() throws Throwable {
     return AopUtils.invokeJoinpointUsingReflection(target, method, args);
   }
 
@@ -179,7 +178,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
   }
 
   @Override
-  public Object[] getArguments() {
+  public @Nullable Object[] getArguments() {
     return args;
   }
 
@@ -188,16 +187,14 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
     args = arguments;
   }
 
-  @Nullable
   @Override
-  public Object getThis() {
+  public @Nullable Object getThis() {
     return target;
   }
 
-  @Nullable
   @Override
   public Class<?> getTargetClass() {
-    return targetClass;
+    return targetClass == null ? method.getDeclaringClass() : targetClass;
   }
 
   @Override
@@ -206,7 +203,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof final DefaultMethodInvocation that))

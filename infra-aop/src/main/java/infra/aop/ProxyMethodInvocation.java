@@ -96,4 +96,11 @@ public interface ProxyMethodInvocation extends MethodInvocation, TargetClassAwar
   @Nullable
   Object getAttribute(String key);
 
+  /**
+   * Return the target class behind the implementing object
+   * (typically a proxy configuration or an actual proxy).
+   */
+  @Override
+  Class<?> getTargetClass();
+
 }

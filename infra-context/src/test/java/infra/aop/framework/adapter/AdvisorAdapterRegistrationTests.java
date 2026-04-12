@@ -21,6 +21,8 @@ package infra.aop.framework.adapter;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -43,8 +45,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class AdvisorAdapterRegistrationTests {
 
-  //  @BeforeEach
-//  @AfterEach
+  @BeforeEach
+  @AfterEach
   public void resetGlobalAdvisorAdapterRegistry() {
     DefaultAdvisorAdapterRegistry.reset();
   }
