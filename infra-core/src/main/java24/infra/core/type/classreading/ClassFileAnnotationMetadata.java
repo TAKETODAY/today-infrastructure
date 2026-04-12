@@ -225,10 +225,11 @@ final class ClassFileAnnotationMetadata implements AnnotationMetadata {
     if (type.isPrimitive()) {
       return type.displayName();
     }
-    if (type.isArray()) {
-      return resolveTypeName(type.componentType()) + "[]";
+    ClassDesc effectiveType = type;
+    while (effectiveType.isArray()) {
+      effectiveType = effectiveType.componentType();
     }
-    String packageName = type.packageName();
+    String packageName = effectiveType.packageName();
     return (packageName.isEmpty() ? type.displayName() : packageName + "." + type.displayName());
   }
 
