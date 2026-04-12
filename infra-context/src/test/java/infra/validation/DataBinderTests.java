@@ -1871,8 +1871,12 @@ class DataBinderTests {
 
     FieldError ageError = errors.getFieldError("age");
     assertThat(ageError.getCode()).isEqualTo("typeMismatch");
+    assertThat(ageError.isBindingFailure()).isTrue();
+    assertThat(ageError.shouldRenderDefaultMessage()).isFalse();
     FieldError nameError = errors.getFieldError("name");
     assertThat(nameError.getCode()).isEqualTo("badName");
+    assertThat(nameError.isBindingFailure()).isFalse();
+    assertThat(nameError.shouldRenderDefaultMessage()).isTrue();
   }
 
   @Test
@@ -2051,7 +2055,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void setAutoGrowCollectionLimit() {
     BeanWithIntegerList tb = new BeanWithIntegerList();
     DataBinder binder = new DataBinder(tb);
@@ -2066,7 +2069,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void setAutoGrowCollectionLimitAfterInitialization() {
     DataBinder binder = new DataBinder(new BeanWithIntegerList());
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -2076,7 +2078,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void setCustomMessageCodesResolverBeforeInitializeBindingResultForBeanPropertyAccess() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2094,7 +2095,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void setCustomMessageCodesResolverBeforeInitializeBindingResultForDirectFieldAccess() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2110,7 +2110,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void setCustomMessageCodesResolverAfterInitializeBindingResult() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2126,7 +2125,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void setMessageCodesResolverIsNullAfterInitializeBindingResult() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2141,7 +2139,6 @@ class DataBinderTests {
   }
 
   @Test
-
   void callSetMessageCodesResolverTwice() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
