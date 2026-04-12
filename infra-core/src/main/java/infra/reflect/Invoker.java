@@ -19,7 +19,11 @@ package infra.reflect;
 import org.jspecify.annotations.Nullable;
 
 /**
- * An invoker interface for method invocation.
+ * A functional interface for invoking methods on objects.
+ * <p>
+ * This interface abstracts the invocation of a method, handling parameter unwrapping
+ * and type conversions as necessary. It is typically used to cache reflective method
+ * access for performance optimization.
  *
  * @author TODAY 2019-10-18 22:35
  */
@@ -27,40 +31,19 @@ import org.jspecify.annotations.Nullable;
 public interface Invoker {
 
   /**
-   * Invokes the underlying method represented by this {@code Invoker}
-   * object, on the specified object with the specified parameters.
-   * Individual parameters are automatically unwrapped to match
-   * primitive formal parameters, and both primitive and reference
-   * parameters are subject to method invocation conversions as
-   * necessary.
+   * Invokes the underlying method on the specified object with the given arguments.
+   * <p>
+   * This method handles automatic unwrapping of parameters to match primitive
+   * formal parameters and applies necessary method invocation conversions for
+   * both primitive and reference types.
    *
-   * <p>If the underlying method is static, then the specified {@code obj}
-   * argument is ignored. It may be null.
-   *
-   * <p>If the number of formal parameters required by the underlying method is
-   * 0, the supplied {@code args} array may be of length 0 or null.
-   *
-   * <p>If the underlying method is static, the class that declared
-   * the method is initialized if it has not already been initialized.
-   *
-   * <p>If the method completes normally, the value it returns is
-   * returned to the caller of invoke; if the value has a primitive
-   * type, it is first appropriately wrapped in an object. However,
-   * if the value has the type of array of a primitive type, the
-   * elements of the array are <i>not</i> wrapped in objects; in
-   * other words, an array of primitive type is returned.  If the
-   * underlying method return type is void, the invocation returns
-   * null.
-   *
-   * @param obj the object the underlying method is invoked from
-   * @param args the arguments used for the method call
-   * @return the result of dispatching the method represented by
-   * this object on {@code obj} with parameters
-   * {@code args}
-   * @throws NullPointerException if the specified object is null and the method is an instance method.
-   * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
+   * @param obj the object on which the underlying method is invoked; may be {@code null} if the method is static
+   * @param args the arguments used for the method call; may be {@code null} or empty if the method takes no parameters
+   * @return the result of the method invocation, wrapped in an object if it is a primitive type;
+   * {@code null} if the method return type is void
+   * @throws NullPointerException if the specified object is {@code null} and the method is an instance method
    */
   @Nullable
-  Object invoke(@Nullable Object obj, @Nullable Object[] args);
+  Object invoke(@Nullable Object obj, @Nullable Object @Nullable [] args);
 
 }

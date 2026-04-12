@@ -57,105 +57,128 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   }
 
   /**
-   * Invokes the underlying method represented by this {@code Invoker}
-   * object, on the specified object with the specified parameters.
-   * Individual parameters are automatically unwrapped to match
-   * primitive formal parameters, and both primitive and reference
-   * parameters are subject to method invocation conversions as
-   * necessary.
+   * Invokes the underlying method represented by this {@code MethodInvoker}
+   * on the specified object with the given arguments.
+   * <p>
+   * This method handles automatic unwrapping of parameters to match primitive
+   * formal parameters and applies necessary method invocation conversions for
+   * both primitive and reference types.
    *
-   * <p>If the underlying method is static, then the specified {@code obj}
-   * argument is ignored. It may be null.
-   *
-   * <p>If the number of formal parameters required by the underlying method is
-   * 0, the supplied {@code args} array may be of length 0 or null.
-   *
-   * <p>If the underlying method is static, the class that declared
-   * the method is initialized if it has not already been initialized.
-   *
-   * <p>If the method completes normally, the value it returns is
-   * returned to the caller of invoke; if the value has a primitive
-   * type, it is first appropriately wrapped in an object. However,
-   * if the value has the type of array of a primitive type, the
-   * elements of the array are <i>not</i> wrapped in objects; in
-   * other words, an array of primitive type is returned.  If the
-   * underlying method return type is void, the invocation returns
-   * null.
-   *
-   * @param obj the object the underlying method is invoked from
-   * @param args the arguments used for the method call
-   * @return the result of dispatching the method represented by
-   * this object on {@code obj} with parameters
-   * {@code args}
-   * @throws NullPointerException if the specified object is null and the method is an instance method.
-   * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
+   * @param obj the object on which the underlying method is invoked; may be {@code null} if the method is static
+   * @param args the arguments used for the method call; may be {@code null} or empty if the method takes no parameters
+   * @return the result of the method invocation, wrapped in an object if it is a primitive type;
+   * {@code null} if the method return type is void
+   * @throws NullPointerException if the specified object is {@code null} and the method is an instance method
    */
-  @Nullable
   @Override
-  public abstract Object invoke(@Nullable Object obj, @Nullable Object @Nullable [] args);
+  public abstract @Nullable Object invoke(@Nullable Object obj, @Nullable Object @Nullable [] args);
 
+  /**
+   * Returns the underlying {@link Method} represented by this invoker.
+   *
+   * @return the target method
+   */
   @Override
   public Method getMethod() {
     return method;
   }
 
   /**
-   * Create a {@link MethodInvoker}
+   * Creates a {@link MethodInvoker} for the specified method.
+   * <p>
+   * This method generates a high-performance invoker using bytecode generation.
+   * If the specified method is a standard {@code java.lang.Object} method (such as
+   * {@code toString}, {@code hashCode}, or {@code equals}), special handling may be applied.
    *
-   * @param executable Target Method to invoke
-   * @return {@link MethodInvoker} sub object
+   * @param executable the target method to invoke
+   * @return a {@link MethodInvoker} instance optimized for the specified method
+   * @throws IllegalArgumentException if the executable method is null
    */
   public static MethodInvoker forMethod(Method executable) {
-    Assert.notNull(executable, "method is required");
-    return new MethodInvokerGenerator(executable).generate();
+    return forMethod(executable, null);
   }
 
   /**
-   * Create a {@link MethodInvoker}
+   * Creates a {@link MethodInvoker} for the specified method, optimized for the given target class.
+   * <p>
+   * This method generates a high-performance invoker using bytecode generation. The {@code targetClass}
+   * is used to resolve the most specific implementation of the method, which is particularly useful
+   * when dealing with interface methods or overridden methods in subclasses.
    *
-   * @param executable Target Method to invoke
-   * @param targetClass most specific target class
-   * @return {@link MethodInvoker} sub object
+   * @param executable the target method to invoke
+   * @param targetClass the most specific target class to use for method resolution and invocation
+   * @return a {@link MethodInvoker} instance optimized for the specified method and target class
+   * @throws IllegalArgumentException if the executable method is null
    * @since 3.0
    */
-  public static MethodInvoker forMethod(Method executable, Class<?> targetClass) {
+  public static MethodInvoker forMethod(Method executable, @Nullable Class<?> targetClass) {
     Assert.notNull(executable, "method is required");
+    ObjectMethodType methodType = ObjectMethodType.forMethod(executable);
+    if (methodType != null) {
+      return new ObjectMethodInvoker(executable, methodType);
+    }
     return new MethodInvokerGenerator(executable, targetClass).generate();
   }
 
   /**
-   * Create a {@link MethodInvoker}
+   * Creates a {@link MethodInvoker} for the specified method in the given bean class.
+   * <p>
+   * This method locates the declared method by name and parameter types, then generates
+   * a high-performance invoker using bytecode generation. If the method is not found,
+   * a {@link ReflectionException} is thrown.
    *
-   * @param beanClass Bean Class
-   * @param name Target method to invoke
-   * @param parameters Target parameters classes
-   * @return {@link MethodInvoker} sub object
-   * @throws ReflectionException Thrown when a particular method cannot be found.
+   * @param beanClass the class declaring the target method
+   * @param name the name of the target method
+   * @param parameters the parameter types of the target method
+   * @return a {@link MethodInvoker} instance for the specified method
+   * @throws ReflectionException if the specified method cannot be found in the given class
    */
   public static MethodInvoker forMethod(Class<?> beanClass, String name, Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
-      return new MethodInvokerGenerator(targetMethod, beanClass).generate();
+      return forMethod(targetMethod, beanClass);
     }
     catch (NoSuchMethodException e) {
       throw new ReflectionException("No such method: '%s' in %s".formatted(name, beanClass), e);
     }
   }
 
+  /**
+   * Creates a {@link MethodInvoker} that uses standard Java reflection to invoke the given method.
+   * <p>
+   * This is a fallback mechanism when bytecode generation is not possible or fails.
+   * It automatically handles accessibility checks and exception wrapping by default.
+   *
+   * @param method the target method to invoke
+   * @return a reflective {@link MethodInvoker} instance
+   * @throws IllegalArgumentException if the method is null
+   */
   public static MethodInvoker forReflective(Method method) {
     return forReflective(method, true);
   }
 
+  /**
+   * Creates a {@link MethodInvoker} that uses standard Java reflection to invoke the given method.
+   * <p>
+   * This is a fallback mechanism when bytecode generation is not possible or fails.
+   *
+   * @param method the target method to invoke
+   * @param handleReflectionException whether to handle reflection exceptions internally
+   * (e.g., wrapping them in runtime exceptions) or propagate them
+   * @return a reflective {@link MethodInvoker} instance
+   * @throws IllegalArgumentException if the method is null
+   */
   public static MethodInvoker forReflective(Method method, boolean handleReflectionException) {
     Assert.notNull(method, "Method is required");
     ReflectionUtils.makeAccessible(method);
     return new ReflectiveMethodAccessor(method, handleReflectionException);
   }
 
+  // --------------------------------------------------------------
   // MethodInvoker object generator
   // --------------------------------------------------------------
 
-  public static class MethodInvokerGenerator extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
+  private static final class MethodInvokerGenerator extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
 
     private static final String superType = "Linfra/reflect/MethodInvoker;";
 
@@ -163,20 +186,9 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     private final Method targetMethod;
 
-    /**
-     * @throws NullPointerException method maybe null
-     */
-    public MethodInvokerGenerator(Method method) {
-      super(method.getDeclaringClass());
-      this.targetMethod = method;
-    }
-
-    /**
-     * @throws NullPointerException method maybe null
-     */
-    public MethodInvokerGenerator(Method method, Class<?> targetClass) {
-      super(targetClass);
-      this.targetMethod = ReflectionUtils.getMostSpecificMethod(method, targetClass);
+    public MethodInvokerGenerator(Method method, @Nullable Class<?> targetClass) {
+      super(targetClass == null ? method.getDeclaringClass() : targetClass);
+      this.targetMethod = targetClass == null ? method : ReflectionUtils.getMostSpecificMethod(method, targetClass);
     }
 
     @Override

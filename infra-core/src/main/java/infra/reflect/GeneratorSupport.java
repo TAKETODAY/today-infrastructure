@@ -44,7 +44,13 @@ import static infra.bytecode.Opcodes.ACC_PUBLIC;
 import static infra.bytecode.Opcodes.INVOKESTATIC;
 
 /**
- * @param <T> Target Accessor subclass
+ * Base class for generating dynamic classes using bytecode manipulation.
+ * <p>
+ * This class provides common functionality for creating subclasses of {@link Accessor}
+ * at runtime. It handles class generation, caching, and fallback mechanisms when
+ * dynamic generation is not possible (e.g., in native images or due to security restrictions).
+ *
+ * @param <T> the type of the generated Accessor subclass
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2020/9/11 16:32
  */
