@@ -49,12 +49,14 @@ public class DisconnectedClientHelper {
   private static final Set<String> EXCEPTION_TYPE_NAMES =
           Set.of("AbortedException", "ClientAbortException", "EOFException", "EofException");
 
-  private static final Set<Class<?>> EXCLUDED_EXCEPTION_TYPES = new LinkedHashSet<>(2);
+  private static final Set<Class<?>> EXCLUDED_EXCEPTION_TYPES;
 
   static {
-    addExcludedExceptionType("infra.web.client.RestClientException");
-    addExcludedExceptionType("infra.web.reactive.client.WebClientException");
-    addExcludedExceptionType("infra.dao.DataAccessException");
+    Set<Class<?>> types = new LinkedHashSet<>(2);
+    addExcludedExceptionType(types, "infra.web.client.RestClientException");
+    addExcludedExceptionType(types, "infra.web.reactive.client.WebClientException");
+    addExcludedExceptionType(types, "infra.dao.DataAccessException");
+    EXCLUDED_EXCEPTION_TYPES = Set.copyOf(types);
   }
 
   private final Logger logger;
@@ -125,10 +127,10 @@ public class DisconnectedClientHelper {
     return false;
   }
 
-  private static void addExcludedExceptionType(String type) {
+  private static void addExcludedExceptionType(Set<Class<?>> types, String type) {
     try {
       ClassLoader classLoader = DisconnectedClientHelper.class.getClassLoader();
-      EXCLUDED_EXCEPTION_TYPES.add(ClassUtils.forName(type, classLoader));
+      types.add(ClassUtils.forName(type, classLoader));
     }
     catch (ClassNotFoundException ignored) {
     }
