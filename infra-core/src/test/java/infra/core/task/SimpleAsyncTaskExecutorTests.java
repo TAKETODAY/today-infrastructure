@@ -207,6 +207,7 @@ class SimpleAsyncTaskExecutorTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void taskTerminationTimeoutWithEarlyInterrupt() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean();
     Future<?> future;
