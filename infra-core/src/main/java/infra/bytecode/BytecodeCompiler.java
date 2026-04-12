@@ -69,22 +69,18 @@ import infra.util.ReflectionUtils;
  * @since 4.0 2021/11/29 11:23
  */
 public abstract class BytecodeCompiler {
+
   private static final int CLASSES_DEFINED_LIMIT = TodayStrategies.getInt("bytecode.classes.defined.limit", 100);
 
-  @Nullable
-  private static final Method classLoaderDefineClassMethod;
+  private static final @Nullable Method classLoaderDefineClassMethod;
 
-  @Nullable
-  private static final Throwable THROWABLE;
+  private static final @Nullable Throwable THROWABLE;
 
-  @Nullable
-  private static final ProtectionDomain PROTECTION_DOMAIN;
+  private static final @Nullable ProtectionDomain PROTECTION_DOMAIN;
 
-  @Nullable
-  private static Consumer<Class<?>> loadedClassHandler;
+  private static @Nullable Consumer<Class<?>> loadedClassHandler;
 
-  @Nullable
-  private static BiConsumer<String, byte[]> generatedClassHandler;
+  private static @Nullable BiConsumer<String, byte[]> generatedClassHandler;
 
   static {
     // Resolve protected ClassLoader.defineClass method for fallback use
