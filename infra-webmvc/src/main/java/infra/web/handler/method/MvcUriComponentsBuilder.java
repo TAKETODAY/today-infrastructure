@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import infra.aop.framework.AopProxyUtils;
 import infra.aot.AotDetector;
 import infra.beans.BeanInstantiationException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
-import infra.beans.support.BeanInstantiator;
 import infra.bytecode.core.NamingPolicy;
 import infra.bytecode.proxy.Callback;
 import infra.bytecode.proxy.Enhancer;
@@ -790,8 +790,7 @@ public class MvcUriComponentsBuilder {
         }
         catch (Throwable ex) {
           try {
-            // fallback using BeanInstantiator.forSerialization
-            proxy = BeanInstantiator.forSerialization(proxyClass).instantiate();
+            proxy = AopProxyUtils.instantiateProxyClass(proxyClass);
           }
           catch (BeanInstantiationException ignored) {
             throw new IllegalStateException(

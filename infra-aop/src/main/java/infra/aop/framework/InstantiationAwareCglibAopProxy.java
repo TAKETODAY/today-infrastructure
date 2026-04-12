@@ -17,34 +17,34 @@
 package infra.aop.framework;
 
 import java.io.Serial;
-import java.lang.reflect.Constructor;
 
-import infra.beans.support.BeanInstantiator;
-import infra.beans.support.SunReflectionFactoryInstantiator;
 import infra.bytecode.proxy.Callback;
 import infra.bytecode.proxy.Enhancer;
 import infra.bytecode.proxy.Factory;
-import infra.util.ReflectionUtils;
 
 /**
+ * CGLIB-based {@link AopProxy} implementation that supports instantiation-aware proxy creation.
+ * <p>This proxy factory creates CGLIB subclasses and allows for constructor argument injection,
+ * enabling the creation of proxies for classes that do not have a default no-arg constructor.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see SunReflectionFactoryInstantiator
+ * @see AopProxyUtils#instantiateProxyClass(Class)
  * @since 4.0 2022/1/12 14:03
  */
-class SerializationCglibAopProxy extends CglibAopProxy {
+class InstantiationAwareCglibAopProxy extends CglibAopProxy {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   /**
-   * Create a new SerializationCglibAopProxy for the given AOP configuration.
+   * Create a new InstantiationAwareCglibAopProxy for the given AOP configuration.
    *
    * @param config the AOP configuration as AdvisedSupport object
    * @throws AopConfigException if the config is invalid. We try to throw an informative
    * exception in this case, rather than let a mysterious failure
    * happen later.
    */
-  public SerializationCglibAopProxy(AdvisedSupport config) {
+  public InstantiationAwareCglibAopProxy(AdvisedSupport config) {
     super(config);
   }
 
@@ -61,17 +61,8 @@ class SerializationCglibAopProxy extends CglibAopProxy {
       return enhancer.create(constructorArgTypes, constructorArgs);
     }
     else {
-      Object proxy;
-      // use default constructor
       Class<?> proxyClass = enhancer.createClass();
-      Constructor<?> constructor = ReflectionUtils.getConstructorIfAvailable(proxyClass);
-      if (constructor != null) {
-        proxy = constructor.newInstance();
-      }
-      else {
-        // use SunReflectionFactoryInstantiator
-        proxy = BeanInstantiator.forSerialization(proxyClass).instantiate();
-      }
+      Object proxy = AopProxyUtils.instantiateProxyClass(proxyClass);
       if (proxy instanceof Factory) {
         ((Factory) proxy).setCallbacks(callbacks);
       }

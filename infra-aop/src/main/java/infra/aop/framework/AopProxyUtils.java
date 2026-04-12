@@ -20,6 +20,7 @@ package infra.aop.framework;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,10 +30,14 @@ import infra.aop.TargetClassAware;
 import infra.aop.TargetSource;
 import infra.aop.support.AopUtils;
 import infra.aop.target.SingletonTargetSource;
+import infra.beans.BeanInstantiationException;
+import infra.beans.support.BeanInstantiator;
 import infra.core.DecoratingProxy;
+import infra.core.NativeDetector;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.util.ClassUtils;
+import infra.util.ReflectionUtils;
 
 /**
  * Utility methods for AOP proxy factories.
@@ -250,6 +255,37 @@ public abstract class AopProxyUtils {
    */
   public static boolean equalsAdvisors(AdvisedSupport a, AdvisedSupport b) {
     return a.getAdvisorCount() == b.getAdvisorCount() && Arrays.equals(a.getAdvisors(), b.getAdvisors());
+  }
+
+  /**
+   * Instantiate the given proxy class using an appropriate strategy.
+   * <p>This method attempts to use the default constructor first. If that is not available,
+   * it falls back to {@link BeanInstantiator} strategies depending on the runtime environment:
+   * <ul>
+   *   <li>In a GraalVM Native Image, it uses unsafe instantiation.</li>
+   *   <li>Otherwise, it uses serialization-based instantiation.</li>
+   * </ul>
+   *
+   * @param proxyClass the proxy class to instantiate
+   * @return a new instance of the proxy class
+   * @throws BeanInstantiationException if the instantiation process fails
+   * @since 5.0
+   */
+  public static Object instantiateProxyClass(Class<?> proxyClass) {
+    Constructor<?> constructor = ReflectionUtils.getConstructorIfAvailable(proxyClass);
+    if (constructor != null) {
+      // use default constructor
+      try {
+        ReflectionUtils.makeAccessible(constructor);
+        return constructor.newInstance();
+      }
+      catch (Exception ignored) {
+      }
+    }
+    if (NativeDetector.inNativeImage()) {
+      return BeanInstantiator.forUnsafe(proxyClass).instantiate();
+    }
+    return BeanInstantiator.forSerialization(proxyClass).instantiate();
   }
 
 }

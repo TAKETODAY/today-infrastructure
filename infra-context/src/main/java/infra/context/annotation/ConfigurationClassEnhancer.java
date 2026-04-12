@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
+import infra.aop.framework.AopProxyUtils;
 import infra.aop.framework.StandardProxy;
 import infra.aop.scope.ScopedProxyFactoryBean;
 import infra.aot.AotDetector;
@@ -39,7 +40,6 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.InstantiationStrategy;
-import infra.beans.support.BeanInstantiator;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.bytecode.core.ClassEmitter;
@@ -585,8 +585,7 @@ class ConfigurationClassEnhancer {
       }
       catch (Throwable ex) {
         try {
-          // fallback using BeanInstantiator.forSerialization
-          fbProxy = BeanInstantiator.forSerialization(fbClass).instantiate();
+          fbProxy = AopProxyUtils.instantiateProxyClass(fbClass);
         }
         catch (BeanInstantiationException ignored) {
           throw new IllegalStateException("Unable to instantiate enhanced FactoryBean using constructor, " +
