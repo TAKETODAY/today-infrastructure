@@ -152,12 +152,14 @@ class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     void elvisOperator() {
-      evaluate("'Andy'?:'Dave'", "Andy", String.class);
-      evaluate("null?:'Dave'", "Dave", String.class);
-      evaluate("3?:1", 3, Integer.class);
-      evaluate("(2*3)?:1*10", 6, Integer.class);
-      evaluate("null?:2*10", 20, Integer.class);
-      evaluate("(null?:1)*10", 10, Integer.class);
+      evaluate("'Andy' ?: 'Dave'", "Andy", String.class);
+      evaluate("null ?: 'Dave'", "Dave", String.class);
+      evaluate("3 ?: 1", 3, Integer.class);
+      evaluate("(2 * 3) ?: 1 * 10", 6, Integer.class);
+      evaluate("null ?: 2 * 10", 20, Integer.class);
+      evaluate("(null ?: 1) * 10", 10, Integer.class);
+      evaluate("3 ?: #var = 5", 3, Integer.class);
+      evaluate("null ?: #var = 5", 5, Integer.class);
     }
 
     @Test
