@@ -396,6 +396,25 @@ class RequestContextDataBinderTests {
     assertThat(Arrays.asList(original)).as("Correct values").isEqualTo(Arrays.asList(values));
   }
 
+  @Test
+  void defaultArgumentShouldNotTriggerAutoGrowWhenDisallowed() {
+    TestBean tb = new TestBean();
+    tb.setSomeMap(null);
+
+    RequestContextDataBinder binder = new RequestContextDataBinder(tb, "person");
+
+    binder.setAllowedFields("name");
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+
+    request.addParameter("name", "infra");
+    request.addParameter("!someMap[key1]", "test");
+    binder.bind(new MockRequestContext(request));
+
+    assertThat(tb.getName()).isEqualTo("infra");
+    assertThat(tb.getSomeMap()).isNull();
+  }
+
   @ParameterizedTest
   @ValueSource(strings = { "Accept", "Authorization", "Connection",
           "Cookie", "From", "Host", "Origin", "Priority", "Range", "Referer", "Upgrade" })
