@@ -19,7 +19,6 @@
 package infra.test.context.aot;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,6 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.TestContextBootstrapper;
-import infra.test.context.TestContextManager;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -90,7 +88,7 @@ public class TestContextAotGenerator {
    * the following JVM system property via the command line.
    * <pre style="code">-Dinfra.test.aot.processing.failOnError=false</pre>
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link infra.lang.TodayStrategies TodayStrategies}
    * mechanism.
    */
   public static final String FAIL_ON_ERROR_PROPERTY_NAME = "infra.test.aot.processing.failOnError";
@@ -181,27 +179,18 @@ public class TestContextAotGenerator {
 
       MultiValueMap<MergedContextConfiguration, Class<?>> mergedConfigMappings = new LinkedMultiValueMap<>();
       ClassLoader classLoader = getClass().getClassLoader();
-      HashSet<String> visitedTestClassNames = new HashSet<>();
       testClasses.forEach(testClass -> {
-        String testClassName = testClass.getName();
-        if (visitedTestClassNames.add(testClassName)) {
-          MergedContextConfiguration mergedConfig = buildMergedContextConfiguration(testClass);
-          mergedConfigMappings.add(mergedConfig, testClass);
-          collectRuntimeHintsRegistrarClasses(testClass, coreRuntimeHintsRegistrarClasses);
-          reflectiveRuntimeHintsRegistrar.registerRuntimeHints(this.runtimeHints, testClass);
-          this.testRuntimeHintsRegistrars.forEach(registrar -> {
-            if (logger.isTraceEnabled()) {
-              logger.trace("Processing RuntimeHints contribution from class [%s]"
-                      .formatted(registrar.getClass().getCanonicalName()));
-            }
-            registrar.registerHints(this.runtimeHints, testClass, classLoader);
-          });
-        }
-        else {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Skipping duplicate test class: {}", testClassName);
+        MergedContextConfiguration mergedConfig = buildMergedContextConfiguration(testClass);
+        mergedConfigMappings.add(mergedConfig, testClass);
+        collectRuntimeHintsRegistrarClasses(testClass, coreRuntimeHintsRegistrarClasses);
+        reflectiveRuntimeHintsRegistrar.registerRuntimeHints(this.runtimeHints, testClass);
+        this.testRuntimeHintsRegistrars.forEach(registrar -> {
+          if (logger.isTraceEnabled()) {
+            logger.trace("Processing RuntimeHints contribution from class [%s]"
+                    .formatted(registrar.getClass().getCanonicalName()));
           }
-        }
+          registrar.registerHints(this.runtimeHints, testClass, classLoader);
+        });
       });
 
       coreRuntimeHintsRegistrarClasses.stream()
@@ -347,8 +336,7 @@ public class TestContextAotGenerator {
    * context or if one of the prerequisites is not met
    * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
-  private GenericApplicationContext loadContextForAotProcessing(
-          MergedContextConfiguration mergedConfig) throws TestContextAotException {
+  GenericApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig) throws TestContextAotException {
 
     Class<?> testClass = mergedConfig.getTestClass();
     ContextLoader contextLoader = mergedConfig.getContextLoader();
@@ -366,6 +354,7 @@ public class TestContextAotGenerator {
       }
       catch (Exception ex) {
         Throwable cause = (ex instanceof ContextLoadException cle ? cle.getCause() : ex);
+        Assert.state(cause != null, "Cause is required");
         throw new TestContextAotException(
                 "Failed to load ApplicationContext for AOT processing for test class [%s]"
                         .formatted(testClass.getName()), cause);
@@ -439,7 +428,7 @@ public class TestContextAotGenerator {
 
   /**
    * Register hints for skipped exception types loaded via reflection in
-   * {@link TestContextManager}.
+   * {@link infra.test.context.TestContextManager}.
    */
   private void registerSkippedExceptionTypes() {
     Stream.of("org.opentest4j.TestAbortedException", "org.junit.AssumptionViolatedException", "org.testng.SkipException")
