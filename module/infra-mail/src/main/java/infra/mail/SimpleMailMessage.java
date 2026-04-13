@@ -90,7 +90,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
     this.to = copyOrNull(original.getTo());
     this.cc = copyOrNull(original.getCc());
     this.bcc = copyOrNull(original.getBcc());
-    this.sentDate = original.getSentDate();
+    this.sentDate = copyOrNull(original.sentDate);
     this.subject = original.getSubject();
     this.text = original.getText();
   }
@@ -159,12 +159,12 @@ public class SimpleMailMessage implements MailMessage, Serializable {
 
   @Override
   public void setSentDate(Date sentDate) {
-    this.sentDate = sentDate;
+    this.sentDate = copyOrNull(sentDate);
   }
 
   @Nullable
   public Date getSentDate() {
-    return this.sentDate;
+    return copyOrNull(this.sentDate);
   }
 
   @Override
@@ -263,6 +263,10 @@ public class SimpleMailMessage implements MailMessage, Serializable {
       return null;
     }
     return copy(state);
+  }
+
+  private static @Nullable Date copyOrNull(@Nullable Date date) {
+    return (date != null ? (Date) date.clone() : null);
   }
 
   private static String[] copy(String[] state) {
