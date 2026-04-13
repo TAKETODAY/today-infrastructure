@@ -147,7 +147,6 @@ class SimpleMailMessageTests {
   }
 
   @Test
-    // gh-36626
   void copyToCopiesSentDate() {
     SimpleMailMessage source = new SimpleMailMessage();
     source.setSentDate(new Date(1234L));
