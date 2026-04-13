@@ -31,8 +31,9 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
+
+import infra.lang.Assert;
 
 /**
  * Custom {@link JavaExec} task for ahead-of-time processing of a Infra
@@ -82,8 +83,10 @@ public abstract class ProcessTestAot extends AbstractAot {
   @Override
   @TaskAction
   public void exec() {
-    List<String> args = new ArrayList<>();
-    args.add(getClasspathRoots().getFiles()
+    ArrayList<String> args = new ArrayList<>();
+    FileCollection classpathRoots = getClasspathRoots();
+    Assert.state(classpathRoots != null, "'classpathRoots' is required");
+    args.add(classpathRoots.getFiles()
             .stream()
             .filter(File::exists)
             .map(File::getAbsolutePath)
