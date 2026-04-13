@@ -35,6 +35,7 @@ import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
+import infra.jdbc.datasource.TransactionAwareDataSourceProxy;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
 import infra.jdbc.datasource.init.ScriptUtils;
 import infra.lang.Assert;
@@ -386,9 +387,10 @@ public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListen
    *
    * @see TransactionSynchronizationUtils#unwrapResourceIfNecessary(Object)
    */
-  private static boolean sameDataSource(DataSource ds1, DataSource ds2) {
-    return TransactionSynchronizationUtils.unwrapResourceIfNecessary(ds1)
-            .equals(TransactionSynchronizationUtils.unwrapResourceIfNecessary(ds2));
+  private static boolean sameDataSource(DataSource dataSource, DataSource dataSourceFromTxMgr) {
+    return TransactionSynchronizationUtils.unwrapResourceIfNecessary(dataSource)
+            .equals(TransactionSynchronizationUtils.unwrapResourceIfNecessary(dataSourceFromTxMgr))
+            || (dataSource instanceof TransactionAwareDataSourceProxy tadsp && dataSourceFromTxMgr.equals(tadsp.getTargetDataSource()));
   }
 
   @Nullable
