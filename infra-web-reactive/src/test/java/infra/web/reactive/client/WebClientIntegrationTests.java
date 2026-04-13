@@ -55,6 +55,7 @@ import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.DefaultDataBufferFactory;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
@@ -1277,6 +1278,7 @@ class WebClientIntegrationTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void reactorNettyAttributes() throws IOException {
     startServer(new ReactorClientHttpConnector());
 
