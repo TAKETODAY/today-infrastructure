@@ -89,6 +89,8 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
   private static final String ACTIVATE_LISTENER
           = "infra.test.context.web.MockTestExecutionListener.activateListener";
 
+  private static final boolean aotPresent = ClassUtils.isPresent("infra.aot.hint.RuntimeHints");
+
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
   @Override
@@ -137,6 +139,9 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
 
   @Override
   protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
+    if (aotPresent) {
+      return InfraApplicationAotContextLoader.class;
+    }
     return InfraApplicationContextLoader.class;
   }
 
@@ -344,7 +349,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
   protected final MergedContextConfiguration createModifiedConfig(MergedContextConfiguration mergedConfig,
           Class<?>[] classes, String[] propertySourceProperties) {
     Set<ContextCustomizer> contextCustomizers = new LinkedHashSet<>(mergedConfig.getContextCustomizers());
-    contextCustomizers.add(new InfraTestArgs(mergedConfig.getTestClass()));
+    contextCustomizers.add(new InfraTestAnnotation(mergedConfig.getTestClass()));
     contextCustomizers.add(new InfraTestWebEnvironment(mergedConfig.getTestClass()));
     return new MergedContextConfiguration(mergedConfig.getTestClass(), mergedConfig.getLocations(), classes,
             mergedConfig.getContextInitializerClasses(), mergedConfig.getActiveProfiles(),

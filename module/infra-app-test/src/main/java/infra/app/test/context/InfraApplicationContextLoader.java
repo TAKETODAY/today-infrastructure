@@ -20,15 +20,25 @@ package infra.app.test.context;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import infra.app.Application;
+import infra.app.ApplicationArguments;
 import infra.app.ApplicationContextFactory;
+import infra.app.ApplicationHook;
+import infra.app.ApplicationStartupListener;
 import infra.app.ApplicationType;
+import infra.app.Banner;
+import infra.app.ConfigurableBootstrapContext;
+import infra.app.InfraConfiguration;
 import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
-import infra.app.test.context.InfraTest.WebEnvironment;
+import infra.app.test.context.InfraTest.UseMainMethod;
 import infra.app.test.mock.web.InfraMockContext;
 import infra.app.web.context.reactive.GenericReactiveWebApplicationContext;
 import infra.beans.BeanUtils;
@@ -36,6 +46,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
+import infra.context.aot.AotApplicationContextInitializer;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
 import infra.core.annotation.MergedAnnotations;
@@ -45,11 +56,13 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.Version;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
+import infra.test.context.ContextLoadException;
 import infra.test.context.ContextLoader;
 import infra.test.context.MergedContextConfiguration;
+import infra.test.context.SmartContextLoader;
+import infra.test.context.aot.AotContextLoader;
 import infra.test.context.support.AbstractContextLoader;
 import infra.test.context.support.AnnotationConfigContextLoaderUtils;
 import infra.test.context.support.TestPropertySourceUtils;
@@ -57,7 +70,10 @@ import infra.test.context.web.WebMergedContextConfiguration;
 import infra.test.util.TestPropertyValues;
 import infra.test.util.TestPropertyValues.Type;
 import infra.util.ObjectUtils;
+import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
+import infra.util.function.ThrowingSupplier;
+import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
 
 /**
@@ -86,35 +102,125 @@ import infra.web.mock.support.GenericWebApplicationContext;
  */
 public class InfraApplicationContextLoader extends AbstractContextLoader {
 
+  private static final Object NONE = new Object();
+
+  private static final Consumer<Application> ALREADY_CONFIGURED = (application) -> {
+  };
+
   @Override
   public ApplicationContext loadContext(MergedContextConfiguration config) throws Exception {
-    Class<?>[] configClasses = config.getClasses();
-    String[] configLocations = config.getLocations();
-    Assert.state(ObjectUtils.isNotEmpty(configClasses) || ObjectUtils.isNotEmpty(configLocations),
-            () -> "No configuration classes or locations found in @InfraConfiguration. "
-                    + "For default configuration detection to work you need today-framework 5.0 or better (found "
-                    + Version.instance + ").");
-    Application application = getApplication();
+    return loadContext(config, Mode.STANDARD, null, null);
+  }
+
+  protected ApplicationContext loadContext(MergedContextConfiguration mergedConfig, Mode mode,
+          @Nullable ApplicationContextInitializer initializer, @Nullable Consumer<Method> mainMethodConsumer) throws Exception {
+    assertHasClassesOrLocations(mergedConfig);
+    InfraTestAnnotation annotation = InfraTestAnnotation.get(mergedConfig);
+    String[] args = annotation.getArgs();
+    UseMainMethod useMainMethod = annotation.getUseMainMethod();
+    Method mainMethod = getMainMethod(mergedConfig, useMainMethod);
+
+    if (mainMethod != null) {
+      if (mainMethodConsumer != null) {
+        mainMethodConsumer.accept(mainMethod);
+      }
+      ContextLoaderHook hook = new ContextLoaderHook(mode, initializer, application -> configure(mergedConfig, application));
+      return hook.runMain(() -> {
+        if (mainMethod.getParameterCount() == 0) {
+          ReflectionUtils.invokeMethod(mainMethod, null);
+        }
+        else {
+          ReflectionUtils.invokeMethod(mainMethod, null, new Object[] { args });
+        }
+      });
+    }
+
+    Application application = createApplication();
+    configure(mergedConfig, application);
+    ContextLoaderHook hook = new ContextLoaderHook(mode, initializer, ALREADY_CONFIGURED);
+    return hook.run(() -> application.run(args));
+  }
+
+  protected void assertHasClassesOrLocations(MergedContextConfiguration mergedConfig) {
+    Assert.state(mergedConfig.hasResources(),
+            () -> "No configuration classes or locations found. Check your test's configuration.");
+  }
+
+  private @Nullable Method getMainMethod(MergedContextConfiguration mergedConfig, UseMainMethod useMainMethod) {
+    if (useMainMethod == UseMainMethod.NEVER) {
+      return null;
+    }
+    Assert.state(mergedConfig.getParent() == null,
+            () -> "UseMainMethod.%s cannot be used with @ContextHierarchy tests".formatted(useMainMethod));
+    Class<?> infraConfiguration = Arrays.stream(mergedConfig.getClasses())
+            .filter(this::isInfraConfiguration)
+            .findFirst()
+            .orElse(null);
+    Assert.state(infraConfiguration != null || useMainMethod == UseMainMethod.WHEN_AVAILABLE,
+            "Cannot use main method as no @InfraConfiguration-annotated class is available");
+    Method mainMethod = findMainMethod(infraConfiguration);
+    Assert.state(mainMethod != null || useMainMethod == UseMainMethod.WHEN_AVAILABLE,
+            () -> "Main method not found on '%s'".formatted((infraConfiguration != null) ? infraConfiguration.getName() : null));
+    return mainMethod;
+  }
+
+  private static @Nullable Method findMainMethod(@Nullable Class<?> type) {
+    return type != null ? findMainJavaMethod(type) : null;
+  }
+
+  private static @Nullable Method findMainJavaMethod(Class<?> type) {
+    try {
+      Method method = getMainMethod(type);
+      if (Modifier.isStatic(method.getModifiers())) {
+        method.setAccessible(true);
+        return method;
+      }
+    }
+    catch (Exception ex) {
+      // Ignore
+    }
+    return null;
+  }
+
+  private static Method getMainMethod(Class<?> type) throws NoSuchMethodException {
+    try {
+      return type.getDeclaredMethod("main", String[].class);
+    }
+    catch (NoSuchMethodException ex) {
+      return type.getDeclaredMethod("main");
+    }
+
+  }
+
+  private boolean isInfraConfiguration(Class<?> candidate) {
+    return MergedAnnotations.from(candidate, SearchStrategy.TYPE_HIERARCHY)
+            .isPresent(InfraConfiguration.class);
+  }
+
+  protected void configure(MergedContextConfiguration config, Application application) {
     application.setMainApplicationClass(config.getTestClass());
-    application.addPrimarySources(Arrays.asList(configClasses));
-    application.getSources().addAll(Arrays.asList(configLocations));
+    application.addPrimarySources(Arrays.asList(config.getClasses()));
+    application.getSources().addAll(Arrays.asList(config.getLocations()));
+
     List<ApplicationContextInitializer> initializers = getInitializers(config, application);
     if (config instanceof WebMergedContextConfiguration) {
       application.setApplicationType(ApplicationType.WEB);
       if (!isEmbeddedWebEnvironment(config)) {
-        new WebConfigurer().configure(config, application, initializers);
+        new WebConfigurer().configure(config, initializers);
       }
     }
     else if (config instanceof ReactiveWebMergedContextConfiguration) {
       application.setApplicationType(ApplicationType.REACTIVE_WEB);
-      if (!isEmbeddedWebEnvironment(config)) {
-        application.setApplicationContextFactory(
-                ApplicationContextFactory.forSupplier(GenericReactiveWebApplicationContext::new));
-      }
     }
     else {
       application.setApplicationType(ApplicationType.NORMAL);
     }
+
+    application.setApplicationContextFactory(getApplicationContextFactory(config));
+    if (config.getParent() != null) {
+      application.setBannerMode(Banner.Mode.OFF);
+    }
+
     application.setInitializers(initializers);
     ConfigurableEnvironment environment = getEnvironment();
     if (environment != null) {
@@ -124,8 +230,29 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     else {
       application.addListeners(new PrepareEnvironmentListener(config));
     }
-    String[] args = InfraTestArgs.get(config.getContextCustomizers());
-    return application.run(args);
+  }
+
+  /**
+   * Return the {@link ApplicationContextFactory} that should be used for the test. By
+   * defaults this method will return a factory that will create an appropriate
+   * {@link ApplicationContext} for the {@link ApplicationType}.
+   *
+   * @param mergedConfig the merged context configuration
+   * @return the application context factory to use
+   * @since 5.0
+   */
+  protected ApplicationContextFactory getApplicationContextFactory(MergedContextConfiguration mergedConfig) {
+    return applicationType -> {
+      if (applicationType != ApplicationType.NORMAL && !isEmbeddedWebEnvironment(mergedConfig)) {
+        if (applicationType == ApplicationType.REACTIVE_WEB) {
+          return new GenericReactiveWebApplicationContext();
+        }
+        if (applicationType == ApplicationType.WEB) {
+          return new GenericWebApplicationContext();
+        }
+      }
+      return ApplicationContextFactory.DEFAULT.create(applicationType);
+    };
   }
 
   private void prepareEnvironment(MergedContextConfiguration config, Application application,
@@ -159,7 +286,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
    *
    * @return {@link Application} instance
    */
-  protected Application getApplication() {
+  protected Application createApplication() {
     return new Application();
   }
 
@@ -170,8 +297,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
    *
    * @return a {@link ConfigurableEnvironment} instance
    */
-  @Nullable
-  protected ConfigurableEnvironment getEnvironment() {
+  protected @Nullable ConfigurableEnvironment getEnvironment() {
     return null;
   }
 
@@ -185,7 +311,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
 
   /**
    * Return the {@link ApplicationContextInitializer initializers} that will be applied
-   * to the context. By default this method will adapt {@link ContextCustomizer context
+   * to the context. By defaults this method will adapt {@link ContextCustomizer context
    * customizers}, add {@link Application#getInitializers() application
    * initializers} and add
    * {@link MergedContextConfiguration#getContextInitializerClasses() initializers
@@ -213,10 +339,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
   }
 
   private boolean isEmbeddedWebEnvironment(MergedContextConfiguration config) {
-    return MergedAnnotations.from(config.getTestClass(), SearchStrategy.TYPE_HIERARCHY)
-            .get(InfraTest.class)
-            .getValue("webEnvironment", WebEnvironment.class, WebEnvironment.NONE)
-            .isEmbedded();
+    return InfraTestAnnotation.get(config).getWebEnvironment().isEmbedded();
   }
 
   @Override
@@ -263,18 +386,40 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
    */
   private static final class WebConfigurer {
 
-    void configure(MergedContextConfiguration configuration, Application application, List<ApplicationContextInitializer> initializers) {
+    void configure(MergedContextConfiguration configuration, List<ApplicationContextInitializer> initializers) {
       WebMergedContextConfiguration webConfiguration = (WebMergedContextConfiguration) configuration;
       addMockContext(initializers, webConfiguration);
-      application.setApplicationContextFactory(webApplicationType -> new GenericWebApplicationContext());
     }
 
-    private void addMockContext(List<ApplicationContextInitializer> initializers,
-            WebMergedContextConfiguration webConfiguration) {
-      InfraMockContext mockContext = new InfraMockContext(
-              webConfiguration.getResourceBasePath());
-      initializers.add(0, new MockContextApplicationContextInitializer(mockContext, true));
+    private void addMockContext(List<ApplicationContextInitializer> initializers, WebMergedContextConfiguration webConfiguration) {
+      InfraMockContext mockContext = new InfraMockContext(webConfiguration.getResourceBasePath());
+      initializers.add(0, new DefensiveWebApplicationContextInitializer(
+              new MockContextApplicationContextInitializer(mockContext, true)));
     }
+
+    /**
+     * Decorator for {@link MockContextApplicationContextInitializer} that prevents
+     * a failure when the context type is not as was predicted when the initializer
+     * was registered.
+     */
+    private static final class DefensiveWebApplicationContextInitializer
+            implements ApplicationContextInitializer {
+
+      private final MockContextApplicationContextInitializer delegate;
+
+      private DefensiveWebApplicationContextInitializer(MockContextApplicationContextInitializer delegate) {
+        this.delegate = delegate;
+      }
+
+      @Override
+      public void initialize(ConfigurableApplicationContext applicationContext) {
+        if (applicationContext instanceof ConfigurableWebApplicationContext webApplicationContext) {
+          this.delegate.initialize(webApplicationContext);
+        }
+      }
+
+    }
+
   }
 
   /**
@@ -305,9 +450,9 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
   @Order(Ordered.HIGHEST_PRECEDENCE)
   private static class ParentContextApplicationContextInitializer implements ApplicationContextInitializer {
 
-    private final ApplicationContext parent;
+    private final @Nullable ApplicationContext parent;
 
-    ParentContextApplicationContextInitializer(ApplicationContext parent) {
+    ParentContextApplicationContextInitializer(@Nullable ApplicationContext parent) {
       this.parent = parent;
     }
 
@@ -338,6 +483,120 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
       prepareEnvironment(this.config, event.getApplication(), event.getEnvironment(), true);
+    }
+
+  }
+
+  /**
+   * Modes that the {@link InfraApplicationContextLoader} can operate.
+   */
+  protected enum Mode {
+
+    /**
+     * Load for regular usage.
+     *
+     * @see SmartContextLoader#loadContext
+     */
+    STANDARD,
+
+    /**
+     * Load for AOT processing.
+     *
+     * @see AotContextLoader#loadContextForAotProcessing
+     */
+    AOT_PROCESSING,
+
+    /**
+     * Load for AOT runtime.
+     *
+     * @see AotContextLoader#loadContextForAotRuntime
+     */
+    AOT_RUNTIME
+  }
+
+  /**
+   * {@link ApplicationHook} used to capture {@link ApplicationContext} instances
+   * and to trigger early exit for the {@link Mode#AOT_PROCESSING} mode.
+   */
+  protected static class ContextLoaderHook implements ApplicationHook {
+
+    private final Mode mode;
+
+    private final @Nullable ApplicationContextInitializer initializer;
+
+    private final Consumer<Application> configurer;
+
+    private final List<ApplicationContext> contexts = Collections.synchronizedList(new ArrayList<>());
+
+    private final List<ApplicationContext> failedContexts = Collections.synchronizedList(new ArrayList<>());
+
+    ContextLoaderHook(Mode mode, @Nullable ApplicationContextInitializer initializer, Consumer<Application> configurer) {
+      this.mode = mode;
+      this.initializer = initializer;
+      this.configurer = configurer;
+    }
+
+    @Override
+    public @Nullable ApplicationStartupListener getStartupListener(Application application) {
+      return new ApplicationStartupListener() {
+
+        @Override
+        public void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
+          ContextLoaderHook.this.configurer.accept(application);
+          if (ContextLoaderHook.this.mode == Mode.AOT_RUNTIME) {
+            Assert.state(ContextLoaderHook.this.initializer != null, "'initializer' is required");
+            application.addInitializers(
+                    (AotApplicationContextInitializer) ContextLoaderHook.this.initializer::initialize);
+          }
+        }
+
+        @Override
+        public void contextLoaded(ConfigurableApplicationContext context) {
+          ContextLoaderHook.this.contexts.add(context);
+          if (ContextLoaderHook.this.mode == Mode.AOT_PROCESSING) {
+            throw new Application.AbandonedRunException(context);
+          }
+        }
+
+        @Override
+        public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
+          if (context != null) {
+            ContextLoaderHook.this.failedContexts.add(context);
+          }
+        }
+
+      };
+    }
+
+    private ApplicationContext runMain(Runnable action) throws Exception {
+      return run(() -> {
+        action.run();
+        return NONE;
+      });
+    }
+
+    private <T> ApplicationContext run(ThrowingSupplier<T> action) throws Exception {
+      try {
+        Object result = Application.withHook(this, action);
+        if (result instanceof ApplicationContext context) {
+          return context;
+        }
+      }
+      catch (Application.AbandonedRunException ex) {
+        // Ignore
+      }
+      catch (Exception ex) {
+        if (this.failedContexts.size() == 1) {
+          throw new ContextLoadException(this.failedContexts.get(0), ex);
+        }
+        throw ex;
+      }
+      List<ApplicationContext> rootContexts = this.contexts.stream()
+              .filter((context) -> context.getParent() == null)
+              .toList();
+      Assert.state(!rootContexts.isEmpty(), "No root application context located");
+      Assert.state(rootContexts.size() == 1, "No unique root application context located");
+      return rootContexts.get(0);
     }
 
   }

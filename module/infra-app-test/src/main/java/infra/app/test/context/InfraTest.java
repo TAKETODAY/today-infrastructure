@@ -132,6 +132,15 @@ public @interface InfraTest {
   WebEnvironment webEnvironment() default WebEnvironment.MOCK;
 
   /**
+   * The type of main method usage to employ when creating the {@link Application}
+   * under test.
+   *
+   * @return the type of main method usage
+   * @since 5.0
+   */
+  UseMainMethod useMainMethod() default UseMainMethod.NEVER;
+
+  /**
    * An enumeration web environment modes.
    */
   enum WebEnvironment {
@@ -179,6 +188,38 @@ public @interface InfraTest {
     public boolean isEmbedded() {
       return this.embedded;
     }
+
+  }
+
+  /**
+   * Enumeration of how the main method of the
+   * {@link InfraConfiguration @InfraConfiguration}-annotated class is used
+   * when creating and running the {@link Application} under test.
+   *
+   * @since 5.0
+   */
+  enum UseMainMethod {
+
+    /**
+     * Always use the {@code main} method. A failure will occur if there is no
+     * {@link InfraConfiguration @InfraConfiguration}-annotated class or
+     * that class does not have a main method.
+     */
+    ALWAYS,
+
+    /**
+     * Never use the {@code main} method, creating a test-specific
+     * {@link Application} instead.
+     */
+    NEVER,
+
+    /**
+     * Use the {@code main} method when it is available. If there is no
+     * {@link InfraConfiguration @InfraConfiguration}-annotated class or
+     * that class does not have a main method, a test-specific
+     * {@link Application} will be used.
+     */
+    WHEN_AVAILABLE
 
   }
 
