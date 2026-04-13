@@ -41,6 +41,17 @@ import infra.core.annotation.AliasFor;
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *
+ * <p>Note that when {@code @ActiveProfiles} is declared on a test class, the
+ * {@link infra.core.env.StandardEnvironment#KEY_ACTIVE_PROFILES
+ * infra.profiles.active} property (whether configured as a JVM system property
+ * or environment variable) is not taken into account by the Infra TestContext
+ * Framework when determining active profiles. If you need to allow
+ * {@code infra.profiles.active} to override the profiles configured via
+ * {@code @ActiveProfiles}, you can implement a custom {@link ActiveProfilesResolver}
+ * and register it via the {@link #resolver} attribute. See
+ * <em>Context Configuration with Environment Profiles</em> in the reference manual
+ * for further details and examples.
+ *
  * @author Sam Brannen
  * @see SmartContextLoader
  * @see MergedContextConfiguration

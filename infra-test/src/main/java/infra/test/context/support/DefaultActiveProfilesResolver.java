@@ -31,6 +31,14 @@ import infra.test.context.TestContextAnnotationUtils;
  * configured declaratively via {@link ActiveProfiles#profiles} or
  * {@link ActiveProfiles#value}.
  *
+ * <p>Note that the
+ * {@link infra.core.env.AbstractEnvironment#KEY_ACTIVE_PROFILES
+ * infra.profiles.active} property (whether configured as a JVM system property
+ * or environment variable) is not taken into account by this resolver. If you need
+ * to allow {@code infra.profiles.active} to override profiles configured via
+ * {@link ActiveProfiles @ActiveProfiles}, you can implement a custom
+ * {@link ActiveProfilesResolver} and register it via {@link ActiveProfiles#resolver}.
+ *
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ActiveProfiles
