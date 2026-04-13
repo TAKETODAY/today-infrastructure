@@ -35,6 +35,7 @@ import infra.lang.Assert;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class Ternary extends SpelNodeImpl {
@@ -53,12 +54,12 @@ public class Ternary extends SpelNodeImpl {
    */
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
-    Boolean value = this.children[0].getValue(state, Boolean.class);
-    if (value == null) {
+    Boolean condition = this.children[0].getValue(state, Boolean.class);
+    if (condition == null) {
       throw new SpelEvaluationException(getChild(0).getStartPosition(),
               SpelMessage.TYPE_CONVERSION_ERROR, "null", "boolean");
     }
-    TypedValue result = this.children[value ? 1 : 2].getValueInternal(state);
+    TypedValue result = this.children[condition ? 1 : 2].getValueInternal(state);
     computeExitTypeDescriptor();
     return result;
   }
@@ -84,8 +85,10 @@ public class Ternary extends SpelNodeImpl {
 
   @Override
   public void generateCode(MethodVisitor mv, CodeFlow cf) {
-    // May get here without the exit descriptor having been computed, if
-    // all elements are literals.
+    // If all elements are literals and the expression was not previously
+    // evaluated in interpreted mode, we may get here without the exit descriptor
+    // having been computed, so we must ensure the exit descriptor has been
+    // computed before proceeding.
     computeExitTypeDescriptor();
 
     cf.enterCompilationScope();
