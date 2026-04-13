@@ -39,8 +39,7 @@ final class OriginTrackedFieldError extends FieldError implements OriginProvider
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Nullable
-  private final Origin origin;
+  private final @Nullable Origin origin;
 
   private OriginTrackedFieldError(FieldError fieldError, @Nullable Origin origin) {
     super(fieldError.getObjectName(), fieldError.getField(), fieldError.getRejectedValue(),
@@ -50,8 +49,7 @@ final class OriginTrackedFieldError extends FieldError implements OriginProvider
   }
 
   @Override
-  @Nullable
-  public Origin getOrigin() {
+  public @Nullable Origin getOrigin() {
     return this.origin;
   }
 
@@ -63,8 +61,7 @@ final class OriginTrackedFieldError extends FieldError implements OriginProvider
     return super.toString() + "; origin " + this.origin;
   }
 
-  @Nullable
-  static FieldError of(@Nullable FieldError fieldError, @Nullable Origin origin) {
+  static @Nullable FieldError of(@Nullable FieldError fieldError, @Nullable Origin origin) {
     if (fieldError == null || origin == null) {
       return fieldError;
     }

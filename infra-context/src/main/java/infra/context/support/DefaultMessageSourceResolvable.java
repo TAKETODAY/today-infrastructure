@@ -43,8 +43,7 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
 
   private final Object @Nullable [] arguments;
 
-  @Nullable
-  private final String defaultMessage;
+  private final @Nullable String defaultMessage;
 
   /**
    * Create a new DefaultMessageSourceResolvable.
@@ -110,8 +109,7 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
    * Return the default code of this resolvable, that is,
    * the last one in the codes array.
    */
-  @Nullable
-  public String getCode() {
+  public @Nullable String getCode() {
     return (this.codes != null && this.codes.length > 0 ? this.codes[this.codes.length - 1] : null);
   }
 
@@ -126,8 +124,7 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
   }
 
   @Override
-  @Nullable
-  public String getDefaultMessage() {
+  public @Nullable String getDefaultMessage() {
     return this.defaultMessage;
   }
 

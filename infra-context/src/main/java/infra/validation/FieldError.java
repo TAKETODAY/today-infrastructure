@@ -45,8 +45,7 @@ public class FieldError extends ObjectError {
 
   private final String field;
 
-  @Nullable
-  private final Object rejectedValue;
+  private final @Nullable Object rejectedValue;
 
   private final boolean bindingFailure;
 
@@ -93,8 +92,7 @@ public class FieldError extends ObjectError {
   /**
    * Return the rejected field value.
    */
-  @Nullable
-  public Object getRejectedValue() {
+  public @Nullable Object getRejectedValue() {
     return this.rejectedValue;
   }
 
@@ -107,7 +105,6 @@ public class FieldError extends ObjectError {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;

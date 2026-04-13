@@ -46,8 +46,7 @@ public class ObjectError extends DefaultMessageSourceResolvable {
 
   private final String objectName;
 
-  @Nullable
-  private transient Object source;
+  private transient @Nullable Object source;
 
   /**
    * Create a new instance of the ObjectError class.

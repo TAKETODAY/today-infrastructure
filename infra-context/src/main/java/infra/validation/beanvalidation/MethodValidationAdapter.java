@@ -424,17 +424,13 @@ public class MethodValidationAdapter implements MethodValidator {
 
     private final MethodParameter parameter;
 
-    @Nullable
-    private final Object value;
+    private final @Nullable Object value;
 
-    @Nullable
-    private final Object container;
+    private final @Nullable Object container;
 
-    @Nullable
-    private final Integer containerIndex;
+    private final @Nullable Integer containerIndex;
 
-    @Nullable
-    private final Object containerKey;
+    private final @Nullable Object containerKey;
 
     private final List<MessageSourceResolvable> resolvableErrors = new ArrayList<>();
 
@@ -456,7 +452,7 @@ public class MethodValidationAdapter implements MethodValidator {
       return new ParameterValidationResult(this.parameter, this.value, this.resolvableErrors,
               this.container, this.containerIndex, this.containerKey, (error, sourceType) -> {
         Assert.isTrue(sourceType.equals(ConstraintViolation.class), "Unexpected source type");
-        return ((ViolationMessageSourceResolvable) error).getViolation();
+        return ((ViolationMessageSourceResolvable) error).violation;
       });
     }
 
@@ -470,17 +466,13 @@ public class MethodValidationAdapter implements MethodValidator {
 
     private final MethodParameter parameter;
 
-    @Nullable
-    private final Object bean;
+    private final @Nullable Object bean;
 
-    @Nullable
-    private final Object container;
+    private final @Nullable Object container;
 
-    @Nullable
-    private final Integer containerIndex;
+    private final @Nullable Integer containerIndex;
 
-    @Nullable
-    private final Object containerKey;
+    private final @Nullable Object containerKey;
 
     private final Errors errors;
 
@@ -509,10 +501,9 @@ public class MethodValidationAdapter implements MethodValidator {
     }
   }
 
-  @SuppressWarnings("serial")
-  private static final class ViolationMessageSourceResolvable extends DefaultMessageSourceResolvable {
+  private final class ViolationMessageSourceResolvable extends DefaultMessageSourceResolvable {
 
-    private final transient ConstraintViolation<Object> violation;
+    public final transient ConstraintViolation<Object> violation;
 
     public ViolationMessageSourceResolvable(
             String[] codes, Object[] arguments, String defaultMessage, ConstraintViolation<Object> violation) {
@@ -521,8 +512,9 @@ public class MethodValidationAdapter implements MethodValidator {
       this.violation = violation;
     }
 
-    public ConstraintViolation<Object> getViolation() {
-      return this.violation;
+    @Override
+    public boolean shouldRenderDefaultMessage() {
+      return validatorAdapter.requiresMessageFormat(this.violation);
     }
   }
 

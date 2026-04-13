@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -150,10 +151,21 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
    * @param errors the Framework errors object to register to
    */
   protected void processConstraintViolations(Set<ConstraintViolation<Object>> violations, Errors errors) {
+    // Pre-identify binding failures (using getAllErrors to avoid intermediate list)
+    Set<String> failedFields = new HashSet<>();
+    if (errors.hasErrors()) {
+      for (ObjectError error : errors.getAllErrors()) {
+        if (error instanceof FieldError fieldError && fieldError.isBindingFailure()) {
+          failedFields.add(fieldError.getField());
+        }
+      }
+    }
+
+    // Turn the ConstraintViolations into Object/FieldErrors,
+    // but only for fields where binding has been successful.
     for (ConstraintViolation<Object> violation : violations) {
       String field = determineField(violation);
-      FieldError fieldError = errors.getFieldError(field);
-      if (fieldError == null || !fieldError.isBindingFailure()) {
+      if (!failedFields.contains(field)) {
         try {
           ConstraintDescriptor<?> cd = violation.getConstraintDescriptor();
           String errorCode = determineErrorCode(cd);
@@ -164,14 +176,14 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
             String nestedField = bindingResult.getNestedPath() + field;
             if (nestedField.isEmpty()) {
               String[] errorCodes = bindingResult.resolveMessageCodes(errorCode);
-              ObjectError error = new ViolationObjectError(
+              ObjectError error = new ValidationObjectError(
                       errors.getObjectName(), errorCodes, errorArgs, violation, this);
               bindingResult.addError(error);
             }
             else {
               Object rejectedValue = getRejectedValue(field, violation, bindingResult);
               String[] errorCodes = bindingResult.resolveMessageCodes(errorCode, field);
-              FieldError error = new ViolationFieldError(errors.getObjectName(), nestedField,
+              FieldError error = new ValidationFieldError(errors.getObjectName(), nestedField,
                       rejectedValue, errorCodes, errorArgs, violation, this);
               bindingResult.addError(error);
             }
@@ -184,7 +196,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
         }
         catch (NotReadablePropertyException ex) {
           throw new IllegalStateException("JSR-303 validated property '" + field +
-                  "' does not have a corresponding accessor for Framework data binding - " +
+                  "' does not have a corresponding accessor for Infra data binding - " +
                   "check your DataBinder's configuration (bean property versus direct field access)", ex);
         }
       }
@@ -432,18 +444,16 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
   /**
    * Subclass of {@code ObjectError} with Infra-style default message rendering.
    */
-  private static class ViolationObjectError extends ObjectError implements Serializable {
+  private static class ValidationObjectError extends ObjectError implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Nullable
-    private final transient InfraValidatorAdapter adapter;
+    private final transient @Nullable InfraValidatorAdapter adapter;
 
-    @Nullable
-    private final transient ConstraintViolation<?> violation;
+    private final transient @Nullable ConstraintViolation<?> violation;
 
-    public ViolationObjectError(String objectName, String[] codes, Object[] arguments,
+    public ValidationObjectError(String objectName, String[] codes, Object[] arguments,
             ConstraintViolation<?> violation, InfraValidatorAdapter adapter) {
 
       super(objectName, codes, arguments, violation.getMessage());
@@ -461,20 +471,18 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
   }
 
   /**
-   * Subclass of {@code FieldError} with Framework-style default message rendering.
+   * Subclass of {@code FieldError} with Infra-style default message rendering.
    */
-  private static class ViolationFieldError extends FieldError implements Serializable {
+  private static class ValidationFieldError extends FieldError implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Nullable
-    private final transient InfraValidatorAdapter adapter;
+    private final transient @Nullable InfraValidatorAdapter adapter;
 
-    @Nullable
-    private final transient ConstraintViolation<?> violation;
+    private final transient @Nullable ConstraintViolation<?> violation;
 
-    public ViolationFieldError(String objectName, String field,
+    public ValidationFieldError(String objectName, String field,
             @Nullable Object rejectedValue, String[] codes,
             Object[] arguments, ConstraintViolation<?> violation, InfraValidatorAdapter adapter) {
 
