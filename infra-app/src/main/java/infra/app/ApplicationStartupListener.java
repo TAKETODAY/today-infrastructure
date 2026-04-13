@@ -58,8 +58,8 @@ public interface ApplicationStartupListener {
    *
    * @param bootstrapContext the bootstrap context
    */
-  default void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
-
+  default void starting(ConfigurableBootstrapContext bootstrapContext,
+          @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
   }
 
   /**
@@ -70,7 +70,6 @@ public interface ApplicationStartupListener {
    * @param environment the environment
    */
   default void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-
   }
 
   /**
@@ -80,7 +79,6 @@ public interface ApplicationStartupListener {
    * @param context the application context
    */
   default void contextPrepared(ConfigurableApplicationContext context) {
-
   }
 
   /**
@@ -90,7 +88,6 @@ public interface ApplicationStartupListener {
    * @param context the application context
    */
   default void contextLoaded(ConfigurableApplicationContext context) {
-
   }
 
   /**
@@ -102,7 +99,6 @@ public interface ApplicationStartupListener {
    * @param timeTaken the time taken to start the application or {@code null} if unknown
    */
   default void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
-
   }
 
   /**
@@ -115,7 +111,6 @@ public interface ApplicationStartupListener {
    * unknown
    */
   default void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
-
   }
 
   /**
@@ -126,7 +121,6 @@ public interface ApplicationStartupListener {
    * @param exception the failure
    */
   default void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
-
   }
 
 }
