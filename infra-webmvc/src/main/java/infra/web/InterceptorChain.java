@@ -22,7 +22,9 @@ import infra.web.handler.HandlerWrapper;
 import infra.web.handler.method.HandlerMethod;
 
 /**
- * HandlerInterceptor execution chain
+ * Represents a chain of {@link HandlerInterceptor}s that are executed in sequence
+ * before the target handler is invoked. This class manages the execution order
+ * and allows interceptors to short-circuit the request processing.
  *
  * @author TODAY 2021/8/8 14:57
  * @since 4.0
@@ -37,6 +39,12 @@ public abstract class InterceptorChain {
 
   private final HandlerInterceptor[] interceptors;
 
+  /**
+   * Constructs a new {@code InterceptorChain} with the specified interceptors and handler.
+   *
+   * @param interceptors the array of interceptors to be executed in sequence
+   * @param handler the target handler to be invoked after all interceptors have been processed
+   */
   protected InterceptorChain(HandlerInterceptor[] interceptors, Object handler) {
     this.interceptorLength = interceptors.length;
     this.interceptors = interceptors;
@@ -44,15 +52,20 @@ public abstract class InterceptorChain {
   }
 
   /**
-   * Execute next interceptor
+   * Executes the next interceptor in the chain, or invokes the target
+   * handler if all interceptors have been executed.
+   * <p>
+   * This method is called recursively by each interceptor to proceed
+   * with the execution chain. If there are remaining interceptors,
+   * the next one is invoked. Otherwise, the target handler is invoked.
    *
-   * @param context current request context
-   * @return interceptor or handler result, this will handle by {@link infra.web.ReturnValueHandler}
-   * @throws Throwable if interceptor throw exception
+   * @param context the current request context
+   * @return the result returned by the handler or an interceptor,
+   * which will be processed by {@link infra.web.ReturnValueHandler}
+   * @throws Throwable if any interceptor or the handler throws an exception
    * @see infra.web.ReturnValueHandler
    */
-  @Nullable
-  public final Object proceed(RequestContext context) throws Throwable {
+  public final @Nullable Object proceed(RequestContext context) throws Throwable {
     if (currentIndex < interceptorLength) {
       return interceptors[currentIndex++].intercept(context, this);
     }
@@ -60,34 +73,53 @@ public abstract class InterceptorChain {
   }
 
   /**
-   * process target handler
+   * Invokes the target handler after all interceptors in the chain have been executed.
+   * <p>
+   * This method is called by {@link #proceed(RequestContext)} when there are no more
+   * interceptors to process. Subclasses must implement this method to handle the
+   * actual invocation of the target handler, which may be a {@link HandlerMethod}
+   * or another type of handler wrapped by {@link HandlerWrapper}.
    *
-   * @param context current context
-   * @param handler this context request handler
-   * @return handle result
+   * @param context the current request context containing request and response information
+   * @param handler the target handler to invoke, which may need to be unwrapped using
+   * {@link HandlerWrapper#unwrap(Object)} if it is a wrapped handler
+   * @return the result returned by the handler, which will be processed by
+   * {@link infra.web.ReturnValueHandler}
+   * @throws Throwable if the handler invocation fails or throws an exception
+   * @see HandlerMethod
+   * @see HandlerWrapper
    */
-  @Nullable
-  protected abstract Object invokeHandler(RequestContext context, Object handler) throws Throwable;
+  protected abstract @Nullable Object invokeHandler(RequestContext context, Object handler)
+          throws Throwable;
 
   /**
-   * Get interceptors
+   * Returns the array of interceptors in this chain.
+   *
+   * @return the interceptors
    */
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
   }
 
   /**
-   * Get current interceptor's index
+   * Returns the index of the current interceptor being executed.
+   *
+   * @return the current interceptor index
    */
   public int getCurrentIndex() {
     return currentIndex;
   }
 
   /**
-   * target handler, maybe a
-   * {@link infra.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
+   * Returns the target handler associated with this chain.
+   * <p>
+   * The returned handler may be a {@link HandlerMethod} or another object
+   * wrapped by a {@link HandlerWrapper}. To obtain the actual handler instance,
+   * consider using {@link #unwrapHandler()}.
    *
-   * @see HandlerMethod#unwrap(Object)
+   * @return the target handler, which may need unwrapping
+   * @see #unwrapHandler()
+   * @see HandlerMethod
    * @see HandlerWrapper
    */
   public Object getHandler() {
@@ -95,12 +127,15 @@ public abstract class InterceptorChain {
   }
 
   /**
-   * Handler maybe a
-   * {@link infra.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
-   * or {@link HandlerWrapper}
+   * Unwraps the target handler if it is wrapped by a {@link HandlerWrapper}.
+   * <p>
+   * This method delegates to {@link HandlerWrapper#unwrap(Object)} to retrieve
+   * the underlying handler instance. If the handler is not wrapped, it is
+   * returned as-is.
    *
-   * @see HandlerMethod#unwrap(Object)
-   * @see HandlerWrapper
+   * @return the unwrapped target handler
+   * @see HandlerWrapper#unwrap(Object)
+   * @see HandlerMethod
    */
   public Object unwrapHandler() {
     return HandlerWrapper.unwrap(handler);

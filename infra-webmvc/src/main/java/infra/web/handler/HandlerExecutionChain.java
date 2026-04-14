@@ -60,7 +60,6 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
    * @param interceptors the array of interceptors to apply
    * (in the given order) before the handler itself executes
    */
-  @SuppressWarnings("NullAway")
   public HandlerExecutionChain(Object handler, HandlerInterceptor @Nullable [] interceptors) {
     this.handler = handler;
     this.interceptors = interceptors;
@@ -79,18 +78,8 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
     this.handlerAdapter = handlerAdapter;
   }
 
-  /**
-   * Delegates to the handler's {@code toString()} implementation.
-   */
   @Override
-  public String toString() {
-    return "HandlerExecutionChain with [%s] and %d interceptors"
-            .formatted(handler, interceptors != null ? interceptors.length : 0);
-  }
-
-  @Nullable
-  @Override
-  public Object handleRequest(RequestContext request) throws Throwable {
+  public @Nullable Object handleRequest(RequestContext request) throws Throwable {
     var interceptors = this.interceptors;
     if (interceptors == null) {
       return handlerAdapter.handle(request, handler);
@@ -100,6 +89,15 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
 
   public HandlerInterceptor @Nullable [] getInterceptors() {
     return interceptors;
+  }
+
+  /**
+   * Delegates to the handler's {@code toString()} implementation.
+   */
+  @Override
+  public String toString() {
+    return "HandlerExecutionChain with [%s] and %d interceptors"
+            .formatted(handler, interceptors != null ? interceptors.length : 0);
   }
 
   private final class Chain extends InterceptorChain {

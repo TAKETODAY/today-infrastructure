@@ -19,12 +19,20 @@ package infra.web.handler;
 import infra.web.HandlerAdapter;
 
 /**
- * HandlerAdapter can be injected at runtime
+ * An interface to be implemented by objects that wish to receive a {@link HandlerAdapter} instance.
+ * <p>
+ * This allows the {@code HandlerAdapter} to be injected at runtime, typically by the framework's
+ * configuration or initialization process.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/7 23:15
  */
 public interface HandlerAdapterAware {
 
+  /**
+   * Set the {@link HandlerAdapter} for this object.
+   *
+   * @param handlerAdapter the {@code HandlerAdapter} to use
+   */
   void setHandlerAdapter(HandlerAdapter handlerAdapter);
 }
