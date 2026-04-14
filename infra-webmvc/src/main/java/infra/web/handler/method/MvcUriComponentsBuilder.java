@@ -827,13 +827,6 @@ public class MvcUriComponentsBuilder {
     /**
      * Create a new {@link MethodArgumentBuilder} instance.
      */
-    public MethodArgumentBuilder(Class<?> controllerType, Method method) {
-      this(null, controllerType, method);
-    }
-
-    /**
-     * Create a new {@link MethodArgumentBuilder} instance.
-     */
     public MethodArgumentBuilder(@Nullable UriComponentsBuilder baseUrl, Class<?> controllerType, Method method) {
       Assert.notNull(controllerType, "'controllerType' is required");
       Assert.notNull(method, "'method' is required");
