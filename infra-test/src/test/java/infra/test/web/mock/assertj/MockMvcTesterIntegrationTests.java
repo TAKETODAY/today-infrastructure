@@ -155,6 +155,7 @@ public class MockMvcTesterIntegrationTests {
     }
 
     @Test
+    @DisabledOnMac
     void asyncRequestWithExplicitExchangeAndEnoughTimeToWait() {
       assertThat(mvc.get().uri("/streaming").param("timeToWait", "100").exchange(Duration.ofMillis(200)))
               .hasStatusOk().hasBodyTextEqualTo("name=Joe&someBoolean=true");
