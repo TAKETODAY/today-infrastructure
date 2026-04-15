@@ -309,7 +309,7 @@ public class ReflectionHints {
    * @since 5.0
    */
   public ReflectionHints registerLambda(Class<?> declaringClass, Consumer<LambdaHint.Builder> lambdaHint) {
-    return this.registerLambda(TypeReference.of(declaringClass), lambdaHint);
+    return registerLambda(TypeReference.of(declaringClass), lambdaHint);
   }
 
   private List<TypeReference> mapParameters(Executable executable) {
