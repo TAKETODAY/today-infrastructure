@@ -18,6 +18,7 @@ package infra.session;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -184,8 +185,10 @@ public class FileSessionPersister implements SessionPersister {
       }
       return session;
     }
-    catch (FileNotFoundException e) {
-      log.debug("No persisted data file found");
+    catch (FileNotFoundException | EOFException e) {
+      // for EOFException
+      file.delete();
+      log.debug("No persisted data file found or EOF file");
       return null;
     }
   }
