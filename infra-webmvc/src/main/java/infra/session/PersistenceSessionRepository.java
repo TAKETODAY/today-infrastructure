@@ -59,9 +59,8 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     return delegate.createSession(id);
   }
 
-  @Nullable
   @Override
-  public Session retrieveSession(String sessionId) {
+  public @Nullable Session retrieveSession(String sessionId) {
     Session session = delegate.retrieveSession(sessionId);
     if (session == null) {
       synchronized(sessionId.intern()) {
@@ -84,9 +83,8 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     removeSession(session.getId());
   }
 
-  @Nullable
   @Override
-  public Session removeSession(String sessionId) {
+  public @Nullable Session removeSession(String sessionId) {
     Session ret = delegate.removeSession(sessionId);
     removePersister(sessionId, sessionPersister);
     return ret;
