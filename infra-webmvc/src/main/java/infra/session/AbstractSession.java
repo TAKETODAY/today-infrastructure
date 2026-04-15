@@ -29,7 +29,10 @@ import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 
 /**
- * Session events supported Session
+ * Abstract base class for {@link Session} implementations that supports session events.
+ * <p>This class provides the core functionality for managing session attributes and
+ * dispatching events to registered listeners such as {@link AttributeBindingListener}
+ * and {@link SessionAttributeListener} via the {@link SessionEventDispatcher}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionEventDispatcher
@@ -39,9 +42,10 @@ import infra.util.StringUtils;
  */
 public abstract class AbstractSession implements Session {
 
-  /** Map with String keys and Object values. */
-  @Nullable
-  protected Map<String, Object> attributes;
+  /**
+   * Map with String keys and Object values.
+   */
+  protected @Nullable Map<String, Object> attributes;
 
   protected final transient SessionEventDispatcher eventDispatcher;
 
@@ -112,9 +116,8 @@ public abstract class AbstractSession implements Session {
     eventDispatcher.attributeRemoved(this, name, attribute);
   }
 
-  @Nullable
   @Override
-  public Object getAttribute(final String name) {
+  public @Nullable Object getAttribute(final String name) {
     var attributes = this.attributes;
     if (attributes == null) {
       return null;
@@ -122,9 +125,8 @@ public abstract class AbstractSession implements Session {
     return attributes.get(name);
   }
 
-  @Nullable
   @Override
-  public Object removeAttribute(String name) {
+  public @Nullable Object removeAttribute(String name) {
     var attributes = this.attributes;
     if (attributes != null) {
       Object attribute = attributes.remove(name);
@@ -142,7 +144,6 @@ public abstract class AbstractSession implements Session {
   @Override
   public void invalidate() {
     eventDispatcher.onSessionDestroyed(this);
-
     for (String attributeName : getAttributeNames()) {
       removeAttribute(attributeName);
     }

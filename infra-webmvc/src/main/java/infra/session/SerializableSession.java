@@ -21,6 +21,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
+ * Defines the contract for session objects that support custom serialization.
+ * <p>
+ * Implementations of this interface can control how their internal state is
+ * written to and read from a stream, allowing for more efficient or secure
+ * serialization processes without serializing the entire session object structure.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/27 22:42
  */

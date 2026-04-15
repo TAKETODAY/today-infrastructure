@@ -25,6 +25,10 @@ import java.util.List;
 import infra.util.CollectionUtils;
 
 /**
+ * Dispatcher for session-related events, notifying registered {@link SessionListener} and
+ * {@link SessionAttributeListener} instances of session lifecycle changes and attribute
+ * modifications.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/29 22:46
  */
@@ -96,10 +100,9 @@ public class SessionEventDispatcher {
   }
 
   /**
-   * add list of SessionAttributeListener
+   * Adds the specified session attribute listeners to this dispatcher.
    *
-   * @param array list to add
-   * @throws NullPointerException input list is null
+   * @param array the session attribute listeners to add
    */
   public void addAttributeListeners(SessionAttributeListener @Nullable ... array) {
     CollectionUtils.addAll(attributeListeners, array);
@@ -107,10 +110,9 @@ public class SessionEventDispatcher {
   }
 
   /**
-   * add list of SessionAttributeListener
+   * Adds the specified collection of session attribute listeners to this dispatcher.
    *
-   * @param list list to add
-   * @throws NullPointerException input list is null
+   * @param list the collection of session attribute listeners to add
    */
   public void addAttributeListeners(@Nullable Collection<SessionAttributeListener> list) {
     attributeListeners.addAll(list);
@@ -118,9 +120,9 @@ public class SessionEventDispatcher {
   }
 
   /**
-   * add list of SessionListener
+   * Adds the specified session listeners to this dispatcher.
    *
-   * @param array array to add
+   * @param array the session listeners to add
    */
   public void addSessionListeners(SessionListener @Nullable ... array) {
     CollectionUtils.addAll(sessionListeners, array);
@@ -128,19 +130,29 @@ public class SessionEventDispatcher {
   }
 
   /**
-   * add list of SessionListener
+   * Adds the specified collection of session listeners to this dispatcher.
    *
-   * @param list list to add
+   * @param list the collection of session listeners to add
    */
   public void addSessionListeners(@Nullable Collection<SessionListener> list) {
     sessionListeners.addAll(list);
     sessionListeners.trimToSize();
   }
 
+  /**
+   * Returns an unmodifiable view of the session attribute listeners.
+   *
+   * @return the list of session attribute listeners
+   */
   public List<SessionAttributeListener> getAttributeListeners() {
     return attributeListeners;
   }
 
+  /**
+   * Returns an unmodifiable view of the session listeners.
+   *
+   * @return the list of session listeners
+   */
   public List<SessionListener> getSessionListeners() {
     return sessionListeners;
   }

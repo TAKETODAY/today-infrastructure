@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serial;
 import java.io.Serializable;
 import java.io.WriteAbortedException;
 import java.time.Clock;
@@ -284,11 +283,7 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
-  @SuppressWarnings("NullAway")
-  final class InMemorySession extends AbstractSession implements Session, Serializable, SerializableSession {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+  final class InMemorySession extends AbstractSession implements Session, SerializableSession {
 
     private Instant creationTime;
 
