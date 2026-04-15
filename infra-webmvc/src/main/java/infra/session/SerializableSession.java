@@ -40,7 +40,7 @@ public interface SerializableSession {
    * @param stream The object output stream to write to
    * @throws IOException if an input/output error occurs
    */
-  void writeObjectData(ObjectOutputStream stream)
+  void write(ObjectOutputStream stream)
           throws IOException;
 
   /**
@@ -52,7 +52,7 @@ public interface SerializableSession {
    * @throws ClassNotFoundException if an unknown class is specified
    * @throws IOException if an input/output error occurs
    */
-  void readObjectData(ObjectInputStream stream)
+  void read(ObjectInputStream stream)
           throws ClassNotFoundException, IOException;
 
 }

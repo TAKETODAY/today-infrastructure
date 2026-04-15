@@ -432,7 +432,7 @@ public class InMemorySessionRepository implements SessionRepository {
     // Serializable
 
     @Override
-    public void writeObjectData(ObjectOutputStream stream) throws IOException {
+    public void write(ObjectOutputStream stream) throws IOException {
       stream.writeObject(creationTime);
       stream.writeObject(lastAccessTime);
       stream.writeObject(maxIdleTime);
@@ -444,26 +444,22 @@ public class InMemorySessionRepository implements SessionRepository {
         }
 
         // Accumulate the names of serializable and non-serializable attributes
-        ArrayList<String> saveNames = new ArrayList<>();
-        ArrayList<Object> saveValues = new ArrayList<>();
+        var entries = new ArrayList<Map.Entry<String, Object>>(attributes.size());
 
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-          String key = entry.getKey();
           Object value = entry.getValue();
           if (value instanceof Serializable) {
-            saveNames.add(key);
-            saveValues.add(value);
+            entries.add(entry);
           }
         }
 
         // Serialize the attribute count and the Serializable attributes
-        int n = saveNames.size();
-        stream.writeInt(n);
-        for (int i = 0; i < n; i++) {
-          String name = saveNames.get(i);
+        stream.writeInt(entries.size());
+        for (Map.Entry<String, Object> entry : entries) {
+          String name = entry.getKey();
           stream.writeObject(name);
           try {
-            Object object = saveValues.get(i);
+            Object object = entry.getValue();
             stream.writeObject(object);
             traceDebug(log, traceOn -> formatValue("  storing attribute '%s' with value '%s'"
                     .formatted(name, object), !traceOn));
@@ -481,7 +477,7 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public void readObjectData(ObjectInputStream stream) throws ClassNotFoundException, IOException {
+    public void read(ObjectInputStream stream) throws ClassNotFoundException, IOException {
       creationTime = (Instant) stream.readObject();
       lastAccessTime = (Instant) stream.readObject();
       maxIdleTime = (Duration) stream.readObject();
@@ -508,7 +504,7 @@ public class InMemorySessionRepository implements SessionRepository {
               else {
                 log.warn("Cannot deserialize session attribute [{}] for session [{}]", name, id);
               }
-              // Skip non serializable attributes
+              // Skip non-serializable attributes
               continue;
             }
             throw wae;

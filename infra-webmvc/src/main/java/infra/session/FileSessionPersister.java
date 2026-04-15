@@ -177,7 +177,7 @@ public class FileSessionPersister implements SessionPersister {
     try (var ois = new ObjectInputStream(new FileInputStream(file))) {
       Session session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
-        serialized.readObjectData(ois);
+        serialized.read(ois);
       }
       else if (ois.readObject() instanceof Session ret) {
         return new MapSession(ret);
@@ -208,7 +208,7 @@ public class FileSessionPersister implements SessionPersister {
 
     try (var oos = new ObjectOutputStream(new FileOutputStream(file))) {
       if (session instanceof SerializableSession serialized) {
-        serialized.writeObjectData(oos);
+        serialized.write(oos);
       }
       else {
         oos.writeObject(session);
