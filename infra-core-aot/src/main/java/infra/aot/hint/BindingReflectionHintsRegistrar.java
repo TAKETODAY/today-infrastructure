@@ -20,6 +20,7 @@ package infra.aot.hint;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -112,6 +113,10 @@ public class BindingReflectionHintsRegistrar {
             registerJacksonHints(hints, clazz);
           }
           registerObjectToObjectConverterHints(hints, clazz);
+        }
+
+        if (Serializable.class.isAssignableFrom(clazz)) {
+          typeHint.withJavaSerialization(true);
         }
       });
     }
