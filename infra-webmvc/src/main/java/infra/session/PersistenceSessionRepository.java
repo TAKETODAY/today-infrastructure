@@ -198,12 +198,19 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
       log.error("Class not found while deserializing session [{}]. " +
               "The session data may be from an incompatible version.", sessionId, e);
       removePersister(sessionId);
-      return null;
     }
     catch (IOException e) {
       log.error("IO error while loading session [{}] from persister", sessionId, e);
-      return null;
     }
+    catch (RuntimeException e) {
+      // Unexpected runtime exceptions (ClassCastException, NullPointerException, etc.)
+      // These indicate data corruption or bugs - remove the corrupted file to prevent repeated failures
+      log.error("Unexpected error while loading session [{}] from persister. " +
+                      "Removing potentially corrupted session file to prevent repeated failures.",
+              sessionId, e);
+      removePersister(sessionId);
+    }
+    return null;
   }
 
   private void removePersister(String sessionId) {
