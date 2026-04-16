@@ -99,7 +99,7 @@ public interface SessionRepository {
    * cleanup of the old session identifier.
    *
    * @param session the session to save or update
-   * @since 4.0
+   * @since 5.0
    */
   void saveOrUpdate(Session session);
 
