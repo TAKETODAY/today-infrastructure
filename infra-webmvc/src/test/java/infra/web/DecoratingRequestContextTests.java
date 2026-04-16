@@ -1310,9 +1310,9 @@ class DecoratingRequestContextTests {
 
     DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
 
-    wrapper.copyFrom(source);
+    wrapper.copyAttributeFrom(source);
 
-    verify(delegate).copyFrom(source);
+    verify(delegate).copyAttributeFrom(source);
   }
 
   @Test

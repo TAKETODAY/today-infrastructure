@@ -201,8 +201,8 @@ class DecoratingClientHttpRequestTests {
     ClientHttpRequest delegate = mock(ClientHttpRequest.class);
     AttributeAccessor source = mock(AttributeAccessor.class);
     DecoratingClientHttpRequest decorator = new DecoratingClientHttpRequest(delegate);
-    decorator.copyFrom(source);
-    verify(delegate).copyFrom(source);
+    decorator.copyAttributeFrom(source);
+    verify(delegate).copyAttributeFrom(source);
   }
 
   @Test

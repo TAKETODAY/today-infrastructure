@@ -130,7 +130,7 @@ class AttributeAccessorTests {
     source.setAttribute("name2", "value2");
 
     SimpleAttributeAccessor target = new SimpleAttributeAccessor();
-    target.copyFrom(source);
+    target.copyAttributeFrom(source);
     assertThat(target.getAttributes()).isEqualTo(source.getAttributes());
   }
 
@@ -194,7 +194,7 @@ class AttributeAccessorTests {
     }
 
     @Override
-    public void copyFrom(AttributeAccessor source) {
+    public void copyAttributeFrom(AttributeAccessor source) {
       setAttributes(source.getAttributes());
     }
 

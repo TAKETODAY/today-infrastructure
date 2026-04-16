@@ -94,8 +94,8 @@ class DecoratingServerHttpRequestTests {
     verify(delegate).computeAttribute("name", computeFunction);
 
     AttributeAccessor source = mock(AttributeAccessor.class);
-    decorator.copyFrom(source);
-    verify(delegate).copyFrom(source);
+    decorator.copyAttributeFrom(source);
+    verify(delegate).copyAttributeFrom(source);
 
     decorator.getAttribute("name");
     verify(delegate).getAttribute("name");

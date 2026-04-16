@@ -131,7 +131,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
    *
    * @param source the AttributeAccessor to copy from
    */
-  public void copyFrom(AttributeAccessor source) {
+  public void copyAttributeFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
     Map<String, Object> attributes;
     if (source instanceof AttributeAccessorSupport) {

@@ -291,7 +291,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setFactoryMethodName(original.getFactoryMethodName());
     setRole(original.getRole());
     setSource(original.getSource());
-    copyFrom(original);
+    copyAttributeFrom(original);
 
     setEnableDependencyInjection(original.isEnableDependencyInjection());
 
@@ -371,7 +371,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     }
     setRole(other.getRole());
     setSource(other.getSource());
-    copyFrom(other);
+    copyAttributeFrom(other);
 
     setEnableDependencyInjection(other.isEnableDependencyInjection());
 

@@ -132,8 +132,8 @@ public class DecoratingClientHttpRequest extends DecoratingHttpMessage implement
   }
 
   @Override
-  public void copyFrom(AttributeAccessor source) {
-    delegate.copyFrom(source);
+  public void copyAttributeFrom(AttributeAccessor source) {
+    delegate.copyAttributeFrom(source);
   }
 
   @Override

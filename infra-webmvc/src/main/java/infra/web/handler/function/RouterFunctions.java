@@ -1187,7 +1187,7 @@ public abstract class RouterFunctions {
                 var result = routerFunction.route(nestedRequest);
                 if (result.isPresent() && nestedRequest != serverRequest) {
                   serverRequest.exchange().clearAttributes();
-                  serverRequest.exchange().copyFrom(nestedRequest.exchange());
+                  serverRequest.exchange().copyAttributeFrom(nestedRequest.exchange());
                 }
                 return result;
               })

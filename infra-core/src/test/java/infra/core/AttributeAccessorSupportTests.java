@@ -75,7 +75,7 @@ class AttributeAccessorSupportTests {
   @Test
   void copyFromNullSourceThrowsException() {
     SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
-    assertThatThrownBy(() -> accessor.copyFrom(null))
+    assertThatThrownBy(() -> accessor.copyAttributeFrom(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Source is required");
   }
@@ -86,7 +86,7 @@ class AttributeAccessorSupportTests {
     SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
     target.setAttribute("name", "value");
 
-    target.copyFrom(source);
+    target.copyAttributeFrom(source);
     assertThat(target.getAttribute("name")).isEqualTo("value");
   }
 
@@ -154,7 +154,7 @@ class AttributeAccessorSupportTests {
     SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
     target.setAttribute("name", "value");
 
-    target.copyFrom(source);
+    target.copyAttributeFrom(source);
 
     assertThat(target.getAttribute("name")).isEqualTo("value");
   }
@@ -250,7 +250,7 @@ class AttributeAccessorSupportTests {
     SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
     target.setAttribute("key", "value");
 
-    target.copyFrom(source);
+    target.copyAttributeFrom(source);
 
     assertThat(target.getAttribute("key")).isEqualTo("value");
   }
@@ -339,7 +339,7 @@ class AttributeAccessorSupportTests {
       }
 
       @Override
-      public void copyFrom(AttributeAccessor source) {
+      public void copyAttributeFrom(AttributeAccessor source) {
 
       }
 
@@ -351,7 +351,7 @@ class AttributeAccessorSupportTests {
 
     source.setAttribute("key", "value");
     SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
-    target.copyFrom(source);
+    target.copyAttributeFrom(source);
 
     assertThat(target.getAttribute("key")).isEqualTo("value");
   }
@@ -385,7 +385,7 @@ class AttributeAccessorSupportTests {
     AttributeAccessor source = new TestAttributeAccessor();
     source.setAttribute("name", "value");
 
-    target.copyFrom(source);
+    target.copyAttributeFrom(source);
 
     assertThat(target.getAttribute("name")).isEqualTo("value");
   }
@@ -503,7 +503,7 @@ class AttributeAccessorSupportTests {
     }
 
     @Override
-    public void copyFrom(AttributeAccessor source) {
+    public void copyAttributeFrom(AttributeAccessor source) {
 
     }
 

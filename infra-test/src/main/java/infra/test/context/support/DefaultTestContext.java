@@ -258,7 +258,7 @@ public class DefaultTestContext implements TestContext {
   }
 
   @Override
-  public void copyFrom(AttributeAccessor source) {
+  public void copyAttributeFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
     Map<String, Object> attributes = source.getAttributes();
     if (CollectionUtils.isNotEmpty(attributes)) {

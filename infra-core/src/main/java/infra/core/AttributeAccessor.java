@@ -168,7 +168,7 @@ public interface AttributeAccessor {
    * @param source the source accessor to copy attributes from
    * @since 3.0
    */
-  void copyFrom(AttributeAccessor source);
+  void copyAttributeFrom(AttributeAccessor source);
 
   /**
    * Remove all attributes from this accessor.

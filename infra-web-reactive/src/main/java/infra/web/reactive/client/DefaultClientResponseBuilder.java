@@ -71,7 +71,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     }
 
     @Override
-    public void copyFrom(AttributeAccessor source) {
+    public void copyAttributeFrom(AttributeAccessor source) {
     }
 
     @Override
