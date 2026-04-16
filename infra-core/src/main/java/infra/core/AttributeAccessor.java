@@ -51,9 +51,12 @@ public interface AttributeAccessor {
   void setAttribute(String name, @Nullable Object value);
 
   /**
-   * Add the attributes from map
+   * Set the attributes from the supplied {@code Map}.
+   * <p>
+   * If the supplied map is {@code null}, this method does nothing.
+   * Existing attributes with the same names will be overwritten.
    *
-   * @param attributes The attributes
+   * @param attributes the attributes to set, or {@code null} to do nothing
    * @see Map#putAll(Map)
    */
   void setAttributes(@Nullable Map<String, Object> attributes);
@@ -83,17 +86,21 @@ public interface AttributeAccessor {
    * Otherwise return {@code false}.
    *
    * @param name the unique attribute key
+   * @return {@code true} if the attribute exists, {@code false} otherwise
    */
   boolean hasAttribute(String name);
 
   /**
    * Return the names of all attributes.
+   *
+   * @return an array of attribute names, or an empty array if no attributes exist
    */
   String[] getAttributeNames();
 
   /**
-   * Return the names Iterator.
+   * Return an {@link Iterable} of the names of all attributes.
    *
+   * @return an iterable over the attribute names
    * @since 4.0
    */
   default Iterable<String> attributeNames() {
@@ -109,9 +116,9 @@ public interface AttributeAccessor {
   boolean hasAttributes();
 
   /**
-   * Return attributes map
+   * Return the attributes map.
    *
-   * @return attributes map
+   * @return the attributes map
    * @since 3.0
    */
   Map<String, Object> getAttributes();
@@ -152,11 +159,20 @@ public interface AttributeAccessor {
   }
 
   /**
+   * Copy all attributes from the supplied {@link AttributeAccessor} into this
+   * accessor.
+   * <p>
+   * This operation will overwrite any existing attributes with the same names
+   * in this accessor.
+   *
+   * @param source the source accessor to copy attributes from
    * @since 3.0
    */
   void copyFrom(AttributeAccessor source);
 
   /**
+   * Remove all attributes from this accessor.
+   *
    * @see Map#clear()
    */
   void clearAttributes();
