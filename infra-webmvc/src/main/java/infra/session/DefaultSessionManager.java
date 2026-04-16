@@ -36,7 +36,6 @@ public class DefaultSessionManager implements SessionManager {
 
   private SessionRepository sessionRepository;
 
-  @SuppressWarnings("NullAway")
   public DefaultSessionManager(SessionRepository sessionRepository, @Nullable SessionIdResolver sessionIdResolver) {
     if (sessionIdResolver == null) {
       sessionIdResolver = new CookieSessionIdResolver();
@@ -70,9 +69,8 @@ public class DefaultSessionManager implements SessionManager {
     return session;
   }
 
-  @Nullable
   @Override
-  public Session getSession(@Nullable String sessionId) {
+  public @Nullable Session getSession(@Nullable String sessionId) {
     if (StringUtils.hasText(sessionId)) {
       return sessionRepository.retrieveSession(sessionId);
     }
@@ -80,14 +78,12 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public Session getSession(RequestContext context) {
     return getSession(context, true);
   }
 
-  @Nullable
   @Override
-  public Session getSession(RequestContext context, boolean create) {
+  public @Nullable Session getSession(RequestContext context, boolean create) {
     String sessionId = sessionIdResolver.getSessionId(context);
     if (StringUtils.hasText(sessionId)) {
       Session session = sessionRepository.retrieveSession(sessionId);

@@ -181,7 +181,10 @@ public class FileSessionPersister implements SessionPersister {
         serialized.read(ois);
       }
       else if (ois.readObject() instanceof Session ret) {
-        return new MapSession(ret);
+        return ret;
+      }
+      else {
+        throw new UnsupportedOperationException("Unsupported session serialize method");
       }
       return session;
     }

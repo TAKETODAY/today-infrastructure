@@ -70,41 +70,73 @@ public interface SessionRepository {
   Session retrieveSession(String sessionId);
 
   /**
-   * Remove the Session for the specified instance.
+   * Remove the specified session.
+   * <p>This method removes the session from the repository and invalidates it.
+   * Implementations should ensure that any associated resources are cleaned up.
    *
-   * @param session the instance of the session to remove
+   * @param session the session instance to remove
    */
-  void removeSession(Session session);
+  void remove(Session session);
 
   /**
-   * Remove the Session for the specified id.
+   * Remove the session with the specified id.
+   * <p>This method removes the session from the repository and invalidates it.
+   * Implementations should ensure that any associated resources are cleaned up.
    *
    * @param sessionId the id of the session to remove
-   * @return an old session
+   * @return the removed session, or {@code null} if no session was found with the given id
    */
   @Nullable
-  Session removeSession(String sessionId);
+  Session remove(String sessionId);
 
   /**
-   * Update the last accessed timestamp to "now".
+   * Save or update the specified session.
+   * <p>This method handles both creating new sessions and updating existing ones.
+   * For new sessions, the session must have been started (via {@link Session#start()}
+   * or by adding attributes). For existing sessions, this updates the persisted state.
+   * <p><strong>Note:</strong> If the session ID has been changed via
+   * {@link Session#changeSessionId()}, this method will handle the necessary
+   * cleanup of the old session identifier.
    *
-   * @param session the session to update
+   * @param session the session to save or update
    * @since 4.0
    */
-  void updateLastAccessTime(Session session);
+  void saveOrUpdate(Session session);
 
+  /**
+   * Check if a session with the given id exists.
+   *
+   * @param id the session id to check
+   * @return {@code true} if the session exists, {@code false} otherwise
+   * @since 4.0
+   */
   boolean contains(String id);
 
   /**
+   * Return the number of active sessions.
+   *
    * @return the count of sessions
    * @since 4.0
    */
   int getSessionCount();
 
   /**
-   * @return all session ids
+   * Return all active session identifiers.
+   *
+   * @return an array of session ids
    * @since 4.0
    */
   String[] getIdentifiers();
+
+  /**
+   * Update the last accessed time of the given session to the current time.
+   * <p>This method is typically called to refresh the session's activity timestamp,
+   * preventing it from expiring due to inactivity. Implementations should ensure
+   * that this update is persisted if the session is stored in an external store.
+   *
+   * @param session the session whose last accessed time needs to be updated
+   * @since 4.0
+   */
+  void updateLastAccessTime(Session session);
 
 }

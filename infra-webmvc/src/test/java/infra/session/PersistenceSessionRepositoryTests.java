@@ -142,7 +142,7 @@ class PersistenceSessionRepositoryTests {
 
     // removeSession
 
-    repository.removeSession(retrieveSession);
+    repository.remove(retrieveSession);
     assertThat(persister.keys()).isEmpty();
     assertThat(repository.contains(id)).isFalse();
     assertThat(repository.getSessionCount()).isZero();
@@ -240,7 +240,7 @@ class PersistenceSessionRepositoryTests {
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
-    repository.removeSession(session);
+    repository.remove(session);
 
     assertThat(repository.getSessionCount()).isEqualTo(0);
     assertThat(repository.retrieveSession(id)).isNull();
@@ -260,7 +260,7 @@ class PersistenceSessionRepositoryTests {
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
-    Session removedSession = repository.removeSession(id);
+    Session removedSession = repository.remove(id);
 
     assertThat(removedSession).isNotNull();
     assertThat(repository.getSessionCount()).isEqualTo(0);
@@ -376,28 +376,12 @@ class PersistenceSessionRepositoryTests {
   }
 
   @Test
-  void createDestructionCallback_ShouldCreateValidCallback() {
-    var persister = new FileSessionPersister(new InMemorySessionRepository(new SessionEventDispatcher(), new SecureRandomSessionIdGenerator()));
-    var callback = PersistenceSessionRepository.createDestructionCallback(persister);
-
-    assertThat(callback).isNotNull();
-    assertThat(callback).isInstanceOf(PersistenceSessionRepository.PersisterDestructionCallback.class);
-  }
-
-  @Test
-  void createDestructionCallback_ShouldThrowException_WhenPersisterIsNull() {
-    assertThatThrownBy(() -> PersistenceSessionRepository.createDestructionCallback(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("No SessionPersister");
-  }
-
-  @Test
   void persisterDestructionCallback_SessionDestroyed_ShouldRemoveFromPersister() throws IOException {
     var idGenerator = new SecureRandomSessionIdGenerator();
     var delegate = new InMemorySessionRepository(new SessionEventDispatcher(), idGenerator);
     var persister = new FileSessionPersister(delegate);
     persister.setDirectory(tempDir);
-    var callback = new PersistenceSessionRepository.PersisterDestructionCallback(persister);
+    var callback = new PersistenceSessionRepository(persister, delegate).createDestructionCallback();
 
     String id = idGenerator.generateId();
     Session session = delegate.createSession(id);

@@ -694,7 +694,7 @@ class MapSessionTests {
     source.setAttribute("key1", "value1");
     source.setAttribute("key2", "value2");
 
-    session.copyFrom(source);
+    session.copyAttributeFrom(source);
 
     assertThat(session.getAttribute("key1")).isEqualTo("value1");
     assertThat(session.getAttribute("key2")).isEqualTo("value2");
@@ -757,7 +757,7 @@ class MapSessionTests {
     source.setAttribute("attr1", "value1");
     source.setAttribute("attr2", "value2");
 
-    target.copyAttributesFrom(source);
+    target.copyAttributeFrom(source);
 
     assertThat(target.getAttribute("attr1")).isEqualTo("value1");
     assertThat(target.getAttribute("attr2")).isEqualTo("value2");

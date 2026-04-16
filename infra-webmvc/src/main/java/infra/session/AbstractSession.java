@@ -181,18 +181,6 @@ public abstract class AbstractSession implements Session {
   }
 
   /**
-   * Copy the attributes from the supplied AttributeAccessor to this accessor.
-   *
-   * @param source the AttributeAccessor to copy from
-   */
-  protected final void copyAttributesFrom(Session source) {
-    Assert.notNull(source, "Source is required");
-    for (String attributeName : source.getAttributeNames()) {
-      setAttribute(attributeName, source.getAttribute(attributeName));
-    }
-  }
-
-  /**
    * Returns {@code true} if this map contains no key-value mappings.
    *
    * @return {@code true} if this map contains no key-value mappings
@@ -218,7 +206,7 @@ public abstract class AbstractSession implements Session {
   }
 
   @Override
-  public void copyFrom(AttributeAccessor source) {
+  public void copyAttributeFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
     for (String attributeName : source.getAttributeNames()) {
       setAttribute(attributeName, source.getAttribute(attributeName));

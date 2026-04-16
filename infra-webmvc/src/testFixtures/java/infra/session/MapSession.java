@@ -45,6 +45,7 @@ import infra.lang.Assert;
  * @since 4.0 2022/5/10 15:52
  */
 public class MapSession extends AbstractSession implements Session, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -104,7 +105,7 @@ public class MapSession extends AbstractSession implements Session, Serializable
     this.maxIdleTime = session.getMaxIdleTime();
     this.creationTime = session.getCreationTime();
     this.lastAccessTime = session.getLastAccessTime();
-    copyAttributesFrom(session);
+    copyAttributeFrom(session);
   }
 
   static SessionEventDispatcher getEventDispatcher(Session session) {

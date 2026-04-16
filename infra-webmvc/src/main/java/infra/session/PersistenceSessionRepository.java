@@ -26,6 +26,7 @@ import infra.beans.factory.DisposableBean;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;
 
 /**
@@ -41,6 +42,14 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   private final SessionRepository delegate;
 
   private final SessionPersister sessionPersister;
+
+  /**
+   * Per-session locks for thread-safe lazy loading.
+   * Uses ConcurrentReferenceHashMap with WEAK keys to allow garbage collection
+   * of lock objects when sessions are no longer referenced.
+   */
+  private final ConcurrentReferenceHashMap<String, Object> sessionLocks
+          = new ConcurrentReferenceHashMap<>();
 
   public PersistenceSessionRepository(SessionPersister sessionPersister, SessionRepository delegate) {
     Assert.notNull(sessionPersister, "SessionPersister is required");
@@ -60,18 +69,18 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
+  public void saveOrUpdate(Session session) {
+    delegate.saveOrUpdate(session);
+  }
+
+  @Override
   public @Nullable Session retrieveSession(String sessionId) {
     Session session = delegate.retrieveSession(sessionId);
     if (session == null) {
-      synchronized(sessionId.intern()) {
+      synchronized(getSessionLock(sessionId)) {
         session = delegate.retrieveSession(sessionId);
         if (session == null) {
-          try {
-            session = sessionPersister.findById(sessionId);
-          }
-          catch (ClassNotFoundException | IOException e) {
-            log.error("Unable to get session from SessionPersister: {}", sessionPersister, e);
-          }
+          session = loadFromPersister(sessionId);
         }
       }
     }
@@ -79,14 +88,14 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public void removeSession(Session session) {
-    removeSession(session.getId());
+  public void remove(Session session) {
+    remove(session.getId());
   }
 
   @Override
-  public @Nullable Session removeSession(String sessionId) {
-    Session ret = delegate.removeSession(sessionId);
-    removePersister(sessionId, sessionPersister);
+  public @Nullable Session remove(String sessionId) {
+    Session ret = delegate.remove(sessionId);
+    removePersister(sessionId);
     return ret;
   }
 
@@ -141,9 +150,63 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     persistSessions();
   }
 
-  private static void removePersister(String sessionId, SessionPersister sessionPersister) {
+  /**
+   * Creates a {@link SessionListener} to handle session destruction events.
+   * <p>The returned listener ensures that the session is removed from the
+   * underlying {@link SessionPersister} when destroyed.
+   *
+   * @return a new {@link PersisterDestructionCallback} instance
+   * @since 5.0
+   */
+  public SessionListener createDestructionCallback() {
+    return new PersisterDestructionCallback();
+  }
+
+  /**
+   * Get a lock object for the given session id.
+   */
+  private Object getSessionLock(String sessionId) {
+    return sessionLocks.computeIfAbsent(sessionId, k -> new Object());
+  }
+
+  /**
+   * Load session from persister and integrate it with the delegate.
+   */
+  private @Nullable Session loadFromPersister(String sessionId) {
     try {
-      synchronized(sessionId.intern()) {
+      Session loadedSession = sessionPersister.findById(sessionId);
+      if (loadedSession == null) {
+        return null;
+      }
+
+      if (loadedSession.isExpired()) {
+        if (log.isDebugEnabled()) {
+          log.debug("Loaded session [{}] is expired, removing", sessionId);
+        }
+        removePersister(sessionId);
+        return null;
+      }
+
+      delegate.updateLastAccessTime(loadedSession);
+      delegate.saveOrUpdate(loadedSession);
+
+      return delegate.retrieveSession(sessionId);
+    }
+    catch (ClassNotFoundException e) {
+      log.error("Class not found while deserializing session [{}]. " +
+              "The session data may be from an incompatible version.", sessionId, e);
+      removePersister(sessionId);
+      return null;
+    }
+    catch (IOException e) {
+      log.error("IO error while loading session [{}] from persister", sessionId, e);
+      return null;
+    }
+  }
+
+  private void removePersister(String sessionId) {
+    try {
+      synchronized(getSessionLock(sessionId)) {
         sessionPersister.remove(sessionId);
       }
     }
@@ -152,31 +215,11 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     }
   }
 
-  /**
-   * for Session destroy event
-   */
-  public SessionListener createDestructionCallback() {
-    return createDestructionCallback(sessionPersister);
-  }
-
-  /**
-   * for Session destroy event
-   */
-  public static SessionListener createDestructionCallback(SessionPersister sessionPersister) {
-    Assert.notNull(sessionPersister, "No SessionPersister");
-    return new PersisterDestructionCallback(sessionPersister);
-  }
-
-  static class PersisterDestructionCallback implements SessionListener {
-    final SessionPersister sessionPersister;
-
-    public PersisterDestructionCallback(SessionPersister sessionPersister) {
-      this.sessionPersister = sessionPersister;
-    }
+  private final class PersisterDestructionCallback implements SessionListener {
 
     @Override
     public void sessionDestroyed(Session session) {
-      removePersister(session.getId(), sessionPersister);
+      removePersister(session.getId());
     }
 
   }

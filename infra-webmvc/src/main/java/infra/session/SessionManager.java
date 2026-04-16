@@ -21,7 +21,8 @@ import org.jspecify.annotations.Nullable;
 import infra.web.RequestContext;
 
 /**
- * Main class for access to the {@link Session} for an HTTP request.
+ * Manages {@link Session} instances for HTTP requests, providing methods to create,
+ * retrieve, and access sessions associated with a {@link RequestContext}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionIdResolver
@@ -31,25 +32,30 @@ import infra.web.RequestContext;
 public interface SessionManager {
 
   /**
-   * default bean name
+   * The default bean name for the {@link SessionManager}.
    */
   String BEAN_NAME = "sessionManager";
 
   /**
-   * create a new session
+   * Creates a new session.
+   *
+   * @return the newly created session
    */
   Session createSession();
 
   /**
-   * create a new session associated with {@link RequestContext}
+   * Creates a new session associated with the given {@link RequestContext}.
+   *
+   * @param context the current request context
+   * @return the newly created session
    */
   Session createSession(RequestContext context);
 
   /**
-   * Get a session with given session id
-   * <p>
-   * If there is not a session,create one.
-   * </p>
+   * Retrieves the session associated with the given session ID.
+   *
+   * @param sessionId the ID of the session to retrieve
+   * @return the session associated with the given ID, or {@code null} if no session exists
    */
   @Nullable
   Session getSession(@Nullable String sessionId);

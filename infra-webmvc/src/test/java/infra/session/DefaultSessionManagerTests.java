@@ -70,7 +70,7 @@ class DefaultSessionManagerTests {
 
     assertThat(session).isEqualTo(createdSession);
     assertThat(sessionStorage.contains(sessionId)).isTrue();
-    sessionStorage.removeSession(sessionId);
+    sessionStorage.remove(sessionId);
     assertThat(sessionStorage.contains(sessionId)).isFalse();
 
   }

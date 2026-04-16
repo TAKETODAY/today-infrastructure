@@ -224,7 +224,7 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
-  public Session createSession(String id) {
+  public InMemorySession createSession(String id) {
     // Opportunity to clean expired sessions
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
@@ -232,8 +232,7 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
-  @Nullable
-  public Session retrieveSession(String id) {
+  public @Nullable Session retrieveSession(String id) {
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
 
@@ -252,18 +251,33 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
-  public void removeSession(Session session) {
-    removeSession(session.getId());
+  public void remove(Session session) {
+    remove(session.getId());
   }
 
   @Override
-  public Session removeSession(String id) {
+  public Session remove(String id) {
     return sessions.remove(id);
   }
 
   @Override
   public void updateLastAccessTime(Session session) {
     session.setLastAccessTime(clock.instant());
+  }
+
+  @Override
+  public synchronized void saveOrUpdate(Session update) {
+    String sessionId = update.getId();
+    InMemorySession session = sessions.get(sessionId);
+    if (session == null) {
+      session = createSession(sessionId);
+      session.start();
+      session.save();
+    }
+    else if (session == update) {
+      return;
+    }
+    session.copyFrom(update);
   }
 
   @Override
@@ -300,7 +314,17 @@ public class InMemorySessionRepository implements SessionRepository {
       this.id = new AtomicReference<>(id);
       this.maxIdleTime = maxIdleTime;
       this.creationTime = creationTime;
-      this.lastAccessTime = this.creationTime;
+      this.lastAccessTime = creationTime;
+    }
+
+    public void copyFrom(Session source) {
+      this.maxIdleTime = source.getMaxIdleTime();
+      this.creationTime = source.getCreationTime();
+      this.lastAccessTime = source.getLastAccessTime();
+      if (source instanceof InMemorySession ims) {
+        this.state.set(ims.state.get());
+      }
+      copyAttributeFrom(source);
     }
 
     @Override
