@@ -27,6 +27,7 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.ConcurrentReferenceHashMap.ReferenceType;
 import infra.util.StringUtils;
 
 /**
@@ -49,7 +50,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
    * of lock objects when sessions are no longer referenced.
    */
   private final ConcurrentReferenceHashMap<String, Object> sessionLocks
-          = new ConcurrentReferenceHashMap<>();
+          = new ConcurrentReferenceHashMap<>(16, ReferenceType.WEAK);
 
   public PersistenceSessionRepository(SessionPersister sessionPersister, SessionRepository delegate) {
     Assert.notNull(sessionPersister, "SessionPersister is required");
@@ -96,6 +97,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   public @Nullable Session remove(String sessionId) {
     Session ret = delegate.remove(sessionId);
     removePersister(sessionId);
+    sessionLocks.remove(sessionId);
     return ret;
   }
 
@@ -220,6 +222,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     @Override
     public void sessionDestroyed(Session session) {
       removePersister(session.getId());
+      sessionLocks.remove(session.getId());
     }
 
   }
