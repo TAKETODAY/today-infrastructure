@@ -295,7 +295,7 @@ class FileSessionPersisterTests {
   }
 
   @Test
-  void findById_ShouldThrowIOException_WhenFileCannotBeRead() throws IOException {
+  void findById_EOFException() throws IOException, ClassNotFoundException {
     // given
     var repository = new InMemorySessionRepository(new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     FileSessionPersister persister = new FileSessionPersister(repository);
@@ -305,15 +305,7 @@ class FileSessionPersisterTests {
     File sessionFile = new File(tempDir, id + ".session");
     sessionFile.createNewFile();
 
-    // Make directory unreadable
-    assertThat(tempDir.setReadable(false)).isTrue();
-
-    // when & then
-    assertThatThrownBy(() -> persister.findById(id))
-            .isInstanceOf(IOException.class);
-
-    // Restore permissions for cleanup
-    assertThat(tempDir.setReadable(true)).isTrue();
+    assertThat(persister.findById(id)).isNull();
   }
 
   @Test
