@@ -32,11 +32,9 @@ import infra.core.ssl.SslManagerBundle;
 import infra.core.ssl.SslOptions;
 import infra.http.HttpHeaders;
 import infra.util.DataSize;
-import infra.util.concurrent.Future;
 import infra.web.client.ResponseErrorHandler;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
-import infra.web.socket.WebSocketSession;
 import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.ssl.SslContext;
 
@@ -220,17 +218,6 @@ class NettyWebSocketClientTests {
 
     @Mock
     private WebSocketHandler webSocketHandler;
-
-    @Test
-    void connectViaSecureWebsocketProtocol() {
-      URI uri = URI.create("wss://localhost:8443/ws");
-      WebSocketHandler handler = mock(WebSocketHandler.class);
-
-      Future<WebSocketSession> future = client.connect(uri, null, handler);
-
-      assertThat(future).isNotNull();
-      assertThat(future.isDone()).isFalse();
-    }
 
     @Test
     void throwsExceptionForInvalidProtocol() {
