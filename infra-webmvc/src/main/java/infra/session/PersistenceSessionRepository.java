@@ -75,13 +75,13 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public @Nullable Session retrieveSession(String sessionId) {
-    Session session = delegate.retrieveSession(sessionId);
+  public @Nullable Session retrieveSession(String id) {
+    Session session = delegate.retrieveSession(id);
     if (session == null) {
-      synchronized(getSessionLock(sessionId)) {
-        session = delegate.retrieveSession(sessionId);
+      synchronized(getSessionLock(id)) {
+        session = delegate.retrieveSession(id);
         if (session == null) {
-          session = loadFromPersister(sessionId);
+          session = loadFromPersister(id);
         }
       }
     }
@@ -94,10 +94,10 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   @Override
-  public @Nullable Session remove(String sessionId) {
-    Session ret = delegate.remove(sessionId);
-    removePersister(sessionId);
-    sessionLocks.remove(sessionId);
+  public @Nullable Session remove(String id) {
+    Session ret = delegate.remove(id);
+    removePersister(id);
+    sessionLocks.remove(id);
     return ret;
   }
 

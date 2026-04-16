@@ -63,11 +63,11 @@ public interface SessionRepository {
    * and if it has expired remove the session and return empty. This method
    * should also update the lastAccessTime of retrieved sessions.
    *
-   * @param sessionId the session to load
+   * @param id the session to load
    * @return the session
    */
   @Nullable
-  Session retrieveSession(String sessionId);
+  Session retrieveSession(String id);
 
   /**
    * Remove the specified session.
@@ -83,11 +83,11 @@ public interface SessionRepository {
    * <p>This method removes the session from the repository and invalidates it.
    * Implementations should ensure that any associated resources are cleaned up.
    *
-   * @param sessionId the id of the session to remove
+   * @param id the id of the session to remove
    * @return the removed session, or {@code null} if no session was found with the given id
    */
   @Nullable
-  Session remove(String sessionId);
+  Session remove(String id);
 
   /**
    * Save or update the specified session.
