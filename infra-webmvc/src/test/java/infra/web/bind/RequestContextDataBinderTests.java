@@ -841,11 +841,11 @@ class RequestContextDataBinderTests {
       binder.setAllowedFields("name");
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      request.addParameter("name", "spring");
+      request.addParameter("name", "infra");
       request.addParameter(prefix + "country", "test");
       binder.bind(new MockRequestContext(request));
 
-      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getName()).isEqualTo("infra");
       assertThat(tb.getCountry()).isNull();
     }
 
@@ -857,11 +857,11 @@ class RequestContextDataBinderTests {
       binder.setDisallowedFields("country");
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      request.addParameter("name", "spring");
+      request.addParameter("name", "infra");
       request.addParameter(prefix + "country", "test");
       binder.bind(new MockRequestContext(request));
 
-      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getName()).isEqualTo("infra");
       assertThat(tb.getCountry()).isNull();
     }
 
@@ -873,12 +873,12 @@ class RequestContextDataBinderTests {
       binder.setAllowedFields("name");
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      request.addParameter("name", "spring");
+      request.addParameter("name", "infra");
       request.addParameter(prefix + "stringArray[]", "ONE");
       request.addParameter(prefix + "stringArray[]", "TWO");
       binder.bind(new MockRequestContext(request));
 
-      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getName()).isEqualTo("infra");
       assertThat(tb.getStringArray()).isNull();
     }
 
@@ -891,12 +891,12 @@ class RequestContextDataBinderTests {
       binder.setDisallowedFields(disallowedField);
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      request.addParameter("name", "spring");
+      request.addParameter("name", "infra");
       request.addParameter(prefix + "stringArray[]", "ONE");
       request.addParameter(prefix + "stringArray[]", "TWO");
       binder.bind(new MockRequestContext(request));
 
-      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getName()).isEqualTo("infra");
       assertThat(tb.getStringArray()).isNull();
     }
 
@@ -909,11 +909,11 @@ class RequestContextDataBinderTests {
       binder.setAllowedFields("name");
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      request.addParameter("name", "spring");
+      request.addParameter("name", "infra");
       request.addParameter(prefix + "someMap[key1]", "test");
       binder.bind(new MockRequestContext(request));
 
-      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getName()).isEqualTo("infra");
       assertThat(tb.getSomeMap()).isNull();
     }
 
@@ -927,11 +927,11 @@ class RequestContextDataBinderTests {
       binder.setDisallowedFields(disallowedField);
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      request.addParameter("name", "spring");
+      request.addParameter("name", "infra");
       request.addParameter(prefix + "someMap[key1]", "test");
       binder.bind(new MockRequestContext(request));
 
-      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getName()).isEqualTo("infra");
       assertThat(tb.getSomeMap()).isNull();
     }
   }
