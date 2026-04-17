@@ -62,7 +62,7 @@ class OptionalNullSafetyTests {
     void accessPropertyOnNullOptional() {
       Expression expr = parser.parseExpression("#service.findJediByName(null).empty");
 
-      assertThatExceptionOfType(infra.expression.spel.SpelEvaluationException.class)
+      assertThatExceptionOfType(SpelEvaluationException.class)
               .isThrownBy(() -> expr.getValue(context))
               .satisfies(ex -> {
                 assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE_ON_NULL);
@@ -351,14 +351,18 @@ class OptionalNullSafetyTests {
 
   }
 
-  record Jedi(String name) {
+  public record Jedi(String name) {
+
+    public static Jedi from(String name) {
+      return new Jedi(name);
+    }
 
     public String salutation(String salutation) {
       return salutation + " " + this.name;
     }
   }
 
-  static class Service {
+  public static class Service {
 
     public Optional<Jedi> findJediByName(@Nullable String name) {
       if (name == null) {

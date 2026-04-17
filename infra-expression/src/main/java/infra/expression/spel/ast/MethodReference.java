@@ -32,7 +32,6 @@ import java.util.StringJoiner;
 
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.core.TypeDescriptor;
 import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
@@ -41,6 +40,7 @@ import infra.expression.ExpressionInvocationTargetException;
 import infra.expression.MethodExecutor;
 import infra.expression.MethodResolver;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
@@ -76,11 +76,19 @@ public class MethodReference extends SpelNodeImpl {
 
   private final String name;
 
-  @Nullable
-  private Character originalPrimitiveExitTypeDescriptor;
+  private @Nullable Character originalPrimitiveExitTypeDescriptor;
 
-  @Nullable
-  private volatile CachedMethodExecutor cachedExecutor;
+  private volatile @Nullable CachedMethodExecutor cachedExecutor;
+
+  /**
+   * Tracks whether an {@link Optional} was unwrapped in
+   * {@link #getValueInternal(EvaluationContext, Object, TypeDescriptor, Object[])}
+   * using the null-safe operator and therefore needs to be unwrapped in a
+   * compiled expression.
+   *
+   * @since 5.0
+   */
+  private volatile boolean unwrapOptional;
 
   public MethodReference(boolean nullSafe, String methodName, int startPos, int endPos, SpelNodeImpl... arguments) {
     super(startPos, endPos, arguments);
@@ -134,6 +142,7 @@ public class MethodReference extends SpelNodeImpl {
     List<TypeDescriptor> argumentTypes = getArgumentTypes(arguments);
     Optional<?> fallbackOptionalTarget = null;
     boolean isEmptyOptional = false;
+    this.unwrapOptional = false;
 
     if (isNullSafe()) {
       if (target == null) {
@@ -143,6 +152,7 @@ public class MethodReference extends SpelNodeImpl {
         if (optional.isPresent()) {
           target = optional.get();
           fallbackOptionalTarget = optional;
+          this.unwrapOptional = true;
         }
         else {
           isEmptyOptional = true;
@@ -194,6 +204,9 @@ public class MethodReference extends SpelNodeImpl {
       if (searchResult.methodExecutor != null) {
         executorToUse = searchResult.methodExecutor;
         targetToUse = fallbackOptionalTarget;
+        // If we end up using a method on the original Optional instance,
+        // we don't need to unwrap the Optional in the compiled expression.
+        this.unwrapOptional = false;
       }
     }
     // If we got this far, that means we failed to find an executor for both the
@@ -387,6 +400,9 @@ public class MethodReference extends SpelNodeImpl {
 
     Label skipIfNull = null;
     if (isNullSafe() && (descriptor != null || !isStatic)) {
+      if (this.unwrapOptional) {
+        CodeFlow.insertOptionalUnwrapIfNecessary(mv, descriptor);
+      }
       skipIfNull = new Label();
       Label continueLabel = new Label();
       mv.visitInsn(DUP);
@@ -472,11 +488,11 @@ public class MethodReference extends SpelNodeImpl {
   }
 
   private record MethodExecutorSearchResult(@Nullable MethodExecutor methodExecutor,
-          @Nullable AccessException accessException) {
+                                            @Nullable AccessException accessException) {
   }
 
   private record CachedMethodExecutor(MethodExecutor methodExecutor, @Nullable Class<?> staticClass,
-          @Nullable TypeDescriptor targetType, List<TypeDescriptor> argumentTypes) {
+                                      @Nullable TypeDescriptor targetType, List<TypeDescriptor> argumentTypes) {
 
     public boolean isSuitable(Object target, @Nullable TypeDescriptor targetType, List<TypeDescriptor> argumentTypes) {
       return ((this.staticClass == null || this.staticClass == target) &&

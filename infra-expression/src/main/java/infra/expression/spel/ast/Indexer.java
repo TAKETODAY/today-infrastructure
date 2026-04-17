@@ -29,7 +29,6 @@ import java.util.function.Supplier;
 
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.core.TypeDescriptor;
 import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
@@ -38,6 +37,7 @@ import infra.expression.IndexAccessor;
 import infra.expression.PropertyAccessor;
 import infra.expression.TypeConverter;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.CompilableIndexAccessor;
 import infra.expression.spel.CompilablePropertyAccessor;
 import infra.expression.spel.ExpressionState;
@@ -347,6 +347,7 @@ public class Indexer extends SpelNodeImpl {
 
     Label skipIfNull = null;
     if (isNullSafe()) {
+      CodeFlow.insertOptionalUnwrapIfNecessary(mv, descriptor);
       mv.visitInsn(DUP);
       skipIfNull = new Label();
       Label continueLabel = new Label();

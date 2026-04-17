@@ -71,8 +71,7 @@ public class CodeFlow implements Opcodes {
    * they can register to add a field to this class. Any registered FieldAdders
    * will be called after the main evaluation function has finished being generated.
    */
-  @Nullable
-  private List<FieldAdder> fieldAdders;
+  private @Nullable List<FieldAdder> fieldAdders;
 
   /**
    * As SpEL AST nodes are called to generate code for the main evaluation method
@@ -80,8 +79,7 @@ public class CodeFlow implements Opcodes {
    * registered ClinitAdders will be called after the main evaluation function
    * has finished being generated.
    */
-  @Nullable
-  private List<ClinitAdder> clinitAdders;
+  private @Nullable List<ClinitAdder> clinitAdders;
 
   /**
    * When code generation requires holding a value in a class level field, this
@@ -1030,6 +1028,26 @@ public class CodeFlow implements Opcodes {
       case 'Z' -> "Ljava/lang/Boolean";
       default -> throw new IllegalArgumentException("Unexpected non primitive descriptor " + primitiveDescriptor);
     };
+  }
+
+  /**
+   * If the provided descriptor represents a {@link java.util.Optional}, insert
+   * the necessary bytecode to unwrap it.
+   * <p>An empty {@code Optional} will be replaced with {@code null}.
+   *
+   * @param mv the method visitor into which instructions should be inserted
+   * @param descriptor the descriptor of a type that may or may not need unwrapping
+   * @see java.util.Optional#orElse(Object)
+   * @since 5.0
+   */
+  public static void insertOptionalUnwrapIfNecessary(MethodVisitor mv, @Nullable String descriptor) {
+    if ("Ljava/util/Optional".equals(descriptor)) {
+      // Push 'null' onto the stack as the argument for orElse
+      mv.visitInsn(ACONST_NULL);
+      // Invoke java.util.Optional.orElse(null)
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Optional", "orElse",
+              "(Ljava/lang/Object;)Ljava/lang/Object;", false);
+    }
   }
 
   /**
