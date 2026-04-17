@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package infra.web.mock;
+package infra.web.bind;
 
 import infra.context.ApplicationContext;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.web.mock.MockRequestContext;
 import infra.web.multipart.MultipartRequest;
 
 /**

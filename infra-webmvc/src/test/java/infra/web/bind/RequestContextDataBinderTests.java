@@ -17,7 +17,10 @@
 package infra.web.bind;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -43,13 +46,14 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.support.BindParamNameResolver;
-import infra.web.mock.MockMultipartMockRequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.bind.MockRequestParameterPropertyValues;
 import infra.web.multipart.Part;
 import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 
+import static infra.web.bind.WebDataBinder.DEFAULT_FIELD_DEFAULT_PREFIX;
+import static infra.web.bind.WebDataBinder.DEFAULT_FIELD_MARKER_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -99,37 +103,47 @@ class RequestContextDataBinderTests {
     assertThat(tb.getSpouse().getName()).isEqualTo("test");
   }
 
-  @Test
-  void testFieldPrefixCausesFieldReset() throws Exception {
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void markerPrefixCausesFieldReset(boolean ignoreUnknownFields) {
     TestBean target = new TestBean();
+
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    binder.setIgnoreUnknownFields(ignoreUnknownFields);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
-    binder.bind(new MockRequestContext(null, request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isTrue();
 
     request.removeParameter("postProcessed");
-    binder.bind(new MockRequestContext(null, request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isFalse();
   }
 
   @Test
-  void testFieldPrefixCausesFieldResetWithIgnoreUnknownFields() throws Exception {
+  void fieldWithArrayIndices() {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
-    binder.setIgnoreUnknownFields(false);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    request.addParameter("_postProcessed", "visible");
-    request.addParameter("postProcessed", "on");
-    binder.bind(new MockRequestContext(null, request, null));
-    assertThat(target.isPostProcessed()).isTrue();
+    request.addParameter("stringArray[0]", "ONE");
+    request.addParameter("stringArray[1]", "TWO");
+    binder.bind(new MockRequestContext(request));
+    assertThat(target.getStringArray()).containsExactly("ONE", "TWO");
+  }
 
-    request.removeParameter("postProcessed");
-    binder.bind(new MockRequestContext(null, request, null));
-    assertThat(target.isPostProcessed()).isFalse();
+  @Test
+  void fieldWithMissingArrayIndex() {
+    TestBean target = new TestBean();
+    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    request.addParameter("stringArray", "ONE");
+    request.addParameter("stringArray", "TWO");
+    binder.bind(new MockRequestContext(request));
+    assertThat(target.getStringArray()).containsExactly("ONE", "TWO");
   }
 
   @Test
@@ -368,7 +382,7 @@ class RequestContextDataBinderTests {
       Object val = m.get(pv.getName());
       assertThat(val != null).as("Can't have unexpected value").isTrue();
       boolean condition = val instanceof String;
-      assertThat(condition).as("Val i string").isTrue();
+      assertThat(condition).as("Val is string").isTrue();
       assertThat(val.equals(pv.getValue())).as("val matches expected").isTrue();
       m.remove(pv.getName());
     }
@@ -809,6 +823,117 @@ class RequestContextDataBinderTests {
 
     // Should not throw exception
     binder.closeNoCatch();
+  }
+
+  @ParameterizedClass
+  @ValueSource(strings = { DEFAULT_FIELD_DEFAULT_PREFIX, DEFAULT_FIELD_MARKER_PREFIX })
+  @Nested
+  class DefaultAndMarkerPrefixTests {
+
+    @Parameter
+    String prefix;
+
+    @Test
+    void shouldNotTriggerBindingWhenFieldIsNotAllowed() {
+      TestBean tb = new TestBean();
+
+      RequestContextDataBinder binder = new RequestContextDataBinder(tb);
+      binder.setAllowedFields("name");
+
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addParameter("name", "spring");
+      request.addParameter(prefix + "country", "test");
+      binder.bind(new MockRequestContext(request));
+
+      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getCountry()).isNull();
+    }
+
+    @Test
+    void shouldNotTriggerBindingWhenFieldIsDisallowed() {
+      TestBean tb = new TestBean();
+
+      RequestContextDataBinder binder = new RequestContextDataBinder(tb);
+      binder.setDisallowedFields("country");
+
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addParameter("name", "spring");
+      request.addParameter(prefix + "country", "test");
+      binder.bind(new MockRequestContext(request));
+
+      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getCountry()).isNull();
+    }
+
+    @Test
+    void shouldNotTriggerBindingWhenFieldIsNotAllowedWithEmptyArrayIndex() {
+      TestBean tb = new TestBean();
+
+      RequestContextDataBinder binder = new RequestContextDataBinder(tb);
+      binder.setAllowedFields("name");
+
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addParameter("name", "spring");
+      request.addParameter(prefix + "stringArray[]", "ONE");
+      request.addParameter(prefix + "stringArray[]", "TWO");
+      binder.bind(new MockRequestContext(request));
+
+      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getStringArray()).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "stringArray*", "stringArray[]" })
+    void shouldNotTriggerBindingWhenFieldIsDisallowedWithEmptyArrayIndex(String disallowedField) {
+      TestBean tb = new TestBean();
+
+      RequestContextDataBinder binder = new RequestContextDataBinder(tb);
+      binder.setDisallowedFields(disallowedField);
+
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addParameter("name", "spring");
+      request.addParameter(prefix + "stringArray[]", "ONE");
+      request.addParameter(prefix + "stringArray[]", "TWO");
+      binder.bind(new MockRequestContext(request));
+
+      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getStringArray()).isNull();
+    }
+
+    @Test
+    void shouldNotTriggerAutoGrowWhenFieldIsNotAllowed() {
+      TestBean tb = new TestBean();
+      tb.setSomeMap(null);
+
+      RequestContextDataBinder binder = new RequestContextDataBinder(tb);
+      binder.setAllowedFields("name");
+
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addParameter("name", "spring");
+      request.addParameter(prefix + "someMap[key1]", "test");
+      binder.bind(new MockRequestContext(request));
+
+      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getSomeMap()).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "someMap*", "someMap[*]", "someMap[key1]" })
+    void shouldNotTriggerAutoGrowWhenFieldIsDisallowed(String disallowedField) {
+      TestBean tb = new TestBean();
+      tb.setSomeMap(null);
+
+      RequestContextDataBinder binder = new RequestContextDataBinder(tb);
+      binder.setDisallowedFields(disallowedField);
+
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      request.addParameter("name", "spring");
+      request.addParameter(prefix + "someMap[key1]", "test");
+      binder.bind(new MockRequestContext(request));
+
+      assertThat(tb.getName()).isEqualTo("spring");
+      assertThat(tb.getSomeMap()).isNull();
+    }
   }
 
   public static class EnumHolder {

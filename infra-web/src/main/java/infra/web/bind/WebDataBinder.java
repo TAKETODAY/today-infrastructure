@@ -222,30 +222,30 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * This implementation performs a field default and marker check
-   * before delegating to the superclass binding process.
+   * This implementation checks default fields and marker fields and then adapts
+   * empty array indices before delegating to the superclass binding process.
    *
    * @see #checkFieldDefaults
    * @see #checkFieldMarkers
+   * @see #adaptEmptyArrayIndices
    */
   @Override
   protected void doBind(PropertyValues mpvs) {
-    checkAllowedFields(mpvs);
     checkFieldDefaults(mpvs);
     checkFieldMarkers(mpvs);
     adaptEmptyArrayIndices(mpvs);
-    checkRequiredFields(mpvs);
-    applyPropertyValues(mpvs);
+    super.doBind(mpvs);
   }
 
   /**
-   * Check the given property values for field defaults,
-   * i.e. for fields that start with the field default prefix.
-   * <p>The existence of a field defaults indicates that the specified
-   * value should be used if the field is otherwise not present.
+   * Check the given property values for fields that start with the field default
+   * prefix.
+   * <p>The existence of a field default indicates that the specified value should
+   * be used if the field is allowed and is otherwise not present.
    *
    * @param values the property values to be bound (can be modified)
-   * @see #getFieldDefaultPrefix
+   * @see #getFieldDefaultPrefix()
+   * @see #isAllowed(String)
    */
   protected void checkFieldDefaults(PropertyValues values) {
     String fieldDefaultPrefix = getFieldDefaultPrefix();
@@ -254,7 +254,7 @@ public class WebDataBinder extends DataBinder {
       for (PropertyValue pv : values.toArray()) {
         if (pv.getName().startsWith(fieldDefaultPrefix)) {
           String field = pv.getName().substring(fieldDefaultPrefix.length());
-          if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
+          if (isAllowed(field) && propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
             values.add(field, pv.getValue());
           }
           values.remove(pv);
@@ -264,15 +264,16 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Check the given property values for field markers,
-   * i.e. for fields that start with the field marker prefix.
-   * <p>The existence of a field marker indicates that the specified
-   * field existed in the form. If the property values do not contain
-   * a corresponding field value, the field will be considered as empty
-   * and will be reset appropriately.
+   * Check the given property values for fields that start with the field marker
+   * prefix.
+   * <p>The existence of a field marker indicates that the specified field existed
+   * in the form.
+   * <p>If the field is allowed and the property values do not contain a corresponding
+   * field value, the field will be considered as empty and will be reset appropriately.
    *
    * @param values the property values to be bound (can be modified)
-   * @see #getFieldMarkerPrefix
+   * @see #getFieldMarkerPrefix()
+   * @see #isAllowed(String)
    * @see #getEmptyValue(String, Class)
    */
   protected void checkFieldMarkers(PropertyValues values) {
@@ -282,7 +283,7 @@ public class WebDataBinder extends DataBinder {
       for (PropertyValue pv : values.toArray()) {
         if (pv.getName().startsWith(fieldMarkerPrefix)) {
           String field = pv.getName().substring(fieldMarkerPrefix.length());
-          if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
+          if (isAllowed(field) && propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
             Class<?> fieldType = propertyAccessor.getPropertyType(field);
             values.add(field, getEmptyValue(field, fieldType));
           }
@@ -293,12 +294,15 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Check for property values with names that end on {@code "[]"}. This is
-   * used by some clients for array syntax without an explicit index value.
-   * If such values are found, drop the brackets to adapt to the expected way
-   * of expressing the same for data binding purposes.
+   * Check the given property values for fields that end with empty brackets
+   * ({@code []}).
+   * <p>This is used by some clients for array syntax without an explicit index
+   * value.
+   * <p>If such a field is allowed, the brackets will be removed in order to adapt
+   * to the expected format for expressing the same for data binding purposes.
    *
    * @param values the property values to be bound (can be modified)
+   * @see #isAllowed(String)
    */
   protected void adaptEmptyArrayIndices(PropertyValues values) {
     ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
@@ -306,7 +310,7 @@ public class WebDataBinder extends DataBinder {
       String name = pv.getName();
       if (name.endsWith("[]")) {
         String field = name.substring(0, name.length() - 2);
-        if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
+        if (isAllowed(field) && propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
           values.add(field, pv.getValue());
         }
         values.remove(pv);
