@@ -76,7 +76,7 @@ public class MethodReference extends SpelNodeImpl {
 
   private final String name;
 
-  private @Nullable Character originalPrimitiveExitTypeDescriptor;
+  private volatile @Nullable Character originalPrimitiveExitTypeDescriptor;
 
   private volatile @Nullable CachedMethodExecutor cachedExecutor;
 

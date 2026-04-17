@@ -73,7 +73,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
 
   private final String name;
 
-  private @Nullable String originalPrimitiveExitTypeDescriptor;
+  private volatile @Nullable String originalPrimitiveExitTypeDescriptor;
 
   private volatile @Nullable PropertyAccessor cachedReadAccessor;
 
