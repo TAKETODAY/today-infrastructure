@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EventListener;
 
+import infra.app.context.config.ConfigData.Options;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 
@@ -38,7 +39,8 @@ public interface ConfigDataEnvironmentUpdateListener extends EventListener {
   /**
    * A {@link ConfigDataEnvironmentUpdateListener} that does nothing.
    */
-  ConfigDataEnvironmentUpdateListener NONE = new ConfigDataEnvironmentUpdateListener() { };
+  ConfigDataEnvironmentUpdateListener NONE = new ConfigDataEnvironmentUpdateListener() {
+  };
 
   /**
    * Called when a new {@link PropertySource} is added to the {@link Environment}.
@@ -48,7 +50,7 @@ public interface ConfigDataEnvironmentUpdateListener extends EventListener {
    * @param resource the {@link ConfigDataResource} of the source.
    */
   default void onPropertySourceAdded(PropertySource<?> propertySource,
-          ConfigDataLocation location, @Nullable ConfigDataResource resource) {
+          @Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource) {
   }
 
   /**
@@ -57,7 +59,21 @@ public interface ConfigDataEnvironmentUpdateListener extends EventListener {
    * @param profiles the profiles being set
    */
   default void onSetProfiles(Profiles profiles) {
+  }
 
+  /**
+   * Called when config data options are obtained for a particular property source.
+   *
+   * @param configData the config data
+   * @param propertySource the property source
+   * @param options the options as provided by
+   * {@link ConfigData#getOptions(PropertySource)}
+   * @return the actual options that should be used
+   * @since 5.0
+   */
+  default Options onConfigDataOptions(ConfigData configData, PropertySource<?> propertySource,
+          Options options) {
+    return options;
   }
 
 }

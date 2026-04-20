@@ -436,9 +436,11 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
   static ConfigDataEnvironmentContributor ofUnboundImport(@Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource,
-          boolean profileSpecific, ConfigData configData, int propertySourceIndex, ConversionService conversionService) {
+          boolean profileSpecific, ConfigData configData, int propertySourceIndex, ConversionService conversionService,
+          ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
     PropertySource<?> propertySource = configData.getPropertySources().get(propertySourceIndex);
     ConfigData.Options options = configData.getOptions(propertySource);
+    options = environmentUpdateListener.onConfigDataOptions(configData, propertySource, options);
     return new ConfigDataEnvironmentContributor(Kind.UNBOUND_IMPORT, location, resource, profileSpecific,
             propertySource, asConfigurationPropertySource(propertySource), null, options, null, conversionService);
   }

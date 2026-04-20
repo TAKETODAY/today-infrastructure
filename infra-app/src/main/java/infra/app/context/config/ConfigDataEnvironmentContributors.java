@@ -69,24 +69,32 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 
   private final ConversionService conversionService;
 
+  private final ConfigDataEnvironmentUpdateListener environmentUpdateListener;
+
   /**
    * Create a new {@link ConfigDataEnvironmentContributors} instance.
    *
    * @param bootstrapContext the bootstrap context
    * @param contributors the initial set of contributors
+   * @param conversionService the conversion service to use
+   * @param environmentUpdateListener the environment update listener
    */
   ConfigDataEnvironmentContributors(ConfigurableBootstrapContext bootstrapContext,
-          List<ConfigDataEnvironmentContributor> contributors, ConversionService conversionService) {
+          List<ConfigDataEnvironmentContributor> contributors, ConversionService conversionService,
+          ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
     this.bootstrapContext = bootstrapContext;
+    this.environmentUpdateListener = environmentUpdateListener;
     this.root = ConfigDataEnvironmentContributor.of(contributors, conversionService);
     this.conversionService = conversionService;
   }
 
   private ConfigDataEnvironmentContributors(ConfigurableBootstrapContext bootstrapContext,
-          ConfigDataEnvironmentContributor root, ConversionService conversionService) {
+          ConfigDataEnvironmentContributor root, ConversionService conversionService,
+          ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
     this.bootstrapContext = bootstrapContext;
     this.root = root;
     this.conversionService = conversionService;
+    this.environmentUpdateListener = environmentUpdateListener;
   }
 
   /**
@@ -121,7 +129,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       if (contributor.kind == Kind.UNBOUND_IMPORT) {
         ConfigDataEnvironmentContributor bound = contributor.withBoundProperties(result, activationContext);
         result = new ConfigDataEnvironmentContributors(bootstrapContext,
-                result.root.withReplacement(contributor, bound), conversionService);
+                result.root.withReplacement(contributor, bound), conversionService, environmentUpdateListener);
         continue;
       }
       var locationResolverContext = new ContributorConfigDataLocationResolverContext(
@@ -138,7 +146,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       }
       var contributorAndChildren = contributor.withChildren(importPhase, asContributors(imported));
       result = new ConfigDataEnvironmentContributors(bootstrapContext,
-              result.root.withReplacement(contributor, contributorAndChildren), conversionService);
+              result.root.withReplacement(contributor, contributorAndChildren), conversionService, environmentUpdateListener);
       processed++;
     }
   }
@@ -191,7 +199,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       else {
         for (int i = data.getPropertySources().size() - 1; i >= 0; i--) {
           contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(location,
-                  resource, profileSpecific, data, i, conversionService));
+                  resource, profileSpecific, data, i, conversionService, environmentUpdateListener));
         }
       }
     }

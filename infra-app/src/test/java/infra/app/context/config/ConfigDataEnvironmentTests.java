@@ -18,24 +18,31 @@
 
 package infra.app.context.config;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import infra.app.ConfigurableBootstrapContext;
 import infra.app.DefaultBootstrapContext;
 import infra.app.MockApplicationEnvironment;
 import infra.app.context.config.ConfigDataEnvironmentContributor.ImportPhase;
 import infra.app.context.config.ConfigDataEnvironmentContributor.Kind;
+import infra.app.context.config.TestConfigDataEnvironmentUpdateListener.AddedPropertySource;
 import infra.context.properties.bind.Binder;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
@@ -44,10 +51,13 @@ import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
+import infra.lang.TodayStrategies;
 import infra.mock.env.MockPropertySource;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -58,23 +68,24 @@ import static org.mockito.Mockito.mock;
  */
 class ConfigDataEnvironmentTests {
 
-  private DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+  private final DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
 
-  private MockApplicationEnvironment environment = new MockApplicationEnvironment();
+  private final MockApplicationEnvironment environment = new MockApplicationEnvironment();
 
-  private ResourceLoader resourceLoader = new DefaultResourceLoader();
+  private final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
-  private Collection<String> additionalProfiles = Collections.emptyList();
+  private final Collection<String> additionalProfiles = Collections.emptyList();
 
   private final ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Test
   void createExposesEnvironmentBinderToConfigDataLocationResolvers() {
-    this.environment.setProperty("spring", "boot");
+    this.environment.setProperty("infra", "app");
     TestConfigDataEnvironment configDataEnvironment = new TestConfigDataEnvironment(
             this.bootstrapContext, this.environment, this.resourceLoader, this.additionalProfiles, null);
-    assertThat(configDataEnvironment.getConfigDataLocationResolversBinder().bind("spring", String.class).get())
-            .isEqualTo("boot");
+    Binder binder = configDataEnvironment.getConfigDataLocationResolversBinder();
+    assertThat(binder).isNotNull();
+    assertThat(binder.bind("infra", String.class).get()).isEqualTo("app");
   }
 
   @Test
@@ -87,10 +98,13 @@ class ConfigDataEnvironmentTests {
     this.environment.getPropertySources().addLast(propertySource3);
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
-    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().root
+    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors()
+            .root
             .getChildren(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    Object[] wrapped = children.stream().filter((child) -> child.kind == Kind.EXISTING)
-            .map(spr -> spr.propertySource).toArray();
+    Object[] wrapped = children.stream()
+            .filter((child) -> child.kind == Kind.EXISTING)
+            .map(spr -> spr.propertySource)
+            .toArray();
     assertThat(wrapped[1]).isEqualTo(propertySource1);
     assertThat(wrapped[2]).isEqualTo(propertySource2);
     assertThat(wrapped[3]).isEqualTo(propertySource3);
@@ -106,10 +120,13 @@ class ConfigDataEnvironmentTests {
     this.environment.getPropertySources().addLast(propertySource2);
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
-    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().root
+    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors()
+            .root
             .getChildren(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    Object[] wrapped = children.stream().filter((child) -> child.kind == Kind.EXISTING)
-            .map(spr -> spr.propertySource).toArray();
+    Object[] wrapped = children.stream()
+            .filter((child) -> child.kind == Kind.EXISTING)
+            .map(spr -> spr.propertySource)
+            .toArray();
     assertThat(wrapped[1]).isEqualTo(propertySource1);
     assertThat(wrapped[2]).isEqualTo(propertySource2);
     assertThat(wrapped[3]).isEqualTo(defaultPropertySource);
@@ -130,25 +147,31 @@ class ConfigDataEnvironmentTests {
             .map(ConfigDataEnvironmentContributor::getImports)
             .map(Object::toString)
             .toArray();
-    assertThat(imports).containsExactly("[i1, i2]", "[a1, a2]", "[l1, l2]");
+    assertThat(imports).containsExactly("[i1, i2]", "[a2]", "[a1]", "[l2]", "[l1]");
   }
 
   @Test
-  void processAndApplyAddsImportedSourceToEnvironment(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
+  @WithResource(name = "application.properties", content = "infra=app")
+  void processAndApplyAddsImportedSourceToEnvironment() {
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
-    assertThat(this.environment.getProperty("spring")).isEqualTo("boot");
+    assertThat(this.environment.getProperty("infra")).isEqualTo("app");
   }
 
   @Test
-  void processAndApplyOnlyAddsActiveContributors(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
+  @WithResource(name = "application.properties", content = """
+          infra=app
+          #---
+          app.config.activate.on-profile=missing
+          other=value
+          No newline at end of file
+          """)
+  void processAndApplyOnlyAddsActiveContributors() {
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
-    assertThat(this.environment.getProperty("spring")).isEqualTo("boot");
+    assertThat(this.environment.getProperty("infra")).isEqualTo("app");
     assertThat(this.environment.getProperty("other")).isNull();
   }
 
@@ -160,13 +183,13 @@ class ConfigDataEnvironmentTests {
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
-    List<PropertySource<?>> sources = this.environment.getPropertySources().stream().collect(Collectors.toList());
+    List<PropertySource<?>> sources = this.environment.getPropertySources().stream().toList();
     assertThat(sources.get(sources.size() - 1)).isSameAs(defaultPropertySource);
   }
 
   @Test
+  @WithResource(name = "application.properties", content = "infra.profiles.default=one,two,three")
   void processAndApplySetsDefaultProfiles(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -174,8 +197,8 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
-  void processAndApplySetsActiveProfiles(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
+  @WithResource(name = "application.properties", content = "infra.profiles.active=one,two,three")
+  void processAndApplySetsActiveProfiles() {
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -183,8 +206,11 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
-  void processAndApplySetsActiveProfilesAndProfileGroups(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
+  @WithResource(name = "application.properties", content = """
+          infra.profiles.active=one,two,three
+          infra.profiles.group.one=four,five
+          """)
+  void processAndApplySetsActiveProfilesAndProfileGroups() {
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -192,8 +218,8 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
+  @WithResource(name = "application.properties", content = "infra.profiles.active=test")
   void processAndApplyDoesNotSetProfilesFromIgnoreProfilesContributors(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
 
@@ -206,7 +232,8 @@ class ConfigDataEnvironmentTests {
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0, conversionService));
+                mock(ConfigDataResource.class), false, data, 0,
+                ConfigDataEnvironmentTests.this.conversionService, ConfigDataEnvironmentUpdateListener.NONE));
         return super.createContributors(contributors);
       }
 
@@ -216,7 +243,7 @@ class ConfigDataEnvironmentTests {
   }
 
   @ParameterizedTest
-  @CsvSource({ "include", "include[0]" })
+  @ValueSource(strings = { "include", "include[0]" })
   void processAndApplyWhenHasProfileIncludeInProfileSpecificDocumentThrowsException(String property, TestInfo info) {
     this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
@@ -230,7 +257,8 @@ class ConfigDataEnvironmentTests {
         source.put("infra.profiles." + property, "include");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0, conversionService));
+                mock(ConfigDataResource.class), false, data, 0,
+                ConfigDataEnvironmentTests.this.conversionService, ConfigDataEnvironmentUpdateListener.NONE));
         return super.createContributors(contributors);
       }
 
@@ -240,8 +268,8 @@ class ConfigDataEnvironmentTests {
   }
 
   @ParameterizedTest
-  @CsvSource({ "infra.profiles.include", "infra.profiles.include[0]" })
-  void processAndApplyIncludesProfilesFrominfraProfilesInclude(String property, TestInfo info) {
+  @ValueSource(strings = { "infra.profiles.include", "infra.profiles.include[0]" })
+  void processAndApplyIncludesProfilesFromInfraProfilesInclude(String property, TestInfo info) {
     this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
@@ -253,7 +281,8 @@ class ConfigDataEnvironmentTests {
         source.put(property, "included");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0, conversionService));
+                mock(ConfigDataResource.class), false, data, 0,
+                ConfigDataEnvironmentTests.this.conversionService, ConfigDataEnvironmentUpdateListener.NONE));
         return super.createContributors(contributors);
       }
 
@@ -263,8 +292,8 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
+  @WithResource(name = "application.properties", content = "infra=app")
   void processAndApplyDoesNotSetProfilesFromIgnoreProfilesContributorsWhenNoProfilesActive(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
 
@@ -277,14 +306,15 @@ class ConfigDataEnvironmentTests {
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0, conversionService));
+                mock(ConfigDataResource.class), false, data, 0,
+                ConfigDataEnvironmentTests.this.conversionService, ConfigDataEnvironmentUpdateListener.NONE));
         return super.createContributors(contributors);
       }
 
     };
     configDataEnvironment.processAndApply();
     assertThat(this.environment.getActiveProfiles()).isEmpty();
-    assertThat(this.environment.getProperty("spring")).isEqualTo("boot");
+    assertThat(this.environment.getProperty("infra")).isEqualTo("app");
   }
 
   @Test
@@ -297,28 +327,73 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
+  @WithResource(name = "custom/config.properties", content = "infra=app")
   void processAndApplyWhenHasListenerCallsOnPropertySourceAdded(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", "classpath:custom/config.properties");
     TestConfigDataEnvironmentUpdateListener listener = new TestConfigDataEnvironmentUpdateListener();
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, listener);
     configDataEnvironment.processAndApply();
     assertThat(listener.getAddedPropertySources()).hasSize(1);
-    TestConfigDataEnvironmentUpdateListener.AddedPropertySource addedPropertySource = listener.getAddedPropertySources().get(0);
-    assertThat(addedPropertySource.getPropertySource().getProperty("spring")).isEqualTo("boot");
-    assertThat(addedPropertySource.getLocation().toString()).isEqualTo(getConfigLocation(info));
-    assertThat(addedPropertySource.getResource().toString()).contains("class path resource")
-            .contains(info.getTestMethod().get().getName());
+    AddedPropertySource addedPropertySource = listener.getAddedPropertySources().get(0);
+    assertThat(addedPropertySource.getPropertySource().getProperty("infra")).isEqualTo("app");
+    assertThat(addedPropertySource.getLocation()).hasToString("classpath:custom/config.properties");
+    ConfigDataResource resource = addedPropertySource.getResource();
+    assertThat(resource).isNotNull();
+    assertThat(resource.toString()).contains("class path resource").contains("custom/config.properties");
   }
 
   @Test
+  @WithResource(name = "application.properties", content = "infra.profiles.active=one,two,three")
   void processAndApplyWhenHasListenerCallsOnSetProfiles(TestInfo info) {
-    this.environment.setProperty("app.config.location", getConfigLocation(info));
     TestConfigDataEnvironmentUpdateListener listener = new TestConfigDataEnvironmentUpdateListener();
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, listener);
     configDataEnvironment.processAndApply();
-    assertThat(listener.getProfiles().getActive()).containsExactly("one", "two", "three");
+    Profiles profiles = listener.getProfiles();
+    assertThat(profiles).isNotNull();
+    assertThat(profiles.getActive()).containsExactly("one", "two", "three");
+  }
+
+  @Test
+  @SuppressWarnings("rawtypes")
+  @WithResource(name = "separate-class-loader-infra.factories", content = """
+          infra.app.context.config.ConfigDataLoader=\
+          infra.app.context.config.ConfigDataEnvironmentTests$SeparateClassLoaderConfigDataLoader
+          """)
+  void configDataLoadersAreLoadedUsingClassLoaderFromResourceLoader() {
+    ResourceLoader resourceLoader = mock(ResourceLoader.class);
+    ClassLoader classLoader = new ClassLoader(Thread.currentThread().getContextClassLoader()) {
+
+      @Override
+      public Enumeration<URL> getResources(String name) throws IOException {
+        if (TodayStrategies.STRATEGIES_LOCATION.equals(name)) {
+          return super.getResources("separate-class-loader-infra.factories");
+        }
+        return super.getResources(name);
+      }
+
+    };
+    given(resourceLoader.getClassLoader()).willReturn(classLoader);
+    TestConfigDataEnvironment configDataEnvironment = new TestConfigDataEnvironment(
+            this.bootstrapContext, this.environment, resourceLoader, this.additionalProfiles, null);
+    assertThat(configDataEnvironment).extracting("loaders.loaders")
+            .asInstanceOf(InstanceOfAssertFactories.LIST)
+            .extracting((item) -> (Class) item.getClass())
+            .containsOnly(SeparateClassLoaderConfigDataLoader.class);
+  }
+
+  @Test // gh-49724
+  @WithResource(name = "application-local.properties", content = "test.property=classpath-local")
+  void processAndApplyWhenExternalFileConfigOverridesProfileSpecificClasspathConfig(@TempDir Path tempDir)
+          throws IOException {
+    Files.writeString(tempDir.resolve("application.properties"), "test.property=file-default\n");
+    this.environment.setProperty("app.config.location",
+            "optional:classpath:/,optional:file:" + tempDir.toAbsolutePath() + "/");
+    ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
+            this.environment, this.resourceLoader, List.of("local"), null);
+    configDataEnvironment.processAndApply();
+    assertThat(this.environment.getProperty("test.property")).isEqualTo("file-default");
   }
 
   private String getConfigLocation(TestInfo info) {
@@ -328,12 +403,10 @@ class ConfigDataEnvironmentTests {
 
   static class TestConfigDataEnvironment extends ConfigDataEnvironment {
 
-    private Binder configDataLocationResolversBinder;
+    private @Nullable Binder configDataLocationResolversBinder;
 
-    TestConfigDataEnvironment(
-            ConfigurableBootstrapContext bootstrapContext,
-            ConfigurableEnvironment environment,
-            ResourceLoader resourceLoader,
+    TestConfigDataEnvironment(ConfigurableBootstrapContext bootstrapContext,
+            ConfigurableEnvironment environment, ResourceLoader resourceLoader,
             Collection<String> additionalProfiles,
             @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
       super(bootstrapContext, environment, resourceLoader, additionalProfiles,
@@ -341,14 +414,23 @@ class ConfigDataEnvironmentTests {
     }
 
     @Override
-    protected ConfigDataLocationResolvers createConfigDataLocationResolvers(
-            ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
+    protected ConfigDataLocationResolvers createConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
       this.configDataLocationResolversBinder = binder;
       return super.createConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader);
     }
 
-    Binder getConfigDataLocationResolversBinder() {
+    @Nullable Binder getConfigDataLocationResolversBinder() {
       return this.configDataLocationResolversBinder;
+    }
+
+  }
+
+  static class SeparateClassLoaderConfigDataLoader implements ConfigDataLoader<ConfigDataResource> {
+
+    @Override
+    public @Nullable ConfigData load(ConfigDataLoaderContext context, ConfigDataResource resource)
+            throws IOException, ConfigDataResourceNotFoundException {
+      return null;
     }
 
   }
