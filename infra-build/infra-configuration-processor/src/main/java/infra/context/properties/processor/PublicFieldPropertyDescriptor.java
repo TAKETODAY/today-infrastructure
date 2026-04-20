@@ -18,6 +18,7 @@
 
 package infra.context.properties.processor;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -39,6 +40,11 @@ class PublicFieldPropertyDescriptor extends PropertyDescriptor {
   PublicFieldPropertyDescriptor(String name, TypeMirror type, TypeElement declaringElement, ExecutableElement getter, VariableElement field) {
     super(name, type, declaringElement, getter);
     this.field = field;
+  }
+
+  @Override
+  protected Element getSourceElement() {
+    return field;
   }
 
   @Override

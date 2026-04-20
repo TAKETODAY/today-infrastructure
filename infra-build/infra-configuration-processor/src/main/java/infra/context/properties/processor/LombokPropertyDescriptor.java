@@ -21,6 +21,7 @@ package infra.context.properties.processor;
 import java.util.Map;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -60,6 +61,11 @@ class LombokPropertyDescriptor extends PropertyDescriptor {
     this.factoryMethod = factoryMethod;
     this.field = field;
     this.setter = setter;
+  }
+
+  @Override
+  protected Element getSourceElement() {
+    return getField();
   }
 
   VariableElement getField() {

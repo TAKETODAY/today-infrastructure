@@ -49,6 +49,11 @@ abstract class ParameterPropertyDescriptor extends PropertyDescriptor {
 
   }
 
+  @Override
+  protected Element getSourceElement() {
+    return getParameter();
+  }
+
   final VariableElement getParameter() {
     return this.parameter;
   }

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -54,6 +55,17 @@ class ConstructorParameterPropertyDescriptorTests extends PropertyDescriptorTest
       assertThat(property.getGetter().getSimpleName()).hasToString("getTheName");
       assertThat(property.isProperty(metadataEnv)).isTrue();
       assertThat(property.isNested(metadataEnv)).isFalse();
+    });
+  }
+
+  @Test
+  void getSourceElementReturnsBackingField() {
+    process(ImmutableSimpleProperties.class, (roundEnv, metadataEnv) -> {
+      TypeElement ownerElement = roundEnv.getRootElement(ImmutableSimpleProperties.class);
+      ConstructorParameterPropertyDescriptor property = createPropertyDescriptor(ownerElement, "theName");
+      assertThat(property.getSourceElement().getKind()).isEqualTo(ElementKind.FIELD);
+      assertThat(property.getSourceElement().getSimpleName()).hasToString("theName");
+      assertThat(property.getSourceElement()).isNotSameAs(property.getGetter());
     });
   }
 
