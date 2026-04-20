@@ -112,20 +112,20 @@ class AttributeMethodsTests {
   }
 
   @Test
-  void isValidWhenHasTypeNotPresentExceptionReturnsFalse() {
+  void canLoadWhenHasTypeNotPresentExceptionReturnsFalse() {
     ClassValue annotation = mockAnnotation(ClassValue.class);
     given(annotation.value()).willThrow(TypeNotPresentException.class);
     AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
-    assertThat(attributes.isValid(annotation, getClass())).isFalse();
+    assertThat(attributes.canLoad(annotation, getClass())).isFalse();
   }
 
   @Test
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  void isValidWhenDoesNotHaveTypeNotPresentExceptionReturnsTrue() {
+  void canLoadWhenDoesNotHaveTypeNotPresentExceptionReturnsTrue() {
     ClassValue annotation = mock(ClassValue.class);
     given(annotation.value()).willReturn((Class) InputStream.class);
     AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
-    assertThat(attributes.isValid(annotation, getClass())).isTrue();
+    assertThat(attributes.canLoad(annotation, getClass())).isTrue();
   }
 
   @Test

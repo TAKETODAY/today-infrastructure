@@ -1053,6 +1053,21 @@ public abstract class ClassUtils {
   }
 
   /**
+   * Return the {@linkplain Class#getCanonicalName() canonical name} of the given
+   * class, or the {@linkplain Class#getTypeName() type name} of the class if the
+   * canonical name does not exist.
+   *
+   * @param clazz the class
+   * @return the canonical name of the class, or the type name as a fallback
+   * @since 5.0
+   */
+  public static String getCanonicalName(Class<?> clazz) {
+    Assert.notNull(clazz, "Class is required");
+    String canonicalName = clazz.getCanonicalName();
+    return canonicalName != null ? canonicalName : clazz.getTypeName();
+  }
+
+  /**
    * Return the qualified name of the given class: usually simply
    * the class name, but component type class name + "[]" for arrays.
    *

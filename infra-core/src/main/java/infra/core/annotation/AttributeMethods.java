@@ -28,6 +28,7 @@ import java.util.Comparator;
 
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
 
@@ -111,7 +112,7 @@ final class AttributeMethods {
    * @return {@code true} if all values are present
    * @see #validate(Annotation)
    */
-  boolean isValid(Annotation annotation, AnnotatedElement source) {
+  boolean canLoad(Annotation annotation, AnnotatedElement source) {
     assertAnnotation(annotation);
     Method[] attributes = this.attributes;
     for (int i = 0; i < attributes.length; i++) {
@@ -120,7 +121,8 @@ final class AttributeMethods {
           AnnotationUtils.invokeAnnotationMethod(attributes[i], annotation);
         }
         catch (IllegalStateException ex) {
-          throw ex;
+          // Plain invocation failure to expose -> leave up to attribute retrieval
+          // (if any) where such invocation failure will be logged eventually.
         }
         catch (Throwable ex) {
           // TypeNotPresentException etc. -> annotation type not actually loadable.
@@ -144,7 +146,7 @@ final class AttributeMethods {
    *
    * @param annotation the annotation to validate
    * @throws IllegalStateException if a declared {@code Class} attribute could not be read
-   * @see #isValid(Annotation, AnnotatedElement)
+   * @see #canLoad(Annotation, AnnotatedElement)
    */
   void validate(Annotation annotation) {
     assertAnnotation(annotation);
@@ -159,7 +161,7 @@ final class AttributeMethods {
         }
         catch (Throwable ex) {
           throw new IllegalStateException("Could not obtain annotation attribute value for %s declared on @%s"
-                  .formatted(attributes[i].getName(), getName(annotation.annotationType())), ex);
+                  .formatted(attributes[i].getName(), ClassUtils.getCanonicalName(annotation.annotationType())), ex);
         }
       }
     }
