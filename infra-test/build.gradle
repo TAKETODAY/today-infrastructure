@@ -3,7 +3,6 @@ description = "Testing infrastructure"
 dependencies {
   api(project(":infra-core"))
 
-  optional(project(":infra-core-aot"))
   optional(project(":infra-aop"))
   optional(project(":infra-beans"))
   optional(project(":infra-context"))

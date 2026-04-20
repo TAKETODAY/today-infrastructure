@@ -48,7 +48,7 @@ public abstract class RuntimeHintsPredicates {
 
   private static final ResourceHintsPredicates resource = new ResourceHintsPredicates();
 
-  private static final ProxyHintsPredicates proxies = new ProxyHintsPredicates();
+  private static final infra.aot.hint.predicate.ProxyHintsPredicates proxies = new ProxyHintsPredicates();
 
   private RuntimeHintsPredicates() {
   }

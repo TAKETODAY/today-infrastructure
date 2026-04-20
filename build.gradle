@@ -39,8 +39,7 @@ ext {
       project(":infra-web"),
       project(":infra-webmvc"),
       project(":infra-test"),
-      project(":infra-tx"),
-      project(":infra-core-aot")
+      project(":infra-tx")
   ] as Set
 }
 

@@ -38,7 +38,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class DefaultGenerationContext implements GenerationContext {
+public class DefaultGenerationContext implements infra.aot.generate.GenerationContext {
 
   private final Map<String, AtomicInteger> sequenceGenerator;
 

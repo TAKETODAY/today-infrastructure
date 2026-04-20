@@ -6,7 +6,6 @@ dependencies {
   api(project(":infra-core"))
 
   optional(project(":infra-aop"))
-  optional(project(":infra-core-aot"))
   optional project(":module:infra-app-health")
 
   optional("jakarta.activation:jakarta.activation-api")

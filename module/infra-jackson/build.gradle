@@ -6,7 +6,6 @@ dependencies {
   optional project(":infra-web")
   optional project(":infra-context")
 
-  optional project(":infra-core-aot")
   optional("tools.jackson.dataformat:jackson-dataformat-cbor")
   optional("tools.jackson.dataformat:jackson-dataformat-xml")
   optional("tools.jackson.module:jackson-module-jakarta-xmlbind-annotations")

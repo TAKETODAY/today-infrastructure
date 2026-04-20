@@ -5,7 +5,6 @@ dependencies {
   api(project(":infra-app"))
   api project(":infra-test")
 
-  optional project(":infra-core-aot")
   optional project(":infra-web-client")
   optional project(":infra-web")
   optional project(':infra-webmvc-mock')

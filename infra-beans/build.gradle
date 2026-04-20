@@ -3,7 +3,6 @@ description = "Beans infrastructure"
 dependencies {
   api(project(":infra-core"))
 
-  optional(project(":infra-core-aot"))
   optional("jakarta.inject:jakarta.inject-api")
   optional("org.yaml:snakeyaml")
   optional("org.apache.groovy:groovy-xml")

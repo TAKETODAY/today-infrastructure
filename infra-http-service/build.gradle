@@ -3,7 +3,6 @@ description = "HTTP service infrastructure"
 dependencies {
   api(project(":infra-http"))
 
-  optional(project(":infra-core-aot"))
   optional(project(":infra-web-client"))
   optional(project(":infra-web-reactive"))
 

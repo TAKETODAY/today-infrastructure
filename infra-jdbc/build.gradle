@@ -8,7 +8,6 @@ dependencies {
   api(project(":infra-core"))
   api(project(":infra-tx"))
 
-  optional(project(":infra-core-aot"))
   optional(project(":module:infra-sql"))
   optional(project(":infra-context"))  // for JndiDataSourceLookup
   optional("org.hsqldb:hsqldb")

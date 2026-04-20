@@ -7,8 +7,6 @@ dependencies {
 
   api("org.flywaydb:flyway-core")
 
-  optional(project(":infra-core-aot"))
-
   optional("org.flywaydb:flyway-database-oracle")
   optional("org.flywaydb:flyway-database-postgresql")
   optional("org.flywaydb:flyway-sqlserver")

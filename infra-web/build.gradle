@@ -15,7 +15,6 @@ dependencies {
   optional(project(":infra-web-client"))
   optional(project(":infra-http-reactive"))
   optional(project(":infra-oxm"))
-  optional(project(":infra-core-aot"))
   optional("org.apache.groovy:groovy-templates")
   optional('io.micrometer:context-propagation')
 

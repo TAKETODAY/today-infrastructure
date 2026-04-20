@@ -50,7 +50,7 @@ public interface GenerationContext {
    *
    * @return the generated classes
    */
-  GeneratedClasses getGeneratedClasses();
+  infra.aot.generate.GeneratedClasses getGeneratedClasses();
 
   /**
    * Get the {@link GeneratedFiles} used by the context.

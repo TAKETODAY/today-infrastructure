@@ -5,7 +5,6 @@ dependencies {
 
   optional(project(":infra-beans"))
   optional(project(":infra-context"))
-  optional(project(":infra-core-aot"))
 
   optional("org.reactivestreams:reactive-streams")
   optional("io.projectreactor.netty:reactor-netty-http")

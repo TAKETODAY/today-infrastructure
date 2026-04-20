@@ -15,7 +15,6 @@ dependencies {
   optional(project(":infra-app"))
   optional(project(":infra-aop"))
   optional(project(":infra-oxm"))
-  optional(project(":infra-core-aot"))
   optional(project(":infra-http-reactive"))
 
   optional("jakarta.json.bind:jakarta.json.bind-api")

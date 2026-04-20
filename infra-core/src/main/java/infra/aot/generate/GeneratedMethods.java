@@ -42,7 +42,7 @@ public class GeneratedMethods {
 
   private final ClassName className;
 
-  private final Function<MethodName, String> methodNameGenerator;
+  private final Function<infra.aot.generate.MethodName, String> methodNameGenerator;
 
   private final MethodName prefix;
 

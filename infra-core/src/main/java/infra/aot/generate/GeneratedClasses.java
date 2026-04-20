@@ -45,7 +45,7 @@ import infra.lang.Assert;
  */
 public class GeneratedClasses {
 
-  private final ClassNameGenerator classNameGenerator;
+  private final infra.aot.generate.ClassNameGenerator classNameGenerator;
 
   private final List<GeneratedClass> classes;
 

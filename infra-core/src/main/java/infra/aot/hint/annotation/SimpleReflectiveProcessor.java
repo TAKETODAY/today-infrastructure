@@ -34,7 +34,7 @@ import infra.aot.hint.ReflectionHints;
  * @author Stephane Nicoll
  * @since 4.0
  */
-public class SimpleReflectiveProcessor implements ReflectiveProcessor {
+public class SimpleReflectiveProcessor implements infra.aot.hint.annotation.ReflectiveProcessor {
 
   @Override
   public void registerReflectionHints(ReflectionHints hints, AnnotatedElement element) {

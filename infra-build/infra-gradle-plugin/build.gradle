@@ -17,7 +17,6 @@ dependencies {
   implementation 'io.spring.gradle:dependency-management-plugin'
 
   testImplementation(project(":infra-aop"))
-  testImplementation(project(":infra-core-aot"))
   testImplementation(project(":infra-app"))
   testImplementation(project(":infra-test-support"))
 

@@ -1,9 +1,41 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import infra.building.shadow.ShadowSource
+
 description = "Core infrastructure Technologies"
 
 apply plugin: "infra.building.multiReleaseJar"
 
+def javapoetVersion = "1.13.0"
+
 multiRelease {
   releaseVersions 21, 24
+}
+
+configurations {
+  java21Api.extendsFrom(api)
+  java21Implementation.extendsFrom(implementation)
+  graalvm
+  javapoet
+}
+
+tasks.register('javapoetRepackJar', ShadowJar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'infra.javapoet')
+}
+
+tasks.register('javapoetSource', ShadowSource) {
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'infra.javapoet')
+  outputDirectory.set file("build/shadow-source/javapoet")
+}
+
+tasks.register('javapoetSourceJar', Jar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  archiveClassifier = 'sources'
+  from javapoetSource
 }
 
 configurations {
@@ -16,6 +48,10 @@ configurations {
 dependencies {
   api("org.jspecify:jspecify")
 
+  javapoet("com.squareup:javapoet:${javapoetVersion}@jar")
+  api(files(javapoetRepackJar))
+
+  compileOnly("org.graalvm.sdk:graal-sdk")
   compileOnly("io.projectreactor.tools:blockhound")
   optional("org.yaml:snakeyaml")
   optional("net.sf.jopt-simple:jopt-simple")
@@ -52,6 +88,7 @@ dependencies {
   testImplementation(project(":infra-test"))
   testImplementation(project(":module:infra-app-test"))
   testImplementation("org.awaitility:awaitility")
+  testImplementation("com.networknt:json-schema-validator");
 
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.junit.platform:junit-platform-launcher")
@@ -64,7 +101,13 @@ dependencies {
 }
 
 jar {
-  manifest.attributes["Dependencies"] = "jdk.unsupported"  // for sun.reflect.ReflectionFactory
+  manifest.attributes["Dependencies"] = "jdk.unsupported"
+
+  dependsOn javapoetRepackJar
+  from(zipTree(javapoetRepackJar.archiveFile)) {
+    include "infra/javapoet/**"
+  }
+
 }
 
 test {
@@ -75,6 +118,11 @@ test {
   // Ensure that BlockHound tests run on JDK 13+. For details, see:
   // https://github.com/reactor/BlockHound/issues/33
   jvmArgs += [
-      "-XX:+AllowRedefinitionToAddDeleteMethods"
+          "-XX:+AllowRedefinitionToAddDeleteMethods"
   ]
+}
+
+sourcesJar {
+  dependsOn javapoetSourceJar
+  from javapoetSource
 }

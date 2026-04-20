@@ -9,8 +9,6 @@ dependencies {
   api(project(":infra-http-reactive"))
   api(project(":infra-http-codec"))
 
-  optional(project(":infra-core-aot"))
-
   optional("org.reactivestreams:reactive-streams")
   optional("io.projectreactor.netty:reactor-netty-http")
   optional("io.projectreactor:reactor-core")

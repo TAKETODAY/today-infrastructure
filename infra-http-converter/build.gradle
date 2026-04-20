@@ -7,7 +7,6 @@ dependencies {
   optional(project(":infra-context"))
   optional(project(":infra-oxm"))
   optional(project(":infra-aop"))
-  optional(project(":infra-core-aot"))
 
   optional("com.google.code.gson:gson")
   optional("tools.jackson.core:jackson-databind")

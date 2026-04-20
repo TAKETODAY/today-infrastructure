@@ -10,7 +10,6 @@ dependencies {
   api(project(":infra-core"))
   api(project(":infra-expression"))
 
-  optional(project(":infra-core-aot"))
   optional(project(":infra-instrument"))
   optional("jakarta.annotation:jakarta.annotation-api")
   optional("jakarta.ejb:jakarta.ejb-api")

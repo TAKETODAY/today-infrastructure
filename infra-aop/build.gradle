@@ -4,7 +4,6 @@ dependencies {
   api(project(":infra-beans"))
   api(project(":infra-core"))
 
-  optional(project(":infra-core-aot"))
   optional("org.aspectj:aspectjweaver")
   optional("org.apache.commons:commons-pool2")
   optional 'jakarta.inject:jakarta.inject-api'

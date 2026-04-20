@@ -7,7 +7,6 @@ dependencies {
   optional project(":infra-app")
   optional(project(":infra-aop"))
   optional(project(":infra-context"))  // for JCA, @EnableTransactionManagement
-  optional(project(":infra-core-aot"))
   optional("jakarta.ejb:jakarta.ejb-api")
   optional("jakarta.interceptor:jakarta.interceptor-api")
   optional("jakarta.resource:jakarta.resource-api")

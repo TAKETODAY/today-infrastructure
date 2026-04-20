@@ -7,7 +7,6 @@ dependencies {
   api project(':infra-beans')
   api project(':infra-context')
 
-  optional(project(":infra-core-aot"))
   optional project(':infra-aop')
   optional project(':infra-web')
   optional project(':infra-instrument')
