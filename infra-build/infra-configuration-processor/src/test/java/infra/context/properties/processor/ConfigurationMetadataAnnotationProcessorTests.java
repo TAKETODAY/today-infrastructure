@@ -35,6 +35,7 @@ import infra.context.properties.processor.test.CompiledMetadataReader;
 import infra.context.properties.processor.test.TestConfigurationMetadataAnnotationProcessor;
 import infra.context.properties.sample.deprecation.Dbcp2Configuration;
 import infra.context.properties.sample.method.NestedPropertiesMethod;
+import infra.context.properties.sample.method.NestedPropertiesMethodImmutable;
 import infra.context.properties.sample.record.ExampleRecord;
 import infra.context.properties.sample.record.NestedPropertiesRecord;
 import infra.context.properties.sample.record.RecordWithGetter;
@@ -422,6 +423,13 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
     assertThat(metadata).has(Metadata.withProperty("method-nested.nested.my-nested-property"));
     assertThat(metadata).has(Metadata.withGroup("method-nested.inner.nested"));
     assertThat(metadata).has(Metadata.withProperty("method-nested.inner.nested.my-nested-property"));
+  }
+
+  @Test
+  void nestedClassMethodImmutable() {
+    ConfigurationMetadata metadata = compile(NestedPropertiesMethodImmutable.class);
+    assertThat(metadata).has(Metadata.withGroup("immutable-nested.nested"));
+    assertThat(metadata).has(Metadata.withProperty("immutable-nested.nested.my-nested-property"));
   }
 
   @Test
