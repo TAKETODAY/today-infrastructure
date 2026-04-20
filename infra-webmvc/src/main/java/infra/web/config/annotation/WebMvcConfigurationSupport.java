@@ -38,8 +38,10 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Role;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.expression.EmbeddedValueResolverAware;
 import infra.context.support.ApplicationObjectSupport;
 import infra.core.Ordered;
+import infra.core.StringValueResolver;
 import infra.core.conversion.Converter;
 import infra.format.Formatter;
 import infra.format.FormatterRegistry;
@@ -173,7 +175,7 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
  * @since 4.0 2022/1/27 23:43
  */
 @DisableAllDependencyInjection
-public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
+public class WebMvcConfigurationSupport extends ApplicationObjectSupport implements EmbeddedValueResolverAware {
 
   private static final boolean jacksonPresent = isPresent("tools.jackson.databind.ObjectMapper", WebMvcConfigurationSupport.class);
 
@@ -202,6 +204,13 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   @Nullable
   private ApiVersionStrategy apiVersionStrategy;
+
+  protected @Nullable StringValueResolver embeddedValueResolver;
+
+  @Override
+  public void setEmbeddedValueResolver(StringValueResolver resolver) {
+    this.embeddedValueResolver = resolver;
+  }
 
   @Override
   protected void initApplicationContext() {
@@ -847,7 +856,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public FormattingConversionService mvcConversionService() {
-    var conversionService = new DefaultFormattingConversionService();
+    var conversionService = new DefaultFormattingConversionService(embeddedValueResolver, true);
     addFormatters(conversionService);
     return conversionService;
   }

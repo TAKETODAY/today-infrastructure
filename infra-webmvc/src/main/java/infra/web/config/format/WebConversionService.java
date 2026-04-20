@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import infra.core.StringValueResolver;
 import infra.format.datetime.DateFormatter;
 import infra.format.datetime.DateFormatterRegistrar;
 import infra.format.datetime.standard.DateTimeFormatterRegistrar;
@@ -56,7 +57,23 @@ public class WebConversionService extends DefaultFormattingConversionService {
    * formatting
    */
   public WebConversionService(DateTimeFormatters dateTimeFormatters) {
-    super(false);
+    this(dateTimeFormatters, null);
+  }
+
+  /**
+   * Create a new WebConversionService that configures formatters with the provided
+   * date, time, and date-time formats, or registers the default if no custom format is
+   * provided. The given {@code embeddedValueResolver} is used to resolve embedded
+   * values such as property placeholders in
+   * {@link infra.format.annotation.DateTimeFormat#pattern()} patterns.
+   *
+   * @param embeddedValueResolver the embedded value resolver to use, or {@code null}
+   * @param dateTimeFormatters the formatters to use for date, time, and date-time
+   * formatting
+   * @since 5.0
+   */
+  public WebConversionService(DateTimeFormatters dateTimeFormatters, @Nullable StringValueResolver embeddedValueResolver) {
+    super(embeddedValueResolver, false);
     if (dateTimeFormatters.isCustomized()) {
       addFormatters(dateTimeFormatters);
     }

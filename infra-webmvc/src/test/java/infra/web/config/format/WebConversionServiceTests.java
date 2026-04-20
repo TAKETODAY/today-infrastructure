@@ -18,6 +18,7 @@
 
 package infra.web.config.format;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -35,7 +36,9 @@ import java.time.format.FormatStyle;
 import java.util.Calendar;
 import java.util.Date;
 
+import infra.core.TypeDescriptor;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
+import infra.format.annotation.DateTimeFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -179,14 +182,31 @@ class WebConversionServiceTests {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(date);
     assertThat(calendar.get(Calendar.YEAR)).isEqualTo(2018);
-    assertThat(calendar.get(Calendar.MONTH)).isEqualTo(Calendar.JANUARY);
-    assertThat(calendar.get(Calendar.DAY_OF_MONTH)).isEqualTo(1);
+    assertThat(calendar.get(Calendar.MONTH)).isZero();
+    assertThat(calendar.get(Calendar.DAY_OF_MONTH)).isOne();
+  }
+
+  @Test
+  void embeddedValueResolverIsAppliedToAnnotationPattern() throws Exception {
+    WebConversionService conversionService = new WebConversionService(
+            new DateTimeFormatters(), (value) -> value.replace("${my.date.format}", "yyyy-MM-dd"));
+    TypeDescriptor dateType = new TypeDescriptor(FormattedDate.class.getDeclaredField("date"));
+    Date date = Date.from(ZonedDateTime.of(2000, 1, 2, 3, 4, 5, 6, ZoneId.systemDefault()).toInstant());
+    assertThat(conversionService.convert(date, dateType, TypeDescriptor.valueOf(String.class)))
+            .isEqualTo("2000-01-02");
   }
 
   private void customDateFormat(Object input) {
     WebConversionService conversionService = new WebConversionService(
             new DateTimeFormatters().dateFormat("dd*MM*yyyy"));
     assertThat(conversionService.convert(input, String.class)).isEqualTo("01*01*2018");
+  }
+
+  static class FormattedDate {
+
+    @DateTimeFormat(pattern = "${my.date.format}")
+    @Nullable Date date;
+
   }
 
 }

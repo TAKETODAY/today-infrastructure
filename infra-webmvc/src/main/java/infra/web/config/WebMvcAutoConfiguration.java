@@ -211,7 +211,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
             new DateTimeFormatters()
                     .dateFormat(format.date)
                     .timeFormat(format.time)
-                    .dateTimeFormat(format.dateTime)
+                    .dateTimeFormat(format.dateTime),
+            embeddedValueResolver
     );
     addFormatters(conversionService);
     return conversionService;

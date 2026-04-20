@@ -58,6 +58,7 @@ import infra.context.annotation.Import;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.core.Ordered;
+import infra.core.TypeDescriptor;
 import infra.core.annotation.Order;
 import infra.core.conversion.ConversionService;
 import infra.core.io.ClassPathResource;
@@ -65,6 +66,7 @@ import infra.core.io.Resource;
 import infra.core.task.AsyncTaskExecutor;
 import infra.format.Parser;
 import infra.format.Printer;
+import infra.format.annotation.DateTimeFormat;
 import infra.format.support.FormattingConversionService;
 import infra.http.CacheControl;
 import infra.http.HttpHeaders;
@@ -446,6 +448,17 @@ class WebMvcAutoConfigurationTests {
       FormattingConversionService conversionService = context.getBean(FormattingConversionService.class);
       LocalDateTime dateTime = LocalDateTime.of(2020, 4, 28, 11, 43, 10);
       assertThat(conversionService.convert(dateTime, String.class)).isEqualTo("2020-04-28 11:43:10");
+    });
+  }
+
+  @Test
+  void embeddedValueResolverIsAppliedToConversionService() {
+    this.contextRunner.withPropertyValues("my.date.format=yyyy-MM-dd").run((context) -> {
+      FormattingConversionService conversionService = context.getBean(FormattingConversionService.class);
+      TypeDescriptor dateType = new TypeDescriptor(FormattedDate.class.getDeclaredField("date"));
+      Date date = Date.from(ZonedDateTime.of(2000, 1, 2, 3, 4, 5, 6, ZoneId.systemDefault()).toInstant());
+      assertThat(conversionService.convert(date, dateType, TypeDescriptor.valueOf(String.class)))
+              .isEqualTo("2000-01-02");
     });
   }
 
@@ -1377,6 +1390,13 @@ class WebMvcAutoConfigurationTests {
     @AfterReturning(pointcut = "@annotation(infra.web.annotation.ExceptionHandler)", returning = "returnValue")
     void exceptionHandlerIntercept(JoinPoint joinPoint, Object returnValue) {
     }
+
+  }
+
+  static class FormattedDate {
+
+    @DateTimeFormat(pattern = "${my.date.format}")
+    @Nullable Date date;
 
   }
 }
