@@ -100,8 +100,8 @@ final class PemCertificateParser {
   }
 
   private static byte[] decodeBase64(String content) {
-    byte[] bytes = content.replaceAll("\r", "")
-            .replaceAll("\n", "")
+    byte[] bytes = content.replace("\r", "")
+            .replace("\n", "")
             .getBytes();
     return Base64.getDecoder().decode(bytes);
   }
