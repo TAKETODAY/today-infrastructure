@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 
 import infra.aop.framework.ProxyFactory;
 import infra.jdbc.datasource.DelegatingDataSource;
+import infra.jdbc.datasource.LazyConnectionDataSourceProxy;
 import infra.jdbc.datasource.SingleConnectionDataSource;
 import infra.jdbc.datasource.SmartDataSource;
 
@@ -70,6 +71,14 @@ class DataSourceUnwrapperTests {
   void unwrapWithProxy() {
     DataSource dataSource = new HikariDataSource();
     DataSource actual = wrapInProxy(wrapInProxy(dataSource));
+    assertThat(DataSourceUnwrapper.unwrap(actual, HikariConfigMXBean.class, HikariDataSource.class))
+            .isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapWithLazyConnectionDataSource() {
+    HikariDataSource dataSource = new HikariDataSource();
+    DataSource actual = new LazyConnectionDataSourceProxy(dataSource);
     assertThat(DataSourceUnwrapper.unwrap(actual, HikariConfigMXBean.class, HikariDataSource.class))
             .isSameAs(dataSource);
   }

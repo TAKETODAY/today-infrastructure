@@ -1,6 +1,12 @@
 {
   "properties": [
     {
+      "name": "datasource.connection-fetch",
+      "type": "java.lang.String",
+      "description": "Whether the auto-configured DataSource should be wrapped in a proxy that fetches JDBC connections as late as possible.",
+      "defaultValue": "eager"
+    },
+    {
       "name": "app.health.db.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable database health check.",
@@ -8,6 +14,19 @@
     }
   ],
   "hints": [
+    {
+      "name": "datasource.connection-fetch",
+      "values": [
+        {
+          "value": "eager",
+          "description": "Fetch JDBC connections directly."
+        },
+        {
+          "value": "lazy",
+          "description": "Fetch JDBC connections as late as possible, or not at all if no statement is executed."
+        }
+      ]
+    },
     {
       "name": "sql.init.data-locations",
       "providers": [
