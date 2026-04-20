@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
@@ -141,16 +142,16 @@ class NativeImageResourceProvider implements ResourceProvider {
         }
         continue;
       }
-      Resource[] resources = getResources(resolver, location, root);
+      var resources = getResources(resolver, location, root);
       for (Resource resource : resources) {
         this.locatedResources.add(new LocatedResource(resource, location));
       }
     }
   }
 
-  private Resource[] getResources(PathMatchingPatternResourceLoader resolver, Location location, Resource root) {
+  private Set<Resource> getResources(PathMatchingPatternResourceLoader resolver, Location location, Resource root) {
     try {
-      return resolver.getResourcesArray(root.getURI() + "/*");
+      return resolver.getResources(root.getURI() + "/**/*");
     }
     catch (IOException ex) {
       throw new UncheckedIOException("Failed to list resources for " + location.getDescriptor(), ex);
