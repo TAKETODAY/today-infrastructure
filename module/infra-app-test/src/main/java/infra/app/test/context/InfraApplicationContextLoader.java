@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import infra.aot.hint.ExecutableMode;
+import infra.aot.hint.RuntimeHints;
 import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.app.ApplicationContextFactory;
@@ -100,7 +102,7 @@ import infra.web.mock.support.GenericWebApplicationContext;
  * @see InfraTest
  * @since 4.0
  */
-public class InfraApplicationContextLoader extends AbstractContextLoader {
+public class InfraApplicationContextLoader extends AbstractContextLoader implements AotContextLoader {
 
   private static final Object NONE = new Object();
 
@@ -110,6 +112,17 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
   @Override
   public ApplicationContext loadContext(MergedContextConfiguration config) throws Exception {
     return loadContext(config, Mode.STANDARD, null, null);
+  }
+
+  @Override
+  public ApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig, RuntimeHints runtimeHints) throws Exception {
+    return loadContext(mergedConfig, Mode.AOT_PROCESSING, null,
+            mainMethod -> runtimeHints.reflection().registerMethod(mainMethod, ExecutableMode.INVOKE));
+  }
+
+  @Override
+  public ApplicationContext loadContextForAotRuntime(MergedContextConfiguration mergedConfig, ApplicationContextInitializer initializer) throws Exception {
+    return loadContext(mergedConfig, Mode.AOT_RUNTIME, initializer, null);
   }
 
   protected ApplicationContext loadContext(MergedContextConfiguration mergedConfig, Mode mode,

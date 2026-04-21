@@ -237,7 +237,7 @@ class InfraApplicationContextLoaderTests {
 
   @Test
   void whenMainMethodNotAvailableReturnsNoAotContribution() throws Exception {
-    InfraApplicationAotContextLoader contextLoader = new InfraApplicationAotContextLoader();
+    InfraApplicationContextLoader contextLoader = new InfraApplicationContextLoader();
     MergedContextConfiguration contextConfiguration = BootstrapUtils
             .resolveTestContextBootstrapper(UseMainMethodWhenAvailableAndNoMainMethod.class)
             .buildMergedContextConfiguration();
@@ -248,7 +248,7 @@ class InfraApplicationContextLoaderTests {
 
   @Test
   void whenMainMethodPresentRegisterReflectionHints() throws Exception {
-    InfraApplicationAotContextLoader contextLoader = new InfraApplicationAotContextLoader();
+    InfraApplicationContextLoader contextLoader = new InfraApplicationContextLoader();
     MergedContextConfiguration contextConfiguration = BootstrapUtils
             .resolveTestContextBootstrapper(UsePublicMainMethodWhenAvailableAndMainMethod.class)
             .buildMergedContextConfiguration();

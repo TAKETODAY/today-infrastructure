@@ -89,8 +89,6 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
   private static final String ACTIVATE_LISTENER
           = "infra.test.context.web.MockTestExecutionListener.activateListener";
 
-  private static final boolean aotPresent = ClassUtils.isPresent("infra.aot.hint.RuntimeHints");
-
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
   @Override
@@ -139,9 +137,6 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
 
   @Override
   protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
-    if (aotPresent) {
-      return InfraApplicationAotContextLoader.class;
-    }
     return InfraApplicationContextLoader.class;
   }
 
