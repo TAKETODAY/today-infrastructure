@@ -34,36 +34,46 @@ import infra.web.RequestContext;
  */
 public interface SessionIdResolver {
 
+  /**
+   * Attribute name for the session id written to the response.
+   */
   String WRITTEN_SESSION_ID_ATTR = Conventions.getQualifiedAttributeName(
           CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR");
 
+  /**
+   * Header name for X-Auth-Token.
+   */
   String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
 
+  /**
+   * Header name for Authentication-Info.
+   */
   String HEADER_AUTHENTICATION_INFO = "Authentication-Info";
 
   /**
-   * Resolving session id from RequestContext
+   * Resolves the session id from the given request context.
    * <p>
-   * session id including {@link #setSessionId applied session id}
+   * The returned session id may include the one previously applied via
+   * {@link #setSessionId(RequestContext, String)}.
    *
-   * @param exchange request context
-   * @return session id
+   * @param exchange the current request context
+   * @return the resolved session id, or {@code null} if not found
    */
   @Nullable
   String getSessionId(RequestContext exchange);
 
   /**
-   * Send the given session id to the client.
+   * Sends the given session id to the client in the response.
    *
-   * @param exchange the current context
-   * @param sessionId the session id
+   * @param exchange the current request context
+   * @param sessionId the session id to send
    */
   void setSessionId(RequestContext exchange, String sessionId);
 
   /**
-   * Instruct the client to end the current session.
+   * Instructs the client to expire the current session.
    *
-   * @param exchange the current exchange
+   * @param exchange the current request context
    */
   void expireSession(RequestContext exchange);
 
