@@ -45,6 +45,7 @@ import infra.context.annotation.FilterType;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.annotation.ImportResource;
+import infra.context.annotation.MissingBean;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
 import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
@@ -697,8 +698,7 @@ class ConditionalOnMissingBeanTests {
   @Configuration(proxyBeanMethods = false)
   static class ConditionalOnMissingBeanProducedByFactoryBeanConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean
+    @MissingBean
     ExampleBean createExampleBean() {
       return new ExampleBean("direct");
     }
@@ -708,8 +708,7 @@ class ConditionalOnMissingBeanTests {
   @Configuration(proxyBeanMethods = false)
   static class ConditionalOnMissingFactoryBeanConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean
+    @MissingBean
     ExampleFactoryBean additionalExampleFactoryBean() {
       return new ExampleFactoryBean("factory");
     }
@@ -719,8 +718,7 @@ class ConditionalOnMissingBeanTests {
   @Configuration(proxyBeanMethods = false)
   static class ConditionalOnIgnoredSubclassConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(ignored = CustomExampleBean.class)
+    @MissingBean(ignored = CustomExampleBean.class)
     ExampleBean exampleBean() {
       return new ExampleBean("test");
     }
@@ -762,8 +760,7 @@ class ConditionalOnMissingBeanTests {
   @Configuration(proxyBeanMethods = false)
   static class OnAnnotationMethodConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(annotation = TestAnnotation.class)
+    @MissingBean(annotation = TestAnnotation.class)
     UnrelatedExampleBean conditional() {
       return new UnrelatedExampleBean("conditional");
     }

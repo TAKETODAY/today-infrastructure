@@ -27,7 +27,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.MissingBean;
 import infra.context.annotation.Role;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
@@ -89,7 +88,8 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
     return new DefaultSessionManager(repository, sessionIdResolver);
   }
 
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static SessionEventDispatcher sessionEventDispatcher() {
     return new SessionEventDispatcher();
