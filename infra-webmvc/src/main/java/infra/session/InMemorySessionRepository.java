@@ -219,7 +219,7 @@ public class InMemorySessionRepository implements SessionRepository {
   }
 
   @Override
-  public Session createSession() {
+  public InMemorySession createSession() {
     return createSession(idGenerator.generateId());
   }
 
@@ -297,7 +297,7 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
-  final class InMemorySession extends AbstractSession implements Session, SerializableSession {
+  protected final class InMemorySession extends AbstractSession implements Session, SerializableSession {
 
     private Instant creationTime;
 
@@ -309,7 +309,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
     private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
-    InMemorySession(String id, Instant creationTime, Duration maxIdleTime) {
+    protected InMemorySession(String id, Instant creationTime, Duration maxIdleTime) {
       super(InMemorySessionRepository.this.eventDispatcher);
       this.id = new AtomicReference<>(id);
       this.maxIdleTime = maxIdleTime;
