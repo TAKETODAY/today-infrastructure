@@ -128,7 +128,6 @@ public abstract class AopUtils {
    * never {@code null})
    * @see TargetClassAware#getTargetClass()
    */
-  @SuppressWarnings("NullAway")
   public static Class<?> getTargetClass(MethodInvocation invocation) {
     Assert.notNull(invocation, "MethodInvocation is required");
     Class<?> result = null;
