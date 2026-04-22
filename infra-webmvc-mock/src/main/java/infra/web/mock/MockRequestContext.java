@@ -241,7 +241,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     if (StringUtils.hasText(queryString)) {
       UriBuilder.forUriComponents().query(queryString).build().getQueryParams().forEach((name, values) -> {
         for (String value : values) {
-          if (ret.contains(name, value)) {
+          if (!ret.contains(name, value)) {
             ret.add(name, value);
           }
         }
