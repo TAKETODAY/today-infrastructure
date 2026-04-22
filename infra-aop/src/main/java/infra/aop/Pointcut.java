@@ -112,7 +112,7 @@ public interface Pointcut {
       MethodMatcher mm = pointcut.getMethodMatcher();
       if (mm.matches(invocation.getMethod(), targetClass)) {
         // We may need additional runtime (argument) check.
-        return (!mm.isRuntime() || mm.matches(invocation));
+        return !mm.isRuntime() || mm.matches(invocation);
       }
     }
     return false;

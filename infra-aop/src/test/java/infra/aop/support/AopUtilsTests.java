@@ -18,6 +18,7 @@
 
 package infra.aop.support;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,8 @@ import infra.core.testfixture.io.SerializationTestUtils;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Rod Johnson
@@ -115,6 +118,19 @@ public class AopUtilsTests {
     Class<?> proxyClass = new ProxyFactory(new WithoutInterface()).getProxyClass(getClass().getClassLoader());
     Method specificMethod = AopUtils.getMostSpecificMethod(proxyClass.getMethod("handle", List.class), WithoutInterface.class);
     assertThat(ResolvableType.forMethodParameter(specificMethod, 0).getGeneric().toClass()).isEqualTo(String.class);
+  }
+
+  @Test
+  void getTargetClass() throws NoSuchMethodException {
+    MethodInvocation methodInvocation = mock(MethodInvocation.class);
+    given(methodInvocation.getMethod()).willReturn(ProxyInterface.class.getMethod("handle", List.class));
+
+    assertThat(AopUtils.getTargetClass(methodInvocation)).isEqualTo(ProxyInterface.class);
+
+    WithInterface withInterface = new WithInterface();
+    given(methodInvocation.getThis()).willReturn(withInterface);
+
+    assertThat(AopUtils.getTargetClass(methodInvocation)).isEqualTo(WithInterface.class);
   }
 
   interface ProxyInterface {

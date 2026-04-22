@@ -247,5 +247,4 @@ public class PointcutTests {
     assertThat(matches(intersection, TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
   }
 
-
 }
