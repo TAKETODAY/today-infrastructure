@@ -24,7 +24,7 @@ import java.io.Serial;
  * @author TODAY 2021/11/5 22:53
  * @since 4.0
  */
-public class NoOpLogger extends Logger {
+final class NoOpLogger extends Logger {
 
   @Serial
   private static final long serialVersionUID = 1L;

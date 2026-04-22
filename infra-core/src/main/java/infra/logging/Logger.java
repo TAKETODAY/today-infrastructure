@@ -25,7 +25,13 @@ import java.util.Objects;
 import infra.util.CollectionUtils;
 
 /**
- * Logger From slf4j
+ * A logger implementation inspired by SLF4J, providing logging capabilities at various levels
+ * (TRACE, DEBUG, INFO, WARN, ERROR). This abstract class serves as the base for concrete logger
+ * implementations, offering consistent logging APIs with format string support and exception handling.
+ * <p>
+ * The logger supports parameterized messages to avoid unnecessary string concatenation when
+ * logging is disabled for a particular level. It also provides methods to log exceptions
+ * (throwables) along with messages.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-11-03 13:15
@@ -581,16 +587,16 @@ public abstract class Logger implements Serializable {
     };
   }
 
-  protected abstract void logInternal(Level level, @Nullable String msg, @Nullable Throwable t, @Nullable Object @Nullable [] args);
+  protected abstract void logInternal(Level level, @Nullable String msg,
+          @Nullable Throwable t, @Nullable Object @Nullable [] args);
 
   @Override
-  public boolean equals(Object object) {
+  public boolean equals(@Nullable Object object) {
     if (this == object) {
       return true;
     }
-    if (!(object instanceof Logger logger))
-      return false;
-    return Objects.equals(getName(), logger.getName());
+    return object instanceof Logger logger
+            && Objects.equals(getName(), logger.getName());
   }
 
   @Override
