@@ -71,7 +71,7 @@ public final class HeadersMultiValueMap extends AbstractMap<String, List<String>
   }
 
   @Override
-  public boolean containsKey(Object key) {
+  public boolean containsKey(@Nullable Object key) {
     return key instanceof String name && headers.contains(name);
   }
 
@@ -88,7 +88,12 @@ public final class HeadersMultiValueMap extends AbstractMap<String, List<String>
   }
 
   @Override
-  public @Nullable List<String> get(Object key) {
+  public boolean contains(String s, String s2) {
+    return headers.contains(s, s2);
+  }
+
+  @Override
+  public @Nullable List<String> get(@Nullable Object key) {
     return key instanceof String name ? headers.get(name) : null;
   }
 
@@ -98,7 +103,7 @@ public final class HeadersMultiValueMap extends AbstractMap<String, List<String>
   }
 
   @Override
-  public @Nullable List<String> remove(Object key) {
+  public @Nullable List<String> remove(@Nullable Object key) {
     return key instanceof String name ? headers.remove(name) : null;
   }
 

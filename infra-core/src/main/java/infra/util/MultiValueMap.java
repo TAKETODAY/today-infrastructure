@@ -45,11 +45,19 @@ import infra.lang.Unmodifiable;
 @SuppressWarnings({ "rawtypes" })
 public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, List<V>> {
 
+  /**
+   * The default mapping function that creates a new ArrayList with an initial capacity of 1.
+   */
   Function defaultMappingFunction = k -> new ArrayList<>(1);
 
+  /**
+   * The smart list mapping function that creates a new SmartList.
+   */
   Function smartListMappingFunction = k -> new SmartList<>();
 
-  // read only
+  /**
+   * An empty, read-only MultiValueMap instance.
+   */
   MultiValueMap EMPTY = forAdaption(Collections.emptyMap());
 
   /**
@@ -62,17 +70,37 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   V getFirst(K key);
 
   /**
-   * Add the given single value to the current list of values for the given key.
+   * Check if the map contains the specified key-value pair.
    *
-   * @param key the key
-   * @param value the value to be added
+   * @param k the key to check
+   * @param v the value to check
+   * @return {@code true} if the map contains the specified key and the
+   * associated list contains the specified value, {@code false} otherwise
+   * @since 5.0
+   */
+  default boolean contains(K k, V v) {
+    List<V> values = get(k);
+    if (values == null) {
+      return false;
+    }
+    return values.contains(v);
+  }
+
+  /**
+   * Add the given single value to the current list of values for the given key.
+   * <p>If the key does not exist in the map, a new list will be created and added.
+   *
+   * @param key the key with which the specified value is to be associated
+   * @param value the value to be added to the list associated with the key; can be {@code null}
    */
   void add(K key, @Nullable V value);
 
   /**
    * Add the given key-value pair to the current list of values for the key.
+   * <p>This is a convenience method that delegates to {@link #add(Object, Object)}.
    *
-   * @param pair the entry containing the key and value to be added
+   * @param pair the entry containing the key and value to be added; must not be {@code null}
+   * @throws NullPointerException if the pair is {@code null}
    */
   default void add(Entry<K, V> pair) {
     add(pair.getKey(), pair.getValue());
@@ -221,9 +249,12 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   List<V> setOrRemove(K key, @Nullable Collection<V> value);
 
   /**
-   * Null check for {@link #putAll(Map)}
+   * Copies all of the mappings from the specified map to this map.
+   * These mappings will replace any mappings that this map had for any
+   * of the keys currently in the specified map.
+   * <p>This method performs a null check before delegating to {@link #putAll(Map)}.
    *
-   * @param values the values.
+   * @param values the mappings to be stored in this map
    * @see #putAll(Map)
    */
   default void setAll(@Nullable Map<K, List<V>> values) {

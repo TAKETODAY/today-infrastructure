@@ -581,7 +581,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         String name = matcher.group(1);
         String eq = matcher.group(2);
         String value = matcher.group(3);
-        queryParam(name, (value != null ? value : (StringUtils.isNotEmpty(eq) ? "" : null)));
+        queryParam(name, value != null ? value : (StringUtils.isNotEmpty(eq) ? "" : null));
       }
       resetSchemeSpecificPart();
     }
