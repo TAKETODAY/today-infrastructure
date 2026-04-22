@@ -69,6 +69,11 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    */
   void add(K key, @Nullable V value);
 
+  /**
+   * Add the given key-value pair to the current list of values for the key.
+   *
+   * @param pair the entry containing the key and value to be added
+   */
   default void add(Entry<K, V> pair) {
     add(pair.getKey(), pair.getValue());
   }
@@ -259,6 +264,12 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   }
 
   /**
+   * Return a {@code Map} where the values are arrays containing all values
+   * from the corresponding list in this {@code MultiValueMap}.
+   *
+   * @param function a function which produces a new array of the desired
+   * type and the provided length
+   * @return a map with array values
    * @since 3.0
    */
   default Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
@@ -268,6 +279,12 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   }
 
   /**
+   * Copy the contents of this {@code MultiValueMap} into the given map,
+   * converting the list values to arrays.
+   *
+   * @param newMap the map to copy into
+   * @param mappingFunction a function which produces a new array of the
+   * desired type and the provided length
    * @since 3.0
    */
   default void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> mappingFunction) {
