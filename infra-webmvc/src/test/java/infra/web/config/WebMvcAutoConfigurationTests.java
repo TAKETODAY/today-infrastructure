@@ -822,7 +822,7 @@ class WebMvcAutoConfigurationTests {
 
   @Test
   void apiVersionUseQueryParameterPropertyIsApplied() {
-    this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.request-parameter=rpv").run((context) -> {
+    this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.request-param=rpv").run((context) -> {
       ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
       HttpMockRequestImpl request = new HttpMockRequestImpl();
       request.setParameter("rpv", "123");
@@ -847,6 +847,32 @@ class WebMvcAutoConfigurationTests {
               HttpMockRequestImpl request = new HttpMockRequestImpl();
               request.addHeader(HttpHeaders.CONTENT_TYPE, "application/json;mtpv=123");
               assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
+            });
+  }
+
+  @Test
+  void apiVersionUsesPathSegmentLast() {
+    this.contextRunner
+            .withPropertyValues("web.mvc.api-version.use.path-segment=1", "web.mvc.api-version.use.header=hv",
+                    "web.mvc.api-version.use.requestParam=rpv",
+                    "web.mvc.api-version.use.media-type-parameter[application/json]=mtpv")
+            .run((context) -> {
+              ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
+
+              var requestWithHeader = new HttpMockRequestImpl("GET", "/test/456");
+              requestWithHeader.addHeader("hv", "123");
+              assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestWithHeader))).isEqualTo("123");
+
+              var requestWithQueryParameter = new HttpMockRequestImpl("GET", "/test/456");
+              requestWithQueryParameter.setQueryString("rpv=123");
+              assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestWithQueryParameter))).isEqualTo("123");
+
+              var requestWithMediaType = new HttpMockRequestImpl("GET", "/test/456");
+              requestWithMediaType.addHeader(HttpHeaders.CONTENT_TYPE, "application/json;mtpv=123");
+              assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestWithMediaType))).isEqualTo("123");
+
+              var requestFallbacksToApiSegment = new HttpMockRequestImpl("GET", "/test/456");
+              assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestFallbacksToApiSegment))).isEqualTo("456");
             });
   }
 

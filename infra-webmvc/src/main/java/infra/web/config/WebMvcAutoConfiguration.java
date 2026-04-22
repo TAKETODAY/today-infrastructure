@@ -447,14 +447,15 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     if (use.header != null) {
       configurer.useRequestHeader(use.header);
     }
-    if (use.requestParameter != null) {
-      configurer.useRequestParam(use.requestParameter);
-    }
-    if (use.pathSegment != null) {
-      configurer.usePathSegment(use.pathSegment);
+    if (use.requestParam != null) {
+      configurer.useRequestParam(use.requestParam);
     }
     for (var entry : use.mediaTypeParameter.entrySet()) {
       configurer.useMediaTypeParameter(entry.getKey(), entry.getValue());
+    }
+
+    if (use.pathSegment != null) {
+      configurer.usePathSegment(use.pathSegment);
     }
   }
 

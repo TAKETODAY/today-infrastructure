@@ -198,7 +198,7 @@ public class WebMvcProperties {
       /**
        * Use the request parameter with the given name to obtain the version.
        */
-      public @Nullable String requestParameter;
+      public @Nullable String requestParam;
 
       /**
        * Use the path segment at the given index to obtain the version.

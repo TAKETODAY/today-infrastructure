@@ -39,23 +39,21 @@ import infra.web.RequestContext;
  */
 public class DefaultApiVersionStrategy implements ApiVersionStrategy {
 
+  private final Set<Comparable<?>> supportedVersions = new TreeSet<>();
+
+  private final Set<Comparable<?>> detectedVersions = new TreeSet<>();
+
   private final List<ApiVersionResolver> versionResolvers;
 
   private final ApiVersionParser<?> versionParser;
 
   private final boolean versionRequired;
 
-  @Nullable
-  private final Comparable<?> defaultVersion;
-
-  private final Set<Comparable<?>> supportedVersions = new TreeSet<>();
-
   private final boolean detectSupportedVersions;
 
-  private final Set<Comparable<?>> detectedVersions = new TreeSet<>();
+  private final @Nullable Comparable<?> defaultVersion;
 
-  @Nullable
-  private final ApiVersionDeprecationHandler deprecationHandler;
+  private final @Nullable ApiVersionDeprecationHandler deprecationHandler;
 
   private final Predicate<Comparable<?>> supportedVersionPredicate;
 
@@ -99,9 +97,8 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     }
   }
 
-  @Nullable
   @Override
-  public Comparable<?> getDefaultVersion() {
+  public @Nullable Comparable<?> getDefaultVersion() {
     return this.defaultVersion;
   }
 
@@ -149,9 +146,8 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     return this.detectSupportedVersions;
   }
 
-  @Nullable
   @Override
-  public String resolveVersion(RequestContext request) {
+  public @Nullable String resolveVersion(RequestContext request) {
     for (ApiVersionResolver resolver : this.versionResolvers) {
       String version = resolver.resolveVersion(request);
       if (version != null) {
