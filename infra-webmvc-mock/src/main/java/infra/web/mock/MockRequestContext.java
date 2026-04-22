@@ -59,6 +59,7 @@ import infra.web.MockIndicator;
 import infra.web.RequestContext;
 import infra.web.async.AsyncWebRequest;
 import infra.web.multipart.MultipartRequest;
+import infra.web.util.UriBuilder;
 
 /**
  * Servlet environment implementation
@@ -234,6 +235,11 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
     for (var entry : request.getParameterMap().entrySet()) {
       ret.addAll(entry.getKey(), entry.getValue());
+    }
+
+    String queryString = getQueryString();
+    if (StringUtils.hasText(queryString)) {
+      ret.addAll(UriBuilder.forUriComponents().query(queryString).build().getQueryParams());
     }
     return ret;
   }
