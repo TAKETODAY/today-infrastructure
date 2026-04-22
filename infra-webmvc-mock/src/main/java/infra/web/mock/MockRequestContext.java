@@ -239,7 +239,15 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
     String queryString = getQueryString();
     if (StringUtils.hasText(queryString)) {
-      ret.addAll(UriBuilder.forUriComponents().query(queryString).build().getQueryParams());
+      var queryParams = UriBuilder.forUriComponents().query(queryString).build().getQueryParams();
+      queryParams.forEach((name, values) -> {
+        List<String> list = ret.get(name);
+        for (String value : values) {
+          if (list == null || !list.contains(value)) {
+            ret.add(name, value);
+          }
+        }
+      });
     }
     return ret;
   }
