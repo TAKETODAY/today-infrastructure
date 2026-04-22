@@ -29,6 +29,7 @@ import infra.aop.Pointcut;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.NestedRuntimeException;
 
+import static infra.aop.support.Pointcuts.matches;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -96,40 +97,40 @@ public class ComposablePointcutTests {
   public void testUnionMethodMatcher() {
     // Matches the getAge() method in any class
     ComposablePointcut pc = new ComposablePointcut(ClassFilter.TRUE, GET_AGE_METHOD_MATCHER);
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isFalse();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_NAME, TestBean.class)).isFalse();
 
     pc.union(GETTER_METHOD_MATCHER);
     // Should now match all getter methods
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
 
     pc.union(ABSQUATULATE_METHOD_MATCHER);
     // Should now match absquatulate() as well
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
     // But it doesn't match everything
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_SET_AGE, TestBean.class)).isFalse();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_SET_AGE, TestBean.class)).isFalse();
   }
 
   @Test
   public void testIntersectionMethodMatcher() {
     ComposablePointcut pc = new ComposablePointcut();
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
+    assertThat(pc.getMethodMatcher().matches(PointcutTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
+    assertThat(pc.getMethodMatcher().matches(PointcutTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
+    assertThat(pc.getMethodMatcher().matches(PointcutTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
     pc.intersection(GETTER_METHOD_MATCHER);
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
+    assertThat(pc.getMethodMatcher().matches(PointcutTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
+    assertThat(pc.getMethodMatcher().matches(PointcutTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
+    assertThat(pc.getMethodMatcher().matches(PointcutTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
     pc.intersection(GET_AGE_METHOD_MATCHER);
     // Use the Pointcuts matches method
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
-    assertThat(Pointcut.matches(pc, PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isFalse();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
+    assertThat(matches(pc, PointcutTests.TEST_BEAN_GET_NAME, TestBean.class)).isFalse();
   }
 
   @Test

@@ -187,7 +187,7 @@ public class AspectJExpressionPointcutTests {
   void testFriendlyErrorOnNoLocation3ArgMatching() {
     AspectJExpressionPointcut pc = new AspectJExpressionPointcut();
 
-    DefaultMethodInvocation invocation = new DefaultMethodInvocation(null, getAge, ITestBean.class, new Object[] {});
+    DefaultMethodInvocation invocation = new DefaultMethodInvocation(null, null, getAge, ITestBean.class, new Object[] {}, EMPTY_INTERCEPTOR);
 
     assertThatIllegalStateException().isThrownBy(() ->
                     pc.getMethodMatcher().matches(invocation))

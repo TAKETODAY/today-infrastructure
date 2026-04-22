@@ -71,7 +71,7 @@ Infra 支持 pointcut 上的操作（特别是并集和交集）。
 并集意味着任一 pointcut 匹配的方法。
 交集意味着两个 pointcut 都匹配的方法。
 并集通常更有用。
-你可以通过使用 `infra.aop.support.Pointcuts` 类中的静态方法或使用同一包中的 `ComposablePointcut` 类来组合 pointcut。
+你可以通过使用 `infra.aop.support.Pointcut` 类中的静态方法或使用同一包中的 `ComposablePointcut` 类来组合 pointcut。
 但是，使用 AspectJ pointcut 表达式通常是一种更简单的方法。
 
 

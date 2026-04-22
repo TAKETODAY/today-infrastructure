@@ -101,6 +101,7 @@ public interface MethodMatcher {
    * and target class, arguments to the method
    * @return whether there's a runtime match
    * @see MethodMatcher#matches(Method, Class)
+   * @see infra.aop.support.AopUtils#getTargetClass(MethodInvocation)
    */
   boolean matches(MethodInvocation invocation);
 

@@ -24,7 +24,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import infra.aop.framework.DefaultMethodInvocation;
 import infra.aop.support.AopUtils;
 import infra.aop.support.ComposablePointcut;
 import infra.aop.support.StaticMethodMatcherPointcut;
@@ -114,32 +113,6 @@ public interface Pointcut {
       if (mm.matches(invocation.getMethod(), targetClass)) {
         // We may need additional runtime (argument) check.
         return (!mm.isRuntime() || mm.matches(invocation));
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Perform the least expensive check for a pointcut match.
-   *
-   * @param pointcut the pointcut to match
-   * @param method the candidate method
-   * @param targetClass the target class
-   * @param args arguments to the method
-   * @return whether there's a runtime match
-   */
-  static boolean matches(Pointcut pointcut, Method method, Class<?> targetClass, Object... args) {
-    Assert.notNull(pointcut, "Pointcut is required");
-    if (pointcut == Pointcut.TRUE) {
-      return true;
-    }
-    if (pointcut.getClassFilter().matches(targetClass)) {
-      // Only check if it gets past first hurdle.
-      MethodMatcher mm = pointcut.getMethodMatcher();
-      if (mm.matches(method, targetClass)) {
-        // We may need additional runtime (argument) check.
-        return !mm.isRuntime() || mm.matches(
-                new DefaultMethodInvocation(null, method, targetClass, args));
       }
     }
     return false;

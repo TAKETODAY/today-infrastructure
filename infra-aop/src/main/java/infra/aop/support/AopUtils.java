@@ -136,7 +136,13 @@ public abstract class AopUtils {
       result = ((TargetClassAware) invocation).getTargetClass();
     }
     if (result == null) {
-      result = getTargetClass(invocation.getThis());
+      Object object = invocation.getThis();
+      if (object != null) {
+        result = getTargetClass(object);
+      }
+      else {
+        result = invocation.getMethod().getDeclaringClass();
+      }
     }
     return result;
   }

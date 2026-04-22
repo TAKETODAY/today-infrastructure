@@ -32,8 +32,6 @@ import infra.core.AttributeAccessorSupport;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
-import static infra.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
-
 /**
  * Default ProxyMethodInvocation
  *
@@ -44,15 +42,13 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
 
   private final Object proxy;
 
-  protected @Nullable Object[] args;
-
-  @Nullable
-  protected final Object target;
-
   protected final Method method;
 
-  @Nullable
-  protected final Class<?> targetClass;
+  protected @Nullable Object[] args;
+
+  protected final @Nullable Object target;
+
+  protected final @Nullable Class<?> targetClass;
 
   protected final MethodInterceptor[] advices;
 
@@ -62,10 +58,6 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
   private int currentAdviceIndex = 0;
 
   private final int adviceLength;
-
-  public DefaultMethodInvocation(Object proxy, Method method, Class<?> targetClass, @Nullable Object @Nullable [] arguments) {
-    this(proxy, null, method, targetClass, arguments, EMPTY_INTERCEPTOR);
-  }
 
   /**
    * @throws NullPointerException if advices is {@code null}
