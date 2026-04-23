@@ -18,6 +18,8 @@
 
 package infra.app.service.connection;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * {@link RuntimeException} thrown when a {@link ConnectionDetailsFactory} could not be
  * found.
@@ -25,19 +27,16 @@ package infra.app.service.connection;
  * @author Moritz Halbritter
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public class ConnectionDetailsFactoryNotFoundException extends RuntimeException {
 
   <S> ConnectionDetailsFactoryNotFoundException(S source) {
-    this("No ConnectionDetailsFactory found for source '%s'".formatted(source));
+    this("No ConnectionDetailsFactory found for source '%s'".formatted(source), null);
   }
 
-  public ConnectionDetailsFactoryNotFoundException(String message) {
-    super(message);
-  }
-
-  public ConnectionDetailsFactoryNotFoundException(String message, Throwable cause) {
+  public ConnectionDetailsFactoryNotFoundException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 

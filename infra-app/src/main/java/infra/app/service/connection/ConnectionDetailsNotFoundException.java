@@ -18,6 +18,8 @@
 
 package infra.app.service.connection;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * {@link RuntimeException} thrown when required {@link ConnectionDetails} could not be
  * found.
@@ -25,19 +27,16 @@ package infra.app.service.connection;
  * @author Moritz Halbritter
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public class ConnectionDetailsNotFoundException extends RuntimeException {
 
   <S> ConnectionDetailsNotFoundException(S source) {
-    this("No ConnectionDetails found for source '%s'".formatted(source));
+    this("No ConnectionDetails found for source '%s'".formatted(source), null);
   }
 
-  public ConnectionDetailsNotFoundException(String message) {
-    super(message);
-  }
-
-  public ConnectionDetailsNotFoundException(String message, Throwable cause) {
+  public ConnectionDetailsNotFoundException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
