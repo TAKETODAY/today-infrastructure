@@ -5,4 +5,4 @@
 
 你可以通过设置名为 `infra.test.context.failure.threshold` 的 JVM 系统属性（值为正整数），从命令行或构建脚本配置上下文失败阈值。作为替代方案，你可以通过 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制设置相同的属性。
 
-NOTE: 如果你想有效地禁用上下文失败阈值，可以将属性设置为一个非常大的值。例如，从命令行，你可以通过 `-Dspring.test.context.failure.threshold=1000000` 设置系统属性。
+NOTE: 如果你想有效地禁用上下文失败阈值，可以将属性设置为一个非常大的值。例如，从命令行，你可以通过 `-Dinfra.test.context.failure.threshold=1000000` 设置系统属性。
