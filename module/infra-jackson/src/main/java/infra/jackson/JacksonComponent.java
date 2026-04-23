@@ -36,16 +36,16 @@ import tools.jackson.databind.ValueSerializer;
  * with Jackson when {@link JacksonComponentModule} is in use. Can be used to annotate
  * implementations directly or a class that contains them as inner-classes. For example:
  * <pre>{@code
- * @JsonComponent
- * public class CustomerJsonComponent {
+ * @JacksonComponent
+ * public class CustomerJacksonComponent {
  *
- *     public static class Serializer extends JsonSerializer<Customer> {
+ *     public static class Serializer extends ValueSerializer<Customer> {
  *
  *         // ...
  *
  *     }
  *
- *     public static class Deserializer extends JsonDeserializer<Customer> {
+ *     public static class Deserializer extends ValueDeserializer<Customer> {
  *
  *         // ...
  *

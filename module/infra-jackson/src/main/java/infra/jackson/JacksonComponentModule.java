@@ -50,7 +50,7 @@ import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Bean and Jackson {@link Module} to register {@link JacksonComponent @JsonComponent}
+ * Bean and Jackson {@link Module} to register {@link JacksonComponent @JacksonComponent}
  * annotated beans.
  *
  * @author Phillip Webb
