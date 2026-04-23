@@ -5,7 +5,8 @@ infra.test.context.ContextCustomizerFactory=\
     infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
     infra.app.test.context.filter.ExcludeFilterContextCustomizerFactory,\
     infra.app.test.web.reactive.server.WebTestClientContextCustomizerFactory,\
-    infra.app.test.context.PropertyMappingContextCustomizerFactory
+    infra.app.test.context.PropertyMappingContextCustomizerFactory,\
+    infra.app.test.context.filter.annotation.TypeExcludeFiltersContextCustomizerFactory
 
 infra.app.env.EnvironmentPostProcessor=\
 infra.app.test.web.InfraTestRandomPortEnvironmentPostProcessor
