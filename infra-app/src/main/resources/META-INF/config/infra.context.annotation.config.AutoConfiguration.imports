@@ -9,3 +9,4 @@ infra.app.config.jmx.JmxAutoConfiguration
 infra.app.config.jmx.InfraApplicationJmxAutoConfiguration
 infra.app.config.availability.ApplicationAvailabilityAutoConfiguration
 infra.app.config.ssl.SslAutoConfiguration
+infra.app.config.info.ProjectInfoAutoConfiguration
