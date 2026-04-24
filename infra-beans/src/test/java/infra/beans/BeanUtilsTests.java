@@ -70,14 +70,16 @@ class BeanUtilsTests {
 
   @Test
   void newInstanceGivenInterface() {
-    assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> BeanUtils.newInstance(List.class));
+    assertThatExceptionOfType(BeanInstantiationException.class)
+            .isThrownBy(() -> BeanUtils.newInstance(List.class))
+            .withMessageEndingWith("Specified class is an interface");
   }
 
   @Test
   void newInstanceGivenClassWithoutDefaultConstructor() {
-    assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> BeanUtils.newInstance(CustomDateEditor.class));
+    assertThatExceptionOfType(BeanInstantiationException.class)
+            .isThrownBy(() -> BeanUtils.newInstance(CustomDateEditor.class))
+            .withMessageContaining("No suitable constructor in ");
   }
 
   @Test

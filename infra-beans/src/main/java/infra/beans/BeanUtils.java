@@ -101,7 +101,10 @@ public abstract class BeanUtils {
     if (type.isInterface()) {
       throw new BeanInstantiationException(type, "Specified class is an interface");
     }
-    Constructor<T> constructor = getResolvableConstructor(type);
+    Constructor<T> constructor = findResolvableConstructor(type);
+    if (constructor == null) {
+      throw new BeanInstantiationException("No suitable constructor in " + type, null);
+    }
     return newInstance(constructor);
   }
 
