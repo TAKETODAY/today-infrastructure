@@ -40,6 +40,7 @@ import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
+import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
@@ -147,15 +148,14 @@ class ConfigDataEnvironment {
     this.notFoundAction = binder.bind(ON_NOT_FOUND_PROPERTY, ConfigDataNotFoundAction.class)
             .orRequired(ConfigDataNotFoundAction.FAIL);
     this.resolvers = createConfigDataLocationResolvers(bootstrap, binder, resourceLoader);
-    this.environmentUpdateListener = Optional.ofNullable(environmentUpdateListener).orElse(
-            ConfigDataEnvironmentUpdateListener.NONE
-    );
-    this.loaders = new ConfigDataLoaders(bootstrap, resourceLoader.getClassLoader());
+    this.environmentUpdateListener = Optional.ofNullable(environmentUpdateListener).orElse(ConfigDataEnvironmentUpdateListener.NONE);
+    this.loaders = new ConfigDataLoaders(bootstrap, TodayStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()));
     this.contributors = createContributors(binder);
   }
 
   protected ConfigDataLocationResolvers createConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
-    return new ConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader);
+    return new ConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader,
+            TodayStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()));
   }
 
   private ConfigDataEnvironmentContributors createContributors(Binder binder) {

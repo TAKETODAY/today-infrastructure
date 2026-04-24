@@ -30,6 +30,7 @@ import infra.app.BootstrapRegistry.InstanceSupplier;
 import infra.app.ConfigurableBootstrapContext;
 import infra.app.DefaultBootstrapContext;
 import infra.core.env.PropertySource;
+import infra.core.test.io.support.MockTodayStrategies;
 import infra.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +51,7 @@ class ConfigDataLoadersTests {
 
   @Test
   void createWhenLoaderHasDeferredLogFactoryParameterInjectsDeferredLogFactory() {
-    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(DeferredLogFactoryConfigDataLoader.class.getName()));
+    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, createStrategies(DeferredLogFactoryConfigDataLoader.class));
     assertThat(loaders).extracting("loaders").asList()
             .satisfies(this::containsValidDeferredLogFactoryConfigDataLoader);
   }
@@ -63,16 +63,16 @@ class ConfigDataLoadersTests {
 
   @Test
   void createWhenLoaderHasBootstrapParametersInjectsBootstrapContext() {
-    new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(BootstrappingConfigDataLoader.class.getName()));
+    MockTodayStrategies strategies = createStrategies(BootstrappingConfigDataLoader.class);
+
+    new ConfigDataLoaders(this.bootstrapContext, strategies);
     assertThat(this.bootstrapContext.get(String.class)).isEqualTo("boot");
   }
 
   @Test
   void loadWhenSingleLoaderSupportsLocationReturnsLoadedConfigData() throws Exception {
     TestConfigDataResource location = new TestConfigDataResource("test");
-    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(TestConfigDataLoader.class.getName()));
+    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, createStrategies(TestConfigDataLoader.class));
     ConfigData loaded = loaders.load(this.context, location);
     assertThat(getLoader(loaded)).isInstanceOf(TestConfigDataLoader.class);
   }
@@ -80,8 +80,8 @@ class ConfigDataLoadersTests {
   @Test
   void loadWhenMultipleLoadersSupportLocationThrowsException() {
     TestConfigDataResource location = new TestConfigDataResource("test");
-    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(LoggingConfigDataLoader.class.getName(), TestConfigDataLoader.class.getName()));
+    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext,
+            createStrategies(LoggingConfigDataLoader.class, TestConfigDataLoader.class));
     assertThatIllegalStateException().isThrownBy(() -> loaders.load(this.context, location))
             .withMessageContaining("Multiple loaders found for resource 'test'");
   }
@@ -89,8 +89,7 @@ class ConfigDataLoadersTests {
   @Test
   void loadWhenNoLoaderSupportsLocationThrowsException() {
     TestConfigDataResource location = new TestConfigDataResource("test");
-    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(NonLoadableConfigDataLoader.class.getName()));
+    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, createStrategies(NonLoadableConfigDataLoader.class));
     assertThatIllegalStateException().isThrownBy(() -> loaders.load(this.context, location))
             .withMessage("No loader found for resource 'test'");
   }
@@ -98,10 +97,18 @@ class ConfigDataLoadersTests {
   @Test
   void loadWhenGenericTypeDoesNotMatchSkipsLoader() throws Exception {
     TestConfigDataResource location = new TestConfigDataResource("test");
-    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(OtherConfigDataLoader.class.getName(), SpecificConfigDataLoader.class.getName()));
+    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext,
+            createStrategies(OtherConfigDataLoader.class, SpecificConfigDataLoader.class));
     ConfigData loaded = loaders.load(this.context, location);
     assertThat(getLoader(loaded)).isInstanceOf(SpecificConfigDataLoader.class);
+  }
+
+  @SafeVarargs
+  @SuppressWarnings("rawtypes")
+  private static MockTodayStrategies createStrategies(Class<? extends ConfigDataLoader>... factoryImplementations) {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLoader.class, factoryImplementations);
+    return strategies;
   }
 
   private ConfigDataLoader<?> getLoader(ConfigData loaded) {

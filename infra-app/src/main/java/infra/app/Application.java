@@ -93,7 +93,6 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
-import infra.util.Instantiator;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.util.function.ThrowingConsumer;
@@ -419,24 +418,28 @@ public class Application {
   }
 
   /**
-   * find all ApplicationStartupListeners
+   * Retrieves all {@link ApplicationStartupListener} instances.
    * <p>
-   * from TodayStrategies, {@link #startupListeners} ,{@link ApplicationHook}
+   * The listeners are collected from three sources in the following order:
+   * <ol>
+   * <li>Listeners discovered via {@link TodayStrategies} using the current class loader.</li>
+   * <li>Listeners explicitly added via {@link #setStartupListeners(Collection)} or {@link #addStartupListeners(ApplicationStartupListener...)}.</li>
+   * <li>A listener provided by the current {@link ApplicationHook}, if present.</li>
+   * </ol>
+   *
+   * @param bootstrapContext the bootstrap context to use for initialization
+   * @param arguments the application arguments
+   * @return an {@link ApplicationStartupListeners} instance containing all collected listeners
    */
-  private ApplicationStartupListeners getStartupListeners(BootstrapContext bootstrapContext, ApplicationArguments arguments) {
-    var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
-            parameters -> {
-              parameters.add(Application.class, this);
-              parameters.add(Logger.class, getApplicationLog());
-              parameters.add(ApplicationArguments.class, arguments);
-              parameters.add(ApplicationTemp.class, applicationTemp);
-              parameters.add(String[].class, arguments.getSourceArgs());
-              parameters.add(BootstrapRegistry.class, bootstrapContext);
-              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
-            });
-
-    List<String> strategiesNames = TodayStrategies.findNames(ApplicationStartupListener.class, getClassLoader());
-    List<ApplicationStartupListener> strategies = instantiator.instantiate(strategiesNames);
+  private ApplicationStartupListeners getStartupListeners(ConfigurableBootstrapContext bootstrapContext, ApplicationArguments arguments) {
+    List<ApplicationStartupListener> strategies = getStrategiesInstances(ApplicationStartupListener.class,
+            ArgumentResolver.of(Application.class, this)
+                    .and(ApplicationArguments.class, arguments)
+                    .and(Logger.class, getApplicationLog())
+                    .and(String[].class, arguments.getSourceArgs())
+                    .and(ApplicationTemp.class, applicationTemp)
+                    .and(BootstrapRegistry.class, bootstrapContext)
+                    .and(ConfigurableBootstrapContext.class, bootstrapContext));
 
     // user defined
     if (CollectionUtils.isNotEmpty(startupListeners)) {

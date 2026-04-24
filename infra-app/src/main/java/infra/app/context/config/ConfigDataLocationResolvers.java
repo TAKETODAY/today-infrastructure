@@ -32,7 +32,7 @@ import infra.context.properties.bind.Binder;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.lang.TodayStrategies;
-import infra.util.Instantiator;
+import infra.lang.TodayStrategies.ArgumentResolver;
 
 /**
  * A collection of {@link ConfigDataLocationResolver} instances loaded via
@@ -51,36 +51,21 @@ class ConfigDataLocationResolvers {
    * Create a new {@link ConfigDataLocationResolvers} instance.
    *
    * @param bootstrapContext the bootstrap context
-   * @param binder a binder providing values from the initial {@link Environment}
-   * @param resourceLoader {@link ResourceLoader} to load resource locations
-   */
-  ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
-    this(bootstrapContext, binder, resourceLoader, TodayStrategies.findNames(
-            ConfigDataLocationResolver.class, resourceLoader.getClassLoader()));
-  }
-
-  /**
-   * Create a new {@link ConfigDataLocationResolvers} instance.
-   *
-   * @param bootstrapContext the bootstrap context
    * @param binder {@link Binder} providing values from the initial {@link Environment}
    * @param resourceLoader {@link ResourceLoader} to load resource locations
-   * @param names the {@link ConfigDataLocationResolver} class names
+   * @param strategies to load {@link ConfigDataLocationResolver} instances
    */
   ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext,
-          Binder binder, ResourceLoader resourceLoader, List<String> names) {
-    var instantiator = new Instantiator<ConfigDataLocationResolver<?>>(ConfigDataLocationResolver.class,
-            parameters -> {
-              parameters.add(Binder.class, binder);
-              parameters.add(ResourceLoader.class, resourceLoader);
-              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
-              parameters.add(BootstrapContext.class, bootstrapContext);
-              parameters.add(BootstrapRegistry.class, bootstrapContext);
-            });
-    this.resolvers = reorder(instantiator.instantiate(resourceLoader.getClassLoader(), names));
+          Binder binder, ResourceLoader resourceLoader, TodayStrategies strategies) {
+    this.resolvers = reorder(strategies.load(ConfigDataLocationResolver.class, ArgumentResolver.of(Binder.class, binder)
+            .and(ResourceLoader.class, resourceLoader)
+            .and(ConfigurableBootstrapContext.class, bootstrapContext)
+            .and(BootstrapContext.class, bootstrapContext)
+            .and(BootstrapRegistry.class, bootstrapContext)));
   }
 
-  private List<ConfigDataLocationResolver<?>> reorder(List<ConfigDataLocationResolver<?>> resolvers) {
+  @SuppressWarnings("rawtypes")
+  private List<ConfigDataLocationResolver<?>> reorder(List<ConfigDataLocationResolver> resolvers) {
     var reordered = new ArrayList<ConfigDataLocationResolver<?>>(resolvers.size());
     ConfigDataLocationResolver<?> resourceResolver = null;
     for (ConfigDataLocationResolver<?> resolver : resolvers) {

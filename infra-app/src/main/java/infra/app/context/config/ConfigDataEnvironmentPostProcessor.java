@@ -47,6 +47,7 @@ import infra.logging.LoggerFactory;
  * @since 4.0
  */
 public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
+
   private static final Logger logger = LoggerFactory.getLogger(ConfigDataEnvironmentPostProcessor.class);
 
   /**
@@ -56,14 +57,13 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
 
   private final ConfigurableBootstrapContext bootstrapContext;
 
-  @Nullable
-  private final ConfigDataEnvironmentUpdateListener environmentUpdateListener;
+  private final @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener;
 
   public ConfigDataEnvironmentPostProcessor(ConfigurableBootstrapContext bootstrapContext) {
     this(bootstrapContext, null);
   }
 
-  public ConfigDataEnvironmentPostProcessor(ConfigurableBootstrapContext bootstrapContext,
+  ConfigDataEnvironmentPostProcessor(ConfigurableBootstrapContext bootstrapContext,
           @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
     this.bootstrapContext = bootstrapContext;
     this.environmentUpdateListener = environmentUpdateListener;

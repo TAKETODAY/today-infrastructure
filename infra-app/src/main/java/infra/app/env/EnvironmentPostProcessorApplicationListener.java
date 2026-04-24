@@ -48,8 +48,8 @@ import infra.core.io.ResourceLoader;
 import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
 import infra.lang.TodayStrategies;
+import infra.lang.TodayStrategies.ArgumentResolver;
 import infra.util.ClassUtils;
-import infra.util.Instantiator;
 import infra.util.ObjectUtils;
 
 /**
@@ -100,31 +100,25 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 
   List<EnvironmentPostProcessor> getPostProcessors(@Nullable ResourceLoader resourceLoader, ConfigurableBootstrapContext bootstrapContext) {
     ClassLoader classLoader = resourceLoader != null ? resourceLoader.getClassLoader() : null;
-
-    Instantiator<EnvironmentPostProcessor> instantiator = new Instantiator<>(EnvironmentPostProcessor.class,
-            parameters -> {
-              parameters.add(BootstrapContext.class, bootstrapContext);
-              parameters.add(BootstrapRegistry.class, bootstrapContext);
-              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
-            });
-
-    List<String> strategiesNames = TodayStrategies.findNames(EnvironmentPostProcessor.class, classLoader);
-    return instantiator.instantiate(strategiesNames);
+    return TodayStrategies.forDefaultResourceLocation(classLoader)
+            .load(EnvironmentPostProcessor.class, ArgumentResolver.of(BootstrapContext.class, bootstrapContext)
+                    .and(BootstrapRegistry.class, bootstrapContext)
+                    .and(ConfigurableBootstrapContext.class, bootstrapContext));
   }
 
-  @SuppressWarnings("NullAway")
   private void addAotGeneratedEnvironmentPostProcessorIfNecessary(List<EnvironmentPostProcessor> postProcessors, Application application) {
     if (AotDetector.useGeneratedArtifacts()) {
-      ClassLoader classLoader = (application.getResourceLoader() != null)
-              ? application.getResourceLoader().getClassLoader() : null;
-      String postProcessorClassName = application.getMainApplicationClass().getName() + "__" + AOT_FEATURE_NAME;
+      ClassLoader classLoader = application.getClassLoader();
+      Class<?> mainApplicationClass = application.getMainApplicationClass();
+      Assert.state(mainApplicationClass != null, "mainApplicationClass not found");
+      String postProcessorClassName = mainApplicationClass.getName() + "__" + AOT_FEATURE_NAME;
       if (ClassUtils.isPresent(postProcessorClassName, classLoader)) {
         postProcessors.add(0, instantiateEnvironmentPostProcessor(postProcessorClassName, classLoader));
       }
     }
   }
 
-  private EnvironmentPostProcessor instantiateEnvironmentPostProcessor(String postProcessorClassName, ClassLoader classLoader) {
+  private EnvironmentPostProcessor instantiateEnvironmentPostProcessor(String postProcessorClassName, @Nullable ClassLoader classLoader) {
     try {
       Class<?> initializerClass = ClassUtils.resolveClassName(postProcessorClassName, classLoader);
       Assert.isAssignable(EnvironmentPostProcessor.class, initializerClass);
@@ -142,9 +136,8 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
    */
   static class EnvironmentBeanFactoryInitializationAotProcessor implements BeanFactoryInitializationAotProcessor {
 
-    @Nullable
     @Override
-    public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
+    public @Nullable BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
       Environment environment = beanFactory.getBean(Environment.ENVIRONMENT_BEAN_NAME, Environment.class);
       String[] activeProfiles = environment.getActiveProfiles();
       String[] defaultProfiles = environment.getDefaultProfiles();

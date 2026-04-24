@@ -84,16 +84,14 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
    */
   protected static class OriginAwareSystemEnvironmentPropertySource extends SystemEnvironmentPropertySource implements OriginLookup<String> {
 
-    @Nullable
-    private final String prefix;
+    private final @Nullable String prefix;
 
     OriginAwareSystemEnvironmentPropertySource(String name, Map<String, Object> source, @Nullable String environmentPrefix) {
       super(name, source);
       this.prefix = determinePrefix(environmentPrefix);
     }
 
-    @Nullable
-    private String determinePrefix(@Nullable String environmentPrefix) {
+    private @Nullable String determinePrefix(@Nullable String environmentPrefix) {
       if (StringUtils.isBlank(environmentPrefix)) {
         return null;
       }
@@ -108,9 +106,8 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
       return super.containsProperty(name);
     }
 
-    @Nullable
     @Override
-    public Object getProperty(String name) {
+    public @Nullable Object getProperty(String name) {
       return super.getProperty(name);
     }
 

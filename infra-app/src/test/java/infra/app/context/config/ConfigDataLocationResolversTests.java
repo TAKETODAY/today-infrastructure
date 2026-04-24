@@ -23,9 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,12 +36,12 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
+import infra.core.test.io.support.MockTodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ConfigDataLocationResolvers}.
@@ -70,8 +67,10 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenInjectingLogAndDeferredLogFactoryCreatesResolver() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, TestLogResolver.class);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader, Collections.singletonList(TestLogResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     assertThat(resolvers.getResolvers()).hasSize(1);
     assertThat(resolvers.getResolvers().get(0)).isExactlyInstanceOf(TestLogResolver.class);
     TestLogResolver resolver = (TestLogResolver) resolvers.getResolvers().get(0);
@@ -80,8 +79,10 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenInjectingBinderCreatesResolver() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, TestBoundResolver.class);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader, Collections.singletonList(TestBoundResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     assertThat(resolvers.getResolvers()).hasSize(1);
     assertThat(resolvers.getResolvers().get(0)).isExactlyInstanceOf(TestBoundResolver.class);
     assertThat(((TestBoundResolver) resolvers.getResolvers().get(0)).getBinder()).isSameAs(this.binder);
@@ -89,35 +90,30 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenNotInjectingBinderCreatesResolver() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, TestResolver.class);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader, Collections.singletonList(TestResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     assertThat(resolvers.getResolvers()).hasSize(1);
     assertThat(resolvers.getResolvers().get(0)).isExactlyInstanceOf(TestResolver.class);
   }
 
   @Test
   void createWhenResolverHasBootstrapParametersInjectsBootstrapContext() {
-    new ConfigDataLocationResolvers(this.bootstrapContext, this.binder, this.resourceLoader,
-            Collections.singletonList(TestBootstrappingResolver.class.getName()));
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, TestBootstrappingResolver.class);
+    new ConfigDataLocationResolvers(this.bootstrapContext, this.binder, this.resourceLoader, strategies);
     assertThat(this.bootstrapContext.get(String.class)).isEqualTo("boot");
   }
 
   @Test
-  void createWhenNameIsNotConfigDataLocationResolverThrowsException() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> new ConfigDataLocationResolvers(this.bootstrapContext, this.binder,
-                    this.resourceLoader, Collections.singletonList(InputStream.class.getName())))
-            .withMessageContaining("Unable to instantiate").havingCause().withMessageContaining("not assignable");
-  }
-
-  @Test
   void createOrdersResolvers() {
-    List<String> names = new ArrayList<>();
-    names.add(TestResolver.class.getName());
-    names.add(LowestTestResolver.class.getName());
-    names.add(HighestTestResolver.class.getName());
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, TestResolver.class, LowestTestResolver.class,
+            HighestTestResolver.class);
+
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader, names);
+            this.binder, this.resourceLoader, strategies);
     assertThat(resolvers.getResolvers().get(0)).isExactlyInstanceOf(HighestTestResolver.class);
     assertThat(resolvers.getResolvers().get(1)).isExactlyInstanceOf(TestResolver.class);
     assertThat(resolvers.getResolvers().get(2)).isExactlyInstanceOf(LowestTestResolver.class);
@@ -125,9 +121,11 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveResolvesUsingFirstSupportedResolver() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, LowestTestResolver.class, HighestTestResolver.class);
+
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader,
-            Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     ConfigDataLocation location = ConfigDataLocation.valueOf("LowestTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, null);
     assertThat(resolved).hasSize(1);
@@ -139,9 +137,11 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveWhenProfileMergesResolvedLocations() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, LowestTestResolver.class, HighestTestResolver.class);
+
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader,
-            Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     ConfigDataLocation location = ConfigDataLocation.valueOf("LowestTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, this.profiles);
     assertThat(resolved).hasSize(2);
@@ -157,9 +157,11 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveWhenNoResolverThrowsException() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, LowestTestResolver.class, HighestTestResolver.class);
+
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader,
-            Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     ConfigDataLocation location = ConfigDataLocation.valueOf("Missing:test");
     assertThatExceptionOfType(UnsupportedConfigDataLocationException.class)
             .isThrownBy(() -> resolvers.resolve(this.context, location, null))
@@ -168,8 +170,11 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveWhenOptional() {
+    MockTodayStrategies strategies = new MockTodayStrategies();
+    strategies.add(ConfigDataLocationResolver.class, OptionalResourceTestResolver.class);
+
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, this.resourceLoader, Arrays.asList(OptionalResourceTestResolver.class.getName()));
+            this.binder, this.resourceLoader, strategies);
     ConfigDataLocation location = ConfigDataLocation.valueOf("OptionalResourceTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, null);
     assertThat(resolved.get(0).getResource().isOptional()).isTrue();

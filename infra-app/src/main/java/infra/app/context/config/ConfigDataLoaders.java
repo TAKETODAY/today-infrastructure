@@ -30,9 +30,9 @@ import infra.app.BootstrapRegistry;
 import infra.app.ConfigurableBootstrapContext;
 import infra.core.ResolvableType;
 import infra.lang.TodayStrategies;
+import infra.lang.TodayStrategies.ArgumentResolver;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.Instantiator;
 
 /**
  * A collection of {@link ConfigDataLoader} instances loaded via {@code today.strategies}.
@@ -42,9 +42,11 @@ import infra.util.Instantiator;
  * @since 4.0
  */
 class ConfigDataLoaders {
+
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final List<ConfigDataLoader<?>> loaders;
+  @SuppressWarnings("rawtypes")
+  private final List<ConfigDataLoader> loaders;
 
   private final List<Class<?>> resourceTypes;
 
@@ -52,33 +54,17 @@ class ConfigDataLoaders {
    * Create a new {@link ConfigDataLoaders} instance.
    *
    * @param bootstrapContext the bootstrap context
-   * @param classLoader the class loader used when loading
+   * @param strategies to load {@link ConfigDataLoader} instances
    */
-  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext, @Nullable ClassLoader classLoader) {
-    this(bootstrapContext, classLoader,
-            TodayStrategies.findNames(ConfigDataLoader.class, classLoader));
-  }
-
-  /**
-   * Create a new {@link ConfigDataLoaders} instance.
-   *
-   * @param bootstrapContext the bootstrap context
-   * @param classLoader the class loader used when loading
-   * @param names the {@link ConfigDataLoader} class names instantiate
-   */
-  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext,
-          @Nullable ClassLoader classLoader, List<String> names) {
-    var instantiator = new Instantiator<ConfigDataLoader<?>>(ConfigDataLoader.class,
-            parameters -> {
-              parameters.add(BootstrapContext.class, bootstrapContext);
-              parameters.add(BootstrapRegistry.class, bootstrapContext);
-              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
-            });
-    this.loaders = instantiator.instantiate(classLoader, names);
+  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext, TodayStrategies strategies) {
+    this.loaders = strategies.load(ConfigDataLoader.class, ArgumentResolver.of(BootstrapContext.class, bootstrapContext)
+            .and(BootstrapRegistry.class, bootstrapContext)
+            .and(ConfigurableBootstrapContext.class, bootstrapContext));
     this.resourceTypes = getResourceTypes(this.loaders);
   }
 
-  private List<Class<?>> getResourceTypes(List<ConfigDataLoader<?>> loaders) {
+  @SuppressWarnings("rawtypes")
+  private List<Class<?>> getResourceTypes(List<ConfigDataLoader> loaders) {
     var resourceTypes = new ArrayList<Class<?>>(loaders.size());
     for (ConfigDataLoader<?> loader : loaders) {
       resourceTypes.add(getResourceType(loader));
@@ -104,8 +90,7 @@ class ConfigDataLoaders {
    * @return the loaded {@link ConfigData}
    * @throws IOException on IO error
    */
-  @Nullable
-  <R extends ConfigDataResource> ConfigData load(ConfigDataLoaderContext context, R resource) throws IOException {
+  <R extends ConfigDataResource> @Nullable ConfigData load(ConfigDataLoaderContext context, R resource) throws IOException {
     ConfigDataLoader<R> loader = getLoader(context, resource);
     if (logger.isTraceEnabled()) {
       logger.trace("Loading {} using loader {}", resource, loader.getClass().getName());
@@ -117,16 +102,14 @@ class ConfigDataLoaders {
   private <R extends ConfigDataResource> ConfigDataLoader<R> getLoader(ConfigDataLoaderContext context, R resource) {
     ConfigDataLoader<R> result = null;
     for (int i = 0; i < this.loaders.size(); i++) {
+      ConfigDataLoader<R> candidate = this.loaders.get(i);
       if (this.resourceTypes.get(i).isInstance(resource)) {
-        ConfigDataLoader<?> candidate = this.loaders.get(i);
-        ConfigDataLoader<R> loader = (ConfigDataLoader<R>) candidate;
-        if (loader.isLoadable(context, resource)) {
+        if (candidate.isLoadable(context, resource)) {
           if (result != null) {
-            throw new IllegalStateException(
-                    "Multiple loaders found for resource '" + resource + "' ["
-                            + candidate.getClass().getName() + "," + result.getClass().getName() + "]");
+            throw new IllegalStateException("Multiple loaders found for resource '%s' [%s,%s]"
+                    .formatted(resource, candidate.getClass().getName(), result.getClass().getName()));
           }
-          result = loader;
+          result = candidate;
         }
       }
     }
