@@ -30,7 +30,7 @@ import infra.app.BootstrapRegistry.InstanceSupplier;
 import infra.app.ConfigurableBootstrapContext;
 import infra.app.DefaultBootstrapContext;
 import infra.core.env.PropertySource;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 import infra.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +63,7 @@ class ConfigDataLoadersTests {
 
   @Test
   void createWhenLoaderHasBootstrapParametersInjectsBootstrapContext() {
-    MockTodayStrategies strategies = createStrategies(BootstrappingConfigDataLoader.class);
+    MockStrategies strategies = createStrategies(BootstrappingConfigDataLoader.class);
 
     new ConfigDataLoaders(this.bootstrapContext, strategies);
     assertThat(this.bootstrapContext.get(String.class)).isEqualTo("boot");
@@ -105,8 +105,8 @@ class ConfigDataLoadersTests {
 
   @SafeVarargs
   @SuppressWarnings("rawtypes")
-  private static MockTodayStrategies createStrategies(Class<? extends ConfigDataLoader>... factoryImplementations) {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+  private static MockStrategies createStrategies(Class<? extends ConfigDataLoader>... factoryImplementations) {
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLoader.class, factoryImplementations);
     return strategies;
   }

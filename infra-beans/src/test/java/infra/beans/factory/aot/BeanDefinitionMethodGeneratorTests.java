@@ -60,7 +60,7 @@ import infra.beans.testfixture.beans.factory.aot.TestHierarchy.One;
 import infra.beans.testfixture.beans.factory.aot.TestHierarchy.Two;
 import infra.beans.testfixture.beans.factory.generator.deprecation.DeprecatedBean;
 import infra.core.ResolvableType;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 import infra.core.test.tools.CompileWithForkedClassLoader;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.SourceFile;
@@ -97,7 +97,7 @@ class BeanDefinitionMethodGeneratorTests {
     this.generationContext = new TestGenerationContext();
     this.beanFactory = new StandardBeanFactory();
     this.methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(new MockTodayStrategies(), this.beanFactory));
+            AotServices.factoriesAndBeans(new MockStrategies(), this.beanFactory));
     this.beanRegistrationsCode = new MockBeanRegistrationsCode(this.generationContext);
   }
 

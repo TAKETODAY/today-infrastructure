@@ -36,7 +36,7 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -67,7 +67,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenInjectingLogAndDeferredLogFactoryCreatesResolver() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, TestLogResolver.class);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader, strategies);
@@ -79,7 +79,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenInjectingBinderCreatesResolver() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, TestBoundResolver.class);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader, strategies);
@@ -90,7 +90,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenNotInjectingBinderCreatesResolver() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, TestResolver.class);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader, strategies);
@@ -100,7 +100,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createWhenResolverHasBootstrapParametersInjectsBootstrapContext() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, TestBootstrappingResolver.class);
     new ConfigDataLocationResolvers(this.bootstrapContext, this.binder, this.resourceLoader, strategies);
     assertThat(this.bootstrapContext.get(String.class)).isEqualTo("boot");
@@ -108,7 +108,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void createOrdersResolvers() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, TestResolver.class, LowestTestResolver.class,
             HighestTestResolver.class);
 
@@ -121,7 +121,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveResolvesUsingFirstSupportedResolver() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, LowestTestResolver.class, HighestTestResolver.class);
 
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
@@ -137,7 +137,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveWhenProfileMergesResolvedLocations() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, LowestTestResolver.class, HighestTestResolver.class);
 
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
@@ -157,7 +157,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveWhenNoResolverThrowsException() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, LowestTestResolver.class, HighestTestResolver.class);
 
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
@@ -170,7 +170,7 @@ class ConfigDataLocationResolversTests {
 
   @Test
   void resolveWhenOptional() {
-    MockTodayStrategies strategies = new MockTodayStrategies();
+    MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, OptionalResourceTestResolver.class);
 
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,

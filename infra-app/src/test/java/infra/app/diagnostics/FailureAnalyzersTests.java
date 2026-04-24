@@ -30,7 +30,7 @@ import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.BeanFactory;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.env.Environment;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -133,7 +133,7 @@ class FailureAnalyzersTests {
   @SafeVarargs
   private void analyzeAndReport(Throwable failure, AnnotationConfigApplicationContext context,
           Class<? extends FailureAnalyzer>... failureAnalyzerClasses) {
-    MockTodayStrategies loader = new MockTodayStrategies();
+    MockStrategies loader = new MockStrategies();
     for (Class<? extends FailureAnalyzer> failureAnalyzerClass : failureAnalyzerClasses) {
       loader.add(FailureAnalyzer.class, failureAnalyzerClass);
     }

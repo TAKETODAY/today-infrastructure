@@ -26,7 +26,7 @@ import java.util.Map;
 
 import infra.app.service.connection.ConnectionDetailsFactories.Registration;
 import infra.core.Ordered;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  */
 class ConnectionDetailsFactoriesTests {
 
-  private final MockTodayStrategies loader = new MockTodayStrategies();
+  private final MockStrategies loader = new MockStrategies();
 
   @Test
   void getRequiredConnectionDetailsWhenNoFactoryForSourceThrowsException() {

@@ -27,7 +27,7 @@ import java.util.Enumeration;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.Ordered;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 import infra.lang.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +68,7 @@ class AotServicesTests {
 
   @Test
   void factoriesWithTodayStrategiesLoadsFromTodayStrategies() {
-    MockTodayStrategies loader = new MockTodayStrategies();
+    MockStrategies loader = new MockStrategies();
     loader.addInstance(TestService.class, new TestServiceImpl());
     AotServices<?> loaded = AotServices.factories(loader).load(TestService.class);
     assertThat(loaded).anyMatch(TestServiceImpl.class::isInstance);
@@ -94,7 +94,7 @@ class AotServicesTests {
 
   @Test
   void factoriesAndBeansWithTodayStrategiesLoadsFromTodayStrategiesAndBeanFactory() {
-    MockTodayStrategies loader = new MockTodayStrategies();
+    MockStrategies loader = new MockStrategies();
     loader.addInstance(TestService.class, new TestServiceImpl());
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("test", new RootBeanDefinition(TestBean.class));
@@ -156,7 +156,7 @@ class AotServicesTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerSingleton("b1", new TestServiceImpl(0, "b1"));
     beanFactory.registerSingleton("b2", new TestServiceImpl(2, "b2"));
-    MockTodayStrategies todayStrategies = new MockTodayStrategies();
+    MockStrategies todayStrategies = new MockStrategies();
     todayStrategies.addInstance(TestService.class,
             new TestServiceImpl(1, "l1"));
     todayStrategies.addInstance(TestService.class,
@@ -169,7 +169,7 @@ class AotServicesTests {
 
   @Test
   void getSourceReturnsSource() {
-    MockTodayStrategies loader = new MockTodayStrategies();
+    MockStrategies loader = new MockStrategies();
     loader.addInstance(TestService.class, new TestServiceImpl());
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("test", new RootBeanDefinition(TestBean.class));

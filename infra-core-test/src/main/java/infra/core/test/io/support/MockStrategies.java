@@ -40,7 +40,7 @@ import infra.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public class MockTodayStrategies extends TodayStrategies {
+public class MockStrategies extends TodayStrategies {
 
   private final AtomicInteger sequence = new AtomicInteger();
 
@@ -49,23 +49,23 @@ public class MockTodayStrategies extends TodayStrategies {
   private final Map<String, Object> implementations = new HashMap<>();
 
   /**
-   * Create a new {@link MockTodayStrategies} instance with the default
+   * Create a new {@link MockStrategies} instance with the default
    * classloader.
    */
-  public MockTodayStrategies() {
+  public MockStrategies() {
     this(ClassUtils.getDefaultClassLoader());
   }
 
   /**
-   * Create a new {@link MockTodayStrategies} instance with the given classloader.
+   * Create a new {@link MockStrategies} instance with the given classloader.
    *
    * @param classLoader the classloader to use
    */
-  public MockTodayStrategies(ClassLoader classLoader) {
+  public MockStrategies(ClassLoader classLoader) {
     this(classLoader, new LinkedHashMap<>());
   }
 
-  protected MockTodayStrategies(ClassLoader classLoader,
+  protected MockStrategies(ClassLoader classLoader,
           Map<String, List<String>> factories) {
     super(classLoader, factories);
     this.factories = factories;

@@ -25,41 +25,41 @@ import infra.core.annotation.Order;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link MockTodayStrategies}.
+ * Tests for {@link MockStrategies}.
  *
  * @author Phillip Webb
  */
-class MockTodayStrategiesTests {
+class MockStrategiesTests {
 
 	@Test
 	void addWithClassesAddsFactories() {
-		MockTodayStrategies loader = new MockTodayStrategies();
+		MockStrategies loader = new MockStrategies();
 		loader.add(TestFactoryType.class, TestFactoryOne.class, TestFactoryTwo.class);
 		assertThatLoaderHasTestFactories(loader);
 	}
 
 	@Test
 	void addWithClassNamesAddsFactories() {
-		MockTodayStrategies loader = new MockTodayStrategies();
+		MockStrategies loader = new MockStrategies();
 		loader.add(TestFactoryType.class.getName(), TestFactoryOne.class.getName(), TestFactoryTwo.class.getName());
 		assertThatLoaderHasTestFactories(loader);
 	}
 
 	@Test
 	void addWithClassAndInstancesAddsFactories() {
-		MockTodayStrategies loader = new MockTodayStrategies();
+		MockStrategies loader = new MockStrategies();
 		loader.addInstance(TestFactoryType.class, new TestFactoryOne(), new TestFactoryTwo());
 		assertThatLoaderHasTestFactories(loader);
 	}
 
 	@Test
 	void addWithClassNameAndInstancesAddsFactories() {
-		MockTodayStrategies loader = new MockTodayStrategies();
+		MockStrategies loader = new MockStrategies();
 		loader.addInstance(TestFactoryType.class.getName(), new TestFactoryOne(), new TestFactoryTwo());
 		assertThatLoaderHasTestFactories(loader);
 	}
 
-	private void assertThatLoaderHasTestFactories(MockTodayStrategies loader) {
+	private void assertThatLoaderHasTestFactories(MockStrategies loader) {
 		List<TestFactoryType> factories = loader.load(TestFactoryType.class);
 		assertThat(factories).hasSize(2);
 		assertThat(factories.get(0)).isInstanceOf(TestFactoryOne.class);

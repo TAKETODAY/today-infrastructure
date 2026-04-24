@@ -30,7 +30,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.app.env.PropertiesPropertySourceLoader;
 import infra.app.env.PropertySourceLoader;
 import infra.app.env.YamlPropertySourceLoader;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,9 +112,9 @@ class ConfigDataLocationRuntimeHintsTests {
 
   static class TestConfigDataLocationRuntimeHints extends ConfigDataLocationRuntimeHints {
 
-    private final MockTodayStrategies strategies;
+    private final MockStrategies strategies;
 
-    TestConfigDataLocationRuntimeHints(MockTodayStrategies strategies) {
+    TestConfigDataLocationRuntimeHints(MockStrategies strategies) {
       this.strategies = strategies;
     }
 
@@ -122,15 +122,15 @@ class ConfigDataLocationRuntimeHintsTests {
       this(loader());
     }
 
-    private static MockTodayStrategies loader() {
-      MockTodayStrategies springFactoriesLoader = new MockTodayStrategies();
+    private static MockStrategies loader() {
+      MockStrategies springFactoriesLoader = new MockStrategies();
       springFactoriesLoader.add(PropertySourceLoader.class, PropertiesPropertySourceLoader.class,
               YamlPropertySourceLoader.class);
       return springFactoriesLoader;
     }
 
     @Override
-    protected MockTodayStrategies getLoaderStrategies(ClassLoader classLoader) {
+    protected MockStrategies getLoaderStrategies(ClassLoader classLoader) {
       return this.strategies;
     }
 

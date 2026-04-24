@@ -45,7 +45,7 @@ import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.NestedTestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.beans.testfixture.beans.factory.aot.MockBeanFactoryInitializationCode;
-import infra.core.test.io.support.MockTodayStrategies;
+import infra.core.test.io.support.MockStrategies;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.SourceFile;
 import infra.core.test.tools.TestCompiler;
@@ -73,7 +73,7 @@ class BeanRegistrationsAotContributionTests {
   private final StandardBeanFactory beanFactory = new StandardBeanFactory();
 
   private final BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-          AotServices.factoriesAndBeans(new MockTodayStrategies(), this.beanFactory));
+          AotServices.factoriesAndBeans(new MockStrategies(), this.beanFactory));
 
   private TestGenerationContext generationContext = new TestGenerationContext();
 
