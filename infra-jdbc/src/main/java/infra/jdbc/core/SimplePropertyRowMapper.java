@@ -117,7 +117,7 @@ public class SimplePropertyRowMapper<T extends @Nullable Object> implements RowM
     this.mappedClass = mappedClass;
     this.conversionService = conversionService;
 
-    this.mappedConstructor = BeanUtils.obtainConstructor(mappedClass);
+    this.mappedConstructor = BeanUtils.resolvableConstructor(mappedClass);
     int paramCount = this.mappedConstructor.getParameterCount();
     this.constructorParameterNames = paramCount > 0
             ? BeanUtils.getParameterNames(this.mappedConstructor)

@@ -445,13 +445,13 @@ class BeanUtilsTests {
 
   @Test
   void resolveMultipleRecordPublicConstructor() throws NoSuchMethodException {
-    assertThat(BeanUtils.getConstructor(RecordWithMultiplePublicConstructors.class))
+    assertThat(BeanUtils.getResolvableConstructor(RecordWithMultiplePublicConstructors.class))
             .isEqualTo(RecordWithMultiplePublicConstructors.class.getDeclaredConstructor(String.class, String.class));
   }
 
   @Test
   void resolveMultipleRecordePackagePrivateConstructor() throws NoSuchMethodException {
-    assertThat(BeanUtils.getConstructor(RecordWithMultiplePackagePrivateConstructors.class))
+    assertThat(BeanUtils.getResolvableConstructor(RecordWithMultiplePackagePrivateConstructors.class))
             .isEqualTo(RecordWithMultiplePackagePrivateConstructors.class.getDeclaredConstructor(String.class, String.class));
   }
 

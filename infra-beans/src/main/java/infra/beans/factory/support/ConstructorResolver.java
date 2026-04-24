@@ -1058,7 +1058,7 @@ final class ConstructorResolver {
       if (!mbd.hasConstructorArgumentValues()) {
         ctors = mbd.getPreferredConstructors();
         if (ObjectUtils.isEmpty(ctors)) {
-          ctors = new Constructor<?>[] { BeanUtils.getConstructor(type) };
+          ctors = new Constructor<?>[] { BeanUtils.getResolvableConstructor(type) };
         }
       }
       if (ctors == null) {

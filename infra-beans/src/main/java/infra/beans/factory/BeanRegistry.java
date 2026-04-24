@@ -60,7 +60,7 @@ public interface BeanRegistry {
 
   /**
    * Register a bean from the given class, which will be instantiated using the
-   * related {@link BeanUtils#getConstructor resolvable constructor} if any.
+   * related {@link BeanUtils#getResolvableConstructor resolvable constructor} if any.
    * <p>For registering a bean with a generic type, consider
    * {@link #registerBean(ParameterizedTypeReference)}.
    *
@@ -73,7 +73,7 @@ public interface BeanRegistry {
   /**
    * Register a bean from the given generics-containing type, which will be
    * instantiated using the related
-   * {@link BeanUtils#getConstructor resolvable constructor} if any.
+   * {@link BeanUtils#getResolvableConstructor resolvable constructor} if any.
    *
    * @param beanType the generics-containing type of the bean
    * @return the generated bean name
@@ -84,7 +84,7 @@ public interface BeanRegistry {
    * Register a bean from the given class, customizing it with the customizer
    * callback. The bean will be instantiated using the supplier that can be configured
    * in the customizer callback, or will be tentatively instantiated with its
-   * {@link BeanUtils#getConstructor resolvable constructor} otherwise.
+   * {@link BeanUtils#getResolvableConstructor resolvable constructor} otherwise.
    * <p>For registering a bean with a generic type, consider
    * {@link #registerBean(ParameterizedTypeReference, Consumer)}.
    *
@@ -98,7 +98,7 @@ public interface BeanRegistry {
    * Register a bean from the given generics-containing type, customizing it
    * with the customizer callback. The bean will be instantiated using the supplier
    * that can be configured in the customizer callback, or will be tentatively instantiated
-   * with its {@link BeanUtils#getConstructor resolvable constructor} otherwise.
+   * with its {@link BeanUtils#getResolvableConstructor resolvable constructor} otherwise.
    *
    * @param beanType the generics-containing type of the bean
    * @param customizer the callback to customize other bean properties than the name
@@ -108,7 +108,7 @@ public interface BeanRegistry {
 
   /**
    * Register a bean from the given class, which will be instantiated using the
-   * related {@link BeanUtils#getConstructor resolvable constructor} if any.
+   * related {@link BeanUtils#getResolvableConstructor resolvable constructor} if any.
    * <p>For registering a bean with a generic type, consider
    * {@link #registerBean(String, ParameterizedTypeReference)}.
    *
@@ -120,7 +120,7 @@ public interface BeanRegistry {
   /**
    * Register a bean from the given generics-containing type, which
    * will be instantiated using the related
-   * {@link BeanUtils#getConstructor resolvable constructor} if any.
+   * {@link BeanUtils#getResolvableConstructor resolvable constructor} if any.
    *
    * @param name the name of the bean
    * @param beanType the generics-containing type of the bean
@@ -131,7 +131,7 @@ public interface BeanRegistry {
    * Register a bean from the given class, customizing it with the customizer
    * callback. The bean will be instantiated using the supplier that can be configured
    * in the customizer callback, or will be tentatively instantiated with its
-   * {@link BeanUtils#getConstructor resolvable constructor} otherwise.
+   * {@link BeanUtils#getResolvableConstructor resolvable constructor} otherwise.
    * <p>For registering a bean with a generic type, consider
    * {@link #registerBean(String, ParameterizedTypeReference, Consumer)}.
    *
@@ -145,7 +145,7 @@ public interface BeanRegistry {
    * Register a bean from the given generics-containing type, customizing it
    * with the customizer callback. The bean will be instantiated using the supplier
    * that can be configured in the customizer callback, or will be tentatively instantiated
-   * with its {@link BeanUtils#getConstructor resolvable constructor} otherwise.
+   * with its {@link BeanUtils#getResolvableConstructor resolvable constructor} otherwise.
    *
    * @param name the name of the bean
    * @param beanType the generics-containing type of the bean

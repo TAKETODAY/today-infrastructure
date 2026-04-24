@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
  * @author TODAY 2021/8/23 23:28
  * @since 4.0
  */
+@Deprecated(forRemoval = true)
 public class ConstructorNotFoundException extends NestedRuntimeException {
 
   private final Class<?> type;

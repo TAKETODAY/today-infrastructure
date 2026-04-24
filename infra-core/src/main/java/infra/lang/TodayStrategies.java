@@ -1129,8 +1129,7 @@ public class TodayStrategies {
    */
   static final class DefaultInstantiator implements ClassInstantiator {
 
-    @Nullable
-    private final ArgumentResolver argumentResolver;
+    private final @Nullable ArgumentResolver argumentResolver;
 
     DefaultInstantiator(@Nullable ArgumentResolver argumentResolver) {
       this.argumentResolver = argumentResolver;
@@ -1160,8 +1159,8 @@ public class TodayStrategies {
       return (T) constructor.newInstance(args);
     }
 
-    @Nullable
-    private static Constructor<?> findConstructor(Class<?> implementationClass) {
+    private static @Nullable Constructor<?> findConstructor(Class<?> implementationClass) {
+      // Same algorithm as BeanUtils.getResolvableConstructor
       Constructor<?> constructor = findSingleConstructor(implementationClass.getConstructors());
       if (constructor == null) {
         constructor = findSingleConstructor(implementationClass.getDeclaredConstructors());
@@ -1172,13 +1171,11 @@ public class TodayStrategies {
       return constructor;
     }
 
-    @Nullable
-    private static Constructor<?> findSingleConstructor(Constructor<?>[] constructors) {
+    private static @Nullable Constructor<?> findSingleConstructor(Constructor<?>[] constructors) {
       return (constructors.length == 1 ? constructors[0] : null);
     }
 
-    @Nullable
-    private static Constructor<?> findDeclaredConstructor(Class<?> implementationClass) {
+    private static @Nullable Constructor<?> findDeclaredConstructor(Class<?> implementationClass) {
       try {
         return implementationClass.getDeclaredConstructor();
       }
@@ -1268,7 +1265,7 @@ public class TodayStrategies {
      * @param value the argument value
      * @return a new {@link ArgumentResolver} instance
      */
-    static <T> ArgumentResolver of(Class<T> type, T value) {
+    static <T> ArgumentResolver of(Class<T> type, @Nullable T value) {
       return ofSupplied(type, () -> value);
     }
 
@@ -1281,8 +1278,8 @@ public class TodayStrategies {
      * @param valueSupplier the argument value supplier
      * @return a new {@link ArgumentResolver} instance
      */
-    static <T> ArgumentResolver ofSupplied(Class<T> type, Supplier<T> valueSupplier) {
-      return from(candidateType -> (candidateType.equals(type) ? valueSupplier.get() : null));
+    static <T> ArgumentResolver ofSupplied(Class<T> type, Supplier<@Nullable T> valueSupplier) {
+      return from(candidateType -> candidateType.equals(type) ? valueSupplier.get() : null);
     }
 
     /**
@@ -1298,8 +1295,7 @@ public class TodayStrategies {
 
         @SuppressWarnings("unchecked")
         @Override
-        @Nullable
-        public <T> T resolve(Class<T> type) {
+        public <T> @Nullable T resolve(Class<T> type) {
           return (T) function.apply(type);
         }
 

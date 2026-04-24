@@ -93,7 +93,7 @@ public abstract class BeanUtils {
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
-    Constructor<T> constructor = obtainConstructor(beanClass);
+    Constructor<T> constructor = resolvableConstructor(beanClass);
     return newInstance(constructor);
   }
 
@@ -102,7 +102,7 @@ public abstract class BeanUtils {
    *
    * @param beanClassName bean class name string
    * @return the instance of target class
-   * @see #obtainConstructor(Class)
+   * @see #resolvableConstructor(Class)
    * @since 2.1.2
    */
   public static <T> T newInstance(String beanClassName, @Nullable ClassLoader classLoader) {
@@ -116,13 +116,13 @@ public abstract class BeanUtils {
    * @param providedArgs User provided arguments
    * @return bean class 's instance
    * @throws BeanInstantiationException if any reflective operation exception occurred
-   * @see #obtainConstructor(Class)
+   * @see #resolvableConstructor(Class)
    * @since 4.0
    */
   @SuppressWarnings({ "NullAway" })
   public static <T> T newInstance(Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
     Assert.notNull(injector, "ArgumentsResolver is required");
-    Constructor<T> constructor = obtainConstructor(beanClass);
+    Constructor<T> constructor = resolvableConstructor(beanClass);
     return injector.inject(constructor, providedArgs);
   }
 
@@ -188,69 +188,62 @@ public abstract class BeanUtils {
   }
 
   /**
-   * Obtain a suitable {@link Constructor}.
-   * <p>
-   * Look for the default constructor, if there is no default constructor, then
-   * get all the constructors, if there is only one constructor then use this
-   * constructor, if not more than one use the @Autowired constructor if there is
-   * no suitable {@link Constructor} will throw an exception
-   * <p>
+   * Obtain a suitable {@link Constructor} for the given class.
+   * <p>Prioritizes the canonical constructor for records. For regular classes,
+   * it looks for a single public constructor, a single declared constructor,
+   * or a constructor annotated with {@code @Autowired}. Throws an exception
+   * if no resolvable constructor is found.
    *
-   * @param <T> Target type
-   * @param beanClass target bean class
-   * @return Suitable constructor
-   * @throws ConstructorNotFoundException If there is no suitable constructor
+   * @param <T> the target type
+   * @param type the class to resolve the constructor for
+   * @return the resolvable constructor
+   * @throws ConstructorNotFoundException if no suitable constructor is found
    * @since 2.1.7
    */
-  public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
-    final Constructor<T> ret = getConstructor(beanClass);
+  public static <T> Constructor<T> resolvableConstructor(Class<T> type) {
+    final Constructor<T> ret = getResolvableConstructor(type);
     if (ret == null) {
-      throw new ConstructorNotFoundException(beanClass);
+      throw new ConstructorNotFoundException(type);
     }
     return ret;
   }
 
   /**
-   * Get a suitable {@link Constructor}.
-   * <p>
-   * Look for the default constructor, if there is no default constructor, then
-   * get all the constructors, if there is only one constructor then use this
-   * constructor, if not more than one use the @Autowired constructor if there is
-   * no suitable {@link Constructor} will throw an exception
-   * <p>
+   * Finds a suitable {@link Constructor} for the given class.
+   * <p>Prioritizes the canonical constructor for records. For regular classes,
+   * it looks for a single public constructor, a single declared constructor,
+   * or a constructor annotated with {@code @Autowired}. Returns {@code null}
+   * if no resolvable constructor is found.
    *
-   * @param <T> Target type
-   * @param clazz target bean class
-   * @return Suitable constructor If there isn't a suitable {@link Constructor}
-   * returns null
+   * @param type the class to resolve the constructor for
+   * @return the resolvable constructor, or {@code null} if none found
    * @since 2.1.7
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  public static <T> Constructor<T> getConstructor(Class<T> clazz) {
-    Assert.notNull(clazz, "bean-class is required");
+  public static <T> @Nullable Constructor<T> getResolvableConstructor(Class<T> type) {
+    Assert.notNull(type, "type is required");
 
-    if (clazz.isRecord()) {
+    if (type.isRecord()) {
       try {
         // Use the canonical constructor which is always present
-        RecordComponent[] components = clazz.getRecordComponents();
+        RecordComponent[] components = type.getRecordComponents();
         Class<?>[] paramTypes = new Class<?>[components.length];
         for (int i = 0; i < components.length; i++) {
           paramTypes[i] = components[i].getType();
         }
-        return clazz.getDeclaredConstructor(paramTypes);
+        return type.getDeclaredConstructor(paramTypes);
       }
       catch (NoSuchMethodException ignored) {
       }
     }
 
-    Constructor<?>[] ctors = clazz.getConstructors();
+    Constructor<?>[] ctors = type.getConstructors();
     if (ctors.length == 1) {
       // A single public constructor
       return (Constructor<T>) ctors[0];
     }
     else if (ctors.length == 0) {
-      ctors = clazz.getDeclaredConstructors();
+      ctors = type.getDeclaredConstructors();
       if (ctors.length == 1) {
         // A single non-public constructor, e.g. from a non-public record type
         return (Constructor<T>) ctors[0];
@@ -261,11 +254,14 @@ public abstract class BeanUtils {
   }
 
   /**
-   * select a suitable {@link Constructor}.
+   * Select a suitable {@link Constructor} from the given array.
+   * <p>Prioritizes a no-arg constructor if present, otherwise looks for a constructor
+   * annotated with {@code @Autowired}. If multiple constructors exist and neither
+   * condition is met, returns {@code null}.
    *
-   * @param <T> Target type
-   * @return Suitable constructor If there isn't a suitable {@link Constructor}
-   * returns null
+   * @param <T> the target type
+   * @param ctors the array of constructors to choose from
+   * @return the selected constructor, or {@code null} if no suitable constructor is found
    * @since 4.0
    */
   @Nullable

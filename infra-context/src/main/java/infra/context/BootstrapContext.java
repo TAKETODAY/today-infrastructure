@@ -412,7 +412,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     if (clazz.isInterface()) {
       throw new BeanInstantiationException(clazz, "Specified class is an interface");
     }
-    Constructor<T> constructor = BeanUtils.obtainConstructor(clazz);
+    Constructor<T> constructor = BeanUtils.resolvableConstructor(clazz);
 
     try {
       int i = 0;

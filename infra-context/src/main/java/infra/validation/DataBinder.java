@@ -922,7 +922,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     }
 
     Object result = null;
-    Constructor<?> ctor = BeanUtils.obtainConstructor(clazz);
+    Constructor<?> ctor = BeanUtils.resolvableConstructor(clazz);
 
     if (ctor.getParameterCount() == 0) {
       // A single default constructor -> clearly a standard JavaBeans arrangement.

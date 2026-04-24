@@ -749,7 +749,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     if (beanClass != null && !merged.hasConstructorArgumentValues()) {
-      Constructor<?> selected = BeanUtils.getConstructor(beanClass);
+      Constructor<?> selected = BeanUtils.getResolvableConstructor(beanClass);
       if (selected != null && selected.getParameterCount() > 0) {
         try {
           return autowireConstructor(beanName, merged, new Constructor[] { selected }, args);

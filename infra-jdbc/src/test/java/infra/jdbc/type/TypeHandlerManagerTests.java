@@ -104,7 +104,7 @@ class TypeHandlerManagerTests {
 
     aotContribution.applyTo(generationContext, mock(BeanFactoryInitializationCode.class));
     assertThat(RuntimeHintsPredicates.reflection().onType(EnumerationValueTypeHandler.class)).accepts(runtimeHints);
-    assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(BeanUtils.getConstructor(EnumerationValueTypeHandler.class))).accepts(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(BeanUtils.getResolvableConstructor(EnumerationValueTypeHandler.class))).accepts(runtimeHints);
   }
 
   static class AnyTypeHandlerResolver implements TypeHandlerResolver {

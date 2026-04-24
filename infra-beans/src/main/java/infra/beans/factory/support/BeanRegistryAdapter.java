@@ -182,7 +182,7 @@ public class BeanRegistryAdapter implements BeanRegistry {
 
   /**
    * {@link RootBeanDefinition} subclass for {@code #registerBean} based
-   * registrations with constructors resolution match{@link BeanUtils#getConstructor}
+   * registrations with constructors resolution match{@link BeanUtils#getResolvableConstructor}
    * behavior. It also sets the bean registrar class as the source.
    */
   @SuppressWarnings("serial")
@@ -204,7 +204,7 @@ public class BeanRegistryAdapter implements BeanRegistry {
         return null;
       }
       try {
-        return new Constructor<?>[] { BeanUtils.getConstructor(getBeanClass()) };
+        return new Constructor<?>[] { BeanUtils.getResolvableConstructor(getBeanClass()) };
       }
       catch (IllegalStateException ex) {
         return null;

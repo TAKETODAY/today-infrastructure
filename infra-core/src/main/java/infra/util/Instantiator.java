@@ -59,7 +59,7 @@ public class Instantiator<T> {
 
   private final Class<?> type;
 
-  private final Map<Class<?>, Function<Class<?>, Object>> availableParameters;
+  private final Map<Class<?>, Function<Class<?>, @Nullable Object>> availableParameters;
 
   private final FailureHandler failureHandler;
 
@@ -87,18 +87,17 @@ public class Instantiator<T> {
     this.availableParameters = getAvailableParameters(availableParameters);
   }
 
-  private Map<Class<?>, Function<Class<?>, Object>> getAvailableParameters(
-          Consumer<AvailableParameters> availableParameters) {
-    var result = new LinkedHashMap<Class<?>, Function<Class<?>, Object>>();
+  private Map<Class<?>, Function<Class<?>, @Nullable Object>> getAvailableParameters(Consumer<AvailableParameters> availableParameters) {
+    var result = new LinkedHashMap<Class<?>, Function<Class<?>, @Nullable Object>>();
     availableParameters.accept(new AvailableParameters() {
 
       @Override
-      public void add(Class<?> type, Object instance) {
+      public void add(Class<?> type, @Nullable Object instance) {
         result.put(type, (factoryType) -> instance);
       }
 
       @Override
-      public void add(Class<?> type, Function<Class<?>, Object> factory) {
+      public void add(Class<?> type, Function<Class<?>, @Nullable Object> factory) {
         result.put(type, factory);
       }
 
@@ -114,8 +113,7 @@ public class Instantiator<T> {
    * @return an instantiated instance
    * @since 5.0
    */
-  @Nullable
-  public T instantiate(String name) {
+  public @Nullable T instantiate(String name) {
     return instantiate(null, name);
   }
 
@@ -128,8 +126,7 @@ public class Instantiator<T> {
    * @return an instantiated instance
    * @since 5.0
    */
-  @Nullable
-  public T instantiate(@Nullable ClassLoader classLoader, String name) {
+  public @Nullable T instantiate(@Nullable ClassLoader classLoader, String name) {
     return instantiate(TypeSupplier.forName(classLoader, name));
   }
 
@@ -181,9 +178,9 @@ public class Instantiator<T> {
    * @since 5.0
    */
   @SuppressWarnings("unchecked")
-  public <A> A getArg(Class<A> type) {
+  public <A> @Nullable A getArg(Class<A> type) {
     Assert.notNull(type, "'type' is required");
-    Function<Class<?>, Object> parameter = getAvailableParameter(type);
+    Function<Class<?>, @Nullable Object> parameter = getAvailableParameter(type);
     if (parameter == null) {
       throw new IllegalArgumentException("Unknown argument type " + type.getName());
     }
@@ -199,8 +196,7 @@ public class Instantiator<T> {
     return instances;
   }
 
-  @Nullable
-  private T instantiate(TypeSupplier typeSupplier) {
+  private @Nullable T instantiate(TypeSupplier typeSupplier) {
     try {
       Class<?> type = typeSupplier.get();
       Assert.isAssignable(this.type, type);
@@ -217,7 +213,7 @@ public class Instantiator<T> {
     Constructor<?>[] constructors = type.getDeclaredConstructors();
     Arrays.sort(constructors, CONSTRUCTOR_COMPARATOR);
     for (Constructor<?> constructor : constructors) {
-      Object[] args = getArgs(constructor.getParameterTypes());
+      @Nullable Object[] args = getArgs(constructor.getParameterTypes());
       if (args != null) {
         ReflectionUtils.makeAccessible(constructor);
         return (T) constructor.newInstance(args);
@@ -226,10 +222,10 @@ public class Instantiator<T> {
     throw new IllegalAccessException("Class [%s] has no suitable constructor".formatted(type.getName()));
   }
 
-  private Object @Nullable [] getArgs(Class<?>[] parameterTypes) {
-    Object[] args = new Object[parameterTypes.length];
+  private @Nullable Object @Nullable [] getArgs(Class<?>[] parameterTypes) {
+    @Nullable Object[] args = new Object[parameterTypes.length];
     for (int i = 0; i < parameterTypes.length; i++) {
-      Function<Class<?>, Object> parameter = getAvailableParameter(parameterTypes[i]);
+      Function<Class<?>, @Nullable Object> parameter = getAvailableParameter(parameterTypes[i]);
       if (parameter == null) {
         return null;
       }
@@ -238,8 +234,7 @@ public class Instantiator<T> {
     return args;
   }
 
-  @Nullable
-  private Function<Class<?>, Object> getAvailableParameter(Class<?> parameterType) {
+  private @Nullable Function<Class<?>, @Nullable Object> getAvailableParameter(Class<?> parameterType) {
     for (Map.Entry<Class<?>, Function<Class<?>, Object>> entry : this.availableParameters.entrySet()) {
       if (entry.getKey().isAssignableFrom(parameterType)) {
         return entry.getValue();
@@ -259,7 +254,7 @@ public class Instantiator<T> {
      * @param type the parameter type
      * @param instance the instance that should be injected
      */
-    void add(Class<?> type, Object instance);
+    void add(Class<?> type, @Nullable Object instance);
 
     /**
      * Add a parameter with an instance factory.
@@ -267,7 +262,7 @@ public class Instantiator<T> {
      * @param type the parameter type
      * @param factory the factory used to create the instance that should be injected
      */
-    void add(Class<?> type, Function<Class<?>, Object> factory);
+    void add(Class<?> type, Function<Class<?>, @Nullable Object> factory);
 
   }
 
