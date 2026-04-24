@@ -30,6 +30,8 @@ import java.util.function.Supplier;
 import infra.lang.Assert;
 import infra.util.function.SingletonSupplier;
 
+import static infra.util.function.SupplierUtils.always;
+
 /**
  * Utility that can be used to map values from a supplied source to a destination.
  * <p>
@@ -113,7 +115,7 @@ public final class PropertyMapper {
    * @return a {@link Source} that can be used to complete the mapping
    */
   public <T> Source<T> from(@Nullable T value) {
-    return from(() -> value);
+    return from(always(value));
   }
 
   private <T> Source<T> getSource(Supplier<? extends @Nullable T> supplier) {

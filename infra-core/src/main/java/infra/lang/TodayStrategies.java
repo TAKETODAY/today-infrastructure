@@ -46,6 +46,8 @@ import infra.util.MultiValueMap;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
+import static infra.util.function.SupplierUtils.always;
+
 /**
  * The {@code TodayStrategies} class provides utility methods for managing
  * properties and flags, allowing programmatic access and modification of
@@ -1236,13 +1238,13 @@ public class TodayStrategies {
      * Create a new composed {@link ArgumentResolver} by combining this resolver
      * with the given resolver.
      *
-     * @param argumentResolver the argument resolver to add
+     * @param next the argument resolver to add
      * @return a new composite {@link ArgumentResolver} instance
      */
-    default ArgumentResolver and(ArgumentResolver argumentResolver) {
+    default ArgumentResolver and(ArgumentResolver next) {
       return from(type -> {
         Object resolved = resolve(type);
-        return (resolved != null ? resolved : argumentResolver.resolve(type));
+        return resolved != null ? resolved : next.resolve(type);
       });
     }
 
@@ -1266,7 +1268,7 @@ public class TodayStrategies {
      * @return a new {@link ArgumentResolver} instance
      */
     static <T> ArgumentResolver of(Class<T> type, @Nullable T value) {
-      return ofSupplied(type, () -> value);
+      return ofSupplied(type, always(value));
     }
 
     /**
