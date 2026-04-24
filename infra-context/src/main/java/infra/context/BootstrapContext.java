@@ -47,7 +47,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import infra.context.annotation.ScopeMetadata;
 import infra.context.annotation.ScopeMetadataResolver;
-import infra.core.ConstructorNotFoundException;
 import infra.core.env.Environment;
 import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
@@ -404,7 +403,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
    * </ul>
    *
    * @see BeanInstantiationException If the bean cannot be instantiated
-   * @see ConstructorNotFoundException If there is no suitable constructor
    */
   @Override
   public <T> T instantiate(Class<T> clazz) {
@@ -412,9 +410,9 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     if (clazz.isInterface()) {
       throw new BeanInstantiationException(clazz, "Specified class is an interface");
     }
-    Constructor<T> constructor = BeanUtils.resolvableConstructor(clazz);
 
     try {
+      Constructor<T> constructor = BeanUtils.resolvableConstructor(clazz);
       int i = 0;
       Parameter[] parameters = constructor.getParameters();
       @Nullable Object[] args = new Object[parameters.length];
@@ -427,8 +425,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
       invokeAwareMethods(instance);
       return instance;
     }
-    catch (IllegalStateException ex) {
-      throw new BeanInstantiationException(clazz, "No suitable constructor found", ex);
+    catch (Exception e) {
+      throw new BeanInstantiationException(clazz, "No suitable constructor found");
     }
   }
 

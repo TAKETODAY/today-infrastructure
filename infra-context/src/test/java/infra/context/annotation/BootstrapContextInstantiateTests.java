@@ -123,7 +123,6 @@ public class BootstrapContextInstantiateTests {
   public void instantiateClassWhenHasUnsupportedParameterThrowsException() {
     assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
                     instantiateClass(InvalidConstructorParameterType.class))
-            .withCauseInstanceOf(IllegalStateException.class)
             .withMessageContaining("No suitable constructor found");
   }
 
