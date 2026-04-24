@@ -24,7 +24,6 @@ import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 
 import infra.aop.framework.AopConfigException;
-import infra.core.ConstructorNotFoundException;
 import infra.core.Ordered;
 import infra.lang.Assert;
 import infra.util.ReflectionUtils;
@@ -62,7 +61,7 @@ public class SimpleAspectInstanceFactory implements AspectInstanceFactory {
     try {
       return ReflectionUtils.accessibleConstructor(this.aspectClass).newInstance();
     }
-    catch (ConstructorNotFoundException ex) {
+    catch (NoSuchMethodException ex) {
       throw new AopConfigException(
               "No default constructor on aspect class: " + this.aspectClass.getName(), ex);
     }

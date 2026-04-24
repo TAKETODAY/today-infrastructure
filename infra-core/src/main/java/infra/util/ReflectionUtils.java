@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.BridgeMethodResolver;
-import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
@@ -1315,13 +1314,18 @@ public abstract class ReflectionUtils {
   // Constructor handling
 
   /**
-   * @throws ConstructorNotFoundException not found
-   * @see Class#getDeclaredConstructor
+   * Obtain an accessible constructor for the given class and parameters.
+   *
+   * @param type the clazz to check
+   * @param parameterTypes the parameter types of the desired constructor
+   * @return the constructor reference
+   * @throws NoSuchMethodException if no such constructor exists
    * @since 4.0
    */
-  @SuppressWarnings("NullAway")
-  public static <T> Constructor<T> accessibleConstructor(Class<T> targetClass, Class<?>... parameterTypes) {
-    return makeAccessible(getConstructor(targetClass, parameterTypes));
+  public static <T> Constructor<T> accessibleConstructor(Class<T> type, Class<?>... parameterTypes) throws NoSuchMethodException {
+    Constructor<T> ctor = type.getDeclaredConstructor(parameterTypes);
+    makeAccessible(ctor);
+    return ctor;
   }
 
   @Nullable
@@ -1361,8 +1365,7 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
-  @Nullable
-  public static <T> Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
+  public static <T> @Nullable Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     try {
       return clazz.getDeclaredConstructor(paramTypes);
@@ -1373,9 +1376,13 @@ public abstract class ReflectionUtils {
   }
 
   /**
-   * getDeclaredConstructor
+   * Obtain a declared constructor for the given class and parameters.
+   * <p>Throws an {@link IllegalStateException} if no such constructor exists.
    *
-   * @throws ConstructorNotFoundException not found
+   * @param type the class to check
+   * @param parameterTypes the parameter types of the desired constructor
+   * @return the constructor reference
+   * @throws IllegalStateException if no suitable constructor is found
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
@@ -1385,11 +1392,11 @@ public abstract class ReflectionUtils {
       return type.getDeclaredConstructor(parameterTypes);
     }
     catch (NoSuchMethodException e) {
-      throw new ConstructorNotFoundException(type, parameterTypes, e);
+      throw new IllegalStateException("No suitable constructor in " + type, e);
     }
   }
 
-  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object @Nullable [] args) {
+  public static <T> T invokeConstructor(Constructor<T> constructor, @Nullable Object @Nullable ... args) {
     try {
       return constructor.newInstance(args);
     }
@@ -1711,14 +1718,14 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static <T> T newInstance(Class<T> type) {
-    return newInstance(type, Constant.EMPTY_CLASSES, null);
+    return newInstance(type, null);
   }
 
   /**
    * @since 4.0
    */
   @SuppressWarnings("NullAway")
-  public static <T> T newInstance(Class<T> type, Class @Nullable [] parameterTypes, @Nullable Object @Nullable [] args) {
+  public static <T> T newInstance(Class<T> type, Class @Nullable [] parameterTypes, @Nullable Object @Nullable ... args) {
     return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 

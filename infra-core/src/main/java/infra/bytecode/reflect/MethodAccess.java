@@ -199,7 +199,7 @@ public abstract class MethodAccess {
     }
 
     protected Object firstInstance(Class type) {
-      return ReflectionUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
+      return ReflectionUtils.newInstance(type, new Class[] { Class.class }, this.type);
     }
 
     protected Object nextInstance(Object instance) {

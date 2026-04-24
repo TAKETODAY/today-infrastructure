@@ -33,7 +33,6 @@ import infra.context.BootstrapContext;
 import infra.context.EnvironmentAware;
 import infra.context.ResourceLoaderAware;
 import infra.context.support.GenericApplicationContext;
-import infra.core.ConstructorNotFoundException;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.PatternResourceLoader;
@@ -116,7 +115,7 @@ public class BootstrapContextInstantiateTests {
 
   @Test
   public void instantiateClassWhenHasMutlipleConstructorsAndNotDefaultThrowsException() {
-    assertThatExceptionOfType(ConstructorNotFoundException.class).isThrownBy(() ->
+    assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
             instantiateClass(MultipleConstructorsWithNoDefault.class));
   }
 

@@ -122,8 +122,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
    * @since 3.0.2
    */
   protected T newInstance(Class<T> accessorClass) throws Exception {
-    Constructor<T> constructor = ReflectionUtils.getConstructor(accessorClass);
-    return ReflectionUtils.invokeConstructor(constructor, null);
+    return ReflectionUtils.accessibleConstructor(accessorClass).newInstance();
   }
 
   @SuppressWarnings("unchecked")

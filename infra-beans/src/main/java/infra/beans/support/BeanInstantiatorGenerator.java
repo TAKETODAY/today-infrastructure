@@ -106,13 +106,12 @@ class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> im
   }
 
   /**
-   * @throws NoSuchMethodException handle in fallback {@link #fallbackIfNecessary(Exception)}
+   * @throws Exception handle in fallback {@link #fallbackIfNecessary(Exception)}
    * @since 4.0
    */
   @Override
-  protected ConstructorAccessor newInstance(Class<ConstructorAccessor> accessorClass) throws NoSuchMethodException {
-    Constructor<ConstructorAccessor> constructor = accessorClass.getDeclaredConstructor(Constructor.class);
-    return ReflectionUtils.invokeConstructor(constructor, new Object[] { this.targetConstructor });
+  protected ConstructorAccessor newInstance(Class<ConstructorAccessor> accessorClass) throws Exception {
+    return ReflectionUtils.accessibleConstructor(accessorClass, Constructor.class).newInstance(targetConstructor);
   }
 
   @Override

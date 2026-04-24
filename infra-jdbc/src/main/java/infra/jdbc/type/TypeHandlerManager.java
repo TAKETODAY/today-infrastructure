@@ -332,10 +332,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getInstance(@Nullable Class<?> javaTypeClass, Class<?> typeHandlerClass) {
     if (javaTypeClass != null) {
-      Constructor<?> constructor = BeanUtils.getResolvableConstructor(typeHandlerClass);
-      if (constructor == null) {
-        throw new IllegalStateException("No suitable constructor in " + typeHandlerClass);
-      }
+      Constructor<?> constructor = BeanUtils.resolvableConstructor(typeHandlerClass);
 
       try {
         if (constructor.getParameterCount() != 0) {

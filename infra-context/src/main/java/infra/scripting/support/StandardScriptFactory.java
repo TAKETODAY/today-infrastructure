@@ -29,7 +29,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import infra.beans.factory.BeanClassLoaderAware;
-import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
@@ -167,7 +166,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
       try {
         return ReflectionUtils.accessibleConstructor(scriptClass).newInstance();
       }
-      catch (ConstructorNotFoundException ex) {
+      catch (NoSuchMethodException ex) {
         throw new ScriptCompilationException(
                 "No default constructor on script class: " + scriptClass.getName(), ex);
       }

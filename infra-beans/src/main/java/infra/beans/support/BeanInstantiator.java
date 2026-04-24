@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 
 import infra.beans.BeanInstantiationException;
 import infra.beans.BeanUtils;
-import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.reflect.MethodAccessor;
 import infra.reflect.MethodInvoker;
@@ -90,7 +89,7 @@ import infra.util.ReflectionUtils;
  *
  * <h3>Error Handling</h3>
  * <p>If instantiation fails due to missing constructors or other issues, appropriate exceptions
- * such as {@link BeanInstantiationException} or {@link ConstructorNotFoundException} are thrown.
+ * such as {@link BeanInstantiationException} are thrown.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #instantiate()

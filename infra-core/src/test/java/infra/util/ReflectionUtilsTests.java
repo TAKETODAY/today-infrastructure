@@ -267,7 +267,7 @@ class ReflectionUtilsTests {
   }
 
   @Test
-  void accessibleConstructorReturnsConstructor() {
+  void accessibleConstructorReturnsConstructor() throws NoSuchMethodException {
     Constructor<String> constructor = ReflectionUtils.accessibleConstructor(String.class, String.class);
     assertThat(constructor).isNotNull();
   }
@@ -275,7 +275,7 @@ class ReflectionUtilsTests {
   @Test
   void invokeConstructorCreatesInstance() {
     Constructor<String> constructor = ReflectionUtils.getConstructor(String.class, String.class);
-    String instance = ReflectionUtils.invokeConstructor(constructor, new Object[] { "test" });
+    String instance = ReflectionUtils.invokeConstructor(constructor, "test");
     assertThat(instance).isEqualTo("test");
   }
 

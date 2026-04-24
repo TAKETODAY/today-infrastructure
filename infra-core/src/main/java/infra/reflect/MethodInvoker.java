@@ -18,7 +18,6 @@ package infra.reflect;
 
 import org.jspecify.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
@@ -231,13 +230,12 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     /**
-     * @throws NoSuchMethodException handle in fallback {@link #fallbackIfNecessary(Exception)}
+     * @throws Exception handle in fallback {@link #fallbackIfNecessary(Exception)}
      * @since 3.0.2
      */
     @Override
-    protected MethodInvoker newInstance(Class<MethodInvoker> accessorClass) throws NoSuchMethodException {
-      Constructor<MethodInvoker> constructor = accessorClass.getDeclaredConstructor(Method.class);
-      return ReflectionUtils.invokeConstructor(constructor, new Object[] { targetMethod });
+    protected MethodInvoker newInstance(Class<MethodInvoker> accessorClass) throws Exception {
+      return ReflectionUtils.accessibleConstructor(accessorClass, Method.class).newInstance(targetMethod);
     }
 
     @Override

@@ -35,7 +35,6 @@ import java.util.Set;
 
 import infra.beans.factory.support.DependencyInjector;
 import infra.beans.support.BeanInstantiator;
-import infra.core.ConstructorNotFoundException;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
@@ -90,6 +89,7 @@ public abstract class BeanUtils {
    * @param beanClass bean class
    * @return the instance of target class
    * @throws BeanInstantiationException if any reflective operation exception occurred
+   * @throws IllegalStateException if no suitable constructor is found
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
@@ -197,13 +197,13 @@ public abstract class BeanUtils {
    * @param <T> the target type
    * @param type the class to resolve the constructor for
    * @return the resolvable constructor
-   * @throws ConstructorNotFoundException if no suitable constructor is found
+   * @throws IllegalStateException if no suitable constructor is found
    * @since 2.1.7
    */
   public static <T> Constructor<T> resolvableConstructor(Class<T> type) {
     final Constructor<T> ret = getResolvableConstructor(type);
     if (ret == null) {
-      throw new ConstructorNotFoundException(type);
+      throw new IllegalStateException("No suitable constructor in " + type);
     }
     return ret;
   }

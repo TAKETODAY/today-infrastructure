@@ -49,7 +49,6 @@ import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.bytecode.proxy.Enhancer;
 import infra.bytecode.proxy.MethodInterceptor;
-import infra.core.ConstructorNotFoundException;
 import infra.core.io.Resource;
 import infra.core.io.ResourceEditor;
 
@@ -71,13 +70,13 @@ class BeanUtilsTests {
 
   @Test
   void newInstanceGivenInterface() {
-    assertThatExceptionOfType(ConstructorNotFoundException.class)
+    assertThatExceptionOfType(IllegalStateException.class)
             .isThrownBy(() -> BeanUtils.newInstance(List.class));
   }
 
   @Test
   void newInstanceGivenClassWithoutDefaultConstructor() {
-    assertThatExceptionOfType(ConstructorNotFoundException.class)
+    assertThatExceptionOfType(IllegalStateException.class)
             .isThrownBy(() -> BeanUtils.newInstance(CustomDateEditor.class));
   }
 

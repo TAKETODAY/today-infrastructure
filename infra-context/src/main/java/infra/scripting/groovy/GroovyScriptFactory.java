@@ -35,7 +35,6 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
@@ -339,7 +338,7 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
         return goo;
       }
     }
-    catch (ConstructorNotFoundException ex) {
+    catch (NoSuchMethodException ex) {
       throw new ScriptCompilationException(
               "No default constructor on Groovy script class: " + scriptClass.getName(), ex);
     }
