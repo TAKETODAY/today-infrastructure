@@ -58,6 +58,7 @@ dependencies {
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
+  testImplementation project(":infra-core-test")
   testImplementation 'org.eclipse:yasson'
   testImplementation project(':infra-test-support')
   testImplementation project(':module:infra-freemarker')
@@ -77,4 +78,5 @@ dependencies {
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
   testRuntimeOnly("org.yaml:snakeyaml")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
 }

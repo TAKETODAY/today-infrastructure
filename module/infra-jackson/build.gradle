@@ -10,10 +10,12 @@ dependencies {
   optional("tools.jackson.dataformat:jackson-dataformat-xml")
   optional("tools.jackson.module:jackson-module-jakarta-xmlbind-annotations")
 
+  optional project(":module:infra-app-test")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
+  testImplementation("com.jayway.jsonpath:json-path")
   testImplementation project(":infra-core-test")
   testImplementation project(":module:infra-app-test")
 

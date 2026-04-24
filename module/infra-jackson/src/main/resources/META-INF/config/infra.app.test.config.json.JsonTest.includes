@@ -1,0 +1,2 @@
+infra.jackson.JacksonComponent
+tools.jackson.databind.JacksonModule
