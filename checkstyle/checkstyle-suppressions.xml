@@ -156,5 +156,6 @@
   <suppress files="SecondMsg.java" checks=".*" />
   <suppress files="OuterSample.java" checks=".*" />
   <suppress files="UnsafeUtils" checks=".*" />
+  <suppress files="OnFailureConditionReportContextCustomizerFactory.java" id="systemOutErrPrint" />
 
 </suppressions>
