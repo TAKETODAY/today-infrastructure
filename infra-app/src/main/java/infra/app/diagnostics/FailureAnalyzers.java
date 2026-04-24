@@ -26,7 +26,9 @@ import java.util.List;
 import infra.beans.factory.BeanFactory;
 import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
+import infra.lang.ClassInstantiator;
 import infra.lang.TodayStrategies;
+import infra.lang.TodayStrategies.ArgumentResolver;
 import infra.lang.TodayStrategies.FailureHandler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -50,20 +52,20 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
 
   private static final Logger logger = LoggerFactory.getLogger(FailureAnalyzers.class);
 
-  private final BootstrapContext context;
+  private final @Nullable BootstrapContext context;
 
   private final TodayStrategies strategies;
 
   private final List<FailureAnalyzer> analyzers;
 
-  FailureAnalyzers(ConfigurableApplicationContext context) {
-    this(context, TodayStrategies.forDefaultResourceLocation(context.getClassLoader()));
+  public FailureAnalyzers(@Nullable ConfigurableApplicationContext context) {
+    this(context, TodayStrategies.forDefaultResourceLocation(context != null ? context.getClassLoader() : null));
   }
 
-  FailureAnalyzers(ConfigurableApplicationContext context, TodayStrategies strategies) {
+  FailureAnalyzers(@Nullable ConfigurableApplicationContext context, TodayStrategies strategies) {
     this.strategies = strategies;
-    this.context = context.getBootstrapContext();
-    var analyzers = strategies.load(FailureAnalyzer.class, context.getBootstrapContext(), FailureHandler.logging(logger));
+    this.context = context != null ? context.getBootstrapContext() : null;
+    var analyzers = load(FailureAnalyzer.class, this.context, strategies);
     analyzers.add(FailureAnalyzedException::analyze);
     this.analyzers = Collections.unmodifiableList(analyzers);
   }
@@ -92,7 +94,8 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
     if (analysis == null) {
       return false;
     }
-    List<FailureAnalysisReporter> reporters = strategies.load(FailureAnalysisReporter.class, context, FailureHandler.logging(logger));
+
+    var reporters = load(FailureAnalysisReporter.class, context, strategies);
     if (reporters.isEmpty()) {
       return false;
     }
@@ -100,6 +103,13 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
       reporter.report(analysis);
     }
     return true;
+  }
+
+  private static <T> List<T> load(Class<T> strategyType, @Nullable ClassInstantiator instantiator, TodayStrategies strategies) {
+    if (instantiator != null) {
+      return strategies.load(strategyType, instantiator, FailureHandler.logging(logger));
+    }
+    return strategies.load(strategyType, (ArgumentResolver) null, FailureHandler.logging(logger));
   }
 
 }

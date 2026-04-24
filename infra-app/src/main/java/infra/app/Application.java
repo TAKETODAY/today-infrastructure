@@ -87,6 +87,7 @@ import infra.format.support.ApplicationConversionService;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.TodayStrategies;
+import infra.lang.TodayStrategies.ArgumentResolver;
 import infra.lang.VisibleForTesting;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -253,9 +254,9 @@ public class Application {
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
     this.mainApplicationClass = deduceMainApplicationClass();
     this.applicationTemp = new ApplicationTemp(mainApplicationClass);
-    this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);
-    setInitializers(TodayStrategies.find(ApplicationContextInitializer.class));
-    setListeners(TodayStrategies.find(ApplicationListener.class));
+    this.bootstrapRegistryInitializers = getStrategiesInstances(BootstrapRegistryInitializer.class);
+    setInitializers(getStrategiesInstances(ApplicationContextInitializer.class));
+    setListeners(getStrategiesInstances(ApplicationListener.class));
   }
 
   private @Nullable Class<?> deduceMainApplicationClass() {
@@ -1296,15 +1297,7 @@ public class Application {
   }
 
   private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {
-    ClassLoader classLoader = getClassLoader();
-    var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class, parameters -> {
-      if (context != null) {
-        parameters.add(ConfigurableApplicationContext.class, context);
-      }
-    });
-
-    List<String> strategiesNames = TodayStrategies.findNames(ApplicationExceptionReporter.class, classLoader);
-    return instantiator.instantiate(strategiesNames);
+    return getStrategiesInstances(ApplicationExceptionReporter.class, ArgumentResolver.of(ConfigurableApplicationContext.class, context));
   }
 
   private void reportFailure(List<ApplicationExceptionReporter> exceptionReporters, Throwable failure) {
@@ -1413,6 +1406,14 @@ public class Application {
         }
       }
     }
+  }
+
+  private <T> List<T> getStrategiesInstances(Class<T> type) {
+    return getStrategiesInstances(type, null);
+  }
+
+  private <T> List<T> getStrategiesInstances(Class<T> type, @Nullable ArgumentResolver argumentResolver) {
+    return TodayStrategies.forDefaultResourceLocation(getClassLoader()).load(type, argumentResolver);
   }
 
   /**
