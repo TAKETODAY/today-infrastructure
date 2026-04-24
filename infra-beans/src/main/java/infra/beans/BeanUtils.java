@@ -84,16 +84,24 @@ public abstract class BeanUtils {
   );
 
   /**
-   * Get instance with bean class use default {@link Constructor}
+   * Instantiate a class using the default constructor of the given class.
+   * <p>This method resolves a suitable constructor (preferring public or annotated constructors)
+   * and creates a new instance. It handles primitive type default values for null arguments.
    *
-   * @param beanClass bean class
-   * @return the instance of target class
-   * @throws BeanInstantiationException if any reflective operation exception occurred
-   * @throws IllegalStateException if no suitable constructor is found
+   * @param type the bean class to instantiate
+   * @param <T> the type of the bean
+   * @return a new instance of the target class
+   * @throws BeanInstantiationException if the bean cannot be instantiated due to reflective operation errors
+   * @throws IllegalStateException if no suitable constructor is found in the given class
+   * @see #getResolvableConstructor(Class)
    * @since 2.1.2
    */
-  public static <T> T newInstance(Class<T> beanClass) {
-    Constructor<T> constructor = getResolvableConstructor(beanClass);
+  public static <T> T newInstance(Class<T> type) {
+    Assert.notNull(type, "type is required");
+    if (type.isInterface()) {
+      throw new BeanInstantiationException(type, "Specified class is an interface");
+    }
+    Constructor<T> constructor = getResolvableConstructor(type);
     return newInstance(constructor);
   }
 
