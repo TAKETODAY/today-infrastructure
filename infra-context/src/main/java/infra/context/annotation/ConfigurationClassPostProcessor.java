@@ -866,7 +866,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       for (var beanRegistrarEntry : this.beanRegistrars.entrySet()) {
         for (BeanRegistrar beanRegistrar : beanRegistrarEntry.getValue()) {
           String beanRegistrarName = nameAllocator.newName(StringUtils.uncapitalize(beanRegistrar.getClass().getSimpleName()));
-          Constructor<?> constructor = BeanUtils.resolvableConstructor(beanRegistrar.getClass());
+          Constructor<?> constructor = BeanUtils.getResolvableConstructor(beanRegistrar.getClass());
           boolean visible = isVisible(constructor, className);
           if (visible) {
             code.addStatement("$T $L = new $T()", beanRegistrar.getClass(), beanRegistrarName, beanRegistrar.getClass());

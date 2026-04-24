@@ -93,7 +93,7 @@ public abstract class BeanUtils {
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
-    Constructor<T> constructor = resolvableConstructor(beanClass);
+    Constructor<T> constructor = getResolvableConstructor(beanClass);
     return newInstance(constructor);
   }
 
@@ -102,7 +102,7 @@ public abstract class BeanUtils {
    *
    * @param beanClassName bean class name string
    * @return the instance of target class
-   * @see #resolvableConstructor(Class)
+   * @see #getResolvableConstructor(Class)
    * @since 2.1.2
    */
   public static <T> T newInstance(String beanClassName, @Nullable ClassLoader classLoader) {
@@ -116,13 +116,13 @@ public abstract class BeanUtils {
    * @param providedArgs User provided arguments
    * @return bean class 's instance
    * @throws BeanInstantiationException if any reflective operation exception occurred
-   * @see #resolvableConstructor(Class)
+   * @see #getResolvableConstructor(Class)
    * @since 4.0
    */
   @SuppressWarnings({ "NullAway" })
   public static <T> T newInstance(Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
     Assert.notNull(injector, "ArgumentsResolver is required");
-    Constructor<T> constructor = resolvableConstructor(beanClass);
+    Constructor<T> constructor = getResolvableConstructor(beanClass);
     return injector.inject(constructor, providedArgs);
   }
 
@@ -200,8 +200,8 @@ public abstract class BeanUtils {
    * @throws IllegalStateException if no suitable constructor is found
    * @since 2.1.7
    */
-  public static <T> Constructor<T> resolvableConstructor(Class<T> type) {
-    final Constructor<T> ret = getResolvableConstructor(type);
+  public static <T> Constructor<T> getResolvableConstructor(Class<T> type) {
+    final Constructor<T> ret = findResolvableConstructor(type);
     if (ret == null) {
       throw new IllegalStateException("No suitable constructor in " + type);
     }
@@ -220,7 +220,7 @@ public abstract class BeanUtils {
    * @since 2.1.7
    */
   @SuppressWarnings("unchecked")
-  public static <T> @Nullable Constructor<T> getResolvableConstructor(Class<T> type) {
+  public static <T> @Nullable Constructor<T> findResolvableConstructor(Class<T> type) {
     Assert.notNull(type, "type is required");
 
     if (type.isRecord()) {

@@ -356,7 +356,7 @@ public interface TypeHandlerResolver {
       if (mappedTypeHandler.isPresent()) {
         // user defined TypeHandler
         Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.getClass(attributeName);
-        Constructor<? extends TypeHandler<?>> constructor = BeanUtils.resolvableConstructor(typeHandlerClass);
+        Constructor<? extends TypeHandler<?>> constructor = BeanUtils.getResolvableConstructor(typeHandlerClass);
 
         if (constructor.getParameterCount() != 0) {
           Object[] args = new Object[constructor.getParameterCount()];

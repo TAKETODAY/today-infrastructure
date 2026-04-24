@@ -400,7 +400,7 @@ public abstract class BeanInstantiator {
   /**
    * Creates and returns a {@code BeanInstantiator} for the given target class.
    * This method attempts to obtain a suitable constructor for the specified
-   * class using {@link BeanUtils#resolvableConstructor(Class)}. The obtained
+   * class using {@link BeanUtils#getResolvableConstructor(Class)}. The obtained
    * constructor is then used to create the {@code BeanInstantiator} by calling
    * {@link #forConstructor(Constructor)}.
    *
@@ -418,7 +418,7 @@ public abstract class BeanInstantiator {
    * @throws IllegalArgumentException if no suitable constructor is found for the target class.
    */
   public static BeanInstantiator forClass(final Class<?> targetClass) {
-    Constructor<?> suitableConstructor = BeanUtils.resolvableConstructor(targetClass);
+    Constructor<?> suitableConstructor = BeanUtils.getResolvableConstructor(targetClass);
     return forConstructor(suitableConstructor);
   }
 

@@ -412,7 +412,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     }
 
     try {
-      Constructor<T> constructor = BeanUtils.resolvableConstructor(clazz);
+      Constructor<T> constructor = BeanUtils.getResolvableConstructor(clazz);
       int i = 0;
       Parameter[] parameters = constructor.getParameters();
       @Nullable Object[] args = new Object[parameters.length];

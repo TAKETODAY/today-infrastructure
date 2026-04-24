@@ -618,7 +618,7 @@ final class ConstructorResolver {
             String argType = (value.getType() != null
                     ? ClassUtils.getShortName(value.getType())
                     : (value.getValue() != null
-                            ? value.getValue().getClass().getSimpleName()
+                       ? value.getValue().getClass().getSimpleName()
                             : "null"));
             argTypes.add(argType);
           }
@@ -1058,11 +1058,14 @@ final class ConstructorResolver {
       if (!mbd.hasConstructorArgumentValues()) {
         ctors = mbd.getPreferredConstructors();
         if (ObjectUtils.isEmpty(ctors)) {
-          ctors = new Constructor<?>[] { BeanUtils.getResolvableConstructor(type) };
+          Constructor<?> constructor = BeanUtils.findResolvableConstructor(type);
+          if (constructor != null) {
+            ctors = new Constructor<?>[] { BeanUtils.getResolvableConstructor(type) };
+          }
         }
       }
       if (ctors == null) {
-        ctors = (mbd.isNonPublicAccessAllowed() ? type.getDeclaredConstructors() : type.getConstructors());
+        ctors = mbd.isNonPublicAccessAllowed() ? type.getDeclaredConstructors() : type.getConstructors();
       }
     }
     if (ctors.length == 1) {

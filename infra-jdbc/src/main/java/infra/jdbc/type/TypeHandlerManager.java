@@ -332,7 +332,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getInstance(@Nullable Class<?> javaTypeClass, Class<?> typeHandlerClass) {
     if (javaTypeClass != null) {
-      Constructor<?> constructor = BeanUtils.resolvableConstructor(typeHandlerClass);
+      Constructor<?> constructor = BeanUtils.getResolvableConstructor(typeHandlerClass);
 
       try {
         if (constructor.getParameterCount() != 0) {
@@ -456,7 +456,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     public void applyTo(GenerationContext generationContext, BeanFactoryInitializationCode beanFactoryInitializationCode) {
       ReflectionHints reflection = generationContext.getRuntimeHints().reflection();
       for (TypeHandlerManager manager : handlerManagers) {
-        Constructor<?> constructor = BeanUtils.getResolvableConstructor(manager.defaultEnumTypeHandler);
+        Constructor<?> constructor = BeanUtils.findResolvableConstructor(manager.defaultEnumTypeHandler);
         reflection.registerType(manager.defaultEnumTypeHandler, INVOKE_PUBLIC_CONSTRUCTORS);
 
         if (constructor != null) {
