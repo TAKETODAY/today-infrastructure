@@ -70,6 +70,7 @@ import infra.logging.LoggerFactory;
  * @since 4.0
  */
 public class SystemEnvironmentPropertySource extends MapPropertySource {
+
   private static final Logger log = LoggerFactory.getLogger(SystemEnvironmentPropertySource.class);
 
   /**
@@ -94,8 +95,7 @@ public class SystemEnvironmentPropertySource extends MapPropertySource {
    * any underscore/uppercase variant thereof exists in this property source.
    */
   @Override
-  @Nullable
-  public Object getProperty(String name) {
+  public @Nullable Object getProperty(String name) {
     String actualName = resolvePropertyName(name);
     if (log.isDebugEnabled() && !name.equals(actualName)) {
       log.debug("PropertySource '{}' does not contain property '{}', but found equivalent '{}'",
@@ -125,8 +125,7 @@ public class SystemEnvironmentPropertySource extends MapPropertySource {
     return name;
   }
 
-  @Nullable
-  private String checkPropertyName(String name) {
+  private @Nullable String checkPropertyName(String name) {
     // Check name as-is
     if (this.source.containsKey(name)) {
       return name;

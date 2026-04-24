@@ -1217,7 +1217,7 @@ public class TodayStrategies {
      * @param value the argument value
      * @return a new composite {@link ArgumentResolver} instance
      */
-    default <T> ArgumentResolver and(Class<T> type, T value) {
+    default <T, V extends T> ArgumentResolver and(Class<T> type, V value) {
       return and(ArgumentResolver.of(type, value));
     }
 
@@ -1230,7 +1230,7 @@ public class TodayStrategies {
      * @param valueSupplier the argument value supplier
      * @return a new composite {@link ArgumentResolver} instance
      */
-    default <T> ArgumentResolver andSupplied(Class<T> type, Supplier<T> valueSupplier) {
+    default <T, V extends T> ArgumentResolver andSupplied(Class<T> type, Supplier<V> valueSupplier) {
       return and(ArgumentResolver.ofSupplied(type, valueSupplier));
     }
 
@@ -1267,7 +1267,7 @@ public class TodayStrategies {
      * @param value the argument value
      * @return a new {@link ArgumentResolver} instance
      */
-    static <T> ArgumentResolver of(Class<T> type, @Nullable T value) {
+    static <T, V extends T> ArgumentResolver of(Class<T> type, @Nullable V value) {
       return ofSupplied(type, always(value));
     }
 
@@ -1280,7 +1280,7 @@ public class TodayStrategies {
      * @param valueSupplier the argument value supplier
      * @return a new {@link ArgumentResolver} instance
      */
-    static <T> ArgumentResolver ofSupplied(Class<T> type, Supplier<@Nullable T> valueSupplier) {
+    static <T, V extends T> ArgumentResolver ofSupplied(Class<T> type, Supplier<@Nullable V> valueSupplier) {
       return from(candidateType -> candidateType.equals(type) ? valueSupplier.get() : null);
     }
 

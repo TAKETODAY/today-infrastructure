@@ -18,11 +18,12 @@
 
 package infra.app.loader;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.util.List;
 
 import infra.app.loader.jarmode.JarMode;
-import org.jspecify.annotations.Nullable;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ExceptionUtils;
@@ -39,7 +40,6 @@ final class JarModeRunner {
   static final String DISABLE_SYSTEM_EXIT = JarModeRunner.class.getName() + ".DISABLE_SYSTEM_EXIT";
 
   private JarModeRunner() {
-
   }
 
   static void main(String[] args) {
@@ -70,8 +70,7 @@ final class JarModeRunner {
     return false;
   }
 
-  @Nullable
-  private static JarMode findDefault() {
+  private static @Nullable JarMode findDefault() {
     Class<JarMode> jarModeClass = ClassUtils.load("infra.jarmode.layertools.LayerToolsJarMode");
     if (jarModeClass != null) {
       try {

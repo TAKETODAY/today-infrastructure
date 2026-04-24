@@ -119,8 +119,7 @@ public abstract class PropertySource<T> {
    * @param name the property to find
    * @see PropertyResolver#getRequiredProperty(String)
    */
-  @Nullable
-  public abstract Object getProperty(String name);
+  public abstract @Nullable Object getProperty(String name);
 
   /**
    * This {@code PropertySource} object is equal to the given object if:
@@ -223,8 +222,7 @@ public abstract class PropertySource<T> {
    */
   static class ComparisonPropertySource extends StubPropertySource {
 
-      static final String USAGE_ERROR =
-            "ComparisonPropertySource instances are for use with collection comparison only";
+    static final String USAGE_ERROR = "ComparisonPropertySource instances are for use with collection comparison only";
 
     public ComparisonPropertySource(String name) {
       super(name);
@@ -241,8 +239,7 @@ public abstract class PropertySource<T> {
     }
 
     @Override
-    @Nullable
-    public String getProperty(String name) {
+    public @Nullable String getProperty(String name) {
       throw new UnsupportedOperationException(USAGE_ERROR);
     }
   }

@@ -23,8 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -60,10 +58,8 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import infra.bytecode.ClassReader;
 import infra.core.GenericTypeResolver;
 import infra.core.io.ClassPathResource;
-import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Constant;
 
@@ -219,8 +215,7 @@ public abstract class ClassUtils {
    * @see ClassLoader#getSystemClassLoader()
    * @since 4.0
    */
-  @Nullable
-  public static ClassLoader getDefaultClassLoader() {
+  public static @Nullable ClassLoader getDefaultClassLoader() {
     ClassLoader cl = null;
     try {
       cl = Thread.currentThread().getContextClassLoader();
@@ -253,8 +248,7 @@ public abstract class ClassUtils {
    * @return the original thread context ClassLoader, or {@code null} if not overridden
    * @since 4.0
    */
-  @Nullable
-  public static ClassLoader overrideThreadContextClassLoader(@Nullable ClassLoader classLoaderToUse) {
+  public static @Nullable ClassLoader overrideThreadContextClassLoader(@Nullable ClassLoader classLoaderToUse) {
     Thread currentThread = Thread.currentThread();
     ClassLoader threadContextClassLoader = currentThread.getContextClassLoader();
     if (classLoaderToUse != null && !classLoaderToUse.equals(threadContextClassLoader)) {
@@ -333,8 +327,7 @@ public abstract class ClassUtils {
     return isPresent(className, loaderSource.getClassLoader());
   }
 
-  @Nullable
-  public static Class<?> resolvePrimitiveClassName(@Nullable String name) {
+  public static @Nullable Class<?> resolvePrimitiveClassName(@Nullable String name) {
     // Most class names will be quite long, considering that they
     // SHOULD sit in a package, so a length check is worthwhile.
     if (name != null && name.length() <= 8) {
@@ -466,8 +459,7 @@ public abstract class ClassUtils {
    * @param name class full name
    * @return class if not found will returns null
    */
-  @Nullable
-  public static <T> Class<T> load(String name) {
+  public static <T> @Nullable Class<T> load(String name) {
     return load(name, getDefaultClassLoader());
   }
 
@@ -479,32 +471,13 @@ public abstract class ClassUtils {
    * @param classLoader use this {@link ClassLoader} load the class
    * @return null if cannot load
    */
-  @Nullable
-  public static <T> Class<T> load(String name, @Nullable ClassLoader classLoader) {
+  public static <T> @Nullable Class<T> load(String name, @Nullable ClassLoader classLoader) {
     try {
       return forName(name, classLoader);
     }
     catch (ClassNotFoundException | LinkageError e) {
       return null;
     }
-  }
-
-  public static String getClassName(ClassReader r) {
-    return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
-  }
-
-  public static String getClassName(byte[] classFile) {
-    return getClassName(new ClassReader(classFile));
-  }
-
-  public static String getClassName(Resource resource) throws IOException {
-    try (InputStream inputStream = resource.getInputStream()) {
-      return getClassName(inputStream);
-    }
-  }
-
-  public static String getClassName(InputStream inputStream) throws IOException {
-    return getClassName(new ClassReader(inputStream));
   }
 
   /**
@@ -602,8 +575,7 @@ public abstract class ClassUtils {
    * @return The user class
    * @since 2.1.7
    */
-  @Nullable
-  public static <T> Class<T> getUserClass(String name) {
+  public static <T> @Nullable Class<T> getUserClass(String name) {
     Assert.notNull(name, "synthetic-name is required");
     int i = name.indexOf(CGLIB_CLASS_SEPARATOR);
     return i > 0 ? load(name.substring(0, i)) : load(name);
@@ -617,8 +589,7 @@ public abstract class ClassUtils {
    * @param value the value to introspect
    * @return the qualified name of the class
    */
-  @Nullable
-  public static String getDescriptiveType(@Nullable Object value) {
+  public static @Nullable String getDescriptiveType(@Nullable Object value) {
     if (value == null) {
       return null;
     }
@@ -836,8 +807,7 @@ public abstract class ClassUtils {
    * given classes is {@code null}, the other class will be returned.
    * @since 4.0
    */
-  @Nullable
-  public static Class<?> determineCommonAncestor(@Nullable Class<?> clazz1, @Nullable Class<?> clazz2) {
+  public static @Nullable Class<?> determineCommonAncestor(@Nullable Class<?> clazz1, @Nullable Class<?> clazz2) {
     if (clazz1 == null) {
       return clazz2;
     }
@@ -1338,7 +1308,6 @@ public abstract class ClassUtils {
    * @return the original class, or a primitive wrapper for the original primitive type
    * @since 4.0
    */
-  @SuppressWarnings("NullAway")
   public static Class<?> resolvePrimitiveIfNecessary(Class<?> clazz) {
     Assert.notNull(clazz, "Class is required");
     return clazz.isPrimitive() && clazz != void.class

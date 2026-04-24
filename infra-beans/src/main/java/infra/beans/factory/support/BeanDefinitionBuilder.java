@@ -29,7 +29,6 @@ import infra.beans.factory.config.BeanDefinitionCustomizer;
 import infra.beans.factory.config.RuntimeBeanReference;
 import infra.beans.factory.xml.NamespaceHandler;
 import infra.core.ResolvableType;
-import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -295,10 +294,6 @@ public final class BeanDefinitionBuilder {
   // static utils
   //---------------------------------------------------------------------
 
-  public static String defaultBeanName(String className) {
-    return StringUtils.uncapitalize(ClassUtils.getSimpleName(className));
-  }
-
   public static String defaultBeanName(Class<?> clazz) {
     String simpleName = clazz.getSimpleName();
     return StringUtils.uncapitalize(simpleName);
@@ -340,8 +335,7 @@ public final class BeanDefinitionBuilder {
    * @param instanceSupplier a callback for creating an instance of the bean
    */
   public static <T> BeanDefinitionBuilder genericBeanDefinition(Class<T> beanClass, Supplier<T> instanceSupplier) {
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new GenericBeanDefinition());
-    builder.beanDefinition.setBeanClass(beanClass);
+    BeanDefinitionBuilder builder = genericBeanDefinition(beanClass);
     builder.beanDefinition.setInstanceSupplier(instanceSupplier);
     return builder;
   }

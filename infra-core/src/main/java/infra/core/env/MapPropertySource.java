@@ -49,8 +49,7 @@ public class MapPropertySource extends EnumerablePropertySource<Map<String, Obje
   }
 
   @Override
-  @Nullable
-  public Object getProperty(String name) {
+  public @Nullable Object getProperty(String name) {
     return this.source.get(name);
   }
 
