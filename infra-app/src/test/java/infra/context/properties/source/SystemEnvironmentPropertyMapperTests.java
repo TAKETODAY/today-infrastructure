@@ -74,29 +74,29 @@ class SystemEnvironmentPropertyMapperTests extends AbstractPropertyMapperTests {
 
   @Test
   void isAncestorOfConsidersLegacyNames() {
-    ConfigurationPropertyName name = ConfigurationPropertyName.of("my.spring-boot");
+    ConfigurationPropertyName name = ConfigurationPropertyName.of("my.infra-app");
     BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> check = getMapper().getAncestorOfCheck();
-    assertThat(check.test(name, ConfigurationPropertyName.adapt("MY_SPRING_BOOT_PROPERTY", '_'))).isTrue();
-    assertThat(check.test(name, ConfigurationPropertyName.adapt("MY_SPRINGBOOT_PROPERTY", '_'))).isTrue();
+    assertThat(check.test(name, ConfigurationPropertyName.adapt("MY_INFRA_APP_PROPERTY", '_'))).isTrue();
+    assertThat(check.test(name, ConfigurationPropertyName.adapt("MY_INFRAAPP_PROPERTY", '_'))).isTrue();
     assertThat(check.test(name, ConfigurationPropertyName.adapt("MY_BOOT_PROPERTY", '_'))).isFalse();
   }
 
   @Test
   void isAncestorOfWhenNonCanonicalSource() {
-    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("my.springBoot", '.');
+    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("my.infraApp", '.');
     BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> check = getMapper().getAncestorOfCheck();
-    assertThat(check.test(name, ConfigurationPropertyName.of("my.spring-boot.property"))).isTrue();
-    assertThat(check.test(name, ConfigurationPropertyName.of("my.springboot.property"))).isTrue();
+    assertThat(check.test(name, ConfigurationPropertyName.of("my.infra-app.property"))).isTrue();
+    assertThat(check.test(name, ConfigurationPropertyName.of("my.infraapp.property"))).isTrue();
     assertThat(check.test(name, ConfigurationPropertyName.of("my.boot.property"))).isFalse();
   }
 
   @Test
   void isAncestorOfWhenNonCanonicalAndDashedSource() {
-    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("my.springBoot.input-value", '.');
+    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("my.infraApp.input-value", '.');
     BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> check = getMapper().getAncestorOfCheck();
-    assertThat(check.test(name, ConfigurationPropertyName.of("my.spring-boot.input-value.property"))).isTrue();
-    assertThat(check.test(name, ConfigurationPropertyName.of("my.springboot.inputvalue.property"))).isTrue();
-    assertThat(check.test(name, ConfigurationPropertyName.of("my.boot.property"))).isFalse();
+    assertThat(check.test(name, ConfigurationPropertyName.of("my.infra-app.input-value.property"))).isTrue();
+    assertThat(check.test(name, ConfigurationPropertyName.of("my.infraapp.inputvalue.property"))).isTrue();
+    assertThat(check.test(name, ConfigurationPropertyName.of("my.app.property"))).isFalse();
   }
 
 }
