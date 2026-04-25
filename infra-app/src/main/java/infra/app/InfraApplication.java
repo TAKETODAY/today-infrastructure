@@ -47,7 +47,7 @@ import infra.core.annotation.AliasFor;
  */
 @Inherited
 @Documented
-@Configuration
+@InfraConfiguration
 @EnableAutoConfiguration
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
