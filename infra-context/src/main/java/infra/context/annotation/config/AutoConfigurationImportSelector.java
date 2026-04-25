@@ -79,11 +79,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   protected BootstrapContext bootstrapContext;
 
-  @Nullable
-  private volatile ConfigurationClassFilter configurationClassFilter;
+  private volatile @Nullable ConfigurationClassFilter configurationClassFilter;
 
-  @Nullable
-  private volatile AutoConfigurationReplacements autoConfigurationReplacements;
+  private volatile @Nullable AutoConfigurationReplacements autoConfigurationReplacements;
 
   public AutoConfigurationImportSelector() {
     this(null);
@@ -163,8 +161,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    * @param metadata the annotation metadata
    * @return annotation attributes
    */
-  @Nullable
-  protected AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
+  protected @Nullable AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
     String name = getAnnotationClass().getName();
     AnnotationAttributes attributes = AnnotationAttributes.fromMap(
             metadata.getAnnotationAttributes(name, true));
@@ -242,8 +239,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       message.append("\t- ").append(exclude).append(String.format("%n"));
     }
     throw new IllegalStateException(String.format(
-            "The following classes could not be excluded because they are not auto-configuration classes:%n%s",
-            message));
+            "The following classes could not be excluded because they are not auto-configuration classes:%n%s", message));
   }
 
   /**
@@ -406,13 +402,13 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
     private final ClassLoader beanClassLoader;
 
-    private AutoConfigurationMetadata autoConfigurationMetadata;
-
-    private AutoConfigurationReplacements autoConfigurationReplacements;
-
     private final LinkedHashMap<String, AnnotationMetadata> entries = new LinkedHashMap<>();
 
     private final ArrayList<AutoConfigurationEntry> autoConfigurationEntries = new ArrayList<>();
+
+    private @Nullable AutoConfigurationMetadata autoConfigurationMetadata;
+
+    private @Nullable AutoConfigurationReplacements autoConfigurationReplacements;
 
     public AutoConfigurationGroup(BootstrapContext context, ClassLoader beanClassLoader) {
       this.context = context;
@@ -422,7 +418,6 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     @Override
     public void process(AnnotationMetadata annotationMetadata, DeferredImportSelector selector) {
       if (selector instanceof AutoConfigurationImportSelector autoConfigSelector) {
-
         var autoConfigurationReplacements = autoConfigSelector.getAutoConfigurationReplacements();
         Assert.state(this.autoConfigurationReplacements == null
                         || this.autoConfigurationReplacements.equals(autoConfigurationReplacements),
@@ -474,6 +469,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     }
 
     private List<String> sortAutoConfigurations(Set<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
+      Assert.state(autoConfigurationReplacements != null, "'autoConfigurationReplacements' is required");
       return new AutoConfigurationSorter(context.getMetadataReaderFactory(), autoConfigurationMetadata, autoConfigurationReplacements::replace)
               .getInPriorityOrder(configurations);
     }

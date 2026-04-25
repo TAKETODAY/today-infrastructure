@@ -66,8 +66,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
   }
 
   @Override
-  @Nullable
-  protected AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
+  protected @Nullable AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
     return null;
   }
 

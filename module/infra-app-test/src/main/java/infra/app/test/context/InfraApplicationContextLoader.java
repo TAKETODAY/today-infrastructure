@@ -271,10 +271,9 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
   private void prepareEnvironment(MergedContextConfiguration config, Application application,
           ConfigurableEnvironment environment, boolean applicationEnvironment) {
     setActiveProfiles(environment, config.getActiveProfiles(), applicationEnvironment);
-    ResourceLoader resourceLoader = (application.getResourceLoader() != null) ? application.getResourceLoader()
-            : new DefaultResourceLoader(null);
-    TestPropertySourceUtils.addPropertiesFilesToEnvironment(environment, resourceLoader,
-            config.getPropertySourceLocations());
+    ResourceLoader resourceLoader = application.getResourceLoader() != null
+            ? application.getResourceLoader() : new DefaultResourceLoader(null);
+    TestPropertySourceUtils.addPropertiesFilesToEnvironment(environment, resourceLoader, config.getPropertySourceLocations());
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(environment, getInlinedProperties(config));
   }
 
@@ -334,8 +333,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
    * @param application the application instance
    * @return the initializers to apply
    */
-  protected List<ApplicationContextInitializer> getInitializers(MergedContextConfiguration config,
-          Application application) {
+  protected List<ApplicationContextInitializer> getInitializers(MergedContextConfiguration config, Application application) {
     List<ApplicationContextInitializer> initializers = new ArrayList<>();
     for (ContextCustomizer contextCustomizer : config.getContextCustomizers()) {
       initializers.add(new ContextCustomizerAdapter(contextCustomizer, config));
@@ -376,12 +374,6 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
    */
   protected Class<?>[] detectDefaultConfigurationClasses(Class<?> declaringClass) {
     return AnnotationConfigContextLoaderUtils.detectDefaultConfigurationClasses(declaringClass);
-  }
-
-  @Override
-  public ApplicationContext loadContext(String... locations) throws Exception {
-    throw new UnsupportedOperationException(
-            "ApplicationContextLoader does not support the loadContext(String...) method");
   }
 
   @Override
@@ -554,7 +546,8 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
       return new ApplicationStartupListener() {
 
         @Override
-        public void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
+        public void starting(ConfigurableBootstrapContext bootstrapContext,
+                @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
           ContextLoaderHook.this.configurer.accept(application);
           if (ContextLoaderHook.this.mode == Mode.AOT_RUNTIME) {
             Assert.state(ContextLoaderHook.this.initializer != null, "'initializer' is required");
