@@ -1,0 +1,6 @@
+description = "Starter for testing Infra blocking HTTP clients (RestClient, RestTemplate and HTTP Service Clients)"
+
+dependencies {
+	api(project(":infra-starter:infra-starter-restclient"))
+	api project(':module:infra-app-restclient-test')
+}

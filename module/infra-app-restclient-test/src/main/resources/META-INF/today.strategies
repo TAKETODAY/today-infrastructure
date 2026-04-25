@@ -1,0 +1,2 @@
+infra.test.context.TestExecutionListener=\
+infra.app.restclient.test.config.MockRestServiceServerResetTestExecutionListener
