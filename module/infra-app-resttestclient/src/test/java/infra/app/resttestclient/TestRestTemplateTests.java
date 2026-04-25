@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.rest.client;
+package infra.app.resttestclient;
 
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
@@ -35,7 +35,7 @@ import java.net.http.HttpClient;
 import java.util.Base64;
 import java.util.stream.Stream;
 
-import infra.app.rest.client.TestRestTemplate.HttpClientOption;
+import infra.app.resttestclient.TestRestTemplate.HttpClientOption;
 import infra.app.test.http.server.LocalTestWebServer;
 import infra.app.test.http.server.LocalTestWebServer.Scheme;
 import infra.core.ParameterizedTypeReference;

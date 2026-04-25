@@ -104,7 +104,7 @@ public final class JsonTestersAutoConfiguration {
       ReflectionHints reflection = hints.reflection();
       reflection.registerType(BasicJsonTester.class, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
       Method method = ReflectionUtils.findMethod(BasicJsonTester.class, "initialize", Class.class);
-      Assert.state(method != null, "'method' must not be null");
+      Assert.state(method != null, "'method' is required");
       reflection.registerMethod(method, ExecutableMode.INVOKE);
     }
 

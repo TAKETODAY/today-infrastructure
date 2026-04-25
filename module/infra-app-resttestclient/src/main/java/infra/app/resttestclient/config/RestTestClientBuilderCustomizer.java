@@ -16,30 +16,26 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.app.resttestclient.config;
 
-import java.util.List;
-
-import infra.test.context.TestExecutionListener;
+import infra.test.web.mock.client.RestTestClient;
 
 /**
- * Callback interface trigger from {@link InfraTestContextBootstrapper} that can be
- * used to post-process the list of default {@link TestExecutionListener} classes to be
- * used by a test. Can be used to add or remove existing listener classes.
+ * A customizer that can be implemented by beans wishing to customize the {@link RestTestClient.Builder
+ * RestTestClient.Builder} to fine-tune its auto-configuration before a
+ * {@link RestTestClient} is created.
  *
- * @author Phillip Webb
- * @see InfraTest
- * @since 4.0
+ * @author Stephane Nicoll
+ * @since 5.0
  */
 @FunctionalInterface
-public interface TestExecutionListenersPostProcessor {
+public interface RestTestClientBuilderCustomizer {
 
   /**
-   * Post process the list of default {@link TestExecutionListener} classes to be used.
+   * Customize the given {@link RestTestClient.Builder RestTestClient.Builder}.
    *
-   * @param listeners the source listeners
-   * @return the actual listeners that should be used
+   * @param builder the builder
    */
-  List<TestExecutionListener> postProcessListeners(List<TestExecutionListener> listeners);
+  void customize(RestTestClient.Builder<?> builder);
 
 }

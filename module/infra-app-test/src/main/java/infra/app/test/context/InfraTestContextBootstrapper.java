@@ -40,7 +40,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.env.Environment;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ContextConfiguration;
@@ -52,7 +51,7 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.TestContext;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.TestContextBootstrapper;
-import infra.test.context.TestExecutionListener;
+import infra.test.context.aot.AotTestAttributes;
 import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.support.TestPropertySourceUtils;
 import infra.test.context.web.WebAppConfiguration;
@@ -91,6 +90,16 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
 
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
+  private final AotTestAttributes aotTestAttributes;
+
+  public InfraTestContextBootstrapper() {
+    this(AotTestAttributes.getInstance());
+  }
+
+  InfraTestContextBootstrapper(AotTestAttributes aotTestAttributes) {
+    this.aotTestAttributes = aotTestAttributes;
+  }
+
   @Override
   public TestContext buildTestContext() {
     TestContext context = super.buildTestContext();
@@ -103,17 +112,6 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
       context.setAttribute(ACTIVATE_LISTENER, false);
     }
     return context;
-  }
-
-  @Override
-  protected List<TestExecutionListener> getDefaultTestExecutionListeners() {
-    List<TestExecutionListener> listeners = super.getDefaultTestExecutionListeners();
-    List<TestExecutionListenersPostProcessor> postProcessors = TodayStrategies.find(
-            TestExecutionListenersPostProcessor.class, getClass().getClassLoader());
-    for (TestExecutionListenersPostProcessor postProcessor : postProcessors) {
-      listeners = postProcessor.postProcessListeners(listeners);
-    }
-    return listeners;
   }
 
   @Override
@@ -209,12 +207,26 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     if (containsNonTestComponent(classes) || mergedConfig.hasLocations()) {
       return classes;
     }
-    Class<?> found = new AnnotatedClassFinder(
-            InfraConfiguration.class).findFromClass(mergedConfig.getTestClass());
-    Assert.state(found != null, "Unable to find a @InfraConfiguration, you need to use "
-            + "@ContextConfiguration or @InfraTest(classes=...) with your test");
+    Class<?> found = findConfigurationClass(mergedConfig.getTestClass());
     logger.info("Found @InfraConfiguration {} for test {}", found.getName(), mergedConfig.getTestClass());
     return merge(found, classes);
+  }
+
+  private Class<?> findConfigurationClass(Class<?> testClass) {
+    String propertyName = "%s.InfraConfiguration.%s"
+            .formatted(InfraTestContextBootstrapper.class.getName(), testClass.getName());
+    String foundClassName = this.aotTestAttributes.getString(propertyName);
+    if (foundClassName != null) {
+      return ClassUtils.resolveClassName(foundClassName, testClass.getClassLoader());
+    }
+    Class<?> found = new AnnotatedClassFinder(InfraConfiguration.class).findFromClass(testClass);
+    Assert.state(found != null,
+            "Unable to find a @InfraConfiguration by searching packages upwards from the test. "
+                    + "You can use @ContextConfiguration, @InfraTest(classes=...) or other Infra Test "
+                    + "supported mechanisms to explicitly declare the configuration classes to load. Classes "
+                    + "annotated with @TestConfiguration are not considered.");
+    this.aotTestAttributes.setAttribute(propertyName, found.getName());
+    return found;
   }
 
   private boolean containsNonTestComponent(Class<?>[] classes) {
@@ -345,7 +357,6 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
           Class<?>[] classes, String[] propertySourceProperties) {
     Set<ContextCustomizer> contextCustomizers = new LinkedHashSet<>(mergedConfig.getContextCustomizers());
     contextCustomizers.add(new InfraTestAnnotation(mergedConfig.getTestClass()));
-    contextCustomizers.add(new InfraTestWebEnvironment(mergedConfig.getTestClass()));
     return new MergedContextConfiguration(mergedConfig.getTestClass(), mergedConfig.getLocations(), classes,
             mergedConfig.getContextInitializerClasses(), mergedConfig.getActiveProfiles(),
             mergedConfig.getPropertySourceDescriptors(), propertySourceProperties, contextCustomizers,

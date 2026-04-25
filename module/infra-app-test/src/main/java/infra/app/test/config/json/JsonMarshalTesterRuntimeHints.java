@@ -52,7 +52,7 @@ public abstract class JsonMarshalTesterRuntimeHints implements RuntimeHintsRegis
     ReflectionHints reflection = hints.reflection();
     reflection.registerType(this.tester, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
     Method method = ReflectionUtils.findMethod(this.tester, "initialize", Class.class, ResolvableType.class);
-    Assert.state(method != null, "'method' must not be null");
+    Assert.state(method != null, "'method' is required");
     reflection.registerMethod(method, ExecutableMode.INVOKE);
   }
 

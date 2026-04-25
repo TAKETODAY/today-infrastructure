@@ -18,8 +18,6 @@
 
 package infra.app.test.context.filter.annotation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -37,6 +35,8 @@ import infra.context.annotation.config.TypeExcludeFilter;
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
 import infra.logging.LogMessage;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 
 /**
@@ -54,7 +54,7 @@ final class TypeIncludes implements Iterable<Class<?>> {
 
   private static final String COMMENT_START = "#";
 
-  private static final Log logger = LogFactory.getLog(TypeIncludes.class);
+  private static final Logger logger = LoggerFactory.getLogger(TypeIncludes.class);
 
   private final Set<Class<?>> includes;
 
