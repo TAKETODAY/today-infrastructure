@@ -97,8 +97,7 @@ class ImportsContextCustomizer implements ContextCustomizer {
   }
 
   @Override
-  public void customizeContext(ConfigurableApplicationContext context,
-          MergedContextConfiguration mergedContextConfiguration) {
+  public void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
     BeanDefinitionRegistry registry = getBeanDefinitionRegistry(context);
     AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(registry);
     registerCleanupPostProcessor(registry, reader);
@@ -106,15 +105,13 @@ class ImportsContextCustomizer implements ContextCustomizer {
   }
 
   private void registerCleanupPostProcessor(BeanDefinitionRegistry registry, AnnotatedBeanDefinitionReader reader) {
-    BeanDefinition definition = registerBean(registry, reader, ImportsCleanupPostProcessor.BEAN_NAME,
-            ImportsCleanupPostProcessor.class);
+    BeanDefinition definition = registerBean(registry, reader, ImportsCleanupPostProcessor.BEAN_NAME, ImportsCleanupPostProcessor.class);
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     definition.getConstructorArgumentValues().addIndexedArgumentValue(0, this.testClassNames);
   }
 
   private void registerImportsConfiguration(BeanDefinitionRegistry registry, AnnotatedBeanDefinitionReader reader) {
-    BeanDefinition definition = registerBean(registry, reader, ImportsConfiguration.BEAN_NAME,
-            ImportsConfiguration.class);
+    BeanDefinition definition = registerBean(registry, reader, ImportsConfiguration.BEAN_NAME, ImportsConfiguration.class);
     definition.setAttribute(TEST_CLASS_NAMES_ATTRIBUTE, this.testClassNames);
   }
 
@@ -128,14 +125,14 @@ class ImportsContextCustomizer implements ContextCustomizer {
     throw new IllegalStateException("Could not locate BeanDefinitionRegistry");
   }
 
-  private BeanDefinition registerBean(BeanDefinitionRegistry registry, AnnotatedBeanDefinitionReader reader,
-          String beanName, Class<?> type) {
+  private BeanDefinition registerBean(BeanDefinitionRegistry registry,
+          AnnotatedBeanDefinitionReader reader, String beanName, Class<?> type) {
     reader.registerBean(type, beanName);
     return registry.getBeanDefinition(beanName);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }
@@ -322,8 +319,9 @@ class ImportsContextCustomizer implements ContextCustomizer {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      return (obj != null && getClass() == obj.getClass() && this.key.equals(((ContextCustomizerKey) obj).key));
+    public boolean equals(@Nullable Object obj) {
+      return obj != null && getClass() == obj.getClass()
+              && this.key.equals(((ContextCustomizerKey) obj).key);
     }
 
     @Override

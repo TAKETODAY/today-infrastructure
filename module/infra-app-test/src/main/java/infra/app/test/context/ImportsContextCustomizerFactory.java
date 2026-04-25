@@ -18,19 +18,20 @@
 
 package infra.app.test.context;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.aot.AotDetector;
-import infra.context.annotation.Bean;
 import infra.context.annotation.Import;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
+import infra.stereotype.Component;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.TestContextAnnotationUtils;
-import infra.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 import infra.util.ReflectionUtils;
 
 /**
@@ -45,14 +46,12 @@ import infra.util.ReflectionUtils;
 class ImportsContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
-  public ContextCustomizer createContextCustomizer(Class<?> testClass,
-          List<ContextConfigurationAttributes> configAttributes) {
+  public @Nullable ContextCustomizer createContextCustomizer(Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
     if (AotDetector.useGeneratedArtifacts()) {
       return null;
     }
 
-    AnnotationDescriptor<Import> descriptor = TestContextAnnotationUtils.findAnnotationDescriptor(
-            testClass, Import.class);
+    var descriptor = TestContextAnnotationUtils.findAnnotationDescriptor(testClass, Import.class);
     if (descriptor != null) {
       assertHasNoBeanMethods(descriptor.getRootDeclaringClass());
       return new ImportsContextCustomizer(descriptor.getRootDeclaringClass());
@@ -65,7 +64,7 @@ class ImportsContextCustomizerFactory implements ContextCustomizerFactory {
   }
 
   private void assertHasNoBeanMethods(Method method) {
-    Assert.state(!MergedAnnotations.from(method).isPresent(Bean.class),
+    Assert.state(!MergedAnnotations.from(method).isPresent(Component.class),
             "Test classes cannot include @Bean methods");
   }
 

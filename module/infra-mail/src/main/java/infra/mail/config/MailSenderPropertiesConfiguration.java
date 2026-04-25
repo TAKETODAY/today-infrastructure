@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.beans.factory.ObjectProvider;
-import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.condition.ConditionalOnMissingBean;
@@ -36,6 +35,7 @@ import infra.mail.MailSender;
 import infra.mail.config.MailProperties.Ssl;
 import infra.mail.javamail.JavaMailSender;
 import infra.mail.javamail.JavaMailSenderImpl;
+import infra.stereotype.Component;
 import infra.util.StringUtils;
 
 /**
@@ -51,7 +51,7 @@ import infra.util.StringUtils;
 @Configuration(proxyBeanMethods = false)
 class MailSenderPropertiesConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(JavaMailSender.class)
   static JavaMailSenderImpl mailSender(MailProperties properties, ObjectProvider<SslBundles> sslBundles) {
     JavaMailSenderImpl sender = new JavaMailSenderImpl();

@@ -31,13 +31,13 @@ import infra.app.health.registry.HealthContributorNameValidator;
 import infra.app.health.registry.HealthContributorRegistry;
 import infra.app.health.registry.ReactiveHealthContributorRegistry;
 import infra.beans.factory.annotation.NonOrdered;
-import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 /**
@@ -52,9 +52,9 @@ import reactor.core.publisher.Flux;
 @DisableDIAutoConfiguration
 public final class HealthContributorRegistryAutoConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(HealthContributorRegistry.class)
-  static DefaultHealthContributorRegistry healthContributorRegistry(Map<String, HealthContributor> contributorBeans,
+  public static DefaultHealthContributorRegistry healthContributorRegistry(Map<String, HealthContributor> contributorBeans,
           @Nullable HealthContributorNameGenerator nameGenerator, @NonOrdered List<HealthContributorNameValidator> nameValidators) {
 
     if (nameGenerator == null) {
@@ -68,7 +68,7 @@ public final class HealthContributorRegistryAutoConfiguration {
   @ConditionalOnClass(Flux.class)
   static class ReactiveHealthContributorRegistryConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean(ReactiveHealthContributorRegistry.class)
     static DefaultReactiveHealthContributorRegistry reactiveHealthContributorRegistry(
             Map<String, ReactiveHealthContributor> contributorBeans, @Nullable HealthContributorNameGenerator nameGenerator,
