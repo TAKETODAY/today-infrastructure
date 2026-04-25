@@ -346,7 +346,7 @@ class TodayStrategiesTests {
 
     @Test
     void andValueSupplierReturnsComposite() {
-      ArgumentResolver resolver = ArgumentResolver.of(CharSequence.class, "test").andSupplied(Number.class, () -> 123);
+      ArgumentResolver resolver = ArgumentResolver.of(CharSequence.class, "test").andSupplied(Integer.class, () -> 123);
       assertThat(resolver.resolve(CharSequence.class)).isEqualTo("test");
       assertThat(resolver.resolve(String.class)).isNull();
       assertThat(resolver.resolve(Integer.class)).isEqualTo(123);
