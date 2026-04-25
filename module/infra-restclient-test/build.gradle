@@ -1,0 +1,20 @@
+plugins {
+	id "java-library"
+}
+
+description = "Infra RestClient Test"
+
+dependencies {
+	api(project(":infra-context"))
+	api(project(":infra-web-client"))
+	api project(":module:infra-app-test")
+
+	optional(project(":infra-test-support"))
+	optional(project(":module:infra-jackson"))
+	optional("org.apache.httpcomponents.client5:httpclient5")
+	optional("org.junit.jupiter:junit-jupiter-api")
+
+	testImplementation("org.hamcrest:hamcrest-core")
+
+	testRuntimeOnly("ch.qos.logback:logback-classic")
+}

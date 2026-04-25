@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "infra.test.restclient.mockrestserviceserver.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether a MockRestServiceServer should be auto-configured.",
+      "defaultValue": true
+    }
+  ]
+}

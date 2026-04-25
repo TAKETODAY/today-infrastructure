@@ -16,13 +16,16 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.client;
+package infra.restclient.test;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import infra.app.test.web.client.RootUriRequestExpectationManager;
 import infra.beans.BeanUtils;
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.lang.Assert;
@@ -50,12 +53,17 @@ import infra.web.client.RestTemplateCustomizer;
  * obtain the mock server. If the customizer has been used more than once the
  * {@link #getServer(RestTemplate)} or {@link #getServers()} method must be used to access
  * the related server.
+ * <p>
+ * If a mock server is used in more than one test case in a test class, it might be
+ * necessary to reset the expectations on the server between tests using
+ * {@code getServer().reset()} or {@code getServer(restTemplate).reset()}.
  *
  * @author Phillip Webb
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Moritz Halbritter
+ * @author Chinmoy Chakraborty
  * @see #getServer()
  * @see #getServer(RestTemplate)
- * @since 4.0
+ * @since 5.0
  */
 public class MockServerRestTemplateCustomizer implements RestTemplateCustomizer {
 
@@ -67,14 +75,14 @@ public class MockServerRestTemplateCustomizer implements RestTemplateCustomizer 
 
   private boolean detectRootUri = true;
 
-  private boolean bufferContent = false;
+  private boolean bufferContent;
 
   public MockServerRestTemplateCustomizer() {
     this(SimpleRequestExpectationManager::new);
   }
 
   /**
-   * Crate a new {@link MockServerRestTemplateCustomizer} instance.
+   * Create a new {@link MockServerRestTemplateCustomizer} instance.
    *
    * @param expectationManager the expectation manager class to use
    */
@@ -84,7 +92,7 @@ public class MockServerRestTemplateCustomizer implements RestTemplateCustomizer 
   }
 
   /**
-   * Crate a new {@link MockServerRestTemplateCustomizer} instance.
+   * Create a new {@link MockServerRestTemplateCustomizer} instance.
    *
    * @param expectationManagerSupplier a supplier that provides the
    * {@link RequestExpectationManager} to use
@@ -146,7 +154,7 @@ public class MockServerRestTemplateCustomizer implements RestTemplateCustomizer 
     return this.expectationManagers;
   }
 
-  public MockRestServiceServer getServer(RestTemplate restTemplate) {
+  public @Nullable MockRestServiceServer getServer(RestTemplate restTemplate) {
     return this.servers.get(restTemplate);
   }
 

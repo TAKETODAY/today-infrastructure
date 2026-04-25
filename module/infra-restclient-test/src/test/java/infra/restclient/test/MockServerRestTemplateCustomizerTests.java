@@ -16,13 +16,14 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.client;
+package infra.restclient.test;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
+import infra.app.test.web.client.RootUriRequestExpectationManager;
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.test.web.client.RequestExpectationManager;
