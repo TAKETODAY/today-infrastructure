@@ -28,7 +28,7 @@ import java.util.Map;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
-import infra.app.web.context.StandardWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.mock.web.HttpMockRequestImpl;

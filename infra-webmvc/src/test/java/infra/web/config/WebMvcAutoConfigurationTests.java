@@ -48,7 +48,7 @@ import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;
-import infra.app.web.context.StandardWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;

@@ -17,7 +17,7 @@
 package infra.web.socket;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.app.web.context.StandardWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 import infra.web.server.WebServer;
 import infra.web.server.netty.config.NettyWebServerFactoryAutoConfiguration;
 import infra.web.server.netty.NettyWebServerFactory;

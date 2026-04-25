@@ -1,7 +1,7 @@
 /**
- * web context
+ * Web MVC context
  */
 @NullMarked
-package infra.app.web.context;
+package infra.web.context;
 
 import org.jspecify.annotations.NullMarked;

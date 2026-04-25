@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import infra.core.env.PropertySources;
 import infra.core.env.StandardEnvironment;
+import infra.web.context.ConfigurableWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;

@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 
-package infra.app.web.context;
+package infra.web.context;
 
-import infra.core.env.Environment;
-import infra.core.env.PropertySources;
-import infra.core.env.StandardEnvironment;
+import infra.core.env.ConfigurableEnvironment;
 
 /**
- * {@link Environment} implementation to be used by {@code netty}-based web
- * applications. All web-related (netty-based) {@code ApplicationContext} classes
- * initialize an instance by default.
+ * Specialization of {@link ConfigurableEnvironment} for netty application contexts.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/2/4 23:57
  */
-public class StandardWebEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
-
-  public StandardWebEnvironment() {
-    super();
-  }
-
-  protected StandardWebEnvironment(PropertySources propertySources) {
-    super(propertySources);
-  }
+public interface ConfigurableWebEnvironment extends ConfigurableEnvironment {
 
 }

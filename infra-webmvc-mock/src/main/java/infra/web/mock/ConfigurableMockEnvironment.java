@@ -24,6 +24,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
+import infra.web.context.ConfigurableWebEnvironment;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} allowing initialization of
@@ -35,7 +36,7 @@ import infra.mock.api.MockContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 17:07
  */
-public interface ConfigurableMockEnvironment extends ConfigurableEnvironment {
+public interface ConfigurableMockEnvironment extends ConfigurableWebEnvironment {
 
   /**
    * Replace any {@linkplain

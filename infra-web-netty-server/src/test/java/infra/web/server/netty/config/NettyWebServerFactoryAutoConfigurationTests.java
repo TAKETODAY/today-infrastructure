@@ -23,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.TimeUnit;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.web.context.StandardWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.properties.bind.Binder;
 import infra.test.classpath.ClassPathExclusions;

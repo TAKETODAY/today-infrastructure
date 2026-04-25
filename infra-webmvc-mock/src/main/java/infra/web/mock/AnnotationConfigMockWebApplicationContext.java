@@ -71,7 +71,7 @@ public class AnnotationConfigMockWebApplicationContext extends GenericWebApplica
 
   private final Set<Class<?>> annotatedClasses = new LinkedHashSet<>();
 
-  private String @Nullable []basePackages;
+  private String @Nullable [] basePackages;
 
   /**
    * Create a new {@link AnnotationConfigMockWebApplicationContext} that needs to be

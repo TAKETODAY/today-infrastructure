@@ -7,13 +7,25 @@ description = "Infra Web MVC Test"
 
 dependencies {
   api(project(":infra-context"))
+  api(project(":infra-webmvc"))
+  api project(':infra-test-support')
+  api(project(":module:infra-app-test"))
+
+  optional "org.hamcrest:hamcrest"
+  optional("org.junit.jupiter:junit-jupiter-api")
+  optional(project(":module:infra-jackson"))
+  implementation(project(":infra-webmvc-mock"))
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
+  testImplementation("org.apache.tomcat.embed:tomcat-embed-el")
+  testImplementation("org.hibernate.validator:hibernate-validator")
+
   testImplementation(project(":infra-webmvc-mock"))
-  testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-test-support"))
+  testImplementation(testFixtures(project(":infra-app")))
+  testImplementation(project(":module:infra-app-resttestclient"))
 
   testFixturesImplementation("org.assertj:assertj-core")
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")

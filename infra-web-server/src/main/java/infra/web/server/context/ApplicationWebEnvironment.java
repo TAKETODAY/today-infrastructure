@@ -18,11 +18,11 @@ package infra.web.server.context;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.web.context.StandardWebEnvironment;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.ConfigurablePropertyResolver;
 import infra.core.env.PropertySources;
+import infra.web.context.StandardWebEnvironment;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} for netty web application contexts.

@@ -33,7 +33,7 @@ import groovy.text.markup.BaseTemplate;
 import groovy.text.markup.DelegatingIndentWriter;
 import groovy.text.markup.MarkupTemplateEngine;
 import groovy.text.markup.TemplateConfiguration;
-import infra.app.web.context.StandardWebEnvironment;
+import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.ClassPathResource;
