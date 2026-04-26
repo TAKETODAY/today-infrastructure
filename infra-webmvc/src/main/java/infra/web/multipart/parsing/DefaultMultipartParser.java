@@ -31,7 +31,7 @@ import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
 import infra.web.RequestContext;
-import infra.web.server.MultipartException;
+import infra.web.MultipartException;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.MultipartRequest;
 import infra.web.server.NotMultipartRequestException;

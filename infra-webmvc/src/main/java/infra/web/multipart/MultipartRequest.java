@@ -24,7 +24,7 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.server.MultipartException;
+import infra.web.MultipartException;
 import infra.web.server.NotMultipartRequestException;
 
 /**

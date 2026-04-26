@@ -51,7 +51,7 @@ import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
-import infra.web.server.MultipartException;
+import infra.web.MultipartException;
 import infra.web.server.NotMultipartRequestException;
 import infra.web.util.UriBuilder;
 

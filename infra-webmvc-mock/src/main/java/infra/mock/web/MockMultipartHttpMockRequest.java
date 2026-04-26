@@ -33,7 +33,7 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
-import infra.web.server.MultipartException;
+import infra.web.MultipartException;
 import infra.web.util.WebUtils;
 
 /**

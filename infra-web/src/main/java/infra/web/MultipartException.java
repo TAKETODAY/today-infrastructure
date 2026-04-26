@@ -16,13 +16,12 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.server;
+package infra.web;
 
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.web.ErrorResponseException;
 
 /**
  * Exception thrown when multipart resolution fails.

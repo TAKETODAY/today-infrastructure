@@ -18,6 +18,8 @@ package infra.web.server;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.web.MultipartException;
+
 /**
  * Exception thrown when a request is expected to be multipart but is not.
  *

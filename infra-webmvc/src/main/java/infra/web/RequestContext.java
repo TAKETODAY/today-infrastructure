@@ -81,7 +81,6 @@ import infra.web.async.WebAsyncManagerFactory;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.multipart.MultipartRequest;
-import infra.web.server.MultipartException;
 import infra.web.util.HtmlUtils;
 import infra.web.util.WebUtils;
 

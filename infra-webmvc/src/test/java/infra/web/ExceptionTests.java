@@ -64,7 +64,6 @@ import infra.web.multipart.parsing.MultipartFieldCountLimitException;
 import infra.web.multipart.parsing.MultipartSizeException;
 import infra.web.server.InternalServerException;
 import infra.web.server.MethodNotAllowedException;
-import infra.web.server.MultipartException;
 import infra.web.server.NotMultipartRequestException;
 import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.ResponseStatusException;

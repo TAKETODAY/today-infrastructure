@@ -26,7 +26,7 @@ import java.io.InputStream;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.web.server.MultipartException;
+import infra.web.MultipartException;
 
 /**
  * Provides access to a file or form item that was received within a {@code multipart/form-data} POST request.

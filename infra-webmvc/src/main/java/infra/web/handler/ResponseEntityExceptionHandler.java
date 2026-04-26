@@ -52,7 +52,7 @@ import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.handler.method.HandlerMethodValidationException;
-import infra.web.server.MultipartException;
+import infra.web.MultipartException;
 import infra.web.util.WebUtils;
 
 /**
