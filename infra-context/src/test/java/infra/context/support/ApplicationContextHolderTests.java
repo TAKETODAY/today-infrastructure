@@ -158,11 +158,6 @@ class ApplicationContextHolderTests {
     }
 
     @Override
-    public void close() {
-
-    }
-
-    @Override
     public Instant getStartupDate() {
       return null;
     }
