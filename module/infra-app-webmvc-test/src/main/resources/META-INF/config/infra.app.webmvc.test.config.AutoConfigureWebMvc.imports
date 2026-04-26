@@ -1,0 +1,6 @@
+infra.app.config.context.MessageSourceAutoConfiguration
+infra.app.config.task.TaskExecutionAutoConfiguration
+infra.web.config.WebMvcAutoConfiguration
+infra.web.config.ErrorMvcAutoConfiguration
+optional:infra.http.converter.config.HttpMessageConvertersAutoConfiguration
+optional:infra.validation.config.ValidationAutoConfiguration

@@ -21,7 +21,7 @@ dependencies {
 
   testImplementation("org.apache.tomcat.embed:tomcat-embed-el")
   testImplementation("org.hibernate.validator:hibernate-validator")
-
+  testImplementation("org.skyscreamer:jsonassert")
   testImplementation(project(":infra-webmvc-mock"))
   testImplementation(project(":infra-test-support"))
   testImplementation(testFixtures(project(":infra-app")))

@@ -1,6 +1,9 @@
 description = 'Starter Web MVC Test.'
 
 dependencies {
+  api project(':infra-starter:infra-starter-webmvc')
+
   api project(':infra-webmvc-mock')
+  api project(":module:infra-app-test")
   api project(':module:infra-app-resttestclient')
 }
