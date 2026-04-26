@@ -76,7 +76,7 @@ class AotContextLoaderRuntimeHintsTests {
     public GenericApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig,
             RuntimeHints runtimeHints) throws Exception {
 
-      // Mimics SpringBootContextLoader
+      // Mimics ContextLoader
       Method mainMethod = mergedConfig.getClasses()[0].getMethod("main", String[].class);
       runtimeHints.reflection().registerMethod(mainMethod, ExecutableMode.INVOKE);
 

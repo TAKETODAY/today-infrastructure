@@ -37,7 +37,7 @@ public class InfraRestTestClientBuilderCustomizer implements RestTestClientBuild
   private final Collection<ClientHttpMessageConvertersCustomizer> messageConverterCustomizers;
 
   /**
-   * Create a new {@code SpringBootRestTestClientBuilderCustomizer} that will configure
+   * Create a new {@code InfraRestTestClientBuilderCustomizer} that will configure
    * the builder's message converters using the given
    * {@code messageConverterCustomizers}.
    *
