@@ -384,10 +384,10 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     // Only call close() on ApplicationContext if locally managed...
     if (!this.applicationContextInjected) {
       var context = this.applicationContext;
-      if (context != null) {
+      if (context instanceof ConfigurableApplicationContext cac) {
         ApplicationContext.State state = context.getState();
         if (state != ApplicationContext.State.CLOSING && state != ApplicationContext.State.CLOSED) {
-          context.close();
+          cac.close();
           logInfo("Your application destroyed at: [%s] on startup date: [%s]"
                   .formatted(Instant.now(), context.getStartupDate()));
         }

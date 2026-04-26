@@ -100,11 +100,6 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
   <T> T unwrapFactory(Class<T> requiredType);
 
   /**
-   * Close context and destroy all singletons
-   */
-  void close();
-
-  /**
    * Get the context startup time stamp
    *
    * @return startup timestamp

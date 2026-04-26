@@ -18,6 +18,8 @@
 
 package infra.app.test.util;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 
@@ -34,10 +36,10 @@ public abstract class ApplicationContextTestUtils {
    *
    * @param context the context to close (can be {@code null})
    */
-  public static void closeAll(ApplicationContext context) {
+  public static void closeAll(@Nullable ApplicationContext context) {
     if (context != null) {
-      if (context instanceof ConfigurableApplicationContext) {
-        context.close();
+      if (context instanceof ConfigurableApplicationContext cac) {
+        cac.close();
       }
       closeAll(context.getParent());
     }

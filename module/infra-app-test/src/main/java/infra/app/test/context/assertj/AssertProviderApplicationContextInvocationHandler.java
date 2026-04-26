@@ -41,11 +41,9 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
 
   private final Class<?> applicationContextType;
 
-  @Nullable
-  private final ApplicationContext applicationContext;
+  private final @Nullable ApplicationContext applicationContext;
 
-  @Nullable
-  private final RuntimeException startupFailure;
+  private final @Nullable RuntimeException startupFailure;
 
   AssertProviderApplicationContextInvocationHandler(Class<?> applicationContextType, Supplier<?> contextSupplier) {
     this.applicationContextType = applicationContextType;
@@ -69,9 +67,8 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
     }
   }
 
-  @Nullable
   @Override
-  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+  public @Nullable Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (isToString(method)) {
       return toString();
     }
@@ -141,9 +138,9 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
     return ("close".equals(method.getName()) && method.getParameterCount() == 0);
   }
 
-  private Object invokeClose() {
-    if (applicationContext != null) {
-      applicationContext.close();
+  private @Nullable Object invokeClose() throws Exception {
+    if (applicationContext instanceof AutoCloseable closeable) {
+      closeable.close();
     }
     return null;
   }
