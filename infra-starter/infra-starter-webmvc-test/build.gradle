@@ -5,5 +5,6 @@ dependencies {
 
   api project(':infra-webmvc-mock')
   api project(":module:infra-app-test")
+  api project(":module:infra-app-webmvc-test")
   api project(':module:infra-app-resttestclient')
 }

@@ -20,8 +20,8 @@ package infra.app.test.context.assertj;
 
 import java.util.function.Supplier;
 
-import infra.app.web.context.reactive.ConfigurableReactiveWebApplicationContext;
-import infra.app.web.context.reactive.ReactiveWebApplicationContext;
+import infra.web.reactive.context.ConfigurableReactiveWebApplicationContext;
+import infra.web.reactive.context.ReactiveWebApplicationContext;
 
 /**
  * A {@link ReactiveWebApplicationContext} that additionally supports AssertJ style

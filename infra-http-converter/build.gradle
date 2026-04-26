@@ -25,6 +25,7 @@ dependencies {
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
   testImplementation project(":infra-test")
+  testImplementation project(":infra-web-reactive")
   testImplementation project(":module:infra-app-test")
   testImplementation testFixtures(project(":infra-http"))
   testImplementation testFixtures(project(":infra-core"))

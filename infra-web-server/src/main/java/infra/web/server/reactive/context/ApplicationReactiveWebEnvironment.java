@@ -21,10 +21,10 @@ package infra.web.server.reactive.context;
 import org.jspecify.annotations.Nullable;
 
 import infra.app.Application;
-import infra.app.web.context.reactive.StandardReactiveWebEnvironment;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.core.env.ConfigurablePropertyResolver;
 import infra.core.env.PropertySources;
+import infra.web.reactive.context.StandardReactiveWebEnvironment;
 
 /**
  * {@link StandardReactiveWebEnvironment} for typical use in a typical

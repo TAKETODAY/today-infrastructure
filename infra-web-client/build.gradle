@@ -21,6 +21,7 @@ dependencies {
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation 'io.projectreactor.netty:reactor-netty-http'
   testImplementation project(":infra-webmvc-mock")
+  testImplementation project(":infra-web-reactive")
   testImplementation testFixtures(project(":infra-http"))
 
   testImplementation(testFixtures(project(":infra-beans")))

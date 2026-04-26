@@ -21,8 +21,8 @@ package infra.app.test.context.runner;
 import java.util.function.Supplier;
 
 import infra.app.test.context.assertj.AssertableReactiveWebApplicationContext;
-import infra.app.web.context.reactive.AnnotationConfigReactiveWebApplicationContext;
-import infra.app.web.context.reactive.ConfigurableReactiveWebApplicationContext;
+import infra.web.reactive.context.AnnotationConfigReactiveWebApplicationContext;
+import infra.web.reactive.context.ConfigurableReactiveWebApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a

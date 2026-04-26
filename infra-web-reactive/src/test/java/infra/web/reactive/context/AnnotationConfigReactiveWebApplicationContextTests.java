@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.app.web.context.reactive;
+package infra.web.reactive.context;
 
 import org.junit.jupiter.api.Test;
 

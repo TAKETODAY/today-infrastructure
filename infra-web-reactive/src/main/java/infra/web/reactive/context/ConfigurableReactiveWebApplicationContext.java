@@ -16,16 +16,18 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.web.context.reactive;
+package infra.web.reactive.context;
 
-import infra.context.ApplicationContext;
+import infra.context.ConfigurableApplicationContext;
 
 /**
  * Interface to provide configuration for a reactive web application.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ReactiveWebApplicationContext extends ApplicationContext {
+public interface ConfigurableReactiveWebApplicationContext
+        extends ConfigurableApplicationContext, ReactiveWebApplicationContext {
 
 }

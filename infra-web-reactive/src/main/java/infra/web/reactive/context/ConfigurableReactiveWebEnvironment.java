@@ -16,18 +16,18 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.web.context.reactive;
+package infra.web.reactive.context;
 
-import infra.context.ConfigurableApplicationContext;
+import infra.core.env.ConfigurableEnvironment;
 
 /**
- * Interface to provide configuration for a reactive web application.
+ * Specialization of {@link ConfigurableEnvironment} for reactive application contexts.
  *
- * @author Stephane Nicoll
+ * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ConfigurableReactiveWebApplicationContext#getEnvironment()
  * @since 4.0
  */
-public interface ConfigurableReactiveWebApplicationContext
-        extends ConfigurableApplicationContext, ReactiveWebApplicationContext {
+public interface ConfigurableReactiveWebEnvironment extends ConfigurableEnvironment {
 
 }

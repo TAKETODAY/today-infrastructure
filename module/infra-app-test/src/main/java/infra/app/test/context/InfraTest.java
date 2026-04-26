@@ -32,7 +32,6 @@ import infra.app.ApplicationArguments;
 import infra.app.ApplicationType;
 import infra.app.InfraConfiguration;
 import infra.app.test.web.server.LocalServerPort;
-import infra.app.web.context.reactive.ReactiveWebApplicationContext;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AliasFor;
@@ -43,6 +42,7 @@ import infra.test.context.ContextLoader;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.web.reactive.server.WebTestClient;
 import infra.web.mock.WebApplicationContext;
+import infra.web.reactive.context.ReactiveWebApplicationContext;
 
 /**
  * Annotation that can be specified on a test class that runs Infra based tests.
@@ -64,7 +64,7 @@ import infra.web.mock.WebApplicationContext;
  * including the ability to start a fully running web server listening on a
  * {@link WebEnvironment#DEFINED_PORT defined} or {@link WebEnvironment#RANDOM_PORT
  * random} port.</li>
- * <li>Registers a {@link infra.app.rest.client.TestRestTemplate
+ * <li>Registers a {@link infra.app.resttestclient.TestRestTemplate
  * TestRestTemplate} and/or
  * {@link WebTestClient WebTestClient} bean
  * for use in web tests that are using a fully running web server.</li>

@@ -2,6 +2,6 @@
  * web reactive context
  */
 @NullMarked
-package infra.app.web.context.reactive;
+package infra.web.reactive.context;
 
 import org.jspecify.annotations.NullMarked;

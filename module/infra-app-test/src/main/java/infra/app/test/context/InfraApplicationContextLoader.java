@@ -42,7 +42,7 @@ import infra.app.InfraConfiguration;
 import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 import infra.app.test.context.InfraTest.UseMainMethod;
 import infra.app.test.mock.web.InfraMockContext;
-import infra.app.web.context.reactive.GenericReactiveWebApplicationContext;
+import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 import infra.beans.BeanUtils;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;

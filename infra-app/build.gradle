@@ -10,7 +10,8 @@ dependencies {
   optional project(':infra-aop')
   optional project(':infra-web')
   optional project(':infra-instrument')
-  optional(project(":infra-http-reactive"))
+  optional project(":infra-http-reactive")
+  optional project(":infra-web-reactive")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

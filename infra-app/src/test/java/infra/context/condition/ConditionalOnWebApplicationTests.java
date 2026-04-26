@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.config.ConditionalOnWebApplication;
 import infra.app.config.ConditionalOnWebApplication.Type;
-import infra.app.web.context.reactive.AnnotationConfigReactiveWebApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.reactive.server.HttpHandler;
+import infra.web.reactive.context.AnnotationConfigReactiveWebApplicationContext;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.web.context.reactive;
+package infra.web.reactive.context;
 
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.AnnotationConfigApplicationContext;

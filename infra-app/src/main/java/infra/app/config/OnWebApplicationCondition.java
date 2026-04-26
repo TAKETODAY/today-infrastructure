@@ -24,8 +24,6 @@ import java.util.List;
 
 import infra.app.ApplicationType;
 import infra.app.config.ConditionalOnWebApplication.Type;
-import infra.app.web.context.reactive.ConfigurableReactiveWebEnvironment;
-import infra.app.web.context.reactive.ReactiveWebApplicationContext;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.config.AutoConfigurationMetadata;
@@ -37,6 +35,8 @@ import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.util.ClassUtils;
 import infra.web.context.ConfigurableWebEnvironment;
+import infra.web.reactive.context.ConfigurableReactiveWebEnvironment;
+import infra.web.reactive.context.ReactiveWebApplicationContext;
 
 /**
  * {@link Condition} that checks for the presence or absence of
