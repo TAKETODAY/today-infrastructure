@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultHandler;
 import infra.util.LinkedMultiValueMap;
@@ -43,6 +45,7 @@ import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;
+import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.view.ModelAndView;
@@ -89,8 +92,8 @@ public class PrintingResultHandler implements ResultHandler {
    */
   @Override
   public final void handle(MvcResult result) throws Exception {
-    this.printer.printHeading("HttpMockRequestImpl");
-    printRequest(result.getRequest());
+    this.printer.printHeading("HttpRequest");
+    printRequest(result.getRequest(), result.getRequestContext());
 
     this.printer.printHeading("Handler");
     printHandler(result.getHandler(), result.getInterceptors());
@@ -107,14 +110,14 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printHeading("RedirectModel");
     printFlashMap(RequestContextUtils.getOutputRedirectModel(result.getRequestContext()));
 
-    this.printer.printHeading("MockHttpResponseImpl");
+    this.printer.printHeading("HttpResponse");
     printResponse(result.getResponse());
   }
 
   /**
    * Print the request.
    */
-  protected void printRequest(HttpMockRequestImpl request) throws Exception {
+  protected void printRequest(HttpMockRequestImpl request, RequestContext context) throws Exception {
     String body = (request.getCharacterEncoding() != null ?
             request.getContentAsString() : MISSING_CHARACTER_ENCODING);
 
@@ -123,7 +126,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printValue("Parameters", getParamsMultiValueMap(request));
     this.printer.printValue("Headers", getRequestHeaders(request));
     this.printer.printValue("Body", body);
-    this.printer.printValue("Session Attrs", getSessionAttributes(request));
+    this.printer.printValue("Session Attrs", getSessionAttributes(request, context));
   }
 
   protected final HttpHeaders getRequestHeaders(HttpMockRequestImpl request) {
@@ -149,16 +152,22 @@ public class PrintingResultHandler implements ResultHandler {
     return multiValueMap;
   }
 
-  protected final Map<String, Object> getSessionAttributes(HttpMockRequestImpl request) {
+  protected final Map<String, Object> getSessionAttributes(HttpMockRequestImpl request, RequestContext context) {
+    Map<String, Object> map = new LinkedHashMap<>();
     HttpSession session = request.getSession(false);
     if (session != null) {
       Enumeration<String> attrNames = session.getAttributeNames();
       if (attrNames != null) {
-        return Collections.list(attrNames).stream().
-                collect(Collectors.toMap(n -> n, session::getAttribute));
+        map.putAll(Collections.list(attrNames).stream().
+                collect(Collectors.toMap(n -> n, session::getAttribute)));
       }
     }
-    return Collections.emptyMap();
+
+    Session webSession = RequestContextUtils.getSession(context, false);
+    if (webSession != null) {
+      map.putAll(webSession.getAttributes());
+    }
+    return map;
   }
 
   protected void printAsyncResult(MvcResult result) throws Exception {
