@@ -48,15 +48,14 @@ import infra.util.StringUtils;
  */
 public class InstantiationStrategy {
 
-  private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
+  private static final ThreadLocal<@Nullable Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 
   /**
    * Return the factory method currently being invoked or {@code null} if none.
    * <p>Allows factory method implementations to determine whether the current
    * caller is the container itself as opposed to user code.
    */
-  @Nullable
-  public static Method getCurrentlyInvokedFactoryMethod() {
+  public static @Nullable Method getCurrentlyInvokedFactoryMethod() {
     return currentlyInvokedFactoryMethod.get();
   }
 
@@ -185,7 +184,6 @@ public class InstantiationStrategy {
    * @throws BeansException if the instantiation attempt failed
    * @see NullValue#INSTANCE
    */
-  @SuppressWarnings("NullAway")
   public Object instantiate(RootBeanDefinition merged, @Nullable String beanName, BeanFactory owner,
           @Nullable Object factoryBean, final Method factoryMethod, @Nullable Object @Nullable ... args) throws BeansException {
     return instantiateWithFactoryMethod(factoryMethod, () -> {
