@@ -458,7 +458,7 @@ public class MockMvcTesterIntegrationTests {
     @Test
     void debugUsesSystemOutByDefault() {
       assertThat(mvc.get().uri("/greet")).debug().hasStatusOk();
-      assertThat(capturedOut()).contains("HttpMockRequestImpl:", "MockHttpResponseImpl:");
+      assertThat(capturedOut()).contains("HttpRequest:", "HttpResponse:");
     }
 
     @Test
@@ -466,7 +466,7 @@ public class MockMvcTesterIntegrationTests {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       assertThat(mvc.get().uri("/greet")).debug(out).hasStatusOk();
       assertThat(out.toString(StandardCharsets.UTF_8))
-              .contains("HttpMockRequestImpl:", "MockHttpResponseImpl:");
+              .contains("HttpRequest:", "HttpResponse:");
       assertThat(capturedOut()).isEmpty();
     }
 
@@ -475,7 +475,7 @@ public class MockMvcTesterIntegrationTests {
       StringWriter out = new StringWriter();
       assertThat(mvc.get().uri("/greet")).debug(out).hasStatusOk();
       assertThat(out.toString())
-              .contains("HttpMockRequestImpl:", "MockHttpResponseImpl:");
+              .contains("HttpRequest:", "HttpResponse:");
       assertThat(capturedOut()).isEmpty();
     }
 
