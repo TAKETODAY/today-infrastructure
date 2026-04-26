@@ -20,6 +20,7 @@ package infra.context.annotation;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.ConfigurableApplicationContext;
@@ -33,28 +34,27 @@ import infra.lang.Assert;
 import infra.util.ClassUtils;
 
 /**
- * For ConditionEvaluator Evaluation
+ * Context for condition evaluation, providing access to the {@link BeanDefinitionRegistry},
+ * {@link Environment}, {@link ResourceLoader}, and other relevant infrastructure components.
+ * <p>This context is used by {@link Condition} implementations to determine whether a bean
+ * should be registered based on the current application state.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/10/1 21:13
  */
 public class ConditionContext {
 
-  @Nullable
-  private final BeanDefinitionRegistry registry;
-
-  @Nullable
-  private final ConfigurableBeanFactory beanFactory;
-
   private final Environment environment;
 
   private final ResourceLoader resourceLoader;
 
-  @Nullable
-  private final ClassLoader classLoader;
+  private final @Nullable ClassLoader classLoader;
 
-  @Nullable
-  private ConditionEvaluationReport conditionEvaluationReport;
+  private final @Nullable BeanDefinitionRegistry registry;
+
+  private final @Nullable ConfigurableBeanFactory beanFactory;
+
+  private @Nullable ConditionEvaluationReport conditionEvaluationReport;
 
   public ConditionContext(@Nullable BeanDefinitionRegistry registry,
           @Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
@@ -66,8 +66,7 @@ public class ConditionContext {
     this.classLoader = deduceClassLoader(this.resourceLoader, this.beanFactory);
   }
 
-  @Nullable
-  private ConfigurableBeanFactory deduceBeanFactory(@Nullable BeanDefinitionRegistry source) {
+  private static @Nullable ConfigurableBeanFactory deduceBeanFactory(@Nullable BeanDefinitionRegistry source) {
     if (source instanceof ConfigurableBeanFactory) {
       return (ConfigurableBeanFactory) source;
     }
@@ -77,22 +76,21 @@ public class ConditionContext {
     return null;
   }
 
-  private Environment deduceEnvironment(@Nullable BeanDefinitionRegistry source) {
+  private static Environment deduceEnvironment(@Nullable BeanDefinitionRegistry source) {
     if (source instanceof EnvironmentCapable) {
       return ((EnvironmentCapable) source).getEnvironment();
     }
     return new StandardEnvironment();
   }
 
-  private ResourceLoader deduceResourceLoader(@Nullable BeanDefinitionRegistry source) {
+  private static ResourceLoader deduceResourceLoader(@Nullable BeanDefinitionRegistry source) {
     if (source instanceof ResourceLoader) {
       return (ResourceLoader) source;
     }
     return new DefaultResourceLoader();
   }
 
-  @Nullable
-  private ClassLoader deduceClassLoader(@Nullable ResourceLoader resourceLoader, @Nullable ConfigurableBeanFactory beanFactory) {
+  private static @Nullable ClassLoader deduceClassLoader(@Nullable ResourceLoader resourceLoader, @Nullable ConfigurableBeanFactory beanFactory) {
     if (resourceLoader != null) {
       ClassLoader classLoader = resourceLoader.getClassLoader();
       if (classLoader != null) {
@@ -105,13 +103,24 @@ public class ConditionContext {
     return ClassUtils.getDefaultClassLoader();
   }
 
+  /**
+   * Return the {@link BeanDefinitionRegistry} that will hold the bean definition
+   * should the condition match.
+   *
+   * @throws IllegalStateException if no registry is available (which is unusual:
+   * only the case with a plain {@link ClassPathScanningCandidateComponentProvider})
+   */
   public BeanDefinitionRegistry getRegistry() {
     Assert.state(this.registry != null, "No BeanDefinitionRegistry available");
     return this.registry;
   }
 
-  @Nullable
-  public ConfigurableBeanFactory getBeanFactory() {
+  /**
+   * Return the {@link ConfigurableBeanFactory} that will hold the bean
+   * definition should the condition match, or {@code null} if the bean factory is
+   * not available (or not downcastable to {@code ConfigurableBeanFactory}).
+   */
+  public @Nullable ConfigurableBeanFactory getBeanFactory() {
     return this.beanFactory;
   }
 
@@ -121,21 +130,38 @@ public class ConditionContext {
     return beanFactory;
   }
 
+  /**
+   * Return the {@link Environment} for which the current application is running.
+   */
   public Environment getEnvironment() {
     return this.environment;
   }
 
+  /**
+   * Return the {@link ResourceLoader} currently being used.
+   */
   public ResourceLoader getResourceLoader() {
     return this.resourceLoader;
   }
 
-  @Nullable
-  public ClassLoader getClassLoader() {
+  /**
+   * Return the {@link ClassLoader} that should be used to load additional classes
+   * (only {@code null} if even the system ClassLoader isn't accessible).
+   *
+   * @see infra.util.ClassUtils#forName(String, ClassLoader)
+   */
+  public @Nullable ClassLoader getClassLoader() {
     return this.classLoader;
   }
 
-  @Nullable
-  public ConditionEvaluationReport getEvaluationReport() {
+  /**
+   * Return the {@link ConditionEvaluationReport} for this context, creating it if necessary.
+   * <p>If no report is available and a {@link BeanFactory} is present, a new report will be
+   * obtained from the bean factory. Otherwise, {@code null} is returned.
+   *
+   * @return the condition evaluation report, or {@code null} if not available
+   */
+  public @Nullable ConditionEvaluationReport getEvaluationReport() {
     if (conditionEvaluationReport == null) {
       if (beanFactory != null) {
         conditionEvaluationReport = ConditionEvaluationReport.get(beanFactory);

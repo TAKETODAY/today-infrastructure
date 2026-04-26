@@ -37,10 +37,13 @@ import infra.util.ClassUtils;
 import infra.util.MultiValueMap;
 
 /**
- * Condition Evaluation
+ * Evaluates {@link Conditional} annotations to determine whether a component should be registered.
+ * <p>This class collects and sorts {@link Condition} implementations associated with a given
+ * annotated type, then checks if their conditions are met within the current {@link ConditionContext}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Condition
+ * @see ConditionContext
  * @since 4.0 2021/10/1 21:12
  */
 public class ConditionEvaluator {
