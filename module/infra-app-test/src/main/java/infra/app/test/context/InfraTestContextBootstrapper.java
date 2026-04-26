@@ -56,6 +56,7 @@ import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.support.TestPropertySourceUtils;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.context.web.WebMergedContextConfiguration;
+import infra.test.context.web.WebMockTestExecutionListener;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -85,8 +86,7 @@ import infra.util.StringUtils;
  */
 public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-  private static final String ACTIVATE_LISTENER
-          = "infra.test.context.web.MockTestExecutionListener.activateListener";
+  private static final String ACTIVATE_LISTENER = WebMockTestExecutionListener.ACTIVATE_LISTENER;
 
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
@@ -265,8 +265,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    *
    * @return the differentiator or {@code null}
    */
-  @Nullable
-  protected String getDifferentiatorPropertySourceProperty() {
+  protected @Nullable String getDifferentiatorPropertySourceProperty() {
     return getClass().getName() + "=true";
   }
 
@@ -297,8 +296,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    * @param testClass the source test class
    * @return the {@link WebEnvironment} or {@code null}
    */
-  @Nullable
-  protected WebEnvironment getWebEnvironment(Class<?> testClass) {
+  protected @Nullable WebEnvironment getWebEnvironment(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.webEnvironment() : null;
   }
@@ -313,8 +311,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     return (annotation != null) ? annotation.properties() : null;
   }
 
-  @Nullable
-  protected InfraTest getAnnotation(Class<?> testClass) {
+  protected @Nullable InfraTest getAnnotation(Class<?> testClass) {
     return TestContextAnnotationUtils.findMergedAnnotation(testClass, InfraTest.class);
   }
 
