@@ -31,9 +31,11 @@ import infra.aot.generate.GenerationContext;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
 import infra.beans.BeanUtils;
+import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.HierarchicalBeanFactory;
-import infra.beans.factory.SmartInitializingSingleton;
+import infra.beans.factory.InitializingBean;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
@@ -59,10 +61,18 @@ import tools.jackson.databind.module.SimpleModule;
  * @see JacksonComponent
  * @since 4.0
  */
-public class JacksonComponentModule extends SimpleModule implements SmartInitializingSingleton {
+public class JacksonComponentModule extends SimpleModule implements BeanFactoryAware, InitializingBean {
+
+  @SuppressWarnings("NullAway.Init")
+  private BeanFactory beanFactory;
 
   @Override
-  public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
+  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    this.beanFactory = beanFactory;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
     registerJacksonComponents(beanFactory);
   }
 
