@@ -628,7 +628,7 @@ dependencies {
   api(platform("org.apache.groovy:groovy-bom:5.0.4"))
   api(platform("org.apache.logging.log4j:log4j-bom:2.21.1"))
   api(platform("org.junit:junit-bom:6.0.3"))
-  api(platform("org.assertj:assertj-bom:3.27.3"))
+  api(platform("org.assertj:assertj-bom:3.27.7"))
   api(platform("org.mockito:mockito-bom:5.22.0"))
   api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
   api(platform("tools.jackson:jackson-bom:3.1.2"))
