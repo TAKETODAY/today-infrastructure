@@ -19,7 +19,7 @@ package infra.web.context;
 import infra.core.env.ConfigurableEnvironment;
 
 /**
- * Specialization of {@link ConfigurableEnvironment} for netty application contexts.
+ * Specialization of {@link ConfigurableEnvironment} for web application contexts.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/4 23:57

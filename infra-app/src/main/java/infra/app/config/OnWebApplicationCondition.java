@@ -20,6 +20,8 @@ package infra.app.config;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 import infra.app.ApplicationType;
 import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.app.web.context.reactive.ConfigurableReactiveWebEnvironment;
@@ -151,9 +153,6 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));
   }
 
-  /**
-   * web classes
-   */
   private ConditionOutcome isMvcWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
@@ -161,14 +160,22 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.noMatch(message.didNotFind("web mvc application classes").atAll());
     }
 
+    if (context.getBeanFactory() != null) {
+      if (context.getBeanFactory().getRegisteredScope("session") != null) {
+        return ConditionOutcome.match(message.foundExactly("'session' scope"));
+      }
+    }
+
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
 
-    Class<?> gwsac = ClassUtils.load("infra.web.server.context.GenericWebServerApplicationContext", context.getClassLoader());
-    if (gwsac != null) {
-      if (gwsac.isInstance(context.getResourceLoader())) {
-        return ConditionOutcome.match(message.foundExactly("GenericWebServerApplicationContext"));
+    for (String name : List.of("infra.web.server.context.GenericWebServerApplicationContext", "infra.web.mock.WebApplicationContext")) {
+      Class<?> gwsac = ClassUtils.load(name, context.getClassLoader());
+      if (gwsac != null) {
+        if (gwsac.isInstance(context.getResourceLoader())) {
+          return ConditionOutcome.match(message.foundExactly(name));
+        }
       }
     }
     return ConditionOutcome.noMatch(message.because("not a web application"));
