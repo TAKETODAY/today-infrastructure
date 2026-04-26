@@ -145,12 +145,11 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     mergedConfig = createModifiedConfig(mergedConfig, classes, StringUtils.toStringArray(propertySourceProperties));
     WebEnvironment webEnvironment = getWebEnvironment(mergedConfig.getTestClass());
     if (webEnvironment != null && isWebEnvironmentSupported(mergedConfig)) {
-      ApplicationType webApplicationType = getApplicationType(mergedConfig);
-      if (webApplicationType == ApplicationType.WEB
-              && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
+      ApplicationType applicationType = getApplicationType(mergedConfig);
+      if (applicationType == ApplicationType.WEB && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
         mergedConfig = new WebMergedContextConfiguration(mergedConfig, determineResourceBasePath(mergedConfig));
       }
-      else if (webApplicationType == ApplicationType.REACTIVE_WEB
+      else if (applicationType == ApplicationType.REACTIVE_WEB
               && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
         return new ReactiveWebMergedContextConfiguration(mergedConfig);
       }
@@ -276,8 +275,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    * @param mergedConfig the merged context configuration
    * @param propertySourceProperties the property source properties to process
    */
-  protected void processPropertySourceProperties(
-          MergedContextConfiguration mergedConfig, List<String> propertySourceProperties) {
+  protected void processPropertySourceProperties(MergedContextConfiguration mergedConfig, List<String> propertySourceProperties) {
     Class<?> testClass = mergedConfig.getTestClass();
     String[] properties = getProperties(testClass);
     if (ObjectUtils.isNotEmpty(properties)) {
@@ -285,8 +283,12 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
       // precedence
       propertySourceProperties.addAll(0, Arrays.asList(properties));
     }
-    if (getWebEnvironment(testClass) == WebEnvironment.RANDOM_PORT) {
+    WebEnvironment webEnvironment = getWebEnvironment(testClass);
+    if (webEnvironment == WebEnvironment.RANDOM_PORT) {
       propertySourceProperties.add("server.port=0");
+    }
+    else if (webEnvironment == WebEnvironment.NONE) {
+      propertySourceProperties.add("app.main.application-type=normal");
     }
   }
 
@@ -298,17 +300,17 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    */
   protected @Nullable WebEnvironment getWebEnvironment(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
-    return (annotation != null) ? annotation.webEnvironment() : null;
+    return annotation != null ? annotation.webEnvironment() : null;
   }
 
   protected Class<?> @Nullable [] getClasses(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
-    return (annotation != null) ? annotation.classes() : null;
+    return annotation != null ? annotation.classes() : null;
   }
 
   protected String @Nullable [] getProperties(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
-    return (annotation != null) ? annotation.properties() : null;
+    return annotation != null ? annotation.properties() : null;
   }
 
   protected @Nullable InfraTest getAnnotation(Class<?> testClass) {
