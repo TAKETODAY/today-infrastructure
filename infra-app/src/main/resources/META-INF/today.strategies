@@ -84,8 +84,7 @@ infra.app.config.logging.ConditionEvaluationReportLoggingListener
 infra.context.ApplicationListener=\
   infra.app.context.logging.LoggingApplicationListener,\
   infra.app.builder.ParentContextCloserApplicationListener,\
-  infra.app.env.EnvironmentPostProcessorApplicationListener,\
-  infra.app.availability.ApplicationRefusingTrafficListener
+  infra.app.env.EnvironmentPostProcessorApplicationListener
 
 infra.app.logging.LoggingSystemFactory=\
   infra.app.logging.logback.LogbackLoggingSystem.Factory,\

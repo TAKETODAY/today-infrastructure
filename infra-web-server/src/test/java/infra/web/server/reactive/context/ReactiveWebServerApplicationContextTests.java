@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import infra.app.availability.ApplicationRefusingTrafficListener;
 import infra.app.availability.AvailabilityChangeEvent;
 import infra.app.availability.ReadinessState;
 import infra.beans.factory.BeanCreationException;
@@ -46,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 /**
  * Tests for {@link ReactiveWebServerApplicationContext}.
@@ -139,7 +139,8 @@ class ReactiveWebServerApplicationContextTests {
     this.context.refresh();
     MockReactiveWebServerFactory factory = this.context.getBean(MockReactiveWebServerFactory.class);
     this.context.close();
-    then(factory.getWebServer()).should().stop();
+    then(factory.getWebServer()).should(times(2)).stop();
+    then(factory.getWebServer()).should().destroy();
   }
 
   @Test
@@ -150,12 +151,12 @@ class ReactiveWebServerApplicationContextTests {
     TestApplicationListener listener = new TestApplicationListener();
     this.context.refresh();
     this.context.addApplicationListener(listener);
-    this.context.addApplicationListener(new ApplicationRefusingTrafficListener());
+//    this.context.addApplicationListener(new ApplicationRefusingTrafficListener());
     this.context.close();
     List<ApplicationEvent> events = listener.receivedEvents();
     assertThat(events).hasSize(2).extracting("class")
             .contains(AvailabilityChangeEvent.class, ContextClosedEvent.class);
-    assertThat(((AvailabilityChangeEvent<ReadinessState>) events.get(1)).getState())
+    assertThat(((AvailabilityChangeEvent<ReadinessState>) events.get(0)).getState())
             .isEqualTo(ReadinessState.REFUSING_TRAFFIC);
   }
 

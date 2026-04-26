@@ -20,6 +20,8 @@ package infra.web.server.context;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.app.availability.AvailabilityChangeEvent;
+import infra.app.availability.ReadinessState;
 import infra.beans.BeansException;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
@@ -38,11 +40,9 @@ import infra.web.server.WebServer;
  */
 public class GenericWebServerApplicationContext extends GenericApplicationContext implements ConfigurableWebServerApplicationContext {
 
-  @Nullable
-  private String serverNamespace;
+  private @Nullable String serverNamespace;
 
-  @Nullable
-  private volatile WebServer webServer;
+  private volatile @Nullable WebServer webServer;
 
   /**
    * Create a new {@link GenericWebServerApplicationContext}.
@@ -87,6 +87,18 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
     }
   }
 
+  @Override
+  protected void doClose() {
+    if (isActive()) {
+      AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
+    }
+    super.doClose();
+    WebServer webServer = this.webServer;
+    if (webServer != null) {
+      webServer.destroy();
+    }
+  }
+
   protected WebServer createWebServer() {
     GenericWebServerFactory factory = getWebServerFactory();
 
@@ -99,7 +111,7 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
 
   /**
    * Returns the {@link GenericWebServerFactory} that should be used to create the
-   * embedded {@link WebServer}. By default this method searches for a suitable bean in
+   * embedded {@link WebServer}. By default, this method searches for a suitable bean in
    * the context itself.
    *
    * @return a {@link GenericWebServerFactory} (never {@code null})
@@ -123,9 +135,8 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
    *
    * @return the embedded web server
    */
-  @Nullable
   @Override
-  public WebServer getWebServer() {
+  public @Nullable WebServer getWebServer() {
     return this.webServer;
   }
 
@@ -134,9 +145,8 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
     this.serverNamespace = serverNamespace;
   }
 
-  @Nullable
   @Override
-  public String getServerNamespace() {
+  public @Nullable String getServerNamespace() {
     return serverNamespace;
   }
 

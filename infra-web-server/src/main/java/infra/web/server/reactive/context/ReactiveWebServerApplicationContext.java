@@ -20,6 +20,8 @@ package infra.web.server.reactive.context;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.app.availability.AvailabilityChangeEvent;
+import infra.app.availability.ReadinessState;
 import infra.beans.BeansException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -44,11 +46,9 @@ import infra.web.server.reactive.ReactiveWebServerFactory;
 public class ReactiveWebServerApplicationContext extends GenericReactiveWebApplicationContext
         implements ConfigurableWebServerApplicationContext {
 
-  @Nullable
-  private volatile WebServerManager serverManager;
+  private volatile @Nullable WebServerManager serverManager;
 
-  @Nullable
-  private String serverNamespace;
+  private @Nullable String serverNamespace;
 
   /**
    * Create a new {@link ReactiveWebServerApplicationContext}.
@@ -88,6 +88,18 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     }
     catch (Throwable ex) {
       throw new ApplicationContextException("Unable to start reactive web server", ex);
+    }
+  }
+
+  @Override
+  protected void doClose() {
+    if (isActive()) {
+      AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
+    }
+    super.doClose();
+    WebServer webServer = getWebServer();
+    if (webServer != null) {
+      webServer.destroy();
     }
   }
 
@@ -151,16 +163,14 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
    *
    * @return the web server
    */
-  @Nullable
   @Override
-  public WebServer getWebServer() {
+  public @Nullable WebServer getWebServer() {
     WebServerManager serverManager = this.serverManager;
     return serverManager != null ? serverManager.webServer : null;
   }
 
-  @Nullable
   @Override
-  public String getServerNamespace() {
+  public @Nullable String getServerNamespace() {
     return this.serverNamespace;
   }
 
