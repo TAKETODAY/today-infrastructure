@@ -50,7 +50,6 @@ import infra.test.web.mock.MockMvc;
  * <li>{@code @Controller}</li>
  * <li>{@code @ControllerAdvice}</li>
  * <li>{@code @JacksonComponent}</li>
- * <li>{@code @JsonComponent} (Jackson 2, deprecated)</li>
  * </ul>
  * <p>
  * as well as beans that implement:
@@ -63,7 +62,6 @@ import infra.test.web.mock.MockMvc;
  * <li>{@code ParameterResolvingStrategy}</li>
  * <li>{@code HttpMessageConverter}</li>
  * <li>{@code JacksonModule}, if Jackson is available</li>
- * <li>{@code Module} (deprecated), if Jackson 2 is available</li>
  * <li>{@code WebMvcConfigurer}</li>
  * <li>{@code WebMvcRegistrations}</li>
  * </ul>
@@ -80,9 +78,6 @@ import infra.test.web.mock.MockMvc;
  * If you are looking to load your full application configuration and use MockMVC, you
  * should consider {@link InfraTest @InfraTest} combined with
  * {@link AutoConfigureMockMvc @AutoConfigureMockMvc} rather than this annotation.
- * <p>
- * When using JUnit 4, this annotation should be used in combination with
- * {@code @RunWith(InfraRunner.class)}.
  *
  * @author Phillip Webb
  * @author Artsiom Yudovin
