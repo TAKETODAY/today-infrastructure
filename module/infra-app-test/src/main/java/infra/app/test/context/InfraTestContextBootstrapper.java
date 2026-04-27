@@ -56,7 +56,6 @@ import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.support.TestPropertySourceUtils;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.context.web.WebMergedContextConfiguration;
-import infra.test.context.web.WebMockTestExecutionListener;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -86,7 +85,7 @@ import infra.util.StringUtils;
  */
 public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-  private static final String ACTIVATE_LISTENER = WebMockTestExecutionListener.ACTIVATE_LISTENER;
+  private static final String ACTIVATE_LISTENER = "infra.test.context.web.WebMockTestExecutionListener.activateListener";
 
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
