@@ -66,8 +66,7 @@ class ApplicationBeanDefinitionLoader {
 
   private final ClassPathBeanDefinitionScanner scanner;
 
-  @Nullable
-  private ResourceLoader resourceLoader;
+  private @Nullable ResourceLoader resourceLoader;
 
   /**
    * Create a new {@link ApplicationBeanDefinitionLoader} that will load beans into the specified
@@ -240,8 +239,7 @@ class ApplicationBeanDefinitionLoader {
     return true;
   }
 
-  @Nullable
-  private Package findPackage(CharSequence source) {
+  private @Nullable Package findPackage(CharSequence source) {
     Package pkg = getClass().getClassLoader().getDefinedPackage(source.toString());
     if (pkg != null) {
       return pkg;
