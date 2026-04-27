@@ -104,7 +104,6 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    * {@link #getCacheAwareContextLoaderDelegate()}.
    * <p>Concrete subclasses may choose to override this method to return a
    * custom {@link TestContext} implementation.
-   *
    */
   @Override
   public TestContext buildTestContext() {

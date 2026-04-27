@@ -26,6 +26,8 @@ import java.util.Set;
 
 import infra.context.ApplicationContextInitializer;
 import infra.core.io.PropertySourceDescriptor;
+import infra.core.style.DefaultToStringStyler;
+import infra.core.style.SimpleValueStyler;
 import infra.core.style.ToStringBuilder;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.CacheAwareContextLoaderDelegate;
@@ -218,8 +220,8 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    */
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (super.equals(other) &&
-            this.resourceBasePath.equals(((WebMergedContextConfiguration) other).resourceBasePath)));
+    return (this == other || (super.equals(other) && other instanceof WebMergedContextConfiguration otherConfiguration &&
+            this.resourceBasePath.equals(otherConfiguration.resourceBasePath)));
   }
 
   /**
@@ -246,7 +248,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
+    return new ToStringBuilder(this, new DefaultToStringStyler(new SimpleValueStyler()))
             .append("testClass", getTestClass())
             .append("locations", getLocations())
             .append("classes", getClasses())

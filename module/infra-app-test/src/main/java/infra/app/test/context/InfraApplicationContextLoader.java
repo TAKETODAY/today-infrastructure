@@ -42,7 +42,6 @@ import infra.app.InfraConfiguration;
 import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 import infra.app.test.context.InfraTest.UseMainMethod;
 import infra.app.test.mock.web.InfraMockContext;
-import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 import infra.beans.BeanUtils;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
@@ -77,6 +76,7 @@ import infra.util.StringUtils;
 import infra.util.function.ThrowingSupplier;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 
 /**
  * A {@link ContextLoader} that can be used to test Infra applications (those that
@@ -339,8 +339,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
       initializers.add(new ContextCustomizerAdapter(contextCustomizer, config));
     }
     initializers.addAll(application.getInitializers());
-    for (Class<? extends ApplicationContextInitializer> initializerClass : config
-            .getContextInitializerClasses()) {
+    for (var initializerClass : config.getContextInitializerClasses()) {
       initializers.add(BeanUtils.newInstance(initializerClass));
     }
     if (config.getParent() != null) {

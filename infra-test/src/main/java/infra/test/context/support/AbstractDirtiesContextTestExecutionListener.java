@@ -28,7 +28,9 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext;
+import infra.test.annotation.DirtiesContext.ClassMode;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
+import infra.test.annotation.DirtiesContext.MethodMode;
 import infra.test.context.TestContext;
 import infra.test.context.TestContextAnnotationUtils;
 
@@ -85,8 +87,7 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
    * @see #dirtyContext
    * @since 4.0
    */
-  protected void beforeOrAfterTestMethod(TestContext testContext, DirtiesContext.MethodMode requiredMethodMode,
-          DirtiesContext.ClassMode requiredClassMode) throws Exception {
+  protected void beforeOrAfterTestMethod(TestContext testContext, MethodMode requiredMethodMode, ClassMode requiredClassMode) throws Exception {
 
     Assert.notNull(testContext, "TestContext is required");
     Assert.notNull(requiredMethodMode, "requiredMethodMode is required");
@@ -101,14 +102,22 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
     DirtiesContext classAnn = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
     boolean methodAnnotated = (methodAnn != null);
     boolean classAnnotated = (classAnn != null);
-    DirtiesContext.MethodMode methodMode = (methodAnnotated ? methodAnn.methodMode() : null);
-    DirtiesContext.ClassMode classMode = (classAnnotated ? classAnn.classMode() : null);
+    MethodMode methodMode = (methodAnnotated ? methodAnn.methodMode() : null);
+    ClassMode classMode = (classAnnotated ? classAnn.classMode() : null);
 
-    if (logger.isDebugEnabled()) {
-      String phase = (requiredClassMode.name().startsWith("BEFORE") ? "Before" : "After");
-      logger.debug(String.format("%s test method: context %s, class annotated with @DirtiesContext [%s] "
-                      + "with mode [%s], method annotated with @DirtiesContext [%s] with mode [%s].", phase, testContext,
-              classAnnotated, classMode, methodAnnotated, methodMode));
+    if (logger.isTraceEnabled()) {
+      logger.trace("""
+              %s test method: context %s, class annotated with @DirtiesContext [%s] \
+              with mode [%s], method annotated with @DirtiesContext [%s] with mode [%s]"""
+              .formatted(getPhase(requiredMethodMode), testContext, classAnnotated, classMode,
+                      methodAnnotated, methodMode));
+    }
+    else if (logger.isDebugEnabled()) {
+      logger.debug("""
+              %s test method: class [%s], method [%s], class annotated with @DirtiesContext [%s] \
+              with mode [%s], method annotated with @DirtiesContext [%s] with mode [%s]"""
+              .formatted(getPhase(requiredMethodMode), testClass.getSimpleName(),
+                      testMethod.getName(), classAnnotated, classMode, methodAnnotated, methodMode));
     }
 
     if ((methodMode == requiredMethodMode) || (classMode == requiredClassMode)) {
@@ -129,7 +138,7 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
    * @see #dirtyContext
    * @since 4.0
    */
-  protected void beforeOrAfterTestClass(TestContext testContext, DirtiesContext.ClassMode requiredClassMode) throws Exception {
+  protected void beforeOrAfterTestClass(TestContext testContext, ClassMode requiredClassMode) throws Exception {
     Assert.notNull(testContext, "TestContext is required");
     Assert.notNull(requiredClassMode, "requiredClassMode is required");
 
@@ -138,18 +147,28 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
 
     DirtiesContext dirtiesContext = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
     boolean classAnnotated = (dirtiesContext != null);
-    DirtiesContext.ClassMode classMode = (classAnnotated ? dirtiesContext.classMode() : null);
+    ClassMode classMode = (classAnnotated ? dirtiesContext.classMode() : null);
 
-    if (logger.isDebugEnabled()) {
-      String phase = (requiredClassMode.name().startsWith("BEFORE") ? "Before" : "After");
-      logger.debug(String.format(
-              "%s test class: context %s, class annotated with @DirtiesContext [%s] with mode [%s].", phase,
-              testContext, classAnnotated, classMode));
+    if (logger.isTraceEnabled()) {
+      logger.trace("%s test class: context %s, class annotated with @DirtiesContext [%s] with mode [%s]"
+              .formatted(getPhase(requiredClassMode), testContext, classAnnotated, classMode));
+    }
+    else if (logger.isDebugEnabled()) {
+      logger.debug("%s test class: class [%s], class annotated with @DirtiesContext [%s] with mode [%s]"
+              .formatted(getPhase(requiredClassMode), testClass.getSimpleName(), classAnnotated, classMode));
     }
 
     if (classMode == requiredClassMode) {
       dirtyContext(testContext, dirtiesContext.hierarchyMode());
     }
+  }
+
+  private static String getPhase(ClassMode classMode) {
+    return (classMode.name().startsWith("BEFORE") ? "Before" : "After");
+  }
+
+  private static String getPhase(MethodMode methodMode) {
+    return (methodMode.name().startsWith("BEFORE") ? "Before" : "After");
   }
 
 }

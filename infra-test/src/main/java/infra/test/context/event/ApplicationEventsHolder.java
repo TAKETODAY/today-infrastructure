@@ -49,7 +49,7 @@ import infra.test.context.junit.jupiter.InfraExtension;
  */
 public abstract class ApplicationEventsHolder {
 
-  private static final ThreadLocal<DefaultApplicationEvents> applicationEvents = new InheritableThreadLocal<>();
+  private static final ThreadLocal<@Nullable DefaultApplicationEvents> applicationEvents = new InheritableThreadLocal<>();
 
   private ApplicationEventsHolder() {
     // no-op to prevent instantiation of this holder class
@@ -60,8 +60,7 @@ public abstract class ApplicationEventsHolder {
    *
    * @return the current {@code ApplicationEvents}, or {@code null} if not registered
    */
-  @Nullable
-  public static ApplicationEvents getApplicationEvents() {
+  public static @Nullable ApplicationEvents getApplicationEvents() {
     return applicationEvents.get();
   }
 

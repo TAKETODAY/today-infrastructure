@@ -41,15 +41,13 @@ import infra.test.util.TestPropertyValues;
 class OverrideAutoConfigurationContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
-  public @Nullable ContextCustomizer createContextCustomizer(Class<?> testClass,
-          List<ContextConfigurationAttributes> configurationAttributes) {
+  public @Nullable ContextCustomizer createContextCustomizer(Class<?> testClass, List<ContextConfigurationAttributes> configurationAttributes) {
     if (AotDetector.useGeneratedArtifacts()) {
       return null;
     }
-    OverrideAutoConfiguration overrideAutoConfiguration = TestContextAnnotationUtils.findMergedAnnotation(testClass,
-            OverrideAutoConfiguration.class);
-    boolean enabled = (overrideAutoConfiguration == null) || overrideAutoConfiguration.enabled();
-    return !enabled ? new DisableAutoConfigurationContextCustomizer() : null;
+    OverrideAutoConfiguration annotation = TestContextAnnotationUtils.findMergedAnnotation(testClass, OverrideAutoConfiguration.class);
+    boolean enabled = annotation == null || annotation.enabled();
+    return enabled ? null : new DisableAutoConfigurationContextCustomizer();
   }
 
   /**

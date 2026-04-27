@@ -56,8 +56,7 @@ class DefaultAotTestAttributes implements AotTestAttributes {
   }
 
   @Override
-  @Nullable
-  public String getString(String name) {
+  public @Nullable String getString(String name) {
     return this.attributes.get(name);
   }
 

@@ -168,11 +168,11 @@ public class ContextConfigurationAttributes {
               declaringClass.getName(), ObjectUtils.nullSafeToString(locations), ObjectUtils.nullSafeToString(classes)));
     }
 
-    this.classes = classes;
-    this.locations = locations;
-    this.initializers = initializers;
     this.declaringClass = declaringClass;
+    this.locations = locations;
+    this.classes = classes;
     this.inheritLocations = inheritLocations;
+    this.initializers = initializers;
     this.inheritInitializers = inheritInitializers;
     this.name = StringUtils.hasText(name) ? name : null;
     this.contextLoaderClass = contextLoaderClass;
