@@ -51,6 +51,8 @@ import infra.web.reactive.context.ReactiveWebApplicationContext;
  */
 class OnWebApplicationCondition extends FilteringInfraCondition implements Ordered {
 
+  private static final String REACTIVE_WEB_APPLICATION_CLASS = "infra.web.reactive.context.ConfigurableReactiveWebEnvironment";
+
   @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE + 20;
@@ -133,12 +135,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
 
-    ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
-    if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
-    }
-
-    if (missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, context.getClassLoader())) {
+    if (ClassNameFilter.MISSING.matches(REACTIVE_WEB_APPLICATION_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
     }
 
