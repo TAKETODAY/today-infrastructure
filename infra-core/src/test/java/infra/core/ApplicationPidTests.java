@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -174,7 +175,7 @@ class ApplicationPidTests {
     File pidFile = new File(directory, "pid");
     ApplicationPid pid = new ApplicationPid(123L);
     assertThatThrownBy(() -> pid.write(pidFile))
-            .isInstanceOf(FileNotFoundException.class);
+            .isInstanceOf(AccessDeniedException.class);
   }
 
   @Test
