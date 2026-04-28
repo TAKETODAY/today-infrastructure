@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
@@ -165,10 +164,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   public void setLocations(List<Resource> locations) {
     Assert.notNull(locations, "Locations list is required");
     this.locationResources.clear();
-    for (Resource location : locations) {
-      ResourceHandlerUtils.assertResourceLocation(location);
-      this.locationResources.add(location);
-    }
+    this.locationResources.addAll(locations);
   }
 
   /**
@@ -425,7 +421,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   }
 
   private void resolveResourceLocations() {
-    ArrayList<Resource> result = new ArrayList<>();
+    List<Resource> result = new ArrayList<>();
     if (!this.locationValues.isEmpty()) {
       ApplicationContext applicationContext = applicationContext();
       for (String location : this.locationValues) {
@@ -467,10 +463,13 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     }
 
     result.addAll(this.locationResources);
+
+    for (Resource location : result) {
+      ResourceHandlerUtils.assertResourceLocation(location);
+    }
+
     if (isOptimizeLocations()) {
-      result = result.stream()
-              .filter(Resource::exists)
-              .collect(Collectors.toCollection(ArrayList::new));
+      result = result.stream().filter(Resource::exists).toList();
     }
 
     this.locationsToUse.clear();

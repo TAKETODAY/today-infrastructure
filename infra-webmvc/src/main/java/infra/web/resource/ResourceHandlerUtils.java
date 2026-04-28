@@ -25,7 +25,9 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import infra.core.io.ClassPathResource;
+import infra.core.io.ContextResource;
 import infra.core.io.FileSystemResource;
+import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
@@ -59,11 +61,23 @@ public abstract class ResourceHandlerUtils {
     Assert.notNull(location, "Resource location is required");
     try {
       String path;
-      if (location instanceof FileSystemResource fsr) {
-        path = fsr.getPath();
+      if (location instanceof PathResource) {
+        return;
       }
-      else if (location instanceof ClassPathResource cpr) {
-        path = cpr.getPath();
+      else if (location instanceof FileSystemResource fileSystemResource) {
+        path = fileSystemResource.getPath();
+      }
+      else if (location instanceof ClassPathResource classPathResource) {
+        path = classPathResource.getPath();
+        Assert.isTrue(!path.isEmpty() && !"/".equals(path),
+                () -> "Resource location '" + location + "' is considered unsafe " +
+                        "and cannot be used as it provides access to the entire classpath.");
+      }
+      else if (location instanceof ContextResource contextResource) {
+        path = contextResource.getPathWithinContext();
+        Assert.isTrue(!"/".equals(path),
+                () -> "Resource location '" + location + "' is considered unsafe " +
+                        "and cannot be used as it provides access to the root servlet context.");
       }
       else if (location instanceof UrlResource) {
         path = location.getURL().toExternalForm();
@@ -71,13 +85,10 @@ public abstract class ResourceHandlerUtils {
       else {
         path = location.getURL().getPath();
       }
-
-      if (!path.endsWith(FOLDER_SEPARATOR) && !path.endsWith(WINDOWS_FOLDER_SEPARATOR)) {
-        throw new IllegalArgumentException("Resource location does not end with slash: " + path);
-      }
+      Assert.isTrue(path.endsWith(FOLDER_SEPARATOR) || path.endsWith(WINDOWS_FOLDER_SEPARATOR),
+              "Resource location does not end with slash: " + path);
     }
-    catch (IOException ex) {
-      // ignore
+    catch (IOException ignored) {
     }
   }
 
