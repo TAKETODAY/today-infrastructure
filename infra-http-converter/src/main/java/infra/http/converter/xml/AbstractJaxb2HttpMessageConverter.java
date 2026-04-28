@@ -18,9 +18,14 @@
 
 package infra.http.converter.xml;
 
+import org.jspecify.annotations.Nullable;
+
+import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.http.converter.HttpMessageConversionException;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -118,6 +123,23 @@ public abstract class AbstractJaxb2HttpMessageConverter<T> extends AbstractXmlHt
                 "Could not create JAXBContext for class [" + clazz + "]: " + ex.getMessage(), ex);
       }
     });
+  }
+
+  /**
+   * Detect the charset from the given {@link HttpHeaders#getContentType()}.
+   *
+   * @param httpHeaders the current HTTP headers
+   * @return the charset defined in the content type header, or {@code null} if not found
+   * @since 5.0
+   */
+  protected @Nullable Charset detectCharset(HttpHeaders httpHeaders) {
+    MediaType contentType = httpHeaders.getContentType();
+    if (contentType != null && contentType.getCharset() != null) {
+      return contentType.getCharset();
+    }
+    else {
+      return null;
+    }
   }
 
 }

@@ -176,15 +176,28 @@ public class SourceHttpMessageConverter<T extends Source> extends AbstractHttpMe
 
   private DOMSource readDOMSource(InputStream body, HttpInputMessage inputMessage) throws IOException {
     try {
-      DocumentBuilderFactory builderFactory = this.documentBuilderFactory;
-      if (builderFactory == null) {
-        builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
-        builderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
-        builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
-        this.documentBuilderFactory = builderFactory;
+      // By default, Infra will prevent the processing of external entities.
+      // This is a mitigation against XXE attacks.
+      DocumentBuilderFactory factory = this.documentBuilderFactory;
+      if (factory == null) {
+        factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        try {
+          factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
+        }
+        catch (Exception ex) {
+          // Xerces properties not recognized/supported - ignore
+        }
+        try {
+          factory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
+          factory.setFeature("http://xml.org/sax/features/external-parameter-entities", isProcessExternalEntities());
+        }
+        catch (Exception ex) {
+          // SAX properties not recognized/supported - ignore
+        }
+        this.documentBuilderFactory = factory;
       }
-      DocumentBuilder builder = builderFactory.newDocumentBuilder();
+      DocumentBuilder builder = factory.newDocumentBuilder();
       if (!isProcessExternalEntities()) {
         builder.setEntityResolver(NO_OP_ENTITY_RESOLVER);
       }

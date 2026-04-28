@@ -21,12 +21,11 @@ package infra.http.converter.xml;
 import org.jspecify.annotations.Nullable;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import java.io.StringReader;
+import java.nio.charset.Charset;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Result;
@@ -68,6 +67,9 @@ import jakarta.xml.bind.annotation.XmlType;
  * @since 4.0
  */
 public class Jaxb2RootElementHttpMessageConverter extends AbstractJaxb2HttpMessageConverter<Object> {
+
+  private static final EntityResolver NO_OP_ENTITY_RESOLVER =
+          (publicId, systemId) -> new InputSource(new StringReader(""));
 
   private boolean supportDtd = false;
 
@@ -135,7 +137,7 @@ public class Jaxb2RootElementHttpMessageConverter extends AbstractJaxb2HttpMessa
   @Override
   protected Object readFromSource(Class<?> clazz, HttpHeaders headers, Source source) throws Exception {
     try {
-      source = processSource(source);
+      source = processSource(source, headers);
       Unmarshaller unmarshaller = createUnmarshaller(clazz);
       if (clazz.isAnnotationPresent(XmlRootElement.class)) {
         return unmarshaller.unmarshal(source);
@@ -160,26 +162,43 @@ public class Jaxb2RootElementHttpMessageConverter extends AbstractJaxb2HttpMessa
     }
   }
 
-  protected Source processSource(Source source) {
+  protected Source processSource(Source source, HttpHeaders headers) {
     if (source instanceof StreamSource streamSource) {
+      Charset charset = detectCharset(headers);
       InputSource inputSource = new InputSource(streamSource.getInputStream());
+      if (charset != null) {
+        inputSource.setEncoding(charset.name());
+      }
       try {
-        SAXParserFactory saxParserFactory = this.sourceParserFactory;
-        if (saxParserFactory == null) {
-          saxParserFactory = SAXParserFactory.newInstance();
-          saxParserFactory.setNamespaceAware(true);
-          saxParserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
-          saxParserFactory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
-          this.sourceParserFactory = saxParserFactory;
+        // By default, Spring will prevent the processing of external entities.
+        // This is a mitigation against XXE attacks.
+        SAXParserFactory factory = this.sourceParserFactory;
+        if (factory == null) {
+          factory = SAXParserFactory.newInstance();
+          factory.setNamespaceAware(true);
+          try {
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
+          }
+          catch (Exception ex) {
+            // Xerces properties not recognized/supported - ignore
+          }
+          try {
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", isProcessExternalEntities());
+          }
+          catch (Exception ex) {
+            // SAX properties not recognized/supported - ignore
+          }
+          this.sourceParserFactory = factory;
         }
-        SAXParser saxParser = saxParserFactory.newSAXParser();
+        SAXParser saxParser = factory.newSAXParser();
         XMLReader xmlReader = saxParser.getXMLReader();
         if (!isProcessExternalEntities()) {
           xmlReader.setEntityResolver(NO_OP_ENTITY_RESOLVER);
         }
         return new SAXSource(xmlReader, inputSource);
       }
-      catch (SAXException | ParserConfigurationException ex) {
+      catch (Exception ex) {
         logger.warn("Processing of external entities could not be disabled", ex);
         return source;
       }
@@ -224,8 +243,5 @@ public class Jaxb2RootElementHttpMessageConverter extends AbstractJaxb2HttpMessa
   protected boolean supportsRepeatableWrites(Object o) {
     return true;
   }
-
-  private static final EntityResolver NO_OP_ENTITY_RESOLVER =
-          (publicId, systemId) -> new InputSource(new StringReader(""));
 
 }
