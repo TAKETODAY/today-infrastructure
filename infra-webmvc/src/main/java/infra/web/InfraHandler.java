@@ -20,7 +20,6 @@ package infra.web;
 
 import org.jspecify.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -381,18 +380,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * Destroy Application
    */
   public void destroy() {
-    // Only call close() on ApplicationContext if locally managed...
-    if (!this.applicationContextInjected) {
-      var context = this.applicationContext;
-      if (context instanceof ConfigurableApplicationContext cac) {
-        ApplicationContext.State state = context.getState();
-        if (state != ApplicationContext.State.CLOSING && state != ApplicationContext.State.CLOSED) {
-          cac.close();
-          logInfo("Your application destroyed at: [%s] on startup date: [%s]"
-                  .formatted(Instant.now(), context.getStartupDate()));
-        }
-      }
-    }
   }
 
   /**
