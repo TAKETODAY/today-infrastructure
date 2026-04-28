@@ -99,7 +99,7 @@ class ConditionEvaluationReportLoggingListenerTests {
   void canBeUsedInApplicationContext() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(Config.class);
-    new ConditionEvaluationReportLoggingListener().initialize(context);
+    new ConditionEvaluationReportLoggingListener(LogLevel.DEBUG, true).initialize(context);
     context.refresh();
     assertThatThrownBy(() -> context.getBean(ConditionEvaluationReport.class))
             .isInstanceOf(NoSuchBeanDefinitionException.class);
