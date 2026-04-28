@@ -20,6 +20,7 @@ package infra.app.env;
 
 import org.jspecify.annotations.Nullable;
 
+import java.security.SecureRandom;
 import java.util.HexFormat;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -79,12 +80,11 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   }
 
   public RandomValuePropertySource(String name) {
-    super(name, new Random());
+    super(name, new SecureRandom());
   }
 
-  @Nullable
   @Override
-  public Object getProperty(String name) {
+  public @Nullable Object getProperty(String name) {
     if (!name.startsWith(PREFIX)) {
       return null;
     }
@@ -113,8 +113,7 @@ public class RandomValuePropertySource extends PropertySource<Random> {
     return getRandomBytes();
   }
 
-  @Nullable
-  private String getRange(String type, String prefix) {
+  private @Nullable String getRange(String type, String prefix) {
     if (type.startsWith(prefix)) {
       int startIndex = prefix.length() + 1;
       if (type.length() > startIndex) {
