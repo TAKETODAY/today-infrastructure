@@ -22,10 +22,12 @@ import java.io.IOException;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
+import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -36,6 +38,47 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/11 12:39
  */
 class ResourceHandlerUtilsTests {
+
+  @Test
+  void assertResourceLocation() throws Exception {
+    assertThatNoException().isThrownBy(() ->
+            ResourceHandlerUtils.assertResourceLocation(new ClassPathResource("test/")));
+
+    assertThatNoException().isThrownBy(() ->
+            ResourceHandlerUtils.assertResourceLocation(new FileSystemResource("test/")));
+
+    assertThatNoException().isThrownBy(() ->
+            ResourceHandlerUtils.assertResourceLocation(new PathResource("test/")));
+
+    assertThatNoException().isThrownBy(() ->
+            ResourceHandlerUtils.assertResourceLocation(new UrlResource("file:/test/")));
+
+  }
+
+  @Test
+  void assertResourceLocationShouldRejectNull() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    ResourceHandlerUtils.assertResourceLocation(null))
+            .withMessage("Resource location is required");
+  }
+
+  @Test
+  void assertResourceLocationShouldRejectNotEndWithSlash() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    ResourceHandlerUtils.assertResourceLocation(new ClassPathResource("test")))
+            .withMessageContaining("Resource location does not end with slash");
+  }
+
+  @Test
+  void assertResourceLocationShouldRejectUnsafeClassPathResource() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    ResourceHandlerUtils.assertResourceLocation(new ClassPathResource("")))
+            .withMessageContaining("is considered unsafe");
+
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    ResourceHandlerUtils.assertResourceLocation(new ClassPathResource("/")))
+            .withMessageContaining("is considered unsafe");
+  }
 
   @Test
   void assertResourceLocationShouldThrowExceptionWhenLocationIsNull() {

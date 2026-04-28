@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.ContextResource;
@@ -189,7 +190,8 @@ public abstract class ResourceHandlerUtils {
    * @return {@code true} if the path is invalid, {@code false} otherwise
    */
   public static boolean isInvalidPath(String path) {
-    if (path.contains("WEB-INF") || path.contains("META-INF")) {
+    String s = path.toLowerCase(Locale.ROOT);
+    if (s.contains("web-inf") || s.contains("meta-inf")) {
       if (logger.isWarnEnabled()) {
         logger.warn(LogFormatUtils.formatValue(
                 "Path with \"WEB-INF\" or \"META-INF\": [%s]".formatted(path), -1, true));
