@@ -61,8 +61,7 @@ public abstract class AbstractVersionStrategy implements VersionStrategy {
   }
 
   @Override
-  @Nullable
-  public String extractVersion(String requestPath) {
+  public @Nullable String extractVersion(String requestPath) {
     return this.pathStrategy.extractVersion(requestPath);
   }
 
@@ -78,7 +77,7 @@ public abstract class AbstractVersionStrategy implements VersionStrategy {
 
   /**
    * A prefix-based {@code VersionPathStrategy},
-   * e.g. {@code "{version}/path/foo.js"}.
+   * for example, {@code "{version}/path/foo.js"}.
    */
   protected static class PrefixVersionPathStrategy implements VersionPathStrategy {
 
@@ -90,8 +89,7 @@ public abstract class AbstractVersionStrategy implements VersionStrategy {
     }
 
     @Override
-    @Nullable
-    public String extractVersion(String requestPath) {
+    public @Nullable String extractVersion(String requestPath) {
       return (requestPath.startsWith(this.prefix) ? this.prefix : null);
     }
 
@@ -114,15 +112,14 @@ public abstract class AbstractVersionStrategy implements VersionStrategy {
 
   /**
    * File name-based {@code VersionPathStrategy},
-   * e.g. {@code "path/foo-{version}.css"}.
+   * for example, {@code "path/foo-{version}.css"}.
    */
   protected static class FileNameVersionPathStrategy implements VersionPathStrategy {
 
     private static final Pattern pattern = Pattern.compile("-(\\S*)\\.");
 
     @Override
-    @Nullable
-    public String extractVersion(String requestPath) {
+    public @Nullable String extractVersion(String requestPath) {
       Matcher matcher = pattern.matcher(requestPath);
       if (matcher.find()) {
         String match = matcher.group(1);
@@ -135,7 +132,12 @@ public abstract class AbstractVersionStrategy implements VersionStrategy {
 
     @Override
     public String removeVersion(String requestPath, String version) {
-      return StringUtils.delete(requestPath, "-" + version);
+      String versionString = "-" + version;
+      int index = requestPath.lastIndexOf(versionString);
+      if (index != -1) {
+        return requestPath.substring(0, index) + requestPath.substring(index + versionString.length());
+      }
+      return requestPath;
     }
 
     @Override
