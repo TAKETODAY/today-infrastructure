@@ -18,6 +18,8 @@
 
 package infra.app.context.event;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.context.ConfigurableApplicationContext;
@@ -33,9 +35,9 @@ import infra.context.ConfigurableApplicationContext;
 @SuppressWarnings("serial")
 public class ApplicationFailedEvent extends ApplicationStartupEvent {
 
-  private final ConfigurableApplicationContext context;
-
   private final Throwable exception;
+
+  private final @Nullable ConfigurableApplicationContext context;
 
   /**
    * Create a new {@link ApplicationFailedEvent} instance.
@@ -45,8 +47,8 @@ public class ApplicationFailedEvent extends ApplicationStartupEvent {
    * @param context the context that was being created (maybe null)
    * @param exception the exception that caused the error
    */
-  public ApplicationFailedEvent(Application application,
-          ApplicationArguments args, ConfigurableApplicationContext context, Throwable exception) {
+  public ApplicationFailedEvent(Application application, ApplicationArguments args,
+          @Nullable ConfigurableApplicationContext context, Throwable exception) {
     super(application, args);
     this.context = context;
     this.exception = exception;
@@ -55,9 +57,9 @@ public class ApplicationFailedEvent extends ApplicationStartupEvent {
   /**
    * Return the application context.
    *
-   * @return the context
+   * @return the context or {@code null}
    */
-  public ConfigurableApplicationContext getApplicationContext() {
+  public @Nullable ConfigurableApplicationContext getApplicationContext() {
     return this.context;
   }
 

@@ -113,7 +113,6 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {
