@@ -36,9 +36,8 @@ import infra.context.condition.ConditionEvaluationReport;
  */
 class ConditionEvaluationReportLoggingProcessor implements BeanFactoryInitializationAotProcessor {
 
-  @Nullable
   @Override
-  public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
+  public @Nullable BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
     logConditionEvaluationReport(beanFactory);
     return null;
   }

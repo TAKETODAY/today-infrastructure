@@ -184,15 +184,6 @@ public final class ConditionEvaluationReport {
   }
 
   /**
-   * Clear records
-   */
-  public void clear() {
-    outcomes.clear();
-    exclusions.clear();
-    unconditionalClasses.clear();
-  }
-
-  /**
    * Attempt to find the {@link ConditionEvaluationReport} for the specified bean
    * factory.
    *

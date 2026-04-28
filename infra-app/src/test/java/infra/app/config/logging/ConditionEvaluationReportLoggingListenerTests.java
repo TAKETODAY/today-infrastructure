@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.Application;
 import infra.app.ApplicationArguments;
+import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.context.event.ApplicationFailedEvent;
 import infra.app.logging.LogLevel;
 import infra.app.test.system.CapturedOutput;
@@ -42,6 +42,7 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.web.config.WebMvcAutoConfiguration;
 
+import static infra.app.config.logging.ConditionEvaluationReportLoggingListener.forLoggingLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(OutputCaptureExtension.class)
 class ConditionEvaluationReportLoggingListenerTests {
 
-  private final infra.app.config.logging.ConditionEvaluationReportLoggingListener initializer = infra.app.config.logging.ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO);
+  private final ConditionEvaluationReportLoggingListener initializer = forLoggingLevel(LogLevel.INFO);
 
   @Test
   void logsDebugOnContextRefresh(CapturedOutput output) {
@@ -69,7 +70,7 @@ class ConditionEvaluationReportLoggingListenerTests {
   void logsDebugOnApplicationFailedEvent(CapturedOutput output) {
     withDebugLogging(() -> {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-      var initializer = infra.app.config.logging.ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.DEBUG);
+      var initializer = forLoggingLevel(LogLevel.DEBUG);
       initializer.initialize(context);
       context.register(ErrorConfig.class);
       assertThatException().isThrownBy(context::refresh)
@@ -83,7 +84,7 @@ class ConditionEvaluationReportLoggingListenerTests {
   @Disabled
   void logsInfoGuidanceToEnableDebugLoggingOnApplicationFailedEvent(CapturedOutput output) {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    var initializer = infra.app.config.logging.ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO);
+    var initializer = forLoggingLevel(LogLevel.INFO);
 
     initializer.initialize(context);
     context.register(ErrorConfig.class);
@@ -98,7 +99,7 @@ class ConditionEvaluationReportLoggingListenerTests {
   void canBeUsedInApplicationContext() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(Config.class);
-    new infra.app.config.logging.ConditionEvaluationReportLoggingListener().initialize(context);
+    new ConditionEvaluationReportLoggingListener().initialize(context);
     context.refresh();
     assertThatThrownBy(() -> context.getBean(ConditionEvaluationReport.class))
             .isInstanceOf(NoSuchBeanDefinitionException.class);

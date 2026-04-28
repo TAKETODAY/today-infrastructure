@@ -28,6 +28,7 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SmartApplicationListener;
 import infra.lang.Assert;
+import infra.lang.TodayStrategies;
 
 /**
  * {@link ApplicationContextInitializer} that writes the {@link ConditionEvaluationReport}
@@ -48,15 +49,21 @@ import infra.lang.Assert;
  */
 public class ConditionEvaluationReportLoggingListener implements ApplicationContextInitializer {
 
+  private static final boolean default_destroyBeanOnRefreshed = TodayStrategies.getFlag(
+          "infra.condition-evaluation-report.destroyBeanOnRefreshed", false);
+
   private final LogLevel logLevelForReport;
 
+  private final boolean destroyBeanOnRefreshed;
+
   public ConditionEvaluationReportLoggingListener() {
-    this(LogLevel.DEBUG);
+    this(LogLevel.DEBUG, default_destroyBeanOnRefreshed);
   }
 
-  private ConditionEvaluationReportLoggingListener(LogLevel logLevelForReport) {
+  public ConditionEvaluationReportLoggingListener(LogLevel logLevelForReport, boolean destroyBeanOnRefreshed) {
     Assert.isTrue(isInfoOrDebug(logLevelForReport), "LogLevel must be INFO or DEBUG");
     this.logLevelForReport = logLevelForReport;
+    this.destroyBeanOnRefreshed = destroyBeanOnRefreshed;
   }
 
   private boolean isInfoOrDebug(LogLevel logLevelForReport) {
@@ -72,7 +79,7 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
    * @return a {@link ConditionEvaluationReportLoggingListener} instance.
    */
   public static ConditionEvaluationReportLoggingListener forLoggingLevel(LogLevel logLevelForReport) {
-    return new ConditionEvaluationReportLoggingListener(logLevelForReport);
+    return new ConditionEvaluationReportLoggingListener(logLevelForReport, default_destroyBeanOnRefreshed);
   }
 
   @Override
@@ -88,10 +95,6 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
       this.context = context;
     }
 
-    private ConditionEvaluationReport getReport() {
-      return ConditionEvaluationReport.get(context.getBeanFactory());
-    }
-
     @Override
     public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
       return ContextRefreshedEvent.class.isAssignableFrom(eventType)
@@ -100,7 +103,8 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-      var logger = new ConditionEvaluationReportLogger(logLevelForReport, getReport());
+      var evaluationReport = ConditionEvaluationReport.get(context.getBeanFactory());
+      var logger = new ConditionEvaluationReportLogger(logLevelForReport, evaluationReport);
       if (event instanceof ContextRefreshedEvent refreshedEvent) {
         if (refreshedEvent.getApplicationContext() == this.context) {
           logger.logReport(false);
@@ -112,7 +116,8 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
       }
 
       context.removeApplicationListener(this);
-      if (context.getBeanFactory() instanceof DefaultSingletonBeanRegistry registry) {
+
+      if (destroyBeanOnRefreshed && context.getBeanFactory() instanceof DefaultSingletonBeanRegistry registry) {
         registry.destroySingleton(ConditionEvaluationReport.BEAN_NAME);
       }
     }

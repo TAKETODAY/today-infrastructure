@@ -41,8 +41,7 @@ class ConditionEvaluationReportLogger {
 
   private final LogLevel logLevel;
 
-  @Nullable
-  private final ConditionEvaluationReport report;
+  private final @Nullable ConditionEvaluationReport report;
 
   ConditionEvaluationReportLogger(LogLevel logLevel, @Nullable ConditionEvaluationReport report) {
     Assert.isTrue(isInfoOrDebug(logLevel), "LogLevel must be INFO or DEBUG");
@@ -64,7 +63,6 @@ class ConditionEvaluationReportLogger {
       if (this.logLevel.equals(LogLevel.INFO)) {
         if (logger.isInfoEnabled()) {
           logger.info(new ConditionEvaluationReportMessage(report));
-          report.clear();
         }
         else if (isCrashReport) {
           logMessage(logger, "info");
@@ -73,7 +71,6 @@ class ConditionEvaluationReportLogger {
       else {
         if (logger.isDebugEnabled()) {
           logger.debug(new ConditionEvaluationReportMessage(report));
-          report.clear();
         }
         else if (isCrashReport) {
           logMessage(logger, "debug");
