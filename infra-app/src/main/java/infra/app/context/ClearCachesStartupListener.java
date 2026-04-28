@@ -39,7 +39,7 @@ class ClearCachesStartupListener implements ApplicationStartupListener {
     clearClassLoaderCaches(Thread.currentThread().getContextClassLoader());
   }
 
-  private void clearClassLoaderCaches(ClassLoader classLoader) {
+  private void clearClassLoaderCaches(@Nullable ClassLoader classLoader) {
     if (classLoader == null) {
       return;
     }
