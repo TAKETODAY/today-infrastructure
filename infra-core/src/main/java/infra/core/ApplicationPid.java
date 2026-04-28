@@ -22,9 +22,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 
@@ -45,8 +47,7 @@ public class ApplicationPid {
           PosixFilePermission.OTHERS_WRITE
   };
 
-  @Nullable
-  private final Long pid;
+  private final @Nullable Long pid;
 
   public ApplicationPid() {
     this.pid = currentProcessPid();
@@ -56,8 +57,7 @@ public class ApplicationPid {
     this.pid = pid;
   }
 
-  @Nullable
-  private Long currentProcessPid() {
+  private @Nullable Long currentProcessPid() {
     try {
       return ProcessHandle.current().pid();
     }
@@ -87,7 +87,7 @@ public class ApplicationPid {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }
@@ -116,31 +116,31 @@ public class ApplicationPid {
    */
   public void write(File file) throws IOException {
     Assert.state(this.pid != null, "No PID available");
-    createParentDirectory(file);
-    if (file.exists()) {
-      assertCanOverwrite(file);
+    Path path = file.toPath();
+    createParentDirectory(path);
+    if (Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+      assertCanOverwrite(path);
     }
-    try (FileWriter writer = new FileWriter(file)) {
-      writer.append(String.valueOf(this.pid));
-    }
+    Files.writeString(path, this.pid.toString(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE,
+            LinkOption.NOFOLLOW_LINKS);
   }
 
-  private void createParentDirectory(File file) {
-    File parent = file.getParentFile();
+  private void createParentDirectory(Path path) throws IOException {
+    Path parent = path.getParent();
     if (parent != null) {
-      parent.mkdirs();
+      Files.createDirectories(parent);
     }
   }
 
-  private void assertCanOverwrite(File file) throws IOException {
-    if (!file.canWrite() || !canWritePosixFile(file)) {
+  private void assertCanOverwrite(Path file) throws IOException {
+    if (!Files.isWritable(file) || !canWritePosixFile(file)) {
       throw new FileNotFoundException(file + " (permission denied)");
     }
   }
 
-  private boolean canWritePosixFile(File file) throws IOException {
+  private boolean canWritePosixFile(Path file) throws IOException {
     try {
-      Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file.toPath());
+      Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file, LinkOption.NOFOLLOW_LINKS);
       for (PosixFilePermission permission : WRITE_PERMISSIONS) {
         if (permissions.contains(permission)) {
           return true;
