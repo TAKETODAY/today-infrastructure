@@ -125,8 +125,7 @@ public class WebProperties {
        * Whether to enable the Infra Resource Handling chain. By default, disabled
        * unless at least one strategy has been enabled.
        */
-      @Nullable
-      private Boolean enabled;
+      private @Nullable Boolean enabled;
 
       /**
        * Whether to enable caching in the Resource chain.
@@ -149,8 +148,7 @@ public class WebProperties {
        * @return whether the resource chain is enabled or {@code null} if no
        * specified settings are present.
        */
-      @Nullable
-      public Boolean getEnabled() {
+      public @Nullable Boolean getEnabled() {
         return getEnabled(strategy.fixed.enabled, strategy.content.enabled, enabled);
       }
 
@@ -158,8 +156,7 @@ public class WebProperties {
         this.enabled = enabled;
       }
 
-      @Nullable
-      static Boolean getEnabled(boolean fixedEnabled, boolean contentEnabled, @Nullable Boolean chainEnabled) {
+      static @Nullable Boolean getEnabled(boolean fixedEnabled, boolean contentEnabled, @Nullable Boolean chainEnabled) {
         return (fixedEnabled || contentEnabled) ? Boolean.TRUE : chainEnabled;
       }
 
@@ -209,8 +206,7 @@ public class WebProperties {
           /**
            * Version string to use for the fixed Version Strategy.
            */
-          @Nullable
-          public String version;
+          public @Nullable String version;
 
         }
 
@@ -228,9 +224,8 @@ public class WebProperties {
        * duration suffix is not specified, seconds will be used. Can be overridden
        * by the 'web.resources.cache.cachecontrol' properties.
        */
-      @Nullable
       @DurationUnit(ChronoUnit.SECONDS)
-      public Duration period;
+      public @Nullable Duration period;
 
       /**
        * Cache control HTTP headers, only allows valid directive combinations.
@@ -244,8 +239,7 @@ public class WebProperties {
        */
       public boolean useLastModified = true;
 
-      @Nullable
-      public CacheControl getHttpCacheControl() {
+      public @Nullable CacheControl getHttpCacheControl() {
         PropertyMapper map = PropertyMapper.get();
         CacheControl control = createCacheControl();
         map.from(cachecontrol.mustRevalidate).whenTrue().toCall(control::mustRevalidate);
@@ -287,80 +281,69 @@ public class WebProperties {
          * Maximum time the response should be cached, in seconds if no duration
          * suffix is not specified.
          */
-        @Nullable
         @DurationUnit(ChronoUnit.SECONDS)
-        public Duration maxAge;
+        public @Nullable Duration maxAge;
 
         /**
          * Indicate that the cached response can be reused only if re-validated
          * with the server.
          */
-        @Nullable
-        public Boolean noCache;
+        public @Nullable Boolean noCache;
 
         /**
          * Indicate to not cache the response in any case.
          */
-        @Nullable
-        public Boolean noStore;
+        public @Nullable Boolean noStore;
 
         /**
          * Indicate that once it has become stale, a cache must not use the
          * response without re-validating it with the server.
          */
-        @Nullable
-        public Boolean mustRevalidate;
+        public @Nullable Boolean mustRevalidate;
 
         /**
          * Indicate intermediaries (caches and others) that they should not
          * transform the response content.
          */
-        @Nullable
-        public Boolean noTransform;
+        public @Nullable Boolean noTransform;
 
         /**
          * Indicate that any cache may store the response.
          */
-        @Nullable
-        public Boolean cachePublic;
+        public @Nullable Boolean cachePublic;
 
         /**
          * Indicate that the response message is intended for a single user and
          * must not be stored by a shared cache.
          */
-        @Nullable
-        public Boolean cachePrivate;
+        public @Nullable Boolean cachePrivate;
 
         /**
          * Same meaning as the "must-revalidate" directive, except that it does
          * not apply to private caches.
          */
-        @Nullable
-        public Boolean proxyRevalidate;
+        public @Nullable Boolean proxyRevalidate;
 
         /**
          * Maximum time the response can be served after it becomes stale, in
          * seconds if no duration suffix is not specified.
          */
-        @Nullable
         @DurationUnit(ChronoUnit.SECONDS)
-        public Duration staleWhileRevalidate;
+        public @Nullable Duration staleWhileRevalidate;
 
         /**
          * Maximum time the response may be used when errors are encountered, in
          * seconds if no duration suffix is not specified.
          */
-        @Nullable
         @DurationUnit(ChronoUnit.SECONDS)
-        public Duration staleIfError;
+        public @Nullable Duration staleIfError;
 
         /**
          * Maximum time the response should be cached by shared caches, in seconds
          * if no duration suffix is not specified.
          */
-        @Nullable
         @DurationUnit(ChronoUnit.SECONDS)
-        public Duration sMaxAge;
+        public @Nullable Duration sMaxAge;
 
       }
 
