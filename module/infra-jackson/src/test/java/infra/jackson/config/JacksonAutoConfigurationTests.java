@@ -38,6 +38,7 @@ import java.util.Set;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -725,9 +726,9 @@ class JacksonAutoConfigurationTests {
 
   @Test
   void jacksonComponentThatInjectsJsonMapperCausesBeanCurrentlyInCreationException() {
-    // 注册延后 解决循环依赖
     this.contextRunner.withUserConfiguration(CircularDependencySerializerConfiguration.class).run((context) -> {
-      assertThat(context).hasNotFailed();
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
     });
   }
 
