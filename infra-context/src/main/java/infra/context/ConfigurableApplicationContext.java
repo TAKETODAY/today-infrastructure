@@ -95,9 +95,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
   String BOOTSTRAP_EXECUTOR_BEAN_NAME = "bootstrapExecutor";
 
   /**
-   * Get configurable environment
+   * Return the {@code Environment} for this application context in configurable
+   * form, allowing for further customization.
    *
-   * @return {@link ConfigurableEnvironment} never be null
    * @since 2.1
    */
   @Override
