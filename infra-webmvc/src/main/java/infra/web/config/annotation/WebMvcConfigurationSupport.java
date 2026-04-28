@@ -181,29 +181,21 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
-  @Nullable
-  private ContentNegotiationManager contentNegotiationManager;
+  private @Nullable ContentNegotiationManager contentNegotiationManager;
 
-  @Nullable
-  private PathMatchConfigurer pathMatchConfigurer;
+  private @Nullable PathMatchConfigurer pathMatchConfigurer;
 
-  @Nullable
-  private List<HttpMessageConverter<?>> messageConverters;
+  private @Nullable List<HttpMessageConverter<?>> messageConverters;
 
-  @Nullable
-  private Map<String, CorsConfiguration> corsConfigurations;
+  private @Nullable Map<String, CorsConfiguration> corsConfigurations;
 
-  @Nullable
-  private List<Object> interceptors;
+  private @Nullable List<Object> interceptors;
 
-  @Nullable
-  private AsyncSupportConfigurer asyncSupportConfigurer;
+  private @Nullable AsyncSupportConfigurer asyncSupportConfigurer;
 
-  @Nullable
-  private List<ErrorResponse.Interceptor> errorResponseInterceptors;
+  private @Nullable List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
-  @Nullable
-  private ApiVersionStrategy apiVersionStrategy;
+  private @Nullable ApiVersionStrategy apiVersionStrategy;
 
   protected @Nullable StringValueResolver embeddedValueResolver;
 
@@ -777,9 +769,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
    * {@link #addViewControllers}.
    */
   @Component
-  @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping viewControllerHandlerMapping() {
+  public @Nullable HandlerMapping viewControllerHandlerMapping() {
     var context = applicationContext();
     ViewControllerRegistry registry = new ViewControllerRegistry(context);
     addViewControllers(registry);
@@ -967,16 +958,14 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
    * from data binding and validation error codes. Leave the return value as
    * {@code null} to keep the default.
    */
-  @Nullable
-  protected MessageCodesResolver getMessageCodesResolver() {
+  protected @Nullable MessageCodesResolver getMessageCodesResolver() {
     return null;
   }
 
   /**
    * Override this method to provide a custom {@link Validator}.
    */
-  @Nullable
-  protected Validator getValidator() {
+  protected @Nullable Validator getValidator() {
     return null;
   }
 
@@ -1036,7 +1025,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
    * @since 5.0
    */
   protected void configureErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
-
   }
 
   /**

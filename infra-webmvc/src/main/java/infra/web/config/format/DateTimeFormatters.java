@@ -106,8 +106,7 @@ public class DateTimeFormatters {
     return this.dateFormatter != null || this.timeFormatter != null || this.dateTimeFormatter != null;
   }
 
-  @Nullable
-  static DateTimeFormatter formatter(String pattern) {
+  static @Nullable DateTimeFormatter formatter(String pattern) {
     return StringUtils.hasText(pattern)
             ? DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.SMART) : null;
   }

@@ -207,13 +207,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public FormattingConversionService mvcConversionService() {
     Format format = mvcProperties.format;
-    WebConversionService conversionService = new WebConversionService(
-            new DateTimeFormatters()
-                    .dateFormat(format.date)
-                    .timeFormat(format.time)
-                    .dateTimeFormat(format.dateTime),
-            embeddedValueResolver
-    );
+    WebConversionService conversionService = new WebConversionService(new DateTimeFormatters()
+            .dateFormat(format.date).timeFormat(format.time).dateTimeFormat(format.dateTime), embeddedValueResolver);
     addFormatters(conversionService);
     return conversionService;
   }
@@ -345,7 +340,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public Validator mvcValidator() {
     if (BEAN_VALIDATION_PRESENT) {
       var validatorAdapter = ClassUtils.load(
@@ -541,7 +535,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       }
     }
 
-    @SuppressWarnings("NullAway")
     private ResourceResolver getVersionResourceResolver(Strategy properties) {
       VersionResourceResolver resolver = new VersionResourceResolver();
       if (properties.fixed.enabled) {

@@ -97,8 +97,7 @@ public class WebMvcProperties {
      * Amount of time before asynchronous request handling times out. If this value is
      * not set, the default timeout of the underlying implementation is used.
      */
-    @Nullable
-    public Duration requestTimeout;
+    public @Nullable Duration requestTimeout;
 
   }
 
@@ -107,14 +106,12 @@ public class WebMvcProperties {
     /**
      * Web MVC view prefix.
      */
-    @Nullable
-    public String prefix;
+    public @Nullable String prefix;
 
     /**
      * Web MVC view suffix.
      */
-    @Nullable
-    public String suffix;
+    public @Nullable String suffix;
 
     public boolean exposeOutputRedirectModel = false;
 
