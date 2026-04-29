@@ -40,6 +40,7 @@ import infra.core.Pair;
 import infra.dao.DataAccessException;
 import infra.dao.DataRetrievalFailureException;
 import infra.dao.InvalidDataAccessApiUsageException;
+import infra.dao.OptimisticLockingFailureException;
 import infra.jdbc.DefaultResultSetHandlerFactory;
 import infra.jdbc.GeneratedKeysException;
 import infra.jdbc.JdbcBeanMetadata;
@@ -120,6 +121,8 @@ public class DefaultEntityManager implements EntityManager {
 
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
+  private VersionIncrementStrategy versionIncrementStrategy = VersionIncrementStrategy.defaults();
+
   private Pageable defaultPageable = Pageable.of(10, 1);
 
   private SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
@@ -172,6 +175,26 @@ public class DefaultEntityManager implements EntityManager {
   public void setDefaultUpdateStrategy(PropertyUpdateStrategy defaultUpdateStrategy) {
     Assert.notNull(defaultUpdateStrategy, "defaultUpdateStrategy is required");
     this.defaultUpdateStrategy = defaultUpdateStrategy;
+  }
+
+  /**
+   * Sets the {@link VersionIncrementStrategy} used to compute the next version value
+   * for entities with a {@link Version} annotated property during update operations.
+   *
+   * <pre>{@code
+   * // Use a custom strategy for Instant-based versions
+   * entityManager.setVersionIncrementStrategy(
+   *     VersionIncrementStrategy.forInstant().or(VersionIncrementStrategy.defaults()));
+   * }</pre>
+   *
+   * @param versionIncrementStrategy the strategy to compute next version values;
+   * must not be null
+   * @throws IllegalArgumentException if the provided strategy is null
+   * @see VersionIncrementStrategy
+   */
+  public void setVersionIncrementStrategy(VersionIncrementStrategy versionIncrementStrategy) {
+    Assert.notNull(versionIncrementStrategy, "versionIncrementStrategy is required");
+    this.versionIncrementStrategy = versionIncrementStrategy;
   }
 
   /**
@@ -581,12 +604,23 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
+    EntityProperty versionProperty = metadata.versionProperty;
+    Object oldVersion = null;
+    if (versionProperty != null) {
+      oldVersion = versionProperty.getValue(entity);
+      versionProperty.setValue(entity, versionIncrementStrategy.nextVersion(oldVersion));
+    }
+
     Update updateStmt = new Update(metadata.tableName);
 
     ArrayList<EntityProperty> properties = new ArrayList<>(4);
     ArrayList<EntityProperty> updateByProperties = new ArrayList<>(2);
     for (EntityProperty property : metadata.entityPropertiesExcludeId) {
-      if (property.isPresent(UpdateBy.class)) {
+      if (property == versionProperty) {
+        updateStmt.addAssignment(property.columnName);
+        properties.add(property);
+      }
+      else if (property.isPresent(UpdateBy.class)) {
         updateByProperties.add(property);
         updateStmt.addRestriction(property.columnName);
       }
@@ -604,6 +638,10 @@ public class DefaultEntityManager implements EntityManager {
       throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update by properties");
     }
 
+    if (versionProperty != null) {
+      updateStmt.addRestriction(versionProperty.columnName);
+    }
+
     String sql = updateStmt.toStatementString(platform);
 
     if (stmtLogger.isDebugEnabled()) {
@@ -619,7 +657,18 @@ public class DefaultEntityManager implements EntityManager {
       for (EntityProperty updateBy : updateByProperties) {
         updateBy.setTo(statement, idx++, entity);
       }
-      return statement.executeUpdate();
+
+      if (versionProperty != null) {
+        versionProperty.setParameter(statement, idx, oldVersion);
+      }
+
+      int updateCount = statement.executeUpdate();
+      if (versionProperty != null && updateCount != 1) {
+        throw new OptimisticLockingFailureException(
+                "Optimistic locking failure updating entity [%s], expected version: %s, but %d row(s) were updated"
+                        .formatted(metadata.tableName, oldVersion, updateCount));
+      }
+      return updateCount;
     }
     catch (SQLException ex) {
       throw translateException("Updating entity", sql, ex);
@@ -680,15 +729,26 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private int doUpdateById(Object entity, Object id, EntityProperty idProperty, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    EntityProperty versionProperty = metadata.versionProperty;
+    Object oldVersion = null;
+    if (versionProperty != null) {
+      oldVersion = versionProperty.getValue(entity);
+      versionProperty.setValue(entity, versionIncrementStrategy.nextVersion(oldVersion));
+    }
+
     Update updateStmt = new Update(metadata.tableName);
     updateStmt.addRestriction(idProperty.columnName);
 
     ArrayList<EntityProperty> properties = new ArrayList<>();
     for (EntityProperty property : metadata.entityProperties) {
-      if (strategy.shouldUpdate(entity, property)) {
+      if (property == versionProperty || strategy.shouldUpdate(entity, property)) {
         updateStmt.addAssignment(property.columnName);
         properties.add(property);
       }
+    }
+
+    if (versionProperty != null) {
+      updateStmt.addRestriction(versionProperty.columnName);
     }
 
     if (properties.isEmpty()) {
@@ -708,7 +768,16 @@ public class DefaultEntityManager implements EntityManager {
       int idx = setParameters(entity, properties, statement);
       // last one is ID
       idProperty.setParameter(statement, idx, id);
-      return statement.executeUpdate();
+      if (versionProperty != null) {
+        versionProperty.setParameter(statement, idx + 1, oldVersion);
+      }
+      int updateCount = statement.executeUpdate();
+      if (versionProperty != null && updateCount != 1) {
+        throw new OptimisticLockingFailureException(
+                "Optimistic locking failure updating entity [%s] with ID: %s, expected version: %s, but %d row(s) were updated"
+                        .formatted(metadata.tableName, id, oldVersion, updateCount));
+      }
+      return updateCount;
     }
     catch (SQLException ex) {
       throw translateException("Updating entity By ID", sql, ex);
@@ -827,13 +896,18 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public int delete(Object entityOrExample) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityOrExample.getClass());
 
     Object id = null;
     if (metadata.idProperty != null) {
       id = metadata.idProperty.getValue(entityOrExample);
+    }
+
+    EntityProperty versionProperty = metadata.versionProperty;
+    Object versionValue = null;
+    if (versionProperty != null) {
+      versionValue = versionProperty.getValue(entityOrExample);
     }
 
     ExampleQuery exampleQuery = null;
@@ -846,6 +920,9 @@ public class DefaultEntityManager implements EntityManager {
       sql.append(" WHERE `");
       sql.append(metadata.idProperty.columnName);
       sql.append("` = ? ");
+      if (versionProperty != null && versionValue != null) {
+        sql.append("AND `").append(versionProperty.columnName).append("` = ? ");
+      }
     }
     else {
       exampleQuery = new ExampleQuery(entityOrExample, metadata, propertyExtractors);
@@ -861,13 +938,23 @@ public class DefaultEntityManager implements EntityManager {
     try {
       statement = con.prepareStatement(sql.toString());
       if (id != null) {
-        metadata.idProperty.setParameter(statement, 1, id);
+        int paramIdx = 1;
+        metadata.idProperty.setParameter(statement, paramIdx++, id);
+        if (versionProperty != null && versionValue != null) {
+          versionProperty.setParameter(statement, paramIdx, versionValue);
+        }
       }
       else {
         exampleQuery.setParameter(metadata, statement);
       }
 
-      return statement.executeUpdate();
+      int updateCount = statement.executeUpdate();
+      if (versionProperty != null && versionValue != null && updateCount != 1) {
+        throw new OptimisticLockingFailureException(
+                "Optimistic locking failure deleting entity [%s] with ID: %s, expected version: %s, but %d row(s) were deleted"
+                        .formatted(metadata.tableName, id, versionValue, updateCount));
+      }
+      return updateCount;
     }
     catch (SQLException ex) {
       throw translateException("Deleting entity", sql.toString(), ex);
@@ -920,52 +1007,44 @@ public class DefaultEntityManager implements EntityManager {
    * is null
    */
   @Override
-  @Nullable
-  public <T> T findById(Class<T> entityClass, Object id) throws DataAccessException {
+  public <T> @Nullable T findById(Class<T> entityClass, Object id) throws DataAccessException {
     return iterate(entityClass, new FindByIdQuery(id)).first();
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T findFirst(T entity) throws DataAccessException {
+  public <T> @Nullable T findFirst(T entity) throws DataAccessException {
     return findFirst((Class<T>) entity.getClass(), entity);
   }
 
-  @Nullable
   @Override
-  public <T> T findFirst(Class<T> entityClass) throws DataAccessException {
+  public <T> @Nullable T findFirst(Class<T> entityClass) throws DataAccessException {
     return findFirst(entityClass, null);
   }
 
-  @Nullable
   @Override
-  public <T> T findFirst(Class<T> entityClass, Object example) throws DataAccessException {
+  public <T> @Nullable T findFirst(Class<T> entityClass, Object example) throws DataAccessException {
     return iterate(entityClass, example).first();
   }
 
-  @Nullable
   @Override
-  public <T> T findFirst(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
+  public <T> @Nullable T findFirst(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).first();
   }
 
-  @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T findUnique(T example) throws DataAccessException {
+  public <T> @Nullable T findUnique(T example) throws DataAccessException {
     return iterate((Class<T>) example.getClass(), example).unique();
   }
 
-  @Nullable
   @Override
-  public <T> T findUnique(Class<T> entityClass, Object example) throws DataAccessException {
+  public <T> @Nullable T findUnique(Class<T> entityClass, Object example) throws DataAccessException {
     return iterate(entityClass, example).unique();
   }
 
-  @Nullable
   @Override
-  public <T> T findUnique(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
+  public <T> @Nullable T findUnique(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).unique();
   }
 
@@ -1287,8 +1366,9 @@ public class DefaultEntityManager implements EntityManager {
   private Pair<String, ArrayList<EntityProperty>> insertStatement(PropertyUpdateStrategy strategy, Object entity, EntityMetadata entityMetadata) {
     Insert insert = new Insert(entityMetadata.tableName);
     var properties = new ArrayList<EntityProperty>(entityMetadata.entityProperties.length);
+    EntityProperty versionProperty = entityMetadata.versionProperty;
     for (EntityProperty property : entityMetadata.entityProperties) {
-      if (strategy.shouldUpdate(entity, property)) {
+      if (property == versionProperty || strategy.shouldUpdate(entity, property)) {
         insert.addColumn(property.columnName);
         properties.add(property);
       }
@@ -1423,9 +1503,8 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    @Nullable
     @Override
-    protected T readNext(ResultSet resultSet) throws SQLException {
+    protected @Nullable T readNext(ResultSet resultSet) throws SQLException {
       return handler.extractData(resultSet);
     }
 
