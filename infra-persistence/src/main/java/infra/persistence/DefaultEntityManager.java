@@ -107,8 +107,7 @@ public class DefaultEntityManager implements EntityManager {
   @SuppressWarnings("rawtypes")
   private final ArrayList<ConditionPropertyExtractor> propertyExtractors = new ArrayList<>();
 
-  @Nullable
-  private ArrayList<BatchPersistListener> batchPersistListeners;
+  private @Nullable ArrayList<BatchPersistListener> batchPersistListeners;
 
   private int maxBatchRecords = 0;
 
