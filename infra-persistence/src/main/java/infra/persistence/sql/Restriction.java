@@ -644,8 +644,7 @@ public interface Restriction {
    * @param restrictions the collection of restrictions to render. May be null or empty.
    * @return a new {@code StringBuilder} containing the rendered SQL fragment, or null if the collection is empty.
    */
-  @Nullable
-  static StringBuilder renderWhereClause(@Nullable Collection<? extends Restriction> restrictions) {
+  static @Nullable StringBuilder renderWhereClause(@Nullable Collection<? extends Restriction> restrictions) {
     if (CollectionUtils.isNotEmpty(restrictions)) {
       StringBuilder buf = new StringBuilder(restrictions.size() * 10);
       renderWhereClause(restrictions, buf);
