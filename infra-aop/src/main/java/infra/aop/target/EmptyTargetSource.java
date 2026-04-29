@@ -36,6 +36,7 @@ import infra.aop.TargetSource;
  * @author TODAY 2021/2/1 20:25
  */
 public final class EmptyTargetSource implements TargetSource, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -43,8 +44,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   // Instance implementation
   //---------------------------------------------------------------------
 
-  @Nullable
-  private final Class<?> targetClass;
+  private final @Nullable Class<?> targetClass;
 
   private final boolean isStatic;
 
@@ -64,9 +64,8 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   /**
    * Always returns the specified target Class, or {@code null} if none.
    */
-  @Nullable
   @Override
-  public Class<?> getTargetClass() {
+  public @Nullable Class<?> getTargetClass() {
     return this.targetClass;
   }
 
@@ -81,9 +80,8 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   /**
    * Always returns {@code null}.
    */
-  @Nullable
   @Override
-  public Object getTarget() {
+  public @Nullable Object getTarget() {
     return null;
   }
 
@@ -97,7 +95,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
@@ -116,8 +114,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
   @Override
   public String toString() {
     return "EmptyTargetSource: " + (targetClass != null ? "target class [" +
-            targetClass.getName() + "]" : "no target class") +
-            ", " + (isStatic ? "static" : "dynamic");
+            targetClass.getName() + "]" : "no target class") + ", " + (isStatic ? "static" : "dynamic");
   }
 
   //---------------------------------------------------------------------
@@ -147,7 +144,7 @@ public final class EmptyTargetSource implements TargetSource, Serializable {
    * @see #getTargetClass()
    */
   public static EmptyTargetSource forClass(@Nullable Class<?> targetClass, boolean isStatic) {
-    return (targetClass == null && isStatic ? INSTANCE : new EmptyTargetSource(targetClass, isStatic));
+    return targetClass == null && isStatic ? INSTANCE : new EmptyTargetSource(targetClass, isStatic);
   }
 
 }
