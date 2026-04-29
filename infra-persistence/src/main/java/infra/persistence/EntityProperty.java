@@ -31,6 +31,12 @@ import infra.core.style.ToStringBuilder;
 import infra.jdbc.type.TypeHandler;
 
 /**
+ * Represents a property of an entity mapped to a database column.
+ * <p>
+ * This class encapsulates the metadata and behavior for reading from and writing to
+ * a specific column in a database table, linking it to a corresponding Java bean property.
+ * It handles type conversion via {@link TypeHandler} and supports annotation inspection.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/7 22:46
  */
@@ -53,35 +59,37 @@ public class EntityProperty {
   }
 
   /**
-   * get property of this {@code entity}
+   * Retrieves the value of this property from the given entity.
    *
-   * @param entity entity object
-   * @return property value
+   * @param entity the entity instance from which to retrieve the property value
+   * @return the property value, or {@code null} if the property value is null
    */
-  @Nullable
-  public Object getValue(Object entity) {
+  public @Nullable Object getValue(Object entity) {
     return property.getValue(entity);
   }
 
   /**
-   * Set the property value to entity
+   * Sets the value of this property on the given entity.
    *
-   * @param entity entity instance
-   * @param propertyValue value
+   * @param entity the entity instance on which to set the property value
+   * @param propertyValue the value to set, may be {@code null}
    */
   public void setValue(Object entity, @Nullable Object propertyValue) {
     property.setDirectly(entity, propertyValue);
   }
 
   /**
-   * Set property-value of input {@code entity} to {@link PreparedStatement}
+   * Sets the value of this property from the given entity as a parameter in the
+   * specified {@link PreparedStatement}.
+   * <p>
+   * This method retrieves the property value from the entity and uses the associated
+   * {@link TypeHandler} to set it on the prepared statement at the specified parameter index.
    *
-   * @param ps PreparedStatement
-   * @param parameterIndex index of SQL parameter
-   * @param entity java entity object
-   * @throws SQLException if parameterIndex does not correspond to a parameter
-   * marker in the SQL statement; if a database access error occurs;
-   * this method is called on a closed {@code PreparedStatement}
+   * @param ps the {@link PreparedStatement} to set the parameter on
+   * @param parameterIndex the first parameter is 1, the second is 2, ...
+   * @param entity the entity instance from which to retrieve the property value
+   * @throws SQLException if a database access error occurs, this method is called on a closed
+   * {@code PreparedStatement}, the parameter index does not correspond to a parameter marker,
    * or the type of the given object is ambiguous
    */
   public void setTo(PreparedStatement ps, int parameterIndex, Object entity) throws SQLException {
@@ -90,40 +98,18 @@ public class EntityProperty {
   }
 
   /**
-   * <p>Sets the value of the designated parameter using the given object.
-   *
-   * <p>The JDBC specification specifies a standard mapping from
-   * Java {@code Object} types to SQL types.  The given argument
-   * will be converted to the corresponding SQL type before being
-   * sent to the database.
-   *
-   * <p>Note that this method may be used to pass database-
-   * specific abstract data types, by using a driver-specific Java
-   * type.
+   * Sets the value of the designated parameter in the given {@link PreparedStatement}
+   * using the provided argument.
    * <p>
-   * If the object is of a class implementing the interface {@code SQLData},
-   * the JDBC driver should call the method {@code SQLData.writeSQL}
-   * to write it to the SQL data stream.
-   * If, on the other hand, the object is of a class implementing
-   * {@code Ref}, {@code Blob}, {@code Clob},  {@code NClob},
-   * {@code Struct}, {@code java.net.URL}, {@code RowId}, {@code SQLXML}
-   * or {@code Array}, the driver should pass it to the database as a
-   * value of the corresponding SQL type.
-   * <P>
-   * <b>Note:</b> Not all databases allow for a non-typed Null to be sent to
-   * the backend. For maximum portability, the {@code setNull} or the
-   * {@code setObject(int parameterIndex, Object x, int sqlType)}
-   * method should be used
-   * instead of {@code setObject(int parameterIndex, Object x)}.
-   * <p>
-   * <b>Note:</b> This method throws an exception if there is an ambiguity, for example, if the
-   * object is of a class implementing more than one of the interfaces named above.
+   * This method delegates to the associated {@link TypeHandler} to convert the Java object
+   * into the appropriate SQL type and set it on the prepared statement. The JDBC specification
+   * defines standard mappings from Java {@code Object} types to SQL types.
    *
+   * @param ps the {@link PreparedStatement} to set the parameter on
    * @param parameterIndex the first parameter is 1, the second is 2, ...
-   * @param arg the object containing the input parameter value
-   * @throws SQLException if parameterIndex does not correspond to a parameter
-   * marker in the SQL statement; if a database access error occurs;
-   * this method is called on a closed {@code PreparedStatement}
+   * @param arg the object containing the input parameter value, may be {@code null}
+   * @throws SQLException if a database access error occurs, this method is called on a closed
+   * {@code PreparedStatement}, the parameter index does not correspond to a parameter marker,
    * or the type of the given object is ambiguous
    */
   public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable Object arg) throws SQLException {
@@ -131,32 +117,61 @@ public class EntityProperty {
   }
 
   /**
-   * @param rs ResultSet
+   * Retrieves the value from the {@link ResultSet} at the specified column index
+   * and converts it using the associated {@link TypeHandler}.
+   *
+   * @param rs the {@link ResultSet} to retrieve data from
    * @param columnIndex the first column is 1, the second is 2, ...
+   * @return the converted property value, or {@code null} if the SQL value is NULL
    * @throws SQLException if a database access error occurs or this method is
    * called on a closed result set
    */
-  @Nullable
-  public Object getResult(ResultSet rs, int columnIndex) throws SQLException {
+  public @Nullable Object getResult(ResultSet rs, int columnIndex) throws SQLException {
     return typeHandler.getResult(rs, columnIndex);
   }
 
   /**
-   * Set property
+   * Retrieves the value from the {@link ResultSet} and sets it to the corresponding
+   * property of the given entity instance.
+   *
+   * @param entity the entity instance to set the property value to
+   * @param rs the {@link ResultSet} to retrieve data from
+   * @param columnIndex the first column is 1, the second is 2, ...
+   * @throws SQLException if a database access error occurs or this method is
+   * called on a closed result set
    */
   public void setProperty(Object entity, ResultSet rs, int columnIndex) throws SQLException {
     Object propertyValue = getResult(rs, columnIndex);
     property.setDirectly(entity, propertyValue);
   }
 
+  /**
+   * Returns the merged annotations present on the underlying bean property.
+   *
+   * @return the merged annotations
+   */
   public MergedAnnotations getAnnotations() {
     return property.mergedAnnotations();
   }
 
+  /**
+   * Returns the merged annotation of the specified type present on the underlying bean property.
+   *
+   * @param annType the annotation type to look for
+   * @param <A> the annotation type
+   * @return the merged annotation, never {@code null}
+   */
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {
     return getAnnotations().get(annType);
   }
 
+  /**
+   * Checks if an annotation of the specified type is present on the underlying bean property.
+   *
+   * @param annType the annotation type to check for
+   * @param <A> the annotation type
+   * @return {@code true} if the annotation is present, {@code false} otherwise
+   */
   public <A extends Annotation> boolean isPresent(Class<A> annType) {
     return getAnnotations().isPresent(annType);
   }
@@ -170,7 +185,7 @@ public class EntityProperty {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return this == o
             || (o instanceof EntityProperty that
             && Objects.equals(property, that.property)
