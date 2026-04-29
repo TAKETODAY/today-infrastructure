@@ -16,15 +16,20 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
- * A binary-comparison restriction
+ * Represents a binary comparison restriction in SQL, such as {@code column = value}.
+ * <p>
+ * This class encapsulates the left-hand side (column name), the comparison operator,
+ * and the right-hand side (value or expression) to form a simple SQL condition.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class ComparisonRestriction implements Restriction {
+final class ComparisonRestriction implements Restriction {
 
   private final String lhs;
 
@@ -39,8 +44,8 @@ class ComparisonRestriction implements Restriction {
   }
 
   @Override
-  public void render(StringBuilder sqlBuffer) {
-    sqlBuffer.append('`')
+  public void render(StringBuilder buffer) {
+    buffer.append('`')
             .append(lhs)
             .append('`')
             .append(operator)
@@ -48,11 +53,13 @@ class ComparisonRestriction implements Restriction {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     ComparisonRestriction that = (ComparisonRestriction) o;
     return Objects.equals(lhs, that.lhs)
             && Objects.equals(operator, that.operator)
