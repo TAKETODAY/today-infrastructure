@@ -62,19 +62,16 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
   protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
   /** Name of the target bean we will create on each invocation. */
-  @Nullable
-  protected String targetBeanName;
+  protected @Nullable String targetBeanName;
 
   /** Class of the target. */
-  @Nullable
-  private volatile Class<?> targetClass;
+  private volatile @Nullable Class<?> targetClass;
 
   /**
    * BeanFactory that owns this TargetSource. We need to hold onto this reference
    * so that we can create new prototype instances as necessary.
    */
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
 
   /**
    * Set the name of the target bean in the factory.
@@ -130,9 +127,8 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
     return this.beanFactory;
   }
 
-  @Nullable
   @Override
-  public Class<?> getTargetClass() {
+  public @Nullable Class<?> getTargetClass() {
     Class<?> targetClass = this.targetClass;
     if (targetClass != null) {
       return targetClass;
@@ -182,7 +178,7 @@ public abstract class AbstractBeanFactoryTargetSource implements TargetSource, B
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }

@@ -149,12 +149,10 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
   );
 
   /** The beans to be exposed as JMX managed resources, with JMX names as keys. */
-  @Nullable
-  private Map<String, Object> beans;
+  private @Nullable Map<String, Object> beans;
 
   /** The autodetect mode to use for this MBeanExporter. */
-  @Nullable
-  Integer autodetectMode;
+  @Nullable Integer autodetectMode;
 
   /** Whether to eagerly initialize candidate beans when autodetecting MBeans. */
   private boolean allowEagerInit = false;
@@ -184,12 +182,10 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
   private final Map<NotificationListenerBean, ObjectName[]> registeredNotificationListeners = new LinkedHashMap<>();
 
   /** Stores the ClassLoader to use for generating lazy-init proxies. */
-  @Nullable
-  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+  private @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /** Stores the BeanFactory for use in autodetection process. */
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
 
   /**
    * Supply a {@code Map} of beans to be registered with the JMX
@@ -382,8 +378,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    */
   public void setNotificationListenerMappings(Map<?, ? extends NotificationListener> listeners) {
     Assert.notNull(listeners, "'listeners' is required");
-    List<NotificationListenerBean> notificationListeners =
-            new ArrayList<>(listeners.size());
+    List<NotificationListenerBean> notificationListeners = new ArrayList<>(listeners.size());
 
     listeners.forEach((key, listener) -> {
       // Get the listener from the map value.
@@ -615,7 +610,6 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @see #registerBeanInstance
    * @see #registerLazyInit
    */
-  @SuppressWarnings("NullAway")
   protected ObjectName registerBeanNameOrInstance(Object mapValue, String beanKey) throws MBeanExportException {
     try {
       if (mapValue instanceof String beanName) {
@@ -653,7 +647,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
     }
     catch (Throwable ex) {
       throw new UnableToRegisterMBeanException(
-              "Unable to register MBean [" + mapValue + "] with key '" + beanKey + "'", ex);
+              "Unable to register MBean [%s] with key '%s'".formatted(mapValue, beanKey), ex);
     }
   }
 
@@ -810,15 +804,14 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @return the adapted MBean, or {@code null} if not possible
    */
   @SuppressWarnings("unchecked")
-  @Nullable
-  protected DynamicMBean adaptMBeanIfPossible(Object bean) throws JMException {
+  protected @Nullable DynamicMBean adaptMBeanIfPossible(Object bean) throws JMException {
     Class<?> targetClass = AopUtils.getTargetClass(bean);
     if (targetClass != bean.getClass()) {
       Class<?> ifc = JmxUtils.getMXBeanInterface(targetClass);
       if (ifc != null) {
         if (!ifc.isInstance(bean)) {
-          throw new NotCompliantMBeanException("Managed bean [" + bean +
-                  "] has a target class with an MXBean interface but does not expose it in the proxy");
+          throw new NotCompliantMBeanException("Managed bean [%s] has a target class with an MXBean interface but does not expose it in the proxy"
+                  .formatted(bean));
         }
         return new StandardMBean(bean, ((Class<Object>) ifc), true);
       }
@@ -826,8 +819,9 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
         ifc = JmxUtils.getMBeanInterface(targetClass);
         if (ifc != null) {
           if (!ifc.isInstance(bean)) {
-            throw new NotCompliantMBeanException("Managed bean [" + bean +
-                    "] has a target class with an MBean interface but does not expose it in the proxy");
+            throw new NotCompliantMBeanException(
+                    "Managed bean [%s] has a target class with an MBean interface but does not expose it in the proxy"
+                            .formatted(bean));
           }
           return new StandardMBean(bean, ((Class<Object>) ifc));
         }
@@ -854,8 +848,8 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
       return mbean;
     }
     catch (Throwable ex) {
-      throw new MBeanExportException("Could not create ModelMBean for managed resource [" +
-              managedResource + "] with key '" + beanKey + "'", ex);
+      throw new MBeanExportException("Could not create ModelMBean for managed resource [%s] with key '%s'"
+              .formatted(managedResource, beanKey), ex);
     }
   }
 
@@ -1114,11 +1108,9 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
   @SuppressWarnings("serial")
   private final class NotificationPublisherAwareLazyTargetSource extends LazyInitTargetSource {
 
-    @Nullable
-    private ModelMBean modelMBean;
+    private @Nullable ModelMBean modelMBean;
 
-    @Nullable
-    private ObjectName objectName;
+    private @Nullable ObjectName objectName;
 
     public void setModelMBean(ModelMBean modelMBean) {
       this.modelMBean = modelMBean;
@@ -1129,8 +1121,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
     }
 
     @Override
-    @Nullable
-    public Object getTarget() {
+    public @Nullable Object getTarget() {
       try {
         return super.getTarget();
       }

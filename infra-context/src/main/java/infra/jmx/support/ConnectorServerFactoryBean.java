@@ -67,18 +67,15 @@ public class ConnectorServerFactoryBean extends MBeanRegistrationSupport
 
   private final Map<String, Object> environment = new HashMap<>();
 
-  @Nullable
-  private MBeanServerForwarder forwarder;
+  private @Nullable MBeanServerForwarder forwarder;
 
-  @Nullable
-  private ObjectName objectName;
+  private @Nullable ObjectName objectName;
 
   private boolean threaded = false;
 
   private boolean daemon = false;
 
-  @Nullable
-  private JMXConnectorServer connectorServer;
+  private @Nullable JMXConnectorServer connectorServer;
 
   /**
    * Set the service URL for the {@code JMXConnectorServer}.
@@ -205,8 +202,7 @@ public class ConnectorServerFactoryBean extends MBeanRegistrationSupport
   }
 
   @Override
-  @Nullable
-  public JMXConnectorServer getObject() {
+  public @Nullable JMXConnectorServer getObject() {
     return this.connectorServer;
   }
 

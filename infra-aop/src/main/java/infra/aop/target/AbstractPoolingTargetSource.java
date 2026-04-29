@@ -57,8 +57,7 @@ import infra.beans.factory.DisposableBean;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public abstract class AbstractPoolingTargetSource
-        extends AbstractPrototypeTargetSource implements PoolingConfig, DisposableBean {
+public abstract class AbstractPoolingTargetSource extends AbstractPrototypeTargetSource implements PoolingConfig, DisposableBean {
 
   /** The maximum size of the pool. */
   private int maxSize = -1;
@@ -105,8 +104,7 @@ public abstract class AbstractPoolingTargetSource
    * APIs, so we're forgiving with our exception signature
    */
   @Override
-  @Nullable
-  public abstract Object getTarget() throws Exception;
+  public abstract @Nullable Object getTarget() throws Exception;
 
   /**
    * Return the given object to the pool.

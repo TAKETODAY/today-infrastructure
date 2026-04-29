@@ -70,25 +70,27 @@ import infra.lang.Assert;
  * @since 4.0 2021/12/13 22:33
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
-public class CommonsPool2TargetSource
-        extends AbstractPoolingTargetSource implements PooledObjectFactory<Object> {
+public class CommonsPool2TargetSource extends AbstractPoolingTargetSource implements PooledObjectFactory<Object> {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
+
   private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
+
   private long maxWait = GenericObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS;
 
   private boolean blockWhenExhausted = GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED;
+
   private long minEvictableIdleTimeMillis = GenericObjectPoolConfig.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS;
+
   private long timeBetweenEvictionRunsMillis = GenericObjectPoolConfig.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS;
 
   /**
    * The Apache Commons {@code ObjectPool} used to pool target objects.
    */
-  @Nullable
-  private ObjectPool pool;
+  private @Nullable ObjectPool pool;
 
   /**
    * Create a CommonsPoolTargetSource with default settings.

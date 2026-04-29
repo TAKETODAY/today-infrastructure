@@ -65,13 +65,10 @@ import infra.beans.factory.BeanFactory;
 @SuppressWarnings("serial")
 public class LazyInitTargetSource extends AbstractBeanFactoryTargetSource {
 
-  @Nullable
-  private Object target;
+  private @Nullable Object target;
 
   @Override
-  @Nullable
-  @SuppressWarnings("NullAway")
-  public synchronized Object getTarget() throws BeansException {
+  public synchronized @Nullable Object getTarget() throws BeansException {
     if (this.target == null) {
       this.target = getBeanFactory().getBean(getTargetBeanName());
       postProcessTargetObject(this.target);

@@ -80,8 +80,7 @@ public class MBeanRegistrationSupport {
   /**
    * The {@code MBeanServer} instance being used to register beans.
    */
-  @Nullable
-  protected MBeanServer server;
+  protected @Nullable MBeanServer server;
 
   /**
    * The beans that have been registered by this exporter.
@@ -259,7 +258,6 @@ public class MBeanRegistrationSupport {
    * @param objectName the actual {@link ObjectName} that the MBean was registered with
    */
   protected void onRegister(ObjectName objectName) {
-
   }
 
   /**
@@ -270,7 +268,6 @@ public class MBeanRegistrationSupport {
    * @param objectName the {@link ObjectName} that the MBean was registered with
    */
   protected void onUnregister(ObjectName objectName) {
-
   }
 
 }
