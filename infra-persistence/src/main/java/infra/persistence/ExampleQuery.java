@@ -40,6 +40,13 @@ import infra.persistence.support.FuzzyQueryConditionStrategy;
 import infra.persistence.support.WhereAnnotationConditionStrategy;
 
 /**
+ * A query statement that builds SQL conditions based on a non-null example object.
+ * <p>
+ * This class scans the properties of the provided example instance. For each non-null property,
+ * it applies configured {@link PropertyConditionStrategy} instances to generate corresponding
+ * {@link Restriction} objects for the WHERE clause. It also supports dynamic ORDER BY clauses
+ * derived from {@link OrderBy} annotations on the example class or its properties.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/19 19:56
  */
@@ -58,15 +65,13 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
 
   private final Object example;
 
-  final EntityMetadata exampleMetadata;
+  private final EntityMetadata exampleMetadata;
 
   private final List<ConditionPropertyExtractor> extractors;
 
-  @Nullable
-  private ArrayList<Condition> conditions;
+  private @Nullable OrderByClause orderByClause;
 
-  @Nullable
-  private OrderByClause orderByClause;
+  private @Nullable ArrayList<Condition> conditions;
 
   ExampleQuery(Object example, EntityMetadata exampleMetadata, List<ConditionPropertyExtractor> extractors) {
     this.example = example;
@@ -173,7 +178,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
               }
             }
           }
-        }
+        } // todo 构建 null 的情况
 
         applyOrderByClause(property);
       }
