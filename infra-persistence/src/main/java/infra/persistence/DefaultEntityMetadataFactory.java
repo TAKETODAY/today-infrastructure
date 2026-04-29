@@ -245,6 +245,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     ArrayList<EntityProperty> entityProperties = new ArrayList<>();
 
     EntityProperty idProperty = null;
+    EntityProperty versionProperty = null;
     EntityProperty refIdProperty = null;
     for (BeanProperty property : metadata) {
       if (isFiltered(property)) {
@@ -268,7 +269,14 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
         entityProperties.add(idProperty);
       }
       else {
-        entityProperties.add(createEntityProperty(property, columnName, false));
+        EntityProperty ep = createEntityProperty(property, columnName, false);
+        entityProperties.add(ep);
+        if (ep.isPresent(Version.class)) {
+          if (versionProperty != null) {
+            throw new IllegalEntityException("Only one Version property supported, entity: " + entityClass);
+          }
+          versionProperty = ep;
+        }
       }
     }
 
@@ -286,11 +294,10 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     }
 
     return new EntityMetadata(metadata, entityClass, idProperty, tableName,
-            refIdProperty, beanProperties, columnNames, entityProperties);
+            refIdProperty, versionProperty, beanProperties, columnNames, entityProperties);
   }
 
-  @Nullable
-  private EntityMetadata getRefMetadata(Class<?> entityClass) {
+  private @Nullable EntityMetadata getRefMetadata(Class<?> entityClass) {
     var ref = MergedAnnotations.from(entityClass).get(EntityRef.class);
     if (ref.isPresent()) {
       return getEntityMetadata(ref.getClassValue());

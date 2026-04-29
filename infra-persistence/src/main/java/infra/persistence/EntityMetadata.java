@@ -71,6 +71,8 @@ public class EntityMetadata {
 
   public final @Nullable EntityProperty refIdProperty;
 
+  public final @Nullable EntityProperty versionProperty;
+
   public final BeanProperty[] beanProperties;
 
   public final String[] columnNames;
@@ -87,10 +89,12 @@ public class EntityMetadata {
   private final HashMap<String, EntityProperty> propertyMap;
 
   protected EntityMetadata(BeanMetadata root, Class<?> entityClass, @Nullable EntityProperty idProperty, String tableName,
-          @Nullable EntityProperty refIdProperty, List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
+          @Nullable EntityProperty refIdProperty, @Nullable EntityProperty versionProperty,
+          List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
     this.root = root;
     this.tableName = tableName;
     this.idProperty = idProperty;
+    this.versionProperty = versionProperty;
     this.entityClass = entityClass;
     this.refIdProperty = refIdProperty;
     this.propertyMap = mapProperties(entityProperties);
@@ -205,17 +209,19 @@ public class EntityMetadata {
             .append("columnNames", columnNames)
             .append("entityClass", entityClass)
             .append("idProperty", idProperty)
+            .append("versionProperty", versionProperty)
             .append("beanProperties", beanProperties)
             .append("entityProperties", entityProperties)
             .toString();
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     return this == o
             || (o instanceof EntityMetadata that
             && Objects.equals(tableName, that.tableName)
             && Objects.equals(idProperty, that.idProperty)
+            && Objects.equals(versionProperty, that.versionProperty)
             && Arrays.equals(columnNames, that.columnNames)
             && Objects.equals(entityClass, that.entityClass)
             && Arrays.equals(beanProperties, that.beanProperties)
@@ -224,7 +230,7 @@ public class EntityMetadata {
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(tableName, entityClass, idProperty);
+    int result = Objects.hash(tableName, entityClass, idProperty, versionProperty);
     result = 31 * result + Arrays.hashCode(beanProperties);
     result = 31 * result + Arrays.hashCode(columnNames);
     result = 31 * result + Arrays.hashCode(entityProperties);
