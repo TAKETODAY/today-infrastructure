@@ -26,7 +26,10 @@ import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
- * clause and direction cannot present same time
+ * Specifies the ordering criteria for query results.
+ * <p>
+ * The {@code clause} (or {@code value}) and {@code direction} attributes are mutually exclusive
+ * and cannot be specified simultaneously.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 17:21
