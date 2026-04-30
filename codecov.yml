@@ -1,2 +1,8 @@
 codecov:
   max_report_age: off
+
+  ignore:
+    - "infra-webmvc-mock/**/*"
+    - "infra-samples/**/*"
+    - "infra-build/**/*"
+    - "infra-mariadb4j/**/*"
