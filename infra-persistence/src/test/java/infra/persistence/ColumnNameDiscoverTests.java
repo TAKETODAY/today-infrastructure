@@ -25,8 +25,8 @@ import java.lang.annotation.Target;
 import java.util.List;
 
 import infra.core.annotation.AliasFor;
-import infra.lang.Constant;
 import infra.jdbc.model.UserModel;
+import infra.lang.Constant;
 
 import static infra.beans.BeanProperty.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
