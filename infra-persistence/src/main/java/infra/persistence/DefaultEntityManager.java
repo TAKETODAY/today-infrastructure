@@ -61,6 +61,7 @@ import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 import infra.persistence.sql.Update;
+import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
 
@@ -120,7 +121,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
-  private VersionIncrementStrategy versionIncrementStrategy = VersionIncrementStrategy.defaults();
+  private VersionIncrementStrategy versionIncrementStrategy = new DefaultVersionIncrementStrategy();
 
   private Pageable defaultPageable = Pageable.of(10, 1);
 
@@ -607,7 +608,7 @@ public class DefaultEntityManager implements EntityManager {
     Object oldVersion = null;
     if (versionProperty != null) {
       oldVersion = versionProperty.getValue(entity);
-      versionProperty.setValue(entity, versionIncrementStrategy.nextVersion(oldVersion));
+      versionProperty.setValue(entity, incrementVersion(oldVersion));
     }
 
     Update updateStmt = new Update(metadata.tableName);
@@ -732,7 +733,7 @@ public class DefaultEntityManager implements EntityManager {
     Object oldVersion = null;
     if (versionProperty != null) {
       oldVersion = versionProperty.getValue(entity);
-      versionProperty.setValue(entity, versionIncrementStrategy.nextVersion(oldVersion));
+      versionProperty.setValue(entity, incrementVersion(oldVersion));
     }
 
     Update updateStmt = new Update(metadata.tableName);
@@ -1365,9 +1366,8 @@ public class DefaultEntityManager implements EntityManager {
   private Pair<String, ArrayList<EntityProperty>> insertStatement(PropertyUpdateStrategy strategy, Object entity, EntityMetadata entityMetadata) {
     Insert insert = new Insert(entityMetadata.tableName);
     var properties = new ArrayList<EntityProperty>(entityMetadata.entityProperties.length);
-    EntityProperty versionProperty = entityMetadata.versionProperty;
     for (EntityProperty property : entityMetadata.entityProperties) {
-      if (property == versionProperty || strategy.shouldUpdate(entity, property)) {
+      if (strategy.shouldUpdate(entity, property)) {
         insert.addColumn(property.columnName);
         properties.add(property);
       }
@@ -1465,6 +1465,16 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   //
+
+  private Object incrementVersion(@Nullable Object currentVersion) {
+    Assert.notNull(currentVersion, "Entity version not set");
+    Object next = versionIncrementStrategy.nextVersion(currentVersion);
+    if (next == null) {
+      throw new IllegalArgumentException(
+              "VersionIncrementStrategy returned null for current version: " + currentVersion);
+    }
+    return next;
+  }
 
   static int setParameters(Object entity, ArrayList<EntityProperty> properties, PreparedStatement statement) throws SQLException {
     int idx = 1;

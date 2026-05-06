@@ -18,7 +18,6 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 
 /**
@@ -29,13 +28,15 @@ import java.time.Instant;
  * <p>
  * Users can provide custom implementations to support arbitrary version types
  * beyond the built-in defaults ({@code Integer}, {@code Long}, {@code Short},
- * {@link Timestamp}, {@link Instant}).
+ * {@link Instant}).
  *
  * <pre>{@code
  * // Custom strategy for a string-based version
  * VersionIncrementStrategy custom = currentVersion -> {
- *   String v = (String) currentVersion;
- *   return v + "_updated";
+ *   if (currentVersion instanceof String v) {
+ *     return v + "_updated";
+ *   }
+ *   return null;
  * };
  *
  * entityManager.setVersionIncrementStrategy(custom);
@@ -55,7 +56,7 @@ public interface VersionIncrementStrategy {
    * @throws IllegalArgumentException if the version type is not supported by this strategy
    */
   @Nullable
-  Object nextVersion(@Nullable Object currentVersion);
+  Object nextVersion(Object currentVersion);
 
   /**
    * Combine this strategy with another strategy using fallback semantics.
@@ -65,108 +66,13 @@ public interface VersionIncrementStrategy {
    * @param fallback the fallback strategy to use if this one fails
    * @return a composed strategy that tries this strategy first, then the fallback
    */
-  default VersionIncrementStrategy or(VersionIncrementStrategy fallback) {
+  default VersionIncrementStrategy and(VersionIncrementStrategy fallback) {
     return currentVersion -> {
-      try {
-        return nextVersion(currentVersion);
-      }
-      catch (IllegalArgumentException ignored) {
+      Object next = nextVersion(currentVersion);
+      if (next == null) {
         return fallback.nextVersion(currentVersion);
       }
-    };
-  }
-
-  /**
-   * Returns the default composite strategy that handles built-in version types:
-   * <ul>
-   *   <li>{@code null} → 1</li>
-   *   <li>{@code Integer} / {@code int} → value + 1</li>
-   *   <li>{@code Long} / {@code long} → value + 1</li>
-   *   <li>{@code Short} / {@code short} → value + 1</li>
-   *   <li>{@link Timestamp} → current time</li>
-   *   <li>{@link Instant} → current time</li>
-   * </ul>
-   *
-   * @return the default version increment strategy
-   */
-  static VersionIncrementStrategy defaults() {
-    return forNull()
-            .or(forInteger())
-            .or(forLong())
-            .or(forShort())
-            .or(forTimestamp())
-            .or(forInstant());
-  }
-
-  /**
-   * Creates a strategy that returns {@code 1} for a {@code null} current version.
-   */
-  static VersionIncrementStrategy forNull() {
-    return currentVersion -> {
-      if (currentVersion == null) {
-        return 1;
-      }
-      throw new IllegalArgumentException("Not null");
-    };
-  }
-
-  /**
-   * Creates a strategy that increments {@link Integer} values by 1.
-   */
-  static VersionIncrementStrategy forInteger() {
-    return currentVersion -> {
-      if (currentVersion instanceof Integer i) {
-        return i + 1;
-      }
-      throw new IllegalArgumentException("Not an Integer: " + currentVersion.getClass());
-    };
-  }
-
-  /**
-   * Creates a strategy that increments {@link Long} values by 1.
-   */
-  static VersionIncrementStrategy forLong() {
-    return currentVersion -> {
-      if (currentVersion instanceof Long l) {
-        return l + 1L;
-      }
-      throw new IllegalArgumentException("Not a Long: " + currentVersion.getClass());
-    };
-  }
-
-  /**
-   * Creates a strategy that increments {@link Short} values by 1.
-   */
-  static VersionIncrementStrategy forShort() {
-    return currentVersion -> {
-      if (currentVersion instanceof Short s) {
-        return (short) (s + 1);
-      }
-      throw new IllegalArgumentException("Not a Short: " + currentVersion.getClass());
-    };
-  }
-
-  /**
-   * Creates a strategy that returns the current system time as a {@link Timestamp}.
-   */
-  static VersionIncrementStrategy forTimestamp() {
-    return currentVersion -> {
-      if (currentVersion instanceof Timestamp) {
-        return new Timestamp(System.currentTimeMillis());
-      }
-      throw new IllegalArgumentException("Not a Timestamp: " + currentVersion.getClass());
-    };
-  }
-
-  /**
-   * Creates a strategy that returns the current system time as an {@link Instant}.
-   */
-  static VersionIncrementStrategy forInstant() {
-    return currentVersion -> {
-      if (currentVersion instanceof Instant) {
-        return Instant.now();
-      }
-      throw new IllegalArgumentException("Not an Instant: " + currentVersion.getClass());
+      return next;
     };
   }
 

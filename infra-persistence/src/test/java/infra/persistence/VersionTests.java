@@ -25,15 +25,19 @@ import java.lang.annotation.Target;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+import javax.sql.DataSource;
+
 import infra.dao.OptimisticLockingFailureException;
 import infra.jdbc.AbstractRepositoryManagerTests;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
+import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link Version} annotation and optimistic locking functionality
@@ -196,49 +200,6 @@ class VersionTests extends AbstractRepositoryManagerTests {
             """)) {
       query.executeUpdate();
     }
-  }
-
-  // -------------------------------------------------------------------------
-  // VersionIncrementStrategy.defaults().nextVersion() unit tests
-  // -------------------------------------------------------------------------
-
-  @Test
-  void incrementVersion_nullValue_returnsOne() {
-    assertThat(VersionIncrementStrategy.defaults().nextVersion(null)).isEqualTo(1);
-  }
-
-  @Test
-  void incrementVersion_integer_increments() {
-    assertThat(VersionIncrementStrategy.defaults().nextVersion(5)).isEqualTo(6);
-  }
-
-  @Test
-  void incrementVersion_long_increments() {
-    assertThat(VersionIncrementStrategy.defaults().nextVersion(10L)).isEqualTo(11L);
-  }
-
-  @Test
-  void incrementVersion_short_increments() {
-    assertThat(VersionIncrementStrategy.defaults().nextVersion((short) 3)).isEqualTo((short) 4);
-  }
-
-  @Test
-  void incrementVersion_timestamp_returnsCurrentTimestamp() {
-    Timestamp before = new Timestamp(System.currentTimeMillis() - 1);
-    Object result = VersionIncrementStrategy.defaults().nextVersion(new Timestamp(System.currentTimeMillis()));
-    assertThat(result).isInstanceOf(Timestamp.class);
-    assertThat(((Timestamp) result).getTime()).isGreaterThanOrEqualTo(before.getTime());
-  }
-
-  @Test
-  void incrementVersion_unsupportedType_throwsException() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> VersionIncrementStrategy.defaults().nextVersion("not_a_number"));
-  }
-
-  @Test
-  void incrementVersion_zeroValue_increments() {
-    assertThat(VersionIncrementStrategy.defaults().nextVersion(0)).isEqualTo(1);
   }
 
   // -------------------------------------------------------------------------
@@ -482,10 +443,12 @@ class VersionTests extends AbstractRepositoryManagerTests {
 
       @Id
       public Integer getId() { return id; }
+
       public void setId(Integer id) { this.id = id; }
 
       @Version
       public Integer getVersion() { return version; }
+
       public void setVersion(Integer version) { this.version = version; }
     }
 
@@ -502,108 +465,22 @@ class VersionTests extends AbstractRepositoryManagerTests {
   }
 
   // -------------------------------------------------------------------------
-  // VersionIncrementStrategy unit tests
-  // -------------------------------------------------------------------------
-
-  @Test
-  void incrementVersion_instant_returnsCurrentTime() {
-    Instant before = Instant.now().minusMillis(1);
-    Object result = VersionIncrementStrategy.defaults().nextVersion(Instant.now());
-    assertThat(result).isInstanceOf(Instant.class);
-    assertThat(((Instant) result).toEpochMilli()).isGreaterThanOrEqualTo(before.toEpochMilli());
-  }
-
-  @Test
-  void strategy_forInstant_returnsCurrentTime() {
-    VersionIncrementStrategy strategy = VersionIncrementStrategy.forInstant();
-    Object result = strategy.nextVersion(Instant.now());
-    assertThat(result).isInstanceOf(Instant.class);
-  }
-
-  @Test
-  void strategy_forInstant_rejectsNonInstant() {
-    VersionIncrementStrategy strategy = VersionIncrementStrategy.forInstant();
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> strategy.nextVersion(1))
-            .withMessageContaining("Not an Instant");
-  }
-
-  @Test
-  void strategy_forNull_returnsOne() {
-    assertThat(VersionIncrementStrategy.forNull().nextVersion(null)).isEqualTo(1);
-  }
-
-  @Test
-  void strategy_forNull_throwsOnNonNull() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> VersionIncrementStrategy.forNull().nextVersion(5));
-  }
-
-  @Test
-  void strategy_or_chainsFallback() {
-    // a strategy that only handles Instant, with Integer as fallback
-    VersionIncrementStrategy strategy = VersionIncrementStrategy.forInstant()
-            .or(VersionIncrementStrategy.forInteger());
-
-    assertThat(strategy.nextVersion(Instant.now())).isInstanceOf(Instant.class);
-    assertThat(strategy.nextVersion(5)).isEqualTo(6);
-  }
-
-  @Test
-  void strategy_or_throwsWhenAllFail() {
-    // a strategy that only handles Instant, with no fallback for Integer
-    VersionIncrementStrategy strategy = VersionIncrementStrategy.forInstant()
-            .or(VersionIncrementStrategy.forTimestamp());
-
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> strategy.nextVersion(5))
-            .withMessageContaining("Not a Timestamp");
-  }
-
-  @Test
-  void strategy_forInteger_increments() {
-    assertThat(VersionIncrementStrategy.forInteger().nextVersion(10)).isEqualTo(11);
-  }
-
-  @Test
-  void strategy_forLong_increments() {
-    assertThat(VersionIncrementStrategy.forLong().nextVersion(10L)).isEqualTo(11L);
-  }
-
-  @Test
-  void strategy_forShort_increments() {
-    assertThat(VersionIncrementStrategy.forShort().nextVersion((short) 5)).isEqualTo((short) 6);
-  }
-
-  @Test
-  void strategy_defaults_handlesAllBuiltInTypes() {
-    VersionIncrementStrategy strategy = VersionIncrementStrategy.defaults();
-
-    assertThat(strategy.nextVersion(null)).isEqualTo(1);
-    assertThat(strategy.nextVersion(5)).isEqualTo(6);
-    assertThat(strategy.nextVersion(10L)).isEqualTo(11L);
-    assertThat(strategy.nextVersion((short) 3)).isEqualTo((short) 4);
-    assertThat(strategy.nextVersion(new Timestamp(0))).isInstanceOf(Timestamp.class);
-    assertThat(strategy.nextVersion(Instant.now())).isInstanceOf(Instant.class);
-  }
-
-  // -------------------------------------------------------------------------
   // Custom VersionIncrementStrategy on DefaultEntityManager
   // -------------------------------------------------------------------------
 
   @Test
   void entityManager_setVersionIncrementStrategy() {
     VersionIncrementStrategy customStrategy = currentVersion -> 99;
-    RepositoryManager repositoryManager = org.mockito.Mockito.mock(RepositoryManager.class);
-    javax.sql.DataSource dataSource = org.mockito.Mockito.mock(javax.sql.DataSource.class);
-    org.mockito.Mockito.when(repositoryManager.getDataSource()).thenReturn(dataSource);
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
 
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     entityManager.setVersionIncrementStrategy(customStrategy);
 
     // verify via reflection that the field was set
-    Object fieldValue = infra.test.util.ReflectionTestUtils.getField(
-            entityManager, "versionIncrementStrategy");
+    Object fieldValue = ReflectionTestUtils.getField(entityManager, "versionIncrementStrategy");
     assertThat(fieldValue).isSameAs(customStrategy);
   }
+
 }
