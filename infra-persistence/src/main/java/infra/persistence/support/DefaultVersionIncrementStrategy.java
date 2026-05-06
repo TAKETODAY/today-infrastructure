@@ -3,6 +3,9 @@ package infra.persistence.support;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 import infra.persistence.VersionIncrementStrategy;
 
@@ -33,6 +36,19 @@ public class DefaultVersionIncrementStrategy implements VersionIncrementStrategy
     if (currentVersion instanceof Instant) {
       return Instant.now();
     }
+
+    if (currentVersion instanceof LocalDateTime) {
+      return LocalDateTime.now();
+    }
+
+    if (currentVersion instanceof ZonedDateTime zoned) {
+      return ZonedDateTime.now(zoned.getZone());
+    }
+
+    if (currentVersion instanceof OffsetDateTime offset) {
+      return OffsetDateTime.now(offset.getOffset());
+    }
+
     return null;
   }
 
