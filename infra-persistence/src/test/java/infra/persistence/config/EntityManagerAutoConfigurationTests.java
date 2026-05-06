@@ -20,6 +20,9 @@ import infra.jdbc.type.UnknownTypeHandler;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.PropertyFilter;
+import infra.persistence.VersionIncrementStrategy;
+import infra.persistence.support.DefaultVersionIncrementStrategy;
+import infra.util.function.SupplierUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -118,6 +121,28 @@ class EntityManagerAutoConfigurationTests {
               assertThat(context.getBean(TypeHandlerManager.class)).isNotEqualTo(TypeHandlerManager.sharedInstance);
               assertThat(context.getBean(TypeHandlerManager.class).getTypeHandler(MyProperty.class))
                       .isInstanceOf(UnknownTypeHandler.class).isSameAs(context.getBean(TypeHandlerManager.class).getUnknownTypeHandler());
+            });
+  }
+
+  @Test
+  void versionIncrementStrategy() {
+    class VersionIncrementStrategy0 implements VersionIncrementStrategy {
+
+      @Override
+      public @Nullable Object nextVersion(Object currentVersion) {
+        return null;
+      }
+    }
+
+    VersionIncrementStrategy versionIncrementStrategy = new VersionIncrementStrategy0();
+    VersionIncrementStrategy strategy = versionIncrementStrategy.and(new DefaultVersionIncrementStrategy());
+
+    contextRunner.withBean("versionIncrementStrategy", VersionIncrementStrategy.class, SupplierUtils.always(strategy))
+            .run(context -> {
+              assertThat(context).hasSingleBean(EntityManager.class);
+              EntityManager entityManager = context.getBean(EntityManager.class);
+              assertThat(entityManager).extracting("versionIncrementStrategy")
+                      .isEqualTo(strategy);
             });
   }
 

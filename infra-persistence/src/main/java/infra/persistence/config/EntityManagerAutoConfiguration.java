@@ -21,6 +21,7 @@ import infra.persistence.DefaultEntityManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
+import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.platform.Platform;
 import infra.stereotype.Component;
 
@@ -42,7 +43,7 @@ public final class EntityManagerAutoConfiguration {
   @ConditionalOnMissingBean(EntityManager.class)
   public static EntityManager entityManager(RepositoryManager manager, @Nullable Platform platform,
           EntityMetadataFactory entityMetadataFactory, SqlStatementLogger sqlStatementLogger,
-          PersistenceProperties properties,
+          PersistenceProperties properties, @Nullable VersionIncrementStrategy versionIncrementStrategy,
           List<BatchPersistListener> batchPersistListeners,
           List<ConditionPropertyExtractor> conditionPropertyExtractors,
           ObjectProvider<EntityManagerCustomizer> customizers) {
@@ -54,6 +55,10 @@ public final class EntityManagerAutoConfiguration {
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);
     entityManager.setAutoGenerateId(properties.autoGenerateId);
     entityManager.setConditionPropertyExtractors(conditionPropertyExtractors);
+
+    if (versionIncrementStrategy != null) {
+      entityManager.setVersionIncrementStrategy(versionIncrementStrategy);
+    }
 
     for (EntityManagerCustomizer customizer : customizers) {
       customizer.customize(entityManager);
