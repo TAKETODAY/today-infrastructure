@@ -1,6 +1,6 @@
-
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * Provides persistence SQL support.
+ *
  * @since 4.0 2024/4/8 16:41
  */
 @NullMarked
