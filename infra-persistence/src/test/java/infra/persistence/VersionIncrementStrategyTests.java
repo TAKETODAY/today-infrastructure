@@ -58,6 +58,46 @@ class VersionIncrementStrategyTests {
     assertThat(strategy.nextVersion(Instant.now())).isInstanceOf(Instant.class);
   }
 
+  // -------------------------------------------------------------------------
+  // VersionIncrementStrategy.and() chaining tests
+  // -------------------------------------------------------------------------
+
+  @Test
+  void and_chainsWhenFirstReturnsNull() {
+    VersionIncrementStrategy first = v -> null; // never handles
+    VersionIncrementStrategy second = v -> v instanceof Integer i ? i + 1 : null;
+
+    VersionIncrementStrategy chain = first.and(second);
+    assertThat(chain.nextVersion(5)).isEqualTo(6);
+  }
+
+  @Test
+  void and_usesFirstWhenNotNull() {
+    VersionIncrementStrategy first = v -> 99;
+    VersionIncrementStrategy second = v -> 42;
+
+    VersionIncrementStrategy chain = first.and(second);
+    assertThat(chain.nextVersion(5)).isEqualTo(99);
+  }
+
+  @Test
+  void and_returnsNullWhenAllReturnNull() {
+    VersionIncrementStrategy chain = ((VersionIncrementStrategy) v -> null)
+            .and(v -> null)
+            .and(v -> null);
+
+    assertThat(chain.nextVersion(5)).isNull();
+  }
+
+  @Test
+  void and_withDefaultStrategy_asFallback() {
+    VersionIncrementStrategy chain = ((VersionIncrementStrategy) v -> null)
+            .and(new DefaultVersionIncrementStrategy());
+
+    assertThat(chain.nextVersion(5)).isEqualTo(6);
+    assertThat(chain.nextVersion(Instant.now())).isInstanceOf(Instant.class);
+  }
+
   private static VersionIncrementStrategy createDefaults() {
     return new DefaultVersionIncrementStrategy();
   }

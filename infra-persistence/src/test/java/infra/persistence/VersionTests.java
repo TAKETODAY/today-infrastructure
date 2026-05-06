@@ -24,6 +24,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import javax.sql.DataSource;
 
@@ -31,6 +36,7 @@ import infra.dao.OptimisticLockingFailureException;
 import infra.jdbc.AbstractRepositoryManagerTests;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
+import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -470,7 +476,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
 
   @Test
   void entityManager_setVersionIncrementStrategy() {
-    VersionIncrementStrategy customStrategy = currentVersion -> 99;
+    VersionIncrementStrategy customStrategy = v -> 99;
     RepositoryManager repositoryManager = mock(RepositoryManager.class);
     DataSource dataSource = mock(DataSource.class);
     when(repositoryManager.getDataSource()).thenReturn(dataSource);
@@ -478,9 +484,136 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     entityManager.setVersionIncrementStrategy(customStrategy);
 
-    // verify via reflection that the field was set
     Object fieldValue = ReflectionTestUtils.getField(entityManager, "versionIncrementStrategy");
     assertThat(fieldValue).isSameAs(customStrategy);
   }
 
+  @Test
+  void entityManager_setVersionIncrementStrategy_null_usesDefault() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    entityManager.setVersionIncrementStrategy(null);
+
+    Object fieldValue = ReflectionTestUtils.getField(entityManager, "versionIncrementStrategy");
+    assertThat(fieldValue).isInstanceOf(DefaultVersionIncrementStrategy.class);
+  }
+
+  @Test
+  void entityManager_defaultUsesDefaultVersionIncrementStrategy() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    Object fieldValue = ReflectionTestUtils.getField(entityManager, "versionIncrementStrategy");
+    assertThat(fieldValue).isInstanceOf(DefaultVersionIncrementStrategy.class);
+  }
+
+  // -------------------------------------------------------------------------
+  // Integration tests: updateById with optimistic lock
+  // -------------------------------------------------------------------------
+
+  @ParameterizedRepositoryManagerTest
+  void updateById_withVersion_concurrentModification_throwsOptimisticLock(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    VersionedModel model = new VersionedModel();
+    model.name = "conflict-test";
+    model.version = 0;
+    entityManager.persist(model, true);
+
+    DefaultEntityManager entityManager2 = new DefaultEntityManager(repositoryManager);
+    VersionedModel copy = entityManager2.findById(VersionedModel.class, model.id);
+    copy.name = "modified-by-other";
+    entityManager2.updateById(copy);
+
+    model.name = "should-fail";
+    assertThatThrownBy(() -> entityManager.updateById(model))
+            .isInstanceOf(OptimisticLockingFailureException.class)
+            .hasMessageContaining("Optimistic locking failure");
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void deleteById_withVersion_success(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    VersionedModel model = new VersionedModel();
+    model.name = "delete-me";
+    model.version = 0;
+    entityManager.persist(model, true);
+
+    int modelId = model.id;
+    int deletedRows = entityManager.delete(model);
+    assertThat(deletedRows).isEqualTo(1);
+
+    VersionedModel deleted = entityManager.findById(VersionedModel.class, modelId);
+    assertThat(deleted).isNull();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void deleteById_withVersion_conflict_throwsOptimisticLock(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    VersionedModel model = new VersionedModel();
+    model.name = "conflict-delete";
+    model.version = 0;
+    entityManager.persist(model, true);
+
+    int modelId = model.id;
+
+    DefaultEntityManager entityManager2 = new DefaultEntityManager(repositoryManager);
+    VersionedModel copy = entityManager2.findById(VersionedModel.class, modelId);
+    copy.name = "modified-by-other";
+    entityManager2.updateById(copy);
+
+    assertThatThrownBy(() -> entityManager.delete(model))
+            .isInstanceOf(OptimisticLockingFailureException.class)
+            .hasMessageContaining("Optimistic locking failure");
+
+    VersionedModel stillExists = entityManager.findById(VersionedModel.class, modelId);
+    assertThat(stillExists).isNotNull();
+    assertThat(stillExists.version).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateById_withVersion_long(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    VersionedLongModel model = new VersionedLongModel();
+    model.name = "long-version";
+    model.version = 0L;
+    entityManager.persist(model, true);
+
+    model.name = "long-updated";
+    entityManager.updateById(model);
+
+    assertThat(model.version).isEqualTo(1L);
+
+    VersionedLongModel found = entityManager.findById(VersionedLongModel.class, model.id);
+    assertThat(found).isNotNull();
+    assertThat(found.version).isEqualTo(1L);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateById_withVersion_alwaysIncrements(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    VersionedModel model = new VersionedModel();
+    model.name = "no-change-test";
+    model.version = 0;
+    entityManager.persist(model, true);
+
+    int updatedRows = entityManager.updateById(model);
+
+    assertThat(updatedRows).isEqualTo(1);
+    assertThat(model.version).isEqualTo(1);
+
+    VersionedModel found = entityManager.findById(VersionedModel.class, model.id);
+    assertThat(found).isNotNull();
+    assertThat(found.version).isEqualTo(1);
+  }
 }

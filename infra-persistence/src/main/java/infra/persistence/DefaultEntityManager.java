@@ -180,21 +180,23 @@ public class DefaultEntityManager implements EntityManager {
   /**
    * Sets the {@link VersionIncrementStrategy} used to compute the next version value
    * for entities with a {@link Version} annotated property during update operations.
+   * When set to {@code null}, the {@link DefaultVersionIncrementStrategy default}
+   * strategy is used.
    *
    * <pre>{@code
-   * // Use a custom strategy for Instant-based versions
+   * // Compose custom strategy with the default as fallback
    * entityManager.setVersionIncrementStrategy(
-   *     VersionIncrementStrategy.forInstant().or(VersionIncrementStrategy.defaults()));
+   *     myCustomStrategy.and(new DefaultVersionIncrementStrategy()));
    * }</pre>
    *
-   * @param versionIncrementStrategy the strategy to compute next version values;
-   * must not be null
-   * @throws IllegalArgumentException if the provided strategy is null
+   * @param versionIncrementStrategy the strategy, or {@code null} to use the default
    * @see VersionIncrementStrategy
+   * @see DefaultVersionIncrementStrategy
    */
-  public void setVersionIncrementStrategy(VersionIncrementStrategy versionIncrementStrategy) {
-    Assert.notNull(versionIncrementStrategy, "versionIncrementStrategy is required");
-    this.versionIncrementStrategy = versionIncrementStrategy;
+  public void setVersionIncrementStrategy(@Nullable VersionIncrementStrategy versionIncrementStrategy) {
+    this.versionIncrementStrategy = versionIncrementStrategy == null
+            ? new DefaultVersionIncrementStrategy()
+            : versionIncrementStrategy;
   }
 
   /**
