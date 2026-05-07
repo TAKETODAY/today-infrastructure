@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.jdbc.metrics;
 
 import org.jspecify.annotations.Nullable;
