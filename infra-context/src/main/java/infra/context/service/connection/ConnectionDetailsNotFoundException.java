@@ -16,32 +16,28 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.service.connection;
+package infra.context.service.connection;
 
 import org.jspecify.annotations.Nullable;
 
 /**
- * A factory to create {@link ConnectionDetails} from a given {@code source}.
- * Implementations should be registered in {@code META-INF/today.strategies}.
+ * {@link RuntimeException} thrown when required {@link ConnectionDetails} could not be
+ * found.
  *
- * @param <S> the source type accepted by the factory. Implementations are expected to
- * provide a valid {@code toString}.
- * @param <D> the type of {@link ConnectionDetails} produced by the factory
  * @author Moritz Halbritter
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface ConnectionDetailsFactory<S, D extends ConnectionDetails> {
+public class ConnectionDetailsNotFoundException extends RuntimeException {
 
-  /**
-   * Get the {@link ConnectionDetails} from the given {@code source}. May return
-   * {@code null} if no details can be created.
-   *
-   * @param source the source
-   * @return the connection details or {@code null}
-   */
-  @Nullable
-  D getConnectionDetails(S source);
+  <S> ConnectionDetailsNotFoundException(S source) {
+    this("No ConnectionDetails found for source '%s'".formatted(source), null);
+  }
+
+  public ConnectionDetailsNotFoundException(String message, @Nullable Throwable cause) {
+    super(message, cause);
+  }
 
 }

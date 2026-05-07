@@ -16,16 +16,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.service.connection;
+package infra.context.service.connection;
 
-import infra.origin.OriginProvider;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Base interface for types that provide the details required to establish a connection to
- * a remote service.
- * <p>
- * Implementation classes can also implement {@link OriginProvider} in order to provide
- * origin information.
+ * {@link RuntimeException} thrown when a {@link ConnectionDetailsFactory} could not be
+ * found.
  *
  * @author Moritz Halbritter
  * @author Andy Wilkinson
@@ -33,6 +30,14 @@ import infra.origin.OriginProvider;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface ConnectionDetails {
+public class ConnectionDetailsFactoryNotFoundException extends RuntimeException {
+
+  <S> ConnectionDetailsFactoryNotFoundException(S source) {
+    this("No ConnectionDetailsFactory found for source '%s'".formatted(source), null);
+  }
+
+  public ConnectionDetailsFactoryNotFoundException(String message, @Nullable Throwable cause) {
+    super(message, cause);
+  }
 
 }

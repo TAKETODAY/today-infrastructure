@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.service.connection;
+package infra.context.service.connection;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import infra.app.service.connection.ConnectionDetailsFactories.Registration;
+import infra.context.service.connection.ConnectionDetailsFactories.Registration;
 import infra.core.Ordered;
 import infra.core.test.io.support.MockStrategies;
 

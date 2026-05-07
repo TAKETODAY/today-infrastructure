@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.service.connection;
+package infra.context.service.connection;
 
 import org.jspecify.annotations.Nullable;
 
