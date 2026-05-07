@@ -25,6 +25,7 @@ dependencies {
   jacocoAggregation project(':infra-oxm')
   jacocoAggregation project(':infra-test')
   jacocoAggregation project(':infra-test-support')
+  jacocoAggregation project(':infra-testcontainers')
   jacocoAggregation project(':infra-tx')
   jacocoAggregation project(':infra-web')
   jacocoAggregation project(':infra-webmvc')
