@@ -20,6 +20,7 @@ package infra.jdbc.config;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.context.service.connection.ConnectionDetails;
 import infra.lang.Assert;
 
 /**
@@ -31,7 +32,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface JdbcConnectionDetails {
+public interface JdbcConnectionDetails extends ConnectionDetails {
 
   /**
    * Username for the database.
