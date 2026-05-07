@@ -21,6 +21,7 @@ dependencies {
   optional 'com.oracle.database.jdbc:ojdbc8'
   optional 'com.oracle.database.jdbc:ucp'
   optional 'com.mchange:c3p0:0.9.5.5'
+  optional "org.testcontainers:testcontainers-jdbc"
 
   optional project(":module:infra-app-health")
 
@@ -70,7 +71,7 @@ dependencies {
   testRuntimeOnly 'org.apache.derby:derbytools'
   testRuntimeOnly 'org.xerial:sqlite-jdbc'
   testRuntimeOnly 'com.ibm.db2:jcc:11.5.7.0'
-  testRuntimeOnly 'org.testcontainers:jdbc'
+  testRuntimeOnly 'org.testcontainers:testcontainers-jdbc'
   testRuntimeOnly 'net.sourceforge.jtds:jtds:1.3.1'
   testRuntimeOnly 'org.firebirdsql.jdbc:jaybird:4.0.6.java8'
 
