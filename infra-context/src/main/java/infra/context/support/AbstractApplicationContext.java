@@ -191,7 +191,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final ArrayList<BeanFactoryPostProcessor> factoryPostProcessors = new ArrayList<>();
+  private final ArrayList<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
   /** Statically specified listeners. @since 4.0 */
   private final LinkedHashSet<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
@@ -783,7 +783,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
     logger.debug("Invoking bean-factory-post-processors");
-    PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
+    PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, beanFactoryPostProcessors);
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
     // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
@@ -1146,7 +1146,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
     Assert.notNull(postProcessor, "BeanFactoryPostProcessor is required");
 
-    factoryPostProcessors.add(postProcessor);
+    beanFactoryPostProcessors.add(postProcessor);
+  }
+
+  /**
+   * Return the list of BeanFactoryPostProcessors that will get applied
+   * to the internal BeanFactory.
+   *
+   * @since 5.0
+   */
+  public List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors() {
+    return this.beanFactoryPostProcessors;
   }
 
   //---------------------------------------------------------------------
