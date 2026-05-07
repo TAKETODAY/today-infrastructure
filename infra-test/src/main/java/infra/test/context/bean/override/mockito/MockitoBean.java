@@ -74,7 +74,7 @@ import infra.test.context.bean.override.BeanOverride;
  *
  * <p>Dependencies that are known to the application context but are not beans
  * (such as those
- * {@linkplain infra.beans.factory.config.ConfigurableListableBeanFactory#registerResolvableDependency(Class, Object)
+ * {@linkplain infra.beans.factory.config.ConfigurableBeanFactory#registerResolvableDependency(Class, Object)
  * registered directly}) will not be found, and a mocked bean will be added to
  * the context alongside the existing dependency.
  *

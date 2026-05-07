@@ -135,7 +135,7 @@ class HttpRangeTests {
 
   @Test
   public void toResourceRegion() {
-    byte[] bytes = "Spring Framework".getBytes(StandardCharsets.UTF_8);
+    byte[] bytes = "Infra Framework".getBytes(StandardCharsets.UTF_8);
     ByteArrayResource resource = new ByteArrayResource(bytes);
     HttpRange range = HttpRange.createByteRange(0, 5);
     ResourceRegion region = range.toResourceRegion(resource);
@@ -170,7 +170,7 @@ class HttpRangeTests {
 
   @Test // gh-23576
   public void toResourceRegionStartingAtResourceByteCount() {
-    byte[] bytes = "Spring Framework".getBytes(StandardCharsets.UTF_8);
+    byte[] bytes = "Infra Framework".getBytes(StandardCharsets.UTF_8);
     ByteArrayResource resource = new ByteArrayResource(bytes);
     HttpRange range = HttpRange.createByteRange(resource.contentLength());
     assertThatIllegalArgumentException().isThrownBy(() -> range.toResourceRegion(resource));

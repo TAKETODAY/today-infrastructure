@@ -68,9 +68,6 @@ class ScriptUtilsIntegrationTests extends AbstractDatabaseInitializationTests {
     assertUsersDatabaseCreated("Hoeller", "Brannen");
   }
 
-  /**
-   * @since 4.2
-   */
   @Test
   void executeSqlScriptContainingSingleQuotesNestedInsideDoubleQuotes() throws SQLException {
     executeSqlScript(db.getConnection(), resource("users-data-with-single-quotes-nested-in-double-quotes.sql"));

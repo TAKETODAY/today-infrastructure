@@ -1,1 +1,1 @@
-Spring Framework test resource content.
+Infra Framework test resource content.

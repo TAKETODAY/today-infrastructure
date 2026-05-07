@@ -324,7 +324,7 @@ TODAY Framework 5.3 引入了对从封闭类继承测试类配置的一流支持
 显式 `@NestedTestConfiguration` 声明将应用于带注解的测试类及其任何子类和嵌套类。
 因此，您可以使用 `@NestedTestConfiguration` 注解顶级测试类，这将递归应用于其所有嵌套测试类。
 
-为了允许开发团队将默认值更改为 `OVERRIDE`——例如，为了与 TODAY Framework 5.0 到 5.2 兼容——可以通过 JVM 系统属性或类路径根目录下的 `spring.properties` 文件全局更改默认模式。
+为了允许开发团队将默认值更改为 `OVERRIDE`——例如，为了与 TODAY Framework 5.0 到 5.2 兼容——可以通过 JVM 系统属性或类路径根目录下的 `today.properties` 文件全局更改默认模式。
 有关详细信息，请参阅 xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-nestedtestconfiguration["更改默认封闭配置继承模式"] 说明。
 
 虽然下面的 "Hello World" 示例非常简单，但它显示了如何在顶级类上声明由其 `@Nested` 测试类继承的通用配置。

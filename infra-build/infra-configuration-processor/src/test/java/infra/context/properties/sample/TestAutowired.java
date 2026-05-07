@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Alternative to Spring Framework's {@code @Autowired} for testing (removes the need for
+ * Alternative to Infra Framework's {@code @Autowired} for testing (removes the need for
  * a dependency on the real annotation).
  *
  * @author Madhura Bhave

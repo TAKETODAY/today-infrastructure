@@ -69,7 +69,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
             ResolvableType.forClass(ResourceRegion.class), MimeType.APPLICATION_OCTET_STREAM, Collections.emptyMap());
 
     StepVerifier.create(result)
-            .consumeNextWith(stringConsumer("Spring"))
+            .consumeNextWith(stringConsumer("Infra "))
             .expectComplete()
             .verify();
   }
@@ -96,7 +96,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
             .consumeNextWith(stringConsumer("\r\n--" + boundary + "\r\n"))
             .consumeNextWith(stringConsumer("Content-Type: text/plain\r\n"))
             .consumeNextWith(stringConsumer("Content-Range: bytes 0-5/39\r\n\r\n"))
-            .consumeNextWith(stringConsumer("Spring"))
+            .consumeNextWith(stringConsumer("Infra "))
             .consumeNextWith(stringConsumer("\r\n--" + boundary + "\r\n"))
             .consumeNextWith(stringConsumer("Content-Type: text/plain\r\n"))
             .consumeNextWith(stringConsumer("Content-Range: bytes 7-15/39\r\n\r\n"))
@@ -177,7 +177,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
             .consumeNextWith(stringConsumer("\r\n--" + boundary + "\r\n"))
             .consumeNextWith(stringConsumer("Content-Type: text/plain\r\n"))
             .consumeNextWith(stringConsumer("Content-Range: bytes 0-5/39\r\n\r\n"))
-            .consumeNextWith(stringConsumer("Spring"))
+            .consumeNextWith(stringConsumer("Infra "))
             .expectError(EncodingException.class)
             .verify();
   }

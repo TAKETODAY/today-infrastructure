@@ -56,7 +56,7 @@ public class ResourceHttpMessageWriterTests {
   private final MockServerHttpResponse response = new MockServerHttpResponse();
 
   private final Mono<Resource> input = Mono.just(new ByteArrayResource(
-          "Spring Framework test resource content.".getBytes(StandardCharsets.UTF_8)));
+          "Infra Framework test resource content.".getBytes(StandardCharsets.UTF_8)));
 
   @Test
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -74,7 +74,7 @@ public class ResourceHttpMessageWriterTests {
     assertThat(this.response.getHeaders().getContentLength()).isEqualTo(39L);
     assertThat(this.response.getHeaders().getFirst(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
 
-    String content = "Spring Framework test resource content.";
+    String content = "Infra Framework test resource content.";
     StepVerifier.create(this.response.getBodyAsString()).expectNext(content).expectComplete().verify();
   }
 

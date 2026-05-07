@@ -189,9 +189,9 @@ public class ResourceRegionHttpMessageConverterTests {
   public void applicationOctetStreamDefaultContentType() throws Exception {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     ClassPathResource body = mock(ClassPathResource.class);
-    given(body.getName()).willReturn("spring.dat");
+    given(body.getName()).willReturn("infra.dat");
     given(body.contentLength()).willReturn(12L);
-    given(body.getInputStream()).willReturn(new ByteArrayInputStream("Spring Framework".getBytes()));
+    given(body.getInputStream()).willReturn(new ByteArrayInputStream("Infra Framework".getBytes()));
     HttpRange range = HttpRange.createByteRange(0, 5);
     ResourceRegion resourceRegion = range.toResourceRegion(body);
 
@@ -199,7 +199,7 @@ public class ResourceRegionHttpMessageConverterTests {
 
     assertThat(outputMessage.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM);
     assertThat(outputMessage.getHeaders().getFirst(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes 0-5/12");
-    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo("Spring");
+    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo("Infra ");
   }
 
 }
