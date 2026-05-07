@@ -5,4 +5,3 @@ infra.jdbc.config.RepositoryManagerAutoConfiguration
 infra.jdbc.config.DataSourceInitializationAutoConfiguration
 infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration
 infra.jdbc.config.health.DataSourceHealthContributorAutoConfiguration
-infra.jdbc.config.metrics.DataSourcePoolMetricsAutoConfiguration
