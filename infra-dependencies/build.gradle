@@ -630,7 +630,7 @@ dependencies {
   api(platform("org.junit:junit-bom:6.0.3"))
   api(platform("org.assertj:assertj-bom:3.27.7"))
   api(platform("org.mockito:mockito-bom:5.22.0"))
-  api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
+  api(platform("org.testcontainers:testcontainers-bom:2.0.5"))
   api(platform("tools.jackson:jackson-bom:3.1.2"))
   api(platform("com.google.protobuf:protobuf-bom:4.34.0"))
   api(platform(project(":infra-bom")))
@@ -737,6 +737,8 @@ dependencies {
     api 'ch.vorburger.mariaDB4j:mariaDB4j-db-winx64:11.4.5'
 
     api("org.easymock:easymock:5.6.0")
+
+    api("com.redis:testcontainers-redis:2.2.4")
   }
 }
 
