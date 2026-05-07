@@ -58,8 +58,7 @@ dependencies {
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
 
-  testImplementation 'org.testcontainers:cassandra'
-  testImplementation 'org.testcontainers:testcontainers'
+  testImplementation 'org.testcontainers:testcontainers-cassandra'
 
   testImplementation 'org.aspectj:aspectjrt'
   testImplementation 'jakarta.annotation:jakarta.annotation-api'
