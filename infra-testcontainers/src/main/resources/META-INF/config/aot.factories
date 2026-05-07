@@ -1,0 +1,5 @@
+infra.beans.factory.aot.BeanRegistrationExcludeFilter=\
+infra.testcontainers.service.connection.ConnectionDetailsRegistrar$ServiceConnectionBeanRegistrationExcludeFilter
+
+infra.aot.hint.RuntimeHintsRegistrar=\
+infra.testcontainers.service.connection.ContainerConnectionDetailsFactory$ContainerConnectionDetailsFactoriesRuntimeHints

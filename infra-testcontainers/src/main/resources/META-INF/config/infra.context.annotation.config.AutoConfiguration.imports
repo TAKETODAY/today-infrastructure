@@ -1,0 +1,2 @@
+infra.testcontainers.properties.TestcontainersPropertySourceAutoConfiguration
+infra.testcontainers.service.connection.ServiceConnectionAutoConfiguration

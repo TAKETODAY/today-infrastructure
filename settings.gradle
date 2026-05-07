@@ -63,6 +63,7 @@ include 'infra-web-reactor-server'
 
 include 'infra-test'
 include 'infra-test-support'
+include 'infra-testcontainers'
 
 include 'infra-starter'
 include 'integration-tests'

@@ -87,6 +87,9 @@
   <suppress files="infra-app-webmvc-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
   <suppress files="infra-app-webmvc-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
+  <suppress files="src[\\/]dockerTest[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="src[\\/]dockerTest[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+
   <suppress files="infra[\\/]test[\\/]context[\\/].+[\\/](ExpectedExceptionInfraRunnerTests|StandardJUnit4FeaturesTests|ProgrammaticTxMgmtTestNGTests)"
       checks="RegexpSinglelineJava" id="expectedExceptionAnnotation" />
 

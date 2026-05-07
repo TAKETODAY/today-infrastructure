@@ -115,7 +115,6 @@ public interface DockerCompose {
    * Run {@code docker compose logs} to view Docker Compose's recent logs.
    *
    * @return the recent logs
-   * @since 4.1.0
    */
   String logs();
 

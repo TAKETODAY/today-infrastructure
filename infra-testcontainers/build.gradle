@@ -1,0 +1,41 @@
+plugins {
+  id "java-library"
+  id "java-test-fixtures"
+  id "infra.building.docker-test"
+}
+
+description = "Infra Testcontainers Support"
+
+dependencies {
+  api(project(":infra-app"))
+  api("org.testcontainers:testcontainers")
+
+  dockerTestImplementation(project(":module:infra-app-test"))
+  dockerTestImplementation(project(":infra-test-support"))
+  dockerTestImplementation(project(":infra-core-test"))
+  dockerTestImplementation(project(":infra-jdbc"))
+  dockerTestImplementation("ch.qos.logback:logback-classic")
+  dockerTestImplementation("com.redis:testcontainers-redis")
+  dockerTestImplementation("org.assertj:assertj-core")
+  dockerTestImplementation("org.awaitility:awaitility")
+  dockerTestImplementation("org.junit.jupiter:junit-jupiter")
+  dockerTestImplementation("org.junit.platform:junit-platform-launcher")
+  dockerTestImplementation("org.mockito:mockito-core")
+  dockerTestImplementation("org.testcontainers:testcontainers-junit-jupiter")
+  dockerTestImplementation("org.testcontainers:testcontainers-postgresql")
+
+  dockerTestRuntimeOnly("com.zaxxer:HikariCP")
+  dockerTestRuntimeOnly("com.h2database:h2")
+  dockerTestRuntimeOnly("org.postgresql:postgresql")
+
+  optional(project(":infra-test"))
+
+  testImplementation(project(":module:infra-app-test"))
+  testImplementation(project(":infra-test-support"))
+  testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+  testImplementation("org.testcontainers:testcontainers-postgresql")
+}
+
+dockerTest {
+  jvmArgs += "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED"
+}

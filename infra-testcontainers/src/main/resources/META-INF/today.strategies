@@ -1,0 +1,11 @@
+# Application Context Initializers
+infra.context.ApplicationContextInitializer=\
+infra.testcontainers.lifecycle.TestcontainersLifecycleApplicationContextInitializer
+
+# Spring Test ContextCustomizerFactories
+infra.test.context.ContextCustomizerFactory=\
+infra.testcontainers.service.connection.ServiceConnectionContextCustomizerFactory
+
+# Failure Analyzers
+infra.app.diagnostics.FailureAnalyzer=\
+infra.testcontainers.lifecycle.DockerEnvironmentNotFoundFailureAnalyzer

@@ -1,0 +1,3 @@
+# Test Connection Details Factories
+infra.context.service.connection.ConnectionDetailsFactory=\
+infra.testcontainers.service.connection.DatabaseContainerDatabaseConnectionDetails
