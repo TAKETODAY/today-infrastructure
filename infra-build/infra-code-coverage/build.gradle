@@ -46,6 +46,7 @@ dependencies {
   jacocoAggregation project(':module:infra-app-resttestclient')
   jacocoAggregation project(':module:infra-app-test')
   jacocoAggregation project(':module:infra-app-webmvc-test')
+  jacocoAggregation project(':module:infra-docker-compose')
   jacocoAggregation project(':module:infra-flyway')
   jacocoAggregation project(':module:infra-freemarker')
   jacocoAggregation project(':module:infra-groovy-templates')
