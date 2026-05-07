@@ -45,8 +45,7 @@ public class ApplicationPreparedEvent extends ApplicationStartupEvent {
    * @param args the arguments the application is running with
    * @param context the ApplicationContext about to be refreshed
    */
-  public ApplicationPreparedEvent(
-          Application application, ApplicationArguments args, ConfigurableApplicationContext context) {
+  public ApplicationPreparedEvent(Application application, ApplicationArguments args, ConfigurableApplicationContext context) {
     super(application, args);
     this.context = context;
   }

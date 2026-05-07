@@ -24,7 +24,7 @@ import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.test.web.mock.client.RestTestClient;
 
 /**
- * {@link RestTestClientBuilderCustomizer} for a typical Spring Boot application. Usually
+ * {@link RestTestClientBuilderCustomizer} for a typical Infra application. Usually
  * applied automatically via
  * {@link AutoConfigureRestTestClient @AutoConfigureRestTestClient}, but may also be used
  * directly.

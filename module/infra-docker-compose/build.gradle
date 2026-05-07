@@ -1,0 +1,26 @@
+plugins {
+	id "java-library"
+	id "java-test-fixtures"
+	id "infra.building.docker-test"
+}
+
+description = "Infra Docker Compose"
+
+dependencies {
+	api(project(":infra-context"))
+	api(project(":infra-app"))
+
+	implementation("tools.jackson.core:jackson-databind")
+
+	dockerTestImplementation(project(":infra-test-support"))
+	dockerTestImplementation(project(":infra-app"))
+
+	dockerTestRuntimeOnly("org.testcontainers:testcontainers")
+
+	testImplementation(project(":module:infra-app-test"))
+	testImplementation(project(":infra-test-support"))
+	testImplementation("ch.qos.logback:logback-classic")
+
+  testFixturesImplementation(project(":infra-test-support"))
+}
+

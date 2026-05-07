@@ -61,7 +61,6 @@ class AotContextLoaderRuntimeHintsTests {
   static class ConfigWithMain {
 
     public static void main(String[] args) {
-      // Mimics main() method for Spring Boot app
     }
   }
 

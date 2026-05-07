@@ -2,12 +2,20 @@ description = 'Infra Test Support'
 
 dependencies {
   api project(':infra-test')
+
+  api("com.jayway.jsonpath:json-path")
+  api("org.assertj:assertj-core")
+  api("org.awaitility:awaitility")
+  api("org.hamcrest:hamcrest-core")
+  api("org.hamcrest:hamcrest-library")
+  api("org.junit.jupiter:junit-jupiter")
+  api("org.mockito:mockito-core")
+  api("org.mockito:mockito-junit-jupiter")
+  api("org.skyscreamer:jsonassert")
+
   optional project(':infra-web')
   optional(project(":infra-webmvc-mock"))
 
-  optional "org.hamcrest:hamcrest"
-  optional "org.mockito:mockito-core"
-  optional "org.mockito:mockito-junit-jupiter"
   optional "org.junit.jupiter:junit-jupiter-api"
   optional "org.junit.jupiter:junit-jupiter-params"
 

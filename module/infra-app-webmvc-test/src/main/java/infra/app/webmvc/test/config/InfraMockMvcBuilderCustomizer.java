@@ -39,7 +39,7 @@ import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.util.CollectionUtils;
 
 /**
- * {@link MockMvcBuilderCustomizer} for a typical Spring Boot application. Usually applied
+ * {@link MockMvcBuilderCustomizer} for a typical Infra application. Usually applied
  * automatically through {@link AutoConfigureMockMvc @AutoConfigureMockMvc}, but may also
  * be used directly.
  *

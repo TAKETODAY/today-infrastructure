@@ -119,13 +119,11 @@ class MockitoResetTestExecutionListenerWithoutMockitoAnnotationsIntegrationTests
     @Bean
     @Lazy
     ExampleService fail() {
-      // Spring Boot gh-5870
       throw new RuntimeException();
     }
 
     @Bean
     BrokenFactoryBean brokenFactoryBean() {
-      // Spring Boot gh-7270
       return new BrokenFactoryBean();
     }
 
