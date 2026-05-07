@@ -44,6 +44,14 @@ gradlePlugin {
       id = "infra.building.optional-dependencies"
       implementationClass = "infra.building.optional.OptionalDependenciesPlugin"
     }
+    dockerTestPlugin {
+      id = "infra.building.docker-test"
+      implementationClass = "infra.building.test.DockerTestPlugin"
+    }
+    integrationTestPluginPlugin {
+      id = "infra.building.integration-test"
+      implementationClass = "infra.building.test.IntegrationTestPlugin"
+    }
     runtimeHintsAgentPlugin {
       id = "infra.building.runtimehints-agent"
       implementationClass = "infra.building.hint.RuntimeHintsAgentPlugin"
