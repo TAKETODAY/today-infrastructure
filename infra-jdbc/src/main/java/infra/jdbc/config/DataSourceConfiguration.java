@@ -20,10 +20,14 @@ package infra.jdbc.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.jspecify.annotations.Nullable;
+
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import infra.beans.factory.ObjectProvider;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnCheckpointRestore;
@@ -31,6 +35,7 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.properties.ConfigurationProperties;
+import infra.core.env.Environment;
 import infra.stereotype.Component;
 import infra.util.StringUtils;
 import oracle.jdbc.OracleConnection;
@@ -48,9 +53,21 @@ import oracle.ucp.jdbc.PoolDataSourceImpl;
  */
 abstract class DataSourceConfiguration {
 
-  @SuppressWarnings("unchecked")
-  protected static <T> T createDataSource(DataSourceProperties properties, Class<? extends DataSource> type) {
-    return (T) properties.initializeDataSourceBuilder().type(type).build();
+  private static <T extends DataSource> T createDataSource(JdbcConnectionDetails connectionDetails,
+          @Nullable Class<T> type, ClassLoader classLoader) {
+    return createDataSource(connectionDetails, type, classLoader, true);
+  }
+
+  private static <T extends DataSource> T createDataSource(JdbcConnectionDetails connectionDetails,
+          @Nullable Class<T> type, ClassLoader classLoader, boolean applyDriverClassName) {
+    DataSourceBuilder<T> builder = DataSourceBuilder.create(classLoader).type(type);
+    if (applyDriverClassName) {
+      builder.driverClassName(connectionDetails.getDriverClassName());
+    }
+    return builder.url(connectionDetails.getJdbcUrl())
+            .username(connectionDetails.getUsername())
+            .password(connectionDetails.getPassword())
+            .build();
   }
 
   /**
@@ -63,9 +80,16 @@ abstract class DataSourceConfiguration {
   static class Hikari {
 
     @Component
-    @ConfigurationProperties(prefix = "datasource.hikari")
-    static HikariDataSource dataSource(DataSourceProperties properties) {
-      HikariDataSource dataSource = createDataSource(properties, HikariDataSource.class);
+    static HikariJdbcConnectionDetailsBeanPostProcessor jdbcConnectionDetailsHikariBeanPostProcessor(ObjectProvider<JdbcConnectionDetails> connectionDetailsProvider) {
+      return new HikariJdbcConnectionDetailsBeanPostProcessor(connectionDetailsProvider);
+    }
+
+    @Component
+    @ConfigurationProperties("datasource.hikari")
+    static HikariDataSource dataSource(DataSourceProperties properties, JdbcConnectionDetails connectionDetails, Environment environment) {
+      String dataSourceClassName = environment.getProperty("datasource.hikari.data-source-class-name");
+      HikariDataSource dataSource = createDataSource(connectionDetails, HikariDataSource.class,
+              properties.getClassLoader(), dataSourceClassName == null);
       if (StringUtils.hasText(properties.getName())) {
         dataSource.setPoolName(properties.getName());
       }
@@ -85,15 +109,21 @@ abstract class DataSourceConfiguration {
    * DBCP DataSource configuration.
    */
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(org.apache.commons.dbcp2.BasicDataSource.class)
+  @ConditionalOnClass(BasicDataSource.class)
   @ConditionalOnMissingBean(DataSource.class)
   @ConditionalOnProperty(name = "datasource.type", havingValue = "org.apache.commons.dbcp2.BasicDataSource", matchIfMissing = true)
   static class Dbcp2 {
 
     @Component
-    @ConfigurationProperties(prefix = "datasource.dbcp2")
-    static org.apache.commons.dbcp2.BasicDataSource dataSource(DataSourceProperties properties) {
-      return createDataSource(properties, org.apache.commons.dbcp2.BasicDataSource.class);
+    static Dbcp2JdbcConnectionDetailsBeanPostProcessor dbcp2JdbcConnectionDetailsBeanPostProcessor(
+            ObjectProvider<JdbcConnectionDetails> connectionDetailsProvider) {
+      return new Dbcp2JdbcConnectionDetailsBeanPostProcessor(connectionDetailsProvider);
+    }
+
+    @Component
+    @ConfigurationProperties("datasource.dbcp2")
+    static BasicDataSource dataSource(DataSourceProperties properties, JdbcConnectionDetails connectionDetails) {
+      return createDataSource(connectionDetails, BasicDataSource.class, properties.getClassLoader());
     }
 
   }
@@ -108,9 +138,17 @@ abstract class DataSourceConfiguration {
   static class OracleUcp {
 
     @Component
-    @ConfigurationProperties(prefix = "datasource.oracleucp")
-    static PoolDataSourceImpl dataSource(DataSourceProperties properties) throws SQLException {
-      PoolDataSourceImpl dataSource = createDataSource(properties, PoolDataSourceImpl.class);
+    static OracleUcpJdbcConnectionDetailsBeanPostProcessor oracleUcpJdbcConnectionDetailsBeanPostProcessor(
+            ObjectProvider<JdbcConnectionDetails> connectionDetailsProvider) {
+      return new OracleUcpJdbcConnectionDetailsBeanPostProcessor(connectionDetailsProvider);
+    }
+
+    @Component
+    @ConfigurationProperties("datasource.oracleucp")
+    static PoolDataSourceImpl dataSource(DataSourceProperties properties, JdbcConnectionDetails connectionDetails) throws SQLException {
+      PoolDataSourceImpl dataSource = createDataSource(connectionDetails, PoolDataSourceImpl.class,
+              properties.getClassLoader());
+
       if (StringUtils.hasText(properties.getName())) {
         dataSource.setConnectionPoolName(properties.getName());
       }
@@ -128,8 +166,8 @@ abstract class DataSourceConfiguration {
   static class Generic {
 
     @Component
-    static DataSource dataSource(DataSourceProperties properties) {
-      return properties.initializeDataSourceBuilder().build();
+    static DataSource dataSource(DataSourceProperties properties, JdbcConnectionDetails connectionDetails) {
+      return createDataSource(connectionDetails, properties.getType(), properties.getClassLoader());
     }
 
   }

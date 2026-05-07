@@ -20,6 +20,7 @@ package infra.flyway.config;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.context.service.connection.ConnectionDetails;
 import infra.jdbc.config.DatabaseDriver;
 
 /**
@@ -29,7 +30,7 @@ import infra.jdbc.config.DatabaseDriver;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public interface FlywayConnectionDetails {
+public interface FlywayConnectionDetails extends ConnectionDetails {
 
   /**
    * Username for the database or {@code null} if no Flyway-specific configuration is

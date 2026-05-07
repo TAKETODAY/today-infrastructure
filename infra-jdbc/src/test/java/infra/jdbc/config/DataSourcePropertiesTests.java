@@ -20,7 +20,10 @@ package infra.jdbc.config;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import infra.test.context.FilteredClassLoader;
+import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -177,6 +180,16 @@ class DataSourcePropertiesTests {
     properties.afterPropertiesSet();
     assertThat(properties.getPassword()).isNull();
     assertThat(properties.determinePassword()).isNull();
+  }
+
+  @Test
+  void initializeDataSourceBuilder() {
+    DataSourceProperties properties = new DataSourceProperties();
+    properties.setUrl("jdbc:mysql://mydb");
+    DataSourceBuilder<?> builder = properties.initializeDataSourceBuilder();
+
+    Map values = ReflectionTestUtils.getField(builder, "values");
+    assertThat(values).isNotEmpty();
   }
 
 }

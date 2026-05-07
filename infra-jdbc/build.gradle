@@ -23,6 +23,8 @@ dependencies {
   optional 'com.mchange:c3p0:0.9.5.5'
   optional "org.testcontainers:testcontainers-jdbc"
 
+  optional("io.micrometer:micrometer-core")
+
   optional project(":module:infra-app-health")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))

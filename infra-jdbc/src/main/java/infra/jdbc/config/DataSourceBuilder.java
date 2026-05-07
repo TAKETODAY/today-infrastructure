@@ -90,7 +90,6 @@ import oracle.ucp.jdbc.PoolDataSourceImpl;
  * @see #derivedFrom(DataSource)
  * @since 4.0 2022/2/23 17:22
  */
-@SuppressWarnings("NullAway")
 public final class DataSourceBuilder<T extends DataSource> {
 
   @Nullable
