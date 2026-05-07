@@ -18,20 +18,18 @@
 
 package infra.test.testcontainers;
 
-import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.activemq.ArtemisContainer;
+import org.testcontainers.utility.DockerImageName;
 
 /**
- * A {@link GenericContainer} for Redis.
+ * An {@link ArtemisContainer} for {@code apache/activemq-artemis}.
  *
- * @author Andy Wilkinson
- * @author Madhura Bhave
- * @since 4.0
+ * @author Moritz Halbritter
  */
-public class RedisContainer extends GenericContainer<RedisContainer> {
+public final class ArtemisLegacyContainer extends ArtemisContainer {
 
-  public RedisContainer() {
-    super(DockerImageNames.redis());
-    addExposedPorts(6379);
-  }
+	public ArtemisLegacyContainer(DockerImageName dockerImageName) {
+		super(dockerImageName);
+	}
 
 }

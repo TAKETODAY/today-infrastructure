@@ -23,30 +23,36 @@ import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.DockerClientFactory;
 
+import infra.lang.Assert;
+import infra.util.ClassUtils;
+
 /**
  * An {@link ExecutionCondition} that disables execution if Docker is unavailable.
  *
  * @author Andy Wilkinson
  * @author Phillip Webb
- * @since 4.0
+ * @author Moritz Halbritter
  */
 class DisabledIfDockerUnavailableCondition implements ExecutionCondition {
+
+  private static final boolean TESTCONTAINERS_PRESENT = ClassUtils.isPresent("org.testcontainers.DockerClientFactory",
+          DisabledIfDockerUnavailableCondition.class.getClassLoader());
 
   private static final String SILENCE_PROPERTY = "visibleassertions.silence";
 
   private static final ConditionEvaluationResult ENABLED = ConditionEvaluationResult.enabled("Docker available");
 
-  private static final ConditionEvaluationResult DISABLED = ConditionEvaluationResult.disabled("Docker unavailable");
-
   @Override
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
+    Assert.isTrue(TESTCONTAINERS_PRESENT, "Testcontainers is required when using @DisabledIfDockerUnavailable."
+            + " Add a dependency on org.testcontainers:testcontainers");
     String originalSilenceValue = System.getProperty(SILENCE_PROPERTY);
     try {
       DockerClientFactory.instance().client();
       return ENABLED;
     }
     catch (Throwable ex) {
-      return DISABLED;
+      return ConditionEvaluationResult.disabled("Docker unavailable", ex.getMessage());
     }
     finally {
       if (originalSilenceValue != null) {

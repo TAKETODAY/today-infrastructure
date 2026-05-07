@@ -1,4 +1,3 @@
-
 /**
  * Support for testing with Testcontainers.
  */

@@ -18,20 +18,17 @@
 
 package infra.test.testcontainers;
 
-import java.time.Duration;
+import org.testcontainers.utility.DockerImageName;
 
 /**
- * Custom {@link org.testcontainers.containers.CassandraContainer} tuned for stability in
- * heavily contended environments such as CI.
+ * An {@link org.testcontainers.activemq.ActiveMQContainer} for ActiveMQ.
  *
- * @author Andy Wilkinson
- * @since 4.0
+ * @author Moritz Halbritter
  */
-public class CassandraContainer extends org.testcontainers.containers.CassandraContainer<CassandraContainer> {
+public final class ActiveMQContainer extends org.testcontainers.activemq.ActiveMQContainer {
 
-  public CassandraContainer() {
-    super(DockerImageNames.cassandra());
-    withStartupTimeout(Duration.ofMinutes(10));
-  }
+	public ActiveMQContainer(DockerImageName dockerImageName) {
+		super(dockerImageName);
+	}
 
 }

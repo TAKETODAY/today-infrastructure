@@ -10,8 +10,27 @@ dependencies {
   optional "org.mockito:mockito-junit-jupiter"
   optional "org.junit.jupiter:junit-jupiter-api"
   optional "org.junit.jupiter:junit-jupiter-params"
-  optional 'org.testcontainers:cassandra'
-  optional 'org.testcontainers:testcontainers'
+
+  optional("org.testcontainers:testcontainers-activemq")
+  optional("org.testcontainers:testcontainers-cassandra")
+  optional("org.testcontainers:testcontainers-couchbase")
+  optional("org.testcontainers:testcontainers-elasticsearch")
+  optional("org.testcontainers:testcontainers-grafana")
+  optional("org.testcontainers:testcontainers-junit-jupiter")
+  optional("org.testcontainers:testcontainers-kafka")
+  optional("org.testcontainers:testcontainers-ldap")
+  optional("org.testcontainers:testcontainers-mariadb")
+  optional("org.testcontainers:testcontainers-mongodb")
+  optional("org.testcontainers:testcontainers-mysql")
+  optional("org.testcontainers:testcontainers-neo4j")
+  optional("org.testcontainers:testcontainers-oracle-xe")
+  optional("org.testcontainers:testcontainers-oracle-free")
+  optional("org.testcontainers:testcontainers-postgresql")
+  optional("org.testcontainers:testcontainers-pulsar")
+  optional("org.testcontainers:testcontainers-rabbitmq")
+  optional("org.testcontainers:testcontainers-redpanda")
+  optional("com.redis:testcontainers-redis")
+
 
   implementation("org.apache.maven.resolver:maven-resolver-connector-basic")
   implementation("org.apache.maven.resolver:maven-resolver-impl")
