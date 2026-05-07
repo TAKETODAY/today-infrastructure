@@ -27,7 +27,7 @@ dependencies {
   testImplementation("org.assertj:assertj-core")
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")
-  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.testcontainers:testcontainers-junit-jupiter")
   testImplementation("org.testcontainers:testcontainers")
   testImplementation 'org.jboss.logging:jboss-logging:3.5.3.Final'
   testImplementation("com.jayway.jsonpath:json-path")

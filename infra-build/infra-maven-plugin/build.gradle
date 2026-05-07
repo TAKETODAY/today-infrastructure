@@ -22,7 +22,7 @@ dependencies {
 
   testImplementation(project(":infra-test-support"))
   testImplementation("org.testcontainers:testcontainers")
-  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.testcontainers:testcontainers-junit-jupiter")
   testImplementation("org.apache.maven.shared:maven-invoker:3.1.0") {
     exclude(group: "javax.inject", module: "javax.inject")
   }
