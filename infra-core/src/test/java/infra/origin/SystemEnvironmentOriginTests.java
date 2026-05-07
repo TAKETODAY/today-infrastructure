@@ -32,7 +32,7 @@ class SystemEnvironmentOriginTests {
 
   @Test
   void createWhenPropertyIsNullShouldThrowException() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new SystemEnvironmentOrigin(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> new infra.origin.SystemEnvironmentOrigin(null));
   }
 
   @Test

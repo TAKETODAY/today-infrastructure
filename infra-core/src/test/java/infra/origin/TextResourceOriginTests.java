@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import infra.context.testfixture.origin.MockOrigin;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.origin.TextResourceOrigin.Location;

@@ -20,8 +20,6 @@ package infra.origin;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.testfixture.origin.MockOrigin;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;

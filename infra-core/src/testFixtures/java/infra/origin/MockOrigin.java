@@ -16,11 +16,10 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.context.testfixture.origin;
+package infra.origin;
 
 import infra.lang.Assert;
 import org.jspecify.annotations.Nullable;
-import infra.origin.Origin;
 
 /**
  * Mock {@link Origin} implementation used for testing.

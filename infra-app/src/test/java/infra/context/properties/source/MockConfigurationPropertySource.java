@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import infra.context.testfixture.origin.MockOrigin;
+import infra.origin.MockOrigin;
 import infra.origin.OriginTrackedValue;
 
 /**

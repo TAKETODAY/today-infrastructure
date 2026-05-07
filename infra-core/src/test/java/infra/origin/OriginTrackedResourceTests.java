@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.context.testfixture.origin.MockOrigin;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.WritableResource;

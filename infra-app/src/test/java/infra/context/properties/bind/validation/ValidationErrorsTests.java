@@ -28,7 +28,7 @@ import java.util.Set;
 
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.testfixture.origin.MockOrigin;
+import infra.origin.MockOrigin;
 import infra.origin.Origin;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;
