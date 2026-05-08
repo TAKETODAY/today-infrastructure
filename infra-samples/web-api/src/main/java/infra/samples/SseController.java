@@ -16,13 +16,19 @@
 
 package infra.samples;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.concurrent.Future;
 import infra.web.annotation.GET;
 import infra.web.annotation.RequestMapping;
+import infra.web.annotation.RequestParam;
 import infra.web.annotation.RestController;
 import infra.web.handler.result.ResponseBodyEmitter;
 import infra.web.handler.result.SseEmitter;
@@ -39,19 +45,27 @@ import static infra.web.handler.result.SseEmitter.event;
 @RequestMapping("/sse")
 public class SseController {
 
-  @GET("/simple")
-  public SseEmitter sseEmitter() {
-    SseEmitter sseEmitter = ResponseBodyEmitter.forServerSentEvents();
+  private static final Logger log = LoggerFactory.getLogger(SseController.class);
 
+  @GET("/simple")
+  public SseEmitter sseEmitter(@Nullable Integer times, @RequestParam(defaultValue = "2") int sleep) {
+    SseEmitter sseEmitter = ResponseBodyEmitter.forServerSentEvents();
     Future.run(() -> {
-      for (int i = 0; i < 5; i++) {
+      int events = times == null ? 5 : times;
+      SecureRandom random = new SecureRandom();
+      for (int i = 0; i < events; i++) {
         try {
           sseEmitter.send(event()
                   .id("id-" + i)
                   .name("event-name-" + i)
-                  .data(new Body("today", 25))
-          );
-          ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(1));
+                  .data(new Body("today", 25)));
+
+          ExceptionUtils.sneakyThrow(() -> {
+            int timeout = random.nextInt(0, sleep * 1000);
+            log.info("next: {} ms", timeout);
+            TimeUnit.MILLISECONDS.sleep(timeout);
+          });
+
         }
         catch (IOException e) {
           throw new RuntimeException(e);
