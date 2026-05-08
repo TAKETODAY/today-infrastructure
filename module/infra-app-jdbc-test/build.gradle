@@ -31,8 +31,10 @@ dependencies {
   dockerTestImplementation("com.oracle.database.jdbc:ucp11")
   dockerTestImplementation(testFixtures(project(":module:infra-docker-compose")))
 
-
   dockerTestRuntimeOnly("com.clickhouse:clickhouse-jdbc")
+  dockerTestRuntimeOnly("com.microsoft.sqlserver:mssql-jdbc")
+  dockerTestRuntimeOnly("org.lz4:lz4-java:1.8.0")
+  dockerTestRuntimeOnly("org.postgresql:postgresql")
 //  dockerTestRuntimeOnly("ch.qos.logback:logback-classic")
 
   testImplementation(testFixtures(project(":infra-app")))
