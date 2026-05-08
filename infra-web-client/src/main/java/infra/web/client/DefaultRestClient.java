@@ -892,15 +892,13 @@ final class DefaultRestClient implements RestClient {
       this.clientResponse = clientResponse;
     }
 
-    @Nullable
     @Override
-    public <T> T body(Class<T> bodyType) {
+    public <T> @Nullable T body(Class<T> bodyType) {
       return ignoreStatus(false).readBody(clientResponse, bodyType, bodyType);
     }
 
-    @Nullable
     @Override
-    public <T> T body(ParameterizedTypeReference<T> bodyType) {
+    public <T> @Nullable T body(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
       Class<T> bodyClass = bodyClass(type);
       return ignoreStatus(false).readBody(clientResponse, type, bodyClass);
@@ -940,6 +938,32 @@ final class DefaultRestClient implements RestClient {
     @Override
     public void toBodiless() throws RestClientException {
       toBodiless(clientResponse);
+    }
+
+    @Override
+    public ResponseStream bodyStream() {
+      if (!ignoreStatus) {
+        try {
+          DefaultRestClient.this.applyStatusHandlers(clientRequest, clientResponse, statusHandlers);
+        }
+        catch (IOException e) {
+          throw new RestClientException("Failed to apply status handlers", e);
+        }
+      }
+      return new ResponseStream(clientResponse);
+    }
+
+    @Override
+    public SseEventIterator eventStream() {
+      if (!ignoreStatus) {
+        try {
+          DefaultRestClient.this.applyStatusHandlers(clientRequest, clientResponse, statusHandlers);
+        }
+        catch (IOException e) {
+          throw new RestClientException("Failed to apply status handlers", e);
+        }
+      }
+      return new SseEventIterator(clientResponse);
     }
   }
 
@@ -989,6 +1013,26 @@ final class DefaultRestClient implements RestClient {
     @Override
     public Future<Void> toBodiless() {
       return clientResponse.map(this::toBodiless);
+    }
+
+    @Override
+    public Future<ResponseStream> bodyStream() {
+      return clientResponse.map(response -> {
+        if (!ignoreStatus) {
+          DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers);
+        }
+        return new ResponseStream(response);
+      });
+    }
+
+    @Override
+    public Future<SseEventIterator> eventStream() {
+      return clientResponse.map(response -> {
+        if (!ignoreStatus) {
+          DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers);
+        }
+        return new SseEventIterator(response);
+      });
     }
 
     private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {

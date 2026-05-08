@@ -39,6 +39,7 @@ import infra.http.HttpRequest;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.ServerSentEvent;
 import infra.http.StreamingHttpOutputMessage;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
@@ -1357,6 +1358,77 @@ public interface RestClient {
      */
     void toBodiless() throws RestClientException;
 
+    /**
+     * Execute the request and return a {@link ResponseStream} for incremental
+     * consumption of the response body. The caller must close the returned
+     * stream to release the HTTP connection.
+     *
+     * <pre>{@code
+     * try (ResponseStream stream = client.get()
+     *      .uri("https://example.com/large-file")
+     *      .retrieve()
+     *      .bodyStream()) {
+     *
+     *   byte[] buf = new byte[8192];
+     *   InputStream in = stream.inputStream();
+     *   int n;
+     *   while ((n = in.read(buf)) != -1) { ... }
+     * }
+     * }</pre>
+     * @since 5.0
+     */
+    ResponseStream bodyStream();
+
+    /**
+     * Execute the request and return an {@link SseEventIterator} that streams
+     * {@link ServerSentEvent Server-Sent Events} from the response body.
+     * The caller must close the returned iterator to release the HTTP connection.
+     *
+     * <pre>{@code
+     * try (SseEventIterator events = client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .retrieve()
+     *      .eventStream()) {
+     *
+     *   while (events.hasNext()) {
+     *     ServerSentEvent<String> event = events.next();
+     *     System.out.println(event.event() + ": " + event.data());
+     *   }
+     * }
+     * }</pre>
+     *
+     * @return an {@link SseEventIterator} to consume SSE events
+     * @throws RestClientResponseException on 4xx or 5xx responses
+     * @see #eventStream(Consumer)
+     * @since 5.0
+     */
+    SseEventIterator eventStream();
+
+    /**
+     * Consume Server-Sent Events via a callback, blocking until the stream ends
+     * or the response body is exhausted. The underlying HTTP connection is
+     * closed automatically.
+     *
+     * <pre>{@code
+     * client.get().uri("https://example.com/events")
+     *      .retrieve()
+     *      .eventStream(event -> {
+     *         System.out.println(event.event() + ": " + event.data());
+     *      });
+     * }</pre>
+     *
+     * @param consumer callback invoked for each event
+     * @since 5.0
+     */
+    default void eventStream(Consumer<ServerSentEvent<String>> consumer) {
+      try (SseEventIterator events = eventStream()) {
+        while (events.hasNext()) {
+          consumer.accept(events.next());
+        }
+      }
+    }
+
   }
 
   /**
@@ -1556,6 +1628,42 @@ public interface RestClient {
      * @since 5.0
      */
     Future<Void> toBodiless();
+
+    /**
+     * Asynchronously execute and return a Future of a {@link ResponseStream}
+     * for incremental consumption of the response body. The Future completes
+     * when the initial HTTP response is received and the status has been
+     * validated. The caller must close the stream to release resources.
+     * @since 5.0
+     */
+    Future<ResponseStream> bodyStream();
+
+    /**
+     * Asynchronously execute and return a Future of an {@link SseEventIterator}
+     * that streams {@link ServerSentEvent Server-Sent Events}. The returned
+     * Future completes when the initial HTTP response is received and the
+     * status has been validated (4xx/5xx result in exceptional completion).
+     *
+     * <p>SSE event parsing on the returned iterator will block on each
+     * {@link SseEventIterator#next() next()} call. The caller must close
+     * the iterator to release resources.
+     *
+     * <pre>{@code
+     * Future<SseEventIterator> future = client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .async()
+     *      .eventStream();
+     *
+     * // later, on another thread:
+     * try (SseEventIterator events = future.get()) {
+     *   while (events.hasNext()) { ... }
+     * }
+     * }</pre>
+     *
+     * @since 5.0
+     */
+    Future<SseEventIterator> eventStream();
 
   }
 
