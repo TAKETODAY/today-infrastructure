@@ -181,7 +181,7 @@ class ApplicationShutdownHook implements Runnable, ApplicationListener<ContextCl
   /**
    * The handler actions for this shutdown hook.
    */
-  private final class Handlers implements ApplicationShutdownHandlers, Runnable {
+  final class Handlers implements ApplicationShutdownHandlers, Runnable {
 
     public final Set<Handler> actions = new LinkedHashSet<>();
 
