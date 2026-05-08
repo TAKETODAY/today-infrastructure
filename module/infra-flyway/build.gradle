@@ -1,5 +1,7 @@
 description = "Infra Flyway integration"
 
+apply plugin: "infra.building.docker-test"
+
 dependencies {
   api(project(":infra-context"))
   api(project(":infra-jdbc"))
@@ -11,8 +13,19 @@ dependencies {
   optional("org.flywaydb:flyway-database-postgresql")
   optional("org.flywaydb:flyway-sqlserver")
 
+  optional("org.testcontainers:testcontainers-jdbc")
+  optional(project(":infra-testcontainers"))
+
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
+  dockerTestImplementation(project(":module:infra-app-test"))
+  dockerTestImplementation(project(":module:infra-app-jdbc-test"))
+  dockerTestImplementation(project(":infra-test-support"))
+  dockerTestImplementation(testFixtures(project(":module:infra-docker-compose")))
+  dockerTestImplementation("org.testcontainers:testcontainers-junit-jupiter")
+  dockerTestImplementation("org.testcontainers:testcontainers-postgresql")
+  dockerTestRuntimeOnly("org.postgresql:postgresql")
 
   testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-test-support"))
@@ -21,6 +34,7 @@ dependencies {
   testImplementation("org.hibernate.orm:hibernate-core")
   testImplementation("org.hsqldb:hsqldb")
   testImplementation("org.postgresql:postgresql")
+  testImplementation(testFixtures(project(":infra-app")))
 
   testRuntimeOnly("ch.qos.logback:logback-classic")
   testRuntimeOnly("com.h2database:h2")

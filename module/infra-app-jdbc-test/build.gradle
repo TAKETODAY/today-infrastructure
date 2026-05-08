@@ -33,7 +33,7 @@ dependencies {
 
 
   dockerTestRuntimeOnly("com.clickhouse:clickhouse-jdbc")
-  dockerTestRuntimeOnly("ch.qos.logback:logback-classic")
+//  dockerTestRuntimeOnly("ch.qos.logback:logback-classic")
 
   testImplementation(testFixtures(project(":infra-app")))
 
