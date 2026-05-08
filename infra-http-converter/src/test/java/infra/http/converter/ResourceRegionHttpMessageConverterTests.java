@@ -89,7 +89,7 @@ public class ResourceRegionHttpMessageConverterTests {
     assertThat(headers.getContentLength()).isEqualTo(6L);
     assertThat(headers.get(HttpHeaders.CONTENT_RANGE)).hasSize(1);
     assertThat(headers.get(HttpHeaders.CONTENT_RANGE).get(0)).isEqualTo("bytes 0-5/39");
-    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo("Spring");
+    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo("Infra ");
   }
 
   @Test
@@ -128,7 +128,7 @@ public class ResourceRegionHttpMessageConverterTests {
     assertThat(ranges[0]).isEqualTo(boundary);
     assertThat(ranges[1]).isEqualTo("Content-Type: text/plain");
     assertThat(ranges[2]).isEqualTo("Content-Range: bytes 0-5/39");
-    assertThat(ranges[3]).isEqualTo("Spring");
+    assertThat(ranges[3]).isEqualTo("Infra ");
 
     assertThat(ranges[4]).isEqualTo(boundary);
     assertThat(ranges[5]).isEqualTo("Content-Type: text/plain");
@@ -172,7 +172,7 @@ public class ResourceRegionHttpMessageConverterTests {
     assertThat(ranges[4]).isEqualTo(boundary);
     assertThat(ranges[5]).isEqualTo("Content-Type: text/plain");
     assertThat(ranges[6]).isEqualTo("Content-Range: bytes 0-5/39");
-    assertThat(ranges[7]).isEqualTo("Spring");
+    assertThat(ranges[7]).isEqualTo("Infra ");
 
     assertThat(ranges[8]).isEqualTo(boundary);
     assertThat(ranges[9]).isEqualTo("Content-Type: text/plain");
