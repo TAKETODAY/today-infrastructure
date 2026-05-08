@@ -78,6 +78,7 @@ dependencies {
   testRuntimeOnly 'org.firebirdsql.jdbc:jaybird:4.0.6.java8'
 
   testRuntimeOnly("ch.qos.logback:logback-classic")
+  testRuntimeOnly("com.clickhouse:clickhouse-jdbc")
   testRuntimeOnly("com.mysql:mysql-connector-j")
 
 }
