@@ -11,3 +11,14 @@ infra.jdbc.init.DataSourceScriptDatabaseInitializerDetector
 # Depends On Database Initialization Detectors
 infra.sql.init.dependency.DependsOnDatabaseInitializationDetector=\
 infra.jdbc.init.InfraJdbcDependsOnDatabaseInitializationDetector
+
+
+# Connection Details Factories
+infra.context.service.connection.ConnectionDetailsFactory=\
+infra.jdbc.docker.compose.ClickHouseJdbcDockerComposeConnectionDetailsFactory,\
+infra.jdbc.docker.compose.MariaDbJdbcDockerComposeConnectionDetailsFactory,\
+infra.jdbc.docker.compose.MySqlJdbcDockerComposeConnectionDetailsFactory,\
+infra.jdbc.docker.compose.OracleFreeJdbcDockerComposeConnectionDetailsFactory,\
+infra.jdbc.docker.compose.OracleXeJdbcDockerComposeConnectionDetailsFactory,\
+infra.jdbc.docker.compose.PostgresJdbcDockerComposeConnectionDetailsFactory,\
+infra.jdbc.docker.compose.SqlServerJdbcDockerComposeConnectionDetailsFactory

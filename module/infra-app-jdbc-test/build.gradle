@@ -1,0 +1,43 @@
+plugins {
+  id "java-library"
+  id "java-test-fixtures"
+  id "infra.building.docker-test"
+}
+
+description = "Infra JDBC Test"
+
+dependencies {
+  api project(':infra-jdbc')
+  api project(':infra-test-support')
+  api(project(":module:infra-app-test"))
+  api(project(":module:infra-sql"))
+
+  optional(project(":infra-testcontainers"))
+  optional("org.junit.jupiter:junit-jupiter-api")
+  optional("org.testcontainers:testcontainers-jdbc")
+
+  dockerTestImplementation(project(":module:infra-app-test"))
+  dockerTestImplementation(project(":infra-test-support"))
+  dockerTestImplementation(project(":infra-testcontainers"))
+  dockerTestImplementation(project(":module:infra-docker-compose"))
+  dockerTestImplementation("com.h2database:h2")
+  dockerTestImplementation("com.zaxxer:HikariCP")
+  dockerTestImplementation("org.assertj:assertj-core")
+  dockerTestImplementation("org.junit.jupiter:junit-jupiter")
+  dockerTestImplementation("org.postgresql:postgresql")
+  dockerTestImplementation("org.testcontainers:testcontainers-junit-jupiter")
+  dockerTestImplementation("org.testcontainers:testcontainers-postgresql")
+  dockerTestImplementation("com.oracle.database.jdbc:ojdbc11")
+  dockerTestImplementation("com.oracle.database.jdbc:ucp11")
+  dockerTestImplementation(testFixtures(project(":module:infra-docker-compose")))
+
+
+  dockerTestRuntimeOnly("com.clickhouse:clickhouse-jdbc")
+  dockerTestRuntimeOnly("ch.qos.logback:logback-classic")
+
+  testImplementation(testFixtures(project(":infra-app")))
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+  testRuntimeOnly("com.h2database:h2")
+  testRuntimeOnly("org.hsqldb:hsqldb")
+}

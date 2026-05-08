@@ -19,11 +19,10 @@
 package infra.docker.compose.service.connection;
 
 import org.jspecify.annotations.Nullable;
-import infra.docker.compose.core.DockerComposeFile;
-import infra.docker.compose.core.RunningService;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -39,6 +38,8 @@ import infra.core.ssl.jks.JksSslStoreDetails;
 import infra.core.ssl.pem.PemSslStore;
 import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
+import infra.docker.compose.core.DockerComposeFile;
+import infra.docker.compose.core.RunningService;
 import infra.lang.Assert;
 import infra.lang.TodayStrategies;
 import infra.origin.Origin;
@@ -91,8 +92,7 @@ public abstract class DockerComposeConnectionDetailsFactory<D extends Connection
    * @param predicate a predicate used to check when a service is accepted
    * @param requiredClassNames the names of classes that must be present
    */
-  protected DockerComposeConnectionDetailsFactory(Predicate<DockerComposeConnectionSource> predicate,
-          String... requiredClassNames) {
+  protected DockerComposeConnectionDetailsFactory(Predicate<DockerComposeConnectionSource> predicate, String... requiredClassNames) {
     this.predicate = predicate;
     this.requiredClassNames = requiredClassNames;
   }
@@ -169,16 +169,13 @@ public abstract class DockerComposeConnectionDetailsFactory<D extends Connection
       if (keyStoreDetails == null && trustStoreDetails == null) {
         return null;
       }
-      SslBundleKey key = SslBundleKey.of(service.labels().get("infra.sslbundle.jks.key.alias"),
-              service.labels().get("infra.sslbundle.jks.key.password"));
-      SslOptions options = createSslOptions(
-              service.labels().get("infra.sslbundle.jks.options.ciphers"),
-              service.labels().get("infra.sslbundle.jks.options.enabled-protocols"));
-      String protocol = service.labels().get("infra.sslbundle.jks.protocol");
+      Map<String, String> labels = service.labels();
+      SslBundleKey key = SslBundleKey.of(labels.get("infra.sslbundle.jks.key.alias"), labels.get("infra.sslbundle.jks.key.password"));
+      SslOptions options = createSslOptions(labels.get("infra.sslbundle.jks.options.ciphers"), labels.get("infra.sslbundle.jks.options.enabled-protocols"));
+      String protocol = labels.get("infra.sslbundle.jks.protocol");
       Path workingDirectory = getWorkingDirectory(service);
-      return SslBundle.of(
-              new JksSslStoreBundle(keyStoreDetails, trustStoreDetails, getResourceLoader(workingDirectory)), key,
-              options, protocol);
+      return SslBundle.of(new JksSslStoreBundle(keyStoreDetails, trustStoreDetails, getResourceLoader(workingDirectory)),
+              key, options, protocol);
     }
 
     private ResourceLoader getResourceLoader(@Nullable Path workingDirectory) {
@@ -188,13 +185,11 @@ public abstract class DockerComposeConnectionDetailsFactory<D extends Connection
     }
 
     private @Nullable JksSslStoreDetails getJksSslStoreDetails(RunningService service, String storeType) {
-      String type = service.labels().get("infra.sslbundle.jks.%s.type".formatted(storeType));
-      String provider = service.labels()
-              .get("infra.sslbundle.jks.%s.provider".formatted(storeType));
-      String location = service.labels()
-              .get("infra.sslbundle.jks.%s.location".formatted(storeType));
-      String password = service.labels()
-              .get("infra.sslbundle.jks.%s.password".formatted(storeType));
+      Map<String, String> labels = service.labels();
+      String type = labels.get("infra.sslbundle.jks.%s.type".formatted(storeType));
+      String provider = labels.get("infra.sslbundle.jks.%s.provider".formatted(storeType));
+      String location = labels.get("infra.sslbundle.jks.%s.location".formatted(storeType));
+      String password = labels.get("infra.sslbundle.jks.%s.password".formatted(storeType));
       if (location == null) {
         return null;
       }
@@ -241,12 +236,9 @@ public abstract class DockerComposeConnectionDetailsFactory<D extends Connection
 
     private @Nullable PemSslStoreDetails getPemSslStoreDetails(RunningService service, String storeType) {
       String type = service.labels().get("infra.sslbundle.pem.%s.type".formatted(storeType));
-      String certificate = service.labels()
-              .get("infra.sslbundle.pem.%s.certificate".formatted(storeType));
-      String privateKey = service.labels()
-              .get("infra.sslbundle.pem.%s.private-key".formatted(storeType));
-      String privateKeyPassword = service.labels()
-              .get("infra.sslbundle.pem.%s.private-key-password".formatted(storeType));
+      String certificate = service.labels().get("infra.sslbundle.pem.%s.certificate".formatted(storeType));
+      String privateKey = service.labels().get("infra.sslbundle.pem.%s.private-key".formatted(storeType));
+      String privateKeyPassword = service.labels().get("infra.sslbundle.pem.%s.private-key-password".formatted(storeType));
       if (certificate == null && privateKey == null) {
         return null;
       }

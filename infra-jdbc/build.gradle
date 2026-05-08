@@ -21,11 +21,11 @@ dependencies {
   optional 'com.oracle.database.jdbc:ojdbc8'
   optional 'com.oracle.database.jdbc:ucp'
   optional 'com.mchange:c3p0:0.9.5.5'
-  optional "org.testcontainers:testcontainers-jdbc"
 
   optional("io.micrometer:micrometer-core")
 
   optional project(":module:infra-app-health")
+  optional project(":module:infra-docker-compose")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))

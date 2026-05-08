@@ -38,7 +38,7 @@ class DockerComposeListener implements ApplicationListener<ApplicationPreparedEv
 
   private final ApplicationShutdownHandlers shutdownHandlers;
 
-  DockerComposeListener() {
+  public DockerComposeListener() {
     this(Application.getShutdownHandlers());
   }
 

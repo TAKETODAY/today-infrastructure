@@ -116,7 +116,6 @@ public enum TestcontainersStartup {
     }
     catch (Throwable ex) {
       return false;
-
     }
   }
 

@@ -19,7 +19,6 @@
 package infra.testcontainers.service.connection;
 
 import org.jspecify.annotations.Nullable;
-import infra.testcontainers.lifecycle.TestcontainersLifecycleApplicationContextInitializer;
 import org.testcontainers.containers.Container;
 
 import java.util.List;
@@ -33,6 +32,7 @@ import infra.context.service.connection.ConnectionDetails;
 import infra.context.service.connection.ConnectionDetailsFactories;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.MergedContextConfiguration;
+import infra.testcontainers.lifecycle.TestcontainersLifecycleApplicationContextInitializer;
 
 /**
  * Spring Test {@link ContextCustomizer} to support registering {@link ConnectionDetails}.
@@ -71,7 +71,7 @@ class ServiceConnectionContextCustomizer implements ContextCustomizer {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

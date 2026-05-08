@@ -50,8 +50,7 @@ import infra.util.ReflectionUtils;
 class ServiceConnectionContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
-  public ContextCustomizer createContextCustomizer(Class<?> testClass,
-          List<ContextConfigurationAttributes> configAttributes) {
+  public ContextCustomizer createContextCustomizer(Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
     List<ContainerConnectionSource<?>> sources = new ArrayList<>();
     collectSources(testClass, sources);
     return new ServiceConnectionContextCustomizer(sources);

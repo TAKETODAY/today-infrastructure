@@ -1,0 +1,10 @@
+description = "Starter for testing JDBC with the HikariCP connection pool"
+
+dependencies {
+  api project(':infra-starter:infra-starter-jdbc')
+  api project(':infra-starter:infra-starter-test')
+
+  api project(':module:infra-app-jdbc-test')
+
+}
+

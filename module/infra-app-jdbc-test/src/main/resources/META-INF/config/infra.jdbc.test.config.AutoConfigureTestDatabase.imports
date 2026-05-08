@@ -1,0 +1,3 @@
+infra.jdbc.config.DataSourceAutoConfiguration
+infra.jdbc.test.config.TestDatabaseAutoConfiguration
+optional:infra.testcontainers.service.connection.ServiceConnectionAutoConfiguration

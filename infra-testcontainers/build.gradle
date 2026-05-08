@@ -7,7 +7,7 @@ plugins {
 description = "Infra Testcontainers Support"
 
 dependencies {
-  api(project(":infra-app"))
+  api(project(":infra-context"))
   api("org.testcontainers:testcontainers")
 
   dockerTestImplementation(project(":module:infra-app-test"))
@@ -28,6 +28,7 @@ dependencies {
   dockerTestRuntimeOnly("com.h2database:h2")
   dockerTestRuntimeOnly("org.postgresql:postgresql")
 
+  optional(project(":infra-app"))
   optional(project(":infra-test"))
 
   testImplementation(project(":module:infra-app-test"))

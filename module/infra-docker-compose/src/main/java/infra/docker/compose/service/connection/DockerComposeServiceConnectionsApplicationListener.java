@@ -18,9 +18,6 @@
 
 package infra.docker.compose.service.connection;
 
-import infra.docker.compose.core.RunningService;
-import infra.docker.compose.lifecycle.DockerComposeServicesReadyEvent;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +32,8 @@ import infra.context.container.ContainerImageMetadata;
 import infra.context.service.connection.ConnectionDetails;
 import infra.context.service.connection.ConnectionDetailsFactories;
 import infra.core.env.Environment;
+import infra.docker.compose.core.RunningService;
+import infra.docker.compose.lifecycle.DockerComposeServicesReadyEvent;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
@@ -50,7 +49,7 @@ class DockerComposeServiceConnectionsApplicationListener implements ApplicationL
 
   private final ConnectionDetailsFactories factories;
 
-  DockerComposeServiceConnectionsApplicationListener() {
+  public DockerComposeServiceConnectionsApplicationListener() {
     this(new ConnectionDetailsFactories(null));
   }
 

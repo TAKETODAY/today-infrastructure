@@ -1,0 +1,7 @@
+infra.jdbc.config.DataSourceAutoConfiguration
+infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration
+infra.jdbc.config.JdbcClientAutoConfiguration
+infra.jdbc.config.JdbcTemplateAutoConfiguration
+infra.transaction.config.TransactionAutoConfiguration
+infra.transaction.config.TransactionManagerCustomizationAutoConfiguration
+optional:infra.testcontainers.service.connection.ServiceConnectionAutoConfiguration
