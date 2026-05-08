@@ -56,7 +56,7 @@ public class ResourceHttpMessageWriterTests {
   private final MockServerHttpResponse response = new MockServerHttpResponse();
 
   private final Mono<Resource> input = Mono.just(new ByteArrayResource(
-          "Infra Framework test resource content.".getBytes(StandardCharsets.UTF_8)));
+          "Infra  Framework test resource content.".getBytes(StandardCharsets.UTF_8)));
 
   @Test
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -74,7 +74,7 @@ public class ResourceHttpMessageWriterTests {
     assertThat(this.response.getHeaders().getContentLength()).isEqualTo(39L);
     assertThat(this.response.getHeaders().getFirst(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
 
-    String content = "Infra Framework test resource content.";
+    String content = "Infra  Framework test resource content.";
     StepVerifier.create(this.response.getBodyAsString()).expectNext(content).expectComplete().verify();
   }
 
@@ -87,7 +87,7 @@ public class ResourceHttpMessageWriterTests {
     assertThat(this.response.getHeaders().getFirst(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes 0-5/39");
     assertThat(this.response.getHeaders().getContentLength()).isEqualTo(6L);
 
-    StepVerifier.create(this.response.getBodyAsString()).expectNext("Spring").expectComplete().verify();
+    StepVerifier.create(this.response.getBodyAsString()).expectNext("Infra ").expectComplete().verify();
   }
 
   @Test
@@ -108,7 +108,7 @@ public class ResourceHttpMessageWriterTests {
                       "--" + boundary,
                       "Content-Type: text/plain",
                       "Content-Range: bytes 0-5/39",
-                      "Spring",
+                      "Infra ",
                       "--" + boundary,
                       "Content-Type: text/plain",
                       "Content-Range: bytes 7-15/39",
