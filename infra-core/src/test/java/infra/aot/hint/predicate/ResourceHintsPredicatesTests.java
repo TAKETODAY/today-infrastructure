@@ -42,54 +42,54 @@ class ResourceHintsPredicatesTests {
 	@Test
 	void resourcePatternMatchesResourceName() {
 		this.runtimeHints.resources().registerPattern("test/*");
-		assertPredicateMatches(resources.forResource("/test/spring.properties"));
+		assertPredicateMatches(resources.forResource("/test/today.properties"));
 	}
 
 	@Test
 	void resourcePatternDoesNotMatchResourceName() {
-		this.runtimeHints.resources().registerPattern("test/spring.*");
+		this.runtimeHints.resources().registerPattern("test/today.*");
 		assertPredicateDoesNotMatch(resources.forResource("/test/other.properties"));
 	}
 
 	@Test
 	void resourcePatternMatchesTypeAndResourceName() {
-		this.runtimeHints.resources().registerPattern("infra/aot/hint/predicate/spring.*");
-		assertPredicateMatches(resources.forResource(TypeReference.of(getClass()), "spring.properties"));
+		this.runtimeHints.resources().registerPattern("infra/aot/hint/predicate/today.*");
+		assertPredicateMatches(resources.forResource(TypeReference.of(getClass()), "today.properties"));
 	}
 
 	@Test
 	void resourcePatternMatchesTypeAndAbsoluteResourceName() {
-		this.runtimeHints.resources().registerPattern("spring.*");
-		assertPredicateMatches(resources.forResource(TypeReference.of(getClass()), "/spring.properties"));
+		this.runtimeHints.resources().registerPattern("today.*");
+		assertPredicateMatches(resources.forResource(TypeReference.of(getClass()), "/today.properties"));
 	}
 
 	@Test
 	void resourcePatternMatchesTypeInDefaultPackageAndResourceName() {
-		this.runtimeHints.resources().registerPattern("spring.*");
-		assertPredicateMatches(resources.forResource(TypeReference.of("DummyClass"), "spring.properties"));
+		this.runtimeHints.resources().registerPattern("today.*");
+		assertPredicateMatches(resources.forResource(TypeReference.of("DummyClass"), "today.properties"));
 	}
 
 	@Test
 	void resourcePatternMatchesTypeInDefaultPackageAndAbsoluteResourceName() {
-		this.runtimeHints.resources().registerPattern("spring.*");
-		assertPredicateMatches(resources.forResource(TypeReference.of("DummyClass"), "/spring.properties"));
+		this.runtimeHints.resources().registerPattern("today.*");
+		assertPredicateMatches(resources.forResource(TypeReference.of("DummyClass"), "/today.properties"));
 	}
 
 	@Test
 	void resourcePatternDoesNotMatchTypeAndResourceName() {
-		this.runtimeHints.resources().registerPattern("spring.*");
-		assertPredicateDoesNotMatch(resources.forResource(TypeReference.of(getClass()), "spring.properties"));
+		this.runtimeHints.resources().registerPattern("today.*");
+		assertPredicateDoesNotMatch(resources.forResource(TypeReference.of(getClass()), "today.properties"));
 	}
 
 	@Test
 	void resourceBundleMatchesBundleName() {
-		this.runtimeHints.resources().registerResourceBundle("spring");
-		assertPredicateMatches(resources.forBundle("spring"));
+		this.runtimeHints.resources().registerResourceBundle("today");
+		assertPredicateMatches(resources.forBundle("today"));
 	}
 
 	@Test
 	void resourceBundleDoesNotMatchBundleName() {
-		this.runtimeHints.resources().registerResourceBundle("spring");
+		this.runtimeHints.resources().registerResourceBundle("today");
 		assertPredicateDoesNotMatch(resources.forBundle("other"));
 	}
 

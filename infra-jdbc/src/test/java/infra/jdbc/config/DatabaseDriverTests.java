@@ -119,6 +119,9 @@ class DatabaseDriverTests {
     assertThat(DatabaseDriver.fromJdbcUrl("jdbc:phoenix:localhost")).isEqualTo(DatabaseDriver.PHOENIX);
     assertThat(DatabaseDriver.fromJdbcUrl("jdbc:tc:mysql://localhost:3306/sample"))
             .isEqualTo(DatabaseDriver.TESTCONTAINERS);
+    assertThat(DatabaseDriver.fromJdbcUrl("jdbc:clickhouse://localhost:3306/sample"))
+            .isEqualTo(DatabaseDriver.CLICKHOUSE);
+    assertThat(DatabaseDriver.fromJdbcUrl("jdbc:ch://localhost:3306/sample")).isEqualTo(DatabaseDriver.CLICKHOUSE);
   }
 
 }

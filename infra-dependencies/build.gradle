@@ -618,6 +618,15 @@ bom {
     }
   }
 
+  library("ClickHouse", "0.9.0") {
+    group("com.clickhouse") {
+      modules = [
+          "clickhouse-jdbc",
+          "clickhouse-r2dbc"
+      ]
+    }
+  }
+
 }
 
 dependencies {

@@ -44,25 +44,25 @@ class OnPropertyListConditionTests {
 
   @Test
   void propertyDefinedAsCommaSeparated() {
-    this.contextRunner.withPropertyValues("spring.test.my-list=value1")
+    this.contextRunner.withPropertyValues("infra.test.my-list=value1")
             .run((context) -> assertThat(context).hasBean("foo"));
   }
 
   @Test
   void propertyDefinedAsList() {
-    this.contextRunner.withPropertyValues("spring.test.my-list[0]=value1")
+    this.contextRunner.withPropertyValues("infra.test.my-list[0]=value1")
             .run((context) -> assertThat(context).hasBean("foo"));
   }
 
   @Test
   void propertyDefinedAsCommaSeparatedRelaxed() {
-    this.contextRunner.withPropertyValues("spring.test.myList=value1")
+    this.contextRunner.withPropertyValues("infra.test.myList=value1")
             .run((context) -> assertThat(context).hasBean("foo"));
   }
 
   @Test
   void propertyDefinedAsListRelaxed() {
-    this.contextRunner.withPropertyValues("spring.test.myList[0]=value1")
+    this.contextRunner.withPropertyValues("infra.test.myList[0]=value1")
             .run((context) -> assertThat(context).hasBean("foo"));
   }
 
@@ -80,7 +80,7 @@ class OnPropertyListConditionTests {
   static class TestPropertyListCondition extends OnPropertyListCondition {
 
     TestPropertyListCondition() {
-      super("spring.test.my-list", () -> ConditionMessage.forCondition("test"));
+      super("infra.test.my-list", () -> ConditionMessage.forCondition("test"));
     }
 
   }

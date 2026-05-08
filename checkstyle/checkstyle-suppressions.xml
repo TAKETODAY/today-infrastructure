@@ -86,6 +86,8 @@
   <suppress files="infra-app-restclient-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
   <suppress files="infra-app-webmvc-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
   <suppress files="infra-app-webmvc-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="infra-app-jdbc-test[\\/]src[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="infra-app-jdbc-test[\\/]src[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
   <suppress files="src[\\/]dockerTest[\\/]" checks="IllegalImport" id="bannedHamcrestImports" />
   <suppress files="src[\\/]dockerTest[\\/]" checks="IllegalImport" id="bannedJUnitJupiterImports" />
