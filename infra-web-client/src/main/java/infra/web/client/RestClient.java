@@ -1688,6 +1688,33 @@ public interface RestClient {
      */
     Future<SseEventIterator> eventStream();
 
+    /**
+     * Asynchronously execute and return a Future of an {@link Iterable} of
+     * {@link ServerSentEvent}s. The returned Future completes when the initial
+     * HTTP response is received and the status has been validated (4xx/5xx
+     * result in exceptional completion).
+     *
+     * <p>The returned iterable allows for incremental consumption of
+     * Server-Sent Events from the response body. The underlying HTTP connection
+     * is held open until the iterable is fully consumed or explicitly closed if
+     * it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * Future<Iterable<ServerSentEvent<String>>> future = client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .async()
+     *      .events();
+     *
+     * // later, on another thread:
+     * for (ServerSentEvent<String> event : future.get()) {
+     *   System.out.println(event.event() + ": " + event.data());
+     * }
+     * }</pre>
+     *
+     * @return a Future of an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * @since 5.0
+     */
     Future<Iterable<ServerSentEvent<@Nullable String>>> events();
 
   }
