@@ -27,6 +27,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
@@ -65,22 +66,22 @@ import infra.http.client.ClientHttpResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-public class SseEventIterator implements Closeable {
+public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable String>>, Closeable {
 
   private final ClientHttpResponse response;
 
   private final BufferedReader reader;
 
-  private @Nullable ServerSentEvent<String> nextEvent;
-
   private boolean eof;
 
   private @Nullable String lastEventId;
 
+  private @Nullable ServerSentEvent<@Nullable String> nextEvent;
+
   /**
    * Create a new {@code SseEventIterator} from the given response.
    */
-  public SseEventIterator(ClientHttpResponse response) {
+  SseEventIterator(ClientHttpResponse response) {
     this.response = response;
     Charset charset = null;
     MediaType contentType = response.getHeaders().getContentType();
@@ -110,6 +111,7 @@ public class SseEventIterator implements Closeable {
   /**
    * Returns {@code true} if more events are available.
    */
+  @Override
   public boolean hasNext() {
     if (nextEvent != null) {
       return true;
@@ -134,11 +136,12 @@ public class SseEventIterator implements Closeable {
    *
    * @throws NoSuchElementException if no more events are available
    */
-  public ServerSentEvent<String> next() {
+  @Override
+  public ServerSentEvent<@Nullable String> next() {
     if (!hasNext()) {
       throw new NoSuchElementException("No more SSE events available");
     }
-    ServerSentEvent<String> event = nextEvent;
+    ServerSentEvent<@Nullable String> event = nextEvent;
     nextEvent = null;
     if (event != null) {
       lastEventId = event.id();
@@ -153,7 +156,7 @@ public class SseEventIterator implements Closeable {
 
   // --- SSE parsing ---
 
-  private @Nullable ServerSentEvent<String> readEvent() throws IOException {
+  private @Nullable ServerSentEvent<@Nullable String> readEvent() throws IOException {
     String id = null;
     String event = null;
     StringBuilder data = null;
@@ -222,8 +225,7 @@ public class SseEventIterator implements Closeable {
       return null;
     }
 
-    ServerSentEvent.Builder<String> builder = ServerSentEvent.<String>builder()
-            .data(data != null ? data.toString() : null);
+    ServerSentEvent.Builder<@Nullable String> builder = ServerSentEvent.builder(data != null ? data.toString() : null);
     if (id != null) {
       builder = builder.id(id);
     }

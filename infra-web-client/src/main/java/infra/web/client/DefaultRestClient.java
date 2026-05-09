@@ -48,6 +48,7 @@ import infra.http.HttpRequest;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.ServerSentEvent;
 import infra.http.StreamingHttpOutputMessage;
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequest;
@@ -965,6 +966,12 @@ final class DefaultRestClient implements RestClient {
       }
       return new SseEventIterator(clientResponse);
     }
+
+    @Override
+    public Iterable<ServerSentEvent<@Nullable String>> events() {
+      return this::eventStream;
+    }
+
   }
 
   private class DefaultAsyncSpec extends AbstractResponseSpec<DefaultAsyncSpec> implements AsyncSpec {
@@ -1033,6 +1040,11 @@ final class DefaultRestClient implements RestClient {
         }
         return new SseEventIterator(response);
       });
+    }
+
+    @Override
+    public Future<Iterable<ServerSentEvent<@Nullable String>>> events() {
+      return eventStream().map(it -> () -> it);
     }
 
     private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {

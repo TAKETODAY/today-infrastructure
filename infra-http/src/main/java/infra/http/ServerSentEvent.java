@@ -39,7 +39,7 @@ import infra.util.StringUtils;
  * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>
  * @since 4.0
  */
-public final class ServerSentEvent<T> {
+public final class ServerSentEvent<T extends @Nullable Object> {
 
   private final @Nullable String id;
 
@@ -154,7 +154,7 @@ public final class ServerSentEvent<T> {
    * @return the builder
    */
   public static <T> Builder<T> builder() {
-    return new BuilderImpl<>();
+    return new BuilderImpl<>(null);
   }
 
   /**
@@ -163,7 +163,7 @@ public final class ServerSentEvent<T> {
    * @param <T> the type of data that this event contains
    * @return the builder
    */
-  public static <T> Builder<T> builder(T data) {
+  public static <T extends @Nullable Object> Builder<T> builder(T data) {
     return new BuilderImpl<>(data);
   }
 
@@ -172,7 +172,7 @@ public final class ServerSentEvent<T> {
    *
    * @param <T> the type of data that this event contains
    */
-  public interface Builder<T> {
+  public interface Builder<T extends @Nullable Object> {
 
     /**
      * Set the value of the {@code id} field.
@@ -237,9 +237,6 @@ public final class ServerSentEvent<T> {
     private @Nullable String comment;
 
     private @Nullable T data;
-
-    public BuilderImpl() {
-    }
 
     public BuilderImpl(@Nullable T data) {
       this.data = data;

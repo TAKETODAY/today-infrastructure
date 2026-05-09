@@ -1375,6 +1375,7 @@ public interface RestClient {
      *   while ((n = in.read(buf)) != -1) { ... }
      * }
      * }</pre>
+     *
      * @since 5.0
      */
     ResponseStream bodyStream();
@@ -1421,7 +1422,7 @@ public interface RestClient {
      * @param consumer callback invoked for each event
      * @since 5.0
      */
-    default void eventStream(Consumer<ServerSentEvent<String>> consumer) {
+    default void eventStream(Consumer<ServerSentEvent<@Nullable String>> consumer) {
       try (SseEventIterator events = eventStream()) {
         while (events.hasNext()) {
           consumer.accept(events.next());
@@ -1429,6 +1430,27 @@ public interface RestClient {
       }
     }
 
+    /**
+     * Execute the request and return an {@link Iterable} of {@link ServerSentEvent}s.
+     * <p>The returned iterable allows for incremental consumption of Server-Sent Events
+     * from the response body. The underlying HTTP connection is held open until the
+     * iterable is fully consumed or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * for (ServerSentEvent<String> event : client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .retrieve()
+     *      .events()) {
+     *   System.out.println(event.event() + ": " + event.data());
+     * }
+     * }</pre>
+     *
+     * @return an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * @throws RestClientResponseException on 4xx or 5xx responses
+     * @since 5.0
+     */
+    Iterable<ServerSentEvent<@Nullable String>> events();
   }
 
   /**
@@ -1634,6 +1656,7 @@ public interface RestClient {
      * for incremental consumption of the response body. The Future completes
      * when the initial HTTP response is received and the status has been
      * validated. The caller must close the stream to release resources.
+     *
      * @since 5.0
      */
     Future<ResponseStream> bodyStream();
@@ -1664,6 +1687,8 @@ public interface RestClient {
      * @since 5.0
      */
     Future<SseEventIterator> eventStream();
+
+    Future<Iterable<ServerSentEvent<@Nullable String>>> events();
 
   }
 
