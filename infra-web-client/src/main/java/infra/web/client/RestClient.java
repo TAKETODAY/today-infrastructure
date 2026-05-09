@@ -1359,28 +1359,6 @@ public interface RestClient {
     void toBodiless() throws RestClientException;
 
     /**
-     * Execute the request and return a {@link ResponseStream} for incremental
-     * consumption of the response body. The caller must close the returned
-     * stream to release the HTTP connection.
-     *
-     * <pre>{@code
-     * try (ResponseStream stream = client.get()
-     *      .uri("https://example.com/large-file")
-     *      .retrieve()
-     *      .bodyStream()) {
-     *
-     *   byte[] buf = new byte[8192];
-     *   InputStream in = stream.inputStream();
-     *   int n;
-     *   while ((n = in.read(buf)) != -1) { ... }
-     * }
-     * }</pre>
-     *
-     * @since 5.0
-     */
-    ResponseStream bodyStream();
-
-    /**
      * Execute the request and return an {@link SseEventIterator} that streams
      * {@link ServerSentEvent Server-Sent Events} from the response body.
      * The caller must close the returned iterator to release the HTTP connection.
@@ -1650,16 +1628,6 @@ public interface RestClient {
      * @since 5.0
      */
     Future<Void> toBodiless();
-
-    /**
-     * Asynchronously execute and return a Future of a {@link ResponseStream}
-     * for incremental consumption of the response body. The Future completes
-     * when the initial HTTP response is received and the status has been
-     * validated. The caller must close the stream to release resources.
-     *
-     * @since 5.0
-     */
-    Future<ResponseStream> bodyStream();
 
     /**
      * Asynchronously execute and return a Future of an {@link SseEventIterator}

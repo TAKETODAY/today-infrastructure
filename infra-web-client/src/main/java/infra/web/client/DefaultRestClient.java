@@ -942,19 +942,6 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public ResponseStream bodyStream() {
-      if (!ignoreStatus) {
-        try {
-          DefaultRestClient.this.applyStatusHandlers(clientRequest, clientResponse, statusHandlers);
-        }
-        catch (IOException e) {
-          throw new RestClientException("Failed to apply status handlers", e);
-        }
-      }
-      return new ResponseStream(clientResponse);
-    }
-
-    @Override
     public SseEventIterator eventStream() {
       if (!ignoreStatus) {
         try {
@@ -1020,16 +1007,6 @@ final class DefaultRestClient implements RestClient {
     @Override
     public Future<Void> toBodiless() {
       return clientResponse.map(this::toBodiless);
-    }
-
-    @Override
-    public Future<ResponseStream> bodyStream() {
-      return clientResponse.map(response -> {
-        if (!ignoreStatus) {
-          DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers);
-        }
-        return new ResponseStream(response);
-      });
     }
 
     @Override
