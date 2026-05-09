@@ -33,7 +33,7 @@ jobs:
           distribution: liberica
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Test Coverage
         run: ./gradlew -DCI=true -Pcode-coverage --no-daemon --no-parallel testCodeCoverageReport --scan --stacktrace

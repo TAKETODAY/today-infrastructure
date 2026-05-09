@@ -48,17 +48,13 @@ gradlePlugin {
       id = "infra.building.docker-test"
       implementationClass = "infra.building.test.DockerTestPlugin"
     }
-    integrationTestPluginPlugin {
+    integrationTestPlugin {
       id = "infra.building.integration-test"
       implementationClass = "infra.building.test.IntegrationTestPlugin"
     }
     runtimeHintsAgentPlugin {
       id = "infra.building.runtimehints-agent"
       implementationClass = "infra.building.hint.RuntimeHintsAgentPlugin"
-    }
-    integrationTestPlugin {
-      id = "infra.integration-test"
-      implementationClass = "infra.building.IntegrationTestPlugin"
     }
     mavenPluginPlugin {
       id = "infra.maven-plugin"

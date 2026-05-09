@@ -24,7 +24,6 @@ dependencies {
   jacocoAggregation project(':infra-persistence')
   jacocoAggregation project(':infra-oxm')
   jacocoAggregation project(':infra-test')
-  jacocoAggregation project(':infra-test-support')
   jacocoAggregation project(':infra-testcontainers')
   jacocoAggregation project(':infra-tx')
   jacocoAggregation project(':infra-web')
@@ -35,14 +34,18 @@ dependencies {
   jacocoAggregation project(':infra-http')
   jacocoAggregation project(':infra-http-client')
   jacocoAggregation project(':infra-http-codec')
+  jacocoAggregation project(':infra-http-service')
   jacocoAggregation project(':infra-http-converter')
   jacocoAggregation project(':infra-http-reactive')
   jacocoAggregation project(':infra-web-client')
   jacocoAggregation project(':infra-web-core')
   jacocoAggregation project(':infra-web-reactive')
-  jacocoAggregation project(':infra-http-service')
+  jacocoAggregation project(':infra-web-netty-server')
+  jacocoAggregation project(':infra-web-reactor-server')
+  jacocoAggregation project(':infra-web-server')
 
   jacocoAggregation project(':module:infra-app-health')
+  jacocoAggregation project(':module:infra-app-jdbc-test')
   jacocoAggregation project(':module:infra-app-restclient-test')
   jacocoAggregation project(':module:infra-app-resttestclient')
   jacocoAggregation project(':module:infra-app-test')
@@ -58,9 +61,6 @@ dependencies {
   jacocoAggregation project(':module:infra-sql')
 
 
-  jacocoAggregation project(':infra-web-netty-server')
-  jacocoAggregation project(':infra-web-reactor-server')
-  jacocoAggregation project(':infra-web-server')
 }
 
 reporting {
