@@ -84,25 +84,17 @@ final class DefaultRestClient implements RestClient {
 
   private final ClientHttpRequestFactory clientRequestFactory;
 
-  @Nullable
-  private volatile ClientHttpRequestFactory interceptingRequestFactory;
+  private final @Nullable List<ClientHttpRequestInitializer> initializers;
 
-  @Nullable
-  private final List<ClientHttpRequestInitializer> initializers;
-
-  @Nullable
-  private final List<ClientHttpRequestInterceptor> interceptors;
+  private final @Nullable List<ClientHttpRequestInterceptor> interceptors;
 
   final UriBuilderFactory uriBuilderFactory;
 
-  @Nullable
-  private final HttpHeaders defaultHeaders;
+  private final @Nullable HttpHeaders defaultHeaders;
 
-  @Nullable
-  private final MultiValueMap<String, String> defaultCookies;
+  private final @Nullable MultiValueMap<String, String> defaultCookies;
 
-  @Nullable
-  private final List<ResponseErrorHandler> defaultStatusHandlers;
+  private final @Nullable List<ResponseErrorHandler> defaultStatusHandlers;
 
   private final ResponseErrorHandler defaultStatusHandler;
 
@@ -110,21 +102,19 @@ final class DefaultRestClient implements RestClient {
 
   private final List<HttpMessageConverter<?>> messageConverters;
 
-  @Nullable
-  private final Consumer<RequestHeadersSpec<?>> defaultRequest;
+  private final @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest;
 
   private final boolean ignoreStatusHandlers;
 
   private final boolean detectEmptyMessageBody;
 
-  @Nullable
-  private final Predicate<HttpRequest> bufferingPredicate;
+  private final @Nullable Predicate<HttpRequest> bufferingPredicate;
 
-  @Nullable
-  private final ApiVersionInserter apiVersionInserter;
+  private final @Nullable ApiVersionInserter apiVersionInserter;
 
-  @Nullable
-  private final Object defaultApiVersion;
+  private final @Nullable Object defaultApiVersion;
+
+  private volatile @Nullable ClientHttpRequestFactory interceptingRequestFactory;
 
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
@@ -210,9 +200,8 @@ final class DefaultRestClient implements RestClient {
     return new DefaultRestClientBuilder(this.builder);
   }
 
-  @Nullable
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable ResponseConsumer callback,
+  private <T> @Nullable T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable ResponseConsumer callback,
           Type bodyType, Class<T> bodyClass, @Nullable Map<String, Object> hints) {
     MediaType contentType = getContentType(clientResponse);
 
@@ -736,13 +725,11 @@ final class DefaultRestClient implements RestClient {
       return result instanceof InputStream || result instanceof InputStreamResource;
     }
 
-    @Nullable
-    private Object getApiVersionOrDefault() {
+    private @Nullable Object getApiVersionOrDefault() {
       return this.apiVersion != null ? this.apiVersion : DefaultRestClient.this.defaultApiVersion;
     }
 
-    @Nullable
-    private String serializeCookies() {
+    private @Nullable String serializeCookies() {
       MultiValueMap<String, String> map;
       MultiValueMap<String, String> defaultCookies = DefaultRestClient.this.defaultCookies;
       if (CollectionUtils.isEmpty(this.cookies)) {
@@ -876,8 +863,7 @@ final class DefaultRestClient implements RestClient {
               .body(body);
     }
 
-    @Nullable
-    final <R> R readBody(ClientHttpResponse clientResponse, Type bodyType, Class<R> bodyClass) {
+    final <R> @Nullable R readBody(ClientHttpResponse clientResponse, Type bodyType, Class<R> bodyClass) {
       return readWithMessageConverters(clientResponse, ignoreStatus ? null : response ->
               DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass, hints);
     }
@@ -971,14 +957,12 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    @SuppressWarnings("NullAway")
     public <T> Future<T> body(Class<T> bodyType) {
       return clientResponse.map(response ->
               ignoreStatus(false).readBody(response, bodyType, bodyType));
     }
 
     @Override
-    @SuppressWarnings("NullAway")
     public <T> Future<T> body(ParameterizedTypeReference<T> bodyType) {
       return clientResponse.map(response -> {
         Type type = bodyType.getType();
@@ -1041,15 +1025,13 @@ final class DefaultRestClient implements RestClient {
       this.hints = hints;
     }
 
-    @Nullable
     @Override
-    public <T> T bodyTo(Class<T> bodyType) {
+    public <T> @Nullable T bodyTo(Class<T> bodyType) {
       return readWithMessageConverters(this.delegate, null, bodyType, bodyType, hints);
     }
 
-    @Nullable
     @Override
-    public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
+    public <T> @Nullable T bodyTo(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
       Class<T> bodyClass = bodyClass(type);
       return readWithMessageConverters(this.delegate, null, type, bodyClass, hints);
