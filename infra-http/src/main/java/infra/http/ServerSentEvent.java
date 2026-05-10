@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.util.Objects;
 
+import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -143,8 +144,13 @@ public final class ServerSentEvent<T extends @Nullable Object> {
 
   @Override
   public String toString() {
-    return "ServerSentEvent [id = '%s', event='%s', retry=%s, comment='%s', data=%s]"
-            .formatted(this.id, this.event, this.retry, this.comment, this.data);
+    return ToStringBuilder.forInstance(this)
+            .append("id", id)
+            .append("event", event)
+            .append("retry", retry)
+            .append("comment", comment)
+            .append("data", data)
+            .toString();
   }
 
   /**
@@ -226,7 +232,7 @@ public final class ServerSentEvent<T extends @Nullable Object> {
     ServerSentEvent<T> build();
   }
 
-  private static class BuilderImpl<T> implements Builder<T> {
+  private static class BuilderImpl<T extends @Nullable Object> implements Builder<T> {
 
     private @Nullable String id;
 
