@@ -18,8 +18,6 @@
 
 package infra.web.client;
 
-import org.jspecify.annotations.Nullable;
-
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
@@ -128,7 +126,6 @@ public class UnknownContentTypeException extends RestClientException {
   /**
    * Return the HTTP response headers.
    */
-  @Nullable
   public HttpHeaders getResponseHeaders() {
     return this.responseHeaders;
   }

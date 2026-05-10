@@ -61,8 +61,7 @@ import infra.util.LogFormatUtils;
  */
 public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 
-  @Nullable
-  private List<HttpMessageConverter<?>> messageConverters;
+  private @Nullable List<HttpMessageConverter<?>> messageConverters;
 
   /**
    * Delegates to {@link #hasError(HttpStatusCode)} with the response status code.
@@ -190,8 +189,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * @param response the response to inspect
    * @return the associated charset, or {@code null} if none
    */
-  @Nullable
-  protected Charset getCharset(ClientHttpResponse response) {
+  protected @Nullable Charset getCharset(ClientHttpResponse response) {
     return RestClientUtils.getCharset(response);
   }
 
