@@ -50,10 +50,10 @@ public final class ServerSentEvent<T extends @Nullable Object> {
 
   private final @Nullable String comment;
 
-  private final @Nullable T data;
+  private final T data;
 
   private ServerSentEvent(@Nullable String id, @Nullable String event,
-          @Nullable Duration retry, @Nullable String comment, @Nullable T data) {
+          @Nullable Duration retry, @Nullable String comment, T data) {
 
     this.id = id;
     this.event = event;
@@ -93,7 +93,7 @@ public final class ServerSentEvent<T extends @Nullable Object> {
   /**
    * Return the {@code data} field of this event, if available.
    */
-  public @Nullable T data() {
+  public T data() {
     return this.data;
   }
 
@@ -159,7 +159,7 @@ public final class ServerSentEvent<T extends @Nullable Object> {
    * @param <T> the type of data that this event contains
    * @return the builder
    */
-  public static <T> Builder<T> builder() {
+  public static <T extends @Nullable Object> Builder<T> builder() {
     return new BuilderImpl<>(null);
   }
 
