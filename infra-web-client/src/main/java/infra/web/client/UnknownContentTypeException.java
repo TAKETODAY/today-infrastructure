@@ -42,9 +42,9 @@ public class UnknownContentTypeException extends RestClientException {
 
   private final MediaType contentType;
 
-  private final HttpStatusCode statusCode;
+  private final @Nullable HttpStatusCode statusCode;
 
-  private final String statusText;
+  private final @Nullable String statusText;
 
   private final byte[] responseBody;
 
@@ -57,8 +57,8 @@ public class UnknownContentTypeException extends RestClientException {
    * @param contentType the content type of the response
    * @param statusCode the raw status code value
    * @param statusText the status text
-   * @param responseHeaders the response headers (may be {@code null})
-   * @param responseBody the response body content (may be {@code null})
+   * @param responseHeaders the response headers
+   * @param responseBody the response body content
    */
   public UnknownContentTypeException(Type targetType, MediaType contentType,
           int statusCode, String statusText, HttpHeaders responseHeaders, byte[] responseBody) {
@@ -71,13 +71,25 @@ public class UnknownContentTypeException extends RestClientException {
    *
    * @param targetType the expected target type
    * @param contentType the content type of the response
-   * @param statusCode the raw status code value
-   * @param statusText the status text
-   * @param responseHeaders the response headers (may be {@code null})
-   * @param responseBody the response body content (may be {@code null})
+   * @param responseHeaders the response headers
+   * @param responseBody the response body content
+   */
+  public UnknownContentTypeException(Type targetType, MediaType contentType, HttpHeaders responseHeaders, byte[] responseBody) {
+    this(targetType, contentType, null, null, responseHeaders, responseBody);
+  }
+
+  /**
+   * Construct a new instance of with the given response data.
+   *
+   * @param targetType the expected target type
+   * @param contentType the content type of the response
+   * @param statusCode the raw status code value (maybe {@code null})
+   * @param statusText the status text (maybe {@code null})
+   * @param responseHeaders the response headers
+   * @param responseBody the response body content
    */
   public UnknownContentTypeException(Type targetType, MediaType contentType,
-          HttpStatusCode statusCode, String statusText, HttpHeaders responseHeaders, byte[] responseBody) {
+          @Nullable HttpStatusCode statusCode, @Nullable String statusText, HttpHeaders responseHeaders, byte[] responseBody) {
 
     super("Could not extract response: no suitable HttpMessageConverter found for response type [%s] and content type [%s]"
             .formatted(targetType, contentType));
@@ -105,30 +117,29 @@ public class UnknownContentTypeException extends RestClientException {
   }
 
   /**
-   * Return the HTTP status code value.
+   * Return the HTTP status code.
    */
-  public HttpStatusCode getStatusCode() {
+  public @Nullable HttpStatusCode getStatusCode() {
     return this.statusCode;
   }
 
   /**
-   * Return the raw HTTP status code value.
+   * Return the integer value of the status code.
    */
   public int getRawStatusCode() {
-    return this.statusCode.value();
+    return statusCode == null ? -1 : this.statusCode.value();
   }
 
   /**
    * Return the HTTP status text.
    */
-  public String getStatusText() {
+  public @Nullable String getStatusText() {
     return this.statusText;
   }
 
   /**
    * Return the HTTP response headers.
    */
-  @Nullable
   public HttpHeaders getResponseHeaders() {
     return this.responseHeaders;
   }

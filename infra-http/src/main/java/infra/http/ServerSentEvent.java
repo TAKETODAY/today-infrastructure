@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.util.Objects;
 
+import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -39,7 +40,7 @@ import infra.util.StringUtils;
  * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>
  * @since 4.0
  */
-public final class ServerSentEvent<T> {
+public final class ServerSentEvent<T extends @Nullable Object> {
 
   private final @Nullable String id;
 
@@ -49,10 +50,10 @@ public final class ServerSentEvent<T> {
 
   private final @Nullable String comment;
 
-  private final @Nullable T data;
+  private final T data;
 
   private ServerSentEvent(@Nullable String id, @Nullable String event,
-          @Nullable Duration retry, @Nullable String comment, @Nullable T data) {
+          @Nullable Duration retry, @Nullable String comment, T data) {
 
     this.id = id;
     this.event = event;
@@ -92,7 +93,7 @@ public final class ServerSentEvent<T> {
   /**
    * Return the {@code data} field of this event, if available.
    */
-  public @Nullable T data() {
+  public T data() {
     return this.data;
   }
 
@@ -143,8 +144,13 @@ public final class ServerSentEvent<T> {
 
   @Override
   public String toString() {
-    return "ServerSentEvent [id = '%s', event='%s', retry=%s, comment='%s', data=%s]"
-            .formatted(this.id, this.event, this.retry, this.comment, this.data);
+    return ToStringBuilder.forInstance(this)
+            .append("id", id)
+            .append("event", event)
+            .append("retry", retry)
+            .append("comment", comment)
+            .append("data", data)
+            .toString();
   }
 
   /**
@@ -153,8 +159,8 @@ public final class ServerSentEvent<T> {
    * @param <T> the type of data that this event contains
    * @return the builder
    */
-  public static <T> Builder<T> builder() {
-    return new BuilderImpl<>();
+  public static <T extends @Nullable Object> Builder<T> builder() {
+    return new BuilderImpl<>(null);
   }
 
   /**
@@ -163,7 +169,7 @@ public final class ServerSentEvent<T> {
    * @param <T> the type of data that this event contains
    * @return the builder
    */
-  public static <T> Builder<T> builder(T data) {
+  public static <T extends @Nullable Object> Builder<T> builder(T data) {
     return new BuilderImpl<>(data);
   }
 
@@ -172,7 +178,7 @@ public final class ServerSentEvent<T> {
    *
    * @param <T> the type of data that this event contains
    */
-  public interface Builder<T> {
+  public interface Builder<T extends @Nullable Object> {
 
     /**
      * Set the value of the {@code id} field.
@@ -226,7 +232,7 @@ public final class ServerSentEvent<T> {
     ServerSentEvent<T> build();
   }
 
-  private static class BuilderImpl<T> implements Builder<T> {
+  private static class BuilderImpl<T extends @Nullable Object> implements Builder<T> {
 
     private @Nullable String id;
 
@@ -237,9 +243,6 @@ public final class ServerSentEvent<T> {
     private @Nullable String comment;
 
     private @Nullable T data;
-
-    public BuilderImpl() {
-    }
 
     public BuilderImpl(@Nullable T data) {
       this.data = data;

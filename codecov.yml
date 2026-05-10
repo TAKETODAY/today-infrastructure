@@ -6,3 +6,4 @@ ignore:
   - "infra-samples/**/*"
   - "infra-build/**/*"
   - "infra-mariadb4j/**/*"
+  - "infra-test-support/**/*"
