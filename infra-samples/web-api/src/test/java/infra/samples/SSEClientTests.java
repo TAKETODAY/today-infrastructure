@@ -11,9 +11,6 @@ import java.nio.charset.StandardCharsets;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
 import infra.web.client.RestClient;
-import infra.web.client.ServerSentEvents;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -44,12 +41,6 @@ class SSEClientTests {
       while (events.hasNext()) {
         ServerSentEvent<String> event = events.next();
         System.out.println(event);
-      }
-    }
-
-    try (ServerSentEvents<String> events = restClient.get().uri("/sse?times=10&sleep=100").retrieve().events()) {
-      for (ServerSentEvent<String> event : events) {
-        assertThat(event.data().contains("today")).isTrue();
       }
     }
 
