@@ -214,7 +214,8 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
           try {
             retry = Duration.ofMillis(Long.parseLong(value));
           }
-          catch (NumberFormatException ignored) { }
+          catch (NumberFormatException ignored) {
+          }
           break;
         default:
           // ignore unknown fields

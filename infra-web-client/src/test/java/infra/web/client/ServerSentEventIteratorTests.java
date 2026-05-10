@@ -285,7 +285,7 @@ class ServerSentEventIteratorTests {
 
   @Test
   void parseRetryWithInvalidValue() {
-    ServerSentEventIterator<String> it = iterator("retry: invalid\n\n");
+    ServerSentEventIterator<String> it = iterator("retry: invalid\ndata: xxx\n\n");
     assertThat(it.hasNext()).isTrue();
     ServerSentEvent<String> event = it.next();
     assertThat(event.retry()).isNull();
