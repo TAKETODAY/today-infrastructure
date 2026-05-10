@@ -47,9 +47,9 @@ abstract class RestClientUtils {
     return Constant.EMPTY_BYTES;
   }
 
-  @Nullable
-  public static Charset getCharset(HttpMessage response) {
+  public static @Nullable Charset getCharset(HttpMessage response) {
     MediaType contentType = response.getContentType();
     return contentType != null ? contentType.getCharset() : null;
   }
+
 }

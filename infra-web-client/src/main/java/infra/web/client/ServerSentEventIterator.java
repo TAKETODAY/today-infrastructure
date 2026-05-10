@@ -30,11 +30,11 @@ import java.time.Duration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-import infra.core.style.ToStringBuilder;
-import infra.http.MediaType;
 import infra.http.ServerSentEvent;
 import infra.http.client.ClientHttpResponse;
+import infra.util.StringUtils;
 
 /**
  * An iterator over {@link ServerSentEvent Server-Sent Events} parsed from a
@@ -43,7 +43,7 @@ import infra.http.client.ClientHttpResponse;
  *
  * <pre>{@code
  * RestClient client = RestClient.create();
- * try (SseEventIterator events = client.get()
+ * try (ServerSentEventIterator events = client.get()
  *      .uri("https://example.com/events")
  *      .accept(MediaType.TEXT_EVENT_STREAM)
  *      .retrieve()
@@ -57,7 +57,7 @@ import infra.http.client.ClientHttpResponse;
  * }</pre>
  *
  * <p>For callback-based consumption, use
- * {@link RestClient.ResponseSpec#eventStream(Consumer)}:
+ * {@link RestClient.ResponseSpec#events(Consumer)}:
  * <pre>{@code
  * client.get().uri(...).retrieve()
  *      .eventStream(event -> System.out.println(event.data()));
@@ -66,7 +66,7 @@ import infra.http.client.ClientHttpResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable String>>, Closeable {
+public class ServerSentEventIterator<T extends @Nullable Object> implements Iterator<ServerSentEvent<T>>, Closeable {
 
   private final ClientHttpResponse response;
 
@@ -76,18 +76,17 @@ public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable Stri
 
   private @Nullable String lastEventId;
 
-  private @Nullable ServerSentEvent<@Nullable String> nextEvent;
+  private @Nullable ServerSentEvent<T> nextEvent;
+
+  private final Function<String, T> converter;
 
   /**
-   * Create a new {@code SseEventIterator} from the given response.
+   * Create a new {@code ServerSentEventIterator} from the given response.
    */
-  SseEventIterator(ClientHttpResponse response) {
+  ServerSentEventIterator(ClientHttpResponse response, Function<String, T> converter) {
     this.response = response;
-    Charset charset = null;
-    MediaType contentType = response.getHeaders().getContentType();
-    if (contentType != null) {
-      charset = contentType.getCharset();
-    }
+    this.converter = converter;
+    Charset charset = RestClientUtils.getCharset(response);
     if (charset == null) {
       charset = StandardCharsets.UTF_8;
     }
@@ -96,6 +95,7 @@ public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable Stri
       body = response.getBody();
     }
     catch (IOException e) {
+      // todo
       throw new UncheckedIOException(e);
     }
     this.reader = new BufferedReader(new InputStreamReader(body, charset));
@@ -137,11 +137,11 @@ public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable Stri
    * @throws NoSuchElementException if no more events are available
    */
   @Override
-  public ServerSentEvent<@Nullable String> next() {
+  public ServerSentEvent<T> next() {
     if (!hasNext()) {
       throw new NoSuchElementException("No more SSE events available");
     }
-    ServerSentEvent<@Nullable String> event = nextEvent;
+    ServerSentEvent<T> event = nextEvent;
     nextEvent = null;
     if (event != null) {
       lastEventId = event.id();
@@ -156,7 +156,7 @@ public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable Stri
 
   // --- SSE parsing ---
 
-  private @Nullable ServerSentEvent<@Nullable String> readEvent() throws IOException {
+  private @Nullable ServerSentEvent<T> readEvent() throws IOException {
     String id = null;
     String event = null;
     StringBuilder data = null;
@@ -221,11 +221,11 @@ public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable Stri
       }
     }
 
-    if (line == null && id == null && event == null && data == null && retry == null && comment == null) {
+    if (StringUtils.isBlank(line) && id == null && event == null && data == null && retry == null && comment == null) {
       return null;
     }
 
-    ServerSentEvent.Builder<@Nullable String> builder = ServerSentEvent.builder(data != null ? data.toString() : null);
+    ServerSentEvent.Builder<T> builder = ServerSentEvent.builder(convertIfNecessary(data));
     if (id != null) {
       builder = builder.id(id);
     }
@@ -241,11 +241,11 @@ public class SseEventIterator implements Iterator<ServerSentEvent<@Nullable Stri
     return builder.build();
   }
 
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-            .append("lastEventId", lastEventId)
-            .toString();
+  private @Nullable T convertIfNecessary(@Nullable StringBuilder string) {
+    if (string != null) {
+      return converter.apply(string.toString());
+    }
+    return null;
   }
 
 }

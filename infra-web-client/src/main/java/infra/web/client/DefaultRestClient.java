@@ -20,12 +20,14 @@ package infra.web.client;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,12 +45,13 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.io.InputStreamResource;
 import infra.http.HttpHeaders;
+import infra.http.HttpInputMessage;
+import infra.http.HttpMessage;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
-import infra.http.ServerSentEvent;
 import infra.http.StreamingHttpOutputMessage;
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequest;
@@ -62,6 +65,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.lang.Assert;
+import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -81,6 +85,8 @@ import infra.web.util.UriBuilderFactory;
 final class DefaultRestClient implements RestClient {
 
   private static final Logger logger = LoggerFactory.getLogger(DefaultRestClient.class);
+
+  public static final String key = "infra.web.client.sse-data-default-content-type";
 
   private final ClientHttpRequestFactory clientRequestFactory;
 
@@ -260,8 +266,56 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  static MediaType getContentType(ClientHttpResponse clientResponse) {
-    MediaType contentType = clientResponse.getHeaders().getContentType();
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private <T extends @Nullable Object> T readWithMessageConverters(HttpInputMessage inputMessage,
+          Type bodyType, Class<T> bodyClass, @Nullable Map<String, Object> hints) {
+    MediaType contentType = getContentType(inputMessage);
+
+    try {
+      ResolvableType resolvableType = null;
+      for (HttpMessageConverter<?> hmc : this.messageConverters) {
+        if (hmc instanceof GenericHttpMessageConverter ghmc) {
+          if (ghmc.canRead(bodyType, null, contentType)) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
+            }
+            return (T) ghmc.read(bodyType, null, inputMessage);
+          }
+        }
+        else if (hmc instanceof SmartHttpMessageConverter shmc) {
+          if (resolvableType == null) {
+            resolvableType = ResolvableType.forType(bodyType);
+          }
+          if (shmc.canRead(resolvableType, contentType)) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("Reading to [{}]", resolvableType);
+            }
+            return (T) shmc.read(resolvableType, inputMessage, hints);
+          }
+        }
+        else if (hmc.canRead(bodyClass, contentType)) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
+          }
+          return (T) hmc.read((Class) bodyClass, inputMessage);
+        }
+      }
+
+      if (bodyClass.equals(InputStream.class)) {
+        return (T) inputMessage.getBody();
+      }
+
+      throw new UnknownContentTypeException(bodyType, contentType,
+              inputMessage.getHeaders(), RestClientUtils.getBody(inputMessage));
+    }
+    catch (IOException | HttpMessageNotReadableException ex) {
+      throw new RestClientException("Error while extracting response for type [%s] and content type [%s]"
+              .formatted(ResolvableType.forType(bodyType), contentType), ex);
+    }
+  }
+
+  static MediaType getContentType(HttpMessage message) {
+    MediaType contentType = message.getContentType();
     if (contentType == null) {
       contentType = MediaType.APPLICATION_OCTET_STREAM;
     }
@@ -533,7 +587,7 @@ final class DefaultRestClient implements RestClient {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void writeWithMessageConverters(Object body, Type bodyType, ClientHttpRequest clientRequest) throws IOException {
-      MediaType contentType = clientRequest.getHeaders().getContentType();
+      MediaType contentType = clientRequest.getContentType();
       Class<?> bodyClass = body.getClass();
 
       ResolvableType resolvableType = null;
@@ -795,7 +849,7 @@ final class DefaultRestClient implements RestClient {
 
     protected boolean ignoreStatus;
 
-    private @Nullable Map<String, Object> hints;
+    protected @Nullable Map<String, Object> hints;
 
     public AbstractResponseSpec(HttpRequest clientRequest) {
       this.clientRequest = clientRequest;
@@ -837,35 +891,48 @@ final class DefaultRestClient implements RestClient {
       return (T) this;
     }
 
-    final ResponseEntity<Void> toBodilessEntity(ClientHttpResponse response) throws ResourceAccessException {
+    protected final ResponseEntity<Void> toBodilessEntity(ClientHttpResponse response) throws ResourceAccessException {
       toBodiless(response);
       return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .build();
     }
 
-    final Void toBodiless(ClientHttpResponse response) throws ResourceAccessException {
+    protected final Void toBodiless(ClientHttpResponse response) throws ResourceAccessException {
       try (response) {
-        if (!ignoreStatus) {
-          applyStatusHandlers(clientRequest, response, statusHandlers);
-        }
+        applyStatusHandlers(response);
         return null;
-      }
-      catch (IOException ex) {
-        throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
       }
     }
 
-    final <R> ResponseEntity<R> toEntityInternal(ClientHttpResponse response, Type bodyType, Class<R> bodyClass) {
+    protected final <R> ResponseEntity<R> toEntityInternal(ClientHttpResponse response, Type bodyType, Class<R> bodyClass) {
       R body = readBody(response, bodyType, bodyClass);
       return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(body);
     }
 
-    final <R> @Nullable R readBody(ClientHttpResponse clientResponse, Type bodyType, Class<R> bodyClass) {
+    protected final <R> @Nullable R readBody(ClientHttpResponse clientResponse, Type bodyType, Class<R> bodyClass) {
       return readWithMessageConverters(clientResponse, ignoreStatus ? null : response ->
               DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass, hints);
+    }
+
+    protected final void applyStatusHandlers(ClientHttpResponse response) {
+      if (!ignoreStatus) {
+        try {
+          DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers);
+        }
+        catch (IOException e) {
+          throw new ResourceAccessException("Could not retrieve response status code: " + e.getMessage(), e);
+        }
+      }
+    }
+
+    protected final <D extends @Nullable Object> ServerSentEvents<D> events(ClientHttpResponse response,
+            Type type, Class<D> bodyClass, @Nullable MediaType mediaType) {
+      applyStatusHandlers(response);
+      return new ServerSentEvents<>(new ServerSentEventIterator<>(response,
+              new SseDataConverter<>(response, type, bodyClass, mediaType, hints)));
     }
 
   }
@@ -928,21 +995,32 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public SseEventIterator eventStream() {
-      if (!ignoreStatus) {
-        try {
-          DefaultRestClient.this.applyStatusHandlers(clientRequest, clientResponse, statusHandlers);
-        }
-        catch (IOException e) {
-          throw new RestClientException("Failed to apply status handlers", e);
-        }
-      }
-      return new SseEventIterator(clientResponse);
+    @SuppressWarnings({ "unchecked" })
+    public ServerSentEvents<String> events() {
+      applyStatusHandlers(clientResponse);
+      return new ServerSentEvents<>(new ServerSentEventIterator<>(clientResponse, Function.identity()));
     }
 
     @Override
-    public Iterable<ServerSentEvent<@Nullable String>> events() {
-      return this::eventStream;
+    public <T extends @Nullable Object> ServerSentEvents<T> events(Class<T> bodyType) {
+      return events(bodyType, (MediaType) null);
+    }
+
+    @Override
+    public <T extends @Nullable Object> ServerSentEvents<T> events(Class<T> bodyType, @Nullable MediaType mediaType) {
+      return events(clientResponse, bodyType, bodyType, mediaType);
+    }
+
+    @Override
+    public <T extends @Nullable Object> ServerSentEvents<T> events(ParameterizedTypeReference<T> bodyType) {
+      return events(bodyType, null);
+    }
+
+    @Override
+    public <T extends @Nullable Object> ServerSentEvents<T> events(ParameterizedTypeReference<T> bodyType, @Nullable MediaType mediaType) {
+      Type type = bodyType.getType();
+      Class<T> bodyClass = bodyClass(type);
+      return events(clientResponse, type, bodyClass, mediaType);
     }
 
   }
@@ -994,18 +1072,34 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public Future<SseEventIterator> eventStream() {
+    @SuppressWarnings({ "unchecked" })
+    public Future<ServerSentEvents<String>> events() {
       return clientResponse.map(response -> {
-        if (!ignoreStatus) {
-          DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers);
-        }
-        return new SseEventIterator(response);
+        applyStatusHandlers(response);
+        return new ServerSentEvents<>(new ServerSentEventIterator<>(response, Function.identity()));
       });
     }
 
     @Override
-    public Future<Iterable<ServerSentEvent<@Nullable String>>> events() {
-      return eventStream().map(it -> () -> it);
+    public <T extends @Nullable Object> Future<ServerSentEvents<T>> events(Class<T> bodyType) {
+      return events(bodyType, null);
+    }
+
+    @Override
+    public <T extends @Nullable Object> Future<ServerSentEvents<T>> events(Class<T> bodyType, @Nullable MediaType mediaType) {
+      return clientResponse.map(response -> events(response, bodyType, bodyType, mediaType));
+    }
+
+    @Override
+    public <T extends @Nullable Object> Future<ServerSentEvents<T>> events(ParameterizedTypeReference<T> bodyType) {
+      return events(bodyType, null);
+    }
+
+    @Override
+    public <T extends @Nullable Object> Future<ServerSentEvents<T>> events(ParameterizedTypeReference<T> bodyType, @Nullable MediaType mediaType) {
+      Type type = bodyType.getType();
+      Class<T> bodyClass = bodyClass(type);
+      return clientResponse.map(response -> events(response, type, bodyClass, mediaType));
     }
 
     private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {
@@ -1076,4 +1170,81 @@ final class DefaultRestClient implements RestClient {
 
     void accept(ClientHttpResponse response) throws IOException;
   }
+
+  private static final class SseDataHttpInputMessage implements HttpInputMessage {
+
+    private final ByteArrayInputStream data;
+
+    private final @Nullable MediaType mediaType;
+
+    private final long contentLength;
+
+    SseDataHttpInputMessage(String data, @Nullable Charset charset, @Nullable MediaType mediaType) {
+      this.mediaType = mediaType;
+      byte[] bytes = data.getBytes(charset == null ? StandardCharsets.UTF_8 : charset);
+      this.data = new ByteArrayInputStream(bytes);
+      this.contentLength = bytes.length;
+    }
+
+    @Override
+    public InputStream getBody() {
+      return data;
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+      return HttpHeaders.empty();
+    }
+
+    @Override
+    public @Nullable MediaType getContentType() {
+      return mediaType;
+    }
+
+    @Override
+    public long getContentLength() {
+      return contentLength;
+    }
+
+  }
+
+  private final class SseDataConverter<T extends @Nullable Object> implements Function<String, T> {
+
+    private static final MediaType DEFAULT_CONTENT_TYPE = defaultMediaType();
+
+    private final Type type;
+
+    private final Class<T> bodyType;
+
+    private final @Nullable MediaType mediaType;
+
+    private final @Nullable Map<String, Object> hints;
+
+    private final ClientHttpResponse response;
+
+    SseDataConverter(ClientHttpResponse response, Type type, Class<T> bodyClass,
+            @Nullable MediaType mediaType, @Nullable Map<String, Object> hints) {
+      this.type = type;
+      this.bodyType = bodyClass;
+      this.mediaType = mediaType == null ? DEFAULT_CONTENT_TYPE : mediaType;
+      this.hints = hints;
+      this.response = response;
+    }
+
+    @Override
+    public T apply(String data) {
+      var inputMessage = new SseDataHttpInputMessage(data, RestClientUtils.getCharset(response), mediaType);
+      return readWithMessageConverters(inputMessage, type, bodyType, hints);
+    }
+
+    private static MediaType defaultMediaType() {
+      String property = TodayStrategies.getProperty(key);
+      if (property == null) {
+        return MediaType.APPLICATION_JSON;
+      }
+      return MediaType.parseMediaType(property);
+    }
+
+  }
+
 }

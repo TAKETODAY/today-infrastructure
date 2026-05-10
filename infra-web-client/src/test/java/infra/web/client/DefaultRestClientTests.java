@@ -344,12 +344,9 @@ class DefaultRestClientTests {
   @Test
   void getContentTypeReturnsActualContentTypeWhenPresent() {
     ClientHttpResponse response = mock(ClientHttpResponse.class);
-    HttpHeaders headers = HttpHeaders.forWritable();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    when(response.getHeaders()).thenReturn(headers);
+    when(response.getContentType()).thenReturn(MediaType.APPLICATION_JSON);
 
     MediaType result = DefaultRestClient.getContentType(response);
-
     assertThat(result).isEqualTo(MediaType.APPLICATION_JSON);
   }
 

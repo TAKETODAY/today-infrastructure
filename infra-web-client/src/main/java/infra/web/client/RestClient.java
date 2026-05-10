@@ -1359,56 +1359,6 @@ public interface RestClient {
     void toBodiless() throws RestClientException;
 
     /**
-     * Execute the request and return an {@link SseEventIterator} that streams
-     * {@link ServerSentEvent Server-Sent Events} from the response body.
-     * The caller must close the returned iterator to release the HTTP connection.
-     *
-     * <pre>{@code
-     * try (SseEventIterator events = client.get()
-     *      .uri("https://example.com/events")
-     *      .accept(MediaType.TEXT_EVENT_STREAM)
-     *      .retrieve()
-     *      .eventStream()) {
-     *
-     *   while (events.hasNext()) {
-     *     ServerSentEvent<String> event = events.next();
-     *     System.out.println(event.event() + ": " + event.data());
-     *   }
-     * }
-     * }</pre>
-     *
-     * @return an {@link SseEventIterator} to consume SSE events
-     * @throws RestClientResponseException on 4xx or 5xx responses
-     * @see #eventStream(Consumer)
-     * @since 5.0
-     */
-    SseEventIterator eventStream();
-
-    /**
-     * Consume Server-Sent Events via a callback, blocking until the stream ends
-     * or the response body is exhausted. The underlying HTTP connection is
-     * closed automatically.
-     *
-     * <pre>{@code
-     * client.get().uri("https://example.com/events")
-     *      .retrieve()
-     *      .eventStream(event -> {
-     *         System.out.println(event.event() + ": " + event.data());
-     *      });
-     * }</pre>
-     *
-     * @param consumer callback invoked for each event
-     * @since 5.0
-     */
-    default void eventStream(Consumer<ServerSentEvent<@Nullable String>> consumer) {
-      try (SseEventIterator events = eventStream()) {
-        while (events.hasNext()) {
-          consumer.accept(events.next());
-        }
-      }
-    }
-
-    /**
      * Execute the request and return an {@link Iterable} of {@link ServerSentEvent}s.
      * <p>The returned iterable allows for incremental consumption of Server-Sent Events
      * from the response body. The underlying HTTP connection is held open until the
@@ -1425,10 +1375,207 @@ public interface RestClient {
      * }</pre>
      *
      * @return an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
-     * @throws RestClientResponseException on 4xx or 5xx responses
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
      * @since 5.0
      */
-    Iterable<ServerSentEvent<@Nullable String>> events();
+    <T extends @Nullable String> ServerSentEvents<T> events();
+
+    /**
+     * Execute the request and return an {@link Iterable} of {@link ServerSentEvent}s,
+     * decoding the event data to the specified type.
+     * <p>The returned iterable allows for incremental consumption of Server-Sent Events
+     * from the response body. The underlying HTTP connection is held open until the
+     * iterable is fully consumed or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * for (ServerSentEvent<Person> event : client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .retrieve()
+     *      .events(Person.class)) {
+     *   System.out.println(event.event() + ": " + event.data().getName());
+     * }
+     * }</pre>
+     *
+     * @param bodyType the type to decode the event data into
+     * @param <T> the body type
+     * @return an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    <T extends @Nullable Object> ServerSentEvents<T> events(Class<T> bodyType);
+
+    /**
+     * Execute the request and return an {@link Iterable} of {@link ServerSentEvent}s,
+     * decoding the event data to the specified type using the given media type.
+     * <p>The returned iterable allows for incremental consumption of Server-Sent Events
+     * from the response body. The underlying HTTP connection is held open until the
+     * iterable is fully consumed or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * for (ServerSentEvent<Person> event : client.get()
+     *      .uri("https://example.com/events")
+     *      .retrieve()
+     *      .events(Person.class, MediaType.APPLICATION_JSON)) {
+     *   System.out.println(event.event() + ": " + event.data().getName());
+     * }
+     * }</pre>
+     *
+     * @param bodyType the type to decode the event data into
+     * @param mediaType the media type to use for decoding the event data
+     * @param <T> the body type
+     * @return an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    <T extends @Nullable Object> ServerSentEvents<T> events(Class<T> bodyType, @Nullable MediaType mediaType);
+
+    /**
+     * Execute the request and return an {@link Iterable} of {@link ServerSentEvent}s,
+     * decoding the event data to the specified generic type.
+     * <p>The returned iterable allows for incremental consumption of Server-Sent Events
+     * from the response body. The underlying HTTP connection is held open until the
+     * iterable is fully consumed or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<List<String>>() {};
+     * for (ServerSentEvent<List<String>> event : client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .retrieve()
+     *      .events(typeRef)) {
+     *   System.out.println(event.event() + ": " + event.data());
+     * }
+     * }</pre>
+     *
+     * @param bodyType the type reference to decode the event data into
+     * @param <T> the body type
+     * @return an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    <T extends @Nullable Object> ServerSentEvents<T> events(ParameterizedTypeReference<T> bodyType);
+
+    /**
+     * Execute the request and return an {@link Iterable} of {@link ServerSentEvent}s,
+     * decoding the event data to the specified generic type using the given media type.
+     * <p>The returned iterable allows for incremental consumption of Server-Sent Events
+     * from the response body. The underlying HTTP connection is held open until the
+     * iterable is fully consumed or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<List<String>>() {};
+     * for (ServerSentEvent<List<String>> event : client.get()
+     *      .uri("https://example.com/events")
+     *      .retrieve()
+     *      .events(typeRef, MediaType.APPLICATION_JSON)) {
+     *   System.out.println(event.event() + ": " + event.data());
+     * }
+     * }</pre>
+     *
+     * @param bodyType the type reference to decode the event data into
+     * @param mediaType the media type to use for decoding the event data
+     * @param <T> the body type
+     * @return an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    <T extends @Nullable Object> ServerSentEvents<T> events(ParameterizedTypeReference<T> bodyType, @Nullable MediaType mediaType);
+
+    /**
+     * Consume Server-Sent Events via a callback, blocking until the stream ends
+     * or the response body is exhausted. The underlying HTTP connection is
+     * closed automatically.
+     *
+     * <pre>{@code
+     * client.get().uri("https://example.com/events")
+     *      .retrieve()
+     *      .events(event -> {
+     *         System.out.println(event.event() + ": " + event.data());
+     *      });
+     * }</pre>
+     *
+     * @param consumer callback invoked for each event
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    default <T extends @Nullable String> void events(Consumer<ServerSentEvent<T>> consumer) {
+      try (var events = events()) {
+        for (ServerSentEvent event : events) {
+          consumer.accept(event);
+        }
+      }
+    }
+
+    /**
+     * Consume Server-Sent Events via a callback, blocking until the stream ends
+     * or the response body is exhausted. The underlying HTTP connection is
+     * closed automatically.
+     *
+     * <pre>{@code
+     * client.get().uri("https://example.com/events")
+     *      .retrieve()
+     *      .events(Person.class, event -> {
+     *         System.out.println(event.event() + ": " + event.data().getName());
+     *      });
+     * }</pre>
+     *
+     * @param bodyType the type to decode the event data into
+     * @param consumer callback invoked for each event
+     * @param <T> the body type
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    default <T extends @Nullable Object> void events(Class<T> bodyType, Consumer<ServerSentEvent<T>> consumer) {
+      events(bodyType, null, consumer);
+    }
+
+    /**
+     * Consume Server-Sent Events via a callback, blocking until the stream ends
+     * or the response body is exhausted. The underlying HTTP connection is
+     * closed automatically.
+     *
+     * <pre>{@code
+     * client.get().uri("https://example.com/events")
+     *      .retrieve()
+     *      .events(Person.class, MediaType.APPLICATION_JSON, event -> {
+     *         System.out.println(event.event() + ": " + event.data().getName());
+     *      });
+     * }</pre>
+     *
+     * @param bodyType the type to decode the event data into
+     * @param mediaType the media type to use for decoding the event data
+     * @param consumer callback invoked for each event
+     * @param <T> the body type
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * @since 5.0
+     */
+    default <T extends @Nullable Object> void events(Class<T> bodyType,
+            @Nullable MediaType mediaType, Consumer<ServerSentEvent<T>> consumer) {
+      try (var events = events(bodyType, mediaType)) {
+        for (var event : events) {
+          consumer.accept(event);
+        }
+      }
+    }
+
   }
 
   /**
@@ -1630,60 +1777,163 @@ public interface RestClient {
     Future<Void> toBodiless();
 
     /**
-     * Asynchronously execute and return a Future of an {@link SseEventIterator}
-     * that streams {@link ServerSentEvent Server-Sent Events}. The returned
-     * Future completes when the initial HTTP response is received and the
-     * status has been validated (4xx/5xx result in exceptional completion).
-     *
-     * <p>SSE event parsing on the returned iterator will block on each
-     * {@link SseEventIterator#next() next()} call. The caller must close
-     * the iterator to release resources.
+     * Execute the request asynchronously and return a {@link Future} of {@link ServerSentEvents}.
+     * <p>The returned future completes with an {@link Iterable} of {@link ServerSentEvent}s,
+     * allowing for incremental consumption of Server-Sent Events from the response body.
+     * The underlying HTTP connection is held open until the iterable is fully consumed
+     * or explicitly closed if it implements {@link AutoCloseable}.
      *
      * <pre>{@code
-     * Future<SseEventIterator> future = client.get()
-     *      .uri("https://example.com/events")
-     *      .accept(MediaType.TEXT_EVENT_STREAM)
-     *      .async()
-     *      .eventStream();
-     *
-     * // later, on another thread:
-     * try (SseEventIterator events = future.get()) {
-     *   while (events.hasNext()) { ... }
-     * }
-     * }</pre>
-     *
-     * @since 5.0
-     */
-    Future<SseEventIterator> eventStream();
-
-    /**
-     * Asynchronously execute and return a Future of an {@link Iterable} of
-     * {@link ServerSentEvent}s. The returned Future completes when the initial
-     * HTTP response is received and the status has been validated (4xx/5xx
-     * result in exceptional completion).
-     *
-     * <p>The returned iterable allows for incremental consumption of
-     * Server-Sent Events from the response body. The underlying HTTP connection
-     * is held open until the iterable is fully consumed or explicitly closed if
-     * it implements {@link AutoCloseable}.
-     *
-     * <pre>{@code
-     * Future<Iterable<ServerSentEvent<String>>> future = client.get()
+     * Future<ServerSentEvents<String>> eventsFuture = client.get()
      *      .uri("https://example.com/events")
      *      .accept(MediaType.TEXT_EVENT_STREAM)
      *      .async()
      *      .events();
-     *
-     * // later, on another thread:
-     * for (ServerSentEvent<String> event : future.get()) {
-     *   System.out.println(event.event() + ": " + event.data());
-     * }
      * }</pre>
      *
-     * @return a Future of an {@link Iterable} of {@link ServerSentEvent} to consume SSE events
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @return a {@link Future} of {@link ServerSentEvents} to consume SSE events
      * @since 5.0
      */
-    Future<Iterable<ServerSentEvent<@Nullable String>>> events();
+    <T extends @Nullable String> Future<ServerSentEvents<T>> events();
+
+    /**
+     * Execute the request asynchronously and return a {@link Future} of {@link ServerSentEvents},
+     * decoding the event data to the specified type.
+     * <p>The returned future completes with an {@link Iterable} of {@link ServerSentEvent}s,
+     * allowing for incremental consumption of Server-Sent Events from the response body.
+     * The underlying HTTP connection is held open until the iterable is fully consumed
+     * or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * Future<ServerSentEvents<Person>> eventsFuture = client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .async()
+     *      .events(Person.class);
+     * }</pre>
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @param bodyType the type to decode the event data into
+     * @param <T> the body type
+     * @return a {@link Future} of {@link ServerSentEvents} to consume SSE events
+     * @since 5.0
+     */
+    <T extends @Nullable Object> Future<ServerSentEvents<T>> events(Class<T> bodyType);
+
+    /**
+     * Execute the request asynchronously and return a {@link Future} of {@link ServerSentEvents},
+     * decoding the event data to the specified type using the given media type.
+     * <p>The returned future completes with an {@link Iterable} of {@link ServerSentEvent}s,
+     * allowing for incremental consumption of Server-Sent Events from the response body.
+     * The underlying HTTP connection is held open until the iterable is fully consumed
+     * or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * Future<ServerSentEvents<Person>> eventsFuture = client.get()
+     *      .uri("https://example.com/events")
+     *      .async()
+     *      .events(Person.class, MediaType.APPLICATION_JSON);
+     * }</pre>
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @param bodyType the type to decode the event data into
+     * @param mediaType the media type to use for decoding the event data
+     * @param <T> the body type
+     * @return a {@link Future} of {@link ServerSentEvents} to consume SSE events
+     * @since 5.0
+     */
+    <T extends @Nullable Object> Future<ServerSentEvents<T>> events(Class<T> bodyType, @Nullable MediaType mediaType);
+
+    /**
+     * Execute the request asynchronously and return a {@link Future} of {@link ServerSentEvents},
+     * decoding the event data to the specified generic type.
+     * <p>The returned future completes with an {@link Iterable} of {@link ServerSentEvent}s,
+     * allowing for incremental consumption of Server-Sent Events from the response body.
+     * The underlying HTTP connection is held open until the iterable is fully consumed
+     * or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<List<String>>() {};
+     * Future<ServerSentEvents<List<String>>> eventsFuture = client.get()
+     *      .uri("https://example.com/events")
+     *      .accept(MediaType.TEXT_EVENT_STREAM)
+     *      .async()
+     *      .events(typeRef);
+     * }</pre>
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @param bodyType the type reference to decode the event data into
+     * @param <T> the body type
+     * @return a {@link Future} of {@link ServerSentEvents} to consume SSE events
+     * @since 5.0
+     */
+    <T extends @Nullable Object> Future<ServerSentEvents<T>> events(ParameterizedTypeReference<T> bodyType);
+
+    /**
+     * Execute the request asynchronously and return a {@link Future} of {@link ServerSentEvents},
+     * decoding the event data to the specified generic type using the given media type.
+     * <p>The returned future completes with an {@link Iterable} of {@link ServerSentEvent}s,
+     * allowing for incremental consumption of Server-Sent Events from the response body.
+     * The underlying HTTP connection is held open until the iterable is fully consumed
+     * or explicitly closed if it implements {@link AutoCloseable}.
+     *
+     * <pre>{@code
+     * ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<List<String>>() {};
+     * Future<ServerSentEvents<List<String>>> eventsFuture = client.get()
+     *      .uri("https://example.com/events")
+     *      .async()
+     *      .events(typeRef, MediaType.APPLICATION_JSON);
+     * }</pre>
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @param bodyType the type reference to decode the event data into
+     * @param mediaType the media type to use for decoding the event data
+     * @param <T> the body type
+     * @return a {@link Future} of {@link ServerSentEvents} to consume SSE events
+     * @since 5.0
+     */
+    <T extends @Nullable Object> Future<ServerSentEvents<T>> events(ParameterizedTypeReference<T> bodyType, @Nullable MediaType mediaType);
 
   }
 
