@@ -214,7 +214,7 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
     }
 
     // line==null means EOF; no collected fields means the stream truly ended.
-    if (allNull(id, event, data, retry, comment)) {
+    if (id == null && event == null && data == null && retry == null && comment == null) {
       return null;
     }
 
@@ -252,9 +252,5 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
     return reader;
   }
 
-  private static boolean allNull(@Nullable String id, @Nullable String event,
-          @Nullable StringBuilder data, @Nullable Duration retry, @Nullable StringBuilder comment) {
-    return id == null && event == null && data == null && retry == null && comment == null;
-  }
-
 }
+
