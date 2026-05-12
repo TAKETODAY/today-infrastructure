@@ -18,11 +18,11 @@ package infra.web.client;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.Closeable;
 import java.util.function.Function;
 
 import infra.http.ServerSentEvent;
 import infra.http.client.ClientHttpResponse;
+import infra.http.client.DecoratingClientHttpResponse;
 
 /**
  * A container for {@link ServerSentEvent} instances that supports iteration.
@@ -33,11 +33,13 @@ import infra.http.client.ClientHttpResponse;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/5/10 15:00
  */
-public class ServerSentEvents<T extends @Nullable Object> implements Iterable<ServerSentEvent<T>>, Closeable {
+public class ServerSentEvents<T extends @Nullable Object> extends DecoratingClientHttpResponse
+        implements Iterable<ServerSentEvent<T>> {
 
   private final ServerSentEventIterator<T> iterator;
 
   ServerSentEvents(ClientHttpResponse response, Function<String, T> converter) {
+    super(response);
     this.iterator = new ServerSentEventIterator<>(response, converter);
   }
 
