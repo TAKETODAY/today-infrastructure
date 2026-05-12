@@ -931,8 +931,7 @@ final class DefaultRestClient implements RestClient {
     protected final <D extends @Nullable Object> ServerSentEvents<D> events(ClientHttpResponse response,
             Type type, Class<D> bodyClass, @Nullable MediaType mediaType) {
       applyStatusHandlers(response);
-      return new ServerSentEvents<>(new ServerSentEventIterator<>(response,
-              new SseDataConverter<>(response, type, bodyClass, mediaType, hints)));
+      return new ServerSentEvents<>(response, new SseDataConverter<>(response, type, bodyClass, mediaType, hints));
     }
 
   }
@@ -998,7 +997,7 @@ final class DefaultRestClient implements RestClient {
     @SuppressWarnings({ "unchecked" })
     public ServerSentEvents<String> events() {
       applyStatusHandlers(clientResponse);
-      return new ServerSentEvents<>(new ServerSentEventIterator<>(clientResponse, Function.identity()));
+      return new ServerSentEvents<>(clientResponse, Function.identity());
     }
 
     @Override
@@ -1076,7 +1075,7 @@ final class DefaultRestClient implements RestClient {
     public Future<ServerSentEvents<String>> events() {
       return clientResponse.map(response -> {
         applyStatusHandlers(response);
-        return new ServerSentEvents<>(new ServerSentEventIterator<>(response, Function.identity()));
+        return new ServerSentEvents<>(response, Function.identity());
       });
     }
 

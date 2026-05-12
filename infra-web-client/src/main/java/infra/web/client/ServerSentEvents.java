@@ -19,8 +19,10 @@ package infra.web.client;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Closeable;
+import java.util.function.Function;
 
 import infra.http.ServerSentEvent;
+import infra.http.client.ClientHttpResponse;
 
 /**
  * A container for {@link ServerSentEvent} instances that supports iteration.
@@ -35,13 +37,8 @@ public class ServerSentEvents<T extends @Nullable Object> implements Iterable<Se
 
   private final ServerSentEventIterator<T> iterator;
 
-  /**
-   * Constructs a new {@code ServerSentEvents} instance with the specified iterator.
-   *
-   * @param iterator the iterator providing access to the sequence of SSE events
-   */
-  ServerSentEvents(ServerSentEventIterator<T> iterator) {
-    this.iterator = iterator;
+  ServerSentEvents(ClientHttpResponse response, Function<String, T> converter) {
+    this.iterator = new ServerSentEventIterator<>(response, converter);
   }
 
   /**
