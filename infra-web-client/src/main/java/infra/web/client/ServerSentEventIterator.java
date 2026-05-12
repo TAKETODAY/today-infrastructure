@@ -125,6 +125,13 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
 
   @Override
   public void close() {
+    if (reader != null) {
+      try {
+        reader.close();
+      }
+      catch (IOException ignored) {
+      }
+    }
     response.close();
   }
 
