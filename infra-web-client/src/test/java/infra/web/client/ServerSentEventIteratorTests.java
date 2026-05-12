@@ -144,18 +144,6 @@ class ServerSentEventIteratorTests {
   }
 
   @Test
-  void lastEventId() {
-    ServerSentEventIterator<String> it = iterator("id: 1\ndata: a\n\nid: 2\ndata: b\n\nid: 3\ndata: c\n\n");
-    assertThat(it.next().id()).isEqualTo("1");
-    assertThat(it.lastEventId()).isEqualTo("1");
-    assertThat(it.next().id()).isEqualTo("2");
-    assertThat(it.lastEventId()).isEqualTo("2");
-    assertThat(it.next().id()).isEqualTo("3");
-    assertThat(it.lastEventId()).isEqualTo("3");
-    assertThat(it.hasNext()).isFalse();
-  }
-
-  @Test
   void nextThrowsWhenEmpty() {
     ServerSentEventIterator<String> it = iterator("");
     assertThat(it.hasNext()).isFalse();
@@ -345,7 +333,6 @@ class ServerSentEventIteratorTests {
     assertThat(it.hasNext()).isTrue();
     ServerSentEvent<String> event = it.next();
     assertThat(event.id()).isEmpty();
-    assertThat(it.lastEventId()).isEmpty();
     assertThat(it.hasNext()).isFalse();
   }
 
@@ -495,6 +482,85 @@ class ServerSentEventIteratorTests {
     assertThat(it.hasNext()).isFalse();
   }
 
+  // --- new tests for edge cases found during review ---
+
+  @Test
+  void parseEventsWithLeadingBlankLines() {
+    ServerSentEventIterator<String> it = iterator("\n\ndata: hello\n\n");
+    assertThat(it.hasNext()).isTrue();
+    assertThat(it.next().data()).isEqualTo("hello");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void parseEventsWithMultipleLeadingBlankLines() {
+    ServerSentEventIterator<String> it = iterator("\n\n\n\ndata: first\n\n");
+    assertThat(it.hasNext()).isTrue();
+    assertThat(it.next().data()).isEqualTo("first");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void parseEventsWithBlankLinesBetweenEvents() {
+    ServerSentEventIterator<String> it = iterator("data: a\n\n\n\ndata: b\n\n");
+    assertThat(it.hasNext()).isTrue();
+    assertThat(it.next().data()).isEqualTo("a");
+    assertThat(it.hasNext()).isTrue();
+    assertThat(it.next().data()).isEqualTo("b");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void parseStreamWithOnlyBlankLines() {
+    ServerSentEventIterator<String> it = iterator("\n\n\n");
+    assertThat(it.hasNext()).isFalse();
+    assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
+  }
+
+  @Test
+  void parseEventsWithWhitespaceOnlyNonCommentLine() {
+    // Lines with only whitespace (not starting with ':') are unknown fields → ignored
+    ServerSentEventIterator<String> it = iterator("   \ndata: hello\n\n");
+    assertThat(it.hasNext()).isTrue();
+    assertThat(it.next().data()).isEqualTo("hello");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void parseFieldNameWithTrailingSpace() {
+    // "data " (with trailing space, no colon) → field = "data ", value = "" → doesn't match switch
+    // → ignored unknown field → no event emitted
+    ServerSentEventIterator<String> it = iterator("data \n\n");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void parseDataWithSpaceValue() {
+    // "data: \n" → value is " " → single-space stripping → value becomes ""
+    ServerSentEventIterator<String> it = iterator("data: \n\n");
+    assertThat(it.hasNext()).isTrue();
+    assertThat(it.next().data()).isEmpty();
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void parseMultipleIdFieldsLastWins() {
+    ServerSentEventIterator<String> it = iterator("id: first\nid: second\ndata: payload\n\n");
+    assertThat(it.hasNext()).isTrue();
+    ServerSentEvent<String> event = it.next();
+    assertThat(event.id()).isEqualTo("second");
+    assertThat(event.data()).isEqualTo("payload");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  @Test
+  void emptyStreamReturnsFalse() {
+    ServerSentEventIterator<String> it = iterator("");
+    assertThat(it.hasNext()).isFalse();
+  }
+
+  // --- helpers ---
+
   private static ClientHttpResponse mockResponseUnchecked(String sseContent) {
     try {
       return mockResponse(sseContent);
@@ -503,8 +569,6 @@ class ServerSentEventIteratorTests {
       throw new RuntimeException(e);
     }
   }
-
-  // --- helpers ---
 
   private static ServerSentEventIterator<String> iterator(String sseContent) {
     try {

@@ -21,10 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Iterator;
@@ -34,7 +31,6 @@ import java.util.function.Function;
 
 import infra.http.ServerSentEvent;
 import infra.http.client.ClientHttpResponse;
-import infra.util.StringUtils;
 
 /**
  * An iterator over {@link ServerSentEvent Server-Sent Events} parsed from a
@@ -70,15 +66,16 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
 
   private final ClientHttpResponse response;
 
-  private final BufferedReader reader;
+  private final Function<String, T> converter;
+
+  /**
+   * Lazily initialized on first read — avoids opening the body stream if the caller never iterates.
+   */
+  private @Nullable BufferedReader reader;
 
   private boolean eof;
 
-  private @Nullable String lastEventId;
-
   private @Nullable ServerSentEvent<T> nextEvent;
-
-  private final Function<String, T> converter;
 
   /**
    * Create a new {@code ServerSentEventIterator} from the given response.
@@ -86,26 +83,6 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
   ServerSentEventIterator(ClientHttpResponse response, Function<String, T> converter) {
     this.response = response;
     this.converter = converter;
-    Charset charset = RestClientUtils.getCharset(response);
-    if (charset == null) {
-      charset = StandardCharsets.UTF_8;
-    }
-    InputStream body;
-    try {
-      body = response.getBody();
-    }
-    catch (IOException e) {
-      // todo
-      throw new UncheckedIOException(e);
-    }
-    this.reader = new BufferedReader(new InputStreamReader(body, charset));
-  }
-
-  /**
-   * Returns the last event ID seen by this iterator.
-   */
-  public @Nullable String lastEventId() {
-    return lastEventId;
   }
 
   /**
@@ -123,7 +100,7 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
       nextEvent = readEvent();
     }
     catch (IOException e) {
-      throw new UncheckedIOException(e);
+      throw new ResourceAccessException("Failed to read SSE event: " + e.getMessage(), e);
     }
     if (nextEvent == null) {
       eof = true;
@@ -143,9 +120,6 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
     }
     ServerSentEvent<T> event = nextEvent;
     nextEvent = null;
-    if (event != null) {
-      lastEventId = event.id();
-    }
     return event;
   }
 
@@ -156,7 +130,17 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
 
   // --- SSE parsing ---
 
+  /**
+   * Read and parse the next {@link ServerSentEvent} from the stream.
+   * <p>Blank lines with no preceding fields are consumed silently (e.g. leading
+   * blank lines or extra whitespace between events). A blank line after one or
+   * more parsed fields terminates the current event.
+   *
+   * @return the next event, or {@code null} if the stream has been exhausted
+   */
   private @Nullable ServerSentEvent<T> readEvent() throws IOException {
+    var reader = ensureReader();
+
     String id = null;
     String event = null;
     StringBuilder data = null;
@@ -166,6 +150,11 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
     String line;
     while ((line = reader.readLine()) != null) {
       if (line.isEmpty()) {
+        // Blank line: if no fields collected yet, skip it (leading / inter-event blank).
+        // Otherwise terminate the current event.
+        if (id == null && event == null && data == null && retry == null && comment == null) {
+          continue;
+        }
         break;
       }
       if (line.charAt(0) == ':') {
@@ -186,6 +175,8 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
         value = "";
       }
       else if (colon == 0) {
+        // Line starts with ':' — treat as comment (handled above),
+        // but if it reaches here, something is off; skip it.
         continue;
       }
       else {
@@ -222,7 +213,8 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
       }
     }
 
-    if (StringUtils.isBlank(line) && id == null && event == null && data == null && retry == null && comment == null) {
+    // line==null means EOF; no collected fields means the stream truly ended.
+    if (allNull(id, event, data, retry, comment)) {
       return null;
     }
 
@@ -247,6 +239,22 @@ public class ServerSentEventIterator<T extends @Nullable Object> implements Iter
       return converter.apply(string.toString());
     }
     return null;
+  }
+
+  private BufferedReader ensureReader() throws IOException {
+    if (reader == null) {
+      var charset = RestClientUtils.getCharset(response);
+      if (charset == null) {
+        charset = StandardCharsets.UTF_8;
+      }
+      reader = new BufferedReader(new InputStreamReader(response.getBody(), charset));
+    }
+    return reader;
+  }
+
+  private static boolean allNull(@Nullable String id, @Nullable String event,
+          @Nullable StringBuilder data, @Nullable Duration retry, @Nullable StringBuilder comment) {
+    return id == null && event == null && data == null && retry == null && comment == null;
   }
 
 }
