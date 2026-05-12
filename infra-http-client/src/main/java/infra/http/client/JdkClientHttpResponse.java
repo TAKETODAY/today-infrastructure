@@ -77,7 +77,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public InputStream getBody() throws IOException {
+  public InputStream getBody() {
     return this.body;
   }
 
