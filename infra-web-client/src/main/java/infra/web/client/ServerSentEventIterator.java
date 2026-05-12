@@ -43,7 +43,7 @@ import infra.http.client.ClientHttpResponse;
  *      .uri("https://example.com/events")
  *      .accept(MediaType.TEXT_EVENT_STREAM)
  *      .retrieve()
- *      .eventStream()) {
+ *      .events().iterator()) {
  *
  *   while (events.hasNext()) {
  *     ServerSentEvent<String> event = events.next();
