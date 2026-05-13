@@ -1632,7 +1632,7 @@ public interface EntityManager {
    *     Page<User> userPage = entityManager.page(exampleUser);
    *
    *     // Process the paginated results
-   *     List<User> users = userPage.getItems();
+   *     List<User> users = userPage.getRows();
    *     long totalItems = userPage.getTotalRows();
    *     int totalPages = userPage.getTotalPages();
    *
