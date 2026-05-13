@@ -218,7 +218,7 @@ class RestExceptionTests {
 
       assertThat(exception.getRawStatusCode()).isEqualTo(rawStatusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(responseBody);
     }
 
@@ -277,7 +277,7 @@ class RestExceptionTests {
 
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo("BAD_REQUEST");
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
     }
 
@@ -290,7 +290,7 @@ class RestExceptionTests {
 
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
     }
 
@@ -306,7 +306,7 @@ class RestExceptionTests {
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
       assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
     }
 
     @Test
@@ -736,7 +736,7 @@ class RestExceptionTests {
 
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo("BAD_REQUEST");
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
       assertThat(exception.getMessage()).isEqualTo("400 BAD_REQUEST");
     }
@@ -750,7 +750,7 @@ class RestExceptionTests {
 
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
       assertThat(exception.getMessage()).isEqualTo("401 Unauthorized");
     }
@@ -767,7 +767,7 @@ class RestExceptionTests {
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
       assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getMessage()).isEqualTo("403 Forbidden");
     }
 
@@ -864,7 +864,7 @@ class RestExceptionTests {
 
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo("INTERNAL_SERVER_ERROR");
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
     }
 
@@ -877,7 +877,7 @@ class RestExceptionTests {
 
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
       assertThat(exception.getResponseBodyAsByteArray()).isEmpty();
     }
 
@@ -893,7 +893,7 @@ class RestExceptionTests {
       assertThat(exception.getStatusCode()).isEqualTo(statusCode);
       assertThat(exception.getStatusText()).isEqualTo(statusText);
       assertThat(exception.getResponseBodyAsByteArray()).isEqualTo(body);
-      assertThat(exception.getResponseHeaders()).isNull();
+      assertThat(exception.getResponseHeaders()).isNotNull().isSameAs(HttpHeaders.empty());
     }
 
     @Test
@@ -1053,6 +1053,5 @@ class RestExceptionTests {
     }
 
   }
-
 
 }

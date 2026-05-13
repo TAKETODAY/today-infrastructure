@@ -45,14 +45,11 @@ public class RestClientResponseException extends RestClientException {
 
   private final byte[] responseBody;
 
-  @Nullable
   private final HttpHeaders responseHeaders;
 
-  @Nullable
-  private final transient Charset responseCharset;
+  private final transient @Nullable Charset responseCharset;
 
-  @Nullable
-  private transient Function<ResolvableType, ?> bodyConvertFunction;
+  private transient @Nullable Function<ResolvableType, ?> bodyConvertFunction;
 
   /**
    * Construct a new instance of with the given response data.
@@ -84,8 +81,8 @@ public class RestClientResponseException extends RestClientException {
     super(message);
     this.statusCode = statusCode;
     this.statusText = statusText;
-    this.responseHeaders = headers;
-    this.responseBody = (responseBody != null ? responseBody : Constant.EMPTY_BYTES);
+    this.responseHeaders = headers == null ? HttpHeaders.empty() : headers;
+    this.responseBody = responseBody != null ? responseBody : Constant.EMPTY_BYTES;
     this.responseCharset = responseCharset;
   }
 
@@ -113,7 +110,6 @@ public class RestClientResponseException extends RestClientException {
   /**
    * Return the HTTP response headers.
    */
-  @Nullable
   public HttpHeaders getResponseHeaders() {
     return this.responseHeaders;
   }
@@ -154,8 +150,7 @@ public class RestClientResponseException extends RestClientException {
    * @param <E> the expected target type
    * @return the converted object, or {@code null} if there is no content
    */
-  @Nullable
-  public <E> E getResponseBodyAs(Class<E> targetType) {
+  public <E extends @Nullable Object> E getResponseBodyAs(Class<E> targetType) {
     return getResponseBodyAs(ResolvableType.forClass(targetType));
   }
 
@@ -163,14 +158,12 @@ public class RestClientResponseException extends RestClientException {
    * Variant of {@link #getResponseBodyAs(Class)} with
    * {@link ParameterizedTypeReference}.
    */
-  @Nullable
-  public <E> E getResponseBodyAs(ParameterizedTypeReference<E> targetType) {
+  public <E extends @Nullable Object> E getResponseBodyAs(ParameterizedTypeReference<E> targetType) {
     return getResponseBodyAs(ResolvableType.forType(targetType.getType()));
   }
 
   @SuppressWarnings("unchecked")
-  @Nullable
-  private <E> E getResponseBodyAs(ResolvableType targetType) {
+  private <E extends @Nullable Object> E getResponseBodyAs(ResolvableType targetType) {
     Assert.state(this.bodyConvertFunction != null, "Function to convert body not set");
     return (E) this.bodyConvertFunction.apply(targetType);
   }
