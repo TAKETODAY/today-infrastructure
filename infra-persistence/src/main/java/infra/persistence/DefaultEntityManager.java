@@ -1232,6 +1232,11 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  public <T> EntitySearch<T> search(Class<T> entityClass) {
+    return new DefaultEntitySearch<>(this, entityClass);
+  }
+
+  @Override
   public <T> Number count(Class<T> entityClass, @Nullable ConditionStatement handler) throws DataAccessException {
     if (handler == null) {
       handler = NoConditionsQuery.instance;
@@ -1490,6 +1495,169 @@ public class DefaultEntityManager implements EntityManager {
     if (actualCount != expectCount) {
       throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sql, expectCount, actualCount);
     }
+  }
+
+  /**
+   * Default {@link EntitySearch} implementation that delegates to
+   * {@link DefaultEntityManager} query methods.
+   */
+  private static final class DefaultEntitySearch<T> implements EntitySearch<T> {
+
+    private final DefaultEntityManager em;
+    private final Class<T> entityClass;
+
+    private @Nullable Object example;
+    private @Nullable QueryStatement queryHandler;
+    private @Nullable ConditionStatement conditionHandler;
+    private @Nullable List<Pair<String, Order>> sortKeys;
+
+    DefaultEntitySearch(DefaultEntityManager em, Class<T> entityClass) {
+      this.em = em;
+      this.entityClass = entityClass;
+    }
+
+    @Override
+    public EntitySearch<T> example(Object example) {
+      assertNoHandlerSet();
+      this.example = example;
+      return this;
+    }
+
+    @Override
+    public EntitySearch<T> where(QueryStatement handler) {
+      assertNoHandlerSet();
+      this.queryHandler = handler;
+      return this;
+    }
+
+    @Override
+    public EntitySearch<T> where(ConditionStatement handler) {
+      assertNoHandlerSet();
+      this.conditionHandler = handler;
+      return this;
+    }
+
+    @Override
+    public EntitySearch<T> sortBy(String property, Order order) {
+      if (sortKeys == null) {
+        sortKeys = new ArrayList<>();
+      }
+      sortKeys.add(Pair.of(property, order));
+      return this;
+    }
+
+    @Override
+    public EntitySearch<T> sortBy(Map<String, Order> sortKeys) {
+      for (var entry : sortKeys.entrySet()) {
+        sortBy(entry.getKey(), entry.getValue());
+      }
+      return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public EntitySearch<T> sortBy(Pair<String, Order>... sortKeys) {
+      for (var pair : sortKeys) {
+        sortBy(pair.first, pair.second);
+      }
+      return this;
+    }
+
+    @Override
+    public List<T> list() {
+      try (var it = resolveIterator()) {
+        return it.list();
+      }
+    }
+
+    @Override
+    public Page<T> page(Pageable pageable) {
+      return em.page(entityClass, resolveConditionHandler(), pageable);
+    }
+
+    @Override
+    public @Nullable T first() {
+      try (var it = resolveIterator()) {
+        return it.first();
+      }
+    }
+
+    @Override
+    public @Nullable T unique() {
+      try (var it = resolveIterator()) {
+        return it.unique();
+      }
+    }
+
+    @Override
+    public Number count() {
+      return em.count(entityClass, resolveConditionHandler());
+    }
+
+    @Override
+    public EntityIterator<T> iterate() {
+      return resolveIterator();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <K> Map<K, T> mapBy(String property) {
+      try (var it = resolveIterator()) {
+        return it.toMap(property);
+      }
+    }
+
+    @Override
+    public <K> Map<K, T> mapBy(Function<T, K> keyMapper) {
+      try (var it = resolveIterator()) {
+        return it.toMap(keyMapper);
+      }
+    }
+
+    @Override
+    public void forEach(Consumer<T> consumer) {
+      try (var it = resolveIterator()) {
+        it.consume(consumer);
+      }
+    }
+
+    @Override
+    public void close() {
+      // resources are released by terminal operations via EntityIterator.close()
+    }
+
+    private void assertNoHandlerSet() {
+      if (example != null || queryHandler != null || conditionHandler != null) {
+        throw new IllegalStateException(
+                "example/where already set. Only one filter method can be used.");
+      }
+    }
+
+    private EntityIterator<T> resolveIterator() {
+      if (queryHandler != null) {
+        return em.iterate(entityClass, queryHandler);
+      }
+      if (conditionHandler != null) {
+        // ConditionStatement implementations (NoConditionsQuery, ExampleQuery, etc.)
+        // all extend SimpleSelectQueryStatement which implements QueryStatement.
+        return em.iterate(entityClass, (QueryStatement) conditionHandler);
+      }
+      if (example != null) {
+        return em.iterate(entityClass, example);
+      }
+      return em.iterate(entityClass);
+    }
+
+    private @Nullable ConditionStatement resolveConditionHandler() {
+      if (conditionHandler != null) {
+        return conditionHandler;
+      }
+      if (example != null) {
+        return em.handlerFactories.createCondition(example);
+      }
+      return NoConditionsQuery.instance;
+    }
+
   }
 
   private final class DefaultEntityIterator<T> extends EntityIterator<T> {

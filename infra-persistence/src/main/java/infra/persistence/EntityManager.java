@@ -2038,4 +2038,22 @@ public interface EntityManager {
   <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryStatement handler)
           throws DataAccessException;
 
+  /**
+   * Create a fluent {@link EntitySearch} query builder for the given entity type.
+   *
+   * <pre>{@code
+   * List<User> users = em.search(User.class)
+   *         .where(q -> q.eq("status", "active"))
+   *         .sortBy("name", Order.ASC)
+   *         .page(Pageable.of(1, 20))
+   *         .getContent();
+   * }</pre>
+   *
+   * @param <T> the entity type
+   * @param entityClass the entity class to query
+   * @return a new {@link EntitySearch} instance
+   * @since 5.0
+   */
+  <T> EntitySearch<T> search(Class<T> entityClass);
+
 }
