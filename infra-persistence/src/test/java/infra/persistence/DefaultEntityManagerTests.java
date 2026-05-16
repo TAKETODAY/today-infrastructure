@@ -34,10 +34,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import javax.sql.DataSource;
 
 import infra.beans.BeanProperty;
+import infra.core.Pair;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.dao.IncorrectResultSizeDataAccessException;
@@ -692,6 +694,218 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     List<UserModel> userModels = entityManager.find(model);
     assertThat(userModels).contains(model).hasSize(1);
+  }
+
+  // --- additional coverage tests ---
+
+  @ParameterizedRepositoryManagerTest
+  void persistWithStrategy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    UserModel entity = UserModel.male("TEST-STRATEGY", 20);
+    int rows = entityManager.persist(entity, PropertyUpdateStrategy.noneNull());
+    assertThat(rows).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void persistWithAutoGenerateIdFalse(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    entityManager.setAutoGenerateId(false);
+    UserModel entity = new UserModel();
+    entity.id = 999;
+    entity.setName("NO-AUTO-ID");
+    entity.setAge(30);
+    entity.setGender(Gender.MALE);
+    int rows = entityManager.persist(entity);
+    assertThat(rows).isEqualTo(1);
+    assertThat(entityManager.findById(UserModel.class, 999)).isNotNull();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void persistIterable(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    List<UserModel> entities = List.of(
+            UserModel.male("BATCH-1", 10),
+            UserModel.male("BATCH-2", 11));
+    entityManager.persist(entities);
+    assertThat(entityManager.count(UserModel.class).intValue()).isEqualTo(2);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void persistIterableWithStrategy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    List<UserModel> entities = List.of(UserModel.male("BATCH-S", 10));
+    entityManager.persist(entities, PropertyUpdateStrategy.noneNull());
+    List<UserModel> found = entityManager.find(UserModel.class);
+    assertThat(found).hasSize(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateWithStrategy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel user = entityManager.findById(UserModel.class, 1);
+    user.setName("UPDATED-STRATEGY");
+    int rows = entityManager.update(user, PropertyUpdateStrategy.noneNull());
+    assertThat(rows).isEqualTo(1);
+    assertThat(entityManager.findById(UserModel.class, 1).getName()).isEqualTo("UPDATED-STRATEGY");
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateByIdWithExplicitId(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserName userName = new UserName(1, "EXPLICIT-ID");
+    int rows = entityManager.updateById(userName, 1);
+    assertThat(rows).isEqualTo(1);
+    assertThat(entityManager.findById(UserModel.class, 1).getName()).isEqualTo("EXPLICIT-ID");
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateByIdWithStrategy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserName userName = new UserName(1, "STRATEGY-UPDATE");
+    int rows = entityManager.updateById(userName, PropertyUpdateStrategy.always());
+    assertThat(rows).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void saveOrUpdateWithStrategy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    UserModel model = UserModel.male("SAVE-UPDATE", 25);
+    int rows = entityManager.saveOrUpdate(model, PropertyUpdateStrategy.noneNull());
+    assertThat(rows).isEqualTo(1);
+    assertThat(entityManager.find(model)).hasSize(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findWithSortMap(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    Map<String, Order> sortKeys = Map.of("id", Order.ASC);
+    List<UserModel> users = entityManager.find(UserModel.class, sortKeys);
+    assertThat(users).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findWithSortPair(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.find(UserModel.class, Pair.of("id", Order.ASC));
+    assertThat(users).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findByExampleMapWithKey(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = new UserModel();
+    example.setName("TODAY");
+    Map<Integer, UserModel> map = entityManager.find(UserModel.class, example, "id");
+    assertThat(map).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findByKeyMapper(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    Map<String, UserModel> map = entityManager.find(UserModel.class, (Function<UserModel, String>) u -> u.getName());
+    assertThat(map).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void iterateAll(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    int count = 0;
+    try (var it = entityManager.iterate(UserModel.class)) {
+      while (it.hasNext()) {
+        it.next();
+        count++;
+      }
+    }
+    assertThat(count).isEqualTo(11);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void iterateByExample(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = UserModel.forId(1);
+    int count = 0;
+    try (var it = entityManager.iterate(example)) {
+      while (it.hasNext()) {
+        it.next();
+        count++;
+      }
+    }
+    assertThat(count).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void countByExample(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    createData(entityManager);
+
+    UserModel example = UserModel.forId(1);
+    Number count = entityManager.count(example);
+    assertThat(count.intValue()).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void countByEntityClassAndExample(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    createData(entityManager);
+
+    Number count = entityManager.count(UserModel.class, UserModel.forId(1));
+    assertThat(count.intValue()).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void pageAll(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    createData(entityManager);
+
+    Page<UserModel> page = entityManager.page(UserModel.class, (ConditionStatement) null);
+    assertThat(page.getRows()).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void pageByExampleWithPageable(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    UserModel model = UserModel.male("PAGE-TEST", 9);
+    entityManager.persist(model);
+    entityManager.persist(UserModel.male("PAGE-TEST", 10));
+
+    UserModel example = new UserModel();
+    example.setName("PAGE-TEST");
+    Page<UserModel> page = entityManager.page(example, Pageable.of(1, 1));
+    assertThat(page.getRows()).hasSize(1);
+    assertThat(page.getTotalRows().intValue()).isGreaterThanOrEqualTo(2);
   }
 
   @Test
