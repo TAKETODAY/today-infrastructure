@@ -908,6 +908,240 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     assertThat(page.getTotalRows().intValue()).isGreaterThanOrEqualTo(2);
   }
 
+  // --- EntitySearch integration tests ---
+
+  @ParameterizedRepositoryManagerTest
+  void searchList(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class).list();
+    assertThat(users).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchByExampleList(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = UserModel.forId(1);
+
+    List<UserModel> users = entityManager.search(UserModel.class).example(example).list();
+    assertThat(users).hasSize(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchByExampleFirst(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = UserModel.forId(1);
+
+    UserModel user = entityManager.search(UserModel.class).example(example).first();
+    assertThat(user).isNotNull();
+    assertThat(user.id).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchByExampleUnique(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = UserModel.forId(1);
+
+    UserModel user = entityManager.search(UserModel.class).example(example).unique();
+    assertThat(user).isNotNull();
+    assertThat(user.id).isEqualTo(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchByExampleCount(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    createData(entityManager);
+
+    Number count = entityManager.search(UserModel.class).count();
+    assertThat(count.intValue()).isGreaterThan(0);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchByExamplePage(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    createData(entityManager);
+
+    Page<UserModel> page = entityManager.search(UserModel.class).page(Pageable.of(1, 3));
+    assertThat(page.getRows()).isNotEmpty();
+    assertThat(page.getTotalRows().intValue()).isGreaterThan(0);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchByExampleIterate(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    var results = new ArrayList<UserModel>();
+    try (var it = entityManager.search(UserModel.class).iterate()) {
+      while (it.hasNext()) {
+        results.add(it.next());
+      }
+    }
+    assertThat(results).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchMapByProperty(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    Map<Integer, UserModel> map = entityManager.search(UserModel.class).mapBy("id");
+    assertThat(map).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchMapByFunction(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    Map<String, UserModel> map = entityManager.search(UserModel.class).mapBy(u -> u.getName());
+    assertThat(map).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchForEach(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    var names = new ArrayList<String>();
+    entityManager.search(UserModel.class).forEach(u -> names.add(u.getName()));
+    assertThat(names).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchSortBy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .sortBy("id", Order.ASC)
+            .list();
+    assertThat(users).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchWithConditionStatement(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .where((ConditionStatement) NoConditionsQuery.instance)
+            .list();
+    assertThat(users).isNotEmpty();
+  }
+
+  @Test
+  void searchExampleAndWhereMutuallyExclusive() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager em = new DefaultEntityManager(repositoryManager);
+    var search = em.search(UserModel.class);
+
+    search.example(new UserModel());
+    assertThatThrownBy(() -> search.where((ConditionStatement) NoConditionsQuery.instance))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("already set");
+  }
+
+  @Test
+  void searchWhereThenExampleMutuallyExclusive() {
+    RepositoryManager repositoryManager = mock(RepositoryManager.class);
+    DataSource dataSource = mock(DataSource.class);
+    when(repositoryManager.getDataSource()).thenReturn(dataSource);
+
+    DefaultEntityManager em = new DefaultEntityManager(repositoryManager);
+    var search = em.search(UserModel.class);
+
+    search.where((ConditionStatement) NoConditionsQuery.instance);
+    assertThatThrownBy(() -> search.example(new UserModel()))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("already set");
+  }
+
+  // --- QueryCondition tests ---
+
+  @ParameterizedRepositoryManagerTest
+  void searchWithQueryConditionEq(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .where((ConditionStatement) new QueryCondition().eq("name", "TODAY"))
+            .list();
+    assertThat(users).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchWithQueryConditionLike(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .where((ConditionStatement) new QueryCondition().like("name", "%TODAY%"))
+            .list();
+    assertThat(users).isNotEmpty();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchWithQueryConditionOrderBy(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .where((ConditionStatement) new QueryCondition().orderByDesc("id"))
+            .list();
+    assertThat(users).isNotEmpty();
+    assertThat(users.get(0).id).isGreaterThan(users.get(users.size() - 1).id);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchWithQueryConditionOr(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    createData(entityManager);
+
+    // status check: id IS NULL (always false) OR id = 1 → should return 1 row
+    QueryCondition cond = new QueryCondition();
+    cond.isNull("avatar").or(() -> cond.eq("id", 1));
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .where((ConditionStatement) cond)
+            .list();
+    assertThat(users).hasSize(1);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void searchWithQueryConditionOfFactory(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    List<UserModel> users = entityManager.search(UserModel.class)
+            .where((ConditionStatement) QueryCondition.of(q -> q
+                    .eq("name", "TODAY")
+                    .gt("age", 15)
+                    .orderByAsc("id")))
+            .list();
+    assertThat(users).isNotEmpty();
+  }
+
+  // --- unit tests ---
+
   @Test
   void shouldCreateEntityManagerWithRepositoryManager() {
     RepositoryManager repositoryManager = mock(RepositoryManager.class);
