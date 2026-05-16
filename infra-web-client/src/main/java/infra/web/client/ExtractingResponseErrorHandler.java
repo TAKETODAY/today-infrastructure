@@ -74,7 +74,6 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * <p>Note that {@link #setMessageConverters(List)} must be called when using this constructor.
    */
   public ExtractingResponseErrorHandler() {
-
   }
 
   /**
