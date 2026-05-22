@@ -47,7 +47,7 @@ import infra.util.concurrent.Future;
  */
 public abstract class WebSocketSession extends AttributeAccessorSupport implements AttributeAccessor {
 
-  public static final JdkIdGenerator idGenerator = new JdkIdGenerator();
+  protected static final JdkIdGenerator idGenerator = new JdkIdGenerator();
 
   private final String id = idGenerator.generateId().toString();
 
