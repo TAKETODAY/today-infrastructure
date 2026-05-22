@@ -701,7 +701,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   private String locationToString(List<Resource> locations) {
     return locations.toString()
-            .replaceAll("class path resource", "classpath");
+            .replace("class path resource", "classpath");
   }
 
 }
