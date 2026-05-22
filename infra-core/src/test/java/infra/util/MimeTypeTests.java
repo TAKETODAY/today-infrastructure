@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import infra.core.conversion.ConversionService;
+import infra.core.conversion.support.DefaultConversionService;
 import infra.core.testfixture.io.SerializationTestUtils;
 
 import static java.util.Collections.singletonMap;
@@ -93,13 +95,30 @@ class MimeTypeTests {
   }
 
   @Test
-  public void parseQuotedSeparator() {
+  void parseQuotedParameterValue() {
     String s = "application/xop+xml;charset=utf-8;type=\"application/soap+xml;action=\\\"https://x.y.z\\\"\"";
     MimeType mimeType = MimeType.valueOf(s);
     assertThat(mimeType.getType()).as("Invalid type").isEqualTo("application");
     assertThat(mimeType.getSubtype()).as("Invalid subtype").isEqualTo("xop+xml");
     assertThat(mimeType.getCharset()).as("Invalid charset").isEqualTo(StandardCharsets.UTF_8);
     assertThat(mimeType.getParameter("type")).isEqualTo("\"application/soap+xml;action=\\\"https://x.y.z\\\"\"");
+  }
+
+  @Test
+  void parseParameterWithQuotedPair() {
+    String s = "text/plain;twelve=\"1\\\"2\"";
+    MimeType mimeType = MimeType.valueOf(s);
+    assertThat(mimeType.getType()).as("Invalid type").isEqualTo("text");
+    assertThat(mimeType.getSubtype()).as("Invalid subtype").isEqualTo("plain");
+    assertThat(mimeType.getParameter("twelve")).isEqualTo("\"1\\\"2\"");
+  }
+
+  @Test
+  void withConversionService() {
+    ConversionService conversionService = new DefaultConversionService();
+    assertThat(conversionService.canConvert(String.class, MimeType.class)).isTrue();
+    MimeType mimeType = MimeType.valueOf("application/xml");
+    assertThat(conversionService.convert("application/xml", MimeType.class)).isEqualTo(mimeType);
   }
 
   @Test
