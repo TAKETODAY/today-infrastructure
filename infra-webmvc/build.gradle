@@ -102,10 +102,10 @@ dependencies {
   testRuntimeOnly("org.apache.httpcomponents.client5:httpclient5")
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")
-  testRuntimeOnly("org.webjars:underscorejs")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
   testRuntimeOnly("com.sun.activation:jakarta.activation")
+  testRuntimeOnly("org.webjars:momentjs")
   testFixturesImplementation("com.google.code.findbugs:jsr305")
 
   testFixturesImplementation("io.projectreactor:reactor-test")

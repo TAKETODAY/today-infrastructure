@@ -109,7 +109,6 @@ dependencies {
 
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")
-  testRuntimeOnly("org.webjars:underscorejs")
   testRuntimeOnly("org.glassfish:jakarta.el")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")

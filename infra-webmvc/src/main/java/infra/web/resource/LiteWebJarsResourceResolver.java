@@ -69,8 +69,7 @@ public class LiteWebJarsResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  @Nullable
-  protected Resource resolveResourceInternal(@Nullable RequestContext request, String requestPath,
+  protected @Nullable Resource resolveResourceInternal(@Nullable RequestContext request, String requestPath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);
@@ -84,22 +83,23 @@ public class LiteWebJarsResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  @Nullable
-  protected String resolveUrlPathInternal(String resourceUrlPath,
+  protected @Nullable String resolveUrlPathInternal(String resourceUrlPath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String path = chain.resolveUrlPath(resourceUrlPath, locations);
     if (path == null) {
       String webJarResourcePath = findWebJarResourcePath(resourceUrlPath);
       if (webJarResourcePath != null) {
-        return chain.resolveUrlPath(webJarResourcePath, locations);
+        path = chain.resolveUrlPath(webJarResourcePath, locations);
+        if (path == null && webJarResourcePath.endsWith("/")) {
+          path = webJarResourcePath;
+        }
       }
     }
     return path;
   }
 
-  @Nullable
-  protected String findWebJarResourcePath(String path) {
+  protected @Nullable String findWebJarResourcePath(String path) {
     int endOffset = path.indexOf('/', 1);
     if (endOffset != -1) {
       int startOffset = (path.startsWith("/") ? 1 : 0);
