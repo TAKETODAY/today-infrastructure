@@ -42,23 +42,23 @@ public abstract class AbstractCacheTests<T extends Cache> {
   protected abstract Object getNativeCache();
 
   @Test
-  public void testCacheName() throws Exception {
+  void cacheName() {
     assertThat(getCache().getName()).isEqualTo(CACHE_NAME);
   }
 
   @Test
-  public void testNativeCache() throws Exception {
+  void nativeCache() {
     assertThat(getCache().getNativeCache()).isSameAs(getNativeCache());
   }
 
   @Test
-  public void testCachePut() throws Exception {
+  void cachePut() {
     T cache = getCache();
 
     String key = createRandomKey();
     Object value = "george";
 
-    assertThat((Object) cache.get(key)).isNull();
+    assertThat(cache.get(key)).isNull();
     assertThat(cache.get(key, String.class)).isNull();
     assertThat(cache.get(key, Object.class)).isNull();
 
@@ -76,7 +76,7 @@ public abstract class AbstractCacheTests<T extends Cache> {
   }
 
   @Test
-  public void testCachePutIfAbsent() throws Exception {
+  void cachePutIfAbsent() {
     T cache = getCache();
 
     String key = createRandomKey();
@@ -91,36 +91,36 @@ public abstract class AbstractCacheTests<T extends Cache> {
   }
 
   @Test
-  public void testCacheRemove() throws Exception {
+  void cacheRemove() {
     T cache = getCache();
 
     String key = createRandomKey();
     Object value = "george";
 
-    assertThat((Object) cache.get(key)).isNull();
+    assertThat(cache.get(key)).isNull();
     cache.put(key, value);
   }
 
   @Test
-  public void testCacheClear() throws Exception {
+  void cacheClear() {
     T cache = getCache();
 
-    assertThat((Object) cache.get("enescu")).isNull();
+    assertThat(cache.get("enescu")).isNull();
     cache.put("enescu", "george");
-    assertThat((Object) cache.get("vlaicu")).isNull();
+    assertThat(cache.get("vlaicu")).isNull();
     cache.put("vlaicu", "aurel");
     cache.clear();
-    assertThat((Object) cache.get("vlaicu")).isNull();
-    assertThat((Object) cache.get("enescu")).isNull();
+    assertThat(cache.get("vlaicu")).isNull();
+    assertThat(cache.get("enescu")).isNull();
   }
 
   @Test
-  public void testCacheGetCallable() {
+  void cacheGetCallable() {
     doTestCacheGetCallable("test");
   }
 
   @Test
-  public void testCacheGetCallableWithNull() {
+  void cacheGetCallableWithNull() {
     doTestCacheGetCallable(null);
   }
 
@@ -129,19 +129,19 @@ public abstract class AbstractCacheTests<T extends Cache> {
 
     String key = createRandomKey();
 
-    assertThat((Object) cache.get(key)).isNull();
+    assertThat(cache.get(key)).isNull();
     Object value = cache.get(key, (k) -> returnValue);
     assertThat(value).isEqualTo(returnValue);
     assertThat(cache.get(key).get()).isEqualTo(value);
   }
 
   @Test
-  public void testCacheGetCallableNotInvokedWithHit() {
+  void cacheGetCallableNotInvokedWithHit() {
     doTestCacheGetCallableNotInvokedWithHit("existing");
   }
 
   @Test
-  public void testCacheGetCallableNotInvokedWithHitNull() {
+  void cacheGetCallableNotInvokedWithHitNull() {
     doTestCacheGetCallableNotInvokedWithHit(null);
   }
 
@@ -158,11 +158,11 @@ public abstract class AbstractCacheTests<T extends Cache> {
   }
 
   @Test
-  public void testCacheGetCallableFail() {
+  void cacheGetCallableFail() {
     T cache = getCache();
 
     String key = createRandomKey();
-    assertThat((Object) cache.get(key)).isNull();
+    assertThat(cache.get(key)).isNull();
 
     try {
       cache.get(key, (k) -> {
@@ -180,7 +180,7 @@ public abstract class AbstractCacheTests<T extends Cache> {
    * invocations.
    */
   @Test
-  public void testCacheGetSynchronized() throws InterruptedException {
+  void cacheGetSynchronized() throws InterruptedException {
     T cache = getCache();
     final AtomicInteger counter = new AtomicInteger();
     final List<Object> results = new CopyOnWriteArrayList<>();
