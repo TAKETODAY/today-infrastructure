@@ -26,7 +26,7 @@ import infra.core.AttributeAccessor;
 import infra.core.AttributeAccessorSupport;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.util.AlternativeJdkIdGenerator;
+import infra.util.JdkIdGenerator;
 import infra.util.concurrent.Future;
 
 /**
@@ -47,7 +47,7 @@ import infra.util.concurrent.Future;
  */
 public abstract class WebSocketSession extends AttributeAccessorSupport implements AttributeAccessor {
 
-  public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
+  public static final JdkIdGenerator idGenerator = new JdkIdGenerator();
 
   private final String id = idGenerator.generateId().toString();
 
