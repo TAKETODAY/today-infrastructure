@@ -32,6 +32,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanCreationException;
+import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.InitializingBean;
@@ -44,14 +45,17 @@ import infra.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import infra.beans.factory.config.TypedStringValue;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.BeanDefinitionBuilder;
+import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.beans.factory.support.GenericBeanDefinition;
 import infra.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
+import infra.context.testfixture.beans.factory.CircularBeanRegistrar;
 import infra.context.testfixture.beans.factory.ConditionalBeanRegistrar;
 import infra.context.testfixture.beans.factory.ImportAwareBeanRegistrar;
+import infra.context.testfixture.beans.factory.OverridingBeanRegistrar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar;
 import infra.core.DecoratingProxy;
 import infra.core.env.ConfigurableEnvironment;
@@ -635,6 +639,22 @@ class GenericApplicationContextTests {
     context.register(new SampleBeanRegistrar());
     context.refresh();
     assertThat(context.getBean(SampleBeanRegistrar.Bar.class).foo()).isEqualTo(context.getBean(SampleBeanRegistrar.Foo.class));
+  }
+
+  @Test
+  void beanRegistrarWithCircularReference() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.register(new CircularBeanRegistrar());
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(context::refresh)
+            .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
+  }
+
+  @Test
+  void beanRegistrarWithDefinitionOverride() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.setAllowBeanDefinitionOverriding(false);
+    context.register(new OverridingBeanRegistrar());
+    assertThatExceptionOfType(BeanDefinitionOverrideException.class).isThrownBy(context::refresh);
   }
 
   @Test

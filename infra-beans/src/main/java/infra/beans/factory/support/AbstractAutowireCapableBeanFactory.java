@@ -803,8 +803,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       return supplier.get();
     }
     catch (Throwable ex) {
-      if (ex instanceof BeansException beansException) {
-        throw beansException;
+      if (ex instanceof BeanCreationException bce && beanName.equals(bce.getBeanName())) {
+        throw bce;
       }
       throw new BeanCreationException(beanName, "Instantiation of supplied bean failed", ex);
     }
