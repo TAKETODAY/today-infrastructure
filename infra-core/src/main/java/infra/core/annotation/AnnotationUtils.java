@@ -37,6 +37,7 @@ import java.util.Set;
 import infra.core.BridgeMethodResolver;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.StandardAnnotationMetadata;
+import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
@@ -250,6 +251,17 @@ public abstract class AnnotationUtils {
       return true;
     }
     return !AnnotationsScanner.hasPlainJavaAnnotationsOnly(clazz);
+  }
+
+  /**
+   * Load the specified annotation type, if available.
+   *
+   * @param annotationName the fully-qualified name of the annotation type
+   * @return the annotation type as a {@code Class}, or {@code null} if not found
+   * @since 5.0
+   */
+  public static @Nullable Class<? extends Annotation> loadAnnotationType(String annotationName) {
+    return ClassUtils.load(annotationName, AnnotationUtils.class.getClassLoader());
   }
 
   /**

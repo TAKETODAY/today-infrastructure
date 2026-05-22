@@ -83,6 +83,8 @@ import infra.util.StringUtils;
 import jakarta.annotation.Resource;
 import jakarta.ejb.EJB;
 
+import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
+
 /**
  * {@link BeanPostProcessor} implementation
  * that supports common Java annotations out of the box, in particular the common
@@ -629,11 +631,6 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
     }
 
     return resource;
-  }
-
-  @Nullable
-  private static Class<? extends Annotation> loadAnnotationType(String name) {
-    return ClassUtils.load(name, CommonAnnotationBeanPostProcessor.class.getClassLoader());
   }
 
   /**
