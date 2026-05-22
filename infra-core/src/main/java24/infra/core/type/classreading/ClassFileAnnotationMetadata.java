@@ -80,7 +80,7 @@ final class ClassFileAnnotationMetadata implements AnnotationMetadata {
     this.className = className;
     this.accessFlags = accessFlags;
     this.enclosingClassName = enclosingClassName;
-    this.superClassName = (!className.endsWith(".package-info")) ? superClassName : null;
+    this.superClassName = (!className.endsWith(ClassUtils.PACKAGE_INFO_SUFFIX) ? superClassName : null);
     this.independentInnerClass = independentInnerClass;
     this.interfaceNames = interfaceNames;
     this.memberClassNames = memberClassNames;

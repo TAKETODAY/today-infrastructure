@@ -88,6 +88,13 @@ public abstract class ClassUtils {
 
   public static final String CLASS_FILE_SUFFIX = ".class";
 
+  /**
+   * The ".package-info" suffix for package class names.
+   *
+   * @since 5.0
+   */
+  public static final String PACKAGE_INFO_SUFFIX = ".package-info";
+
   /** @since 3.0 */
   public static HashSet<Class<?>> primitiveTypes;
 
