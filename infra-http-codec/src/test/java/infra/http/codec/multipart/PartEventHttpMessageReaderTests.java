@@ -28,15 +28,13 @@ import infra.core.codec.DecodingException;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DataBufferUtils;
-import infra.core.io.buffer.NettyDataBufferFactory;
+import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.http.ContentDisposition;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
-import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -51,11 +49,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.entry;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/22 9:47
  */
-class PartEventHttpMessageReaderTests {
+class PartEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
 
   private static final int BUFFER_SIZE = 64;
-
-  private static final DataBufferFactory bufferFactory = new NettyDataBufferFactory(new PooledByteBufAllocator());
 
   private static final MediaType TEXT_PLAIN_ASCII = new MediaType("text", "plain", StandardCharsets.US_ASCII);
 

@@ -208,6 +208,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   void requestToken() {
     if (upstream() != null
+            && this.state.get().canRequest()
             && this.requestOutstanding.compareAndSet(false, true)) {
       request(1);
     }
@@ -244,18 +245,26 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
      * Invoked when all tokens for the part have been received.
      */
     void onComplete() {
-
     }
 
     /**
      * Invoked when an error has been received.
      */
-    void error(Throwable throwable) { }
+    void error(Throwable throwable) {
+    }
+
+    /**
+     * Indicates whether the current state is ready to accept a new token.
+     */
+    public boolean canRequest() {
+      return true;
+    }
 
     /**
      * Cleans up any state.
      */
-    void dispose() { }
+    void dispose() {
+    }
   }
 
   /**
@@ -548,6 +557,11 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
+    public boolean canRequest() {
+      return false;
+    }
+
+    @Override
     public void dispose() {
       if (this.releaseOnDispose) {
         this.content.forEach(DataBuffer.RELEASE_CONSUMER);
@@ -736,6 +750,11 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       finally {
         dataBuffer.release();
       }
+    }
+
+    @Override
+    public boolean canRequest() {
+      return false;
     }
 
     @Override

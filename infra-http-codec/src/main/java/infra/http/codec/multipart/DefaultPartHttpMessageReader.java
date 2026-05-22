@@ -33,9 +33,9 @@ import infra.core.ResolvableType;
 import infra.core.codec.DecodingException;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.http.MediaType;
-import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.http.codec.HttpMessageReader;
 import infra.http.codec.LoggingCodecSupport;
+import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.lang.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -234,12 +234,17 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
               .windowUntil(MultipartParser.Token::isLast)
               .concatMap(partsTokens -> {
                 if (tooManyParts(partCount)) {
-                  return Mono.error(new DecodingException("Too many parts (" + partCount.get() + "/" +
-                          this.maxParts + " allowed)"));
+                  return partsTokens
+                          .doOnNext(token -> {
+                            if (token instanceof MultipartParser.BodyToken bodyToken) {
+                              bodyToken.getBuffer().release();
+                            }
+                          })
+                          .then(Mono.error(new DecodingException("Too many parts (%d/%d allowed)".formatted(partCount.get(), this.maxParts))));
                 }
                 else {
                   return PartGenerator.createPart(partsTokens, this.maxInMemorySize, this.maxDiskUsagePerPart,
-                          this.streaming, this.fileStorage.directory(), this.blockingOperationScheduler);
+                          this.streaming, this.fileStorage.directory(), getBlockingOperationScheduler());
                 }
               });
     });
