@@ -18,6 +18,8 @@
 
 package infra.lang;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -36,7 +38,9 @@ public final class NullValue implements Serializable {
   public static final NullValue INSTANCE = new NullValue();
 
   private NullValue() {
-
+    if (INSTANCE != null) {
+      throw new IllegalStateException("NullValue is a singleton");
+    }
   }
 
   @Serial
@@ -50,7 +54,7 @@ public final class NullValue implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj == INSTANCE;
   }
 

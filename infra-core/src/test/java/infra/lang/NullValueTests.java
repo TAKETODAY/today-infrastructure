@@ -20,9 +20,12 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 
+import infra.beans.BeanInstantiationException;
+import infra.beans.BeanUtils;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -83,6 +86,16 @@ class NullValueTests {
     ReflectionUtils.makeAccessible(serialVersionUID1);
     long serialVersionUID = serialVersionUID1.getLong(null);
     assertThat(serialVersionUID).isEqualTo(1L);
+  }
+
+  @Test
+  void singleton() {
+    NullValue instance = NullValue.INSTANCE;
+    assertThatThrownBy(() -> BeanUtils.newInstance(NullValue.class))
+            .isInstanceOf(BeanInstantiationException.class)
+            .rootCause()
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("NullValue is a singleton");
   }
 
 }
