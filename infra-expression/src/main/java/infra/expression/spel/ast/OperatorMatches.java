@@ -87,12 +87,10 @@ public class OperatorMatches extends Operator {
     }
 
     try {
-      Pattern pattern = this.patternCache.get(regex);
-      if (pattern == null) {
-        checkRegexLength(regex);
-        pattern = Pattern.compile(regex);
-        this.patternCache.putIfAbsent(regex, pattern);
-      }
+      Pattern pattern = this.patternCache.computeIfAbsent(regex, key -> {
+        checkRegexLength(key);
+        return Pattern.compile(key);
+      });
       Matcher matcher = pattern.matcher(new MatcherInput(input, new AccessCount()));
       return BooleanTypedValue.forValue(matcher.matches());
     }
@@ -108,7 +106,7 @@ public class OperatorMatches extends Operator {
 
   private void checkRegexLength(String regex) {
     if (regex.length() > MAX_REGEX_LENGTH) {
-      throw new SpelEvaluationException(getStartPosition(),
+      throw new SpelEvaluationException(getRightOperand().getStartPosition(),
               SpelMessage.MAX_REGEX_LENGTH_EXCEEDED, MAX_REGEX_LENGTH);
     }
   }
