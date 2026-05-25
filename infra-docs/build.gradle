@@ -9,16 +9,10 @@ description = "Infrastructure Docs"
 apply from: "${rootDir}/gradle/publications.gradle"
 
 antora {
-  version = '3.2.0-alpha.4'
-//  version = '3.1.7'
-  playbook = 'antora-playbook.yml'
-  options = ['--clean', '--stacktrace']
-  dependencies = [
-      '@antora/atlas-extension'                  : '1.0.0-alpha.1',
-      '@antora/collector-extension'              : '1.0.0-alpha.3',
-      '@asciidoctor/tabs'                        : '1.0.0-beta.3',
-      '@opendevise/antora-release-line-extension': '1.0.0',
-      '@today-tech/antora-extensions'            : '1.0.1'
+  options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
+  environment = [
+      'BUILD_REFNAME': 'HEAD',
+      'BUILD_VERSION': project.version.toString(),
   ]
 }
 

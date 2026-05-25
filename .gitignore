@@ -34,3 +34,4 @@ cached-antora-playbook.yml
 update_headers.sh
 
 buildSrc/bin
+node_modules
