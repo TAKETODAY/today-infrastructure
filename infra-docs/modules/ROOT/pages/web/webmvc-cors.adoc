@@ -219,6 +219,6 @@ config.addAllowedMethod("*");
 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 source.registerCorsConfiguration("/**", config);
 
-CorsFilter filter = new CorsFilter(source);
+CorsInterceptor filter = new CorsInterceptor(source);
 ----
 
