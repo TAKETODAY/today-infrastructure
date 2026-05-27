@@ -54,5 +54,12 @@ image::architecture-diagram.svg[架构总览图, 100%]
 [[architecture-interactive]]
 == 交互式查看
 
-交互式 HTML 版本支持缩放和拖拽，参见:
-`src/docs/architecture/architecture-diagram.html`
+支持缩放和拖拽的 HTML 交互版本：
+
+++++
+<iframe src="architecture-diagram.html" width="100%" height="700" style="border:1px solid #d0d7de;border-radius:8px;background:#fff;" title="架构图交互版"></iframe>
+<p style="font-size:14px;color:#666;margin-top:4px;">
+  提示：滚轮缩放 · 拖拽平移 · 无法加载？
+  <a href="architecture-diagram.html" target="_blank">在新窗口打开</a>
+</p>
+++++

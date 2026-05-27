@@ -34,6 +34,14 @@ tasks.register("generateAntoraResources") {
   dependsOn 'generateAntoraYml'
 }
 
+tasks.named('antora') {
+  doLast {
+    copy {
+      from 'src/docs/architecture/architecture-diagram.html'
+      into layout.buildDirectory.dir('site')
+    }
+  }
+}
 
 /**
  * Produce Javadoc for all Infrastructure modules in "build/docs/javadoc"
