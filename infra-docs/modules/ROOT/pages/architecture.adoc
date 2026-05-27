@@ -1,0 +1,58 @@
+[[architecture]]
+= 系统架构
+
+本文档展示 TODAY Infrastructure 的整体模块架构与分层设计。
+
+[[architecture-diagram]]
+== 架构图
+
+image::architecture-diagram.svg[架构总览图, 100%]
+
+[[architecture-layers]]
+== 分层说明
+
+|===
+| 层次 | 核心职责 | 关键模块
+
+| Application Layer
+| 应用启动、自动配置、健康检查
+| `infra-app`, `infra-starter-*`
+
+| Web / HTTP Layer
+| Web MVC、Reactive、WebSocket、HTTP 客户端/服务器
+| `infra-webmvc`, `infra-http`, `infra-web-netty-server`, `infra-web-reactor-server`
+
+| Data Layer
+| JDBC 抽象、事务管理、轻量 ORM、缓存
+| `infra-jdbc`, `infra-tx`, `infra-persistence`, `infra-jcache`
+
+| Context / IoC Container
+| ApplicationContext、事件、条件配置、调度、校验
+| `infra-context`
+
+| AOP Layer
+| JDK/CGLIB 代理、`@AspectJ` 支持
+| `infra-aop`, `infra-aspects`
+
+| Bean Container
+| IoC 容器核心、依赖注入、Bean 定义
+| `infra-beans`
+
+| Core / Foundation
+| 字节码、注解引擎、类型转换、资源加载、AOT
+| `infra-core`, `infra-expression`
+
+| Build / Tooling / Testing
+| Gradle/Maven 插件、BOM、测试工具
+| `infra-build/*`, `infra-bom`, `infra-test`
+
+| JDK Support
+| JDK 17 基线、JDK 21/24 多版本 JAR
+| multi-release JARs
+|===
+
+[[architecture-interactive]]
+== 交互式查看
+
+交互式 HTML 版本支持缩放和拖拽，参见:
+`src/docs/architecture/architecture-diagram.html`

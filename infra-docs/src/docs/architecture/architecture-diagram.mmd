@@ -1,0 +1,135 @@
+flowchart BT
+    subgraph APP_LAYER["Application Layer"]
+        APP["infra-app<br/>@InfraApplication, Bootstrap,<br/>Auto-Configuration, Health"]
+        STARTERS["infra-starter-* (32 starters)<br/>Web / JDBC / Jackson / Logback / ..."]
+    end
+
+    subgraph WEB_LAYER["Web / HTTP Layer"]
+        WMVC["infra-webmvc<br/>DispatcherHandler, MVC Pattern"]
+        WREACT["infra-web-reactive<br/>Reactive Web"]
+        WBSOCK["infra-websocket<br/>WebSocket Client / Server"]
+        HTTP["infra-http<br/>HTTP Types, Client/Server<br/>Abstractions"]
+        HTTPCLIENT["infra-http-client / infra-http-service<br/>HTTP Clients, Declarative HTTP"]
+        WCONV["infra-http-converter<br/>JSON / XML Message Converters"]
+        WCODE["infra-http-codec<br/>HTTP Codecs"]
+        WSERV["infra-web-server<br/>WebServer Abstraction"]
+        NETTY["infra-web-netty-server<br/>Netty HTTP Server"]
+        REACTNETTY["infra-web-reactor-server<br/>Reactor Netty Server"]
+    end
+
+    subgraph DATA_LAYER["Data Layer"]
+        PERSIST["infra-persistence<br/>Lightweight ORM<br/>@Table, @Column, EntityManager"]
+        JDBC["infra-jdbc<br/>JDBC Abstraction<br/>Connection, Row, DataSource"]
+        TX["infra-tx<br/>Transaction Management<br/>@Transactional, JTA"]
+        OXM["infra-oxm<br/>Object / XML Mapping"]
+        JCACHE["infra-jcache<br/>JCache (JSR-107)<br/>@Cacheable, @CacheEvict"]
+        INTEGRATION["module/* (14 modules)<br/>Flyway / Jackson / Gson<br/>Mail / Docker Compose / ..."]
+    end
+
+    subgraph CTX_LAYER["Context / IoC Container"]
+        CTX["infra-context<br/>ApplicationContext, Events,<br/>@Conditional (40+), Scheduling,<br/>Validation, JMX, JNDI, Scripting"]
+        CTXIDX["infra-context-indexer<br/>Component Indexing"]
+        CTXSUP["infra-context-support<br/>Cache Abstraction"]
+    end
+
+    subgraph BEAN_LAYER["Bean Container"]
+        BEANS["infra-beans<br/>BeanFactory, DI,<br/>Bean Definitions,<br/>Property Accessors,<br/>Type Converters"]
+    end
+
+    subgraph AOP_LAYER["AOP Layer"]
+        AOP["infra-aop<br/>JDK Dynamic Proxy<br/>CGLIB Bytecode Proxy<br/>Pointcuts, Interceptors<br/>@AspectJ Support"]
+        ASPECTS["infra-aspects<br/>AspectJ Aspects"]
+    end
+
+    subgraph CORE_LAYER["Core / Foundation"]
+        CORE["infra-core<br/>- ASM Bytecode (Fork/Repackaged)<br/>- Annotation Engine (MergedAnnotations)<br/>- Type Conversion System<br/>- Environment / Properties<br/>- Resource Loading<br/>- AOT / RuntimeHints<br/>- Logging Abstraction<br/>- SSL / TLS<br/>- Codecs, Serialization<br/>- Utilities (lang/util)"]
+        EXPR["infra-expression<br/>SpEL Expression Language"]
+        INSTR["infra-instrument<br/>Load-Time Weaving Agent"]
+    end
+
+    subgraph TOOL_LAYER["Build / Tooling / Testing"]
+        BUILD["infra-build/* (8 modules)<br/>Gradle Plugin, Maven Plugin<br/>Annotation Processors<br/>App Loader, Layered JAR"]
+        BOM["infra-bom<br/>infra-dependencies<br/>BOM and Dependency Mgmt"]
+        TEST["infra-test<br/>infra-test-support<br/>infra-testcontainers<br/>Test Utilities"]
+    end
+
+    subgraph JDK_LAYER["JDK Support"]
+        JDK17["JDK 17 (Baseline)"]
+        JDK21["JDK 21 (Virtual Threads)"]
+        JDK24["JDK 24 (Multi-Release JAR)"]
+    end
+
+    JDK17 --> JDK21
+    JDK21 --> JDK24
+    JDK24 -.-> CORE
+    JDK24 -.-> BEANS
+    JDK24 -.-> CTX
+    JDK24 -.-> APP
+
+    CORE --> EXPR
+    CORE --> INSTR
+    CORE --> BEANS
+    CORE --> AOP
+
+    BEANS --> CTX
+    AOP --> CTX
+
+    CTX --> JDBC
+    CTX --> TX
+    CTX --> PERSIST
+    CTX --> JCACHE
+    CTX --> OXM
+    CTX --> INTEGRATION
+
+    CTX --> HTTP
+    CTX --> WSERV
+    WSERV --> NETTY
+    WSERV --> REACTNETTY
+    HTTP --> WCODE
+    HTTP --> WCONV
+    HTTP --> HTTPCLIENT
+
+    HTTP --> WMVC
+    HTTP --> WREACT
+    HTTP --> WBSOCK
+
+    WMVC --> APP
+    WREACT --> APP
+    WBSOCK --> APP
+    HTTPCLIENT --> APP
+    INTEGRATION --> APP
+    PERSIST --> APP
+    TX --> APP
+    JCACHE --> APP
+
+    APP --> STARTERS
+    BUILD -.-> STARTERS
+    TEST -.-> APP
+    BOM -.-> STARTERS
+
+    style CORE fill:#1a237e,color:#ffffff,stroke:#0d47a1,stroke-width:3px
+    style BEANS fill:#0d47a1,color:#ffffff,stroke:#1565c0,stroke-width:3px
+    style CTX fill:#01579b,color:#ffffff,stroke:#0277bd,stroke-width:3px
+    style APP fill:#004d40,color:#ffffff,stroke:#00695c,stroke-width:3px
+    style AOP fill:#311b92,color:#ffffff,stroke:#4527a0,stroke-width:3px
+    style ASPECTS fill:#4527a0,color:#ffffff,stroke:#512da8,stroke-width:2px
+    style HTTP fill:#e65100,color:#ffffff,stroke:#ef6c00,stroke-width:3px
+    style WMVC fill:#bf360c,color:#ffffff,stroke:#d84315,stroke-width:2px
+    style WREACT fill:#d84315,color:#ffffff,stroke:#e64a19,stroke-width:2px
+    style WBSOCK fill:#e64a19,color:#ffffff,stroke:#f4511e,stroke-width:2px
+    style WSERV fill:#ef6c00,color:#ffffff,stroke:#f57c00,stroke-width:2px
+    style NETTY fill:#f57c00,color:#ffffff,stroke:#fb8c00,stroke-width:2px
+    style REACTNETTY fill:#fb8c00,color:#ffffff,stroke:#ffa000,stroke-width:2px
+    style JDBC fill:#33691e,color:#ffffff,stroke:#558b2f,stroke-width:3px
+    style TX fill:#1b5e20,color:#ffffff,stroke:#2e7d32,stroke-width:3px
+    style PERSIST fill:#2e7d32,color:#ffffff,stroke:#388e3c,stroke-width:3px
+    style JCACHE fill:#388e3c,color:#ffffff,stroke:#43a047,stroke-width:2px
+    style INTEGRATION fill:#43a047,color:#ffffff,stroke:#4caf50,stroke-width:2px
+    style BUILD fill:#4a148c,color:#ffffff,stroke:#6a1b9a,stroke-width:3px
+    style TEST fill:#6a1b9a,color:#ffffff,stroke:#7b1fa2,stroke-width:2px
+    style BOM fill:#7b1fa2,color:#ffffff,stroke:#8e24aa,stroke-width:2px
+    style STARTERS fill:#827717,color:#ffffff,stroke:#9e9d24,stroke-width:3px
+    style EXPR fill:#283593,color:#ffffff,stroke:#3949ab,stroke-width:2px
+    style INSTR fill:#283593,color:#ffffff,stroke:#3949ab,stroke-width:2px
+    style CTXIDX fill:#0277bd,color:#ffffff,stroke:#0288d1,stroke-width:2px
+    style CTXSUP fill:#0277bd,color:#ffffff,stroke:#0288d1,stroke-width:2px

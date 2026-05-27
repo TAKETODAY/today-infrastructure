@@ -1,6 +1,8 @@
 * xref:overview.adoc[概述]
 include::tutorial:partial$nav-tutorial.adoc[]
 
+* xref:architecture.adoc[系统架构]
+
 * xref:core.adoc[]
 
 ** xref:core/beans.adoc[]
