@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODAY Infrastructure 架构图</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #f8f9fa;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.container {
+  max-width: 100%;
+  padding: 24px 32px 32px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+h1 {
+  color: #1a237e;
+  font-size: 24px;
+}
+.subtitle {
+  color: #666;
+  font-size: 14px;
+}
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.controls button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  user-select: none;
+}
+.controls button:hover {
+  background: #e8eaf6;
+  border-color: #1a237e;
+}
+.controls button:active {
+  background: #c5cae9;
+}
+.zoom-level {
+  font-size: 13px;
+  color: #666;
+  min-width: 48px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.mermaid-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  min-height: 500px;
+  cursor: grab;
+  position: relative;
+}
+.mermaid-wrapper:active {
+  cursor: grabbing;
+}
+.mermaid-wrapper svg {
+  display: block;
+}
+.loading {
+  text-align: center;
+  color: #999;
+  padding: 120px 0;
+  font-size: 16px;
+}
+.hint {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  color: #aaa;
+  font-size: 12px;
+  pointer-events: none;
+  background: rgba(255,255,255,0.85);
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+.legend {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>TODAY Infrastructure 架构图</h1>
+      <p class="subtitle">基于 v5.0-Draft.6-SNAPSHOT · 七层纵向分层架构 · 滚轮缩放 · 拖拽平移</p>
+    </div>
+    <div class="controls">
+      <button id="zoomOut" title="缩小">−</button>
+      <span class="zoom-level" id="zoomLevel">100%</span>
+      <button id="zoomIn" title="放大">+</button>
+      <button id="zoomReset" title="重置" style="font-size:14px;width:auto;padding:0 14px;">⟲</button>
+    </div>
+  </div>
+
+  <div class="mermaid-wrapper" id="mermaidContainer">
+    <div class="loading">正在渲染架构图...</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-color" style="background:#1a237e"></div>Core / Foundation</div>
+    <div class="legend-item"><div class="legend-color" style="background:#0d47a1"></div>Bean Container</div>
+    <div class="legend-item"><div class="legend-color" style="background:#01579b"></div>Context / IoC</div>
+    <div class="legend-item"><div class="legend-color" style="background:#311b92"></div>AOP</div>
+    <div class="legend-item"><div class="legend-color" style="background:#e65100"></div>Web / HTTP</div>
+    <div class="legend-item"><div class="legend-color" style="background:#33691e"></div>Data Layer</div>
+    <div class="legend-item"><div class="legend-color" style="background:#004d40"></div>Application</div>
+    <div class="legend-item"><div class="legend-color" style="background:#4a148c"></div>Build / Tooling</div>
+    <div class="legend-item"><div class="legend-color" style="background:#827717"></div>Starters</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  theme: 'base',
+  themeVariables: {
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    fontSize: '18px',
+    primaryColor: '#1a237e',
+    primaryTextColor: '#fff',
+    primaryBorderColor: '#0d47a1',
+    lineColor: '#666',
+    secondaryColor: '#e3f2fd',
+    tertiaryColor: '#f5f5f5',
+    mainBkg: '#1a237e',
+    nodeBorder: '#0d47a1',
+    clusterBkg: '#f0f4ff',
+    clusterBorder: '#bbdefb',
+    edgeLabelBackground: '#ffffff',
+    nodeTextColor: '#ffffff',
+    titleColor: '#1a237e',
+  }
+});
+
+const diagram = `flowchart BT
+    subgraph APP_LAYER["Application Layer"]
+        APP["infra-app<br/>@InfraApplication, Bootstrap,<br/>Auto-Configuration, Health"]
+        STARTERS["infra-starter-* (32 starters)<br/>Web / JDBC / Jackson / Logback / ..."]
+    end
+
+    subgraph WEB_LAYER["Web / HTTP Layer"]
+        WMVC["infra-webmvc<br/>DispatcherHandler, MVC Pattern"]
+        WREACT["infra-web-reactive<br/>Reactive Web"]
+        WBSOCK["infra-websocket<br/>WebSocket Client / Server"]
+        HTTP["infra-http<br/>HTTP Types, Client/Server<br/>Abstractions"]
+        HTTPCLIENT["infra-http-client / infra-http-service<br/>HTTP Clients, Declarative HTTP"]
+        WCONV["infra-http-converter<br/>JSON / XML Message Converters"]
+        WCODE["infra-http-codec<br/>HTTP Codecs"]
+        WSERV["infra-web-server<br/>WebServer Abstraction"]
+        NETTY["infra-web-netty-server<br/>Netty HTTP Server"]
+        REACTNETTY["infra-web-reactor-server<br/>Reactor Netty Server"]
+    end
+
+    subgraph DATA_LAYER["Data Layer"]
+        PERSIST["infra-persistence<br/>Lightweight ORM<br/>@Table, @Column, EntityManager"]
+        JDBC["infra-jdbc<br/>JDBC Abstraction<br/>Connection, Row, DataSource"]
+        TX["infra-tx<br/>Transaction Management<br/>@Transactional, JTA"]
+        OXM["infra-oxm<br/>Object / XML Mapping"]
+        JCACHE["infra-jcache<br/>JCache (JSR-107)<br/>@Cacheable, @CacheEvict"]
+        INTEGRATION["module/* (14 modules)<br/>Flyway / Jackson / Gson<br/>Mail / Docker Compose / ..."]
+    end
+
+    subgraph CTX_LAYER["Context / IoC Container"]
+        CTX["infra-context<br/>ApplicationContext, Events,<br/>@Conditional (40+), Scheduling,<br/>Validation, JMX, JNDI, Scripting"]
+        CTXIDX["infra-context-indexer<br/>Component Indexing"]
+        CTXSUP["infra-context-support<br/>Cache Abstraction"]
+    end
+
+    subgraph BEAN_LAYER["Bean Container"]
+        BEANS["infra-beans<br/>BeanFactory, DI,<br/>Bean Definitions,<br/>Property Accessors,<br/>Type Converters"]
+    end
+
+    subgraph AOP_LAYER["AOP Layer"]
+        AOP["infra-aop<br/>JDK Dynamic Proxy<br/>CGLIB Bytecode Proxy<br/>Pointcuts, Interceptors<br/>@AspectJ Support"]
+        ASPECTS["infra-aspects<br/>AspectJ Aspects"]
+    end
+
+    subgraph CORE_LAYER["Core / Foundation"]
+        CORE["infra-core<br/>- ASM Bytecode (Fork/Repackaged)<br/>- Annotation Engine (MergedAnnotations)<br/>- Type Conversion System<br/>- Environment / Properties<br/>- Resource Loading<br/>- AOT / RuntimeHints<br/>- Logging Abstraction<br/>- SSL / TLS<br/>- Codecs, Serialization<br/>- Utilities (lang/util)"]
+        EXPR["infra-expression<br/>SpEL Expression Language"]
+        INSTR["infra-instrument<br/>Load-Time Weaving Agent"]
+    end
+
+    subgraph TOOL_LAYER["Build / Tooling / Testing"]
+        BUILD["infra-build/* (8 modules)<br/>Gradle Plugin, Maven Plugin<br/>Annotation Processors<br/>App Loader, Layered JAR"]
+        BOM["infra-bom<br/>infra-dependencies<br/>BOM and Dependency Mgmt"]
+        TEST["infra-test<br/>infra-test-support<br/>infra-testcontainers<br/>Test Utilities"]
+    end
+
+    subgraph JDK_LAYER["JDK Support"]
+        JDK17["JDK 17 (Baseline)"]
+        JDK21["JDK 21 (Virtual Threads)"]
+        JDK24["JDK 24 (Multi-Release JAR)"]
+    end
+
+    JDK17 --> JDK21
+    JDK21 --> JDK24
+    JDK24 -.-> CORE
+    JDK24 -.-> BEANS
+    JDK24 -.-> CTX
+    JDK24 -.-> APP
+
+    CORE --> EXPR
+    CORE --> INSTR
+    CORE --> BEANS
+    CORE --> AOP
+
+    BEANS --> CTX
+    AOP --> CTX
+
+    CTX --> JDBC
+    CTX --> TX
+    CTX --> PERSIST
+    CTX --> JCACHE
+    CTX --> OXM
+    CTX --> INTEGRATION
+
+    CTX --> HTTP
+    CTX --> WSERV
+    WSERV --> NETTY
+    WSERV --> REACTNETTY
+    HTTP --> WCODE
+    HTTP --> WCONV
+    HTTP --> HTTPCLIENT
+
+    HTTP --> WMVC
+    HTTP --> WREACT
+    HTTP --> WBSOCK
+
+    WMVC --> APP
+    WREACT --> APP
+    WBSOCK --> APP
+    HTTPCLIENT --> APP
+    INTEGRATION --> APP
+    PERSIST --> APP
+    TX --> APP
+    JCACHE --> APP
+
+    APP --> STARTERS
+    BUILD -.-> STARTERS
+    TEST -.-> APP
+    BOM -.-> STARTERS
+
+    style CORE fill:#1a237e,color:#ffffff,stroke:#0d47a1
+    style BEANS fill:#0d47a1,color:#ffffff,stroke:#1565c0
+    style CTX fill:#01579b,color:#ffffff,stroke:#0277bd
+    style APP fill:#004d40,color:#ffffff,stroke:#00695c
+    style AOP fill:#311b92,color:#ffffff,stroke:#4527a0
+    style ASPECTS fill:#4527a0,color:#ffffff,stroke:#512da8
+    style HTTP fill:#e65100,color:#ffffff,stroke:#ef6c00
+    style WMVC fill:#bf360c,color:#ffffff,stroke:#d84315
+    style WREACT fill:#d84315,color:#ffffff,stroke:#e64a19
+    style WBSOCK fill:#e64a19,color:#ffffff,stroke:#f4511e
+    style WSERV fill:#ef6c00,color:#ffffff,stroke:#f57c00
+    style NETTY fill:#f57c00,color:#ffffff,stroke:#fb8c00
+    style REACTNETTY fill:#fb8c00,color:#ffffff,stroke:#ffa000
+    style JDBC fill:#33691e,color:#ffffff,stroke:#558b2f
+    style TX fill:#1b5e20,color:#ffffff,stroke:#2e7d32
+    style PERSIST fill:#2e7d32,color:#ffffff,stroke:#388e3c
+    style JCACHE fill:#388e3c,color:#ffffff,stroke:#43a047
+    style INTEGRATION fill:#43a047,color:#ffffff,stroke:#4caf50
+    style BUILD fill:#4a148c,color:#ffffff,stroke:#6a1b9a
+    style TEST fill:#6a1b9a,color:#ffffff,stroke:#7b1fa2
+    style BOM fill:#7b1fa2,color:#ffffff,stroke:#8e24aa
+    style STARTERS fill:#827717,color:#ffffff,stroke:#9e9d24
+    style EXPR fill:#283593,color:#ffffff,stroke:#3949ab
+    style INSTR fill:#283593,color:#ffffff,stroke:#3949ab
+    style CTXIDX fill:#0277bd,color:#ffffff,stroke:#0288d1
+    style CTXSUP fill:#0277bd,color:#ffffff,stroke:#0288d1
+`;
+
+(async function() {
+  const { svg } = await mermaid.render('mermaid-diagram', diagram);
+  const container = document.getElementById('mermaidContainer');
+  container.innerHTML = svg + '<div class="hint">滚轮缩放 · 拖拽平移</div>';
+
+  const svgEl = container.querySelector('svg');
+  svgEl.style.maxWidth = 'none';
+  svgEl.style.transformOrigin = '0 0';
+
+  const viewBox = svgEl.getAttribute('viewBox');
+  let scale = 1;
+  let translateX = 0;
+  let translateY = 0;
+  let isDragging = false;
+  let dragStartX, dragStartY, dragOrigX, dragOrigY;
+
+  function applyTransform() {
+    svgEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    document.getElementById('zoomLevel').textContent = Math.round(scale * 100) + '%';
+  }
+
+  container.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const delta = -e.deltaY * 0.001;
+    const newScale = Math.min(5, Math.max(0.2, scale * (1 + delta)));
+
+    translateX = mx - (mx - translateX) * (newScale / scale);
+    translateY = my - (my - translateY) * (newScale / scale);
+    scale = newScale;
+    applyTransform();
+  }, { passive: false });
+
+  container.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragOrigX = translateX;
+    dragOrigY = translateY;
+    container.style.cursor = 'grabbing';
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    translateX = dragOrigX + (e.clientX - dragStartX);
+    translateY = dragOrigY + (e.clientY - dragStartY);
+    applyTransform();
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (isDragging) {
+      isDragging = false;
+      container.style.cursor = 'grab';
+    }
+  });
+
+  document.getElementById('zoomIn').addEventListener('click', function() {
+    const newScale = Math.min(5, scale * 1.4);
+    scale = newScale;
+    applyTransform();
+  });
+
+  document.getElementById('zoomOut').addEventListener('click', function() {
+    const newScale = Math.max(0.2, scale / 1.4);
+    scale = newScale;
+    applyTransform();
+  });
+
+  document.getElementById('zoomReset').addEventListener('click', function() {
+    scale = 1;
+    translateX = 0;
+    translateY = 0;
+    applyTransform();
+  });
+})();
+</script>
+</body>
+</html>
