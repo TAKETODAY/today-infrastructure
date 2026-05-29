@@ -28,7 +28,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import infra.aop.framework.AopProxyUtils;
-import infra.aop.framework.StandardProxy;
+import infra.aop.StandardProxy;
 import infra.aop.scope.ScopedProxyFactoryBean;
 import infra.aot.AotDetector;
 import infra.beans.BeanInstantiationException;

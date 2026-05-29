@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.aop.framework;
+package infra.aop;
 
 /**
  * Marker interface implemented by all AOP proxies. Used to detect

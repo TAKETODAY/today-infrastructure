@@ -39,7 +39,7 @@ import infra.aop.Pointcut;
 import infra.aop.PointcutAdvisor;
 import infra.aop.TargetClassAware;
 import infra.aop.framework.AopProxyUtils;
-import infra.aop.framework.StandardProxy;
+import infra.aop.StandardProxy;
 import infra.core.BridgeMethodResolver;
 import infra.core.MethodIntrospector;
 import infra.lang.Assert;

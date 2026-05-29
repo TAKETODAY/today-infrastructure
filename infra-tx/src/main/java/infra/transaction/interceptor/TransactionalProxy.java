@@ -18,7 +18,7 @@
 
 package infra.transaction.interceptor;
 
-import infra.aop.framework.StandardProxy;
+import infra.aop.StandardProxy;
 
 /**
  * A marker interface for manually created transactional proxies.

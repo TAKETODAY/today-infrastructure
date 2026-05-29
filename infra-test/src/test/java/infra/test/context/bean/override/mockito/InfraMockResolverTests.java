@@ -19,7 +19,7 @@ package infra.test.context.bean.override.mockito;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.ProxyFactory;
-import infra.aop.framework.StandardProxy;
+import infra.aop.StandardProxy;
 import infra.aop.target.HotSwappableTargetSource;
 import infra.aop.target.SingletonTargetSource;
 

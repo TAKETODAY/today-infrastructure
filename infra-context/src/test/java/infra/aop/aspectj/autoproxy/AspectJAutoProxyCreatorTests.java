@@ -45,7 +45,7 @@ import infra.aop.aspectj.annotation.AspectMetadata;
 import infra.aop.config.AopConfigUtils;
 import infra.aop.framework.Advised;
 import infra.aop.framework.ProxyConfig;
-import infra.aop.framework.StandardProxy;
+import infra.aop.StandardProxy;
 import infra.aop.support.AbstractPointcutAdvisor;
 import infra.aop.support.AopUtils;
 import infra.aop.support.StaticMethodMatcherPointcutAdvisor;

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
 
+import infra.aop.StandardProxy;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.DecoratingProxy;

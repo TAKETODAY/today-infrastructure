@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import infra.aop.StandardProxy;
 import infra.aop.TargetClassAware;
 import infra.aop.TargetSource;
 import infra.aop.support.AopUtils;

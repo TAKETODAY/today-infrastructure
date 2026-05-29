@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.Advised;
-import infra.aop.framework.StandardProxy;
+import infra.aop.StandardProxy;
 import infra.aot.generate.GenerationContext;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.test.generate.TestGenerationContext;

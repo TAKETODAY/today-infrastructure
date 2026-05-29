@@ -41,6 +41,7 @@ import infra.aop.IntroductionAdvisor;
 import infra.aop.IntroductionInfo;
 import infra.aop.Pointcut;
 import infra.aop.PointcutAdvisor;
+import infra.aop.StandardProxy;
 import infra.aop.TargetSource;
 import infra.aop.support.DefaultIntroductionAdvisor;
 import infra.aop.support.DefaultPointcutAdvisor;
