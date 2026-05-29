@@ -20,6 +20,8 @@ package infra.dao.support;
 
 import infra.beans.factory.BeanInitializationException;
 import infra.beans.factory.InitializingBean;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 
 /**
  * Generic base class for DAOs, defining template methods for DAO initialization.
@@ -33,6 +35,8 @@ import infra.beans.factory.InitializingBean;
  * @since 4.0
  */
 public abstract class DataAccessObjectSupport implements InitializingBean {
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
   public final void afterPropertiesSet() throws IllegalArgumentException, BeanInitializationException {

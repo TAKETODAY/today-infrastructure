@@ -50,8 +50,7 @@ import infra.lang.Assert;
  */
 public abstract class JdbcDataAccessObjectSupport extends DataAccessObjectSupport {
 
-  @Nullable
-  private JdbcTemplate jdbcTemplate;
+  private @Nullable JdbcTemplate jdbcTemplate;
 
   /**
    * Set the JDBC DataSource to be used by this DAO.
@@ -98,8 +97,7 @@ public abstract class JdbcDataAccessObjectSupport extends DataAccessObjectSuppor
    * Return the JdbcTemplate for this DAO,
    * pre-initialized with the DataSource or set explicitly.
    */
-  @Nullable
-  public final JdbcTemplate getJdbcTemplate() {
+  public final @Nullable JdbcTemplate getJdbcTemplate() {
     return this.jdbcTemplate;
   }
 
