@@ -54,7 +54,7 @@ import infra.messaging.support.MessageHeaderAccessor;
  * String to the declared method argument type, if needed.</li>
  * <li>{@link Header @Header} method argument to extract a specific message
  * header value and have a
- * {@link infra.core.conversion.converter.Converter Converter}
+ * {@link infra.core.conversion.Converter Converter}
  * applied to it to convert the value to the declared target type.</li>
  * <li>{@link Headers @Headers} method argument that is also assignable to
  * {@link java.util.Map} for access to all headers.</li>
@@ -90,17 +90,6 @@ import infra.messaging.support.MessageHeaderAccessor;
  * (for example, RSocket connections). Both narrow the primary mapping further and also match
  * against the message type. Both can be combined with a type-level
  * {@code @MessageMapping} that declares a common pattern prefix (or prefixes).
- *
- * <p>For further details on the use of this annotation in different contexts,
- * see the following sections of the Spring Framework reference:
- * <ul>
- * <li>STOMP over WebSocket
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#websocket-stomp-handle-annotations">
- * "Annotated Controllers"</a>.
- * <li>RSocket
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#rsocket-annot-responders">
- * "Annotated Responders"</a>.
- * </ul>
  *
  * <p><b>NOTE:</b> When using controller interfaces (for example, for AOP proxying),
  * make sure to consistently put <i>all</i> your mapping annotations - such as

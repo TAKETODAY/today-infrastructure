@@ -29,7 +29,7 @@ import infra.messaging.support.NativeMessageHeaderAccessor;
 
 /**
  * A specialization of {@link MessageSendingOperations} with methods for use with
- * the Spring Framework support for Simple Messaging Protocols (like STOMP).
+ * the Infra Framework support for Simple Messaging Protocols (like STOMP).
  *
  * <p>For more on user destinations see
  * {@link UserDestinationResolver
@@ -61,7 +61,7 @@ public interface SimpMessageSendingOperations extends MessageSendingOperations<S
   /**
    * Send a message to the given user.
    * <p>By default headers are interpreted as native headers (for example, STOMP) and
-   * are saved under a special key in the resulting Spring
+   * are saved under a special key in the resulting Infra
    * {@link Message Message}. In effect when the
    * message leaves the application, the provided headers are included with it
    * and delivered to the destination (for example, the STOMP client or broker).

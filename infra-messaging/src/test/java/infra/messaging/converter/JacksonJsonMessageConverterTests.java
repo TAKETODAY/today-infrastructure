@@ -88,7 +88,7 @@ class JacksonJsonMessageConverterTests {
   void supportVendorJsonMimeTypes() {
     JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
     Message<String> message = MessageBuilder.withPayload("foo")
-            .setHeader(MessageHeaders.CONTENT_TYPE, "application/vnd.springframework.type+json").build();
+            .setHeader(MessageHeaders.CONTENT_TYPE, "application/vnd.infra.type+json").build();
     assertThat(converter.supportsMimeType(message.getHeaders())).isTrue();
   }
 

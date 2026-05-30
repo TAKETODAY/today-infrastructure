@@ -21,8 +21,8 @@ import org.jspecify.annotations.Nullable;
 import infra.core.Ordered;
 
 /**
- * Represents a Spring-managed bean with cross-cutting functionality to be
- * applied to one or more Spring beans with annotation-based message
+ * Represents a Infra-managed bean with cross-cutting functionality to be
+ * applied to one or more Infra beans with annotation-based message
  * handling methods.
  *
  * <p>Component stereotypes such as

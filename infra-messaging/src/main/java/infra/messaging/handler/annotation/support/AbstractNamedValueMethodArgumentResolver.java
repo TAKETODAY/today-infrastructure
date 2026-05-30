@@ -43,7 +43,7 @@ import infra.util.ClassUtils;
  * value details from a method parameter, how to resolve to argument values, or
  * how to handle missing values.
  *
- * <p>A default value string can contain ${...} placeholders and Spring
+ * <p>A default value string can contain ${...} placeholders and
  * Expression Language {@code #{...}} expressions which will be resolved if a
  * {@link ConfigurableBeanFactory} is supplied to the class constructor.
  *

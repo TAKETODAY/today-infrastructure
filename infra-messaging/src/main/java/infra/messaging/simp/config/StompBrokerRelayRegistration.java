@@ -189,7 +189,7 @@ public class StompBrokerRelayRegistration extends AbstractBrokerRegistration {
 
   /**
    * Some STOMP clients (for example, stomp-js) always send heartbeats at a fixed rate
-   * but others (Spring STOMP client) do so only when no other messages are
+   * but others (Infra STOMP client) do so only when no other messages are
    * sent. However messages with a non-broker {@link #getDestinationPrefixes()
    * destination prefix} aren't forwarded and as a result the broker may deem
    * the connection inactive.
@@ -208,7 +208,7 @@ public class StompBrokerRelayRegistration extends AbstractBrokerRegistration {
 
   /**
    * Configure whether the {@link StompBrokerRelayMessageHandler} should start
-   * automatically when the Spring ApplicationContext is refreshed.
+   * automatically when the Infra ApplicationContext is refreshed.
    * <p>The default setting is {@code true}.
    */
   public StompBrokerRelayRegistration setAutoStartup(boolean autoStartup) {

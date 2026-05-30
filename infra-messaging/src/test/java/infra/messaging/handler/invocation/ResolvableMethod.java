@@ -56,8 +56,8 @@ import infra.util.ReflectionUtils;
 import static java.util.stream.Collectors.joining;
 
 /**
- * NOTE: This class is a replica of the same class in spring-web so it can
- * be used for tests in spring-messaging.
+ * NOTE: This class is a replica of the same class in infra-web so it can
+ * be used for tests in infra-messaging.
  *
  * <p>Convenience class to resolve method parameters from hints.
  *
@@ -131,7 +131,7 @@ public class ResolvableMethod {
 
   private static final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
 
-  // Matches ValueConstants.DEFAULT_NONE (spring-web and spring-messaging)
+  // Matches ValueConstants.DEFAULT_NONE (infra-web and infra-messaging)
   private static final String DEFAULT_VALUE_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
 
   private final Method method;

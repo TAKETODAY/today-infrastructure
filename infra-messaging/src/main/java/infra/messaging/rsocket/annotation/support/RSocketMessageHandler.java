@@ -66,7 +66,7 @@ import reactor.core.publisher.Mono;
  * {@link ConnectMapping @ConnectMapping} methods, also supporting use of
  * {@link RSocketExchange @RSocketExchange}.
  *
- * <p>For server scenarios this class can be declared as a bean in Spring
+ * <p>For server scenarios this class can be declared as a bean in Infra
  * configuration and that would detect {@code @MessageMapping} methods in
  * {@code @Controller} beans. What beans are checked can be changed through a
  * {@link #setHandlerPredicate(Predicate) handlerPredicate}. Given an instance
@@ -82,9 +82,7 @@ import reactor.core.publisher.Mono;
  *
  * <p>For {@code @MessageMapping} and {@code @RSocketExchange} methods,
  * this class automatically determines the RSocket interaction type
- * based on the input and output cardinality of the method. See the
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#rsocket-annot-responders">
- * "Annotated Responders"</a> section of the Spring Framework reference for more details.
+ * based on the input and output cardinality of the method.
  *
  * @author Rossen Stoyanchev
  * @author Olga Maciaszek-Sharma

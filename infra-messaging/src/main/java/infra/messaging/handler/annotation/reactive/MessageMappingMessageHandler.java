@@ -65,7 +65,7 @@ import reactor.core.publisher.Mono;
 /**
  * Extension of {@link AbstractMethodMessageHandler} for reactive, non-blocking
  * handling of messages via {@link MessageMapping @MessageMapping} methods.
- * By default, such methods are detected in {@code @Controller} Spring beans but
+ * By default, such methods are detected in {@code @Controller} Infra beans but
  * that can be changed via {@link #setHandlerPredicate(Predicate)}.
  *
  * <p>Payloads for incoming messages are decoded through the configured
@@ -136,7 +136,7 @@ public class MessageMappingMessageHandler extends AbstractMethodMessageHandler<C
    * <p>By default, {@link SimpleRouteMatcher} is used, backed by
    * {@link AntPathMatcher} with "." as separator. For greater
    * efficiency consider using the {@code PathPatternRouteMatcher} from
-   * {@code spring-web} instead.
+   * {@code infra-web} instead.
    */
   public void setRouteMatcher(@Nullable RouteMatcher routeMatcher) {
     this.routeMatcher = routeMatcher;
@@ -191,7 +191,7 @@ public class MessageMappingMessageHandler extends AbstractMethodMessageHandler<C
    * globally applicable
    * {@link MessageExceptionHandler @MessageExceptionHandler}
    * methods.
-   * <p>Note: spring-messaging does not depend on spring-web and therefore it
+   * <p>Note: infra-messaging does not depend on infra-web and therefore it
    * is not possible to explicitly support the registration of a
    * {@code @ControllerAdvice} bean. You can use the following adapter code
    * to register {@code @ControllerAdvice} beans here:

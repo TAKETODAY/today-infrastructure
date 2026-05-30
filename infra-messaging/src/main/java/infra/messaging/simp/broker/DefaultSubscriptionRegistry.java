@@ -58,9 +58,9 @@ import infra.util.StringUtils;
  * for matching destinations.
  *
  * <p>This class also supports an optional <em>selector</em> header on subscription
- * messages with Spring Expression Language (SpEL) expressions evaluated against
- * the headers to filter out messages in addition to destination matching. As of
- * Spring Framework 6.1, the SpEL support is disabled by default, but it can be
+ * messages with Expression Language (SpEL) expressions evaluated against
+ * the headers to filter out messages in addition to destination matching.
+ * the SpEL support is disabled by default, but it can be
  * enabled by setting a {@linkplain #setSelectorHeaderName selector header name}.
  *
  * @author Rossen Stoyanchev
@@ -125,7 +125,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
   /**
    * Configure the name of a header that a subscription message can have for
    * the purpose of filtering messages matched to the subscription.
-   * <p>The header value is expected to be a Spring Expression Language (SpEL)
+   * <p>The header value is expected to be Expression Language (SpEL)
    * boolean expression to be applied to the headers of messages matched to the
    * subscription.
    * <p>For example:

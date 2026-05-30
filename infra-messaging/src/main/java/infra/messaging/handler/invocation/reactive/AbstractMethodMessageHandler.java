@@ -80,7 +80,7 @@ public abstract class AbstractMethodMessageHandler<T>
    * since autowire-candidate may have been turned to {@code false} for other
    * reasons, while still expecting the bean to be eligible for handler methods.
    * <p>Originally defined in {@link infra.aop.scope.ScopedProxyUtils}
-   * but duplicated here to avoid a hard dependency on the spring-aop module.
+   * but duplicated here to avoid a hard dependency on the infra-aop module.
    */
   private static final String SCOPED_TARGET_NAME_PREFIX = "scopedTarget.";
 
@@ -105,7 +105,7 @@ public abstract class AbstractMethodMessageHandler<T>
   private final Map<String, List<T>> destinationLookup = new ConcurrentHashMap<>(48);
 
   /**
-   * Configure a predicate for selecting which Spring beans to check for the
+   * Configure a predicate for selecting which Infra beans to check for the
    * presence of message handler methods.
    * <p>This is not set by default. However, subclasses may initialize it to
    * some default strategy (for example, {@code @Controller} classes).
@@ -310,7 +310,7 @@ public abstract class AbstractMethodMessageHandler<T>
    * subclasses, but this should be done on startup only as documented in
    * {@link #registerHandlerMethod}.
    *
-   * @param handler the handler to check, either an instance of a Spring bean name
+   * @param handler the handler to check, either an instance of a Infra bean name
    */
   protected final void detectHandlerMethods(Object handler) {
     Class<?> handlerType;

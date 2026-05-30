@@ -160,7 +160,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
   /**
    * Configure the name of a header that a subscription message can have for
    * the purpose of filtering messages matched to the subscription.
-   * <p>The header value is expected to be a Spring Expression Language (SpEL)
+   * <p>The header value is expected to be a Expression Language (SpEL)
    * boolean expression to be applied to the headers of messages matched to the
    * subscription.
    * <p>For example:

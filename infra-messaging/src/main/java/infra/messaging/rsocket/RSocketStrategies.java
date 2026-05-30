@@ -180,7 +180,7 @@ public interface RSocketStrategies {
      * <p>By default, {@link SimpleRouteMatcher} is used, backed by
      * {@link AntPathMatcher} with "." as separator. For better
      * efficiency consider switching to {@code PathPatternRouteMatcher} from
-     * {@code spring-web} instead.
+     * {@code infra-web} instead.
      */
     Builder routeMatcher(@Nullable RouteMatcher routeMatcher);
 

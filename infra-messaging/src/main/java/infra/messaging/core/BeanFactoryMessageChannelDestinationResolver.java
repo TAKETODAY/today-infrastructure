@@ -41,7 +41,7 @@ public class BeanFactoryMessageChannelDestinationResolver
 
   /**
    * A default constructor that can be used when the resolver itself is configured
-   * as a Spring bean and will have the {@code BeanFactory} injected as a result
+   * as a Infra bean and will have the {@code BeanFactory} injected as a result
    * of ing having implemented {@link BeanFactoryAware}.
    */
   public BeanFactoryMessageChannelDestinationResolver() {
@@ -49,7 +49,7 @@ public class BeanFactoryMessageChannelDestinationResolver
 
   /**
    * A constructor that accepts a {@link BeanFactory} useful if instantiating this
-   * resolver manually rather than having it defined as a Spring-managed bean.
+   * resolver manually rather than having it defined as a Infra-managed bean.
    *
    * @param beanFactory the bean factory to perform lookups against
    */

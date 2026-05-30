@@ -253,7 +253,7 @@ public interface RSocketRequester extends Disposable {
 
     /**
      * Configure this builder through a {@code Consumer}. This enables
-     * libraries such as Spring Security to provide shortcuts for applying
+     * libraries such as Infra Security to provide shortcuts for applying
      * a set of related customizations.
      *
      * @param configurer the configurer to apply
@@ -357,7 +357,7 @@ public interface RSocketRequester extends Disposable {
 
     /**
      * Append additional metadata entries through a {@code Consumer}.
-     * This enables libraries such as Spring Security to provide shortcuts
+     * This enables libraries such as Infra Security to provide shortcuts
      * for applying a set of customizations.
      *
      * @param configurer the configurer to apply

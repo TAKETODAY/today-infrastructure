@@ -516,7 +516,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
     if (!isBrokerAvailable()) {
       if (sessionId == null || SYSTEM_SESSION_ID.equals(sessionId)) {
         throw new MessageDeliveryException("Message broker not active. Consider subscribing to " +
-                "receive BrokerAvailabilityEvent's from an ApplicationListener Spring bean.");
+                "receive BrokerAvailabilityEvent's from an ApplicationListener Infra bean.");
       }
       RelayConnectionHandler handler = this.connectionHandlers.get(sessionId);
       if (handler != null) {
@@ -898,7 +898,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
           throw new IllegalStateException("Cannot forward messages " +
                   (conn != null ? "before STOMP CONNECTED. " : "while inactive. ") +
                   "Consider subscribing to receive BrokerAvailabilityEvent's from " +
-                  "an ApplicationListener Spring bean. Dropped " +
+                  "an ApplicationListener Infra bean. Dropped " +
                   accessor.getShortLogMessage(message.getPayload()));
         }
       }
