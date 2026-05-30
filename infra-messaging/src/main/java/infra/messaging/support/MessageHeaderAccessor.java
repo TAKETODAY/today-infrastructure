@@ -298,7 +298,7 @@ public class MessageHeaderAccessor {
    */
   public void setHeader(String name, @Nullable Object value) {
     if (isReadOnly(name)) {
-      throw new IllegalArgumentException("'" + name + "' header is read-only");
+      throw new IllegalArgumentException("'%s' header is read-only".formatted(name));
     }
     verifyType(name, value);
     if (value != null) {
@@ -323,7 +323,7 @@ public class MessageHeaderAccessor {
               MessageHeaders.REPLY_CHANNEL.equals(headerName)) {
         if (!(headerValue instanceof MessageChannel || headerValue instanceof String)) {
           throw new IllegalArgumentException(
-                  "'" + headerName + "' header value must be a MessageChannel or String");
+                  "'%s' header value must be a MessageChannel or String".formatted(headerName));
         }
       }
     }
@@ -392,11 +392,11 @@ public class MessageHeaderAccessor {
     if (headersToCopy == null || this.headers == headersToCopy) {
       return;
     }
-    headersToCopy.forEach((key, value) -> {
-      if (!isReadOnly(key)) {
-        setHeader(key, value);
+    for (var entry : headersToCopy.entrySet()) {
+      if (!isReadOnly(entry.getKey())) {
+        setHeader(entry.getKey(), entry.getValue());
       }
-    });
+    }
   }
 
   /**
@@ -407,11 +407,11 @@ public class MessageHeaderAccessor {
     if (headersToCopy == null || this.headers == headersToCopy) {
       return;
     }
-    headersToCopy.forEach((key, value) -> {
-      if (!isReadOnly(key)) {
-        setHeaderIfAbsent(key, value);
+    for (var entry : headersToCopy.entrySet()) {
+      if (!isReadOnly(entry.getKey())) {
+        setHeaderIfAbsent(entry.getKey(), entry.getValue());
       }
-    });
+    }
   }
 
   protected boolean isReadOnly(String headerName) {
