@@ -29,6 +29,7 @@ dependencies {
   jacocoAggregation project(':infra-web')
   jacocoAggregation project(':infra-webmvc')
   jacocoAggregation project(':infra-websocket')
+  jacocoAggregation project(':infra-messaging')
   jacocoAggregation project(':integration-tests')
 
   jacocoAggregation project(':infra-http')
