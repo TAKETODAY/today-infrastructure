@@ -1,0 +1,74 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.messaging.simp.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import infra.aot.hint.annotation.Reflective;
+
+import infra.messaging.handler.annotation.MessageMapping;
+import infra.messaging.handler.annotation.MessageMappingReflectiveProcessor;
+import infra.messaging.handler.annotation.SendTo;
+
+/**
+ * Annotation for mapping subscription messages onto specific handler methods based
+ * on the destination of a subscription. Supported with STOMP over WebSocket only
+ * (for example, STOMP SUBSCRIBE frame).
+ *
+ * <p>This is a method-level annotation that can be combined with a type-level
+ * {@link MessageMapping @MessageMapping}.
+ *
+ * <p>Supports the same method arguments as {@code @MessageMapping}; however,
+ * subscription messages typically do not have a body.
+ *
+ * <p>The return value also follows the same rules as for {@code @MessageMapping},
+ * except if the method is not annotated with
+ * {@link SendTo SendTo} or
+ * {@link SendToUser}, the message is sent directly back to the connected
+ * user and does not pass through the message broker. This is useful for
+ * implementing a request-reply pattern.
+ *
+ * <p><b>NOTE:</b> When using controller interfaces (for example, for AOP proxying),
+ * make sure to consistently put <i>all</i> your mapping annotations - such as
+ * {@code @MessageMapping} and {@code @SubscribeMapping} - on
+ * the controller <i>interface</i> rather than on the implementation class.
+ *
+ * @author Rossen Stoyanchev
+ * @see MessageMapping
+ * @see SendTo
+ * @see SendToUser
+ * @since 5.0
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Reflective(MessageMappingReflectiveProcessor.class)
+public @interface SubscribeMapping {
+
+  /**
+   * Destination-based mapping expressed by this annotation.
+   * <p>This is the destination of the STOMP message (for example, {@code "/positions"}).
+   * Ant-style path patterns (for example, {@code "/price.stock.*"}) and path template
+   * variables (for example, <code>"/price.stock.{ticker}"</code>) are also supported.
+   */
+  String[] value() default {};
+
+}

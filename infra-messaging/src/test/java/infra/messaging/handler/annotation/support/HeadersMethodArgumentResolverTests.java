@@ -1,0 +1,130 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.messaging.handler.annotation.support;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.Map;
+
+import infra.core.MethodParameter;
+import infra.messaging.Message;
+import infra.messaging.MessageHeaders;
+import infra.messaging.handler.annotation.Headers;
+import infra.messaging.handler.invocation.ResolvableMethod;
+import infra.messaging.support.MessageBuilder;
+import infra.messaging.support.MessageHeaderAccessor;
+import infra.messaging.support.NativeMessageHeaderAccessor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+
+/**
+ * Test fixture for {@link HeadersMethodArgumentResolver} tests.
+ *
+ * @author Rossen Stoyanchev
+ * @since 5.0
+ */
+class HeadersMethodArgumentResolverTests {
+
+  private final HeadersMethodArgumentResolver resolver = new HeadersMethodArgumentResolver();
+
+  private Message<byte[]> message =
+          MessageBuilder.withPayload(new byte[0]).copyHeaders(Collections.singletonMap("foo", "bar")).build();
+
+  private final ResolvableMethod resolvable = ResolvableMethod.on(getClass()).named("handleMessage").build();
+
+  @Test
+  void supportsParameter() {
+
+    assertThat(this.resolver.supportsParameter(
+            this.resolvable.annotPresent(Headers.class).arg(Map.class, String.class, Object.class))).isTrue();
+
+    assertThat(this.resolver.supportsParameter(this.resolvable.arg(MessageHeaders.class))).isTrue();
+    assertThat(this.resolver.supportsParameter(this.resolvable.arg(MessageHeaderAccessor.class))).isTrue();
+    assertThat(this.resolver.supportsParameter(this.resolvable.arg(TestMessageHeaderAccessor.class))).isTrue();
+
+    assertThat(this.resolver.supportsParameter(this.resolvable.annotPresent(Headers.class).arg(String.class))).isFalse();
+  }
+
+  @Test
+  void resolveArgumentAnnotated() throws Exception {
+    MethodParameter param = this.resolvable.annotPresent(Headers.class).arg(Map.class, String.class, Object.class);
+    Object resolved = this.resolver.resolveArgument(param, this.message);
+
+    assertThat(resolved).isInstanceOf(Map.class);
+    @SuppressWarnings("unchecked")
+    Map<String, Object> headers = (Map<String, Object>) resolved;
+    assertThat(headers.get("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  void resolveArgumentAnnotatedNotMap() {
+    assertThatIllegalStateException().isThrownBy(() ->
+            this.resolver.resolveArgument(this.resolvable.annotPresent(Headers.class).arg(String.class), this.message));
+  }
+
+  @Test
+  void resolveArgumentMessageHeaders() throws Exception {
+    Object resolved = this.resolver.resolveArgument(this.resolvable.arg(MessageHeaders.class), this.message);
+
+    assertThat(resolved).isInstanceOf(MessageHeaders.class);
+    MessageHeaders headers = (MessageHeaders) resolved;
+    assertThat(headers.get("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  void resolveArgumentMessageHeaderAccessor() throws Exception {
+    MethodParameter param = this.resolvable.arg(MessageHeaderAccessor.class);
+    Object resolved = this.resolver.resolveArgument(param, this.message);
+
+    assertThat(resolved).isInstanceOf(MessageHeaderAccessor.class);
+    MessageHeaderAccessor headers = (MessageHeaderAccessor) resolved;
+    assertThat(headers.getHeader("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  void resolveArgumentMessageHeaderAccessorSubclass() throws Exception {
+    MethodParameter param = this.resolvable.arg(TestMessageHeaderAccessor.class);
+    Object resolved = this.resolver.resolveArgument(param, this.message);
+
+    assertThat(resolved).isInstanceOf(TestMessageHeaderAccessor.class);
+    TestMessageHeaderAccessor headers = (TestMessageHeaderAccessor) resolved;
+    assertThat(headers.getHeader("foo")).isEqualTo("bar");
+  }
+
+  @SuppressWarnings("unused")
+  private void handleMessage(
+          @Headers Map<String, Object> param1,
+          @Headers String param2,
+          MessageHeaders param3,
+          MessageHeaderAccessor param4,
+          TestMessageHeaderAccessor param5) {
+  }
+
+  public static class TestMessageHeaderAccessor extends NativeMessageHeaderAccessor {
+
+    TestMessageHeaderAccessor(Message<?> message) {
+      super(message);
+    }
+
+    public static TestMessageHeaderAccessor wrap(Message<?> message) {
+      return new TestMessageHeaderAccessor(message);
+    }
+  }
+
+}

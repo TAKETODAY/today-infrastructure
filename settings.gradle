@@ -46,6 +46,7 @@ include 'infra-web'
 include 'infra-webmvc'
 include 'infra-webmvc-mock'
 include 'infra-websocket'
+include 'infra-messaging'
 
 include 'infra-http'
 include 'infra-http-codec'

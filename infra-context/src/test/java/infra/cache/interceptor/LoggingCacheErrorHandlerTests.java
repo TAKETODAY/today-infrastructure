@@ -85,7 +85,7 @@ public class LoggingCacheErrorHandlerTests {
 
   @Test
   void constructorWithLoggerName() {
-    assertThatCode(() -> new LoggingCacheErrorHandler("org.apache.commons.logging.Log", true))
+    assertThatCode(() -> new LoggingCacheErrorHandler("logging", true))
             .doesNotThrowAnyException();
   }
 
