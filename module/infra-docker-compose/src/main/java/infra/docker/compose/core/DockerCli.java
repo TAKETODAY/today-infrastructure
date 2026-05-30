@@ -109,14 +109,14 @@ class DockerCli {
         result.add("--ansi");
         result.add("never");
         Set<String> activeProfiles = this.dockerComposeOptions.activeProfiles();
-        if (!CollectionUtils.isEmpty(activeProfiles)) {
+        if (CollectionUtils.isNotEmpty(activeProfiles)) {
           for (String profile : activeProfiles) {
             result.add("--profile");
             result.add(profile);
           }
         }
         List<String> arguments = this.dockerComposeOptions.arguments();
-        if (!CollectionUtils.isEmpty(arguments)) {
+        if (CollectionUtils.isNotEmpty(arguments)) {
           result.addAll(arguments);
         }
         yield result;

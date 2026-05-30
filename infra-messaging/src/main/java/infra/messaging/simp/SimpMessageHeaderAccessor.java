@@ -202,7 +202,7 @@ public class SimpMessageHeaderAccessor extends NativeMessageHeaderAccessor {
       return super.getDetailedLogMessage(payload);
     }
     StringBuilder sb = getBaseLogMessage();
-    if (!CollectionUtils.isEmpty(getSessionAttributes())) {
+    if (CollectionUtils.isNotEmpty(getSessionAttributes())) {
       sb.append(" attributes[").append(getSessionAttributes().size()).append(']');
     }
     sb.append(getShortPayloadLogMessage(payload));
@@ -216,10 +216,10 @@ public class SimpMessageHeaderAccessor extends NativeMessageHeaderAccessor {
       return super.getDetailedLogMessage(payload);
     }
     StringBuilder sb = getBaseLogMessage();
-    if (!CollectionUtils.isEmpty(getSessionAttributes())) {
+    if (CollectionUtils.isNotEmpty(getSessionAttributes())) {
       sb.append(" attributes=").append(getSessionAttributes());
     }
-    if (!CollectionUtils.isEmpty((Map<String, List<String>>) getHeader(NATIVE_HEADERS))) {
+    if (CollectionUtils.isNotEmpty((Map<String, List<String>>) getHeader(NATIVE_HEADERS))) {
       sb.append(" nativeHeaders=").append(getHeader(NATIVE_HEADERS));
     }
     sb.append(getDetailedPayloadLogMessage(payload));

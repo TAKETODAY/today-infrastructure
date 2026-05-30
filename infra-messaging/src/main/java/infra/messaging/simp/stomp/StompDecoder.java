@@ -178,7 +178,7 @@ public class StompDecoder {
       headerAccessor.setLeaveMutable(true);
       decodedMessage = MessageBuilder.createMessage(HEARTBEAT_PAYLOAD, headerAccessor.getMessageHeaders());
       if (logger.isTraceEnabled()) {
-        logger.trace("Decoded " + headerAccessor.getDetailedLogMessage(null));
+        logger.trace("Decoded {}", headerAccessor.getDetailedLogMessage(null));
       }
     }
 
@@ -306,7 +306,7 @@ public class StompDecoder {
     }
     catch (NumberFormatException ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Ignoring invalid content-length: '" + headerAccessor);
+        logger.debug("Ignoring invalid content-length: {}", headerAccessor);
       }
       contentLength = null;
     }

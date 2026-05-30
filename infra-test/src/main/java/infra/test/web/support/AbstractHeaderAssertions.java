@@ -291,7 +291,7 @@ public abstract class AbstractHeaderAssertions<E, R> {
 
   private List<String> getRequiredValues(String name) {
     List<String> values = getResponseHeaders().get(name);
-    if (!CollectionUtils.isEmpty(values)) {
+    if (CollectionUtils.isNotEmpty(values)) {
       return values;
     }
     else {

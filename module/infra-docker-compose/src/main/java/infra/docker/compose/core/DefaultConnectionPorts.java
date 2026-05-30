@@ -67,7 +67,7 @@ class DefaultConnectionPorts implements ConnectionPorts {
     }
     Map<ContainerPort, Integer> mappings = new HashMap<>();
     networkSettings.ports().forEach((containerPortString, hostPorts) -> {
-      if (!CollectionUtils.isEmpty(hostPorts)) {
+      if (CollectionUtils.isNotEmpty(hostPorts)) {
         ContainerPort containerPort = ContainerPort.parse(containerPortString);
         hostPorts.stream()
                 .filter(this::isIpV4)
