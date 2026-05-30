@@ -1118,7 +1118,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
     }
   }
 
-  private class ClientSendMessageCountTask implements Runnable {
+  private final class ClientSendMessageCountTask implements Runnable {
 
     @Override
     public void run() {
@@ -1157,7 +1157,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
     int getTotalDisconnect();
   }
 
-  private class DefaultStats implements Stats {
+  private final class DefaultStats implements Stats {
 
     private final AtomicInteger connect = new AtomicInteger();
 

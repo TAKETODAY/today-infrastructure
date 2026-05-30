@@ -702,7 +702,7 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
     }
   }
 
-  private class WriteInactivityTask implements Runnable {
+  private final class WriteInactivityTask implements Runnable {
 
     @Override
     public void run() {
@@ -722,7 +722,7 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
     }
   }
 
-  private class ReadInactivityTask implements Runnable {
+  private final class ReadInactivityTask implements Runnable {
 
     @Override
     public void run() {

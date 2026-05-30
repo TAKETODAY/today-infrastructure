@@ -509,7 +509,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
     }
   }
 
-  private class HeartbeatTask implements Runnable {
+  private final class HeartbeatTask implements Runnable {
 
     @Override
     public void run() {

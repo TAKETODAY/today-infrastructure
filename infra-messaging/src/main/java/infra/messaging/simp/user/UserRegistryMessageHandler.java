@@ -129,7 +129,7 @@ public class UserRegistryMessageHandler implements MessageHandler, ApplicationLi
     this.userRegistry.addRemoteRegistryDto(message, converter, getRegistryExpirationPeriod());
   }
 
-  private class UserRegistryTask implements Runnable {
+  private final class UserRegistryTask implements Runnable {
 
     @Override
     public void run() {

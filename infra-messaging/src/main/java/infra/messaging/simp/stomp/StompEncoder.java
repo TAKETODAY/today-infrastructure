@@ -230,7 +230,7 @@ public class StompEncoder {
   }
 
   @SuppressWarnings("serial")
-  private static class DefaultResult extends ArrayList<Object> implements Result {
+  private static final class DefaultResult extends ArrayList<Object> implements Result {
 
     private int size;
 

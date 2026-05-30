@@ -493,7 +493,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
     }
   }
 
-  private static class SimpMessageHeaderPropertyAccessor implements PropertyAccessor {
+  private static final class SimpMessageHeaderPropertyAccessor implements PropertyAccessor {
 
     @Override
     public Class<?>[] getSpecificTargetClasses() {

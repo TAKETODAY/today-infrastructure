@@ -538,7 +538,7 @@ public class MultiServerUserRegistry implements SimpUserRegistry, SmartApplicati
   /**
    * Helper class to find user sessions across all servers.
    */
-  private class SessionLookup {
+  private final class SessionLookup {
 
     public Map<String, SimpSession> findSessions(String userName) {
       Map<String, SimpSession> map = new HashMap<>(4);

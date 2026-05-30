@@ -369,7 +369,7 @@ public abstract class AbstractBrokerMessageHandler
   /**
    * Detect unsent DISCONNECT messages and process them anyway.
    */
-  private class UnsentDisconnectChannelInterceptor implements ChannelInterceptor {
+  private final class UnsentDisconnectChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public void afterSendCompletion(

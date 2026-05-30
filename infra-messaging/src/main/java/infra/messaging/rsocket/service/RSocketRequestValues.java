@@ -216,7 +216,7 @@ public final class RSocketRequestValues {
    * Class that helps to collect a map of metadata entries as a series of calls
    * to provide each metadata and mime type pair.
    */
-  private static class MetadataHelper {
+  private static final class MetadataHelper {
 
     private final List<Object> metadata = new ArrayList<>();
 
