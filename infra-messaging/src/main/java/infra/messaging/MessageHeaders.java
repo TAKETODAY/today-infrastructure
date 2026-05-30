@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -108,7 +109,8 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
    */
   public static final String ERROR_CHANNEL = "errorChannel";
 
-  private static final long serialVersionUID = 7035068984263400920L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private static final Logger logger = LoggerFactory.getLogger(MessageHeaders.class);
 
@@ -202,14 +204,14 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> @Nullable T get(Object key, Class<T> type) {
+  public <T> @Nullable T get(String key, Class<T> type) {
     Object value = this.headers.get(key);
     if (value == null) {
       return null;
     }
     if (!type.isAssignableFrom(value.getClass())) {
-      throw new IllegalArgumentException("Incorrect type specified for header '" +
-              key + "'. Expected [" + type + "] but actual type is [" + value.getClass() + "]");
+      throw new IllegalArgumentException("Incorrect type specified for header '%s'. Expected [%s] but actual type is [%s]"
+              .formatted(key, type, value.getClass()));
     }
     return (T) value;
   }
@@ -296,6 +298,7 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
 
   // Serialization methods
 
+  @Serial
   private void writeObject(ObjectOutputStream out) throws IOException {
     Set<String> keysToIgnore = new HashSet<>();
     this.headers.forEach((key, value) -> {
@@ -317,6 +320,7 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
     }
   }
 
+  @Serial
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
   }
