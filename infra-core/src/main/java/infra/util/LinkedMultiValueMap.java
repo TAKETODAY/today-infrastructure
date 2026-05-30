@@ -93,4 +93,21 @@ public class LinkedMultiValueMap<K, V> extends MultiValueMapAdapter<K, V> {
     return ret;
   }
 
+  /**
+   * Create a regular copy of this Map.
+   *
+   * @return a shallow copy of this Map, reusing this Map's value-holding List entries
+   * (even if some entries are shared or unmodifiable) along the lines of standard
+   * {@code Map.put} semantics
+   * @see #put(Object, List)
+   * @see #putAll(Map)
+   * @see LinkedMultiValueMap#LinkedMultiValueMap(Map)
+   * @see #deepCopy()
+   * @since 5.0
+   */
+  @Override
+  public LinkedMultiValueMap<K, V> clone() {
+    return new LinkedMultiValueMap<>(this);
+  }
+
 }
