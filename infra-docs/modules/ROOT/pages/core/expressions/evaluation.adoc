@@ -163,7 +163,7 @@ Infra 提供了两个实现。
 === 类型转换
 
 默认情况下，SpEL 使用 Infra core 中可用的转换服务
-(`infra.core.convert.ConversionService`)。此转换服务附带了许多用于常见转换的内置转换器，
+(`infra.core.conversion.ConversionService`)。此转换服务附带了许多用于常见转换的内置转换器，
 但也完全可扩展，以便你可以在类型之间添加自定义转换。此外，它还具有泛型感知能力。
 这意味着，当你在表达式中使用泛型类型时，SpEL 会尝试转换以保持其遇到的任何对象的类型正确性。
 

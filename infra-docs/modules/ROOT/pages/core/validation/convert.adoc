@@ -12,7 +12,7 @@
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package infra.core.convert.converter;
+package infra.core.conversion.converter;
 
 public interface Converter<S, T> {
 
@@ -30,7 +30,7 @@ public interface Converter<S, T> {
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package infra.core.convert.support;
+package infra.core.conversion.support;
 
 final class StringToInteger implements Converter<String, Integer> {
 
@@ -49,7 +49,7 @@ final class StringToInteger implements Converter<String, Integer> {
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package infra.core.convert.converter;
+package infra.core.conversion.converter;
 
 public interface ConverterFactory<S, R> {
 
@@ -63,7 +63,7 @@ public interface ConverterFactory<S, R> {
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package infra.core.convert.support;
+package infra.core.conversion.support;
 
 final class StringToEnumConverterFactory implements ConverterFactory<String, Enum> {
 
@@ -94,7 +94,7 @@ final class StringToEnumConverterFactory implements ConverterFactory<String, Enu
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package infra.core.convert.converter;
+package infra.core.conversion.converter;
 
 public interface GenericConverter {
 
@@ -139,7 +139,7 @@ public interface ConditionalGenericConverter extends GenericConverter, Condition
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package infra.core.convert;
+package infra.core.conversion;
 
 public interface ConversionService {
 

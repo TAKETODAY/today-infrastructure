@@ -44,7 +44,8 @@ import infra.util.ReflectionUtils;
  */
 public final class MethodIntrospector {
 
-  private MethodIntrospector() { }
+  private MethodIntrospector() {
+  }
 
   /**
    * Select methods on the given target type based on the lookup of associated metadata.
