@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.stomp;
 
 import org.jspecify.annotations.Nullable;
@@ -660,8 +662,8 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
     }
 
     private RelayConnectionHandler(String sessionId, StompHeaderAccessor connectHeaders, boolean isClientSession) {
-      Assert.notNull(sessionId, "'sessionId' must not be null");
-      Assert.notNull(connectHeaders, "'connectHeaders' must not be null");
+      Assert.notNull(sessionId, "'sessionId' is required");
+      Assert.notNull(connectHeaders, "'connectHeaders' is required");
       this.sessionId = sessionId;
       this.connectHeaders = connectHeaders;
       this.isRemoteClientSession = isClientSession;

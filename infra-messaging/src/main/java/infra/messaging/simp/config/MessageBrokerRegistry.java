@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.config;
 
 import org.jspecify.annotations.Nullable;
@@ -22,13 +24,13 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import infra.context.event.SmartApplicationListener;
+import infra.lang.Assert;
 import infra.messaging.MessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.broker.DefaultSubscriptionRegistry;
 import infra.messaging.simp.broker.SimpleBrokerMessageHandler;
 import infra.messaging.simp.stomp.StompBrokerRelayMessageHandler;
 import infra.messaging.simp.user.SimpUserRegistry;
-import infra.lang.Assert;
 import infra.util.PathMatcher;
 
 /**
@@ -63,8 +65,8 @@ public class MessageBrokerRegistry {
   private boolean preservePublishOrder;
 
   public MessageBrokerRegistry(SubscribableChannel clientInboundChannel, MessageChannel clientOutboundChannel) {
-    Assert.notNull(clientInboundChannel, "Inbound channel must not be null");
-    Assert.notNull(clientOutboundChannel, "Outbound channel must not be null");
+    Assert.notNull(clientInboundChannel, "Inbound channel is required");
+    Assert.notNull(clientOutboundChannel, "Outbound channel is required");
     this.clientInboundChannel = clientInboundChannel;
     this.clientOutboundChannel = clientOutboundChannel;
   }

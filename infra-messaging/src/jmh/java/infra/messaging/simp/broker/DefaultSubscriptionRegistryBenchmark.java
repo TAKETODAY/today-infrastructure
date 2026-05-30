@@ -25,14 +25,15 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
 import infra.messaging.Message;
 import infra.messaging.simp.SimpMessageHeaderAccessor;
 import infra.messaging.simp.SimpMessageType;
 import infra.messaging.support.MessageBuilder;
 import infra.util.MultiValueMap;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 @BenchmarkMode(Mode.Throughput)
 public class DefaultSubscriptionRegistryBenchmark {

@@ -18,12 +18,12 @@ package infra.messaging.simp.config;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.lang.Assert;
 import infra.messaging.MessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.stomp.StompBrokerRelayMessageHandler;
 import infra.messaging.tcp.TcpOperations;
 import infra.scheduling.TaskScheduler;
-import infra.lang.Assert;
 
 /**
  * Registration class for configuring a {@link StompBrokerRelayMessageHandler}.

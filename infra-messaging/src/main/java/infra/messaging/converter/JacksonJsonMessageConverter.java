@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.converter;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -26,9 +28,9 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 
 import infra.core.MethodParameter;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
-import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.MimeType;
 import tools.jackson.core.JacksonException;
@@ -100,7 +102,7 @@ public class JacksonJsonMessageConverter extends AbstractMessageConverter {
    */
   public JacksonJsonMessageConverter(JsonMapper mapper, MimeType... supportedMimeTypes) {
     super(supportedMimeTypes);
-    Assert.notNull(mapper, "JsonMapper must not be null");
+    Assert.notNull(mapper, "JsonMapper is required");
     this.mapper = mapper;
   }
 
@@ -114,7 +116,7 @@ public class JacksonJsonMessageConverter extends AbstractMessageConverter {
    */
   public JacksonJsonMessageConverter(JsonMapper.Builder builder, MimeType... supportedMimeTypes) {
     super(supportedMimeTypes);
-    Assert.notNull(builder, "JsonMapper.Builder must not be null");
+    Assert.notNull(builder, "JsonMapper.Builder is required");
     this.mapper = builder.findAndAddModules(JacksonJsonMessageConverter.class.getClassLoader()).build();
   }
 

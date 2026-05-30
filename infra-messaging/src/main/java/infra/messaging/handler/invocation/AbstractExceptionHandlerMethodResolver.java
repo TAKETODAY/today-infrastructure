@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.handler.invocation;
 
 import org.jspecify.annotations.Nullable;
@@ -60,7 +62,7 @@ public abstract class AbstractExceptionHandlerMethodResolver {
    * Protected constructor accepting exception-to-method mappings.
    */
   protected AbstractExceptionHandlerMethodResolver(Map<Class<? extends Throwable>, Method> mappedMethods) {
-    Assert.notNull(mappedMethods, "Mapped Methods must not be null");
+    Assert.notNull(mappedMethods, "Mapped Methods is required");
     this.mappedMethods.putAll(mappedMethods);
   }
 

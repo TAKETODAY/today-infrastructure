@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.config;
 
 import org.jspecify.annotations.Nullable;
@@ -23,10 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import infra.lang.Assert;
 import infra.messaging.MessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.broker.AbstractBrokerMessageHandler;
-import infra.lang.Assert;
 
 /**
  * Base class for message broker registration classes.
@@ -52,8 +54,8 @@ public abstract class AbstractBrokerRegistration {
   public AbstractBrokerRegistration(SubscribableChannel clientInboundChannel,
           MessageChannel clientOutboundChannel, String @Nullable [] destinationPrefixes) {
 
-    Assert.notNull(clientInboundChannel, "'clientInboundChannel' must not be null");
-    Assert.notNull(clientOutboundChannel, "'clientOutboundChannel' must not be null");
+    Assert.notNull(clientInboundChannel, "'clientInboundChannel' is required");
+    Assert.notNull(clientOutboundChannel, "'clientOutboundChannel' is required");
 
     this.clientInboundChannel = clientInboundChannel;
     this.clientOutboundChannel = clientOutboundChannel;

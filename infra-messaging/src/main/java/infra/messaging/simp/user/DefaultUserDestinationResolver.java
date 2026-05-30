@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.user;
 
 import org.jspecify.annotations.Nullable;
@@ -68,7 +70,7 @@ public class DefaultUserDestinationResolver implements UserDestinationResolver {
    * @param userRegistry the registry, never {@code null}
    */
   public DefaultUserDestinationResolver(SimpUserRegistry userRegistry) {
-    Assert.notNull(userRegistry, "SimpUserRegistry must not be null");
+    Assert.notNull(userRegistry, "SimpUserRegistry is required");
     this.userRegistry = userRegistry;
   }
 

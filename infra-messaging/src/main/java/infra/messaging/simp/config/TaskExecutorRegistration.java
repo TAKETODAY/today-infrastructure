@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.lang.Assert;
+import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * A registration class for customizing the properties of {@link ThreadPoolTaskExecutor}.
@@ -61,7 +63,7 @@ public class TaskExecutorRegistration {
    */
   public TaskExecutorRegistration(ThreadPoolTaskExecutor taskExecutor) {
     this.externallyDefined = true;
-    Assert.notNull(taskExecutor, "ThreadPoolTaskExecutor must not be null");
+    Assert.notNull(taskExecutor, "ThreadPoolTaskExecutor is required");
     this.taskExecutor = taskExecutor;
   }
 

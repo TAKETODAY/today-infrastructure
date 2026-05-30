@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.user;
 
 import org.jspecify.annotations.Nullable;
@@ -90,9 +92,9 @@ public class UserDestinationMessageHandler implements MessageHandler, SmartLifec
           SubscribableChannel clientInboundChannel, SubscribableChannel brokerChannel,
           UserDestinationResolver destinationResolver) {
 
-    Assert.notNull(clientInboundChannel, "'clientInChannel' must not be null");
-    Assert.notNull(brokerChannel, "'brokerChannel' must not be null");
-    Assert.notNull(destinationResolver, "resolver must not be null");
+    Assert.notNull(clientInboundChannel, "'clientInChannel' is required");
+    Assert.notNull(brokerChannel, "'brokerChannel' is required");
+    Assert.notNull(destinationResolver, "resolver is required");
 
     this.clientInboundChannel = clientInboundChannel;
     this.brokerChannel = brokerChannel;

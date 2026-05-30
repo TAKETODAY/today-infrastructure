@@ -22,12 +22,12 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHandlingException;
 import infra.messaging.MessageHeaders;
 import infra.messaging.handler.annotation.DestinationVariable;
 import infra.messaging.handler.annotation.ValueConstants;
-import infra.lang.Assert;
 
 /**
  * Resolve for {@link DestinationVariable @DestinationVariable} method parameters.

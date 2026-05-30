@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.converter;
 
 import org.jspecify.annotations.Nullable;
@@ -30,11 +32,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import infra.beans.TypeMismatchException;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.oxm.Marshaller;
 import infra.oxm.Unmarshaller;
-import infra.lang.Assert;
 import infra.util.MimeType;
 
 /**
@@ -84,7 +86,7 @@ public class MarshallingMessageConverter extends AbstractMessageConverter {
    */
   public MarshallingMessageConverter(Marshaller marshaller) {
     this();
-    Assert.notNull(marshaller, "Marshaller must not be null");
+    Assert.notNull(marshaller, "Marshaller is required");
     this.marshaller = marshaller;
     if (marshaller instanceof Unmarshaller _unmarshaller) {
       this.unmarshaller = _unmarshaller;

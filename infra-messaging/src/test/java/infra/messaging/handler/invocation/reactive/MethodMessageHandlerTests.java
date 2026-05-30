@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.context.support.StaticApplicationContext;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.handler.DestinationPatternsMessageCondition;
 import infra.messaging.handler.HandlerMethod;
@@ -37,7 +38,6 @@ import infra.messaging.handler.invocation.AbstractExceptionHandlerMethodResolver
 import infra.messaging.handler.invocation.TestExceptionResolver;
 import infra.messaging.support.GenericMessage;
 import infra.util.AntPathMatcher;
-import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.PathMatcher;
 import infra.util.RouteMatcher;

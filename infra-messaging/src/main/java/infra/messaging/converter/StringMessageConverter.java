@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.converter;
 
 import org.jspecify.annotations.Nullable;
@@ -21,9 +23,9 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
-import infra.lang.Assert;
 import infra.util.MimeType;
 
 /**
@@ -43,7 +45,7 @@ public class StringMessageConverter extends AbstractMessageConverter {
 
   public StringMessageConverter(Charset defaultCharset) {
     super(new MimeType("text", "plain", defaultCharset));
-    Assert.notNull(defaultCharset, "Default Charset must not be null");
+    Assert.notNull(defaultCharset, "Default Charset is required");
     this.defaultCharset = defaultCharset;
   }
 

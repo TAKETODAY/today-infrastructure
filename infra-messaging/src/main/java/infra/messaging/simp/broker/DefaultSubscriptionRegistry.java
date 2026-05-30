@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.broker;
 
 import org.jspecify.annotations.Nullable;
@@ -38,13 +40,13 @@ import infra.expression.TypedValue;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.SimpleEvaluationContext;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.messaging.simp.SimpMessageHeaderAccessor;
 import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.support.NativeMessageHeaderAccessor;
 import infra.util.AntPathMatcher;
-import infra.lang.Assert;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.PathMatcher;
@@ -177,12 +179,12 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
       expression = this.expressionParser.parseExpression(selector);
       this.selectorHeaderInUse = true;
       if (logger.isTraceEnabled()) {
-        logger.trace("Subscription selector: [" + selector + "]");
+        logger.trace("Subscription selector: [{}]", selector);
       }
     }
     catch (Throwable ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Failed to parse selector: " + selector, ex);
+        logger.debug("Failed to parse selector: {}", selector, ex);
       }
     }
     return expression;
@@ -451,8 +453,8 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
     private final @Nullable Expression selector;
 
     public Subscription(String id, String destination, boolean isPattern, @Nullable Expression selector) {
-      Assert.notNull(id, "Subscription id must not be null");
-      Assert.notNull(destination, "Subscription destination must not be null");
+      Assert.notNull(id, "Subscription id is required");
+      Assert.notNull(destination, "Subscription destination is required");
       this.id = id;
       this.selector = selector;
       this.destination = destination;

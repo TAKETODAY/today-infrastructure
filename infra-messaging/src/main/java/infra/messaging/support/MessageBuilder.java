@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.support;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
 import infra.messaging.MessageHeaders;
-import infra.lang.Assert;
 
 /**
  * A builder for creating a {@link GenericMessage}
@@ -47,15 +49,15 @@ public final class MessageBuilder<T> {
   private MessageHeaderAccessor headerAccessor;
 
   private MessageBuilder(Message<T> providedMessage) {
-    Assert.notNull(providedMessage, "Message must not be null");
+    Assert.notNull(providedMessage, "Message is required");
     this.payload = providedMessage.getPayload();
     this.providedMessage = providedMessage;
     this.headerAccessor = new MessageHeaderAccessor(providedMessage);
   }
 
   private MessageBuilder(T payload, MessageHeaderAccessor accessor) {
-    Assert.notNull(payload, "Payload must not be null");
-    Assert.notNull(accessor, "MessageHeaderAccessor must not be null");
+    Assert.notNull(payload, "Payload is required");
+    Assert.notNull(accessor, "MessageHeaderAccessor is required");
     this.payload = payload;
     this.providedMessage = null;
     this.headerAccessor = accessor;
@@ -67,7 +69,7 @@ public final class MessageBuilder<T> {
    * @param accessor the headers to use
    */
   public MessageBuilder<T> setHeaders(MessageHeaderAccessor accessor) {
-    Assert.notNull(accessor, "MessageHeaderAccessor must not be null");
+    Assert.notNull(accessor, "MessageHeaderAccessor is required");
     this.headerAccessor = accessor;
     return this;
   }
@@ -203,8 +205,8 @@ public final class MessageBuilder<T> {
    */
   @SuppressWarnings("unchecked")
   public static <T> Message<T> createMessage(T payload, MessageHeaders messageHeaders) {
-    Assert.notNull(payload, "Payload must not be null");
-    Assert.notNull(messageHeaders, "MessageHeaders must not be null");
+    Assert.notNull(payload, "Payload is required");
+    Assert.notNull(messageHeaders, "MessageHeaders is required");
     if (payload instanceof Throwable throwable) {
       return (Message<T>) new ErrorMessage(throwable, messageHeaders);
     }

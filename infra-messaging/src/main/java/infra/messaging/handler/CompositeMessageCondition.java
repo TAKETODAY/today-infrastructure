@@ -23,8 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import infra.messaging.Message;
 import infra.lang.Assert;
+import infra.messaging.Message;
 
 /**
  * Composite {@link MessageCondition} that delegates to other message conditions.

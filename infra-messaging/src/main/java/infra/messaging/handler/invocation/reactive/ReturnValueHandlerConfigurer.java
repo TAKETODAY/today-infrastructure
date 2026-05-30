@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.handler.invocation.reactive;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class ReturnValueHandlerConfigurer {
    * @param handlers the handlers to add
    */
   public void addCustomHandler(HandlerMethodReturnValueHandler... handlers) {
-    Assert.notNull(handlers, "'handlers' must not be null");
+    Assert.notNull(handlers, "'handlers' is required");
     this.customHandlers.addAll(Arrays.asList(handlers));
   }
 

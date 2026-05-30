@@ -20,9 +20,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessagingException;
-import infra.lang.Assert;
 
 /**
  * An extension of {@link AbstractMessagingTemplate} that adds operations for sending

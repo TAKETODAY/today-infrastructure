@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.annotation.support;
 
 import org.jspecify.annotations.Nullable;
@@ -79,7 +81,7 @@ public class SubscriptionMethodReturnValueHandler implements HandlerMethodReturn
    * most likely the "clientOutboundChannel" (must not be {@code null})
    */
   public SubscriptionMethodReturnValueHandler(MessageSendingOperations<String> template) {
-    Assert.notNull(template, "messagingTemplate must not be null");
+    Assert.notNull(template, "messagingTemplate is required");
     this.messagingTemplate = template;
   }
 
@@ -109,7 +111,7 @@ public class SubscriptionMethodReturnValueHandler implements HandlerMethodReturn
    * @since 5.0
    */
   public void addHeaderFilter(Predicate<String> filter) {
-    Assert.notNull(filter, "Filter predicate must not be null");
+    Assert.notNull(filter, "Filter predicate is required");
     this.headerFilter = (this.headerFilter != null ? this.headerFilter.or(filter) : filter);
   }
 

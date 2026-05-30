@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.stomp;
 
 import org.jspecify.annotations.Nullable;
@@ -113,8 +115,8 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
    * @param connectHeaders headers for the STOMP CONNECT frame
    */
   public DefaultStompSession(StompSessionHandler sessionHandler, StompHeaders connectHeaders) {
-    Assert.notNull(sessionHandler, "StompSessionHandler must not be null");
-    Assert.notNull(connectHeaders, "StompHeaders must not be null");
+    Assert.notNull(sessionHandler, "StompSessionHandler is required");
+    Assert.notNull(connectHeaders, "StompHeaders is required");
     this.sessionId = idGenerator.generateId().toString();
     this.sessionHandler = sessionHandler;
     this.connectHeaders = connectHeaders;
@@ -153,7 +155,7 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
    * @param messageConverter the message converter to use
    */
   public void setMessageConverter(MessageConverter messageConverter) {
-    Assert.notNull(messageConverter, "MessageConverter must not be null");
+    Assert.notNull(messageConverter, "MessageConverter is required");
     this.converter = messageConverter;
   }
 
@@ -298,7 +300,7 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
   @Override
   public Subscription subscribe(StompHeaders headers, StompFrameHandler handler) {
     Assert.hasText(headers.getDestination(), "Destination header is required");
-    Assert.notNull(handler, "StompFrameHandler must not be null");
+    Assert.notNull(handler, "StompFrameHandler is required");
 
     String subscriptionId = headers.getId();
     if (!StringUtils.hasText(subscriptionId)) {
@@ -655,8 +657,8 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
 
     public DefaultSubscription(StompHeaders headers, StompFrameHandler handler) {
       super(headers.getReceipt());
-      Assert.notNull(headers.getDestination(), "Destination must not be null");
-      Assert.notNull(handler, "StompFrameHandler must not be null");
+      Assert.notNull(headers.getDestination(), "Destination is required");
+      Assert.notNull(handler, "StompFrameHandler is required");
       this.headers = headers;
       this.handler = handler;
       DefaultStompSession.this.subscriptions.put(headers.getId(), this);

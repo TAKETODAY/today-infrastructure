@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.core;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
+import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.messaging.Message;
@@ -29,7 +32,6 @@ import infra.messaging.converter.MessageConversionException;
 import infra.messaging.converter.MessageConverter;
 import infra.messaging.converter.SimpleMessageConverter;
 import infra.messaging.converter.SmartMessageConverter;
-import infra.lang.Assert;
 
 /**
  * Abstract base class for implementations of {@link MessageSendingOperations}.
@@ -81,7 +83,7 @@ public abstract class AbstractMessageSendingTemplate<D> implements MessageSendin
    * @param messageConverter the message converter to use
    */
   public void setMessageConverter(MessageConverter messageConverter) {
-    Assert.notNull(messageConverter, "MessageConverter must not be null");
+    Assert.notNull(messageConverter, "MessageConverter is required");
     this.converter = messageConverter;
   }
 

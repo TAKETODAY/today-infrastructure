@@ -32,7 +32,6 @@ import infra.messaging.support.MessageHeaderAccessor;
 import infra.util.AlternativeJdkIdGenerator;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeType;
-import infra.util.MimeTypeUtils;
 import infra.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;

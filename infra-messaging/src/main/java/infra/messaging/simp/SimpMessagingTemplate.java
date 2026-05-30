@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
 import infra.messaging.MessageDeliveryException;
@@ -33,7 +36,6 @@ import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.support.MessageHeaderInitializer;
 import infra.messaging.support.NativeMessageHeaderAccessor;
-import infra.lang.Assert;
 import infra.util.StringUtils;
 
 /**
@@ -64,7 +66,7 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
    * @param messageChannel the message channel (never {@code null})
    */
   public SimpMessagingTemplate(MessageChannel messageChannel) {
-    Assert.notNull(messageChannel, "MessageChannel must not be null");
+    Assert.notNull(messageChannel, "MessageChannel is required");
     this.messageChannel = messageChannel;
   }
 
@@ -138,7 +140,7 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
    */
   @Override
   public void send(Message<?> message) {
-    Assert.notNull(message, "Message must not be null");
+    Assert.notNull(message, "Message is required");
     String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
     if (destination != null) {
       sendInternal(message);
@@ -149,7 +151,7 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
 
   @Override
   protected void doSend(String destination, Message<?> message) {
-    Assert.notNull(destination, "Destination must not be null");
+    Assert.notNull(destination, "Destination is required");
 
     SimpMessageHeaderAccessor simpAccessor =
             MessageHeaderAccessor.getAccessor(message, SimpMessageHeaderAccessor.class);
@@ -222,7 +224,7 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
           @Nullable Map<String, Object> headers, @Nullable MessagePostProcessor postProcessor)
           throws MessagingException {
 
-    Assert.notNull(user, "User must not be null");
+    Assert.notNull(user, "User is required");
     String username = user;
     Assert.isTrue(!user.contains("%2F"), () -> "Invalid sequence \"%2F\" in user name: " + username);
     user = StringUtils.replace(user, "/", "%2F");

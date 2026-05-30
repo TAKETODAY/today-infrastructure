@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.stomp;
 
 import org.jspecify.annotations.Nullable;
@@ -21,12 +23,12 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import infra.lang.Assert;
 import infra.messaging.converter.MessageConverter;
 import infra.messaging.converter.SimpleMessageConverter;
 import infra.messaging.simp.config.StompBrokerRelayRegistration;
 import infra.messaging.tcp.TcpConnectionHandler;
 import infra.scheduling.TaskScheduler;
-import infra.lang.Assert;
 
 /**
  * Base class for STOMP client implementations.
@@ -62,7 +64,7 @@ public abstract class StompClientSupport {
    * @param messageConverter the message converter to use
    */
   public void setMessageConverter(MessageConverter messageConverter) {
-    Assert.notNull(messageConverter, "MessageConverter must not be null");
+    Assert.notNull(messageConverter, "MessageConverter is required");
     this.messageConverter = messageConverter;
   }
 

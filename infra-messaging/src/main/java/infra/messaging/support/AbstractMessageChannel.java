@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.support;
 
 import org.jspecify.annotations.Nullable;
@@ -93,13 +95,13 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 
   @Override
   public void addInterceptor(ChannelInterceptor interceptor) {
-    Assert.notNull(interceptor, "'interceptor' must not be null");
+    Assert.notNull(interceptor, "'interceptor' is required");
     this.interceptors.add(interceptor);
   }
 
   @Override
   public void addInterceptor(int index, ChannelInterceptor interceptor) {
-    Assert.notNull(interceptor, "'interceptor' must not be null");
+    Assert.notNull(interceptor, "'interceptor' is required");
     this.interceptors.add(index, interceptor);
   }
 
@@ -125,7 +127,7 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 
   @Override
   public final boolean send(Message<?> message, long timeout) {
-    Assert.notNull(message, "Message must not be null");
+    Assert.notNull(message, "Message is required");
     Message<?> messageToUse = message;
     ChannelInterceptorChain chain = new ChannelInterceptorChain();
     boolean sent = false;

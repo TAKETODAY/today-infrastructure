@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp;
 
 import org.jspecify.annotations.Nullable;
@@ -23,11 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.support.IdTimestampMessageHeaderInitializer;
 import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.support.NativeMessageHeaderAccessor;
-import infra.lang.Assert;
 import infra.util.CollectionUtils;
 
 /**
@@ -95,7 +97,7 @@ public class SimpMessageHeaderAccessor extends NativeMessageHeaderAccessor {
           @Nullable Map<String, List<String>> externalSourceHeaders) {
 
     super(externalSourceHeaders);
-    Assert.notNull(messageType, "MessageType must not be null");
+    Assert.notNull(messageType, "MessageType is required");
     setHeader(MESSAGE_TYPE_HEADER, messageType);
     headerInitializer.initHeaders(this);
   }

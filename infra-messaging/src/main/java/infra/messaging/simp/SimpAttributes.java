@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp;
 
 import org.jspecify.annotations.Nullable;
@@ -190,7 +192,7 @@ public class SimpAttributes {
    * @param message the message to extract session attributes from
    */
   public static SimpAttributes fromMessage(Message<?> message) {
-    Assert.notNull(message, "Message must not be null");
+    Assert.notNull(message, "Message is required");
     MessageHeaders headers = message.getHeaders();
     String sessionId = SimpMessageHeaderAccessor.getSessionId(headers);
     Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor.getSessionAttributes(headers);

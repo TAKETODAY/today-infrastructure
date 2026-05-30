@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.converter;
 
 import org.jspecify.annotations.Nullable;
@@ -21,8 +23,8 @@ import org.jspecify.annotations.Nullable;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
-import infra.messaging.Message;
 import infra.lang.Assert;
+import infra.messaging.Message;
 import infra.util.ClassUtils;
 
 /**
@@ -52,7 +54,7 @@ public class GenericMessageConverter extends SimpleMessageConverter {
    * Create a new instance with the given {@link ConversionService}.
    */
   public GenericMessageConverter(ConversionService conversionService) {
-    Assert.notNull(conversionService, "ConversionService must not be null");
+    Assert.notNull(conversionService, "ConversionService is required");
     this.conversionService = conversionService;
   }
 

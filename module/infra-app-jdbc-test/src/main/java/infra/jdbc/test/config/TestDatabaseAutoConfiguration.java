@@ -298,7 +298,7 @@ public final class TestDatabaseAutoConfiguration {
                       + "you want an embedded database please put a supported one "
                       + "on the classpath or tune the replace attribute of @AutoConfigureTestDatabase.");
       EmbeddedDatabaseType type = connection.getType();
-      Assert.state(type != null, "'type' must not be null");
+      Assert.state(type != null, "'type' is required");
       return new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(type).build();
     }
 

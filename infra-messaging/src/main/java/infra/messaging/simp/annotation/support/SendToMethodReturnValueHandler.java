@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.annotation.support;
 
 import org.jspecify.annotations.Nullable;
@@ -79,7 +81,7 @@ public class SendToMethodReturnValueHandler implements HandlerMethodReturnValueH
   private @Nullable Predicate<String> headerFilter;
 
   public SendToMethodReturnValueHandler(SimpMessageSendingOperations messagingTemplate, boolean annotationRequired) {
-    Assert.notNull(messagingTemplate, "'messagingTemplate' must not be null");
+    Assert.notNull(messagingTemplate, "'messagingTemplate' is required");
     this.messagingTemplate = messagingTemplate;
     this.annotationRequired = annotationRequired;
   }
@@ -148,7 +150,7 @@ public class SendToMethodReturnValueHandler implements HandlerMethodReturnValueH
    * @since 5.0
    */
   public void addHeaderFilter(Predicate<String> filter) {
-    Assert.notNull(filter, "'headerFilter' predicate must not be null");
+    Assert.notNull(filter, "'headerFilter' predicate is required");
     this.headerFilter = (this.headerFilter != null ? this.headerFilter.or(filter) : filter);
   }
 

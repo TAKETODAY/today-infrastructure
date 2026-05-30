@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.handler.invocation.reactive;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class ArgumentResolverConfigurer {
    * @param resolvers the resolvers to add
    */
   public void addCustomResolver(HandlerMethodArgumentResolver... resolvers) {
-    Assert.notNull(resolvers, "'resolvers' must not be null");
+    Assert.notNull(resolvers, "'resolvers' is required");
     this.customResolvers.addAll(Arrays.asList(resolvers));
   }
 

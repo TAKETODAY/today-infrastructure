@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import infra.context.ApplicationListener;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHandler;
 import infra.messaging.MessagingException;
@@ -32,7 +33,6 @@ import infra.messaging.simp.SimpMessageType;
 import infra.messaging.simp.SimpMessagingTemplate;
 import infra.messaging.simp.broker.BrokerAvailabilityEvent;
 import infra.scheduling.TaskScheduler;
-import infra.lang.Assert;
 
 /**
  * {@code MessageHandler} that handles user registry broadcasts from other

@@ -266,7 +266,7 @@ public class ResolvableMethod {
     private final List<Predicate<Method>> filters = new ArrayList<>(4);
 
     private Builder(Class<?> objectClass) {
-      Assert.notNull(objectClass, "Class must not be null");
+      Assert.notNull(objectClass, "Class is required");
       this.objectClass = objectClass;
     }
 
@@ -633,7 +633,7 @@ public class ResolvableMethod {
 
   @SuppressWarnings("unchecked")
   private static <T> T initProxy(Class<?> type, MethodInvocationInterceptor interceptor) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     if (type.isInterface()) {
       return (T) Proxy.newProxyInstance(type.getClassLoader(),
               new Class<?>[] { type, Supplier.class },

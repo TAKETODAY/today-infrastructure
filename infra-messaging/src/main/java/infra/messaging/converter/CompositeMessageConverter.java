@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
-import infra.lang.Assert;
 
 /**
  * A {@link MessageConverter} that delegates to a list of registered converters

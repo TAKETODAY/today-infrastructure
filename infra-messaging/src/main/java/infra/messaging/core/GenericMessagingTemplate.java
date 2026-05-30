@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
+import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.messaging.Message;
@@ -33,7 +34,6 @@ import infra.messaging.MessageHeaders;
 import infra.messaging.PollableChannel;
 import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
-import infra.lang.Assert;
 
 /**
  * A messaging template that resolves a destination name to a {@link MessageChannel}

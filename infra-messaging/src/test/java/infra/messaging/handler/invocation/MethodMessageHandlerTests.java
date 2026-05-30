@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.context.support.StaticApplicationContext;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.converter.SimpleMessageConverter;
 import infra.messaging.handler.DestinationPatternsMessageCondition;
@@ -37,7 +38,6 @@ import infra.messaging.handler.HandlerMethod;
 import infra.messaging.handler.annotation.support.MessageMethodArgumentResolver;
 import infra.messaging.support.MessageBuilder;
 import infra.util.AntPathMatcher;
-import infra.lang.Assert;
 import infra.util.PathMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;

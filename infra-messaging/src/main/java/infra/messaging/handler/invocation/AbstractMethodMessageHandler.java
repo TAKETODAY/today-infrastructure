@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.handler.invocation;
 
 import org.jspecify.annotations.Nullable;
@@ -349,7 +351,7 @@ public abstract class AbstractMethodMessageHandler<T>
    * under the same mapping
    */
   protected void registerHandlerMethod(Object handler, Method method, T mapping) {
-    Assert.notNull(mapping, "Mapping must not be null");
+    Assert.notNull(mapping, "Mapping is required");
     HandlerMethod newHandlerMethod = createHandlerMethod(handler, method);
     HandlerMethod oldHandlerMethod = this.handlerMethods.get(mapping);
 
@@ -519,7 +521,7 @@ public abstract class AbstractMethodMessageHandler<T>
       T match = getMatchingMapping(mapping, message);
       if (match != null) {
         HandlerMethod handlerMethod = this.handlerMethods.get(mapping);
-        Assert.state(handlerMethod != null, "HandlerMethod must not be null");
+        Assert.state(handlerMethod != null, "HandlerMethod is required");
         matches.add(new Match(match, handlerMethod));
       }
     }

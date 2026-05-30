@@ -65,7 +65,7 @@ class ExecutorSubscribableChannelTests {
   void messageMustNotBeNull() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     this.channel.send(null))
-            .withMessageContaining("Message must not be null");
+            .withMessageContaining("Message is required");
   }
 
   @Test

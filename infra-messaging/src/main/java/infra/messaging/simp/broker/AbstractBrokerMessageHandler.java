@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.broker;
 
 import org.jspecify.annotations.Nullable;
@@ -106,9 +108,9 @@ public abstract class AbstractBrokerMessageHandler
   public AbstractBrokerMessageHandler(SubscribableChannel inboundChannel, MessageChannel outboundChannel,
           SubscribableChannel brokerChannel, @Nullable Collection<String> destinationPrefixes) {
 
-    Assert.notNull(inboundChannel, "'inboundChannel' must not be null");
-    Assert.notNull(outboundChannel, "'outboundChannel' must not be null");
-    Assert.notNull(brokerChannel, "'brokerChannel' must not be null");
+    Assert.notNull(inboundChannel, "'inboundChannel' is required");
+    Assert.notNull(outboundChannel, "'outboundChannel' is required");
+    Assert.notNull(brokerChannel, "'brokerChannel' is required");
 
     this.clientInboundChannel = inboundChannel;
     this.clientOutboundChannel = outboundChannel;

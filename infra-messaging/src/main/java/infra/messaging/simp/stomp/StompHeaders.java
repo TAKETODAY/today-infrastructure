@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.stomp;
 
 import org.jspecify.annotations.Nullable;
@@ -114,7 +116,7 @@ public class StompHeaders implements MultiValueMap<String, String>, Serializable
   }
 
   private StompHeaders(Map<String, List<String>> headers, boolean readOnly) {
-    Assert.notNull(headers, "'headers' must not be null");
+    Assert.notNull(headers, "'headers' is required");
     if (readOnly) {
       Map<String, List<String>> map = new LinkedMultiValueMap<>(headers.size());
       headers.forEach((key, value) -> map.put(key, Collections.unmodifiableList(value)));

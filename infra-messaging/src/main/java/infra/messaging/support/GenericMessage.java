@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.support;
 
 import org.jspecify.annotations.Nullable;
@@ -21,9 +23,9 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
-import infra.lang.Assert;
 import infra.util.ObjectUtils;
 
 /**
@@ -73,8 +75,8 @@ public class GenericMessage<T> implements Message<T>, Serializable {
    * @param headers message headers
    */
   public GenericMessage(T payload, MessageHeaders headers) {
-    Assert.notNull(payload, "Payload must not be null");
-    Assert.notNull(headers, "MessageHeaders must not be null");
+    Assert.notNull(payload, "Payload is required");
+    Assert.notNull(headers, "MessageHeaders is required");
     this.payload = payload;
     this.headers = headers;
   }

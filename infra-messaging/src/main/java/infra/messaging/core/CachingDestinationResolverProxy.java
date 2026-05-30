@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.core;
 
 import org.jspecify.annotations.Nullable;
@@ -56,7 +58,7 @@ public class CachingDestinationResolverProxy<D> implements DestinationResolver<D
    * @param targetDestinationResolver the target DestinationResolver to delegate to
    */
   public CachingDestinationResolverProxy(DestinationResolver<D> targetDestinationResolver) {
-    Assert.notNull(targetDestinationResolver, "Target DestinationResolver must not be null");
+    Assert.notNull(targetDestinationResolver, "Target DestinationResolver is required");
     this.targetDestinationResolver = targetDestinationResolver;
   }
 

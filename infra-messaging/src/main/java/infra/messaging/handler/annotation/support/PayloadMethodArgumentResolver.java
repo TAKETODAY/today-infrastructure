@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.handler.annotation.support;
 
 import org.jspecify.annotations.Nullable;
@@ -22,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.util.Optional;
 
 import infra.core.MethodParameter;
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.converter.MessageConversionException;
 import infra.messaging.converter.MessageConverter;
@@ -29,7 +32,6 @@ import infra.messaging.converter.SmartMessageConverter;
 import infra.messaging.handler.annotation.Payload;
 import infra.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import infra.messaging.support.MessageBuilder;
-import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -100,7 +102,7 @@ public class PayloadMethodArgumentResolver implements HandlerMethodArgumentResol
   public PayloadMethodArgumentResolver(MessageConverter messageConverter, @Nullable Validator validator,
           boolean useDefaultResolution) {
 
-    Assert.notNull(messageConverter, "MessageConverter must not be null");
+    Assert.notNull(messageConverter, "MessageConverter is required");
     this.converter = messageConverter;
     this.validator = validator;
     this.useDefaultResolution = useDefaultResolution;

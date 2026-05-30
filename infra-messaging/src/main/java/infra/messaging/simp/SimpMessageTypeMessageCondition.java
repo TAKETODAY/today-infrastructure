@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp;
 
 import org.jspecify.annotations.Nullable;
@@ -22,9 +24,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.handler.AbstractMessageCondition;
-import infra.lang.Assert;
 
 /**
  * {@code MessageCondition} that matches by the message type obtained via
@@ -49,7 +51,7 @@ public class SimpMessageTypeMessageCondition extends AbstractMessageCondition<Si
    * @param messageType the message type to match messages to
    */
   public SimpMessageTypeMessageCondition(SimpMessageType messageType) {
-    Assert.notNull(messageType, "MessageType must not be null");
+    Assert.notNull(messageType, "MessageType is required");
     this.messageType = messageType;
   }
 

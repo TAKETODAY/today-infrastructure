@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.broker;
 
 import org.jspecify.annotations.Nullable;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
+import infra.lang.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
 import infra.messaging.MessageHeaders;
@@ -36,7 +39,6 @@ import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.support.MessageHeaderInitializer;
 import infra.scheduling.TaskScheduler;
-import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.PathMatcher;
 
@@ -97,7 +99,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
    * must be configured directly on the custom registry.
    */
   public void setSubscriptionRegistry(SubscriptionRegistry subscriptionRegistry) {
-    Assert.notNull(subscriptionRegistry, "SubscriptionRegistry must not be null");
+    Assert.notNull(subscriptionRegistry, "SubscriptionRegistry is required");
     this.subscriptionRegistry = subscriptionRegistry;
     initPathMatcherToUse();
     initCacheLimitToUse();

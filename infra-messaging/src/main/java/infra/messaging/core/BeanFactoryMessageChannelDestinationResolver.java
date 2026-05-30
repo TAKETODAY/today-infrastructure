@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.core;
 
 import org.jspecify.annotations.Nullable;
@@ -21,8 +23,8 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.messaging.MessageChannel;
 import infra.lang.Assert;
+import infra.messaging.MessageChannel;
 
 /**
  * An implementation of {@link DestinationResolver} that interprets a destination
@@ -52,7 +54,7 @@ public class BeanFactoryMessageChannelDestinationResolver
    * @param beanFactory the bean factory to perform lookups against
    */
   public BeanFactoryMessageChannelDestinationResolver(BeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "beanFactory must not be null");
+    Assert.notNull(beanFactory, "beanFactory is required");
     this.beanFactory = beanFactory;
   }
 

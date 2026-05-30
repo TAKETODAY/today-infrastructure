@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import infra.messaging.Message;
 import infra.lang.Assert;
+import infra.messaging.Message;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 

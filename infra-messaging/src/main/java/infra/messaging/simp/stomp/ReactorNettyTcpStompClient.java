@@ -20,10 +20,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+import infra.lang.Assert;
 import infra.messaging.simp.SimpLogging;
 import infra.messaging.tcp.TcpOperations;
 import infra.messaging.tcp.reactor.ReactorNettyTcpClient;
-import infra.lang.Assert;
 
 /**
  * A STOMP over TCP client, configurable with {@link ReactorNettyTcpClient}.

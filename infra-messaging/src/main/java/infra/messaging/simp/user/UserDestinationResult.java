@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.user;
 
 import org.jspecify.annotations.Nullable;
@@ -62,9 +64,9 @@ public class UserDestinationResult {
           String sourceDestination, Set<String> targetDestinations,
           String subscribeDestination, @Nullable String user, @Nullable Set<String> sessionIds) {
 
-    Assert.notNull(sourceDestination, "'sourceDestination' must not be null");
-    Assert.notNull(targetDestinations, "'targetDestinations' must not be null");
-    Assert.notNull(subscribeDestination, "'subscribeDestination' must not be null");
+    Assert.notNull(sourceDestination, "'sourceDestination' is required");
+    Assert.notNull(targetDestinations, "'targetDestinations' is required");
+    Assert.notNull(subscribeDestination, "'subscribeDestination' is required");
 
     this.sourceDestination = sourceDestination;
     this.targetDestinations = targetDestinations;
