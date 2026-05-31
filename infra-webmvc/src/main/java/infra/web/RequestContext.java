@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -529,6 +530,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
       }
     }
     return null;
+  }
+
+  /**
+   * Returns a {@link Optional} HttpCookie the client sent with this request. This
+   * method returns <code>Optional.empty</code> if no target cookie were sent.
+   *
+   * @param name Cookie name
+   * @since 5.0
+   */
+  public Optional<HttpCookie> cookie(String name) {
+    return Optional.ofNullable(getCookie(name));
   }
 
   /**
