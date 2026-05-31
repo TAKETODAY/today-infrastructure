@@ -107,6 +107,9 @@ public class DispatcherHandler extends InfraHandler {
 
   private @Nullable RequestToViewNameTranslator viewNameTranslator;
 
+  /** @since 5.0 */
+  private Filter @Nullable [] filters;
+
   public DispatcherHandler() {
   }
 
@@ -304,6 +307,7 @@ public class DispatcherHandler extends InfraHandler {
     initReturnValueHandler(context);
     initExceptionHandler(context);
     initNotFoundHandler(context);
+    initFilters(context);
     initWebAsyncManagerFactory(context);
     initRequestToViewNameTranslator(context);
     initRequestCompletedListeners(context);
@@ -386,6 +390,29 @@ public class DispatcherHandler extends InfraHandler {
         setNotFoundHandler(NotFoundHandler.sharedInstance);
       }
       logStrategy(notFoundHandler);
+    }
+  }
+
+  /**
+   * Initialize the {@link Filter Filters} used by this class.
+   * <p>Collects all {@link Filter} beans from the application context
+   * and sorts them according to their order (via {@link infra.core.annotation.Order @Order}
+   * or {@link infra.core.Ordered Ordered}).
+   *
+   * @see Filter
+   * @see AnnotationAwareOrderComparator
+   */
+  private void initFilters(ApplicationContext context) {
+    var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+            context, Filter.class, true, false);
+
+    if (!matchingBeans.isEmpty()) {
+      var filters = new ArrayList<>(matchingBeans.values());
+      AnnotationAwareOrderComparator.sort(filters);
+      this.filters = filters.toArray(new Filter[0]);
+      if (log.isDebugEnabled()) {
+        log.debug("Detected {} Filter(s): {}", filters.size(), filters);
+      }
     }
   }
 
@@ -508,6 +535,16 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void handleRequest(RequestContext context) throws Throwable {
+    var filters = this.filters;
+    if (filters == null) {
+      handleRequestInternal(context);
+    }
+    else {
+      new FilterChain(filters, this).doFilter(context);
+    }
+  }
+
+  void handleRequestInternal(RequestContext context) throws Throwable {
     logRequest(context);
     Object handler = null;
     Object returnValue = null;
