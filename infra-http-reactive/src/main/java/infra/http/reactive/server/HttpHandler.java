@@ -24,10 +24,6 @@ import reactor.core.publisher.Mono;
  * Lowest level contract for reactive HTTP request handling that serves as a
  * common denominator across different runtimes.
  *
- * <p>Higher-level, but still generic, building blocks for applications such as
- * {@code WebFilter}, {@code Session}, {@code ServerWebExchange}, and others
- * are available in the {@code infra.web.server} package.
- *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
