@@ -96,6 +96,11 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
+  public boolean isSecure() {
+    return delegate().isSecure();
+  }
+
+  @Override
   public String getScheme() {
     return delegate().getScheme();
   }

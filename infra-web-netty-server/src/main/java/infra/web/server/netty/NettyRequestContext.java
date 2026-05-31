@@ -209,8 +209,13 @@ public abstract class NettyRequestContext extends RequestContext {
   }
 
   @Override
+  public boolean isSecure() {
+    return config.secure;
+  }
+
+  @Override
   public String getScheme() {
-    return config.secure ? Constant.HTTPS : Constant.HTTP;
+    return isSecure() ? Constant.HTTPS : Constant.HTTP;
   }
 
   @Override

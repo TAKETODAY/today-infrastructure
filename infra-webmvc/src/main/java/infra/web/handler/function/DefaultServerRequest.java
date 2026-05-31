@@ -487,6 +487,11 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
+    public boolean isSecure() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getServerName() {
       throw new UnsupportedOperationException();
     }

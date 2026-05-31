@@ -279,6 +279,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
   // --- request
 
   /**
+   * Returns a boolean indicating whether this request was
+   * made using a secure channel, such as HTTPS.
+   *
+   * @return a boolean indicating if the request was made
+   * using a secure channel
+   * @since 5.0
+   */
+  public abstract boolean isSecure();
+
+  /**
    * Returns the name of the scheme used to make this request,
    * for example,
    * <code>http</code>, <code>https</code>, or <code>ftp</code>.

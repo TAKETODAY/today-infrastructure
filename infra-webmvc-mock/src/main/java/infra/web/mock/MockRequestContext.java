@@ -132,6 +132,11 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
+  public boolean isSecure() {
+    return request.isSecure();
+  }
+
+  @Override
   public String getServerName() {
     return request.getServerName();
   }
