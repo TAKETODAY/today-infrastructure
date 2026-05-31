@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -177,6 +178,11 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
+  public Optional<HttpCookie> cookie(String name) {
+    return delegate().cookie(name);
+  }
+
+  @Override
   public void addCookie(ResponseCookie cookie) {
     delegate().addCookie(cookie);
   }
@@ -184,6 +190,16 @@ public abstract class DecorableRequestContext extends RequestContext {
   @Override
   public void addCookie(String name, @Nullable String value) {
     delegate().addCookie(name, value);
+  }
+
+  @Override
+  public void addCookie(ResponseCookie.Builder cookie) {
+    delegate().addCookie(cookie);
+  }
+
+  @Override
+  public void addCookie(HttpCookie cookie) {
+    delegate().addCookie(cookie);
   }
 
   @Nullable
