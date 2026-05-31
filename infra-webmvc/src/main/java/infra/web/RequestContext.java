@@ -535,11 +535,33 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * Adds the specified cookie to the response. This method can be called multiple
    * times to set more than one cookie.
    *
+   * @param cookie the Cookie to return to the client
+   * @since 5.0
+   */
+  public void addCookie(ResponseCookie.Builder cookie) {
+    responseCookies().add(cookie.build());
+  }
+
+  /**
+   * Adds the specified cookie to the response. This method can be called multiple
+   * times to set more than one cookie.
+   *
    * @param name the Cookie name to return to the client
    * @param value the Cookie value to return to the client
    */
   public void addCookie(String name, @Nullable String value) {
     addCookie(ResponseCookie.from(name, value).build());
+  }
+
+  /**
+   * Adds the specified cookie to the response. This method can be called multiple
+   * times to set more than one cookie.
+   *
+   * @param cookie the Cookie to return to the client
+   * @since 5.0
+   */
+  public void addCookie(HttpCookie cookie) {
+    addCookie(cookie.getName(), cookie.getValue());
   }
 
   /**
