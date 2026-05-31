@@ -106,9 +106,8 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
       super(interceptors, handler);
     }
 
-    @Nullable
     @Override
-    protected Object invokeHandler(RequestContext context, Object handler) throws Throwable {
+    protected @Nullable Object invokeHandler(RequestContext context, Object handler) throws Throwable {
       return handlerAdapter.handle(context, handler);
     }
   }
