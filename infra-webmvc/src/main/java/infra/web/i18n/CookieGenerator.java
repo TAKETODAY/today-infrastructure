@@ -21,7 +21,7 @@ package infra.web.i18n;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
-import infra.http.ResponseCookie.ResponseCookieBuilder;
+import infra.http.ResponseCookie.Builder;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -66,7 +66,7 @@ public class CookieGenerator {
   /**
    * Use the given name for cookies created by this generator.
    *
-   * @see ResponseCookieBuilder#getName()
+   * @see Builder#getName()
    */
   public void setCookieName(@Nullable String cookieName) {
     this.cookieName = cookieName;
@@ -84,7 +84,7 @@ public class CookieGenerator {
    * Use the given domain for cookies created by this generator.
    * The cookie is only visible to servers in this domain.
    *
-   * @see ResponseCookieBuilder#domain
+   * @see Builder#domain
    */
   public void setCookieDomain(@Nullable String cookieDomain) {
     this.cookieDomain = cookieDomain;
@@ -102,7 +102,7 @@ public class CookieGenerator {
    * Use the given path for cookies created by this generator.
    * The cookie is only visible to URLs in this path and below.
    *
-   * @see ResponseCookieBuilder#path
+   * @see Builder#path
    */
   public void setCookiePath(String cookiePath) {
     this.cookiePath = cookiePath;
@@ -121,7 +121,7 @@ public class CookieGenerator {
    * <p>Default is no specific maximum age at all, using the Web container's
    * default.
    *
-   * @see ResponseCookieBuilder#maxAge
+   * @see Builder#maxAge
    */
   public void setCookieMaxAge(@Nullable Integer cookieMaxAge) {
     this.cookieMaxAge = cookieMaxAge;
@@ -141,7 +141,7 @@ public class CookieGenerator {
    * not processed by the HTTP server itself.
    * <p>Default is "false".
    *
-   * @see ResponseCookieBuilder#secure
+   * @see Builder#secure
    */
   public void setCookieSecure(boolean cookieSecure) {
     this.cookieSecure = cookieSecure;
@@ -159,7 +159,7 @@ public class CookieGenerator {
    * Set whether the cookie is supposed to be marked with the "HttpOnly" attribute.
    * <p>Default is "false".
    *
-   * @see ResponseCookieBuilder#httpOnly
+   * @see Builder#httpOnly
    */
   public void setCookieHttpOnly(boolean cookieHttpOnly) {
     this.cookieHttpOnly = cookieHttpOnly;
@@ -169,7 +169,7 @@ public class CookieGenerator {
    * Add the "SameSite" attribute to the cookie.
    * <p>By default, this is set to {@code "Lax"}.
    *
-   * @see ResponseCookie.ResponseCookieBuilder#sameSite(String)
+   * @see Builder#sameSite(String)
    */
   public void setCookieSameSite(String cookieSameSite) {
     Assert.notNull(cookieSameSite, "cookieSameSite is required");
@@ -202,7 +202,7 @@ public class CookieGenerator {
    */
   public void addCookie(RequestContext response, String cookieValue) {
     Assert.notNull(response, "RequestContext is required");
-    ResponseCookieBuilder cookie = createCookie(cookieValue);
+    Builder cookie = createCookie(cookieValue);
     Integer maxAge = getCookieMaxAge();
     if (maxAge != null) {
       cookie.maxAge(maxAge);
@@ -226,7 +226,7 @@ public class CookieGenerator {
    */
   public void removeCookie(RequestContext response) {
     Assert.notNull(response, "RequestContext is required");
-    ResponseCookieBuilder cookie = createCookie("");
+    Builder cookie = createCookie("");
     cookie.maxAge(0);
 
     response.addCookie(cookie.build());
@@ -246,8 +246,8 @@ public class CookieGenerator {
    * @see #setCookiePath
    */
   @SuppressWarnings("NullAway")
-  protected ResponseCookieBuilder createCookie(String cookieValue) {
-    ResponseCookieBuilder builder = ResponseCookie.from(getCookieName(), cookieValue);
+  protected Builder createCookie(String cookieValue) {
+    Builder builder = ResponseCookie.from(getCookieName(), cookieValue);
     if (getCookieDomain() != null) {
       builder.domain(getCookieDomain());
     }

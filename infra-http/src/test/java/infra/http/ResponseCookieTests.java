@@ -370,7 +370,7 @@ class ResponseCookieTests {
     httpCookie.setSecure(true);
     httpCookie.setHttpOnly(true);
 
-    ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(httpCookie);
+    ResponseCookie.Builder builder = ResponseCookie.from(httpCookie);
     ResponseCookie cookie = builder.build();
 
     assertThat(cookie.getName()).isEqualTo("id");
@@ -535,7 +535,7 @@ class ResponseCookieTests {
 
   @Test
   void from_withNameOnly_shouldCreateBuilder() {
-    ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from("id");
+    ResponseCookie.Builder builder = ResponseCookie.from("id");
     ResponseCookie cookie = builder.value("1fWa").build();
 
     assertThat(cookie.getName()).isEqualTo("id");
@@ -544,7 +544,7 @@ class ResponseCookieTests {
 
   @Test
   void from_withNameAndValue_shouldCreateBuilder() {
-    ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from("id", "1fWa");
+    ResponseCookie.Builder builder = ResponseCookie.from("id", "1fWa");
     ResponseCookie cookie = builder.build();
 
     assertThat(cookie.getName()).isEqualTo("id");
@@ -553,7 +553,7 @@ class ResponseCookieTests {
 
   @Test
   void fromClientResponse_withNameAndValue_shouldCreateBuilder() {
-    ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.fromClientResponse("id", "1fWa");
+    ResponseCookie.Builder builder = ResponseCookie.fromClientResponse("id", "1fWa");
     ResponseCookie cookie = builder.build();
 
     assertThat(cookie.getName()).isEqualTo("id");

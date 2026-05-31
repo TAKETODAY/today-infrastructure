@@ -43,11 +43,9 @@ public final class ResponseCookie extends HttpCookie {
 
   private final Duration maxAge;
 
-  @Nullable
-  private final String domain;
+  private final @Nullable String domain;
 
-  @Nullable
-  private final String path;
+  private final @Nullable String path;
 
   private final boolean secure;
 
@@ -55,8 +53,7 @@ public final class ResponseCookie extends HttpCookie {
 
   private final boolean partitioned;
 
-  @Nullable
-  private final String sameSite;
+  private final @Nullable String sameSite;
 
   /**
    * Private constructor. See {@link #from(String, String)}.
@@ -95,16 +92,14 @@ public final class ResponseCookie extends HttpCookie {
   /**
    * Return the cookie "Domain" attribute, or {@code null} if not set.
    */
-  @Nullable
-  public String getDomain() {
+  public @Nullable String getDomain() {
     return this.domain;
   }
 
   /**
    * Return the cookie "Path" attribute, or {@code null} if not set.
    */
-  @Nullable
-  public String getPath() {
+  public @Nullable String getPath() {
     return this.path;
   }
 
@@ -141,16 +136,15 @@ public final class ResponseCookie extends HttpCookie {
    *
    * @see <a href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis#section-4.1.2.7">RFC6265 bis</a>
    */
-  @Nullable
-  public String getSameSite() {
+  public @Nullable String getSameSite() {
     return this.sameSite;
   }
 
   /**
    * Return a builder pre-populated with values from {@code "this"} instance.
    */
-  public ResponseCookieBuilder mutate() {
-    return new DefaultResponseCookieBuilder(getName(), getValue(), false)
+  public Builder mutate() {
+    return new DefaultBuilder(getName(), getValue(), false)
             .maxAge(this.maxAge)
             .domain(this.domain)
             .path(this.path)
@@ -226,8 +220,8 @@ public final class ResponseCookie extends HttpCookie {
    * @param name the cookie name
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder from(final String name) {
-    return new DefaultResponseCookieBuilder(name, null, false);
+  public static Builder from(final String name) {
+    return new DefaultBuilder(name, null, false);
   }
 
   /**
@@ -238,8 +232,8 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder from(final String name, final @Nullable String value) {
-    return new DefaultResponseCookieBuilder(name, value, false);
+  public static Builder from(final String name, final @Nullable String value) {
+    return new DefaultBuilder(name, value, false);
   }
 
   /**
@@ -252,8 +246,8 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static ResponseCookieBuilder fromClientResponse(final String name, final @Nullable String value) {
-    return new DefaultResponseCookieBuilder(name, value, true);
+  public static Builder fromClientResponse(final String name, final @Nullable String value) {
+    return new DefaultBuilder(name, value, true);
   }
 
   /**
@@ -263,7 +257,7 @@ public final class ResponseCookie extends HttpCookie {
    * @return a builder to create the cookie with
    * @since 5.0
    */
-  public static ResponseCookieBuilder from(java.net.HttpCookie cookie) {
+  public static Builder from(java.net.HttpCookie cookie) {
     return ResponseCookie.from(cookie.getName(), cookie.getValue())
             .domain(cookie.getDomain())
             .httpOnly(cookie.isHttpOnly())
@@ -275,12 +269,12 @@ public final class ResponseCookie extends HttpCookie {
   /**
    * A builder for a server-defined HttpCookie with attributes.
    */
-  public interface ResponseCookieBuilder {
+  public interface Builder {
 
     /**
      * Set the cookie value.
      */
-    ResponseCookieBuilder value(@Nullable String value);
+    Builder value(@Nullable String value);
 
     /**
      * Set the cookie "Max-Age" attribute.
@@ -290,34 +284,34 @@ public final class ResponseCookie extends HttpCookie {
      * immediately. A negative value results in no "Max-Age" attribute in
      * which case the cookie is removed when the browser is closed.
      */
-    ResponseCookieBuilder maxAge(Duration maxAge);
+    Builder maxAge(Duration maxAge);
 
     /**
      * Variant of {@link #maxAge(Duration)} accepting a value in seconds.
      */
-    ResponseCookieBuilder maxAge(long maxAgeSeconds);
+    Builder maxAge(long maxAgeSeconds);
 
     /**
      * Set the cookie "Path" attribute.
      */
-    ResponseCookieBuilder path(@Nullable String path);
+    Builder path(@Nullable String path);
 
     /**
      * Set the cookie "Domain" attribute.
      */
-    ResponseCookieBuilder domain(@Nullable String domain);
+    Builder domain(@Nullable String domain);
 
     /**
      * Add the "Secure" attribute to the cookie.
      */
-    ResponseCookieBuilder secure(boolean secure);
+    Builder secure(boolean secure);
 
     /**
      * Add the "HttpOnly" attribute to the cookie.
      *
      * @see <a href="https://owasp.org/www-community/HttpOnly">https://owasp.org/www-community/HttpOnly</a>
      */
-    ResponseCookieBuilder httpOnly(boolean httpOnly);
+    Builder httpOnly(boolean httpOnly);
 
     /**
      * Add the "Partitioned" attribute to the cookie.
@@ -325,7 +319,7 @@ public final class ResponseCookie extends HttpCookie {
      * @see <a href="https://datatracker.ietf.org/doc/html/draft-cutler-httpbis-partitioned-cookies#section-2.1">The Partitioned attribute spec</a>
      * @since 5.0
      */
-    ResponseCookieBuilder partitioned(boolean partitioned);
+    Builder partitioned(boolean partitioned);
 
     /**
      * Add the "SameSite" attribute to the cookie.
@@ -335,7 +329,7 @@ public final class ResponseCookie extends HttpCookie {
      *
      * @see <a href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis#section-4.1.2.7">RFC6265 bis</a>
      */
-    ResponseCookieBuilder sameSite(@Nullable String sameSite);
+    Builder sameSite(@Nullable String sameSite);
 
     /**
      * Create the HttpCookie.
@@ -456,24 +450,21 @@ public final class ResponseCookie extends HttpCookie {
   }
 
   /**
-   * Default implementation of {@link ResponseCookieBuilder}.
+   * Default implementation of {@link Builder}.
    */
-  private static class DefaultResponseCookieBuilder implements ResponseCookieBuilder {
+  private static class DefaultBuilder implements Builder {
 
     private final String name;
 
-    @Nullable
-    private String value;
+    private @Nullable String value;
 
     private final boolean lenient;
 
     private Duration maxAge = Duration.ofSeconds(-1);
 
-    @Nullable
-    private String domain;
+    private @Nullable String domain;
 
-    @Nullable
-    private String path;
+    private @Nullable String path;
 
     private boolean secure;
 
@@ -481,41 +472,39 @@ public final class ResponseCookie extends HttpCookie {
 
     private boolean partitioned;
 
-    @Nullable
-    private String sameSite;
+    private @Nullable String sameSite;
 
-    public DefaultResponseCookieBuilder(String name, @Nullable String value, boolean lenient) {
+    public DefaultBuilder(String name, @Nullable String value, boolean lenient) {
       this.name = name;
       this.value = value;
       this.lenient = lenient;
     }
 
     @Override
-    public ResponseCookieBuilder value(@Nullable String value) {
+    public Builder value(@Nullable String value) {
       this.value = value;
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder maxAge(Duration maxAge) {
+    public Builder maxAge(Duration maxAge) {
       this.maxAge = maxAge;
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder maxAge(long maxAgeSeconds) {
+    public Builder maxAge(long maxAgeSeconds) {
       this.maxAge = (maxAgeSeconds >= 0 ? Duration.ofSeconds(maxAgeSeconds) : Duration.ofSeconds(-1));
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder domain(@Nullable String domain) {
+    public Builder domain(@Nullable String domain) {
       this.domain = initDomain(domain);
       return this;
     }
 
-    @Nullable
-    private String initDomain(@Nullable String domain) {
+    private @Nullable String initDomain(@Nullable String domain) {
       if (lenient && StringUtils.isNotEmpty(domain)) {
         String str = domain.trim();
         if (str.startsWith("\"") && str.endsWith("\"")) {
@@ -528,31 +517,31 @@ public final class ResponseCookie extends HttpCookie {
     }
 
     @Override
-    public ResponseCookieBuilder path(@Nullable String path) {
+    public Builder path(@Nullable String path) {
       this.path = path;
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder secure(boolean secure) {
+    public Builder secure(boolean secure) {
       this.secure = secure;
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder httpOnly(boolean httpOnly) {
+    public Builder httpOnly(boolean httpOnly) {
       this.httpOnly = httpOnly;
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder partitioned(boolean partitioned) {
+    public Builder partitioned(boolean partitioned) {
       this.partitioned = partitioned;
       return this;
     }
 
     @Override
-    public ResponseCookieBuilder sameSite(@Nullable String sameSite) {
+    public Builder sameSite(@Nullable String sameSite) {
       this.sameSite = sameSite;
       return this;
     }
