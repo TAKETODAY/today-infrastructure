@@ -86,7 +86,7 @@ class ModelAndViewRenderingResponseBuilderTests {
 
     ModelAndViewRenderingResponseBuilder builder = new ModelAndViewRenderingResponseBuilder(modelAndView);
     RenderingResponse response = builder.cookie("sessionId", "abc123")
-            .cookie(ResponseCookie.from("theme", "dark").build())
+            .cookie(ResponseCookie.builder("theme", "dark").build())
             .build();
 
     assertThat(response.cookies().getFirst("sessionId").getValue()).isEqualTo("abc123");
@@ -151,8 +151,8 @@ class ModelAndViewRenderingResponseBuilderTests {
 
     ModelAndViewRenderingResponseBuilder builder = new ModelAndViewRenderingResponseBuilder(modelAndView);
     RenderingResponse response = builder.cookies(cookies -> {
-      cookies.add("session", ResponseCookie.from("session", "abc").build());
-      cookies.add("preferences", ResponseCookie.from("preferences", "dark-mode").build());
+      cookies.add("session", ResponseCookie.builder("session", "abc").build());
+      cookies.add("preferences", ResponseCookie.builder("preferences", "dark-mode").build());
     }).build();
 
     assertThat(response.cookies().getFirst("session").getValue()).isEqualTo("abc");
@@ -163,8 +163,8 @@ class ModelAndViewRenderingResponseBuilderTests {
   void modelAndViewRenderingResponseBuilderWithCookiesCollection() {
     ModelAndView modelAndView = new ModelAndView("viewName");
 
-    ResponseCookie cookie1 = ResponseCookie.from("auth", "token123").build();
-    ResponseCookie cookie2 = ResponseCookie.from("lang", "zh").build();
+    ResponseCookie cookie1 = ResponseCookie.builder("auth", "token123").build();
+    ResponseCookie cookie2 = ResponseCookie.builder("lang", "zh").build();
 
     ModelAndViewRenderingResponseBuilder builder = new ModelAndViewRenderingResponseBuilder(modelAndView);
     RenderingResponse response = builder.cookies(java.util.List.of(cookie1, cookie2)).build();
@@ -178,8 +178,8 @@ class ModelAndViewRenderingResponseBuilderTests {
     ModelAndView modelAndView = new ModelAndView("viewName");
 
     LinkedMultiValueMap<String, ResponseCookie> cookieMap = new LinkedMultiValueMap<>();
-    cookieMap.add("user", ResponseCookie.from("user", "john").build());
-    cookieMap.add("theme", ResponseCookie.from("theme", "light").build());
+    cookieMap.add("user", ResponseCookie.builder("user", "john").build());
+    cookieMap.add("theme", ResponseCookie.builder("theme", "light").build());
 
     ModelAndViewRenderingResponseBuilder builder = new ModelAndViewRenderingResponseBuilder(modelAndView);
     RenderingResponse response = builder.cookies(cookieMap).build();

@@ -58,7 +58,7 @@ public class CookieAssertionTests {
     localeResolver.setCookieHttpOnly(true);
     localeResolver.setCookieSameSite("foo");
 
-    ResponseCookie cookie = ResponseCookie.from(COOKIE_WITH_ATTRIBUTES_NAME, "value")
+    ResponseCookie cookie = ResponseCookie.builder(COOKIE_WITH_ATTRIBUTES_NAME, "value")
             .sameSite("Strict")
             .build();
 

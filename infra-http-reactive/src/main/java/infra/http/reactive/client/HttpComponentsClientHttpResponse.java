@@ -81,7 +81,7 @@ class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse {
           try {
             cookieSpec.validate(cookie, cookieOrigin);
             result.add(cookie.getName(),
-                    ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
+                    ResponseCookie.forClientResponse(cookie.getName(), cookie.getValue())
                             .domain(cookie.getDomain())
                             .path(cookie.getPath())
                             .maxAge(getMaxAgeSeconds(cookie))

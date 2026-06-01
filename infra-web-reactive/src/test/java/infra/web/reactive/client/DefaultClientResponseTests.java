@@ -108,7 +108,7 @@ class DefaultClientResponseTests {
 
   @Test
   void cookies() {
-    ResponseCookie cookie = ResponseCookie.from("foo", "bar").build();
+    ResponseCookie cookie = ResponseCookie.builder("foo", "bar").build();
     MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
     cookies.add("foo", cookie);
 

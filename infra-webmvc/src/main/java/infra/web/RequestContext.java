@@ -572,7 +572,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param value the Cookie value to return to the client
    */
   public void addCookie(String name, @Nullable String value) {
-    addCookie(ResponseCookie.from(name, value).build());
+    addCookie(ResponseCookie.builder(name, value).build());
   }
 
   /**

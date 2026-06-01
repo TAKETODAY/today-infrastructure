@@ -49,7 +49,7 @@ final class JdkResponseCookieParser implements ResponseCookie.Parser {
 
     var result = new ArrayList<ResponseCookie>(cookies.size());
     for (HttpCookie cookie : cookies) {
-      result.add(ResponseCookie.from(cookie).sameSite(sameSite).build());
+      result.add(ResponseCookie.builder(cookie).sameSite(sameSite).build());
     }
     return result;
   }

@@ -167,10 +167,10 @@ class DefaultResponseCreatorTests {
 
   @Test
   void setCookie() throws IOException {
-    ResponseCookie firstCookie = ResponseCookie.from("user-id", "1234").build();
-    ResponseCookie secondCookie = ResponseCookie.from("group-id", "5432").build();
-    ResponseCookie thirdCookie = ResponseCookie.from("cookie-cookie", "cookies").build();
-    ResponseCookie fourthCookie = ResponseCookie.from("foobar", "bazbork").build();
+    ResponseCookie firstCookie = ResponseCookie.builder("user-id", "1234").build();
+    ResponseCookie secondCookie = ResponseCookie.builder("group-id", "5432").build();
+    ResponseCookie thirdCookie = ResponseCookie.builder("cookie-cookie", "cookies").build();
+    ResponseCookie fourthCookie = ResponseCookie.builder("foobar", "bazbork").build();
 
     DefaultResponseCreator creator = new DefaultResponseCreator(HttpStatus.OK)
             .cookies(firstCookie)
@@ -191,14 +191,14 @@ class DefaultResponseCreatorTests {
 
   @Test
   void setCookies() throws IOException {
-    ResponseCookie firstCookie = ResponseCookie.from("user-id", "1234").build();
-    ResponseCookie secondCookie = ResponseCookie.from("group-id", "5432").build();
+    ResponseCookie firstCookie = ResponseCookie.builder("user-id", "1234").build();
+    ResponseCookie secondCookie = ResponseCookie.builder("group-id", "5432").build();
     MultiValueMap<String, ResponseCookie> firstCookies = new LinkedMultiValueMap<>();
     firstCookies.add(firstCookie.getName(), firstCookie);
     firstCookies.add(secondCookie.getName(), secondCookie);
 
-    ResponseCookie thirdCookie = ResponseCookie.from("cookie-cookie", "cookies").build();
-    ResponseCookie fourthCookie = ResponseCookie.from("foobar", "bazbork").build();
+    ResponseCookie thirdCookie = ResponseCookie.builder("cookie-cookie", "cookies").build();
+    ResponseCookie fourthCookie = ResponseCookie.builder("foobar", "bazbork").build();
     MultiValueMap<String, ResponseCookie> secondCookies = new LinkedMultiValueMap<>();
     firstCookies.add(thirdCookie.getName(), thirdCookie);
     firstCookies.add(fourthCookie.getName(), fourthCookie);

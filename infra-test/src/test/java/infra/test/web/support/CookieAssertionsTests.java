@@ -46,7 +46,7 @@ public class CookieAssertionsTests {
   @BeforeEach
   void setUp() throws IOException {
 
-    ResponseCookie cookie = ResponseCookie.from("foo", "bar")
+    ResponseCookie cookie = ResponseCookie.builder("foo", "bar")
             .maxAge(Duration.ofMinutes(30))
             .domain("foo.com")
             .path("/foo")

@@ -36,10 +36,10 @@ class MockServerHttpResponseTests {
 	@Test
 	void cookieHeaderSet() throws Exception {
 
-		ResponseCookie foo11 = ResponseCookie.from("foo1", "bar1").build();
-		ResponseCookie foo12 = ResponseCookie.from("foo1", "bar2").build();
-		ResponseCookie foo21 = ResponseCookie.from("foo2", "baz1").build();
-		ResponseCookie foo22 = ResponseCookie.from("foo2", "baz2").build();
+		ResponseCookie foo11 = ResponseCookie.builder("foo1", "bar1").build();
+		ResponseCookie foo12 = ResponseCookie.builder("foo1", "bar2").build();
+		ResponseCookie foo21 = ResponseCookie.builder("foo2", "baz1").build();
+		ResponseCookie foo22 = ResponseCookie.builder("foo2", "baz2").build();
 
 		MockServerHttpResponse response = new MockServerHttpResponse();
 		response.addCookie(foo11);

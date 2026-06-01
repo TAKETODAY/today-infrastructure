@@ -76,7 +76,7 @@ public class DefaultClientResponseBuilderTests {
     MockClientHttpResponse httpResponse = new MockClientHttpResponse(HttpStatus.OK);
     httpResponse.getHeaders().add("foo", "bar");
     httpResponse.getHeaders().add("bar", "baz");
-    httpResponse.getCookies().add("baz", ResponseCookie.from("baz", "qux").build());
+    httpResponse.getCookies().add("baz", ResponseCookie.builder("baz", "qux").build());
     httpResponse.setBody(otherBody);
 
     DefaultClientResponse otherResponse = new DefaultClientResponse(
@@ -85,7 +85,7 @@ public class DefaultClientResponseBuilderTests {
     ClientResponse result = otherResponse.mutate()
             .statusCode(HttpStatus.BAD_REQUEST)
             .headers(headers -> headers.setOrRemove("foo", "baar"))
-            .cookies(cookies -> cookies.setOrRemove("baz", ResponseCookie.from("baz", "quux").build()))
+            .cookies(cookies -> cookies.setOrRemove("baz", ResponseCookie.builder("baz", "quux").build()))
             .build();
 
     assertThat(result.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

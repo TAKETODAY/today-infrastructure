@@ -124,7 +124,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     for (Map.Entry<CharSequence, Set<Cookie>> entry : response.cookies().entrySet()) {
       Set<Cookie> cookies = entry.getValue();
       for (Cookie cookie : cookies) {
-        result.add(cookie.name(), ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
+        result.add(cookie.name(), ResponseCookie.forClientResponse(cookie.name(), cookie.value())
                 .domain(cookie.domain())
                 .path(cookie.path())
                 .maxAge(cookie.maxAge())

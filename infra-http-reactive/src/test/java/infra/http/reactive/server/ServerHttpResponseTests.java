@@ -131,7 +131,7 @@ public class ServerHttpResponseTests {
 
   @Test
   void beforeCommitWithComplete() {
-    ResponseCookie cookie = ResponseCookie.from("ID", "123").build();
+    ResponseCookie cookie = ResponseCookie.builder("ID", "123").build();
     TestServerHttpResponse response = new TestServerHttpResponse();
     response.beforeCommit(() -> Mono.fromRunnable(() -> response.getCookies().add(cookie.getName(), cookie)));
     response.writeWith(Flux.just(wrap("a"), wrap("b"), wrap("c"))).block();
@@ -149,7 +149,7 @@ public class ServerHttpResponseTests {
 
   @Test
   void beforeCommitActionWithSetComplete() {
-    ResponseCookie cookie = ResponseCookie.from("ID", "123").build();
+    ResponseCookie cookie = ResponseCookie.builder("ID", "123").build();
     TestServerHttpResponse response = new TestServerHttpResponse();
     response.beforeCommit(() -> {
       response.getCookies().add(cookie.getName(), cookie);

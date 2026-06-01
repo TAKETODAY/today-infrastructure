@@ -247,7 +247,7 @@ public class CookieGenerator {
    */
   @SuppressWarnings("NullAway")
   protected Builder createCookie(String cookieValue) {
-    Builder builder = ResponseCookie.from(getCookieName(), cookieValue);
+    Builder builder = ResponseCookie.builder(getCookieName(), cookieValue);
     if (getCookieDomain() != null) {
       builder.domain(getCookieDomain());
     }

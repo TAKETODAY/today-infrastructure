@@ -200,7 +200,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
     for (Cookie cookie : servletResponse.getCookies()) {
       ResponseCookie httpCookie =
-              ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
+              ResponseCookie.forClientResponse(cookie.getName(), cookie.getValue())
                       .maxAge(Duration.ofSeconds(cookie.getMaxAge()))
                       .domain(cookie.getDomain())
                       .path(cookie.getPath())

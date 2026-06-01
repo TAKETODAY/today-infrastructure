@@ -30,9 +30,6 @@ import infra.http.HttpCookie;
 import infra.http.RequestEntity;
 import infra.http.ResponseCookie;
 import infra.http.ResponseEntity;
-import infra.http.reactive.server.HttpHandler;
-import infra.http.reactive.server.ServerHttpRequest;
-import infra.http.reactive.server.ServerHttpResponse;
 import infra.web.client.RestTemplate;
 import infra.web.http.server.reactive.AbstractHttpHandlerIntegrationTests;
 import infra.web.http.server.reactive.HttpServer;
@@ -132,9 +129,9 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
       this.requestCookies = request.getCookies();
       this.requestCookies.size(); // Cause lazy loading
 
-      response.getCookies().add("SID", ResponseCookie.from("SID", "31d4d96e407aad42")
+      response.getCookies().add("SID", ResponseCookie.builder("SID", "31d4d96e407aad42")
               .path("/").secure(true).httpOnly(true).partitioned(true).build());
-      response.getCookies().add("lang", ResponseCookie.from("lang", "en-US")
+      response.getCookies().add("lang", ResponseCookie.builder("lang", "en-US")
               .domain("example.com").path("/").build());
 
       return response.setComplete();

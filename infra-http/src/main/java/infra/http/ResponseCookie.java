@@ -31,7 +31,7 @@ import infra.util.StringUtils;
 
 /**
  * An {@code HttpCookie} subclass with the additional attributes allowed in
- * the "Set-Cookie" response header. To build an instance use the {@link #from}
+ * the "Set-Cookie" response header. To build an instance use the {@link #builder}
  * static method.
  *
  * @author Rossen Stoyanchev
@@ -56,7 +56,7 @@ public final class ResponseCookie extends HttpCookie {
   private final @Nullable String sameSite;
 
   /**
-   * Private constructor. See {@link #from(String, String)}.
+   * Private constructor. See {@link #builder(String, String)}.
    */
   private ResponseCookie(String name, @Nullable String value, Duration maxAge, @Nullable String domain,
           @Nullable String path, boolean secure, boolean httpOnly, boolean partitioned, @Nullable String sameSite) {
@@ -209,7 +209,37 @@ public final class ResponseCookie extends HttpCookie {
    * @return a ResponseCookie instance built with the provided name and value
    */
   public static ResponseCookie forSimple(String name, @Nullable String value) {
-    return ResponseCookie.from(name, value).build();
+    return ResponseCookie.builder(name, value).build();
+  }
+
+  /**
+   * Factory method to obtain a builder for a server-defined cookie. Unlike
+   * {@link #builder(String, String)} this option assumes input from a remote
+   * server, which can be handled more leniently, e.g. ignoring an empty domain
+   * name with double quotes.
+   *
+   * @param name the cookie name
+   * @param value the cookie value
+   * @return a builder to create the cookie with
+   */
+  public static Builder forClientResponse(final String name, final @Nullable String value) {
+    return new DefaultBuilder(name, value, true);
+  }
+
+  /**
+   * Factory method to obtain a builder that copies from {@link java.net.HttpCookie}.
+   *
+   * @param cookie the source cookie to copy from
+   * @return a builder to create the cookie with
+   * @since 5.0
+   */
+  public static Builder builder(java.net.HttpCookie cookie) {
+    return ResponseCookie.builder(cookie.getName(), cookie.getValue())
+            .domain(cookie.getDomain())
+            .httpOnly(cookie.isHttpOnly())
+            .maxAge(cookie.getMaxAge())
+            .path(cookie.getPath())
+            .secure(cookie.getSecure());
   }
 
   /**
@@ -220,7 +250,7 @@ public final class ResponseCookie extends HttpCookie {
    * @param name the cookie name
    * @return a builder to create the cookie with
    */
-  public static Builder from(final String name) {
+  public static Builder builder(final String name) {
     return new DefaultBuilder(name, null, false);
   }
 
@@ -232,38 +262,8 @@ public final class ResponseCookie extends HttpCookie {
    * @param value the cookie value
    * @return a builder to create the cookie with
    */
-  public static Builder from(final String name, final @Nullable String value) {
+  public static Builder builder(final String name, final @Nullable String value) {
     return new DefaultBuilder(name, value, false);
-  }
-
-  /**
-   * Factory method to obtain a builder for a server-defined cookie. Unlike
-   * {@link #from(String, String)} this option assumes input from a remote
-   * server, which can be handled more leniently, e.g. ignoring an empty domain
-   * name with double quotes.
-   *
-   * @param name the cookie name
-   * @param value the cookie value
-   * @return a builder to create the cookie with
-   */
-  public static Builder fromClientResponse(final String name, final @Nullable String value) {
-    return new DefaultBuilder(name, value, true);
-  }
-
-  /**
-   * Factory method to obtain a builder that copies from {@link java.net.HttpCookie}.
-   *
-   * @param cookie the source cookie to copy from
-   * @return a builder to create the cookie with
-   * @since 5.0
-   */
-  public static Builder from(java.net.HttpCookie cookie) {
-    return ResponseCookie.from(cookie.getName(), cookie.getValue())
-            .domain(cookie.getDomain())
-            .httpOnly(cookie.isHttpOnly())
-            .maxAge(cookie.getMaxAge())
-            .path(cookie.getPath())
-            .secure(cookie.getSecure());
   }
 
   /**

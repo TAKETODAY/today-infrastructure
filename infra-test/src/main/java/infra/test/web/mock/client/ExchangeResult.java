@@ -158,7 +158,7 @@ public class ExchangeResult {
   }
 
   private static ResponseCookie toResponseCookie(HttpCookie cookie, @Nullable String sameSite, boolean partitioned) {
-    return ResponseCookie.from(cookie.getName(), cookie.getValue())
+    return ResponseCookie.builder(cookie.getName(), cookie.getValue())
             .domain(cookie.getDomain())
             .httpOnly(cookie.isHttpOnly())
             .maxAge(cookie.getMaxAge())

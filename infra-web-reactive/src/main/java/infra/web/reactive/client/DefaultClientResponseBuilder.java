@@ -195,7 +195,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   @Override
   public DefaultClientResponseBuilder cookie(String name, String... values) {
     for (String value : values) {
-      getCookies().add(name, ResponseCookie.from(name, value).build());
+      getCookies().add(name, ResponseCookie.builder(name, value).build());
     }
     return this;
   }

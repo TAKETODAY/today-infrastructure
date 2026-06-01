@@ -74,7 +74,7 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void from() {
-    ResponseCookie cookie = ResponseCookie.from("foo", "bar").build();
+    ResponseCookie cookie = ResponseCookie.builder("foo", "bar").build();
     ServerResponse other = ServerResponse.ok()
             .header("foo", "bar")
             .cookie(cookie)
@@ -383,8 +383,8 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void fromServerResponseCopiesAllProperties() {
-    ResponseCookie cookie1 = ResponseCookie.from("cookie1", "value1").build();
-    ResponseCookie cookie2 = ResponseCookie.from("cookie2", "value2").build();
+    ResponseCookie cookie1 = ResponseCookie.builder("cookie1", "value1").build();
+    ResponseCookie cookie2 = ResponseCookie.builder("cookie2", "value2").build();
 
     ServerResponse original = ServerResponse.status(HttpStatus.CONFLICT)
             .header("Custom-Header", "custom-value")
@@ -473,8 +473,8 @@ class DefaultServerResponseBuilderTests {
   @Test
   void cookiesConsumer() {
     ServerResponse response = ServerResponse.ok().cookies(cookies -> {
-      cookies.add("session", ResponseCookie.from("session", "abc").build());
-      cookies.add("preferences", ResponseCookie.from("preferences", "dark-mode").build());
+      cookies.add("session", ResponseCookie.builder("session", "abc").build());
+      cookies.add("preferences", ResponseCookie.builder("preferences", "dark-mode").build());
     }).build();
 
     assertThat(response.cookies().getFirst("session").getValue()).isEqualTo("abc");
@@ -483,8 +483,8 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void cookiesCollection() {
-    ResponseCookie cookie1 = ResponseCookie.from("auth", "token123").build();
-    ResponseCookie cookie2 = ResponseCookie.from("lang", "zh").build();
+    ResponseCookie cookie1 = ResponseCookie.builder("auth", "token123").build();
+    ResponseCookie cookie2 = ResponseCookie.builder("lang", "zh").build();
     List<ResponseCookie> cookieList = Arrays.asList(cookie1, cookie2);
 
     ServerResponse response = ServerResponse.ok().cookies(cookieList).build();
@@ -496,8 +496,8 @@ class DefaultServerResponseBuilderTests {
   @Test
   void cookiesMap() {
     LinkedMultiValueMap<String, ResponseCookie> cookieMap = new LinkedMultiValueMap<>();
-    cookieMap.add("user", ResponseCookie.from("user", "john").build());
-    cookieMap.add("theme", ResponseCookie.from("theme", "light").build());
+    cookieMap.add("user", ResponseCookie.builder("user", "john").build());
+    cookieMap.add("theme", ResponseCookie.builder("theme", "light").build());
 
     ServerResponse response = ServerResponse.ok().cookies(cookieMap).build();
 

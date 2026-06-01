@@ -62,7 +62,7 @@ class DecoratingServerHttpResponseTests {
     decorator.getCookies();
     verify(delegate).getCookies();
 
-    ResponseCookie cookie = ResponseCookie.from("name", "value").build();
+    ResponseCookie cookie = ResponseCookie.builder("name", "value").build();
     decorator.addCookie(cookie);
     verify(delegate).addCookie(cookie);
 

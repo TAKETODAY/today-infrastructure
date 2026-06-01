@@ -150,7 +150,7 @@ public class CookieProperties {
   }
 
   public ResponseCookie createCookie(String value) {
-    return ResponseCookie.from(name, value)
+    return ResponseCookie.builder(name, value)
             .path(path)
             .domain(domain)
             .secure(Boolean.TRUE.equals(secure))

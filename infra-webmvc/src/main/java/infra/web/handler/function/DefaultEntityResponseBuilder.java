@@ -115,7 +115,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   @Override
   public EntityResponse.Builder<T> cookie(String name, String... values) {
     for (String value : values) {
-      this.cookies.add(name, ResponseCookie.from(name, value).build());
+      this.cookies.add(name, ResponseCookie.builder(name, value).build());
     }
     return this;
   }

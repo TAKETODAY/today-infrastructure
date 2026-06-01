@@ -92,7 +92,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
   @Override
   public RenderingResponse.Builder cookie(String name, String... values) {
     for (String value : values) {
-      this.cookies.add(name, ResponseCookie.from(name, value).build());
+      this.cookies.add(name, ResponseCookie.builder(name, value).build());
     }
     return this;
   }
