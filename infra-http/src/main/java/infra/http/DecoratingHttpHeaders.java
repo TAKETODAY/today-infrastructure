@@ -20,7 +20,7 @@ import infra.lang.Assert;
  */
 public class DecoratingHttpHeaders extends HttpHeaders {
 
-  private final HttpHeaders delegate;
+  protected final HttpHeaders delegate;
 
   public DecoratingHttpHeaders(HttpHeaders delegate) {
     Assert.notNull(delegate, "delegate is required");
