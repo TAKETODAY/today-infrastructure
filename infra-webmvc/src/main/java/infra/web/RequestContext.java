@@ -561,7 +561,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 5.0
    */
   public void addCookie(ResponseCookie.Builder cookie) {
-    responseCookies().add(cookie.build());
+    addCookie(cookie.build());
   }
 
   /**
@@ -605,7 +605,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a list of {@link HttpCookie} objects that were removed, or null
    * if no cookies were found or the internal cookie list is null
    */
-
   public @Nullable List<ResponseCookie> removeCookie(String name) {
     if (responseCookies != null) {
       ArrayList<ResponseCookie> toRemove = new ArrayList<>(2);
