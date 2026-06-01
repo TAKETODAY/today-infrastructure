@@ -55,8 +55,8 @@ public interface Filter {
    *
    * @param request the current request context
    * @param chain the filter chain to delegate to
-   * @throws Throwable if any error occurs during filtering
+   * @throws Exception if any error occurs during filtering
    */
-  void doFilter(RequestContext request, FilterChain chain) throws Throwable;
+  void doFilter(RequestContext request, FilterChain chain) throws Exception;
 
 }

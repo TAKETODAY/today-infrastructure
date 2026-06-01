@@ -31,8 +31,8 @@ public interface FilterChain {
    * if no filters remain.
    *
    * @param request the current request context
-   * @throws Throwable if any filter or the terminal handler fails
+   * @throws Exception if any filter or the terminal handler fails
    */
-  void doFilter(RequestContext request) throws Throwable;
+  void doFilter(RequestContext request) throws Exception;
 
 }

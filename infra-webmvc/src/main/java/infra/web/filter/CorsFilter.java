@@ -73,7 +73,7 @@ public class CorsFilter extends GenericFilterBean {
   }
 
   @Override
-  public void doFilter(RequestContext request, FilterChain chain) throws Throwable {
+  public void doFilter(RequestContext request, FilterChain chain) throws Exception {
     CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(request);
     boolean isValid = this.processor.process(corsConfiguration, request);
     if (!isValid || request.isPreFlightRequest()) {

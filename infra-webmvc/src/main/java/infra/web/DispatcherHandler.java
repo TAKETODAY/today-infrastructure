@@ -544,7 +544,7 @@ public class DispatcherHandler extends InfraHandler {
     }
   }
 
-  private void handleRequestInternal(RequestContext context) throws Throwable {
+  private void handleRequestInternal(RequestContext context) throws Exception {
     logRequest(context);
     Object handler = null;
     Object returnValue = null;
@@ -746,7 +746,7 @@ public class DispatcherHandler extends InfraHandler {
     }
   }
 
-  protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
+  protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Exception {
     if (!requestCompletedActions.isEmpty()) {
       for (RequestCompletedListener action : requestCompletedActions) {
         action.requestCompleted(request, notHandled);
@@ -765,7 +765,7 @@ public class DispatcherHandler extends InfraHandler {
           notHandled.addSuppressed(e);
         }
         request.requestCompleted(notHandled);
-        throw notHandled;
+        throw ExceptionUtils.sneakyThrow(notHandled);
       }
     }
     request.requestCompleted(null);
@@ -929,7 +929,7 @@ public class DispatcherHandler extends InfraHandler {
      * @throws Throwable if any filter or the terminal handler fails
      */
     @Override
-    public void doFilter(RequestContext request) throws Throwable {
+    public void doFilter(RequestContext request) throws Exception {
       final Filter[] filters = this.filters;
       if (index < filters.length) {
         filters[index++].doFilter(request, this);

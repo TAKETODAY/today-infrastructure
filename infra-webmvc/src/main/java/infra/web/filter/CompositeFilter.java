@@ -53,7 +53,7 @@ public class CompositeFilter implements Filter {
    * @see Filter#doFilter(RequestContext, FilterChain)
    */
   @Override
-  public void doFilter(RequestContext request, FilterChain chain) throws Throwable {
+  public void doFilter(RequestContext request, FilterChain chain) throws Exception {
     new VirtualFilterChain(chain, this.filters).doFilter(request);
   }
 
@@ -71,7 +71,7 @@ public class CompositeFilter implements Filter {
     }
 
     @Override
-    public void doFilter(RequestContext request) throws Throwable {
+    public void doFilter(RequestContext request) throws Exception {
       if (this.currentPosition == this.additionalFilters.size()) {
         this.originalChain.doFilter(request);
       }

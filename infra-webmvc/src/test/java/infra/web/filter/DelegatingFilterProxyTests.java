@@ -120,7 +120,7 @@ class DelegatingFilterProxyTests {
     Filter delegate = mock(Filter.class);
     DelegatingFilterProxy proxy = new DelegatingFilterProxy(delegate) {
       @Override
-      protected void invokeDelegate(Filter delegate, RequestContext request, FilterChain filterChain) throws Throwable {
+      protected void invokeDelegate(Filter delegate, RequestContext request, FilterChain filterChain) throws Exception {
         request.setAttribute("intercepted", Boolean.TRUE);
         super.invokeDelegate(delegate, request, filterChain);
       }
