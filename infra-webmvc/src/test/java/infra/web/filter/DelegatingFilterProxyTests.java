@@ -99,7 +99,7 @@ class DelegatingFilterProxyTests {
 
     assertThatThrownBy(() -> proxy.doFilter(request, chain))
             .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("No ApplicationContext found");
+            .hasMessageContaining("No ApplicationContext set");
   }
 
   @Test
