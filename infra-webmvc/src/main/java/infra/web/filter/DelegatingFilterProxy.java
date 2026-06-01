@@ -69,7 +69,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
 
   /**
    * Create a new {@code DelegatingFilterProxy} with the given {@link Filter} delegate.
-   * Bypasses entirely the need for interacting with a Spring application context,
+   * Bypasses entirely the need for interacting with Infra application context,
    * specifying the {@linkplain #setTargetBeanName target bean name}, etc.
    * <p>For use with instance-based registration of filters.
    *
@@ -161,8 +161,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
         if (delegateToUse == null) {
           ApplicationContext wac = applicationContext;
           if (wac == null) {
-            throw new IllegalStateException("No ApplicationContext found: " +
-                    "no ContextLoaderListener or DispatcherHandler registered?");
+            throw new IllegalStateException("No ApplicationContext set");
           }
           delegateToUse = initDelegate(wac);
         }
