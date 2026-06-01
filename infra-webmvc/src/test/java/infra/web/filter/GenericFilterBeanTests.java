@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package infra.web;
+package infra.web.filter;
 
 import org.junit.jupiter.api.Test;
 
 import infra.core.Ordered;
 import infra.core.env.Environment;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

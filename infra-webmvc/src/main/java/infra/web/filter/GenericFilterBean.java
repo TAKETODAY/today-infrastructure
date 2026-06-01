@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web;
+package infra.web.filter;
 
 import org.jspecify.annotations.Nullable;
 
@@ -29,6 +29,10 @@ import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.web.DispatcherHandler;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
 
 /**
  * Abstract base class for {@link Filter} implementations, providing
