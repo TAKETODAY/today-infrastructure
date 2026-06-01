@@ -540,11 +540,11 @@ public class DispatcherHandler extends InfraHandler {
       handleRequestInternal(context);
     }
     else {
-      new FilterChain(filters, this).doFilter(context);
+      new DefaultFilterChain(filters, this).doFilter(context);
     }
   }
 
-  void handleRequestInternal(RequestContext context) throws Throwable {
+  private void handleRequestInternal(RequestContext context) throws Throwable {
     logRequest(context);
     Object handler = null;
     Object returnValue = null;
@@ -902,4 +902,42 @@ public class DispatcherHandler extends InfraHandler {
     }
   }
 
+  private static final class DefaultFilterChain implements FilterChain {
+
+    private int index;
+
+    private final Filter[] filters;
+
+    private final DispatcherHandler dispatcherHandler;
+
+    /**
+     * Create a new {@code FilterChain} with the given filters and terminal handler.
+     *
+     * @param filters the list of web filters to apply; must not be null
+     * @param dispatcherHandler the handler to invoke when all filters have completed
+     */
+    DefaultFilterChain(Filter[] filters, DispatcherHandler dispatcherHandler) {
+      this.filters = filters;
+      this.dispatcherHandler = dispatcherHandler;
+    }
+
+    /**
+     * Proceed with the next filter in the chain, or invoke the terminal handler
+     * if no filters remain.
+     *
+     * @param request the current request context
+     * @throws Throwable if any filter or the terminal handler fails
+     */
+    @Override
+    public void doFilter(RequestContext request) throws Throwable {
+      final Filter[] filters = this.filters;
+      if (index < filters.length) {
+        filters[index++].doFilter(request, this);
+      }
+      else {
+        dispatcherHandler.handleRequestInternal(request);
+      }
+    }
+
+  }
 }

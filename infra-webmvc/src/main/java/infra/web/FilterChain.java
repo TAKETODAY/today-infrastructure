@@ -17,37 +17,14 @@
 package infra.web;
 
 /**
- * A chain of {@linkplain Filter web filters} that wraps the request
- * processing pipeline in {@link DispatcherHandler}.
- *
- * <p>Filters invoke the next element in the chain via
- * {@link #doFilter(RequestContext)}. When all filters have been given
- * control, the chain delegates to the terminal {@link DispatcherHandler} —
- * typically the dispatcher's internal request processing logic.
+ * Contract to allow a {@link Filter} to delegate to the next in the chain.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Filter
  * @see DispatcherHandler
  * @since 5.0
  */
-public class FilterChain {
-
-  private int index;
-
-  private final Filter[] filters;
-
-  private final DispatcherHandler dispatcherHandler;
-
-  /**
-   * Create a new {@code FilterChain} with the given filters and terminal handler.
-   *
-   * @param filters the list of web filters to apply; must not be null
-   * @param dispatcherHandler the handler to invoke when all filters have completed
-   */
-  FilterChain(Filter[] filters, DispatcherHandler dispatcherHandler) {
-    this.filters = filters;
-    this.dispatcherHandler = dispatcherHandler;
-  }
+public interface FilterChain {
 
   /**
    * Proceed with the next filter in the chain, or invoke the terminal handler
@@ -56,14 +33,6 @@ public class FilterChain {
    * @param request the current request context
    * @throws Throwable if any filter or the terminal handler fails
    */
-  public void doFilter(RequestContext request) throws Throwable {
-    final Filter[] filters = this.filters;
-    if (index < filters.length) {
-      filters[index++].doFilter(request, this);
-    }
-    else {
-      dispatcherHandler.handleRequestInternal(request);
-    }
-  }
+  void doFilter(RequestContext request) throws Throwable;
 
 }
