@@ -81,7 +81,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
    * @see #setEnvironment(Environment)
    */
   public DelegatingFilterProxy(Filter delegate) {
-    Assert.notNull(delegate, "Delegate Filter must not be null");
+    Assert.notNull(delegate, "Delegate Filter is required");
     this.delegate = delegate;
   }
 
