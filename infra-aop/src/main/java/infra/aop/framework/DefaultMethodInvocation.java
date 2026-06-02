@@ -28,7 +28,7 @@ import java.util.Objects;
 
 import infra.aop.ProxyMethodInvocation;
 import infra.aop.support.AopUtils;
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
@@ -38,7 +38,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-11-10 13:14
  */
-public class DefaultMethodInvocation extends AttributeAccessorSupport implements ProxyMethodInvocation, Cloneable {
+public class DefaultMethodInvocation extends DefaultAttributeAccessor implements ProxyMethodInvocation, Cloneable {
 
   private final Object proxy;
 

@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -44,7 +44,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport implements ServerHttpRequest {
+public abstract class AbstractServerHttpRequest extends DefaultAttributeAccessor implements ServerHttpRequest {
 
   private static final Pattern QUERY_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
 

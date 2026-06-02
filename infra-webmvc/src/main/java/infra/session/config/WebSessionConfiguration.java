@@ -84,7 +84,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @Component(SessionManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(value = SessionManager.class, name = SessionManager.BEAN_NAME)
-  static DefaultSessionManager webSessionManager(SessionIdResolver sessionIdResolver, SessionRepository repository) {
+  static DefaultSessionManager sessionManager(SessionIdResolver sessionIdResolver, SessionRepository repository) {
     return new DefaultSessionManager(repository, sessionIdResolver);
   }
 

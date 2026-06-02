@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AbstractClientHttpRequest extends AttributeAccessorSupport implements ClientHttpRequest {
+public abstract class AbstractClientHttpRequest extends DefaultAttributeAccessor implements ClientHttpRequest {
 
   /**
    * COMMITTING -> COMMITTED is the period after doCommit is called but before

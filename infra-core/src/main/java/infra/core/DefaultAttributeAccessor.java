@@ -40,7 +40,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.1.7 2020-02-22 12:47
  */
-public abstract class AttributeAccessorSupport implements AttributeAccessor {
+public class DefaultAttributeAccessor implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
   protected @Nullable Map<String, Object> attributes;
@@ -134,8 +134,8 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   public void copyAttributeFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
     Map<String, Object> attributes;
-    if (source instanceof AttributeAccessorSupport) {
-      attributes = ((AttributeAccessorSupport) source).attributes;
+    if (source instanceof DefaultAttributeAccessor) {
+      attributes = ((DefaultAttributeAccessor) source).attributes;
       if (attributes == null) {
         return;
       }
@@ -177,7 +177,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   public boolean equals(Object other) {
-    return (this == other || (other instanceof AttributeAccessorSupport that
+    return (this == other || (other instanceof DefaultAttributeAccessor that
             && Objects.equals(attributes, that.attributes)));
   }
 

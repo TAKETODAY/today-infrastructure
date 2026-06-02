@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpHeaders;
 import infra.http.HttpOutputMessage;
 import infra.lang.Constant;
@@ -35,7 +35,7 @@ import infra.util.StreamUtils;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public class MockHttpOutputMessage extends AttributeAccessorSupport implements HttpOutputMessage {
+public class MockHttpOutputMessage extends DefaultAttributeAccessor implements HttpOutputMessage {
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 

@@ -23,10 +23,10 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 
 /**
- * Extension of {@link AttributeAccessorSupport},
+ * Extension of {@link DefaultAttributeAccessor},
  * holding attributes as {@link BeanMetadataAttribute} objects in order
  * to keep track of the definition source.
  *
@@ -34,7 +34,7 @@ import infra.core.AttributeAccessorSupport;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/7 12:30
  */
-public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport implements BeanMetadataElement, Serializable {
+public class BeanMetadataAttributeAccessor extends DefaultAttributeAccessor implements BeanMetadataElement, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;

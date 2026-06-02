@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.util.JdkIdGenerator;
@@ -45,7 +45,7 @@ import infra.util.concurrent.Future;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/4/5 14:16
  */
-public abstract class WebSocketSession extends AttributeAccessorSupport implements AttributeAccessor {
+public abstract class WebSocketSession extends DefaultAttributeAccessor implements AttributeAccessor {
 
   protected static final JdkIdGenerator idGenerator = new JdkIdGenerator();
 

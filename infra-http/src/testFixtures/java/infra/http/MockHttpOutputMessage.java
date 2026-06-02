@@ -24,14 +24,14 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 
 /**
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public class MockHttpOutputMessage extends AttributeAccessorSupport implements HttpOutputMessage {
+public class MockHttpOutputMessage extends DefaultAttributeAccessor implements HttpOutputMessage {
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 

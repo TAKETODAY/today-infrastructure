@@ -22,7 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
@@ -48,7 +48,7 @@ import infra.web.annotation.RequestParam;
  * @see Nullable
  * @since 2.3.7
  */
-public class ResolvableMethodParameter extends AttributeAccessorSupport {
+public class ResolvableMethodParameter extends DefaultAttributeAccessor {
 
   /**
    * @since 3.0.1

@@ -19,7 +19,7 @@ package infra.http;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.core.AttributeAccessorSupport;
+import infra.core.DefaultAttributeAccessor;
 
 /**
  * for AttributeAccessor support
@@ -27,7 +27,7 @@ import infra.core.AttributeAccessorSupport;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/7/4 21:46
  */
-public abstract class AbstractHttpRequest extends AttributeAccessorSupport implements HttpRequest {
+public abstract class AbstractHttpRequest extends DefaultAttributeAccessor implements HttpRequest {
 
   @Override
   protected Map<String, Object> createAttributes() {

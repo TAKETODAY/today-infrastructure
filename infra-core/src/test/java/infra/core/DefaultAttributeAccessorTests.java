@@ -32,11 +32,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/3/22 17:38
  */
-class AttributeAccessorSupportTests {
+class DefaultAttributeAccessorTests {
 
   @Test
   void setAndGetNullAttributeRemovesValue() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("name", "value");
     accessor.setAttribute("name", null);
     assertThat(accessor.getAttribute("name")).isNull();
@@ -44,8 +44,8 @@ class AttributeAccessorSupportTests {
 
   @Test
   void equalsAndHashCodeWithSameAttributes() {
-    SimpleAttributeAccessorSupport accessor1 = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport accessor2 = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor1 = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor accessor2 = new SimpleAttributeAccessor();
 
     accessor1.setAttribute("name", "value");
     accessor2.setAttribute("name", "value");
@@ -56,8 +56,8 @@ class AttributeAccessorSupportTests {
 
   @Test
   void equalsAndHashCodeWithDifferentAttributes() {
-    SimpleAttributeAccessorSupport accessor1 = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport accessor2 = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor1 = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor accessor2 = new SimpleAttributeAccessor();
 
     accessor1.setAttribute("name1", "value1");
     accessor2.setAttribute("name21", "value21");
@@ -68,13 +68,13 @@ class AttributeAccessorSupportTests {
 
   @Test
   void attributeNamesWithNoAttributes() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor.attributeNames()).isEmpty();
   }
 
   @Test
   void copyFromNullSourceThrowsException() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThatThrownBy(() -> accessor.copyAttributeFrom(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Source is required");
@@ -82,8 +82,8 @@ class AttributeAccessorSupportTests {
 
   @Test
   void copyFromEmptySource() {
-    SimpleAttributeAccessorSupport source = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor source = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor target = new SimpleAttributeAccessor();
     target.setAttribute("name", "value");
 
     target.copyAttributeFrom(source);
@@ -92,14 +92,14 @@ class AttributeAccessorSupportTests {
 
   @Test
   void equalityWithDifferentTypes() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor).isNotEqualTo("not an accessor");
   }
 
   @Test
   void equalsAndHashCodeWithEmptyAttributes() {
-    SimpleAttributeAccessorSupport accessor1 = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport accessor2 = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor1 = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor accessor2 = new SimpleAttributeAccessor();
 
     assertThat(accessor1).isEqualTo(accessor2);
     assertThat(accessor1.hashCode()).isEqualTo(accessor2.hashCode());
@@ -107,13 +107,13 @@ class AttributeAccessorSupportTests {
 
   @Test
   void equalityWithNullObject() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor).isNotEqualTo(null);
   }
 
   @Test
   void setAttributesFromNullMap() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("name", "value");
     accessor.setAttributes(null);
     assertThat(accessor.getAttribute("name")).isEqualTo("value");
@@ -121,7 +121,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void setAttributesFromEmptyMap() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("name", "value");
     accessor.setAttributes(Collections.emptyMap());
     assertThat(accessor.getAttribute("name")).isEqualTo("value");
@@ -129,7 +129,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void computeAttributeWithExistingNonNullValue() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("name", "existing");
 
     String computed = accessor.computeAttribute("name", key -> "computed");
@@ -140,7 +140,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void computeAttributeWithNoExistingValue() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
 
     String computed = accessor.computeAttribute("name", key -> "computed");
 
@@ -150,8 +150,8 @@ class AttributeAccessorSupportTests {
 
   @Test
   void copyFromEmptyAccessorPreservesExistingAttributes() {
-    SimpleAttributeAccessorSupport source = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor source = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor target = new SimpleAttributeAccessor();
     target.setAttribute("name", "value");
 
     target.copyAttributeFrom(source);
@@ -161,8 +161,8 @@ class AttributeAccessorSupportTests {
 
   @Test
   void attributeEquality() {
-    SimpleAttributeAccessorSupport accessor1 = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport accessor2 = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor1 = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor accessor2 = new SimpleAttributeAccessor();
 
     accessor1.setAttribute("key1", "value1");
     accessor1.setAttribute("key2", "value2");
@@ -175,7 +175,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void computeAttributeWithNullNameThrowsException() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThatThrownBy(() -> accessor.computeAttribute(null, key -> "value"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Name is required");
@@ -183,7 +183,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void computeAttributeWithNullFunctionThrowsException() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThatThrownBy(() -> accessor.computeAttribute("name", null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Compute function is required");
@@ -191,7 +191,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void multipleAttributeOperations() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
 
     accessor.setAttribute("key1", "value1");
     accessor.setAttribute("key2", "value2");
@@ -205,20 +205,20 @@ class AttributeAccessorSupportTests {
 
   @Test
   void clearAttributesOnEmptyAccessor() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.clearAttributes();
     assertThat(accessor.hasAttributes()).isFalse();
   }
 
   @Test
   void removeNonExistentAttribute() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor.removeAttribute("nonexistent")).isNull();
   }
 
   @Test
   void setAndGetAttributesWithMixedTypes() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
 
     accessor.setAttribute("string", "value");
     accessor.setAttribute("integer", 42);
@@ -231,7 +231,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void computeAttributeThrowsExceptionWhenFunctionReturnsNull() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThatThrownBy(() -> accessor.computeAttribute("name", key -> null))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Compute function must not return null for attribute named 'name'");
@@ -239,15 +239,15 @@ class AttributeAccessorSupportTests {
 
   @Test
   void getAttributesReturnsNewMapWhenNotInitialized() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     Map<String, Object> attributes = accessor.getAttributes();
     assertThat(attributes).isNotNull().isEmpty();
   }
 
   @Test
   void copyFromSourceWithNoAttributes() {
-    SimpleAttributeAccessorSupport source = new SimpleAttributeAccessorSupport();
-    SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor source = new SimpleAttributeAccessor();
+    SimpleAttributeAccessor target = new SimpleAttributeAccessor();
     target.setAttribute("key", "value");
 
     target.copyAttributeFrom(source);
@@ -257,25 +257,25 @@ class AttributeAccessorSupportTests {
 
   @Test
   void attributeNamesReturnsEmptyIterableWhenNoAttributes() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor.attributeNames()).isEmpty();
   }
 
   @Test
   void getAttributeNamesReturnsEmptyArrayWhenNoAttributes() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor.getAttributeNames()).isEmpty();
   }
 
   @Test
   void hasAttributeReturnsFalseWhenAttributesNotInitialized() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor.hasAttribute("any")).isFalse();
   }
 
   @Test
   void computeAttributeWithExistingNullValue() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.getAttributes().put("name", null);
 
     String computed = accessor.computeAttribute("name", key -> "computed");
@@ -286,7 +286,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void getAttributesCreatesNewMapWhenAttributesIsNull() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     Map<String, Object> attributes = accessor.getAttributes();
     Map<String, Object> attributes2 = accessor.getAttributes();
     assertThat(attributes).isNotNull().isEmpty();
@@ -350,7 +350,7 @@ class AttributeAccessorSupportTests {
     };
 
     source.setAttribute("key", "value");
-    SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor target = new SimpleAttributeAccessor();
     target.copyAttributeFrom(source);
 
     assertThat(target.getAttribute("key")).isEqualTo("value");
@@ -358,7 +358,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void setAttributesWithNullValueRemovesAttribute() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("key", "value");
 
     Map<String, Object> newAttrs = new HashMap<>();
@@ -370,7 +370,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void modifyingReturnedAttributesMapDoesNotAffectOriginal() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("key", "value");
 
     Map<String, Object> attributes = accessor.getAttributes();
@@ -381,7 +381,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void copyFromNonAttributeAccessorSupportType() {
-    SimpleAttributeAccessorSupport target = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor target = new SimpleAttributeAccessor();
     AttributeAccessor source = new TestAttributeAccessor();
     source.setAttribute("name", "value");
 
@@ -392,7 +392,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void clearAttributesRemovesAllEntries() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("key1", "value1");
     accessor.setAttribute("key2", "value2");
 
@@ -404,7 +404,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void hasAttributesReturnsTrueWhenHasAttributes() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("key", "value");
 
     assertThat(accessor.hasAttributes()).isTrue();
@@ -412,7 +412,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void setAttributesWithExistingValues() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("original", "value");
 
     Map<String, Object> newAttrs = new HashMap<>();
@@ -426,7 +426,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void createAttributesReturnsNewHashMap() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     Map<String, Object> attributes1 = accessor.createAttributes();
     Map<String, Object> attributes2 = accessor.createAttributes();
 
@@ -438,7 +438,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void equalsWithSameInstance() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("key", "value");
 
     assertThat(accessor).isEqualTo(accessor);
@@ -446,7 +446,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void setAttributeWithEmptyName() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     accessor.setAttribute("", "value");
 
     assertThat(accessor.hasAttribute("")).isTrue();
@@ -455,7 +455,7 @@ class AttributeAccessorSupportTests {
 
   @Test
   void getAttributeWithEmptyName() {
-    SimpleAttributeAccessorSupport accessor = new SimpleAttributeAccessorSupport();
+    SimpleAttributeAccessor accessor = new SimpleAttributeAccessor();
     assertThat(accessor.getAttribute("")).isNull();
   }
 
@@ -513,7 +513,7 @@ class AttributeAccessorSupportTests {
     }
   }
 
-  private static class SimpleAttributeAccessorSupport extends AttributeAccessorSupport {
+  private static class SimpleAttributeAccessor extends DefaultAttributeAccessor {
     // Uses default implementation
   }
 
