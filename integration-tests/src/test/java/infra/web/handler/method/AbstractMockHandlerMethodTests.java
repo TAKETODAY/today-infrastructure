@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
-import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Configuration;
 import infra.http.converter.HttpMessageConverter;
@@ -84,30 +83,23 @@ public abstract class AbstractMockHandlerMethodTests {
 
     final GenericWebApplicationContext wac = new GenericWebApplicationContext();
 
-    handler = new MockDispatcherHandler() {
+    if (controllerClass != null) {
+      wac.registerBeanDefinition(
+              controllerClass.getSimpleName(), new RootBeanDefinition(controllerClass));
+    }
 
-      @Override
-      protected ApplicationContext createApplicationContext(@Nullable ApplicationContext parent) {
-
-        if (controllerClass != null) {
-          wac.registerBeanDefinition(
-                  controllerClass.getSimpleName(), new RootBeanDefinition(controllerClass));
-        }
-
-        if (initializer != null) {
-          initializer.accept(wac);
-        }
+    if (initializer != null) {
+      initializer.accept(wac);
+    }
 
 //        register("handlerAdapter", RequestMappingHandlerAdapter.class, wac);
 
-        register("testConfig", TestConfig.class, wac);
+    register("testConfig", TestConfig.class, wac);
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
 
-        AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
+    wac.refresh();
 
-        wac.refresh();
-        return wac;
-      }
-    };
+    handler = new MockDispatcherHandler(wac);
 
     MockMockConfig config = new MockMockConfig();
     config.addInitParameter("infra.mock.api.http.legacyDoHead", "true");

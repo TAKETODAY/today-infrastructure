@@ -72,7 +72,7 @@ import infra.web.view.ViewRef;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2019-11-16 19:05
  */
-public class DispatcherHandler extends InfraHandler {
+public class DispatcherHandler extends WebLifecycleManager {
 
   private final ArrayList<RequestCompletedListener> requestCompletedActions = new ArrayList<>();
 
@@ -116,15 +116,12 @@ public class DispatcherHandler extends InfraHandler {
   /**
    * Create a new {@code DispatcherHandler} with the given application context.
    * <p>
-   *
    * If the context has already been refreshed or does not implement
    * {@code ConfigurableApplicationContext}, none of the above will occur under the
    * assumption that the user has performed these actions (or not) per his or her
    * specific needs.
    *
    * @param context the context to use
-   * @see #initApplicationContext
-   * @see #configureAndRefreshApplicationContext
    */
   public DispatcherHandler(ApplicationContext context) {
     super(context);

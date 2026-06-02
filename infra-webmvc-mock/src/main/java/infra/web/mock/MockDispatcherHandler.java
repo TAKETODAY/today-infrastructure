@@ -18,32 +18,24 @@
 
 package infra.web.mock;
 
-import org.jspecify.annotations.Nullable;
-
 import java.io.Serial;
 import java.io.Serializable;
 
 import infra.context.ApplicationContext;
-import infra.context.ApplicationContextInitializer;
-import infra.context.ConfigurableApplicationContext;
-import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Assert;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.util.ObjectUtils;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.async.WebAsyncManager;
-import infra.web.mock.support.StandardMockEnvironment;
-import infra.web.mock.support.WebApplicationContextUtils;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers in Servlet
@@ -70,76 +62,14 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
 
   private transient MockConfig mockConfig;
 
-  /** MockContext attribute to find the WebApplicationContext in. */
-  @Nullable
-  private String contextAttribute;
-
   /** Should we publish the context as a MockContext attribute?. */
   private boolean publishContext = true;
 
   public MockDispatcherHandler() {
   }
 
-  /**
-   * Create a new {@code InfraHandler} with the given application context. This
-   * constructor is useful in Servlet environments where instance-based registration
-   * of servlets is possible through the {@link MockContext#addServlet} API.
-   * <p>Using this constructor indicates that the following properties / init-params
-   * will be ignored:
-   * <ul>
-   * <li>{@link #setContextClass(Class)} / 'contextClass'</li>
-   * <li>{@link #setContextConfigLocation(String)} / 'contextConfigLocation'</li>
-   * </ul>
-   * <p>The given application context may or may not yet be {@linkplain
-   * ConfigurableApplicationContext#refresh() refreshed}. If it (a) is an implementation
-   * of {@link ConfigurableApplicationContext} and (b) has <strong>not</strong>
-   * already been refreshed (the recommended approach), then the following will occur:
-   * <ul>
-   * <li>If the given context does not already have a {@linkplain
-   * ConfigurableApplicationContext#setParent parent}, the root application context
-   * will be set as the parent.</li>
-   * <li>If the given context has not already been assigned an {@linkplain
-   * ConfigurableApplicationContext#setId id}, one will be assigned to it</li>
-   * <li>{@code MockContext} and {@code ServletConfig} objects will be delegated to
-   * the application context</li>
-   * <li>{@link #postProcessApplicationContext} will be called</li>
-   * <li>Any {@link ApplicationContextInitializer ApplicationContextInitializers} specified through the
-   * "contextInitializerClasses" init-param or through the {@link
-   * #addContextInitializers} property will be applied.</li>
-   * <li>{@link ConfigurableApplicationContext#refresh refresh()} will be called</li>
-   * </ul>
-   * If the context has already been refreshed or does not implement
-   * {@code ConfigurableApplicationContext}, none of the above will occur under the
-   * assumption that the user has performed these actions (or not) per his or her
-   * specific needs.
-   *
-   * @param context the context to use
-   * @see #initApplicationContext
-   * @see #configureAndRefreshApplicationContext
-   */
   public MockDispatcherHandler(ApplicationContext context) {
     super(context);
-  }
-
-  /**
-   * Set the name of the MockContext attribute which should be used to retrieve the
-   * {@link WebApplicationContext} that this servlet is supposed to use.
-   *
-   * @since 4.0
-   */
-  public void setContextAttribute(@Nullable String contextAttribute) {
-    this.contextAttribute = contextAttribute;
-  }
-
-  /**
-   * Return the name of the MockContext attribute which should be used to retrieve the
-   * {@link WebApplicationContext} that this servlet is supposed to use.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public String getContextAttribute() {
-    return this.contextAttribute;
   }
 
   /**
@@ -152,11 +82,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
    */
   public void setPublishContext(boolean publishContext) {
     this.publishContext = publishContext;
-  }
-
-  @Override
-  protected ConfigurableEnvironment createEnvironment() {
-    return new StandardMockEnvironment();
   }
 
   @Override
@@ -178,36 +103,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     }
   }
 
-  @Override
-  protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
-    super.postProcessApplicationContext(context);
-
-    if (context instanceof ConfigurableWebApplicationContext wac) {
-      wac.setMockContext(getMockContext());
-      wac.setMockConfig(getMockConfig());
-    }
-
-    // The wac environment's #initPropertySources will be called in any case when the context
-    // is refreshed; do it eagerly here to ensure servlet property sources are in place for
-    // use in any post-processing or initialization that occurs below prior to #refresh
-    ConfigurableEnvironment env = context.getEnvironment();
-    if (env instanceof ConfigurableMockEnvironment cwe) {
-      cwe.initPropertySources(getMockContext(), getMockConfig());
-    }
-  }
-
-  @Override
-  protected void applyDefaultContextId(ConfigurableApplicationContext context) {
-    // Generate default id...
-    context.setId(APPLICATION_CONTEXT_ID_PREFIX +
-            ObjectUtils.getDisplayString(getMockContext()) + '/' + getName());
-  }
-
-  @Override
-  protected ApplicationContext getRootApplicationContext() {
-    return WebApplicationContextUtils.getWebApplicationContext(getMockContext());
-  }
-
   /**
    * Returns a reference to the {@link MockContext} in which this
    * servlet is running. See {@link MockConfig#getMockContext}.
@@ -221,31 +116,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
    */
   public MockContext getMockContext() {
     return getMockConfig().getMockContext();
-  }
-
-  /**
-   * Retrieve a {@code ApplicationContext} from the {@code MockContext}
-   * attribute with the {@link #setContextAttribute configured name}. The
-   * {@code ApplicationContext} must have already been loaded and stored in the
-   * {@code MockContext} before this servlet gets initialized (or invoked).
-   * <p>Subclasses may override this method to provide a different
-   * {@code ApplicationContext} retrieval strategy.
-   *
-   * @return the ApplicationContext for this servlet, or {@code null} if not found
-   * @see #getContextAttribute()
-   */
-  @Override
-  @Nullable
-  protected ApplicationContext findApplicationContext() {
-    String attrName = getContextAttribute();
-    if (attrName == null) {
-      return null;
-    }
-    WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(getMockContext(), attrName);
-    if (wac == null) {
-      throw new IllegalStateException("No WebApplicationContext found: initializer not registered?");
-    }
-    return null;
   }
 
   /**
