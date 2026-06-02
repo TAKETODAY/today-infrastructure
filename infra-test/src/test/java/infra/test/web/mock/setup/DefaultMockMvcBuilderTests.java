@@ -103,13 +103,14 @@ public class DefaultMockMvcBuilderTests {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
+    root.refresh();
 
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
-    builder.addDispatcherCustomizer(ds -> ds.setContextId("test-id"));
+    builder.addDispatcherCustomizer(ds -> ds.setPublishContext(false));
     MockMvc mvc = builder.build();
-    String contextId = (String) new DirectFieldAccessor(mvc)
-            .getPropertyValue("mock.contextId");
-    assertThat(contextId).isEqualTo("test-id");
+    boolean publishContext = (boolean) new DirectFieldAccessor(mvc)
+            .getPropertyValue("mock.publishContext");
+    assertThat(publishContext).isEqualTo(false);
   }
 
   @Test
@@ -117,14 +118,15 @@ public class DefaultMockMvcBuilderTests {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
+    root.refresh();
 
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
-    builder.addDispatcherCustomizer(ds -> ds.setContextId("test-id"));
-    builder.addDispatcherCustomizer(ds -> ds.setContextId("override-id"));
+    builder.addDispatcherCustomizer(ds -> ds.setPublishContext(false));
+    builder.addDispatcherCustomizer(ds -> ds.setPublishContext(true));
     MockMvc mvc = builder.build();
-    String contextId = (String) new DirectFieldAccessor(mvc)
-            .getPropertyValue("mock.contextId");
-    assertThat(contextId).isEqualTo("override-id");
+    boolean publishContext = (boolean) new DirectFieldAccessor(mvc)
+            .getPropertyValue("mock.publishContext");
+    assertThat(publishContext).isEqualTo(false);
   }
 
   @EnableWebMvc

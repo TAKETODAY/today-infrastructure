@@ -121,7 +121,7 @@ class CompositeFilterTests {
   public static class MockFilter implements Filter {
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Throwable {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
       request.setAttribute("called", Boolean.TRUE);
     }
 
