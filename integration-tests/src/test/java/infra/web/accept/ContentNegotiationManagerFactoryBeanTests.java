@@ -57,7 +57,7 @@ class ContentNegotiationManagerFactoryBeanTests {
     mockContext.getMimeTypes().put("foo", "application/foo");
 
     this.mockRequest = new HttpMockRequestImpl(mockContext);
-    webRequest = new MockRequestContext(mockRequest, null);
+    webRequest = new MockRequestContext(mockRequest);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }
 
@@ -123,14 +123,14 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.mockRequest.setRequestURI("/flower.foo");
 
     this.mockRequest.setRequestURI("/flower.bar");
-    webRequest = new MockRequestContext(mockRequest, null);
+    webRequest = new MockRequestContext(mockRequest);
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
 
     this.mockRequest.setRequestURI("/flower.gif");
 
-    webRequest = new MockRequestContext(mockRequest, null);
+    webRequest = new MockRequestContext(mockRequest);
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
   }

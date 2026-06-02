@@ -104,6 +104,14 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     this(context, request, response, null);
   }
 
+  public MockRequestContext(HttpMockRequest request, HttpMockResponse response, DispatcherHandler dispatcherHandler) {
+    this(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
+  }
+
+  public MockRequestContext(HttpMockRequest request, DispatcherHandler dispatcherHandler) {
+    this(dispatcherHandler.getApplicationContext(), request, new MockHttpResponseImpl(), dispatcherHandler);
+  }
+
   public MockRequestContext(ApplicationContext context, HttpMockRequest request,
           HttpMockResponse response, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);

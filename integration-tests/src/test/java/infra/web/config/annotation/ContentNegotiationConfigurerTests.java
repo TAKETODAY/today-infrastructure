@@ -52,7 +52,7 @@ class ContentNegotiationConfigurerTests {
   @BeforeEach
   public void setup() {
     this.mockRequest = new HttpMockRequestImpl();
-    this.webRequest = new MockRequestContext(this.mockRequest, null);
+    this.webRequest = new MockRequestContext(this.mockRequest);
     this.configurer = new ContentNegotiationConfigurer();
   }
 

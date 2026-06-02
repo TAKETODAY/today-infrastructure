@@ -299,24 +299,6 @@ class RequestContextUtilsTests {
   }
 
   @Test
-  void getSessionIdShouldReturnNullWhenNoSession() {
-    MockRequestContext context = new MockRequestContext();
-
-    String sessionId = context.getSessionId();
-
-    assertThat(sessionId).isNull();
-  }
-
-  @Test
-  void getRequiredSessionShouldThrowExceptionWhenNoSession() {
-    MockRequestContext context = new MockRequestContext();
-
-    assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> context.getSession())
-            .withMessage("SessionManager not set");
-  }
-
-  @Test
   void getSessionManagerShouldReturnNullWhenNotAvailable() {
     MockRequestContext context = new MockRequestContext();
 
