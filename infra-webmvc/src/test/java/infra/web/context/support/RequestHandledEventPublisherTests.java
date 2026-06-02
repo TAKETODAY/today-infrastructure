@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationEventPublisher;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -89,7 +88,7 @@ class RequestHandledEventPublisherTests {
     when(request.getMethodAsString()).thenReturn("GET");
     when(request.getRequestProcessingTime()).thenReturn(100L);
     when(request.getStatus()).thenReturn(200);
-    when(RequestContextUtils.getSessionId(request)).thenReturn(null);
+    when(request.getSessionId()).thenReturn(null);
 
     eventPublisher.requestCompleted(request, null);
 

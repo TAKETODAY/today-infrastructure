@@ -106,8 +106,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     context.register(GlobalExceptionHandler.class);
     context.refresh();
 
-    MockDispatcherHandler servlet = new MockDispatcherHandler();
-    servlet.setApplicationContext(context);
+    MockDispatcherHandler servlet = new MockDispatcherHandler(context);
     servlet.init(this.mockConfig);
 
     HttpMockRequestImpl request = initRequest("/cp/non-existing");

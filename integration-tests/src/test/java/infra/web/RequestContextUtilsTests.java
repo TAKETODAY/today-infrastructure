@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.TimeZone;
 
 import infra.mock.web.HttpMockRequestImpl;
-import infra.session.Session;
 import infra.session.SessionManager;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
@@ -303,18 +302,9 @@ class RequestContextUtilsTests {
   void getSessionIdShouldReturnNullWhenNoSession() {
     MockRequestContext context = new MockRequestContext();
 
-    String sessionId = RequestContextUtils.getSessionId(context);
+    String sessionId = context.getSessionId();
 
     assertThat(sessionId).isNull();
-  }
-
-  @Test
-  void getSessionShouldReturnNullWhenNoSessionManager() {
-    MockRequestContext context = new MockRequestContext();
-
-    Session session = RequestContextUtils.getSession(context);
-
-    assertThat(session).isNull();
   }
 
   @Test
@@ -322,26 +312,8 @@ class RequestContextUtilsTests {
     MockRequestContext context = new MockRequestContext();
 
     assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredSession(context))
-            .withMessage("Cannot get Session");
-  }
-
-  @Test
-  void getSessionWithCreateFalseShouldReturnNullWhenNoSessionManager() {
-    MockRequestContext context = new MockRequestContext();
-
-    Session session = RequestContextUtils.getSession(context, false);
-
-    assertThat(session).isNull();
-  }
-
-  @Test
-  void getSessionWithCreateTrueShouldReturnNullWhenNoSessionManager() {
-    MockRequestContext context = new MockRequestContext();
-
-    Session session = RequestContextUtils.getSession(context, true);
-
-    assertThat(session).isNull();
+            .isThrownBy(() -> context.getSession())
+            .withMessage("SessionManager not set");
   }
 
   @Test

@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
-import infra.web.RequestContextUtils;
 
 /**
  * RequestScope beans just available in current {@link RequestContext}
@@ -74,7 +73,7 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
     else if (RequestContext.SCOPE_SESSION.equals(key)) {
       var request = RequestContextHolder.get();
       if (request != null) {
-        return RequestContextUtils.getSession(request, true);
+        return request.getSession(true);
       }
     }
     return null;

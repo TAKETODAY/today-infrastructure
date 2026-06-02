@@ -36,7 +36,6 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.session.Session;
 import infra.util.function.SingletonSupplier;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.async.DeferredResult;
 
 /**
@@ -72,7 +71,7 @@ public abstract class AbstractHttpMockRequestAssert<SELF extends AbstractHttpMoc
     Map<String, Object> map = toMap(httpSession.getAttributeNames().asIterator(), httpSession::getAttribute);
     RequestContext requestContext = getRequestContext();
     if (requestContext != null) {
-      Session session = RequestContextUtils.getSession(requestContext);
+      Session session = requestContext.getSession(false);
       if (session != null) {
         map.putAll(session.getAttributes());
       }

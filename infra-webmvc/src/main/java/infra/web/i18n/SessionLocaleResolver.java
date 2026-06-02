@@ -177,8 +177,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     return null;
   }
 
-  private void setSessionAttribute(
-          RequestContext request, String attributeName, @Nullable Object attribute) {
+  private void setSessionAttribute(RequestContext request, String attributeName, @Nullable Object attribute) {
     SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       Session session = sessionManager.getSession(request);

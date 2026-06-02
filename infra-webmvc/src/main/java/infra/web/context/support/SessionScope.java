@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.Scope;
 import infra.session.Session;
 import infra.session.SessionAttributeListener;
@@ -53,15 +52,8 @@ public class SessionScope extends AbstractWebContextScope<Session> {
   public static final String DESTRUCTION_CALLBACK_NAME_PREFIX =
           SessionScope.class.getName() + ".DESTRUCTION_CALLBACK.";
 
-  private final SessionManagerDiscover sessionManagerDiscover;
-
-  public SessionScope(BeanFactory beanFactory) {
-    this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
-  }
-
-  @Nullable
   @Override
-  public String getConversationId() {
+  public @Nullable String getConversationId() {
     RequestContext context = RequestContextHolder.getRequired();
     Session session = getSession(context, false);
     if (session != null) {
@@ -81,8 +73,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
   }
 
   @Override
-  @Nullable
-  public Object remove(String name) {
+  public @Nullable Object remove(String name) {
     RequestContext context = RequestContextHolder.get();
     if (context != null) {
       Session session = getSession(context);
@@ -135,8 +126,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
    */
   @Nullable
   private Session getSession(RequestContext request, boolean create) {
-    return sessionManagerDiscover.obtain(request)
-            .getSession(request, create);
+    return request.getSession(create);
   }
 
   @Override

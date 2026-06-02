@@ -174,7 +174,7 @@ class WebContentGeneratorTests {
 
     Session session = mock(Session.class);
     try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
-      when(RequestContextUtils.getSession(request, false)).thenReturn(session);
+      when(request.getSession(false)).thenReturn(session);
 
       assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
     }
@@ -358,7 +358,7 @@ class WebContentGeneratorTests {
     RequestContext request = mock(RequestContext.class);
     when(request.getMethodAsString()).thenReturn("GET");
     try (MockedStatic<RequestContextUtils> mocked = mockStatic(RequestContextUtils.class)) {
-      when(RequestContextUtils.getSession(request, false)).thenReturn(null);
+      when(request.getSession(false)).thenReturn(null);
 
       assertThatExceptionOfType(SessionRequiredException.class)
               .isThrownBy(() -> generator.checkRequest(request))

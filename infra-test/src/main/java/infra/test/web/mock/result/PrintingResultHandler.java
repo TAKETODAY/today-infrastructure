@@ -163,7 +163,7 @@ public class PrintingResultHandler implements ResultHandler {
       }
     }
 
-    Session webSession = RequestContextUtils.getSession(context, false);
+    Session webSession = context.getSession(false);
     if (webSession != null) {
       map.putAll(webSession.getAttributes());
     }

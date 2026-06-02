@@ -23,7 +23,6 @@ import infra.context.ApplicationEventPublisher;
 import infra.lang.Assert;
 import infra.web.RequestCompletedListener;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 
 /**
  * publish {@link RequestHandledEvent}
@@ -44,7 +43,7 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
   @Override
   public void requestCompleted(RequestContext request, @Nullable Throwable notHandled) {
     // Whether we succeeded, publish an event.
-    var event = getRequestHandledEvent(request, notHandled);
+    var event = createRequestHandledEvent(request, notHandled);
     eventPublisher.publishEvent(event);
   }
 
@@ -55,10 +54,9 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
    * @param notHandled failure cause
    * @return the event
    */
-  protected ApplicationEvent getRequestHandledEvent(RequestContext request, @Nullable Throwable notHandled) {
+  protected ApplicationEvent createRequestHandledEvent(RequestContext request, @Nullable Throwable notHandled) {
     return new RequestHandledEvent(this, request.getRequestURI(), request.getRemoteAddress(),
-            request.getMethodAsString(), RequestContextUtils.getSessionId(request),
-            request.getRequestProcessingTime(), notHandled, request.getStatus());
+            request.getMethodAsString(), request.getSessionId(), request.getRequestProcessingTime(), notHandled, request.getStatus());
   }
 
 }

@@ -65,7 +65,7 @@ class SessionRedirectModelManagerTests {
     Session session = mock(Session.class);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, true)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
 
       Session result = manager.getSession(context, true);
       assertThat(result).isSameAs(session);
@@ -80,7 +80,7 @@ class SessionRedirectModelManagerTests {
 
     // Mocking static method behavior to return null session
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, false)).thenReturn(null);
+      mockedUtils.when(() -> request.getSession(false)).thenReturn(null);
 
       List<RedirectModel> result = manager.retrieveRedirectModel(request);
       assertThat(result).isNull();
@@ -97,7 +97,7 @@ class SessionRedirectModelManagerTests {
     when(session.getAttribute(anyString())).thenReturn(null);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, false)).thenReturn(session);
+      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
 
       List<RedirectModel> result = manager.retrieveRedirectModel(request);
       assertThat(result).isNull();
@@ -116,7 +116,7 @@ class SessionRedirectModelManagerTests {
     when(session.getAttribute(anyString())).thenReturn(models);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, false)).thenReturn(session);
+      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
 
       // when
       List<RedirectModel> result = manager.retrieveRedirectModel(request);
@@ -135,7 +135,7 @@ class SessionRedirectModelManagerTests {
     List<RedirectModel> emptyModels = new ArrayList<>();
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, false)).thenReturn(session);
+      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
 
       // when
       manager.updateRedirectModel(emptyModels, request);
@@ -155,7 +155,7 @@ class SessionRedirectModelManagerTests {
     models.add(new RedirectModel());
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, true)).thenReturn(session);
+      mockedUtils.when(() -> request.getSession(true)).thenReturn(session);
 
       // when
       manager.updateRedirectModel(models, request);
@@ -174,7 +174,7 @@ class SessionRedirectModelManagerTests {
     models.add(new RedirectModel());
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, true)).thenReturn(null);
+      mockedUtils.when(() -> request.getSession(true)).thenReturn(null);
 
       // when & then
       assertThatThrownBy(() -> manager.updateRedirectModel(models, request))
@@ -190,7 +190,7 @@ class SessionRedirectModelManagerTests {
     RequestContext request = mock(RequestContext.class);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, false)).thenReturn(null);
+      mockedUtils.when(() -> request.getSession(false)).thenReturn(null);
 
       // when
       Object mutex = manager.getRedirectModelMutex(request);
@@ -211,7 +211,7 @@ class SessionRedirectModelManagerTests {
     when(WebUtils.getSessionMutex(session)).thenReturn(mutex);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(request, false)).thenReturn(session);
+      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
 
       // when
       Object result = manager.getRedirectModelMutex(request);
@@ -246,7 +246,7 @@ class SessionRedirectModelManagerTests {
     RequestContext context = mock(RequestContext.class);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, false)).thenReturn(null);
+      mockedUtils.when(() -> context.getSession(false)).thenReturn(null);
 
       Session result = manager.getSession(context, false);
       assertThat(result).isNull();
@@ -260,7 +260,7 @@ class SessionRedirectModelManagerTests {
     RequestContext context = mock(RequestContext.class);
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, false)).thenReturn(null);
+      mockedUtils.when(() -> context.getSession(false)).thenReturn(null);
 
       RedirectModel result = manager.retrieveAndUpdate(context);
       assertThat((Object) result).isNull();
@@ -288,8 +288,8 @@ class SessionRedirectModelManagerTests {
     when(WebUtils.getSessionMutex(session)).thenReturn(new Object());
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, false)).thenReturn(session);
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, true)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
 
       when(context.getRequestURI()).thenReturn("/test");
 
@@ -315,8 +315,8 @@ class SessionRedirectModelManagerTests {
     when(context.getRequestURI()).thenReturn("/current");
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, false)).thenReturn(session);
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, true)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
 
       manager.saveRedirectModel(context, redirectModel);
 
@@ -409,8 +409,8 @@ class SessionRedirectModelManagerTests {
     when(context.getRequestURI()).thenReturn("/current");
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, false)).thenReturn(session);
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, true)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
 
       // when
       manager.saveRedirectModel(context, redirectModel);
@@ -435,8 +435,8 @@ class SessionRedirectModelManagerTests {
     when(context.getRequestURI()).thenReturn("/current");
 
     try (var mockedUtils = mockStatic(RequestContextUtils.class)) {
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, false)).thenReturn(session);
-      mockedUtils.when(() -> RequestContextUtils.getSession(context, true)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
+      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
 
       // when
       manager.saveRedirectModel(context, redirectModel);

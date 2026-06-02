@@ -18,47 +18,40 @@
 
 package infra.web;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.beans.factory.BeanNameAware;
 import infra.context.ApplicationContext;
-import infra.context.ApplicationContextAware;
 import infra.context.SmartLifecycle;
 import infra.core.Conventions;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 /**
  * Base class for web lifecycle management, implementing {@link SmartLifecycle}
  * to handle initialization and destruction phases within the application context.
- * <p>Provides template methods such as {@link #onRefresh(ApplicationContext)} and
- * {@link #afterApplicationContextInit()} for subclasses to customize startup behavior.
- * Also supports configurable logging of request details for debugging purposes.
+ * <p>Provides template methods such as {@link #onRefresh(ApplicationContext)}
+ * for subclasses to customize startup behavior. Also supports configurable
+ * logging of request details for debugging purposes.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/26 23:21
  */
-public abstract class WebLifecycleManager implements ApplicationContextAware, BeanNameAware, SmartLifecycle {
+public abstract class WebLifecycleManager implements BeanNameAware, SmartLifecycle {
 
   protected static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
   protected String beanName = Conventions.getVariableName(this);
 
-  private @Nullable ApplicationContext applicationContext;
+  private final ApplicationContext applicationContext;
 
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;
 
   protected final AtomicBoolean running = new AtomicBoolean(false);
 
-  protected WebLifecycleManager() {
-  }
-
   /**
-   * Create a new {@code InfraHandler} with the given application context.
+   * Create a new {@code WebLifecycleManager} with the given application context.
    *
    * @param applicationContext the context to use
    */
@@ -69,14 +62,6 @@ public abstract class WebLifecycleManager implements ApplicationContextAware, Be
   @Override
   public void setBeanName(String name) {
     this.beanName = name;
-  }
-
-  /**
-   * This method will be invoked after any bean properties have been set and
-   * the ApplicationContext has been loaded. The default implementation is empty;
-   * subclasses may override this method to perform any initialization they require.
-   */
-  protected void afterApplicationContextInit() {
   }
 
   /**
@@ -97,27 +82,16 @@ public abstract class WebLifecycleManager implements ApplicationContextAware, Be
   }
 
   /**
-   * Log internal
+   * Logs an informational message.
    *
-   * @param msg Log message
+   * @param msg the message to log
    */
   protected void logInfo(final String msg) {
     log.info(msg);
   }
 
   /**
-   * Called by Infra via {@link ApplicationContextAware} to inject the current
-   * application context. This method allows DispatcherServlets to be registered as
-   * Infra beans inside an existing {@link ApplicationContext} rather than
-   * <p>Primarily added to support use in embedded handler containers.
-   */
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  /**
-   * Return this handler's ApplicationContext.
+   * Return this ApplicationContext.
    */
   public final ApplicationContext getApplicationContext() {
     return this.applicationContext;
@@ -152,9 +126,7 @@ public abstract class WebLifecycleManager implements ApplicationContextAware, Be
     if (running.compareAndSet(false, true)) {
       long startTime = System.currentTimeMillis();
       try {
-        Assert.state(applicationContext != null, "ApplicationContext not set");
         onRefresh(applicationContext);
-        afterApplicationContextInit();
       }
       catch (Exception ex) {
         log.error("Context initialization failed", ex);

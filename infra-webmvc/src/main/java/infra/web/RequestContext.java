@@ -50,8 +50,8 @@ import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.NoSuchMessageException;
 import infra.core.AttributeAccessor;
-import infra.core.AttributeAccessorSupport;
 import infra.core.Conventions;
+import infra.core.DefaultAttributeAccessor;
 import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
 import infra.http.DefaultHttpHeaders;
@@ -71,6 +71,8 @@ import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.NullValue;
 import infra.lang.TodayStrategies;
+import infra.session.Session;
+import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -134,7 +136,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 15:48
  */
-public abstract class RequestContext extends AttributeAccessorSupport
+public abstract class RequestContext extends DefaultAttributeAccessor
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
 
   /**
@@ -2501,6 +2503,76 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
     return new BindStatus(this, path, htmlEscape);
+  }
+
+  /**
+   * Returns the current <code>Session</code> associated with this request or,
+   * if there is no current session and <code>create</code> is true, returns a new session.
+   *
+   * <p>
+   * If <code>create</code> is <code>false</code> and the request has no valid
+   * <code>Session</code>, this method returns <code>null</code>.
+   *
+   * <p>
+   * To make sure the session is properly maintained, you must call this method
+   * before the response is committed. If the container is using cookies to maintain
+   * session integrity and is asked to create a new session when the response is
+   * committed, an IllegalStateException is thrown.
+   *
+   * @param create <code>true</code> to create a new session for this request if
+   * necessary; <code>false</code> to return <code>null</code> if there's no current session
+   * @return the <code>Session</code> associated with this request or
+   * <code>null</code> if <code>create</code> is <code>false</code> and the request has no valid session
+   * @see #getSession()
+   * @see SessionManager
+   * @since 5.0
+   */
+  public @Nullable Session getSession(boolean create) {
+    return sessionManager().getSession(this, create);
+  }
+
+  /**
+   * Returns the current session associated with this request,
+   * or if the request does not have a session, creates one.
+   *
+   * @return the <code>Session</code> associated with this request
+   * @see #getSession(boolean)
+   * @see SessionManager
+   * @since 5.0
+   */
+  public Session getSession() {
+    return sessionManager().getSession(this);
+  }
+
+  /**
+   * Change the session id of the current session associated with this request and return the new session id.
+   *
+   * @return the new session id
+   * @throws IllegalStateException if there is no session associated with the request
+   * @see SessionManager
+   * @since 5.0
+   */
+  public String changeSessionId() {
+    Session session = getSession(false);
+    if (session != null) {
+      session.changeSessionId();
+      return session.getId();
+    }
+    throw new IllegalStateException("there is no session associated with the request");
+  }
+
+  /**
+   * Determine the session id of the given request, if any.
+   *
+   * @return the session id, or {@code null} if none
+   */
+  public @Nullable String getSessionId() {
+    Session session = getSession(false);
+    return session != null ? session.getId() : null;
+  }
+
+  private SessionManager sessionManager() {
+    return dispatcherHandler.sessionManagerDiscover.obtain(this);
   }
 
   @Override

@@ -24,7 +24,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.session.Session;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.WebContentGenerator;
 import infra.web.util.WebUtils;
 
@@ -163,7 +162,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
     // Execute handleRequestInternal in synchronized block if required.
     if (this.synchronizeOnSession) {
-      Session session = RequestContextUtils.getSession(context, false);
+      Session session = context.getSession(false);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {

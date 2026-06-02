@@ -22,9 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.session.Session;
-import infra.session.SessionManager;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -126,27 +124,24 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   private void exposeSessionAttributes(Map<String, Object> model, RequestContext context) {
-    SessionManager sessionManager = RequestContextUtils.getSessionManager(context);
-    if (sessionManager != null) {
-      Session session = sessionManager.getSession(context, false);
-      if (session != null) {
-        Map<String, Object> exposed = null;
-        String[] attributeNames = session.getAttributeNames();
-        for (String attribute : attributeNames) {
-          if (model.containsKey(attribute) && !allowSessionOverride) {
-            throw new ViewRenderingException("Cannot expose session attribute '%s' because of an existing model object of the same name"
-                    .formatted(attribute));
-          }
-          Object attributeValue = session.getAttribute(attribute);
-          if (logger.isDebugEnabled()) {
-            exposed = exposed != null ? exposed : new LinkedHashMap<>();
-            exposed.put(attribute, attributeValue);
-          }
-          model.put(attribute, attributeValue);
+    Session session = context.getSession(false);
+    if (session != null) {
+      Map<String, Object> exposed = null;
+      String[] attributeNames = session.getAttributeNames();
+      for (String attribute : attributeNames) {
+        if (model.containsKey(attribute) && !allowSessionOverride) {
+          throw new ViewRenderingException("Cannot expose session attribute '%s' because of an existing model object of the same name"
+                  .formatted(attribute));
         }
-        if (logger.isTraceEnabled() && exposed != null) {
-          logger.trace("Exposed session attributes to model: {}", exposed);
+        Object attributeValue = session.getAttribute(attribute);
+        if (logger.isDebugEnabled()) {
+          exposed = exposed != null ? exposed : new LinkedHashMap<>();
+          exposed.put(attribute, attributeValue);
         }
+        model.put(attribute, attributeValue);
+      }
+      if (logger.isTraceEnabled() && exposed != null) {
+        logger.trace("Exposed session attributes to model: {}", exposed);
       }
     }
   }

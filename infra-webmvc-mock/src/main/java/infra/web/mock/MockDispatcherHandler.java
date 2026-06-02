@@ -65,9 +65,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
   /** Should we publish the context as a MockContext attribute?. */
   private boolean publishContext = true;
 
-  public MockDispatcherHandler() {
-  }
-
   public MockDispatcherHandler(ApplicationContext context) {
     super(context);
   }
@@ -95,7 +92,8 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
   }
 
   @Override
-  protected void afterApplicationContextInit() {
+  protected void onRefresh(ApplicationContext context) {
+    super.onRefresh(context);
     if (publishContext) {
       // Publish the context as a servlet context attribute.
       String attrName = getMockContextAttributeName();

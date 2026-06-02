@@ -30,7 +30,6 @@ import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
-import infra.web.RequestContextUtils;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.mock.support.StaticWebApplicationContext;
@@ -98,7 +97,7 @@ public class RequestAndSessionScopedBeanTests {
     wac.refresh();
     wac.registerBeanDefinition(targetBeanName, bd);
 
-    Session session = RequestContextUtils.getSession(context);
+    Session session = context.getSession();
 
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");

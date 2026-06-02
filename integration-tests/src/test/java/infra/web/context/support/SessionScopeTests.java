@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 import infra.beans.BeanWrapper;
 import infra.beans.BeansException;
 import infra.beans.DirectFieldAccessor;
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -59,7 +58,6 @@ import infra.session.SessionRepository;
 import infra.session.config.EnableSession;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
-import infra.web.RequestContextUtils;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,7 +86,7 @@ public class SessionScopeTests {
             SessionConfig.class
     );
 
-    this.beanFactory.registerScope("session", new SessionScope(beanFactory));
+    this.beanFactory.registerScope("session", new SessionScope());
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(this.beanFactory);
     reader.loadBeanDefinitions(new ClassPathResource("sessionScopeTests.xml", getClass()));
 
@@ -104,7 +102,7 @@ public class SessionScopeTests {
   public void getFromScope() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockRequestContext requestAttributes = getContext(request);
-    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = requestAttributes.getSession();
 
     String name = "sessionScopedObject";
     assertThat(session.getAttribute(name)).isNull();
@@ -126,7 +124,7 @@ public class SessionScopeTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     MockRequestContext requestAttributes = getContext(request);
-    Session session = RequestContextUtils.getSession(requestAttributes);
+    Session session = requestAttributes.getSession();
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -166,7 +164,7 @@ public class SessionScopeTests {
   void getConversationIdReturnsNullWhenNoSession() {
     RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl()));
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     String conversationId = sessionScope.getConversationId();
 
     assertThat(conversationId).isNull();
@@ -177,7 +175,7 @@ public class SessionScopeTests {
     MockRequestContext requestContext = new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
     RequestContextHolder.set(requestContext);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject(RequestContext.SCOPE_REQUEST);
 
     assertThat(result).isSameAs(requestContext);
@@ -187,9 +185,9 @@ public class SessionScopeTests {
   void resolveContextualObjectWithSessionKey() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockRequestContext requestAttributes = getContext(request);
-    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = requestAttributes.getSession();
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject(RequestContext.SCOPE_SESSION);
 
     assertThat(result).isSameAs(session);
@@ -199,7 +197,7 @@ public class SessionScopeTests {
   void resolveContextualObjectWithInvalidKey() {
     RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl()));
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject("invalidKey");
 
     assertThat(result).isNull();
@@ -209,7 +207,7 @@ public class SessionScopeTests {
   void resolveContextualObjectWithSessionKeyAndNoRequestContext() {
     RequestContextHolder.set(null);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject(RequestContext.SCOPE_SESSION);
 
     assertThat(result).isNull();
@@ -219,9 +217,9 @@ public class SessionScopeTests {
   void registerDestructionCallbackStoresCallback() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockRequestContext requestAttributes = getContext(request);
-    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = requestAttributes.getSession();
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Runnable callback = mock(Runnable.class);
 
     sessionScope.registerDestructionCallback("testBean", callback);
@@ -253,7 +251,7 @@ public class SessionScopeTests {
 
   @Test
   void constructorInitializesSessionManagerDiscover() {
-    SessionScope sessionScope = new SessionScope(mock(BeanFactory.class));
+    SessionScope sessionScope = new SessionScope();
 
     assertThat(sessionScope).isNotNull();
   }
@@ -264,7 +262,7 @@ public class SessionScopeTests {
     MockRequestContext requestAttributes = getContext(request);
     RequestContextHolder.set(requestAttributes);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     String beanName = "testBean";
     Supplier<Object> objectFactory = mock(Supplier.class);
     Object beanInstance = new Object();
@@ -282,12 +280,12 @@ public class SessionScopeTests {
     MockRequestContext requestAttributes = getContext(request);
     RequestContextHolder.set(requestAttributes);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     String beanName = "testBean";
     Object beanInstance = new Object();
 
     // Put bean in session manually
-    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = requestAttributes.getSession();
     session.setAttribute(beanName, beanInstance);
 
     Supplier<Object> objectFactory = mock(Supplier.class);
@@ -303,12 +301,12 @@ public class SessionScopeTests {
     MockRequestContext requestAttributes = getContext(request);
     RequestContextHolder.set(requestAttributes);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     String beanName = "testBean";
     Object beanInstance = new Object();
 
     // Put bean in session manually
-    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = requestAttributes.getSession();
     session.setAttribute(beanName, beanInstance);
 
     Object result = sessionScope.remove(beanName);
@@ -321,7 +319,7 @@ public class SessionScopeTests {
   void removeReturnsNullWhenNoSession() {
     RequestContextHolder.set(null);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.remove("testBean");
 
     assertThat(result).isNull();
@@ -333,7 +331,7 @@ public class SessionScopeTests {
     String attributeName = "testAttribute";
     Object attributeValue = new Object();
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     sessionScope.setAttribute(session, attributeName, attributeValue);
 
     verify(session).setAttribute(attributeName, attributeValue);
@@ -346,7 +344,7 @@ public class SessionScopeTests {
     Object attributeValue = new Object();
     given(session.getAttribute(attributeName)).willReturn(attributeValue);
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.getAttribute(session, attributeName);
 
     assertThat(result).isSameAs(attributeValue);
@@ -358,7 +356,7 @@ public class SessionScopeTests {
     Session session = mock(Session.class);
     String attributeName = "testAttribute";
 
-    SessionScope sessionScope = new SessionScope(beanFactory);
+    SessionScope sessionScope = new SessionScope();
     sessionScope.removeAttribute(session, attributeName);
 
     verify(session).removeAttribute(attributeName);
@@ -379,7 +377,7 @@ public class SessionScopeTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     MockRequestContext requestAttributes = getContext(request);
-    Session session = RequestContextUtils.getRequiredSession(requestAttributes);
+    Session session = requestAttributes.getSession();
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -417,7 +415,7 @@ public class SessionScopeTests {
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
     requestAttributes.requestCompleted();
-    RequestContextUtils.getRequiredSession(requestAttributes).invalidate();
+    requestAttributes.getSession().invalidate();
     assertThat(bean.wasDestroyed()).isTrue();
 
     if (beanNameReset) {

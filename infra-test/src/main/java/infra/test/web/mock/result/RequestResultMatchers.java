@@ -147,8 +147,7 @@ public class RequestResultMatchers {
 
   private static Session getSession(MvcResult result) {
     HttpSession httpSession = result.getRequest().getSession();
-    Session session = RequestContextUtils.getSession(result.getRequestContext());
-    Assert.state(session != null, "No Session");
+    Session session = result.getRequestContext().getSession();
     if (httpSession != null) {
       // 暂时使用合并的方式
       Enumeration<String> attributeNames = httpSession.getAttributeNames();

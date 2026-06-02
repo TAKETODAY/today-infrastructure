@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
@@ -40,7 +39,6 @@ import infra.util.CollectionUtils;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.context.support.RequestScope;
-import infra.web.context.support.SessionManagerDiscover;
 import infra.web.context.support.SessionScope;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
@@ -90,85 +88,6 @@ public final class RequestContextUtils {
     ApplicationContext beanFactory = request.getApplicationContext();
     if (beanFactory != null) {
       return BeanFactoryUtils.find(beanFactory, beanName, requiredType);
-    }
-    return null;
-  }
-
-  /**
-   * Determine the session id of the given request, if any.
-   *
-   * @param request current HTTP request
-   * @return the session id, or {@code null} if none
-   */
-  @Nullable
-  public static String getSessionId(RequestContext request) {
-    Session session = getSession(request, false);
-    return session != null ? session.getId() : null;
-  }
-
-  /**
-   * Returns the current session associated with this request, or if the request
-   * does not have a session, creates one.
-   *
-   * @param request Current request
-   * @return the <code>Session</code> associated with this request
-   * @see #getSession(RequestContext, boolean)
-   */
-  @Nullable
-  public static Session getSession(RequestContext request) {
-    SessionManager sessionManager = getSessionManager(request);
-    if (sessionManager != null) {
-      return sessionManager.getSession(request);
-    }
-    return null;
-  }
-
-  /**
-   * Returns the current session associated with this request, or if the request
-   * does not have a session, creates one.
-   *
-   * @param request Current request
-   * @return the <code>Session</code> associated with this request
-   * @see #getSession(RequestContext, boolean)
-   * @see IllegalStateException
-   */
-  public static Session getRequiredSession(RequestContext request) {
-    Session session = getSession(request);
-    if (session == null) {
-      throw new IllegalStateException("Cannot get Session");
-    }
-    return session;
-  }
-
-  /**
-   * Returns the current <code>Session</code> associated with this request or,
-   * if there is no current session and <code>create</code> is true, returns a new
-   * session.
-   *
-   * <p>
-   * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>Session</code>, this method returns <code>null</code>.
-   *
-   * <p>
-   * To make sure the session is properly maintained, you must call this method
-   * before the response is committed. If the container is using cookies to
-   * maintain session integrity and is asked to create a new session when the
-   * response is committed, an IllegalStateException is thrown.
-   *
-   * @param request Current request
-   * @param create <code>true</code> to create a new session for this request if
-   * necessary; <code>false</code> to return <code>null</code> if
-   * there's no current session
-   * @return the <code>Session</code> associated with this request or
-   * <code>null</code> if <code>create</code> is <code>false</code> and
-   * the request has no valid session
-   * @see #getSession(RequestContext)
-   */
-  @Nullable
-  public static Session getSession(RequestContext request, boolean create) {
-    SessionManager sessionManager = getSessionManager(request);
-    if (sessionManager != null) {
-      return sessionManager.getSession(request, create);
     }
     return null;
   }
@@ -321,10 +240,10 @@ public final class RequestContextUtils {
   public static void registerScopes(ConfigurableBeanFactory beanFactory) {
 
     // @Autowired Session currentSession;
-    beanFactory.registerResolvableDependency(Session.class, new WebSessionProvider(beanFactory));
+    beanFactory.registerResolvableDependency(Session.class, new WebSessionProvider());
 
     beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
-    beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
+    beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope());
 
     // register RequestContext
     // @Autowired RequestContext currentRequest;
@@ -1031,17 +950,9 @@ public final class RequestContextUtils {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final SessionManagerDiscover sessionManagerDiscover;
-
-    private WebSessionProvider(BeanFactory beanFactory) {
-      this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
-    }
-
     @Override
     public Session get() {
-      RequestContext request = RequestContextHolder.getRequired();
-      return sessionManagerDiscover.obtain(request)
-              .getSession(request);
+      return RequestContextHolder.getRequired().getSession();
     }
 
     @Override

@@ -26,7 +26,6 @@ import infra.web.AbstractRedirectModelManager;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.util.WebUtils;
 
 /**
@@ -91,7 +90,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   @Nullable Session getSession(RequestContext context, boolean create) {
     SessionManager sessionManager = getSessionManager();
     if (sessionManager == null) {
-      return RequestContextUtils.getSession(context, create);
+      return context.getSession(create);
     }
     return sessionManager.getSession(context, create);
   }

@@ -37,6 +37,7 @@ import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.async.WebAsyncManagerFactory;
+import infra.web.context.support.SessionManagerDiscover;
 import infra.web.handler.AsyncHandler;
 import infra.web.handler.HandlerAdapterAware;
 import infra.web.handler.HandlerNotFoundException;
@@ -78,6 +79,8 @@ public class DispatcherHandler extends WebLifecycleManager {
 
   private final ArrayList<RequestContinueExpectedResolver> requestContinueExpectedResolvers = new ArrayList<>();
 
+  final SessionManagerDiscover sessionManagerDiscover;
+
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
 
@@ -110,9 +113,6 @@ public class DispatcherHandler extends WebLifecycleManager {
   /** @since 5.0 */
   private Filter @Nullable [] filters;
 
-  public DispatcherHandler() {
-  }
-
   /**
    * Create a new {@code DispatcherHandler} with the given application context.
    * <p>
@@ -125,6 +125,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    */
   public DispatcherHandler(ApplicationContext context) {
     super(context);
+    this.sessionManagerDiscover = new SessionManagerDiscover(context);
   }
 
   /**
@@ -923,7 +924,7 @@ public class DispatcherHandler extends WebLifecycleManager {
      * if no filters remain.
      *
      * @param request the current request context
-     * @throws Throwable if any filter or the terminal handler fails
+     * @throws Exception if any filter or the terminal handler fails
      */
     @Override
     public void doFilter(RequestContext request) throws Exception {
