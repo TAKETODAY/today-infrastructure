@@ -32,6 +32,12 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 /**
+ * Base class for web lifecycle management, implementing {@link SmartLifecycle}
+ * to handle initialization and destruction phases within the application context.
+ * <p>Provides template methods such as {@link #onRefresh(ApplicationContext)} and
+ * {@link #afterApplicationContextInit()} for subclasses to customize startup behavior.
+ * Also supports configurable logging of request details for debugging purposes.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/26 23:21
  */
