@@ -145,7 +145,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
       return;
     }
 
-    RequestContext context = RequestContextHolder.get();
+    RequestContext context = RequestContextHolder.current();
 
     boolean reset = false;
     if (context == null) {

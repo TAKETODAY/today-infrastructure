@@ -952,7 +952,7 @@ public final class RequestContextUtils {
 
     @Override
     public Session get() {
-      return RequestContextHolder.getRequired().getSession();
+      return RequestContextHolder.required().getSession();
     }
 
     @Override
@@ -969,7 +969,7 @@ public final class RequestContextUtils {
 
     @Override
     public RequestContext delegate() {
-      return RequestContextHolder.getRequired();
+      return RequestContextHolder.required();
     }
 
     @Override

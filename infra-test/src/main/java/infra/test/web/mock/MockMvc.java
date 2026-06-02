@@ -198,7 +198,7 @@ public final class MockMvc {
       request = smartRequestBuilder.postProcessRequest(request);
     }
 
-    RequestContext previous = RequestContextHolder.get();
+    RequestContext previous = RequestContextHolder.current();
 
     var context = new MockRequestContext(mock.getApplicationContext(), request, servletResponse, mock);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
@@ -208,7 +208,7 @@ public final class MockMvc {
     MockFilterChain filterChain = new MockFilterChain(this.mock, this.filters);
     filterChain.doFilter(request, servletResponse);
 
-    RequestContext maybeNew = RequestContextHolder.getRequired();
+    RequestContext maybeNew = RequestContextHolder.required();
     if (maybeNew != context) {
       mvcResult.setRequestContext(maybeNew);
     }

@@ -73,7 +73,8 @@ public abstract class RequestThreadLocal {
    */
   @VisibleForTesting
   static final class Default extends RequestThreadLocal {
-    private final NamedThreadLocal<RequestContext> threadLocal = new NamedThreadLocal<>("Current Request Context");
+
+    private final NamedThreadLocal<@Nullable RequestContext> threadLocal = new NamedThreadLocal<>("Current Request Context");
 
     @Override
     public void remove() {

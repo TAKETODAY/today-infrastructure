@@ -32,24 +32,37 @@ public abstract class RequestContextHolder {
   private static final RequestThreadLocal contextHolder = RequestThreadLocal.lookup();
 
   /**
-   * cleanup request context
+   * Reset the {@link RequestContext} for the current thread.
    */
   public static void cleanup() {
     contextHolder.remove();
   }
 
-  public static void set(RequestContext requestContext) {
+  /**
+   * Bind the given {@link RequestContext} to the current thread.
+   *
+   * @param requestContext the request context to bind, or {@code null} to reset the thread-local
+   */
+  public static void set(@Nullable RequestContext requestContext) {
     contextHolder.set(requestContext);
   }
 
   /**
-   * current context
+   * Return the {@link RequestContext} currently bound to the thread.
+   *
+   * @return the current request context, or {@code null} if none bound
    */
-  public static @Nullable RequestContext get() {
+  public static @Nullable RequestContext current() {
     return contextHolder.get();
   }
 
-  public static RequestContext getRequired() {
+  /**
+   * Return the {@link RequestContext} currently bound to the thread.
+   *
+   * @return the current request context (never {@code null})
+   * @throws IllegalStateException if no request context is bound to the current thread
+   */
+  public static RequestContext required() {
     RequestContext context = contextHolder.get();
     if (context == null) {
       throw new IllegalStateException("No RequestContext set");

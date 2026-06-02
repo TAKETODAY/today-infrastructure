@@ -168,13 +168,13 @@ class WebMockTestExecutionListenerTests {
   }
 
   private RequestContext assertRequestAttributesExist() {
-    RequestContext requestAttributes = RequestContextHolder.get();
+    RequestContext requestAttributes = RequestContextHolder.current();
     assertThat(requestAttributes).as("request attributes should exist").isNotNull();
     return requestAttributes;
   }
 
   private void assertRequestAttributesDoNotExist() {
-    assertThat(RequestContextHolder.get()).as("request attributes should not exist").isNull();
+    assertThat(RequestContextHolder.current()).as("request attributes should not exist").isNull();
   }
 
   private void assertSetUpOutsideOfStelAttributeExists() {

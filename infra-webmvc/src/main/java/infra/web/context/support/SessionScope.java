@@ -54,7 +54,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable String getConversationId() {
-    RequestContext context = RequestContextHolder.getRequired();
+    RequestContext context = RequestContextHolder.required();
     Session session = getSession(context, false);
     if (session != null) {
       return session.getId();
@@ -64,7 +64,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
-    RequestContext context = RequestContextHolder.getRequired();
+    RequestContext context = RequestContextHolder.required();
     Session session = getSession(context);
     Object sessionMutex = WebUtils.getSessionMutex(session);
     synchronized(sessionMutex) {
@@ -74,7 +74,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable Object remove(String name) {
-    RequestContext context = RequestContextHolder.get();
+    RequestContext context = RequestContextHolder.current();
     if (context != null) {
       Session session = getSession(context);
       if (session != null) {
@@ -149,10 +149,10 @@ public class SessionScope extends AbstractWebContextScope<Session> {
   @Override
   public Object resolveContextualObject(String key) {
     if (RequestContext.SCOPE_REQUEST.equals(key)) {
-      return RequestContextHolder.get();
+      return RequestContextHolder.current();
     }
     else if (RequestContext.SCOPE_SESSION.equals(key)) {
-      RequestContext context = RequestContextHolder.get();
+      RequestContext context = RequestContextHolder.current();
       if (context != null) {
         return getSession(context, false);
       }
@@ -162,7 +162,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    RequestContext context = RequestContextHolder.getRequired();
+    RequestContext context = RequestContextHolder.required();
     Session session = getSession(context);
     session.setAttribute(getDestructionCallbackName(name),
             new DestructionCallbackBindingListener(callback));

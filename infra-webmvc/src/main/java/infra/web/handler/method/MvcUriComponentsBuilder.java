@@ -540,7 +540,7 @@ public class MvcUriComponentsBuilder {
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
     return baseUrl == null ?
-            UriComponentsBuilder.forHttpRequest(RequestContextHolder.getRequired()) :
+            UriComponentsBuilder.forHttpRequest(RequestContextHolder.required()) :
             baseUrl.cloneBuilder();
   }
 
@@ -648,7 +648,7 @@ public class MvcUriComponentsBuilder {
 
   @Nullable
   private static ApplicationContext getApplicationContext() {
-    RequestContext context = RequestContextHolder.get();
+    RequestContext context = RequestContextHolder.current();
     if (context == null) {
       return null;
     }
@@ -838,7 +838,7 @@ public class MvcUriComponentsBuilder {
 
     @Deprecated
     private static String getPath() {
-      UriComponentsBuilder builder = UriComponentsBuilder.forHttpRequest(RequestContextHolder.get());
+      UriComponentsBuilder builder = UriComponentsBuilder.forHttpRequest(RequestContextHolder.current());
       String path = builder.build().getPath();
       return path != null ? path : "";
     }

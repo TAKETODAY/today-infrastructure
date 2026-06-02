@@ -256,7 +256,7 @@ public class RequestContextHolderTests {
     @Override
     public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
       this.service.process();
-      RequestContext requestContext = RequestContextHolder.get();
+      RequestContext requestContext = RequestContextHolder.current();
       assertRequestAttributes(requestContext);
       assertRequestAttributes();
       chain.doFilter(request, response);
@@ -276,7 +276,7 @@ public class RequestContextHolderTests {
 
     @Override
     public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
-      RequestContextHolder.getRequired()
+      RequestContextHolder.required()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
       chain.doFilter(request, response);
     }
@@ -287,7 +287,7 @@ public class RequestContextHolderTests {
   }
 
   private static void assertRequestAttributes(boolean withinMockMvc) {
-    RequestContext requestAttributes = RequestContextHolder.getRequired();
+    RequestContext requestAttributes = RequestContextHolder.required();
     assertRequestAttributes(requestAttributes, withinMockMvc);
   }
 

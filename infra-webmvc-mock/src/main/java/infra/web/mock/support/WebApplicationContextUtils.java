@@ -303,7 +303,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public MockRequest get() {
-      return MockUtils.getMockRequest(RequestContextHolder.get());
+      return MockUtils.getMockRequest(RequestContextHolder.current());
     }
 
     @Override
@@ -321,7 +321,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public MockResponse get() {
-      return MockUtils.getMockResponse(RequestContextHolder.get());
+      return MockUtils.getMockResponse(RequestContextHolder.current());
     }
 
     @Override
@@ -338,7 +338,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public HttpSession get() {
-      return MockUtils.getHttpSession(RequestContextHolder.get());
+      return MockUtils.getHttpSession(RequestContextHolder.current());
     }
 
     @Override

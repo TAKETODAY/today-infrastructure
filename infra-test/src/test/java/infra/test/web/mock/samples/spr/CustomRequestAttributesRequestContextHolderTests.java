@@ -83,7 +83,7 @@ class CustomRequestAttributesRequestContextHolderTests {
 
   @AfterEach
   void verifyCustomRequestAttributesAreRestored() {
-    RequestContext context = RequestContextHolder.getRequired();
+    RequestContext context = RequestContextHolder.required();
 
     assertThat(context.getAttribute(FROM_CUSTOM_MOCK)).isEqualTo(FROM_CUSTOM_MOCK);
     assertThat(context.getAttribute(FROM_MVC_TEST_DEFAULT)).isNull();
@@ -115,7 +115,7 @@ class CustomRequestAttributesRequestContextHolderTests {
   }
 
   private static void assertRequestAttributes() {
-    RequestContext request = RequestContextHolder.getRequired();
+    RequestContext request = RequestContextHolder.required();
     assertRequestAttributes(request);
   }
 

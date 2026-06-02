@@ -37,14 +37,14 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
 
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
-    RequestContext context = RequestContextHolder.getRequired();
+    RequestContext context = RequestContextHolder.required();
     return doGetBean(context, beanName, objectFactory);
   }
 
   @Nullable
   @Override
   public Object remove(String name) {
-    RequestContext context = RequestContextHolder.getRequired();
+    RequestContext context = RequestContextHolder.required();
     return remove(context, name);
   }
 
@@ -68,10 +68,10 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
   @Override
   public Object resolveContextualObject(String key) {
     if (RequestContext.SCOPE_REQUEST.equals(key)) {
-      return RequestContextHolder.get();
+      return RequestContextHolder.current();
     }
     else if (RequestContext.SCOPE_SESSION.equals(key)) {
-      var request = RequestContextHolder.get();
+      var request = RequestContextHolder.current();
       if (request != null) {
         return request.getSession(true);
       }
@@ -81,7 +81,7 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    var request = RequestContextHolder.getRequired();
+    var request = RequestContextHolder.required();
     request.registerDestructionCallback(name, callback);
   }
 
