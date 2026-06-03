@@ -276,21 +276,6 @@ class RequestContextUtilsTests {
   }
 
   @Test
-  void getBeanWithClassShouldReturnBeanWhenAvailable() {
-    // Setup mock bean factory and register a bean
-    MockRequestContext context = new MockRequestContext();
-
-    assertThat((Object) RequestContextUtils.getBean(context, String.class)).isNull();
-  }
-
-  @Test
-  void getBeanWithStringNameShouldReturnBeanWhenAvailable() {
-    MockRequestContext context = new MockRequestContext();
-
-    assertThat((Object) RequestContextUtils.getBean(context, "testBean")).isNull();
-  }
-
-  @Test
   void getBeanWithNameAndClassShouldReturnBeanWhenAvailable() {
     MockRequestContext context = new MockRequestContext();
 

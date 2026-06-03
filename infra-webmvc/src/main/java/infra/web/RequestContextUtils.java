@@ -59,31 +59,13 @@ public final class RequestContextUtils {
   private static final FloatParser FLOAT_PARSER = new FloatParser();
   private static final DoubleParser DOUBLE_PARSER = new DoubleParser();
   private static final BooleanParser BOOLEAN_PARSER = new BooleanParser();
+
   private static final StringParser STRING_PARSER = new StringParser();
 
   private RequestContextUtils() {
   }
 
-  @Nullable
-  public static <T> T getBean(RequestContext request, Class<T> requiredType) {
-    ApplicationContext beanFactory = request.getApplicationContext();
-    if (beanFactory != null) {
-      return BeanFactoryUtils.find(beanFactory, requiredType);
-    }
-    return null;
-  }
-
-  @Nullable
-  public static <T> T getBean(RequestContext request, String beanName) {
-    ApplicationContext beanFactory = request.getApplicationContext();
-    if (beanFactory != null) {
-      return BeanFactoryUtils.find(beanFactory, beanName);
-    }
-    return null;
-  }
-
-  @Nullable
-  public static <T> T getBean(RequestContext request, String beanName, Class<T> requiredType) {
+  public static <T> @Nullable T getBean(RequestContext request, String beanName, Class<T> requiredType) {
     ApplicationContext beanFactory = request.getApplicationContext();
     if (beanFactory != null) {
       return BeanFactoryUtils.find(beanFactory, beanName, requiredType);
@@ -98,8 +80,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @return the current LocaleResolver, or {@code null} if not found
    */
-  @Nullable
-  public static LocaleResolver getLocaleResolver(RequestContext request) {
+  public static @Nullable LocaleResolver getLocaleResolver(RequestContext request) {
     return getBean(request, LocaleResolver.BEAN_NAME, LocaleResolver.class);
   }
 

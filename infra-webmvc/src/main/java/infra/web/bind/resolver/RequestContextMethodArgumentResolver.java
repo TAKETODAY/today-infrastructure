@@ -78,9 +78,8 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
             || ZoneId.class == paramType;
   }
 
-  @Nullable
   @Override
-  public Object resolveArgument(RequestContext request, ResolvableMethodParameter resolvable) throws Throwable {
+  public @Nullable Object resolveArgument(RequestContext request, ResolvableMethodParameter resolvable) throws Throwable {
     Class<?> paramType = resolvable.getParameterType();
     // RequestContext
     if (RequestContext.class.isAssignableFrom(paramType)) {
