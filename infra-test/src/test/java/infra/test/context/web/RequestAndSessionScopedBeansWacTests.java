@@ -22,11 +22,11 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.ApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
-import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RequestAndSessionScopedBeansWacTests {
 
   @Autowired
-  WebApplicationContext wac;
+  ApplicationContext wac;
 
   @Autowired
   HttpMockRequestImpl request;

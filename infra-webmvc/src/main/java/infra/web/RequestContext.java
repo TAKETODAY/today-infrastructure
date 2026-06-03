@@ -2571,7 +2571,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
     return session != null ? session.getId() : null;
   }
 
-  private SessionManager sessionManager() {
+  protected SessionManager sessionManager() {
     return dispatcherHandler.sessionManagerDiscover.obtain(this);
   }
 

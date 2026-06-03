@@ -49,6 +49,7 @@ import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -58,6 +59,7 @@ import infra.web.DispatcherHandler;
 import infra.web.MockIndicator;
 import infra.web.RequestContext;
 import infra.web.async.AsyncWebRequest;
+import infra.web.context.support.SessionManagerDiscover;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.UriBuilder;
 
@@ -646,6 +648,21 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   public void setNotModified(boolean notModified) {
     this.notModified = notModified;
+  }
+
+  @Override
+  protected SessionManager sessionManager() {
+    if (dispatcherHandler != null) {
+      return super.sessionManager();
+    }
+
+    ApplicationContext applicationContext = getApplicationContext();
+    if (applicationContext != null) {
+      return new SessionManagerDiscover(applicationContext).obtain(this);
+    }
+    else {
+      throw new IllegalStateException("No SessionManager set");
+    }
   }
 
 }

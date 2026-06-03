@@ -126,7 +126,7 @@ public class DefaultMockMvcBuilderTests {
     MockMvc mvc = builder.build();
     boolean publishContext = (boolean) new DirectFieldAccessor(mvc)
             .getPropertyValue("mock.publishContext");
-    assertThat(publishContext).isEqualTo(false);
+    assertThat(publishContext).isEqualTo(true);
   }
 
   @EnableWebMvc

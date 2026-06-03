@@ -39,6 +39,7 @@ import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
@@ -65,7 +66,7 @@ class RequestContextDataBinderTests {
 
   HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  MockRequestContext context = new MockRequestContext(request, null);
+  MockRequestContext context = new MockRequestContext(request);
 
   @Test
   void testBindingWithNestedObjectCreation() throws Exception {
@@ -155,7 +156,7 @@ class RequestContextDataBinderTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("stringArray[0]", "ONE");
     request.addParameter("stringArray[1]", "TWO");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getStringArray()).containsExactly("ONE", "TWO");
   }
 
@@ -168,7 +169,7 @@ class RequestContextDataBinderTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("stringArray[]", "ONE");
     request.addParameter("stringArray[]", "TWO");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getStringArray()).containsExactly("ONE", "TWO");
   }
 
@@ -180,11 +181,11 @@ class RequestContextDataBinderTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!postProcessed", "off");
     request.addParameter("postProcessed", "on");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isTrue();
 
     request.removeParameter("postProcessed");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isFalse();
   }
 
@@ -201,7 +202,7 @@ class RequestContextDataBinderTests {
     request.addParameter("_someList", "visible");
     request.addParameter("_someMap", "visible");
 
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getSomeSet()).isNotNull().isInstanceOf(Set.class);
     assertThat(target.getSomeList()).isNotNull().isInstanceOf(List.class);
     assertThat(target.getSomeMap()).isNotNull().isInstanceOf(Map.class);
@@ -216,15 +217,15 @@ class RequestContextDataBinderTests {
     request.addParameter("!postProcessed", "on");
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isTrue();
 
     request.removeParameter("postProcessed");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isTrue();
 
     request.removeParameter("!postProcessed");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.isPostProcessed()).isFalse();
   }
 
@@ -238,15 +239,15 @@ class RequestContextDataBinderTests {
     request.addParameter("!spouse.postProcessed", "on");
     request.addParameter("_spouse.postProcessed", "visible");
     request.addParameter("spouse.postProcessed", "on");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(((TestBean) target.getSpouse()).isPostProcessed()).isTrue();
 
     request.removeParameter("spouse.postProcessed");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(((TestBean) target.getSpouse()).isPostProcessed()).isTrue();
 
     request.removeParameter("!spouse.postProcessed");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(((TestBean) target.getSpouse()).isPostProcessed()).isFalse();
   }
 
@@ -258,11 +259,11 @@ class RequestContextDataBinderTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!name", "anonymous");
     request.addParameter("name", "Scott");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getName()).isEqualTo("Scott");
 
     request.removeParameter("name");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getName()).isEqualTo("anonymous");
   }
 
@@ -275,12 +276,12 @@ class RequestContextDataBinderTests {
     request.addParameter("stringArray", "bar");
     request.addParameter("stringArray", "abc");
     request.addParameter("stringArray", "123,def");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getStringArray().length).as("Expected all three items to be bound").isEqualTo(3);
 
     request.removeParameter("stringArray");
     request.addParameter("stringArray", "123,def");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getStringArray().length).as("Expected only 1 item to be bound").isEqualTo(1);
   }
 
@@ -291,7 +292,7 @@ class RequestContextDataBinderTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("myEnum", "FOO");
-    binder.bind(new MockRequestContext(request, null));
+    binder.bind(new MockRequestContext(request));
     assertThat(target.getMyEnum()).isEqualTo(MyEnum.FOO);
   }
 
@@ -303,7 +304,7 @@ class RequestContextDataBinderTests {
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addPart(new MockMultipartFile("name", "Juergen".getBytes()));
-    binder.bind(new MockMultipartMockRequestContext(request, null));
+    binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
     assertThat(target.getName()).isEqualTo("Juergen");
   }
 
@@ -315,7 +316,7 @@ class RequestContextDataBinderTests {
 
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
-    binder.bind(new MockMultipartMockRequestContext(request, null));
+    binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
     assertThat(target.getStringArray().length).isEqualTo(1);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
   }
@@ -329,7 +330,7 @@ class RequestContextDataBinderTests {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     request.addPart(new MockMultipartFile("stringArray", "Eva".getBytes()));
-    binder.bind(new MockMultipartMockRequestContext(request, null));
+    binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
     assertThat(target.getStringArray().length).isEqualTo(2);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
     assertThat(target.getStringArray()[1]).isEqualTo("Eva");
@@ -440,7 +441,7 @@ class RequestContextDataBinderTests {
     PropertyValues mpvs = new PropertyValues();
     request.addHeader(headerName, "u1");
 
-    MockRequestContext context = new MockRequestContext(request, null);
+    MockRequestContext context = new MockRequestContext(request);
 
     binder.addBindValues(mpvs, context);
     assertThat(mpvs).isEmpty();
@@ -456,7 +457,7 @@ class RequestContextDataBinderTests {
     request.addHeader("Some-Int-Array", "1");
     request.addHeader("Some-Int-Array", "2");
 
-    MockRequestContext context = new MockRequestContext(request, null);
+    MockRequestContext context = new MockRequestContext(request);
     binder.construct(context);
 
     DataBean bean = (DataBean) binder.getTarget();

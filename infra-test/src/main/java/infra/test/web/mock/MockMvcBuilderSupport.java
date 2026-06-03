@@ -69,16 +69,16 @@ public abstract class MockMvcBuilderSupport {
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
 
-    TestMockDispatcherHandler dispatcherServlet = new TestMockDispatcherHandler(webAppContext);
+    TestMockDispatcherHandler dispatcherHandler = new TestMockDispatcherHandler(webAppContext);
     if (dispatcherCustomizers != null) {
       for (DispatcherCustomizer customizers : dispatcherCustomizers) {
-        customizers.customize(dispatcherServlet);
+        customizers.customize(dispatcherHandler);
       }
     }
 
-    dispatcherServlet.init(servletConfig);
+    dispatcherHandler.init(servletConfig);
 
-    MockMvc mockMvc = new MockMvc(dispatcherServlet, filters);
+    MockMvc mockMvc = new MockMvc(dispatcherHandler, filters);
     mockMvc.setDefaultRequest(defaultRequestBuilder);
     mockMvc.setGlobalResultMatchers(globalResultMatchers);
     mockMvc.setGlobalResultHandlers(globalResultHandlers);
