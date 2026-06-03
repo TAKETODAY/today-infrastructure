@@ -53,6 +53,7 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
+import infra.session.Session;
 import infra.util.MultiValueMap;
 import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
@@ -811,6 +812,21 @@ public abstract class DecorableRequestContext extends RequestContext {
   @Override
   public void removeDestructionCallback(String name) {
     delegate().removeDestructionCallback(name);
+  }
+
+  @Override
+  public Session getSession() {
+    return delegate().getSession();
+  }
+
+  @Override
+  public @Nullable Session getSession(boolean create) {
+    return delegate().getSession(create);
+  }
+
+  @Override
+  public @Nullable String getSessionId() {
+    return delegate().getSessionId();
   }
 
   public abstract RequestContext delegate();

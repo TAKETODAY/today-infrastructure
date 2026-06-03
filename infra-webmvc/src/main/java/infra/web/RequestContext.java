@@ -2505,6 +2505,10 @@ public abstract class RequestContext extends DefaultAttributeAccessor
     return new BindStatus(this, path, htmlEscape);
   }
 
+  // ---------------------------------------------------------------------
+  // Session API
+  // ---------------------------------------------------------------------
+
   /**
    * Returns the current <code>Session</code> associated with this request or,
    * if there is no current session and <code>create</code> is true, returns a new session.
