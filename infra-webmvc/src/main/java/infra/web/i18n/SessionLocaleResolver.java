@@ -27,9 +27,7 @@ import infra.core.i18n.LocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.lang.Assert;
 import infra.session.Session;
-import infra.session.SessionManager;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 
 /**
  * {@link infra.web.LocaleResolver} implementation that
@@ -85,9 +83,6 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   private String timeZoneAttributeName = TIME_ZONE_SESSION_ATTRIBUTE_NAME;
 
-  @Nullable
-  private SessionManager sessionManager;
-
   /**
    * Specify the name of the corresponding attribute in the {@code HttpSession},
    * holding the current {@link Locale} value.
@@ -106,15 +101,6 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   public void setTimeZoneAttributeName(String timeZoneAttributeName) {
     Assert.notNull(timeZoneAttributeName, "timeZoneAttributeName is required");
     this.timeZoneAttributeName = timeZoneAttributeName;
-  }
-
-  public void setSessionManager(@Nullable SessionManager sessionManager) {
-    this.sessionManager = sessionManager;
-  }
-
-  @Nullable
-  public SessionManager getSessionManager() {
-    return sessionManager;
   }
 
   @Override
@@ -139,8 +125,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
       }
 
       @Override
-      @Nullable
-      public TimeZone getTimeZone() {
+      public @Nullable TimeZone getTimeZone() {
         TimeZone timeZone = getSessionAttribute(request, timeZoneAttributeName);
         if (timeZone == null) {
           timeZone = determineDefaultTimeZone(request);
@@ -164,34 +149,18 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     setSessionAttribute(request, timeZoneAttributeName, timeZone);
   }
 
-  @Nullable
   @SuppressWarnings("unchecked")
-  private <T> T getSessionAttribute(RequestContext request, String attributeName) {
-    SessionManager sessionManager = getSessionManager(request);
-    if (sessionManager != null) {
-      Session session = sessionManager.getSession(request, false);
-      if (session != null) {
-        return (T) session.getAttribute(attributeName);
-      }
+  private <T> @Nullable T getSessionAttribute(RequestContext request, String attributeName) {
+    Session session = request.getSession(false);
+    if (session != null) {
+      return (T) session.getAttribute(attributeName);
     }
     return null;
   }
 
   private void setSessionAttribute(RequestContext request, String attributeName, @Nullable Object attribute) {
-    SessionManager sessionManager = getSessionManager(request);
-    if (sessionManager != null) {
-      Session session = sessionManager.getSession(request);
-      session.setAttribute(attributeName, attribute);
-    }
-  }
-
-  @Nullable
-  private SessionManager getSessionManager(RequestContext request) {
-    SessionManager sessionManager = getSessionManager();
-    if (sessionManager == null) {
-      sessionManager = RequestContextUtils.getSessionManager(request);
-    }
-    return sessionManager;
+    Session session = request.getSession();
+    session.setAttribute(attributeName, attribute);
   }
 
   /**
@@ -225,8 +194,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * @return the default time zone (or {@code null} if none defined)
    * @see #setDefaultTimeZone
    */
-  @Nullable
-  protected TimeZone determineDefaultTimeZone(RequestContext request) {
+  protected @Nullable TimeZone determineDefaultTimeZone(RequestContext request) {
     return getDefaultTimeZone();
   }
 

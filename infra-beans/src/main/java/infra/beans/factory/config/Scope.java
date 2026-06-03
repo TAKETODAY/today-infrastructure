@@ -62,11 +62,19 @@ import infra.beans.factory.DisposableBean;
 public interface Scope {
 
   /**
+   * Scope identifier for the standard singleton scope: "singleton".
+   * Custom scopes can be added to {@link ConfigurableBeanFactory}.
+   *
+   * @see ConfigurableBeanFactory#registerScope
    * @since 2.1.7
    */
   String SINGLETON = "singleton";
 
   /**
+   * Scope identifier for the standard prototype scope: "prototype".
+   * Custom scopes can be added to {@link ConfigurableBeanFactory}.
+   *
+   * @see ConfigurableBeanFactory#registerScope
    * @since 2.1.7
    */
   String PROTOTYPE = "prototype";

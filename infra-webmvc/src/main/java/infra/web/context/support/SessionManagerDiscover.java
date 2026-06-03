@@ -93,7 +93,7 @@ public class SessionManagerDiscover {
   public @Nullable SessionManager find(RequestContext request) {
     SessionManager sessionManager = find();
     if (sessionManager == null) {
-      sessionManager = RequestContextUtils.getSessionManager(request);
+      sessionManager = RequestContextUtils.getBean(request, SessionManager.BEAN_NAME, SessionManager.class);
     }
     return sessionManager;
   }

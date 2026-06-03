@@ -23,6 +23,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import infra.beans.factory.BeanRegistrar;
+import infra.beans.factory.BeanRegistry;
+import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.core.env.Environment;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
@@ -34,6 +38,7 @@ import infra.session.DefaultSessionManager;
 import infra.session.InMemorySessionRepository;
 import infra.session.SecureRandomSessionIdGenerator;
 import infra.session.SessionEventDispatcher;
+import infra.web.DispatcherHandler;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
 import infra.web.mock.MockRequestContext;
@@ -46,6 +51,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @since 4.0 2022/2/3 23:51
  */
 public class LocaleResolverTests {
+  AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
 
   @Test
   public void testAcceptHeaderLocaleResolver() {
@@ -65,18 +71,27 @@ public class LocaleResolverTests {
   @Test
   public void testSessionLocaleResolver() {
     SessionLocaleResolver localeResolver = new SessionLocaleResolver();
-    localeResolver.setSessionManager(new DefaultSessionManager(new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator()), null));
+    applicationContext.register(new BeanRegistrar() {
+      @Override
+      public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean(DefaultSessionManager.class, spec -> {
+          spec.supplier((ctx) -> new DefaultSessionManager(new InMemorySessionRepository(
+                  new SessionEventDispatcher(), new SecureRandomSessionIdGenerator()), null));
+        });
+      }
+    });
+
     doTest(localeResolver, true);
   }
 
   private void doTest(LocaleResolver localeResolver, boolean shouldSet) {
+    applicationContext.refresh();
     // create mocks
     MockContextImpl context = new MockContextImpl();
     HttpMockRequestImpl request = new HttpMockRequestImpl(context);
     request.addPreferredLocale(Locale.UK);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    MockRequestContext requestContext = new MockRequestContext(request, response);
+    MockRequestContext requestContext = new MockRequestContext(applicationContext, request, response, new DispatcherHandler(applicationContext));
     // check original locale
     Locale locale = localeResolver.resolveLocale(requestContext);
     assertThat(locale).isEqualTo(Locale.UK);

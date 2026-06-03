@@ -41,9 +41,8 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
     return doGetBean(context, beanName, objectFactory);
   }
 
-  @Nullable
   @Override
-  public Object remove(String name) {
+  public @Nullable Object remove(String name) {
     RequestContext context = RequestContextHolder.required();
     return remove(context, name);
   }
@@ -53,9 +52,8 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
     context.setAttribute(beanName, scopedObject);
   }
 
-  @Nullable
   @Override
-  protected Object getAttribute(RequestContext context, String beanName) {
+  protected @Nullable Object getAttribute(RequestContext context, String beanName) {
     return context.getAttribute(beanName);
   }
 
@@ -64,9 +62,8 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
     context.removeAttribute(name);
   }
 
-  @Nullable
   @Override
-  public Object resolveContextualObject(String key) {
+  public @Nullable Object resolveContextualObject(String key) {
     if (RequestContext.SCOPE_REQUEST.equals(key)) {
       return RequestContextHolder.current();
     }

@@ -124,8 +124,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
-  @Nullable
-  private Session getSession(RequestContext request, boolean create) {
+  private @Nullable Session getSession(RequestContext request, boolean create) {
     return request.getSession(create);
   }
 
@@ -134,9 +133,8 @@ public class SessionScope extends AbstractWebContextScope<Session> {
     context.setAttribute(beanName, scopedObject);
   }
 
-  @Nullable
   @Override
-  protected Object getAttribute(Session context, String beanName) {
+  protected @Nullable Object getAttribute(Session context, String beanName) {
     return context.getAttribute(beanName);
   }
 
@@ -145,9 +143,8 @@ public class SessionScope extends AbstractWebContextScope<Session> {
     context.removeAttribute(name);
   }
 
-  @Nullable
   @Override
-  public Object resolveContextualObject(String key) {
+  public @Nullable Object resolveContextualObject(String key) {
     if (RequestContext.SCOPE_REQUEST.equals(key)) {
       return RequestContextHolder.current();
     }

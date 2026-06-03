@@ -58,8 +58,7 @@ public abstract class AbstractWebContextScope<T> implements Scope {
     return scopedObject;
   }
 
-  @Nullable
-  protected Object remove(T context, String name) {
+  protected @Nullable Object remove(T context, String name) {
     Object scopedObject = getAttribute(context, name);
     if (scopedObject != null) {
       removeAttribute(context, name);
@@ -74,8 +73,7 @@ public abstract class AbstractWebContextScope<T> implements Scope {
 
   protected abstract void setAttribute(T context, String beanName, Object scopedObject);
 
-  @Nullable
-  protected abstract Object getAttribute(T context, String beanName);
+  protected abstract @Nullable Object getAttribute(T context, String beanName);
 
   protected abstract void removeAttribute(T context, String name);
 

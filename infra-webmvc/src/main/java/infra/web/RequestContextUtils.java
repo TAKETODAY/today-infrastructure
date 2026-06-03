@@ -34,7 +34,6 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.lang.Contract;
 import infra.session.Session;
-import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
@@ -93,17 +92,6 @@ public final class RequestContextUtils {
   }
 
   /**
-   * Return the SessionManager
-   *
-   * @param request current HTTP request
-   * @return the current LocaleResolver, or {@code null} if not found
-   */
-  @Nullable
-  public static SessionManager getSessionManager(RequestContext request) {
-    return getBean(request, SessionManager.BEAN_NAME, SessionManager.class);
-  }
-
-  /**
    * Return the LocaleResolver that has been bound to the request by the
    * RequestContext.
    *
@@ -155,8 +143,7 @@ public final class RequestContextUtils {
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getTimeZone()
    */
-  @Nullable
-  public static TimeZone getTimeZone(RequestContext request) {
+  public static @Nullable TimeZone getTimeZone(RequestContext request) {
     LocaleResolver localeResolver = getLocaleResolver(request);
     if (localeResolver instanceof LocaleContextResolver lcr) {
       LocaleContext localeContext = lcr.resolveLocaleContext(request);
@@ -173,8 +160,7 @@ public final class RequestContextUtils {
    * @param request current request
    * @return a {@link RedirectModel} instance
    */
-  @Nullable
-  public static RedirectModel getOutputRedirectModel(RequestContext request) {
+  public static @Nullable RedirectModel getOutputRedirectModel(RequestContext request) {
     return RedirectModel.findOutputModel(request);
   }
 
@@ -186,8 +172,7 @@ public final class RequestContextUtils {
    * @param request the current request
    * @return a {@link RedirectModelManager} instance
    */
-  @Nullable
-  public static RedirectModelManager getRedirectModelManager(RequestContext request) {
+  public static @Nullable RedirectModelManager getRedirectModelManager(RequestContext request) {
     return getBean(request, RedirectModelManager.BEAN_NAME, RedirectModelManager.class);
   }
 
@@ -212,8 +197,7 @@ public final class RequestContextUtils {
    * @param request the current request
    * @param manager RedirectModelManager
    */
-  public static void saveRedirectModel(
-          String location, RequestContext request, @Nullable RedirectModelManager manager) {
+  public static void saveRedirectModel(String location, RequestContext request, @Nullable RedirectModelManager manager) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
     if (CollectionUtils.isNotEmpty(redirectModel)) {
       if (manager == null) {
@@ -264,8 +248,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  @Nullable
-  public static Integer getIntParameter(RequestContext request, String name)
+  public static @Nullable Integer getIntParameter(RequestContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -347,8 +330,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  @Nullable
-  public static Long getLongParameter(RequestContext request, String name)
+  public static @Nullable Long getLongParameter(RequestContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -430,8 +412,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  @Nullable
-  public static Float getFloatParameter(RequestContext request, String name)
+  public static @Nullable Float getFloatParameter(RequestContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -513,8 +494,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  @Nullable
-  public static Double getDoubleParameter(RequestContext request, String name)
+  public static @Nullable Double getDoubleParameter(RequestContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -598,8 +578,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  @Nullable
-  public static Boolean getBooleanParameter(RequestContext request, String name)
+  public static @Nullable Boolean getBooleanParameter(RequestContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -689,8 +668,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  @Nullable
-  public static String getStringParameter(RequestContext request, String name)
+  public static @Nullable String getStringParameter(RequestContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {

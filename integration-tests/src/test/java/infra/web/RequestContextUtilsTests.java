@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.TimeZone;
 
 import infra.mock.web.HttpMockRequestImpl;
-import infra.session.SessionManager;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.mock.MockRequestContext;
@@ -296,15 +295,6 @@ class RequestContextUtilsTests {
     MockRequestContext context = new MockRequestContext();
 
     assertThat((Object) RequestContextUtils.getBean(context, "testBean", String.class)).isNull();
-  }
-
-  @Test
-  void getSessionManagerShouldReturnNullWhenNotAvailable() {
-    MockRequestContext context = new MockRequestContext();
-
-    SessionManager sessionManager = RequestContextUtils.getSessionManager(context);
-
-    assertThat(sessionManager).isNull();
   }
 
   @Test
