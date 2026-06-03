@@ -56,6 +56,7 @@ import infra.session.Session;
 import infra.session.SessionAttributeListener;
 import infra.session.SessionRepository;
 import infra.session.config.EnableSession;
+import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockRequestContext;
@@ -138,7 +139,8 @@ public class SessionScopeTests {
 
   private MockRequestContext getContext(HttpMockRequestImpl request) {
     MockRequestContext requestAttributes = new MockRequestContext(
-            context, request, new MockHttpResponseImpl());
+            context, request, new MockHttpResponseImpl(), new DispatcherHandler(context));
+
     RequestContextHolder.set(requestAttributes);
     return requestAttributes;
   }
@@ -162,7 +164,8 @@ public class SessionScopeTests {
 
   @Test
   void getConversationIdReturnsNullWhenNoSession() {
-    RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl()));
+    RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(),
+            new MockHttpResponseImpl(), new DispatcherHandler(context)));
 
     SessionScope sessionScope = new SessionScope();
     String conversationId = sessionScope.getConversationId();

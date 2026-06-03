@@ -28,6 +28,7 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.Session;
 import infra.session.config.EnableSession;
+import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockRequestContext;
@@ -79,14 +80,13 @@ public class RequestAndSessionScopedBeanTests {
   }
 
   @Test
-  @SuppressWarnings("resource")
   public void testPutBeanInSession() {
     String targetBeanName = "target";
     HttpMockRequest request = new HttpMockRequestImpl();
 
     AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
 
-    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl(), new DispatcherHandler(wac));
     RequestContextHolder.set(context);
 
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);

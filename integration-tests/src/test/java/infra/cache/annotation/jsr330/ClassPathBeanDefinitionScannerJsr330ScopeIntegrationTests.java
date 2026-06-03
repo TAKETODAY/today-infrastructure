@@ -39,6 +39,7 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockHttpSession;
 import infra.session.config.EnableSession;
+import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockRequestContext;
@@ -59,23 +60,25 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   private static final String MODIFIED_NAME = "modified";
 
-  private RequestContext oldRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
-  private RequestContext newRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+  private final RequestContext oldRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+  private final RequestContext newRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
   private RequestContext oldRequestAttributesWithSession;
   private RequestContext newRequestAttributesWithSession;
+
+  private final GenericWebApplicationContext context = new GenericWebApplicationContext();
 
   @BeforeEach
   void setup() {
     HttpMockRequestImpl oldRequestWithSession = new HttpMockRequestImpl();
     oldRequestWithSession.setSession(new MockHttpSession());
     this.oldRequestAttributesWithSession = new MockRequestContext(
-            null, oldRequestWithSession, new MockHttpResponseImpl());
+            context, oldRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
 
     HttpMockRequestImpl newRequestWithSession = new HttpMockRequestImpl();
     newRequestWithSession.setSession(new MockHttpSession());
     this.newRequestAttributesWithSession = new MockRequestContext(
-            null, newRequestWithSession, new MockHttpResponseImpl());
+            context, newRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
 
   }
 
@@ -303,7 +306,6 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
   }
 
   private ApplicationContext createContext(final ScopedProxyMode scopedProxyMode) {
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
     scanner.setScopeMetadataResolver(definition -> {

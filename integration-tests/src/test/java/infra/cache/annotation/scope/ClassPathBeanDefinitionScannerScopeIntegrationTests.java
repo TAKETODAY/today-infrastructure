@@ -32,6 +32,7 @@ import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockHttpSession;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
+import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.context.annotation.RequestScope;
@@ -56,6 +57,8 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   private static final String DEFAULT_NAME = "default";
   private static final String MODIFIED_NAME = "modified";
 
+  private final GenericWebApplicationContext context = new GenericWebApplicationContext();
+
   private RequestContext oldRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
   private RequestContext newRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
@@ -67,12 +70,12 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
     HttpMockRequestImpl oldRequestWithSession = new HttpMockRequestImpl();
     oldRequestWithSession.setSession(new MockHttpSession());
     this.oldRequestAttributesWithSession = new MockRequestContext(
-            null, oldRequestWithSession, new MockHttpResponseImpl());
+            context, oldRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
 
     HttpMockRequestImpl newRequestWithSession = new HttpMockRequestImpl();
     newRequestWithSession.setSession(new MockHttpSession());
     this.newRequestAttributesWithSession = new MockRequestContext(
-            null, newRequestWithSession, new MockHttpResponseImpl());
+            context, newRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
 
   }
 
@@ -289,7 +292,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   }
 
   private ApplicationContext createContext(ScopedProxyMode scopedProxyMode) {
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
     scanner.setBeanNameGenerator((definition, registry) -> definition.getScope());

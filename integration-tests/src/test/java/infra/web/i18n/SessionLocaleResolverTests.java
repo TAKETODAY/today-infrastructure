@@ -27,6 +27,7 @@ import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.config.EnableSession;
+import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
@@ -57,7 +58,7 @@ public class SessionLocaleResolverTests {
   public void testResolveLocale() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    RequestContext context = new MockRequestContext(webApplicationContext, request, response);
+    RequestContext context = new MockRequestContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
     context.getSession()
             .setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
@@ -111,7 +112,7 @@ public class SessionLocaleResolverTests {
   public void testSetLocaleToNullLocale() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    RequestContext context = new MockRequestContext(webApplicationContext, request, response);
+    RequestContext context = new MockRequestContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
     request.addPreferredLocale(Locale.TAIWAN);
     context.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
