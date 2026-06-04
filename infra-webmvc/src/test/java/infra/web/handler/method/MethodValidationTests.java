@@ -135,7 +135,6 @@ class MethodValidationTests {
     RequestMappingHandlerAdapter handlerAdapter = new RequestMappingHandlerAdapter();
     handlerAdapter.setWebBindingInitializer(bindingInitializer);
     handlerAdapter.setApplicationContext(context);
-    handlerAdapter.setBeanFactory(context.getBeanFactory());
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry(List.of(
             new StringHttpMessageConverter(), new JacksonJsonHttpMessageConverter()));
     handlerAdapter.setResolvingRegistry(registry);
