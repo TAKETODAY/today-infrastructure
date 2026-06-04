@@ -800,8 +800,8 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  public void registerDestructionCallback(Runnable callback) {
-    delegate().registerDestructionCallback(callback);
+  public String registerDestructionCallback(Runnable callback) {
+    return delegate().registerDestructionCallback(callback);
   }
 
   @Override

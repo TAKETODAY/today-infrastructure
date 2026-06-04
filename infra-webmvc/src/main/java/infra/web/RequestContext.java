@@ -1095,15 +1095,20 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * Register the given callback as to be executed after request completion.
+   * Register the given callback to be executed after request completion.
+   * <p>The callback is registered under a name derived from the callback object
+   * using {@link Conventions#getVariableName(Object)}.
    *
-   * @param callback the callback to be executed for destruction
+   * @param callback the callback to be executed for destruction; must not be {@code null}
+   * @return the name under which the callback was registered
+   * @throws IllegalArgumentException if the callback is {@code null}
    * @since 5.0
    */
-  public void registerDestructionCallback(Runnable callback) {
+  public String registerDestructionCallback(Runnable callback) {
     Assert.notNull(callback, "Destruction Callback is required");
     String variableName = Conventions.getVariableName(callback);
     registerDestructionCallback(variableName, callback);
+    return variableName;
   }
 
   /**
