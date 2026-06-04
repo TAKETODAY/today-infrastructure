@@ -17,6 +17,7 @@
 package infra.web.filter;
 
 import infra.lang.Assert;
+import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.RequestContext;
 import infra.web.cors.CorsConfiguration;
@@ -45,7 +46,7 @@ import infra.web.cors.UrlBasedCorsConfigurationSource;
  * @see UrlBasedCorsConfigurationSource
  * @since 5.0
  */
-public class CorsFilter extends GenericFilterBean {
+public class CorsFilter implements Filter {
 
   private final CorsConfigurationSource configSource;
 
