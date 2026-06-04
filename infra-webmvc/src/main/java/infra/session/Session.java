@@ -71,7 +71,7 @@ public interface Session extends AttributeAccessor {
    * <li>If the session is new (i.e. created but never persisted), it must have
    * been started explicitly via {@link #start()} or implicitly by adding
    * attributes, or otherwise this method should have no effect.
-   * <li>If the session was retrieved through the {@code SessionStore},
+   * <li>If the session was retrieved through the {@code SessionRepository},
    * the implementation for this method must check whether the session was
    * {@link #invalidate() invalidated} and if so return an error.
    * </ul>
@@ -130,6 +130,16 @@ public interface Session extends AttributeAccessor {
    */
   Duration getMaxIdleTime();
 
+  /**
+   * Returns {@code true} if the client does not yet know about the session,
+   * or if the client chooses not to join the session. For example, if the
+   * server uses only cookie-based sessions and the client has disabled cookies,
+   * the session will be considered new on each request.
+   *
+   * @return {@code true} if the session is new to the client
+   */
+  boolean isNew();
+
   // attribute
 
   /**
@@ -141,7 +151,7 @@ public interface Session extends AttributeAccessor {
    * After this method executes, and if the new object implements
    * <code>AttributeBindingListener</code>, the container calls
    * <code>AttributeBindingListener.valueBound</code>. The container
-   * then notifies any <code>HttpSessionAttributeListener</code>s
+   * then notifies any <code>SessionAttributeListener</code>s
    * in the web application.
    *
    * <p>

@@ -197,6 +197,11 @@ public class MapSession extends AbstractSession implements Session, Serializable
     return maxIdleTime;
   }
 
+  @Override
+  public boolean isNew() {
+    return false;
+  }
+
   /**
    * Sets the time that this {@link Session} was created. The default is when the
    * {@link Session} was instantiated.

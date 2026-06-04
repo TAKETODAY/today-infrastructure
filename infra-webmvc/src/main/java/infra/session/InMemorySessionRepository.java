@@ -245,6 +245,7 @@ public class InMemorySessionRepository implements SessionRepository {
       return null;
     }
     else {
+      session.newCreation = false;
       session.lastAccessTime = now;
       return session;
     }
@@ -300,6 +301,8 @@ public class InMemorySessionRepository implements SessionRepository {
   protected final class InMemorySession extends AbstractSession implements Session, SerializableSession {
 
     private Instant creationTime;
+
+    private boolean newCreation = true;
 
     private volatile Duration maxIdleTime;
 
@@ -359,6 +362,11 @@ public class InMemorySessionRepository implements SessionRepository {
     protected void doInvalidate() {
       state.set(State.EXPIRED);
       sessions.remove(getId());
+    }
+
+    @Override
+    public boolean isNew() {
+      return newCreation;
     }
 
     @Override
