@@ -2510,23 +2510,16 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   // ---------------------------------------------------------------------
 
   /**
-   * Returns the current <code>Session</code> associated with this request or,
-   * if there is no current session and <code>create</code> is true, returns a new session.
+   * Returns the current {@link Session} associated with this request or,
+   * if there is no current session and {@code create} is {@code true}, returns a new session.
    *
-   * <p>
-   * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>Session</code>, this method returns <code>null</code>.
+   * <p>If {@code create} is {@code false} and the request has no valid
+   * {@link Session}, this method returns {@code null}.
    *
-   * <p>
-   * To make sure the session is properly maintained, you must call this method
-   * before the response is committed. If the container is using cookies to maintain
-   * session integrity and is asked to create a new session when the response is
-   * committed, an IllegalStateException is thrown.
-   *
-   * @param create <code>true</code> to create a new session for this request if
-   * necessary; <code>false</code> to return <code>null</code> if there's no current session
-   * @return the <code>Session</code> associated with this request or
-   * <code>null</code> if <code>create</code> is <code>false</code> and the request has no valid session
+   * @param create {@code true} to create a new session for this request if
+   * necessary; {@code false} to return {@code null} if there's no current session
+   * @return the {@link Session} associated with this request or
+   * {@code null} if {@code create} is {@code false} and the request has no valid session
    * @see #getSession()
    * @see SessionManager
    * @since 5.0
@@ -2536,10 +2529,10 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * Returns the current session associated with this request,
+   * Returns the current {@link Session} associated with this request,
    * or if the request does not have a session, creates one.
    *
-   * @return the <code>Session</code> associated with this request
+   * @return the {@code Session} associated with this request
    * @see #getSession(boolean)
    * @see SessionManager
    * @since 5.0

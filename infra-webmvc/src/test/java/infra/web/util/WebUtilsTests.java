@@ -155,6 +155,13 @@ public class WebUtilsTests {
     testWithForwardedHeader(server, 123, "proto=https; host=mydomain2.example:456", "https://mydomain2.example:456");
   }
 
+  @Test
+  void getSanitizedPath() {
+    String sanitizedPath = WebUtils.getSanitizedPath("/api/users//1");
+    assertThat(sanitizedPath).isEqualTo("/api/users/1");
+    assertThat(WebUtils.getSanitizedPath(sanitizedPath)).isEqualTo("/api/users/1");
+  }
+
   private boolean checkValidOrigin(String serverName, int port, String originHeader, List<String> allowed) {
     HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
     servletRequest.setServerName(serverName);

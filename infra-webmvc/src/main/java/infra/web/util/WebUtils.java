@@ -20,10 +20,7 @@ package infra.web.util;
 
 import org.jspecify.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
@@ -172,40 +169,6 @@ public abstract class WebUtils {
       return sanitized.toString();
     }
     return path;
-  }
-
-  /**
-   * Decode the given URI path variables
-   *
-   * @param vars the URI variables extracted from the URL path
-   * @return the same Map or a new Map instance
-   */
-  public static Map<String, String> decodePathVariables(Map<String, String> vars) {
-    Map<String, String> decodedVars = CollectionUtils.newLinkedHashMap(vars.size());
-    for (Map.Entry<String, String> entry : vars.entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      decodedVars.put(key, UriUtils.decode(value, StandardCharsets.UTF_8));
-    }
-    return decodedVars;
-  }
-
-  /**
-   * Decode the given matrix variables
-   *
-   * @param vars the URI variables extracted from the URL path
-   * @return the same Map or a new Map instance
-   */
-  public static MultiValueMap<String, String> decodeMatrixVariables(MultiValueMap<String, String> vars) {
-    MultiValueMap<String, String> decodedVars = MultiValueMap.forLinkedHashMap(vars.size());
-    for (Map.Entry<String, List<String>> entry : vars.entrySet()) {
-      String key = entry.getKey();
-      List<String> values = entry.getValue();
-      for (String value : values) {
-        decodedVars.add(key, UriUtils.decode(value, StandardCharsets.UTF_8));
-      }
-    }
-    return decodedVars;
   }
 
   /**

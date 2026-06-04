@@ -275,7 +275,7 @@ class RequestMappingHandlerAdapterTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
     handlerAdapter.afterPropertiesSet();
-    Object result = this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
+    Object result = this.handlerAdapter.handleInternal(new MockRequestContext(webAppContext, request), handlerMethod);
     assertThat(result).isNull();
   }
 

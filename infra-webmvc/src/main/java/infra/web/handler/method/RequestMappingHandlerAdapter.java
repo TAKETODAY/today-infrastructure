@@ -22,17 +22,13 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-import infra.beans.factory.BeanFactory;
-import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.InitializingBean;
-import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.session.Session;
-import infra.session.SessionManager;
 import infra.validation.method.MethodValidator;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
@@ -41,7 +37,6 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.bind.support.WebBindingInitializer;
-import infra.web.context.support.SessionManagerDiscover;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.util.SessionMutexListener;
 import infra.web.util.WebUtils;
@@ -62,14 +57,11 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
  * @see RequestMappingHandlerMapping
  * @since 4.0 2022/4/8 22:46
  */
-public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
-        implements BeanFactoryAware, InitializingBean {
+public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter implements InitializingBean {
 
   private @Nullable ParameterResolvingRegistry resolvingRegistry;
 
   private @Nullable WebBindingInitializer webBindingInitializer;
-
-  private @Nullable SessionManagerDiscover sessionManagerDiscover;
 
   private @Nullable RedirectModelManager redirectModelManager;
 
@@ -144,15 +136,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
-  /**
-   * A {@link ConfigurableBeanFactory} is expected for resolving expressions
-   * in method argument default values.
-   */
-  @Override
-  public void setBeanFactory(BeanFactory beanFactory) {
-    this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
-  }
-
   @Override
   public void afterPropertiesSet() {
     ApplicationContext context = applicationContext();
@@ -217,13 +200,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   private @Nullable Session getSession(RequestContext request) {
-    if (sessionManagerDiscover != null) {
-      SessionManager sessionManager = sessionManagerDiscover.find(request);
-      if (sessionManager != null) {
-        return sessionManager.getSession(request, false);
-      }
-    }
-    return null;
+    return request.getSession(false);
   }
 
   /**
