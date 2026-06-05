@@ -241,6 +241,8 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
   private @Nullable HandlerMatchingMetadata matchingMetadata;
 
+  private @Nullable Session session;
+
   private long requestCompletedTimeMillis;
 
   protected RequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
@@ -2515,6 +2517,19 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   // ---------------------------------------------------------------------
 
   /**
+   * Returns the current {@link Session} associated with this request,
+   * or if the request does not have a session, creates one.
+   *
+   * @return the {@code Session} associated with this request
+   * @see #getSession(boolean)
+   * @see SessionManager
+   * @since 5.0
+   */
+  public Session getSession() {
+    return getSession(true);
+  }
+
+  /**
    * Returns the current {@link Session} associated with this request or,
    * if there is no current session and {@code create} is {@code true}, returns a new session.
    *
@@ -2530,20 +2545,12 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @since 5.0
    */
   public @Nullable Session getSession(boolean create) {
-    return sessionManager().getSession(this, create);
-  }
-
-  /**
-   * Returns the current {@link Session} associated with this request,
-   * or if the request does not have a session, creates one.
-   *
-   * @return the {@code Session} associated with this request
-   * @see #getSession(boolean)
-   * @see SessionManager
-   * @since 5.0
-   */
-  public Session getSession() {
-    return sessionManager().getSession(this);
+    Session session = this.session;
+    if (session == null) {
+      session = sessionManager().getSession(this, create);
+      this.session = session;
+    }
+    return session;
   }
 
   /**
