@@ -35,7 +35,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -67,7 +66,6 @@ class InMemorySessionRepositoryTests {
 
     assertThat(session).isNotNull();
     assertThat(session.getId()).isEqualTo("test-id");
-    assertThat(session.isStarted()).isFalse();
     assertThat(session.isExpired()).isFalse();
   }
 
@@ -81,8 +79,7 @@ class InMemorySessionRepositoryTests {
   void retrieveSessionShouldReturnExistingAndNotExpiredSession() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     Session retrievedSession = repository.retrieveSession("test-id");
     assertThat(retrievedSession).isNotNull();
@@ -93,8 +90,8 @@ class InMemorySessionRepositoryTests {
   void retrieveSessionShouldUpdateLastAccessTime() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     Instant initialAccessTime = session.getLastAccessTime();
 
     // Advance clock and retrieve session
@@ -112,8 +109,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(30));
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // Advance clock beyond max idle time
     clock = Clock.offset(clock, Duration.ofMinutes(31));
@@ -129,30 +125,19 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
     session.setAttribute("foo", "bar");
-    session.save();
+    repository.saveOrUpdate(session);
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
-    assertThat(session.isStarted()).isTrue();
     Session retrieved = repository.retrieveSession(session.getId());
     assertThat(retrieved).isNotNull();
     assertThat(retrieved.getAttribute("foo")).isEqualTo("bar");
   }
 
   @Test
-  void saveShouldNotStoreSessionIfNotStartedAndNoAttributes() {
-    Session session = repository.createSession();
-    session.save();
-
-    assertThat(repository.getSessionCount()).isZero();
-    verifyNoInteractions(eventDispatcher);
-  }
-
-  @Test
   void saveShouldTriggerSessionCreatedEventWhenStarted() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     verify(eventDispatcher).onSessionCreated(session);
   }
@@ -161,8 +146,7 @@ class InMemorySessionRepositoryTests {
   void invalidateShouldRemoveSessionAndTriggerDestroyedEvent() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     session.invalidate();
 
@@ -176,8 +160,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("new-id");
     Session session = repository.createSession();
     String oldId = session.getId();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     given(idGenerator.generateId()).willReturn("new-id1");
 
@@ -190,29 +173,11 @@ class InMemorySessionRepositoryTests {
   }
 
   @Test
-  void saveShouldThrowExceptionWhenMaxSessionsIsReached() {
-    repository.setMaxSessions(1);
-    given(idGenerator.generateId()).willReturn("id1");
-    Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
-
-    given(idGenerator.generateId()).willReturn("id2");
-    Session session2 = repository.createSession();
-    session2.start();
-
-    assertThatExceptionOfType(TooManyActiveSessionsException.class)
-            .isThrownBy(session2::save)
-            .satisfies(e -> assertThat(e.getMaxActiveSessions()).isEqualTo(1));
-  }
-
-  @Test
   void removeExpiredSessionsShouldCleanUpExpiredSessions() {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // Advance clock to expire the session
     clock = Clock.offset(clock, Duration.ofMinutes(11));
@@ -229,8 +194,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     repository.removeExpiredSessions();
 
@@ -242,12 +206,10 @@ class InMemorySessionRepositoryTests {
   void getIdentifiersShouldReturnAllSessionIds() {
     given(idGenerator.generateId()).willReturn("id1", "id2");
     Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession();
-    session2.start();
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     assertThat(repository.getIdentifiers()).containsExactlyInAnyOrder("id1", "id2");
   }
@@ -256,21 +218,20 @@ class InMemorySessionRepositoryTests {
   void getSessionsShouldReturnUnmodifiableMap() {
     given(idGenerator.generateId()).willReturn("id1");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     Map<String, Session> sessions = repository.getSessions();
     assertThat(sessions).hasSize(1);
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> sessions.put("id2", mock(Session.class)));
+        .isThrownBy(() -> sessions.put("id2", mock(Session.class)));
   }
 
   @Test
   void removeSessionByIdShouldRemoveTheSession() {
     given(idGenerator.generateId()).willReturn("id1");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
     repository.remove("id1");
@@ -282,8 +243,8 @@ class InMemorySessionRepositoryTests {
   void removeSessionByInstanceShouldRemoveTheSession() {
     given(idGenerator.generateId()).willReturn("id1");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
     repository.remove(session);
@@ -295,8 +256,8 @@ class InMemorySessionRepositoryTests {
   void updateLastAccessTimeShouldChangeLastAccessTime() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     Instant initialAccessTime = session.getLastAccessTime();
 
     clock = Clock.offset(clock, Duration.ofSeconds(20));
@@ -309,6 +270,7 @@ class InMemorySessionRepositoryTests {
 
   @Test
   void setSessionMaxIdleTimeToNullShouldUseDefault() {
+    given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(null);
     Session session = repository.createSession();
     assertThat(session.getMaxIdleTime()).isEqualTo(Duration.ofMinutes(30));
@@ -318,15 +280,15 @@ class InMemorySessionRepositoryTests {
   void saveShouldNotTriggerCreatedEventTwice() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start(); // First trigger
-    session.save();
-    session.save(); // Should not trigger again
+
+    repository.saveOrUpdate(session);
 
     verify(eventDispatcher).onSessionCreated(session);
   }
 
   @Test
   void setSessionMaxIdleTime_ShouldUpdateDefaultTimeout() {
+    given(idGenerator.generateId()).willReturn("test-id");
     // given
     Duration newTimeout = Duration.ofMinutes(45);
 
@@ -340,7 +302,7 @@ class InMemorySessionRepositoryTests {
 
   @Test
   void setSessionMaxIdleTime_ShouldUseDefaultWhenNull() {
-    // when
+    given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(null);
 
     // then
@@ -383,8 +345,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // when
     Clock newClock = Clock.offset(clock, Duration.ofMinutes(11));
@@ -417,12 +378,10 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("id1", "id2");
 
     Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession();
-    session2.start();
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     // when & then
     assertThat(repository.getSessionCount()).isEqualTo(2);
@@ -443,14 +402,13 @@ class InMemorySessionRepositoryTests {
     // given
     given(idGenerator.generateId()).willReturn("id1");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     Map<String, Session> sessions = repository.getSessions();
 
     // when & then
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> sessions.clear());
+        .isThrownBy(() -> sessions.clear());
   }
 
   @Test
@@ -464,7 +422,6 @@ class InMemorySessionRepositoryTests {
     // then
     assertThat(session).isNotNull();
     assertThat(session.getId()).isEqualTo("generated-id");
-    assertThat(session.isStarted()).isFalse();
   }
 
   @Test
@@ -491,8 +448,7 @@ class InMemorySessionRepositoryTests {
     // given
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // when
     Session retrieved = repository.retrieveSession("test-id");
@@ -508,8 +464,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // Expire the session
     clock = Clock.offset(clock, Duration.ofMinutes(11));
@@ -527,8 +482,8 @@ class InMemorySessionRepositoryTests {
     // given
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
     // when
@@ -544,8 +499,8 @@ class InMemorySessionRepositoryTests {
     // given
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
     // when
@@ -568,8 +523,8 @@ class InMemorySessionRepositoryTests {
     // given
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
+
     Instant originalTime = session.getLastAccessTime();
 
     // when
@@ -592,8 +547,7 @@ class InMemorySessionRepositoryTests {
     // given
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // when
     boolean result = repository.contains("test-id");
@@ -608,8 +562,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("test-id");
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // Expire the session
     clock = Clock.offset(clock, Duration.ofMinutes(11));
@@ -628,8 +581,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("old-id", "new-id");
     Session session = repository.createSession();
     String oldId = session.getId();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     // when
     session.changeSessionId();
@@ -642,33 +594,6 @@ class InMemorySessionRepositoryTests {
   }
 
   @Test
-  void save_ShouldNotStoreSession_WhenNotStartedAndNoAttributes() {
-    // given
-    Session session = repository.createSession();
-
-    // when
-    session.save();
-
-    // then
-    assertThat(repository.getSessionCount()).isZero();
-  }
-
-  @Test
-  void save_ShouldStoreSession_WhenStarted() {
-    // given
-    given(idGenerator.generateId()).willReturn("test-id");
-    Session session = repository.createSession();
-    session.start();
-
-    // when
-    session.save();
-
-    // then
-    assertThat(repository.getSessionCount()).isEqualTo(1);
-    assertThat(repository.retrieveSession("test-id")).isNotNull();
-  }
-
-  @Test
   void save_ShouldStoreSession_WhenHasAttributes() {
     // given
     given(idGenerator.generateId()).willReturn("test-id");
@@ -676,7 +601,7 @@ class InMemorySessionRepositoryTests {
     session.setAttribute("key", "value");
 
     // when
-    session.save();
+    repository.saveOrUpdate(session);
 
     // then
     assertThat(repository.getSessionCount()).isEqualTo(1);
@@ -686,57 +611,10 @@ class InMemorySessionRepositoryTests {
   }
 
   @Test
-  void save_ShouldThrowException_WhenMaxSessionsReached() {
-    // given
-    repository.setMaxSessions(1);
-    given(idGenerator.generateId()).willReturn("id1", "id2");
-
-    Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
-
-    Session session2 = repository.createSession();
-    session2.start();
-
-    // when & then
-    assertThatExceptionOfType(TooManyActiveSessionsException.class)
-            .isThrownBy(session2::save)
-            .satisfies(e -> assertThat(e.getMaxActiveSessions()).isEqualTo(1));
-  }
-
-  @Test
-  void save_ShouldNotTriggerCreatedEventTwice() {
-    // given
-    given(idGenerator.generateId()).willReturn("test-id");
-    Session session = repository.createSession();
-    session.start();
-
-    // when
-    session.save(); // First save
-    session.save(); // Second save
-
-    // then
-    verify(eventDispatcher).onSessionCreated(session);
-  }
-
-  @Test
-  void saveShouldNotStoreUnstartedSessionWithoutAttributes() {
-    given(idGenerator.generateId()).willReturn("test-id");
-    Session session = repository.createSession();
-
-    session.save();
-
-    assertThat(repository.getSessionCount()).isZero();
-    assertThat(repository.retrieveSession("test-id")).isNull();
-  }
-
-  @Test
   void saveShouldStoreStartedSessionEvenWithoutAttributes() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-
-    session.save();
+    repository.saveOrUpdate(session);
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
     assertThat(repository.retrieveSession("test-id")).isNotNull();
@@ -747,8 +625,7 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("old-id", "new-id");
     Session session = repository.createSession();
     String oldId = session.getId();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     session.changeSessionId();
     String newId = session.getId();
@@ -766,8 +643,7 @@ class InMemorySessionRepositoryTests {
     Session session = repository.createSession();
     session.setAttribute("key1", "value1");
     session.setAttribute("key2", "value2");
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     session.changeSessionId();
     String newId = session.getId();
@@ -784,8 +660,7 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(5));
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     clock = Clock.offset(clock, Duration.ofSeconds(30));
     repository.setClock(clock);
@@ -799,12 +674,10 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
 
     Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession();
-    session2.start();
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     clock = Clock.offset(clock, Duration.ofMinutes(11));
     repository.setClock(clock);
@@ -818,16 +691,13 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("id1", "id2", "id3");
 
     Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession();
-    session2.start();
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     Session session3 = repository.createSession();
-    session3.start();
-    session3.save();
+    repository.saveOrUpdate(session3);
 
     assertThat(repository.getSessionCount()).isEqualTo(3);
   }
@@ -839,34 +709,16 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(5));
 
     Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession();
-    session2.start();
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     clock = Clock.offset(clock, Duration.ofMinutes(6));
     repository.setClock(clock);
 
     Session session3 = repository.createSession();
-    session3.start();
-    session3.save();
-
-    assertThat(repository.getSessionCount()).isEqualTo(1);
-  }
-
-  @Test
-  void maxSessionsLimitShouldNotApplyToExistingSessionUpdates() {
-    repository.setMaxSessions(1);
-    given(idGenerator.generateId()).willReturn("id1");
-
-    Session session = repository.createSession();
-    session.start();
-    session.save();
-
-    session.setAttribute("key", "value");
-    session.save();
+    repository.saveOrUpdate(session3);
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
   }
@@ -875,8 +727,7 @@ class InMemorySessionRepositoryTests {
   void removeShouldReturnRemovedSession() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     Session removed = repository.remove("test-id");
 
@@ -898,8 +749,7 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(5));
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     clock = Clock.offset(clock, Duration.ofMinutes(6));
     repository.setClock(clock);
@@ -913,8 +763,7 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(10));
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     clock = Clock.offset(clock, Duration.ofMinutes(9));
     repository.setClock(clock);
@@ -931,12 +780,10 @@ class InMemorySessionRepositoryTests {
     given(idGenerator.generateId()).willReturn("id1", "id2");
 
     Session session1 = repository.createSession();
-    session1.start();
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession();
-    session2.start();
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     Map<String, Session> sessions = repository.getSessions();
 
@@ -959,7 +806,6 @@ class InMemorySessionRepositoryTests {
 
     assertThat(session).isNotNull();
     assertThat(session.getId()).isEqualTo(customId);
-    assertThat(session.isStarted()).isFalse();
   }
 
   @Test
@@ -968,8 +814,7 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(5));
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     clock = Clock.offset(clock, Duration.ofMinutes(6));
     repository.setClock(clock);
@@ -987,8 +832,7 @@ class InMemorySessionRepositoryTests {
     Session source = repository.createSession();
     source.setAttribute("key1", "value1");
     source.setAttribute("key2", "value2");
-    source.start();
-    source.save();
+    repository.saveOrUpdate(source);
 
     Session target = repository.createSession();
     ((InMemorySessionRepository.InMemorySession) target).copyFrom(source);
@@ -1016,8 +860,6 @@ class InMemorySessionRepositoryTests {
   void saveOrUpdateShouldUpdateExistingSession() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
 
     session.setAttribute("key", "value");
     repository.saveOrUpdate(session);
@@ -1031,8 +873,7 @@ class InMemorySessionRepositoryTests {
   void saveOrUpdateShouldDoNothingWhenSameInstance() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     repository.saveOrUpdate(session);
 
@@ -1052,8 +893,7 @@ class InMemorySessionRepositoryTests {
     };
 
     session.setAttribute("nonSerializable", nonSerializable);
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
   }
@@ -1064,8 +904,7 @@ class InMemorySessionRepositoryTests {
     repository.setNotifyBindingListenerOnUnchangedValue(false);
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     session.setAttribute("key", "value");
     session.setAttribute("key", "value");
@@ -1079,37 +918,12 @@ class InMemorySessionRepositoryTests {
     repository.setNotifyAttributeListenerOnUnchangedValue(false);
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     session.setAttribute("key", "value1");
     session.setAttribute("key", "value1");
 
     assertThat(repository.retrieveSession("test-id")).isNotNull();
-  }
-
-  @Test
-  void concurrentSessionAccessShouldBeThreadSafe() throws InterruptedException {
-    given(idGenerator.generateId()).willReturn("id1", "id2", "id3", "id4", "id5");
-    repository.setMaxSessions(100);
-
-    Thread[] threads = new Thread[5];
-    for (int i = 0; i < 5; i++) {
-      final int index = i;
-      threads[i] = new Thread(() -> {
-        Session session = repository.createSession();
-        session.start();
-        session.setAttribute("thread" + index, "value" + index);
-        session.save();
-      });
-      threads[i].start();
-    }
-
-    for (Thread thread : threads) {
-      thread.join();
-    }
-
-    assertThat(repository.getSessionCount()).isEqualTo(5);
   }
 
   @Test
@@ -1118,8 +932,7 @@ class InMemorySessionRepositoryTests {
     repository.setSessionMaxIdleTime(Duration.ofMinutes(5));
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     clock = Clock.offset(clock, Duration.ofMinutes(6));
     repository.setClock(clock);
@@ -1127,42 +940,6 @@ class InMemorySessionRepositoryTests {
     repository.removeExpiredSessions();
 
     assertThat(repository.getSessionCount()).isZero();
-  }
-
-  @Test
-  void sessionStateTransitionFromNewToStartedShouldBeAtomic() {
-    given(idGenerator.generateId()).willReturn("test-id");
-    Session session = repository.createSession();
-
-    assertThat(session.isStarted()).isFalse();
-
-    session.start();
-    assertThat(session.isStarted()).isTrue();
-
-    session.save();
-    assertThat(repository.retrieveSession("test-id")).isNotNull();
-  }
-
-  @Test
-  void sessionShouldMaintainConsistentStateAfterMultipleOperations() {
-    given(idGenerator.generateId()).willReturn("test-id");
-    Session session = repository.createSession();
-    session.start();
-    session.save();
-
-    session.setAttribute("key1", "value1");
-    session.save();
-
-    session.setAttribute("key2", "value2");
-    session.save();
-
-    session.removeAttribute("key1");
-    session.save();
-
-    Session retrieved = repository.retrieveSession("test-id");
-    assertThat(retrieved).isNotNull();
-    assertThat(retrieved.getAttribute("key1")).isNull();
-    assertThat(retrieved.getAttribute("key2")).isEqualTo("value2");
   }
 
 }

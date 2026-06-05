@@ -133,24 +133,13 @@ public class MapSession extends AbstractSession implements Session, Serializable
     return this.originalId;
   }
 
-  @Override
   public void start() {
     eventDispatcher.onSessionCreated(this);
   }
 
   @Override
-  public boolean isStarted() {
-    return true;
-  }
-
-  @Override
   public void changeSessionId() {
     this.id = generateId();
-  }
-
-  @Override
-  public void save() {
-
   }
 
   @Override

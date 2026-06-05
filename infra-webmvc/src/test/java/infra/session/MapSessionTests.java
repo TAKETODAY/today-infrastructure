@@ -249,16 +249,6 @@ class MapSessionTests {
   }
 
   @Test
-  void isStarted_shouldReturnTrue() {
-    assertThat(session.isStarted()).isTrue();
-  }
-
-  @Test
-  void save_shouldNotThrowException() {
-    assertThatCode(() -> session.save()).doesNotThrowAnyException();
-  }
-
-  @Test
   void invalidate_shouldClearAttributes() {
     session.setAttribute("key1", "value1");
     session.setAttribute("key2", "value2");
@@ -319,22 +309,22 @@ class MapSessionTests {
   @Test
   void getEventDispatcher_withNull_shouldThrowException() {
     assertThatThrownBy(() -> MapSession.getEventDispatcher(null))
-            .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   // 构造函数边界测试
   @Test
   void constructor_withNullId_shouldThrowException() {
     assertThatThrownBy(() -> new MapSession((String) null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("sessionId is required");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("sessionId is required");
   }
 
   @Test
   void constructor_withNullIdAndEventDispatcher_shouldThrowException() {
     assertThatThrownBy(() -> new MapSession(null, eventDispatcher))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("sessionId is required");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("sessionId is required");
   }
 
   // ID相关边界测试
@@ -352,7 +342,7 @@ class MapSessionTests {
   @Test
   void setMaxIdleTime_withNull_shouldAllow() {
     assertThatCode(() -> session.setMaxIdleTime(null))
-            .doesNotThrowAnyException();
+        .doesNotThrowAnyException();
     assertThat(session.getMaxIdleTime()).isNull();
   }
 
@@ -441,8 +431,8 @@ class MapSessionTests {
   @Test
   void copyConstructor_withNullSession_shouldThrowException() {
     assertThatThrownBy(() -> new MapSession((Session) null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("session is required");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("session is required");
   }
 
   // 时间操作边界测试

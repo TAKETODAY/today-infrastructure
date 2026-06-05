@@ -34,7 +34,7 @@ class AttributeBindingListenerTests {
   @Test
   void normal() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
 
     Session session = repository.createSession();
 
@@ -49,15 +49,14 @@ class AttributeBindingListenerTests {
   @Test
   void persistence(@TempDir File tempDir) throws IOException, ClassNotFoundException {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
 
     var sessionPersister = new FileSessionPersister(repository);
     sessionPersister.setDirectory(tempDir);
     var persistenceRepository = new PersistenceSessionRepository(sessionPersister, repository);
 
     Session session = repository.createSession();
-    session.start();
-    session.save();
+    repository.saveOrUpdate(session);
 
     SerializableAttribute attribute = new SerializableAttribute();
     session.setAttribute("serializable", attribute);
@@ -83,7 +82,7 @@ class AttributeBindingListenerTests {
   @Test
   void valueBoundIsCalledWhenAttributeIsSet() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
@@ -95,7 +94,7 @@ class AttributeBindingListenerTests {
   @Test
   void valueUnboundIsCalledWhenAttributeIsRemoved() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
@@ -108,7 +107,7 @@ class AttributeBindingListenerTests {
   @Test
   void valueUnboundIsCalledWhenSessionIsInvalidated() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
@@ -121,7 +120,7 @@ class AttributeBindingListenerTests {
   @Test
   void multipleAttributesWithBindingListeners() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     SerializableAttribute attribute1 = new SerializableAttribute();
@@ -142,7 +141,7 @@ class AttributeBindingListenerTests {
   @Test
   void sameAttributeAddedMultipleTimes() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
@@ -157,7 +156,7 @@ class AttributeBindingListenerTests {
   @Test
   void attributeBindingListenerMethodsReceiveCorrectParameters() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     TrackingAttributeBindingListener attribute = new TrackingAttributeBindingListener();
@@ -176,7 +175,7 @@ class AttributeBindingListenerTests {
   @Test
   void valueUnboundCalledOnSessionInvalidate() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     SerializableAttribute attribute = new SerializableAttribute();
@@ -191,7 +190,7 @@ class AttributeBindingListenerTests {
   @Test
   void nonSerializableAttributeBindingListener() {
     InMemorySessionRepository repository = new InMemorySessionRepository(
-            new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
+        new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
     Session session = repository.createSession();
 
     UnSerializableAttribute attribute = new UnSerializableAttribute();

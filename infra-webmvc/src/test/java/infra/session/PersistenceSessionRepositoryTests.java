@@ -111,7 +111,7 @@ class PersistenceSessionRepositoryTests {
     assertThat(retrieveSession.hasAttributes()).isTrue();
     assertThat(retrieveSession.getAttributeNames()).contains("name", "loginUser");
     assertThat(retrieveSession.getAttributes()).isNotNull()
-            .contains(Map.entry("loginUser", loginUser), Map.entry("name", "value"));
+        .contains(Map.entry("loginUser", loginUser), Map.entry("name", "value"));
 
     persister.clear();
 
@@ -155,8 +155,8 @@ class PersistenceSessionRepositoryTests {
     var delegate = new InMemorySessionRepository(new SessionEventDispatcher(), new SecureRandomSessionIdGenerator());
 
     assertThatThrownBy(() -> new PersistenceSessionRepository(null, delegate))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("SessionPersister is required");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("SessionPersister is required");
   }
 
   @Test
@@ -164,8 +164,8 @@ class PersistenceSessionRepositoryTests {
     var persister = new FileSessionPersister(new InMemorySessionRepository(new SessionEventDispatcher(), new SecureRandomSessionIdGenerator()));
 
     assertThatThrownBy(() -> new PersistenceSessionRepository(persister, null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("SessionRepository is required");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("SessionRepository is required");
   }
 
   @Test
@@ -217,7 +217,7 @@ class PersistenceSessionRepositoryTests {
     String id = idGenerator.generateId();
     Session createdSession = repository.createSession(id);
     createdSession.setAttribute("key", "value");
-    createdSession.save();
+    repository.saveOrUpdate(createdSession);
 
     Session retrievedSession = repository.retrieveSession(id);
 
@@ -236,7 +236,7 @@ class PersistenceSessionRepositoryTests {
     String id = idGenerator.generateId();
     Session session = repository.createSession(id);
     session.setAttribute("key", "value");
-    session.save();
+    repository.saveOrUpdate(session);
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
@@ -256,7 +256,7 @@ class PersistenceSessionRepositoryTests {
     String id = idGenerator.generateId();
     Session session = repository.createSession(id);
     session.setAttribute("key", "value");
-    session.save();
+    repository.saveOrUpdate(session);
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
 
@@ -276,7 +276,7 @@ class PersistenceSessionRepositoryTests {
 
     String id = idGenerator.generateId();
     Session session = repository.createSession(id);
-    session.save();
+    repository.saveOrUpdate(session);
 
     Instant beforeUpdate = session.getLastAccessTime();
 
@@ -337,11 +337,11 @@ class PersistenceSessionRepositoryTests {
 
     Session session1 = repository.createSession(id1);
     session1.setAttribute("key1", "value1");
-    session1.save();
+    repository.saveOrUpdate(session1);
 
     Session session2 = repository.createSession(id2);
     session2.setAttribute("key2", "value2");
-    session2.save();
+    repository.saveOrUpdate(session2);
 
     repository.persistSessions();
 
@@ -368,7 +368,7 @@ class PersistenceSessionRepositoryTests {
     String id = idGenerator.generateId();
     Session session = repository.createSession(id);
     session.setAttribute("key", "value");
-    session.save();
+    repository.saveOrUpdate(session);
 
     repository.destroy();
 

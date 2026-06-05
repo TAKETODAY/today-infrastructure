@@ -46,7 +46,6 @@ public interface SessionListener extends EventListener {
    * @param session the session
    */
   default void sessionCreated(Session session) {
-    // default do nothing
   }
 
   /**
@@ -57,7 +56,6 @@ public interface SessionListener extends EventListener {
    * @param session the session
    */
   default void sessionDestroyed(Session session) {
-    // default do nothing
   }
 
 }

@@ -225,6 +225,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
   @Override
   public InMemorySession createSession(String id) {
+    Assert.notNull(id, "sessionId is required");
     // Opportunity to clean expired sessions
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
@@ -266,19 +267,34 @@ public class InMemorySessionRepository implements SessionRepository {
     session.setLastAccessTime(clock.instant());
   }
 
+  /**
+   * Save or update the given session.
+   * <p>If the session does not exist in the repository, a new session is created,
+   * started, and saved. If the session already exists and is the same instance,
+   * no action is taken. Otherwise, the existing session's state is updated by
+   * copying attributes and metadata from the provided session.
+   *
+   * @param update the session to save or update
+   * @since 5.0
+   */
   @Override
   public synchronized void saveOrUpdate(Session update) {
     String sessionId = update.getId();
     InMemorySession session = sessions.get(sessionId);
     if (session == null) {
-      session = createSession(sessionId);
+      if (update instanceof InMemorySession) {
+        session = (InMemorySession) update;
+      }
+      else {
+        session = createSession(sessionId);
+        session.copyFrom(update);
+      }
       session.start();
       session.save();
     }
-    else if (session == update) {
-      return;
+    else if (session != update) {
+      session.copyFrom(update);
     }
-    session.copyFrom(update);
   }
 
   @Override
@@ -369,23 +385,16 @@ public class InMemorySessionRepository implements SessionRepository {
       return newCreation;
     }
 
-    @Override
     public void save() {
       checkMaxSessionsLimit();
 
-      // Implicitly started session..
-      if (hasAttributes()) {
-        state.compareAndSet(State.NEW, State.STARTED);
-      }
-      if (isStarted()) {
-        // Save
-        sessions.put(getId(), this);
+      // Save
+      sessions.put(getId(), this);
 
-        // Unless it was invalidated
-        if (state.get().equals(State.EXPIRED)) {
-          sessions.remove(getId());
-          throw new IllegalStateException("Session was invalidated");
-        }
+      // Unless it was invalidated
+      if (state.get().equals(State.EXPIRED)) {
+        sessions.remove(getId());
+        throw new IllegalStateException("Session was invalidated");
       }
     }
 
@@ -403,21 +412,10 @@ public class InMemorySessionRepository implements SessionRepository {
      * Force the creation of a session causing the session id to be sent when
      * {@link #save()} is called.
      */
-    @Override
     public void start() {
-      state.compareAndSet(State.NEW, State.STARTED);
-      eventDispatcher.onSessionCreated(this);
-    }
-
-    /**
-     * Whether a session with the client has been started explicitly via
-     * {@link #start()} or implicitly by adding session attributes.
-     * If "false" then the session id is not sent to the client and the
-     * {@link #save()} method is essentially a no-op.
-     */
-    @Override
-    public boolean isStarted() {
-      return state.get().equals(State.STARTED) || attributes != null;
+      if (state.compareAndSet(State.NEW, State.STARTED)) {
+        eventDispatcher.onSessionCreated(this);
+      }
     }
 
     @Override
@@ -456,9 +454,8 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     private boolean checkExpired(Instant currentTime) {
-      return isStarted()
-              && !maxIdleTime.isNegative()
-              && currentTime.minus(maxIdleTime).isAfter(lastAccessTime);
+      return !maxIdleTime.isNegative()
+          && currentTime.minus(maxIdleTime).isAfter(lastAccessTime);
     }
 
     // Serializable
@@ -494,11 +491,11 @@ public class InMemorySessionRepository implements SessionRepository {
             Object object = entry.getValue();
             stream.writeObject(object);
             traceDebug(log, traceOn -> formatValue("  storing attribute '%s' with value '%s'"
-                    .formatted(name, object), !traceOn));
+                .formatted(name, object), !traceOn));
           }
           catch (NotSerializableException e) {
             log.warn("Cannot serialize session attribute [{}] for session [{}]",
-                    name, id, e);
+                name, id, e);
           }
         }
       }
@@ -543,7 +540,7 @@ public class InMemorySessionRepository implements SessionRepository {
           }
           setAttribute(name, value);
           traceDebug(log, traceOn -> formatValue(
-                  "  loading attribute '%s' with value '%s'".formatted(name, value), !traceOn));
+              "  loading attribute '%s' with value '%s'".formatted(name, value), !traceOn));
         }
       }
 
@@ -559,10 +556,10 @@ public class InMemorySessionRepository implements SessionRepository {
         return false;
       InMemorySession that = (InMemorySession) o;
       return Objects.equals(id.get(), that.id.get())
-              && Objects.equals(state.get(), that.state.get())
-              && Objects.equals(creationTime, that.creationTime)
-              && Objects.equals(maxIdleTime, that.maxIdleTime)
-              && Objects.equals(lastAccessTime, that.lastAccessTime);
+          && Objects.equals(state.get(), that.state.get())
+          && Objects.equals(creationTime, that.creationTime)
+          && Objects.equals(maxIdleTime, that.maxIdleTime)
+          && Objects.equals(lastAccessTime, that.lastAccessTime);
     }
 
     @Override

@@ -34,25 +34,28 @@ import org.jspecify.annotations.Nullable;
 public interface SessionRepository {
 
   /**
-   * Create a new Session.
-   * <p>Note that this does nothing more than create a new instance.
-   * The session can later be started explicitly via {@link Session#start()}
-   * or implicitly by adding attributes -- and then persisted via
-   * {@link Session#save()}.
+   * Creates a new {@link Session} with a generated unique identifier.
+   * <p>The generated identifier is guaranteed to be unique within the scope of this repository.
+   * The newly created session is not persisted until {@link #saveOrUpdate(Session)} is called,
+   * depending on the implementation strategy.
    *
-   * @return the created session instance
+   * @return the newly created session instance
+   * @see #saveOrUpdate(Session)
    * @since 4.0
    */
   Session createSession();
 
   /**
-   * Create a new Session with given session id.
-   * <p>Note that this does nothing more than create a new instance.
-   * The session can later be started explicitly via {@link Session#start()}
-   * or implicitly by adding attributes -- and then persisted via
-   * {@link Session#save()}.
+   * Creates a new {@link Session} with the specified identifier.
+   * <p>This method allows for explicit control over the session identifier, which can be useful
+   * for session fixation protection or migrating existing sessions. The provided identifier must
+   * be unique; if a session with the same ID already exists, the behavior is implementation-specific
+   * (typically it may overwrite or throw an exception).
    *
-   * @return the created session instance
+   * @param id the unique identifier for the new session
+   * @return the newly created session instance
+   * @throws IllegalArgumentException if the id is {@code null} or empty
+   * @see #saveOrUpdate(Session)
    * @since 4.0
    */
   Session createSession(String id);
@@ -90,15 +93,13 @@ public interface SessionRepository {
   Session remove(String id);
 
   /**
-   * Save or update the specified session.
-   * <p>This method handles both creating new sessions and updating existing ones.
-   * For new sessions, the session must have been started (via {@link Session#start()}
-   * or by adding attributes). For existing sessions, this updates the persisted state.
-   * <p><strong>Note:</strong> If the session ID has been changed via
-   * {@link Session#changeSessionId()}, this method will handle the necessary
-   * cleanup of the old session identifier.
+   * Saves or updates the specified session in the repository.
+   * <p>This method persists the current state of the session, including any attribute changes
+   * and metadata updates (such as last accessed time). If the session is new, it will be created;
+   * if it already exists, its state will be updated.
    *
-   * @param session the session to save or update
+   * @param session the session instance to save or update; must not be {@code null}
+   * @throws IllegalArgumentException if the session is {@code null}
    * @since 5.0
    */
   void saveOrUpdate(Session session);

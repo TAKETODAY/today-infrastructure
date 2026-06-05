@@ -63,8 +63,7 @@ public class DefaultSessionManager implements SessionManager {
   @Override
   public Session createSession(RequestContext context) {
     Session session = sessionRepository.createSession();
-    session.start();
-    session.save();
+    sessionRepository.saveOrUpdate(session);
     sessionIdResolver.setSessionId(context, session.getId());
     return session;
   }
