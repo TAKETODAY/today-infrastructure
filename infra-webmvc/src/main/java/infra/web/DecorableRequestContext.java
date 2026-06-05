@@ -825,6 +825,11 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
+  public String changeSessionId() {
+    return delegate().changeSessionId();
+  }
+
+  @Override
   public @Nullable String getSessionId() {
     return delegate().getSessionId();
   }
