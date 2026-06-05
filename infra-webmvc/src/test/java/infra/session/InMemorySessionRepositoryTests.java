@@ -139,7 +139,7 @@ class InMemorySessionRepositoryTests {
     Session session = repository.createSession();
     repository.saveOrUpdate(session);
 
-    verify(eventDispatcher).onSessionCreated(session);
+    verify(eventDispatcher).sessionCreated(session);
   }
 
   @Test
@@ -152,7 +152,7 @@ class InMemorySessionRepositoryTests {
 
     assertThat(repository.retrieveSession(session.getId())).isNull();
     assertThat(repository.getSessionCount()).isZero();
-    verify(eventDispatcher).onSessionDestroyed(session);
+    verify(eventDispatcher).sessionDestroyed(session);
   }
 
   @Test
@@ -186,7 +186,7 @@ class InMemorySessionRepositoryTests {
     repository.removeExpiredSessions();
 
     assertThat(repository.getSessionCount()).isZero();
-    verify(eventDispatcher).onSessionDestroyed(session);
+    verify(eventDispatcher).sessionDestroyed(session);
   }
 
   @Test
@@ -199,7 +199,7 @@ class InMemorySessionRepositoryTests {
     repository.removeExpiredSessions();
 
     assertThat(repository.getSessionCount()).isEqualTo(1);
-    verify(eventDispatcher, never()).onSessionDestroyed(session);
+    verify(eventDispatcher, never()).sessionDestroyed(session);
   }
 
   @Test
@@ -283,7 +283,7 @@ class InMemorySessionRepositoryTests {
 
     repository.saveOrUpdate(session);
 
-    verify(eventDispatcher).onSessionCreated(session);
+    verify(eventDispatcher).sessionCreated(session);
   }
 
   @Test

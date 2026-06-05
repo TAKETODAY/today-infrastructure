@@ -368,10 +368,13 @@ public class InMemorySessionRepository implements SessionRepository {
 
     @Override
     public void changeSessionId() {
-      sessions.remove(getId());
+      String previousId = getId();
+      sessions.remove(previousId);
       String newId = idGenerator.generateId();
       id.set(newId);
       sessions.put(newId, this);
+
+      eventDispatcher.sessionIdChanged(this, previousId);
     }
 
     @Override
@@ -414,7 +417,7 @@ public class InMemorySessionRepository implements SessionRepository {
      */
     public void start() {
       if (state.compareAndSet(State.NEW, State.STARTED)) {
-        eventDispatcher.onSessionCreated(this);
+        eventDispatcher.sessionCreated(this);
       }
     }
 
@@ -455,7 +458,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
     private boolean checkExpired(Instant currentTime) {
       return !maxIdleTime.isNegative()
-          && currentTime.minus(maxIdleTime).isAfter(lastAccessTime);
+              && currentTime.minus(maxIdleTime).isAfter(lastAccessTime);
     }
 
     // Serializable
@@ -491,11 +494,11 @@ public class InMemorySessionRepository implements SessionRepository {
             Object object = entry.getValue();
             stream.writeObject(object);
             traceDebug(log, traceOn -> formatValue("  storing attribute '%s' with value '%s'"
-                .formatted(name, object), !traceOn));
+                    .formatted(name, object), !traceOn));
           }
           catch (NotSerializableException e) {
             log.warn("Cannot serialize session attribute [{}] for session [{}]",
-                name, id, e);
+                    name, id, e);
           }
         }
       }
@@ -540,7 +543,7 @@ public class InMemorySessionRepository implements SessionRepository {
           }
           setAttribute(name, value);
           traceDebug(log, traceOn -> formatValue(
-              "  loading attribute '%s' with value '%s'".formatted(name, value), !traceOn));
+                  "  loading attribute '%s' with value '%s'".formatted(name, value), !traceOn));
         }
       }
 
@@ -556,10 +559,10 @@ public class InMemorySessionRepository implements SessionRepository {
         return false;
       InMemorySession that = (InMemorySession) o;
       return Objects.equals(id.get(), that.id.get())
-          && Objects.equals(state.get(), that.state.get())
-          && Objects.equals(creationTime, that.creationTime)
-          && Objects.equals(maxIdleTime, that.maxIdleTime)
-          && Objects.equals(lastAccessTime, that.lastAccessTime);
+              && Objects.equals(state.get(), that.state.get())
+              && Objects.equals(creationTime, that.creationTime)
+              && Objects.equals(maxIdleTime, that.maxIdleTime)
+              && Objects.equals(lastAccessTime, that.lastAccessTime);
     }
 
     @Override

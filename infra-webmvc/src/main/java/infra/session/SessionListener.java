@@ -58,4 +58,17 @@ public interface SessionListener extends EventListener {
   default void sessionDestroyed(Session session) {
   }
 
+  /**
+   * Notification that a session ID has been changed.
+   * <p>This method is invoked after the session ID has been successfully changed,
+   * allowing listeners to perform any necessary cleanup or updates related to
+   * the old session ID.
+   *
+   * @param session the session event containing information about the session whose ID changed
+   * @param previousId the previous session ID before the change; never {@code null}
+   * @see Session#changeSessionId()
+   */
+  default void sessionIdChanged(Session session, String previousId) {
+  }
+
 }

@@ -245,7 +245,7 @@ class MapSessionTests {
   void start_shouldTriggerSessionCreatedEvent() {
     MapSession sessionWithDispatcher = new MapSession("test-id", eventDispatcher);
     sessionWithDispatcher.start();
-    verify(eventDispatcher).onSessionCreated(sessionWithDispatcher);
+    verify(eventDispatcher).sessionCreated(sessionWithDispatcher);
   }
 
   @Test

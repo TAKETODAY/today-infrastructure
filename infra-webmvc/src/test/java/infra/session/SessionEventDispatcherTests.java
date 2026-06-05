@@ -44,19 +44,19 @@ class SessionEventDispatcherTests {
   SessionEventDispatcher dispatcher = new SessionEventDispatcher();
 
   @Test
-  void shouldNotifyListenersOnSessionCreated() {
+  void shouldNotifyListenersSessionCreated() {
     dispatcher.addSessionListeners(new SessionListener() { });
     dispatcher.addSessionListeners(listener);
-    dispatcher.onSessionCreated(session);
+    dispatcher.sessionCreated(session);
 
     verify(listener).sessionCreated(session);
   }
 
   @Test
-  void shouldNotifyListenersOnSessionDestroyed() {
+  void shouldNotifyListenersSessionDestroyed() {
     dispatcher.addSessionListeners(new SessionListener() { });
     dispatcher.addSessionListeners(listener);
-    dispatcher.onSessionDestroyed(session);
+    dispatcher.sessionDestroyed(session);
 
     verify(listener).sessionDestroyed(session);
   }
@@ -103,7 +103,7 @@ class SessionEventDispatcherTests {
     SessionListener listener2 = mock(SessionListener.class);
     dispatcher.addSessionListeners(listener, listener2);
 
-    dispatcher.onSessionCreated(session);
+    dispatcher.sessionCreated(session);
 
     verify(listener).sessionCreated(session);
     verify(listener2).sessionCreated(session);
@@ -125,7 +125,7 @@ class SessionEventDispatcherTests {
   @Test
   void shouldAddSessionListenersFromCollection() {
     dispatcher.addSessionListeners(List.of(listener));
-    dispatcher.onSessionCreated(session);
+    dispatcher.sessionCreated(session);
 
     verify(listener).sessionCreated(session);
   }
@@ -143,8 +143,8 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldNotThrowExceptionWhenNoListenersArePresent() {
-    dispatcher.onSessionCreated(session);
-    dispatcher.onSessionDestroyed(session);
+    dispatcher.sessionCreated(session);
+    dispatcher.sessionDestroyed(session);
     dispatcher.attributeAdded(session, "name", "value");
     dispatcher.attributeRemoved(session, "name", "value");
     dispatcher.attributeReplaced(session, "name", "old", "new");
@@ -152,8 +152,8 @@ class SessionEventDispatcherTests {
 
   @Test
   void shouldDoNothingWhenSessionListenerListIsEmpty() {
-    dispatcher.onSessionCreated(session);
-    dispatcher.onSessionDestroyed(session);
+    dispatcher.sessionCreated(session);
+    dispatcher.sessionDestroyed(session);
     // No exception should be thrown, and no interactions should occur if there were mocks.
   }
 

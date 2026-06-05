@@ -134,7 +134,7 @@ public class MapSession extends AbstractSession implements Session, Serializable
   }
 
   public void start() {
-    eventDispatcher.onSessionCreated(this);
+    eventDispatcher.sessionCreated(this);
   }
 
   @Override

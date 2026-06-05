@@ -41,7 +41,7 @@ public class SessionEventDispatcher {
   /**
    * Receives notification that a session has been created.
    */
-  public void onSessionCreated(Session session) {
+  public void sessionCreated(Session session) {
     for (SessionListener listener : sessionListeners) {
       listener.sessionCreated(session);
     }
@@ -50,9 +50,18 @@ public class SessionEventDispatcher {
   /**
    * Receives notification that a session is about to be invalidated.
    */
-  public void onSessionDestroyed(Session session) {
+  public void sessionDestroyed(Session session) {
     for (SessionListener listener : sessionListeners) {
       listener.sessionDestroyed(session);
+    }
+  }
+
+  /**
+   * Receives notification that a session ID has been changed.
+   */
+  public void sessionIdChanged(Session session, String previousId) {
+    for (SessionListener listener : sessionListeners) {
+      listener.sessionIdChanged(session, previousId);
     }
   }
 

@@ -143,7 +143,7 @@ public abstract class AbstractSession implements Session {
 
   @Override
   public void invalidate() {
-    eventDispatcher.onSessionDestroyed(this);
+    eventDispatcher.sessionDestroyed(this);
     for (String attributeName : getAttributeNames()) {
       removeAttribute(attributeName);
     }
