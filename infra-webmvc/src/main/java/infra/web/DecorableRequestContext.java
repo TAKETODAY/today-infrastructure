@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.context.ApplicationContext;
@@ -186,6 +187,11 @@ public abstract class DecorableRequestContext extends RequestContext {
   @Override
   public void addCookie(ResponseCookie cookie) {
     delegate().addCookie(cookie);
+  }
+
+  @Override
+  public void addCookie(String name, Consumer<ResponseCookie.Builder> consumer) {
+    delegate().addCookie(name, consumer);
   }
 
   @Override

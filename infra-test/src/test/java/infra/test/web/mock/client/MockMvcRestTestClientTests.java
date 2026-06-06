@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.http.ResponseCookie;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.web.RequestContext;
@@ -80,7 +79,7 @@ class MockMvcRestTestClientTests {
     @GetMapping("/foo")
     void foo(@CookieValue("session") String session, RequestContext response) throws IOException {
       response.getWriter().write("bar");
-      response.addCookie(ResponseCookie.forSimple("session", session));
+      response.addCookie("session", builder -> builder.value(session));
     }
 
     @GetMapping("/error")

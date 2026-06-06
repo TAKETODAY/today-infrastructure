@@ -333,7 +333,7 @@ class RestTestClientTests {
     public Map<String, Object> handle(
             @RequestHeader HttpHeaders headers, RequestContext request) {
 
-      request.addCookie(ResponseCookie.forSimple("session", "abc"));
+      request.addCookie(ResponseCookie.builder("session", "abc"));
 
       return Map.of(
               "method", request.getMethod(),

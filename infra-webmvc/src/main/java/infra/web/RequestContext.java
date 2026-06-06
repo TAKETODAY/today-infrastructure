@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
@@ -551,21 +552,50 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * Adds the specified cookie to the response. This method can be called multiple
    * times to set more than one cookie.
    *
-   * @param cookie the Cookie to return to the client
+   * @param cookie the {@link ResponseCookie} to return to the client
    */
   public void addCookie(ResponseCookie cookie) {
     responseCookies().add(cookie);
   }
 
   /**
-   * Adds the specified cookie to the response. This method can be called multiple
-   * times to set more than one cookie.
+   * Adds the specified cookie to the response by building it from the provided builder.
+   * This method can be called multiple times to set more than one cookie.
    *
-   * @param cookie the Cookie to return to the client
+   * @param cookie the {@link ResponseCookie.Builder} used to construct the cookie to return to the client
    * @since 5.0
    */
   public void addCookie(ResponseCookie.Builder cookie) {
     addCookie(cookie.build());
+  }
+
+  /**
+   * Adds a cookie to the response by configuring its properties using the provided consumer.
+   * <p>
+   * This method creates a {@link ResponseCookie.Builder} with the specified name and applies
+   * the configuration defined in the {@code consumer}. The configured cookie is then added
+   * to the response.
+   *
+   * <p><b>Example Usage:</b>
+   * <pre>{@code
+   *   context.addCookie("sessionId", builder -> {
+   *     builder.value("12345")
+   *            .httpOnly(true)
+   *            .secure(true)
+   *            .maxAge(Duration.ofHours(1));
+   *   });
+   * }</pre>
+   *
+   * @param name the name of the cookie; must not be null or empty
+   * @param consumer a {@link Consumer} that configures the {@link ResponseCookie.Builder};
+   * must not be null
+   * @throws IllegalArgumentException if the name is null or empty, or if the consumer is null
+   * @since 5.0
+   */
+  public void addCookie(String name, Consumer<ResponseCookie.Builder> consumer) {
+    var builder = ResponseCookie.builder(name);
+    consumer.accept(builder);
+    addCookie(builder);
   }
 
   /**
@@ -580,10 +610,10 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * Adds the specified cookie to the response. This method can be called multiple
-   * times to set more than one cookie.
+   * Adds the specified {@link HttpCookie} to the response by extracting its name and value.
+   * This method can be called multiple times to set more than one cookie.
    *
-   * @param cookie the Cookie to return to the client
+   * @param cookie the {@link HttpCookie} to add to the response; must not be null
    * @since 5.0
    */
   public void addCookie(HttpCookie cookie) {
