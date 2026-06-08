@@ -22,12 +22,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContext;
+import infra.core.Conventions;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
@@ -50,6 +53,9 @@ import infra.web.handler.result.AsyncReturnValueHandler;
 import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
 import infra.web.view.ViewRef;
+
+import static infra.web.RequestContext.FORWARD_ATTRIBUTE;
+import static infra.web.RequestContext.FORWARD_REQUEST_URI_ATTRIBUTE;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers.
@@ -74,6 +80,14 @@ import infra.web.view.ViewRef;
  * @since 3.0 2019-11-16 19:05
  */
 public class DispatcherHandler extends WebLifecycleManager {
+
+  /**
+   * Attribute name for the set of paths already forwarded to in the current
+   * forward chain, used to detect circular forwards.
+   *
+   * @see #forward(RequestContext, String)
+   */
+  static final String FORWARDED_PATHS_ATTRIBUTE = Conventions.getQualifiedAttributeName(DispatcherHandler.class, "forwardedPaths");
 
   private final ArrayList<RequestCompletedListener> requestCompletedActions = new ArrayList<>();
 
@@ -540,6 +554,49 @@ public class DispatcherHandler extends WebLifecycleManager {
     else {
       new DefaultFilterChain(filters, this).doFilter(context);
     }
+  }
+
+  /**
+   * Forward the request to a new path, re-dispatching through the handler
+   * pipeline without involving filters.
+   * <p>Similar to Servlet's {@code RequestDispatcher.forward()}.
+   * The response buffer is cleared and the request path is updated before
+   * re-dispatching.
+   *
+   * @param request the current request context
+   * @param path the new path to forward to
+   * @throws Exception if forwarding fails
+   * @throws IllegalStateException if the response has already been committed,
+   * or a circular forward is detected
+   * @since 5.0
+   */
+  void forward(RequestContext request, String path) throws Exception {
+    if (request.isCommitted()) {
+      throw new IllegalStateException("Cannot forward after response has been committed");
+    }
+
+    @SuppressWarnings("unchecked")
+    var forwardedPaths = (Set<String>) request.getAttribute(FORWARDED_PATHS_ATTRIBUTE);
+    if (forwardedPaths == null) {
+      forwardedPaths = new HashSet<>();
+      forwardedPaths.add(request.requestURI);
+      request.setAttribute(FORWARDED_PATHS_ATTRIBUTE, forwardedPaths);
+    }
+
+    if (!forwardedPaths.add(path)) {
+      throw new IllegalStateException(
+              "Circular forward detected: path '%s' has already been forwarded to".formatted(path));
+    }
+
+    request.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, request.requestURI);
+    request.setAttribute(FORWARD_ATTRIBUTE, Boolean.TRUE);
+    request.reset();
+    request.requestURI = path;
+    request.requestPath = null;
+    request.uri = null;
+    request.matchingMetadata = null;
+    request.responseContentType = null;
+    handleRequestInternal(request);
   }
 
   private void handleRequestInternal(RequestContext context) throws Exception {

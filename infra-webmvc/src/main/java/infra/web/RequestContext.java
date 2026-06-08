@@ -153,6 +153,22 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   public static final String SCOPE_SESSION = SessionScope.NAME;
 
   /**
+   * Attribute name for the original request URI before forwarding.
+   *
+   * @see #forward(String)
+   */
+  public static final String FORWARD_REQUEST_URI_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(RequestContext.class, "forward.requestUri");
+
+  /**
+   * Attribute name for the forwarded request marker.
+   *
+   * @see #forward(String)
+   */
+  public static final String FORWARD_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(RequestContext.class, "forward");
+
+  /**
    * Flag indicating whether HTML escaping is enabled by default for message resolution.
    * This value is retrieved from the application's configuration using the key
    * "infra.web.default-html-escape". If the key is not found, the default value is {@code true}.
@@ -240,7 +256,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   /** @since 4.0 */
   protected final ApplicationContext applicationContext;
 
-  private @Nullable HandlerMatchingMetadata matchingMetadata;
+  protected @Nullable HandlerMatchingMetadata matchingMetadata;
 
   private @Nullable Session session;
 
@@ -1867,6 +1883,25 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * cannot be converted into a valid URL
    */
   public abstract void sendRedirect(String location) throws IOException;
+
+  /**
+   * Forward the request to a new path, re-dispatching through the handler
+   * pipeline without involving filters.
+   * <p>Similar to Servlet's {@code RequestDispatcher.forward()}.
+   * The response buffer is cleared and the request path is updated before
+   * re-dispatching.
+   * <p>This is a convenience that delegates to
+   * {@link DispatcherHandler#forward(RequestContext, String)}.
+   *
+   * @param path the new path to forward to
+   * @throws Exception if forwarding fails
+   * @throws IllegalStateException if the response has already been committed
+   * @see DispatcherHandler#forward(RequestContext, String)
+   * @since 5.0
+   */
+  public void forward(String path) throws Exception {
+    dispatcherHandler.forward(this, path);
+  }
 
   /**
    * Sets the status code for this response.
