@@ -838,11 +838,13 @@ public class DispatcherHandler extends WebLifecycleManager {
       path = path.substring(0, queryIndex);
     }
 
+    String requestURI = request.getRequestURI();
+
     @SuppressWarnings("unchecked")
     var forwardedPaths = (Set<String>) request.getAttribute(FORWARDED_PATHS_ATTRIBUTE);
     if (forwardedPaths == null) {
       forwardedPaths = new HashSet<>();
-      forwardedPaths.add(request.requestURI);
+      forwardedPaths.add(requestURI);
       request.setAttribute(FORWARDED_PATHS_ATTRIBUTE, forwardedPaths);
     }
 
@@ -851,7 +853,7 @@ public class DispatcherHandler extends WebLifecycleManager {
               "Circular forward detected: path '%s' has already been forwarded to".formatted(path));
     }
 
-    request.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, request.requestURI);
+    request.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, requestURI);
     request.setAttribute(FORWARD_ATTRIBUTE, Boolean.TRUE);
     request.reset();
     request.requestURI = path;
