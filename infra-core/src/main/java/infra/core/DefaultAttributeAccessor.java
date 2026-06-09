@@ -62,9 +62,8 @@ public class DefaultAttributeAccessor implements AttributeAccessor {
     }
   }
 
-  @Nullable
   @Override
-  public Object getAttribute(final String name) {
+  public @Nullable Object getAttribute(final String name) {
     if (attributes == null) {
       return null;
     }
@@ -93,9 +92,8 @@ public class DefaultAttributeAccessor implements AttributeAccessor {
     }
   }
 
-  @Nullable
   @Override
-  public Object removeAttribute(String name) {
+  public @Nullable Object removeAttribute(String name) {
     if (attributes != null) {
       return attributes.remove(name);
     }
@@ -176,7 +174,7 @@ public class DefaultAttributeAccessor implements AttributeAccessor {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     return (this == other || (other instanceof DefaultAttributeAccessor that
             && Objects.equals(attributes, that.attributes)));
   }

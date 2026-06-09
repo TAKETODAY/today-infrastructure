@@ -116,9 +116,12 @@ public interface AttributeAccessor {
   boolean hasAttributes();
 
   /**
-   * Return the attributes map.
+   * Return the underlying attributes map.
+   * <p>
+   * Modifications to the returned map will directly affect the attributes
+   * held by this accessor. Use with caution to avoid unintended side effects.
    *
-   * @return the attributes map
+   * @return the mutable map of attributes
    * @since 3.0
    */
   Map<String, Object> getAttributes();
@@ -172,6 +175,9 @@ public interface AttributeAccessor {
 
   /**
    * Remove all attributes from this accessor.
+   * <p>
+   * After this call, {@link #hasAttributes()} will return {@code false}
+   * and {@link #getAttributeNames()} will return an empty array.
    *
    * @see Map#clear()
    */
