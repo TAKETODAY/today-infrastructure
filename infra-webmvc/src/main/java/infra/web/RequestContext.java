@@ -728,15 +728,14 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * Returns a java.util.Map of the parameters of this request.
+   * Returns a {@link MultiValueMap} of the parameters of this request.
    *
-   * <p>
-   * Request parameters are extra information sent with the request. Parameters
+   * <p>Request parameters are extra information sent with the request. Parameters
    * are contained in the query string or posted form data.
    *
-   * @return java.util.Map containing parameter names as keys and parameter values
-   * as map values. The keys in the parameter map are of type String. The
-   * values in the parameter map are of type String array.
+   * @return a {@link MultiValueMap} containing parameter names as keys and parameter values
+   * as map values. The keys in the parameter map are of type {@code String}. The
+   * values in the parameter map are of type {@code List<String>}.
    */
   public MultiValueMap<String, String> getParameters() {
     var parameters = this.parameters;
@@ -747,6 +746,17 @@ public abstract class RequestContext extends DefaultAttributeAccessor
     return parameters;
   }
 
+  /**
+   * Reads and parses the request parameters from the query string or form data.
+   * <p>
+   * This method is intended to be implemented by subclasses to provide the specific
+   * logic for extracting parameters based on the underlying HTTP implementation.
+   * The returned map should contain parameter names as keys and lists of parameter
+   * values as map values.
+   *
+   * @return a {@link MultiValueMap} containing the request parameters, never {@code null}
+   * @since 5.0
+   */
   protected abstract MultiValueMap<String, String> readParameters();
 
   /**
