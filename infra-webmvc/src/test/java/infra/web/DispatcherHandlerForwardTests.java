@@ -18,10 +18,13 @@ package infra.web;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.stereotype.Component;
+import infra.util.MultiValueMapAdapter;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockRequestContext;
 
@@ -255,6 +258,89 @@ class DispatcherHandlerForwardTests {
 
     assertThat(request.isCommitted()).isFalse();
     assertThat(request.requestURI).isEqualTo("/c");
+  }
+
+  // -- query string tests --
+
+  @Test
+  void forwardWithQueryString() throws Exception {
+    var handler = createHandlerWithEchoMapping();
+
+    MockRequestContext request = new MockRequestContext();
+    request.requestURI = "/source";
+
+    handler.forward(request, "/target?foo=bar&baz=1");
+
+    assertThat(request.requestURI).isEqualTo("/target");
+    assertThat(request.queryString).isEqualTo("foo=bar&baz=1");
+    assertThat(request.getRequestURI()).isEqualTo("/target");
+    assertThat(request.getQueryString()).isEqualTo("foo=bar&baz=1");
+  }
+
+  @Test
+  void forwardWithQueryStringDetectsCycle() throws Exception {
+    var handler = createHandlerWithEchoMapping();
+
+    MockRequestContext request = new MockRequestContext();
+    request.setRequestURI("/a");
+
+    handler.forward(request, "/b?x=1");
+
+    assertThatThrownBy(() -> handler.forward(request, "/a?y=2"))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Circular forward")
+            .hasMessageContaining("/a");
+  }
+
+  @Test
+  void forwardWithoutQueryStringClearsIt() throws Exception {
+    var handler = createHandlerWithEchoMapping();
+
+    MockRequestContext request = new MockRequestContext();
+    request.requestURI = "/source";
+    request.queryString = "old=param";
+
+    handler.forward(request, "/target");
+
+    assertThat(request.requestURI).isEqualTo("/target");
+    assertThat(request.queryString).isNull();
+  }
+
+  @Test
+  void forwardResetsParametersAndQueryStringRoundTrips() throws Exception {
+    var handler = createHandlerWithEchoMapping();
+
+    MockRequestContext request = new MockRequestContext();
+    request.requestURI = "/source";
+
+    handler.forward(request, "/target?foo=bar");
+
+    assertThat(request.requestURI).isEqualTo("/target");
+    assertThat(request.queryString).isEqualTo("foo=bar");
+    assertThat(request.parameters).isNull();
+
+    // getParameter loads lazily from the new query string
+    assertThat(request.getParameter("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  void forwardResetsParametersPreservesBodyParams() throws Exception {
+    var handler = createHandlerWithEchoMapping();
+
+    MockRequestContext request = new MockRequestContext();
+    request.requestURI = "/source";
+    // Simulate body parameters already parsed and cached
+    MultiValueMapAdapter<String, String> formUrlencoded = new MultiValueMapAdapter<>(new HashMap<>());
+    request.setFormUrlencoded(formUrlencoded);
+    formUrlencoded.add("bodyParam", "bodyValue");
+
+    handler.forward(request, "/target?q=search");
+
+    assertThat(request.parameters).isNull();
+
+    // On lazy re-read: new query string + cached body params
+    assertThat(request.getParameter("q")).isEqualTo("search");
+    assertThat(request.getParameter("bodyParam")).isEqualTo("bodyValue");
   }
 
   // -- helpers --

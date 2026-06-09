@@ -556,49 +556,6 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  /**
-   * Forward the request to a new path, re-dispatching through the handler
-   * pipeline without involving filters.
-   * <p>Similar to Servlet's {@code RequestDispatcher.forward()}.
-   * The response buffer is cleared and the request path is updated before
-   * re-dispatching.
-   *
-   * @param request the current request context
-   * @param path the new path to forward to
-   * @throws Exception if forwarding fails
-   * @throws IllegalStateException if the response has already been committed,
-   * or a circular forward is detected
-   * @since 5.0
-   */
-  void forward(RequestContext request, String path) throws Exception {
-    if (request.isCommitted()) {
-      throw new IllegalStateException("Cannot forward after response has been committed");
-    }
-
-    @SuppressWarnings("unchecked")
-    var forwardedPaths = (Set<String>) request.getAttribute(FORWARDED_PATHS_ATTRIBUTE);
-    if (forwardedPaths == null) {
-      forwardedPaths = new HashSet<>();
-      forwardedPaths.add(request.requestURI);
-      request.setAttribute(FORWARDED_PATHS_ATTRIBUTE, forwardedPaths);
-    }
-
-    if (!forwardedPaths.add(path)) {
-      throw new IllegalStateException(
-              "Circular forward detected: path '%s' has already been forwarded to".formatted(path));
-    }
-
-    request.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, request.requestURI);
-    request.setAttribute(FORWARD_ATTRIBUTE, Boolean.TRUE);
-    request.reset();
-    request.requestURI = path;
-    request.requestPath = null;
-    request.uri = null;
-    request.matchingMetadata = null;
-    request.responseContentType = null;
-    handleRequestInternal(request);
-  }
-
   private void handleRequestInternal(RequestContext context) throws Exception {
     logRequest(context);
     Object handler = null;
@@ -853,6 +810,58 @@ public class DispatcherHandler extends WebLifecycleManager {
    */
   protected @Nullable String getDefaultViewName(RequestContext request) throws Exception {
     return viewNameTranslator != null ? viewNameTranslator.getViewName(request) : null;
+  }
+
+  /**
+   * Forward the request to a new path, re-dispatching through the handler
+   * pipeline without involving filters.
+   * <p>Similar to Servlet's {@code RequestDispatcher.forward()}.
+   * The response buffer is cleared and the request path is updated before
+   * re-dispatching.
+   *
+   * @param request the current request context
+   * @param path the new path to forward to
+   * @throws Exception if forwarding fails
+   * @throws IllegalStateException if the response has already been committed,
+   * or a circular forward is detected
+   * @since 5.0
+   */
+  void forward(RequestContext request, String path) throws Exception {
+    if (request.isCommitted()) {
+      throw new IllegalStateException("Cannot forward after response has been committed");
+    }
+
+    String queryString = null;
+    int queryIndex = path.indexOf('?');
+    if (queryIndex >= 0) {
+      queryString = path.substring(queryIndex + 1);
+      path = path.substring(0, queryIndex);
+    }
+
+    @SuppressWarnings("unchecked")
+    var forwardedPaths = (Set<String>) request.getAttribute(FORWARDED_PATHS_ATTRIBUTE);
+    if (forwardedPaths == null) {
+      forwardedPaths = new HashSet<>();
+      forwardedPaths.add(request.requestURI);
+      request.setAttribute(FORWARDED_PATHS_ATTRIBUTE, forwardedPaths);
+    }
+
+    if (!forwardedPaths.add(path)) {
+      throw new IllegalStateException(
+              "Circular forward detected: path '%s' has already been forwarded to".formatted(path));
+    }
+
+    request.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, request.requestURI);
+    request.setAttribute(FORWARD_ATTRIBUTE, Boolean.TRUE);
+    request.reset();
+    request.requestURI = path;
+    request.queryString = queryString;
+    request.parameters = null;
+    request.requestPath = null;
+    request.uri = null;
+    request.matchingMetadata = null;
+    request.responseContentType = null;
+    handleRequestInternal(request);
   }
 
   // @since 4.0

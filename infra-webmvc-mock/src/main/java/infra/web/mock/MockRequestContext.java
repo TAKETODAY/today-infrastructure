@@ -81,6 +81,13 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
+  /**
+   * Cached body-encoded parameters (e.g. {@code application/x-www-form-urlencoded}).
+   * Set by {@link #readParameters()} implementations so that after a
+   * {@link DispatcherHandler#forward(RequestContext, String) forward}
+   * resets {@link #parameters}, the body parameters can be re-merged
+   * with the new query string without re-reading the consumed input stream.
+   */
   public MockRequestContext() {
     this((ApplicationContext) null);
   }
@@ -261,6 +268,12 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
           }
         }
       });
+    }
+
+    @SuppressWarnings("unchecked")
+    var cached = (MultiValueMap<String, String>) getAttribute(FORM_URLENCODED_ATTRIBUTE);
+    if (cached != null) {
+      ret.addAll(cached);
     }
     return ret;
   }
@@ -665,4 +678,17 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     }
   }
 
+  public void setFormUrlencoded(@Nullable MultiValueMap<String, String> formUrlencoded) {
+    if (formUrlencoded != null) {
+      setAttribute(FORM_URLENCODED_ATTRIBUTE, formUrlencoded);
+    }
+    else {
+      removeAttribute(FORM_URLENCODED_ATTRIBUTE);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public @Nullable MultiValueMap<String, String> getFormUrlencoded() {
+    return (MultiValueMap<String, String>) getAttribute(FORM_URLENCODED_ATTRIBUTE);
+  }
 }

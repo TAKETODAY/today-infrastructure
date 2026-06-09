@@ -458,27 +458,34 @@ public abstract class NettyRequestContext extends RequestContext {
   }
 
   @Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected MultiValueMap<String, String> readParameters() {
     String queryString = getQueryString();
-    MultiValueMap<String, String> parameters = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
+    MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
     if (StringUtils.isNotEmpty(queryString)) {
-      parseParameters(parameters, queryString);
+      parseParameters(params, queryString);
     }
 
-    if (getContentLength() > 0 && getMethod() != HttpMethod.GET && getMethod() != HttpMethod.HEAD
+    if (getAttribute(FORM_URLENCODED_ATTRIBUTE) instanceof MultiValueMap cached) {
+      params.addAll(cached);
+    }
+    else if (getContentLength() > 0 && getMethod() != HttpMethod.GET && getMethod() != HttpMethod.HEAD
             && StringUtils.startsWithIgnoreCase(getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
 
       try {
         String s = new String(getInputStream().readAllBytes(), StandardCharsets.ISO_8859_1);
         if (StringUtils.isNotEmpty(s)) {
-          parseParameters(parameters, s);
+          MultiValueMap<String, String> body = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
+          parseParameters(body, s);
+          params.addAll(body);
+          setAttribute(FORM_URLENCODED_ATTRIBUTE, body);
         }
       }
       catch (IOException e) {
         throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
       }
     }
-    return parameters;
+    return params;
   }
 
   @Override

@@ -76,7 +76,6 @@ import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
-import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
@@ -167,6 +166,19 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    */
   public static final String FORWARD_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(RequestContext.class, "forward");
+
+  /**
+   * Attribute name for the cached form-urlencoded body parameters.
+   * <p>Populated by {@link #readParameters()} implementations so that after a
+   * {@link DispatcherHandler#forward(RequestContext, String) forward}
+   * resets {@link #parameters}, the body parameters can be re-merged
+   * with the new query string without re-reading the consumed input stream.
+   *
+   * @see #getParameters()
+   * @see #setAttribute(String, Object)
+   */
+  public static final String FORM_URLENCODED_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(RequestContext.class, "form-urlencoded");
 
   /**
    * Flag indicating whether HTML escaping is enabled by default for message resolution.
@@ -787,11 +799,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @see #getParameters()
    */
   public String @Nullable [] getParameters(String name) {
-    var parameters = getParameters();
-    if (CollectionUtils.isEmpty(parameters)) {
-      return null;
-    }
-    List<String> list = parameters.get(name);
+    List<String> list = getParameters().get(name);
     if (CollectionUtils.isEmpty(list)) {
       return null;
     }
@@ -824,11 +832,8 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @see #getParameters(String)
    */
   public @Nullable String getParameter(String name) {
-    String[] parameters = getParameters(name);
-    if (ObjectUtils.isNotEmpty(parameters)) {
-      return parameters[0];
-    }
-    return null;
+    List<String> list = getParameters().get(name);
+    return CollectionUtils.firstElement(list);
   }
 
   @Override
