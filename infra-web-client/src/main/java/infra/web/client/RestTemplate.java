@@ -644,8 +644,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * @param responseExtractor object that extracts the return value from the response (can be {@code null})
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    */
-  @Nullable
-  protected <T> T doExecute(URI url, @Nullable HttpMethod method, @Nullable RequestCallback requestCallback,
+  protected <T> @Nullable T doExecute(URI url, @Nullable HttpMethod method, @Nullable RequestCallback requestCallback,
           @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
 
     Assert.notNull(url, "URI is required");
