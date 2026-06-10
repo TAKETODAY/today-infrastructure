@@ -24,6 +24,7 @@ import org.reactivestreams.Publisher;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpHeaders;
@@ -171,6 +172,18 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
     @Override
     public Builder addAttribute(String name, Object value) {
       super.addAttribute(name, value);
+      return this;
+    }
+
+    @Override
+    public Builder attributes(Map<String, Object> map) {
+      super.attributes(map);
+      return this;
+    }
+
+    @Override
+    public Builder attributes(Consumer<Map<String, Object>> consumer) {
+      super.attributes(consumer);
       return this;
     }
 

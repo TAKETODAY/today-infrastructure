@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpEntity;
@@ -97,8 +98,8 @@ class ReactiveHttpRequestValuesTests {
     ReactiveHttpRequestValues requestValues = ReactiveHttpRequestValues.builder()
             .setHttpMethod(HttpMethod.POST)
             .setUriTemplate("/api/stream")
+            .attributes(Map.of("key", "value"))
             .addHeader("X-Custom", "value")
-            .addAttribute("key", "value")
             .build();
 
     assertThat(requestValues.getHttpMethod()).isEqualTo(HttpMethod.POST);

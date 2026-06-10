@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
@@ -435,9 +436,35 @@ public class HttpRequestValues {
      * @param value the attribute value
      */
     public Builder addAttribute(String name, Object value) {
-      this.attributes = (this.attributes != null ? this.attributes : new HashMap<>());
-      this.attributes.put(name, value);
+      initAttributes().put(name, value);
       return this;
+    }
+
+    /**
+     * Provide access to every attribute configured so far with the option
+     * to add, replace, or remove values.
+     *
+     * @since 5.0
+     */
+    public Builder attributes(Map<String, Object> map) {
+      initAttributes().putAll(map);
+      return this;
+    }
+
+    /**
+     * Provide access to every attribute configured so far with the option
+     * to add, replace, or remove values.
+     *
+     * @since 5.0
+     */
+    public Builder attributes(Consumer<Map<String, Object>> consumer) {
+      consumer.accept(initAttributes());
+      return this;
+    }
+
+    private Map<String, Object> initAttributes() {
+      this.attributes = (this.attributes != null ? this.attributes : new HashMap<>());
+      return this.attributes;
     }
 
     /**

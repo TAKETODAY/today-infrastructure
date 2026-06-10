@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpEntity;
@@ -330,7 +331,7 @@ class HttpRequestValuesTests {
 
     HttpRequestValues requestValues = HttpRequestValues.builder()
             .addAttribute("list1", list1)
-            .addAttribute("list2", list2)
+            .attributes(map -> map.put("list2", list2))
             .build();
 
     assertThat(requestValues.getAttributes())
