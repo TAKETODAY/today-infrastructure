@@ -478,6 +478,22 @@ public class StompHeaders implements MultiValueMap<String, String>, Serializable
     return headers.remove(headerName);
   }
 
+  /**
+   * Set the given, single header value under the given name.
+   *
+   * @param headerName the header name
+   * @param headerValue the header value
+   * @throws UnsupportedOperationException if adding headers is not supported
+   * @see #put(String, List)
+   * @see #add(String, String)
+   */
+  @Override
+  public List<String> set(String headerName, @Nullable String headerValue) {
+    List<String> headerValues = new ArrayList<>(1);
+    headerValues.add(headerValue);
+    return this.headers.put(headerName, headerValues);
+  }
+
   // Map implementation
 
   @Override

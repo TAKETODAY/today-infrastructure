@@ -259,6 +259,11 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
+  public @Nullable List<V> set(K key, @Nullable V value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setAll(@Nullable Map<K, List<V>> values) {
     throw new UnsupportedOperationException();
   }

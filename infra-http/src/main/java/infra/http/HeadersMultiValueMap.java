@@ -61,6 +61,11 @@ public final class HeadersMultiValueMap extends AbstractMap<String, List<String>
   }
 
   @Override
+  public @Nullable List<String> set(String key, @Nullable String value) {
+    return headers.setHeader(key, value);
+  }
+
+  @Override
   public int size() {
     return headers.size();
   }

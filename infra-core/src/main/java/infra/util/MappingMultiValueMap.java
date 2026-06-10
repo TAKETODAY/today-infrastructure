@@ -161,6 +161,13 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
     return targetMap.remove(key);
   }
 
+  @Override
+  public @Nullable List<V> set(K key, @Nullable V value) {
+    List<V> values = mappingFunction.apply(key);
+    values.add(value);
+    return targetMap.put(key, values);
+  }
+
   /**
    * Trims the capacity of this map internal value <tt>ArrayList</tt> instance to be the
    * list's current size.  An application can use this operation to minimize

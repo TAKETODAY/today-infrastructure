@@ -249,6 +249,16 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   List<V> setOrRemove(K key, @Nullable Collection<V> value);
 
   /**
+   * Set the given single value under the given key.
+   *
+   * @param key the key
+   * @param value the value to set
+   * @since 5.0
+   */
+  @Nullable
+  List<V> set(K key, @Nullable V value);
+
+  /**
    * Copies all of the mappings from the specified map to this map.
    * These mappings will replace any mappings that this map had for any
    * of the keys currently in the specified map.

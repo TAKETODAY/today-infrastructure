@@ -111,6 +111,13 @@ public class MultiValueMapAdapter<K, V> extends AbstractMap<K, List<V>> implemen
     return targetMap.remove(key);
   }
 
+  @Override
+  public @Nullable List<V> set(K key, @Nullable V value) {
+    ArrayList<V> values = new ArrayList<>(1);
+    values.add(value);
+    return this.targetMap.put(key, values);
+  }
+
   // Map implementation
 
   @Override
