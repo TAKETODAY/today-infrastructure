@@ -118,7 +118,7 @@ class FlightRecorderStartupStep implements StartupStep {
       return new TagsIterator();
     }
 
-    private class TagsIterator implements Iterator<Tag> {
+    private final class TagsIterator implements Iterator<Tag> {
 
       private int idx = 0;
 
