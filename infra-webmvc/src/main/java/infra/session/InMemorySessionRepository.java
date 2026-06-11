@@ -367,7 +367,7 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public void changeSessionId() {
+    public String changeSessionId() {
       String previousId = getId();
       sessions.remove(previousId);
       String newId = idGenerator.generateId();
@@ -375,6 +375,7 @@ public class InMemorySessionRepository implements SessionRepository {
       sessions.put(newId, this);
 
       eventDispatcher.sessionIdChanged(this, previousId);
+      return newId;
     }
 
     @Override

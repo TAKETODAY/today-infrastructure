@@ -2644,8 +2644,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   public String changeSessionId() {
     Session session = getSession(false);
     if (session != null) {
-      session.changeSessionId();
-      return session.getId();
+      return session.changeSessionId();
     }
     throw new IllegalStateException("there is no session associated with the request");
   }

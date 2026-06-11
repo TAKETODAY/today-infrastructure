@@ -44,7 +44,7 @@ public interface Session extends AttributeAccessor {
    * storage to reflect the new id. After a successful call {@link #getId()}
    * reflects the new session id.
    */
-  void changeSessionId();
+  String changeSessionId();
 
   /**
    * Invalidate the current session and clear session storage.

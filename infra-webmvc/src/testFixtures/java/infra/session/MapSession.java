@@ -138,8 +138,9 @@ public class MapSession extends AbstractSession implements Session, Serializable
   }
 
   @Override
-  public void changeSessionId() {
+  public String changeSessionId() {
     this.id = generateId();
+    return id;
   }
 
   @Override
