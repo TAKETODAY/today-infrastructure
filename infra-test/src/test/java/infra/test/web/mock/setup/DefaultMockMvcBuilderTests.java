@@ -109,7 +109,7 @@ public class DefaultMockMvcBuilderTests {
     builder.addDispatcherCustomizer(ds -> ds.setPublishContext(false));
     MockMvc mvc = builder.build();
     boolean publishContext = (boolean) new DirectFieldAccessor(mvc)
-            .getPropertyValue("mock.publishContext");
+            .getPropertyValue("dispatcherHandler.publishContext");
     assertThat(publishContext).isEqualTo(false);
   }
 
@@ -125,7 +125,7 @@ public class DefaultMockMvcBuilderTests {
     builder.addDispatcherCustomizer(ds -> ds.setPublishContext(true));
     MockMvc mvc = builder.build();
     boolean publishContext = (boolean) new DirectFieldAccessor(mvc)
-            .getPropertyValue("mock.publishContext");
+            .getPropertyValue("dispatcherHandler.publishContext");
     assertThat(publishContext).isEqualTo(true);
   }
 

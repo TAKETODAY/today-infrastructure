@@ -20,21 +20,20 @@ package infra.mock.web;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.mock.api.Filter;
-import infra.mock.api.FilterChain;
-import infra.mock.api.FilterConfig;
 import infra.mock.api.MockHandler;
-import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.util.ObjectUtils;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
+import infra.web.mock.MockUtils;
 
 /**
  * Mock implementation of the {@link FilterChain} interface.
@@ -47,7 +46,6 @@ import infra.util.ObjectUtils;
  * @author Juergen Hoeller
  * @author Rob Winch
  * @author Rossen Stoyanchev
- * @see MockFilterConfig
  * @see PassThroughFilterChain
  * @since 4.0
  */
@@ -63,6 +61,8 @@ public class MockFilterChain implements FilterChain {
 
   @Nullable
   private Iterator<Filter> iterator;
+
+  private RequestContext requestContext;
 
   /**
    * Register a single do-nothing {@link Filter} implementation. The first
@@ -112,14 +112,14 @@ public class MockFilterChain implements FilterChain {
     return this.response;
   }
 
-  /**
-   * Invoke registered {@link Filter Filters} and/or {@link MockHandler} also saving the
-   * request and response.
-   */
+  public RequestContext getRequestContext() {
+    return requestContext;
+  }
+
   @Override
-  public void doFilter(MockRequest request, MockResponse response) throws IOException, MockException {
-    Assert.notNull(request, "Request is required");
-    Assert.notNull(response, "Response is required");
+  public void doFilter(RequestContext requestContext) throws Exception {
+    this.requestContext = requestContext;
+    Assert.notNull(requestContext, "Request is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
 
     if (this.iterator == null) {
@@ -128,11 +128,11 @@ public class MockFilterChain implements FilterChain {
 
     if (this.iterator.hasNext()) {
       Filter nextFilter = this.iterator.next();
-      nextFilter.doFilter(request, response, this);
+      nextFilter.doFilter(requestContext, this);
     }
 
-    this.request = request;
-    this.response = response;
+    this.request = MockUtils.getMockRequest(requestContext);
+    this.response = MockUtils.getMockResponse(requestContext);
   }
 
   /**
@@ -144,9 +144,6 @@ public class MockFilterChain implements FilterChain {
     this.iterator = null;
   }
 
-  /**
-   *
-   */
   private static final class MockFilterProxy implements Filter {
 
     private final MockHandler delegateMockHandler;
@@ -157,18 +154,8 @@ public class MockFilterChain implements FilterChain {
     }
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain)
-            throws IOException, MockException {
-
-      this.delegateMockHandler.service(request, response);
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws MockException {
-    }
-
-    @Override
-    public void destroy() {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+      this.delegateMockHandler.service(MockUtils.getMockRequest(request), MockUtils.getMockResponse(request));
     }
 
     @Override

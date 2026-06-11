@@ -19,18 +19,11 @@
 package infra.test.web.mock.setup;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
-import java.util.EnumSet;
-import java.util.Map;
-
-import infra.mock.api.DispatcherType;
-import infra.mock.api.Filter;
-import infra.mock.api.FilterConfig;
-import infra.mock.api.MockException;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
+import infra.web.Filter;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.method.HandlerMethod;
@@ -41,9 +34,6 @@ import infra.web.mock.support.WebApplicationContextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link StandaloneMockMvcBuilder}
@@ -102,19 +92,6 @@ class StandaloneMockMvcBuilderTests {
     StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
     assertThatIllegalArgumentException().isThrownBy(() ->
             builder.addFilters((Filter[]) null));
-  }
-
-  @Test
-  void addFilterWithInitParams() throws MockException {
-    Filter filter = mock(Filter.class);
-    ArgumentCaptor<FilterConfig> captor = ArgumentCaptor.forClass(FilterConfig.class);
-
-    MockMvcBuilders.standaloneSetup(new PersonController())
-            .addFilter(filter, null, Map.of("p", "v"), EnumSet.of(DispatcherType.REQUEST), "/")
-            .build();
-
-    verify(filter, times(1)).init(captor.capture());
-    assertThat(captor.getValue().getInitParameter("p")).isEqualTo("v");
   }
 
   @Controller

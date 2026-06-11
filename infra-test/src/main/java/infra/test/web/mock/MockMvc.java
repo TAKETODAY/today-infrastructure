@@ -28,7 +28,6 @@ import infra.beans.Mergeable;
 import infra.lang.Assert;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.Filter;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockResponse;
 import infra.mock.api.http.HttpMockResponse;
@@ -41,6 +40,7 @@ import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
+import infra.web.Filter;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockDispatcherHandler;
@@ -77,7 +77,7 @@ import infra.web.mock.MockRequestContext;
  */
 public final class MockMvc {
 
-  private final TestMockDispatcherHandler mock;
+  private final TestMockDispatcherHandler dispatcherHandler;
 
   private final Filter[] filters;
 
@@ -98,14 +98,14 @@ public final class MockMvc {
    *
    * @see MockMvcBuilders
    */
-  MockMvc(TestMockDispatcherHandler mock, Filter... filters) {
-    Assert.notNull(mock, "DispatcherHandler is required");
+  MockMvc(TestMockDispatcherHandler dispatcherHandler, Filter... filters) {
+    Assert.notNull(dispatcherHandler, "DispatcherHandler is required");
     Assert.notNull(filters, "Filters cannot be null");
     Assert.noNullElements(filters, "Filters cannot contain null values");
 
-    this.mock = mock;
+    this.dispatcherHandler = dispatcherHandler;
     this.filters = filters;
-    this.mockContext = mock.getMockContext();
+    this.mockContext = dispatcherHandler.getMockContext();
   }
 
   /**
@@ -157,7 +157,7 @@ public final class MockMvc {
    * {@link DispatcherCustomizer} to the {@code MockMvcBuilder}.
    */
   public MockDispatcherHandler getDispatcher() {
-    return this.mock;
+    return this.dispatcherHandler;
   }
 
   /**
@@ -200,13 +200,13 @@ public final class MockMvc {
 
     RequestContext previous = RequestContextHolder.current();
 
-    var context = new MockRequestContext(mock.getApplicationContext(), request, servletResponse, mock);
+    var context = new MockRequestContext(dispatcherHandler.getApplicationContext(), request, servletResponse, dispatcherHandler);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
 
     RequestContextHolder.set(context);
 
-    MockFilterChain filterChain = new MockFilterChain(this.mock, this.filters);
-    filterChain.doFilter(request, servletResponse);
+    MockFilterChain filterChain = new MockFilterChain(this.dispatcherHandler, this.filters);
+    filterChain.doFilter(context);
 
     RequestContext maybeNew = RequestContextHolder.required();
     if (maybeNew != context) {

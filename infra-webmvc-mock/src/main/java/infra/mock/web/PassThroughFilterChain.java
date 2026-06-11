@@ -20,19 +20,15 @@ package infra.mock.web;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
-
 import infra.lang.Assert;
-import infra.mock.api.Filter;
-import infra.mock.api.FilterChain;
-import infra.mock.api.FilterConfig;
 import infra.mock.api.MockHandler;
-import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
+import infra.web.mock.MockUtils;
 
 /**
- * Implementation of the {@link FilterConfig} interface which
+ * Implementation of the {@link FilterChain} interface which
  * simply passes the call through to a given Filter/FilterChain combination
  * (indicating the next Filter in the chain along with the FilterChain that it is
  * supposed to work on) or to a given Web (indicating the end of the chain).
@@ -79,13 +75,13 @@ public class PassThroughFilterChain implements FilterChain {
   }
 
   @Override
-  public void doFilter(MockRequest request, MockResponse response) throws MockException, IOException {
+  public void doFilter(RequestContext request) throws Exception {
     if (this.filter != null) {
-      this.filter.doFilter(request, response, this.nextFilterChain);
+      this.filter.doFilter(request, this.nextFilterChain);
     }
     else {
       Assert.state(this.mockHandler != null, "Neither a Filter not a Mock API set");
-      this.mockHandler.service(request, response);
+      this.mockHandler.service(MockUtils.getMockRequest(request), MockUtils.getMockResponse(request));
     }
   }
 

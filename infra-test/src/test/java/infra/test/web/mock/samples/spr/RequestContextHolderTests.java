@@ -23,18 +23,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
-
 import infra.aop.support.AopUtils;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
-import infra.mock.api.FilterChain;
-import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.session.config.EnableSession;
 import infra.test.annotation.DirtiesContext;
@@ -42,6 +36,7 @@ import infra.test.context.ContextConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
+import infra.web.FilterChain;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.annotation.RequestMapping;
@@ -50,8 +45,8 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
+import infra.web.filter.GenericFilterBean;
 import infra.web.mock.WebApplicationContext;
-import infra.web.mock.filter.GenericFilterBean;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
@@ -254,31 +249,32 @@ public class RequestContextHolderTests {
     private SessionScopedService service;
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
       this.service.process();
       RequestContext requestContext = RequestContextHolder.current();
       assertRequestAttributes(requestContext);
       assertRequestAttributes();
-      chain.doFilter(request, response);
+      chain.doFilter(request);
     }
   }
 
   static class RequestFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
       request.setAttribute(FROM_REQUEST_FILTER, FROM_REQUEST_FILTER);
-      chain.doFilter(request, response);
+      chain.doFilter(request);
     }
   }
 
   static class RequestAttributesFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
       RequestContextHolder.required()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
-      chain.doFilter(request, response);
+
+      chain.doFilter(request);
     }
   }
 

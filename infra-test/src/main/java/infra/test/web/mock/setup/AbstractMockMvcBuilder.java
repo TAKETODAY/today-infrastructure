@@ -22,16 +22,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.mock.api.DispatcherType;
-import infra.mock.api.Filter;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockMockConfig;
 import infra.test.web.mock.DispatcherCustomizer;
@@ -45,6 +40,7 @@ import infra.test.web.mock.request.AbstractMockHttpMockRequestBuilder;
 import infra.test.web.mock.request.ConfigurableSmartRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.request.RequestPostProcessor;
+import infra.web.Filter;
 import infra.web.client.ApiVersionInserter;
 import infra.web.mock.WebApplicationContext;
 
@@ -100,15 +96,6 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     if (urlPatterns.length > 0) {
       filter = new MockMvcFilterDecorator(filter, urlPatterns);
     }
-    this.filters.add(filter);
-    return self();
-  }
-
-  @Override
-  public <T extends B> T addFilter(Filter filter, @Nullable String filterName,
-          Map<String, String> initParams, EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
-
-    filter = new MockMvcFilterDecorator(filter, filterName, initParams, dispatcherTypes, urlPatterns);
     this.filters.add(filter);
     return self();
   }
@@ -197,16 +184,6 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     }
 
     Filter[] filterArray = this.filters.toArray(new Filter[0]);
-    for (Filter filter : filterArray) {
-      if (filter instanceof MockMvcFilterDecorator filterDecorator) {
-        try {
-          filterDecorator.initIfRequired(mockContext);
-        }
-        catch (MockException ex) {
-          throw new IllegalStateException("Failed to initialize Filter " + filter, ex);
-        }
-      }
-    }
 
     if (this.apiVersionInserter != null) {
       if (this.defaultRequestBuilder == null) {

@@ -317,7 +317,6 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
   }
 
   @Test
-    // gh-11643
   void doIt() throws Exception {
     initDispatcher(Spr6978Controller.class);
 

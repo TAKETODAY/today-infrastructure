@@ -20,24 +20,16 @@ package infra.test.web.mock.setup;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import infra.lang.Assert;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.Filter;
-import infra.mock.api.FilterChain;
-import infra.mock.api.FilterConfig;
-import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.MockFilterConfig;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
+import infra.web.mock.MockUtils;
 
 /**
  * A Filter that invokes a delegate {@link Filter} only if the request URL
@@ -57,9 +49,6 @@ final class MockMvcFilterDecorator implements Filter {
   private static final String PATH_MAPPING_PATTERN = "/*";
 
   private final Filter delegate;
-
-  @Nullable
-  private final Function<MockContext, FilterConfig> filterConfigInitializer;
 
   @Nullable
   private final EnumSet<DispatcherType> dispatcherTypes;
@@ -83,7 +72,6 @@ final class MockMvcFilterDecorator implements Filter {
     Assert.notNull(delegate, "filter is required");
     Assert.notNull(urlPatterns, "urlPatterns is required");
     this.delegate = delegate;
-    this.filterConfigInitializer = null;
     this.dispatcherTypes = null;
     this.hasPatterns = initPatterns(urlPatterns);
   }
@@ -92,26 +80,12 @@ final class MockMvcFilterDecorator implements Filter {
    * Create instance with init parameters to initialize the filter with,
    * as well as dispatcher types and URL patterns to match.
    */
-  public MockMvcFilterDecorator(Filter delegate, @Nullable String filterName,
-          @Nullable Map<String, String> initParams, @Nullable EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
+  public MockMvcFilterDecorator(Filter delegate, @Nullable EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
     Assert.notNull(delegate, "filter is required");
     Assert.notNull(urlPatterns, "urlPatterns is required");
     this.delegate = delegate;
-    this.filterConfigInitializer = getFilterConfigInitializer(filterName, initParams);
     this.dispatcherTypes = dispatcherTypes;
     this.hasPatterns = initPatterns(urlPatterns);
-  }
-
-  private static Function<MockContext, FilterConfig> getFilterConfigInitializer(
-          @Nullable String filterName, @Nullable Map<String, String> initParams) {
-
-    return mockContext -> {
-      MockFilterConfig filterConfig = (filterName != null ? new MockFilterConfig(mockContext, filterName) : new MockFilterConfig(mockContext));
-      if (initParams != null) {
-        initParams.forEach(filterConfig::addInitParameter);
-      }
-      return filterConfig;
-    };
   }
 
   private boolean initPatterns(String... urlPatterns) {
@@ -138,17 +112,14 @@ final class MockMvcFilterDecorator implements Filter {
   }
 
   @Override
-  public void doFilter(MockRequest request, MockResponse response, FilterChain filterChain)
-          throws IOException, MockException {
-
-    HttpMockRequest httpRequest = (HttpMockRequest) request;
-    String requestPath = httpRequest.getRequestURI();
-
-    if (matchDispatcherType(httpRequest.getDispatcherType()) && matchRequestPath(requestPath)) {
-      this.delegate.doFilter(request, response, filterChain);
+  public void doFilter(RequestContext request, FilterChain filterChain) throws Exception {
+    String requestPath = request.getRequestURI();
+    if (matchDispatcherType(MockUtils.getMockRequest(request).getDispatcherType())
+            && matchRequestPath(requestPath)) {
+      this.delegate.doFilter(request, filterChain);
     }
     else {
-      filterChain.doFilter(request, response);
+      filterChain.doFilter(request);
     }
   }
 
@@ -180,23 +151,6 @@ final class MockMvcFilterDecorator implements Filter {
       }
     }
     return false;
-  }
-
-  @Override
-  public void init(FilterConfig filterConfig) throws MockException {
-    this.delegate.init(filterConfig);
-  }
-
-  @Override
-  public void destroy() {
-    this.delegate.destroy();
-  }
-
-  public void initIfRequired(@Nullable MockContext mockContext) throws MockException {
-    if (this.filterConfigInitializer != null) {
-      FilterConfig filterConfig = this.filterConfigInitializer.apply(mockContext);
-      this.delegate.init(filterConfig);
-    }
   }
 
 }

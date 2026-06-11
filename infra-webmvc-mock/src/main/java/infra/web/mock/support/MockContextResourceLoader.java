@@ -22,7 +22,6 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.mock.api.MockContext;
 import infra.web.mock.WebApplicationContext;
-import infra.web.mock.filter.GenericFilterBean;
 
 /**
  * ResourceLoader implementation that resolves paths as MockContext

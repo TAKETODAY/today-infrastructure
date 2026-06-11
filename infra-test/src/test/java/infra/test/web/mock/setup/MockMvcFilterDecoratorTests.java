@@ -24,16 +24,16 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 
 import infra.mock.api.DispatcherType;
-import infra.mock.api.Filter;
-import infra.mock.api.FilterChain;
-import infra.mock.api.FilterConfig;
-import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockFilterChain;
-import infra.mock.web.MockFilterConfig;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
+import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,21 +59,6 @@ class MockMvcFilterDecoratorTests {
     response = new MockHttpResponseImpl();
     filterChain = new MockFilterChain();
     delegate = new MockFilter();
-  }
-
-  @Test
-  public void init() throws Exception {
-    FilterConfig config = new MockFilterConfig();
-    filter = new MockMvcFilterDecorator(delegate, new String[] { "/" });
-    filter.init(config);
-    assertThat(delegate.filterConfig).isEqualTo(config);
-  }
-
-  @Test
-  public void destroy() {
-    filter = new MockMvcFilterDecorator(delegate, new String[] { "/" });
-    filter.destroy();
-    assertThat(delegate.destroy).isTrue();
   }
 
   @Test
@@ -235,8 +220,8 @@ class MockMvcFilterDecoratorTests {
 
     request.setDispatcherType(requestDispatcherType);
     request.setRequestURI(requestUri);
-    filter = new MockMvcFilterDecorator(delegate, null, null, EnumSet.of(filterDispatcherType), pattern);
-    filter.doFilter(request, response, filterChain);
+    filter = new MockMvcFilterDecorator(delegate, EnumSet.of(filterDispatcherType), pattern);
+    filter.doFilter(new MockRequestContext(request, response), filterChain);
 
     assertThat(delegate.request).isNull();
     assertThat(delegate.response).isNull();
@@ -250,7 +235,7 @@ class MockMvcFilterDecoratorTests {
   private void assertFilterInvoked(String requestUri, String pattern) throws Exception {
     request.setRequestURI(requestUri);
     filter = new MockMvcFilterDecorator(delegate, new String[] { pattern });
-    filter.doFilter(request, response, filterChain);
+    filter.doFilter(new MockRequestContext(request, response), filterChain);
 
     assertThat(delegate.request).isEqualTo(request);
     assertThat(delegate.response).isEqualTo(response);
@@ -260,32 +245,19 @@ class MockMvcFilterDecoratorTests {
 
   private static class MockFilter implements Filter {
 
-    private FilterConfig filterConfig;
-
     private MockRequest request;
 
     private MockResponse response;
 
     private FilterChain chain;
 
-    private boolean destroy;
-
     @Override
-    public void init(FilterConfig filterConfig) throws MockException {
-      this.filterConfig = filterConfig;
-    }
-
-    @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) {
-      this.request = request;
-      this.response = response;
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+      this.request = MockUtils.getMockRequest(request);
+      this.response = MockUtils.getMockResponse(request);
       this.chain = chain;
     }
 
-    @Override
-    public void destroy() {
-      this.destroy = true;
-    }
   }
 
 }

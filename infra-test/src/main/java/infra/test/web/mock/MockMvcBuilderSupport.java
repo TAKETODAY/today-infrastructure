@@ -24,9 +24,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.mock.api.Filter;
 import infra.mock.web.MockMockConfig;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
+import infra.web.Filter;
 import infra.web.mock.WebApplicationContext;
 
 /**
