@@ -31,6 +31,7 @@ import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurationSupport;
+import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,19 +68,10 @@ public class ResourceUrlProviderJavaConfigTests {
             }*/);
   }
 
-//  @Test
-//  public void resolvePathWithServletMappedAsRoot() throws Exception {
-//    this.request.setRequestURI("/myapp/index");
-//    this.request.setServletPath("/index");
-//    this.filterChain.doFilter(this.request, this.response);
-//
-//    assertThat(resolvePublicResourceUrlPath("/myapp/resources/foo.css")).isEqualTo("/myapp/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css");
-//  }
-
   @Test
   public void resolvePathNoMatch() throws Exception {
     this.request.setRequestURI("/myapp/index");
-    this.filterChain.doFilter(this.request, this.response);
+    this.filterChain.doFilter(new MockRequestContext(this.request, this.response));
 
     assertThat(resolvePublicResourceUrlPath("/myapp/myservlet/index")).isEqualTo("/myapp/myservlet/index");
   }

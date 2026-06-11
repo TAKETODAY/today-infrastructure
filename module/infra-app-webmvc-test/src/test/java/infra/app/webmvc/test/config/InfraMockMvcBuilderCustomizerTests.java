@@ -20,10 +20,8 @@ package infra.app.webmvc.test.config;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +33,10 @@ import infra.app.webmvc.test.config.InfraMockMvcBuilderCustomizer.LinesWriter;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
 import infra.mock.web.MockContextImpl;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,19 +113,7 @@ class InfraMockMvcBuilderCustomizerTests {
     private final Map<String, String> initParams = new HashMap<>();
 
     @Override
-    public void init(FilterConfig filterConfig) {
-      this.filterName = filterConfig.getFilterName();
-      Collections.list(filterConfig.getInitParameterNames())
-              .forEach((name) -> this.initParams.put(name, filterConfig.getInitParameter(name)));
-    }
-
-    @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
-
-    }
-
-    @Override
-    public void destroy() {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
 
     }
 
@@ -141,19 +127,7 @@ class InfraMockMvcBuilderCustomizerTests {
     private final Map<String, String> initParams = new HashMap<>();
 
     @Override
-    public void init(FilterConfig filterConfig) {
-      this.filterName = filterConfig.getFilterName();
-      Collections.list(filterConfig.getInitParameterNames())
-              .forEach((name) -> this.initParams.put(name, filterConfig.getInitParameter(name)));
-    }
-
-    @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
-
-    }
-
-    @Override
-    public void destroy() {
+    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
 
     }
 

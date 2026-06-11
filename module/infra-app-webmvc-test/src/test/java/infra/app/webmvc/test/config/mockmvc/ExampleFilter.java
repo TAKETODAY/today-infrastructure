@@ -18,15 +18,12 @@
 
 package infra.app.webmvc.test.config.mockmvc;
 
-import java.io.IOException;
-
 import infra.app.webmvc.test.config.WebMvcTest;
 import infra.core.Ordered;
-import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockResponse;
 import infra.stereotype.Component;
+import infra.web.Filter;
+import infra.web.FilterChain;
+import infra.web.RequestContext;
 
 /**
  * Example filter used with {@link WebMvcTest @WebMvcTest} tests.
@@ -37,17 +34,9 @@ import infra.stereotype.Component;
 public class ExampleFilter implements Filter, Ordered {
 
   @Override
-  public void init(FilterConfig filterConfig) {
-  }
-
-  @Override
-  public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
-    chain.doFilter(request, response);
-    ((HttpMockResponse) response).addHeader("x-test", "abc");
-  }
-
-  @Override
-  public void destroy() {
+  public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    chain.doFilter(request);
+    request.addHeader("x-test", "abc");
   }
 
   @Override
