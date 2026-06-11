@@ -39,13 +39,11 @@ import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMock;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 
 /**
- * Adapt {@link HttpHandler} to an {@link HttpMock} using Servlet Async support
- * and Servlet 3.1 non-blocking I/O.
+ * Adapt {@link HttpHandler}
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
@@ -162,18 +160,10 @@ public class MockHttpHandlerAdapter implements MockHandler {
   }
 
   @Override
-  public String getMockInfo() {
-    return "";
-  }
-
-  @Override
   @Nullable
   public MockConfig getMockConfig() {
     return null;
   }
-
-  @Override
-  public void destroy() { }
 
   private static void runIfAsyncNotComplete(
           AsyncContext asyncContext, AtomicBoolean isCompleted, Runnable task) {

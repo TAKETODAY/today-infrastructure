@@ -26,12 +26,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
-import infra.mock.api.DispatcherType;
-import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
-import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
 import infra.mock.api.RequestDispatcher;
 import infra.mock.api.annotation.MultipartConfig;
 import infra.web.multipart.Part;
@@ -161,80 +157,6 @@ public interface HttpMockRequest extends MockRequest {
    * @throws NumberFormatException If the header value can't be converted to an <code>int</code>
    */
   int getIntHeader(String name);
-
-  /**
-   * Return the HttpServletMapping of the request.
-   * <p>
-   * The mapping returned depends on the current {@link DispatcherType} as obtained from
-   * {@link #getDispatcherType()}:
-   * <dl>
-   * <dt>{@link DispatcherType#REQUEST}, {@link DispatcherType#ASYNC},
-   * {@link DispatcherType#ERROR}</dt>
-   * <dd>Return the mapping for the target of the dispatch i.e. the mapping for the current
-   * {@link MockHandler}.</dd>
-   *
-   * <dt>{@link DispatcherType#INCLUDE}</dt>
-   * <dd>Return the mapping as prior to the current dispatch. i.e the mapping returned is unchanged by a call to</dd>
-   * {@link RequestDispatcher#include(MockRequest, MockResponse)}.
-   *
-   * <dt>{@link DispatcherType#FORWARD}</dt>
-   * <dd>Return the mapping for the target of the dispatch i.e. the mapping for the current
-   * {@link MockHandler}, unless the {@link RequestDispatcher} was obtained via
-   * {@link MockContext#getNamedDispatcher(String)}, in which case return the mapping as prior to the
-   * current dispatch. i.e the mapping returned is changed during a call to
-   * {@link RequestDispatcher#forward(MockRequest, MockResponse)} only if the dispatcher is not a
-   * named dispatcher.</dd>
-   * </dl>
-   * </p>
-   * <p>
-   * For example:
-   * <ul>
-   * <li>For a sequence Servlet1&nbsp;--include--&gt;&nbsp;Servlet2&nbsp;--include--&gt;&nbsp;Servlet3, a call to this
-   * method in Servlet3 will return the mapping for Servlet1.</li>
-   * <li>For a sequence Servlet1&nbsp;--async--&gt;&nbsp;Servlet2&nbsp;--named-forward--&gt;&nbsp;Servlet3, a call to this
-   * method in Servlet3 will return the mapping for Servlet2.</li>
-   * </ul>
-   * </p>
-   * <p>
-   * The returned object is immutable. Servlet 4.0 compliant implementations must override this method.
-   * </p>
-   *
-   * @return An instance of {@code HttpServletMapping} describing the manner in which the current request was invoked.
-   * @implSpec The default implementation returns a {@code
-   * HttpServletMapping} that returns the empty string for the match value, pattern and servlet name and {@code null} for
-   * the match type.
-   */
-  default HttpMockMapping getHttpMapping() {
-    return new HttpMockMapping() {
-      @Override
-      public String getMatchValue() {
-        return "";
-      }
-
-      @Override
-      public String getPattern() {
-        return "";
-      }
-
-      @Override
-      public String getMockName() {
-        return "";
-      }
-
-      @Override
-      public MappingMatch getMappingMatch() {
-        return null;
-      }
-
-      @Override
-      public String toString() {
-        return "MappingImpl{" + "matchValue=" + getMatchValue() + ", pattern=" + getPattern() + ", servletName="
-                + getMockName() + ", mappingMatch=" + getMappingMatch() + "} HttpMockRequest {"
-                + HttpMockRequest.this + '}';
-      }
-
-    };
-  }
 
   /**
    * Returns the name of the HTTP method with which this request was made, for example, GET, POST, or PUT.

@@ -174,11 +174,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     return mockConfig;
   }
 
-  @Override
-  public final String getMockInfo() {
-    return "DispatcherServlet, Copyright © TODAY & 2017 - 2024 All Rights Reserved";
-  }
-
   /**
    * Returns the name of this servlet instance. See {@link MockConfig#getMockName}.
    *

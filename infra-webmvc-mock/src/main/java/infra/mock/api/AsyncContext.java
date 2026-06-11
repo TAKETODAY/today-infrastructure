@@ -20,7 +20,6 @@
 
 package infra.mock.api;
 
-import infra.mock.api.http.HttpMockMapping;
 import infra.mock.api.http.HttpMockRequest;
 
 /**
@@ -55,12 +54,6 @@ public interface AsyncContext {
    * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   String ASYNC_CONTEXT_PATH = "infra.mock.api.async.context_path";
-
-  /**
-   * The name of the request attribute under which the original {@link HttpMockMapping} is made
-   * available to the target of a {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
-   */
-  String ASYNC_MAPPING = "infra.mock.api.async.mapping";
 
   /**
    * The name of the request attribute under which the original path info is made available to the target of a

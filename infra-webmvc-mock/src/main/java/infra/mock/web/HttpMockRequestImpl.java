@@ -58,11 +58,9 @@ import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.RequestDispatcher;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockMapping;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.api.http.HttpSession;
-import infra.mock.api.http.MappingMatch;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -261,9 +259,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private boolean requestedSessionIdFromURL = false;
 
   protected final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
-
-  @Nullable
-  private HttpMockMapping httpMockMapping;
 
   // ---------------------------------------------------------------------
   // Constructors
@@ -1408,27 +1403,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
       result.addAll(list);
     }
     return result;
-  }
-
-  public void setHttpMapping(@Nullable HttpMockMapping httpMockMapping) {
-    this.httpMockMapping = httpMockMapping;
-  }
-
-  @Override
-  public HttpMockMapping getHttpMapping() {
-    return (this.httpMockMapping == null ?
-            new MockHttpMapping("", "", "", determineMappingMatch()) :
-            this.httpMockMapping);
-  }
-
-  /**
-   * Best effort to detect a Servlet path mapping, e.g. {@code "/foo/*"}, by
-   * checking whether the length of requestURI > contextPath + servletPath.
-   * to take into account the Servlet path when parsing the requestURI.
-   */
-  @Nullable
-  private MappingMatch determineMappingMatch() {
-    return null;
   }
 
 }

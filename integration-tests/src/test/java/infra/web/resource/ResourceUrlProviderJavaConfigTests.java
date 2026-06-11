@@ -23,9 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.mock.api.http.HttpMock;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.api.MockHandler;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockHttpResponseImpl;
@@ -34,6 +32,7 @@ import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * {@link ResourceUrlProvider} with the latter configured in Framework MVC Java config.
@@ -42,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ResourceUrlProviderJavaConfigTests {
 
-  private final TestMock testMock = new TestMock();
+  private final MockHandler testMock = mock();
 
   private MockFilterChain filterChain;
 
@@ -77,7 +76,7 @@ public class ResourceUrlProviderJavaConfigTests {
   }
 
   private String resolvePublicResourceUrlPath(String path) {
-    return this.testMock.wrappedResponse.encodeURL(path);
+    return path;
   }
 
   @Configuration
@@ -88,17 +87,6 @@ public class ResourceUrlProviderJavaConfigTests {
       registry.addResourceHandler("/resources/**")
               .addResourceLocations("classpath:infra/web/resource/test/")
               .resourceChain(true).addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"));
-    }
-  }
-
-  @SuppressWarnings("serial")
-  private static class TestMock extends HttpMock {
-
-    private HttpMockResponse wrappedResponse;
-
-    @Override
-    protected void doGet(HttpMockRequest request, HttpMockResponse response) {
-      this.wrappedResponse = response;
     }
   }
 

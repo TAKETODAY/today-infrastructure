@@ -25,9 +25,9 @@ import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.mock.api.MockHandler;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.util.ReflectionUtils;
@@ -165,9 +165,9 @@ public class MockWrappingController extends AbstractController
    *
    */
   @Override
-  public void destroy() {
-    if (this.mockHandlerInstance != null) {
-      this.mockHandlerInstance.destroy();
+  public void destroy() throws Exception {
+    if (mockHandlerInstance instanceof DisposableBean disposableBean) {
+      disposableBean.destroy();
     }
   }
 

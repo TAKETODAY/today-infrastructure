@@ -23,9 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import infra.mock.api.MockHandler;
+import infra.beans.factory.DisposableBean;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.RequestDispatcher;
@@ -174,7 +175,7 @@ class ControllerTests {
     assertThat(TestMockHandler.destroyed).isTrue();
   }
 
-  public static class TestMockHandler implements MockHandler {
+  public static class TestMockHandler implements MockHandler, DisposableBean {
 
     private static MockConfig config;
     private static MockRequest request;
@@ -202,11 +203,6 @@ class ControllerTests {
     public void service(MockRequest mockRequest, MockResponse mockResponse) {
       request = mockRequest;
       response = mockResponse;
-    }
-
-    @Override
-    public String getMockInfo() {
-      return "TestServlet";
     }
 
     @Override

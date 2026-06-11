@@ -22,8 +22,6 @@ package infra.mock.api;
 
 import java.io.IOException;
 
-import infra.mock.api.http.HttpMockMapping;
-
 /**
  * Defines an object that receives requests from the client and sends them to any resource (such as a servlet, HTML
  * file, or JSP file) on the server. The servlet container creates the <code>RequestDispatcher</code> object, which is
@@ -51,12 +49,6 @@ public interface RequestDispatcher {
    * {@link #forward(MockRequest, MockResponse) forward}
    */
   String FORWARD_CONTEXT_PATH = "infra.mock.api.forward.context_path";
-
-  /**
-   * The name of the request attribute under which the original {@link HttpMockMapping} is made
-   * available to the target of a {@link #forward(MockRequest, MockResponse) forward}
-   */
-  String FORWARD_MAPPING = "infra.mock.api.forward.mapping";
 
   /**
    * The name of the request attribute under which the original path info is made available to the target of a
@@ -87,12 +79,6 @@ public interface RequestDispatcher {
    * {@link #include(MockRequest, MockResponse) include} is stored
    */
   String INCLUDE_PATH_INFO = "infra.mock.api.include.path_info";
-
-  /**
-   * The name of the request attribute under which the {@link HttpMockMapping} of the target of an
-   * {@link #include(MockRequest, MockResponse) include} is stored
-   */
-  String INCLUDE_MAPPING = "infra.mock.api.include.mapping";
 
   /**
    * The name of the request attribute under which the query string of the target of an

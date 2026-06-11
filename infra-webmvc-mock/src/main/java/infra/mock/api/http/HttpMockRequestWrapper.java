@@ -112,14 +112,6 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
   }
 
   /**
-   * The default behavior of this method is to return getServletMapping() on the wrapped request object.
-   */
-  @Override
-  public HttpMockMapping getHttpMapping() {
-    return this._getHttpMockRequest().getHttpMapping();
-  }
-
-  /**
    * The default behavior of this method is to return getMethod() on the wrapped request object.
    */
   @Override

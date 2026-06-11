@@ -52,10 +52,6 @@ public interface MockHandler {
    * Returns a {@link MockConfig} object, which contains initialization and startup parameters for this mock. The
    * <code>ServletConfig</code> object returned is the one passed to the <code>init</code> method.
    *
-   * <p>
-   * Implementations of this interface are responsible for storing the <code>ServletConfig</code> object so that this
-   * method can return it. The {@link GenericMock} class, which implements this interface, already does this.
-   *
    * @return the <code>ServletConfig</code> object that initializes this mock
    * @see #init
    */
@@ -83,25 +79,4 @@ public interface MockHandler {
    */
   void service(MockRequest req, MockResponse res) throws MockException, IOException;
 
-  /**
-   * Returns information about the mock, such as author, version, and copyright.
-   *
-   * <p>
-   * The string that this method returns should be plain text and not markup of any kind (such as HTML, XML, etc.).
-   *
-   * @return a <code>String</code> containing mock information
-   */
-  String getMockInfo();
-
-  /**
-   * Called by the mock container to indicate to a mock that the mock is being taken out of service. This method
-   * is only called once all threads within the mock's <code>service</code> method have exited or after a timeout
-   * period has passed. After the mock container calls this method, it will not call the <code>service</code> method
-   * again on this mock.
-   *
-   * <p>
-   * This method gives the mock an opportunity to clean up any resources that are being held (for example, memory, file
-   * handles, threads) and make sure that any persistent state is synchronized with the mock's current state in memory.
-   */
-  void destroy();
 }
