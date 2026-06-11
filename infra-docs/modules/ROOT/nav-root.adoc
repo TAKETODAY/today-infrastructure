@@ -110,7 +110,7 @@ include::tutorial:partial$nav-tutorial.adoc[]
 ** xref:core/appendix.adoc[]
 *** xref:core/appendix/xsd-schemas.adoc[]
 *** xref:core/appendix/xml-custom.adoc[]
-
+*** xref:core/appendix/application-startup-steps.adoc[]
 * xref:data-access.adoc[]
 ** xref:data-access/transaction.adoc[]
 *** xref:data-access/transaction/motivation.adoc[]

@@ -88,6 +88,7 @@ import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RegisteredBean.InstantiationDescriptor;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.context.ApplicationStartupAware;
 import infra.context.BootstrapContext;
 import infra.context.BootstrapContextAware;
 import infra.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
@@ -102,6 +103,8 @@ import infra.core.io.PropertySourceDescriptor;
 import infra.core.io.PropertySourceProcessor;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
+import infra.core.metrics.ApplicationStartup;
+import infra.core.metrics.StartupStep;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.CachingMetadataReaderFactory;
@@ -142,7 +145,7 @@ import static infra.context.annotation.ConfigurationClassUtils.CONFIGURATION_CLA
  * @since 4.0 2021/12/7 21:36
  */
 public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanClassLoaderAware, BootstrapContextAware,
-        BeanDefinitionRegistryPostProcessor, BeanRegistrationAotProcessor, BeanFactoryInitializationAotProcessor {
+        BeanDefinitionRegistryPostProcessor, BeanRegistrationAotProcessor, BeanFactoryInitializationAotProcessor, ApplicationStartupAware {
 
   private static final Logger log = LoggerFactory.getLogger(ConfigurationClassPostProcessor.class);
 
@@ -170,6 +173,8 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   private @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   private @Nullable List<PropertySourceDescriptor> propertySourceDescriptors;
+
+  private ApplicationStartup applicationStartup = ApplicationStartup.DEFAULT;
 
   public ConfigurationClassPostProcessor() {
   }
@@ -221,6 +226,11 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   @Override
   public void setBeanClassLoader(ClassLoader beanClassLoader) {
     this.beanClassLoader = beanClassLoader;
+  }
+
+  @Override
+  public void setApplicationStartup(ApplicationStartup applicationStartup) {
+    this.applicationStartup = applicationStartup;
   }
 
   /**
@@ -373,6 +383,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     LinkedHashSet<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
     HashSet<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
     do {
+      StartupStep processConfig = applicationStartup.start("infra.context.config-classes.parse");
       parser.parse(candidates);
       parser.validate();
 
@@ -388,6 +399,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
         beanRegistrars.putAll(configClass.beanRegistrars);
       }
       alreadyParsed.addAll(configClasses);
+      processConfig.tag("classCount", () -> String.valueOf(configClasses.size())).end();
 
       candidates.clear();
       if (registry.getBeanDefinitionCount() > candidateNames.length) {
@@ -430,6 +442,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
    * @see ConfigurationClassEnhancer
    */
   public void enhanceConfigurationClasses(ConfigurableBeanFactory beanFactory) {
+    StartupStep enhanceConfigClasses = applicationStartup.start("infra.context.config-classes.enhance");
     LinkedHashMap<String, AbstractBeanDefinition> configBeanDefs = new LinkedHashMap<>();
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       BeanDefinition beanDef = beanFactory.getBeanDefinition(beanName);
@@ -478,6 +491,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
     if (configBeanDefs.isEmpty()) {
       // nothing to enhance -> return immediately
+      enhanceConfigClasses.end();
       return;
     }
 
@@ -497,6 +511,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
         beanDef.setBeanClass(enhancedClass);
       }
     }
+    enhanceConfigClasses.tag("classCount", () -> String.valueOf(configBeanDefs.size())).end();
   }
 
   private record ImportAwareBeanPostProcessor(BeanFactory beanFactory)

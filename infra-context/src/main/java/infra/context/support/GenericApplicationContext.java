@@ -56,6 +56,7 @@ import infra.core.io.ProtocolResolver;
 import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
 import infra.core.io.ResourceLoader;
+import infra.core.metrics.ApplicationStartup;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 
@@ -174,6 +175,12 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
   public void setParent(@Nullable ApplicationContext parent) {
     super.setParent(parent);
     this.beanFactory.setParentBeanFactory(getInternalParentBeanFactory());
+  }
+
+  @Override
+  public void setApplicationStartup(ApplicationStartup applicationStartup) {
+    super.setApplicationStartup(applicationStartup);
+    this.beanFactory.setApplicationStartup(applicationStartup);
   }
 
   /**
@@ -415,7 +422,6 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
     }
     prepareRefresh();
     obtainFreshBeanFactory();
-    registerFrameworkComponents(beanFactory);
     prepareBeanFactory(beanFactory);
     postProcessBeanFactory(beanFactory);
     invokeBeanFactoryPostProcessors(beanFactory);

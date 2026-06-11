@@ -87,6 +87,7 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.Order;
+import infra.core.metrics.StartupStep;
 import infra.lang.Assert;
 import infra.lang.Modifiable;
 import infra.lang.NullValue;
@@ -626,7 +627,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     for (String beanName : beanNames) {
       Object singletonInstance = getSingleton(beanName, false);
       if (singletonInstance instanceof SmartInitializingSingleton smartSingleton) {
-        smartSingleton.afterSingletonsInstantiated(this);
+        try (StartupStep smartInitialize = getApplicationStartup().start("infra.beans.smart-initialize")) {
+          smartInitialize.tag("beanName", beanName);
+          smartSingleton.afterSingletonsInstantiated(this);
+        }
       }
     }
 

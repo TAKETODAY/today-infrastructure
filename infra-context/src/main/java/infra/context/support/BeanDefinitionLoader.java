@@ -24,10 +24,12 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.context.BootstrapContext;
 
 /**
- * load bean definitions
+ * Strategy interface for loading bean definitions into a {@link BootstrapContext}.
  * <p>
- * instantiate the class may implement any of the following
- * {@link Aware Aware} interfaces
+ * Implementations of this interface are responsible for registering bean definitions
+ * with the provided {@code BootstrapContext}. During the instantiation process,
+ * loader instances may implement any of the following {@link Aware Aware} interfaces
+ * to receive specific infrastructure callbacks:
  * <ul>
  * <li>{@link infra.context.EnvironmentAware}</li>
  * <li>{@link BeanFactoryAware}</li>
@@ -43,6 +45,11 @@ import infra.context.BootstrapContext;
  */
 public interface BeanDefinitionLoader {
 
-  void loadBeanDefinitions(BootstrapContext loadingContext);
+  /**
+   * Load bean definitions into the given {@link BootstrapContext}.
+   *
+   * @param bootstrapContext the context to load bean definitions into
+   */
+  void loadBeanDefinitions(BootstrapContext bootstrapContext);
 
 }

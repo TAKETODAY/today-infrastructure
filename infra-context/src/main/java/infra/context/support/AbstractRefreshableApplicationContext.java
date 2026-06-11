@@ -73,7 +73,8 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   /**
    * Create a new AbstractRefreshableApplicationContext with no parent.
    */
-  public AbstractRefreshableApplicationContext() { }
+  public AbstractRefreshableApplicationContext() {
+  }
 
   /**
    * Create a new AbstractRefreshableApplicationContext with the given parent context.
@@ -121,6 +122,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     try {
       StandardBeanFactory beanFactory = createBeanFactory();
       beanFactory.setSerializationId(getId());
+      beanFactory.setApplicationStartup(getApplicationStartup());
       customizeBeanFactory(beanFactory);
       loadBeanDefinitions(beanFactory);
       this.beanFactory = beanFactory;

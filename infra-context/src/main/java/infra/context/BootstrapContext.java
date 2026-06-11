@@ -497,7 +497,10 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
       if (bean instanceof BootstrapContextAware aware) {
         aware.setBootstrapContext(this);
       }
-
+      if (applicationContext instanceof ConfigurableApplicationContext cac
+              && bean instanceof ApplicationStartupAware aware1) {
+        aware1.setApplicationStartup(cac.getApplicationStartup());
+      }
       if (bean instanceof ApplicationContextAware aware && applicationContext != null) {
         aware.setApplicationContext(applicationContext);
       }

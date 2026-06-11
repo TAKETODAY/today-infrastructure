@@ -60,6 +60,7 @@ import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
 import infra.context.ApplicationEventPublisherAware;
 import infra.context.ApplicationListener;
+import infra.context.ApplicationStartupAware;
 import infra.context.BootstrapContext;
 import infra.context.BootstrapContextAware;
 import infra.context.ConfigurableApplicationContext;
@@ -99,6 +100,8 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
 import infra.core.io.ResourceLoader;
 import infra.core.io.SmartResourceConsumer;
+import infra.core.metrics.ApplicationStartup;
+import infra.core.metrics.StartupStep;
 import infra.lang.Assert;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
@@ -262,6 +265,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   @Nullable
   private ConfigurableEnvironment environment;
 
+  /** Application startup metrics. */
+  private ApplicationStartup applicationStartup = ApplicationStartup.DEFAULT;
+
   /**
    * Create a new AbstractApplicationContext with no parent.
    */
@@ -316,6 +322,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
       this.bootstrapContext = bootstrapContext;
     }
     return bootstrapContext;
+  }
+
+  @Override
+  public void setApplicationStartup(ApplicationStartup applicationStartup) {
+    Assert.notNull(applicationStartup, "ApplicationStartup is required");
+    this.applicationStartup = applicationStartup;
+  }
+
+  @Override
+  public ApplicationStartup getApplicationStartup() {
+    return this.applicationStartup;
   }
 
   //---------------------------------------------------------------------
@@ -531,14 +548,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     try {
       this.startupShutdownThread = Thread.currentThread();
 
+      StartupStep contextRefresh = applicationStartup.start("infra.context.refresh");
+
       // Prepare this context for refreshing.
       prepareRefresh();
 
       // Tell the subclass to refresh the internal bean factory.
       ConfigurableBeanFactory beanFactory = obtainFreshBeanFactory();
-
-      // register framework beans
-      registerFrameworkComponents(beanFactory);
 
       // Prepare BeanFactory
       prepareBeanFactory(beanFactory);
@@ -547,11 +563,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // Allows post-processing of the bean factory in context subclasses.
         postProcessBeanFactory(beanFactory);
 
+        StartupStep beanPostProcess = applicationStartup.start("infra.context.beans.post-process");
         // Invoke factory processors registered as beans in the context.
         invokeBeanFactoryPostProcessors(beanFactory);
 
         // Register bean processors that intercept bean creation.
         registerBeanPostProcessors(beanFactory);
+        beanPostProcess.close();
 
         // Initialize message source for this context.
         initMessageSource();
@@ -573,7 +591,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // Finish refresh
         finishRefresh();
       }
-
       catch (RuntimeException | Error ex) {
         applyState(State.FAILED);
 
@@ -598,6 +615,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
         // Propagate exception to caller.
         throw ex;
+      }
+      finally {
+        contextRefresh.close();
       }
     }
     finally {
@@ -679,6 +699,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     if (!beanFactory.containsLocalBean(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME)) {
       beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
     }
+
+    if (!beanFactory.containsLocalBean(APPLICATION_STARTUP_BEAN_NAME)) {
+      beanFactory.registerSingleton(APPLICATION_STARTUP_BEAN_NAME, getApplicationStartup());
+    }
   }
 
   private DependencyInjector getDependencyInjector(BootstrapContext bootstrapContext) {
@@ -742,6 +766,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
     beanFactory.ignoreDependencyInterface(BootstrapContextAware.class);
     beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
+    beanFactory.ignoreDependencyInterface(ApplicationStartupAware.class);
 
     // BeanFactory interface not registered as resolvable type in a plain factory.
     // MessageSource registered (and found for autowiring) as a bean.
@@ -749,6 +774,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     beanFactory.registerResolvableDependency(ResourceLoader.class, this);
     beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
     beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+
+    // register framework beans
+    registerFrameworkComponents(beanFactory);
 
     // loading some outside beans
 

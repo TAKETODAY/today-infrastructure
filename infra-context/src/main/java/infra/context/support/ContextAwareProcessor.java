@@ -25,6 +25,7 @@ import infra.beans.factory.config.BeanPostProcessor;
 import infra.beans.factory.config.EmbeddedValueResolver;
 import infra.context.ApplicationContextAware;
 import infra.context.ApplicationEventPublisherAware;
+import infra.context.ApplicationStartupAware;
 import infra.context.BootstrapContext;
 import infra.context.BootstrapContextAware;
 import infra.context.ConfigurableApplicationContext;
@@ -101,6 +102,9 @@ final class ContextAwareProcessor implements InitializationBeanPostProcessor {
     }
     if (bean instanceof EmbeddedValueResolverAware aware) {
       aware.setEmbeddedValueResolver(this.embeddedValueResolver);
+    }
+    if (bean instanceof ApplicationStartupAware applicationStartupAware) {
+      applicationStartupAware.setApplicationStartup(context.getApplicationStartup());
     }
     if (bean instanceof ApplicationContextAware aware) {
       aware.setApplicationContext(context);

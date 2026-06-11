@@ -68,6 +68,7 @@ import infra.core.io.FileUrlResource;
 import infra.core.io.ProtocolResolver;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
+import infra.core.metrics.jfr.FlightRecorderApplicationStartup;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -251,6 +252,13 @@ class GenericApplicationContextTests {
             .isSameAs(context.getBean(BeanB.class));
     assertThat(context.getBeansOfType(BeanC.class).values().iterator().next())
             .isSameAs(context.getBean(BeanC.class));
+  }
+
+  @Test
+  void configureApplicationStartupOnBeanFactory() {
+    FlightRecorderApplicationStartup applicationStartup = new FlightRecorderApplicationStartup();
+    context.setApplicationStartup(applicationStartup);
+    assertThat(context.getBeanFactory().getApplicationStartup()).isEqualTo(applicationStartup);
   }
 
   @Test

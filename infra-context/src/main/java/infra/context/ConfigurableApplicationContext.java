@@ -30,6 +30,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ProtocolResolver;
+import infra.core.metrics.ApplicationStartup;
 import infra.core.task.TaskExecutor;
 
 /**
@@ -93,6 +94,13 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
    * @since 4.0
    */
   String BOOTSTRAP_EXECUTOR_BEAN_NAME = "bootstrapExecutor";
+
+  /**
+   * Name of the {@link ApplicationStartup} bean in the factory: {@value}.
+   *
+   * @since 5.0
+   */
+  String APPLICATION_STARTUP_BEAN_NAME = "applicationStartup";
 
   /**
    * Return the {@code Environment} for this application context in configurable
@@ -283,5 +291,22 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
    * @since 4.0
    */
   BootstrapContext getBootstrapContext();
+
+  /**
+   * Set the {@link ApplicationStartup} for this application context.
+   * <p>This allows the application context to record metrics
+   * during startup.
+   *
+   * @param applicationStartup the new context event factory
+   * @since 5.0
+   */
+  void setApplicationStartup(ApplicationStartup applicationStartup);
+
+  /**
+   * Return the {@link ApplicationStartup} for this application context.
+   *
+   * @since 5.0
+   */
+  ApplicationStartup getApplicationStartup();
 
 }

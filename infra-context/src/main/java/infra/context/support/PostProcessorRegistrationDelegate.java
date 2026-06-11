@@ -49,6 +49,8 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
+import infra.core.metrics.ApplicationStartup;
+import infra.core.metrics.StartupStep;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -109,7 +111,7 @@ final class PostProcessorRegistrationDelegate {
       }
       sortPostProcessors(currentRegistryProcessors, beanFactory);
       registryProcessors.addAll(currentRegistryProcessors);
-      invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+      invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup());
       currentRegistryProcessors.clear();
 
       // Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
@@ -122,7 +124,7 @@ final class PostProcessorRegistrationDelegate {
       }
       sortPostProcessors(currentRegistryProcessors, beanFactory);
       registryProcessors.addAll(currentRegistryProcessors);
-      invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+      invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup());
       currentRegistryProcessors.clear();
 
       // Finally, invoke all other BeanDefinitionRegistryPostProcessors until no further ones appear.
@@ -139,7 +141,7 @@ final class PostProcessorRegistrationDelegate {
         }
         sortPostProcessors(currentRegistryProcessors, beanFactory);
         registryProcessors.addAll(currentRegistryProcessors);
-        invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+        invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry, beanFactory.getApplicationStartup());
         currentRegistryProcessors.clear();
       }
 
@@ -331,10 +333,14 @@ final class PostProcessorRegistrationDelegate {
    * Invoke the given BeanDefinitionRegistryPostProcessor beans.
    */
   private static void invokeBeanDefinitionRegistryPostProcessors(
-          Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
+          Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors,
+          BeanDefinitionRegistry registry, ApplicationStartup applicationStartup) {
 
     for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
+      StartupStep postProcessBeanDefRegistry = applicationStartup.start("spring.context.beandef-registry.post-process")
+              .tag("postProcessor", postProcessor::toString);
       postProcessor.postProcessBeanDefinitionRegistry(registry);
+      postProcessBeanDefRegistry.end();
     }
   }
 
@@ -344,8 +350,12 @@ final class PostProcessorRegistrationDelegate {
   private static void invokeBeanFactoryPostProcessors(
           Collection<? extends BeanFactoryPostProcessor> postProcessors, ConfigurableBeanFactory beanFactory) {
 
+    ApplicationStartup applicationStartup = beanFactory.getApplicationStartup();
     for (BeanFactoryPostProcessor postProcessor : postProcessors) {
+      StartupStep postProcessBeanFactory = applicationStartup.start("infra.context.bean-factory.post-process")
+              .tag("postProcessor", postProcessor::toString);
       postProcessor.postProcessBeanFactory(beanFactory);
+      postProcessBeanFactory.end();
     }
   }
 

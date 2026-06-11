@@ -20,6 +20,7 @@ package infra.context.annotation;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import infra.beans.factory.config.BeanDefinition;
@@ -34,6 +35,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.support.GenericApplicationContext;
 import infra.context.support.GenericXmlApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
+import infra.core.metrics.StartupStep;
 import infra.lang.Assert;
 import infra.stereotype.Component;
 
@@ -74,7 +76,8 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
    * Create a new AnnotationConfigApplicationContext that needs to be populated
    * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
    */
-  public AnnotationConfigApplicationContext() { }
+  public AnnotationConfigApplicationContext() {
+  }
 
   /**
    * Create a new AnnotationConfigApplicationContext with the given StandardBeanFactory.
@@ -153,7 +156,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
   @Override
   public void register(Class<?>... components) {
     Assert.notEmpty(components, "At least one component class must be specified");
+    StartupStep registerComponentClass = getApplicationStartup().start("infra.context.component-classes.register")
+            .tag("classes", () -> Arrays.toString(components));
     reader.register(components);
+    registerComponentClass.close();
   }
 
   /**
@@ -168,7 +174,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
   @Override
   public void scan(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
+    StartupStep scanPackages = getApplicationStartup().start("infra.context.base-packages.scan")
+            .tag("packages", () -> Arrays.toString(basePackages));
     scanner.scan(basePackages);
+    scanPackages.close();
   }
 
   /**

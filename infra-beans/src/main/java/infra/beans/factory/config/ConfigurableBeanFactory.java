@@ -38,6 +38,7 @@ import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.core.Ordered;
 import infra.core.StringValueResolver;
 import infra.core.conversion.ConversionService;
+import infra.core.metrics.ApplicationStartup;
 import infra.core.task.TaskExecutor;
 import infra.util.ClassUtils;
 
@@ -591,5 +592,21 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    */
   @Nullable
   Executor getBootstrapExecutor();
+
+  /**
+   * Set the {@code ApplicationStartup} for this bean factory.
+   * <p>This allows the application context to record metrics during application startup.
+   *
+   * @param applicationStartup the new application startup
+   * @since 5.0
+   */
+  void setApplicationStartup(ApplicationStartup applicationStartup);
+
+  /**
+   * Return the {@code ApplicationStartup} for this bean factory.
+   *
+   * @since 5.0
+   */
+  ApplicationStartup getApplicationStartup();
 
 }

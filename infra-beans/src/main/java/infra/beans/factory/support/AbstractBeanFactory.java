@@ -76,6 +76,8 @@ import infra.core.NamedThreadLocal;
 import infra.core.ResolvableType;
 import infra.core.StringValueResolver;
 import infra.core.conversion.ConversionService;
+import infra.core.metrics.ApplicationStartup;
+import infra.core.metrics.StartupStep;
 import infra.lang.Assert;
 import infra.lang.NullValue;
 import infra.util.ClassUtils;
@@ -185,6 +187,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   /** Whether to cache bean metadata or rather reobtain it for every access. @since 4.0 */
   private boolean cacheBeanMetadata = true;
 
+  /** Application startup metrics. */
+  private ApplicationStartup applicationStartup = ApplicationStartup.DEFAULT;
+
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
@@ -261,7 +266,15 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
       if (!typeCheckOnly) {
         markBeanAsCreated(beanName);
       }
+
+      StartupStep beanCreation = this.applicationStartup.start("infra.beans.instantiate")
+              .tag("beanName", name);
+
       try {
+        if (requiredType != null) {
+          beanCreation.tag("beanType", requiredType.getName());
+        }
+
         RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
         checkMergedBeanDefinition(merged, beanName, args);
 
@@ -353,10 +366,13 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
       }
       catch (BeansException e) {
+        beanCreation.tag("exception", e.getClass().toString());
+        beanCreation.tag("message", String.valueOf(e.getMessage()));
         cleanupAfterBeanCreationFailure(beanName);
         throw e;
       }
       finally {
+        beanCreation.close();
         if (!isCacheBeanMetadata()) {
           clearMergedBeanDefinition(beanName);
         }
@@ -1355,6 +1371,17 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   @Override
   public int getBeanPostProcessorCount() {
     return postProcessors.size();
+  }
+
+  @Override
+  public void setApplicationStartup(ApplicationStartup applicationStartup) {
+    Assert.notNull(applicationStartup, "ApplicationStartup is required");
+    this.applicationStartup = applicationStartup;
+  }
+
+  @Override
+  public ApplicationStartup getApplicationStartup() {
+    return this.applicationStartup;
   }
 
   // @since 4.0
