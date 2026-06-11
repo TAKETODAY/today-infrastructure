@@ -62,7 +62,6 @@ import infra.mock.api.http.HttpMockMapping;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.api.http.HttpSession;
-import infra.mock.api.http.HttpUpgradeHandler;
 import infra.mock.api.http.MappingMatch;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
@@ -251,7 +250,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private String requestURI;
 
   private @Nullable String uriTemplate;
-  
+
   @Nullable
   private HttpSession session;
 
@@ -1430,11 +1429,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   @Nullable
   private MappingMatch determineMappingMatch() {
     return null;
-  }
-
-  @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException {
-    throw new UnsupportedOperationException();
   }
 
 }

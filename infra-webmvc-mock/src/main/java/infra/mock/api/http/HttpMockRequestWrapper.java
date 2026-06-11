@@ -291,23 +291,6 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
   }
 
   /**
-   * Create an instance of <code>HttpUpgradeHandler</code> for a given class and uses it for the http protocol upgrade
-   * processing.
-   */
-  @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException {
-    return this._getHttpMockRequest().upgrade(handlerClass);
-  }
-
-  /**
-   * The default behavior of this method is to call newPushBuilder on the wrapped request object.
-   */
-  @Override
-  public PushBuilder newPushBuilder() {
-    return this._getHttpMockRequest().newPushBuilder();
-  }
-
-  /**
    * The default behavior of this method is to call getTrailerFields on the wrapped request object.
    */
   @Override

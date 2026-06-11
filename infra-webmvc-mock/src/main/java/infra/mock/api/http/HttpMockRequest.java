@@ -27,9 +27,9 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockHandler;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
+import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.RequestDispatcher;
@@ -276,19 +276,6 @@ public interface HttpMockRequest extends MockRequest {
    * information
    */
   String getPathTranslated();
-
-  /**
-   * Instantiates a new instance of {@link PushBuilder} for issuing server push responses from the current request. This
-   * method returns null if the current connection does not support server push, or server push has been disabled by the
-   * client via a {@code SETTINGS_ENABLE_PUSH} settings frame value of {@code 0} (zero).
-   *
-   * @return a {@link PushBuilder} for issuing server push responses from the current request, or null if push is not
-   * supported
-   * @implSpec The default implementation returns null.
-   */
-  default PushBuilder newPushBuilder() {
-    return null;
-  }
 
   /**
    * Returns the query string that is contained in the request URL after the path. This method returns <code>null</code>
@@ -552,20 +539,6 @@ public interface HttpMockRequest extends MockRequest {
    * @see MultipartConfig#maxRequestSize
    */
   Part getPart(String name) throws IOException, MockException;
-
-  /**
-   * Creates an instance of <code>HttpUpgradeHandler</code> for a given class and uses it for the http protocol upgrade
-   * processing.
-   *
-   * @param <T> The {@code Class}, which extends {@link HttpUpgradeHandler}, of the {@code handlerClass}.
-   * @param handlerClass The <code>HttpUpgradeHandler</code> class used for the upgrade.
-   * @return an instance of the <code>HttpUpgradeHandler</code>
-   * @throws IOException if an I/O error occurred during the upgrade
-   * @throws MockException if the given <code>handlerClass</code> fails to be instantiated
-   * @see HttpUpgradeHandler
-   * @see WebConnection
-   */
-  <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException;
 
   /**
    * Get the request trailer fields.

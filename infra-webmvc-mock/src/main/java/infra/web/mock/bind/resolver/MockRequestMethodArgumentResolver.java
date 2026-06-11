@@ -25,7 +25,6 @@ import java.security.Principal;
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpSession;
-import infra.mock.api.http.PushBuilder;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -38,7 +37,6 @@ import infra.web.mock.MockUtils;
  * <ul>
  * <li>{@link MockRequest}
  * <li>{@link HttpSession}
- * <li>{@link PushBuilder}
  * <li>{@link Principal} but only if not annotated in order to allow custom
  * resolvers to resolve it, and the falling back on
  * {@link PrincipalMethodArgumentResolver}.
@@ -57,7 +55,6 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
     Class<?> paramType = resolvable.getParameterType();
     return MockRequest.class.isAssignableFrom(paramType)
             || HttpSession.class.isAssignableFrom(paramType)
-            || PushBuilder.class.isAssignableFrom(paramType)
             || (Principal.class.isAssignableFrom(paramType) && !resolvable.hasParameterAnnotations());
   }
 
@@ -74,14 +71,6 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
                 "Current session is not of type [%s]: %s".formatted(paramType.getName(), session));
       }
       return session;
-    }
-    else if (PushBuilder.class.isAssignableFrom(paramType)) {
-      PushBuilder pushBuilder = request.newPushBuilder();
-      if (pushBuilder != null && !paramType.isInstance(pushBuilder)) {
-        throw new IllegalStateException(
-                "Current push builder is not of type [%s]: %s".formatted(paramType.getName(), pushBuilder));
-      }
-      return pushBuilder;
     }
     else if (Principal.class.isAssignableFrom(paramType)) {
       Principal userPrincipal = request.getUserPrincipal();
