@@ -1,53 +1,49 @@
 [[application-startup-steps]]
 = 应用启动步骤
 
-This part of the appendix lists the existing `StartupSteps` that the core container is instrumented with.
+WARNING: 每个启动步骤的名称和详细信息不属于公共契约，可能会发生变化；这被视为核心容器的实现细节，并将随其行为变化而调整。
 
-WARNING: The name and detailed information about each startup step is not part of the public contract and
-is subject to change; this is considered as an implementation detail of the core container and will follow
-its behavior changes.
-
-.Application startup steps defined in the core container
+.核心容器中定义的应用启动步骤
 |===
-| Name| Description| Tags
+| 名称 | 描述 | 标签
 
 | `infra.beans.instantiate`
-| Instantiation of a bean and its dependencies.
-| `beanName` the name of the bean, `beanType` the type required at the injection point.
+| Bean 及其依赖项的实例化。
+| `beanName` Bean 的名称，`beanType` 注入点所需的类型。
 
 | `infra.beans.smart-initialize`
-| Initialization of `SmartInitializingSingleton` beans.
-| `beanName` the name of the bean.
+| `SmartInitializingSingleton` Bean 的初始化。
+| `beanName` Bean 的名称。
 
 | `infra.context.base-packages.scan`
-| Scanning of base packages.
-| `packages` array of base packages for scanning.
+| 基础包扫描。
+| `packages` 用于扫描的基础包数组。
 
 | `infra.context.beans.post-process`
-| Beans post-processing phase.
+| Bean 后处理阶段。
 |
 
 | `infra.context.bean-factory.post-process`
-| Invocation of the `BeanFactoryPostProcessor` beans.
-| `postProcessor` the current post-processor.
+| 调用 `BeanFactoryPostProcessor` Bean。
+| `postProcessor` 当前后处理器。
 
 | `infra.context.beandef-registry.post-process`
-| Invocation of the `BeanDefinitionRegistryPostProcessor` beans.
-| `postProcessor` the current post-processor.
+| 调用 `BeanDefinitionRegistryPostProcessor` Bean。
+| `postProcessor` 当前后处理器。
 
 | `infra.context.component-classes.register`
-| Registration of component classes through `AnnotationConfigApplicationContext#register`.
-| `classes` array of given classes for registration.
+| 通过 `AnnotationConfigApplicationContext#register` 注册组件类。
+| `classes` 给定用于注册的类数组。
 
 | `infra.context.config-classes.enhance`
-| Enhancement of configuration classes with CGLIB proxies.
-| `classCount` count of enhanced classes.
+| 使用 CGLIB 代理增强配置类。
+| `classCount` 被增强的类的数量。
 
 | `infra.context.config-classes.parse`
-| Configuration classes parsing phase with the `ConfigurationClassPostProcessor`.
-| `classCount` count of processed classes.
+| 使用 `ConfigurationClassPostProcessor` 解析配置类阶段。
+| `classCount` 已处理的类的数量。
 
 | `infra.context.refresh`
-| Application context refresh phase.
+| 应用上下文刷新阶段。
 |
 |===
