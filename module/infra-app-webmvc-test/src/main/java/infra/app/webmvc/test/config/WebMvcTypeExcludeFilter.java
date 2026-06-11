@@ -32,6 +32,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.stereotype.Controller;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
+import infra.web.Filter;
 import infra.web.HandlerInterceptor;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
@@ -60,7 +61,7 @@ class WebMvcTypeExcludeFilter extends StandardAnnotationCustomizableTypeExcludeF
     includes.add(ControllerAdvice.class);
     includes.add(WebMvcConfigurer.class);
     includes.add(WebMvcRegistrations.class);
-    includes.add(infra.mock.api.Filter.class);
+    includes.add(Filter.class);
     includes.add(ParameterResolvingStrategy.class);
     includes.add(HttpMessageConverter.class);
     includes.add(ErrorAttributes.class);
