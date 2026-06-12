@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 
 import infra.context.annotation.Configuration;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
@@ -77,7 +77,7 @@ public class SessionLocaleResolverTests {
     resolver.setLocale(context, Locale.GERMAN);
     assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.GERMAN);
 
-    HttpSession session = request.getSession();
+    Session session = request.getSession();
     request = new HttpMockRequestImpl();
     request.setSession(session);
     resolver = new SessionLocaleResolver();
@@ -122,7 +122,7 @@ public class SessionLocaleResolverTests {
     Locale locale = (Locale) request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
     assertThat(locale).isNull();
 
-    HttpSession session = request.getSession();
+    Session session = request.getSession();
     request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.TAIWAN);
     request.setSession(session);

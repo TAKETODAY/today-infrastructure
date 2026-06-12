@@ -51,9 +51,9 @@ import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpSession;
+import infra.session.Session;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
 import infra.util.LinkedMultiValueMap;
@@ -904,7 +904,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
 
     this.requestAttributes.forEach(request::setAttribute);
     this.sessionAttributes.forEach((name, attribute) -> {
-      HttpSession session = request.getSession();
+      Session session = request.getSession();
       Assert.state(session != null, "No HttpSession");
       session.setAttribute(name, attribute);
     });

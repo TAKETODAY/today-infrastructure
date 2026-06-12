@@ -91,7 +91,6 @@ import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -360,7 +359,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
-    Session session = (Session) request.getAttribute("session");
+    Session session = (infra.session.Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
 
@@ -388,7 +387,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
 
-    Session session = (Session) request.getAttribute("session");
+    Session session = (infra.session.Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
 
@@ -412,7 +411,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
 
-    Session session = (Session) request.getAttribute("session");
+    Session session = (infra.session.Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
@@ -439,7 +438,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
 
-    Session session = (Session) request.getAttribute("session");
+    Session session = (infra.session.Session) request.getAttribute("session");
 
     assertThat(session).isNotNull();
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
@@ -669,7 +668,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    HttpSession session = request.getSession();
+    Session session = request.getSession();
     assertThat(session).isNotNull();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
@@ -1532,7 +1531,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
-    Session session = (Session) request.getAttribute("session");
+    Session session = (infra.session.Session) request.getAttribute("session");
 
     MockRequestContext context = new MockRequestContext(wac, request, response);
     // POST -> bind error
@@ -1576,7 +1575,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     getMockHandler().service(request, response);
 
-    Session session = (Session) request.getAttribute("session");
+    Session session = (infra.session.Session) request.getAttribute("session");
     MockRequestContext context = new MockRequestContext(wac, request, response);
 
     assertThat(response.getStatus()).isEqualTo(302);
@@ -2768,7 +2767,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @Nullable
     @Autowired
-    private HttpSession session;
+    private Session session;
 
     @Nullable
     @Autowired

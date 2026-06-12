@@ -25,7 +25,7 @@ import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpSession;
+import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.annotation.CookieValue;
 import infra.web.annotation.SessionAttribute;
@@ -94,7 +94,7 @@ public class MockParameterResolvers {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isAssignableTo(HttpSession.class);
+      return parameter.isAssignableTo(Session.class);
     }
 
     @Override
@@ -113,11 +113,11 @@ public class MockParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      HttpSession httpSession = MockUtils.getHttpSession(context, false);
-      if (httpSession == null) {
+      Session session = MockUtils.getHttpSession(context, false);
+      if (session == null) {
         return null;
       }
-      return httpSession.getAttribute(resolvable.getName());
+      return session.getAttribute(resolvable.getName());
     }
   }
 

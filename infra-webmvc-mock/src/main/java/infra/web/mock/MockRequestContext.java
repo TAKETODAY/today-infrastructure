@@ -48,7 +48,9 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockHttpSession;
 import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
@@ -671,11 +673,13 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
     ApplicationContext applicationContext = getApplicationContext();
     if (applicationContext != null) {
-      return new SessionManagerDiscover(applicationContext).obtain(this);
+      try {
+        return new SessionManagerDiscover(applicationContext).obtain(this);
+      }
+      catch (IllegalStateException ignored) {
+      }
     }
-    else {
-      throw new IllegalStateException("No SessionManager set");
-    }
+    return new MockSessionManager();
   }
 
   public void setFormUrlencoded(@Nullable MultiValueMap<String, String> formUrlencoded) {
@@ -690,5 +694,34 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   @SuppressWarnings("unchecked")
   public @Nullable MultiValueMap<String, String> getFormUrlencoded() {
     return (MultiValueMap<String, String>) getAttribute(FORM_URLENCODED_ATTRIBUTE);
+  }
+
+  class MockSessionManager implements SessionManager {
+
+    @Override
+    public Session createSession() {
+      return new MockHttpSession();
+    }
+
+    @Override
+    public Session createSession(RequestContext context) {
+      return new MockHttpSession();
+    }
+
+    @Override
+    public @Nullable Session getSession(@Nullable String sessionId) {
+      return new MockHttpSession(sessionId);
+    }
+
+    @Override
+    public Session getSession(RequestContext context) {
+      return request.getSession();
+    }
+
+    @Override
+    public @Nullable Session getSession(RequestContext context, boolean create) {
+      return request.getSession(create);
+    }
+
   }
 }

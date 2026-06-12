@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.mock.api.http.HttpSessionBindingEvent;
-import infra.mock.api.http.HttpSessionBindingListener;
+import infra.session.AttributeBindingListener;
+import infra.session.Session;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Vedran Pavic
  * @since 4.0
  */
-class MockHttpSessionTests {
+class MockSessionTests {
 
   private final MockHttpSession session = new MockHttpSession();
 
@@ -64,7 +64,7 @@ class MockHttpSessionTests {
   void getLastAccessedTimeOnInvalidatedSession() {
     session.invalidate();
     assertThatIllegalStateException().isThrownBy(
-            session::getLastAccessedTime);
+            session::getLastAccessTime);
   }
 
   @Test
@@ -148,17 +148,17 @@ class MockHttpSessionTests {
   }
 
   private static class CountingHttpSessionBindingListener
-          implements HttpSessionBindingListener {
+          implements AttributeBindingListener {
 
     private final AtomicInteger counter = new AtomicInteger();
 
     @Override
-    public void valueBound(HttpSessionBindingEvent event) {
+    public void valueBound(Session session, String attributeName) {
       this.counter.incrementAndGet();
     }
 
     @Override
-    public void valueUnbound(HttpSessionBindingEvent event) {
+    public void valueUnbound(Session session, String attributeName) {
       this.counter.decrementAndGet();
     }
 

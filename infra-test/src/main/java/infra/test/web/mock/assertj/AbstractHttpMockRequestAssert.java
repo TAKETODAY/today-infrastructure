@@ -31,7 +31,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.session.Session;
 import infra.util.function.SingletonSupplier;
@@ -66,9 +65,9 @@ public abstract class AbstractHttpMockRequestAssert<SELF extends AbstractHttpMoc
   }
 
   protected MapAssert<String, Object> createSessionAttributesAssert(HttpMockRequest request) {
-    HttpSession httpSession = request.getSession();
+    Session httpSession = request.getSession();
     Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
-    Map<String, Object> map = toMap(httpSession.getAttributeNames().asIterator(), httpSession::getAttribute);
+    Map<String, Object> map = toMap(httpSession.attributeNames().iterator(), httpSession::getAttribute);
     RequestContext requestContext = getRequestContext();
     if (requestContext != null) {
       Session session = requestContext.getSession(false);

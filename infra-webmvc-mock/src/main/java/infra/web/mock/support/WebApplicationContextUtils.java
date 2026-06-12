@@ -35,7 +35,7 @@ import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpSession;
+import infra.session.Session;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
 import infra.web.mock.ConfigurableWebApplicationContext;
@@ -181,7 +181,7 @@ public class WebApplicationContextUtils {
       beanFactory.registerResolvableDependency(MockContext.class, sc);
     }
 
-    beanFactory.registerResolvableDependency(HttpSession.class, new SessionObjectSupplier());
+    beanFactory.registerResolvableDependency(Session.class, new SessionObjectSupplier());
     beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());
     beanFactory.registerResolvableDependency(MockResponse.class, new ResponseObjectSupplier());
 
@@ -334,11 +334,11 @@ public class WebApplicationContextUtils {
    * Factory that exposes the current session object on demand.
    */
   @SuppressWarnings("serial")
-  private static class SessionObjectSupplier implements Supplier<HttpSession>, Serializable {
+  private static class SessionObjectSupplier implements Supplier<Session>, Serializable {
 
     @Override
-    public HttpSession get() {
-      return MockUtils.getHttpSession(RequestContextHolder.current());
+    public Session get() {
+      return RequestContextHolder.required().getSession();
     }
 
     @Override

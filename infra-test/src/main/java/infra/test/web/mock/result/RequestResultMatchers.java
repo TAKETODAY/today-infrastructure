@@ -21,12 +21,10 @@ package infra.test.web.mock.result;
 import org.hamcrest.Matcher;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
@@ -144,13 +142,11 @@ public class RequestResultMatchers {
   }
 
   private static Session getSession(MvcResult result) {
-    HttpSession httpSession = result.getRequest().getSession();
+    Session httpSession = result.getRequest().getSession();
     Session session = result.getRequestContext().getSession();
     if (httpSession != null) {
       // 暂时使用合并的方式
-      Enumeration<String> attributeNames = httpSession.getAttributeNames();
-      while (attributeNames.hasMoreElements()) {
-        String attr = attributeNames.nextElement();
+      for (String attr : httpSession.attributeNames()) {
         session.setAttribute(attr, httpSession.getAttribute(attr));
       }
     }

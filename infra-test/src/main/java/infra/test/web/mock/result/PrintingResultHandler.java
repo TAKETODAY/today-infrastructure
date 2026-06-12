@@ -21,6 +21,7 @@ package infra.test.web.mock.result;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -32,7 +33,6 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.Session;
@@ -154,12 +154,11 @@ public class PrintingResultHandler implements ResultHandler {
 
   protected final Map<String, Object> getSessionAttributes(HttpMockRequestImpl request, RequestContext context) {
     Map<String, Object> map = new LinkedHashMap<>();
-    HttpSession session = request.getSession(false);
+    Session session = request.getSession(false);
     if (session != null) {
-      Enumeration<String> attrNames = session.getAttributeNames();
+      String[] attrNames = session.getAttributeNames();
       if (attrNames != null) {
-        map.putAll(Collections.list(attrNames).stream().
-                collect(Collectors.toMap(n -> n, session::getAttribute)));
+        map.putAll(Arrays.stream(attrNames).collect(Collectors.toMap(n -> n, session::getAttribute)));
       }
     }
 

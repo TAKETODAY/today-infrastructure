@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.session.Session;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -88,7 +88,7 @@ public class AbstractHttpMockRequestAssertTests {
 
     private HttpMockRequest createRequest(Map<String, Object> attributes) {
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-      HttpSession session = request.getSession();
+      Session session = request.getSession();
       attributes.forEach(session::setAttribute);
       return request;
     }

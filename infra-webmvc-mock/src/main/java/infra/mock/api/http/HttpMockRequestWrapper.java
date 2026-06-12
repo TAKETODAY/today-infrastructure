@@ -27,6 +27,7 @@ import java.util.Map;
 
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequestWrapper;
+import infra.session.Session;
 import infra.web.multipart.Part;
 
 /**
@@ -195,7 +196,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * The default behavior of this method is to return getSession(boolean create) on the wrapped request object.
    */
   @Override
-  public HttpSession getSession(boolean create) {
+  public Session getSession(boolean create) {
     return this._getHttpMockRequest().getSession(create);
   }
 
@@ -203,7 +204,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * The default behavior of this method is to return getSession() on the wrapped request object.
    */
   @Override
-  public HttpSession getSession() {
+  public Session getSession() {
     return this._getHttpMockRequest().getSession();
   }
 

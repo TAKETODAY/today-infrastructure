@@ -24,7 +24,7 @@ import java.security.Principal;
 
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpSession;
+import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -36,7 +36,7 @@ import infra.web.mock.MockUtils;
  * following types:
  * <ul>
  * <li>{@link MockRequest}
- * <li>{@link HttpSession}
+ * <li>{@link Session}
  * <li>{@link Principal} but only if not annotated in order to allow custom
  * resolvers to resolve it, and the falling back on
  * {@link PrincipalMethodArgumentResolver}.
@@ -54,7 +54,7 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     Class<?> paramType = resolvable.getParameterType();
     return MockRequest.class.isAssignableFrom(paramType)
-            || HttpSession.class.isAssignableFrom(paramType)
+            || Session.class.isAssignableFrom(paramType)
             || (Principal.class.isAssignableFrom(paramType) && !resolvable.hasParameterAnnotations());
   }
 
@@ -64,8 +64,8 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
     HttpMockRequest request = ((MockRequestContext) context).getRequest();
 
     Class<?> paramType = resolvable.getParameterType();
-    if (HttpSession.class.isAssignableFrom(paramType)) {
-      HttpSession session = request.getSession();
+    if (Session.class.isAssignableFrom(paramType)) {
+      Session session = request.getSession();
       if (session != null && !paramType.isInstance(session)) {
         throw new IllegalStateException(
                 "Current session is not of type [%s]: %s".formatted(paramType.getName(), session));

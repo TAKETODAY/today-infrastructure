@@ -60,7 +60,7 @@ import infra.mock.api.RequestDispatcher;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.api.http.HttpSession;
+import infra.session.Session;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -249,8 +249,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   private @Nullable String uriTemplate;
 
-  @Nullable
-  private HttpSession session;
+  private @Nullable Session session;
 
   private boolean requestedSessionIdValid = true;
 
@@ -1300,7 +1299,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return url;
   }
 
-  public void setSession(HttpSession session) {
+  public void setSession(Session session) {
     this.session = session;
     if (session instanceof MockHttpSession mockSession) {
       mockSession.access();
@@ -1309,7 +1308,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   @Override
   @Nullable
-  public HttpSession getSession(boolean create) {
+  public Session getSession(boolean create) {
     checkActive();
     // Reset session if invalidated.
     if (this.session instanceof MockHttpSession mockSession && mockSession.isInvalid()) {
@@ -1317,14 +1316,13 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     }
     // Create new session if necessary.
     if (this.session == null && create) {
-      this.session = new MockHttpSession(this.mockContext);
+      this.session = new MockHttpSession();
     }
     return this.session;
   }
 
   @Override
-  @Nullable
-  public HttpSession getSession() {
+  public Session getSession() {
     return getSession(true);
   }
 

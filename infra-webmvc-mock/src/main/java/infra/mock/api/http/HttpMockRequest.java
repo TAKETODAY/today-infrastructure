@@ -29,7 +29,7 @@ import java.util.Map;
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
 import infra.mock.api.RequestDispatcher;
-import infra.mock.api.annotation.MultipartConfig;
+import infra.session.Session;
 import infra.web.multipart.Part;
 
 /**
@@ -321,7 +321,7 @@ public interface HttpMockRequest extends MockRequest {
    * <code>false</code> and the request has no valid session
    * @see #getSession()
    */
-  HttpSession getSession(boolean create);
+  Session getSession(boolean create);
 
   /**
    * Returns the current session associated with this request, or if the request does not have a session, creates one.
@@ -329,7 +329,7 @@ public interface HttpMockRequest extends MockRequest {
    * @return the <code>HttpSession</code> associated with this request
    * @see #getSession(boolean)
    */
-  HttpSession getSession();
+  Session getSession();
 
   /**
    * Change the session id of the current session associated with this request and return the new session id.
@@ -441,8 +441,6 @@ public interface HttpMockRequest extends MockRequest {
    * @throws IllegalStateException if the request body is larger than <code>maxRequestSize</code>, or any
    * <code>Part</code> in the request is larger than <code>maxFileSize</code>, or there is no
    * <code>@MultipartConfig</code> or <code>multipart-config</code> in deployment descriptors
-   * @see MultipartConfig#maxFileSize
-   * @see MultipartConfig#maxRequestSize
    */
   Collection<Part> getParts() throws IOException, MockException;
 
@@ -457,8 +455,6 @@ public interface HttpMockRequest extends MockRequest {
    * @throws IllegalStateException if the request body is larger than <code>maxRequestSize</code>, or any
    * <code>Part</code> in the request is larger than <code>maxFileSize</code>, or there is no
    * <code>@MultipartConfig</code> or <code>multipart-config</code> in deployment descriptors
-   * @see MultipartConfig#maxFileSize
-   * @see MultipartConfig#maxRequestSize
    */
   Part getPart(String name) throws IOException, MockException;
 

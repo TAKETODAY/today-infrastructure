@@ -469,7 +469,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void session() {
-    MockHttpSession session = new MockHttpSession(this.mockContext);
+    MockHttpSession session = new MockHttpSession();
     session.setAttribute("foo", "bar");
     this.builder.session(session);
     this.builder.sessionAttr("baz", "qux");

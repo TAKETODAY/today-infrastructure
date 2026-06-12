@@ -20,23 +20,17 @@ package infra.mock.web;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
-import infra.mock.api.http.HttpSession;
-import infra.mock.api.http.HttpSessionBindingEvent;
-import infra.mock.api.http.HttpSessionBindingListener;
+import infra.session.AbstractSession;
+import infra.session.Session;
+import infra.session.SessionEventDispatcher;
 
 /**
- * Mock implementation of the {@link HttpSession} interface.
+ * Mock implementation of the {@link Session} interface.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
@@ -45,8 +39,12 @@ import infra.mock.api.http.HttpSessionBindingListener;
  * @author Vedran Pavic
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
-public class MockHttpSession implements HttpSession {
+public class MockHttpSession extends AbstractSession {
+
+  /**
+   * Default {@link #setMaxIdleTime(Duration)} (30 minutes).
+   */
+  public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
   /**
    * The session cookie name.
@@ -57,19 +55,18 @@ public class MockHttpSession implements HttpSession {
 
   private String id;
 
-  private final long creationTime = System.currentTimeMillis();
-
-  private int maxInactiveInterval;
-
-  private long lastAccessedTime = System.currentTimeMillis();
-
-  private final MockContext mockContext;
-
-  private final Map<String, Object> attributes = new LinkedHashMap<>();
-
   private boolean invalid = false;
 
   private boolean isNew = true;
+
+  private final Instant creationTime = Instant.now();
+
+  private Instant lastAccessTime = this.creationTime;
+
+  /**
+   * Defaults to 30 minutes.
+   */
+  private Duration maxIdleTime = Duration.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
   /**
    * Create a new MockHttpSession with a default {@link MockContextImpl}.
@@ -83,27 +80,39 @@ public class MockHttpSession implements HttpSession {
   /**
    * Create a new MockHttpSession.
    *
-   * @param mockContext the MockContext that the session runs in
-   */
-  public MockHttpSession(@Nullable MockContext mockContext) {
-    this(mockContext, null);
-  }
-
-  /**
-   * Create a new MockHttpSession.
-   *
-   * @param mockContext the MockContext that the session runs in
    * @param id a unique identifier for this session
    */
-  public MockHttpSession(@Nullable MockContext mockContext, @Nullable String id) {
-    this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
+  public MockHttpSession(@Nullable String id) {
+    super(new SessionEventDispatcher());
     this.id = (id != null ? id : Integer.toString(nextId++));
   }
 
   @Override
-  public long getCreationTime() {
+  public Instant getCreationTime() {
     assertIsValid();
-    return this.creationTime;
+    return creationTime;
+  }
+
+  @Override
+  public Instant getLastAccessTime() {
+    assertIsValid();
+    return lastAccessTime;
+  }
+
+  @Override
+  public void setLastAccessTime(Instant lastAccessTime) {
+    this.lastAccessTime = lastAccessTime;
+  }
+
+  @Override
+  public void setMaxIdleTime(Duration maxIdleTime) {
+    this.maxIdleTime = maxIdleTime;
+  }
+
+  @Override
+  public Duration getMaxIdleTime() {
+    assertIsValid();
+    return maxIdleTime;
   }
 
   @Override
@@ -111,96 +120,53 @@ public class MockHttpSession implements HttpSession {
     return this.id;
   }
 
-  /**
-   * @return the new session id
-   */
+  @Override
   public String changeSessionId() {
     this.id = Integer.toString(nextId++);
-    return this.id;
+    return id;
   }
 
   public void access() {
-    this.lastAccessedTime = System.currentTimeMillis();
+    lastAccessTime = Instant.now();
     this.isNew = false;
   }
 
   @Override
-  public long getLastAccessedTime() {
-    assertIsValid();
-    return this.lastAccessedTime;
-  }
-
-  @Override
-  public MockContext getMockContext() {
-    return this.mockContext;
-  }
-
-  @Override
-  public void setMaxInactiveInterval(int interval) {
-    this.maxInactiveInterval = interval;
-  }
-
-  @Override
-  public int getMaxInactiveInterval() {
-    return this.maxInactiveInterval;
-  }
-
-  @Override
-  public Object getAttribute(String name) {
+  public @Nullable Object getAttribute(String name) {
     assertIsValid();
     Assert.notNull(name, "Attribute name is required");
-    return this.attributes.get(name);
+    return super.getAttribute(name);
   }
 
   @Override
-  public Enumeration<String> getAttributeNames() {
+  public Iterable<String> attributeNames() {
     assertIsValid();
-    return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
+    return super.attributeNames();
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    assertIsValid();
+    return super.getAttributeNames();
   }
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     assertIsValid();
-    Assert.notNull(name, "Attribute name is required");
-    if (value != null) {
-      Object oldValue = this.attributes.put(name, value);
-      if (value != oldValue) {
-        if (oldValue instanceof HttpSessionBindingListener listener) {
-          listener.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
-        }
-        if (value instanceof HttpSessionBindingListener listener) {
-          listener.valueBound(new HttpSessionBindingEvent(this, name, value));
-        }
-      }
-    }
-    else {
-      removeAttribute(name);
-    }
+    super.setAttribute(name, value);
   }
 
   @Override
-  public void removeAttribute(String name) {
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
     assertIsValid();
-    Assert.notNull(name, "Attribute name is required");
-    Object value = this.attributes.remove(name);
-    if (value instanceof HttpSessionBindingListener listener) {
-      listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));
-    }
+    super.setAttributes(attributes);
   }
 
-  /**
-   * Clear all of this session's attributes.
-   */
-  public void clearAttributes() {
-    for (Iterator<Map.Entry<String, Object>> it = this.attributes.entrySet().iterator(); it.hasNext(); ) {
-      Map.Entry<String, Object> entry = it.next();
-      String name = entry.getKey();
-      Object value = entry.getValue();
-      it.remove();
-      if (value instanceof HttpSessionBindingListener listener) {
-        listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));
-      }
-    }
+  @Override
+  public @Nullable Object removeAttribute(String name) {
+    assertIsValid();
+    Assert.notNull(name, "Attribute name is required");
+    return super.removeAttribute(name);
   }
 
   /**
@@ -211,8 +177,20 @@ public class MockHttpSession implements HttpSession {
   @Override
   public void invalidate() {
     assertIsValid();
+    super.invalidate();
     this.invalid = true;
-    clearAttributes();
+  }
+
+  @Override
+  public boolean isExpired() {
+    return isExpired(Instant.now());
+  }
+
+  boolean isExpired(Instant now) {
+    if (maxIdleTime.isNegative()) {
+      return false;
+    }
+    return now.minus(maxIdleTime).compareTo(lastAccessTime) >= 0;
   }
 
   public boolean isInvalid() {
@@ -239,43 +217,8 @@ public class MockHttpSession implements HttpSession {
     return this.isNew;
   }
 
-  /**
-   * Serialize the attributes of this session into an object that can be
-   * turned into a byte array with standard Java serialization.
-   *
-   * @return a representation of this session's serialized state
-   */
-  public Serializable serializeState() {
-    HashMap<String, Serializable> state = new HashMap<>();
-    for (Iterator<Map.Entry<String, Object>> it = this.attributes.entrySet().iterator(); it.hasNext(); ) {
-      Map.Entry<String, Object> entry = it.next();
-      String name = entry.getKey();
-      Object value = entry.getValue();
-      it.remove();
-      if (value instanceof Serializable serializable) {
-        state.put(name, serializable);
-      }
-      else {
-        // Not serializable... Web containers usually automatically
-        // unbind the attribute in this case.
-        if (value instanceof HttpSessionBindingListener listener) {
-          listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));
-        }
-      }
-    }
-    return state;
-  }
-
-  /**
-   * Deserialize the attributes of this session from a state object created by
-   * {@link #serializeState()}.
-   *
-   * @param state a representation of this session's serialized state
-   */
-  @SuppressWarnings("unchecked")
-  public void deserializeState(Serializable state) {
-    Assert.isTrue(state instanceof Map, "Serialized state needs to be of type [java.util.Map]");
-    this.attributes.putAll((Map<String, Object>) state);
+  public SessionEventDispatcher events() {
+    return eventDispatcher;
   }
 
 }

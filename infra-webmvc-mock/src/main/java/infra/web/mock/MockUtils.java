@@ -35,7 +35,7 @@ import infra.mock.api.MockResponseWrapper;
 import infra.mock.api.RequestDispatcher;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.api.http.HttpSession;
+import infra.session.Session;
 import infra.util.ObjectUtils;
 import infra.web.MockIndicator;
 import infra.web.RequestContext;
@@ -84,7 +84,7 @@ public abstract class MockUtils {
    *
    * @throws IllegalStateException Not run in servlet
    */
-  public static HttpSession getHttpSession(final RequestContext context) {
+  public static Session getHttpSession(final RequestContext context) {
     return getHttpSession(context, true);
   }
 
@@ -115,7 +115,7 @@ public abstract class MockUtils {
    * @throws IllegalStateException Not run in servlet
    * @see #getHttpSession(RequestContext)
    */
-  public static HttpSession getHttpSession(RequestContext context, boolean create) {
+  public static Session getHttpSession(RequestContext context, boolean create) {
     HttpMockRequest request = getMockRequest(context);
     return request.getSession(create);
   }
