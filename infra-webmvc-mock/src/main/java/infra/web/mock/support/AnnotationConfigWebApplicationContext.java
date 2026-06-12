@@ -44,7 +44,6 @@ import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
-import infra.web.mock.ContextLoader;
 import infra.web.mock.WebApplicationContext;
 
 /**
@@ -71,24 +70,6 @@ import infra.web.mock.WebApplicationContext;
  * {@link AnnotatedBeanDefinitionReader
  * AnnotatedBeanDefinitionReader}. See the Javadoc for {@link GenericWebApplicationContext}
  * for details and an example.
- *
- * <p>To make use of this application context, the
- * {@linkplain ContextLoader#CONTEXT_CLASS_PARAM "contextClass"} context-param for
- * ContextLoader and/or "contextClass" init-param for FrameworkServlet must be set to
- * the fully-qualified name of this class.
- *
- * <p>As an alternative to setting the "contextConfigLocation" parameter, users may
- * implement an {@link infra.context.ApplicationContextInitializer
- * ApplicationContextInitializer} and set the
- * {@linkplain ContextLoader#CONTEXT_INITIALIZER_CLASSES_PARAM "contextInitializerClasses"}
- * context-param / init-param. In such cases, users should favor the {@link #refresh()}
- * and {@link #scan(String...)} methods over the {@link #setConfigLocation(String)}
- * method, which is primarily for use by {@code ContextLoader}.
- *
- * <p>Note: In case of multiple {@code @Configuration} classes, later {@code @Bean}
- * definitions will override ones defined in earlier loaded files. This can be leveraged
- * to deliberately override certain bean definitions via an extra {@code @Configuration}
- * class.
  *
  * @author Chris Beams
  * @author Juergen Hoeller

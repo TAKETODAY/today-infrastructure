@@ -125,11 +125,11 @@ public class WebApplicationContextUtils {
    * Find a unique {@code WebServletApplicationContext} for this web app: either the
    * root web app context (preferred) or a unique {@code WebServletApplicationContext}
    * among the registered {@code MockContext} attributes (typically coming
-   * from a single {@code DispatcherServlet} in the current web application).
-   * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
+   * from a single {@code DispatcherHandler} in the current web application).
+   * <p>Note that {@code DispatcherHandler}'s exposure of its context can be
    * controlled through its {@code publishContext} property, which is {@code true}
    * by default but can be selectively switched to only publish a single context
-   * despite multiple {@code DispatcherServlet} registrations in the web app.
+   * despite multiple {@code DispatcherHandler} registrations in the web app.
    *
    * @param sc the MockContext to find the web application context for
    * @return the desired WebServletApplicationContext for this web app, or {@code null} if none
@@ -147,7 +147,7 @@ public class WebApplicationContextUtils {
         if (attrValue instanceof WebApplicationContext) {
           if (wac != null) {
             throw new IllegalStateException("No unique WebServletApplicationContext found: more than one " +
-                    "DispatcherServlet registered with publishContext=true?");
+                    "DispatcherHandler registered with publishContext=true?");
           }
           wac = (WebApplicationContext) attrValue;
         }

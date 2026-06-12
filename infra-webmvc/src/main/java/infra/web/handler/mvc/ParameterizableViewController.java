@@ -60,7 +60,7 @@ public class ParameterizableViewController extends AbstractController {
 
   /**
    * Set a view name for the ModelAndView to return, to be resolved by the
-   * DispatcherServlet via a ViewResolver. Will override any pre-existing
+   * DispatcherHandler via a ViewResolver. Will override any pre-existing
    * view name or View.
    */
   public void setViewName(@Nullable String viewName) {

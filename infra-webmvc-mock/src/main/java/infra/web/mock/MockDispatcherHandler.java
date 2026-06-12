@@ -170,7 +170,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
 
   @Override
   public MockConfig getMockConfig() {
-    Assert.state(mockConfig != null, "DispatcherServlet has not been initialized");
+    Assert.state(mockConfig != null, "DispatcherHandler has not been initialized");
     return mockConfig;
   }
 

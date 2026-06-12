@@ -25,9 +25,7 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.ResourceEntityResolver;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.support.GenericXmlApplicationContext;
-import infra.util.PathMatcher;
 import infra.web.mock.ContextLoader;
-import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.WebApplicationContext;
 
 /**
@@ -40,23 +38,7 @@ import infra.web.mock.WebApplicationContext;
  *
  * <p>By default, the configuration will be taken from "/WEB-INF/applicationContext.xml"
  * for the root context, and "/WEB-INF/test-servlet.xml" for a context with the namespace
- * "test-servlet" (like for a DispatcherServlet instance with the servlet-name "test").
- *
- * <p>The config location defaults can be overridden via the "contextConfigLocation"
- * context-param of {@link ContextLoader} and servlet
- * init-param of {@link MockDispatcherHandler}. Config locations
- * can either denote concrete files like "/WEB-INF/context.xml" or Ant-style patterns
- * like "/WEB-INF/*-context.xml" (see {@link PathMatcher}
- * javadoc for pattern details).
- *
- * <p>Note: In case of multiple config locations, later bean definitions will
- * override ones defined in earlier loaded files. This can be leveraged to
- * deliberately override certain bean definitions via an extra XML file.
- *
- * <p><b>For a WebApplicationContext that reads in a different bean definition format,
- * create an analogous subclass of {@link AbstractRefreshableWebApplicationContext}.</b>
- * Such a context implementation can be specified as "contextClass" context-param
- * for ContextLoader or "contextClass" init-param for FrameworkServlet.
+ * "test-servlet" (like for a DispatcherHandler instance with the servlet-name "test").
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -138,11 +120,6 @@ public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationC
     }
   }
 
-  /**
-   * The default location for the root context is "/WEB-INF/applicationContext.xml",
-   * and "/WEB-INF/test-servlet.xml" for a context with the namespace "test-servlet"
-   * (like for a DispatcherServlet instance with the servlet-name "test").
-   */
   @Override
   protected String[] getDefaultConfigLocations() {
     if (getNamespace() != null) {

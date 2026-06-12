@@ -188,7 +188,7 @@ public interface MockMvcWebTestClient {
     <T extends B> T alwaysExpect(ResultMatcher resultMatcher);
 
     /**
-     * Allow customization of {@code DispatcherServlet}.
+     * Allow customization of {@code DispatcherHandler}.
      * <p>This is delegated to
      * {@link ConfigurableMockMvcBuilder#addDispatcherCustomizer(DispatcherCustomizer)}.
      */

@@ -62,7 +62,7 @@ public final class MockMvcBuilders {
    * controllers and their dependencies, similar to plain unit tests while
    * also making it possible to test one controller at a time.
    * <p>When this builder is used, the minimum infrastructure required by the
-   * {@link MockDispatcherHandler DispatcherServlet}
+   * {@link MockDispatcherHandler DispatcherHandler}
    * to serve requests with annotated controllers is created automatically
    * and can be customized, resulting in configuration that is equivalent to
    * what MVC Java configuration provides except using builder-style methods.

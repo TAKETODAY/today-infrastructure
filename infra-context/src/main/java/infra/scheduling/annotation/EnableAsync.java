@@ -154,7 +154,7 @@ import infra.core.task.TaskExecutor;
  * <p><b>Note: {@code @EnableAsync} applies to its local application context only,
  * allowing for selective activation at different levels.</b> Please redeclare
  * {@code @EnableAsync} in each individual context, for example, the common root web
- * application context and any separate {@code DispatcherServlet} application contexts,
+ * application context and any separate {@code DispatcherHandler} application contexts,
  * if you need to apply its behavior at multiple levels.
  *
  * @author Chris Beams

@@ -38,7 +38,7 @@ import infra.web.mock.support.GenericWebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Base class for tests using on the DispatcherServlet and HandlerMethod infrastructure classes:
+ * Base class for tests using on the DispatcherHandler and HandlerMethod infrastructure classes:
  * <ul>
  * <li>RequestMappingHandlerMapping
  * <li>RequestMappingHandlerAdapter
@@ -72,7 +72,7 @@ public abstract class AbstractMockHandlerMethodTests {
   }
 
   /**
-   * Initialize a DispatcherServlet instance registering zero or more controller classes.
+   * Initialize a DispatcherHandler instance registering zero or more controller classes.
    */
   protected WebApplicationContext initDispatcher(@Nullable Class<?> controllerClass) {
     return initDispatcher(controllerClass, null);

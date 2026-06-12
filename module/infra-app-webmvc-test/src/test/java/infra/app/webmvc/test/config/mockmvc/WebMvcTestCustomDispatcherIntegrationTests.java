@@ -42,7 +42,7 @@ class WebMvcTestCustomDispatcherIntegrationTests {
   private MockMvcTester mvc;
 
   @Test
-  void dispatcherServletIsCustomized() {
+  void dispatcherHandlerIsCustomized() {
     assertThat(this.mvc.get().uri("/does-not-exist")).hasStatus(HttpStatus.BAD_REQUEST)
             .hasBodyTextEqualTo("Invalid request: /does-not-exist");
   }

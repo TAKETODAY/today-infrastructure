@@ -51,7 +51,7 @@ import infra.web.mock.WebApplicationContext;
  *
  * <p>Subclasses can use different strategies to prepare the Infra
  * {@code WebApplicationContext} that will be passed to the
- * {@code DispatcherServlet}.
+ * {@code DispatcherHandler}.
  *
  * @param <B> a self reference to the builder type
  * @author Rossen Stoyanchev

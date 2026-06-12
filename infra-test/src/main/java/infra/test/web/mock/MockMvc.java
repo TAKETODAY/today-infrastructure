@@ -153,7 +153,7 @@ public final class MockMvc {
    * request handling component happens to delegate to the {@code Dispatcher}
    * at runtime and therefore needs to be injected with it.
    * <p>For most processing scenarios, simply use {@link MockMvc#perform},
-   * or if you need to configure the {@code DispatcherServlet}, provide a
+   * or if you need to configure the {@code DispatcherHandler}, provide a
    * {@link DispatcherCustomizer} to the {@code MockMvcBuilder}.
    */
   public MockDispatcherHandler getDispatcher() {

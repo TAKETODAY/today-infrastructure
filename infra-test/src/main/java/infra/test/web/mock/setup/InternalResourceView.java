@@ -50,7 +50,7 @@ import infra.web.view.AbstractUrlBasedView;
  * (which will commit the response) before rendering the view.
  *
  * <p>Typical usage with {@link InternalResourceViewResolver} looks as follows,
- * from the perspective of the DispatcherServlet context definition:
+ * from the perspective of the DispatcherHandler context definition:
  *
  * <pre class="code">&lt;bean id="viewResolver" class="infra.web.mock.view.InternalResourceViewResolver"&gt;
  *   &lt;property name="prefix" value="/WEB-INF/jsp/"/&gt;

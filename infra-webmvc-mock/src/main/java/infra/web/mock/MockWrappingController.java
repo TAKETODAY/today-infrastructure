@@ -45,11 +45,11 @@ import infra.web.view.ModelAndView;
  * for example to apply Framework HandlerInterceptors to its requests.
  *
  * <p>Note that Struts has a special requirement in that it parses {@code web.xml}
- * to find its servlet mapping. Therefore, you need to specify the DispatcherServlet's
+ * to find its servlet mapping. Therefore, you need to specify the DispatcherHandler's
  * servlet name as "servletName" on this controller, so that Struts finds the
- * DispatcherServlet's mapping (thinking that it refers to the ActionServlet).
+ * DispatcherHandler's mapping (thinking that it refers to the ActionServlet).
  *
- * <p><b>Example:</b> a DispatcherServlet XML context, forwarding "*.do" to the Struts
+ * <p><b>Example:</b> a DispatcherHandler XML context, forwarding "*.do" to the Struts
  * ActionServlet wrapped by a ServletWrappingController. All such requests will go
  * through the configured HandlerInterceptor chain (e.g. an OpenSessionInViewInterceptor).
  * From the Struts point of view, everything will work as usual.
