@@ -659,12 +659,11 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     final MockContextImpl mockContext = new MockContextImpl();
     final MockMockConfig servletConfig = new MockMockConfig(mockContext);
 
-    WebApplicationContext webAppContext =
-            initDispatcher(MyParameterDispatchingController.class, wac -> {
-              wac.setMockContext(mockContext);
-              AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
-              wac.getBeanFactory().registerResolvableDependency(MockConfig.class, servletConfig);
-            });
+    WebApplicationContext webAppContext = initDispatcher(MyParameterDispatchingController.class, wac -> {
+      wac.setMockContext(mockContext);
+      AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
+      wac.getBeanFactory().registerResolvableDependency(MockConfig.class, servletConfig);
+    });
 
     HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();

@@ -667,17 +667,16 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   @Override
   protected SessionManager sessionManager() {
-    if (dispatcherHandler != null) {
-      return super.sessionManager();
-    }
-
-    ApplicationContext applicationContext = getApplicationContext();
-    if (applicationContext != null) {
-      try {
+    try {
+      if (dispatcherHandler != null) {
+        return super.sessionManager();
+      }
+      ApplicationContext applicationContext = getApplicationContext();
+      if (applicationContext != null) {
         return new SessionManagerDiscover(applicationContext).obtain(this);
       }
-      catch (IllegalStateException ignored) {
-      }
+    }
+    catch (IllegalStateException ignored) {
     }
     return new MockSessionManager();
   }
