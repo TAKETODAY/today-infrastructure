@@ -26,8 +26,6 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Set;
 
-import infra.mock.api.annotation.WebListener;
-
 /**
  * Defines a set of methods that a servlet uses to communicate with its servlet container, for example, to get the MIME
  * type of a file, dispatch requests, or write to a log file.
@@ -342,17 +340,6 @@ public interface MockContext {
   /**
    * Sets the context initialization parameter with the given name and value on this MockContext.
    *
-   * @param name the name of the context initialization parameter to set
-   * @param value the value of the context initialization parameter to set
-   * @return true if the context initialization parameter with the given name and value was set successfully on this
-   * MockContext, and false if it was not set because this MockContext already contains a context initialization
-   * parameter with a matching name
-   * @throws IllegalStateException if this MockContext has already been initialized
-   * @throws NullPointerException if the name parameter is {@code null}
-   * @throws UnsupportedOperationException if this MockContext was passed to the
-   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
-   * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
-   * {@link WebListener}
    */
   boolean setInitParameter(String name, String value);
 
@@ -434,13 +421,6 @@ public interface MockContext {
    *
    * <p>
    * Repeated invocations of this method will return the same <tt>SessionCookieConfig</tt> instance.
-   *
-   * @return the <tt>SessionCookieConfig</tt> object through which various properties of the session tracking cookies
-   * created on behalf of this <tt>MockContext</tt> may be configured
-   * @throws UnsupportedOperationException if this MockContext was passed to the
-   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
-   * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
-   * {@link WebListener}
    */
   SessionCookieConfig getSessionCookieConfig();
 
@@ -454,9 +434,6 @@ public interface MockContext {
    * @param sessionTrackingModes the set of session tracking modes to become effective for this <tt>MockContext</tt>
    * @throws IllegalStateException if this MockContext has already been initialized
    * @throws UnsupportedOperationException if this MockContext was passed to the
-   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
-   * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
-   * {@link WebListener}
    * @throws IllegalArgumentException if <tt>sessionTrackingModes</tt> specifies a combination of
    * <tt>SessionTrackingMode.SSL</tt> with a session tracking mode other than <tt>SessionTrackingMode.SSL</tt>, or if
    * <tt>sessionTrackingModes</tt> specifies a session tracking mode that is not supported by the servlet container
@@ -514,12 +491,6 @@ public interface MockContext {
   /**
    * Sets the session timeout in minutes for this MockContext.
    *
-   * @param sessionTimeout session timeout in minutes
-   * @throws IllegalStateException if this MockContext has already been initialized
-   * @throws UnsupportedOperationException if this MockContext was passed to the
-   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
-   * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
-   * {@link WebListener}
    */
   void setSessionTimeout(int sessionTimeout);
 
@@ -534,13 +505,6 @@ public interface MockContext {
 
   /**
    * Sets the request character encoding for this MockContext.
-   *
-   * @param encoding request character encoding
-   * @throws IllegalStateException if this MockContext has already been initialized
-   * @throws UnsupportedOperationException if this MockContext was passed to the
-   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
-   * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
-   * {@link WebListener}
    */
   void setRequestCharacterEncoding(String encoding);
 
@@ -555,13 +519,6 @@ public interface MockContext {
 
   /**
    * Sets the response character encoding for this MockContext.
-   *
-   * @param encoding response character encoding
-   * @throws IllegalStateException if this MockContext has already been initialized
-   * @throws UnsupportedOperationException if this MockContext was passed to the
-   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
-   * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
-   * {@link WebListener}
    */
   void setResponseCharacterEncoding(String encoding);
 }
