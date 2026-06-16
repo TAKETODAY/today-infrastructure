@@ -68,6 +68,8 @@ dependencies {
   optional("javax.inject:javax.inject")
   optional("io.projectreactor.netty:reactor-netty-http")
 
+  optional 'org.apache.commons:commons-fileupload2-core'
+
   testFixturesImplementation(testFixtures(project(":infra-web")))
   testFixturesImplementation(testFixtures(project(":infra-http-reactive")))
 

@@ -162,6 +162,8 @@ dependencies {
   testImplementation("tools.jackson.dataformat:jackson-dataformat-xml")
   testImplementation("tools.jackson.dataformat:jackson-dataformat-yaml")
 
+  testImplementation 'org.apache.commons:commons-fileupload2-core'
+
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")
   testRuntimeOnly("org.webjars:momentjs")

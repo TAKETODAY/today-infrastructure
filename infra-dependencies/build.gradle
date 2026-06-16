@@ -755,6 +755,7 @@ dependencies {
     api("org.apache.activemq:activemq-stomp:5.17.7")
     api("org.apache.activemq:artemis-jakarta-client:2.42.0")
     api("org.apache.activemq:artemis-junit-5:2.42.0")
+    api 'org.apache.commons:commons-fileupload2-core:2.0.0-M5'
   }
 }
 

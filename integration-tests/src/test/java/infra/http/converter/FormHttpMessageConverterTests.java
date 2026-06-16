@@ -18,7 +18,14 @@
 
 package infra.http.converter;
 
-import org.assertj.core.api.Assertions;
+import org.apache.commons.fileupload2.core.AbstractFileUpload;
+import org.apache.commons.fileupload2.core.AbstractRequestContext;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileItemFactory;
+import org.apache.commons.fileupload2.core.FileItemInputIterator;
+import org.apache.commons.fileupload2.core.FileUploadException;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -42,11 +49,7 @@ import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
 import infra.http.StreamingHttpOutputMessage;
 import infra.http.converter.xml.SourceHttpMessageConverter;
-import infra.mock.api.fileupload.FileItem;
-import infra.mock.api.fileupload.FileUpload;
-import infra.mock.api.fileupload.RequestContext;
-import infra.mock.api.fileupload.UploadContext;
-import infra.mock.api.fileupload.disk.DiskFileItemFactory;
+import infra.util.DataSize;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 
@@ -146,11 +149,11 @@ class FormHttpMessageConverterTests {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     this.converter.write(body, APPLICATION_FORM_URLENCODED, outputMessage);
 
-    Assertions.assertThat(outputMessage.getBodyAsString(UTF_8))
+    assertThat(outputMessage.getBodyAsString(UTF_8))
             .as("Invalid result").isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3");
-    Assertions.assertThat(outputMessage.getHeaders().getContentType())
+    assertThat(outputMessage.getHeaders().getContentType())
             .as("Invalid content-type").isEqualTo(APPLICATION_FORM_URLENCODED);
-    Assertions.assertThat(outputMessage.getHeaders().getContentLength())
+    assertThat(outputMessage.getHeaders().getContentLength())
             .as("Invalid content-length").isEqualTo(outputMessage.getBodyAsBytes().length);
   }
 
@@ -191,12 +194,14 @@ class FormHttpMessageConverterTests {
     final MediaType contentType = outputMessage.getHeaders().getContentType();
     assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo"); // gh-21568, gh-25839
 
-    // see if Commons FileUpload can read what we wrote
-    FileUpload fileUpload = new FileUpload();
-    fileUpload.setFileItemFactory(new DiskFileItemFactory());
-    RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
-    List<FileItem> items = fileUpload.parseRequest(requestContext);
-    Assertions.assertThat(items).hasSize(6);
+    MockFileUpload<DiskFileItem, DiskFileItemFactory> fileUpload = new MockFileUpload<>(DiskFileItemFactory.builder()
+            .setCharset(StandardCharsets.UTF_8)
+            .setThreshold(DataSize.ofMegabytes(10).toBytesInt())
+            .get());
+
+    List<DiskFileItem> items = fileUpload.parseRequest(new MockContext(outputMessage));
+
+    assertThat(items).hasSize(6);
     FileItem item = items.get(0);
     assertThat(item.isFormField()).isTrue();
     assertThat(item.getFieldName()).isEqualTo("name 1");
@@ -271,14 +276,16 @@ class FormHttpMessageConverterTests {
             new MediaType("multipart", "form-data", parameters), outputMessage);
 
     final MediaType contentType = outputMessage.getHeaders().getContentType();
-    assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo"); // gh-21568, gh-25839
+    assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo");
 
-    // see if Commons FileUpload can read what we wrote
-    FileUpload fileUpload = new FileUpload();
-    fileUpload.setFileItemFactory(new DiskFileItemFactory());
-    RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
-    List<FileItem> items = fileUpload.parseRequest(requestContext);
-    Assertions.assertThat(items).hasSize(6);
+    MockFileUpload<DiskFileItem, DiskFileItemFactory> fileUpload = new MockFileUpload<>(DiskFileItemFactory.builder()
+            .setCharset(StandardCharsets.UTF_8)
+            .setThreshold(DataSize.ofMegabytes(10).toBytesInt())
+            .get());
+
+    List<DiskFileItem> items = fileUpload.parseRequest(new MockContext(outputMessage));
+
+    assertThat(items).hasSize(6);
     FileItem item = items.get(0);
     assertThat(item.isFormField()).isTrue();
     assertThat(item.getFieldName()).isEqualTo("name 1");
@@ -333,12 +340,14 @@ class FormHttpMessageConverterTests {
     final MediaType contentType = outputMessage.getHeaders().getContentType();
     assertThat(contentType.getParameter("boundary")).as("No boundary found").isNotNull();
 
-    // see if Commons FileUpload can read what we wrote
-    FileUpload fileUpload = new FileUpload();
-    fileUpload.setFileItemFactory(new DiskFileItemFactory());
-    RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
-    List<FileItem> items = fileUpload.parseRequest(requestContext);
-    Assertions.assertThat(items).hasSize(2);
+    MockFileUpload<DiskFileItem, DiskFileItemFactory> fileUpload = new MockFileUpload<>(DiskFileItemFactory.builder()
+            .setCharset(StandardCharsets.UTF_8)
+            .setThreshold(DataSize.ofMegabytes(10).toBytesInt())
+            .get());
+
+    List<DiskFileItem> items = fileUpload.parseRequest(new MockContext(outputMessage));
+
+    assertThat(items).hasSize(2);
 
     FileItem item = items.get(0);
     assertThat(item.isFormField()).isTrue();
@@ -465,40 +474,6 @@ class FormHttpMessageConverterTests {
     }
   }
 
-  private static class MockHttpOutputMessageRequestContext implements UploadContext {
-
-    private final MockHttpOutputMessage outputMessage;
-
-    private final byte[] body;
-
-    private MockHttpOutputMessageRequestContext(MockHttpOutputMessage outputMessage) {
-      this.outputMessage = outputMessage;
-      this.body = this.outputMessage.getBodyAsBytes();
-    }
-
-    @Override
-    public String getCharacterEncoding() {
-      MediaType type = this.outputMessage.getHeaders().getContentType();
-      return (type != null && type.getCharset() != null ? type.getCharset().name() : null);
-    }
-
-    @Override
-    public String getContentType() {
-      MediaType type = this.outputMessage.getHeaders().getContentType();
-      return (type != null ? type.toString() : null);
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-      return new ByteArrayInputStream(body);
-    }
-
-    @Override
-    public long contentLength() {
-      return body.length;
-    }
-  }
-
   public static class MyBean {
 
     private String string;
@@ -510,6 +485,81 @@ class FormHttpMessageConverterTests {
     public void setString(String string) {
       this.string = string;
     }
+  }
+
+  static class MockFileUpload<I extends FileItem<I>, F extends FileItemFactory<I>> extends AbstractFileUpload<MockHttpOutputMessage, I, F> {
+
+    public MockFileUpload(F factory) {
+      setFileItemFactory(factory);
+    }
+
+    @Override
+    public FileItemInputIterator getItemIterator(final MockHttpOutputMessage request) throws FileUploadException, IOException {
+      return super.getItemIterator(new MockContext(request));
+    }
+
+    @Override
+    public Map<String, List<I>> parseParameterMap(final MockHttpOutputMessage request) throws FileUploadException {
+      return parseParameterMap(new MockContext(request));
+    }
+
+    /**
+     * Parses an <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> compliant {@code multipart/form-data} stream.
+     *
+     * @param request The servlet request to be parsed.
+     * @return A list of {@code FileItem} instances parsed from the request, in the order that they were transmitted.
+     * @throws FileUploadException if there are problems reading/parsing the request or storing files.
+     */
+    @Override
+    public List<I> parseRequest(final MockHttpOutputMessage request) throws FileUploadException {
+      return parseRequest(new MockContext(request));
+    }
+
+  }
+
+  public static class MockContext extends AbstractRequestContext<MockHttpOutputMessage> {
+
+    /**
+     * Constructs a context for this request.
+     *
+     * @param request The request to which this context applies.
+     */
+    public MockContext(final MockHttpOutputMessage request) {
+      super(request::getHeader, request::getContentLength, request);
+    }
+
+    /**
+     * Gets the character encoding for the request.
+     *
+     * @return The character encoding for the request.
+     */
+    @Override
+    public String getCharacterEncoding() {
+      return "UTF-8";
+    }
+
+    /**
+     * Gets the content type of the request.
+     *
+     * @return The content type of the request.
+     */
+    @Override
+    public String getContentType() {
+      return getRequest().getContentTypeAsString();
+    }
+
+    /**
+     * Gets the input stream for the request.
+     *
+     * @return The input stream for the request.
+     * @throws IOException if a problem occurs.
+     */
+    @Override
+    public InputStream getInputStream() throws IOException {
+      byte[] bodyAsBytes = getRequest().getBodyAsBytes();
+      return new ByteArrayInputStream(bodyAsBytes);
+    }
+
   }
 
 }
