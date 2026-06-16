@@ -427,7 +427,7 @@ public class ContentRequestMatchers {
     protected abstract void matchInternal(MockClientHttpRequest request) throws Exception;
   }
 
-  private static class MultipartHelper {
+  private static final class MultipartHelper {
 
     public static MultiValueMap<String, ?> parse(MockClientHttpRequest request, Charset defaultCharset) {
       try {
@@ -458,7 +458,7 @@ public class ContentRequestMatchers {
     }
   }
 
-  static class MockFileUpload<I extends FileItem<I>, F extends FileItemFactory<I>> extends AbstractFileUpload<MockClientHttpRequest, I, F> {
+  private static final class MockFileUpload<I extends FileItem<I>, F extends FileItemFactory<I>> extends AbstractFileUpload<MockClientHttpRequest, I, F> {
 
     /**
      * Constructs an uninitialized instance of this class. A factory must be configured, using {@code setFileItemFactory()}, before attempting to parse
@@ -519,7 +519,7 @@ public class ContentRequestMatchers {
 
   }
 
-  static class MockContext extends AbstractRequestContext<MockClientHttpRequest> {
+  private static final class MockContext extends AbstractRequestContext<MockClientHttpRequest> {
 
     /**
      * Constructs a context for this request.
