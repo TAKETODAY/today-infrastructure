@@ -27,7 +27,6 @@ import java.util.Set;
 
 import infra.core.io.FileSystemResourceLoader;
 import infra.http.MediaType;
-import infra.mock.api.RequestDispatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -105,51 +104,6 @@ class MockContextTests {
       assertThat(mockContext.getMinorVersion()).isEqualTo(0);
       assertThat(mockContext.getEffectiveMajorVersion()).isEqualTo(4);
       assertThat(mockContext.getEffectiveMinorVersion()).isEqualTo(0);
-    }
-
-    @Test
-    void registerAndUnregisterNamedDispatcher() throws Exception {
-      final String name = "test-servlet";
-      final String url = "/test";
-      assertThat(mockContext.getNamedDispatcher(name)).isNull();
-
-      mockContext.registerNamedDispatcher(name, new MockRequestDispatcher(url));
-      RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(name);
-      assertThat(namedDispatcher).isNotNull();
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
-      namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
-      assertThat(response.getForwardedUrl()).isEqualTo(url);
-
-      mockContext.unregisterNamedDispatcher(name);
-      assertThat(mockContext.getNamedDispatcher(name)).isNull();
-    }
-
-    @Test
-    void getNamedDispatcherForDefault() throws Exception {
-      final String name = "default";
-      RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(name);
-      assertThat(namedDispatcher).isNotNull();
-
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
-      namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
-      assertThat(response.getForwardedUrl()).isEqualTo(name);
-    }
-
-    @Test
-    void setDefaultMockName() throws Exception {
-      final String originalDefault = "default";
-      final String newDefault = "test";
-      assertThat(mockContext.getNamedDispatcher(originalDefault)).isNotNull();
-
-      mockContext.setDefaultMockName(newDefault);
-      assertThat(mockContext.getDefaultMockName()).isEqualTo(newDefault);
-      assertThat(mockContext.getNamedDispatcher(originalDefault)).isNull();
-
-      RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(newDefault);
-      assertThat(namedDispatcher).isNotNull();
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
-      namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
-      assertThat(response.getForwardedUrl()).isEqualTo(newDefault);
     }
 
   }

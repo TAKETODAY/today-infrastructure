@@ -16,20 +16,14 @@
 
 package infra.web.handler.mvc;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.beans.factory.BeanNameAware;
 import infra.lang.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
-import infra.mock.api.MockResponse;
-import infra.mock.api.RequestDispatcher;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpMockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockContextAware;
-import infra.web.mock.MockUtils;
 import infra.web.mock.MockWrappingController;
-import infra.web.view.ModelAndView;
 
 /**
  * Controller implementation that forwards to a named servlet,
@@ -58,11 +52,9 @@ import infra.web.view.ModelAndView;
  */
 public class MockForwardingController extends AbstractController implements BeanNameAware, MockContextAware {
 
-  @Nullable
-  private String mockName;
+  private @Nullable String mockName;
 
-  @Nullable
-  private String beanName;
+  private @Nullable String beanName;
 
   private MockContext mockContext;
 
@@ -96,52 +88,17 @@ public class MockForwardingController extends AbstractController implements Bean
     }
   }
 
-  @Nullable
   @Override
-  protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
+  protected @Nullable Object handleRequestInternal(RequestContext request) throws Exception {
     MockContext mockContext = getMockContext();
     Assert.state(mockContext != null, "No MockContext");
-    RequestDispatcher rd = mockContext.getNamedDispatcher(mockName);
-    if (rd == null) {
-      throw new MockException("No servlet with name '%s' defined in web.xml".formatted(mockName));
+
+    request.forward(mockName);
+    if (logger.isTraceEnabled()) {
+      logger.trace("Forwarded to servlet [{}] in MockForwardingController '{}'", mockName, beanName);
     }
 
-    HttpMockRequest servletRequest = MockUtils.getMockRequest(request);
-    HttpMockResponse servletResponse = MockUtils.getMockResponse(request);
-
-    // If already included, include again, else forward.
-    if (useInclude(servletRequest, servletResponse)) {
-      rd.include(servletRequest, servletResponse);
-      if (logger.isTraceEnabled()) {
-        logger.trace("Included servlet [{}] in MockForwardingController '{}'", mockName, beanName);
-      }
-    }
-    else {
-      rd.forward(servletRequest, servletResponse);
-      if (logger.isTraceEnabled()) {
-        logger.trace("Forwarded to servlet [{}] in MockForwardingController '{}'", mockName, beanName);
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Determine whether to use RequestDispatcher's {@code include} or {@code forward} method.
-   * <p>Performs a check whether an include URI attribute is found in the request,
-   * indicating an include request, and whether the response has already been committed.
-   * In both cases, an include will be performed, as a forward is not possible anymore.
-   *
-   * @param request current HTTP request
-   * @param response current HTTP response
-   * @return {@code true} for include, {@code false} for forward
-   * @see RequestDispatcher#forward
-   * @see RequestDispatcher#include
-   * @see MockResponse#isCommitted
-   * @see MockUtils#isIncludeRequest
-   */
-  protected boolean useInclude(HttpMockRequest request, HttpMockResponse response) {
-    return MockUtils.isIncludeRequest(request) || response.isCommitted();
+    return NONE_RETURN_VALUE;
   }
 
 }

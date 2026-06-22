@@ -18,8 +18,6 @@
 
 package infra.test.web.mock.setup;
 
-import org.jspecify.annotations.Nullable;
-
 import infra.web.view.AbstractUrlBasedView;
 import infra.web.view.UrlBasedViewResolver;
 
@@ -49,9 +47,6 @@ import infra.web.view.UrlBasedViewResolver;
  */
 public class InternalResourceViewResolver extends UrlBasedViewResolver {
 
-  @Nullable
-  private Boolean alwaysInclude;
-
   /**
    * Sets the default {@link #setViewClass view class} to {@link #requiredViewClass}:
    * by default {@link InternalResourceView},
@@ -73,17 +68,6 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
     setSuffix(suffix);
   }
 
-  /**
-   * Specify whether to always include the view rather than forward to it.
-   * <p>Default is "false". Switch this flag on to enforce the use of a
-   * Servlet include, even if a forward would be possible.
-   *
-   * @see InternalResourceView#setAlwaysInclude
-   */
-  public void setAlwaysInclude(boolean alwaysInclude) {
-    this.alwaysInclude = alwaysInclude;
-  }
-
   @Override
   protected Class<?> requiredViewClass() {
     return InternalResourceView.class;
@@ -100,9 +84,6 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
   @Override
   protected AbstractUrlBasedView buildView(String viewName) throws Exception {
     InternalResourceView view = (InternalResourceView) super.buildView(viewName);
-    if (this.alwaysInclude != null) {
-      view.setAlwaysInclude(this.alwaysInclude);
-    }
     view.setPreventDispatchLoop(true);
     return view;
   }

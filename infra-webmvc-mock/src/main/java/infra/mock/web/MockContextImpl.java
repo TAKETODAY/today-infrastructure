@@ -125,8 +125,6 @@ public class MockContextImpl implements MockContext {
   /**
    * Create a new {@code MockContext} using the supplied resource base
    * path and resource loader.
-   * <p>Registers a {@link MockRequestDispatcher} for the Mock named
-   * {@literal 'default'}.
    *
    * @param resourceBasePath the root directory of the WAR (should not end with a slash)
    * @param resourceLoader the ResourceLoader to use (or null for the default)

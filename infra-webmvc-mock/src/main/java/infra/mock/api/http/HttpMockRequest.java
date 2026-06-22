@@ -28,7 +28,6 @@ import java.util.Map;
 
 import infra.mock.api.MockException;
 import infra.mock.api.MockRequest;
-import infra.mock.api.RequestDispatcher;
 import infra.session.Session;
 import infra.web.multipart.Part;
 
@@ -285,11 +284,6 @@ public interface HttpMockRequest extends MockRequest {
   /**
    * Reconstructs the URL the client used to make the request. The returned URL contains a protocol, server name, port
    * number, and server path, but it does not include query string parameters.
-   *
-   * <p>
-   * If this request has been forwarded using {@link RequestDispatcher#forward}, the server path in the
-   * reconstructed URL must reflect the path used to obtain the RequestDispatcher, and not the server path specified by
-   * the client.
    *
    * <p>
    * Because this method returns a <code>StringBuffer</code>, not a string, you can modify the URL easily, for example, to

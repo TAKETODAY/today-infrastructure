@@ -48,7 +48,7 @@ Web MVC 定义了 `ViewResolver` 和 `View` 接口，让您可以在浏览器中
 
 `ViewResolver` 的契约指定它可以返回 null 以指示找不到视图。
 但是，对于 JSP 和 `InternalResourceViewResolver`，判断 JSP 是否存在的唯一方法是通过
-`RequestDispatcher` 执行分派。因此，您必须始终将 `InternalResourceViewResolver` 配置为视图解析器整体顺序中的最后一个。
+`RequestConext.forward` 执行分派。因此，您必须始终将 `InternalResourceViewResolver` 配置为视图解析器整体顺序中的最后一个。
 
 配置视图解析就像将 `ViewResolver` bean 添加到 Infra 配置一样简单。
 xref:web/webmvc/mvc-config.adoc[MVC 配置] 为 xref:web/webmvc/mvc-config/view-resolvers.adoc[视图解析器]

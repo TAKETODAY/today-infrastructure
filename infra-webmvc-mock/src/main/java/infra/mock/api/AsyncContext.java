@@ -148,11 +148,6 @@ public interface AsyncContext {
    * container-initiated dispatch has returned to the container.
    *
    * <p>
-   * The dispatcher type of the request is set to <tt>DispatcherType.ASYNC</tt>. Unlike
-   * {@link RequestDispatcher#forward(MockRequest, MockResponse) forward dispatches}, the response buffer and
-   * headers will not be reset, and it is legal to dispatch even if the response has already been committed.
-   *
-   * <p>
    * Control over the request and response is delegated to the dispatch target, and the response will be closed when the
    * dispatch target has completed execution, unless {@link MockRequest#startAsync()} or
    * {@link MockRequest#startAsync(MockRequest, MockResponse)} are called.

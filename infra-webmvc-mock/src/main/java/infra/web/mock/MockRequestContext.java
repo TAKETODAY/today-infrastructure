@@ -83,6 +83,8 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
+  private @Nullable String forwardedUrl;
+
   /**
    * Cached body-encoded parameters (e.g. {@code application/x-www-form-urlencoded}).
    * Set by {@link #readParameters()} implementations so that after a
@@ -693,6 +695,24 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   @SuppressWarnings("unchecked")
   public @Nullable MultiValueMap<String, String> getFormUrlencoded() {
     return (MultiValueMap<String, String>) getAttribute(FORM_URLENCODED_ATTRIBUTE);
+  }
+
+  public void setForwardedUrl(@Nullable String forwardedUrl) {
+    if (response instanceof MockHttpResponseImpl impl) {
+      impl.setForwardedUrl(forwardedUrl);
+    }
+    this.forwardedUrl = forwardedUrl;
+  }
+
+  @Nullable
+  public String getForwardedUrl() {
+    return this.forwardedUrl;
+  }
+
+  @Override
+  public void forward(String path) throws Exception {
+//    super.forward(path);
+    setForwardedUrl(path);
   }
 
   class MockSessionManager implements SessionManager {

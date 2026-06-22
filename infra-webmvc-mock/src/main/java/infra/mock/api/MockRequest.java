@@ -48,13 +48,6 @@ public interface MockRequest {
    * name exists.
    *
    * <p>
-   * Attributes can be set two ways. The servlet container may set attributes to make available custom information about a
-   * request. For example, for requests made using HTTPS, the attribute
-   * <code>infra.mock.api.request.X509Certificate</code> can be used to retrieve information on the certificate of the
-   * client. Attributes can also be set programmatically using {@link MockRequest#setAttribute}. This allows
-   * information to be embedded into a request before a {@link RequestDispatcher} call.
-   *
-   * <p>
    * Attribute names should follow the same conventions as package names. This specification reserves names matching
    * <code>java.*</code>, <code>javax.*</code>, and <code>sun.*</code>.
    *
@@ -244,7 +237,6 @@ public interface MockRequest {
 
   /**
    * Stores an attribute in this request. Attributes are reset between requests. This method is most often used in
-   * conjunction with {@link RequestDispatcher}.
    *
    * <p>
    * Attribute names should follow the same conventions as package names. <br>

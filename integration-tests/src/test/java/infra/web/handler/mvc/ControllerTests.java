@@ -18,7 +18,6 @@
 
 package infra.web.handler.mvc;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -29,11 +28,12 @@ import infra.mock.api.MockContext;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.RequestDispatcher;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.web.DispatcherHandler;
+import infra.web.HttpRequestHandler;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockWrappingController;
 import infra.web.mock.support.StaticWebApplicationContext;
@@ -42,7 +42,6 @@ import infra.web.view.ModelAndView;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -69,39 +68,24 @@ class ControllerTests {
   public void mockForwardingController() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
     sfc.setMockName("action");
-    doTestMockForwardingController(sfc, false);
-  }
-
-  @Test
-  public void mockForwardingControllerWithInclude() throws Throwable {
-    MockForwardingController sfc = new MockForwardingController();
-    sfc.setMockName("action");
-    doTestMockForwardingController(sfc, true);
+    doTestMockForwardingController(sfc);
   }
 
   @Test
   public void mockForwardingControllerWithBeanName() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
     sfc.setBeanName("action");
-    doTestMockForwardingController(sfc, false);
+    doTestMockForwardingController(sfc);
   }
 
-  private void doTestMockForwardingController(MockForwardingController sfc, boolean include)
+  private void doTestMockForwardingController(MockForwardingController sfc)
           throws Throwable {
 
     HttpMockRequest request = mock(HttpMockRequest.class);
     HttpMockResponse response = mock(HttpMockResponse.class);
     MockContext context = mock(MockContext.class);
-    RequestDispatcher dispatcher = mock(RequestDispatcher.class);
 
     given(request.getMethod()).willReturn("GET");
-    given(context.getNamedDispatcher("action")).willReturn(dispatcher);
-    if (include) {
-      given(request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI)).willReturn("somePath");
-    }
-    else {
-      given(request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI)).willReturn(null);
-    }
 
     StaticWebApplicationContext sac = new StaticWebApplicationContext();
     sac.setMockContext(context);
@@ -109,16 +93,10 @@ class ControllerTests {
 
     sfc.setMockContext(context);
 
-    MockRequestContext mockRequestContext = new MockRequestContext(sac, request, response);
+    MockRequestContext mockRequestContext = new MockRequestContext(sac, request, response, new DispatcherHandler(sac));
 
-    Assertions.assertThat(sfc.handleRequest(mockRequestContext)).isNull();
-
-    if (include) {
-      verify(dispatcher).include(request, response);
-    }
-    else {
-      verify(dispatcher).forward(request, response);
-    }
+    assertThat(sfc.handleRequest(mockRequestContext)).isSameAs(HttpRequestHandler.NONE_RETURN_VALUE);
+    assertThat(mockRequestContext.getForwardedUrl()).isNotNull();
   }
 
   @Test
