@@ -32,7 +32,6 @@ import infra.mock.api.http.HttpMockResponseWrapper;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see HttpMockRequestImpl#getRequestDispatcher(String)
  * @since 4.0
  */
 public class MockRequestDispatcher implements RequestDispatcher {

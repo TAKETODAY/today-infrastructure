@@ -50,9 +50,6 @@ import java.util.Set;
  */
 public interface MockContext {
 
-  /**
-   *
-   */
   int getMajorVersion();
 
   /**
@@ -207,45 +204,6 @@ public interface MockContext {
    * specified path
    */
   InputStream getResourceAsStream(String path);
-
-  /**
-   * Returns a {@link RequestDispatcher} object that acts as a wrapper for the resource located at the given path. A
-   * <code>RequestDispatcher</code> object can be used to forward a request to the resource or to include the resource in
-   * a response. The resource can be dynamic or static.
-   *
-   * <p>
-   * The pathname must begin with a <tt>/</tt> and is interpreted as relative to the current context root. Use
-   * <code>getContext</code> to obtain a <code>RequestDispatcher</code> for resources in foreign contexts.
-   *
-   * <p>
-   * This method returns <code>null</code> if the <code>MockContext</code> cannot return a
-   * <code>RequestDispatcher</code>.
-   *
-   * @param path a <code>String</code> specifying the pathname to the resource
-   * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the resource at the specified path, or
-   * <code>null</code> if the <code>MockContext</code> cannot return a <code>RequestDispatcher</code>
-   * @see RequestDispatcher
-   */
-  RequestDispatcher getRequestDispatcher(String path);
-
-  /**
-   * Returns a {@link RequestDispatcher} object that acts as a wrapper for the named servlet.
-   *
-   * <p>
-   * Servlets (and JSP pages also) may be given names via server administration or via a web application deployment
-   * descriptor. A servlet instance can determine its name using {@link MockConfig#getMockName}.
-   *
-   * <p>
-   * This method returns <code>null</code> if the <code>MockContext</code> cannot return a
-   * <code>RequestDispatcher</code> for any reason.
-   *
-   * @param name a <code>String</code> specifying the name of a servlet to wrap
-   * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the named servlet, or <code>null</code> if
-   * the <code>MockContext</code> cannot return a <code>RequestDispatcher</code>
-   * @see RequestDispatcher
-   * @see MockConfig#getMockName
-   */
-  RequestDispatcher getNamedDispatcher(String name);
 
   /**
    * Writes the specified message to a servlet log file, usually an event log. The name and type of the servlet log file
@@ -408,66 +366,6 @@ public interface MockContext {
   void removeAttribute(String name);
 
   /**
-   * Returns the name of this web application corresponding to this MockContext as specified in the deployment
-   * descriptor for this web application by the display-name element.
-   *
-   * @return The name of the web application or null if no name has been declared in the deployment descriptor.
-   */
-  String getMockContextName();
-
-  /**
-   * Gets the {@link SessionCookieConfig} object through which various properties of the session tracking cookies created
-   * on behalf of this <tt>MockContext</tt> may be configured.
-   *
-   * <p>
-   * Repeated invocations of this method will return the same <tt>SessionCookieConfig</tt> instance.
-   */
-  SessionCookieConfig getSessionCookieConfig();
-
-  /**
-   * Sets the session tracking modes that are to become effective for this <tt>MockContext</tt>.
-   *
-   * <p>
-   * The given <tt>sessionTrackingModes</tt> replaces any session tracking modes set by a previous invocation of this
-   * method on this <tt>MockContext</tt>.
-   *
-   * @param sessionTrackingModes the set of session tracking modes to become effective for this <tt>MockContext</tt>
-   * @throws IllegalStateException if this MockContext has already been initialized
-   * @throws UnsupportedOperationException if this MockContext was passed to the
-   * @throws IllegalArgumentException if <tt>sessionTrackingModes</tt> specifies a combination of
-   * <tt>SessionTrackingMode.SSL</tt> with a session tracking mode other than <tt>SessionTrackingMode.SSL</tt>, or if
-   * <tt>sessionTrackingModes</tt> specifies a session tracking mode that is not supported by the servlet container
-   */
-  void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes);
-
-  /**
-   * Gets the session tracking modes that are supported by default for this <tt>MockContext</tt>.
-   *
-   * <p>
-   * The returned set is not backed by the {@code MockContext} object, so changes in the returned set are not reflected
-   * in the {@code MockContext} object, and vice-versa.
-   * </p>
-   *
-   * @return set of the session tracking modes supported by default for this <tt>MockContext</tt>
-   */
-  Set<SessionTrackingMode> getDefaultSessionTrackingModes();
-
-  /**
-   * Gets the session tracking modes that are in effect for this <tt>MockContext</tt>.
-   *
-   * <p>
-   * The session tracking modes in effect are those provided to {@link #setSessionTrackingModes setSessionTrackingModes}.
-   *
-   * <p>
-   * The returned set is not backed by the {@code MockContext} object, so changes in the returned set are not reflected
-   * in the {@code MockContext} object, and vice-versa.
-   * </p>
-   *
-   * @return set of the session tracking modes in effect for this <tt>MockContext</tt>
-   */
-  Set<SessionTrackingMode> getEffectiveSessionTrackingModes();
-
-  /**
    * Gets the class loader of the web application represented by this MockContext.
    *
    * <p>
@@ -481,44 +379,4 @@ public interface MockContext {
    */
   ClassLoader getClassLoader();
 
-  /**
-   * Gets the session timeout in minutes that are supported by default for this <tt>MockContext</tt>.
-   *
-   * @return the session timeout in minutes that are supported by default for this <tt>MockContext</tt>
-   */
-  int getSessionTimeout();
-
-  /**
-   * Sets the session timeout in minutes for this MockContext.
-   *
-   */
-  void setSessionTimeout(int sessionTimeout);
-
-  /**
-   * Gets the request character encoding that are supported by default for this <tt>MockContext</tt>. This method
-   * returns null if no request encoding character encoding has been specified in deployment descriptor or container
-   * specific configuration (for all web applications in the container).
-   *
-   * @return the request character encoding that are supported by default for this <tt>MockContext</tt>
-   */
-  String getRequestCharacterEncoding();
-
-  /**
-   * Sets the request character encoding for this MockContext.
-   */
-  void setRequestCharacterEncoding(String encoding);
-
-  /**
-   * Gets the response character encoding that are supported by default for this <tt>MockContext</tt>. This method
-   * returns null if no response encoding character encoding has been specified in deployment descriptor or container
-   * specific configuration (for all web applications in the container).
-   *
-   * @return the request character encoding that are supported by default for this <tt>MockContext</tt>
-   */
-  String getResponseCharacterEncoding();
-
-  /**
-   * Sets the response character encoding for this MockContext.
-   */
-  void setResponseCharacterEncoding(String encoding);
 }

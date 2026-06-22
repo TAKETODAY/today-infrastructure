@@ -36,17 +36,6 @@ import java.util.Locale;
  * <code>MockOutputStream</code> and manage the character sections manually.
  *
  * <p>
- * The charset for the MIME body response can be specified explicitly using any of the following techniques: per
- * request, per web-app (using {@link MockContext#setRequestCharacterEncoding}, deployment descriptor), and per
- * container (for all web applications deployed in that container, using vendor specific configuration). If multiple of
- * the preceding techniques have been employed, the priority is the order listed. For per request, the charset for the
- * response can be specified explicitly using the {@link #setCharacterEncoding} and {@link #setContentType} methods, or
- * implicitly using the {@link #setLocale} method. Explicit specifications take precedence over implicit specifications.
- * If no charset is explicitly specified, ISO-8859-1 will be used. The <code>setCharacterEncoding</code>,
- * <code>setContentType</code>, or <code>setLocale</code> method must be called before <code>getWriter</code> and before
- * committing the response for the character encoding to be used.
- *
- * <p>
  * See the Internet RFCs such as <a href="http://www.ietf.org/rfc/rfc2045.txt"> RFC 2045</a> for more information on
  * MIME. Protocols such as SMTP and HTTP define profiles of MIME, and those standards are still evolving.
  *
@@ -56,18 +45,6 @@ import java.util.Locale;
 public interface MockResponse {
 
   /**
-   * Returns the name of the character encoding (MIME charset) used for the body sent in this response. The following
-   * methods for specifying the response character encoding are consulted, in decreasing order of priority: per request,
-   * perweb-app (using {@link MockContext#setResponseCharacterEncoding}, deployment descriptor), and per container (for
-   * all web applications deployed in that container, using vendor specific configuration). The first one of these methods
-   * that yields a result is returned. Per-request, the charset for the response can be specified explicitly using the
-   * {@link #setCharacterEncoding} and {@link #setContentType} methods, or implicitly using the
-   * setLocale(java.util.Locale) method. Explicit specifications take precedence over implicit specifications. Calls made
-   * to these methods after <code>getWriter</code> has been called or after the response has been committed have no effect
-   * on the character encoding. If no character encoding has been specified, <code>ISO-8859-1</code> is returned.
-   * <p>
-   * See RFC 2047 (http://www.ietf.org/rfc/rfc2047.txt) for more information about character encoding and MIME.
-   *
    * @return a <code>String</code> specifying the name of the character encoding, for example, <code>UTF-8</code>
    */
   public String getCharacterEncoding();
@@ -126,39 +103,6 @@ public interface MockResponse {
    */
   public PrintWriter getWriter() throws IOException;
 
-  /**
-   * Sets the character encoding (MIME charset) of the response being sent to the client, for example, to UTF-8. If the
-   * response character encoding has already been set by {@link MockContext#setResponseCharacterEncoding}, the
-   * deployment descriptor, or using the {@link #setContentType} or {@link #setLocale} methods, the value set in this
-   * method overrides all of those values. Calling {@link #setContentType} with the <code>String</code> of
-   * <code>text/html</code> and calling this method with the <code>String</code> of <code>UTF-8</code> is equivalent to
-   * calling {@link #setContentType} with the <code>String</code> of <code>text/html; charset=UTF-8</code>.
-   * <p>
-   * This method can be called repeatedly to change the character encoding. This method has no effect if it is called
-   * after <code>getWriter</code> has been called or after the response has been committed.
-   * <p>
-   * If calling this method has an effect (as per the previous paragraph), calling this method with {@code null} clears
-   * any character encoding set via a previous call to this method, {@link #setContentType} or {@link #setLocale} but does
-   * not affect any default character encoding configured via {@link MockContext#setResponseCharacterEncoding} or the
-   * deployment descriptor.
-   * <p>
-   * If this method is called with an invalid or unrecognised character encoding, then a subsequent call to
-   * {@link #getWriter()} will throw a {@link UnsupportedEncodingException}. Content for an unknown encoding can be sent
-   * with the {@link MockOutputStream} returned from {@link #getOutputStream()}.
-   * <p>
-   * Containers may choose to log calls to this method that use an invalid or unrecognised character encoding.
-   * <p>
-   * Containers must communicate the character encoding used for the mock response's writer to the client if the
-   * protocol provides a way for doing so. In the case of HTTP, the character encoding is communicated as part of the
-   * <code>Content-Type</code> header for text media types. Note that the character encoding cannot be communicated via
-   * HTTP headers if the mock does not specify a content type; however, it is still used to encode text written via the
-   * mock response's writer.
-   *
-   * @param charset a String specifying only the character set defined by IANA Character Sets
-   * (http://www.iana.org/assignments/character-sets) or {@code null}
-   * @see #setContentType
-   * @see #setLocale
-   */
   public void setCharacterEncoding(String charset);
 
   /**
@@ -187,11 +131,6 @@ public interface MockResponse {
    * This method may be called repeatedly to change content type and character encoding. This method has no effect if
    * called after the response has been committed. It does not set the response's character encoding if it is called after
    * <code>getWriter</code> has been called or after the response has been committed.
-   * <p>
-   * If calling this method has an effect (as per the previous paragraph), calling this method with {@code null} clears
-   * any content type set via a previous call to this method and clears any character encoding set via a previous call to
-   * this method, {@link #setCharacterEncoding} or {@link #setLocale} but does not affect any default character encoding
-   * configured via {@link MockContext#setResponseCharacterEncoding} or the deployment descriptor.
    * <p>
    * If this method is called with an invalid or unrecognised character encoding, then a subsequent call to
    * {@link #getWriter()} will throw a {@link UnsupportedEncodingException}. Content for an unknown encoding can be sent

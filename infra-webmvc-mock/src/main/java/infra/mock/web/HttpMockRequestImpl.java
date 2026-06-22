@@ -50,13 +50,11 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockConnection;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.MockInputStream;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.RequestDispatcher;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
@@ -861,11 +859,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return (this.secure || HTTPS.equalsIgnoreCase(this.scheme));
   }
 
-  @Override
-  public RequestDispatcher getRequestDispatcher(String path) {
-    return new MockRequestDispatcher(path);
-  }
-
   public void setRemotePort(int remotePort) {
     this.remotePort = remotePort;
   }
@@ -960,31 +953,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   @Override
   public String getProtocolRequestId() {
     return "";
-  }
-
-  @Override
-  public MockConnection getConnection() {
-    return new MockConnection() {
-      @Override
-      public String getConnectionId() {
-        return HttpMockRequestImpl.this.getRequestId();
-      }
-
-      @Override
-      public String getProtocol() {
-        return HttpMockRequestImpl.this.getProtocol();
-      }
-
-      @Override
-      public String getProtocolConnectionId() {
-        return HttpMockRequestImpl.this.getProtocolRequestId();
-      }
-
-      @Override
-      public boolean isSecure() {
-        return HttpMockRequestImpl.this.isSecure();
-      }
-    };
   }
 
   // ---------------------------------------------------------------------

@@ -266,14 +266,6 @@ public class MockRequestWrapper implements MockRequest {
   }
 
   /**
-   * The default behavior of this method is to return getRequestDispatcher(String path) on the wrapped request object.
-   */
-  @Override
-  public RequestDispatcher getRequestDispatcher(String path) {
-    return this.request.getRequestDispatcher(path);
-  }
-
-  /**
    * The default behavior of this method is to return getRemotePort() on the wrapped request object.
    */
   @Override
@@ -460,13 +452,4 @@ public class MockRequestWrapper implements MockRequest {
     return request.getProtocolRequestId();
   }
 
-  /**
-   * Gets the connection information for the wrapped request.
-   *
-   * @return the connection information for the wrapped request
-   */
-  @Override
-  public MockConnection getConnection() {
-    return request.getConnection();
-  }
 }

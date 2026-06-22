@@ -187,10 +187,6 @@ public interface AsyncContext {
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt>.
    *
    * <p>
-   * The <tt>path</tt> parameter is interpreted in the same way as in {@link MockRequest#getRequestDispatcher(String)},
-   * within the scope of the {@link MockContext} from which this AsyncContext was initialized.
-   *
-   * <p>
    * All path related query methods of the request must reflect the dispatch target, while the original request URI,
    * context path, path info, servlet path, and query string may be recovered from the {@link #ASYNC_REQUEST_URI},
    * {@link #ASYNC_CONTEXT_PATH}, {@link #ASYNC_PATH_INFO}, {@link #ASYNC_SERVLET_PATH}, and {@link #ASYNC_QUERY_STRING}
@@ -217,10 +213,6 @@ public interface AsyncContext {
   /**
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt> scoped to the given
    * <tt>context</tt>.
-   *
-   * <p>
-   * The <tt>path</tt> parameter is interpreted in the same way as in {@link MockRequest#getRequestDispatcher(String)},
-   * except that it is scoped to the given <tt>context</tt>.
    *
    * <p>
    * All path related query methods of the request must reflect the dispatch target, while the original request URI,

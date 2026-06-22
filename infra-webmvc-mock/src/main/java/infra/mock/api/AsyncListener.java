@@ -45,7 +45,7 @@ public interface AsyncListener extends EventListener {
    * @param event the AsyncEvent indicating that an asynchronous operation has been completed
    * @throws IOException if an I/O related error has occurred during the processing of the given AsyncEvent
    */
-  public void onComplete(AsyncEvent event) throws IOException;
+  void onComplete(AsyncEvent event) throws IOException;
 
   /**
    * Notifies this AsyncListener that an asynchronous operation has timed out.
@@ -63,7 +63,7 @@ public interface AsyncListener extends EventListener {
    * @param event the AsyncEvent indicating that an asynchronous operation has timed out
    * @throws IOException if an I/O related error has occurred during the processing of the given AsyncEvent
    */
-  public void onTimeout(AsyncEvent event) throws IOException;
+  void onTimeout(AsyncEvent event) throws IOException;
 
   /**
    * Notifies this AsyncListener that an asynchronous operation has failed to complete.
@@ -81,7 +81,7 @@ public interface AsyncListener extends EventListener {
    * @param event the AsyncEvent indicating that an asynchronous operation has failed to complete
    * @throws IOException if an I/O related error has occurred during the processing of the given AsyncEvent
    */
-  public void onError(AsyncEvent event) throws IOException;
+  void onError(AsyncEvent event) throws IOException;
 
   /**
    * Notifies this AsyncListener that a new asynchronous cycle is being initiated via a call to one of the
@@ -104,6 +104,6 @@ public interface AsyncListener extends EventListener {
    * @param event the AsyncEvent indicating that a new asynchronous cycle is being initiated
    * @throws IOException if an I/O related error has occurred during the processing of the given AsyncEvent
    */
-  public void onStartAsync(AsyncEvent event) throws IOException;
+  void onStartAsync(AsyncEvent event) throws IOException;
 
 }

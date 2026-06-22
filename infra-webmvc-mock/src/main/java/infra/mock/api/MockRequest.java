@@ -72,16 +72,6 @@ public interface MockRequest {
    */
   Enumeration<String> getAttributeNames();
 
-  /**
-   * Returns the name of the character encoding used in the body of this request. This method returns <code>null</code> if
-   * no request encoding character encoding has been specified. The following methods for specifying the request character
-   * encoding are consulted, in decreasing order of priority: per request, per web app (using
-   * {@link MockContext#setRequestCharacterEncoding}, deployment descriptor), and per container (for all web
-   * applications deployed in that container, using vendor specific configuration).
-   *
-   * @return a <code>String</code> containing the name of the character encoding, or <code>null</code> if the request does
-   * not specify a character encoding
-   */
   String getCharacterEncoding();
 
   /**
@@ -306,35 +296,6 @@ public interface MockRequest {
   boolean isSecure();
 
   /**
-   * Returns a {@link RequestDispatcher} object that acts as a wrapper for the resource located at the given path. A
-   * <code>RequestDispatcher</code> object can be used to forward a request to the resource or to include the resource in
-   * a response. The resource can be dynamic or static.
-   *
-   * <p>
-   * The pathname specified may be relative, although it cannot extend outside the current servlet context. If the path
-   * begins with a "/" it is interpreted as relative to the current context root. This method returns <code>null</code> if
-   * the servlet container cannot return a <code>RequestDispatcher</code>.
-   *
-   * <p>
-   * Using a RequestDispatcher, requests may be dispatched to any part of the web application bypassing both implicit (no
-   * direct access to WEB-INF or META-INF) and explicit (defined by the web application) security constraints. Unsanitized
-   * user provided data must not be used to construct the path passed to the RequestDispatcher as it is very likely to
-   * create a security vulnerability in the application.
-   *
-   * <p>
-   * The difference between this method and {@link MockContext#getRequestDispatcher} is that this method can take a
-   * relative path.
-   *
-   * @param path a <code>String</code> specifying the pathname to the resource. If it is relative, it must be relative
-   * against the current servlet.
-   * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the resource at the specified path, or
-   * <code>null</code> if the servlet container cannot return a <code>RequestDispatcher</code>
-   * @see RequestDispatcher
-   * @see MockContext#getRequestDispatcher
-   */
-  RequestDispatcher getRequestDispatcher(String path);
-
-  /**
    * Returns the Internet Protocol (IP) source port the remote end of the connection on which the request was received. By
    * default this is either the port of the client or last proxy that sent the request. In some cases, protocol specific
    * mechanisms such as <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a> may be used to obtain a port different
@@ -512,15 +473,6 @@ public interface MockRequest {
    * Allowing a filter that has been configured for multiple dispatcher types to query a request for its dispatcher type
    * allows the filter to process the request differently depending on its dispatcher type.
    *
-   * <p>
-   * The initial dispatcher type of a request is defined as <code>DispatcherType.REQUEST</code>. The dispatcher type of a
-   * request dispatched via {@link RequestDispatcher#forward(MockRequest, MockResponse)} or
-   * {@link RequestDispatcher#include(MockRequest, MockResponse)} is given as <code>DispatcherType.FORWARD</code> or
-   * <code>DispatcherType.INCLUDE</code>, respectively, while the dispatcher type of an asynchronous request dispatched
-   * via one of the {@link AsyncContext#dispatch} methods is given as <code>DispatcherType.ASYNC</code>. Finally, the
-   * dispatcher type of a request dispatched to an error page by the container's error handling mechanism is given as
-   * <code>DispatcherType.ERROR</code>.
-   *
    * @return the dispatcher type of this request
    * @see DispatcherType
    */
@@ -555,12 +507,4 @@ public interface MockRequest {
    */
   String getProtocolRequestId();
 
-  /**
-   * Obtain details of the network connection to the Servlet container that is being used by this request. The information
-   * presented may differ from information presented elsewhere in the Servlet API as raw information is presented without
-   * adjustments for, example, use of reverse proxies that may be applied elsewhere in the Servlet API.
-   *
-   * @return The network connection details.
-   */
-  MockConnection getConnection();
 }

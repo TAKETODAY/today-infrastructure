@@ -26,7 +26,6 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -41,9 +40,6 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mock.api.MockContext;
-import infra.mock.api.RequestDispatcher;
-import infra.mock.api.SessionCookieConfig;
-import infra.mock.api.SessionTrackingMode;
 import infra.util.ClassUtils;
 import infra.util.MimeType;
 import infra.util.ObjectUtils;
@@ -75,18 +71,7 @@ import infra.web.mock.support.XmlWebApplicationContext;
  */
 public class MockContextImpl implements MockContext {
 
-  /** Default Mock name used by Tomcat, Jetty, JBoss, and GlassFish: {@value}. */
-  private static final String COMMON_DEFAULT_MOCK_NAME = "default";
-
   private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
-
-  private static final Set<SessionTrackingMode> DEFAULT_SESSION_TRACKING_MODES = new LinkedHashSet<>(4);
-
-  static {
-    DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.COOKIE);
-    DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.URL);
-    DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.SSL);
-  }
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -102,30 +87,11 @@ public class MockContextImpl implements MockContext {
 
   private int effectiveMinorVersion = 1;
 
-  private final Map<String, RequestDispatcher> namedRequestDispatchers = new HashMap<>();
-
-  private String defaultMockName = COMMON_DEFAULT_MOCK_NAME;
-
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
 
-  private String mockContextName = "MockContext";
-
   private final Set<String> declaredRoles = new LinkedHashSet<>();
-
-  @Nullable
-  private Set<SessionTrackingMode> sessionTrackingModes;
-
-  private final SessionCookieConfig sessionCookieConfig = new MockSessionCookieConfig();
-
-  private int sessionTimeout;
-
-  @Nullable
-  private String requestCharacterEncoding;
-
-  @Nullable
-  private String responseCharacterEncoding;
 
   private final Map<String, MediaType> mimeTypes = new LinkedHashMap<>();
 
@@ -164,7 +130,6 @@ public class MockContextImpl implements MockContext {
    *
    * @param resourceBasePath the root directory of the WAR (should not end with a slash)
    * @param resourceLoader the ResourceLoader to use (or null for the default)
-   * @see #registerNamedDispatcher
    */
   public MockContextImpl(String resourceBasePath, @Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
@@ -174,7 +139,6 @@ public class MockContextImpl implements MockContext {
     if (tempDir != null) {
       this.attributes.put(MockUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
     }
-    registerNamedDispatcher(this.defaultMockName, new MockRequestDispatcher(this.defaultMockName));
   }
 
   /**
@@ -330,73 +294,6 @@ public class MockContextImpl implements MockContext {
   }
 
   @Override
-  public RequestDispatcher getRequestDispatcher(String path) {
-    Assert.isTrue(path.startsWith("/"),
-            () -> "RequestDispatcher path [" + path + "] at MockContext level must start with '/'");
-    return new MockRequestDispatcher(path);
-  }
-
-  @Override
-  public RequestDispatcher getNamedDispatcher(String path) {
-    return this.namedRequestDispatchers.get(path);
-  }
-
-  /**
-   * Register a {@link RequestDispatcher} (typically a {@link MockRequestDispatcher})
-   * that acts as a wrapper for the named Mock.
-   *
-   * @param name the name of the wrapped Mock
-   * @param requestDispatcher the dispatcher that wraps the named Mock
-   * @see #getNamedDispatcher
-   * @see #unregisterNamedDispatcher
-   */
-  public void registerNamedDispatcher(String name, RequestDispatcher requestDispatcher) {
-    Assert.notNull(name, "RequestDispatcher name is required");
-    Assert.notNull(requestDispatcher, "RequestDispatcher is required");
-    this.namedRequestDispatchers.put(name, requestDispatcher);
-  }
-
-  /**
-   * Unregister the {@link RequestDispatcher} with the given name.
-   *
-   * @param name the name of the dispatcher to unregister
-   * @see #getNamedDispatcher
-   * @see #registerNamedDispatcher
-   */
-  public void unregisterNamedDispatcher(String name) {
-    Assert.notNull(name, "RequestDispatcher name is required");
-    this.namedRequestDispatchers.remove(name);
-  }
-
-  /**
-   * Get the name of the <em>default</em> {@code Mock}.
-   * <p>Defaults to {@literal 'default'}.
-   *
-   * @see #setDefaultMockName
-   */
-  public String getDefaultMockName() {
-    return this.defaultMockName;
-  }
-
-  /**
-   * Set the name of the <em>default</em> {@code Mock}.
-   * <p>Also {@link #unregisterNamedDispatcher unregisters} the current default
-   * {@link RequestDispatcher} and {@link #registerNamedDispatcher replaces}
-   * it with a {@link MockRequestDispatcher} for the provided
-   * {@code defaultMockName}.
-   *
-   * @param defaultMockName the name of the <em>default</em> {@code Mock};
-   * never {@code null} or empty
-   * @see #getDefaultMockName
-   */
-  public void setDefaultMockName(String defaultMockName) {
-    Assert.hasText(defaultMockName, "defaultMockName must not be null or empty");
-    unregisterNamedDispatcher(this.defaultMockName);
-    this.defaultMockName = defaultMockName;
-    registerNamedDispatcher(this.defaultMockName, new MockRequestDispatcher(this.defaultMockName));
-  }
-
-  @Override
   public void log(String message) {
     logger.info(message);
   }
@@ -484,15 +381,6 @@ public class MockContextImpl implements MockContext {
     this.attributes.remove(name);
   }
 
-  public void setMockContextName(String mockContextName) {
-    this.mockContextName = mockContextName;
-  }
-
-  @Override
-  public String getMockContextName() {
-    return this.mockContextName;
-  }
-
   @Override
   @Nullable
   public ClassLoader getClassLoader() {
@@ -509,60 +397,6 @@ public class MockContextImpl implements MockContext {
 
   public Set<String> getDeclaredRoles() {
     return Collections.unmodifiableSet(this.declaredRoles);
-  }
-
-  @Override
-  public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes)
-          throws IllegalStateException, IllegalArgumentException {
-    this.sessionTrackingModes = sessionTrackingModes;
-  }
-
-  @Override
-  public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
-    return DEFAULT_SESSION_TRACKING_MODES;
-  }
-
-  @Override
-  public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
-    return (this.sessionTrackingModes != null ?
-            Collections.unmodifiableSet(this.sessionTrackingModes) : DEFAULT_SESSION_TRACKING_MODES);
-  }
-
-  @Override
-  public SessionCookieConfig getSessionCookieConfig() {
-    return this.sessionCookieConfig;
-  }
-
-  @Override  // on Mock 4.0
-  public void setSessionTimeout(int sessionTimeout) {
-    this.sessionTimeout = sessionTimeout;
-  }
-
-  @Override  // on Mock 4.0
-  public int getSessionTimeout() {
-    return this.sessionTimeout;
-  }
-
-  @Override  // on Mock 4.0
-  public void setRequestCharacterEncoding(@Nullable String requestCharacterEncoding) {
-    this.requestCharacterEncoding = requestCharacterEncoding;
-  }
-
-  @Override  // on Mock 4.0
-  @Nullable
-  public String getRequestCharacterEncoding() {
-    return this.requestCharacterEncoding;
-  }
-
-  @Override  // on Mock 4.0
-  public void setResponseCharacterEncoding(@Nullable String responseCharacterEncoding) {
-    this.responseCharacterEncoding = responseCharacterEncoding;
-  }
-
-  @Override  // on Mock 4.0
-  @Nullable
-  public String getResponseCharacterEncoding() {
-    return this.responseCharacterEncoding;
   }
 
 }

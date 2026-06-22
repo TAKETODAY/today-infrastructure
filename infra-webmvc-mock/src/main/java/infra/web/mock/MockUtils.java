@@ -32,7 +32,6 @@ import infra.mock.api.MockRequest;
 import infra.mock.api.MockRequestWrapper;
 import infra.mock.api.MockResponse;
 import infra.mock.api.MockResponseWrapper;
-import infra.mock.api.RequestDispatcher;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.session.Session;
@@ -251,21 +250,6 @@ public abstract class MockUtils {
   //---------------------------------------------------------------------
   // MockRequest
   //---------------------------------------------------------------------
-
-  /**
-   * Determine whether the given request is an include request,
-   * that is, not a top-level HTTP request coming in from the outside.
-   * <p>Checks the presence of the "infra.mock.api.include.request_uri"
-   * request attribute. Could check any request attribute that is only
-   * present in an include request.
-   *
-   * @param request current servlet request
-   * @return whether the given request is an include request
-   * @since 4.0
-   */
-  public static boolean isIncludeRequest(MockRequest request) {
-    return request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null;
-  }
 
   /**
    * @since 4.0

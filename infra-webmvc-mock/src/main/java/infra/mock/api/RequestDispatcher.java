@@ -32,9 +32,6 @@ import java.io.IOException;
  * objects to wrap any type of resource.
  *
  * @author Various
- * @see MockContext#getRequestDispatcher(String)
- * @see MockContext#getNamedDispatcher(String)
- * @see MockRequest#getRequestDispatcher(String)
  */
 public interface RequestDispatcher {
 

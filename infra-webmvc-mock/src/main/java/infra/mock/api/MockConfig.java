@@ -34,7 +34,7 @@ public interface MockConfig {
    *
    * @return the name of the mock instance
    */
-  public String getMockName();
+  String getMockName();
 
   /**
    * Returns a reference to the {@link MockContext} in which the caller is executing.
@@ -42,7 +42,7 @@ public interface MockConfig {
    * @return a {@link MockContext} object, used by the caller to interact with its servlet container
    * @see MockContext
    */
-  public MockContext getMockContext();
+  MockContext getMockContext();
 
   /**
    * Gets the value of the initialization parameter with the given name.
@@ -51,7 +51,7 @@ public interface MockConfig {
    * @return a <code>String</code> containing the value of the initialization parameter, or <code>null</code> if the
    * initialization parameter does not exist
    */
-  public String getInitParameter(String name);
+  String getInitParameter(String name);
 
   /**
    * Returns the names of the servlet's initialization parameters as an <code>Enumeration</code> of <code>String</code>
@@ -60,6 +60,6 @@ public interface MockConfig {
    * @return an <code>Enumeration</code> of <code>String</code> objects containing the names of the servlet's
    * initialization parameters
    */
-  public Enumeration<String> getInitParameterNames();
+  Enumeration<String> getInitParameterNames();
 
 }
