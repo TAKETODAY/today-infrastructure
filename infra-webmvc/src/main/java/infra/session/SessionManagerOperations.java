@@ -36,11 +36,21 @@ public class SessionManagerOperations {
 
   protected final SessionManager sessionManager;
 
+  /**
+   * Create a new {@code SessionManagerOperations} instance.
+   *
+   * @param sessionManager the {@link SessionManager} to delegate to; must not be {@code null}
+   */
   public SessionManagerOperations(SessionManager sessionManager) {
     Assert.notNull(sessionManager, "SessionManager is required");
     this.sessionManager = sessionManager;
   }
 
+  /**
+   * Return the underlying {@link SessionManager} used by this operations helper.
+   *
+   * @return the configured {@code SessionManager}
+   */
   public final SessionManager getSessionManager() {
     return sessionManager;
   }
@@ -81,8 +91,7 @@ public class SessionManagerOperations {
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
-  @Nullable
-  public Session getSession(RequestContext context, boolean create) {
+  public @Nullable Session getSession(RequestContext context, boolean create) {
     return sessionManager.getSession(context, create);
   }
 
@@ -93,13 +102,19 @@ public class SessionManagerOperations {
    * @param name the unique attribute key
    * @return the current value of the attribute, if any
    */
-  @Nullable
-  public Object getAttribute(Session session, String name) {
+  public @Nullable Object getAttribute(Session session, String name) {
     return session.getAttribute(name);
   }
 
-  @Nullable
-  public Object getAttribute(RequestContext context, String name) {
+  /**
+   * Get the value of the session attribute identified by {@code name}.
+   * Returns {@code null} if the session does not exist or the attribute is not found.
+   *
+   * @param context Current request context
+   * @param name the unique attribute key
+   * @return the current value of the attribute, or {@code null} if no session exists or the attribute is not present
+   */
+  public @Nullable Object getAttribute(RequestContext context, String name) {
     Session session = getSession(context, false);
     if (session != null) {
       return getAttribute(session, name);
@@ -135,8 +150,7 @@ public class SessionManagerOperations {
    * @return the last value of the attribute, if any
    * @since 4.0
    */
-  @Nullable
-  public Object removeAttribute(RequestContext context, String name) {
+  public @Nullable Object removeAttribute(RequestContext context, String name) {
     Session session = getSession(context, false);
     if (session != null) {
       return session.removeAttribute(name);
