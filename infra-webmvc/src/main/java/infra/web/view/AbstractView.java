@@ -466,16 +466,10 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param model a Map of model objects to expose
    * @param request current HTTP request
    */
-  protected void exposeModelAsRequestAttributes(Map<String, Object> model, RequestContext request) throws Exception {
-    for (Map.Entry<String, Object> entry : model.entrySet()) {
+  protected void exposeModelAsRequestAttributes(Map<String, Object> model, RequestContext request) {
+    for (var entry : model.entrySet()) {
       String name = entry.getKey();
-      Object value = entry.getValue();
-      if (value != null) {
-        request.setAttribute(name, value);
-      }
-      else {
-        request.removeAttribute(name);
-      }
+      request.setAttribute(name, entry.getValue());
     }
   }
 
