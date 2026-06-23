@@ -16,43 +16,27 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.test.web.mock.setup;
+package infra.web.view;
 
 import java.util.Map;
 
 import infra.lang.Assert;
-import infra.mock.api.MockException;
-import infra.mock.api.MockResponse;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
-import infra.web.view.AbstractUrlBasedView;
 
 /**
- * Wrapper for a JSP or other resource within the same web application.
+ * Wrapper for other resource within the same web application.
  * Exposes model objects as request attributes and forwards the request to
  * the specified resource URL using a {@link RequestContext#forward(String)}.
  *
  * <p>If operating within an already included request or within a response that
  * has already been committed, this view will fall back to an include instead of
- * a forward. This can be enforced by calling {@code response.flushBuffer()}
+ * a forward. This can be enforced by calling {@code response.flush()}
  * (which will commit the response) before rendering the view.
- *
- * <p>Typical usage with {@link InternalResourceViewResolver} looks as follows,
- * from the perspective of the DispatcherHandler context definition:
- *
- * <pre class="code">&lt;bean id="viewResolver" class="infra.web.mock.view.InternalResourceViewResolver"&gt;
- *   &lt;property name="prefix" value="/WEB-INF/jsp/"/&gt;
- *   &lt;property name="suffix" value=".jsp"/&gt;
- * &lt;/bean&gt;</pre>
- *
- * Every view name returned from a handler will be translated to a JSP
- * resource (for example: "myView" &rarr; "/WEB-INF/jsp/myView.jsp"), using
- * this view class by default.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
- * @see MockResponse#flushBuffer
  * @see InternalResourceViewResolver
  * @since 4.0
  */
@@ -147,7 +131,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
     if (this.preventDispatchLoop) {
       String uri = request.getRequestURI();
       if (path.startsWith("/") ? uri.equals(path) : uri.equals(StringUtils.applyRelativePath(uri, path))) {
-        throw new MockException("Circular view path [" + path + "]: would dispatch back " +
+        throw new Exception("Circular view path [" + path + "]: would dispatch back " +
                 "to the current handler URL [" + uri + "] again. Check your ViewResolver setup! " +
                 "(Hint: This may be the result of an unspecified view, due to default view name generation.)");
       }

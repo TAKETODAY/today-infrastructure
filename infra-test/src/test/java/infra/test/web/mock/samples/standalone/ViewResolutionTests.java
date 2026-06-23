@@ -28,7 +28,7 @@ import infra.oxm.jaxb.Jaxb2Marshaller;
 import infra.stereotype.Controller;
 import infra.test.web.Person;
 import infra.test.web.mock.MockMvc;
-import infra.test.web.mock.setup.InternalResourceViewResolver;
+import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;

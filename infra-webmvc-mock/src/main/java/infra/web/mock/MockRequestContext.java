@@ -85,6 +85,8 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   private @Nullable String forwardedUrl;
 
+  private boolean useForward;
+
   /**
    * Cached body-encoded parameters (e.g. {@code application/x-www-form-urlencoded}).
    * Set by {@link #readParameters()} implementations so that after a
@@ -711,8 +713,14 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   @Override
   public void forward(String path) throws Exception {
-//    super.forward(path);
+    if (useForward) {
+      super.forward(path);
+    }
     setForwardedUrl(path);
+  }
+
+  public void setUseForward(boolean useForward) {
+    this.useForward = useForward;
   }
 
   class MockSessionManager implements SessionManager {

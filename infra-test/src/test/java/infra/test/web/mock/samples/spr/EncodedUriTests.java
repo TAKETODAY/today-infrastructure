@@ -38,7 +38,7 @@ import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.ResultActions;
-import infra.test.web.mock.setup.InternalResourceViewResolver;
+import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestMapping;

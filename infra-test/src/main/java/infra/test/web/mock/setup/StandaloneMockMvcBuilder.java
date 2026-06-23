@@ -78,6 +78,7 @@ import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.WebApplicationContext;
+import infra.web.view.InternalResourceViewResolver;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
 import infra.web.view.ViewRef;

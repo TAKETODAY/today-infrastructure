@@ -203,6 +203,7 @@ class DispatcherHandlerForwardTests {
 
     MockRequestContext request = new MockRequestContext(
             new HttpMockRequestImpl("GET", "/first"), handler);
+    request.setUseForward(true);
     handler.handleRequest(request);
 
     assertThat(request.requestURI).isEqualTo("/second");
@@ -236,6 +237,7 @@ class DispatcherHandlerForwardTests {
 
     MockRequestContext request = new MockRequestContext(
             new HttpMockRequestImpl("GET", "/a"), handler);
+    request.setUseForward(true);
     handler.handleRequest(request);
 
     // Cycle detected: forward to "/a" did not complete,
@@ -251,6 +253,7 @@ class DispatcherHandlerForwardTests {
     var handler = createHandlerWithEchoMapping();
 
     MockRequestContext request = new MockRequestContext();
+    request.setUseForward(true);
     request.requestURI = "/a";
 
     handler.forward(request, "/b");

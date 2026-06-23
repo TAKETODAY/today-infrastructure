@@ -29,7 +29,7 @@ import infra.stereotype.Controller;
 import infra.test.web.Person;
 import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.mock.samples.standalone.RequestParameterTests;
-import infra.test.web.mock.setup.InternalResourceViewResolver;
+import infra.web.view.InternalResourceViewResolver;
 import infra.test.web.reactive.server.EntityExchangeResult;
 import infra.test.web.reactive.server.WebTestClient;
 import infra.ui.Model;

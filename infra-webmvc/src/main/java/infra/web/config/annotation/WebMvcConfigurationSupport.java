@@ -97,7 +97,7 @@ import infra.web.handler.method.support.CompositeUriComponentsContributor;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.DefaultRequestToViewNameTranslator;
-import infra.web.view.UrlBasedViewResolver;
+import infra.web.view.InternalResourceViewResolver;
 import infra.web.view.ViewResolver;
 import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
@@ -435,12 +435,12 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     var registry = new ViewResolverRegistry(contentNegotiationManager, applicationContext);
     configureViewResolvers(registry);
     var viewResolvers = new ArrayList<>(registry.getViewResolvers());
-    if (applicationContext != null) {
+    if (applicationContext != null && viewResolvers.isEmpty()) {
       var names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
       if (names.length == 1) {
         // add default
-        viewResolvers.add(new UrlBasedViewResolver());
+        viewResolvers.add(new InternalResourceViewResolver());
         configureDefaultViewResolvers(viewResolvers);
       }
     }

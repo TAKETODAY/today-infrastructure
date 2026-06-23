@@ -46,12 +46,14 @@ import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.AbstractView;
+import infra.web.view.InternalResourceView;
 import infra.web.view.RedirectView;
 import infra.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -201,6 +203,16 @@ public class FreeMarkerViewTests {
     view = vr.resolveViewName("redirect:myUrl", Locale.getDefault());
     assertThat(view.getClass()).as("Correct view class").isEqualTo(RedirectView.class);
     assertThat(((RedirectView) view).getUrl()).as("Correct URL").isEqualTo("myUrl");
+
+    view = vr.resolveViewName("redirect:myRedirectUrl", Locale.getDefault());
+    assertThat(view).asInstanceOf(type(RedirectView.class))
+            .extracting(RedirectView::getUrl)
+            .isEqualTo("myRedirectUrl");
+
+    view = vr.resolveViewName("forward:myForwardUrl", Locale.getDefault());
+    assertThat(view).asInstanceOf(type(InternalResourceView.class))
+            .extracting(InternalResourceView::getUrl)
+            .isEqualTo("myForwardUrl");
   }
 
   private class TestConfiguration extends Configuration {

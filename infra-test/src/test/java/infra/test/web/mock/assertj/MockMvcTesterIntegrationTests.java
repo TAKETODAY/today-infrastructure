@@ -58,7 +58,7 @@ import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.Person;
 import infra.test.web.mock.ResultMatcher;
 import infra.test.web.mock.assertj.MockMvcTester.MockMultipartMvcRequestBuilder;
-import infra.test.web.mock.setup.InternalResourceViewResolver;
+import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;

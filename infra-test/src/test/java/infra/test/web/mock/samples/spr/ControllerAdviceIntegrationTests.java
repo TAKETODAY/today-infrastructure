@@ -30,7 +30,7 @@ import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.mock.MockMvc;
-import infra.test.web.mock.setup.InternalResourceViewResolver;
+import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.GetMapping;
