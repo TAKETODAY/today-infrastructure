@@ -348,11 +348,11 @@ class RequestContextDataBinderTests {
   }
 
   private static PropertyValues createPropertyValues(HttpMockRequestImpl request) {
-    return createPropertyValues(request, null, DEFAULT_FIELD_DEFAULT_PREFIX);
+    return createPropertyValues(request, null, null);
   }
 
   private static PropertyValues createPropertyValues(HttpMockRequestImpl request, String prefix) {
-    return createPropertyValues(request, prefix, DEFAULT_FIELD_DEFAULT_PREFIX);
+    return createPropertyValues(request, prefix, "_");
   }
 
   private static PropertyValues createPropertyValues(HttpMockRequestImpl request, @Nullable String prefix, @Nullable String prefixSeparator) {
