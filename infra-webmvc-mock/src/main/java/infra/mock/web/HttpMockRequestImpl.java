@@ -34,14 +34,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -230,11 +228,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   @Nullable
   private String queryString;
-
-  @Nullable
-  private String remoteUser;
-
-  private final Set<String> userRoles = new HashSet<>();
 
   @Nullable
   private Principal userPrincipal;
@@ -1181,20 +1174,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return this.queryString;
   }
 
-  public void setRemoteUser(@Nullable String remoteUser) {
-    this.remoteUser = remoteUser;
-  }
-
-  @Override
-  @Nullable
-  public String getRemoteUser() {
-    return this.remoteUser;
-  }
-
-  public void addUserRole(String role) {
-    this.userRoles.add(role);
-  }
-
   public void setUserPrincipal(@Nullable Principal userPrincipal) {
     this.userPrincipal = userPrincipal;
   }
@@ -1341,7 +1320,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   @Override
   public void logout() throws MockException {
     this.userPrincipal = null;
-    this.remoteUser = null;
     this.authType = null;
   }
 
