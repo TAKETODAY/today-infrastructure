@@ -79,10 +79,6 @@ class MockContextTests {
       assertThat(mockContext.getMimeType("test.foobar")).isNull();
     }
 
-    /**
-     * Introduced to dispel claims in a thread on Stack Overflow:
-     * <a href="https://stackoverflow.com/questions/22986109/testing-spring-managed-servlet">Testing Infra managed servlet</a>
-     */
     @Test
     void getMimeTypeWithCustomConfiguredType() {
       mockContext.addMimeType("enigma", new MediaType("text", "enigma"));

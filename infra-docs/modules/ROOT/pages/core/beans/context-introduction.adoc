@@ -4,8 +4,7 @@
 如前文所述，在 xref:core/beans/introduction.adoc[章节介绍]中，
 `infra.beans.factory` 包提供了管理和操作 bean 的基本功能，包括以编程方式进行操作。
 `infra.context` 包添加了 `ApplicationContext` 接口，该接口扩展了 `BeanFactory`
-接口，并扩展了其他接口，以提供更多面向应用框架的功能。许多人以完全声明式的方式使用 `ApplicationContext`，
-甚至不会以编程方式创建它，而是依赖于支持类（如 `ContextLoader`）在 Jakarta EE Web 应用程序的正常启动过程中自动实例化 ApplicationContext。
+接口，并扩展了其他接口，以提供更多面向应用框架的功能。
 为了以更面向框架的方式增强 `BeanFactory` 的功能，上下文包还提供了以下功能：
 
 * 通过 `MessageSource` 接口以 i18n 样式访问消息。
@@ -601,58 +600,3 @@ https://micrometer.io[Micrometer] 等指标库的替代品。
 NOTE: 开发人员在创建自定义启动步骤时不应使用 `"infra.*"` 命名空间。
 此命名空间保留供 Infra 内部使用，且可能会发生变化。
 
-
-[[context-create]]
-== 为 Web 应用程序提供便捷的 ApplicationContext 实例化
-
-NOTE: 5.0 不再支持 Servlet
-
-您可以使用例如 `ContextLoader` 来声明式地创建 `ApplicationContext` 实例。
-当然，您也可以使用 `ApplicationContext` 实现之一以编程方式创建 `ApplicationContext` 实例。
-
-您可以使用 `ContextLoaderListener` 注册 `ApplicationContext`，如下例所示：
-
-[source,xml,indent=0,subs="verbatim,quotes"]
-----
-<context-param>
-  <param-name>contextConfigLocation</param-name>
-  <param-value>/WEB-INF/daoContext.xml /WEB-INF/applicationContext.xml</param-value>
-</context-param>
-
-<listener>
-  <listener-class>infra.web.context.ContextLoaderListener</listener-class>
-</listener>
-----
-
-监听器检查 `contextConfigLocation` 参数。如果参数不存在，监听器默认使用 `/WEB-INF/applicationContext.xml`。
-当参数存在时，监听器使用预定义的分隔符（逗号、分号和空格）分隔 `String`，并将这些值用作搜索应用程序上下文的位置。
-也支持 Ant 样式的路径模式。
-例如 `/WEB-INF/{asterisk}Context.xml`（用于所有以 `Context.xml` 结尾且位于 `WEB-INF` 目录中的文件）
-和 `/WEB-INF/**/*Context.xml`（用于 `WEB-INF` 任何子目录中的所有此类文件）。
-
-
-
-[[context-deploy-rar]]
-== 将 Infra `ApplicationContext` 部署为 Jakarta EE RAR 文件
-
-可以将 Infra `ApplicationContext` 部署为 RAR 文件，将上下文及其所有必需的 bean 类和库 JAR 封装在 Jakarta EE RAR 部署单元中。
-这相当于引导一个独立的 `ApplicationContext`（仅托管在 Jakarta EE 环境中），能够访问 Jakarta EE 服务器设施。
-RAR 部署是部署无头 WAR 文件场景的一种更自然的替代方案——实际上，一个没有 HTTP 入口点的 WAR 文件，
-仅用于在 Jakarta EE 环境中引导 Infra `ApplicationContext`。
-
-RAR 部署非常适合不需要 HTTP 入口点而仅包含消息端点和计划作业的应用程序上下文。
-此类上下文中的 Bean 可以使用应用服务器资源，例如 JTA 事务管理器和 JNDI 绑定的 JDBC `DataSource` 实例
-和 JMS `ConnectionFactory` 实例，还可以向平台的 JMX 服务器注册——所有这些都通过 Infra 标准事务管理和 JNDI 和 JMX 支持设施。
-应用程序组件还可以通过 Infra `TaskExecutor` 抽象与应用服务器的 JCA `WorkManager` 交互。
-
-
-对于将 Infra ApplicationContext 作为 Jakarta EE RAR 文件进行简单部署：
-
-. 将所有应用程序类打包到一个 RAR 文件中（这是一个具有不同文件扩展名的标准 JAR 文件）。
-. 将所有必需的库 JAR 添加到 RAR 存档的根目录中。
-. 将生成的 RAR 文件放入应用服务器的部署目录中。
-
-NOTE: 此类 RAR 部署单元通常是独立的。它们不向外界公开组件，甚至不向同一应用程序的其他模块公开。
-与基于 RAR 的 `ApplicationContext` 的交互通常通过它与其他模块共享的 JMS 目标进行。
-基于 RAR 的 `ApplicationContext` 还可以例如安排一些作业或对文件系统中的新文件做出反应（或类似情况）。
-如果它需要允许来自外部的同步访问，它可以（例如）导出 RMI 端点，这些端点可以由同一台机器上的其他应用程序模块使用。

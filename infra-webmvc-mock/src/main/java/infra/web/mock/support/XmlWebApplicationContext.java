@@ -25,7 +25,6 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.ResourceEntityResolver;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.support.GenericXmlApplicationContext;
-import infra.web.mock.ContextLoader;
 import infra.web.mock.WebApplicationContext;
 
 /**
@@ -46,7 +45,6 @@ import infra.web.mock.WebApplicationContext;
  * @see #setNamespace
  * @see #setConfigLocations
  * @see XmlBeanDefinitionReader
- * @see ContextLoader#initWebApplicationContext
  * @since 4.0 2022/3/6 22:17
  */
 public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {
