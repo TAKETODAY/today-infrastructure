@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import infra.app.resttestclient.TestRestTemplate;
-import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.http.server.LocalTestWebServer;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.classpath.resources.WithResource;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class TestRestTemplateTestAutoConfigurationTests {
 
-  private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(TestRestTemplateTestAutoConfiguration.class));
 
   @Test

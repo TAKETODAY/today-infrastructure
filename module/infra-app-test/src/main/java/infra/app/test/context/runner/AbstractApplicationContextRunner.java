@@ -105,7 +105,6 @@ import infra.util.CollectionUtils;
  * @author Andy Wilkinson
  * @author Phillip Webb
  * @see ApplicationContextRunner
- * @see WebApplicationContextRunner
  * @see ReactiveWebApplicationContextRunner
  * @see ApplicationContextAssert
  * @since 4.0

@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.util.List;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
@@ -39,12 +38,12 @@ import infra.http.client.HttpRedirects;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.config.HttpClientAutoConfiguration;
 import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
-import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
+import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.test.util.ReflectionTestUtils;
 import infra.web.client.RestClient;
 import infra.web.client.RestClientCustomizer;
@@ -248,7 +247,7 @@ class RestClientAutoConfigurationTests {
 
   @Test
   void whenServletWebApplicationRestClientIsConfigured() {
-    new WebApplicationContextRunner().withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class))
+    new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class))
             .run((context) -> {
               Assertions.assertThat(context).hasSingleBean(RestClientBuilderConfigurer.class);
               Assertions.assertThat(context).hasSingleBean(RestClient.Builder.class);

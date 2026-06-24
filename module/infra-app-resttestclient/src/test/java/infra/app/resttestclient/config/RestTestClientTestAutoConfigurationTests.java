@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.http.server.LocalTestWebServer;
 import infra.app.test.http.server.LocalTestWebServer.Scheme;
 import infra.context.annotation.Bean;
@@ -52,105 +52,105 @@ import static org.mockito.Mockito.mock;
  */
 class RestTestClientTestAutoConfigurationTests {
 
-	private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
-		.withConfiguration(AutoConfigurations.of(RestTestClientTestAutoConfiguration.class));
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+          .withConfiguration(AutoConfigurations.of(RestTestClientTestAutoConfiguration.class));
 
-	@Test
-	void registersRestTestClient() {
-		this.contextRunner.run((context) -> assertThat(context).hasSingleBean(RestTestClient.class));
-	}
+  @Test
+  void registersRestTestClient() {
+    this.contextRunner.run((context) -> assertThat(context).hasSingleBean(RestTestClient.class));
+  }
 
-	@Test
-	void shouldNotRegisterRestTestClientIfRestClientIsMissing() {
-		this.contextRunner.withClassLoader(new FilteredClassLoader(RestClient.class))
-			.run((context) -> assertThat(context).doesNotHaveBean(RestTestClient.class));
-	}
+  @Test
+  void shouldNotRegisterRestTestClientIfRestClientIsMissing() {
+    this.contextRunner.withClassLoader(new FilteredClassLoader(RestClient.class))
+            .run((context) -> assertThat(context).doesNotHaveBean(RestTestClient.class));
+  }
 
-	@Test
-	void shouldApplyRestTestClientCustomizers() {
-		this.contextRunner.withUserConfiguration(RestTestClientCustomConfig.class).run((context) -> {
-			assertThat(context).hasSingleBean(RestTestClient.class);
-			assertThat(context).hasBean("myRestTestClientCustomizer");
-			then(context.getBean("myRestTestClientCustomizer", RestTestClientBuilderCustomizer.class)).should()
-				.customize(any(RestTestClient.Builder.class));
-		});
-	}
+  @Test
+  void shouldApplyRestTestClientCustomizers() {
+    this.contextRunner.withUserConfiguration(RestTestClientCustomConfig.class).run((context) -> {
+      assertThat(context).hasSingleBean(RestTestClient.class);
+      assertThat(context).hasBean("myRestTestClientCustomizer");
+      then(context.getBean("myRestTestClientCustomizer", RestTestClientBuilderCustomizer.class)).should()
+              .customize(any(RestTestClient.Builder.class));
+    });
+  }
 
-	@Test
-	@WithResource(name = "META-INF/today.strategies",
-			content = """
-					infra.app.test.http.server.LocalTestWebServer$Provider=\
-					infra.app.resttestclient.config.RestTestClientTestAutoConfigurationTests$TestLocalTestWebServerProvider
-					""")
-	void shouldDefineRestTestClientBoundToWebServer() {
-		this.contextRunner.run((context) -> {
-			assertThat(context).hasSingleBean(RestTestClient.class).hasBean("restTestClient");
-			RestTestClient client = context.getBean(RestTestClient.class);
-			UriBuilderFactory uiBuilderFactory = (UriBuilderFactory) Extractors
-				.byName("restTestClientBuilder.restClientBuilder.uriBuilderFactory")
-				.apply(client);
-			assertThat(uiBuilderFactory.uriString("").toUriString()).isEqualTo("https://localhost:8182");
-		});
-	}
+  @Test
+  @WithResource(name = "META-INF/today.strategies",
+          content = """
+                  infra.app.test.http.server.LocalTestWebServer$Provider=\
+                  infra.app.resttestclient.config.RestTestClientTestAutoConfigurationTests$TestLocalTestWebServerProvider
+                  """)
+  void shouldDefineRestTestClientBoundToWebServer() {
+    this.contextRunner.run((context) -> {
+      assertThat(context).hasSingleBean(RestTestClient.class).hasBean("restTestClient");
+      RestTestClient client = context.getBean(RestTestClient.class);
+      UriBuilderFactory uiBuilderFactory = (UriBuilderFactory) Extractors
+              .byName("restTestClientBuilder.restClientBuilder.uriBuilderFactory")
+              .apply(client);
+      assertThat(uiBuilderFactory.uriString("").toUriString()).isEqualTo("https://localhost:8182");
+    });
+  }
 
-	@Test
-	void clientHttpMessageConverterCustomizersAreAppliedInOrder() {
-		this.contextRunner.withUserConfiguration(ClientHttpMessageConverterCustomizersConfiguration.class)
-			.run((context) -> {
-				ClientHttpMessageConvertersCustomizer customizer1 = context.getBean("customizer1",
-						ClientHttpMessageConvertersCustomizer.class);
-				ClientHttpMessageConvertersCustomizer customizer2 = context.getBean("customizer2",
-						ClientHttpMessageConvertersCustomizer.class);
-				ClientHttpMessageConvertersCustomizer customizer3 = context.getBean("customizer3",
-						ClientHttpMessageConvertersCustomizer.class);
-				InOrder inOrder = inOrder(customizer1, customizer2, customizer3);
-				inOrder.verify(customizer3).customize(any(ClientBuilder.class));
-				inOrder.verify(customizer1).customize(any(ClientBuilder.class));
-				inOrder.verify(customizer2).customize(any(ClientBuilder.class));
-			});
-	}
+  @Test
+  void clientHttpMessageConverterCustomizersAreAppliedInOrder() {
+    this.contextRunner.withUserConfiguration(ClientHttpMessageConverterCustomizersConfiguration.class)
+            .run((context) -> {
+              ClientHttpMessageConvertersCustomizer customizer1 = context.getBean("customizer1",
+                      ClientHttpMessageConvertersCustomizer.class);
+              ClientHttpMessageConvertersCustomizer customizer2 = context.getBean("customizer2",
+                      ClientHttpMessageConvertersCustomizer.class);
+              ClientHttpMessageConvertersCustomizer customizer3 = context.getBean("customizer3",
+                      ClientHttpMessageConvertersCustomizer.class);
+              InOrder inOrder = inOrder(customizer1, customizer2, customizer3);
+              inOrder.verify(customizer3).customize(any(ClientBuilder.class));
+              inOrder.verify(customizer1).customize(any(ClientBuilder.class));
+              inOrder.verify(customizer2).customize(any(ClientBuilder.class));
+            });
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class RestTestClientCustomConfig {
+  @Configuration(proxyBeanMethods = false)
+  static class RestTestClientCustomConfig {
 
-		@Bean
-		RestTestClientBuilderCustomizer myRestTestClientCustomizer() {
-			return mock(RestTestClientBuilderCustomizer.class);
-		}
+    @Bean
+    RestTestClientBuilderCustomizer myRestTestClientCustomizer() {
+      return mock(RestTestClientBuilderCustomizer.class);
+    }
 
-	}
+  }
 
-	@SuppressWarnings("unused")
-	static class TestLocalTestWebServerProvider implements LocalTestWebServer.Provider {
+  @SuppressWarnings("unused")
+  static class TestLocalTestWebServerProvider implements LocalTestWebServer.Provider {
 
-		@Override
-		public @Nullable LocalTestWebServer getLocalTestWebServer() {
-			return LocalTestWebServer.of(Scheme.HTTPS, 8182);
-		}
+    @Override
+    public @Nullable LocalTestWebServer getLocalTestWebServer() {
+      return LocalTestWebServer.of(Scheme.HTTPS, 8182);
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class ClientHttpMessageConverterCustomizersConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class ClientHttpMessageConverterCustomizersConfiguration {
 
-		@Bean
-		@Order(-5)
-		ClientHttpMessageConvertersCustomizer customizer1() {
-			return mock(ClientHttpMessageConvertersCustomizer.class);
-		}
+    @Bean
+    @Order(-5)
+    ClientHttpMessageConvertersCustomizer customizer1() {
+      return mock(ClientHttpMessageConvertersCustomizer.class);
+    }
 
-		@Bean
-		@Order(5)
-		ClientHttpMessageConvertersCustomizer customizer2() {
-			return mock(ClientHttpMessageConvertersCustomizer.class);
-		}
+    @Bean
+    @Order(5)
+    ClientHttpMessageConvertersCustomizer customizer2() {
+      return mock(ClientHttpMessageConvertersCustomizer.class);
+    }
 
-		@Bean
-		@Order(-10)
-		ClientHttpMessageConvertersCustomizer customizer3() {
-			return mock(ClientHttpMessageConvertersCustomizer.class);
-		}
+    @Bean
+    @Order(-10)
+    ClientHttpMessageConvertersCustomizer customizer3() {
+      return mock(ClientHttpMessageConvertersCustomizer.class);
+    }
 
-	}
+  }
 
 }

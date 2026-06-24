@@ -20,7 +20,6 @@ package infra.app.test.context.assertj;
 
 import java.util.function.Supplier;
 
-import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.web.mock.ConfigurableWebApplicationContext;
 
 /**
@@ -32,7 +31,6 @@ import infra.web.mock.ConfigurableWebApplicationContext;
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebApplicationContextRunner
  * @since 4.0
  */
 public interface AssertableWebApplicationContext

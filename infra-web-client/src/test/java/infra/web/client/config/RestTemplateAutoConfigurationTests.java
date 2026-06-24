@@ -27,7 +27,6 @@ import java.util.Collections;
 
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
-import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -74,7 +73,7 @@ class RestTemplateAutoConfigurationTests {
   @Test
   void restTemplateBuilderConfigurerShouldBeLazilyDefined() {
     this.contextRunner.run((context) -> Assertions.assertThat(
-            context.getBeanFactory().getBeanDefinition("restTemplateBuilderConfigurer").isLazyInit())
+                    context.getBeanFactory().getBeanDefinition("restTemplateBuilderConfigurer").isLazyInit())
             .isTrue());
   }
 
@@ -177,7 +176,7 @@ class RestTemplateAutoConfigurationTests {
 
   @Test
   void whenServletWebApplicationRestTemplateBuilderIsConfigured() {
-    new WebApplicationContextRunner().withConfiguration(AutoConfigurations.of(RestTemplateAutoConfiguration.class))
+    new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(RestTemplateAutoConfiguration.class))
             .run((context) -> Assertions.assertThat(context).hasSingleBean(RestTemplateBuilder.class)
                     .hasSingleBean(RestTemplateBuilderConfigurer.class));
   }
