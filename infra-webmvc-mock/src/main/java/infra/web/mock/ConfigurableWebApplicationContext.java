@@ -95,10 +95,4 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
    */
   void setMockConfig(@Nullable MockConfig mockConfig);
 
-  /**
-   * Return the ServletConfig for this web application context, if any.
-   */
-  @Nullable
-  MockConfig getMockConfig();
-
 }

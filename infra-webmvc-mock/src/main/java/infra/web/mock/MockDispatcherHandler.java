@@ -173,11 +173,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     return mockConfig;
   }
 
-  /**
-   * Returns the name of this servlet instance. See {@link MockConfig#getMockName}.
-   *
-   * @return the name of this servlet instance
-   */
   public String getName() {
     return getMockConfig().getMockName();
   }

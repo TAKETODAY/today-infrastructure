@@ -23,7 +23,6 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Set;
 
 import infra.core.io.FileSystemResourceLoader;
 
@@ -39,40 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("MockContext unit tests")
 class MockContextTests {
 
-  @Nested
-  @DisplayName("with DefaultResourceLoader")
-  class MockContextWithDefaultResourceLoaderTests {
-
-    private final MockContextImpl mockContext = new MockContextImpl("infra/mock");
-
-    @Test
-    void getResourcePaths() {
-      Set<String> paths = mockContext.getResourcePaths("/web");
-      assertThat(paths).isNotNull();
-      assertThat(paths.contains("/web/MockContextTests.class")).isTrue();
-    }
-
-    @Test
-    void getResourcePathsWithSubdirectories() {
-      Set<String> paths = mockContext.getResourcePaths("/");
-      assertThat(paths).isNotNull();
-      assertThat(paths.contains("/web/")).isTrue();
-    }
-
-    @Test
-    void getResourcePathsWithNonDirectory() {
-      Set<String> paths = mockContext.getResourcePaths("/web/MockContextTests.class");
-      assertThat(paths).isNull();
-    }
-
-    @Test
-    void getResourcePathsWithInvalidPath() {
-      Set<String> paths = mockContext.getResourcePaths("/web/invalid");
-      assertThat(paths).isNull();
-    }
-
-  }
-
   /**
    * @since 4.0
    */
@@ -82,12 +47,6 @@ class MockContextTests {
 
     private final MockContextImpl mockContext =
             new MockContextImpl("infra/mock", new FileSystemResourceLoader());
-
-    @Test
-    void getResourcePathsWithRelativePathToWindowsCDrive() {
-      Set<String> paths = mockContext.getResourcePaths("C:\\temp");
-      assertThat(paths).isNull();
-    }
 
     @Test
     void getResourceWithRelativePathToWindowsCDrive() throws Exception {

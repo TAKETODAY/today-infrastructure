@@ -30,9 +30,8 @@ import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
-import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.ConfigurableMockEnvironment;
-import infra.web.mock.MockConfigAware;
+import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
 
@@ -108,12 +107,6 @@ public abstract class AbstractRefreshableWebApplicationContext
   }
 
   @Override
-  @Nullable
-  public MockConfig getMockConfig() {
-    return this.mockConfig;
-  }
-
-  @Override
   public void setNamespace(@Nullable String namespace) {
     this.namespace = namespace;
     if (namespace != null) {
@@ -147,12 +140,11 @@ public abstract class AbstractRefreshableWebApplicationContext
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext, this.mockConfig));
+    beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext));
     beanFactory.ignoreDependencyInterface(MockContextAware.class);
-    beanFactory.ignoreDependencyInterface(MockConfigAware.class);
 
     WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
-    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext, this.mockConfig);
+    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext);
   }
 
   /**

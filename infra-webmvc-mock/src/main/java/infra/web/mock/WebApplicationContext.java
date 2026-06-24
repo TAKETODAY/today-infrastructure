@@ -42,7 +42,6 @@ import infra.web.mock.support.WebApplicationContextUtils;
  * beans and invoke the {@code setMockContext} method accordingly.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MockContextAware#setMockContext
  * @since 2019-07-10 22:03
  */
 public interface WebApplicationContext extends ApplicationContext {

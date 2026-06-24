@@ -78,7 +78,6 @@ public class MockContextResourcePatternLoader extends PathMatchingPatternResourc
    *
    * @see #doRetrieveMatchingMockContextResources
    * @see MockContextResource
-   * @see MockContext#getResourcePaths
    */
   @Override
   protected void doFindPathMatchingFileResources(
@@ -104,7 +103,6 @@ public class MockContextResourcePatternLoader extends PathMatchingPatternResourc
    * @param consumer Resource how to use
    * @throws IOException if directory contents could not be retrieved
    * @see MockContextResource
-   * @see MockContext#getResourcePaths
    */
   protected void doRetrieveMatchingMockContextResources(
           MockContext mockContext, String fullPattern, String dir, ResourceConsumer consumer)

@@ -208,16 +208,6 @@ public interface HttpMockRequest extends MockRequest {
   String getQueryString();
 
   /**
-   * Returns the login of the user making this request, if the user has been authenticated, or <code>null</code> if the
-   * user has not been authenticated. Whether the user name is sent with each subsequent request depends on the browser
-   * and type of authentication.
-   *
-   * @return a <code>String</code> specifying the login of the user making this request, or <code>null</code> if the user
-   * login is not known
-   */
-  String getRemoteUser();
-
-  /**
    * Returns a <code>java.security.Principal</code> object containing the name of the current authenticated user. If the
    * user has not been authenticated, the method returns <code>null</code>.
    *

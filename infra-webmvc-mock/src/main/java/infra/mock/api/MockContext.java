@@ -43,10 +43,6 @@ import java.util.Set;
  * <p>
  * The <code>MockContext</code> object is contained within the {@link MockConfig} object, which the Web server
  * provides the servlet when the servlet is initialized.
- *
- * @author Various
- * @see MockHandler#getMockConfig
- * @see MockConfig#getMockContext
  */
 public interface MockContext {
 

@@ -50,15 +50,6 @@ public class MockMockConfig implements MockConfig {
   }
 
   /**
-   * Create a new MockServletConfig with a default {@link MockContextImpl}.
-   *
-   * @param mockName the name of the servlet
-   */
-  public MockMockConfig(String mockName) {
-    this(null, mockName);
-  }
-
-  /**
    * Create a new MockServletConfig.
    *
    * @param mockContext the MockContext that the servlet runs in

@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 
 /**
@@ -40,27 +39,16 @@ import infra.mock.api.MockContext;
  * @see MockContextAware
  * @since 4.0 2022/2/20 20:57
  */
+@Deprecated
 public class MockContextAwareProcessor implements InitializationBeanPostProcessor {
 
-  @Nullable
-  private final MockContext mockContext;
-
-  @Nullable
-  private final MockConfig mockConfig;
+  private final @Nullable MockContext mockContext;
 
   /**
    * Create a new MockContextAwareProcessor for the given context.
    */
-  public MockContextAwareProcessor(MockContext mockContext) {
-    this(mockContext, null);
-  }
-
-  /**
-   * Create a new MockContextAwareProcessor for the given context and config.
-   */
-  public MockContextAwareProcessor(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
+  public MockContextAwareProcessor(@Nullable MockContext mockContext) {
     this.mockContext = mockContext;
-    this.mockConfig = mockConfig;
   }
 
   /**
@@ -70,29 +58,13 @@ public class MockContextAwareProcessor implements InitializationBeanPostProcesso
    */
   @Nullable
   protected MockContext getMockContext() {
-    if (this.mockContext == null && getMockConfig() != null) {
-      return getMockConfig().getMockContext();
-    }
     return this.mockContext;
-  }
-
-  /**
-   * Returns the {@link MockConfig} to be injected or {@code null}. This method
-   * can be overridden by subclasses when a context is obtained after the post-processor
-   * has been registered.
-   */
-  @Nullable
-  protected MockConfig getMockConfig() {
-    return this.mockConfig;
   }
 
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     if (getMockContext() != null && bean instanceof MockContextAware) {
       ((MockContextAware) bean).setMockContext(getMockContext());
-    }
-    if (getMockConfig() != null && bean instanceof MockConfigAware) {
-      ((MockConfigAware) bean).setMockConfig(getMockConfig());
     }
     return bean;
   }

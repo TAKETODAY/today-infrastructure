@@ -145,14 +145,6 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
   }
 
   /**
-   * The default behavior of this method is to return getRemoteUser() on the wrapped request object.
-   */
-  @Override
-  public String getRemoteUser() {
-    return this._getHttpMockRequest().getRemoteUser();
-  }
-
-  /**
    * The default behavior of this method is to return getUserPrincipal() on the wrapped request object.
    */
   @Override

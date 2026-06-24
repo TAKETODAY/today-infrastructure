@@ -22,7 +22,6 @@ import infra.beans.factory.BeanNameAware;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.web.RequestContext;
-import infra.web.mock.MockContextAware;
 import infra.web.mock.MockWrappingController;
 
 /**
@@ -50,7 +49,7 @@ import infra.web.mock.MockWrappingController;
  * @see MockWrappingController
  * @since 4.0 2022/2/8 17:18
  */
-public class MockForwardingController extends AbstractController implements BeanNameAware, MockContextAware {
+public class MockForwardingController extends AbstractController implements BeanNameAware {
 
   private @Nullable String mockName;
 
@@ -71,7 +70,6 @@ public class MockForwardingController extends AbstractController implements Bean
     this.mockName = mockName;
   }
 
-  @Override
   public void setMockContext(MockContext mockContext) {
     this.mockContext = mockContext;
   }

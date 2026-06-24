@@ -34,8 +34,8 @@ import infra.mock.api.MockContext;
 import infra.stereotype.Component;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.ConfigurableMockEnvironment;
+import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
 
@@ -169,9 +169,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
     return new MockContextResourcePatternLoader(this);
   }
 
-  /**
-   * Register request/session scopes, environment beans, a {@link MockContextAwareProcessor}, etc.
-   */
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
@@ -202,13 +199,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   @Override
   public void setMockConfig(@Nullable MockConfig mockConfig) {
     // no-op
-  }
-
-  @Override
-  @Nullable
-  public MockConfig getMockConfig() {
-    throw new UnsupportedOperationException(
-            "GenericWebApplicationContext does not support getServletConfig()");
   }
 
   // ---------------------------------------------------------------------

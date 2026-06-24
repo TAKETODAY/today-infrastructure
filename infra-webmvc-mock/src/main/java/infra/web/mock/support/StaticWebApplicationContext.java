@@ -29,7 +29,6 @@ import infra.lang.Assert;
 import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.web.mock.ConfigurableWebApplicationContext;
-import infra.web.mock.MockConfigAware;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
 import infra.web.mock.WebApplicationContext;
@@ -95,12 +94,6 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
   }
 
   @Override
-  @Nullable
-  public MockConfig getMockConfig() {
-    return this.mockConfig;
-  }
-
-  @Override
   public void setNamespace(@Nullable String namespace) {
     this.namespace = namespace;
     if (namespace != null) {
@@ -145,9 +138,8 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext, this.mockConfig));
+    beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext));
     beanFactory.ignoreDependencyInterface(MockContextAware.class);
-    beanFactory.ignoreDependencyInterface(MockConfigAware.class);
 
     WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
     WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext, this.mockConfig);
