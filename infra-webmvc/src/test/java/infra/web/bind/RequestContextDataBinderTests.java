@@ -48,7 +48,7 @@ import infra.web.RequestContext;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.support.BindParamNameResolver;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.bind.MockRequestParameterPropertyValues;
+import infra.web.mock.MockUtils;
 import infra.web.multipart.Part;
 import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
@@ -343,8 +343,21 @@ class RequestContextDataBinderTests {
     request.addParameter("surname", "Blair");
     request.addParameter("age", "" + 50);
 
-    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
+    PropertyValues pvs = createPropertyValues(request);
     doTestTony(pvs);
+  }
+
+  private static PropertyValues createPropertyValues(HttpMockRequestImpl request) {
+    return createPropertyValues(request, null, DEFAULT_FIELD_DEFAULT_PREFIX);
+  }
+
+  private static PropertyValues createPropertyValues(HttpMockRequestImpl request, String prefix) {
+    return createPropertyValues(request, prefix, DEFAULT_FIELD_DEFAULT_PREFIX);
+  }
+
+  private static PropertyValues createPropertyValues(HttpMockRequestImpl request, @Nullable String prefix, @Nullable String prefixSeparator) {
+    return new PropertyValues(MockUtils.getParametersStartingWith(
+            request, (prefix != null ? prefix + prefixSeparator : null)));
   }
 
   @Test
@@ -354,12 +367,12 @@ class RequestContextDataBinderTests {
     request.addParameter("test_surname", "Blair");
     request.addParameter("test_age", "" + 50);
 
-    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
+    PropertyValues pvs = createPropertyValues(request);
     boolean condition = !pvs.contains("forname");
     assertThat(condition).as("Didn't find normal when given prefix").isTrue();
     assertThat(pvs.contains("test_forname")).as("Did treat prefix as normal when not given prefix").isTrue();
 
-    pvs = new MockRequestParameterPropertyValues(request, "test");
+    pvs = createPropertyValues(request, "test");
     doTestTony(pvs);
   }
 
@@ -393,7 +406,7 @@ class RequestContextDataBinderTests {
   @Test
   public void testNoParameters() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
+    PropertyValues pvs = createPropertyValues(request);
     assertThat(pvs.toArray().length == 0).as("Found no parameters").isTrue();
   }
 
@@ -403,7 +416,7 @@ class RequestContextDataBinderTests {
     String[] original = new String[] { "Tony", "Rod" };
     request.addParameter("forname", original);
 
-    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
+    PropertyValues pvs = createPropertyValues(request);
     assertThat(pvs.toArray().length == 1).as("Found 1 parameter").isTrue();
     boolean condition = pvs.getPropertyValue("forname") instanceof String[];
     assertThat(condition).as("Found array value").isTrue();

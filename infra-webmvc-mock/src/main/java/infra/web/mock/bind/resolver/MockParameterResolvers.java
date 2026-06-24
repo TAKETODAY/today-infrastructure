@@ -35,7 +35,6 @@ import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockUtils;
-import infra.web.mock.bind.MockContextAttribute;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -60,7 +59,6 @@ public class MockParameterResolvers {
     // Attributes
     // ------------------------
     resolvers.add(new ForHttpSessionAttribute());
-    resolvers.add(new ForMockContextAttribute(beanFactory, context));
     resolvers.add(new PrincipalMethodArgumentResolver());
   }
 
@@ -216,24 +214,4 @@ public class MockParameterResolvers {
     }
   }
 
-  static class ForMockContextAttribute extends AbstractNamedValueResolvingStrategy {
-    private final MockContext mockContext;
-
-    public ForMockContextAttribute(ConfigurableBeanFactory beanFactory, MockContext mockContext) {
-      super(beanFactory);
-      this.mockContext = mockContext;
-    }
-
-    @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.hasParameterAnnotation(MockContextAttribute.class);
-    }
-
-    @Nullable
-    @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-      return mockContext.getAttribute(name);
-    }
-
-  }
 }
