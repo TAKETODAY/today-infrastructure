@@ -23,13 +23,13 @@ import org.junit.jupiter.api.Test;
 import infra.beans.DirectFieldAccessor;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.support.StaticApplicationContext;
 import infra.mock.web.MockContextImpl;
 import infra.test.web.mock.MockMvc;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.mock.support.WebApplicationContextUtils;
 
 import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
@@ -62,9 +62,8 @@ public class DefaultMockMvcBuilderTests {
 
     this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
 
-    StaticWebApplicationContext child = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
     child.setParent(root);
-    child.setMockContext(this.mockContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(child);
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext().getParent());
@@ -82,12 +81,10 @@ public class DefaultMockMvcBuilderTests {
   @Test
   public void rootWacMockContainerAttributeNotPreviouslySetWithContextHierarchy() {
     StaticApplicationContext ear = new StaticApplicationContext();
-    StaticWebApplicationContext root = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext root = new AnnotationConfigApplicationContext();
     root.setParent(ear);
-    root.setMockContext(this.mockContext);
-    StaticWebApplicationContext dispatcher = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext dispatcher = new AnnotationConfigApplicationContext();
     dispatcher.setParent(root);
-    dispatcher.setMockContext(this.mockContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(dispatcher);
     ApplicationContext wac = builder.initWebAppContext();
@@ -95,7 +92,6 @@ public class DefaultMockMvcBuilderTests {
     assertThat(wac).isSameAs(dispatcher);
     assertThat(wac.getParent()).isSameAs(root);
     assertThat(wac.getParent().getParent()).isSameAs(ear);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(root);
   }
 
   @Test

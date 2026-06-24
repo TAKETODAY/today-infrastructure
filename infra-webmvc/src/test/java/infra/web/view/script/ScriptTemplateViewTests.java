@@ -34,11 +34,9 @@ import javax.script.ScriptEngine;
 
 import infra.beans.DirectFieldAccessor;
 import infra.context.ApplicationContextException;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.http.MediaType;
-import infra.mock.api.MockContext;
-import infra.mock.web.MockContextImpl;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.script.ScriptTemplateView.EngineKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,21 +57,20 @@ class ScriptTemplateViewTests {
 
   private ScriptTemplateConfigurer configurer;
 
-  private StaticWebApplicationContext wac;
+  private AnnotationConfigApplicationContext wac;
 
   @BeforeEach
   public void setup() {
     this.configurer = new ScriptTemplateConfigurer();
-    this.wac = new StaticWebApplicationContext();
+    this.wac = new AnnotationConfigApplicationContext();
+    wac.refresh();
+
     this.wac.getBeanFactory().registerSingleton("scriptTemplateConfigurer", this.configurer);
     this.view = new ScriptTemplateView();
   }
 
   @Test
   public void missingTemplate() throws Exception {
-    MockContext mockContext = new MockContextImpl();
-    this.wac.setMockContext(mockContext);
-    this.wac.refresh();
     this.view.setResourceLoaderPath("classpath:infra/web/view/script/");
     this.view.setUrl("missing.txt");
     this.view.setEngine(mock(InvocableScriptEngine.class));

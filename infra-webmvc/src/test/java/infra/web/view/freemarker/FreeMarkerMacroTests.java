@@ -32,6 +32,7 @@ import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -41,7 +42,6 @@ import infra.web.BindStatus;
 import infra.web.RequestContext;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static infra.web.view.config.AbstractTemplateViewResolverProperties.DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ class FreeMarkerMacroTests {
 
   private static final String TEMPLATE_FILE = "infra/web/view/freemarker/test.ftl";
 
-  private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
+  private final AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 

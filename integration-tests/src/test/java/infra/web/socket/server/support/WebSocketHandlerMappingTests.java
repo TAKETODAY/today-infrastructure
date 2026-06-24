@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HttpRequestHandler;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.socket.WebSocketHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,9 @@ public class WebSocketHandlerMappingTests {
 
     WebSocketHandlerMapping mapping = new WebSocketHandlerMapping();
     mapping.setUrlMap(Collections.singletonMap("/path", handler));
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    AnnotationConfigApplicationContext context1 = new AnnotationConfigApplicationContext();
+    context1.refresh();
+    mapping.setApplicationContext(context1);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
     MockRequestContext context = new MockRequestContext(null, request, new MockHttpResponseImpl());

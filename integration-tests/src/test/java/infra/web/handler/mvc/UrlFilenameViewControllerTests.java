@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.PathPatternsParameterizedTest;
 import infra.web.view.PathPatternsTestUtils;
@@ -140,7 +140,7 @@ class UrlFilenameViewControllerTests {
   void withContextMapping() throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/docs/cvs/commit.html");
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
     MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
     ModelAndView mv = getModelAndView(controller, context);

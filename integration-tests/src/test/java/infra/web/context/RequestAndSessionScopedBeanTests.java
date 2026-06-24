@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -31,9 +32,9 @@ import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
+import infra.web.RequestContextUtils;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -49,11 +50,12 @@ public class RequestAndSessionScopedBeanTests {
   public void testPutBeanInRequest() {
     String targetBeanName = "target";
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.setScope(RequestContext.SCOPE_REQUEST);
     bd.getPropertyValues().add("name", "abc");
     wac.registerBeanDefinition(targetBeanName, bd);
+    RequestContextUtils.registerScopes(wac.getBeanFactory());
     wac.refresh();
 
     HttpMockRequest request = new HttpMockRequestImpl();

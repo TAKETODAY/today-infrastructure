@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
@@ -48,7 +49,6 @@ import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -1030,7 +1030,7 @@ public class ResourceHttpRequestHandlerTests {
 
     @Test
     void mockContextRootValidation() {
-      StaticWebApplicationContext context = new StaticWebApplicationContext() {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext() {
         @Override
         public Resource getResource(String location) {
           return new FileSystemResource("/");

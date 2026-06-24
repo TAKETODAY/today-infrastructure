@@ -29,6 +29,7 @@ import java.util.Locale;
 
 import infra.beans.ConversionNotSupportedException;
 import infra.beans.TypeMismatchException;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticMessageSource;
 import infra.core.MethodParameter;
 import infra.core.i18n.LocaleContextHolder;
@@ -44,7 +45,6 @@ import infra.http.converter.HttpMessageNotWritableException;
 import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMockConfig;
 import infra.stereotype.Controller;
@@ -53,8 +53,8 @@ import infra.web.ErrorResponse;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
+import infra.web.MultipartException;
 import infra.web.RequestContext;
-import infra.web.server.ResponseStatusException;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
@@ -68,8 +68,7 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
-import infra.web.MultipartException;
+import infra.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -303,14 +302,13 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   void controllerAdvice() throws Exception {
-    StaticWebApplicationContext ctx = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
-    ctx.setMockContext(new MockContextImpl());
     ctx.refresh();
 
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
@@ -331,11 +329,10 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   void controllerAdviceWithNestedException() throws Exception {
-    StaticWebApplicationContext ctx = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
-    ctx.setMockContext(new MockContextImpl());
     ctx.refresh();
 
     ExceptionHandlerAnnotationExceptionHandler resolver = new ExceptionHandlerAnnotationExceptionHandler();
@@ -349,14 +346,13 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   void controllerAdviceWithinDispatcherHandler() throws Exception {
-    StaticWebApplicationContext ctx = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("controller", ExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
-    ctx.setMockContext(new MockContextImpl());
 
     ctx.refresh();
 
@@ -374,12 +370,11 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   void controllerAdviceWithNestedExceptionWithinDispatcherHandler() throws Exception {
-    StaticWebApplicationContext ctx = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("controller", NestedExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
-    ctx.setMockContext(new MockContextImpl());
 
     ctx.refresh();
 

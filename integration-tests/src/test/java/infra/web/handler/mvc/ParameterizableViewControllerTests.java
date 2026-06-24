@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -33,7 +34,6 @@ import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.RedirectView;
 import infra.web.view.View;
@@ -60,7 +60,7 @@ class ParameterizableViewControllerTests {
   public void setup() {
     this.controller = new ParameterizableViewController();
     this.request = new HttpMockRequestImpl("GET", "/");
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();
     this.context = new MockRequestContext(context, request, response);
   }
@@ -394,7 +394,7 @@ class ParameterizableViewControllerTests {
     ParameterizableViewController controller = new ParameterizableViewController();
     controller.setViewName("testView");
 
-    StaticWebApplicationContext appContext = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext appContext = new AnnotationConfigApplicationContext();
     appContext.refresh();
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();

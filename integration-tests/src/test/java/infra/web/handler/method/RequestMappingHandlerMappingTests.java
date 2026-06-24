@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AliasFor;
 import infra.http.HttpMethod;
@@ -41,7 +42,6 @@ import infra.http.service.annotation.HttpExchange;
 import infra.http.service.annotation.PostExchange;
 import infra.http.service.annotation.PutExchange;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
@@ -55,7 +55,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.util.pattern.PathPattern;
 import infra.web.view.PathPatternsParameterizedTest;
 
@@ -74,12 +73,12 @@ class RequestMappingHandlerMappingTests {
   @SuppressWarnings("unused")
   static Stream<Arguments> pathPatternsArguments() {
     RequestMappingHandlerMapping mapping1 = new RequestMappingHandlerMapping();
-    StaticWebApplicationContext wac1 = new StaticWebApplicationContext(new MockContextImpl());
+    AnnotationConfigApplicationContext wac1 = new AnnotationConfigApplicationContext(Object.class);
     mapping1.setApplicationContext(wac1);
     mapping1.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
 
     RequestMappingHandlerMapping mapping2 = new RequestMappingHandlerMapping();
-    StaticWebApplicationContext wac2 = new StaticWebApplicationContext(new MockContextImpl());
+    AnnotationConfigApplicationContext wac2 = new AnnotationConfigApplicationContext(Object.class);
     mapping2.setApplicationContext(wac2);
 
     return Stream.of(Arguments.of(mapping1, wac1), Arguments.of(mapping2, wac2));
@@ -88,7 +87,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void builderConfiguration() {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
 
     RequestMappingInfo.BuilderConfiguration config = mapping.getBuilderConfiguration();
     assertThat(config).isNotNull();
@@ -170,9 +169,8 @@ class RequestMappingHandlerMappingTests {
   }
 
   @PathPatternsParameterizedTest
-  void consumesWithOptionalRequestBody(RequestMappingHandlerMapping mapping, StaticWebApplicationContext wac) {
+  void consumesWithOptionalRequestBody(RequestMappingHandlerMapping mapping, AnnotationConfigApplicationContext wac) {
     wac.registerSingleton("testController", ComposedAnnotationController.class);
-    wac.refresh();
     mapping.afterPropertiesSet();
     RequestMappingInfo result = mapping.getHandlerMethods().keySet().stream()
             .filter(info -> info.getPatternValues().equals(Collections.singleton("/post")))
@@ -317,7 +315,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithDefaultValues() throws NoSuchMethodException {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
@@ -339,7 +337,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithCustomValues() throws Exception {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
@@ -367,7 +365,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithCustomHeaders() throws Exception {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
@@ -460,7 +458,7 @@ class RequestMappingHandlerMappingTests {
 
   private static RequestMappingHandlerMapping createMapping() {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
     mapping.afterPropertiesSet();
     return mapping;
   }
@@ -468,7 +466,7 @@ class RequestMappingHandlerMappingTests {
   private RequestMappingInfo assertComposedAnnotationMapping(HttpMethod requestMethod) throws Exception {
 
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
 
     String methodName = requestMethod.name().toLowerCase();
     String path = "/" + methodName;

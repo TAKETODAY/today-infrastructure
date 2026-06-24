@@ -28,14 +28,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
-import infra.util.AntPathMatcher;
-import infra.util.PathMatcher;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.HttpHeaders;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
+import infra.util.AntPathMatcher;
+import infra.util.PathMatcher;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestContext;
@@ -45,7 +46,6 @@ import infra.web.cors.CorsConfiguration;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.HandlerMethodMappingNamingStrategy;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -290,8 +290,9 @@ public class HandlerMethodMappingTests {
     String key = "foo";
     String beanName = "handler1";
 
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.registerSingleton(beanName, MyHandler.class);
+    context.refresh();
 
     this.mapping.setApplicationContext(context);
     this.mapping.registerMapping(key, beanName, this.method1);

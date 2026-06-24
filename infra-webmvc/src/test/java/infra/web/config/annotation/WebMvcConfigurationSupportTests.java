@@ -30,8 +30,8 @@ import java.util.Map;
 
 import infra.beans.DirectFieldAccessor;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Ordered;
-import infra.core.io.FileSystemResourceLoader;
 import infra.format.FormatterRegistry;
 import infra.http.HttpStatus;
 import infra.http.converter.HttpMessageConverter;
@@ -39,7 +39,6 @@ import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.scheduling.concurrent.ConcurrentTaskExecutor;
 import infra.stereotype.Controller;
 import infra.validation.BeanPropertyBindingResult;
@@ -76,7 +75,6 @@ import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
 import infra.web.view.ViewResolver;
@@ -96,15 +94,14 @@ class WebMvcConfigurationSupportTests {
 
   private TestWebMvcConfigurationSupport config;
 
-  private StaticWebApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   @BeforeEach
   void setUp() {
-    this.context = new StaticWebApplicationContext();
-    this.context.setMockContext(new MockContextImpl(new FileSystemResourceLoader()));
+    this.context = new AnnotationConfigApplicationContext();
     this.context.registerSingleton("controller", TestController.class);
     this.context.registerSingleton("userController", UserController.class);
-
+    context.refresh();
     this.config = new TestWebMvcConfigurationSupport();
     this.config.setApplicationContext(this.context);
   }

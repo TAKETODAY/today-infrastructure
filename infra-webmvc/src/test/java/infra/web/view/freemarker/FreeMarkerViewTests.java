@@ -35,6 +35,8 @@ import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import infra.context.ApplicationContextException;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
@@ -44,7 +46,6 @@ import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.AbstractView;
 import infra.web.view.InternalResourceView;
 import infra.web.view.RedirectView;
@@ -180,13 +181,11 @@ public class FreeMarkerViewTests {
 
   @Test
   public void freeMarkerViewResolver() throws Exception {
-    MockContextImpl sc = new MockContextImpl();
 
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
-    wac.setMockContext(sc);
+    ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.getBeanFactory().registerSingleton("configurer", configurer);
     wac.refresh();
 

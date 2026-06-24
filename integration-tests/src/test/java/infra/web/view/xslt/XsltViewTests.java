@@ -38,13 +38,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockUtils;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -63,8 +62,6 @@ public class XsltViewTests {
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
-
-  private final MockContextImpl mockContext = new MockContextImpl();
 
   @Test
   public void withNoSource() throws Exception {
@@ -203,7 +200,7 @@ public class XsltViewTests {
   private XsltView getXsltView(String templatePath) {
     XsltView view = new XsltView();
     view.setUrl(templatePath);
-    view.setApplicationContext(new StaticWebApplicationContext(mockContext));
+    view.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
     view.initApplicationContext();
     return view;
   }

@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.annotation.AnnotationUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -53,7 +54,6 @@ import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.MappedInterceptor;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.util.UriUtils;
 import infra.web.view.PathPatternsParameterizedTest;
 
@@ -77,7 +77,7 @@ class RequestMappingInfoHandlerMappingTests {
     TestRequestMappingInfoHandlerMapping mapping2 = new TestRequestMappingInfoHandlerMapping();
 
     return Stream.of(mapping1, mapping2).peek(mapping -> {
-      mapping.setApplicationContext(new StaticWebApplicationContext());
+      mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
       mapping.registerHandler(controller);
       mapping.afterPropertiesSet();
     });
@@ -258,7 +258,7 @@ class RequestMappingInfoHandlerMappingTests {
     TestRequestMappingInfoHandlerMapping mapping = new TestRequestMappingInfoHandlerMapping();
     mapping.registerHandler(new TestController());
     mapping.setInterceptors(mappedInterceptor);
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
@@ -480,7 +480,7 @@ class RequestMappingInfoHandlerMappingTests {
 
     context.setBinding(new BindingContext());
     Object result = new InvocableHandlerMethod(handlerMethod, new ResolvableParameterFactory())
-            .invokeForRequest(context, null,null);
+            .invokeForRequest(context, null, null);
 
     assertThat(result).isNotNull().isInstanceOf(HttpHeaders.class);
     HttpHeaders headers = (HttpHeaders) result;

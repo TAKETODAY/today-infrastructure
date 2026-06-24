@@ -19,8 +19,6 @@ package infra.web.handler.mvc;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.BeanNameAware;
-import infra.lang.Assert;
-import infra.mock.api.MockContext;
 import infra.web.RequestContext;
 import infra.web.mock.MockWrappingController;
 
@@ -55,8 +53,6 @@ public class MockForwardingController extends AbstractController implements Bean
 
   private @Nullable String beanName;
 
-  private MockContext mockContext;
-
   public MockForwardingController() {
     super(false);
   }
@@ -70,14 +66,6 @@ public class MockForwardingController extends AbstractController implements Bean
     this.mockName = mockName;
   }
 
-  public void setMockContext(MockContext mockContext) {
-    this.mockContext = mockContext;
-  }
-
-  public MockContext getMockContext() {
-    return mockContext;
-  }
-
   @Override
   public void setBeanName(String name) {
     this.beanName = name;
@@ -88,9 +76,6 @@ public class MockForwardingController extends AbstractController implements Bean
 
   @Override
   protected @Nullable Object handleRequestInternal(RequestContext request) throws Exception {
-    MockContext mockContext = getMockContext();
-    Assert.state(mockContext != null, "No MockContext");
-
     request.forward(mockName);
     if (logger.isTraceEnabled()) {
       logger.trace("Forwarded to servlet [{}] in MockForwardingController '{}'", mockName, beanName);

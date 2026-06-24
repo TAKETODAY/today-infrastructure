@@ -23,8 +23,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import infra.beans.factory.DisposableBean;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.MockConfig;
-import infra.mock.api.MockContext;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
@@ -36,7 +37,6 @@ import infra.web.DispatcherHandler;
 import infra.web.HttpRequestHandler;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockWrappingController;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ class ControllerTests {
     ParameterizableViewController pvc = new ParameterizableViewController();
     pvc.setViewName(viewName);
     // We don't care about the params.
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
     MockRequestContext context = new MockRequestContext(wac, new HttpMockRequestImpl("GET", "foo.html"), new MockHttpResponseImpl());
     ModelAndView mv = (ModelAndView) pvc.handleRequest(context);
@@ -83,15 +83,11 @@ class ControllerTests {
 
     HttpMockRequest request = mock(HttpMockRequest.class);
     HttpMockResponse response = mock(HttpMockResponse.class);
-    MockContext context = mock(MockContext.class);
 
     given(request.getMethod()).willReturn("GET");
 
-    StaticWebApplicationContext sac = new StaticWebApplicationContext();
-    sac.setMockContext(context);
+    ConfigurableApplicationContext sac = new AnnotationConfigApplicationContext();
     sfc.setApplicationContext(sac);
-
-    sfc.setMockContext(context);
 
     MockRequestContext mockRequestContext = new MockRequestContext(sac, request, response, new DispatcherHandler(sac));
 

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.MediaType;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
@@ -43,7 +44,6 @@ import infra.web.accept.MappingMediaTypeFileExtensionResolver;
 import infra.web.accept.ParameterContentNegotiationStrategy;
 import infra.web.accept.PathExtensionContentNegotiationStrategy;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -59,11 +59,10 @@ public class ContentNegotiatingViewResolverTests {
   private HttpMockRequestImpl request;
 
   RequestContext requestContext;
-  StaticWebApplicationContext wac = new StaticWebApplicationContext();
+  AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
   @BeforeEach
   public void createViewResolver() {
-    wac.setMockContext(new MockContextImpl());
     wac.refresh();
     viewResolver = new ContentNegotiatingViewResolver();
     viewResolver.setApplicationContext(wac);
@@ -82,7 +81,7 @@ public class ContentNegotiatingViewResolverTests {
   public void getMediaTypeAcceptHeaderWithProduces() throws Exception {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestContext);
-    matchingMetadata.setProducibleMediaTypes(List.of( MediaType.APPLICATION_XHTML_XML ));
+    matchingMetadata.setProducibleMediaTypes(List.of(MediaType.APPLICATION_XHTML_XML));
     requestContext.setMatchingMetadata(matchingMetadata);
 
     request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");

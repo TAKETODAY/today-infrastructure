@@ -18,6 +18,7 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.lang.annotation.ElementType;
@@ -30,6 +31,7 @@ import java.util.Properties;
 import java.util.stream.Stream;
 
 import infra.beans.DirectFieldAccessor;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotatedElementUtils;
@@ -37,9 +39,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.core.env.PropertiesPropertySource;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import org.jspecify.annotations.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.web.HandlerInterceptor;
@@ -50,7 +50,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,8 +64,7 @@ class CrossOriginTests {
 
   @SuppressWarnings("unused")
   static Stream<TestRequestMappingInfoHandlerMapping> pathPatternsArguments() {
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
-    wac.setMockContext(new MockContextImpl());
+    AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     Properties props = new Properties();
     props.setProperty("myOrigin", "https://example.com");
     props.setProperty("myDomainPattern", "http://*.example.com");
@@ -123,7 +121,6 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-
   void noAnnotationWithOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
     this.request.setRequestURI("/no");
@@ -132,7 +129,6 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-
   void noAnnotationPostWithOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
     this.request.setMethod("POST");
@@ -270,7 +266,6 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-
   void classLevelComposedAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new ClassLevelMappingWithComposedAnnotation());
 
@@ -284,7 +279,6 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-
   void methodLevelComposedAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelMappingWithComposedAnnotation());
 
@@ -459,11 +453,11 @@ class CrossOriginTests {
     }
 
     @CrossOrigin(origins = { "https://site1.com", "https://site2.com" },
-                 allowedHeaders = { "header1", "header2" },
-                 exposedHeaders = { "header3", "header4" },
-                 methods = HttpMethod.DELETE,
-                 maxAge = 123,
-                 allowCredentials = "false")
+            allowedHeaders = { "header1", "header2" },
+            exposedHeaders = { "header3", "header4" },
+            methods = HttpMethod.DELETE,
+            maxAge = 123,
+            allowCredentials = "false")
     @RequestMapping(path = "/customized", method = { HttpMethod.GET, HttpMethod.POST })
     public void customized() {
     }

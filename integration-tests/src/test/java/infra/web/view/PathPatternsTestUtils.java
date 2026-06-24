@@ -18,15 +18,16 @@
 
 package infra.web.view;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.jspecify.annotations.Nullable;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 public abstract class PathPatternsTestUtils {
 
@@ -41,7 +42,7 @@ public abstract class PathPatternsTestUtils {
   }
 
   public static MockRequestContext createRequest(String method, @Nullable String contextPath, String path) {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;

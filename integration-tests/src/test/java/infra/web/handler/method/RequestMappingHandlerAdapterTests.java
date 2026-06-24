@@ -44,7 +44,6 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
@@ -68,7 +67,6 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.result.ResponseBodyEmitter;
 import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.testfixture.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,7 +86,7 @@ class RequestMappingHandlerAdapterTests {
 
   private MockHttpResponseImpl response;
 
-  private StaticWebApplicationContext webAppContext;
+  private AnnotationConfigApplicationContext webAppContext;
 
   private MockRequestContext context;
 
@@ -97,14 +95,15 @@ class RequestMappingHandlerAdapterTests {
   @BeforeAll
   public static void setupOnce() {
     RequestMappingHandlerAdapter adapter = new RequestMappingHandlerAdapter();
-    adapter.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
+    adapter.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
     adapter.afterPropertiesSet();
   }
 
   @BeforeEach
   public void setup() throws Exception {
-    this.webAppContext = new StaticWebApplicationContext(new MockContextImpl());
+    this.webAppContext = new AnnotationConfigApplicationContext();
     webAppContext.setParent(parent);
+    webAppContext.refresh();
 
     handlerAdapter = new RequestMappingHandlerAdapter();
     handlerAdapter.setApplicationContext(this.webAppContext);
@@ -156,7 +155,6 @@ class RequestMappingHandlerAdapterTests {
   @Test
   public void modelAttributeAdvice() throws Throwable {
     this.webAppContext.registerSingleton("maa", ModelAttributeAdvice.class);
-    this.webAppContext.refresh();
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
@@ -171,7 +169,6 @@ class RequestMappingHandlerAdapterTests {
   @Test
   public void prototypeControllerAdvice() throws Throwable {
     this.webAppContext.registerPrototype("maa", ModelAttributeAdvice.class);
-    this.webAppContext.refresh();
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
@@ -190,7 +187,6 @@ class RequestMappingHandlerAdapterTests {
   @Test
   public void modelAttributeAdviceInParentContext() throws Throwable {
     parent.registerSingleton("maa", ModelAttributeAdvice.class);
-    this.webAppContext.refresh();
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
@@ -207,7 +203,6 @@ class RequestMappingHandlerAdapterTests {
   public void modelAttributePackageNameAdvice() throws Throwable {
     this.webAppContext.registerSingleton("mapa", ModelAttributePackageAdvice.class);
     this.webAppContext.registerSingleton("manupa", ModelAttributeNotUsedPackageAdvice.class);
-    this.webAppContext.refresh();
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
@@ -224,7 +219,6 @@ class RequestMappingHandlerAdapterTests {
   @Test
   public void responseBodyAdvice() throws Throwable {
     parent.registerSingleton("rba", ResponseCodeSuppressingAdvice.class);
-    this.webAppContext.refresh();
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handleBadRequest");
     this.handlerAdapter.afterPropertiesSet();
@@ -242,7 +236,7 @@ class RequestMappingHandlerAdapterTests {
   @Test
   public void responseBodyAdviceWithEmptyBody() throws Throwable {
     webAppContext.registerBean("rba", EmptyBodyAdvice.class);
-    this.webAppContext.refresh();
+
     RequestResponseBodyMethodProcessor processor = webAppContext.getBean(ParameterResolvingRegistry.class)
             .getDefaultStrategies().get(RequestResponseBodyMethodProcessor.class);
     RequestResponseBodyAdviceChain advice = (RequestResponseBodyAdviceChain) ReflectionTestUtils.getField(processor, "advice");

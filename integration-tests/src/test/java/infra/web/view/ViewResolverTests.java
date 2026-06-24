@@ -19,16 +19,15 @@
 package infra.web.view;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.mock.web.MockContextImpl;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.web.RequestContext;
-import infra.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,13 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ViewResolverTests {
 
-  private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
-  private final MockContextImpl sc = new MockContextImpl();
-
-  @BeforeEach
-  public void setUp() {
-    this.wac.setMockContext(this.sc);
-  }
+  private final ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
 
   @Test
   public void urlBasedViewResolverOverridesCustomRequestContextAttributeWithNonNullValue() throws Exception {

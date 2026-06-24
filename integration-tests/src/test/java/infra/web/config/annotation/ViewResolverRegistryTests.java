@@ -26,9 +26,10 @@ import java.util.List;
 
 import infra.beans.DirectFieldAccessor;
 import infra.beans.factory.BeanInitializationException;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Ordered;
 import infra.web.accept.ContentNegotiationManager;
-import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.ViewResolver;
@@ -54,11 +55,12 @@ class ViewResolverRegistryTests {
 
   @BeforeEach
   public void setup() {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.registerSingleton("freeMarkerConfigurer", FreeMarkerConfigurer.class);
     context.registerSingleton("groovyMarkupConfigurer", GroovyMarkupConfigurer.class);
     context.registerSingleton("scriptTemplateConfigurer", ScriptTemplateConfigurer.class);
 
+    context.refresh();
     this.registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
   }
 
@@ -273,7 +275,7 @@ class ViewResolverRegistryTests {
 
   @Test
   void freeMarkerThrowsExceptionWhenConfigurerNotFound() {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ConfigurableApplicationContext context = createApplicationContext();
     ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
 
     assertThatThrownBy(registry::freeMarker)
@@ -283,7 +285,7 @@ class ViewResolverRegistryTests {
 
   @Test
   void groovyThrowsExceptionWhenConfigurerNotFound() {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ConfigurableApplicationContext context = createApplicationContext();
     ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
 
     assertThatThrownBy(registry::groovy)
@@ -293,7 +295,7 @@ class ViewResolverRegistryTests {
 
   @Test
   void scriptTemplateThrowsExceptionWhenConfigurerNotFound() {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ConfigurableApplicationContext context = createApplicationContext();
     ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
 
     assertThatThrownBy(registry::scriptTemplate)
@@ -303,7 +305,7 @@ class ViewResolverRegistryTests {
 
   @Test
   void notFoundBeanOfTypeReturnsTrueWhenNoBeans() {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    ConfigurableApplicationContext context = createApplicationContext();
     ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
 
     boolean result = registry.notFoundBeanOfType(FreeMarkerConfigurer.class);
@@ -311,12 +313,18 @@ class ViewResolverRegistryTests {
     assertThat(result).isTrue();
   }
 
+  private ConfigurableApplicationContext createApplicationContext() {
+    ConfigurableApplicationContext context = new AnnotationConfigApplicationContext();
+    context.refresh();
+    return context;
+  }
+
   @Test
   void notFoundBeanOfTypeReturnsFalseWhenBeansExist() {
-    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.registerSingleton("freeMarkerConfigurer", FreeMarkerConfigurer.class);
     ViewResolverRegistry registry = new ViewResolverRegistry(new ContentNegotiationManager(), context);
-
+    context.refresh();
     boolean result = registry.notFoundBeanOfType(FreeMarkerConfigurer.class);
 
     assertThat(result).isFalse();
