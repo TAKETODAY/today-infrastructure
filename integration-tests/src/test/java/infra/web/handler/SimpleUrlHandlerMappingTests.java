@@ -26,15 +26,14 @@ import java.util.Collections;
 
 import infra.beans.FatalBeanException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.XmlWebApplicationContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,16 +50,12 @@ public class SimpleUrlHandlerMappingTests {
   @Test
   @SuppressWarnings("resource")
   public void handlerBeanNotFound() {
-    MockContextImpl sc = new MockContextImpl("");
-    XmlWebApplicationContext root = new XmlWebApplicationContext();
-    root.setMockContext(sc);
+    ClassPathXmlApplicationContext root = new ClassPathXmlApplicationContext();
     root.setConfigLocations("/infra/web/handler/map1.xml");
     root.refresh();
 
-    XmlWebApplicationContext wac = new XmlWebApplicationContext();
+    ClassPathXmlApplicationContext wac = new ClassPathXmlApplicationContext();
     wac.setParent(root);
-    wac.setMockContext(sc);
-    wac.setNamespace("map2err");
     wac.setConfigLocations("/infra/web/handler/map2err.xml");
     assertThatExceptionOfType(FatalBeanException.class)
             .isThrownBy(wac::refresh)
@@ -88,9 +83,8 @@ public class SimpleUrlHandlerMappingTests {
   @ParameterizedTest
   @ValueSource(strings = { "urlMapping", "urlMappingWithProps", "urlMappingWithPathPatterns" })
   void checkMappings(String beanName) throws Throwable {
-    MockContextImpl sc = new MockContextImpl("");
-    XmlWebApplicationContext wac = new XmlWebApplicationContext();
-    wac.setMockContext(sc);
+    ClassPathXmlApplicationContext wac = new ClassPathXmlApplicationContext();
+//    wac.setMockContext(sc);
     wac.setConfigLocations("/infra/web/handler/map2.xml");
     wac.refresh();
     Object bean = wac.getBean("mainController");

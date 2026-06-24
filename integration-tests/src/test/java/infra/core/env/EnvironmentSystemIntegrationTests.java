@@ -52,7 +52,6 @@ import infra.util.FileCopyUtils;
 import infra.web.mock.support.AbstractRefreshableWebApplicationContext;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.mock.support.StandardMockEnvironment;
-import infra.web.mock.support.XmlWebApplicationContext;
 
 import static infra.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static infra.core.env.Environment.ENVIRONMENT_BEAN_NAME;
@@ -332,7 +331,7 @@ public class EnvironmentSystemIntegrationTests {
 
   @Test
   void xmlWebApplicationContext() {
-    AbstractRefreshableWebApplicationContext ctx = new XmlWebApplicationContext();
+    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     ctx.setConfigLocation("classpath:" + Constants.XML_PATH);
     ctx.setEnvironment(prodWebEnv);
     ctx.refresh();

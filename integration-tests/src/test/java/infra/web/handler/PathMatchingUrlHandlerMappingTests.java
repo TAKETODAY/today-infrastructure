@@ -22,16 +22,14 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
 
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.XmlWebApplicationContext;
 import infra.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,12 +40,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class PathMatchingUrlHandlerMappingTests {
+
   static final String PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE = "PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE";
 
   @SuppressWarnings("unused")
   static Stream<?> pathPatternsArguments() {
     String location = "/infra/web/handler/map3.xml";
-    WebApplicationContext wac = initConfig(location);
+    ApplicationContext wac = initConfig(location);
 
     SimpleUrlHandlerMapping mapping1 = wac.getBean("urlMapping1", SimpleUrlHandlerMapping.class);
     assertThat(mapping1.getPathPatternHandlerMap()).isNotEmpty();
@@ -58,17 +57,15 @@ public class PathMatchingUrlHandlerMappingTests {
     return Stream.of(Arguments.of(mapping1, wac), Arguments.of(mapping2, wac));
   }
 
-  private static WebApplicationContext initConfig(String... configLocations) {
-    MockContextImpl sc = new MockContextImpl("");
-    ConfigurableWebApplicationContext context = new XmlWebApplicationContext();
-    context.setMockContext(sc);
+  private static ApplicationContext initConfig(String... configLocations) {
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext();
     context.setConfigLocations(configLocations);
     context.refresh();
     return context;
   }
 
   @PathPatternsParameterizedTest
-  void requestsWithHandlers(HandlerMapping mapping, WebApplicationContext wac) throws Throwable {
+  void requestsWithHandlers(HandlerMapping mapping, ApplicationContext wac) throws Throwable {
     Object bean = wac.getBean("mainController");
 
     HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/welcome.html");
@@ -85,7 +82,7 @@ public class PathMatchingUrlHandlerMappingTests {
   }
 
   @PathPatternsParameterizedTest
-  void actualPathMatching(SimpleUrlHandlerMapping mapping, WebApplicationContext wac) throws Throwable {
+  void actualPathMatching(SimpleUrlHandlerMapping mapping, ApplicationContext wac) throws Throwable {
     // there a couple of mappings defined with which we can test the
     // path matching, let's do that...
 
@@ -254,7 +251,7 @@ public class PathMatchingUrlHandlerMappingTests {
   }
 
   @PathPatternsParameterizedTest
-  void defaultMapping(HandlerMapping mapping, WebApplicationContext wac) throws Throwable {
+  void defaultMapping(HandlerMapping mapping, ApplicationContext wac) throws Throwable {
     Object bean = wac.getBean("starController");
     HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/goggog.html");
     HandlerExecutionChain hec = getHandler(mapping, wac, req);
@@ -262,7 +259,7 @@ public class PathMatchingUrlHandlerMappingTests {
   }
 
   @PathPatternsParameterizedTest
-  void mappingExposedInRequest(HandlerMapping mapping, WebApplicationContext wac) throws Throwable {
+  void mappingExposedInRequest(HandlerMapping mapping, ApplicationContext wac) throws Throwable {
     Object bean = wac.getBean("mainController");
     HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/show.html");
     HandlerExecutionChain hec = getHandler(mapping, wac, req);
@@ -272,7 +269,7 @@ public class PathMatchingUrlHandlerMappingTests {
   }
 
   private HandlerExecutionChain getHandler(
-          HandlerMapping mapping, WebApplicationContext wac, HttpMockRequestImpl request)
+          HandlerMapping mapping, ApplicationContext wac, HttpMockRequestImpl request)
           throws Throwable {
 
     MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());

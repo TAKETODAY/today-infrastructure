@@ -41,9 +41,6 @@ import infra.mock.api.MockContext;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.web.mock.MockUtils;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
-import infra.web.mock.support.GenericWebApplicationContext;
-import infra.web.mock.support.XmlWebApplicationContext;
 
 /**
  * Mock implementation of the {@link MockContext} interface.
@@ -60,9 +57,6 @@ import infra.web.mock.support.XmlWebApplicationContext;
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #MockContextImpl(ResourceLoader)
- * @see AnnotationConfigWebApplicationContext
- * @see XmlWebApplicationContext
- * @see GenericWebApplicationContext
  * @since 4.0
  */
 public class MockContextImpl implements MockContext {

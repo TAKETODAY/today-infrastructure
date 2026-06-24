@@ -18,6 +18,7 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,18 +26,15 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
+import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.env.MapPropertySource;
-import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockException;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Component;
 import infra.web.HandlerMapping;
-import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.XmlWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -47,13 +45,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class BeanNameUrlHandlerMappingTests {
 
-  private ConfigurableWebApplicationContext wac;
+  private ClassPathXmlApplicationContext wac;
 
   @BeforeEach
   public void setUp() throws Exception {
-    MockContextImpl sc = new MockContextImpl("");
-    wac = new XmlWebApplicationContext();
-    wac.setMockContext(sc);
+    wac = new ClassPathXmlApplicationContext();
     wac.setConfigLocations("/infra/web/handler/map1.xml");
     wac.refresh();
   }
