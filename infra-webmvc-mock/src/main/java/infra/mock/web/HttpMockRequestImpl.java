@@ -1195,13 +1195,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.userRoles.add(role);
   }
 
-  @Override
-  public boolean isUserInRole(String role) {
-    return (this.userRoles.contains(role) ||
-            (this.mockContext instanceof MockContextImpl mockContext &&
-                    mockContext.getDeclaredRoles().contains(role)));
-  }
-
   public void setUserPrincipal(@Nullable Principal userPrincipal) {
     this.userPrincipal = userPrincipal;
   }

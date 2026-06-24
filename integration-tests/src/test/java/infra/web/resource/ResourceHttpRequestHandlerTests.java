@@ -390,16 +390,10 @@ public class ResourceHttpRequestHandlerTests {
 
     @Test
     void getResourceWithMediaTypeResolvedThroughMockContext() throws Throwable {
-      MockContextImpl mockContext = new MockContextImpl() {
-        @Override
-        public String getMimeType(String filePath) {
-          return "foo/bar";
-        }
-      };
+      MockContextImpl mockContext = new MockContextImpl();
 
       List<Resource> paths = List.of(new ClassPathResource("test/", getClass()));
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-//      handler.setMockContext(mockContext);
       handler.setLocations(paths);
       handler.afterPropertiesSet();
 
@@ -1057,18 +1051,6 @@ public class ResourceHttpRequestHandlerTests {
 
   private static class TestMockContext extends MockContextImpl {
 
-    @Override
-    public String getMimeType(String filePath) {
-      if (filePath.endsWith(".css")) {
-        return "text/css";
-      }
-      else if (filePath.endsWith(".js")) {
-        return "text/javascript";
-      }
-      else {
-        return super.getMimeType(filePath);
-      }
-    }
   }
 
 }

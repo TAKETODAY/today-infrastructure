@@ -55,7 +55,6 @@ public class MockContextResourcePatternLoader extends PathMatchingPatternResourc
    * Create a new MockContextPatternResourceLoader.
    *
    * @param mockContext the MockContext to load resources with
-   * @see MockContextResourceLoader#MockContextResourceLoader(MockContext)
    */
   public MockContextResourcePatternLoader(MockContext mockContext) {
     super(new MockContextResourceLoader(mockContext));

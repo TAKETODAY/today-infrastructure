@@ -85,8 +85,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
   public void init(MockConfig mockConfig) {
     this.mockConfig = mockConfig;
     String servletName = mockConfig.getMockName();
-    mockConfig.getMockContext().log("Initializing Infra %s '%s'".formatted(getClass().getSimpleName(), servletName));
-    log.info("Initializing Servlet '{}'", servletName);
+    log.info("Initializing '{}'", servletName);
 
     start();
   }
@@ -181,12 +180,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
    */
   public String getName() {
     return getMockConfig().getMockName();
-  }
-
-  @Override
-  protected void logInfo(String msg) {
-    super.logInfo(msg);
-    getMockContext().log(msg);
   }
 
 }

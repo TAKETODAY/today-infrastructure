@@ -153,14 +153,6 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
   }
 
   /**
-   * The default behavior of this method is to return isUserInRole(String role) on the wrapped request object.
-   */
-  @Override
-  public boolean isUserInRole(String role) {
-    return this._getHttpMockRequest().isUserInRole(role);
-  }
-
-  /**
    * The default behavior of this method is to return getUserPrincipal() on the wrapped request object.
    */
   @Override

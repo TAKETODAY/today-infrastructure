@@ -34,16 +34,12 @@ import java.util.Set;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.http.MediaType;
-import infra.http.MediaTypeFactory;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mock.api.MockContext;
 import infra.util.ClassUtils;
-import infra.util.MimeType;
 import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 import infra.web.mock.MockUtils;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
@@ -79,21 +75,9 @@ public class MockContextImpl implements MockContext {
 
   private final String resourceBasePath;
 
-  private int majorVersion = 3;
-
-  private int minorVersion = 1;
-
-  private int effectiveMajorVersion = 3;
-
-  private int effectiveMinorVersion = 1;
-
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
-
-  private final Set<String> declaredRoles = new LinkedHashSet<>();
-
-  private final Map<String, MediaType> mimeTypes = new LinkedHashMap<>();
 
   /**
    * Create a new {@code MockContext}, using no base path and a
@@ -151,67 +135,6 @@ public class MockContextImpl implements MockContext {
       path = "/" + path;
     }
     return this.resourceBasePath + path;
-  }
-
-  public void setMajorVersion(int majorVersion) {
-    this.majorVersion = majorVersion;
-  }
-
-  @Override
-  public int getMajorVersion() {
-    return this.majorVersion;
-  }
-
-  public void setMinorVersion(int minorVersion) {
-    this.minorVersion = minorVersion;
-  }
-
-  @Override
-  public int getMinorVersion() {
-    return this.minorVersion;
-  }
-
-  public void setEffectiveMajorVersion(int effectiveMajorVersion) {
-    this.effectiveMajorVersion = effectiveMajorVersion;
-  }
-
-  @Override
-  public int getEffectiveMajorVersion() {
-    return this.effectiveMajorVersion;
-  }
-
-  public void setEffectiveMinorVersion(int effectiveMinorVersion) {
-    this.effectiveMinorVersion = effectiveMinorVersion;
-  }
-
-  @Override
-  public int getEffectiveMinorVersion() {
-    return this.effectiveMinorVersion;
-  }
-
-  @Override
-  @Nullable
-  public String getMimeType(String filePath) {
-    String extension = StringUtils.getFilenameExtension(filePath);
-    if (this.mimeTypes.containsKey(extension)) {
-      return this.mimeTypes.get(extension).toString();
-    }
-    else {
-      return MediaTypeFactory.getMediaType(filePath).
-              map(MimeType::toString)
-              .orElse(null);
-    }
-  }
-
-  /**
-   * Adds a mime type mapping for use by {@link #getMimeType(String)}.
-   *
-   * @param fileExtension a file extension, such as {@code txt}, {@code gif}
-   * @param mimeType the mime type
-   */
-  public void addMimeType(String fileExtension, MediaType mimeType) {
-    Assert.notNull(fileExtension, "'fileExtension' is required");
-    this.mimeTypes.put(fileExtension, mimeType);
   }
 
   @Override
@@ -292,16 +215,6 @@ public class MockContextImpl implements MockContext {
   }
 
   @Override
-  public void log(String message) {
-    logger.info(message);
-  }
-
-  @Override
-  public void log(String message, Throwable ex) {
-    logger.info(message, ex);
-  }
-
-  @Override
   @Nullable
   public String getRealPath(String path) {
     String resourceLocation = getResourceLocation(path);
@@ -317,11 +230,6 @@ public class MockContextImpl implements MockContext {
       }
       return null;
     }
-  }
-
-  @Override
-  public String getServerInfo() {
-    return "MockContext";
   }
 
   @Override
@@ -383,18 +291,6 @@ public class MockContextImpl implements MockContext {
   @Nullable
   public ClassLoader getClassLoader() {
     return ClassUtils.getDefaultClassLoader();
-  }
-
-  public void declareRoles(String... roleNames) {
-    Assert.notNull(roleNames, "Role names array is required");
-    for (String roleName : roleNames) {
-      Assert.hasLength(roleName, "Role name must not be empty");
-      this.declaredRoles.add(roleName);
-    }
-  }
-
-  public Set<String> getDeclaredRoles() {
-    return Collections.unmodifiableSet(this.declaredRoles);
   }
 
 }

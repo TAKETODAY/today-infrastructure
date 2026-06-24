@@ -36,7 +36,6 @@ import infra.web.mock.WebApplicationContext;
  * @see #getResourceByPath
  * @see MockContextResource
  * @see WebApplicationContext
- * @see GenericFilterBean
  * @since 4.0 2022/2/20 16:16
  */
 public class MockContextResourceLoader extends DefaultResourceLoader {

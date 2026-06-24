@@ -50,42 +50,6 @@ import java.util.Set;
  */
 public interface MockContext {
 
-  int getMajorVersion();
-
-  /**
-   * @return The minor version of Jakarta Servlet specification that this container supports
-   */
-  int getMinorVersion();
-
-  /**
-   * <p>
-   * The value returned may be different from {@link #getMajorVersion}, which returns the major version of the Servlet
-   * specification supported by the Servlet container.
-   *
-   * @return the major version of the Servlet specification that the application represented by this MockContext is
-   * based on
-   */
-  int getEffectiveMajorVersion();
-
-  /**
-   * The value returned may be different from {@link #getMinorVersion}, which returns the minor version of the Servlet
-   * specification supported by the Servlet container.
-   *
-   * @return the minor version of the Servlet specification that the application represented by this MockContext is
-   * based on
-   */
-  int getEffectiveMinorVersion();
-
-  /**
-   * Returns the MIME type of the specified file, or <code>null</code> if the MIME type is not known. The MIME type is
-   * determined by the configuration of the servlet container, and may be specified in a web application deployment
-   * descriptor. Common MIME types include <code>text/html</code> and <code>image/gif</code>.
-   *
-   * @param file a <code>String</code> specifying the name of a file
-   * @return a <code>String</code> specifying the file's MIME type
-   */
-  String getMimeType(String file);
-
   /**
    * Returns a directory-like listing of all the paths to resources within the web application whose longest sub-path
    * matches the supplied path argument.
@@ -206,23 +170,6 @@ public interface MockContext {
   InputStream getResourceAsStream(String path);
 
   /**
-   * Writes the specified message to a servlet log file, usually an event log. The name and type of the servlet log file
-   * is specific to the servlet container.
-   *
-   * @param msg a <code>String</code> specifying the message to be written to the log file
-   */
-  void log(String msg);
-
-  /**
-   * Writes an explanatory message and a stack trace for a given <code>Throwable</code> exception to the servlet log file.
-   * The name and type of the servlet log file is specific to the servlet container, usually an event log.
-   *
-   * @param message a <code>String</code> that describes the error or exception
-   * @param throwable the <code>Throwable</code> error or exception
-   */
-  void log(String message, Throwable throwable);
-
-  /**
    * Gets the <i>real</i> path corresponding to the given <i>virtual</i> path.
    *
    * <p>
@@ -253,21 +200,6 @@ public interface MockContext {
    * @return the <i>real</i> path, or <tt>null</tt> if the translation cannot be performed
    */
   String getRealPath(String path);
-
-  /**
-   * Returns the name and version of the servlet container on which the servlet is running.
-   *
-   * <p>
-   * The form of the returned string is <i>servername</i>/<i>versionnumber</i>. For example, the JavaServer Web
-   * Development Kit may return the string <code>JavaServer Web Dev Kit/1.0</code>.
-   *
-   * <p>
-   * The servlet container may return other optional information after the primary string in parentheses, for example,
-   * <code>JavaServer Web Dev Kit/1.0 (JDK 1.1.6; Windows NT 4.0 x86)</code>.
-   *
-   * @return a <code>String</code> containing at least the servlet container name and version number
-   */
-  String getServerInfo();
 
   /**
    * Returns a <code>String</code> containing the value of the named context-wide initialization parameter, or

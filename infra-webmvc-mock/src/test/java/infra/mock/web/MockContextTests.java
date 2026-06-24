@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.Set;
 
 import infra.core.io.FileSystemResourceLoader;
-import infra.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,36 +69,6 @@ class MockContextTests {
     void getResourcePathsWithInvalidPath() {
       Set<String> paths = mockContext.getResourcePaths("/web/invalid");
       assertThat(paths).isNull();
-    }
-
-    @Test
-    void getMimeType() {
-      assertThat(mockContext.getMimeType("test.html")).isEqualTo("text/html");
-      assertThat(mockContext.getMimeType("test.gif")).isEqualTo("image/gif");
-      assertThat(mockContext.getMimeType("test.foobar")).isNull();
-    }
-
-    @Test
-    void getMimeTypeWithCustomConfiguredType() {
-      mockContext.addMimeType("enigma", new MediaType("text", "enigma"));
-      assertThat(mockContext.getMimeType("filename.enigma")).isEqualTo("text/enigma");
-    }
-
-    @Test
-    void mockVersion() {
-      assertThat(mockContext.getMajorVersion()).isEqualTo(3);
-      assertThat(mockContext.getMinorVersion()).isEqualTo(1);
-      assertThat(mockContext.getEffectiveMajorVersion()).isEqualTo(3);
-      assertThat(mockContext.getEffectiveMinorVersion()).isEqualTo(1);
-
-      mockContext.setMajorVersion(4);
-      mockContext.setMinorVersion(0);
-      mockContext.setEffectiveMajorVersion(4);
-      mockContext.setEffectiveMinorVersion(0);
-      assertThat(mockContext.getMajorVersion()).isEqualTo(4);
-      assertThat(mockContext.getMinorVersion()).isEqualTo(0);
-      assertThat(mockContext.getEffectiveMajorVersion()).isEqualTo(4);
-      assertThat(mockContext.getEffectiveMinorVersion()).isEqualTo(0);
     }
 
   }

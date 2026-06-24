@@ -31,7 +31,6 @@ import java.util.Properties;
 import infra.http.MediaType;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
-import infra.util.StringUtils;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.mock.MockRequestContext;
 
@@ -285,11 +284,6 @@ class ContentNegotiationManagerFactoryBeanTests {
       return this.mimeTypes;
     }
 
-    @Override
-    public String getMimeType(String filePath) {
-      String extension = StringUtils.getFilenameExtension(filePath);
-      return getMimeTypes().get(extension);
-    }
   }
 
 }

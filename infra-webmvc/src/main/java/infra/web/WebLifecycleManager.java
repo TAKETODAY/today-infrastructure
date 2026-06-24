@@ -82,15 +82,6 @@ public abstract class WebLifecycleManager implements BeanNameAware, SmartLifecyc
   }
 
   /**
-   * Logs an informational message.
-   *
-   * @param msg the message to log
-   */
-  protected void logInfo(final String msg) {
-    log.info(msg);
-  }
-
-  /**
    * Return this ApplicationContext.
    */
   public final ApplicationContext getApplicationContext() {
