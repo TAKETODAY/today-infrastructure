@@ -1501,7 +1501,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
-    assertThat(response.getStatus()).isEqualTo(500);
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(response.getForwardedUrl()).isEqualTo("home");
 
     // Accept "*/*"
     request = new HttpMockRequestImpl("GET", "/");
@@ -1509,7 +1510,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
-    assertThat(response.getStatus()).isEqualTo(500);
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(response.getForwardedUrl()).isEqualTo("home");
 
     // Accept "application/json"
     request = new HttpMockRequestImpl("GET", "/");
