@@ -49,7 +49,6 @@ import infra.util.ObjectUtils;
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AssertableApplicationContext
- * @see AssertableWebApplicationContext
  * @see AssertableReactiveWebApplicationContext
  * @see ApplicationContextAssert
  * @since 4.0

@@ -206,18 +206,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   // ---------------------------------------------------------------------
 
   @Override
-  public void setNamespace(@Nullable String namespace) {
-    // no-op
-  }
-
-  @Override
-  @Nullable
-  public String getNamespace() {
-    throw new UnsupportedOperationException(
-            "GenericWebApplicationContext does not support getNamespace()");
-  }
-
-  @Override
   public void setConfigLocation(String configLocation) {
     if (StringUtils.hasText(configLocation)) {
       throw new UnsupportedOperationException(

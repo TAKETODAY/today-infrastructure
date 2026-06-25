@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.UrlResource;
@@ -37,14 +38,12 @@ import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMockConfig;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,8 +56,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourceHttpRequestHandlerIntegrationTests {
 
   private final MockContextImpl mockContext = new MockContextImpl();
-
-  private final MockMockConfig mockConfig = new MockMockConfig(this.mockContext);
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(
@@ -100,19 +97,18 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
   @Test
   void testNoResourceFoundException() throws Exception {
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setMockConfig(this.mockConfig);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(WebConfig.class);
     context.register(GlobalExceptionHandler.class);
     context.refresh();
 
-    MockDispatcherHandler servlet = new MockDispatcherHandler(context);
-    servlet.init(this.mockConfig);
+    MockDispatcherHandler handler = new MockDispatcherHandler(context);
+    handler.start();
 
     HttpMockRequestImpl request = initRequest("/cp/non-existing");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    servlet.service(request, response);
+    handler.service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(404);
 //    assertThat(response.getContentType()).isEqualTo("application/problem+json");
@@ -126,14 +122,13 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   }
 
   private MockDispatcherHandler initDispatcher(Class<?>... configClasses) {
-    var context = new AnnotationConfigWebApplicationContext();
-    context.setMockContext(this.mockContext);
+    var context = new AnnotationConfigApplicationContext();
     context.register(configClasses);
     context.refresh();
 
-    MockDispatcherHandler servlet = new MockDispatcherHandler(context);
-    servlet.init(this.mockConfig);
-    return servlet;
+    MockDispatcherHandler handler = new MockDispatcherHandler(context);
+    handler.start();
+    return handler;
   }
 
   private HttpMockRequestImpl initRequest(String path) {

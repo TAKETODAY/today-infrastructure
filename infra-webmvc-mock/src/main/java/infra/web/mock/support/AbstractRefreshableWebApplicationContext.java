@@ -107,20 +107,6 @@ public abstract class AbstractRefreshableWebApplicationContext
   }
 
   @Override
-  public void setNamespace(@Nullable String namespace) {
-    this.namespace = namespace;
-    if (namespace != null) {
-      setDisplayName("WebApplicationContext for namespace '" + namespace + "'");
-    }
-  }
-
-  @Override
-  @Nullable
-  public String getNamespace() {
-    return this.namespace;
-  }
-
-  @Override
   public String @Nullable [] getConfigLocations() {
     return super.getConfigLocations();
   }

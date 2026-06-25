@@ -45,19 +45,6 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
   String MOCK_CONFIG_BEAN_NAME = "mockConfig";
 
   /**
-   * Set the namespace for this web application context,
-   * to be used for building a default context config location.
-   * The root web application context does not have a namespace.
-   */
-  void setNamespace(@Nullable String namespace);
-
-  /**
-   * Return the namespace for this web application context, if any.
-   */
-  @Nullable
-  String getNamespace();
-
-  /**
    * Set the config locations for this web application context in init-param style,
    * i.e. with distinct locations separated by commas, semicolons or whitespace.
    * <p>If not set, the implementation is supposed to use a default for the

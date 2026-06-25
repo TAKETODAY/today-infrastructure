@@ -46,7 +46,6 @@ import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMockConfig;
 import infra.stereotype.Controller;
 import infra.validation.MapBindingResult;
 import infra.web.ErrorResponse;
@@ -152,7 +151,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  void missingServletRequestParameter() {
+  void missingRequestParameter() {
     testException(new MissingRequestParameterException("param", "type"));
   }
 
@@ -359,9 +358,9 @@ class ResponseEntityExceptionHandlerTests {
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
     manager.registerDefaultHandlers();
 
-    MockDispatcherHandler servlet = new MockDispatcherHandler(ctx);
-    servlet.init(new MockMockConfig());
-    servlet.service(this.mockRequest, this.mockResponse);
+    MockDispatcherHandler handler = new MockDispatcherHandler(ctx);
+    handler.start();
+    handler.service(this.mockRequest, this.mockResponse);
 
     assertThat(this.mockResponse.getStatus()).isEqualTo(400);
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("error content");
@@ -378,10 +377,10 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.refresh();
 
-    MockDispatcherHandler servlet = new MockDispatcherHandler(ctx);
-    servlet.init(new MockMockConfig());
+    MockDispatcherHandler handler = new MockDispatcherHandler(ctx);
+    handler.start();
     try {
-      servlet.service(this.mockRequest, this.mockResponse);
+      handler.service(this.mockRequest, this.mockResponse);
     }
     catch (MockException ex) {
       boolean condition1 = ex.getCause() instanceof IllegalStateException;

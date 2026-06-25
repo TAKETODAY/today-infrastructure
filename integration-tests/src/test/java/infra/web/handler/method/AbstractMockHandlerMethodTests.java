@@ -103,10 +103,9 @@ public abstract class AbstractMockHandlerMethodTests {
 
     MockMockConfig config = new MockMockConfig();
     config.addInitParameter("infra.mock.api.http.legacyDoHead", "true");
-    wac.setMockConfig(config);
     wac.setMockContext(config.getMockContext());
 
-    handler.init(config);
+    handler.start();
     return wac;
   }
 

@@ -21,20 +21,16 @@ package infra.web.config.annotation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.mock.api.MockConfig;
-import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMockConfig;
 import infra.stereotype.Controller;
 import infra.ui.ModelMap;
 import infra.web.annotation.GetMapping;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
 import infra.web.view.groovy.GroovyMarkupConfigurer;
@@ -197,18 +193,14 @@ class ViewResolutionIntegrationTests {
   }
 
   private static MockHttpResponseImpl runTest(Class<?> configClass) throws Exception {
-    String basePath = "infra/web/config";
-    MockContext mockContext = new MockContextImpl(basePath);
-    MockConfig mockConfig = new MockMockConfig(mockContext);
     MockRequest request = new HttpMockRequestImpl("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configClass);
-    context.setMockContext(mockContext);
     context.refresh();
     MockDispatcherHandler dispatcher = new MockDispatcherHandler(context);
-    dispatcher.init(mockConfig);
+    dispatcher.start();
     dispatcher.service(request, response);
     return response;
   }

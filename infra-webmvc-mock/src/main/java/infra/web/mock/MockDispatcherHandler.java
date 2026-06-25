@@ -46,58 +46,19 @@ import infra.web.async.WebAsyncManager;
 @SuppressWarnings("NullAway")
 public class MockDispatcherHandler extends DispatcherHandler implements MockHandler, Serializable {
 
-  /**
-   * Prefix for ApplicationContext ids that refer to context path
-   */
-  public static final String APPLICATION_CONTEXT_ID_PREFIX = ApplicationContext.class.getName() + ":";
-
   @Serial
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Prefix for the MockContext attribute for the ApplicationContext.
-   * The completion is the servlet name.
-   */
-  public static final String CONTEXT_PREFIX = MockDispatcherHandler.class.getName() + ".CONTEXT.";
-
   private transient MockConfig mockConfig;
-
-  /** Should we publish the context as a MockContext attribute?. */
-  private boolean publishContext = true;
 
   public MockDispatcherHandler(ApplicationContext context) {
     super(context);
   }
 
-  /**
-   * Set whether to publish this servlet's context as a MockContext attribute,
-   * available to all objects in the web container. Default is "true".
-   * <p>This is especially handy during testing, although it is debatable whether
-   * it's good practice to let other application objects access the context this way.
-   *
-   * @since 4.0
-   */
-  public void setPublishContext(boolean publishContext) {
-    this.publishContext = publishContext;
-  }
-
   @Override
   public void init(MockConfig mockConfig) {
     this.mockConfig = mockConfig;
-    String servletName = mockConfig.getMockName();
-    log.info("Initializing '{}'", servletName);
-
     start();
-  }
-
-  @Override
-  protected void onRefresh(ApplicationContext context) {
-    super.onRefresh(context);
-    if (publishContext) {
-      // Publish the context as a servlet context attribute.
-      String attrName = getMockContextAttributeName();
-      getMockContext().setAttribute(attrName, getApplicationContext());
-    }
   }
 
   /**
@@ -113,18 +74,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
    */
   public MockContext getMockContext() {
     return getMockConfig().getMockContext();
-  }
-
-  /**
-   * Return the MockContext attribute name for this servlet's WebApplicationContext.
-   * <p>The default implementation returns
-   * {@code SERVLET_CONTEXT_PREFIX + servlet name}.
-   *
-   * @see #CONTEXT_PREFIX
-   * @see #getName
-   */
-  public String getMockContextAttributeName() {
-    return CONTEXT_PREFIX + getName();
   }
 
   @Override
@@ -171,10 +120,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
   public MockConfig getMockConfig() {
     Assert.state(mockConfig != null, "DispatcherHandler has not been initialized");
     return mockConfig;
-  }
-
-  public String getName() {
-    return getMockConfig().getMockName();
   }
 
 }

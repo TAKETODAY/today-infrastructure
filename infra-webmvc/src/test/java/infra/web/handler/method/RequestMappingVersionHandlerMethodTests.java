@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMockConfig;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.annotation.GET;
 import infra.web.annotation.GetMapping;
@@ -36,7 +36,6 @@ import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,13 +50,12 @@ public class RequestMappingVersionHandlerMethodTests {
 
   @BeforeEach
   void setUp() {
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setMockConfig(new MockMockConfig());
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(WebConfig.class, TestController.class);
-    context.afterPropertiesSet();
+    context.refresh();
 
     this.dispatcher = new MockDispatcherHandler(context);
-    this.dispatcher.init(new MockMockConfig());
+    dispatcher.start();
   }
 
   @Test

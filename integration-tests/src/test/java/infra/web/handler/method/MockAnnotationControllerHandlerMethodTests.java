@@ -770,7 +770,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Test
   void nullCommandController() throws Exception {
     initDispatcher(MyNullCommandController.class);
-    getMockHandler().init(new MockMockConfig());
+    getMockHandler().start();
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath");
     request.setUserPrincipal(new OtherPrincipal());
