@@ -7,6 +7,7 @@ dependencies {
 
   optional project(":infra-web-client")
   optional project(":infra-web")
+  optional project(':infra-webmvc')
   optional project(':infra-webmvc-mock')
   optional project(":infra-web-reactive")
   optional project(':infra-web-server')

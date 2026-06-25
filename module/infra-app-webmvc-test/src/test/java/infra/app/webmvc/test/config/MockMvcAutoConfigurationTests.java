@@ -20,7 +20,7 @@ package infra.app.webmvc.test.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.context.FilteredClassLoader;
 import infra.test.web.mock.MockMvc;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
  */
 class MockMvcAutoConfigurationTests {
 
-  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+  private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(MockMvcAutoConfiguration.class));
 
   @Test
