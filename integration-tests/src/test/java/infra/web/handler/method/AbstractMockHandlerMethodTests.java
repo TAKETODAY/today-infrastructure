@@ -24,16 +24,16 @@ import java.util.function.Consumer;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
+import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Configuration;
+import infra.context.support.GenericApplicationContext;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.mock.web.MockMockConfig;
+import infra.web.RequestContextUtils;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,53 +63,49 @@ public abstract class AbstractMockHandlerMethodTests {
     this.handler = null;
   }
 
-  protected WebApplicationContext initDispatcher() {
+  protected ApplicationContext initDispatcher() {
     return initDispatcher(null, null);
   }
 
-  protected WebApplicationContext initDispatcher(@Nullable Consumer<GenericWebApplicationContext> initializer) {
+  protected ApplicationContext initDispatcher(@Nullable Consumer<GenericApplicationContext> initializer) {
     return initDispatcher(null, initializer);
   }
 
   /**
    * Initialize a DispatcherHandler instance registering zero or more controller classes.
    */
-  protected WebApplicationContext initDispatcher(@Nullable Class<?> controllerClass) {
+  protected ApplicationContext initDispatcher(@Nullable Class<?> controllerClass) {
     return initDispatcher(controllerClass, null);
   }
 
-  WebApplicationContext initDispatcher(@Nullable Class<?> controllerClass,
-          @Nullable Consumer<GenericWebApplicationContext> initializer) {
+  ApplicationContext initDispatcher(@Nullable Class<?> controllerClass,
+          @Nullable Consumer<GenericApplicationContext> initializer) {
 
-    final GenericWebApplicationContext wac = new GenericWebApplicationContext();
+    final GenericApplicationContext context = new GenericApplicationContext();
 
     if (controllerClass != null) {
-      wac.registerBeanDefinition(
+      context.registerBeanDefinition(
               controllerClass.getSimpleName(), new RootBeanDefinition(controllerClass));
     }
 
     if (initializer != null) {
-      initializer.accept(wac);
+      initializer.accept(context);
     }
 
 //        register("handlerAdapter", RequestMappingHandlerAdapter.class, wac);
 
-    register("testConfig", TestConfig.class, wac);
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
+    register("testConfig", TestConfig.class, context);
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(context);
+    RequestContextUtils.registerScopes(context.getBeanFactory());
 
-    wac.refresh();
+    context.refresh();
 
-    handler = new MockDispatcherHandler(wac);
-
-    MockMockConfig config = new MockMockConfig();
-    config.addInitParameter("infra.mock.api.http.legacyDoHead", "true");
-    wac.setMockContext(config.getMockContext());
-
+    handler = new MockDispatcherHandler(context);
     handler.start();
-    return wac;
+    return context;
   }
 
-  protected BeanDefinition register(String beanName, Class<?> beanType, GenericWebApplicationContext wac) {
+  protected BeanDefinition register(String beanName, Class<?> beanType, GenericApplicationContext wac) {
     if (wac.containsBeanDefinition(beanName)) {
       return wac.getBeanDefinition(beanName);
     }
@@ -118,7 +114,7 @@ public abstract class AbstractMockHandlerMethodTests {
     return beanDef;
   }
 
-  protected BeanDefinition register(GenericWebApplicationContext wac, Class<?> beanType) {
+  protected BeanDefinition register(GenericApplicationContext wac, Class<?> beanType) {
     if (wac.containsBeanDefinition(beanType)) {
       return wac.getBeanDefinition(beanType);
     }

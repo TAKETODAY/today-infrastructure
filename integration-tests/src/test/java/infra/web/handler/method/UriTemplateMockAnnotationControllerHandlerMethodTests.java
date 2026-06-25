@@ -30,6 +30,7 @@ import java.util.Map;
 
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.propertyeditors.CustomDateEditor;
+import infra.context.ApplicationContext;
 import infra.http.HttpMethod;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
@@ -43,7 +44,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.support.WebBindingInitializer;
-import infra.web.mock.WebApplicationContext;
 import infra.web.view.AbstractView;
 import infra.web.view.View;
 import infra.web.view.ViewRef;
@@ -67,7 +67,6 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
   }
 
   @Test
-    // gh-25864
   void literalMappingWithPathParams() throws Exception {
     initDispatcher(MultipleUriTemplateController.class);
 
@@ -102,7 +101,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     pathVars.put("booking", 21);
     pathVars.put("other", "other");
 
-    WebApplicationContext wac = initDispatcher(ViewRenderingController.class, context -> {
+    ApplicationContext wac = initDispatcher(ViewRenderingController.class, context -> {
       RootBeanDefinition beanDef = new RootBeanDefinition(ModelValidatingViewResolver.class);
       beanDef.getConstructorArgumentValues().addGenericArgumentValue(pathVars);
       context.registerBeanDefinition("viewResolver", beanDef);

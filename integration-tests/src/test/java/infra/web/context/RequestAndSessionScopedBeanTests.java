@@ -34,7 +34,6 @@ import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -86,7 +85,7 @@ public class RequestAndSessionScopedBeanTests {
     String targetBeanName = "target";
     HttpMockRequest request = new HttpMockRequestImpl();
 
-    AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
+    AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
     MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl(), new DispatcherHandler(wac));
     RequestContextHolder.set(context);
@@ -98,6 +97,8 @@ public class RequestAndSessionScopedBeanTests {
     wac.register(Config.class);
     wac.refresh();
     wac.registerBeanDefinition(targetBeanName, bd);
+
+    RequestContextUtils.registerScopes(wac.getBeanFactory());
 
     Session session = context.getSession();
 

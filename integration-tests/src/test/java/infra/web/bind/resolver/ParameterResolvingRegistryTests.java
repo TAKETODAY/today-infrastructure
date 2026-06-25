@@ -16,6 +16,7 @@
 
 package infra.web.bind.resolver;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -26,13 +27,10 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
 import infra.http.converter.StringHttpMessageConverter;
-import org.jspecify.annotations.Nullable;
-import infra.mock.web.MockContextImpl;
 import infra.web.MockResolvableMethodParameter;
 import infra.web.RequestContext;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,9 +61,8 @@ class ParameterResolvingRegistryTests {
   @Test
   void defaultStrategies() {
     assertThat(registry.getDefaultStrategies()).hasSize(0);
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();
-    context.setMockContext(new MockContextImpl());
 
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
@@ -102,9 +99,8 @@ class ParameterResolvingRegistryTests {
             .isInstanceOf(ParameterResolverNotFoundException.class)
             .hasMessageStartingWith("There isn't have a parameter resolver to resolve parameter");
 
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();
-    context.setMockContext(new MockContextImpl());
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
     registry.trimToSize();

@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.support.GenericApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.web.mock.MockMvc;
 import infra.web.RequestContext;
@@ -36,7 +36,6 @@ import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
@@ -55,18 +54,16 @@ class CustomRequestAttributesRequestContextHolderTests {
   private static final String FROM_MVC_TEST_DEFAULT = "fromSpringMvcTestDefault";
   private static final String FROM_MVC_TEST_MOCK = "fromSpringMvcTestMock";
 
-  private final GenericWebApplicationContext wac = new GenericWebApplicationContext();
+  private final GenericApplicationContext wac = new GenericApplicationContext();
 
   private MockMvc mockMvc;
 
   @BeforeEach
   void setUp() {
-    MockContextImpl mockContext = new MockContextImpl();
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl(mockContext);
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
     mockRequest.setAttribute(FROM_CUSTOM_MOCK, FROM_CUSTOM_MOCK);
     RequestContextHolder.set(new MockRequestContext(null, mockRequest, new MockHttpResponseImpl()));
 
-    this.wac.setMockContext(mockContext);
     new AnnotatedBeanDefinitionReader(this.wac).register(WebConfig.class);
     this.wac.refresh();
 

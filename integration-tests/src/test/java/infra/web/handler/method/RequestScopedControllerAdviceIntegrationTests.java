@@ -22,15 +22,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
-import infra.mock.web.MockContextImpl;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.context.annotation.RequestScope;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -43,10 +42,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 class RequestScopedControllerAdviceIntegrationTests {
 
   @Test
-    // gh-23985
   void loadContextWithRequestScopedControllerAdvice() {
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setMockContext(new MockContextImpl());
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(Config.class);
 
     assertThatCode(context::refresh).doesNotThrowAnyException();

@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.core.annotation.AliasFor;
 import infra.format.annotation.DateTimeFormat;
@@ -40,7 +41,6 @@ import infra.http.HttpEntity;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
@@ -54,7 +54,6 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.PathMatchConfigurer;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 import infra.web.view.ModelAndView;
@@ -471,8 +470,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   private void initWebApplicationContext(Class<?> configClass) {
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setMockContext(new MockContextImpl());
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configClass);
     context.refresh();
     RequestContextHolder.set(new MockRequestContext(context, request, new MockHttpResponseImpl()));

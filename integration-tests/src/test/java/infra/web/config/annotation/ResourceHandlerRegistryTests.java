@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.cache.concurrent.ConcurrentMapCache;
+import infra.context.support.GenericApplicationContext;
 import infra.core.io.Resource;
 import infra.http.CacheControl;
 import infra.mock.web.HttpMockRequestImpl;
@@ -34,7 +35,6 @@ import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 import infra.web.resource.CachingResourceResolver;
 import infra.web.resource.CachingResourceTransformer;
 import infra.web.resource.CssLinkResourceTransformer;
@@ -62,7 +62,7 @@ class ResourceHandlerRegistryTests {
 
   @BeforeEach
   public void setup() {
-    GenericWebApplicationContext appContext = new GenericWebApplicationContext();
+    GenericApplicationContext appContext = new GenericApplicationContext();
     appContext.refresh();
 
     this.registry = new ResourceHandlerRegistry(appContext, new ContentNegotiationManager());
@@ -79,7 +79,7 @@ class ResourceHandlerRegistryTests {
 
   @Test
   public void noResourceHandlers() {
-    this.registry = new ResourceHandlerRegistry(new GenericWebApplicationContext());
+    this.registry = new ResourceHandlerRegistry(new GenericApplicationContext());
     assertThat((Object) this.registry.getHandlerMapping()).isNull();
   }
 

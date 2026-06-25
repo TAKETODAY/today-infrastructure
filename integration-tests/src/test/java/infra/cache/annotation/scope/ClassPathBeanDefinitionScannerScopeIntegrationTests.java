@@ -27,6 +27,7 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.ClassPathBeanDefinitionScanner;
 import infra.context.annotation.ScopedProxyMode;
+import infra.context.support.GenericApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockHttpSession;
@@ -35,10 +36,10 @@ import infra.stereotype.Component;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
+import infra.web.RequestContextUtils;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 
 import static infra.context.annotation.ScopedProxyMode.DEFAULT;
 import static infra.context.annotation.ScopedProxyMode.INTERFACES;
@@ -57,7 +58,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   private static final String DEFAULT_NAME = "default";
   private static final String MODIFIED_NAME = "modified";
 
-  private final GenericWebApplicationContext context = new GenericWebApplicationContext();
+  private final GenericApplicationContext context = new GenericApplicationContext();
 
   private RequestContext oldRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
   private RequestContext newRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
@@ -67,6 +68,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
 
   @BeforeEach
   void setup() {
+    RequestContextUtils.registerScopes(context.getBeanFactory());
     HttpMockRequestImpl oldRequestWithSession = new HttpMockRequestImpl();
     oldRequestWithSession.setSession(new MockHttpSession());
     this.oldRequestAttributesWithSession = new MockRequestContext(

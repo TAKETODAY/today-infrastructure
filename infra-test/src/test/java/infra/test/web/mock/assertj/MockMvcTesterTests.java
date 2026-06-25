@@ -31,6 +31,7 @@ import java.util.function.Function;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.support.GenericApplicationContext;
 import infra.core.ResolvableType;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
@@ -46,7 +47,6 @@ import infra.web.annotation.GetMapping;
 import infra.web.annotation.PostMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
-import infra.web.mock.support.GenericWebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
@@ -76,7 +76,7 @@ class MockMvcTesterTests {
 
   @Test
   void createWithExistingWebApplicationContext() {
-    try (GenericWebApplicationContext wac = create(WebConfiguration.class)) {
+    try (GenericApplicationContext wac = create(WebConfiguration.class)) {
       MockMvcTester mockMvc = MockMvcTester.from(wac);
       assertThat(mockMvc.perform(post("/increase"))).hasBodyTextEqualTo("counter 41");
       assertThat(mockMvc.perform(post("/increase"))).hasBodyTextEqualTo("counter 42");
@@ -231,8 +231,8 @@ class MockMvcTesterTests {
     };
   }
 
-  private GenericWebApplicationContext create(Class<?>... classes) {
-    GenericWebApplicationContext applicationContext = new GenericWebApplicationContext(new MockContextImpl());
+  private GenericApplicationContext create(Class<?>... classes) {
+    GenericApplicationContext applicationContext = new GenericApplicationContext();
     AnnotationConfigUtils.registerAnnotationConfigProcessors(applicationContext);
     for (Class<?> beanClass : classes) {
       applicationContext.registerBean(beanClass);

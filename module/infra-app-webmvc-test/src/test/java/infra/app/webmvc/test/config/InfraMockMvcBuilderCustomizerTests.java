@@ -30,14 +30,12 @@ import java.util.concurrent.TimeUnit;
 
 import infra.app.webmvc.test.config.InfraMockMvcBuilderCustomizer.DeferredLinesWriter;
 import infra.app.webmvc.test.config.InfraMockMvcBuilderCustomizer.LinesWriter;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.mock.api.MockContext;
-import infra.mock.web.MockContextImpl;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.RequestContext;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,9 +48,7 @@ class InfraMockMvcBuilderCustomizerTests {
 
   @Test
   void whenCalledInParallelDeferredLinesWriterSeparatesOutputByThread() throws Exception {
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    MockContext servletContext = new MockContextImpl();
-    context.setMockContext(servletContext);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(FilterConfiguration.class);
     context.refresh();
 

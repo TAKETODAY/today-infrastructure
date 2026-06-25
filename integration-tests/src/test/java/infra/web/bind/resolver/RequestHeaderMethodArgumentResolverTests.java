@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
@@ -43,7 +44,6 @@ import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -78,7 +78,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @SuppressWarnings("resource")
   void setup() throws Throwable {
 
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.refresh();
     resolver = new RequestHeaderMethodArgumentResolver(context.getBeanFactory());
 

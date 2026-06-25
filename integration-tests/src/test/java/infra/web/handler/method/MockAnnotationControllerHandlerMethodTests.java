@@ -63,7 +63,7 @@ import infra.beans.testfixture.beans.DerivedTestBean;
 import infra.beans.testfixture.beans.GenericBean;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
-import infra.context.annotation.AnnotationConfigUtils;
+import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.conversion.Converter;
@@ -86,15 +86,11 @@ import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MarshallingHttpMessageConverter;
 import infra.lang.Assert;
-import infra.mock.api.MockConfig;
-import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMockConfig;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.oxm.jaxb.Jaxb2Marshaller;
 import infra.session.Session;
@@ -142,7 +138,6 @@ import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.WebApplicationContext;
 import infra.web.multipart.Part;
 import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
@@ -203,7 +198,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void requiredParamMissing() throws Exception {
-    WebApplicationContext webAppContext = initDispatcher(RequiredParamController.class);
+    ApplicationContext webAppContext = initDispatcher(RequiredParamController.class);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -656,52 +651,42 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void parameterDispatchingController() throws Exception {
-    final MockContextImpl mockContext = new MockContextImpl();
-    final MockMockConfig servletConfig = new MockMockConfig(mockContext);
 
-    WebApplicationContext webAppContext = initDispatcher(MyParameterDispatchingController.class, wac -> {
-      wac.setMockContext(mockContext);
-      AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
-      wac.getBeanFactory().registerResolvableDependency(MockConfig.class, servletConfig);
-    });
+    ApplicationContext webAppContext = initDispatcher(MyParameterDispatchingController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     Session session = request.getSession();
     assertThat(session).isNotNull();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
-    assertThat(request.getAttribute("mockContext")).isSameAs(mockContext);
-    assertThat(request.getAttribute("servletConfig")).isSameAs(servletConfig);
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
     assertThat(request.getAttribute("locale")).isSameAs(request.getLocale());
 
-    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl("GET", "/myPath.do");
     response = new MockHttpResponseImpl();
     session = request.getSession();
     assertThat(session).isNotNull();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
-    assertThat(request.getAttribute("mockContext")).isSameAs(mockContext);
-    assertThat(request.getAttribute("servletConfig")).isSameAs(servletConfig);
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
 
-    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl("GET", "/myPath.do");
     request.addParameter("view", "other");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myOtherView");
 
-    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl("GET", "/myPath.do");
     request.addParameter("view", "my");
     request.addParameter("lang", "de");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myLangView");
 
-    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl("GET", "/myPath.do");
     request.addParameter("surprise", "!");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1526,7 +1511,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void redirectAttribute() throws Exception {
-    WebApplicationContext wac = initDispatcher(RedirectAttributesController.class);
+    ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/messages");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1569,7 +1554,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void flashAttributesWithResponseEntity() throws Exception {
-    WebApplicationContext wac = initDispatcher(RedirectAttributesController.class);
+    ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/messages-response-entity");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -2760,14 +2745,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @Nullable
     @Autowired
-    private transient MockContext mockContext;
-
-    @Nullable
-    @Autowired
-    private transient MockConfig mockConfig;
-
-    @Nullable
-    @Autowired
     private Session session;
 
     @Nullable
@@ -2780,13 +2757,10 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @RequestMapping
     public void myHandle(RequestContext response, RequestContext request) throws IOException {
-      if (this.mockContext == null || this.mockConfig == null || this.session == null ||
-              this.request == null || this.webRequest == null) {
+      if (this.session == null || this.request == null || this.webRequest == null) {
         throw new IllegalStateException();
       }
       response.getWriter().write("myView");
-      request.setAttribute("mockContext", this.mockContext);
-      request.setAttribute("servletConfig", this.mockConfig);
       request.setAttribute("sessionId", this.session.getId());
       request.setAttribute("requestUri", this.request.getRequestURI());
       request.setAttribute("locale", this.webRequest.getLocale());

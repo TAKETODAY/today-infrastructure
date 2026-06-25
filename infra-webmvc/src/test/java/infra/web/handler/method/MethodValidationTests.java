@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.context.MessageSourceResolvable;
+import infra.context.support.GenericApplicationContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.http.MediaType;
 import infra.http.converter.StringHttpMessageConverter;
@@ -62,7 +63,6 @@ import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -129,7 +129,7 @@ class MethodValidationTests {
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setValidator(validator);
 
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.refresh();
 
     RequestMappingHandlerAdapter handlerAdapter = new RequestMappingHandlerAdapter();

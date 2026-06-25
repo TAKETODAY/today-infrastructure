@@ -61,11 +61,6 @@ import infra.web.mock.MockContextAwareProcessor;
  * AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
  * reader.register(AppConfig.class, UserController.class, UserRepository.class);</pre>
  *
- * <p>If you intend to implement a {@code WebApplicationContext} that reads bean definitions
- * from configuration files, consider deriving from {@link AbstractRefreshableWebApplicationContext},
- * reading the bean definitions in an implementation of the {@code loadBeanDefinitions}
- * method.
- *
  * @author Juergen Hoeller
  * @author Chris Beams
  * @author Sam Brannen

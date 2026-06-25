@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.beans.factory.annotation.Value;
+import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
@@ -34,7 +35,6 @@ import infra.web.BindingContext;
 import infra.web.RequestContextHolder;
 import infra.web.bind.resolver.ExpressionValueMethodArgumentResolver;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +59,7 @@ public class ExpressionValueMethodArgumentResolverTests {
   @BeforeEach
   @SuppressWarnings("resource")
   public void setUp() throws Exception {
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.refresh();
     resolver = new ExpressionValueMethodArgumentResolver(context.getBeanFactory());
 

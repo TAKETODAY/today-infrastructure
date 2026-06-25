@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.SimpleLocaleContext;
@@ -34,7 +35,6 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.config.EnableSession;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 public class CookieLocaleResolverTests {
 
-  AnnotationConfigWebApplicationContext webApplicationContext = new AnnotationConfigWebApplicationContext();
+  AnnotationConfigApplicationContext webApplicationContext = new AnnotationConfigApplicationContext();
 
   {
     webApplicationContext.register(SessionLocaleResolverTests.SessionConfig.class);

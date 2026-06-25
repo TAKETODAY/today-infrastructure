@@ -25,14 +25,13 @@ import java.util.Objects;
 import java.util.Set;
 
 import infra.beans.support.BeanInstantiator;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.MethodParameter;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.mock.web.MockContextImpl;
-import infra.web.server.InternalServerException;
 import infra.web.MockMethodParameter;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
+import infra.web.server.InternalServerException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -189,9 +188,8 @@ class ParameterResolverRegistryTests {
   @Test
   void registerDefaults() {
 
-    var context = new AnnotationConfigWebApplicationContext();
+    var context = new AnnotationConfigApplicationContext();
     context.refresh();
-    context.setMockContext(new MockContextImpl());
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
@@ -213,8 +211,7 @@ class ParameterResolverRegistryTests {
   @Test
   void lookupStrategy() {
 
-    var context = new AnnotationConfigWebApplicationContext();
-    context.setMockContext(new MockContextImpl());
+    var context = new AnnotationConfigApplicationContext();
     context.refresh();
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);

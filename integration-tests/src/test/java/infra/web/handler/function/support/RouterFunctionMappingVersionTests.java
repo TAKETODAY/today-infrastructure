@@ -23,10 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
-import infra.mock.api.MockContext;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.config.annotation.ApiVersionConfigurer;
@@ -39,7 +38,6 @@ import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerRequest;
 import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static infra.web.handler.function.RequestPredicates.version;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,14 +49,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RouterFunctionMappingVersionTests {
 
-  private final MockContext mockContext = new MockContextImpl();
-
   private RouterFunctionMapping mapping;
 
   @BeforeEach
   void setUp() {
-    AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
-    wac.setMockContext(this.mockContext);
+    AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.register(WebConfig.class);
     wac.refresh();
 

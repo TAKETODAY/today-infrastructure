@@ -28,15 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -107,7 +106,6 @@ public class ResourceUrlProviderTests {
   }
 
   @Test
-
   void bestPatternMatch() throws Exception {
     ResourceHttpRequestHandler otherHandler = new ResourceHttpRequestHandler();
     otherHandler.setLocations(this.locations);
@@ -131,8 +129,7 @@ public class ResourceUrlProviderTests {
   @Test
   @SuppressWarnings("resource")
   void initializeOnce() throws Exception {
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setMockContext(new MockContextImpl());
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(HandlerMappingConfiguration.class);
     context.refresh();
 
@@ -144,13 +141,11 @@ public class ResourceUrlProviderTests {
   @Test
   @SuppressWarnings("resource")
   void initializeOnCurrentContext() {
-    AnnotationConfigWebApplicationContext parentContext = new AnnotationConfigWebApplicationContext();
-    parentContext.setMockContext(new MockContextImpl());
+    AnnotationConfigApplicationContext parentContext = new AnnotationConfigApplicationContext();
     parentContext.register(ParentHandlerMappingConfiguration.class);
 
-    AnnotationConfigWebApplicationContext childContext = new AnnotationConfigWebApplicationContext();
+    AnnotationConfigApplicationContext childContext = new AnnotationConfigApplicationContext();
     childContext.setParent(parentContext);
-    childContext.setMockContext(new MockContextImpl());
     childContext.register(HandlerMappingConfiguration.class);
 
     parentContext.refresh();
@@ -165,7 +160,6 @@ public class ResourceUrlProviderTests {
   }
 
   @Test
-
   void getForLookupPathShouldNotFailIfPathContainsDoubleSlashes() {
     // given
     ResourceResolver mockResourceResolver = mock(ResourceResolver.class);
