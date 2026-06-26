@@ -21,17 +21,11 @@ package infra.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.ApplicationContext;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
-import infra.web.mock.support.WebApplicationContextUtils;
 
 /**
- * Interface to provide configuration for a servlet web application. This is read-only while
+ * Interface to provide configuration for a web mvc application. This is read-only while
  * the application is running, but may be reloaded if the implementation supports this.
- *
- * <p>This interface adds a {@code getMockContext()} method to the generic
- * ApplicationContext interface, and defines a well-known application attribute name
- * that the root context must be bound to in the bootstrap process.
  *
  * <p>Like generic application contexts, web application contexts are hierarchical.
  * There is a single root context per application, while each servlet in the application
@@ -51,9 +45,6 @@ public interface WebApplicationContext extends ApplicationContext {
    * <p>Note: If the startup of the root context fails, this attribute can contain
    * an exception or error as value. Use WebApplicationContextUtils for convenient
    * lookup of the root WebApplicationContext.
-   *
-   * @see WebApplicationContextUtils#getWebApplicationContext
-   * @see WebApplicationContextUtils#getRequiredWebApplicationContext
    */
   String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 
@@ -68,19 +59,11 @@ public interface WebApplicationContext extends ApplicationContext {
    * Name of the MockContext init-params environment bean in the factory.
    * <p>Note: Possibly merged with ServletConfig parameters.
    * ServletConfig parameters override MockContext parameters of the same name.
-   *
-   * @see MockContext#getInitParameterNames()
-   * @see MockContext#getInitParameter(String)
-   * @see MockConfig#getInitParameterNames()
-   * @see MockConfig#getInitParameter(String)
    */
   String CONTEXT_PARAMETERS_BEAN_NAME = "contextParameters";
 
   /**
    * Name of the MockContext attributes environment bean in the factory.
-   *
-   * @see MockContext#getAttributeNames()
-   * @see MockContext#getAttribute(String)
    */
   String CONTEXT_ATTRIBUTES_BEAN_NAME = "contextAttributes";
 

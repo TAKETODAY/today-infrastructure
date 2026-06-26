@@ -18,5 +18,4 @@ infra.test.context.TestExecutionListener=\
 #
 infra.test.context.ContextCustomizerFactory=\
   infra.test.context.bean.override.BeanOverrideContextCustomizerFactory,\
-  infra.test.context.web.socket.MockServerContainerContextCustomizerFactory,\
   infra.test.context.support.DynamicPropertiesContextCustomizerFactory

@@ -212,7 +212,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     // ContextCustomizerFactory
     Stream.of(
             "infra.test.context.support.DynamicPropertiesContextCustomizerFactory",
-            "infra.test.context.web.socket.MockServerContainerContextCustomizerFactory",
             "infra.test.context.aot.samples.basic.ImportsContextCustomizerFactory"
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_DECLARED_CONSTRUCTORS));
 

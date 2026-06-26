@@ -25,7 +25,6 @@ import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;
@@ -90,14 +89,5 @@ class ControllerIntegrationTests {
     WebApplicationContext root = (WebApplicationContext) parent;
     assertThat(root.getBeansOfType(String.class).containsKey("bar")).isFalse();
 
-    MockContext childMockContext = wac.getMockContext();
-    assertThat(childMockContext).isNotNull();
-    MockContext rootMockContext = root.getMockContext();
-    assertThat(rootMockContext).isNotNull();
-    assertThat(rootMockContext).isSameAs(childMockContext);
-
-    assertThat(rootMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
-    assertThat(childMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
   }
-
 }
