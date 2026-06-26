@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
+import infra.context.ApplicationContext;
 import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
@@ -74,7 +75,7 @@ public abstract class MockUtils {
   }
 
   public static RequestContext getRequestContext(
-          WebApplicationContext webApplicationContext, HttpMockRequest request, HttpMockResponse response) {
+          ApplicationContext webApplicationContext, HttpMockRequest request, HttpMockResponse response) {
     return new MockRequestContext(webApplicationContext, request, response);
   }
 

@@ -157,16 +157,6 @@ public class WebApplicationContextUtils {
   }
 
   /**
-   * Register web-specific scopes ("request", "session", "globalSession")
-   * with the given BeanFactory, as used by the WebServletApplicationContext.
-   *
-   * @param beanFactory the BeanFactory to configure
-   */
-  public static void registerWebApplicationScopes(ConfigurableBeanFactory beanFactory) {
-    registerWebApplicationScopes(beanFactory, null);
-  }
-
-  /**
    * Register web-specific scopes ("request", "session")
    * with the given BeanFactory, as used by the WebServletApplicationContext.
    *

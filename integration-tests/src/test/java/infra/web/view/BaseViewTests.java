@@ -27,20 +27,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.mock.MockUtils;
-import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.BDDMockito.given;
 
 /**
  * Base tests for {@link AbstractView}.
@@ -55,8 +53,7 @@ public class BaseViewTests {
 
   @Test
   public void renderWithoutStaticAttributes() throws Exception {
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getMockContext()).willReturn(new MockContextImpl());
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     HttpMockRequest request = new HttpMockRequestImpl();
     HttpMockResponse response = new MockHttpResponseImpl();
@@ -84,8 +81,7 @@ public class BaseViewTests {
    */
   @Test
   public void renderWithStaticAttributesNoCollision() throws Exception {
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getMockContext()).willReturn(new MockContextImpl());
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     HttpMockRequest request = new HttpMockRequestImpl();
     HttpMockResponse response = new MockHttpResponseImpl();
@@ -113,8 +109,7 @@ public class BaseViewTests {
 
   @Test
   public void pathVarsOverrideStaticAttributes() throws Exception {
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getMockContext()).willReturn(new MockContextImpl());
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     HttpMockRequest request = new HttpMockRequestImpl();
     HttpMockResponse response = new MockHttpResponseImpl();
@@ -146,8 +141,7 @@ public class BaseViewTests {
 
   @Test
   public void dynamicModelOverridesStaticAttributesIfCollision() throws Exception {
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getMockContext()).willReturn(new MockContextImpl());
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     HttpMockRequest request = new HttpMockRequestImpl();
     HttpMockResponse response = new MockHttpResponseImpl();
@@ -176,8 +170,7 @@ public class BaseViewTests {
 
   @Test
   public void dynamicModelOverridesPathVariables() throws Exception {
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getMockContext()).willReturn(new MockContextImpl());
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     TestView tv = new TestView(wac);
     tv.setApplicationContext(wac);
@@ -307,14 +300,14 @@ public class BaseViewTests {
    */
   private static class TestView extends AbstractView {
 
-    private final WebApplicationContext wac;
+    private final ApplicationContext wac;
 
     boolean initialized;
 
     /** Captured model in render */
     Map<String, Object> model;
 
-    TestView(WebApplicationContext wac) {
+    TestView(ApplicationContext wac) {
       this.wac = wac;
     }
 

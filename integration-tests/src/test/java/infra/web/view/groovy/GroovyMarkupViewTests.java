@@ -33,6 +33,7 @@ import groovy.text.TemplateEngine;
 import groovy.text.markup.MarkupTemplateEngine;
 import groovy.text.markup.TemplateConfiguration;
 import infra.beans.DirectFieldAccessor;
+import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -42,7 +43,6 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockUtils;
-import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -55,13 +55,13 @@ public class GroovyMarkupViewTests {
 
   private static final String RESOURCE_LOADER_PATH = "classpath*:infra/web/view/groovy/";
 
-  private WebApplicationContext webAppContext;
+  private ApplicationContext webAppContext;
 
   private MockContextImpl mockContext;
 
   @BeforeEach
   public void setup() {
-    this.webAppContext = Mockito.mock(WebApplicationContext.class);
+    this.webAppContext = Mockito.mock(ApplicationContext.class);
     this.mockContext = new MockContextImpl();
     this.mockContext.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }

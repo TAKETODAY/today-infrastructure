@@ -34,18 +34,17 @@ import freemarker.template.Configuration;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.LocaleResolver;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
-import infra.web.mock.WebApplicationContext;
 import infra.web.view.AbstractView;
 import infra.web.view.InternalResourceView;
 import infra.web.view.RedirectView;
@@ -69,9 +68,8 @@ public class FreeMarkerViewTests {
   public void noFreeMarkerConfig() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(new HashMap<>());
-    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     fv.setUrl("anythingButNull");
 
@@ -93,15 +91,13 @@ public class FreeMarkerViewTests {
   public void validTemplateName() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    MockContextImpl sc = new MockContextImpl();
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());
     configs.put("configurer", configurer);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
-    given(wac.getMockContext()).willReturn(sc);
 
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
@@ -124,15 +120,13 @@ public class FreeMarkerViewTests {
   public void keepExistingContentType() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    MockContextImpl sc = new MockContextImpl();
+    ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());
     configs.put("configurer", configurer);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
-    given(wac.getMockContext()).willReturn(sc);
     given(wac.getBean(LocaleResolver.BEAN_NAME)).willReturn(new AcceptHeaderLocaleResolver());
     given(wac.getBean(LocaleResolver.BEAN_NAME, LocaleResolver.class)).willReturn(new AcceptHeaderLocaleResolver());
 
@@ -157,15 +151,13 @@ public class FreeMarkerViewTests {
   public void requestAttributeVisible() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebApplicationContext wac = mock();
-    MockContextImpl sc = new MockContextImpl();
+    ApplicationContext wac = mock();
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());
     configs.put("configurer", configurer);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
-    given(wac.getMockContext()).willReturn(sc);
 
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
@@ -214,7 +206,7 @@ public class FreeMarkerViewTests {
             .isEqualTo("myForwardUrl");
   }
 
-  private class TestConfiguration extends Configuration {
+  private static class TestConfiguration extends Configuration {
 
     TestConfiguration() {
       super(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
