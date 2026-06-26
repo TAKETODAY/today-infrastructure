@@ -28,7 +28,6 @@ import infra.context.ApplicationContext;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockMockConfig;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
@@ -169,8 +168,6 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
       mockContext = new MockContextImpl();
     }
 
-    MockMockConfig mockServletConfig = new MockMockConfig(mockContext);
-
     for (MockMvcConfigurer configurer : this.configurers) {
       RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, ctx);
       if (processor != null) {
@@ -194,7 +191,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
       }
     }
 
-    return super.createMockMvc(filterArray, mockServletConfig, ctx, this.defaultRequestBuilder,
+    return super.createMockMvc(filterArray, mockContext, ctx, this.defaultRequestBuilder,
             this.defaultResponseCharacterEncoding, this.globalResultMatchers, this.globalResultHandlers,
             this.dispatcherCustomizers);
   }

@@ -18,14 +18,12 @@ package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Enumeration;
 import java.util.Properties;
 
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
@@ -131,8 +129,6 @@ public class MockWrappingController extends AbstractController
 
   /**
    * Initialize the wrapped Servlet instance.
-   *
-   * @see MockHandler#init(MockConfig)
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -143,7 +139,6 @@ public class MockWrappingController extends AbstractController
       this.mockName = this.beanName;
     }
     this.mockHandlerInstance = ReflectionUtils.accessibleConstructor(this.mockClass).newInstance();
-    this.mockHandlerInstance.init(new DelegatingMockConfig());
   }
 
   /**
@@ -178,37 +173,6 @@ public class MockWrappingController extends AbstractController
 
   public MockContext getMockContext() {
     return mockContext;
-  }
-
-  /**
-   * Internal implementation of the ServletConfig interface, to be passed
-   * to the wrapped servlet. Delegates to ServletWrappingController fields
-   * and methods to provide init parameters and other environment info.
-   */
-  private class DelegatingMockConfig implements MockConfig {
-
-    @Override
-    @Nullable
-    public String getMockName() {
-      return mockName;
-    }
-
-    @Override
-    @Nullable
-    public MockContext getMockContext() {
-      return MockWrappingController.this.getMockContext();
-    }
-
-    @Override
-    public String getInitParameter(String paramName) {
-      return initParameters.getProperty(paramName);
-    }
-
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Enumeration<String> getInitParameterNames() {
-      return (Enumeration) initParameters.keys();
-    }
   }
 
 }

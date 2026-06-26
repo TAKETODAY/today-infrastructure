@@ -34,7 +34,6 @@ import infra.mock.api.AsyncContext;
 import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
@@ -91,13 +90,6 @@ public class MockHttpHandlerAdapter implements MockHandler {
 
   public DataBufferFactory getDataBufferFactory() {
     return this.dataBufferFactory;
-  }
-
-  // Servlet methods...
-
-  @Override
-  public void init(MockConfig config) {
-    this.mockPath = "";
   }
 
   @Override
@@ -157,12 +149,6 @@ public class MockHttpHandlerAdapter implements MockHandler {
           AsyncContext context, MockServerHttpRequest request) throws IOException {
 
     return new MockServerHttpResponse(response, context, getDataBufferFactory(), getBufferSize(), request);
-  }
-
-  @Override
-  @Nullable
-  public MockConfig getMockConfig() {
-    return null;
   }
 
   private static void runIfAsyncNotComplete(

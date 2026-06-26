@@ -21,7 +21,6 @@ package infra.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.ConfigurableApplicationContext;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 
 /**
@@ -36,13 +35,6 @@ import infra.mock.api.MockContext;
  * @since 4.0 2022/2/20 17:52
  */
 public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
-
-  /**
-   * Name of the ServletConfig environment bean in the factory.
-   *
-   * @see MockConfig
-   */
-  String MOCK_CONFIG_BEAN_NAME = "mockConfig";
 
   /**
    * Set the MockContext for this web application context.

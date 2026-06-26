@@ -25,38 +25,6 @@ import java.io.IOException;
 public interface MockHandler {
 
   /**
-   * Called by the mock container to indicate to a mock that the mock is being placed into service.
-   *
-   * <p>
-   * The mock container calls the <code>init</code> method exactly once after instantiating the mock. The
-   * <code>init</code> method must complete successfully before the mock can receive any requests. The container will
-   * ensure that actions performed in the <code>init</code> method will be visible to any threads that subsequently call
-   * the <code>service</code> method according to the rules in JSR-133 (i.e. there is a 'happens before' relationship
-   * between <code>init</code> and <code>service</code>).
-   *
-   * <p>
-   * The mock container cannot place the mock into service if the <code>init</code> method
-   * <ol>
-   * <li>Throws a <code>ServletException</code>
-   * <li>Does not return within a time period defined by the Web server
-   * </ol>
-   *
-   * @param config a <code>ServletConfig</code> object containing the mock's configuration and initialization
-   * parameters
-   * @throws MockException if an exception has occurred that interferes with the mock's normal operation
-   */
-  void init(MockConfig config) throws MockException;
-
-  /**
-   * Returns a {@link MockConfig} object, which contains initialization and startup parameters for this mock. The
-   * <code>ServletConfig</code> object returned is the one passed to the <code>init</code> method.
-   *
-   * @return the <code>ServletConfig</code> object that initializes this mock
-   * @see #init
-   */
-  MockConfig getMockConfig();
-
-  /**
    * Called by the mock container to allow the mock to respond to a request.
    *
    * <p>

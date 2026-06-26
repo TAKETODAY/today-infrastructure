@@ -24,7 +24,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.MockMockConfig;
+import infra.mock.api.MockContext;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.web.Filter;
 import infra.web.mock.WebApplicationContext;
@@ -47,24 +47,24 @@ import infra.web.mock.WebApplicationContext;
 public abstract class MockMvcBuilderSupport {
 
   /**
-   * Delegates to {@link #createMockMvc(Filter[], MockMockConfig, ApplicationContext, RequestBuilder, List, List, List)}
+   * Delegates to {@link #createMockMvc(Filter[], MockContext, ApplicationContext, RequestBuilder, List, List, List)}
    * for creation of the {@link MockMvc} instance and configures that instance
    * with the supplied {@code defaultResponseCharacterEncoding}.
    */
-  protected final MockMvc createMockMvc(Filter[] filters, MockMockConfig servletConfig,
+  protected final MockMvc createMockMvc(Filter[] filters, MockContext mockContext,
           ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           @Nullable Charset defaultResponseCharacterEncoding,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
 
-    MockMvc mockMvc = createMockMvc(filters, servletConfig, webAppContext, defaultRequestBuilder,
+    MockMvc mockMvc = createMockMvc(filters, mockContext, webAppContext, defaultRequestBuilder,
             globalResultMatchers, globalResultHandlers, dispatcherCustomizers);
 
     mockMvc.setDefaultResponseCharacterEncoding(defaultResponseCharacterEncoding);
     return mockMvc;
   }
 
-  protected final MockMvc createMockMvc(Filter[] filters, MockMockConfig servletConfig,
+  protected final MockMvc createMockMvc(Filter[] filters, MockContext mockContext,
           ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
@@ -76,7 +76,7 @@ public abstract class MockMvcBuilderSupport {
       }
     }
 
-    dispatcherHandler.init(servletConfig);
+    dispatcherHandler.init(mockContext);
 
     MockMvc mockMvc = new MockMvc(dispatcherHandler, filters);
     mockMvc.setDefaultRequest(defaultRequestBuilder);

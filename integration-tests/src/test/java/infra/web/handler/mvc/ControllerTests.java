@@ -25,7 +25,6 @@ import java.util.Properties;
 import infra.beans.factory.DisposableBean;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
@@ -151,26 +150,14 @@ class ControllerTests {
 
   public static class TestMockHandler implements MockHandler, DisposableBean {
 
-    private static MockConfig config;
     private static MockRequest request;
     private static MockResponse response;
     private static boolean destroyed;
 
     public TestMockHandler() {
-      config = null;
       request = null;
       response = null;
       destroyed = false;
-    }
-
-    @Override
-    public void init(MockConfig mockConfig) {
-      config = mockConfig;
-    }
-
-    @Override
-    public MockConfig getMockConfig() {
-      return config;
     }
 
     @Override

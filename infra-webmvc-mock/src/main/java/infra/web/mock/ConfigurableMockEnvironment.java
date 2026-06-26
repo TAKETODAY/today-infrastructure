@@ -22,14 +22,13 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.web.context.ConfigurableWebEnvironment;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} allowing initialization of
  * servlet-related {@link PropertySource} objects at the
- * earliest moment that the {@link MockContext} and (optionally) {@link MockConfig}
+ * earliest moment that the {@link MockContext}
  * become available.
  *
  * @author Chris Beams
@@ -45,8 +44,7 @@ public interface ConfigurableMockEnvironment extends ConfigurableWebEnvironment 
    * using the given parameters.
    *
    * @param mockContext the {@link MockContext} (may not be {@code null})
-   * @param mockConfig the {@link MockConfig} ({@code null} if not available)
    */
-  void initPropertySources(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig);
+  void initPropertySources(@Nullable MockContext mockContext);
 
 }

@@ -180,7 +180,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   protected void initPropertySources() {
     ConfigurableEnvironment env = getEnvironment();
     if (env instanceof ConfigurableMockEnvironment) {
-      ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext, null);
+      ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext);
     }
   }
 

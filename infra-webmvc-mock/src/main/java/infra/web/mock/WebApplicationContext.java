@@ -55,11 +55,6 @@ public interface WebApplicationContext extends ApplicationContext {
    */
   String MOCK_CONTEXT_BEAN_NAME = "mockContext";
 
-  /**
-   * Name of the MockContext init-params environment bean in the factory.
-   * <p>Note: Possibly merged with ServletConfig parameters.
-   * ServletConfig parameters override MockContext parameters of the same name.
-   */
   String CONTEXT_PARAMETERS_BEAN_NAME = "contextParameters";
 
   /**

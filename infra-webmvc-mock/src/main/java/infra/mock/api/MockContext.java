@@ -39,10 +39,6 @@ import java.util.Set;
  * In the case of a web application marked "distributed" in its deployment descriptor, there will be one context
  * instance for each virtual machine. In this situation, the context cannot be used as a location to share global
  * information (because the information won't be truly global). Use an external resource like a database instead.
- *
- * <p>
- * The <code>MockContext</code> object is contained within the {@link MockConfig} object, which the Web server
- * provides the servlet when the servlet is initialized.
  */
 public interface MockContext {
 
@@ -209,7 +205,6 @@ public interface MockContext {
    * @return a <code>String</code> containing the value of the context's initialization parameter, or <code>null</code> if
    * the context's initialization parameter does not exist.
    * @throws NullPointerException if the argument {@code name} is {@code null}
-   * @see MockConfig#getInitParameter
    */
   String getInitParameter(String name);
 
@@ -219,7 +214,6 @@ public interface MockContext {
    *
    * @return an <code>Enumeration</code> of <code>String</code> objects containing the names of the context's
    * initialization parameters
-   * @see MockConfig#getInitParameter
    */
   Enumeration<String> getInitParameterNames();
 

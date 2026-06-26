@@ -22,9 +22,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
@@ -49,31 +47,19 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private transient MockConfig mockConfig;
+  private transient MockContext mockContext;
 
   public MockDispatcherHandler(ApplicationContext context) {
     super(context);
   }
 
-  @Override
-  public void init(MockConfig mockConfig) {
-    this.mockConfig = mockConfig;
+  public void init(MockContext mockContext) {
+    this.mockContext = mockContext;
     start();
   }
 
-  /**
-   * Returns a reference to the {@link MockContext} in which this
-   * servlet is running. See {@link MockConfig#getMockContext}.
-   *
-   * <p>
-   * This method is supplied for convenience. It gets the context
-   * from the servlet's <code>ServletConfig</code> object.
-   *
-   * @return MockContext the <code>MockContext</code>
-   * object passed to this servlet by the <code>init</code> method
-   */
   public MockContext getMockContext() {
-    return getMockConfig().getMockContext();
+    return mockContext;
   }
 
   @Override
@@ -114,12 +100,6 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
         RequestContextHolder.cleanup();
       }
     }
-  }
-
-  @Override
-  public MockConfig getMockConfig() {
-    Assert.state(mockConfig != null, "DispatcherHandler has not been initialized");
-    return mockConfig;
   }
 
 }

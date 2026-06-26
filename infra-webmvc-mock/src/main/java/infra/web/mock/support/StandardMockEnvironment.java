@@ -29,11 +29,9 @@ import infra.core.env.PropertySources;
 import infra.core.env.StandardEnvironment;
 import infra.jndi.JndiLocatorDelegate;
 import infra.jndi.JndiPropertySource;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.util.ClassUtils;
 import infra.web.mock.ConfigurableMockEnvironment;
-import infra.web.mock.MockConfigPropertySource;
 import infra.web.mock.MockContextPropertySource;
 
 /**
@@ -96,17 +94,16 @@ public class StandardMockEnvironment extends StandardEnvironment implements Conf
    * environment variables contributed by the {@link StandardEnvironment} superclass.
    * <p>The {@code Servlet}-related property sources are added as
    * {@link StubPropertySource stubs} at this stage, and will be
-   * {@linkplain #initPropertySources(MockContext, MockConfig) fully initialized}
+   * {@linkplain #initPropertySources(MockContext) fully initialized}
    * once the actual {@link MockContext} object becomes available.
    * <p>Addition of {@value #JNDI_PROPERTY_SOURCE_NAME} can be disabled with
    *
    * @see StandardEnvironment#customizePropertySources
    * @see AbstractEnvironment#customizePropertySources
-   * @see MockConfigPropertySource
    * @see MockContextPropertySource
    * @see JndiPropertySource
    * @see AbstractApplicationContext#initPropertySources
-   * @see #initPropertySources(MockContext, MockConfig)
+   * @see #initPropertySources(MockContext)
    */
   @Override
   protected void customizePropertySources(PropertySources propertySources) {
@@ -119,8 +116,8 @@ public class StandardMockEnvironment extends StandardEnvironment implements Conf
   }
 
   @Override
-  public void initPropertySources(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
-    WebApplicationContextUtils.initMockPropertySources(getPropertySources(), mockContext, mockConfig);
+  public void initPropertySources(@Nullable MockContext mockContext) {
+    WebApplicationContextUtils.initMockPropertySources(getPropertySources(), mockContext);
   }
 
 }
