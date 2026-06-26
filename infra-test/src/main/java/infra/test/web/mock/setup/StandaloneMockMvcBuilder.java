@@ -47,7 +47,6 @@ import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
 import infra.mock.web.MockContextImpl;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
@@ -388,9 +387,9 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   @Override
-  protected WebApplicationContext initWebAppContext() {
+  protected ApplicationContext initWebAppContext() {
     MockContextImpl mockContext = new MockContextImpl();
-    StubWebApplicationContext wac = new StubWebApplicationContext(mockContext);
+    StubWebApplicationContext wac = new StubWebApplicationContext();
 
     var reader = new AnnotatedBeanDefinitionReader(wac);
     reader.register(StandaloneConfiguration.class);
@@ -402,7 +401,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   private void registerMvcSingletons(StubWebApplicationContext wac) {
-    MockContext sc = wac.getMockContext();
+//    MockContext sc = wac.getMockContext();
     wac.addBeans(this);
 
     wac.addBeans(this.controllers);
@@ -435,7 +434,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     wac.refresh();
-    extendMvcSingletons(sc).forEach(wac::addBean);
+    extendMvcSingletons().forEach(wac::addBean);
   }
 
   /**
@@ -443,10 +442,9 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * MVC infrastructure such as additional {@code HandlerMapping},
    * {@code HandlerAdapter}, and others.
    *
-   * @param mockContext the MockContext
    * @return a map with additional MVC infrastructure object instances
    */
-  protected Map<String, Object> extendMvcSingletons(@Nullable MockContext mockContext) {
+  protected Map<String, Object> extendMvcSingletons() {
     return Collections.emptyMap();
   }
 

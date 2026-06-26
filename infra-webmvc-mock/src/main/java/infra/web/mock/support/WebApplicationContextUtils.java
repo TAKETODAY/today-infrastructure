@@ -252,17 +252,6 @@ public class WebApplicationContextUtils {
   }
 
   /**
-   * Convenient variant of {@link #initMockPropertySources(PropertySources,
-   * MockContext, MockConfig)} that always provides {@code null} for the
-   * {@link MockConfig} parameter.
-   *
-   * @see #initMockPropertySources(PropertySources, MockContext, MockConfig)
-   */
-  public static void initMockPropertySources(PropertySources propertySources, MockContext mockContext) {
-    initMockPropertySources(propertySources, mockContext, null);
-  }
-
-  /**
    * Replace {@code Servlet}-based {@link StubPropertySource stub property sources} with
    * actual instances populated with the given {@code mockContext} and
    * {@code servletConfig} objects.

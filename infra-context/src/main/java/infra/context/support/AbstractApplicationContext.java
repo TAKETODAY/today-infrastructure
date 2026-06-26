@@ -670,8 +670,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   /**
-   * <p>
-   * load properties files or itself strategies
+   * <p>Replace any stub property sources with actual instances.
+   *
+   * @see infra.core.env.PropertySource.StubPropertySource
    */
   protected void initPropertySources() throws ApplicationContextException {
     // for subclasses loading properties or prepare property-source

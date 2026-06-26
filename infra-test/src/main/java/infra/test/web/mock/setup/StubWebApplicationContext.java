@@ -25,12 +25,8 @@ import java.util.List;
 
 import infra.beans.factory.support.StaticListableBeanFactory;
 import infra.context.ApplicationContext;
-import infra.core.io.PatternResourceLoader;
-import infra.mock.api.MockContext;
+import infra.context.support.GenericApplicationContext;
 import infra.util.ObjectUtils;
-import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.GenericWebApplicationContext;
-import infra.web.mock.support.MockContextResourcePatternLoader;
 
 /**
  * A stub WebApplicationContext that accepts registrations of object instances.
@@ -45,18 +41,9 @@ import infra.web.mock.support.MockContextResourcePatternLoader;
  * @author Juergen Hoeller
  * @since 4.0
  */
-class StubWebApplicationContext extends GenericWebApplicationContext implements WebApplicationContext {
+class StubWebApplicationContext extends GenericApplicationContext {
 
-  private final PatternResourceLoader resourcePatternResolver;
-
-  public StubWebApplicationContext(MockContext mockContext) {
-    setMockContext(mockContext);
-    this.resourcePatternResolver = new MockContextResourcePatternLoader(mockContext);
-  }
-
-  @Override
-  protected PatternResourceLoader getPatternResourceLoader() {
-    return resourcePatternResolver;
+  public StubWebApplicationContext() {
   }
 
   public void addBean(String name, Object bean) {

@@ -29,8 +29,6 @@ import infra.context.support.StaticApplicationContext;
 import infra.mock.web.MockContextImpl;
 import infra.test.web.mock.MockMvc;
 import infra.web.config.annotation.EnableWebMvc;
-import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.WebApplicationContextUtils;
 
 import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,37 +44,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultMockMvcBuilderTests {
 
   private final MockContextImpl mockContext = new MockContextImpl();
-
-  @Test
-  public void rootWacMockContainerAttributePreviouslySet() {
-    StubWebApplicationContext child = new StubWebApplicationContext(this.mockContext);
-    this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, child);
-
-    DefaultMockMvcBuilder builder = webAppContextSetup(child);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext());
-  }
-
-  @Test
-  public void rootWacMockContainerAttributePreviouslySetWithContextHierarchy() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
-
-    this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
-
-    AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
-    child.setParent(root);
-
-    DefaultMockMvcBuilder builder = webAppContextSetup(child);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext().getParent());
-  }
-
-  @Test
-  public void rootWacMockContainerAttributeNotPreviouslySet() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
-    DefaultMockMvcBuilder builder = webAppContextSetup(root);
-    ApplicationContext wac = builder.initWebAppContext();
-    assertThat(wac).isSameAs(root);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(root);
-  }
 
   @Test
   public void rootWacMockContainerAttributeNotPreviouslySetWithContextHierarchy() {
@@ -96,7 +63,7 @@ public class DefaultMockMvcBuilderTests {
 
   @Test
   public void dispatcherCustomizer() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
+    StubWebApplicationContext root = new StubWebApplicationContext();
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
     root.refresh();
@@ -111,7 +78,7 @@ public class DefaultMockMvcBuilderTests {
 
   @Test
   public void dispatcherCustomizerProcessedInOrder() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
+    StubWebApplicationContext root = new StubWebApplicationContext();
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
     root.refresh();

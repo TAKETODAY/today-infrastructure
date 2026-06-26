@@ -20,6 +20,7 @@ package infra.test.web.mock.setup;
 
 import org.junit.jupiter.api.Test;
 
+import infra.context.ApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
@@ -29,8 +30,6 @@ import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.WebApplicationContextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -80,14 +79,6 @@ class StandaloneMockMvcBuilderTests {
   }
 
   @Test
-  void applicationContextAttribute() {
-    TestStandaloneMockMvcBuilder builder = new TestStandaloneMockMvcBuilder(new PlaceholderController());
-    builder.addPlaceholderValue("sys.login.ajax", "/foo");
-    WebApplicationContext wac = builder.initWebAppContext();
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(wac.getMockContext())).isEqualTo(wac);
-  }
-
-  @Test
   void addFiltersFiltersNull() {
     StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
     assertThatIllegalArgumentException().isThrownBy(() ->
@@ -103,14 +94,14 @@ class StandaloneMockMvcBuilderTests {
 
   private static class TestStandaloneMockMvcBuilder extends StandaloneMockMvcBuilder {
 
-    private WebApplicationContext wac;
+    private ApplicationContext wac;
 
     private TestStandaloneMockMvcBuilder(Object... controllers) {
       super(controllers);
     }
 
     @Override
-    protected WebApplicationContext initWebAppContext() {
+    protected ApplicationContext initWebAppContext() {
       this.wac = super.initWebAppContext();
       return this.wac;
     }
