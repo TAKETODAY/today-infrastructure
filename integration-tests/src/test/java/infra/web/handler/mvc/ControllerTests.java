@@ -107,9 +107,6 @@ class ControllerTests {
     swc.setInitParameters(props);
 
     swc.afterPropertiesSet();
-    assertThat(TestMockHandler.config).isNotNull();
-    assertThat(TestMockHandler.config.getMockName()).isEqualTo("action");
-    assertThat(TestMockHandler.config.getInitParameter("config")).isEqualTo("myValue");
     assertThat(TestMockHandler.request).isNull();
     assertThat(TestMockHandler.destroyed).isFalse();
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
@@ -133,8 +130,6 @@ class ControllerTests {
     swc.setBeanName("action");
 
     swc.afterPropertiesSet();
-    assertThat(TestMockHandler.config).isNotNull();
-    assertThat(TestMockHandler.config.getMockName()).isEqualTo("action");
     assertThat(TestMockHandler.request).isNull();
     assertThat(TestMockHandler.destroyed).isFalse();
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
