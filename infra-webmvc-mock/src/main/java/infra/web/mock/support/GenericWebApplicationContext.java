@@ -29,11 +29,8 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.mock.api.MockConfig;
 import infra.mock.api.MockContext;
 import infra.stereotype.Component;
-import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
@@ -185,43 +182,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
     if (env instanceof ConfigurableMockEnvironment) {
       ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext, null);
     }
-  }
-
-  // ---------------------------------------------------------------------
-  // Pseudo-implementation of ConfigurableWebApplicationContext
-  // ---------------------------------------------------------------------
-
-  @Override
-  public void setMockConfig(@Nullable MockConfig mockConfig) {
-    // no-op
-  }
-
-  // ---------------------------------------------------------------------
-  // Pseudo-implementation of ConfigurableWebApplicationContext
-  // ---------------------------------------------------------------------
-
-  @Override
-  public void setConfigLocation(String configLocation) {
-    if (StringUtils.hasText(configLocation)) {
-      throw new UnsupportedOperationException(
-              "GenericWebApplicationContext does not support setConfigLocation(). " +
-                      "Do you still have a 'contextConfigLocation' init-param set?");
-    }
-  }
-
-  @Override
-  public void setConfigLocations(String... configLocations) {
-    if (ObjectUtils.isNotEmpty(configLocations)) {
-      throw new UnsupportedOperationException(
-              "GenericWebApplicationContext does not support setConfigLocations(). " +
-                      "Do you still have a 'contextConfigLocations' init-param set?");
-    }
-  }
-
-  @Override
-  public String[] getConfigLocations() {
-    throw new UnsupportedOperationException(
-            "GenericWebApplicationContext does not support getConfigLocations()");
   }
 
 }

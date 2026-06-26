@@ -45,27 +45,6 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
   String MOCK_CONFIG_BEAN_NAME = "mockConfig";
 
   /**
-   * Set the config locations for this web application context in init-param style,
-   * i.e. with distinct locations separated by commas, semicolons or whitespace.
-   * <p>If not set, the implementation is supposed to use a default for the
-   * given namespace or the root web application context, as appropriate.
-   */
-  void setConfigLocation(String configLocation);
-
-  /**
-   * Set the config locations for this web application context.
-   * <p>If not set, the implementation is supposed to use a default for the
-   * given namespace or the root web application context, as appropriate.
-   */
-  void setConfigLocations(String... configLocations);
-
-  /**
-   * Return the config locations for this web application context,
-   * or {@code null} if none specified.
-   */
-  String @Nullable [] getConfigLocations();
-
-  /**
    * Set the MockContext for this web application context.
    * <p>Does not cause an initialization of the context: refresh needs to be
    * called after the setting of all configuration properties.
@@ -73,13 +52,5 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
    * @see #refresh()
    */
   void setMockContext(@Nullable MockContext mockContext);
-
-  /**
-   * Set the ServletConfig for this web application context.
-   * Only called for a WebApplicationContext that belongs to a specific Servlet.
-   *
-   * @see #refresh()
-   */
-  void setMockConfig(@Nullable MockConfig mockConfig);
 
 }

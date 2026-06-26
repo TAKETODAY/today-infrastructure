@@ -31,8 +31,7 @@ import infra.util.ObjectUtils;
  * Abstract base class representing a source of name/value property pairs. The underlying
  * {@linkplain #getSource() source object} may be of any type {@code T} that encapsulates
  * properties. Examples include {@link java.util.Properties} objects, {@link java.util.Map}
- * objects, {@code MockContext} and {@code MockConfig} objects (for access to init
- * parameters). Explore the {@code PropertySource} type hierarchy to see provided
+ * objects. Explore the {@code PropertySource} type hierarchy to see provided
  * implementations.
  *
  * <p>{@code PropertySource} objects are not typically used in isolation, but rather
@@ -169,7 +168,7 @@ public abstract class PropertySource<T> {
    * Return a {@code PropertySource} implementation intended for collection comparison purposes only.
    * <p>Primarily for internal use, but given a collection of {@code PropertySource} objects, may be
    * used as follows:
-   * <pre class="code">
+   * <pre>
    * {@code List<PropertySource<?>> sources = new ArrayList<PropertySource<?>>();
    * sources.add(new MapPropertySource("sourceA", mapA));
    * sources.add(new MapPropertySource("sourceB", mapB));
@@ -190,9 +189,7 @@ public abstract class PropertySource<T> {
   /**
    * {@code PropertySource} to be used as a placeholder in cases where an actual
    * property source cannot be eagerly initialized at application context
-   * creation time.  For example, a {@code MockContext}-based property source
-   * must wait until the {@code MockContext} object is available to its enclosing
-   * {@code ApplicationContext}.  In such cases, a stub should be used to hold the
+   * creation time.  In such cases, a stub should be used to hold the
    * intended default position/order of the property source, then be replaced
    * during context refresh.
    *
@@ -208,8 +205,7 @@ public abstract class PropertySource<T> {
      * Always returns {@code null}.
      */
     @Override
-    @Nullable
-    public String getProperty(String name) {
+    public @Nullable String getProperty(String name) {
       return null;
     }
   }
