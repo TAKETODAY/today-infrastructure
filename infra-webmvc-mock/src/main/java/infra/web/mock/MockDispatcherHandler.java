@@ -23,7 +23,6 @@ import java.io.Serializable;
 
 import infra.context.ApplicationContext;
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
 import infra.mock.api.MockRequest;
@@ -47,19 +46,8 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private transient MockContext mockContext;
-
   public MockDispatcherHandler(ApplicationContext context) {
     super(context);
-  }
-
-  public void init(MockContext mockContext) {
-    this.mockContext = mockContext;
-    start();
-  }
-
-  public MockContext getMockContext() {
-    return mockContext;
   }
 
   @Override

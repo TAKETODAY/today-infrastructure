@@ -98,14 +98,14 @@ public final class MockMvc {
    *
    * @see MockMvcBuilders
    */
-  MockMvc(TestMockDispatcherHandler dispatcherHandler, Filter... filters) {
+  MockMvc(TestMockDispatcherHandler dispatcherHandler, MockContext mockContext, Filter... filters) {
     Assert.notNull(dispatcherHandler, "DispatcherHandler is required");
     Assert.notNull(filters, "Filters cannot be null");
     Assert.noNullElements(filters, "Filters cannot contain null values");
 
     this.dispatcherHandler = dispatcherHandler;
     this.filters = filters;
-    this.mockContext = dispatcherHandler.getMockContext();
+    this.mockContext = mockContext;
   }
 
   /**

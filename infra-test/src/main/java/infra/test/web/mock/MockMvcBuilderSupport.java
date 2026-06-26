@@ -76,9 +76,9 @@ public abstract class MockMvcBuilderSupport {
       }
     }
 
-    dispatcherHandler.init(mockContext);
+    dispatcherHandler.start();
 
-    MockMvc mockMvc = new MockMvc(dispatcherHandler, filters);
+    MockMvc mockMvc = new MockMvc(dispatcherHandler, mockContext, filters);
     mockMvc.setDefaultRequest(defaultRequestBuilder);
     mockMvc.setGlobalResultMatchers(globalResultMatchers);
     mockMvc.setGlobalResultHandlers(globalResultHandlers);
