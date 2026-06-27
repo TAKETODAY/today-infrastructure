@@ -22,7 +22,6 @@ import infra.context.ApplicationContext;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.web.mock.WebApplicationContext;
-import infra.web.mock.support.WebApplicationContextUtils;
 
 /**
  * A concrete implementation of {@link AbstractMockMvcBuilder} that provides
@@ -56,24 +55,6 @@ public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvc
 
   @Override
   protected ApplicationContext initWebAppContext() {
-    if (context instanceof WebApplicationContext applicationContext) {
-      MockContext mockContext = applicationContext.getMockContext();
-      Assert.state(mockContext != null, "No MockContext");
-      ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(mockContext);
-
-      if (rootWac == null) {
-        rootWac = this.context;
-        ApplicationContext parent = this.context.getParent();
-        while (parent != null) {
-          if (parent instanceof WebApplicationContext && !(parent.getParent() instanceof WebApplicationContext)) {
-            rootWac = parent;
-            break;
-          }
-          parent = parent.getParent();
-        }
-        mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
-      }
-    }
     return this.context;
   }
 

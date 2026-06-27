@@ -53,7 +53,6 @@ public interface MockMvcConfigurer {
    * @param builder the builder for the MockMvc
    */
   default void afterConfigurerAdded(ConfigurableMockMvcBuilder<?> builder) {
-
   }
 
   /**

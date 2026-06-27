@@ -401,7 +401,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   private void registerMvcSingletons(StubWebApplicationContext wac) {
-//    MockContext sc = wac.getMockContext();
     wac.addBeans(this);
 
     wac.addBeans(this.controllers);

@@ -41,7 +41,6 @@ import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.request.RequestPostProcessor;
 import infra.web.Filter;
 import infra.web.client.ApiVersionInserter;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * Abstract implementation of {@link MockMvcBuilder} with common methods for
@@ -159,14 +158,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
     ApplicationContext ctx = initWebAppContext();
-    MockContext mockContext;
-
-    if (ctx instanceof WebApplicationContext wac) {
-      mockContext = wac.getMockContext();
-    }
-    else {
-      mockContext = new MockContextImpl();
-    }
+    MockContext mockContext = new MockContextImpl();
 
     for (MockMvcConfigurer configurer : this.configurers) {
       RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, ctx);
