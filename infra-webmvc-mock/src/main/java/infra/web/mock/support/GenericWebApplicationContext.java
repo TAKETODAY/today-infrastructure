@@ -39,6 +39,7 @@ import infra.session.Session;
 import infra.stereotype.Component;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
+import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
@@ -142,11 +143,11 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   }
 
   /**
-   * Create and return a new {@link StandardMockEnvironment}.
+   * Create and return a new {@link StandardWebEnvironment}.
    */
   @Override
   protected ConfigurableEnvironment createEnvironment() {
-    return new StandardMockEnvironment();
+    return new StandardWebEnvironment();
   }
 
   /**

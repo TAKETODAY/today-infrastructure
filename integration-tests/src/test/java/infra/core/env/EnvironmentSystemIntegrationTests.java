@@ -46,7 +46,7 @@ import infra.core.ApplicationTemp;
 import infra.core.io.ClassPathResource;
 import infra.mock.env.MockEnvironment;
 import infra.util.FileCopyUtils;
-import infra.web.mock.support.StandardMockEnvironment;
+import infra.web.context.StandardWebEnvironment;
 
 import static infra.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static infra.core.env.Environment.ENVIRONMENT_BEAN_NAME;
@@ -78,7 +78,7 @@ public class EnvironmentSystemIntegrationTests {
 
   private final ConfigurableEnvironment devEnv = new StandardEnvironment();
 
-  private final ConfigurableEnvironment prodWebEnv = new StandardMockEnvironment();
+  private final ConfigurableEnvironment prodWebEnv = new StandardWebEnvironment();
 
   @BeforeEach
   void setUp() {
