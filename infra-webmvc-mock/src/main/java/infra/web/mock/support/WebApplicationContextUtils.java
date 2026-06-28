@@ -21,15 +21,10 @@ package infra.web.mock.support;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.function.Supplier;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.core.env.ConfigurableEnvironment;
-import infra.core.env.PropertySource.StubPropertySource;
-import infra.core.env.PropertySources;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
@@ -37,7 +32,6 @@ import infra.mock.api.MockResponse;
 import infra.session.Session;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
-import infra.web.mock.MockContextPropertySource;
 import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
 
@@ -172,72 +166,6 @@ public class WebApplicationContextUtils {
     beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());
     beanFactory.registerResolvableDependency(MockResponse.class, new ResponseObjectSupplier());
 
-  }
-
-  /**
-   * Register web-specific environment beans ("contextParameters", "contextAttributes")
-   * with the given BeanFactory, as used by the WebServletApplicationContext.
-   *
-   * @param bf the BeanFactory to configure
-   * @param mockContext the MockContext that we're running within
-   */
-  public static void registerEnvironmentBeans(ConfigurableBeanFactory bf, @Nullable MockContext mockContext) {
-
-    if (mockContext != null && !bf.containsBean(WebApplicationContext.MOCK_CONTEXT_BEAN_NAME)) {
-      bf.registerSingleton(WebApplicationContext.MOCK_CONTEXT_BEAN_NAME, mockContext);
-    }
-
-    if (!bf.containsBean(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {
-      HashMap<String, String> parameterMap = new HashMap<>();
-      if (mockContext != null) {
-        Enumeration<String> paramNameEnum = mockContext.getInitParameterNames();
-        while (paramNameEnum.hasMoreElements()) {
-          String paramName = paramNameEnum.nextElement();
-          parameterMap.put(paramName, mockContext.getInitParameter(paramName));
-        }
-      }
-      bf.registerSingleton(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME,
-              Collections.unmodifiableMap(parameterMap));
-    }
-
-    if (!bf.containsBean(WebApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME)) {
-      HashMap<String, Object> attributeMap = new HashMap<>();
-      if (mockContext != null) {
-        Enumeration<String> attrNameEnum = mockContext.getAttributeNames();
-        while (attrNameEnum.hasMoreElements()) {
-          String attrName = attrNameEnum.nextElement();
-          attributeMap.put(attrName, mockContext.getAttribute(attrName));
-        }
-      }
-      bf.registerSingleton(WebApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME,
-              Collections.unmodifiableMap(attributeMap));
-    }
-  }
-
-  /**
-   * Replace {@code Servlet}-based {@link StubPropertySource stub property sources} with
-   * actual instances populated with the given {@code mockContext} and
-   * {@code servletConfig} objects.
-   * <p>This method is idempotent with respect to the fact it may be called any number
-   * of times but will perform replacement of stub property sources with their
-   * corresponding actual property sources once and only once.
-   *
-   * @param sources the {@link PropertySources} to initialize (must not
-   * be {@code null})
-   * @param mockContext the current {@link MockContext} (ignored if {@code null}
-   * or if the {@link StandardMockEnvironment#MOCK_CONTEXT_PROPERTY_SOURCE_NAME
-   * servlet context property source} has already been initialized)
-   * @see StubPropertySource
-   * @see ConfigurableEnvironment#getPropertySources()
-   */
-  public static void initMockPropertySources(PropertySources sources,
-          @Nullable MockContext mockContext) {
-    Assert.notNull(sources, "'propertySources' is required");
-
-    String name = StandardMockEnvironment.MOCK_CONTEXT_PROPERTY_SOURCE_NAME;
-    if (mockContext != null && sources.get(name) instanceof StubPropertySource) {
-      sources.replace(name, new MockContextPropertySource(name, mockContext));
-    }
   }
 
   /**

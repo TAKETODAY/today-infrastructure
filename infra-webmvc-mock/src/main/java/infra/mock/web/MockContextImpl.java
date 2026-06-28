@@ -38,7 +38,6 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mock.api.MockContext;
-import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.web.mock.MockUtils;
 
@@ -68,8 +67,6 @@ public class MockContextImpl implements MockContext {
   private final ResourceLoader resourceLoader;
 
   private final String resourceBasePath;
-
-  private final Map<String, String> initParameters = new LinkedHashMap<>();
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
 
@@ -227,32 +224,6 @@ public class MockContextImpl implements MockContext {
   }
 
   @Override
-  public String getInitParameter(String name) {
-    Assert.notNull(name, "Parameter name is required");
-    return this.initParameters.get(name);
-  }
-
-  @Override
-  public Enumeration<String> getInitParameterNames() {
-    return Collections.enumeration(this.initParameters.keySet());
-  }
-
-  @Override
-  public boolean setInitParameter(String name, String value) {
-    Assert.notNull(name, "Parameter name is required");
-    if (this.initParameters.containsKey(name)) {
-      return false;
-    }
-    this.initParameters.put(name, value);
-    return true;
-  }
-
-  public void addInitParameter(String name, String value) {
-    Assert.notNull(name, "Parameter name is required");
-    this.initParameters.put(name, value);
-  }
-
-  @Override
   @Nullable
   public Object getAttribute(String name) {
     Assert.notNull(name, "Attribute name is required");
@@ -279,12 +250,6 @@ public class MockContextImpl implements MockContext {
   public void removeAttribute(String name) {
     Assert.notNull(name, "Attribute name is required");
     this.attributes.remove(name);
-  }
-
-  @Override
-  @Nullable
-  public ClassLoader getClassLoader() {
-    return ClassUtils.getDefaultClassLoader();
   }
 
 }

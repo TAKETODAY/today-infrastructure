@@ -194,36 +194,6 @@ public interface MockContext {
   String getRealPath(String path);
 
   /**
-   * Returns a <code>String</code> containing the value of the named context-wide initialization parameter, or
-   * <code>null</code> if the parameter does not exist.
-   *
-   * <p>
-   * This method can make available configuration information useful to an entire web application. For example, it can
-   * provide a webmaster's email address or the name of a system that holds critical data.
-   *
-   * @param name a <code>String</code> containing the name of the parameter whose value is requested
-   * @return a <code>String</code> containing the value of the context's initialization parameter, or <code>null</code> if
-   * the context's initialization parameter does not exist.
-   * @throws NullPointerException if the argument {@code name} is {@code null}
-   */
-  String getInitParameter(String name);
-
-  /**
-   * Returns the names of the context's initialization parameters as an <code>Enumeration</code> of <code>String</code>
-   * objects, or an empty <code>Enumeration</code> if the context has no initialization parameters.
-   *
-   * @return an <code>Enumeration</code> of <code>String</code> objects containing the names of the context's
-   * initialization parameters
-   */
-  Enumeration<String> getInitParameterNames();
-
-  /**
-   * Sets the context initialization parameter with the given name and value on this MockContext.
-   *
-   */
-  boolean setInitParameter(String name, String value);
-
-  /**
    * Returns the servlet container attribute with the given name, or <code>null</code> if there is no attribute by that
    * name.
    *
@@ -286,19 +256,5 @@ public interface MockContext {
    * @param name a <code>String</code> specifying the name of the attribute to be removed
    */
   void removeAttribute(String name);
-
-  /**
-   * Gets the class loader of the web application represented by this MockContext.
-   *
-   * <p>
-   * If a security manager exists, and the caller's class loader is not the same as, or an ancestor of the requested class
-   * loader, then the security manager's <code>checkPermission</code> method is called with a
-   * <code>RuntimePermission("getClassLoader")</code> permission to check whether access to the requested class loader
-   * should be granted.
-   *
-   * @return the class loader of the web application represented by this MockContext
-   * @throws SecurityException if a security manager denies access to the requested class loader
-   */
-  ClassLoader getClassLoader();
 
 }

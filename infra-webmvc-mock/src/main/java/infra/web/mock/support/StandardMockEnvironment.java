@@ -32,7 +32,6 @@ import infra.jndi.JndiPropertySource;
 import infra.mock.api.MockContext;
 import infra.util.ClassUtils;
 import infra.web.mock.ConfigurableMockEnvironment;
-import infra.web.mock.MockContextPropertySource;
 
 /**
  * {@link Environment} implementation to be used by {@code Servlet}-based web
@@ -100,7 +99,6 @@ public class StandardMockEnvironment extends StandardEnvironment implements Conf
    *
    * @see StandardEnvironment#customizePropertySources
    * @see AbstractEnvironment#customizePropertySources
-   * @see MockContextPropertySource
    * @see JndiPropertySource
    * @see AbstractApplicationContext#initPropertySources
    * @see #initPropertySources(MockContext)
@@ -117,7 +115,6 @@ public class StandardMockEnvironment extends StandardEnvironment implements Conf
 
   @Override
   public void initPropertySources(@Nullable MockContext mockContext) {
-    WebApplicationContextUtils.initMockPropertySources(getPropertySources(), mockContext);
   }
 
 }

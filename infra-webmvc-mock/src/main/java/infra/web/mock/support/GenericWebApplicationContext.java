@@ -142,8 +142,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
 
   /**
    * This implementation supports file paths beneath the root of the {@link MockContext}.
-   *
-   * @see MockContextResource
    */
   @Override
   protected Resource getResourceByPath(String path) {
@@ -169,7 +167,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
       beanFactory.ignoreDependencyInterface(MockContextAware.class);
     }
     WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
-    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext);
   }
 
   /**

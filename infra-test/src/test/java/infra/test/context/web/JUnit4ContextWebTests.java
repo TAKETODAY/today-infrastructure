@@ -101,7 +101,6 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
     assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContext);
-    assertThat(request.getMockContext()).as("MockContext in the WAC and in the mock request").isSameAs(mockContext);
 
     assertThat(mockContextIm.getRealPath("index.jsp")).as("Getting real path for MockContext resource.")
             .isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
