@@ -33,7 +33,7 @@ import infra.core.testfixture.xml.XmlContent;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
-import infra.web.mock.MockUtils;
+import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +53,7 @@ public class RssFeedViewTests {
     model.put("2", "This is entry 2");
     model.put("1", "This is entry 1");
 
-    view.render(model, MockUtils.getRequestContext(request, response));
+    view.render(model, new MockRequestContext(request, response));
     assertThat(response.getContentType()).as("Invalid content-type").isEqualTo("application/rss+xml");
     String expected = "<rss version=\"2.0\">" +
             "<channel><title>Test Feed</title>" +

@@ -35,7 +35,7 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
-import infra.web.mock.MockUtils;
+import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -67,7 +67,7 @@ public class BaseViewTests {
     model.put("foo", "bar");
     model.put("something", new Object());
 
-    RequestContext requestContext = MockUtils.getRequestContext(request, response);
+    RequestContext requestContext = new MockRequestContext(wac, request, response);
 
     tv.render(model, requestContext);
 
@@ -97,7 +97,7 @@ public class BaseViewTests {
     model.put("one", new HashMap<>());
     model.put("two", new Object());
 
-    RequestContext requestContext = MockUtils.getRequestContext(request, response);
+    RequestContext requestContext = new MockRequestContext(wac, request, response);
 
     tv.render(model, requestContext);
 
@@ -125,7 +125,7 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", new HashMap<>());
     pathVars.put("two", new Object());
-    RequestContext requestContext = MockUtils.getRequestContext(wac, request, response);
+    RequestContext requestContext = new MockRequestContext(wac, request, response);
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
     metadata.getPathVariables().putAll(pathVars);
     requestContext.setMatchingMetadata(metadata);
@@ -156,7 +156,7 @@ public class BaseViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());
     model.put("two", new Object());
-    RequestContext requestContext = MockUtils.getRequestContext(request, response);
+    RequestContext requestContext = new MockRequestContext(wac, request, response);
 
     tv.render(model, requestContext);
 
@@ -181,7 +181,7 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", "bar");
     pathVars.put("something", "else");
-    RequestContext requestContext = MockUtils.getRequestContext(request, response);
+    RequestContext requestContext = new MockRequestContext(wac, request, response);
 
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
     metadata.getPathVariables().putAll(pathVars);

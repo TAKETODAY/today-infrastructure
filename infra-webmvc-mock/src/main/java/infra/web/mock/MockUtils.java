@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
-import infra.context.ApplicationContext;
 import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
@@ -39,7 +38,6 @@ import infra.session.Session;
 import infra.util.ObjectUtils;
 import infra.web.MockIndicator;
 import infra.web.RequestContext;
-import infra.web.mock.support.WebApplicationContextUtils;
 import infra.web.util.WebUtils;
 
 /**
@@ -68,16 +66,6 @@ public abstract class MockUtils {
   public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "infra.mock.api.context.tempdir";
 
   // context
-
-  public static RequestContext getRequestContext(MockRequest request, MockResponse response) {
-    HttpMockRequest servletRequest = (HttpMockRequest) request;
-    return getRequestContext(findWebApplicationContext(servletRequest), servletRequest, (HttpMockResponse) response);
-  }
-
-  public static RequestContext getRequestContext(
-          ApplicationContext webApplicationContext, HttpMockRequest request, HttpMockResponse response) {
-    return new MockRequestContext(webApplicationContext, request, response);
-  }
 
   /**
    * Get HttpSession
@@ -206,46 +194,6 @@ public abstract class MockUtils {
     MockIndicator nativeContext = WebUtils.getNativeContext(context, MockIndicator.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     return nativeContext.getResponse();
-  }
-
-  /**
-   * Look for the WebApplicationContext associated with the DispatcherMock
-   * that has initiated request processing, and for the global context if none
-   * was found associated with the current request. The global context will
-   * be found via the MockContext or via ContextLoader's current context.
-   *
-   * @param request current HTTP request
-   * @return the request-specific WebApplicationContext, or the global one
-   * if no request-specific context has been found, or {@code null} if none
-   * @see #findWebApplicationContext(MockRequest, MockContext)
-   * @see MockRequest#getMockContext()
-   * @since 4.0
-   */
-  @Nullable
-  public static WebApplicationContext findWebApplicationContext(MockRequest request) {
-    return findWebApplicationContext(request, request.getMockContext());
-  }
-
-  /**
-   * @param request current HTTP request
-   * @param mockContext current servlet context
-   * @return the request-specific WebApplicationContext, or the global one
-   * if no request-specific context has been found, or {@code null} if none
-   * @see #WEB_APPLICATION_CONTEXT_ATTRIBUTE
-   * @see WebApplicationContextUtils#getWebApplicationContext(MockContext)
-   * @since 4.0
-   */
-  @Nullable
-  public static WebApplicationContext findWebApplicationContext(
-          MockRequest request, @Nullable MockContext mockContext) {
-    WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(
-            WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-    if (webApplicationContext == null) {
-      if (mockContext != null) {
-        webApplicationContext = WebApplicationContextUtils.findWebApplicationContext(mockContext);
-      }
-    }
-    return webApplicationContext;
   }
 
   //---------------------------------------------------------------------

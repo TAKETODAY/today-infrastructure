@@ -20,6 +20,9 @@ package infra.web.mock.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serializable;
+import java.util.function.Supplier;
+
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
@@ -30,11 +33,17 @@ import infra.core.io.PatternResourceLoader;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
+import infra.mock.api.MockRequest;
+import infra.mock.api.MockResponse;
+import infra.session.Session;
 import infra.stereotype.Component;
+import infra.web.RequestContextHolder;
+import infra.web.RequestContextUtils;
 import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
+import infra.web.mock.MockUtils;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web servlet environments.
@@ -166,7 +175,8 @@ public class GenericWebApplicationContext extends GenericApplicationContext
       beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext));
       beanFactory.ignoreDependencyInterface(MockContextAware.class);
     }
-    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
+
+    registerWebApplicationScopes(beanFactory, this.mockContext);
   }
 
   /**
@@ -179,6 +189,79 @@ public class GenericWebApplicationContext extends GenericApplicationContext
     if (env instanceof ConfigurableMockEnvironment) {
       ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext);
     }
+  }
+
+  /**
+   * Register web-specific scopes ("request", "session")
+   * with the given BeanFactory, as used by the WebServletApplicationContext.
+   *
+   * @param beanFactory the BeanFactory to configure
+   * @param sc the MockContext that we're running within
+   */
+  static void registerWebApplicationScopes(
+          ConfigurableBeanFactory beanFactory, @Nullable MockContext sc) {
+    RequestContextUtils.registerScopes(beanFactory);
+
+    if (sc != null) {
+      beanFactory.registerResolvableDependency(MockContext.class, sc);
+    }
+
+    beanFactory.registerResolvableDependency(Session.class, new SessionObjectSupplier());
+    beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());
+    beanFactory.registerResolvableDependency(MockResponse.class, new ResponseObjectSupplier());
+  }
+
+  /**
+   * Factory that exposes the current request object on demand.
+   */
+  @SuppressWarnings("serial")
+  private static class RequestObjectSupplier implements Supplier<MockRequest>, Serializable {
+
+    @Override
+    public MockRequest get() {
+      return MockUtils.getMockRequest(RequestContextHolder.current());
+    }
+
+    @Override
+    public String toString() {
+      return "Current HttpMockRequest";
+    }
+
+  }
+
+  /**
+   * Factory that exposes the current response object on demand.
+   */
+  @SuppressWarnings("serial")
+  private static class ResponseObjectSupplier implements Supplier<MockResponse>, Serializable {
+
+    @Override
+    public MockResponse get() {
+      return MockUtils.getMockResponse(RequestContextHolder.current());
+    }
+
+    @Override
+    public String toString() {
+      return "Current HttpMockResponse";
+    }
+  }
+
+  /**
+   * Factory that exposes the current session object on demand.
+   */
+  @SuppressWarnings("serial")
+  private static class SessionObjectSupplier implements Supplier<Session>, Serializable {
+
+    @Override
+    public Session get() {
+      return RequestContextHolder.required().getSession();
+    }
+
+    @Override
+    public String toString() {
+      return "Current HttpSession";
+    }
+
   }
 
 }
