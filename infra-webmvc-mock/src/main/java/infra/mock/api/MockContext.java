@@ -213,7 +213,6 @@ public interface MockContext {
    * @return an <code>Object</code> containing the value of the attribute, or <code>null</code> if no attribute exists
    * matching the given name.
    * @throws NullPointerException if the argument {@code name} is {@code null}
-   * @see MockContext#getAttributeNames
    */
   Object getAttribute(String name);
 

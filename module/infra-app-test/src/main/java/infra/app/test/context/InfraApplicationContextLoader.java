@@ -41,7 +41,6 @@ import infra.app.ConfigurableBootstrapContext;
 import infra.app.InfraConfiguration;
 import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 import infra.app.test.context.InfraTest.UseMainMethod;
-import infra.app.test.mock.web.InfraMockContext;
 import infra.beans.BeanUtils;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
@@ -74,7 +73,6 @@ import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.function.ThrowingSupplier;
-import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.support.GenericWebApplicationContext;
 import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 
@@ -218,9 +216,6 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
     List<ApplicationContextInitializer> initializers = getInitializers(config, application);
     if (config instanceof WebMergedContextConfiguration) {
       application.setApplicationType(ApplicationType.WEB);
-      if (!isEmbeddedWebEnvironment(config)) {
-        new WebConfigurer().configure(config, initializers);
-      }
     }
     else if (config instanceof ReactiveWebMergedContextConfiguration) {
       application.setApplicationType(ApplicationType.REACTIVE_WEB);
@@ -383,47 +378,6 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
   @Override
   protected String getResourceSuffix() {
     throw new IllegalStateException();
-  }
-
-  /**
-   * Inner class to configure {@link WebMergedContextConfiguration}.
-   */
-  private static final class WebConfigurer {
-
-    void configure(MergedContextConfiguration configuration, List<ApplicationContextInitializer> initializers) {
-      WebMergedContextConfiguration webConfiguration = (WebMergedContextConfiguration) configuration;
-      addMockContext(initializers, webConfiguration);
-    }
-
-    private void addMockContext(List<ApplicationContextInitializer> initializers, WebMergedContextConfiguration webConfiguration) {
-      InfraMockContext mockContext = new InfraMockContext(webConfiguration.getResourceBasePath());
-//      initializers.add(0, new DefensiveWebApplicationContextInitializer(
-//              new MockContextApplicationContextInitializer(mockContext, true)));
-    }
-
-    /**
-     * Decorator for {@link MockContextApplicationContextInitializer} that prevents
-     * a failure when the context type is not as was predicted when the initializer
-     * was registered.
-     */
-    private static final class DefensiveWebApplicationContextInitializer
-            implements ApplicationContextInitializer {
-
-      private final MockContextApplicationContextInitializer delegate;
-
-      private DefensiveWebApplicationContextInitializer(MockContextApplicationContextInitializer delegate) {
-        this.delegate = delegate;
-      }
-
-      @Override
-      public void initialize(ConfigurableApplicationContext applicationContext) {
-        if (applicationContext instanceof ConfigurableWebApplicationContext webApplicationContext) {
-          this.delegate.initialize(webApplicationContext);
-        }
-      }
-
-    }
-
   }
 
   /**
