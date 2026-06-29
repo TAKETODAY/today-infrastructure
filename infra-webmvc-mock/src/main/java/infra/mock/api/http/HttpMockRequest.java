@@ -183,22 +183,6 @@ public interface HttpMockRequest extends MockRequest {
   String getPathInfo();
 
   /**
-   * Returns any extra path information after the servlet name but before the query string, and translates it to a real
-   * path.
-   *
-   * <p>
-   * If the URL does not have any extra path information, this method returns <code>null</code> or the servlet container
-   * cannot translate the virtual path to a real path for any reason (such as when the web application is executed from an
-   * archive).
-   *
-   * The web container does not decode this string.
-   *
-   * @return a <code>String</code> specifying the real path, or <code>null</code> if the URL does not have any extra path
-   * information
-   */
-  String getPathTranslated();
-
-  /**
    * Returns the query string that is contained in the request URL after the path. This method returns <code>null</code>
    * if the URL does not have a query string.
    *

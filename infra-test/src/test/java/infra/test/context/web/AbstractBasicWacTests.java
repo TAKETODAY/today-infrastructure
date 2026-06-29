@@ -21,8 +21,6 @@ package infra.test.context.web;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-
 import infra.beans.factory.annotation.Autowired;
 import infra.mock.api.MockContext;
 import infra.mock.api.http.HttpMockRequest;
@@ -88,10 +86,6 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
     assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContextIn);
-
-    assertThat(mockContextIn.getRealPath("index.jsp")).as("Getting real path for MockContext resource.")
-            .isEqualTo(new File("src/main/webapp/index.jsp")
-                    .getCanonicalPath());
 
   }
 

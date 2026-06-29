@@ -18,7 +18,6 @@ package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.FileNotFoundException;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
@@ -308,39 +307,6 @@ public abstract class MockUtils {
     }
     // We couldn't find the parameter value...
     return null;
-  }
-
-  //---------------------------------------------------------------------
-  // MockContext
-  //---------------------------------------------------------------------
-
-  /**
-   * Return the real path of the given path within the web application,
-   * as provided by the servlet container.
-   * <p>Prepends a slash if the path does not already start with a slash,
-   * and throws a FileNotFoundException if the path cannot be resolved to
-   * a resource (in contrast to MockContext's {@code getRealPath},
-   * which returns null).
-   *
-   * @param mockContext the servlet context of the web application
-   * @param path the path within the web application
-   * @return the corresponding real path
-   * @throws FileNotFoundException if the path cannot be resolved to a resource
-   * @see MockContext#getRealPath
-   */
-  public static String getRealPath(MockContext mockContext, String path) throws FileNotFoundException {
-    Assert.notNull(mockContext, "MockContext is required");
-    // Interpret location as relative to the web application root directory.
-    if (!path.startsWith("/")) {
-      path = "/" + path;
-    }
-    String realPath = mockContext.getRealPath(path);
-    if (realPath == null) {
-      throw new FileNotFoundException(
-              "MockContext resource [" + path + "] cannot be resolved to absolute file path - " +
-                      "web application archive not expanded?");
-    }
-    return realPath;
   }
 
 }

@@ -129,14 +129,6 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
   }
 
   /**
-   * The default behavior of this method is to return getPathTranslated() on the wrapped request object.
-   */
-  @Override
-  public String getPathTranslated() {
-    return this._getHttpMockRequest().getPathTranslated();
-  }
-
-  /**
    * The default behavior of this method is to return getQueryString() on the wrapped request object.
    */
   @Override

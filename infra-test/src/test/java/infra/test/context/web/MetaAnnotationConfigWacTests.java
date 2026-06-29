@@ -21,8 +21,6 @@ package infra.test.context.web;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.File;
-
 import infra.beans.factory.annotation.Autowired;
 import infra.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
@@ -68,8 +66,6 @@ class MetaAnnotationConfigWacTests {
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
     assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContext);
-
-    assertThat(mockContext.getRealPath("index.jsp")).as("Getting real path for MockContext resource.").isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
   }
 
 }

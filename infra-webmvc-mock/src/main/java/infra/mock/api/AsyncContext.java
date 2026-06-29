@@ -44,30 +44,6 @@ import infra.mock.api.http.HttpMockRequest;
 public interface AsyncContext {
 
   /**
-   * The name of the request attribute under which the original request URI is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
-   */
-  String ASYNC_REQUEST_URI = "infra.mock.api.async.request_uri";
-
-  /**
-   * The name of the request attribute under which the original context path is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
-   */
-  String ASYNC_CONTEXT_PATH = "infra.mock.api.async.context_path";
-
-  /**
-   * The name of the request attribute under which the original path info is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
-   */
-  String ASYNC_PATH_INFO = "infra.mock.api.async.path_info";
-
-  /**
-   * The name of the request attribute under which the original query string is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
-   */
-  String ASYNC_QUERY_STRING = "infra.mock.api.async.query_string";
-
-  /**
    * Gets the request that was used to initialize this AsyncContext by calling {@link MockRequest#startAsync()} or
    * {@link MockRequest#startAsync(MockRequest, MockResponse)}.
    *
@@ -181,22 +157,6 @@ public interface AsyncContext {
   /**
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt>.
    *
-   * <p>
-   * All path related query methods of the request must reflect the dispatch target, while the original request URI,
-   * context path, path info, servlet path, and query string may be recovered from the {@link #ASYNC_REQUEST_URI},
-   * {@link #ASYNC_CONTEXT_PATH}, {@link #ASYNC_PATH_INFO}, {@link #ASYNC_SERVLET_PATH}, and {@link #ASYNC_QUERY_STRING}
-   * attributes of the request. These attributes will always reflect the original path elements, even under repeated
-   * dispatches.
-   *
-   * <p>
-   * There can be at most one asynchronous dispatch operation per asynchronous cycle, which is started by a call to one of
-   * the {@link MockRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
-   * within the same asynchronous cycle will result in an IllegalStateException. If startAsync is subsequently called on
-   * the dispatched request, then any of the dispatch or {@link #complete} methods may be called.
-   *
-   * <p>
-   * See {@link #dispatch()} for additional details, including error handling.
-   *
    * @param path the path of the dispatch target, scoped to the MockContext from which this AsyncContext was
    * initialized
    * @throws IllegalStateException if one of the dispatch methods has been called and the startAsync method has not been
@@ -208,28 +168,6 @@ public interface AsyncContext {
   /**
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt> scoped to the given
    * <tt>context</tt>.
-   *
-   * <p>
-   * All path related query methods of the request must reflect the dispatch target, while the original request URI,
-   * context path, path info, servlet path, and query string may be recovered from the {@link #ASYNC_REQUEST_URI},
-   * {@link #ASYNC_CONTEXT_PATH}, {@link #ASYNC_PATH_INFO}, {@link #ASYNC_SERVLET_PATH}, and {@link #ASYNC_QUERY_STRING}
-   * attributes of the request. These attributes will always reflect the original path elements, even under repeated
-   * dispatches.
-   *
-   * <p>
-   * There can be at most one asynchronous dispatch operation per asynchronous cycle, which is started by a call to one of
-   * the {@link MockRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
-   * within the same asynchronous cycle will result in an IllegalStateException. If startAsync is subsequently called on
-   * the dispatched request, then any of the dispatch or {@link #complete} methods may be called.
-   *
-   * <p>
-   * See {@link #dispatch()} for additional details, including error handling.
-   *
-   * @param context the MockContext of the dispatch target
-   * @param path the path of the dispatch target, scoped to the given MockContext
-   * @throws IllegalStateException if one of the dispatch methods has been called and the startAsync method has not been
-   * called during the resulting dispatch, or if {@link #complete} was called
-   * @see MockRequest#getDispatcherType
    */
   void dispatch(MockContext context, String path);
 

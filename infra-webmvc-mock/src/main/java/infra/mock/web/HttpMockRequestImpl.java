@@ -1158,12 +1158,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return this.pathInfo;
   }
 
-  @Override
-  @Nullable
-  public String getPathTranslated() {
-    return (this.pathInfo != null ? this.mockContext.getRealPath(this.pathInfo) : null);
-  }
-
   public void setQueryString(@Nullable String queryString) {
     this.queryString = queryString;
   }

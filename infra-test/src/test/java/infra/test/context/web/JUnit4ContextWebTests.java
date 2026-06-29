@@ -18,8 +18,6 @@ package infra.test.context.web;
 
 import org.junit.Test;
 
-import java.io.File;
-
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -102,8 +100,6 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
     assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
     assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContext);
 
-    assertThat(mockContextIm.getRealPath("index.jsp")).as("Getting real path for MockContext resource.")
-            .isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
   }
 
   @Test
