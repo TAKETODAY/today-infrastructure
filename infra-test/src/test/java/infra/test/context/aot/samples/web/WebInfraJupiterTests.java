@@ -28,13 +28,12 @@ import static infra.test.web.mock.result.MockMvcResultMatchers.content;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
 import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 /**
  * @author Sam Brannen
  * @since 4.0
  */
-@JUnitWebConfig(classes = WebTestConfiguration.class, resourcePath = "classpath:META-INF/web-resources")
+@JUnitWebConfig(classes = WebTestConfiguration.class)
 @TestPropertySource(properties = "test.engine = jupiter")
 public class WebInfraJupiterTests {
 
@@ -57,15 +56,6 @@ public class WebInfraJupiterTests {
 
     mockMvc.perform(get("/hello"))
             .andExpectAll(status().isOk(), content().string("Hello, AOT!"));
-  }
-
-  @org.junit.jupiter.api.Test
-  void resources() throws Exception {
-    this.mockMvc.perform(get("/resources/Spring.js"))
-            .andExpectAll(
-                    content().contentType("text/javascript"),
-                    content().string(containsString("Spring={};"))
-            );
   }
 
 }

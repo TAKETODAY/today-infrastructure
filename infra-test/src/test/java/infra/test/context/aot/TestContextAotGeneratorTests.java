@@ -244,10 +244,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     // @TestPropertySource(factory = ...)
     assertReflectionRegistered(runtimeHints, YamlPropertySourceFactory.class.getName(), INVOKE_DECLARED_CONSTRUCTORS);
 
-    // @WebAppConfiguration(value = ...)
-    assertThat(resource().forResource("META-INF/web-resources/resources/Infra.js")).accepts(runtimeHints);
-    assertThat(resource().forResource("META-INF/web-resources/WEB-INF/views/home.jsp")).accepts(runtimeHints);
-
     // @Sql(scripts = ...)
     assertThat(resource().forResource("infra/test/context/jdbc/schema.sql"))
             .accepts(runtimeHints);

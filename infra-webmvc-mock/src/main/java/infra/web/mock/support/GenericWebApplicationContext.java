@@ -29,9 +29,6 @@ import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
-import infra.core.io.PatternResourceLoader;
-import infra.core.io.Resource;
-import infra.lang.Assert;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
@@ -148,25 +145,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   @Override
   protected ConfigurableEnvironment createEnvironment() {
     return new StandardWebEnvironment();
-  }
-
-  /**
-   * This implementation supports file paths beneath the root of the {@link MockContext}.
-   */
-  @Override
-  protected Resource getResourceByPath(String path) {
-    Assert.state(this.mockContext != null, "No MockContext available");
-    return new MockContextResource(this.mockContext, path);
-  }
-
-  /**
-   * This implementation supports pattern matching in unexpanded WARs too.
-   *
-   * @see MockContextResourcePatternLoader
-   */
-  @Override
-  protected PatternResourceLoader getPatternResourceLoader() {
-    return new MockContextResourcePatternLoader(this);
   }
 
   @Override
