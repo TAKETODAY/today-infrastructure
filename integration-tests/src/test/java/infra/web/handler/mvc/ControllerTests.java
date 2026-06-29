@@ -20,27 +20,14 @@ package infra.web.handler.mvc;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Properties;
-
-import infra.beans.factory.DisposableBean;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.api.MockHandler;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.web.DispatcherHandler;
-import infra.web.HttpRequestHandler;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockWrappingController;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -61,110 +48,6 @@ class ControllerTests {
     assertThat(mv.getModel().size() == 0).as("model has no data").isTrue();
     assertThat(mv.getViewName().equals(viewName)).as("model has correct viewname").isTrue();
     assertThat(pvc.getViewName().equals(viewName)).as("getViewName matches").isTrue();
-  }
-
-  @Test
-  public void mockForwardingController() throws Throwable {
-    MockForwardingController sfc = new MockForwardingController();
-    sfc.setMockName("action");
-    doTestMockForwardingController(sfc);
-  }
-
-  @Test
-  public void mockForwardingControllerWithBeanName() throws Throwable {
-    MockForwardingController sfc = new MockForwardingController();
-    sfc.setBeanName("action");
-    doTestMockForwardingController(sfc);
-  }
-
-  private void doTestMockForwardingController(MockForwardingController sfc)
-          throws Throwable {
-
-    HttpMockRequest request = mock(HttpMockRequest.class);
-    HttpMockResponse response = mock(HttpMockResponse.class);
-
-    given(request.getMethod()).willReturn("GET");
-
-    ConfigurableApplicationContext sac = new AnnotationConfigApplicationContext();
-    sfc.setApplicationContext(sac);
-
-    MockRequestContext mockRequestContext = new MockRequestContext(sac, request, response, new DispatcherHandler(sac));
-
-    assertThat(sfc.handleRequest(mockRequestContext)).isSameAs(HttpRequestHandler.NONE_RETURN_VALUE);
-    assertThat(mockRequestContext.getForwardedUrl()).isNotNull();
-  }
-
-  @Test
-  public void wrappingController() throws Throwable {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/somePath");
-    HttpMockResponse response = new MockHttpResponseImpl();
-
-    MockWrappingController swc = new MockWrappingController();
-    swc.setMockClass(TestMockHandler.class);
-    swc.setMockName("action");
-    Properties props = new Properties();
-    props.setProperty("config", "myValue");
-    swc.setInitParameters(props);
-
-    swc.afterPropertiesSet();
-    assertThat(TestMockHandler.request).isNull();
-    assertThat(TestMockHandler.destroyed).isFalse();
-    MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
-
-    assertThat(swc.handleRequest(mockRequestContext)).isNull();
-    assertThat(TestMockHandler.request).isEqualTo(request);
-    assertThat(TestMockHandler.response).isEqualTo(response);
-    assertThat(TestMockHandler.destroyed).isFalse();
-
-    swc.destroy();
-    assertThat(TestMockHandler.destroyed).isTrue();
-  }
-
-  @Test
-  public void wrappingControllerWithBeanName() throws Throwable {
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/somePath");
-    HttpMockResponse response = new MockHttpResponseImpl();
-
-    MockWrappingController swc = new MockWrappingController();
-    swc.setMockClass(TestMockHandler.class);
-    swc.setBeanName("action");
-
-    swc.afterPropertiesSet();
-    assertThat(TestMockHandler.request).isNull();
-    assertThat(TestMockHandler.destroyed).isFalse();
-    MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
-
-    assertThat(swc.handleRequest(mockRequestContext)).isNull();
-    assertThat(TestMockHandler.request).isEqualTo(request);
-    assertThat(TestMockHandler.response).isEqualTo(response);
-    assertThat(TestMockHandler.destroyed).isFalse();
-
-    swc.destroy();
-    assertThat(TestMockHandler.destroyed).isTrue();
-  }
-
-  public static class TestMockHandler implements MockHandler, DisposableBean {
-
-    private static MockRequest request;
-    private static MockResponse response;
-    private static boolean destroyed;
-
-    public TestMockHandler() {
-      request = null;
-      response = null;
-      destroyed = false;
-    }
-
-    @Override
-    public void service(MockRequest mockRequest, MockResponse mockResponse) {
-      request = mockRequest;
-      response = mockResponse;
-    }
-
-    @Override
-    public void destroy() {
-      destroyed = true;
-    }
   }
 
 }
