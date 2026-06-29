@@ -58,7 +58,7 @@ import infra.web.mock.MockRequestContext;
  *
  * // ...
  *
- * WebApplicationContext wac = ...;
+ * ApplicationContext wac = ...;
  *
  * MockMvc mockMvc = webAppContextSetup(wac).build();
  *
@@ -83,11 +83,9 @@ public final class MockMvc {
 
   private final MockContext mockContext;
 
-  @Nullable
-  private RequestBuilder defaultRequestBuilder;
+  private @Nullable RequestBuilder defaultRequestBuilder;
 
-  @Nullable
-  private Charset defaultResponseCharacterEncoding;
+  private @Nullable Charset defaultResponseCharacterEncoding;
 
   private List<ResultMatcher> defaultResultMatchers = new ArrayList<>();
 

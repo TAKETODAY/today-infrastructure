@@ -49,20 +49,6 @@ public interface WebApplicationContext extends ApplicationContext {
   String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 
   /**
-   * Name of the MockContext environment bean in the factory.
-   *
-   * @see MockContext
-   */
-  String MOCK_CONTEXT_BEAN_NAME = "mockContext";
-
-  String CONTEXT_PARAMETERS_BEAN_NAME = "contextParameters";
-
-  /**
-   * Name of the MockContext attributes environment bean in the factory.
-   */
-  String CONTEXT_ATTRIBUTES_BEAN_NAME = "contextAttributes";
-
-  /**
    * Return the standard Servlet API MockContext for this application.
    */
   @Nullable

@@ -59,7 +59,6 @@ public class MockParameterResolvers {
     // Attributes
     // ------------------------
     resolvers.add(new ForHttpSessionAttribute());
-    resolvers.add(new PrincipalMethodArgumentResolver());
   }
 
   static class ForMockRequest implements ParameterResolvingStrategy {

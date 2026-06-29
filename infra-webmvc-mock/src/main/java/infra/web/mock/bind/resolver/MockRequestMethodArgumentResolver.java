@@ -20,8 +20,6 @@ package infra.web.mock.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
-import java.security.Principal;
-
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.HttpMockRequest;
 import infra.session.Session;
@@ -37,9 +35,6 @@ import infra.web.mock.MockUtils;
  * <ul>
  * <li>{@link MockRequest}
  * <li>{@link Session}
- * <li>{@link Principal} but only if not annotated in order to allow custom
- * resolvers to resolve it, and the falling back on
- * {@link PrincipalMethodArgumentResolver}.
  * </ul>
  *
  * @author Arjen Poutsma
@@ -54,8 +49,7 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     Class<?> paramType = resolvable.getParameterType();
     return MockRequest.class.isAssignableFrom(paramType)
-            || Session.class.isAssignableFrom(paramType)
-            || (Principal.class.isAssignableFrom(paramType) && !resolvable.hasParameterAnnotations());
+            || Session.class.isAssignableFrom(paramType);
   }
 
   @Nullable
@@ -71,14 +65,6 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
                 "Current session is not of type [%s]: %s".formatted(paramType.getName(), session));
       }
       return session;
-    }
-    else if (Principal.class.isAssignableFrom(paramType)) {
-      Principal userPrincipal = request.getUserPrincipal();
-      if (userPrincipal != null && !paramType.isInstance(userPrincipal)) {
-        throw new IllegalStateException(
-                "Current user principal is not of type [%s]: %s".formatted(paramType.getName(), userPrincipal));
-      }
-      return userPrincipal;
     }
 
     // ServletRequest / HttpMockRequest
