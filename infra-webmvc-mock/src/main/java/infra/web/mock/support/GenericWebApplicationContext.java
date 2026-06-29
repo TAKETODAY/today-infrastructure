@@ -37,7 +37,6 @@ import infra.stereotype.Component;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
 import infra.web.context.StandardWebEnvironment;
-import infra.web.mock.ConfigurableMockEnvironment;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
@@ -156,18 +155,6 @@ public class GenericWebApplicationContext extends GenericApplicationContext
     }
 
     registerWebApplicationScopes(beanFactory, this.mockContext);
-  }
-
-  /**
-   * {@inheritDoc}
-   * <p>Replace {@code Servlet}-related property sources.
-   */
-  @Override
-  protected void initPropertySources() {
-    ConfigurableEnvironment env = getEnvironment();
-    if (env instanceof ConfigurableMockEnvironment) {
-      ((ConfigurableMockEnvironment) env).initPropertySources(this.mockContext);
-    }
   }
 
   /**
