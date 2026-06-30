@@ -185,20 +185,14 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
     ApplicationContext context = testContext.getApplicationContext();
 
     if (context instanceof WebApplicationContext wac) {
-//      MockContext mockContext = wac.getMockContext();
-//      Assert.state(mockContext instanceof MockContextImpl,
-//              () -> "The WebApplicationContext for test context %s must be configured with a MockContext.".formatted(testContext));
-
       logger.debug("Setting up MockHttpRequest, MockHttpResponse, and RequestContextHolder for test context .",
               testContext);
 
       HttpMockRequestImpl request = new HttpMockRequestImpl();
-//      HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext);
       request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
       MockHttpResponseImpl response = new MockHttpResponseImpl();
 
       RequestContextHolder.set(new MockRequestContext(wac, request, response));
-//      RequestContextHolder.setRequestAttributes(servletWebRequest);
       testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
       testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
 

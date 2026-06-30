@@ -43,7 +43,7 @@ import infra.util.StringUtils;
 public class DefaultAttributeAccessor implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
-  protected @Nullable Map<String, Object> attributes;
+  protected @Nullable Map<String, @Nullable Object> attributes;
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
@@ -131,7 +131,7 @@ public class DefaultAttributeAccessor implements AttributeAccessor {
    */
   public void copyAttributeFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
-    Map<String, Object> attributes;
+    Map<String, @Nullable Object> attributes;
     if (source instanceof DefaultAttributeAccessor) {
       attributes = ((DefaultAttributeAccessor) source).attributes;
       if (attributes == null) {
@@ -175,13 +175,14 @@ public class DefaultAttributeAccessor implements AttributeAccessor {
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof DefaultAttributeAccessor that
-            && Objects.equals(attributes, that.attributes)));
+    return this == other ||
+            (other instanceof DefaultAttributeAccessor that
+                    && Objects.equals(attributes, that.attributes));
   }
 
   @Override
-  public Map<String, Object> getAttributes() {
-    Map<String, Object> attributes = this.attributes;
+  public Map<String, @Nullable Object> getAttributes() {
+    Map<String, @Nullable Object> attributes = this.attributes;
     if (attributes == null) {
       attributes = createAttributes();
       this.attributes = attributes;

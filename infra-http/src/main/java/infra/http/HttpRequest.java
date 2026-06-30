@@ -18,6 +18,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.URI;
 import java.util.Map;
 
@@ -65,6 +67,6 @@ public interface HttpRequest extends HttpMessage, AttributeAccessor {
    * @since 5.0
    */
   @Override
-  Map<String, Object> getAttributes();
+  Map<String, @Nullable Object> getAttributes();
 
 }

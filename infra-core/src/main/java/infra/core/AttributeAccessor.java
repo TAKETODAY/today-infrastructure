@@ -124,7 +124,7 @@ public interface AttributeAccessor {
    * @return the mutable map of attributes
    * @since 3.0
    */
-  Map<String, Object> getAttributes();
+  Map<String, @Nullable Object> getAttributes();
 
   /**
    * Compute a new value for the attribute identified by {@code name} if
