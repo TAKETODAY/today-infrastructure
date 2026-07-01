@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.mock.api.http.HttpMockRequest;
+import infra.web.Filter;
 
 /**
  * Defines an object to provide client request information to a servlet. The servlet container creates a

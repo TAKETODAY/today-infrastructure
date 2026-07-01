@@ -157,20 +157,15 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
 
-  @Nullable
-  private String characterEncoding;
+  private @Nullable String characterEncoding;
 
-  @Nullable
-  private byte[] content;
+  private byte @Nullable [] content;
 
-  @Nullable
-  private String contentType;
+  private @Nullable String contentType;
 
-  @Nullable
-  private MockInputStream inputStream;
+  private @Nullable MockInputStream inputStream;
 
-  @Nullable
-  private BufferedReader reader;
+  private @Nullable BufferedReader reader;
 
   private final Map<String, String[]> parameters = new LinkedHashMap<>(16);
 
@@ -203,8 +198,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   private boolean asyncSupported = false;
 
-  @Nullable
-  private MockAsyncContext asyncContext;
+  private @Nullable MockAsyncContext asyncContext;
 
   private DispatcherType dispatcherType = DispatcherType.REQUEST;
 
@@ -212,31 +206,23 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   // HttpMockRequest properties
   // ---------------------------------------------------------------------
 
-  @Nullable
-  private String authType;
+  private @Nullable String authType;
 
-  @Nullable
-  private Cookie[] cookies;
+  private Cookie @Nullable [] cookies;
 
   private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
 
-  @Nullable
-  private String method;
+  private @Nullable String method;
 
-  @Nullable
-  private String pathInfo;
+  private @Nullable String pathInfo;
 
-  @Nullable
-  private String queryString;
+  private @Nullable String queryString;
 
-  @Nullable
-  private Principal userPrincipal;
+  private @Nullable Principal userPrincipal;
 
-  @Nullable
-  private String requestedSessionId;
+  private @Nullable String requestedSessionId;
 
-  @Nullable
-  private String requestURI;
+  private @Nullable String requestURI;
 
   private @Nullable String uriTemplate;
 
