@@ -18,7 +18,6 @@
 
 package infra.test.context.aot;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,11 +56,7 @@ class MergedContextConfigurationRuntimeHints {
   private static final String WEB_MERGED_CONTEXT_CONFIGURATION_CLASS_NAME =
           "infra.test.context.web.WebMergedContextConfiguration";
 
-  private static final String GET_RESOURCE_BASE_PATH_METHOD_NAME = "getResourceBasePath";
-
   private static final Class<?> webMergedContextConfigurationClass = loadWebMergedContextConfigurationClass();
-
-  private static final Method getResourceBasePathMethod = loadGetResourceBasePathMethod();
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -88,19 +83,6 @@ class MergedContextConfigurationRuntimeHints {
       if (factoryClass != null) {
         registerDeclaredConstructors(factoryClass, runtimeHints);
       }
-    }
-
-    // @WebAppConfiguration(value = ...)
-    if (webMergedContextConfigurationClass.isInstance(mergedConfig)) {
-      String resourceBasePath;
-      try {
-        resourceBasePath = (String) getResourceBasePathMethod.invoke(mergedConfig);
-      }
-      catch (Exception ex) {
-        throw new IllegalStateException(
-                "Failed to invoke WebMergedContextConfiguration#getResourceBasePath()", ex);
-      }
-      registerClasspathResourceDirectoryStructure(resourceBasePath, runtimeHints);
     }
   }
 
@@ -136,20 +118,6 @@ class MergedContextConfigurationRuntimeHints {
     }
   }
 
-  private void registerClasspathResourceDirectoryStructure(String directory, RuntimeHints runtimeHints) {
-    if (directory.startsWith(CLASSPATH_URL_PREFIX)) {
-      String pattern = directory.substring(CLASSPATH_URL_PREFIX.length());
-      if (pattern.startsWith(SLASH)) {
-        pattern = pattern.substring(1);
-      }
-      if (!pattern.endsWith(SLASH)) {
-        pattern += SLASH;
-      }
-      pattern += "**";
-      runtimeHints.resources().registerPattern(pattern);
-    }
-  }
-
   private static Class<?> loadWebMergedContextConfigurationClass() {
     try {
       return ClassUtils.forName(WEB_MERGED_CONTEXT_CONFIGURATION_CLASS_NAME,
@@ -158,16 +126,6 @@ class MergedContextConfigurationRuntimeHints {
     catch (ClassNotFoundException | LinkageError ex) {
       throw new IllegalStateException(
               "Failed to load class " + WEB_MERGED_CONTEXT_CONFIGURATION_CLASS_NAME, ex);
-    }
-  }
-
-  private static Method loadGetResourceBasePathMethod() {
-    try {
-      return webMergedContextConfigurationClass.getMethod(GET_RESOURCE_BASE_PATH_METHOD_NAME);
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException(
-              "Failed to load method WebMergedContextConfiguration#getResourceBasePath()", ex);
     }
   }
 

@@ -116,7 +116,6 @@ public interface TestExecutionListener {
    * @throws Exception allows any exception to propagate
    */
   default void beforeTestClass(TestContext testContext) throws Exception {
-
   }
 
   /**
@@ -135,7 +134,6 @@ public interface TestExecutionListener {
    * @throws Exception allows any exception to propagate
    */
   default void prepareTestInstance(TestContext testContext) throws Exception {
-
   }
 
   /**
@@ -160,7 +158,6 @@ public interface TestExecutionListener {
    * @see #afterTestExecution
    */
   default void beforeTestMethod(TestContext testContext) throws Exception {
-
   }
 
   /**
@@ -181,7 +178,6 @@ public interface TestExecutionListener {
    * @see #afterTestExecution
    */
   default void beforeTestExecution(TestContext testContext) throws Exception {
-
   }
 
   /**
@@ -202,7 +198,6 @@ public interface TestExecutionListener {
    * @see #beforeTestExecution
    */
   default void afterTestExecution(TestContext testContext) throws Exception {
-
   }
 
   /**
@@ -227,7 +222,6 @@ public interface TestExecutionListener {
    * @see #afterTestExecution
    */
   default void afterTestMethod(TestContext testContext) throws Exception {
-
   }
 
   /**
@@ -242,7 +236,6 @@ public interface TestExecutionListener {
    * @throws Exception allows any exception to propagate
    */
   default void afterTestClass(TestContext testContext) throws Exception {
-
   }
 
 }

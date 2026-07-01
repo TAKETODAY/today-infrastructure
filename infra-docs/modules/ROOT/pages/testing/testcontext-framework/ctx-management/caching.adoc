@@ -14,7 +14,6 @@
 * `activeProfiles`（来自 `@ActiveProfiles`）
 * `propertySourceDescriptors`（来自 `@TestPropertySource`）
 * `propertySourceProperties`（来自 `@TestPropertySource`）
-* `resourceBasePath`（来自 `@WebAppConfiguration`）
 
 例如，如果 `TestClassA` 为 `@ContextConfiguration` 的 `locations`（或 `value`）属性指定了 `{"app-config.xml", "test-config.xml"}`，TestContext 框架将加载相应的 `ApplicationContext` 并将其存储在 `static` 上下文缓存中，键仅基于这些位置。因此，如果 `TestClassB` 也为其位置定义了 `{"app-config.xml", "test-config.xml"}`（显式定义或通过继承隐式定义），但没有定义 `@WebAppConfiguration`、不同的 `ContextLoader`、不同的活动配置文件、不同的上下文初始化器、不同的测试属性源或不同的父上下文，则两个测试类将共享同一个 `ApplicationContext`。这意味着加载应用程序上下文的设置成本仅产生一次（每个测试套件），随后的测试执行速度要快得多。
 

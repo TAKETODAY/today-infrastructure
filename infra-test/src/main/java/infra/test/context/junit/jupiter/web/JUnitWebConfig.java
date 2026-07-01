@@ -106,10 +106,4 @@ public @interface JUnitWebConfig {
   @AliasFor(annotation = ContextConfiguration.class)
   String name() default "";
 
-  /**
-   * Alias for {@link WebAppConfiguration#value}.
-   */
-  @AliasFor(annotation = WebAppConfiguration.class, attribute = "value")
-  String resourcePath() default "src/main/webapp";
-
 }

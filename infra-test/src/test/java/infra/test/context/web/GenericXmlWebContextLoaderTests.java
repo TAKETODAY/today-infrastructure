@@ -20,6 +20,8 @@ package infra.test.context.web;
 
 import org.junit.jupiter.api.Test;
 
+import infra.test.context.MergedContextConfiguration;
+
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
@@ -35,9 +37,9 @@ class GenericXmlWebContextLoaderTests {
   @Test
   void configMustNotContainAnnotatedClasses() throws Exception {
     GenericXmlWebContextLoader loader = new GenericXmlWebContextLoader();
-    WebMergedContextConfiguration mergedConfig = new WebMergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
+    WebMergedContextConfiguration mergedConfig = new WebMergedContextConfiguration(new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
             new Class<?>[] { getClass() }, null, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY,
-            "resource/path", loader, null, null);
+            loader, null, null));
     assertThatIllegalStateException()
             .isThrownBy(() -> loader.loadContext(mergedConfig))
             .withMessageContaining("does not support annotated classes");

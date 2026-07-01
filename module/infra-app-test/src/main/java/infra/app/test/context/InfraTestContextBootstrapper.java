@@ -35,7 +35,6 @@ import infra.context.properties.bind.Binder;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.MapConfigurationPropertySource;
 import infra.core.annotation.AnnotationUtils;
-import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.env.Environment;
@@ -146,7 +145,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     if (webEnvironment != null && isWebEnvironmentSupported(mergedConfig)) {
       ApplicationType applicationType = getApplicationType(mergedConfig);
       if (applicationType == ApplicationType.WEB && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
-        mergedConfig = new WebMergedContextConfiguration(mergedConfig, determineResourceBasePath(mergedConfig));
+        mergedConfig = new WebMergedContextConfiguration(mergedConfig);
       }
       else if (applicationType == ApplicationType.REACTIVE_WEB
               && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
@@ -162,20 +161,6 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     Binder binder = new Binder(source);
     return binder.bind("app.main.application-type", Bindable.of(ApplicationType.class))
             .orElseGet(ApplicationType::forDefaults);
-  }
-
-  /**
-   * Determines the resource base path for web applications using the value of
-   * {@link WebAppConfiguration @WebAppConfiguration}, if any, on the test class of the
-   * given {@code configuration}. Defaults to {@code src/main/webapp} in its absence.
-   *
-   * @param configuration the configuration to examine
-   * @return the resource base path
-   */
-  protected String determineResourceBasePath(MergedContextConfiguration configuration) {
-    return MergedAnnotations.from(configuration.getTestClass(), SearchStrategy.TYPE_HIERARCHY)
-            .get(WebAppConfiguration.class)
-            .getValue(MergedAnnotation.VALUE, String.class, "src/main/webapp");
   }
 
   private boolean isWebEnvironmentSupported(MergedContextConfiguration mergedConfig) {

@@ -52,7 +52,7 @@ import static org.mockito.Mockito.mock;
  * @author Rossen Stoyanchev
  */
 @ExtendWith(InfraExtension.class)
-@WebAppConfiguration("classpath:META-INF/web-resources")
+@WebAppConfiguration
 @ContextHierarchy({
         @ContextConfiguration(classes = JavaConfigTests.RootConfig.class),
         @ContextConfiguration(classes = JavaConfigTests.WebConfig.class)

@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class TestContextConcurrencyTests {
 
-  private static Set<String> expectedMethods = stream(TestCase.class.getDeclaredMethods())
+  private static final Set<String> expectedMethods = stream(TestCase.class.getDeclaredMethods())
           .map(Method::getName)
           .collect(toCollection(TreeSet::new));
 
@@ -80,7 +80,7 @@ class TestContextConcurrencyTests {
       });
       assertThat(actualMethods).isEqualTo(expectedMethods);
     });
-    assertThat(tcm.getTestContext().getAttributeNames().length).isEqualTo(0);
+    assertThat(tcm.getTestContext().getAttributeNames()).isEmpty();
   }
 
   @TestExecutionListeners(TrackingListener.class)

@@ -67,7 +67,7 @@ public class WebTestContextBootstrapper extends DefaultTestContextBootstrapper {
   protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
     WebAppConfiguration webAppConfiguration = getWebAppConfiguration(mergedConfig.getTestClass());
     if (webAppConfiguration != null) {
-      return new WebMergedContextConfiguration(mergedConfig, webAppConfiguration.value());
+      return new WebMergedContextConfiguration(mergedConfig);
     }
     else {
       return mergedConfig;

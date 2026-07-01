@@ -58,10 +58,9 @@ class XmlJUnitJupiterInfraTests {
 [[integration-testing-annotations-junit-jupiter-junitwebconfig]]
 == `@JUnitWebConfig`
 
-`@JUnitWebConfig` 是一个组合注解，它结合了 JUnit Jupiter 中的 `@ExtendWith(InfraExtension.class)` 和 Infra TestContext 框架中的 `@ContextConfiguration` 以及 `@WebAppConfiguration`。
-您可以在类级别将其用作 `@ContextConfiguration` 和 `@WebAppConfiguration` 的直接替代品。
+`@JUnitWebConfig` 是一个组合注解，它结合了 JUnit Jupiter 中的 `@ExtendWith(InfraExtension.class)` 和 Infra TestContext 框架中的 `@ContextConfiguration`。
+您可以在类级别将其用作 `@ContextConfiguration` 的直接替代品。
 关于配置选项，`@ContextConfiguration` 和 `@JUnitWebConfig` 之间的唯一区别是，您可以使用 `@JUnitWebConfig` 中的 `value` 属性声明组件类。
-此外，您只能通过使用 `@JUnitWebConfig` 中的 `resourcePath` 属性来覆盖 `@WebAppConfiguration` 中的 `value` 属性。
 
 以下示例显示了如何使用 `@JUnitWebConfig` 注解指定配置类：
 
@@ -99,8 +98,6 @@ class XmlJUnitJupiterInfraWebTests {
 ======
 
 
-有关更多详细信息，请参阅 xref:testing/testcontext-framework/ctx-management.adoc[上下文管理] 以及 {today-framework-api}/test/context/junit/jupiter/web/JUnitWebConfig.html[`@JUnitWebConfig`]、{today-framework-api}/test/context/ContextConfiguration.html[`@ContextConfiguration`] 和 {today-framework-api}/test/context/web/WebAppConfiguration.html[`@WebAppConfiguration`] 的 javadoc。
-
 [[integration-testing-annotations-testconstructor]]
 == `@TestConstructor`
 
@@ -116,7 +113,7 @@ class XmlJUnitJupiterInfraWebTests {
 可以通过将 `infra.test.constructor.autowire.mode` JVM 系统属性设置为 `all` 来更改默认的 *测试构造函数自动装配模式*。
 或者，可以通过 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制设置默认模式。
 
-从 TODAY Framework 5.3 开始，默认模式也可以配置为 https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params[JUnit 平台配置参数]。
+默认模式也可以配置为 https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params[JUnit 平台配置参数]。
 
 如果未设置 `infra.test.constructor.autowire.mode` 属性，则测试类构造函数将不会自动装配。
 =====

@@ -5,23 +5,23 @@
 
 `ContextCustomizerFactory` 负责基于某些自定义逻辑（确定给定测试类是否需要 `ContextCustomizer`——例如，基于某个注解的存在）创建 `ContextCustomizer`。工厂在 `ContextLoaders` 处理完测试类的上下文配置属性之后但在创建 `MergedContextConfiguration` 之前调用。
 
-例如，TODAY Framework 提供了以下默认注册的 `ContextCustomizerFactory` 实现：
-
-`MockServerContainerContextCustomizerFactory`:: 如果类路径中存在 WebSocket 支持，并且测试类或其封闭类之一标注或元标注了 `@WebAppConfiguration`，则创建 `MockServerContainerContextCustomizer`。`MockServerContainerContextCustomizer` 实例化一个新的 `MockServerContainer` 并将其存储在 `MockContextImpl` 中，属性名为 `jakarta.websocket.server.ServerContainer`。
-
 
 [[testcontext-context-customizers-registration]]
 == 注册 `ContextCustomizerFactory` 实现
 
-你可以使用 `@ContextCustomizerFactories` 注解显式地为测试类、其子类及其嵌套类注册 `ContextCustomizerFactory` 实现。有关详细信息和示例，请参阅 xref:testing/annotations/integration-infra/annotation-contextcustomizerfactories.adoc[注解支持] 和 {today-framework-api}/test/context/ContextCustomizerFactories.html[`@ContextCustomizerFactories`] 的 javadoc。
+你可以使用 `@ContextCustomizerFactories` 注解显式地为测试类、其子类及其嵌套类注册
+`ContextCustomizerFactory` 实现。有关详细信息和示例，请参阅
+xref:testing/annotations/integration-infra/annotation-contextcustomizerfactories.adoc[注解支持] 和 {today-framework-api}/test/context/ContextCustomizerFactories.html[`@ContextCustomizerFactories`] 的 javadoc。
 
 
 [[testcontext-context-customizers-automatic-discovery]]
 == 自动发现默认 `ContextCustomizerFactory` 实现
 
-使用 `@ContextCustomizerFactories` 注册 `ContextCustomizerFactory` 实现适用于在有限测试场景中使用的自定义工厂。但是，如果需要在整个测试套件中使用自定义工厂，这可能会变得很麻烦。这个问题通过支持通过 `InfraFactoriesLoader` 机制自动发现默认 `ContextCustomizerFactory` 实现得到了解决。
+使用 `@ContextCustomizerFactories` 注册 `ContextCustomizerFactory` 实现适用于在有限测试场景中使用的自定义工厂。但是，如果需要在整个测试套件中使用自定义工厂，这可能会变得很麻烦。这个问题通过支持通过 `TodayStrategies` 机制自动发现默认 `ContextCustomizerFactory` 实现得到了解决。
 
-例如，构成 TODAY Framework 和 Infra Boot 测试支持的模块在 `META-INF/today.strategies` 属性文件的 `infra.test.context.ContextCustomizerFactory` 键下声明了所有核心默认 `ContextCustomizerFactory` 实现。`infra-test` 模块的 `today.strategies` 文件可以在 {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[这里] 查看。第三方框架和开发人员可以通过他们自己的 `today.strategies` 文件以相同的方式将他们自己的 `ContextCustomizerFactory` 实现贡献给默认工厂列表。
+例如，构成 TODAY Framework 测试支持的模块在 `META-INF/today.strategies`
+属性文件的 `infra.test.context.ContextCustomizerFactory` 键下声明了所有核心默认
+`ContextCustomizerFactory` 实现。`infra-test` 模块的 `today.strategies` 文件可以在 {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[这里] 查看。第三方框架和开发人员可以通过他们自己的 `today.strategies` 文件以相同的方式将他们自己的 `ContextCustomizerFactory` 实现贡献给默认工厂列表。
 
 
 [[testcontext-context-customizers-merging]]

@@ -20,6 +20,8 @@ package infra.test.context.web;
 
 import org.junit.jupiter.api.Test;
 
+import infra.test.context.MergedContextConfiguration;
+
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
@@ -36,9 +38,9 @@ class AnnotationConfigWebContextLoaderTests {
   @Test
   void configMustNotContainLocations() throws Exception {
     AnnotationConfigWebContextLoader loader = new AnnotationConfigWebContextLoader();
-    WebMergedContextConfiguration mergedConfig = new WebMergedContextConfiguration(getClass(),
+    WebMergedContextConfiguration mergedConfig = new WebMergedContextConfiguration(new MergedContextConfiguration(getClass(),
             new String[] { "config.xml" }, EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY,
-            EMPTY_STRING_ARRAY, "resource/path", loader, null, null);
+            EMPTY_STRING_ARRAY, loader, null, null));
     assertThatIllegalStateException()
             .isThrownBy(() -> loader.loadContext(mergedConfig))
             .withMessageContaining("does not support resource locations");

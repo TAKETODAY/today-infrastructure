@@ -90,6 +90,22 @@ public class DefaultTestContext implements TestContext {
   }
 
   /**
+   * <em>Copy constructor</em> for creating a new {@code DefaultTestContext}
+   * based on the <em>attributes</em> and immutable state of the supplied context.
+   * <p><em>Immutable state</em> includes all arguments supplied to the
+   * {@linkplain #DefaultTestContext(Class, MergedContextConfiguration,
+   * CacheAwareContextLoaderDelegate) standard constructor}.
+   *
+   * @throws NullPointerException if the supplied {@code DefaultTestContext}
+   * is {@code null}
+   */
+  public DefaultTestContext(DefaultTestContext testContext) {
+    this(testContext.testClass, testContext.mergedConfig,
+            testContext.cacheAwareContextLoaderDelegate);
+    this.attributes.putAll(testContext.attributes);
+  }
+
+  /**
    * Determine if the {@linkplain ApplicationContext application context} for
    * this test context is present in the context cache.
    *

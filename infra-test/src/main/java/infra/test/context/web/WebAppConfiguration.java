@@ -34,11 +34,6 @@ import infra.web.mock.WebApplicationContext;
  * declare that the {@code ApplicationContext} loaded for an integration test
  * should be a {@link WebApplicationContext WebApplicationContext}.
  *
- * <p>The presence of {@code @WebAppConfiguration} on a test class indicates that
- * a {@code WebApplicationContext} should be loaded for the test using a default
- * for the path to the root of the web application. To override the default,
- * specify an explicit resource path via the {@link #value} attribute.
- *
  * <p>Note that {@code @WebAppConfiguration} must be used in conjunction with
  * {@link ContextConfiguration @ContextConfiguration},
  * either within a single test class or within a test class hierarchy.
@@ -62,16 +57,5 @@ import infra.web.mock.WebApplicationContext;
 @Documented
 @Inherited
 public @interface WebAppConfiguration {
-
-  /**
-   * The resource path to the root directory of the web application.
-   * <p>A path that does not include a Infra resource prefix (e.g., {@code classpath:},
-   * {@code file:}, etc.) will be interpreted as a file system resource, and a
-   * path should not end with a slash.
-   * <p>Defaults to {@code "src/main/webapp"} as a file system resource. Note
-   * that this is the standard directory for the root of a web application in
-   * a project that follows the standard Maven project layout for a WAR.
-   */
-  String value() default "src/main/webapp";
 
 }

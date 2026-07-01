@@ -35,7 +35,7 @@ class WebMvcTestContextBootstrapper extends TestSliceTestContextBootstrapper<Web
   @Override
   protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
     MergedContextConfiguration processedMergedConfiguration = super.processMergedContextConfiguration(mergedConfig);
-    return new WebMergedContextConfiguration(processedMergedConfiguration, determineResourceBasePath(mergedConfig));
+    return new WebMergedContextConfiguration(processedMergedConfiguration);
   }
 
 }
