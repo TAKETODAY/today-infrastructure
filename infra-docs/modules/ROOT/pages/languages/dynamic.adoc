@@ -550,19 +550,17 @@ package infra.showcase.fortune.web
 
 import infra.showcase.fortune.service.FortuneService
 import infra.showcase.fortune.domain.Fortune
+import infra.web.RequestContext
 import infra.web.mock.ModelAndView
 import infra.web.mock.mvc.Controller
 
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 
 // 来自文件 '/WEB-INF/groovy/FortuneController.groovy'
 class FortuneController implements Controller {
 
   @Property FortuneService fortuneService
 
-  ModelAndView handleRequest(HttpServletRequest request,
-      HttpServletResponse httpServletResponse) {
+  ModelAndView handleRequest(RequestContext request) {
     return new ModelAndView("tell", "fortune", this.fortuneService.tellFortune())
   }
 }

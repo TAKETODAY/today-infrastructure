@@ -51,7 +51,7 @@ public class MockHttpRequestBuilder extends AbstractMockHttpMockRequestBuilder<M
    * Package private constructor. To get an instance, use static factory
    * methods in {@link MockMvcRequestBuilders}.
    * <p>Although this class cannot be extended, additional ways to initialize
-   * the {@code MockHttpServletRequest} can be plugged in via
+   * the {@code HttpMockRequestImpl} can be plugged in via
    * {@link #with(RequestPostProcessor)}.
    *
    * @param httpMethod the HTTP method (GET, POST, etc.)

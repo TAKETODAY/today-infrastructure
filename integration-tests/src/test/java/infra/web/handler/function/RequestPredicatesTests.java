@@ -732,9 +732,9 @@ class RequestPredicatesTests {
 
   private ServerRequest initRequest(
           String httpMethod, String requestUri, @Nullable Consumer<HttpMockRequestImpl> initializer) {
-    HttpMockRequestImpl mockHttpServletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, initializer);
+    HttpMockRequestImpl request = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, initializer);
     return new DefaultServerRequest(
-            new MockRequestContext(null, mockHttpServletRequest, new MockHttpResponseImpl()),
+            new MockRequestContext(null, request, new MockHttpResponseImpl()),
             Collections.emptyList());
   }
 

@@ -168,8 +168,8 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.Document#addCreationDate
    * @see com.lowagie.text.Document#addHeader
    */
-  protected void buildPdfMetadata(
-          Map<String, Object> model, Document document, RequestContext request) { }
+  protected void buildPdfMetadata(Map<String, Object> model, Document document, RequestContext request) {
+  }
 
   /**
    * Subclasses must implement this method to build an iText PDF document,

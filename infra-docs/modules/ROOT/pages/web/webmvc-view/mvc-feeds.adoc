@@ -15,13 +15,13 @@ public class SampleContentAtomView extends AbstractAtomFeedView {
 
   @Override
   protected void buildFeedMetadata(Map<String, Object> model,
-      Feed feed, HttpServletRequest request) {
+      Feed feed, RequestContext request) {
     // 省略实现
   }
 
   @Override
   protected List<Entry> buildFeedEntries(Map<String, Object> model,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+      RequestContext request) throws Exception {
     // 省略实现
   }
 }
@@ -41,13 +41,13 @@ public class SampleContentRssView extends AbstractRssFeedView {
 
   @Override
   protected void buildFeedMetadata(Map<String, Object> model,
-      Channel feed, HttpServletRequest request) {
+      Channel feed, RequestContext request) {
     // 省略实现
   }
 
   @Override
   protected List<Item> buildFeedItems(Map<String, Object> model,
-      HttpServletRequest request, HttpServletResponse response) throws Exception {
+      RequestContext request) throws Exception {
     // 省略实现
   }
 }

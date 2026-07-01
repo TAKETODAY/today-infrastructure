@@ -633,7 +633,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
 
   /**
    * An extension point for further initialization of {@link HttpMockRequestImpl}
-   * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
+   * in ways not built directly into the {@code MockHttpRequestBuilder}.
    * Implementation of this interface can have builder-style methods themselves
    * and be made accessible through static factory methods.
    *
