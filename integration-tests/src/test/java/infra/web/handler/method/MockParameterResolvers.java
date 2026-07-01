@@ -51,7 +51,6 @@ public class MockParameterResolvers {
     resolvers.add(new ForCookieCollection(beanFactory));
     // Servlet components parameter
     // ----------------------------
-    resolvers.add(new ForHttpSession());
     resolvers.add(new ForMockRequest());
     resolvers.add(new ForMockResponse());
     resolvers.add(new ForMockContext(context));
@@ -86,20 +85,6 @@ public class MockParameterResolvers {
     }
   }
 
-  static class ForHttpSession implements ParameterResolvingStrategy {
-
-    @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isAssignableTo(Session.class);
-    }
-
-    @Override
-    public Object resolveArgument(
-            RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return MockUtils.getHttpSession(context);
-    }
-  }
-
   static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
 
     @Override
@@ -109,7 +94,7 @@ public class MockParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      Session session = MockUtils.getHttpSession(context, false);
+      Session session = context.getSession(false);
       if (session == null) {
         return null;
       }

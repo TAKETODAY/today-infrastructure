@@ -26,14 +26,12 @@ import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.MockRequestWrapper;
 import infra.mock.api.MockResponse;
 import infra.mock.api.MockResponseWrapper;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.session.Session;
 import infra.util.ObjectUtils;
 import infra.web.MockIndicator;
 import infra.web.RequestContext;
@@ -57,61 +55,10 @@ public abstract class MockUtils {
   public static final String[] SUBMIT_IMAGE_SUFFIXES = { ".x", ".y" };
 
   /**
-   * Standard Mock spec context attribute that specifies a temporary
-   * directory for the current web application, of type {@code java.io.File}.
-   *
-   * @since 4.0
-   */
-  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "infra.mock.api.context.tempdir";
-
-  // context
-
-  /**
-   * Get HttpSession
-   *
-   * @throws IllegalStateException Not run in servlet
-   */
-  public static Session getHttpSession(final RequestContext context) {
-    return getHttpSession(context, true);
-  }
-
-  /**
-   * Returns the current <code>HttpSession</code>
-   * associated with this request or, if there is no
-   * current session and <code>create</code> is true, returns
-   * a new session.
-   *
-   * <p>If <code>create</code> is <code>false</code>
-   * and the request has no valid <code>HttpSession</code>,
-   * this method returns <code>null</code>.
-   *
-   * <p>To make sure the session is properly maintained,
-   * you must call this method before
-   * the response is committed. If the container is using cookies
-   * to maintain session integrity and is asked to create a new session
-   * when the response is committed, an IllegalStateException is thrown.
-   *
-   * @param create <code>true</code> to create
-   * a new session for this request if necessary;
-   * <code>false</code> to return <code>null</code>
-   * if there's no current session
-   * @return the <code>HttpSession</code> associated
-   * with this request or <code>null</code> if
-   * <code>create</code> is <code>false</code>
-   * and the request has no valid session
-   * @throws IllegalStateException Not run in servlet
-   * @see #getHttpSession(RequestContext)
-   */
-  public static Session getHttpSession(RequestContext context, boolean create) {
-    HttpMockRequest request = getMockRequest(context);
-    return request.getSession(create);
-  }
-
-  /**
    * Return an appropriate request object of the specified type, if available,
    * unwrapping the given request as far as necessary.
    *
-   * @param request the servlet request to introspect
+   * @param request the mock request to introspect
    * @param requiredType the desired type of request object
    * @return the matching request object, or {@code null} if none
    * of that type is available
@@ -134,7 +81,7 @@ public abstract class MockUtils {
    * Return an appropriate response object of the specified type, if available,
    * unwrapping the given response as far as necessary.
    *
-   * @param response the servlet response to introspect
+   * @param response the mock response to introspect
    * @param requiredType the desired type of response object
    * @return the matching response object, or {@code null} if none
    * of that type is available
@@ -165,18 +112,8 @@ public abstract class MockUtils {
       return mockIndicator.getRequest();
     }
     MockIndicator nativeContext = WebUtils.getNativeContext(context, MockIndicator.class);
-    Assert.state(nativeContext != null, "Not run in servlet");
+    Assert.state(nativeContext != null, "Not run in mock");
     return nativeContext.getRequest();
-  }
-
-  /**
-   * Gets the servlet context to which this MockRequest was last dispatched.
-   *
-   * @return the servlet context to which this MockRequest was last dispatched
-   * @since 4.0
-   */
-  public static MockContext getMockContext(RequestContext context) {
-    return getMockRequest(context).getMockContext();
   }
 
   /**
@@ -191,7 +128,7 @@ public abstract class MockUtils {
       return mockIndicator.getResponse();
     }
     MockIndicator nativeContext = WebUtils.getNativeContext(context, MockIndicator.class);
-    Assert.state(nativeContext != null, "Not run in servlet");
+    Assert.state(nativeContext != null, "Not run in mock");
     return nativeContext.getResponse();
   }
 
