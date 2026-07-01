@@ -38,7 +38,7 @@ import infra.context.annotation.ScopedProxyMode;
 import infra.context.support.GenericApplicationContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockHttpSession;
+import infra.mock.web.MockSession;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
@@ -73,12 +73,12 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
   void setup() {
     RequestContextUtils.registerScopes(context.getBeanFactory());
     HttpMockRequestImpl oldRequestWithSession = new HttpMockRequestImpl();
-    oldRequestWithSession.setSession(new MockHttpSession());
+    oldRequestWithSession.setSession(new MockSession());
     this.oldRequestAttributesWithSession = new MockRequestContext(
             context, oldRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
 
     HttpMockRequestImpl newRequestWithSession = new HttpMockRequestImpl();
-    newRequestWithSession.setSession(new MockHttpSession());
+    newRequestWithSession.setSession(new MockSession());
     this.newRequestAttributesWithSession = new MockRequestContext(
             context, newRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
 

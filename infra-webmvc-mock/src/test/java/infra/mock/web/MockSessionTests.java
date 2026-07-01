@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Unit tests for {@link MockHttpSession}.
+ * Unit tests for {@link MockSession}.
  *
  * @author Sam Brannen
  * @author Vedran Pavic
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class MockSessionTests {
 
-  private final MockHttpSession session = new MockHttpSession();
+  private final MockSession session = new MockSession();
 
   @Test
   void invalidateOnce() {

@@ -24,7 +24,7 @@ import infra.context.annotation.Configuration;
 import infra.mock.api.MockContext;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockHttpSession;
+import infra.mock.web.MockSession;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit4.AbstractJUnit4ContextTests;
 import infra.web.RequestContext;
@@ -68,7 +68,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
   protected MockHttpResponseImpl response;
 
   @Autowired
-  protected MockHttpSession session;
+  protected MockSession session;
 
   @Autowired
   protected RequestContext webRequest;

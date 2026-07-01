@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.mock.bind.resolver;
+package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
@@ -33,7 +33,6 @@ import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import infra.web.bind.resolver.MissingRequestCookieException;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockUtils;
 
 /**

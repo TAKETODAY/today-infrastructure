@@ -27,8 +27,7 @@ import infra.http.HttpHeaders;
 import reactor.core.publisher.Mono;
 
 /**
- * Abstract base class for listener-based server responses, e.g. Servlet 3.1
- * and Undertow.
+ * Abstract base class for listener-based server responses
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

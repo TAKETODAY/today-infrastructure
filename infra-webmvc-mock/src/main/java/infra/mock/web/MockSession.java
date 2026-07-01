@@ -39,17 +39,12 @@ import infra.session.SessionEventDispatcher;
  * @author Vedran Pavic
  * @since 4.0
  */
-public class MockHttpSession extends AbstractSession {
+public class MockSession extends AbstractSession {
 
   /**
    * Default {@link #setMaxIdleTime(Duration)} (30 minutes).
    */
   public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
-
-  /**
-   * The session cookie name.
-   */
-  public static final String SESSION_COOKIE_NAME = "JSESSION";
 
   private static int nextId = 1;
 
@@ -73,7 +68,7 @@ public class MockHttpSession extends AbstractSession {
    *
    * @see MockContextImpl
    */
-  public MockHttpSession() {
+  public MockSession() {
     this(null);
   }
 
@@ -82,7 +77,7 @@ public class MockHttpSession extends AbstractSession {
    *
    * @param id a unique identifier for this session
    */
-  public MockHttpSession(@Nullable String id) {
+  public MockSession(@Nullable String id) {
     super(new SessionEventDispatcher());
     this.id = (id != null ? id : Integer.toString(nextId++));
   }

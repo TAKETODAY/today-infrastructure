@@ -36,7 +36,7 @@ import infra.mock.api.http.Cookie;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockHttpSession;
+import infra.mock.web.MockSession;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -469,7 +469,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void session() {
-    MockHttpSession session = new MockHttpSession();
+    MockSession session = new MockSession();
     session.setAttribute("foo", "bar");
     this.builder.session(session);
     this.builder.sessionAttr("baz", "qux");

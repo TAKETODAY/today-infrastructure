@@ -2,8 +2,7 @@
 = `@WebAppConfiguration`
 
 `@WebAppConfiguration` 是一个类级注解，您可以使用它来声明为集成测试加载的 `ApplicationContext` 应该是 `WebApplicationContext`。
-测试类上仅存在 `@WebAppConfiguration` 即可确保为测试加载 `WebApplicationContext`，使用默认值 `"file:src/main/webapp"` 作为 Web 应用程序根目录的路径（即资源基础路径）。
-资源基础路径在后台用于创建 `MockContextImpl`，它充当测试的 `WebApplicationContext` 的 `MockContextImpl`。
+测试类上仅存在 `@WebAppConfiguration` 即可确保为测试加载 `WebApplicationContext`。
 
 以下示例显示了如何使用 `@WebAppConfiguration` 注解：
 

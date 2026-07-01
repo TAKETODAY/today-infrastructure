@@ -1235,7 +1235,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   public void setSession(Session session) {
     this.session = session;
-    if (session instanceof MockHttpSession mockSession) {
+    if (session instanceof MockSession mockSession) {
       mockSession.access();
     }
   }
@@ -1245,12 +1245,12 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   public Session getSession(boolean create) {
     checkActive();
     // Reset session if invalidated.
-    if (this.session instanceof MockHttpSession mockSession && mockSession.isInvalid()) {
+    if (this.session instanceof MockSession mockSession && mockSession.isInvalid()) {
       this.session = null;
     }
     // Create new session if necessary.
     if (this.session == null && create) {
-      this.session = new MockHttpSession();
+      this.session = new MockSession();
     }
     return this.session;
   }
@@ -1262,13 +1262,13 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   /**
    * The implementation of this (Servlet 3.1+) method calls
-   * {@link MockHttpSession#changeSessionId()} if the session is a mock session.
+   * {@link MockSession#changeSessionId()} if the session is a mock session.
    * Otherwise it simply returns the current session id.
    */
   @Override
   public String changeSessionId() {
     Assert.isTrue(this.session != null, "The request does not have a session");
-    if (this.session instanceof MockHttpSession mockSession) {
+    if (this.session instanceof MockSession mockSession) {
       return mockSession.changeSessionId();
     }
     return this.session.getId();

@@ -86,9 +86,9 @@ class RequestScopedBeanTests {
 </beans>
 ----
 
-在 `SessionScopedBeanTests` 中，我们将 `UserService` 和 `MockHttpSession` 注入到我们的测试实例中。
-在我们的 `sessionScope()` 测试方法中，我们通过在提供的 `MockHttpSession` 中设置预期的 `theme` 属性来设置我们的测试夹具。
-当在我们的 `userService` 上调用 `processUserPreferences()` 方法时，我们可以确信用户服务可以访问当前 `MockHttpSession` 的会话作用域 `userPreferences`，并且我们可以根据配置的主题对结果执行断言。
+在 `SessionScopedBeanTests` 中，我们将 `UserService` 和 `MockSession` 注入到我们的测试实例中。
+在我们的 `sessionScope()` 测试方法中，我们通过在提供的 `MockSession` 中设置预期的 `theme` 属性来设置我们的测试夹具。
+当在我们的 `userService` 上调用 `processUserPreferences()` 方法时，我们可以确信用户服务可以访问当前 `MockSession` 的会话作用域 `userPreferences`，并且我们可以根据配置的主题对结果执行断言。
 以下示例显示了如何执行此操作：
 
 [tabs]

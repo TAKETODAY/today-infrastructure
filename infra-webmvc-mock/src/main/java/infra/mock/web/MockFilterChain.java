@@ -46,7 +46,6 @@ import infra.web.mock.MockUtils;
  * @author Juergen Hoeller
  * @author Rob Winch
  * @author Rossen Stoyanchev
- * @see PassThroughFilterChain
  * @since 4.0
  */
 public class MockFilterChain implements FilterChain {

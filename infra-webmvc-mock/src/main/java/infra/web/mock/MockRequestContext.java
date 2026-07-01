@@ -48,7 +48,7 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockHttpSession;
+import infra.mock.web.MockSession;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.session.Session;
 import infra.session.SessionManager;
@@ -727,17 +727,17 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
     @Override
     public Session createSession() {
-      return new MockHttpSession();
+      return new MockSession();
     }
 
     @Override
     public Session createSession(RequestContext context) {
-      return new MockHttpSession();
+      return new MockSession();
     }
 
     @Override
     public @Nullable Session getSession(@Nullable String sessionId) {
-      return new MockHttpSession(sessionId);
+      return new MockSession(sessionId);
     }
 
     @Override

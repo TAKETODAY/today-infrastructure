@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web.mock.bind.resolver;
+package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
@@ -25,7 +25,6 @@ import infra.mock.api.http.HttpMockRequest;
 import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 

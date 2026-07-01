@@ -52,7 +52,7 @@ import infra.mock.api.MockContext;
 import infra.mock.api.MockRequest;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpSession;
+import infra.mock.web.MockSession;
 import infra.session.Session;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
@@ -100,7 +100,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
 
   private @Nullable Principal principal;
 
-  private @Nullable MockHttpSession session;
+  private @Nullable MockSession session;
 
   private @Nullable String remoteAddress;
 
@@ -603,7 +603,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    *
    * @param session the HTTP session
    */
-  public B session(MockHttpSession session) {
+  public B session(MockSession session) {
     Assert.notNull(session, "'session' is required");
     this.session = session;
     return self();

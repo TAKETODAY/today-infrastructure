@@ -59,11 +59,9 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
     NEW, COMMITTING, COMMIT_ACTION_FAILED, COMMITTED
   }
 
-  @Nullable
-  private Integer statusCode;
+  private @Nullable Integer statusCode;
 
-  @Nullable
-  private HttpHeaders readOnlyHeaders;
+  private @Nullable HttpHeaders readOnlyHeaders;
 
   private final HttpHeaders headers;
 
@@ -104,8 +102,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   }
 
   @Override
-  @Nullable
-  public HttpStatusCode getStatusCode() {
+  public @Nullable HttpStatusCode getStatusCode() {
     return this.statusCode != null ? HttpStatus.resolve(this.statusCode) : null;
   }
 
@@ -121,8 +118,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   }
 
   @Override
-  @Nullable
-  public Integer getRawStatusCode() {
+  public @Nullable Integer getRawStatusCode() {
     return this.statusCode;
   }
 
@@ -311,6 +307,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
    *
    * @param buffer the buffer to attach a hint to
    */
-  protected void touchDataBuffer(DataBuffer buffer) { }
+  protected void touchDataBuffer(DataBuffer buffer) {
+  }
 
 }

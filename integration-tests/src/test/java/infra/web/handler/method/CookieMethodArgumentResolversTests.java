@@ -32,7 +32,6 @@ import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.CookieParameterResolver;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.bind.resolver.MockParameterResolvers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

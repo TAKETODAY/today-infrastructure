@@ -22,8 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.ResponseCookie;
+import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.util.MultiValueMap;
 
 /**
@@ -83,8 +83,7 @@ public interface ServerHttpResponse extends ReactiveHttpOutputMessage {
    * status of the response from the underlying server. The return value may
    * be {@code null} if there is no default value from the underlying server.
    */
-  @Nullable
-  default Integer getRawStatusCode() {
+  default @Nullable Integer getRawStatusCode() {
     HttpStatusCode httpStatus = getStatusCode();
     return httpStatus != null ? httpStatus.value() : null;
   }
