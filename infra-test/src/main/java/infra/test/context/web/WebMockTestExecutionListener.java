@@ -199,7 +199,6 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
     if (context instanceof ConfigurableApplicationContext cac) {
       ConfigurableBeanFactory bf = cac.getBeanFactory();
       bf.registerResolvableDependency(MockResponse.class, response);
-      bf.registerResolvableDependency(RequestContext.class, requestContext);
     }
   }
 
