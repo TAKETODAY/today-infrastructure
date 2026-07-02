@@ -164,7 +164,6 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     View view = resolver.resolveViewName(viewName, Locale.UK);
     assertThat(view).isNotNull();
     MockRequest request = new MockRequest();
-    request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     MockResponse response = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(request, response);

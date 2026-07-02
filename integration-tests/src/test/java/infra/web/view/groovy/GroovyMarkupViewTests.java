@@ -40,10 +40,8 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContextHolder;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -58,13 +56,9 @@ public class GroovyMarkupViewTests {
 
   private ApplicationContext webAppContext;
 
-  private MockContextImpl mockContext;
-
   @BeforeEach
   public void setup() {
     this.webAppContext = Mockito.mock(ApplicationContext.class);
-    this.mockContext = new MockContextImpl();
-    this.mockContext.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }
 
   @Test

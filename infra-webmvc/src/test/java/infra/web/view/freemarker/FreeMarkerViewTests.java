@@ -163,7 +163,6 @@ public class FreeMarkerViewTests {
 
     MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.US);
-    request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
     MockResponse response = new MockResponse();
 
     request.setAttribute("myattr", "myvalue");

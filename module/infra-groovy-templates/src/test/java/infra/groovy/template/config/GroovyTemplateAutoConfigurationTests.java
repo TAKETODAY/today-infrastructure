@@ -33,17 +33,16 @@ import groovy.text.markup.BaseTemplate;
 import groovy.text.markup.DelegatingIndentWriter;
 import groovy.text.markup.MarkupTemplateEngine;
 import groovy.text.markup.TemplateConfiguration;
-import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.ClassPathResource;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.test.BuildOutput;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
+import infra.web.context.StandardWebEnvironment;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
+import infra.web.mock.MockResponse;
 import infra.web.view.View;
 import infra.web.view.groovy.GroovyMarkupConfig;
 import infra.web.view.groovy.GroovyMarkupConfigurer;
@@ -297,7 +296,6 @@ class GroovyTemplateAutoConfigurationTests {
     assertThat(view).isNotNull();
 
     MockRequest request = new MockRequest();
-    request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     MockResponse response = new MockResponse();
     view.render(null, new MockRequestContext(request, response));
     return response;

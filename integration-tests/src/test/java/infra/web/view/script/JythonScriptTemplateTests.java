@@ -25,16 +25,13 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 import java.util.Map;
 
+import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.web.mock.api.MockContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,15 +42,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JythonScriptTemplateTests {
 
-  private WebApplicationContext webAppContext;
-
-  private MockContext mockContext;
+  private ApplicationContext webAppContext;
 
   @BeforeEach
   public void setup() {
-    this.webAppContext = Mockito.mock(WebApplicationContext.class);
-    this.mockContext = new MockContextImpl();
-    this.mockContext.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
+    this.webAppContext = Mockito.mock(ApplicationContext.class);
   }
 
   @Test

@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
-import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
@@ -37,13 +36,6 @@ import infra.web.util.WebUtils;
  */
 @SuppressWarnings("NullAway")
 public abstract class MockUtils {
-
-  /**
-   * Request attribute to hold the current web application context.
-   * Otherwise only the global web app context is obtainable by tags etc.
-   */
-  public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          MockUtils.class, "CONTEXT");
 
   /** Name suffixes in case of image buttons.  @since 4.0 */
   public static final String[] SUBMIT_IMAGE_SUFFIXES = { ".x", ".y" };
