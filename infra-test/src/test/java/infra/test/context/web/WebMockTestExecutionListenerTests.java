@@ -21,14 +21,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 
 import infra.context.ApplicationContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.test.context.TestContext;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.MockResponse;
 
 import static infra.test.context.web.WebMockTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
 import static infra.test.context.web.WebMockTestExecutionListener.RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
@@ -48,14 +47,13 @@ class WebMockTestExecutionListenerTests {
 
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 
-  private final WebApplicationContext wac = mock(WebApplicationContext.class);
+  private final ApplicationContext wac = mock(ApplicationContext.class);
   private final MockContextImpl mockContext = new MockContextImpl();
   private final TestContext testContext = mock(TestContext.class);
   private final WebMockTestExecutionListener listener = new WebMockTestExecutionListener();
 
   @BeforeEach
   void setUp() {
-    given(wac.getMockContext()).willReturn(mockContext);
     given(testContext.getApplicationContext()).willReturn(wac);
 
     MockRequest request = new MockRequest(mockContext);

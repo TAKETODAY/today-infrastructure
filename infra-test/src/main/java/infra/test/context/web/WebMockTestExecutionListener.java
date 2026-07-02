@@ -25,15 +25,16 @@ import infra.core.Conventions;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.test.context.TestContext;
 import infra.test.context.TestExecutionListener;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
+import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 import infra.web.mock.WebApplicationContext;
 
 /**
@@ -184,22 +185,21 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
 
     ApplicationContext context = testContext.getApplicationContext();
 
-    if (context instanceof WebApplicationContext wac) {
-      logger.debug("Setting up MockHttpRequest, MockHttpResponse, and RequestContextHolder for test context .",
-              testContext);
+    logger.debug("Setting up MockHttpRequest, MockHttpResponse, and RequestContextHolder for test context {}", testContext);
 
-      MockRequest request = new MockRequest();
-      request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
-      MockResponse response = new MockResponse();
+    MockRequest request = new MockRequest();
+    request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
+    MockResponse response = new MockResponse();
 
-      RequestContextHolder.set(new MockRequestContext(wac, request, response));
-      testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
-      testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
+    MockRequestContext requestContext = new MockRequestContext(context, request, response);
+    RequestContextHolder.set(requestContext);
+    testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
+    testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
 
-      if (wac instanceof ConfigurableApplicationContext configurableApplicationContext) {
-        ConfigurableBeanFactory bf = configurableApplicationContext.getBeanFactory();
-        bf.registerResolvableDependency(MockResponse.class, response);
-      }
+    if (context instanceof ConfigurableApplicationContext cac) {
+      ConfigurableBeanFactory bf = cac.getBeanFactory();
+      bf.registerResolvableDependency(MockResponse.class, response);
+      bf.registerResolvableDependency(RequestContext.class, requestContext);
     }
   }
 

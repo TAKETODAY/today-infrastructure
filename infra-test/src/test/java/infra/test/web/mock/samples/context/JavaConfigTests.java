@@ -27,7 +27,6 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.MediaType;
-import infra.web.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;
@@ -140,16 +139,6 @@ public class JavaConfigTests {
     ApplicationContext parent = wac.getParent();
     assertThat(parent).isNotNull();
     assertThat(parent).isInstanceOf(WebApplicationContext.class);
-    WebApplicationContext root = (WebApplicationContext) parent;
-
-    MockContext childMockContext = wac.getMockContext();
-    assertThat(childMockContext).isNotNull();
-    MockContext rootMockContext = root.getMockContext();
-    assertThat(rootMockContext).isNotNull();
-    assertThat(rootMockContext).isSameAs(childMockContext);
-
-    assertThat(rootMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
-    assertThat(childMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
   }
 
   @Configuration

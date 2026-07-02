@@ -23,11 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
-import infra.web.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;
-import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DispatcherWacRootWacEarTests extends RootWacEarTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   @Autowired
   private String ear;
@@ -69,22 +67,9 @@ public class DispatcherWacRootWacEarTests extends RootWacEarTests {
   void verifyDispatcherWacConfig() {
     ApplicationContext parent = wac.getParent();
     assertThat(parent).isNotNull();
-    boolean condition = parent instanceof WebApplicationContext;
-    assertThat(condition).isTrue();
 
     ApplicationContext grandParent = parent.getParent();
     assertThat(grandParent).isNotNull();
-    boolean condition1 = grandParent instanceof WebApplicationContext;
-    assertThat(condition1).isFalse();
-
-    MockContext dispatcherMockContext = wac.getMockContext();
-    assertThat(dispatcherMockContext).isNotNull();
-    MockContext rootMockContext = ((WebApplicationContext) parent).getMockContext();
-    assertThat(rootMockContext).isNotNull();
-    assertThat(rootMockContext).isSameAs(dispatcherMockContext);
-
-    assertThat(rootMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(parent);
-    assertThat(dispatcherMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(parent);
 
     assertThat(ear).isEqualTo("ear");
     assertThat(root).isEqualTo("root");

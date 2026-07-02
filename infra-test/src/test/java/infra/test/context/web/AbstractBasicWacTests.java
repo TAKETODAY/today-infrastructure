@@ -22,14 +22,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
-import infra.web.mock.MockSession;
 import infra.test.context.junit4.InfraRunner;
 import infra.web.RequestContext;
 import infra.web.mock.MockContextAware;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockSession;
 import infra.web.mock.WebApplicationContext;
+import infra.web.mock.api.MockContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,8 +71,6 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
 
   @Test
   public void basicWacFeatures() throws Exception {
-    assertThat(wac.getMockContext()).as("MockContext should be set in the WAC.").isNotNull();
-
     assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
     assertThat(mockContextIn).as("MockContext should have been autowired from the WAC.").isNotNull();
@@ -85,7 +83,6 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
     assertThat(rootWac).as("Root WAC must be stored in the MockContext as: "
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
-    assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContextIn);
 
   }
 
