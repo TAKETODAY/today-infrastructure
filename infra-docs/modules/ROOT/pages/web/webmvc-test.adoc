@@ -6,8 +6,8 @@
 * Mock API: 用于单元测试控制器、过滤器和其他 Web 组件的 Mock API 合约的模拟实现。
 有关详细信息，请参阅 xref:testing/unit.adoc#mock-objects-mockApi[Mock API] 模拟对象。
 
-* TestContext Framework: 支持在 JUnit 和 TestNG 测试中加载 Infra 配置，
-包括在测试方法之间高效缓存加载的配置，并支持使用 `MockContextImpl` 加载 `WebApplicationContext`。
+* TestContext Framework: 支持在 JUnit 测试中加载 Infra 配置，
+包括在测试方法之间高效缓存加载的配置。
 有关详细信息，请参阅 xref:testing/testcontext-framework.adoc[TestContext Framework]。
 
 * Web MVC Test: 一个框架，也称为 `MockMvc`，用于通过 `DispatcherHandler`（即支持注解）

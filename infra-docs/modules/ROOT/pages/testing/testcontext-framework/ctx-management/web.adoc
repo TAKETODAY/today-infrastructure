@@ -5,8 +5,7 @@
 可以在相应测试类上标注 `@WebAppConfiguration`。
 
 在测试类上使用 `@WebAppConfiguration` 会指示 TestContext 框架（TCF）为你的集成测试加载
-`WebApplicationContext`（WAC）。在幕后，TCF 会确保创建 `MockContextImpl` 并将其提供给
-测试的 WAC。默认情况下，`MockContextImpl` 的基础资源路径为 `src/main/webapp`。
+`WebApplicationContext`（WAC）。
 这会被解释为相对于 JVM 根目录的路径（通常为项目路径）。如果你熟悉 Maven 项目的
 Web 应用目录结构，就会知道 `src/main/webapp` 是 WAR 根目录的默认位置。
 如需覆盖该默认值，可以为 `@WebAppConfiguration` 提供另一个路径

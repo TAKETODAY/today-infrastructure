@@ -35,8 +35,6 @@ import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockRequest;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.HttpRequestMethodNotSupportedException;
@@ -46,6 +44,7 @@ import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.SimpleNotFoundHandler;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 
@@ -296,11 +295,10 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new MockRequest(mockContext, "GET", "");
+      this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -389,14 +387,13 @@ public class ResourceHttpRequestHandlerTests {
 
     @Test
     void getResourceWithMediaTypeResolvedThroughMockContext() throws Throwable {
-      MockContextImpl mockContext = new MockContextImpl();
 
       List<Resource> paths = List.of(new ClassPathResource("test/", getClass()));
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
       handler.setLocations(paths);
       handler.afterPropertiesSet();
 
-      MockRequest request = new MockRequest(mockContext, "GET", "");
+      MockRequest request = new MockRequest("GET", "");
       request.setRequestURI("foo.css");
       handler.handleRequest(new MockRequestContext(null, request, response));
 
@@ -440,11 +437,10 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new MockRequest(mockContext, "GET", "");
+      this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -634,10 +630,9 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() {
-      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new MockRequest(mockContext, "GET", "");
+      this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -789,10 +784,9 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new MockRequest(mockContext, "GET", "");
+      this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -1045,10 +1039,6 @@ public class ResourceHttpRequestHandlerTests {
                       "resolved to a Resource of type: class infra.core.io.FileSystemResource. " +
                       "If this is intentional, please pass it as a pre-configured Resource via setLocations.");
     }
-
-  }
-
-  private static class TestMockContext extends MockContextImpl {
 
   }
 

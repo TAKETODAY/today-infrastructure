@@ -31,9 +31,6 @@ import infra.core.i18n.LocaleContext;
 import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.session.DefaultSessionManager;
 import infra.session.InMemorySessionRepository;
 import infra.session.SecureRandomSessionIdGenerator;
@@ -41,7 +38,9 @@ import infra.session.SessionEventDispatcher;
 import infra.web.DispatcherHandler;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -87,8 +86,7 @@ public class LocaleResolverTests {
   private void doTest(LocaleResolver localeResolver, boolean shouldSet) {
     applicationContext.refresh();
     // create mocks
-    MockContextImpl context = new MockContextImpl();
-    MockRequest request = new MockRequest(context);
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.UK);
     MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(applicationContext, request, response, new DispatcherHandler(applicationContext));

@@ -35,15 +35,14 @@ import infra.core.io.FileSystemResource;
 import infra.core.io.UrlResource;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.mock.MockDispatcherHandler;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,8 +53,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rossen Stoyanchev
  */
 public class ResourceHttpRequestHandlerIntegrationTests {
-
-  private final MockContextImpl mockContext = new MockContextImpl();
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(

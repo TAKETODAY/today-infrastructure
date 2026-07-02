@@ -33,11 +33,10 @@ import java.util.Map;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.web.RequestContext;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 import infra.web.view.View;
 
 /**
@@ -48,8 +47,7 @@ import infra.web.view.View;
 public class XlsViewTests {
 
   private final ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
-  private final MockContextImpl sc = new MockContextImpl();
-  private final MockRequest request = new MockRequest(this.sc);
+  private final MockRequest request = new MockRequest();
   private final MockResponse response = new MockResponse();
   RequestContext requestContext = new MockRequestContext(wac, request, response);
 

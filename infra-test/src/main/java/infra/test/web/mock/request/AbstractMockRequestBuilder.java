@@ -782,7 +782,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
    * Build a {@link MockRequest}.
    */
   @Override
-  public final MockRequest buildRequest(MockContext servletContext) {
+  public final MockRequest buildRequest(MockContext mockContext) {
 
     URI uri = this.uri;
     Assert.notNull(uri, "'uri' is required");
@@ -792,7 +792,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
       uri = this.versionInserter.insertVersion(this.version, uri);
     }
 
-    MockRequest request = createMockRequest(servletContext);
+    MockRequest request = createMockRequest(mockContext);
 
     request.setAsyncSupported(true);
     request.setMethod(this.method.name());

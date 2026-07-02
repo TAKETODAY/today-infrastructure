@@ -24,7 +24,6 @@ import infra.context.ApplicationContext;
 import infra.test.context.TestContext;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
-import infra.web.mock.MockContextImpl;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
@@ -48,7 +47,6 @@ class WebMockTestExecutionListenerTests {
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 
   private final ApplicationContext wac = mock(ApplicationContext.class);
-  private final MockContextImpl mockContext = new MockContextImpl();
   private final TestContext testContext = mock(TestContext.class);
   private final WebMockTestExecutionListener listener = new WebMockTestExecutionListener();
 
@@ -56,7 +54,7 @@ class WebMockTestExecutionListenerTests {
   void setUp() {
     given(testContext.getApplicationContext()).willReturn(wac);
 
-    MockRequest request = new MockRequest(mockContext);
+    MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
     RequestContext servletWebRequest = new MockRequestContext(null, request, response);
 

@@ -23,15 +23,14 @@ import java.lang.reflect.Method;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
-import infra.web.mock.MockResponse;
 import infra.web.annotation.CookieValue;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.CookieParameterResolver;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,7 +52,6 @@ class CookieMethodArgumentResolversTests {
   private MockRequest request;
 
   private ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
-  final MockContextImpl mockContext = new MockContextImpl();
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -61,7 +59,7 @@ class CookieMethodArgumentResolversTests {
     context.refresh();
 
     CookieParameterResolver.register(strategies, context.getBeanFactory());
-    MockParameterResolvers.register(context.getBeanFactory(), strategies, mockContext);
+    MockParameterResolvers.register(context.getBeanFactory(), strategies);
 
     Method method = getClass().getMethod("params", Cookie.class, String.class, String.class);
     paramNamedCookie = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));

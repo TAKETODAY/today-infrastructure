@@ -23,15 +23,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import infra.http.MediaType;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
 import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,10 +50,8 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   @BeforeEach
   void setup() {
-    TestMockContext mockContext = new TestMockContext();
-    mockContext.getMimeTypes().put("foo", "application/foo");
 
-    this.mockRequest = new MockRequest(mockContext);
+    this.mockRequest = new MockRequest();
     webRequest = new MockRequestContext(mockRequest);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }
@@ -273,16 +269,6 @@ class ContentNegotiationManagerFactoryBeanTests {
   void basic() {
     assertThat(factoryBean.getObjectType()).isSameAs(ContentNegotiationManager.class);
     assertThat(factoryBean.isSingleton()).isTrue();
-
-  }
-
-  static class TestMockContext extends MockContextImpl {
-
-    private final Map<String, String> mimeTypes = new HashMap<>();
-
-    public Map<String, String> getMimeTypes() {
-      return this.mimeTypes;
-    }
 
   }
 

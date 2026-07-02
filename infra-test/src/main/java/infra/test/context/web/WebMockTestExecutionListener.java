@@ -29,7 +29,6 @@ import infra.test.context.TestContext;
 import infra.test.context.TestExecutionListener;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
-import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockContextImpl;
 import infra.web.mock.MockRequest;

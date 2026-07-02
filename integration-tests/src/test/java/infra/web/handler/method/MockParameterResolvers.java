@@ -21,10 +21,6 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpCookie;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.MockResponse;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.annotation.CookieValue;
@@ -33,7 +29,10 @@ import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import infra.web.bind.resolver.MissingRequestCookieException;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
+import infra.web.mock.api.Cookie;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -42,7 +41,7 @@ import infra.web.mock.MockUtils;
 public class MockParameterResolvers {
 
   public static void register(ConfigurableBeanFactory beanFactory,
-          ParameterResolvingStrategies resolvers, MockContext context) {
+          ParameterResolvingStrategies resolvers) {
     resolvers.add(new MockRequestMethodArgumentResolver());
     // Servlet cookies parameter
     // ----------------------------
@@ -53,7 +52,6 @@ public class MockParameterResolvers {
     // ----------------------------
     resolvers.add(new ForMockRequest());
     resolvers.add(new ForMockResponse());
-    resolvers.add(new ForMockContext(context));
     // Attributes
     // ------------------------
     resolvers.add(new ForHttpSessionAttribute());
@@ -99,25 +97,6 @@ public class MockParameterResolvers {
         return null;
       }
       return session.getAttribute(resolvable.getName());
-    }
-  }
-
-  static class ForMockContext implements ParameterResolvingStrategy {
-
-    private final MockContext mockContext;
-
-    public ForMockContext(MockContext mockContext) {
-      this.mockContext = mockContext;
-    }
-
-    @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.is(MockContext.class);
-    }
-
-    @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return mockContext;
     }
   }
 

@@ -109,8 +109,6 @@ class PathExtensionContentNegotiationStrategyTests {
     assertThatThrownBy(() -> strategy.getMediaTypeForResource(null))
             .isInstanceOf(IllegalArgumentException.class).hasMessage("Resource is required");
 
-    ContentNegotiationManagerFactoryBeanTests.TestMockContext context = new ContentNegotiationManagerFactoryBeanTests.TestMockContext();
-    context.getMimeTypes().put("foo", "application/foo");
 
     strategy = new PathExtensionContentNegotiationStrategy(null);
 

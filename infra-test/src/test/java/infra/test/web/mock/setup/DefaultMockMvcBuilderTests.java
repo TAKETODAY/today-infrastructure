@@ -26,7 +26,6 @@ import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.support.StaticApplicationContext;
-import infra.web.mock.MockContextImpl;
 import infra.test.web.mock.MockMvc;
 import infra.web.config.annotation.EnableWebMvc;
 
@@ -42,8 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  */
 public class DefaultMockMvcBuilderTests {
-
-  private final MockContextImpl mockContext = new MockContextImpl();
 
   @Test
   public void rootWacMockContainerAttributeNotPreviouslySetWithContextHierarchy() {
