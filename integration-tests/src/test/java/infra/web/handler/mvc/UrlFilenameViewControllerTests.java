@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -142,7 +142,7 @@ class UrlFilenameViewControllerTests {
     MockRequest request = new MockRequest("GET", "/docs/cvs/commit.html");
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
-    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(wac, request, new MockResponse());
     ModelAndView mv = getModelAndView(controller, context);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();

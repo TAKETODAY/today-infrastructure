@@ -51,9 +51,9 @@ import infra.mock.api.DispatcherType;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.MockInputStream;
-import infra.mock.api.MockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.session.Session;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
@@ -1224,7 +1224,7 @@ public class MockRequest {
     return this.requestedSessionIdFromURL;
   }
 
-  public boolean authenticate(HttpMockResponse response) throws IOException, MockException {
+  public boolean authenticate(MockResponse response) throws IOException, MockException {
     throw new UnsupportedOperationException();
   }
 

@@ -31,7 +31,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.ui.Model;
 import infra.util.ReflectionUtils;
 import infra.web.BindingContext;
@@ -51,7 +51,7 @@ class ModelHandlerOrderingTests {
   private static final Logger logger = LoggerFactory.getLogger(ModelHandlerOrderingTests.class);
 
   private final MockRequestContext webRequest = new MockRequestContext(
-          null, new MockRequest(), new MockHttpResponseImpl());
+          null, new MockRequest(), new MockResponse());
 
   private final BindingContext mavContainer = new BindingContext();
 

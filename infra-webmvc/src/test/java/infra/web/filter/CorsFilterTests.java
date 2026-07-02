@@ -8,7 +8,7 @@ import java.util.Arrays;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.FilterChain;
 import infra.web.cors.CorsConfiguration;
 import infra.web.cors.DefaultCorsProcessor;
@@ -48,7 +48,7 @@ class CorsFilterTests {
   void nonCorsRequest() throws Throwable {
 
     MockRequest request = new MockRequest(HttpMethod.GET.name(), "/test.html");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     FilterChain filterChain = (filterRequest) -> {
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
@@ -65,7 +65,7 @@ class CorsFilterTests {
     request.setScheme("https");
     request.setServerName("domain1.com");
     request.setServerPort(443);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     FilterChain filterChain = (filterRequest) -> {
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
@@ -80,7 +80,7 @@ class CorsFilterTests {
     MockRequest request = new MockRequest(HttpMethod.GET.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader("header2", "foo");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     FilterChain filterChain = (filterRequest) -> {
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
@@ -95,7 +95,7 @@ class CorsFilterTests {
     MockRequest request = new MockRequest(HttpMethod.DELETE.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader("header2", "foo");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     FilterChain filterChain = (filterRequest) ->
             fail("Invalid requests must not be forwarded to the filter chain");
@@ -110,7 +110,7 @@ class CorsFilterTests {
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET.name());
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "header1, header2");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     FilterChain filterChain = (filterRequest) ->
             fail("Preflight requests must not be forwarded to the filter chain");
@@ -128,7 +128,7 @@ class CorsFilterTests {
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.DELETE.name());
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "header1, header2");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     FilterChain filterChain = (filterRequest) ->
             fail("Preflight requests must not be forwarded to the filter chain");

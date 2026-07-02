@@ -35,7 +35,7 @@ import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.io.ClassPathResource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContextHolder;
 import infra.web.context.support.RequestScope;
 import infra.web.mock.MockRequestContext;
@@ -116,7 +116,7 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockResponse());
     RequestContextHolder.set(requestAttributes);
 
     try {

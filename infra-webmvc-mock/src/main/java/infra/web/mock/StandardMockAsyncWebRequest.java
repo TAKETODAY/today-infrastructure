@@ -25,7 +25,7 @@ import infra.lang.Assert;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
@@ -52,7 +52,7 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
 
   private final MockRequest mockRequest;
 
-  private final HttpMockResponse mockResponse;
+  private final MockResponse mockResponse;
 
   public StandardMockAsyncWebRequest(MockRequestContext context) {
     this.request = context;
@@ -66,7 +66,7 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
    * @param request current HTTP request
    * @param response current HTTP response
    */
-  public StandardMockAsyncWebRequest(MockRequest request, HttpMockResponse response) {
+  public StandardMockAsyncWebRequest(MockRequest request, MockResponse response) {
     this.request = new MockRequestContext(null, request, response);
     this.mockRequest = request;
     this.mockResponse = response;

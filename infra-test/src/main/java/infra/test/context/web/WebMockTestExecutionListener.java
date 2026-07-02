@@ -27,7 +27,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.context.TestContext;
 import infra.test.context.TestExecutionListener;
 import infra.test.context.support.AbstractTestExecutionListener;
@@ -45,10 +45,10 @@ import infra.web.mock.WebApplicationContext;
  * state via Infra Web's {@link RequestContextHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
- * MockRequest}, {@link MockHttpResponseImpl}, and
+ * MockRequest}, {@link MockResponse}, and
  * {@link infra.web.RequestContext} based on the {@link MockContextImpl} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
- * {@code MockHttpMockResponse} and {@code MockWebRequest} can be injected
+ * {@code MockHttpMockResponse} and {@code MockRequestContext} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain
  * #afterTestMethod(TestContext) cleans up} thread-local state.
  *
@@ -190,7 +190,7 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
 
       MockRequest request = new MockRequest();
       request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+      MockResponse response = new MockResponse();
 
       RequestContextHolder.set(new MockRequestContext(wac, request, response));
       testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
@@ -198,7 +198,7 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
 
       if (wac instanceof ConfigurableApplicationContext configurableApplicationContext) {
         ConfigurableBeanFactory bf = configurableApplicationContext.getBeanFactory();
-        bf.registerResolvableDependency(MockHttpResponseImpl.class, response);
+        bf.registerResolvableDependency(MockResponse.class, response);
       }
     }
   }

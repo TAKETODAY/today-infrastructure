@@ -25,9 +25,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import infra.http.HttpHeaders;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.json.JsonContent;
-import infra.test.json.JsonConverterDelegate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -37,24 +36,24 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Stephane Nicoll
  */
-public class AbstractMockHttpMockResponseAssertTests {
+public class AbstractMockResponseAssertTests {
 
   @Test
   void bodyText() {
-    MockHttpResponseImpl response = createResponse("OK");
+    MockResponse response = createResponse("OK");
     assertThat(fromResponse(response)).bodyText().isEqualTo("OK");
   }
 
   @Test
   void bodyJsonWithJsonPath() {
-    MockHttpResponseImpl response = createResponse("{\"albumById\": {\"name\": \"Greatest hits\"}}");
+    MockResponse response = createResponse("{\"albumById\": {\"name\": \"Greatest hits\"}}");
     assertThat(fromResponse(response)).bodyJson()
             .extractingPath("$.albumById.name").isEqualTo("Greatest hits");
   }
 
   @Test
   void bodyJsonCanLoadResourceRelativeToClass() {
-    MockHttpResponseImpl response = createResponse("{ \"name\" : \"INFRA\", \"age\" : 123 }");
+    MockResponse response = createResponse("{ \"name\" : \"INFRA\", \"age\" : 123 }");
     // See infra/test/json/example.json
     assertThat(fromResponse(response)).bodyJson().withResourceLoadClass(JsonContent.class)
             .isLenientlyEqualTo("example.json");
@@ -63,7 +62,7 @@ public class AbstractMockHttpMockResponseAssertTests {
   @Test
   void bodyWithByteArray() throws UnsupportedEncodingException {
     byte[] bytes = "OK".getBytes(StandardCharsets.UTF_8);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.getWriter().write("OK");
     response.setContentType(StandardCharsets.UTF_8.name());
     assertThat(fromResponse(response)).body().isEqualTo(bytes);
@@ -71,7 +70,7 @@ public class AbstractMockHttpMockResponseAssertTests {
 
   @Test
   void hasBodyTextEqualTo() throws UnsupportedEncodingException {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.getWriter().write("OK");
     response.setContentType(StandardCharsets.UTF_8.name());
     assertThat(fromResponse(response)).hasBodyTextEqualTo("OK");
@@ -80,7 +79,7 @@ public class AbstractMockHttpMockResponseAssertTests {
   @Test
   void hasForwardedUrl() {
     String forwardedUrl = "https://example.com/42";
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.setForwardedUrl(forwardedUrl);
     assertThat(fromResponse(response)).hasForwardedUrl(forwardedUrl);
   }
@@ -88,7 +87,7 @@ public class AbstractMockHttpMockResponseAssertTests {
   @Test
   void hasForwardedUrlWithWrongValue() {
     String forwardedUrl = "https://example.com/42";
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.setForwardedUrl(forwardedUrl);
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(fromResponse(response)).hasForwardedUrl("another"))
@@ -98,7 +97,7 @@ public class AbstractMockHttpMockResponseAssertTests {
   @Test
   void hasRedirectedUrl() {
     String redirectedUrl = "https://example.com/42";
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader(HttpHeaders.LOCATION, redirectedUrl);
     assertThat(fromResponse(response)).hasRedirectedUrl(redirectedUrl);
   }
@@ -106,7 +105,7 @@ public class AbstractMockHttpMockResponseAssertTests {
   @Test
   void hasRedirectedUrlWithWrongValue() {
     String redirectedUrl = "https://example.com/42";
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader(HttpHeaders.LOCATION, redirectedUrl);
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(fromResponse(response)).hasRedirectedUrl("another"))
@@ -115,14 +114,14 @@ public class AbstractMockHttpMockResponseAssertTests {
 
   @Test
   void hasServletErrorMessage() throws Exception {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.sendError(403, "expected error message");
     assertThat(fromResponse(response)).hasErrorMessage("expected error message");
   }
 
-  private MockHttpResponseImpl createResponse(String body) {
+  private MockResponse createResponse(String body) {
     try {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+      MockResponse response = new MockResponse();
       response.setContentType(StandardCharsets.UTF_8.name());
       response.getWriter().write(body);
       return response;
@@ -132,18 +131,18 @@ public class AbstractMockHttpMockResponseAssertTests {
     }
   }
 
-  private static AssertProvider<ResponseAssert> fromResponse(MockHttpResponseImpl response) {
+  private static AssertProvider<ResponseAssert> fromResponse(MockResponse response) {
     return () -> new ResponseAssert(response);
   }
 
-  private static final class ResponseAssert extends AbstractMockResponseAssert<ResponseAssert, MockHttpResponseImpl> {
+  private static final class ResponseAssert extends AbstractMockResponseAssert<ResponseAssert, MockResponse> {
 
-    ResponseAssert(MockHttpResponseImpl actual) {
-      super((JsonConverterDelegate) null, actual, ResponseAssert.class);
+    ResponseAssert(MockResponse actual) {
+      super(null, actual, ResponseAssert.class);
     }
 
     @Override
-    protected MockHttpResponseImpl getResponse() {
+    protected MockResponse getResponse() {
       return this.actual;
     }
 

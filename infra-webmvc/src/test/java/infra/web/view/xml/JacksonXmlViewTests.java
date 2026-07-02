@@ -33,7 +33,7 @@ import java.util.TreeMap;
 
 import infra.http.MediaType;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.validation.BindingResult;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -63,7 +63,7 @@ class JacksonXmlViewTests {
 
   private MockRequest request = new MockRequest();
 
-  private MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private MockResponse response = new MockResponse();
 
   private Context jsContext = ContextFactory.getGlobal().enterContext();
 

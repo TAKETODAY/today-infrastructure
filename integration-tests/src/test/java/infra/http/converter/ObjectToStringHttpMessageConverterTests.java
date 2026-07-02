@@ -35,7 +35,7 @@ import infra.http.server.MockServerHttpRequest;
 import infra.http.server.MockServerHttpResponse;
 import infra.lang.Constant;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -50,7 +50,7 @@ public class ObjectToStringHttpMessageConverterTests {
 
   private ObjectToStringHttpMessageConverter converter;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   private MockServerHttpResponse response;
 
@@ -59,7 +59,7 @@ public class ObjectToStringHttpMessageConverterTests {
     ConversionService conversionService = new DefaultConversionService();
     this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
-    this.mockResponse = new MockHttpResponseImpl();
+    this.mockResponse = new MockResponse();
     this.response = new MockServerHttpResponse(this.mockResponse);
   }
 

@@ -26,7 +26,7 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -38,7 +38,7 @@ class RedirectViewUriTemplateTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   RequestContext context;
 
@@ -46,7 +46,7 @@ class RedirectViewUriTemplateTests {
   public void setUp() throws Exception {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     this.request = new MockRequest();
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
     context.refresh();
 
     this.context = new MockRequestContext(context, request, response);

@@ -36,7 +36,7 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.validation.BeanPropertyBindingResult;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HttpMediaTypeNotSupportedException;
@@ -64,7 +64,7 @@ class SimpleHandlerExceptionHandlerTests {
 
   private final MockRequest request = new MockRequest("GET", "/");
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   private final MockRequestContext context = new MockRequestContext(request, response);
 

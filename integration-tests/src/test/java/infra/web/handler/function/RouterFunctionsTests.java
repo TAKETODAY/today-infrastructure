@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import infra.http.HttpStatus;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
  */
 public class RouterFunctionsTests {
 
-  MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+  MockResponse mockResponse = new MockResponse();
 
   private final ServerRequest request = new DefaultServerRequest(
           new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), mockResponse), Collections.emptyList());
@@ -117,7 +117,7 @@ public class RouterFunctionsTests {
 
     MockRequest servletRequest = new MockRequest("GET", "/bar");
 
-    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    MockResponse servletResponse = new MockResponse();
     var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.emptyList());
 

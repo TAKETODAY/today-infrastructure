@@ -29,7 +29,7 @@ import infra.context.annotation.ClassPathBeanDefinitionScanner;
 import infra.context.annotation.ScopedProxyMode;
 import infra.context.support.GenericApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockSession;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
@@ -60,8 +60,8 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
 
   private final GenericApplicationContext context = new GenericApplicationContext();
 
-  private RequestContext oldRequestAttributes = new MockRequestContext(null, new MockRequest(), new MockHttpResponseImpl());
-  private RequestContext newRequestAttributes = new MockRequestContext(null, new MockRequest(), new MockHttpResponseImpl());
+  private RequestContext oldRequestAttributes = new MockRequestContext(null, new MockRequest(), new MockResponse());
+  private RequestContext newRequestAttributes = new MockRequestContext(null, new MockRequest(), new MockResponse());
 
   private RequestContext oldRequestAttributesWithSession;
   private RequestContext newRequestAttributesWithSession;
@@ -72,12 +72,12 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
     MockRequest oldRequestWithSession = new MockRequest();
     oldRequestWithSession.setSession(new MockSession());
     this.oldRequestAttributesWithSession = new MockRequestContext(
-            context, oldRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
+            context, oldRequestWithSession, new MockResponse(), new DispatcherHandler(context));
 
     MockRequest newRequestWithSession = new MockRequest();
     newRequestWithSession.setSession(new MockSession());
     this.newRequestAttributesWithSession = new MockRequestContext(
-            context, newRequestWithSession, new MockHttpResponseImpl(), new DispatcherHandler(context));
+            context, newRequestWithSession, new MockResponse(), new DispatcherHandler(context));
 
   }
 

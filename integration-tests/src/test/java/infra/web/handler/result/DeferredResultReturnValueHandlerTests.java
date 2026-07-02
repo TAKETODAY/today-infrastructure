@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 
 import infra.core.MethodParameter;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
 import infra.web.BindingContext;
@@ -51,7 +51,7 @@ class DeferredResultReturnValueHandlerTests {
   public void setup() throws Exception {
     this.handler = new DeferredResultReturnValueHandler();
     this.request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     this.webRequest = new MockRequestContext(null, this.request, response);
 
     this.request.setAsyncSupported(true);

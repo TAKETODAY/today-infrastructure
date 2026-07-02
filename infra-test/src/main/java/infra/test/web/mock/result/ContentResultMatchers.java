@@ -29,7 +29,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.test.util.JsonExpectationsHelper;
 import infra.test.util.XmlExpectationsHelper;
 import infra.test.web.mock.ResultMatcher;
@@ -122,7 +122,7 @@ public class ContentResultMatchers {
   /**
    * Assert the character encoding in the ServletResponse.
    *
-   * @see HttpMockResponse#getCharacterEncoding()
+   * @see MockResponse#getCharacterEncoding()
    */
   public ResultMatcher encoding(String characterEncoding) {
     return result -> {

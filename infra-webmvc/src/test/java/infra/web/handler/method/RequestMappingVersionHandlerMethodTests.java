@@ -25,9 +25,8 @@ import java.net.URI;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.MockException;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.annotation.GET;
 import infra.web.annotation.GetMapping;
@@ -74,7 +73,7 @@ public class RequestMappingVersionHandlerMethodTests {
   void fixedVersion() throws Exception {
     assertThat(requestWithVersion("1.5").getContentAsString()).isEqualTo("1.5");
 
-    HttpMockResponse response = requestWithVersion("1.6");
+    MockResponse response = requestWithVersion("1.6");
     assertThat(response.getStatus()).isEqualTo(400);
   }
 
@@ -84,10 +83,10 @@ public class RequestMappingVersionHandlerMethodTests {
             .isEqualTo("<https://example.org/deprecation>; rel=\"deprecation\"; type=\"text/html\"");
   }
 
-  private MockHttpResponseImpl requestWithVersion(String version) throws MockException {
+  private infra.mock.web.MockResponse requestWithVersion(String version) throws MockException {
     MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-VERSION", version);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     this.dispatcher.service(request, response);
     return response;
   }

@@ -32,7 +32,7 @@ import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.mock.api.http.Cookie;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
@@ -259,7 +259,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the response.
    */
-  protected void printResponse(MockHttpResponseImpl response) throws Exception {
+  protected void printResponse(MockResponse response) throws Exception {
     this.printer.printValue("Status", response.getStatus());
     this.printer.printValue("Error message", response.getErrorMessage());
     this.printer.printValue("Headers", getResponseHeaders(response));
@@ -298,7 +298,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printValue("Cookies", cookieStrings);
   }
 
-  protected final HttpHeaders getResponseHeaders(MockHttpResponseImpl response) {
+  protected final HttpHeaders getResponseHeaders(MockResponse response) {
     HttpHeaders headers = HttpHeaders.forWritable();
     for (String name : response.getHeaderNames()) {
       headers.set(name, response.getHeaders(name));

@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 
 import infra.http.HttpHeaders;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.StubMvcResult;
 
@@ -38,7 +38,7 @@ public class HeaderResultMatchersTests {
 
   private final HeaderResultMatchers matchers = new HeaderResultMatchers();
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   private final MvcResult mvcResult =
           new StubMvcResult(new MockRequest(), null, null, null, null, null, this.response);

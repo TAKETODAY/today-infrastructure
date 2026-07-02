@@ -36,7 +36,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.handler.method.HandlerMethod;
@@ -64,7 +64,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   private MockRequestContext webRequest;
 
@@ -76,7 +76,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     this.handler = new ResponseBodyEmitterReturnValueHandler(converters);
     this.request = new MockRequest();
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
     this.webRequest = new MockRequestContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);

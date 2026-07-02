@@ -49,7 +49,7 @@ import infra.mock.http.client.reactive.MockClientHttpRequest;
 import infra.mock.http.client.reactive.MockClientHttpResponse;
 import infra.mock.http.server.reactive.MockServerHttpRequest;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockMemoryPart;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
@@ -189,7 +189,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
 
   private MockClientHttpResponse adaptResponse(MvcResult mvcResult) {
     MockClientHttpResponse clientResponse = new MockMvcServerClientHttpResponse(mvcResult);
-    MockHttpResponseImpl servletResponse = mvcResult.getResponse();
+    MockResponse servletResponse = mvcResult.getResponse();
     for (String header : servletResponse.getHeaderNames()) {
       for (String value : servletResponse.getHeaders(header)) {
         clientResponse.getHeaders().add(header, value);
@@ -254,7 +254,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public MockHttpResponseImpl getResponse() {
+    public MockResponse getResponse() {
       return this.mvcResult.getResponse();
     }
 

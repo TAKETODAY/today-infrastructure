@@ -41,7 +41,7 @@ import infra.http.HttpEntity;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
 import infra.web.RequestContextHolder;
@@ -74,7 +74,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 class MvcUriComponentsBuilderTests {
 
   private final MockRequest request = new MockRequest();
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   @BeforeEach
   public void setup() {
@@ -473,7 +473,7 @@ class MvcUriComponentsBuilderTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configClass);
     context.refresh();
-    RequestContextHolder.set(new MockRequestContext(context, request, new MockHttpResponseImpl()));
+    RequestContextHolder.set(new MockRequestContext(context, request, new MockResponse()));
   }
 
   static class Person {

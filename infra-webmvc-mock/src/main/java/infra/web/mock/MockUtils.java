@@ -26,7 +26,7 @@ import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
 import infra.util.ObjectUtils;
 import infra.web.MockIndicator;
@@ -73,7 +73,7 @@ public abstract class MockUtils {
    * @return the matching response object
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
-  public static HttpMockResponse getMockResponse(RequestContext context) {
+  public static MockResponse getMockResponse(RequestContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getResponse();
     }

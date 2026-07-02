@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.StringWriter;
 
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.test.web.mock.result.PrintingResultHandler;
 import infra.web.annotation.RequestMapping;
@@ -78,7 +78,7 @@ public class PrintingResultHandlerSmokeTests {
 
     @RequestMapping("/")
     @ResponseBody
-    public String hello(HttpMockResponse response) {
+    public String hello(MockResponse response) {
       response.addCookie(new Cookie("enigma", "42"));
       return "Hello Response";
     }

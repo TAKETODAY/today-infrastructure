@@ -29,12 +29,9 @@ import infra.lang.Assert;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockResponse;
-import infra.mock.api.http.HttpMockResponseWrapper;
-import infra.mock.web.MockRequest;
 import infra.mock.web.MockFilterChain;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
@@ -177,14 +174,14 @@ public final class MockMvc {
     MockRequest request = requestBuilder.buildRequest(this.mockContext);
 
     AsyncContext asyncContext = request.getAsyncContext();
-    MockHttpResponseImpl mockResponse;
-    HttpMockResponse servletResponse;
+    infra.mock.web.MockResponse mockResponse;
+    MockResponse servletResponse;
     if (asyncContext != null) {
-      servletResponse = (HttpMockResponse) asyncContext.getResponse();
-      mockResponse = unwrapResponseIfNecessary(servletResponse);
+      servletResponse = asyncContext.getResponse();
+      mockResponse = servletResponse;
     }
     else {
-      mockResponse = new MockHttpResponseImpl();
+      mockResponse = new infra.mock.web.MockResponse();
       servletResponse = mockResponse;
     }
 
@@ -219,14 +216,6 @@ public final class MockMvc {
     applyDefaultResultActions(mvcResult);
     RequestContextHolder.set(previous);
     return ResultActions.forMvcResult(mvcResult);
-  }
-
-  private MockHttpResponseImpl unwrapResponseIfNecessary(MockResponse mockResponse) {
-    while (mockResponse instanceof HttpMockResponseWrapper wrapper) {
-      mockResponse = wrapper.getResponse();
-    }
-    Assert.isInstanceOf(MockHttpResponseImpl.class, mockResponse);
-    return (MockHttpResponseImpl) mockResponse;
   }
 
   private void applyDefaultResultActions(MvcResult mvcResult) throws Exception {

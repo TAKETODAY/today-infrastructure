@@ -29,7 +29,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
@@ -105,7 +105,7 @@ class PathResourceLookupFunctionTests {
 
   private ServerRequest initRequest(String httpMethod, String requestUri) {
     MockRequest request = PathPatternsTestUtils.initRequest(httpMethod, requestUri, true);
-    var requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    var requestContext = new MockRequestContext(null, request, new MockResponse());
     return new DefaultServerRequest(
             requestContext,
             Collections.emptyList());

@@ -21,7 +21,7 @@ package infra.test.web.mock.result;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 
 import static infra.http.MediaType.APPLICATION_JSON_VALUE;
@@ -114,7 +114,7 @@ class ContentResultMatchersTests {
   private static final String UTF8_CONTENT = "{\"name\":\"Jürgen\"}";
 
   private StubMvcResult getStubMvcResult(String content) throws Exception {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader("Content-Type", APPLICATION_JSON_VALUE);
     response.getOutputStream().write(content.getBytes(UTF_8));
     return new StubMvcResult(null, null, null, null, null, null, response);

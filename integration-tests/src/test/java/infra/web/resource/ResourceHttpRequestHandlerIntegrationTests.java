@@ -37,7 +37,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.ResourceHandlerRegistry;
@@ -69,7 +69,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @MethodSource("argumentSource")
   void cssFile(boolean usePathPatterns, String pathPrefix) throws Exception {
     MockRequest request = initRequest(pathPrefix + "/test/foo.css");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
     servlet.service(request, response);
@@ -84,7 +84,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @MethodSource("argumentSource")
   void classpathLocationWithEncodedPath(boolean usePathPatterns, String pathPrefix) throws Exception {
     MockRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
     servlet.service(request, response);
@@ -106,7 +106,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     handler.start();
 
     MockRequest request = initRequest("/cp/non-existing");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     handler.service(request, response);
 

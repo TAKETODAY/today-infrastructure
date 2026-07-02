@@ -28,11 +28,11 @@ import infra.mock.api.WriteListener;
 /**
  * Delegating implementation of {@link MockOutputStream}.
  *
- * <p>Used by {@link MockHttpResponseImpl}; typically not directly
+ * <p>Used by {@link MockResponse}; typically not directly
  * used for testing application controllers.
  *
  * @author Juergen Hoeller
- * @see MockHttpResponseImpl
+ * @see MockResponse
  * @since 4.0
  */
 public class DelegatingMockOutputStream extends MockOutputStream {

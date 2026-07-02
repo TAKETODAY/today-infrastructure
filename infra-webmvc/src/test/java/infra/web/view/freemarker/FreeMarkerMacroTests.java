@@ -35,7 +35,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
 import infra.web.BindStatus;
@@ -60,7 +60,7 @@ class FreeMarkerMacroTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   private final MockRequestContext context = new MockRequestContext(wac, request, response);
 

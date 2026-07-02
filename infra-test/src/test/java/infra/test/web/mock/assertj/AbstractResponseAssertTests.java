@@ -25,8 +25,7 @@ import java.util.Map;
 
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -42,30 +41,30 @@ class AbstractResponseAssertTests {
 
     @Test
     void containsHeader() {
-      MockHttpResponseImpl response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
+      MockResponse response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
       assertThat(response).containsHeader("n1");
     }
 
     @Test
     void doesNotContainHeader() {
-      MockHttpResponseImpl response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
+      MockResponse response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
       assertThat(response).doesNotContainHeader("n4");
     }
 
     @Test
     void hasHeader() {
-      MockHttpResponseImpl response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
+      MockResponse response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
       assertThat(response).hasHeader("n1", "v1");
     }
 
     @Test
     void headersAreMatching() {
-      MockHttpResponseImpl response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
+      MockResponse response = createResponse(Map.of("n1", "v1", "n2", "v2", "n3", "v3"));
       assertThat(response).headers().containsHeaders("n1", "n2", "n3");
     }
 
-    private MockHttpResponseImpl createResponse(Map<String, String> headers) {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+    private MockResponse createResponse(Map<String, String> headers) {
+      MockResponse response = new MockResponse();
       headers.forEach(response::addHeader);
       return response;
     }
@@ -76,36 +75,36 @@ class AbstractResponseAssertTests {
 
     @Test
     void contentType() {
-      MockHttpResponseImpl response = createResponse("text/plain");
+      MockResponse response = createResponse("text/plain");
       assertThat(response).hasContentType(MediaType.TEXT_PLAIN);
     }
 
     @Test
     void contentTypeAndRepresentation() {
-      MockHttpResponseImpl response = createResponse("text/plain");
+      MockResponse response = createResponse("text/plain");
       assertThat(response).hasContentType("text/plain");
     }
 
     @Test
     void contentTypeCompatibleWith() {
-      MockHttpResponseImpl response = createResponse("application/json;charset=UTF-8");
+      MockResponse response = createResponse("application/json;charset=UTF-8");
       assertThat(response).hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
     }
 
     @Test
     void contentTypeCompatibleWithAndStringRepresentation() {
-      MockHttpResponseImpl response = createResponse("text/plain");
+      MockResponse response = createResponse("text/plain");
       assertThat(response).hasContentTypeCompatibleWith("text/*");
     }
 
     @Test
     void contentTypeCanBeAsserted() {
-      MockHttpResponseImpl response = createResponse("text/plain");
+      MockResponse response = createResponse("text/plain");
       assertThat(response).contentType().isInstanceOf(MediaType.class).isCompatibleWith("text/*").isNotNull();
     }
 
-    private MockHttpResponseImpl createResponse(String contentType) {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+    private MockResponse createResponse(String contentType) {
+      MockResponse response = new MockResponse();
       response.setContentType(contentType);
       return response;
     }
@@ -131,7 +130,7 @@ class AbstractResponseAssertTests {
 
     @Test
     void hasStatusWithWrongCode() {
-      MockHttpResponseImpl response = createResponse(200);
+      MockResponse response = createResponse(200);
       assertThatExceptionOfType(AssertionError.class)
               .isThrownBy(() -> assertThat(response).hasStatus(300))
               .withMessageContainingAll("HTTP status code", "200", "300");
@@ -164,31 +163,31 @@ class AbstractResponseAssertTests {
 
     @Test
     void hasStatusWithWrongSeries() {
-      MockHttpResponseImpl response = createResponse(500);
+      MockResponse response = createResponse(500);
       assertThatExceptionOfType(AssertionError.class)
               .isThrownBy(() -> assertThat(response).hasStatus2xxSuccessful())
               .withMessageContainingAll("HTTP status series", "SUCCESSFUL", "SERVER_ERROR");
     }
 
-    private MockHttpResponseImpl createResponse(int status) {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+    private MockResponse createResponse(int status) {
+      MockResponse response = new MockResponse();
       response.setStatus(status);
       return response;
     }
   }
 
-  private static ResponseAssert assertThat(HttpMockResponse response) {
+  private static ResponseAssert assertThat(MockResponse response) {
     return new ResponseAssert(response);
   }
 
-  private static final class ResponseAssert extends AbstractResponseAssert<HttpMockResponse, ResponseAssert, HttpMockResponse> {
+  private static final class ResponseAssert extends AbstractResponseAssert<MockResponse, ResponseAssert, MockResponse> {
 
-    ResponseAssert(HttpMockResponse actual) {
+    ResponseAssert(MockResponse actual) {
       super(actual, ResponseAssert.class);
     }
 
     @Override
-    protected HttpMockResponse getResponse() {
+    protected MockResponse getResponse() {
       return this.actual;
     }
 

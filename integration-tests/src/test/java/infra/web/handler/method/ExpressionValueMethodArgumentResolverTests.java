@@ -30,7 +30,7 @@ import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.BindingContext;
 import infra.web.RequestContextHolder;
 import infra.web.bind.resolver.ExpressionValueMethodArgumentResolver;
@@ -74,7 +74,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     paramContextPath.getParameter().initParameterNameDiscovery(discoverer);
     paramNotSupported.getParameter().initParameterNameDiscovery(discoverer);
 
-    webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    webRequest = new MockRequestContext(null, request, new MockResponse());
 
     // Expose request to the current thread (for SpEL expressions)
     RequestContextHolder.set(webRequest);

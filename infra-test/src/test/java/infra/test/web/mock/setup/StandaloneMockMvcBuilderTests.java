@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.web.Filter;
 import infra.web.annotation.RequestMapping;
@@ -53,7 +53,7 @@ class StandaloneMockMvcBuilderTests {
 
     MockRequest request = new MockRequest("GET", "/foo");
     HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
-            request, new MockHttpResponseImpl()));
+            request, new MockResponse()));
 
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("handleWithPlaceholders");
@@ -68,13 +68,13 @@ class StandaloneMockMvcBuilderTests {
 
     MockRequest request = new MockRequest("GET", "/persons");
     HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
-            request, new MockHttpResponseImpl()));
+            request, new MockResponse()));
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("persons");
 
     request = new MockRequest("GET", "/persons.xml");
     chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
-            request, new MockHttpResponseImpl()));
+            request, new MockResponse()));
     assertThat(chain).isNull();
   }
 

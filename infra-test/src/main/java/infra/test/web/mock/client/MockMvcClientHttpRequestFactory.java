@@ -33,7 +33,7 @@ import infra.lang.Assert;
 import infra.mock.api.http.Cookie;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.request.MockHttpRequestBuilder;
 import infra.util.ObjectUtils;
@@ -83,7 +83,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
 
         addCookies(servletRequestBuilder);
 
-        MockHttpResponseImpl servletResponse = MockMvcClientHttpRequestFactory.this.mockMvc
+        MockResponse servletResponse = MockMvcClientHttpRequestFactory.this.mockMvc
                 .perform(servletRequestBuilder)
                 .andReturn()
                 .getResponse();
@@ -116,7 +116,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
       }
     }
 
-    private static byte[] getResponseBody(MockHttpResponseImpl servletResponse) {
+    private static byte[] getResponseBody(MockResponse servletResponse) {
       byte[] body = servletResponse.getContentAsByteArray();
       if (body.length == 0) {
         String error = servletResponse.getErrorMessage();
@@ -128,7 +128,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
     }
 
     private static void copyHeaders(
-            MockHttpResponseImpl servletResponse, MockClientHttpResponse clientResponse) {
+            MockResponse servletResponse, MockClientHttpResponse clientResponse) {
 
       servletResponse.getHeaderNames()
               .forEach(name -> servletResponse.getHeaders(name)

@@ -27,10 +27,9 @@ import java.util.concurrent.CountDownLatch;
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
 import infra.mock.api.MockException;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.MockAsyncContext;
 import infra.mock.web.MockRequest;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.ReturnValueHandler;
@@ -73,11 +72,11 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
   public void service(MockRequest request, MockResponse response) throws MockException {
     RequestContext context = RequestContextHolder.required();
     MockRequest servletRequest = MockUtils.getMockRequest(context);
-    HttpMockResponse servletResponse = MockUtils.getMockResponse(context);
+    MockResponse servletResponse = MockUtils.getMockResponse(context);
 
     if (request != servletRequest && response != servletResponse) {
       context = new MockRequestContext(
-              getApplicationContext(), request, (HttpMockResponse) response, this);
+              getApplicationContext(), request, response, this);
       RequestContextHolder.set(context);
     }
 

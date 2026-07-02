@@ -41,10 +41,10 @@ import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
 import infra.mock.api.MockOutputStream;
 import infra.mock.api.WriteListener;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 
 /**
- * Adapt {@link ServerHttpResponse} to the Servlet {@link HttpMockResponse}.
+ * Adapt {@link ServerHttpResponse} to the Servlet {@link MockResponse}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -56,7 +56,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   private volatile boolean flushOnNext;
 
-  private final HttpMockResponse response;
+  private final MockResponse response;
 
   private final MockOutputStream outputStream;
 
@@ -70,13 +70,13 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
   @Nullable
   private volatile ResponseBodyFlushProcessor bodyFlushProcessor;
 
-  public MockServerHttpResponse(HttpMockResponse response, AsyncContext asyncContext,
+  public MockServerHttpResponse(MockResponse response, AsyncContext asyncContext,
           DataBufferFactory bufferFactory, int bufferSize, MockServerHttpRequest request) throws IOException {
 
     this(HttpHeaders.forWritable(), response, asyncContext, bufferFactory, bufferSize, request);
   }
 
-  public MockServerHttpResponse(HttpHeaders headers, HttpMockResponse response, AsyncContext asyncContext,
+  public MockServerHttpResponse(HttpHeaders headers, MockResponse response, AsyncContext asyncContext,
           DataBufferFactory bufferFactory, int bufferSize, MockServerHttpRequest request) throws IOException {
     super(bufferFactory, headers);
 

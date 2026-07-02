@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
@@ -38,7 +38,7 @@ public abstract class AbstractHttpRequestTests {
 
   protected MockRequest mockRequest;
 
-  protected MockHttpResponseImpl mockResponse;
+  protected MockResponse mockResponse;
 
   @BeforeEach
   protected void setup() {
@@ -63,7 +63,7 @@ public abstract class AbstractHttpRequestTests {
   }
 
   protected void resetResponse() {
-    this.mockResponse = new MockHttpResponseImpl();
+    this.mockResponse = new MockResponse();
   }
 
 }

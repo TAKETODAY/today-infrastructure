@@ -25,8 +25,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
@@ -87,7 +86,7 @@ public class RequestAndSessionScopedBeanTests {
 
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
-    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl(), new DispatcherHandler(wac));
+    MockRequestContext context = new MockRequestContext(wac, request, new MockResponse(), new DispatcherHandler(wac));
     RequestContextHolder.set(context);
 
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);

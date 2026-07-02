@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 import static infra.http.HttpMethod.GET;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class RouterFunctionTests {
 
-  MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+  MockResponse mockResponse = new MockResponse();
 
   private final ServerRequest request = new DefaultServerRequest(
           new MockRequestContext(null, initRequest("GET", "", true), mockResponse), Collections.emptyList());

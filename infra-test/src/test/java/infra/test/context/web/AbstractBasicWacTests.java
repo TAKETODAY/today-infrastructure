@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import infra.beans.factory.annotation.Autowired;
 import infra.mock.api.MockContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockSession;
 import infra.test.context.junit4.InfraRunner;
 import infra.web.RequestContext;
@@ -53,7 +53,7 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
   protected MockRequest request;
 
   @Autowired
-  protected MockHttpResponseImpl response;
+  protected MockResponse response;
 
   @Autowired
   protected MockSession session;

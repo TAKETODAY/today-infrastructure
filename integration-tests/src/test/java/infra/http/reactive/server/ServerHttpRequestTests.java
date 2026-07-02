@@ -34,9 +34,8 @@ import infra.mock.api.MockInputStream;
 import infra.mock.api.ReadListener;
 import infra.mock.web.MockRequest;
 import infra.mock.web.DelegatingMockInputStream;
-import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -217,7 +216,7 @@ public class ServerHttpRequestTests {
   private ServerHttpRequest createRequest(String uriString) throws Exception {
     URI uri = URI.create(uriString);
     MockRequest request = new TestMockRequest(uri);
-    AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpResponseImpl());
+    AsyncContext asyncContext = new MockAsyncContext(request, new MockResponse());
     return new MockServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
   }
 

@@ -31,7 +31,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.io.Resource;
 import infra.http.CacheControl;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.mock.MockRequestContext;
@@ -58,7 +58,7 @@ class ResourceHandlerRegistryTests {
 
   private ResourceHandlerRegistration registration;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   @BeforeEach
   public void setup() {
@@ -69,7 +69,7 @@ class ResourceHandlerRegistryTests {
 
     this.registration = this.registry.addResourceHandler("/resources/**");
     this.registration.addResourceLocations("classpath:infra/web/config/");
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
   }
 
   private ResourceHttpRequestHandler getHandler(String pathPattern) {

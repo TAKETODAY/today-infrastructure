@@ -30,9 +30,7 @@ import java.util.Properties;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.mock.web.MockRequest;
-import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -56,7 +54,7 @@ public class BaseViewTests {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     MockRequest request = new MockRequest();
-    HttpMockResponse response = new MockHttpResponseImpl();
+    MockResponse response = new infra.mock.web.MockResponse();
     TestView tv = new TestView(wac);
 
     // Check superclass handles duplicate init
@@ -84,7 +82,7 @@ public class BaseViewTests {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     MockRequest request = new MockRequest();
-    HttpMockResponse response = new MockHttpResponseImpl();
+    MockResponse response = new infra.mock.web.MockResponse();
     TestView tv = new TestView(wac);
 
     tv.setApplicationContext(wac);
@@ -112,7 +110,7 @@ public class BaseViewTests {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     MockRequest request = new MockRequest();
-    HttpMockResponse response = new MockHttpResponseImpl();
+    MockResponse response = new infra.mock.web.MockResponse();
 
     TestView tv = new TestView(wac);
     tv.setApplicationContext(wac);
@@ -144,7 +142,7 @@ public class BaseViewTests {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
     MockRequest request = new MockRequest();
-    HttpMockResponse response = new MockHttpResponseImpl();
+    MockResponse response = new infra.mock.web.MockResponse();
     TestView tv = new TestView(wac);
 
     tv.setApplicationContext(wac);
@@ -176,7 +174,7 @@ public class BaseViewTests {
     tv.setApplicationContext(wac);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
 
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", "bar");

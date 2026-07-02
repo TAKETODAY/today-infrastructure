@@ -33,7 +33,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.SemanticApiVersionParser;
@@ -723,7 +723,7 @@ class RequestPredicatesTests {
                     req -> req.setAttribute(API_VERSION_ATTRIBUTE, strategy.parseVersion(version)));
 
     return new DefaultServerRequest(new MockRequestContext(null, mockRequest,
-            new MockHttpResponseImpl()), Collections.emptyList(), strategy);
+            new MockResponse()), Collections.emptyList(), strategy);
   }
 
   private ServerRequest initRequest(String httpMethod, String requestUri) {
@@ -734,7 +734,7 @@ class RequestPredicatesTests {
           String httpMethod, String requestUri, @Nullable Consumer<MockRequest> initializer) {
     MockRequest request = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, initializer);
     return new DefaultServerRequest(
-            new MockRequestContext(null, request, new MockHttpResponseImpl()),
+            new MockRequestContext(null, request, new MockResponse()),
             Collections.emptyList());
   }
 

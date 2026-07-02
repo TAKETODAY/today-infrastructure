@@ -31,8 +31,6 @@ import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockResponse;
 import infra.web.async.DeferredResult;
 import infra.web.handler.result.SseEmitter;
 
@@ -47,7 +45,7 @@ public class MockAsyncContext implements AsyncContext {
   private final MockRequest request;
 
   @Nullable
-  private final HttpMockResponse response;
+  private final MockResponse response;
 
   private final List<AsyncListener> listeners = new ArrayList<>();
 
@@ -60,7 +58,7 @@ public class MockAsyncContext implements AsyncContext {
 
   public MockAsyncContext(MockRequest request, @Nullable MockResponse response) {
     this.request = request;
-    this.response = (HttpMockResponse) response;
+    this.response = response;
   }
 
   public void addDispatchHandler(Runnable handler) {
@@ -88,7 +86,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public boolean hasOriginalRequestAndResponse() {
-    return (this.request instanceof MockRequest && this.response instanceof MockHttpResponseImpl);
+    return (this.request instanceof MockRequest && this.response instanceof infra.mock.web.MockResponse);
   }
 
   @Override

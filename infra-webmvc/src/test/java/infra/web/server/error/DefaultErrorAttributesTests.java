@@ -30,7 +30,7 @@ import java.util.Map;
 import infra.core.MethodParameter;
 import infra.http.HttpStatus;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.ReflectionUtils;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
@@ -59,7 +59,7 @@ class DefaultErrorAttributesTests {
   private final MockRequest request = new MockRequest();
 
   private final RequestContext webRequest = new MockRequestContext(
-          null, this.request, new MockHttpResponseImpl());
+          null, this.request, new MockResponse());
 
   @Test
   void includeTimeStamp() {

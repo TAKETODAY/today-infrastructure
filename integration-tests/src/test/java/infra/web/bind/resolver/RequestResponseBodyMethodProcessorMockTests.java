@@ -40,7 +40,7 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.validation.BindingResult;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.web.BindingContext;
@@ -86,7 +86,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
   private MockRequest mockRequest;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   private MockRequestContext webRequest;
 
@@ -124,7 +124,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
     mockRequest = new MockRequest();
     mockRequest.setMethod("POST");
-    mockResponse = new MockHttpResponseImpl();
+    mockResponse = new MockResponse();
     webRequest = new MockRequestContext(null, mockRequest, mockResponse);
 
     Method methodHandle1 = getClass().getMethod("handle1", String.class, Integer.TYPE);

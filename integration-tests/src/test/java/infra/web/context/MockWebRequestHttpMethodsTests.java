@@ -32,7 +32,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.ExceptionUtils;
 import infra.web.mock.MockRequestContext;
 
@@ -55,7 +55,7 @@ class MockWebRequestHttpMethodsTests {
 
   private final MockRequest mockRequest = new MockRequest();
 
-  private final MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+  private final MockResponse mockResponse = new MockResponse();
 
   private final MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 

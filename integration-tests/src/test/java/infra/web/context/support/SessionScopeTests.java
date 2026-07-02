@@ -49,7 +49,7 @@ import infra.core.Conventions;
 import infra.core.io.ClassPathResource;
 import infra.lang.Assert;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.session.CookieSessionIdResolver;
 import infra.session.MapSession;
 import infra.session.Session;
@@ -139,7 +139,7 @@ public class SessionScopeTests {
 
   private MockRequestContext getContext(MockRequest request) {
     MockRequestContext requestAttributes = new MockRequestContext(
-            context, request, new MockHttpResponseImpl(), new DispatcherHandler(context));
+            context, request, new MockResponse(), new DispatcherHandler(context));
 
     RequestContextHolder.set(requestAttributes);
     return requestAttributes;
@@ -165,7 +165,7 @@ public class SessionScopeTests {
   @Test
   void getConversationIdReturnsNullWhenNoSession() {
     RequestContextHolder.set(new MockRequestContext(context, new MockRequest(),
-            new MockHttpResponseImpl(), new DispatcherHandler(context)));
+            new MockResponse(), new DispatcherHandler(context)));
 
     SessionScope sessionScope = new SessionScope();
     String conversationId = sessionScope.getConversationId();
@@ -175,7 +175,7 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithRequestKey() {
-    MockRequestContext requestContext = new MockRequestContext(context, new MockRequest(), new MockHttpResponseImpl());
+    MockRequestContext requestContext = new MockRequestContext(context, new MockRequest(), new MockResponse());
     RequestContextHolder.set(requestContext);
 
     SessionScope sessionScope = new SessionScope();
@@ -198,7 +198,7 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithInvalidKey() {
-    RequestContextHolder.set(new MockRequestContext(context, new MockRequest(), new MockHttpResponseImpl()));
+    RequestContextHolder.set(new MockRequestContext(context, new MockRequest(), new MockResponse()));
 
     SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject("invalidKey");

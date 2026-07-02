@@ -43,7 +43,7 @@ import infra.http.MediaType;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.validation.Errors;
 import infra.validation.ObjectError;
 import infra.validation.Validator;
@@ -98,7 +98,7 @@ class MethodValidationTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   private final MockRequestContext context = new MockRequestContext(request, response);
 

@@ -37,7 +37,7 @@ import infra.core.io.ResourceLoader;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProviders;
 import infra.web.RequestContext;
@@ -68,7 +68,7 @@ class DefaultErrorViewResolverTests {
 
   private final Map<String, Object> model = new HashMap<>();
 
-  private final MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+  private final MockResponse mockResponse = new MockResponse();
 
   private final RequestContext request = new MockRequestContext(null,
           new MockRequest(), mockResponse);
@@ -145,7 +145,7 @@ class DefaultErrorViewResolverTests {
   void resolveWhenExactResourceMatchShouldReturnResource() throws Exception {
     setResourceLocation("/exact");
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.NOT_FOUND, this.model);
-    MockHttpResponseImpl response = render(resolved);
+    MockResponse response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("exact/404");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -154,7 +154,7 @@ class DefaultErrorViewResolverTests {
   void resolveWhenSeries4xxResourceMatchShouldReturnResource() throws Exception {
     setResourceLocation("/4xx");
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.NOT_FOUND, this.model);
-    MockHttpResponseImpl response = render(resolved);
+    MockResponse response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("4xx/4xx");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -163,7 +163,7 @@ class DefaultErrorViewResolverTests {
   void resolveWhenSeries5xxResourceMatchShouldReturnResource() throws Exception {
     setResourceLocation("/5xx");
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.INTERNAL_SERVER_ERROR, this.model);
-    MockHttpResponseImpl response = render(resolved);
+    MockResponse response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("5xx/5xx");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -186,7 +186,7 @@ class DefaultErrorViewResolverTests {
             .willReturn(false);
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.NOT_FOUND, this.model);
     then(this.templateAvailabilityProvider).shouldHaveNoMoreInteractions();
-    MockHttpResponseImpl response = render(resolved);
+    MockResponse response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("exact/404");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -209,7 +209,7 @@ class DefaultErrorViewResolverTests {
     setup();
   }
 
-  private MockHttpResponseImpl render(ModelAndView modelAndView) throws Exception {
+  private MockResponse render(ModelAndView modelAndView) throws Exception {
     modelAndView.getView().render(this.model, this.request);
     return mockResponse;
   }

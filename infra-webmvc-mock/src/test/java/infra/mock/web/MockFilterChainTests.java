@@ -43,12 +43,12 @@ class MockFilterChainTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   @BeforeEach
   void setup() {
     this.request = new MockRequest();
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
   }
 
   @Test

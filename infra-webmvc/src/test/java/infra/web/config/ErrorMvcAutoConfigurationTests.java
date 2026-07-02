@@ -28,16 +28,16 @@ import java.util.Map;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
-import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
+import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.MockRequestContext;
-import infra.web.util.WebUtils;
-import infra.web.view.View;
 import infra.web.server.error.ErrorAttributeOptions;
 import infra.web.server.error.ErrorAttributes;
+import infra.web.util.WebUtils;
+import infra.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,7 +66,7 @@ class ErrorMvcAutoConfigurationTests {
               new IllegalStateException("Exception message"), false);
       errorView.render(errorAttributes.getErrorAttributes(webRequest, withAllOptions()), webRequest);
       assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
-      String responseString = ((MockHttpResponseImpl) webRequest.getResponse()).getContentAsString();
+      String responseString = webRequest.getResponse().getContentAsString();
       assertThat(responseString).contains(
                       "<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
               .contains("<div>Exception message</div>")
@@ -85,7 +85,7 @@ class ErrorMvcAutoConfigurationTests {
       attributes.put("timestamp", Clock.systemUTC().instant());
       errorView.render(attributes, webRequest);
       assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
-      String responseString = ((MockHttpResponseImpl) webRequest.getResponse()).getContentAsString();
+      String responseString = webRequest.getResponse().getContentAsString();
       assertThat(responseString).contains("This application has no explicit mapping for /error");
     });
   }
@@ -106,7 +106,7 @@ class ErrorMvcAutoConfigurationTests {
 
   private MockRequestContext createWebRequest(Exception ex, boolean committed) {
     MockRequest request = new MockRequest("GET", "/path");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext context = new MockRequestContext(null, request, response);
 

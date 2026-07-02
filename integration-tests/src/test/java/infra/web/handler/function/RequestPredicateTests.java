@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
@@ -41,7 +41,7 @@ class RequestPredicateTests {
   @BeforeEach
   void createRequest() {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    MockRequestContext requestContext = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
+    MockRequestContext requestContext = new MockRequestContext(null, servletRequest, new MockResponse());
     this.request = new DefaultServerRequest(requestContext, Collections.emptyList());
   }
 

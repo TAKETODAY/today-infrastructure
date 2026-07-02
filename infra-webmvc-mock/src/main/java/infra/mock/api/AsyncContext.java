@@ -21,6 +21,7 @@
 package infra.mock.api;
 
 import infra.mock.web.MockRequest;
+import infra.mock.web.MockResponse;
 
 /**
  * Class representing the execution context for an asynchronous operation that was initiated on a ServletRequest.

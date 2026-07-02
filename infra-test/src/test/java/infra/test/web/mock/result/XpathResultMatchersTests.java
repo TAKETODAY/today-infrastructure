@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 import infra.util.StreamUtils;
 
@@ -131,7 +131,7 @@ public class XpathResultMatchersTests {
     String content = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
             "<person><name>Jürgen</name></person>";
     byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader("Content-Type", "application/xml");
     StreamUtils.copy(bytes, response.getOutputStream());
     StubMvcResult result = new StubMvcResult(null, null, null, null, null, null, response);
@@ -140,7 +140,7 @@ public class XpathResultMatchersTests {
   }
 
   private StubMvcResult getStubMvcResult() throws Exception {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader("Content-Type", "application/xml");
     response.getWriter().print(new String(RESPONSE_CONTENT.getBytes(StandardCharsets.ISO_8859_1)));
     return new StubMvcResult(null, null, null, null, null, null, response);

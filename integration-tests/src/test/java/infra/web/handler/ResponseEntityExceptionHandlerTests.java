@@ -44,8 +44,7 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.mock.api.MockException;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.validation.MapBindingResult;
 import infra.web.ErrorResponse;
@@ -83,7 +82,7 @@ class ResponseEntityExceptionHandlerTests {
 
   private MockRequest mockRequest = new MockRequest("GET", "/");
 
-  private MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+  private MockResponse mockResponse = new MockResponse();
 
   private RequestContext request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 

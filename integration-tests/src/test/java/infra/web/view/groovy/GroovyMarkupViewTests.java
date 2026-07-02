@@ -41,7 +41,7 @@ import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContextHolder;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 
@@ -131,7 +131,7 @@ public class GroovyMarkupViewTests {
   public void renderMarkupTemplate() throws Exception {
     Map<String, Object> model = new HashMap<>();
     model.put("name", "Spring");
-    MockHttpResponseImpl response = renderViewWithModel("test.tpl", model, Locale.US);
+    MockResponse response = renderViewWithModel("test.tpl", model, Locale.US);
     assertThat(response.getContentAsString()).contains("<h1>Hello Spring</h1>");
   }
 
@@ -139,7 +139,7 @@ public class GroovyMarkupViewTests {
   public void renderI18nTemplate() throws Exception {
     Map<String, Object> model = new HashMap<>();
     model.put("name", "Spring");
-    MockHttpResponseImpl response = renderViewWithModel("i18n.tpl", model, Locale.FRANCE);
+    MockResponse response = renderViewWithModel("i18n.tpl", model, Locale.FRANCE);
     assertThat(response.getContentAsString()).isEqualTo("<p>Bonjour Spring</p>");
 
     response = renderViewWithModel("i18n.tpl", model, Locale.GERMANY);
@@ -152,15 +152,15 @@ public class GroovyMarkupViewTests {
   @Test
   public void renderLayoutTemplate() throws Exception {
     Map<String, Object> model = new HashMap<>();
-    MockHttpResponseImpl response = renderViewWithModel("content.tpl", model, Locale.US);
+    MockResponse response = renderViewWithModel("content.tpl", model, Locale.US);
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
 
-  private MockHttpResponseImpl renderViewWithModel(String viewUrl, Map<String,
+  private MockResponse renderViewWithModel(String viewUrl, Map<String,
           Object> model, Locale locale) throws Exception {
 
     GroovyMarkupView view = createViewWithUrl(viewUrl);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequest request = new MockRequest();
     request.addPreferredLocale(locale);
     LocaleContextHolder.setLocale(locale);

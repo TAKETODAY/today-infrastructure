@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MultipartMockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -47,7 +47,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   private MockRequest request = new MockRequest();
 
-  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
   private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 

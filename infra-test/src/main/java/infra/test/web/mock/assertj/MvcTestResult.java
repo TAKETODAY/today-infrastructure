@@ -22,7 +22,7 @@ import org.assertj.core.api.AssertProvider;
 import org.jspecify.annotations.Nullable;
 
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.MvcResult;
 
 /**
@@ -70,9 +70,9 @@ public interface MvcTestResult extends AssertProvider<MvcTestResultAssert> {
   }
 
   /**
-   * Return the resulting {@linkplain  MockHttpResponseImpl response}.
+   * Return the resulting {@linkplain  MockResponse response}.
    */
-  default MockHttpResponseImpl getResponse() {
+  default MockResponse getResponse() {
     return getMvcResult().getResponse();
   }
 

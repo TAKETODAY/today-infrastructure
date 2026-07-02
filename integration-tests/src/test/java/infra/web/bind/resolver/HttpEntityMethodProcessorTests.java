@@ -47,7 +47,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.ErrorResponse;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
@@ -71,7 +71,7 @@ class HttpEntityMethodProcessorTests {
 
   private MockRequestContext webRequest;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -80,7 +80,7 @@ class HttpEntityMethodProcessorTests {
     paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
 
     mockRequest = new MockRequest();
-    mockResponse = new MockHttpResponseImpl();
+    mockResponse = new MockResponse();
     mockRequest.setMethod("POST");
     webRequest = new MockRequestContext(null, mockRequest, mockResponse);
   }

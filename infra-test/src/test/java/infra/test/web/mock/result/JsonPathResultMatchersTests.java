@@ -21,7 +21,7 @@ package infra.test.web.mock.result;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -56,7 +56,7 @@ class JsonPathResultMatchersTests {
 
   static {
     try {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+      MockResponse response = new MockResponse();
       response.addHeader("Content-Type", "application/json");
       response.getOutputStream().write(RESPONSE_CONTENT.getBytes(UTF_8));
       stubMvcResult = new StubMvcResult(null, null, null, null, null, null, response);
@@ -304,7 +304,7 @@ class JsonPathResultMatchersTests {
 
   @Test
   void prefixWithPayloadNotLongEnough() throws Exception {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader("Content-Type", "application/json");
     response.getWriter().print(new String("test".getBytes(ISO_8859_1)));
     StubMvcResult result = new StubMvcResult(null, null, null, null, null, null, response);
@@ -314,7 +314,7 @@ class JsonPathResultMatchersTests {
   }
 
   private StubMvcResult createPrefixedStubMvcResult(String jsonPrefix) throws Exception {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.addHeader("Content-Type", "application/json");
     response.getWriter().print(jsonPrefix + new String(RESPONSE_CONTENT.getBytes(ISO_8859_1)));
     return new StubMvcResult(null, null, null, null, null, null, response);

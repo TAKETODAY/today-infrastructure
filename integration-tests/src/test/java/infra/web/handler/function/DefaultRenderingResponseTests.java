@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.mock.MockRequestContext;
@@ -53,7 +53,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create(name).build();
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     ModelAndView mav = getModelAndView(result, request, response);
 
@@ -66,7 +66,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo").status(status).build();
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(response.getStatus()).isEqualTo(status.value());
@@ -74,7 +74,7 @@ public class DefaultRenderingResponseTests {
 
   @Nullable
   private static ModelAndView getModelAndView(
-          RenderingResponse result, MockRequest request, MockHttpResponseImpl response) throws Throwable {
+          RenderingResponse result, MockRequest request, MockResponse response) throws Throwable {
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
     Object write = result.writeTo(mockRequestContext, EMPTY_CONTEXT);
     mockRequestContext.flush();
@@ -93,7 +93,7 @@ public class DefaultRenderingResponseTests {
             .build();
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
 
@@ -106,7 +106,7 @@ public class DefaultRenderingResponseTests {
             .modelAttribute("foo", "bar").build();
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
 
@@ -118,7 +118,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttribute("bar").build();
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(mav.getModel().get("string")).isEqualTo("bar");
@@ -130,7 +130,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes(model).build();
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(mav.getModel().get("foo")).isEqualTo("bar");
@@ -141,7 +141,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes("bar").build();
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(mav.getModel().get("string")).isEqualTo("bar");
@@ -153,7 +153,7 @@ public class DefaultRenderingResponseTests {
     newCookies.add("name", ResponseCookie.forSimple("name", "value"));
     RenderingResponse result = RenderingResponse.create("foo").cookies(cookies -> cookies.addAll(newCookies)).build();
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(response.getCookies().length).isEqualTo(1);
@@ -170,7 +170,7 @@ public class DefaultRenderingResponseTests {
 
     MockRequest request = new MockRequest("GET", "https://example.com");
     request.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNull();
@@ -188,7 +188,7 @@ public class DefaultRenderingResponseTests {
 
     MockRequest request = new MockRequest("GET", "https://example.com");
     request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNull();

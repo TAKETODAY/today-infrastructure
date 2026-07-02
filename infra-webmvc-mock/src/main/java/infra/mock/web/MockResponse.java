@@ -46,13 +46,10 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.MockOutputStream;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 
 /**
- * Mock implementation of the {@link HttpMockResponse} interface.
- *
  * @author Juergen Hoeller
  * @author Rod Johnson
  * @author Brian Clozel
@@ -61,17 +58,13 @@ import infra.util.StringUtils;
  * @author Sam Brannen
  * @since 4.0
  */
-public class MockHttpResponseImpl implements HttpMockResponse {
+public class MockResponse {
 
   private static final String CHARSET_PREFIX = "charset=";
 
   private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-
-  //---------------------------------------------------------------------
-  // ServletResponse properties
-  //---------------------------------------------------------------------
 
   private boolean outputStreamAccessAllowed = true;
 
@@ -83,7 +76,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
 
   /**
    * {@code true} if the character encoding has been explicitly set through
-   * {@link HttpMockResponse} methods or through a {@code charset} parameter
+   * {@link infra.mock.web.MockResponse} methods or through a {@code charset} parameter
    * on the {@code Content-Type}.
    */
   private boolean characterEncodingSet = false;
@@ -114,7 +107,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
 
   private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
 
-  private int status = HttpMockResponse.SC_OK;
+  private int status = 200;
 
   @Nullable
   private String errorMessage;
@@ -185,7 +178,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
 
   /**
    * Determine whether the character encoding has been explicitly set through
-   * {@link HttpMockResponse} methods or through a {@code charset} parameter
+   * {@link infra.mock.web.MockResponse} methods or through a {@code charset} parameter
    * on the {@code Content-Type}.
    * <p>If {@code false}, {@link #getCharacterEncoding()} will return the
    * {@linkplain #setDefaultCharacterEncoding(String) default character encoding}.
@@ -268,7 +261,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
   /**
    * Get the content of the response body as a {@code String}, using the charset
    * specified for the response by the application, either through
-   * {@link HttpMockResponse} methods or through a charset parameter on the
+   * {@link infra.mock.web.MockResponse} methods or through a charset parameter on the
    * {@code Content-Type}. If no charset has been explicitly defined, the
    * {@linkplain #setDefaultCharacterEncoding(String) default character encoding}
    * will be used.
@@ -287,7 +280,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
    * Get the content of the response body as a {@code String}, using the provided
    * {@code fallbackCharset} if no charset has been explicitly defined and otherwise
    * using the charset specified for the response by the application, either
-   * through {@link HttpMockResponse} methods or through a charset parameter on the
+   * through {@link infra.mock.web.MockResponse} methods or through a charset parameter on the
    * {@code Content-Type}.
    *
    * @return the content as a {@code String}
@@ -388,7 +381,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     this.locale = Locale.getDefault();
     this.cookies.clear();
     this.headers.clear();
-    this.status = HttpMockResponse.SC_OK;
+    this.status = 200;
     this.errorMessage = null;
   }
 
@@ -586,7 +579,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     Assert.state(!isCommitted(), "Cannot send redirect - response is already committed");
     Assert.notNull(url, "Redirect URL is required");
     setHeader(HttpHeaders.LOCATION, url);
-    setStatus(HttpMockResponse.SC_MOVED_TEMPORARILY);
+    setStatus(302);
     setCommitted(true);
   }
 

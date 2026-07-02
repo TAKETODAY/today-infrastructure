@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Properties;
 
-import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ExceptionUtils;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
@@ -39,7 +37,7 @@ class SimpleMappingExceptionHandlerTests {
 
   private SimpleMappingExceptionHandler exceptionHandler;
   private MockRequest request;
-  private MockHttpResponseImpl response;
+  private infra.mock.web.MockResponse response;
   private Object handler1;
   private Object handler2;
   private Exception genericException;
@@ -50,7 +48,7 @@ class SimpleMappingExceptionHandlerTests {
     handler1 = new String();
     handler2 = new Object();
     request = new MockRequest();
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     request.setMethod("GET");
     genericException = new Exception();
   }
@@ -126,34 +124,34 @@ class SimpleMappingExceptionHandlerTests {
   public void noDefaultStatusCode() {
     exceptionHandler.setDefaultErrorView("default-view");
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_OK);
+    assertThat(response.getStatus()).isEqualTo(200);
   }
 
   @Test
   public void setDefaultStatusCode() {
     exceptionHandler.setDefaultErrorView("default-view");
-    exceptionHandler.setDefaultStatusCode(HttpMockResponse.SC_BAD_REQUEST);
+    exceptionHandler.setDefaultStatusCode(400);
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_BAD_REQUEST);
+    assertThat(response.getStatus()).isEqualTo(400);
   }
 
   @Test
   public void noDefaultStatusCodeInInclude() {
     exceptionHandler.setDefaultErrorView("default-view");
-    exceptionHandler.setDefaultStatusCode(HttpMockResponse.SC_BAD_REQUEST);
+    exceptionHandler.setDefaultStatusCode(400);
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_BAD_REQUEST);
+    assertThat(response.getStatus()).isEqualTo(400);
   }
 
   @Test
   public void specificStatusCode() {
     exceptionHandler.setDefaultErrorView("default-view");
-    exceptionHandler.setDefaultStatusCode(HttpMockResponse.SC_BAD_REQUEST);
+    exceptionHandler.setDefaultStatusCode(400);
     Properties statusCodes = new Properties();
     statusCodes.setProperty("default-view", "406");
     exceptionHandler.setStatusCodes(statusCodes);
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_ACCEPTABLE);
+    assertThat(response.getStatus()).isEqualTo(406);
   }
 
   @Test

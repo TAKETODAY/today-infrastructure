@@ -25,7 +25,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.ui.ModelMap;
 import infra.web.annotation.GetMapping;
@@ -82,7 +82,7 @@ class ViewResolutionIntegrationTests {
     }
 
     private static void runTestAndAssertResults(String encoding, Class<?> configClass) throws Exception {
-      MockHttpResponseImpl response = runTest(configClass);
+      MockResponse response = runTest(configClass);
       assertThat(response.isCharset()).as("character encoding set in response").isTrue();
       assertThat(response.getContentAsString()).isEqualTo(EXPECTED_BODY);
       assertThat(response.getCharacterEncoding()).isEqualTo(encoding);
@@ -161,7 +161,7 @@ class ViewResolutionIntegrationTests {
 
     @Test
     void groovyMarkup() throws Exception {
-      MockHttpResponseImpl response = runTest(GroovyMarkupWebConfig.class);
+      MockResponse response = runTest(GroovyMarkupWebConfig.class);
       assertThat(response.getContentAsString()).isEqualTo("<html><body>Hello, Java Café</body></html>");
     }
 
@@ -191,9 +191,9 @@ class ViewResolutionIntegrationTests {
     }
   }
 
-  private static MockHttpResponseImpl runTest(Class<?> configClass) throws Exception {
+  private static MockResponse runTest(Class<?> configClass) throws Exception {
     infra.mock.web.MockRequest request = new MockRequest("GET", "/");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configClass);

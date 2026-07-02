@@ -29,7 +29,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,7 @@ class DefaultCorsProcessorTests {
 
   private MockRequest mockRequest;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   private DefaultCorsProcessor processor;
 
@@ -59,8 +59,8 @@ class DefaultCorsProcessorTests {
     this.mockRequest.setRequestURI("/test.html");
     this.mockRequest.setServerName("domain1.example");
     this.conf = new CorsConfiguration();
-    this.mockResponse = new MockHttpResponseImpl();
-    this.mockResponse.setStatus(MockHttpResponseImpl.SC_OK);
+    this.mockResponse = new MockResponse();
+    this.mockResponse.setStatus(200);
     this.processor = new DefaultCorsProcessor();
 
     request = new MockRequestContext(null, mockRequest, mockResponse);
@@ -75,7 +75,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -88,7 +88,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -100,7 +100,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(403);
   }
 
   @Test
@@ -110,7 +110,7 @@ class DefaultCorsProcessorTests {
 
     this.processor.process(null, request);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -126,7 +126,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -147,7 +147,7 @@ class DefaultCorsProcessorTests {
     List<String> headers = this.mockResponse.getHeaders(HttpHeaders.VARY);
     assertThat(headers).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -170,7 +170,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS)).isEqualTo("true");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -180,7 +180,7 @@ class DefaultCorsProcessorTests {
     this.conf.addAllowedOrigin("https://DOMAIN2.com");
 
     this.processor.process(this.conf, request);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
   }
 
@@ -191,7 +191,7 @@ class DefaultCorsProcessorTests {
     this.conf.addAllowedOrigin("https://domain2.com");
 
     this.processor.process(this.conf, request);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
   }
 
@@ -206,7 +206,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(403);
   }
 
   @Test
@@ -225,7 +225,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS)).contains("header2");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -238,7 +238,7 @@ class DefaultCorsProcessorTests {
     this.processor.process(this.conf, request);
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -251,7 +251,7 @@ class DefaultCorsProcessorTests {
     this.processor.process(this.conf, request);
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(403);
   }
 
   @Test
@@ -262,7 +262,7 @@ class DefaultCorsProcessorTests {
     this.conf.addAllowedOrigin("*");
 
     this.processor.process(this.conf, request);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isEqualTo("GET, HEAD");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
@@ -277,7 +277,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(403);
   }
 
   @Test
@@ -290,7 +290,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(403);
   }
 
   @Test
@@ -304,7 +304,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(403);
   }
 
   @Test
@@ -327,7 +327,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_MAX_AGE)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -349,7 +349,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS)).isEqualTo("true");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -373,7 +373,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -399,7 +399,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -421,7 +421,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).doesNotContain("Header3");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -441,7 +441,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).doesNotContain("*");
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -458,7 +458,7 @@ class DefaultCorsProcessorTests {
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -471,7 +471,7 @@ class DefaultCorsProcessorTests {
     this.processor.process(null, request);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isFalse();
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -497,7 +497,7 @@ class DefaultCorsProcessorTests {
     this.processor.process(this.conf, request);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
     assertThat(this.mockResponse.containsHeader(DefaultCorsProcessor.ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK)).isFalse();
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -512,7 +512,7 @@ class DefaultCorsProcessorTests {
     this.processor.process(this.conf, request);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
     assertThat(this.mockResponse.containsHeader(DefaultCorsProcessor.ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK)).isFalse();
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -528,7 +528,7 @@ class DefaultCorsProcessorTests {
     this.processor.process(this.conf, request);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
     assertThat(this.mockResponse.containsHeader(DefaultCorsProcessor.ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK)).isTrue();
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -539,7 +539,7 @@ class DefaultCorsProcessorTests {
     mockRequest.setMethod(HttpMethod.GET.name());
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
@@ -548,7 +548,7 @@ class DefaultCorsProcessorTests {
 
     assertThat(result).isTrue();
     assertThat(mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
-    assertThat(mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -559,7 +559,7 @@ class DefaultCorsProcessorTests {
     mockRequest.setMethod(HttpMethod.GET.name());
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     mockResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
@@ -576,7 +576,7 @@ class DefaultCorsProcessorTests {
   @Test
   void rejectRequestSetsForbiddenStatusAndMessage() throws Exception {
     MockRequest mockRequest = new MockRequest();
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
@@ -595,7 +595,7 @@ class DefaultCorsProcessorTests {
     mockRequest.setMethod(HttpMethod.GET.name());
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://invalid.com");
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
@@ -616,7 +616,7 @@ class DefaultCorsProcessorTests {
     mockRequest.setMethod(HttpMethod.POST.name());
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
@@ -640,7 +640,7 @@ class DefaultCorsProcessorTests {
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Invalid-Header");
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();

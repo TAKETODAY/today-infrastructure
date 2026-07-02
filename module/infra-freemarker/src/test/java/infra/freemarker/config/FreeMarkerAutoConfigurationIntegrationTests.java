@@ -28,8 +28,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
 import infra.web.mock.MockRequestContext;
@@ -75,7 +74,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @WithResource(name = "templates/home.ftl", content = "home")
   void defaultViewResolution() throws Exception {
     load();
-    MockHttpResponseImpl response = render("home");
+    MockResponse response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
@@ -85,7 +84,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @WithResource(name = "templates/home.ftl", content = "home")
   void customContentType() throws Exception {
     load("freemarker.contentType=application/json");
-    MockHttpResponseImpl response = render("home");
+    MockResponse response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("application/json;charset=UTF-8");
@@ -95,7 +94,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @WithResource(name = "templates/prefix/prefixed.ftl", content = "prefixed")
   void customPrefix() throws Exception {
     load("freemarker.prefix:prefix/");
-    MockHttpResponseImpl response = render("prefixed");
+    MockResponse response = render("prefixed");
     String result = response.getContentAsString();
     assertThat(result).contains("prefixed");
   }
@@ -104,7 +103,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @WithResource(name = "templates/suffixed.freemarker", content = "suffixed")
   void customSuffix() throws Exception {
     load("freemarker.suffix:.freemarker");
-    MockHttpResponseImpl response = render("suffixed");
+    MockResponse response = render("suffixed");
     String result = response.getContentAsString();
     assertThat(result).contains("suffixed");
   }
@@ -113,7 +112,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @WithResource(name = "custom-templates/custom.ftl", content = "custom")
   void customTemplateLoaderPath() throws Exception {
     load("freemarker.templateLoaderPath:classpath:/custom-templates/");
-    MockHttpResponseImpl response = render("custom");
+    MockResponse response = render("custom");
     String result = response.getContentAsString();
     assertThat(result).contains("custom");
   }
@@ -160,13 +159,13 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     this.context.refresh();
   }
 
-  private MockHttpResponseImpl render(String viewName) throws Exception {
+  private MockResponse render(String viewName) throws Exception {
     FreeMarkerViewResolver resolver = this.context.getBean(FreeMarkerViewResolver.class);
     View view = resolver.resolveViewName(viewName, Locale.UK);
     assertThat(view).isNotNull();
     MockRequest request = new MockRequest();
     request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(request, response);
     view.render(null, requestContext);

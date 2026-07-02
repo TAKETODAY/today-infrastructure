@@ -33,7 +33,7 @@ import infra.context.support.StaticApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.HttpHeaders;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
@@ -137,7 +137,7 @@ public class HandlerMethodMappingTests {
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
 
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext context = new MockRequestContext(null, request, response);
 
@@ -172,7 +172,7 @@ public class HandlerMethodMappingTests {
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
 
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext context = new MockRequestContext(null, request, response);
     HandlerExecutionChain chain = getHandler(context);

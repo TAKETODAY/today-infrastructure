@@ -35,12 +35,12 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 
 /**
- * {@link ServerHttpResponse} implementation that is based on a {@link HttpMockResponse}.
+ * {@link ServerHttpResponse} implementation that is based on a {@link MockResponse}.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -53,17 +53,17 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   private boolean headersWritten = false;
 
   private final HttpHeaders headers;
-  private final HttpMockResponse mockResponse;
+  private final MockResponse mockResponse;
 
   @Nullable
   private HttpHeaders readOnlyHeaders;
 
   /**
-   * Construct a new instance of the MockServerHttpResponse based on the given {@link HttpMockResponse}.
+   * Construct a new instance of the MockServerHttpResponse based on the given {@link MockResponse}.
    *
    * @param mockResponse the servlet response
    */
-  public MockServerHttpResponse(HttpMockResponse mockResponse) {
+  public MockServerHttpResponse(MockResponse mockResponse) {
     Assert.notNull(mockResponse, "HttpMockResponse is required");
     this.mockResponse = mockResponse;
     this.headers = new MockResponseHttpHeaders();
@@ -72,7 +72,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   /**
    * Return the {@code HttpMockResponse} this object is based on.
    */
-  public HttpMockResponse getResponse() {
+  public MockResponse getResponse() {
     return this.mockResponse;
   }
 

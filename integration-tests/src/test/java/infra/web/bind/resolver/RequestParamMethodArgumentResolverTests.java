@@ -28,7 +28,7 @@ import java.util.Map;
 import infra.beans.propertyeditors.StringTrimmerEditor;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MultipartMockRequest;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
@@ -61,7 +61,7 @@ class RequestParamMethodArgumentResolverTests {
 
   private MockRequest request = new MockRequest();
 
-  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
   private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
@@ -340,7 +340,7 @@ class RequestParamMethodArgumentResolverTests {
   public void missingRequestParamEmptyValueConvertedToNull() throws Throwable {
     RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "stringNotAnnot")).willReturn(binder);
@@ -383,7 +383,7 @@ class RequestParamMethodArgumentResolverTests {
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     request.addParameter("name", "");
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "name")).willReturn(binder);
@@ -462,7 +462,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -482,7 +482,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -521,7 +521,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -539,7 +539,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -558,7 +558,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -576,7 +576,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -599,7 +599,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -618,7 +618,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);

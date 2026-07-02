@@ -42,7 +42,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 import static java.util.Collections.emptyMap;
@@ -61,7 +61,7 @@ public class XsltViewTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   @Test
   public void withNoSource() throws Exception {

@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 public abstract class PathPatternsTestUtils {
@@ -48,11 +48,11 @@ public abstract class PathPatternsTestUtils {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
       MockRequest servletRequest = new MockRequest(method, requestUri);
-      return new MockRequestContext(context, servletRequest, new MockHttpResponseImpl());
+      return new MockRequestContext(context, servletRequest, new MockResponse());
     }
     else {
       MockRequest servletRequest = new MockRequest(method, path);
-      return new MockRequestContext(context, servletRequest, new MockHttpResponseImpl());
+      return new MockRequestContext(context, servletRequest, new MockResponse());
     }
   }
 

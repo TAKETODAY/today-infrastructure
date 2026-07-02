@@ -31,7 +31,7 @@ import infra.core.annotation.SynthesizingMethodParameter;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.http.server.RequestPath;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.ReflectionUtils;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
@@ -70,7 +70,7 @@ class PathVariableMethodArgumentResolverTests {
   public void setup() throws Throwable {
     resolver = new PathVariableMethodArgumentResolver();
     request = new MockRequest();
-    webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    webRequest = new MockRequestContext(null, request, new MockResponse());
 
     webRequest.setMatchingMetadata(new HandlerMatchingMetadata(webRequest));
 
@@ -390,7 +390,7 @@ class PathVariableMethodArgumentResolverTests {
 
   @Test
   void resolveNameReturnsNullWhenNoMatchingMetadata() throws Throwable {
-    MockRequestContext context = new MockRequestContext(null, new MockRequest(), new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(null, new MockRequest(), new MockResponse());
     // No matching metadata set
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();

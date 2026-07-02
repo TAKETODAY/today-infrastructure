@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import infra.context.ApplicationContext;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
@@ -272,7 +272,7 @@ public class PathMatchingUrlHandlerMappingTests {
           HandlerMapping mapping, ApplicationContext wac, MockRequest request)
           throws Throwable {
 
-    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(wac, request, new MockResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
 
     HandlerInterceptor[] interceptors = chain.getInterceptors();

@@ -29,7 +29,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
@@ -54,7 +54,7 @@ class ParameterizableViewControllerTests {
 
   private RequestContext context;
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   @BeforeEach
   public void setup() {
@@ -397,7 +397,7 @@ class ParameterizableViewControllerTests {
     AnnotationConfigApplicationContext appContext = new AnnotationConfigApplicationContext();
     appContext.refresh();
     MockRequest request = new MockRequest("GET", "/");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("flashAttr", "flashValue"));
     RequestContext context = new MockRequestContext(appContext, request, response);
 

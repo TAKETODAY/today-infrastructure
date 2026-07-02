@@ -25,7 +25,7 @@ import java.util.Locale;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
@@ -57,7 +57,7 @@ public class SessionLocaleResolverTests {
   @Test
   public void testResolveLocale() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     RequestContext context = new MockRequestContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
     context.getSession()
@@ -70,7 +70,7 @@ public class SessionLocaleResolverTests {
   @Test
   public void testSetAndResolveLocale() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     RequestContext context = new MockRequestContext(webApplicationContext, request, response);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
@@ -111,7 +111,7 @@ public class SessionLocaleResolverTests {
   @Test
   public void testSetLocaleToNullLocale() throws Exception {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     RequestContext context = new MockRequestContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
     request.addPreferredLocale(Locale.TAIWAN);

@@ -27,7 +27,7 @@ import java.util.List;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,11 +41,11 @@ public class MockServerHttpResponseTests {
 
   private MockServerHttpResponse response;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   @BeforeEach
   void create() {
-    mockResponse = new MockHttpResponseImpl();
+    mockResponse = new MockResponse();
     response = new MockServerHttpResponse(mockResponse);
   }
 

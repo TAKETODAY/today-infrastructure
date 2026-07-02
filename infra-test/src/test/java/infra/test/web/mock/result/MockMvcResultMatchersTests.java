@@ -20,7 +20,7 @@ package infra.test.web.mock.result;
 
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 
 import static infra.test.web.mock.result.MockMvcResultMatchers.forwardedUrl;
@@ -139,13 +139,13 @@ public class MockMvcResultMatchersTests {
   }
 
   private StubMvcResult redirectedUrlStub(String redirectUrl) throws Exception {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.sendRedirect(redirectUrl);
     return new StubMvcResult(null, null, null, null, null, null, response);
   }
 
   private StubMvcResult forwardedUrlStub(String forwardedUrl) {
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     response.setForwardedUrl(forwardedUrl);
     return new StubMvcResult(null, null, null, null, null, null, response);
   }

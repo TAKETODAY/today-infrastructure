@@ -27,8 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
 
-import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.json.AbstractJsonContentAssert;
 import infra.test.json.JsonContent;
 import infra.test.json.JsonContentAssert;
@@ -37,7 +36,7 @@ import infra.test.web.UriAssert;
 
 /**
  * Extension of {@link AbstractResponseAssert} for
- * {@link MockHttpResponseImpl}.
+ * {@link MockResponse}.
  *
  * @param <SELF> the type of assertions
  * @param <ACTUAL> the type of the object to assert
@@ -45,7 +44,7 @@ import infra.test.web.UriAssert;
  * @since 5.0
  */
 public abstract class AbstractMockResponseAssert<SELF extends AbstractMockResponseAssert<SELF, ACTUAL>, ACTUAL>
-        extends AbstractResponseAssert<MockHttpResponseImpl, SELF, ACTUAL> {
+        extends AbstractResponseAssert<MockResponse, SELF, ACTUAL> {
 
   private final @Nullable JsonConverterDelegate converterDelegate;
 
@@ -169,7 +168,7 @@ public abstract class AbstractMockResponseAssert<SELF extends AbstractMockRespon
   }
 
   /**
-   * Verify that the {@link HttpMockResponse#sendError(int, String)} Servlet error message}
+   * Verify that the {@link MockResponse#sendError(int, String)} Servlet error message}
    * is equal to the given value.
    *
    * @param errorMessage the expected Servlet error message (can be null)

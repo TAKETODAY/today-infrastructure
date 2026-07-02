@@ -21,6 +21,7 @@
 package infra.mock.api;
 
 import infra.mock.web.MockRequest;
+import infra.mock.web.MockResponse;
 
 /**
  * Event that gets fired when the asynchronous operation initiated on a ServletRequest (via a call to

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.Conventions;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;
@@ -60,7 +60,7 @@ public interface MvcResult {
    *
    * @return the response, never {@code null}
    */
-  MockHttpResponseImpl getResponse();
+  MockResponse getResponse();
 
   RequestContext getRequestContext();
 

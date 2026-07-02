@@ -31,7 +31,7 @@ import java.util.Map;
 
 import infra.core.testfixture.xml.XmlContent;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
@@ -47,7 +47,7 @@ public class RssFeedViewTests {
   @Test
   public void render() throws Exception {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     Map<String, String> model = new LinkedHashMap<>();
     model.put("2", "This is entry 2");

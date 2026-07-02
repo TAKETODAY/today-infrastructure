@@ -30,24 +30,24 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatus.Series;
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.test.http.HttpHeadersAssert;
 import infra.test.http.MediaTypeAssert;
 import infra.util.function.SingletonSupplier;
 
 /**
  * Base AssertJ {@linkplain org.assertj.core.api.Assert assertions} that can be
- * applied to any object that provides an {@link HttpMockResponse}. This
+ * applied to any object that provides an {@link MockResponse}. This
  * provides direct access to response assertions while also providing access to
  * a different top-level object.
  *
- * @param <R> the type of {@link HttpMockResponse}
+ * @param <R> the type of {@link MockResponse}
  * @param <SELF> the type of assertions
  * @param <ACTUAL> the type of the object to assert
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractResponseAssert<R extends HttpMockResponse, SELF extends AbstractResponseAssert<R, SELF, ACTUAL>, ACTUAL>
+public abstract class AbstractResponseAssert<R extends MockResponse, SELF extends AbstractResponseAssert<R, SELF, ACTUAL>, ACTUAL>
         extends AbstractObjectAssert<SELF, ACTUAL> {
 
   private final Supplier<MediaTypeAssert> contentTypeAssertSupplier;
@@ -63,7 +63,7 @@ public abstract class AbstractResponseAssert<R extends HttpMockResponse, SELF ex
     this.statusAssert = SingletonSupplier.of(() -> Assertions.assertThat(getResponse().getStatus()).as("HTTP status code"));
   }
 
-  private static HttpHeaders getHttpHeaders(HttpMockResponse response) {
+  private static HttpHeaders getHttpHeaders(MockResponse response) {
     HttpHeaders headers = HttpHeaders.forWritable();
     response.getHeaderNames().forEach(name -> headers.set(name, new ArrayList<>(response.getHeaders(name))));
     return headers;

@@ -35,7 +35,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.View;
@@ -50,7 +50,7 @@ public class XlsViewTests {
   private final ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
   private final MockContextImpl sc = new MockContextImpl();
   private final MockRequest request = new MockRequest(this.sc);
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
   RequestContext requestContext = new MockRequestContext(wac, request, response);
 
   @Test

@@ -32,7 +32,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpStatus;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
@@ -54,7 +54,7 @@ public class RedirectViewTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   private RequestContext context;
 
@@ -63,7 +63,7 @@ public class RedirectViewTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
     this.request = new MockRequest();
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
 
     context.refresh();
 
@@ -133,10 +133,10 @@ public class RedirectViewTests {
   public void contextRelativeWithValidatedContextPath() throws Exception {
     String url = "/myUrl";
 
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
     this.context = null;
     doTest(new HashMap<>(), url, true, url);
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
     this.context = null;
     doTest(new HashMap<>(), url, true, url);
   }

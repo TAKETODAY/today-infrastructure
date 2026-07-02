@@ -29,7 +29,7 @@ import java.util.List;
 import infra.core.Ordered;
 import infra.http.server.RequestPath;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.InterceptorChain;
 import infra.web.RequestContext;
@@ -62,7 +62,7 @@ class InterceptorRegistryTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   @BeforeEach
   public void setUp() {

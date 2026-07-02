@@ -26,7 +26,7 @@ import infra.context.annotation.Configuration;
 import infra.mock.api.MockHandler;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockFilterChain;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.mock.MockRequestContext;
@@ -47,7 +47,7 @@ public class ResourceUrlProviderJavaConfigTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -56,7 +56,7 @@ public class ResourceUrlProviderJavaConfigTests {
     context.refresh();
 
     this.request = new MockRequest("GET", "/");
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
 
     this.filterChain = new MockFilterChain(this.testMock/*,
             new ResourceUrlEncodingFilter(),

@@ -34,7 +34,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
 import infra.context.annotation.ImportResource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.session.config.EnableSession;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.web.DispatcherHandler;
@@ -123,7 +123,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
   @Test
   void testSessionScoping() throws Exception {
     MockRequest request = new MockRequest();
-    RequestContextHolder.set(new MockRequestContext(context, request, new MockHttpResponseImpl(), new DispatcherHandler(context)));
+    RequestContextHolder.set(new MockRequestContext(context, request, new MockResponse(), new DispatcherHandler(context)));
 
     assertThat(AopUtils.isAopProxy(sessionScoped)).as("Should be AOP proxy").isTrue();
     boolean condition1 = sessionScoped instanceof TestBean;

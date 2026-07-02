@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.http.HttpHeaders;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.ResultMatcher;
 
 import static infra.test.util.AssertionErrors.assertEquals;
@@ -113,7 +113,7 @@ public class HeaderResultMatchers {
    */
   public ResultMatcher longValue(String name, long value) {
     return result -> {
-      MockHttpResponseImpl response = result.getResponse();
+      MockResponse response = result.getResponse();
       assertTrue("Response does not contain header '" + name + "'", response.containsHeader(name));
       String headerValue = response.getHeader(name);
       if (headerValue != null) {
@@ -133,7 +133,7 @@ public class HeaderResultMatchers {
    */
   public ResultMatcher dateValue(String name, long value) {
     return result -> {
-      MockHttpResponseImpl response = result.getResponse();
+      MockResponse response = result.getResponse();
       String headerValue = response.getHeader(name);
       assertNotNull("Response does not contain header '" + name + "'", headerValue);
 

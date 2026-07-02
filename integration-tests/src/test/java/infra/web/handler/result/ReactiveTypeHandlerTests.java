@@ -40,7 +40,7 @@ import infra.core.task.SyncTaskExecutor;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
@@ -67,7 +67,7 @@ class ReactiveTypeHandlerTests {
 
   private MockRequest mockRequest;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   private RequestContext webRequest;
 
@@ -83,7 +83,7 @@ class ReactiveTypeHandlerTests {
 
   private void resetRequest() {
     this.mockRequest = new MockRequest();
-    this.mockResponse = new MockHttpResponseImpl();
+    this.mockResponse = new MockResponse();
     this.webRequest = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 
     this.mockRequest.setAsyncSupported(true);

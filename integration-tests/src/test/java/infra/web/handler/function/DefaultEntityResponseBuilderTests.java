@@ -35,7 +35,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.mock.MockRequestContext;
@@ -182,7 +182,7 @@ class DefaultEntityResponseBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
 
     MockRequestContext context = new MockRequestContext(null, mockRequest, mockResponse);
 
@@ -204,7 +204,7 @@ class DefaultEntityResponseBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
 
-    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext context = new MockRequestContext(null, mockRequest, mockResponse);
 
     Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);

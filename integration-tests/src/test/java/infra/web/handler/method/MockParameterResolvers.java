@@ -22,7 +22,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpCookie;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.MockRequest;
 import infra.session.Session;

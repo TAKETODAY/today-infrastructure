@@ -28,7 +28,7 @@ import java.util.Collections;
 
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
@@ -42,13 +42,13 @@ class SseServerResponseTests {
 
   private MockRequest mockRequest;
 
-  private MockHttpResponseImpl mockResponse;
+  private MockResponse mockResponse;
 
   @BeforeEach
   void setUp() {
     this.mockRequest = new MockRequest("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
-    this.mockResponse = new MockHttpResponseImpl();
+    this.mockResponse = new MockResponse();
   }
 
   @Test

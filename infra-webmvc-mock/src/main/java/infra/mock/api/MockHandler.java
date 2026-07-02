@@ -18,6 +18,7 @@ package infra.mock.api;
 import java.io.IOException;
 
 import infra.mock.web.MockRequest;
+import infra.mock.web.MockResponse;
 
 public interface MockHandler {
 

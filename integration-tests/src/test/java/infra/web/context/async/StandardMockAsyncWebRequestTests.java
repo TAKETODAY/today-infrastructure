@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import infra.mock.api.AsyncEvent;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.StandardMockAsyncWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,13 +42,13 @@ class StandardMockAsyncWebRequestTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   @BeforeEach
   public void setup() {
     this.request = new MockRequest();
     this.request.setAsyncSupported(true);
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
     this.asyncRequest = new StandardMockAsyncWebRequest(this.request, this.response);
     this.asyncRequest.setTimeout(44 * 1000L);
   }

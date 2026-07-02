@@ -31,7 +31,7 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 import infra.test.web.mock.samples.standalone.resulthandlers.PrintingResultHandlerSmokeTests;
 import infra.util.LinkedMultiValueMap;
@@ -65,7 +65,7 @@ class PrintingResultHandlerTests {
     }
   };
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   private final StubMvcResult mvcResult = new StubMvcResult(
           this.request, null, null, null, null, null, this.response);

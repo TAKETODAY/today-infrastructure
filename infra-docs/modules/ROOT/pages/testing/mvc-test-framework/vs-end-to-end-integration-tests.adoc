@@ -3,7 +3,7 @@
 
 MockMvc 建立在来自 `infra-test` 模块的 Servlet API mock 实现之上，不依赖于运行的容器。因此，与具有实际客户端和实时运行服务器的完整端到端集成测试相比，存在一些差异。
 
-思考这个问题的最简单方法是从一个空白的 `MockRequest` 开始。你向其中添加的任何内容就是请求变成的样子。可能会让你感到惊讶的事情是，默认情况下没有上下文路径；没有 `jsessionid` cookie；没有转发、错误或异步分派；因此，没有实际的 JSP 渲染。相反，“`forwarded`”和“`redirected`”URL 保存在 `MockHttpResponseImpl` 中，并可以通过期望进行断言。
+思考这个问题的最简单方法是从一个空白的 `MockRequest` 开始。你向其中添加的任何内容就是请求变成的样子。可能会让你感到惊讶的事情是，默认情况下没有上下文路径；没有 `jsessionid` cookie；没有转发、错误或异步分派；因此，没有实际的 JSP 渲染。相反，“`forwarded`”和“`redirected`”URL 保存在 `MockResponse` 中，并可以通过期望进行断言。
 
 这意味着，如果你使用 JSP，你可以验证请求转发到的 JSP 页面，但不会渲染任何 HTML。换句话说，JSP 不会被调用。但是请注意，所有其他不依赖于转发的渲染技术，例如 Thymeleaf 和 Freemarker，都会按预期将 HTML 渲染到响应体中。通过 `@ResponseBody` 方法渲染 JSON、XML 和其他格式也是如此。
 

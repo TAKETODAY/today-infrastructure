@@ -25,8 +25,7 @@ import java.util.List;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +52,7 @@ class LiteWebJarsResourceResolverTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final MockRequestContext requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
+  private final MockRequestContext requestContext = new MockRequestContext(null, request, new MockResponse());
 
   @Test
   void resolveUrlExisting() {

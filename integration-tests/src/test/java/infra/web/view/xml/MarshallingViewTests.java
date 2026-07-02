@@ -28,7 +28,7 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamResult;
 
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.oxm.Marshaller;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
@@ -78,7 +78,7 @@ class MarshallingViewTests {
     model.put(modelKey, toBeMarshalled);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(true);
     marshallerMock.marshal(eq(toBeMarshalled), isA(StreamResult.class));
@@ -99,7 +99,7 @@ class MarshallingViewTests {
     model.put(modelKey, new JAXBElement<>(new QName("model"), String.class, toBeMarshalled));
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     given(marshallerMock.supports(String.class)).willReturn(true);
     marshallerMock.marshal(eq(toBeMarshalled), isA(StreamResult.class));
@@ -120,7 +120,7 @@ class MarshallingViewTests {
     model.put(modelKey, toBeMarshalled);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     RequestContext context = new MockRequestContext(null, request, response);
 
@@ -138,7 +138,7 @@ class MarshallingViewTests {
     model.put(modelKey, null);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     RequestContext context = new MockRequestContext(null, request, response);
 
@@ -157,7 +157,7 @@ class MarshallingViewTests {
     model.put(modelKey, toBeMarshalled);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(false);
 
@@ -175,7 +175,7 @@ class MarshallingViewTests {
     model.put(modelKey, toBeMarshalled);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(true);
 
@@ -196,7 +196,7 @@ class MarshallingViewTests {
     model.put(modelKey, toBeMarshalled);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     given(marshallerMock.supports(BeanPropertyBindingResult.class)).willReturn(true);
     given(marshallerMock.supports(Object.class)).willReturn(true);
@@ -217,7 +217,7 @@ class MarshallingViewTests {
     model.put(modelKey, toBeMarshalled);
 
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(false);
 

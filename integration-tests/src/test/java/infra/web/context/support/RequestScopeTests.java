@@ -37,7 +37,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.expression.StandardBeanExpressionResolver;
 import infra.core.io.ClassPathResource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockRequestContext;
@@ -92,7 +92,7 @@ public class RequestScopeTests {
   @Test
   public void destructionAtRequestCompletion() {
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockResponse());
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedDisposableObject";
@@ -135,7 +135,7 @@ public class RequestScopeTests {
   @Test
   public void innerBeanInheritsContainingBeanScopeByDefault() {
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl()); RequestContextHolder.set(requestAttributes);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockResponse()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "requestScopedOuterBean";
     assertThat(request.getAttribute(outerBeanName)).isNull();
@@ -157,7 +157,7 @@ public class RequestScopeTests {
   @Test
   public void requestScopedInnerBeanDestroyedWhileContainedBySingleton() {
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl()); RequestContextHolder.set(requestAttributes);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockResponse()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "singletonOuterBean";
     TestBean outer1 = (TestBean) this.beanFactory.getBean(outerBeanName);
@@ -284,7 +284,7 @@ public class RequestScopeTests {
 
   @Test
   void registerDestructionCallbackRegistersCallback() {
-    MockRequestContext requestContext = new MockRequestContext(null, new MockRequest(), new MockHttpResponseImpl());
+    MockRequestContext requestContext = new MockRequestContext(null, new MockRequest(), new MockResponse());
     RequestContextHolder.set(requestContext);
 
     RequestScope requestScope = new RequestScope();

@@ -27,7 +27,7 @@ import java.util.List;
 import infra.core.Conventions;
 import infra.http.HttpStatus;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
 import infra.test.web.mock.StubMvcResult;
@@ -51,7 +51,7 @@ public class StatusResultMatchersTests {
   public void testHttpStatusCodeResultMatchers() throws Exception {
     List<AssertionError> failures = new ArrayList<>();
     for (HttpStatus status : HttpStatus.values()) {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+      MockResponse response = new MockResponse();
       response.setStatus(status.value());
       MvcResult mvcResult = new StubMvcResult(request, null, null, null, null, null, response);
       try {
@@ -82,7 +82,7 @@ public class StatusResultMatchersTests {
   @Test
   public void statusRanges() throws Exception {
     for (HttpStatus status : HttpStatus.values()) {
-      MockHttpResponseImpl response = new MockHttpResponseImpl();
+      MockResponse response = new MockResponse();
       response.setStatus(status.value());
       MvcResult mvcResult = new StubMvcResult(request, null, null, null, null, null, response);
       switch (status.series().value()) {

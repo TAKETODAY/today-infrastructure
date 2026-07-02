@@ -27,7 +27,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.MockMvc;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
@@ -62,7 +62,7 @@ class CustomRequestAttributesRequestContextHolderTests {
   void setUp() {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setAttribute(FROM_CUSTOM_MOCK, FROM_CUSTOM_MOCK);
-    RequestContextHolder.set(new MockRequestContext(null, mockRequest, new MockHttpResponseImpl()));
+    RequestContextHolder.set(new MockRequestContext(null, mockRequest, new MockResponse()));
 
     new AnnotatedBeanDefinitionReader(this.wac).register(WebConfig.class);
     this.wac.refresh();

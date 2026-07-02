@@ -44,7 +44,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
@@ -84,7 +84,7 @@ class RequestMappingHandlerAdapterTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   private AnnotationConfigApplicationContext webAppContext;
 
@@ -112,7 +112,7 @@ class RequestMappingHandlerAdapterTests {
     handlerAdapter.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
 
     this.request = new MockRequest("GET", "/");
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
 
     context = new MockRequestContext(webAppContext, request, response);
   }

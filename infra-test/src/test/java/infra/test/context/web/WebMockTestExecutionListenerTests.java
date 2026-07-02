@@ -23,7 +23,7 @@ import org.mockito.BDDMockito;
 import infra.context.ApplicationContext;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.context.TestContext;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
@@ -59,7 +59,7 @@ class WebMockTestExecutionListenerTests {
     given(testContext.getApplicationContext()).willReturn(wac);
 
     MockRequest request = new MockRequest(mockContext);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     RequestContext servletWebRequest = new MockRequestContext(null, request, response);
 
     request.setAttribute(SET_UP_OUTSIDE_OF_STEL, "true");

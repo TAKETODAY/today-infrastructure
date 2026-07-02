@@ -25,7 +25,7 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.util.MultiValueMap;
 import infra.web.mock.MockRequestContext;
 
@@ -169,7 +169,7 @@ public class WebUtilsTests {
       servletRequest.setServerPort(port);
     }
     servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockResponse());
     return WebUtils.isValidOrigin(context, allowed);
   }
 
@@ -182,7 +182,7 @@ public class WebUtilsTests {
     }
     servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockResponse());
     return WebUtils.isSameOrigin(context);
   }
 

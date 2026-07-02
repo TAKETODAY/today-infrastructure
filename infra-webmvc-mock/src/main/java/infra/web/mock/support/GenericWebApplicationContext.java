@@ -30,7 +30,7 @@ import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.stereotype.Component;

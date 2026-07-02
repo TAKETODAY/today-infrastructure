@@ -36,9 +36,8 @@ import infra.mock.api.AsyncListener;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
-import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.MockRequest;
+import infra.mock.web.MockResponse;
 
 /**
  * Adapt {@link HttpHandler}
@@ -115,12 +114,12 @@ public class MockHttpHandlerAdapter implements MockHandler {
       if (logger.isDebugEnabled()) {
         logger.debug("Failed to get request  URL: {}", ex.getMessage());
       }
-      ((HttpMockResponse) response).setStatus(400);
+      response.setStatus(400);
       asyncContext.complete();
       return;
     }
 
-    ServerHttpResponse httpResponse = createResponse(((HttpMockResponse) response), asyncContext, httpRequest);
+    ServerHttpResponse httpResponse = createResponse(response, asyncContext, httpRequest);
     AsyncListener responseListener = ((MockServerHttpResponse) httpResponse).getAsyncListener();
     if (httpRequest.getMethod() == HttpMethod.HEAD) {
       httpResponse = new HttpHeadResponse(httpResponse);
@@ -144,7 +143,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
   }
 
   protected MockServerHttpResponse createResponse(
-          HttpMockResponse response,
+          MockResponse response,
           AsyncContext context, MockServerHttpRequest request) throws IOException {
 
     return new MockServerHttpResponse(response, context, getDataBufferFactory(), getBufferSize(), request);
@@ -292,7 +291,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
           try {
             logger.trace("{}Setting ServletResponse status to 500 Server Error", this.logPrefix);
             this.asyncContext.getResponse().resetBuffer();
-            ((HttpMockResponse) this.asyncContext.getResponse()).setStatus(500);
+            this.asyncContext.getResponse().setStatus(500);
           }
           finally {
             this.asyncContext.complete();

@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockResponse;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockFilterChain;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.RequestContext;
@@ -44,7 +44,7 @@ class MockMvcFilterDecoratorTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   private MockFilterChain filterChain;
 
@@ -55,7 +55,7 @@ class MockMvcFilterDecoratorTests {
   @BeforeEach
   public void setup() {
     request = new MockRequest();
-    response = new MockHttpResponseImpl();
+    response = new MockResponse();
     filterChain = new MockFilterChain();
     delegate = new MockFilter();
   }

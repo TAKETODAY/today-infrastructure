@@ -41,7 +41,7 @@ import infra.http.converter.HttpMessageConverter;
 import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockException;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.ui.Model;
 import infra.ui.ModelMap;
@@ -74,7 +74,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private MockRequest request;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
 
   @EnableWebMvc
   @Configuration(proxyBeanMethods = false)
@@ -88,7 +88,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
 
     this.request = new MockRequest("GET", "/");
-    this.response = new MockHttpResponseImpl();
+    this.response = new MockResponse();
   }
 
   @Test

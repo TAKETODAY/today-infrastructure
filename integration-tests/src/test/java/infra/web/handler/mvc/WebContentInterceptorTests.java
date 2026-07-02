@@ -25,7 +25,7 @@ import java.util.Properties;
 import java.util.function.Function;
 
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class WebContentInterceptorTests {
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   private final MockRequest mockRequest = new MockRequest();
 

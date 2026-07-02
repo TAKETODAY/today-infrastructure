@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.HttpStatus;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HttpRequestHandler;
 import infra.web.mock.MockRequestContext;
 
@@ -34,7 +34,7 @@ class SimpleNotFoundHandlerTests {
   SimpleNotFoundHandler notFoundHandler = new SimpleNotFoundHandler();
 
   MockRequest request = new MockRequest();
-  MockHttpResponseImpl response = new MockHttpResponseImpl();
+  MockResponse response = new MockResponse();
 
   @Test
   void handleNotFound() throws Throwable {

@@ -32,7 +32,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.MockMvc;
 import infra.util.StringUtils;
 
@@ -68,7 +68,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
           HttpMethod httpMethod, URI uri, HttpHeaders requestHeaders, byte[] requestBody) {
 
     try {
-      MockHttpResponseImpl servletResponse = this.mockMvc
+      MockResponse servletResponse = this.mockMvc
               .perform(request(httpMethod, uri).content(requestBody).headers(requestHeaders))
               .andReturn()
               .getResponse();
@@ -93,7 +93,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
     }
   }
 
-  private HttpHeaders getResponseHeaders(MockHttpResponseImpl response) {
+  private HttpHeaders getResponseHeaders(MockResponse response) {
     HttpHeaders headers = HttpHeaders.forWritable();
     for (String name : response.getHeaderNames()) {
       List<String> values = response.getHeaders(name);

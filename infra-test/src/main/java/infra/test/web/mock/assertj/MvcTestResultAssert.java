@@ -34,7 +34,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import infra.mock.api.http.Cookie;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockRequest;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MvcResult;
@@ -58,7 +58,7 @@ public class MvcTestResultAssert extends AbstractMockResponseAssert<MvcTestResul
   }
 
   @Override
-  protected MockHttpResponseImpl getResponse() {
+  protected MockResponse getResponse() {
     return getMvcResult().getResponse();
   }
 

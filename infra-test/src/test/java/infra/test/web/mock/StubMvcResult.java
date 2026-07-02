@@ -21,7 +21,7 @@ package infra.test.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
@@ -47,7 +47,7 @@ public class StubMvcResult implements MvcResult {
 
   private RedirectModel flashMap;
 
-  private MockHttpResponseImpl response;
+  private MockResponse response;
   final RequestContext requestContext;
 
   private final @Nullable Throwable unresolvedException;
@@ -58,7 +58,7 @@ public class StubMvcResult implements MvcResult {
           Exception resolvedException,
           ModelAndView mav,
           RedirectModel flashMap,
-          MockHttpResponseImpl response) {
+          MockResponse response) {
     this(request, handler, interceptors, resolvedException, mav, flashMap, response, null);
   }
 
@@ -68,7 +68,7 @@ public class StubMvcResult implements MvcResult {
           Exception resolvedException,
           ModelAndView mav,
           RedirectModel flashMap,
-          MockHttpResponseImpl response,
+          MockResponse response,
           @Nullable Throwable unresolvedException) {
     this.request = request;
     this.handler = handler;
@@ -117,7 +117,7 @@ public class StubMvcResult implements MvcResult {
   }
 
   @Override
-  public MockHttpResponseImpl getResponse() {
+  public MockResponse getResponse() {
     return response;
   }
 
@@ -154,7 +154,7 @@ public class StubMvcResult implements MvcResult {
     this.flashMap = flashMap;
   }
 
-  public void setResponse(MockHttpResponseImpl response) {
+  public void setResponse(MockResponse response) {
     this.response = response;
   }
 

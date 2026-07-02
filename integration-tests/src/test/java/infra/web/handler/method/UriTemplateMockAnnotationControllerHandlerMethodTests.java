@@ -32,9 +32,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.propertyeditors.CustomDateEditor;
 import infra.context.ApplicationContext;
 import infra.http.HttpMethod;
-import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
 import infra.web.RequestContext;
@@ -61,7 +59,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(SimpleUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/42");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42-7");
   }
@@ -71,13 +69,13 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(MultipleUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/data");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("test");
 
     request = new MockRequest("GET", "/data;jsessionid=123");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("test");
@@ -88,7 +86,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(MultipleUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/42;q=24/bookings/21-other;q=12");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("test-42-q24-21-other-q12");
@@ -108,7 +106,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     });
 
     var request = new MockRequest("GET", "/hotels/42;q=1,2/bookings/21-other;q=3;r=R");
-    getMockHandler().service(request, new MockHttpResponseImpl());
+    getMockHandler().service(request, new infra.mock.web.MockResponse());
 
     ModelValidatingViewResolver resolver = wac.getBean(ModelValidatingViewResolver.class);
     assertThat(resolver.validatedAttrCount).isEqualTo(3);
@@ -119,12 +117,12 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(BindingUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/42/dates/2008-11-18");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
 
     request = new MockRequest("GET", "/hotels/42/dates/2008-foo-bar");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(400);
 
@@ -134,7 +132,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
       });
     });
     request = new MockRequest("GET", "/hotels/42/dates/2008-foo-bar");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(500);
   }
@@ -144,7 +142,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(AmbiguousUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/new");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("specific");
   }
@@ -154,7 +152,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(RelativePathUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/42/bookings/21");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42-21");
   }
@@ -164,7 +162,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(SimpleUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/42;jsessionid=c0o7fszeb1;q=24.xml");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString())
             .isEqualTo("test-42-24.xml");
@@ -175,9 +173,9 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(SimpleUriTemplateController.class);
 
     MockRequest request = new MockRequest("GET", "/foo.xml");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
-    assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpMockResponse.SC_BAD_REQUEST);
+    assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(400);
   }
 
   @Test
@@ -185,7 +183,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(ExplicitSubPathController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/42");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42");
   }
@@ -195,7 +193,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(ImplicitSubPathController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/42");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42");
   }
@@ -205,27 +203,27 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(CrudController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("list");
 
     request = new MockRequest("POST", "/hotels");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("create");
 
     request = new MockRequest("GET", "/hotels/42");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("show-42");
 
     request = new MockRequest("PUT", "/hotels/42");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("createOrUpdate-42");
 
     request = new MockRequest("DELETE", "/hotels/42");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("remove-42");
   }
@@ -235,22 +233,22 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(MethodNotAllowedController.class);
 
     MockRequest request = new MockRequest("GET", "/hotels/1");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
 
     request = new MockRequest("POST", "/hotels/1");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(405);
 
     request = new MockRequest("GET", "/hotels");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
 
     request = new MockRequest("POST", "/hotels");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(405);
   }
@@ -260,7 +258,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(MultiPathController.class);
 
     MockRequest request = new MockRequest("GET", "/category/page/5");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("handle4-page-5");
   }
@@ -270,7 +268,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(CustomRegexController.class);
 
     MockRequest request = new MockRequest("GET", "/42;q=1;q=2");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString())
@@ -283,7 +281,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(MenuTreeController.class);
 
     MockRequest request = new MockRequest("GET", "/book/menu/type/M5");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("M5");
   }
@@ -294,12 +292,12 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(VariableNamesController.class);
 
     MockRequest request = new MockRequest("GET", "/test/foo");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("foo-foo");
 
     request = new MockRequest("DELETE", "/test/bar");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("bar-bar");
   }
@@ -310,7 +308,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(VariableNamesController.class);
 
     MockRequest request = new MockRequest("GET", "/test/foo.json");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("foo-foo.json");
   }
@@ -320,22 +318,22 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     initDispatcher(Spr6978Controller.class);
 
     MockRequest request = new MockRequest("GET", "/foo/100");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("loadEntity:foo:100");
 
     request = new MockRequest("POST", "/foo/100");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("publish:foo:100");
 
     request = new MockRequest("GET", "/module/100");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("loadModule:100");
 
     request = new MockRequest("POST", "/module/100");
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("publish:module:100");
 

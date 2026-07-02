@@ -32,7 +32,7 @@ import java.util.Map;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.MediaType;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
@@ -66,7 +66,7 @@ public class ContentNegotiatingViewResolverTests {
     viewResolver = new ContentNegotiatingViewResolver();
     viewResolver.setApplicationContext(wac);
     request = new MockRequest("GET", "/test");
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     this.requestContext = new MockRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
   }
@@ -448,7 +448,7 @@ public class ContentNegotiatingViewResolverTests {
 
     View result = viewResolver.resolveViewName(viewName, locale);
     assertThat(result).as("Invalid view").isNotNull();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     this.requestContext = new MockRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
     result.render(null, requestContext);

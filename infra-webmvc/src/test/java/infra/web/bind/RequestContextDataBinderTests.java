@@ -39,7 +39,7 @@ import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MultipartMockRequest;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
@@ -304,7 +304,7 @@ class RequestContextDataBinderTests {
 
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("name", "Juergen".getBytes()));
-    binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
+    binder.bind(new MockMultipartMockRequestContext(request, new MockResponse()));
     assertThat(target.getName()).isEqualTo("Juergen");
   }
 
@@ -316,7 +316,7 @@ class RequestContextDataBinderTests {
 
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
-    binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
+    binder.bind(new MockMultipartMockRequestContext(request, new MockResponse()));
     assertThat(target.getStringArray().length).isEqualTo(1);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
   }
@@ -330,7 +330,7 @@ class RequestContextDataBinderTests {
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     request.addPart(new MockMultipartFile("stringArray", "Eva".getBytes()));
-    binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
+    binder.bind(new MockMultipartMockRequestContext(request, new MockResponse()));
     assertThat(target.getStringArray().length).isEqualTo(2);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
     assertThat(target.getStringArray()[1]).isEqualTo("Eva");

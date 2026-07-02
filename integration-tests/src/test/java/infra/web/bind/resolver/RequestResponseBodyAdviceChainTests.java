@@ -38,7 +38,7 @@ import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
 import org.jspecify.annotations.Nullable;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.ReflectionUtils;
 import infra.web.RequestContext;
@@ -82,7 +82,7 @@ class RequestResponseBodyAdviceChainTests {
     MockRequest servletRequest = new MockRequest();
     this.request = new MockServerHttpRequest(servletRequest);
 
-    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    MockResponse servletResponse = new MockResponse();
 
     this.response = new MockServerHttpResponse(servletResponse);
     this.requestContext = new MockRequestContext(null, servletRequest, servletResponse);

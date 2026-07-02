@@ -32,7 +32,7 @@ import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.mock.api.MockException;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.session.config.EnableSession;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.WebUtils;
@@ -175,7 +175,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocale() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -199,7 +199,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleContext() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -220,7 +220,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleContextWithTimeZone() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -242,7 +242,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleContextWithTimeZoneOnly() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -267,7 +267,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleWithCountry() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -293,7 +293,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleWithCountryAsLegacyJava() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -320,7 +320,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testCustomCookie() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -439,7 +439,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetLocaleToNull() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
@@ -463,7 +463,7 @@ public class CookieLocaleResolverTests {
   public void testSetLocaleContextToNull() {
     MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.TAIWAN);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
@@ -490,7 +490,7 @@ public class CookieLocaleResolverTests {
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
@@ -509,7 +509,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetLocaleContextToNullWithDefault() {
     MockRequest request = new MockRequest();
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(request, response);
 

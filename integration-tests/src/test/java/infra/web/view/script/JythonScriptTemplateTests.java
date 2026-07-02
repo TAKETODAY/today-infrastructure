@@ -31,7 +31,7 @@ import infra.context.annotation.Configuration;
 import infra.mock.api.MockContext;
 import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
@@ -62,13 +62,13 @@ public class JythonScriptTemplateTests {
     model.put("title", "Layout example");
     model.put("body", "This is the body");
     String url = "infra/web/view/script/jython/template.html";
-    MockHttpResponseImpl response = render(url, model);
+    MockResponse response = render(url, model);
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
 
-  private MockHttpResponseImpl render(String viewUrl, Map<String, Object> model) throws Exception {
+  private MockResponse render(String viewUrl, Map<String, Object> model) throws Exception {
     ScriptTemplateView view = createViewWithUrl(viewUrl);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     MockRequest request = new MockRequest();
     view.renderMergedOutputModel(model, new MockRequestContext(webAppContext, request, response));
     return response;

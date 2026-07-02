@@ -17,7 +17,7 @@
 package infra.web;
 
 import infra.mock.web.MockRequest;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 
 /**
  * Interface to indicate {@link RequestContext} running in servlet
@@ -30,6 +30,6 @@ public interface MockIndicator {
 
   MockRequest getRequest();
 
-  HttpMockResponse getResponse();
+  MockResponse getResponse();
 
 }

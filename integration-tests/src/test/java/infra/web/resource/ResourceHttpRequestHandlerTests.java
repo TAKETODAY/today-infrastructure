@@ -35,10 +35,8 @@ import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockRequest;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.HttpRequestMethodNotSupportedException;
@@ -292,7 +290,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockRequest request;
 
-    private MockHttpResponseImpl response;
+    private infra.mock.web.MockResponse response;
     private MockRequestContext requestContext;
 
     @BeforeEach
@@ -302,7 +300,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
       this.request = new MockRequest(mockContext, "GET", "");
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
 
@@ -419,7 +417,7 @@ public class ResourceHttpRequestHandlerTests {
         this.request = new MockRequest("GET", "");
         this.request.setRequestURI("not-there.css");
         this.request.setMethod(method.name());
-        this.response = new MockHttpResponseImpl();
+        this.response = new infra.mock.web.MockResponse();
         requestContext = new MockRequestContext(null, request, response);
 
         assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
@@ -435,7 +433,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockRequest request;
 
-    private MockHttpResponseImpl response;
+    private infra.mock.web.MockResponse response;
 
     private MockRequestContext requestContext;
 
@@ -446,7 +444,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
       this.request = new MockRequest(mockContext, "GET", "");
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
 
@@ -630,7 +628,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockRequest request;
 
-    private MockHttpResponseImpl response;
+    private infra.mock.web.MockResponse response;
     private MockRequestContext requestContext;
 
     @BeforeEach
@@ -639,7 +637,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new MockRequest(mockContext, "GET", "");
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
 
@@ -694,7 +692,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
       this.handler.handleRequest(requestContext);
       requestContext.requestCompleted();
-      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
+      assertThat(this.response.getStatus()).isEqualTo(304);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
 
@@ -704,7 +702,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css") / 1000 * 1000 - 1);
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_OK);
+      assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
 
@@ -717,7 +715,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.handler.handleRequest(requestContext);
       requestContext.requestCompleted();
-      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
+      assertThat(this.response.getStatus()).isEqualTo(304);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
 
@@ -728,7 +726,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_OK);
+      assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
 
@@ -740,7 +738,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
+      assertThat(this.response.getStatus()).isEqualTo(304);
     }
 
     @Test
@@ -784,7 +782,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockRequest request;
 
-    private MockHttpResponseImpl response;
+    private infra.mock.web.MockResponse response;
 
     private MockRequestContext requestContext;
 
@@ -794,7 +792,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new MockRequest(mockContext, "GET", "");
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       requestContext = new MockRequestContext(null, request, response);
     }
 
@@ -878,7 +876,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private void testInvalidPath(String requestPath) {
       this.request.setRequestURI(requestPath);
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       requestContext = new MockRequestContext(null, request, response);
       assertNotFound();
     }
@@ -897,7 +895,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       for (HttpMethod method : HttpMethod.values()) {
         this.request = new MockRequest("GET", "");
-        this.response = new MockHttpResponseImpl();
+        this.response = new infra.mock.web.MockResponse();
         shouldRejectPathWithTraversal(method);
       }
     }
@@ -930,7 +928,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private void testResolvePathWithTraversal(Resource location, String requestPath) {
       this.request.setRequestURI(requestPath);
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       requestContext = new MockRequestContext(null, request, response);
       assertNotFound();
     }
@@ -939,7 +937,7 @@ public class ResourceHttpRequestHandlerTests {
     void ignoreInvalidEscapeSequence() throws Throwable {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("/%foo%/bar.txt");
-      this.response = new MockHttpResponseImpl();
+      this.response = new infra.mock.web.MockResponse();
       assertNotFound();
     }
 

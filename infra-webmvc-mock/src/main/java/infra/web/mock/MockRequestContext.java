@@ -45,8 +45,7 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.mock.api.http.Cookie;
 import infra.mock.web.MockRequest;
-import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.mock.web.MockSession;
 import infra.mock.web.MultipartMockRequest;
 import infra.session.Session;
@@ -75,7 +74,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   public final MockRequest request;
 
-  public final HttpMockResponse response;
+  public final MockResponse response;
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
@@ -98,36 +97,36 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public MockRequestContext(ApplicationContext context) {
-    this(context, new MockRequest(), new MockHttpResponseImpl());
+    this(context, new MockRequest(), new infra.mock.web.MockResponse());
   }
 
   public MockRequestContext(MockRequest request) {
-    this(null, request, new MockHttpResponseImpl());
+    this(null, request, new infra.mock.web.MockResponse());
   }
 
-  public MockRequestContext(MockRequest request, HttpMockResponse response) {
+  public MockRequestContext(MockRequest request, MockResponse response) {
     this(null, request, response);
   }
 
   public MockRequestContext(ApplicationContext context, MockRequest request) {
-    this(context, request, new MockHttpResponseImpl(), null);
+    this(context, request, new infra.mock.web.MockResponse(), null);
   }
 
   public MockRequestContext(ApplicationContext context,
-          MockRequest request, HttpMockResponse response) {
+          MockRequest request, MockResponse response) {
     this(context, request, response, null);
   }
 
-  public MockRequestContext(MockRequest request, HttpMockResponse response, DispatcherHandler dispatcherHandler) {
+  public MockRequestContext(MockRequest request, MockResponse response, DispatcherHandler dispatcherHandler) {
     this(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
   }
 
   public MockRequestContext(MockRequest request, DispatcherHandler dispatcherHandler) {
-    this(dispatcherHandler.getApplicationContext(), request, new MockHttpResponseImpl(), dispatcherHandler);
+    this(dispatcherHandler.getApplicationContext(), request, new infra.mock.web.MockResponse(), dispatcherHandler);
   }
 
   public MockRequestContext(@Nullable ApplicationContext context, MockRequest request,
-          HttpMockResponse response, @Nullable DispatcherHandler dispatcherHandler) {
+          MockResponse response, @Nullable DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.request = request;
     this.response = response;
@@ -139,7 +138,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  public HttpMockResponse getResponse() {
+  public MockResponse getResponse() {
     return response;
   }
 
@@ -699,9 +698,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public void setForwardedUrl(@Nullable String forwardedUrl) {
-    if (response instanceof MockHttpResponseImpl impl) {
-      impl.setForwardedUrl(forwardedUrl);
-    }
+    response.setForwardedUrl(forwardedUrl);
     this.forwardedUrl = forwardedUrl;
   }
 

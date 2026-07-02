@@ -38,7 +38,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.ClassPathResource;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.test.BuildOutput;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
@@ -89,7 +89,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "templates/home.tpl", content = "yield 'home'")
   void defaultViewResolution() throws Exception {
     registerAndRefreshContext();
-    MockHttpResponseImpl response = render("home");
+    MockResponse response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
@@ -103,7 +103,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "templates/included.tpl", content = "yield 'here'")
   void includesViewResolution() throws Exception {
     registerAndRefreshContext();
-    MockHttpResponseImpl response = render("includes");
+    MockResponse response = render("includes");
     String result = response.getContentAsString();
     assertThat(result).contains("here");
     assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
@@ -117,7 +117,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "templates/included_fr.tpl", content = "yield 'voila'")
   void localeViewResolution() throws Exception {
     registerAndRefreshContext();
-    MockHttpResponseImpl response = render("includes", Locale.FRENCH);
+    MockResponse response = render("includes", Locale.FRENCH);
     String result = response.getContentAsString();
     assertThat(result).contains("voila");
     assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
@@ -127,7 +127,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "templates/home.tpl", content = "yield 'home'")
   void customContentType() throws Exception {
     registerAndRefreshContext("groovy.template.contentType:application/json");
-    MockHttpResponseImpl response = render("home");
+    MockResponse response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("application/json;charset=UTF-8");
@@ -137,7 +137,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "templates/prefix/prefixed.tpl", content = "yield \"prefixed\"")
   void customPrefix() throws Exception {
     registerAndRefreshContext("groovy.template.prefix:prefix/");
-    MockHttpResponseImpl response = render("prefixed");
+    MockResponse response = render("prefixed");
     String result = response.getContentAsString();
     assertThat(result).contains("prefixed");
   }
@@ -146,7 +146,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "templates/suffixed.groovytemplate", content = "yield \"suffixed\"")
   void customSuffix() throws Exception {
     registerAndRefreshContext("groovy.template.suffix:.groovytemplate");
-    MockHttpResponseImpl response = render("suffixed");
+    MockResponse response = render("suffixed");
     String result = response.getContentAsString();
     assertThat(result).contains("suffixed");
   }
@@ -162,7 +162,7 @@ class GroovyTemplateAutoConfigurationTests {
   @WithResource(name = "custom-templates/custom.tpl", content = "yield \"custom\"")
   void customResourceLoaderPath() throws Exception {
     registerAndRefreshContext("groovy.template.resource-loader-path:classpath:/custom-templates/");
-    MockHttpResponseImpl response = render("custom");
+    MockResponse response = render("custom");
     String result = response.getContentAsString();
     assertThat(result).contains("custom");
   }
@@ -286,11 +286,11 @@ class GroovyTemplateAutoConfigurationTests {
     this.context.refresh();
   }
 
-  private MockHttpResponseImpl render(String viewName) throws Exception {
+  private MockResponse render(String viewName) throws Exception {
     return render(viewName, Locale.UK);
   }
 
-  private MockHttpResponseImpl render(String viewName, Locale locale) throws Exception {
+  private MockResponse render(String viewName, Locale locale) throws Exception {
     LocaleContextHolder.setLocale(locale);
     GroovyMarkupViewResolver resolver = this.context.getBean(GroovyMarkupViewResolver.class);
     View view = resolver.resolveViewName(viewName, locale);
@@ -298,7 +298,7 @@ class GroovyTemplateAutoConfigurationTests {
 
     MockRequest request = new MockRequest();
     request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
     view.render(null, new MockRequestContext(request, response));
     return response;
   }

@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.socket.WebSocketHandler;
@@ -51,7 +51,7 @@ public class WebSocketHttpRequestHandlerTests {
 
   private final WebSocketHttpRequestHandler requestHandler = new WebSocketHttpRequestHandler(mock(WebSocketHandler.class), this.handshakeHandler);
 
-  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private final MockResponse response = new MockResponse();
 
   @Test
   public void success() throws Throwable {

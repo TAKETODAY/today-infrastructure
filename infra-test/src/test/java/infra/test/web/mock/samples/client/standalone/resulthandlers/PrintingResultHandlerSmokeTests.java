@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import infra.http.MediaType;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockResponse;
 import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.reactive.server.EntityExchangeResult;
 import infra.test.web.reactive.server.WebTestClient;
@@ -75,7 +75,7 @@ public class PrintingResultHandlerSmokeTests {
   private static class SimpleController {
 
     @PostMapping("/")
-    public String hello(HttpMockResponse response) {
+    public String hello(MockResponse response) {
       response.addCookie(new Cookie("enigma", "42"));
       return "Hello Response";
     }

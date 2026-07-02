@@ -28,9 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
-import infra.lang.Constant;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockResponse;
 
 import static infra.http.HttpHeaders.CONTENT_LANGUAGE;
 import static infra.http.HttpHeaders.CONTENT_LENGTH;
@@ -43,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 /**
- * Unit tests for {@link MockHttpResponseImpl}.
+ * Unit tests for {@link infra.mock.web.MockResponse}.
  *
  * @author Juergen Hoeller
  * @author Rick Evans
@@ -56,7 +54,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
  */
 class HttpMockResponseTests {
 
-  private MockHttpResponseImpl response = new MockHttpResponseImpl();
+  private infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
 
   @ParameterizedTest  // gh-26488
   @ValueSource(strings = {
@@ -118,7 +116,7 @@ class HttpMockResponseTests {
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
@@ -133,7 +131,7 @@ class HttpMockResponseTests {
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
@@ -141,7 +139,6 @@ class HttpMockResponseTests {
   }
 
   @Test
-
   void contentTypeHeaderWithMoreComplexCharsetSyntax() {
     String contentType = "test/plain;charset=\"utf-8\";foo=\"charset=bar\";foocharset=bar;foo=bar";
     response.setHeader(CONTENT_TYPE, contentType);
@@ -149,7 +146,7 @@ class HttpMockResponseTests {
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
-    response = new MockHttpResponseImpl();
+    response = new infra.mock.web.MockResponse();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
@@ -379,7 +376,7 @@ class HttpMockResponseTests {
   void sendRedirect() throws IOException {
     String redirectUrl = "/redirect";
     response.sendRedirect(redirectUrl);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_MOVED_TEMPORARILY);
+    assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getHeader(LOCATION)).isEqualTo(redirectUrl);
     assertThat(response.getRedirectedUrl()).isEqualTo(redirectUrl);
     assertThat(response.isCommitted()).isTrue();
@@ -422,26 +419,23 @@ class HttpMockResponseTests {
   }
 
   @Test
-
   void getNonExistentDateHeader() {
     assertThat(response.getHeader(LAST_MODIFIED)).isNull();
     assertThat(response.getDateHeader(LAST_MODIFIED)).isEqualTo(-1);
   }
 
   @Test
-
   void modifyStatusAfterSendError() throws IOException {
-    response.sendError(HttpMockResponse.SC_NOT_FOUND);
-    response.setStatus(HttpMockResponse.SC_OK);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_FOUND);
+    response.sendError(404);
+    response.setStatus(200);
+    assertThat(response.getStatus()).isEqualTo(404);
   }
 
   @Test
-
   void modifyStatusMessageAfterSendError() throws IOException {
-    response.sendError(HttpMockResponse.SC_NOT_FOUND);
-    response.setStatus(HttpMockResponse.SC_INTERNAL_SERVER_ERROR);
-    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_FOUND);
+    response.sendError(404);
+    response.setStatus(500);
+    assertThat(response.getStatus()).isEqualTo(404);
   }
 
   /**

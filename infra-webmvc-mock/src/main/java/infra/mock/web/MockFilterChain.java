@@ -27,7 +27,7 @@ import java.util.List;
 
 import infra.lang.Assert;
 import infra.mock.api.MockHandler;
-import infra.mock.api.MockResponse;
+import infra.mock.web.MockResponse;
 import infra.util.ObjectUtils;
 import infra.web.Filter;
 import infra.web.FilterChain;

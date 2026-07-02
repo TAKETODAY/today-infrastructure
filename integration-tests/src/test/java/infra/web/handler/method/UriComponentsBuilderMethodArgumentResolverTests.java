@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
 import infra.web.mock.MockRequestContext;
@@ -53,7 +53,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     this.resolver = new UriComponentsBuilderParameterStrategy();
     this.mockRequest = new MockRequest();
     this.webRequest = new MockRequestContext(
-            null, this.mockRequest, new MockHttpResponseImpl());
+            null, this.mockRequest, new MockResponse());
 
     Method method = this.getClass().getDeclaredMethod(
             "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);

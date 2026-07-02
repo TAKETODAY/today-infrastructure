@@ -29,7 +29,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
@@ -75,7 +75,7 @@ public class SimpleUrlHandlerMappingTests {
     MockRequest request = new MockRequest("GET", "/foo%0a%0dbar/baz");
 
     HandlerExecutionChain hec = (HandlerExecutionChain) mapping.getHandler(new MockRequestContext(
-            null, request, new MockHttpResponseImpl()));
+            null, request, new MockResponse()));
     assertThat(hec).isNotNull();
     assertThat(hec.getRawHandler()).isSameAs(controller);
   }
@@ -154,7 +154,7 @@ public class SimpleUrlHandlerMappingTests {
   private HandlerExecutionChain getHandler(HandlerMapping mapping, MockRequest request) throws Throwable {
 
     MockRequestContext context = new MockRequestContext(
-            null, request, new MockHttpResponseImpl());
+            null, request, new MockResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     HandlerInterceptor[] interceptors = chain.getInterceptors();
     if (interceptors != null) {

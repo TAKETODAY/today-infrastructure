@@ -26,7 +26,7 @@ import java.net.URI;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.mock.web.MockRequest;
-import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockResponse;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
@@ -74,7 +74,7 @@ public class RouterFunctionMappingVersionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-Version", "1");
 
-    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockResponse response = new MockResponse();
 
     MockRequestContext context = new MockRequestContext(request, response);
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
