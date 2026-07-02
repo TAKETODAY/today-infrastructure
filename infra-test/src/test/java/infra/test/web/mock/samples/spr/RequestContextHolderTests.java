@@ -65,8 +65,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RequestContextHolderTests {
 
   private static final String FROM_TCF_MOCK = "fromTestContextFrameworkMock";
-  private static final String FROM_MVC_TEST_DEFAULT = "fromSpringMvcTestDefault";
-  private static final String FROM_MVC_TEST_MOCK = "fromSpringMvcTestMock";
+  private static final String FROM_MVC_TEST_DEFAULT = "fromWebMvcTestDefault";
+  private static final String FROM_MVC_TEST_MOCK = "fromWebMvcTestMock";
   private static final String FROM_REQUEST_FILTER = "fromRequestFilter";
   private static final String FROM_REQUEST_ATTRIBUTES_FILTER = "fromRequestAttributesFilter";
 
