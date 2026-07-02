@@ -29,8 +29,8 @@ import infra.http.HttpCookie;
 import infra.http.HttpMethod;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockCookie;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockCookie;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 

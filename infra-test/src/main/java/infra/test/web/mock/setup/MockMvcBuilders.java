@@ -19,7 +19,7 @@
 package infra.test.web.mock.setup;
 
 import infra.context.ApplicationContext;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
 import infra.web.mock.MockDispatcherHandler;

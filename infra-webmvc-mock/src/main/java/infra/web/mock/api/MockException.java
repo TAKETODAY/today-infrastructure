@@ -18,7 +18,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api;
+package infra.web.mock.api;
 
 /**
  * Defines a general exception a servlet can throw when it encounters difficulty.

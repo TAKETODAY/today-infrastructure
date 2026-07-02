@@ -26,11 +26,9 @@ import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockRequest;
 import infra.util.ObjectUtils;
-import infra.web.MockIndicator;
 import infra.web.RequestContext;
+import infra.web.mock.api.MockIndicator;
 import infra.web.util.WebUtils;
 
 /**

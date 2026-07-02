@@ -16,14 +16,14 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.web;
+package infra.web.mock;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import infra.lang.Assert;
-import infra.mock.api.MockInputStream;
-import infra.mock.api.ReadListener;
+import infra.web.mock.api.MockInputStream;
+import infra.web.mock.api.ReadListener;
 
 /**
  * Delegating implementation of {@link MockInputStream}.

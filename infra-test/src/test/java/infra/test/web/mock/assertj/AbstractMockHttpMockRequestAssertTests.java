@@ -20,7 +20,7 @@ package infra.test.web.mock.assertj;
 
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 
 /**
  * Tests for {@link AbstractMockRequestAssert}.

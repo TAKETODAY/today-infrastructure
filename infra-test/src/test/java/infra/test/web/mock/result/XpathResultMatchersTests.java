@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 import infra.util.StreamUtils;
 

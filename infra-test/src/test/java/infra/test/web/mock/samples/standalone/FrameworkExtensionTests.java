@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.request.RequestPostProcessor;

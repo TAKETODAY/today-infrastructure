@@ -20,7 +20,7 @@ package infra.test.web.mock.assertj;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.test.web.mock.MvcResult;
 import infra.web.RequestContext;
 

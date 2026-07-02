@@ -33,7 +33,7 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;
 

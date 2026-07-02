@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.test.web.mock.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;

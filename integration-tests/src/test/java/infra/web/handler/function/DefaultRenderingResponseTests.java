@@ -31,8 +31,8 @@ import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.mock.MockRequestContext;

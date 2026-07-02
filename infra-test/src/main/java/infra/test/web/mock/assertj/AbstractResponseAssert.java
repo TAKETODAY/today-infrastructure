@@ -30,7 +30,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatus.Series;
 import infra.http.MediaType;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.http.HttpHeadersAssert;
 import infra.test.http.MediaTypeAssert;
 import infra.util.function.SingletonSupplier;

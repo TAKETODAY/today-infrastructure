@@ -18,12 +18,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api;
+package infra.web.mock.api;
 
 import java.io.IOException;
 import java.util.EventListener;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 /**
  * Listener that will be notified in the event that an asynchronous operation initiated on a ServletRequest to which the

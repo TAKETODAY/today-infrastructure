@@ -21,7 +21,7 @@ package infra.web.mock;
 import infra.beans.factory.Aware;
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContextAware;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 
 /**
  * Interface to be implemented by any object that wishes to be notified of the

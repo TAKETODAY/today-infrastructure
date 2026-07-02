@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
@@ -27,8 +27,8 @@ import java.time.format.DateTimeFormatter;
 
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.mock.api.http.Cookie;
 import infra.util.StringUtils;
+import infra.web.mock.api.Cookie;
 
 /**
  * Extension of {@code Cookie} with extra attributes, as defined in

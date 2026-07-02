@@ -21,9 +21,9 @@ package infra.test.web.mock.request;
 import java.net.URI;
 
 import infra.http.HttpMethod;
-import infra.mock.api.DispatcherType;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
+import infra.web.mock.api.DispatcherType;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
 

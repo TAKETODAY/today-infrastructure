@@ -24,8 +24,7 @@ import java.util.Collections;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static infra.http.HttpMethod.DELETE;

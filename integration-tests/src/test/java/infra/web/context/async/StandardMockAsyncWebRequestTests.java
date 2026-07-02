@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
-import infra.mock.api.AsyncEvent;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockAsyncContext;
+import infra.web.mock.MockResponse;
 import infra.web.mock.StandardMockAsyncWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

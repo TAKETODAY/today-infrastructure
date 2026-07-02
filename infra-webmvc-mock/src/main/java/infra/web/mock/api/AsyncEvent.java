@@ -18,10 +18,10 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api;
+package infra.web.mock.api;
 
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 /**
  * Event that gets fired when the asynchronous operation initiated on a ServletRequest (via a call to

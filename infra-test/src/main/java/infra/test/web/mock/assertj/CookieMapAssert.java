@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.mock.api.http.Cookie;
+import infra.web.mock.api.Cookie;
 
 /**
  * AssertJ {@linkplain org.assertj.core.api.Assert assertions} that can be applied

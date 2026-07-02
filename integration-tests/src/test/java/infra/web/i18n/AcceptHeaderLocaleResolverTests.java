@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 

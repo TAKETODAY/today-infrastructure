@@ -29,8 +29,8 @@ import java.util.Collections;
 import infra.http.CacheControl;
 import infra.http.MediaType;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

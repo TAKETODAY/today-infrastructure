@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.web.mock.WebApplicationContext;

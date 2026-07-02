@@ -41,7 +41,7 @@ import infra.http.MediaType;
 import infra.http.service.annotation.HttpExchange;
 import infra.http.service.annotation.PostExchange;
 import infra.http.service.annotation.PutExchange;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;

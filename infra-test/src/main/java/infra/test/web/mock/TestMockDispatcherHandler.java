@@ -26,10 +26,10 @@ import java.util.concurrent.CountDownLatch;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.mock.api.MockException;
-import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.MockException;
+import infra.web.mock.MockAsyncContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.ReturnValueHandler;

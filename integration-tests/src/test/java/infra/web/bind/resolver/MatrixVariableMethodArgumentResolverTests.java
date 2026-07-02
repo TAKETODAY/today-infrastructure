@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.server.RequestPath;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.BindingContext;

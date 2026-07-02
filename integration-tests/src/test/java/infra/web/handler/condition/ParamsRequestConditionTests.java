@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.handler.condition.ParamsRequestCondition.ParamExpression;
 import infra.web.mock.MockRequestContext;
 

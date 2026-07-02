@@ -21,9 +21,9 @@ package infra.test.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.Conventions;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockAsyncContext;
+import infra.web.mock.MockResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;

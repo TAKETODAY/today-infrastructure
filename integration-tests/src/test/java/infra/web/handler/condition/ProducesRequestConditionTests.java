@@ -24,8 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import infra.http.MediaType;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.accept.HeaderContentNegotiationStrategy;

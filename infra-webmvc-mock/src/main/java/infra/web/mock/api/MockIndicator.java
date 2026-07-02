@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-present the original author or authors.
+ * Copyright 2017 - 2026 the TODAY authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-// Modifications Copyright 2017 - 2026 the TODAY authors.
+package infra.web.mock.api;
 
-package infra.mock.api;
+import infra.web.RequestContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 /**
- * Enumeration of filter dispatcher types.
+ * Interface to indicate {@link RequestContext} running in servlet
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see RequestContext
+ * @since 4.0 2023/3/6 17:27
  */
-public enum DispatcherType {
-  FORWARD, INCLUDE, REQUEST, ASYNC, ERROR
+public interface MockIndicator {
+
+  MockRequest getRequest();
+
+  MockResponse getResponse();
+
 }

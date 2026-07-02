@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.session.AttributeBindingListener;
 import infra.session.Session;
+import infra.web.mock.MockSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.session.Session;
 
 import static java.util.Map.entry;

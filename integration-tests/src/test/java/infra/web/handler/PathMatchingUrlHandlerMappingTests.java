@@ -24,8 +24,8 @@ import java.util.stream.Stream;
 
 import infra.context.ApplicationContext;
 import infra.context.support.ClassPathXmlApplicationContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;

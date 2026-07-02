@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
@@ -26,13 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.mock.api.MockHandler;
-import infra.mock.web.MockResponse;
 import infra.util.ObjectUtils;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.RequestContext;
-import infra.web.mock.MockUtils;
+import infra.web.mock.api.MockHandler;
 
 /**
  * Mock implementation of the {@link FilterChain} interface.

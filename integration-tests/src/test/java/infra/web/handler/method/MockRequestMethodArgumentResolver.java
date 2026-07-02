@@ -20,12 +20,11 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
 
 /**
  * Resolves servlet backed request-related method arguments. Supports values of the

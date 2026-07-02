@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
 
 import static infra.http.HttpMethod.GET;

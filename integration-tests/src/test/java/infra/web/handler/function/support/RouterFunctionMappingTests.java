@@ -28,8 +28,8 @@ import java.util.Optional;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.converter.HttpMessageConverter;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.RouterFunction;

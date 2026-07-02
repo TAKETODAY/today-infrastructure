@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
 import infra.web.mock.MockRequestContext;

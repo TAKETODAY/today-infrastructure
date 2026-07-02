@@ -48,10 +48,10 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockSession;
+import infra.web.mock.api.MockContext;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockSession;
 import infra.session.Session;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
@@ -192,7 +192,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
   }
 
   /**
-   * Set the secure property of the {@link infra.mock.web.MockRequest} indicating use of a
+   * Set the secure property of the {@link MockRequest} indicating use of a
    * secure channel, such as HTTPS.
    *
    * @param secure whether the request is using a secure channel

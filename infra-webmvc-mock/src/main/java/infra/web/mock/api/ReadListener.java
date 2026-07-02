@@ -18,7 +18,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api;
+package infra.web.mock.api;
 
 import java.io.IOException;
 import java.util.EventListener;

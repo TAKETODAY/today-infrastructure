@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.http.MediaType;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;

@@ -33,9 +33,9 @@ import java.util.Map;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.View;

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 

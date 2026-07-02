@@ -27,9 +27,9 @@ import java.util.Map;
 
 import infra.beans.propertyeditors.StringTrimmerEditor;
 import infra.core.conversion.support.DefaultConversionService;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MultipartMockRequest;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MultipartMockRequest;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
 import infra.web.ResolvableMethod;

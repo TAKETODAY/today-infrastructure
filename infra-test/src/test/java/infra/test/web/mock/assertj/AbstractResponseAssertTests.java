@@ -25,7 +25,7 @@ import java.util.Map;
 
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

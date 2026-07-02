@@ -21,7 +21,7 @@ package infra.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.ConfigurableApplicationContext;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 
 /**
  * Interface to be implemented by configurable web application contexts.

@@ -27,7 +27,7 @@ import java.util.List;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

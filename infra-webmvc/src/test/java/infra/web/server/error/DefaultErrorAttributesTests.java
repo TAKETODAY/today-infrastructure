@@ -29,8 +29,8 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.HttpStatus;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.util.ReflectionUtils;
 import infra.validation.BindException;
 import infra.validation.BindingResult;

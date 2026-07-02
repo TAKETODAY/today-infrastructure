@@ -17,8 +17,8 @@
 package infra.web.bind;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MultipartMockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MultipartMockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.multipart.MultipartRequest;
 

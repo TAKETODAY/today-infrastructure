@@ -29,9 +29,6 @@ import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
-import infra.mock.api.MockContext;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.stereotype.Component;
 import infra.web.RequestContextHolder;
@@ -40,7 +37,10 @@ import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.mock.MockContextAware;
 import infra.web.mock.MockContextAwareProcessor;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
+import infra.web.mock.api.MockContext;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web servlet environments.

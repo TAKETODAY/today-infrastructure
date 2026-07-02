@@ -29,8 +29,8 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.server.RequestPath;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.annotation.PathVariable;
 import infra.web.handler.method.ResolvableMethodParameter;

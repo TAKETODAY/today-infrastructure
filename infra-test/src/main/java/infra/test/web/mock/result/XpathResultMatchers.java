@@ -27,7 +27,7 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.util.XpathExpectationsHelper;
 import infra.test.web.mock.ResultMatcher;
 

@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.api.MockException;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockRequest;
+import infra.web.mock.api.MockException;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockRequest;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.annotation.GET;
 import infra.web.annotation.GetMapping;
@@ -83,10 +83,10 @@ public class RequestMappingVersionHandlerMethodTests {
             .isEqualTo("<https://example.org/deprecation>; rel=\"deprecation\"; type=\"text/html\"");
   }
 
-  private infra.mock.web.MockResponse requestWithVersion(String version) throws MockException {
+  private MockResponse requestWithVersion(String version) throws MockException {
     MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-VERSION", version);
-    infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
+    MockResponse response = new MockResponse();
     this.dispatcher.service(request, response);
     return response;
   }

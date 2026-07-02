@@ -21,7 +21,7 @@ package infra.test.web.mock.result;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;

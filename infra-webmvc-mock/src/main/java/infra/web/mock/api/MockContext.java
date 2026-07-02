@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package infra.web;
+package infra.web.mock.api;
 
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.core.AttributeAccessor;
 
-/**
- * Interface to indicate {@link RequestContext} running in servlet
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see RequestContext
- * @since 4.0 2023/3/6 17:27
- */
-public interface MockIndicator {
-
-  MockRequest getRequest();
-
-  MockResponse getResponse();
+public interface MockContext extends AttributeAccessor {
 
 }

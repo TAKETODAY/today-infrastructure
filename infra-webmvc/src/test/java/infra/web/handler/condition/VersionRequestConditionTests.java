@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.HandlerMapping;
 import infra.web.RequestContext;
 import infra.web.accept.DefaultApiVersionStrategy;

@@ -39,7 +39,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.core.env.PropertiesPropertySource;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.web.HandlerInterceptor;

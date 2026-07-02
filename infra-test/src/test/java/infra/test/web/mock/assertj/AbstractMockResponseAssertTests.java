@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import infra.http.HttpHeaders;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.json.JsonContent;
 
 import static org.assertj.core.api.Assertions.assertThat;

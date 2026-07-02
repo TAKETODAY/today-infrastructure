@@ -35,7 +35,7 @@ import infra.beans.factory.InitializingBean;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.context.support.ClassPathXmlApplicationContext;
 import org.jspecify.annotations.Nullable;
-import infra.mock.api.MockException;
+import infra.web.mock.api.MockException;
 import infra.transaction.NoTransactionException;
 import infra.transaction.interceptor.TransactionInterceptor;
 import infra.transaction.testfixture.CallCountingTransactionManager;

@@ -35,8 +35,8 @@ import java.util.Set;
 
 import infra.beans.DirectFieldAccessor;
 import infra.http.MediaType;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.ui.ModelMap;
 import infra.validation.BindingResult;
 import infra.web.RequestContext;

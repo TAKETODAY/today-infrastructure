@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.Conventions;
 import infra.lang.Assert;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.HandlerInterceptor;

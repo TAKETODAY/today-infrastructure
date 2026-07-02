@@ -29,7 +29,7 @@ import java.util.List;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.util.StringUtils;
 import infra.web.mock.MockRequestContext;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;

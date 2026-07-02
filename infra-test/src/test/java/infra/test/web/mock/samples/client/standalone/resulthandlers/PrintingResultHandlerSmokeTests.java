@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 
 import infra.http.MediaType;
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.reactive.server.EntityExchangeResult;
 import infra.test.web.reactive.server.WebTestClient;

@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 
 /**
  * {@link BeanPostProcessor} implementation

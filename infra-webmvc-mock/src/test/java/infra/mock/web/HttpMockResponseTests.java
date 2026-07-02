@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
-import infra.mock.api.http.Cookie;
+import infra.web.mock.MockCookie;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.Cookie;
 
 import static infra.http.HttpHeaders.CONTENT_LANGUAGE;
 import static infra.http.HttpHeaders.CONTENT_LENGTH;
@@ -41,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 /**
- * Unit tests for {@link infra.mock.web.MockResponse}.
+ * Unit tests for {@link MockResponse}.
  *
  * @author Juergen Hoeller
  * @author Rick Evans
@@ -54,7 +56,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
  */
 class HttpMockResponseTests {
 
-  private infra.mock.web.MockResponse response = new infra.mock.web.MockResponse();
+  private MockResponse response = new MockResponse();
 
   @ParameterizedTest  // gh-26488
   @ValueSource(strings = {
@@ -116,7 +118,7 @@ class HttpMockResponseTests {
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
-    response = new infra.mock.web.MockResponse();
+    response = new MockResponse();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
@@ -131,7 +133,7 @@ class HttpMockResponseTests {
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
-    response = new infra.mock.web.MockResponse();
+    response = new MockResponse();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
@@ -146,7 +148,7 @@ class HttpMockResponseTests {
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
-    response = new infra.mock.web.MockResponse();
+    response = new MockResponse();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);

@@ -30,7 +30,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.util.function.SingletonSupplier;
 import infra.web.RequestContext;

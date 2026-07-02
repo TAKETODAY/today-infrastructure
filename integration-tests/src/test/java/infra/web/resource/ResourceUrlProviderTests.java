@@ -33,7 +33,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.mock.MockRequestContext;
 

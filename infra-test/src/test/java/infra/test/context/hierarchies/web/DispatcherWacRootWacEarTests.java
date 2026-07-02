@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;

@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.FilterChain;
 import infra.web.cors.CorsConfiguration;
 import infra.web.cors.DefaultCorsProcessor;

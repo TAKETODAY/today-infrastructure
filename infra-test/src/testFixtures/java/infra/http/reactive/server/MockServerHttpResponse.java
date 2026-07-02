@@ -36,12 +36,12 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.lang.Assert;
 import org.jspecify.annotations.Nullable;
-import infra.mock.api.AsyncContext;
-import infra.mock.api.AsyncEvent;
-import infra.mock.api.AsyncListener;
-import infra.mock.api.MockOutputStream;
-import infra.mock.api.WriteListener;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.api.AsyncListener;
+import infra.web.mock.api.MockOutputStream;
+import infra.web.mock.api.WriteListener;
+import infra.web.mock.MockResponse;
 
 /**
  * Adapt {@link ServerHttpResponse} to the Servlet {@link MockResponse}.

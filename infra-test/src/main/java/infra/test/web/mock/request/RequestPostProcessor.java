@@ -18,7 +18,7 @@
 
 package infra.test.web.mock.request;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 
 /**
  * Extension point for applications or 3rd party libraries that wish to further

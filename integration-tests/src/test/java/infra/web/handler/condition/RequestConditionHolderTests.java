@@ -21,8 +21,7 @@ package infra.web.handler.condition;
 import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

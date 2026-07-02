@@ -29,7 +29,7 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

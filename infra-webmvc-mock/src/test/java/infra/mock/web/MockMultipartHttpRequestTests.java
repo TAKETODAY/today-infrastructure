@@ -30,6 +30,9 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
+import infra.web.mock.MockMemoryFilePart;
+import infra.web.mock.MockMemoryPart;
+import infra.web.mock.MultipartMockRequest;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
 

@@ -26,12 +26,12 @@ import java.util.List;
 
 import infra.beans.Mergeable;
 import infra.lang.Assert;
-import infra.mock.api.AsyncContext;
-import infra.mock.api.DispatcherType;
-import infra.mock.api.MockContext;
-import infra.mock.web.MockFilterChain;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.DispatcherType;
+import infra.web.mock.api.MockContext;
+import infra.web.mock.MockFilterChain;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
@@ -174,14 +174,14 @@ public final class MockMvc {
     MockRequest request = requestBuilder.buildRequest(this.mockContext);
 
     AsyncContext asyncContext = request.getAsyncContext();
-    infra.mock.web.MockResponse mockResponse;
+    MockResponse mockResponse;
     MockResponse servletResponse;
     if (asyncContext != null) {
       servletResponse = asyncContext.getResponse();
       mockResponse = servletResponse;
     }
     else {
-      mockResponse = new infra.mock.web.MockResponse();
+      mockResponse = new MockResponse();
       servletResponse = mockResponse;
     }
 

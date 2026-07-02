@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
@@ -44,10 +44,10 @@ import java.util.TimeZone;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.MockOutputStream;
-import infra.mock.api.http.Cookie;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.api.MockOutputStream;
 
 /**
  * @author Juergen Hoeller
@@ -76,7 +76,7 @@ public class MockResponse {
 
   /**
    * {@code true} if the character encoding has been explicitly set through
-   * {@link infra.mock.web.MockResponse} methods or through a {@code charset} parameter
+   * {@link MockResponse} methods or through a {@code charset} parameter
    * on the {@code Content-Type}.
    */
   private boolean characterEncodingSet = false;
@@ -178,7 +178,7 @@ public class MockResponse {
 
   /**
    * Determine whether the character encoding has been explicitly set through
-   * {@link infra.mock.web.MockResponse} methods or through a {@code charset} parameter
+   * {@link MockResponse} methods or through a {@code charset} parameter
    * on the {@code Content-Type}.
    * <p>If {@code false}, {@link #getCharacterEncoding()} will return the
    * {@linkplain #setDefaultCharacterEncoding(String) default character encoding}.
@@ -261,7 +261,7 @@ public class MockResponse {
   /**
    * Get the content of the response body as a {@code String}, using the charset
    * specified for the response by the application, either through
-   * {@link infra.mock.web.MockResponse} methods or through a charset parameter on the
+   * {@link MockResponse} methods or through a charset parameter on the
    * {@code Content-Type}. If no charset has been explicitly defined, the
    * {@linkplain #setDefaultCharacterEncoding(String) default character encoding}
    * will be used.
@@ -280,7 +280,7 @@ public class MockResponse {
    * Get the content of the response body as a {@code String}, using the provided
    * {@code fallbackCharset} if no charset has been explicitly defined and otherwise
    * using the charset specified for the response by the application, either
-   * through {@link infra.mock.web.MockResponse} methods or through a charset parameter on the
+   * through {@link MockResponse} methods or through a charset parameter on the
    * {@code Content-Type}.
    *
    * @return the content as a {@code String}

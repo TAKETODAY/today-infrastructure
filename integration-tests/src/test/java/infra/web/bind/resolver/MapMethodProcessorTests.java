@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.ResolvableMethod;

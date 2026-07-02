@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 
 import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 

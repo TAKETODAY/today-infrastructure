@@ -18,11 +18,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api;
+package infra.web.mock.api;
 
 import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import infra.web.mock.MockResponse;
 
 /**
  * Provides an output stream for sending binary data to the client. A <code>ServletOutputStream</code> object is

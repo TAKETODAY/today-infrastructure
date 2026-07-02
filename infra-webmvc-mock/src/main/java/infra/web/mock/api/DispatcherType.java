@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package infra.mock.api;
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
-import infra.core.AttributeAccessor;
+package infra.web.mock.api;
 
-public interface MockContext extends AttributeAccessor {
-
+/**
+ * Enumeration of filter dispatcher types.
+ */
+public enum DispatcherType {
+  FORWARD, INCLUDE, REQUEST, ASYNC, ERROR
 }

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;

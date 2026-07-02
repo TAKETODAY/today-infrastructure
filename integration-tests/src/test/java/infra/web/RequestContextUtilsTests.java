@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.TimeZone;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.mock.MockRequestContext;

@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.util.concurrent.Future;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.CallableProcessingInterceptor;

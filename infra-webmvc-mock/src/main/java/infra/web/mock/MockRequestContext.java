@@ -43,11 +43,6 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockSession;
-import infra.mock.web.MultipartMockRequest;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
@@ -56,10 +51,11 @@ import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
-import infra.web.MockIndicator;
 import infra.web.RequestContext;
 import infra.web.async.AsyncWebRequest;
 import infra.web.context.support.SessionManagerDiscover;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.api.MockIndicator;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.UriBuilder;
 
@@ -97,11 +93,11 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public MockRequestContext(ApplicationContext context) {
-    this(context, new MockRequest(), new infra.mock.web.MockResponse());
+    this(context, new MockRequest(), new MockResponse());
   }
 
   public MockRequestContext(MockRequest request) {
-    this(null, request, new infra.mock.web.MockResponse());
+    this(null, request, new MockResponse());
   }
 
   public MockRequestContext(MockRequest request, MockResponse response) {
@@ -109,7 +105,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public MockRequestContext(ApplicationContext context, MockRequest request) {
-    this(context, request, new infra.mock.web.MockResponse(), null);
+    this(context, request, new MockResponse(), null);
   }
 
   public MockRequestContext(ApplicationContext context,
@@ -122,7 +118,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public MockRequestContext(MockRequest request, DispatcherHandler dispatcherHandler) {
-    this(dispatcherHandler.getApplicationContext(), request, new infra.mock.web.MockResponse(), dispatcherHandler);
+    this(dispatcherHandler.getApplicationContext(), request, new MockResponse(), dispatcherHandler);
   }
 
   public MockRequestContext(@Nullable ApplicationContext context, MockRequest request,

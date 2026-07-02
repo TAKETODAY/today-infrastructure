@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.mock.api.MockHandler;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockFilterChain;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.MockHandler;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockFilterChain;
+import infra.web.mock.MockResponse;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.mock.MockRequestContext;

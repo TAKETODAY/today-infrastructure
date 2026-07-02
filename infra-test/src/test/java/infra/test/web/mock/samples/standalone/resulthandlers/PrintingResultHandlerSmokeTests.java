@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.test.web.mock.result.PrintingResultHandler;
 import infra.web.annotation.RequestMapping;

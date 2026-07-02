@@ -30,14 +30,14 @@ import infra.http.HttpLogging;
 import infra.http.HttpMethod;
 import infra.lang.Assert;
 import infra.logging.Logger;
-import infra.mock.api.AsyncContext;
-import infra.mock.api.AsyncEvent;
-import infra.mock.api.AsyncListener;
-import infra.mock.api.DispatcherType;
-import infra.mock.api.MockException;
-import infra.mock.api.MockHandler;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.api.AsyncListener;
+import infra.web.mock.api.DispatcherType;
+import infra.web.mock.api.MockException;
+import infra.web.mock.api.MockHandler;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 /**
  * Adapt {@link HttpHandler}

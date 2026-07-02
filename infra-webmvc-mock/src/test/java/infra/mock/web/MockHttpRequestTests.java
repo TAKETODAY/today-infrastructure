@@ -33,7 +33,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.http.HttpHeaders;
-import infra.mock.api.http.Cookie;
+import infra.web.mock.MockRequest;
+import infra.web.mock.api.Cookie;
 import infra.util.FileCopyUtils;
 import infra.util.StreamUtils;
 

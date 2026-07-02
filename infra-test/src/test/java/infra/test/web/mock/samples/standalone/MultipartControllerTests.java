@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.HttpMethod;
-import infra.mock.web.MockMemoryFilePart;
-import infra.mock.web.MockMemoryPart;
+import infra.web.mock.MockMemoryFilePart;
+import infra.web.mock.MockMemoryPart;
 import infra.stereotype.Controller;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.request.MockMultipartHttpRequestBuilder;

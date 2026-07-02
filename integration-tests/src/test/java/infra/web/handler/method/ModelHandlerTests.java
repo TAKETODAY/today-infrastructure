@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.validation.BindingResult;

@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;

@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import infra.http.HttpStatus;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 

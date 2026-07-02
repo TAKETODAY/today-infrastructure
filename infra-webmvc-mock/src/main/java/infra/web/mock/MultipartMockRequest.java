@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
@@ -27,13 +27,13 @@ import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.web.MultipartException;
+import infra.web.mock.api.MockContext;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
-import infra.web.MultipartException;
 import infra.web.util.WebUtils;
 
 /**

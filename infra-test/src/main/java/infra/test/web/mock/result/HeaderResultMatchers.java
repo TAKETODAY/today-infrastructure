@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.http.HttpHeaders;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.ResultMatcher;
 
 import static infra.test.util.AssertionErrors.assertEquals;

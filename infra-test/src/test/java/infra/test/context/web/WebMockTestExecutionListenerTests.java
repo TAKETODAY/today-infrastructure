@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockResponse;
 import infra.test.context.TestContext;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;

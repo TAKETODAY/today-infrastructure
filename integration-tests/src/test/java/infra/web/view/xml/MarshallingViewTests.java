@@ -27,8 +27,8 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamResult;
 
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.oxm.Marshaller;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;

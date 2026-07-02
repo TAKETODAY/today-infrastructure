@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.stereotype.Component;
 import infra.util.MultiValueMapAdapter;
 import infra.web.handler.ReturnValueHandlerManager;

@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
 
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.json.AbstractJsonContentAssert;
 import infra.test.json.JsonContent;
 import infra.test.json.JsonContentAssert;

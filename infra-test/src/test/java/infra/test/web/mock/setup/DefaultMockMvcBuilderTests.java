@@ -26,7 +26,7 @@ import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.support.StaticApplicationContext;
-import infra.mock.web.MockContextImpl;
+import infra.web.mock.MockContextImpl;
 import infra.test.web.mock.MockMvc;
 import infra.web.config.annotation.EnableWebMvc;
 

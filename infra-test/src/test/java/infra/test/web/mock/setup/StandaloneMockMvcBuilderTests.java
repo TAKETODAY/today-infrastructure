@@ -21,8 +21,8 @@ package infra.test.web.mock.setup;
 import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.web.Filter;
 import infra.web.annotation.RequestMapping;

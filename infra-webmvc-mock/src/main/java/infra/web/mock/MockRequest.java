@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
@@ -46,20 +46,18 @@ import java.util.stream.Collectors;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.AsyncContext;
-import infra.mock.api.DispatcherType;
-import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
-import infra.mock.api.MockInputStream;
-import infra.mock.web.MockResponse;
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockResponse;
 import infra.session.Session;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.api.DispatcherType;
+import infra.web.mock.api.MockContext;
+import infra.web.mock.api.MockException;
+import infra.web.mock.api.MockInputStream;
 import infra.web.multipart.Part;
 
 /**

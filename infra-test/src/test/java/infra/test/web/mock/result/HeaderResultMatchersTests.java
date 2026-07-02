@@ -24,8 +24,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import infra.http.HttpHeaders;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.StubMvcResult;
 

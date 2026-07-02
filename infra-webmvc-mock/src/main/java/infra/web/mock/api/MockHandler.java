@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package infra.web.mock.api;
 
-package infra.mock.web;
+import java.io.IOException;
 
-import infra.core.DefaultAttributeAccessor;
-import infra.mock.api.MockContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
-/**
- * Mock implementation of the {@link MockContext} interface.
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
- */
-public class MockContextImpl extends DefaultAttributeAccessor implements MockContext {
+public interface MockHandler {
+
+  void service(MockRequest req, MockResponse res) throws MockException, IOException;
 
 }

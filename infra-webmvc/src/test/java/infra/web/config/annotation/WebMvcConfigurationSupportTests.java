@@ -38,7 +38,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.scheduling.concurrent.ConcurrentTaskExecutor;
 import infra.stereotype.Controller;
 import infra.validation.BeanPropertyBindingResult;

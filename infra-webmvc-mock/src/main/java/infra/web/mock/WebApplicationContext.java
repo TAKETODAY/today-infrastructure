@@ -21,7 +21,7 @@ package infra.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.ApplicationContext;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 
 /**
  * Interface to provide configuration for a web mvc application. This is read-only while

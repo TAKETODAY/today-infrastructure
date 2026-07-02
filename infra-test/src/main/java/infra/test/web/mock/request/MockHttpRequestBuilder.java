@@ -22,7 +22,7 @@ import java.net.URI;
 
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.test.web.mock.MockMvc;
 import infra.web.util.UriComponentsBuilder;
 

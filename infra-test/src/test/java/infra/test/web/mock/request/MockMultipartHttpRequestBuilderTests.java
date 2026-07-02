@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockMemoryFilePart;
-import infra.mock.web.MockMemoryPart;
-import infra.mock.web.MultipartMockRequest;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockMemoryFilePart;
+import infra.web.mock.MockMemoryPart;
+import infra.web.mock.MultipartMockRequest;
 import infra.web.multipart.Part;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

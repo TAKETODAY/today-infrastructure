@@ -34,8 +34,8 @@ import infra.http.MediaType;
 import infra.http.server.MockServerHttpRequest;
 import infra.http.server.MockServerHttpResponse;
 import infra.lang.Constant;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

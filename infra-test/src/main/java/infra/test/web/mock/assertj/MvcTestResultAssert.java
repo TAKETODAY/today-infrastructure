@@ -33,9 +33,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockRequest;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockRequest;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultHandler;

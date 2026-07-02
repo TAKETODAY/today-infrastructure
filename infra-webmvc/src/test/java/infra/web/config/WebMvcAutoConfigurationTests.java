@@ -72,7 +72,7 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;

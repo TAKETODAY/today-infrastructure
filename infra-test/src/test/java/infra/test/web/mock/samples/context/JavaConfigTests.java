@@ -27,7 +27,7 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.MediaType;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;

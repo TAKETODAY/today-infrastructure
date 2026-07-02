@@ -22,10 +22,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.mock.api.MockContext;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockSession;
+import infra.web.mock.api.MockContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockSession;
 import infra.test.context.junit4.InfraRunner;
 import infra.web.RequestContext;
 import infra.web.mock.MockContextAware;

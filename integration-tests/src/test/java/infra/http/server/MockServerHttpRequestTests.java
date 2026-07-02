@@ -30,7 +30,7 @@ import java.util.List;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

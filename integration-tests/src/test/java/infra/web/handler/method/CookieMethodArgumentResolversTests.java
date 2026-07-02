@@ -23,10 +23,10 @@ import java.lang.reflect.Method;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockResponse;
 import infra.web.annotation.CookieValue;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.CookieParameterResolver;

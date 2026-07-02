@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationStrategy;

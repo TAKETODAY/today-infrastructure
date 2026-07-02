@@ -25,7 +25,7 @@ import java.util.List;
 
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.web.annotation.RequestParam;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;

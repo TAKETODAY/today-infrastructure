@@ -20,7 +20,7 @@ package infra.test.web.mock.result;
 
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.web.mock.StubMvcResult;
 
 import static infra.test.web.mock.result.MockMvcResultMatchers.forwardedUrl;

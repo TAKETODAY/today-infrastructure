@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import infra.core.task.AsyncTaskExecutor;
-import infra.mock.api.AsyncEvent;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockAsyncContext;
-import infra.mock.web.MockResponse;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockAsyncContext;
+import infra.web.mock.MockResponse;
 import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.async.AsyncRequestTimeoutException;

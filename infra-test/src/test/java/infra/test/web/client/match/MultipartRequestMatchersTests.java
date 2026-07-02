@@ -30,7 +30,7 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
 import infra.mock.http.client.MockClientHttpRequest;
-import infra.mock.web.MockMemoryFilePart;
+import infra.web.mock.MockMemoryFilePart;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.multipart.Part;

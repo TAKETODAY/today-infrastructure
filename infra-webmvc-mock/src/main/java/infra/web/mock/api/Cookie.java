@@ -18,7 +18,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api.http;
+package infra.web.mock.api;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import infra.util.ExceptionUtils;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 /**
  * Creates a cookie, a small amount of information sent by a servlet to a Web browser, saved by the browser, and later

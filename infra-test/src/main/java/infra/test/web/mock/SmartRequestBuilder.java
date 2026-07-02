@@ -18,7 +18,7 @@
 
 package infra.test.web.mock;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.test.web.mock.request.RequestPostProcessor;
 
 /**

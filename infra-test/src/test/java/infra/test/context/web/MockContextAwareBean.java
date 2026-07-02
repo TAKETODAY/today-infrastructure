@@ -16,7 +16,7 @@
 
 package infra.test.context.web;
 
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 import infra.web.mock.MockContextAware;
 
 /**

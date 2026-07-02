@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.core.MethodParameter;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;

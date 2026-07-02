@@ -31,8 +31,8 @@ import java.time.temporal.ChronoUnit;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.util.ExceptionUtils;
 import infra.web.mock.MockRequestContext;
 

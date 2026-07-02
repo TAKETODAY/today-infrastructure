@@ -36,7 +36,7 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.mock.api.http.Cookie;
+import infra.web.mock.api.Cookie;
 import infra.test.http.HttpHeadersAssert;
 import infra.test.http.MediaTypeAssert;
 import infra.test.json.AbstractJsonContentAssert;

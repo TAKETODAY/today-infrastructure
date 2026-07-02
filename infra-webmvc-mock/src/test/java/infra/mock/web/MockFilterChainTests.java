@@ -21,7 +21,10 @@ package infra.mock.web;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.mock.api.MockHandler;
+import infra.web.mock.MockFilterChain;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.MockHandler;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.RequestContext;

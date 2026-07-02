@@ -26,8 +26,8 @@ import java.util.List;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
-import infra.mock.web.MockContextImpl;
+import infra.web.mock.api.MockContext;
+import infra.web.mock.MockContextImpl;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;

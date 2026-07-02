@@ -22,9 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Properties;
 
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.util.ExceptionUtils;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -37,7 +38,7 @@ class SimpleMappingExceptionHandlerTests {
 
   private SimpleMappingExceptionHandler exceptionHandler;
   private MockRequest request;
-  private infra.mock.web.MockResponse response;
+  private MockResponse response;
   private Object handler1;
   private Object handler2;
   private Exception genericException;
@@ -48,7 +49,7 @@ class SimpleMappingExceptionHandlerTests {
     handler1 = new String();
     handler2 = new Object();
     request = new MockRequest();
-    response = new infra.mock.web.MockResponse();
+    response = new MockResponse();
     request.setMethod("GET");
     genericException = new Exception();
   }

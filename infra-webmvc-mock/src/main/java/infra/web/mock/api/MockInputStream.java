@@ -18,10 +18,12 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.api;
+package infra.web.mock.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import infra.web.mock.MockRequest;
 
 /**
  * Provides an input stream for reading binary data from a client request, including an efficient <code>readLine</code>

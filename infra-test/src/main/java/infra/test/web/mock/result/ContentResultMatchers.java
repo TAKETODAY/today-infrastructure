@@ -29,7 +29,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import infra.http.MediaType;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockResponse;
 import infra.test.util.JsonExpectationsHelper;
 import infra.test.util.XmlExpectationsHelper;
 import infra.test.web.mock.ResultMatcher;

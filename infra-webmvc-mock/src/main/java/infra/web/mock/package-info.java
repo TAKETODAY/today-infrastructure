@@ -1,4 +1,3 @@
-
 @NullMarked
 package infra.web.mock;
 

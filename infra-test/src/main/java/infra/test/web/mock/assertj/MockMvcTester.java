@@ -33,8 +33,9 @@ import infra.http.HttpMethod;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
-import infra.mock.api.DispatcherType;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockAsyncContext;
+import infra.web.mock.api.DispatcherType;
+import infra.web.mock.MockRequest;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
@@ -86,7 +87,7 @@ import infra.web.mock.MockDispatcherHandler;
  *
  * <p>If the request is processing asynchronously, {@code exchange} waits for
  * its completion, either using the
- * {@linkplain infra.mock.web.MockAsyncContext#setTimeout default
+ * {@linkplain MockAsyncContext#setTimeout default
  * timeout} or a given one. If you prefer to get the result of an
  * asynchronous request immediately, use {@code asyncExchange}:
  * <pre><code class="java">
@@ -444,7 +445,7 @@ public final class MockMvcTester {
    * request is processing asynchronously, wait at most the given
    * {@code timeToWait} duration. If not specified, then fall back on the
    * timeout value associated with the async request, see
-   * {@link infra.mock.web.MockAsyncContext#setTimeout}.
+   * {@link MockAsyncContext#setTimeout}.
    */
   MvcTestResult exchange(RequestBuilder requestBuilder, @Nullable Duration timeToWait) {
     MvcTestResult result = perform(requestBuilder);
@@ -493,7 +494,7 @@ public final class MockMvcTester {
     /**
      * Execute the request. If the request is processing asynchronously,
      * wait at most the given timeout value associated with the async request,
-     * see {@link infra.mock.web.MockAsyncContext#setTimeout}.
+     * see {@link MockAsyncContext#setTimeout}.
      * <p>For simple assertions, you can wrap this builder in
      * {@code assertThat} rather than calling this method explicitly:
      * <pre><code class="java">
@@ -549,7 +550,7 @@ public final class MockMvcTester {
     /**
      * Execute the request. If the request is processing asynchronously,
      * wait at most the given timeout value associated with the async request,
-     * see {@link infra.mock.web.MockAsyncContext#setTimeout}.
+     * see {@link MockAsyncContext#setTimeout}.
      * <p>For simple assertions, you can wrap this builder in
      * {@code assertThat} rather than calling this method explicitly:
      * <pre><code class="java">

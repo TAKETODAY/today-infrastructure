@@ -39,9 +39,9 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContextHolder;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 

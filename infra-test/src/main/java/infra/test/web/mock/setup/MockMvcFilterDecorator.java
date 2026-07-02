@@ -25,7 +25,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.mock.api.DispatcherType;
+import infra.web.mock.api.DispatcherType;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.RequestContext;

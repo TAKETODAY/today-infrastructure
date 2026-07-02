@@ -20,7 +20,7 @@ package infra.test.web.mock.setup;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.mock.api.MockContext;
+import infra.web.mock.api.MockContext;
 import infra.web.mock.WebApplicationContext;
 
 /**

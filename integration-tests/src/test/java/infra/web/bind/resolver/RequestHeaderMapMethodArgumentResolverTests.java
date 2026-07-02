@@ -27,8 +27,8 @@ import java.util.Map;
 
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.http.HttpHeaders;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.annotation.RequestHeader;

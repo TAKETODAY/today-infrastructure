@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.mock.web;
+package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
@@ -26,13 +26,13 @@ import java.util.List;
 
 import infra.beans.BeanUtils;
 import infra.lang.Assert;
-import infra.mock.api.AsyncContext;
-import infra.mock.api.AsyncEvent;
-import infra.mock.api.AsyncListener;
-import infra.mock.api.MockContext;
-import infra.mock.api.MockException;
 import infra.web.async.DeferredResult;
 import infra.web.handler.result.SseEmitter;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.api.AsyncListener;
+import infra.web.mock.api.MockContext;
+import infra.web.mock.api.MockException;
 
 /**
  * Mock implementation of the {@link AsyncContext} interface.
@@ -86,7 +86,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public boolean hasOriginalRequestAndResponse() {
-    return (this.request instanceof MockRequest && this.response instanceof infra.mock.web.MockResponse);
+    return (this.request instanceof MockRequest && this.response instanceof MockResponse);
   }
 
   @Override
@@ -137,7 +137,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   @Override
-  public void addListener(AsyncListener listener, infra.mock.web.MockRequest request, MockResponse response) {
+  public void addListener(AsyncListener listener, MockRequest request, MockResponse response) {
     this.listeners.add(listener);
   }
 

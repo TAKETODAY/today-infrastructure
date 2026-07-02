@@ -32,7 +32,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;

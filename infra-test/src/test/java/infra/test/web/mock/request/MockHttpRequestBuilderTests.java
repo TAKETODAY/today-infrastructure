@@ -32,11 +32,11 @@ import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.mock.api.http.Cookie;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockContextImpl;
-import infra.mock.web.MockResponse;
-import infra.mock.web.MockSession;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockContextImpl;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockSession;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;

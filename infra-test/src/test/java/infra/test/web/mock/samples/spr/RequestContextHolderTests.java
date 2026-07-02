@@ -29,7 +29,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
-import infra.mock.web.MockRequest;
+import infra.web.mock.MockRequest;
 import infra.session.config.EnableSession;
 import infra.test.annotation.DirtiesContext;
 import infra.test.context.ContextConfiguration;

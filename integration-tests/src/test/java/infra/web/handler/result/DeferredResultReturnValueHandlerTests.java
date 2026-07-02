@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CompletableFuture;
 
 import infra.core.MethodParameter;
-import infra.mock.web.MockRequest;
-import infra.mock.web.MockResponse;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
 import infra.web.BindingContext;
