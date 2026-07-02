@@ -488,9 +488,9 @@ class RequestResponseBodyMethodProcessorTests {
     assertContentDisposition(processor, true, "/hello.json;a=b;setup%2Edataless", "encoded dot in path params");
     assertContentDisposition(processor, true, "/hello.dataless%3Bsetup.bat", "encoded dot in path params");
 
-//    this.servletRequest.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/hello.bat");
+//    this.mockRequest.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/hello.bat");
 //    assertContentDisposition(processor, true, "/bonjour", "forwarded URL");
-//    this.servletRequest.removeAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE);
+//    this.mockRequest.removeAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE);
   }
 
   @Test

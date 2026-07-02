@@ -70,15 +70,15 @@ class RequestPredicatesTests {
   void methodCorsPreFlight() {
     RequestPredicate predicate = RequestPredicates.method(HttpMethod.PUT);
 
-    ServerRequest request = initRequest("OPTIONS", "https://example.com", servletRequest -> {
-      servletRequest.addHeader("Origin", "https://example.com");
-      servletRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PUT");
+    ServerRequest request = initRequest("OPTIONS", "https://example.com", mockRequest -> {
+      mockRequest.addHeader("Origin", "https://example.com");
+      mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PUT");
     });
     assertThat(predicate.test(request)).isTrue();
 
-    request = initRequest("OPTIONS", "https://example.com", servletRequest -> {
-      servletRequest.removeHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
-      servletRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST");
+    request = initRequest("OPTIONS", "https://example.com", mockRequest -> {
+      mockRequest.removeHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+      mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST");
     });
     assertThat(predicate.test(request)).isFalse();
   }
@@ -148,7 +148,7 @@ class RequestPredicatesTests {
   @Test
   public void pathWithContext() {
     RequestPredicate predicate = RequestPredicates.path("/p*");
-    ServerRequest request = initRequest("GET", "/path", servletRequest -> { });
+    ServerRequest request = initRequest("GET", "/path", mockRequest -> { });
     assertThat(predicate.test(request)).isTrue();
   }
 
@@ -167,9 +167,9 @@ class RequestPredicatesTests {
   @Test
   void headersCors() {
     RequestPredicate predicate = RequestPredicates.headers(headers -> false);
-    ServerRequest request = initRequest("OPTIONS", "https://example.com", servletRequest -> {
-      servletRequest.addHeader("Origin", "https://example.com");
-      servletRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PUT");
+    ServerRequest request = initRequest("OPTIONS", "https://example.com", mockRequest -> {
+      mockRequest.addHeader("Origin", "https://example.com");
+      mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PUT");
     });
     assertThat(predicate.test(request)).isTrue();
   }

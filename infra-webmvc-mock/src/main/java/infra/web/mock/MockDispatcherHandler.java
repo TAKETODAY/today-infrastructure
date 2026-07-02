@@ -31,7 +31,7 @@ import infra.web.mock.api.MockException;
 import infra.web.mock.api.MockHandler;
 
 /**
- * Central dispatcher for HTTP request handlers/controllers in Servlet
+ * Central dispatcher for HTTP request handlers/controllers in Mock
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.0 2018-06-25 19:47:14

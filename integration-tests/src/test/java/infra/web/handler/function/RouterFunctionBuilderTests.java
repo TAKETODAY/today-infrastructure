@@ -235,10 +235,10 @@ class RouterFunctionBuilderTests {
             .onError(Exception.class, (t, r) -> ServerResponse.status(201).build())
             .build();
 
-    MockRequest servletRequest = new MockRequest("GET", "/error");
+    MockRequest mockRequest = new MockRequest("GET", "/error");
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest serverRequest = new DefaultServerRequest(requestContext, emptyList());
 
@@ -255,9 +255,9 @@ class RouterFunctionBuilderTests {
 
   private ServerRequest initRequest(
           String httpMethod, String requestUri, @Nullable Consumer<MockRequest> consumer) {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     return new DefaultServerRequest(requestContext, emptyList());
   }
 

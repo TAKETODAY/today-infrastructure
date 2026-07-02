@@ -68,10 +68,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void get() throws Throwable {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -95,12 +95,12 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void getRange() throws Throwable {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    servletRequest.addHeader("Range", "bytes=0-5");
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    mockRequest.addHeader("Range", "bytes=0-5");
     MockResponse mockResponse = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(
-            null, servletRequest, mockResponse);
+            null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -128,12 +128,12 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void getInvalidRange() throws Throwable {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    servletRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    mockRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
     MockResponse mockResponse = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(
-            null, servletRequest, mockResponse);
+            null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -158,10 +158,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void head() throws Throwable {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -185,10 +185,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void options() throws Throwable {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -210,10 +210,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void postMethodNotAllowed() throws Exception {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -224,10 +224,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void putMethodNotAllowed() throws Exception {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -238,10 +238,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void deleteMethodNotAllowed() throws Exception {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -252,10 +252,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void patchMethodNotAllowed() throws Exception {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -266,10 +266,10 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void traceMethodNotAllowed() throws Exception {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -306,9 +306,9 @@ class ResourceHandlerFunctionTests {
 
   @Test
   void resourceHandlerFunctionWithHeadersConsumer() throws Throwable {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     BiConsumer<Resource, HttpHeaders> headersConsumer = (resource, headers) -> headers.set("X-Test-Header", "test-value");

@@ -61,7 +61,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   /**
    * Construct a new instance of the MockServerHttpResponse based on the given {@link MockResponse}.
    *
-   * @param mockResponse the servlet response
+   * @param mockResponse the mock response
    */
   public MockServerHttpResponse(MockResponse mockResponse) {
     Assert.notNull(mockResponse, "HttpMockResponse is required");

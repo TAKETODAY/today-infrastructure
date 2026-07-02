@@ -24,10 +24,10 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.http.HttpHeaders;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.util.MultiValueMap;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -163,26 +163,26 @@ public class WebUtilsTests {
   }
 
   private boolean checkValidOrigin(String serverName, int port, String originHeader, List<String> allowed) {
-    MockRequest servletRequest = new MockRequest();
-    servletRequest.setServerName(serverName);
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setServerName(serverName);
     if (port != -1) {
-      servletRequest.setServerPort(port);
+      mockRequest.setServerPort(port);
     }
-    servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockResponse());
+    mockRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
+    MockRequestContext context = new MockRequestContext(null, mockRequest, new MockResponse());
     return WebUtils.isValidOrigin(context, allowed);
   }
 
   private boolean checkSameOrigin(String scheme, String serverName, int port, String originHeader) {
-    MockRequest servletRequest = new MockRequest();
-    servletRequest.setScheme(scheme);
-    servletRequest.setServerName(serverName);
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setScheme(scheme);
+    mockRequest.setServerName(serverName);
     if (port != -1) {
-      servletRequest.setServerPort(port);
+      mockRequest.setServerPort(port);
     }
-    servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
+    mockRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockResponse());
+    MockRequestContext context = new MockRequestContext(null, mockRequest, new MockResponse());
     return WebUtils.isSameOrigin(context);
   }
 
@@ -205,10 +205,6 @@ public class WebUtilsTests {
     }
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-//    MockRequest requestToUse = adaptFromForwardedHeaders(request);
-//    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
-//
-//    assertThat(WebUtils.isSameOrigin(httpRequest)).isTrue();
   }
 
   private void testWithForwardedHeader(String serverName, int port, String forwardedHeader,
@@ -221,9 +217,6 @@ public class WebUtilsTests {
     }
     request.addHeader("Forwarded", forwardedHeader);
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
-
-//    MockRequest requestToUse = adaptFromForwardedHeaders(request);
-//    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
 
   }
 

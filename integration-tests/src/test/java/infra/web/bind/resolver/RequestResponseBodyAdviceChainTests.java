@@ -79,13 +79,13 @@ class RequestResponseBodyAdviceChainTests {
     this.paramType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), 0);
     this.returnType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), -1);
 
-    MockRequest servletRequest = new MockRequest();
-    this.request = new MockServerHttpRequest(servletRequest);
+    MockRequest mockRequest = new MockRequest();
+    this.request = new MockServerHttpRequest(mockRequest);
 
     MockResponse mockResponse = new MockResponse();
 
     this.response = new MockServerHttpResponse(mockResponse);
-    this.requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    this.requestContext = new MockRequestContext(null, mockRequest, mockResponse);
   }
 
   @SuppressWarnings("unchecked")

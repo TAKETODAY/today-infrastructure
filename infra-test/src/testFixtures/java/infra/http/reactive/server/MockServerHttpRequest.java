@@ -52,7 +52,7 @@ import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 /**
- * Adapt {@link ServerHttpRequest} to the Servlet {@link MockRequest}.
+ * Adapt {@link ServerHttpRequest} to the Mock {@link MockRequest}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -217,7 +217,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
 
   /**
    * Return an {@link RequestAsyncListener} that completes the request body
-   * Publisher when the Servlet container notifies that request input has ended.
+   * Publisher when the Mock container notifies that request input has ended.
    * The listener is not actually registered but is rather exposed for
    * {@link MockHttpHandlerAdapter} to ensure events are delegated.
    */

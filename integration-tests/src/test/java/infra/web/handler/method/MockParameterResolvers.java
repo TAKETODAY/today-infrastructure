@@ -43,12 +43,12 @@ public class MockParameterResolvers {
   public static void register(ConfigurableBeanFactory beanFactory,
           ParameterResolvingStrategies resolvers) {
     resolvers.add(new MockRequestMethodArgumentResolver());
-    // Servlet cookies parameter
+    // Mock cookies parameter
     // ----------------------------
     resolvers.add(new ForCookie(beanFactory));
     resolvers.add(new ForCookieArray());
     resolvers.add(new ForCookieCollection(beanFactory));
-    // Servlet components parameter
+    // Mock components parameter
     // ----------------------------
     resolvers.add(new ForMockRequest());
     resolvers.add(new ForMockResponse());

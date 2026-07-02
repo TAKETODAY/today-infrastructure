@@ -47,9 +47,7 @@ import infra.core.io.ResourceLoader;
  * <li>The ability to resolve messages, supporting internationalization.
  * Inherited from the {@link MessageSource} interface.
  * <li>Inheritance from a parent context. Definitions in a descendant context
- * will always take priority. This means, for example, that a single parent
- * context can be used by an entire web application, while each servlet has
- * its own child context that is independent of that of any other servlet.
+ * will always take priority.
  * </ul>
  *
  * <p>In addition to standard {@link BeanFactory}

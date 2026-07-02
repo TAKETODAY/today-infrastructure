@@ -24,7 +24,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 /**
- * Event that gets fired when the asynchronous operation initiated on a ServletRequest (via a call to
+ * Event that gets fired when the asynchronous operation initiated on a MockRequest (via a call to
  * {@link MockRequest#startAsync} or {@link MockRequest#startAsync(MockRequest, MockResponse)}) has
  * completed, timed out, or produced an error.
  */
@@ -45,10 +45,10 @@ public class AsyncEvent {
   }
 
   /**
-   * Constructs an AsyncEvent from the given AsyncContext, ServletRequest, and MockResponse.
+   * Constructs an AsyncEvent from the given AsyncContext, MockRequest, and MockResponse.
    *
    * @param context the AsyncContex to be delivered with this AsyncEvent
-   * @param request the ServletRequest to be delivered with this AsyncEvent
+   * @param request the MockRequest to be delivered with this AsyncEvent
    * @param response the MockResponse to be delivered with this AsyncEvent
    */
   public AsyncEvent(AsyncContext context, MockRequest request, MockResponse response) {
@@ -66,10 +66,10 @@ public class AsyncEvent {
   }
 
   /**
-   * Constructs an AsyncEvent from the given AsyncContext, ServletRequest, MockResponse, and Throwable.
+   * Constructs an AsyncEvent from the given AsyncContext, MockRequest, MockResponse, and Throwable.
    *
    * @param context the AsyncContex to be delivered with this AsyncEvent
-   * @param request the ServletRequest to be delivered with this AsyncEvent
+   * @param request the MockRequest to be delivered with this AsyncEvent
    * @param response the MockResponse to be delivered with this AsyncEvent
    * @param throwable the Throwable to be delivered with this AsyncEvent
    */
@@ -90,16 +90,10 @@ public class AsyncEvent {
   }
 
   /**
-   * Gets the ServletRequest from this AsyncEvent.
+   * Gets the MockRequest from this AsyncEvent.
    *
-   * <p>
-   * If the AsyncListener to which this AsyncEvent is being delivered was added using
-   * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the returned ServletRequest will be
-   * the same as the one supplied to the above method. If the AsyncListener was added via
-   * {@link AsyncContext#addListener(AsyncListener)}, this method must return null.
-   *
-   * @return the ServletRequest that was used to initialize this AsyncEvent, or null if this AsyncEvent was initialized
-   * without any ServletRequest
+   * @return the MockRequest that was used to initialize this AsyncEvent, or null if this AsyncEvent was initialized
+   * without any MockRequest
    */
   public MockRequest getSuppliedRequest() {
     return request;

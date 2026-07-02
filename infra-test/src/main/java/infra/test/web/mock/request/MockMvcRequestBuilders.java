@@ -23,7 +23,7 @@ import java.net.URI;
 import infra.http.HttpMethod;
 import infra.web.mock.api.DispatcherType;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
+import infra.web.mock.DefaultMockContext;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
 
@@ -32,7 +32,7 @@ import infra.test.web.mock.RequestBuilder;
  *
  * <h3>Integration with the Infra TestContext Framework</h3>
  * <p>Methods in this class will reuse a
- * {@link MockContextImpl MockContext}
+ * {@link DefaultMockContext MockContext}
  * that was created by the Infra TestContext Framework.
  *
  * <h3>Eclipse Users</h3>

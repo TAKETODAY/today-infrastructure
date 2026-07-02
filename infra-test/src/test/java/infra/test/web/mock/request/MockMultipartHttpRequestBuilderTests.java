@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
+import infra.web.mock.DefaultMockContext;
 import infra.web.mock.MockMemoryFilePart;
 import infra.web.mock.MockMemoryPart;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MultipartMockRequest;
 import infra.web.multipart.Part;
 
@@ -43,7 +43,7 @@ class MockMultipartHttpRequestBuilderTests {
             (MultipartMockRequest) new MockMultipartHttpRequestBuilder("/upload")
                     .file(new MockMemoryFilePart("file", "test.txt", "text/plain", "Test".getBytes(UTF_8)))
                     .part(new MockMemoryPart("name", "value".getBytes(UTF_8)))
-                    .buildRequest(new MockContextImpl());
+                    .buildRequest(new DefaultMockContext());
 
     assertThat(mockRequest.getMultipartRequest().getParts()).containsOnlyKeys("file", "name");
     assertThat(mockRequest.getParameterMap()).containsOnlyKeys("name");
@@ -59,7 +59,7 @@ class MockMultipartHttpRequestBuilderTests {
             (MultipartMockRequest) new MockMultipartHttpRequestBuilder("/upload")
                     .file(new MockMemoryFilePart("file", "Test".getBytes(UTF_8)))
                     .part(jsonPart)
-                    .buildRequest(new MockContextImpl());
+                    .buildRequest(new DefaultMockContext());
 
     assertThat(mockRequest.getMultipartRequest().getParts().toSingleValueMap()).containsOnlyKeys("file", "data");
     assertThat(mockRequest.getParameterMap()).hasSize(1);
@@ -77,7 +77,7 @@ class MockMultipartHttpRequestBuilderTests {
     assertThat(result.getClass()).isEqualTo(MockMultipartHttpRequestBuilder.class);
 
     MockMultipartHttpRequestBuilder builder = (MockMultipartHttpRequestBuilder) result;
-    MockRequest request = builder.buildRequest(new MockContextImpl());
+    MockRequest request = builder.buildRequest(new DefaultMockContext());
     assertThat(request.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 

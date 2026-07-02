@@ -31,7 +31,7 @@ import infra.web.mock.MockResponse;
  * normally retrieved via the {@link MockResponse#getOutputStream} method.
  *
  * <p>
- * This is an abstract class that the servlet container implements. Subclasses of this class must implement the
+ * This is an abstract class that the mock container implements. Subclasses of this class must implement the
  * <code>java.io.OutputStream.write(int)</code> method.
  *
  * @author Various
@@ -63,7 +63,7 @@ public abstract class MockOutputStream extends OutputStream {
       //
       // XXX NOTE: This is clearly incorrect for many strings,
       // but is the only consistent approach within the current
-      // servlet framework. It must suffice until servlet output
+      // mock framework. It must suffice until mock output
       // streams properly encode their output.
       //
       if ((c & 0xff00) != 0) { // high order byte must be zero

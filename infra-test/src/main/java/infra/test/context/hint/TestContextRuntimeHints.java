@@ -46,7 +46,7 @@ class TestContextRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
   public void registerHints(RuntimeHints runtimeHints, ClassLoader classLoader) {
-    boolean servletPresent = ClassUtils.isPresent("infra.mock.api.MockHandler", classLoader);
+    boolean mockPresent = ClassUtils.isPresent("infra.web.mock.api.MockHandler", classLoader);
     boolean groovyPresent = ClassUtils.isPresent("groovy.lang.Closure", classLoader);
 
     ReflectionHints reflectionHints = runtimeHints.reflection();
@@ -62,7 +62,7 @@ class TestContextRuntimeHints implements RuntimeHintsRegistrar {
               // Loaded reflectively in DelegatingSmartContextLoader
               "infra.test.context.support.GenericGroovyXmlContextLoader"
       );
-      if (servletPresent) {
+      if (mockPresent) {
         registerDeclaredConstructors(reflectionHints,
                 // Loaded reflectively in WebDelegatingSmartContextLoader
                 "infra.test.context.web.GenericGroovyXmlWebContextLoader"

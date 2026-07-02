@@ -38,15 +38,14 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
 import infra.test.json.AbstractJsonContentAssert;
 import infra.test.web.mock.assertj.MockMvcTester.MockMvcRequestBuilder;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PostMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
+import infra.web.mock.DefaultMockContext;
+import infra.web.mock.MockRequest;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
@@ -66,8 +65,6 @@ class MockMvcTesterTests {
 
   private static final JacksonJsonHttpMessageConverter jsonHttpMessageConverter =
           new JacksonJsonHttpMessageConverter();
-
-  private final MockContext mockContext = new MockContextImpl();
 
   @Test
   void createShouldRejectNullMockMvc() {
@@ -220,7 +217,7 @@ class MockMvcTesterTests {
 
   private MockRequest createMockHttpRequest(Function<MockMvcTester, MockMvcRequestBuilder> builder) {
     MockMvcTester mockMvcTester = MockMvcTester.of(HelloController.class);
-    return builder.apply(mockMvcTester).buildRequest(this.mockContext);
+    return builder.apply(mockMvcTester).buildRequest(new DefaultMockContext());
   }
 
   private Consumer<MockRequest> hasSettings(HttpMethod method, @Nullable String uriTemplate, String uri) {

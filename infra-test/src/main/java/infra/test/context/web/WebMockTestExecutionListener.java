@@ -30,7 +30,7 @@ import infra.test.context.TestExecutionListener;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.web.RequestContextHolder;
-import infra.web.mock.MockContextImpl;
+import infra.web.mock.DefaultMockContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
@@ -46,7 +46,7 @@ import infra.web.mock.WebApplicationContext;
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
  * MockRequest}, {@link MockResponse}, and
- * {@link infra.web.RequestContext} based on the {@link MockContextImpl} present in
+ * {@link infra.web.RequestContext} based on the {@link DefaultMockContext} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
  * {@code MockHttpMockResponse} and {@code MockRequestContext} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain

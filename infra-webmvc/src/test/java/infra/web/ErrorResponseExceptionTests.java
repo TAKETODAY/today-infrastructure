@@ -211,7 +211,7 @@ class ErrorResponseExceptionTests {
   }
 
   @Test
-  void unsatisfiedServletRequestParameterException() {
+  void unsatisfiedRequestParameterException() {
     LinkedMultiValueMap<String, String> copied = MultiValueMap.copyOf(Collections.singletonMap("q", List.of("1")));
     UnsatisfiedRequestParameterException ex = new UnsatisfiedRequestParameterException(new String[] { "foo=bar", "bar=baz" }, copied);
 

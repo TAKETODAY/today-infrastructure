@@ -604,7 +604,7 @@ public class MockMvcTesterIntegrationTests {
     void assertErrorMessageWithUnresolvedException() {
       assertThatExceptionOfType(AssertionError.class)
               .isThrownBy(() -> assertThat(mvc.get().uri("/error/message")).hasErrorMessage("invalid"))
-              .withMessageContainingAll("[Servlet error message]", "invalid", "expected error message");
+              .withMessageContainingAll("[Mock error message]", "invalid", "expected error message");
     }
 
     @Test

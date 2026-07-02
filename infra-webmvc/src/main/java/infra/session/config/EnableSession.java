@@ -28,7 +28,7 @@ import infra.context.annotation.Import;
  *
  * <p>
  * This annotation enables web session functionality, such as HTTP session management
- * in servlet-based applications. When present on a configuration class, it imports
+ * in mock-based applications. When present on a configuration class, it imports
  * the {@link WebSessionConfiguration} which provides the necessary infrastructure
  * for handling web sessions.
  *

@@ -54,23 +54,11 @@ public class MultipartMockRequest extends MockRequest {
   private final MapMultipartRequest multipartRequest;
 
   /**
-   * Create a new {@code MockMultipartHttpServletRequest} with a default
-   * {@link MockContextImpl}.
+   * Create a new {@code MultipartMockRequest} with the supplied {@link MockContext}.
    *
-   * @see #MultipartMockRequest(MockContext)
    */
   public MultipartMockRequest() {
-    this(null);
-  }
-
-  /**
-   * Create a new {@code MockMultipartHttpServletRequest} with the supplied {@link MockContext}.
-   *
-   * @param mockContext the MockContext that the request runs in
-   * (may be {@code null} to use a default {@link MockContextImpl})
-   */
-  public MultipartMockRequest(@Nullable MockContext mockContext) {
-    super(mockContext);
+    super();
     this.multipartRequest = new MapMultipartRequest();
     setMethod("POST");
     setContentType("multipart/form-data");
@@ -148,7 +136,7 @@ public class MultipartMockRequest extends MockRequest {
         }
       }
       catch (Throwable ex) {
-        throw new MultipartException("Could not access multipart servlet request", ex);
+        throw new MultipartException("Could not access multipart mock request", ex);
       }
       return null;
     }

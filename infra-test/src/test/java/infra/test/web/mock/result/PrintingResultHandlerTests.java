@@ -198,8 +198,8 @@ class PrintingResultHandlerTests {
     assertThat(cookie1.endsWith("]")).isTrue();
     assertThat(cookie2.startsWith("[" + Cookie.class.getSimpleName())).isTrue();
     assertThat(cookie2.contains("name = 'enigma', value = '42', " +
-            "comment = [null], domain = '.example.com', maxAge = 1234, " +
-            "path = '/crumbs', secure = true, version = 0, httpOnly = true")).isTrue();
+            "domain = '.example.com', maxAge = 1234, " +
+            "path = '/crumbs', secure = true, httpOnly = true")).isTrue();
     assertThat(cookie2.endsWith("]")).isTrue();
   }
 

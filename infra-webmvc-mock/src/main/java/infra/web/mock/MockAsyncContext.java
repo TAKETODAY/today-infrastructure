@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.beans.BeanUtils;
 import infra.lang.Assert;
 import infra.web.async.DeferredResult;
 import infra.web.handler.result.SseEmitter;
@@ -32,7 +31,6 @@ import infra.web.mock.api.AsyncContext;
 import infra.web.mock.api.AsyncEvent;
 import infra.web.mock.api.AsyncListener;
 import infra.web.mock.api.MockContext;
-import infra.web.mock.api.MockException;
 
 /**
  * Mock implementation of the {@link AsyncContext} interface.
@@ -143,11 +141,6 @@ public class MockAsyncContext implements AsyncContext {
 
   public List<AsyncListener> getListeners() {
     return this.listeners;
-  }
-
-  @Override
-  public <T extends AsyncListener> T createListener(Class<T> clazz) throws MockException {
-    return BeanUtils.newInstance(clazz);
   }
 
   /**

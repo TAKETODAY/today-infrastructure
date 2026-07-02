@@ -7,7 +7,7 @@
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-MockHttpServletRequestBuilder createMessage = post("/messages/")
+MockHttpRequestBuilder createMessage = post("/messages/")
     .param("summary", "Infra Rocks")
     .param("text", "In case you didn't know, Infra Rocks!");
 
@@ -56,7 +56,7 @@ mockMvc.perform(get("/messages/form"))
     .andExpect(xpath("//input[@name='" + summaryParamName + "']").exists())
     .andExpect(xpath("//textarea[@name='" + textParamName + "']").exists());
 
-MockHttpServletRequestBuilder createMessage = post("/messages/")
+MockHttpRequestBuilder createMessage = post("/messages/")
     .param(summaryParamName, "Infra Rocks")
     .param(textParamName, "In case you didn't know, Infra Rocks!");
 

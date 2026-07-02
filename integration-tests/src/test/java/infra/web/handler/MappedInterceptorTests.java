@@ -60,7 +60,7 @@ class MappedInterceptorTests {
 
   public static Stream<Named<Function<String, MockRequestContext>>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
-            Named.named("ServletRequestPathUtils",
+            Named.named("MockRequestPathUtils",
                     path -> PathPatternsTestUtils.createRequest("GET", contextPath, path)
             )
     );

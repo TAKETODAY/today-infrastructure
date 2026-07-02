@@ -238,7 +238,7 @@ class WebAsyncManagerTests {
   @Test
   public void startCallableProcessingWithAsyncTask() throws Exception {
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-//    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.servletRequest);
+//    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.mockRequest);
 
     WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(1000L, executor, mock(Callable.class));
     this.asyncManager.startCallableProcessing(asyncTask);
@@ -375,7 +375,7 @@ class WebAsyncManagerTests {
   }
 
   private void setupDefaultAsyncScenario() {
-//    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.servletRequest);
+//    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.mockRequest);
     given(this.asyncWebRequest.isAsyncComplete()).willReturn(false);
   }
 

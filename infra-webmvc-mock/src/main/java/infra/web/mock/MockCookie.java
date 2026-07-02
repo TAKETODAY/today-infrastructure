@@ -146,9 +146,6 @@ public class MockCookie extends Cookie {
       else if (StringUtils.startsWithIgnoreCase(attribute, SAME_SITE)) {
         cookie.setSameSite(extractAttributeValue(attribute, setCookieHeader));
       }
-      else if (StringUtils.startsWithIgnoreCase(attribute, "Comment")) {
-        cookie.setComment(extractAttributeValue(attribute, setCookieHeader));
-      }
     }
     return cookie;
   }
@@ -175,8 +172,6 @@ public class MockCookie extends Cookie {
             .append("value", getValue())
             .append("Path", getPath())
             .append("Domain", getDomain())
-            .append("Version", getVersion())
-            .append("Comment", getComment())
             .append("Secure", getSecure())
             .append("HttpOnly", isHttpOnly())
             .append(SAME_SITE, getSameSite())

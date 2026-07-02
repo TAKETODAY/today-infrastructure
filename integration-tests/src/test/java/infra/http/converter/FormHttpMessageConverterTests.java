@@ -506,7 +506,7 @@ class FormHttpMessageConverterTests {
     /**
      * Parses an <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a> compliant {@code multipart/form-data} stream.
      *
-     * @param request The servlet request to be parsed.
+     * @param request The mock request to be parsed.
      * @return A list of {@code FileItem} instances parsed from the request, in the order that they were transmitted.
      * @throws FileUploadException if there are problems reading/parsing the request or storing files.
      */

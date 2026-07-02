@@ -36,7 +36,7 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.aot.AotContextLoader;
 import infra.test.context.support.AbstractContextLoader;
-import infra.web.mock.MockContextImpl;
+import infra.web.mock.DefaultMockContext;
 import infra.web.mock.support.GenericWebApplicationContext;
 
 /**
@@ -84,7 +84,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * {@linkplain GenericWebApplicationContext#setParent(ApplicationContext) set as the parent}
    * for the context created by this method.</li>
    * <li>Delegates to {@link #configureWebResources} to create the
-   * {@link MockContextImpl} and set it in the {@code WebApplicationContext}.</li>
+   * {@link DefaultMockContext} and set it in the {@code WebApplicationContext}.</li>
    * <li>Calls {@link #prepareContext} to allow for customizing the context
    * before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory} to allow for customizing the
@@ -278,14 +278,14 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * supplied WAC will be configured as the Root WAC (see "<em>Root WAC
    * Configuration</em>" below).
    * <p>Otherwise the context hierarchy of the supplied WAC will be traversed
-   * to find the top-most WAC (i.e., the root); and the {@link MockContextImpl}
+   * to find the top-most WAC (i.e., the root); and the {@link DefaultMockContext}
    * of the Root WAC will be set as the {@code MockContext} for the supplied
    * WAC.
    * <h4>Root WAC Configuration</h4>
    * <ul>
    * <li>The resource base path is retrieved from the supplied
    * {@code WebMergedContextConfiguration}.</li>
-   * <li>A {@link ResourceLoader} is instantiated for the {@link MockContextImpl}:
+   * <li>A {@link ResourceLoader} is instantiated for the {@link DefaultMockContext}:
    * if the resource base path is prefixed with "{@code classpath:}", a
    * {@link DefaultResourceLoader} will be used; otherwise, a
    * {@link FileSystemResourceLoader} will be used.</li>

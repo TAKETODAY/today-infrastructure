@@ -156,7 +156,7 @@ class ExceptionHandlerTests {
     void noHandlerFound() {
       WebTestClient client = MockMvcWebTestClient.bindToController(new RestPersonController())
               .controllerAdvice(RestGlobalExceptionHandler.class, RestPersonControllerExceptionHandler.class)
-              .dispatcherCustomizer(servlet -> servlet.setThrowExceptionIfNoHandlerFound(true))
+              .dispatcherCustomizer(mock -> mock.setThrowExceptionIfNoHandlerFound(true))
               .build();
 
       client.get().uri("/bogus")

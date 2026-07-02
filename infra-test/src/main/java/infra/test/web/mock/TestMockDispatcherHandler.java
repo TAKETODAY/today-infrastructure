@@ -71,10 +71,10 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
   @Override
   public void service(MockRequest request, MockResponse response) throws MockException {
     RequestContext context = RequestContextHolder.required();
-    MockRequest servletRequest = MockUtils.getMockRequest(context);
+    MockRequest mockRequest = MockUtils.getMockRequest(context);
     MockResponse mockResponse = MockUtils.getMockResponse(context);
 
-    if (request != servletRequest && response != mockResponse) {
+    if (request != mockRequest && response != mockResponse) {
       context = new MockRequestContext(
               getApplicationContext(), request, response, this);
       RequestContextHolder.set(context);

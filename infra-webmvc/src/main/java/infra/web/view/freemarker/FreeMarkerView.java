@@ -415,7 +415,7 @@ public class FreeMarkerView extends AbstractTemplateView {
 
   /**
    * Extension of FreeMarker {@link SimpleHash}, adding a fallback to request attributes.
-   * Similar to the formerly used {@link freemarker.ext.servlet.AllHttpScopesHashModel},
+   * Similar to the formerly used {@link freemarker.ext.mock.AllHttpScopesHashModel},
    * just limited to common request attribute exposure.
    */
   private static class RequestHashModel extends SimpleHash {

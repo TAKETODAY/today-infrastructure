@@ -145,7 +145,7 @@ public class MockFilterChain implements FilterChain {
     private final MockHandler delegateMockHandler;
 
     private MockFilterProxy(MockHandler mockHandler) {
-      Assert.notNull(mockHandler, "servlet cannot be null");
+      Assert.notNull(mockHandler, "mock cannot be null");
       this.delegateMockHandler = mockHandler;
     }
 

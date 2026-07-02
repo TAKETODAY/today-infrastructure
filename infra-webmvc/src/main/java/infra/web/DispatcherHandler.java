@@ -472,7 +472,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   }
 
   /**
-   * Initialize the RequestToViewNameTranslator used by this servlet instance.
+   * Initialize the RequestToViewNameTranslator used by this mock instance.
    * <p>If no implementation is configured then we default to DefaultRequestToViewNameTranslator.
    *
    * @since 5.0
@@ -804,7 +804,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * Translate the supplied request into a default view name.
    *
-   * @param request current HTTP servlet request
+   * @param request current HTTP mock request
    * @return the view name (or {@code null} if no default found)
    * @throws Exception if view name translation failed
    */

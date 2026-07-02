@@ -75,7 +75,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
    * Construct a new instance of the ServletServerHttpRequest based on the
    * given {@link MockRequest}.
    *
-   * @param mockRequest the servlet request
+   * @param mockRequest the mock request
    */
   public MockServerHttpRequest(MockRequest mockRequest) {
     Assert.notNull(mockRequest, "MockRequest is required");
@@ -104,17 +104,17 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
   }
 
   /**
-   * Initialize a URI from the given Servlet request.
+   * Initialize a URI from the given Mock request.
    *
-   * @param servletRequest the request
+   * @param mockRequest the request
    * @return the initialized URI
    */
-  public static URI initURI(MockRequest servletRequest) {
+  public static URI initURI(MockRequest mockRequest) {
     String urlString = null;
     boolean hasQuery = false;
     try {
-      StringBuffer url = servletRequest.getRequestURL();
-      String query = servletRequest.getQueryString();
+      StringBuffer url = mockRequest.getRequestURL();
+      String query = mockRequest.getQueryString();
       hasQuery = StringUtils.hasText(query);
       if (hasQuery) {
         url.append('?').append(query);
@@ -129,7 +129,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
       }
       // Maybe a malformed query string... try plain request URL
       try {
-        urlString = servletRequest.getRequestURL().toString();
+        urlString = mockRequest.getRequestURL().toString();
         return new URI(urlString);
       }
       catch (URISyntaxException ex2) {
@@ -220,7 +220,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
   /**
    * Use {@link MockRequest#getParameterMap()} to reconstruct the
    * body of a form 'POST' providing a predictable outcome as opposed to reading
-   * from the body, which can fail if any other code has used the ServletRequest
+   * from the body, which can fail if any other code has used the MockRequest
    * to access a parameter, thus causing the input stream to be "consumed".
    */
   private InputStream getBodyFromRequestParameters(MockRequest request) throws IOException {

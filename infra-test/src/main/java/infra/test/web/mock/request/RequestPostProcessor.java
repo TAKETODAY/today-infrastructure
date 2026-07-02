@@ -39,7 +39,7 @@ public interface RequestPostProcessor {
 
   /**
    * Post-process the given {@code MockRequest} after its creation
-   * and initialization through a {@code MockHttpServletRequestBuilder}.
+   * and initialization through a {@code MockHttpRequestBuilder}.
    *
    * @param request the request to initialize
    * @return the request to use, either the one passed in or a wrapped one

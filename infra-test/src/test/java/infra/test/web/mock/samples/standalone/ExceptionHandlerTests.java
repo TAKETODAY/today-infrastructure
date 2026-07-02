@@ -140,7 +140,7 @@ public class ExceptionHandlerTests {
     void noHandlerFound() throws Exception {
       standaloneSetup(RestPersonController.class)
               .setControllerAdvice(RestGlobalExceptionHandler.class, RestPersonControllerExceptionHandler.class)
-              .addDispatcherCustomizer(servlet -> servlet.setThrowExceptionIfNoHandlerFound(true))
+              .addDispatcherCustomizer(handler -> handler.setThrowExceptionIfNoHandlerFound(true))
               .build()
               .perform(get("/bogus").accept(MediaType.APPLICATION_JSON))
               .andExpect(status().isOk())

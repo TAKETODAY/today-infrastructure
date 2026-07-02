@@ -40,8 +40,8 @@ class RequestPredicateTests {
 
   @BeforeEach
   void createRequest() {
-    MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    MockRequestContext requestContext = new MockRequestContext(null, servletRequest, new MockResponse());
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, new MockResponse());
     this.request = new DefaultServerRequest(requestContext, Collections.emptyList());
   }
 

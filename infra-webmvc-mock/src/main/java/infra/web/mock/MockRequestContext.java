@@ -60,7 +60,7 @@ import infra.web.multipart.MultipartRequest;
 import infra.web.util.UriBuilder;
 
 /**
- * Servlet environment implementation
+ * MOCK environment implementation
  *
  * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
@@ -223,10 +223,10 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   @Override
   protected HttpCookie[] readCookies() {
     LinkedHashSet<HttpCookie> requestCookies = new LinkedHashSet<>(this.requestCookies);
-    Cookie[] servletCookies = request.getCookies();
-    if (servletCookies != null) {
-      for (Cookie servletCookie : servletCookies) {
-        HttpCookie httpCookie = new HttpCookie(servletCookie.getName(), servletCookie.getValue());
+    Cookie[] mockCookies = request.getCookies();
+    if (mockCookies != null) {
+      for (Cookie mockCookie : mockCookies) {
+        HttpCookie httpCookie = new HttpCookie(mockCookie.getName(), mockCookie.getValue());
         requestCookies.add(httpCookie);
       }
     }
@@ -356,17 +356,17 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   public void addCookie(ResponseCookie cookie) {
     super.addCookie(cookie);
 
-    Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-    servletCookie.setPath(cookie.getPath());
+    Cookie mockCookie = new Cookie(cookie.getName(), cookie.getValue());
+    mockCookie.setPath(cookie.getPath());
     if (cookie.getDomain() != null) {
-      servletCookie.setDomain(cookie.getDomain());
+      mockCookie.setDomain(cookie.getDomain());
     }
-    servletCookie.setSecure(cookie.isSecure());
-    servletCookie.setHttpOnly(cookie.isHttpOnly());
-    servletCookie.setMaxAge((int) cookie.getMaxAge().toSeconds());
-    servletCookie.setAttribute("SameSite", cookie.getSameSite());
+    mockCookie.setSecure(cookie.isSecure());
+    mockCookie.setHttpOnly(cookie.isHttpOnly());
+    mockCookie.setMaxAge((int) cookie.getMaxAge().toSeconds());
+    mockCookie.setAttribute("SameSite", cookie.getSameSite());
 
-    response.addCookie(servletCookie);
+    response.addCookie(mockCookie);
   }
 
   /**

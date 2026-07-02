@@ -143,12 +143,10 @@ public class MockRequest {
   // Lifecycle properties
   // ---------------------------------------------------------------------
 
-  private final MockContext mockContext;
-
   private boolean active = true;
 
   // ---------------------------------------------------------------------
-  // ServletRequest properties
+  // MockRequest properties
   // ---------------------------------------------------------------------
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
@@ -238,37 +236,12 @@ public class MockRequest {
 
   /**
    * Create a new {@code MockRequest} with a default
-   * {@link MockContextImpl}.
+   * {@link DefaultMockContext}.
    *
-   * @see #MockRequest(MockContext, String, String)
+   * @see #MockRequest(String, String)
    */
   public MockRequest() {
-    this(null, "GET", "");
-  }
-
-  /**
-   * Create a new {@code MockRequest} with a default
-   * {@link MockContextImpl}.
-   *
-   * @param method the request method (may be {@code null})
-   * @param requestURI the request URI (may be {@code null})
-   * @see #setMethod
-   * @see #setRequestURI
-   * @see #MockRequest(MockContext, String, String)
-   */
-  public MockRequest(@Nullable String method, @Nullable String requestURI) {
-    this(null, method, requestURI);
-  }
-
-  /**
-   * Create a new {@code MockRequest} with the supplied {@link MockContext}.
-   *
-   * @param mockContext the MockContext that the request runs in
-   * (may be {@code null} to use a default {@link MockContextImpl})
-   * @see #MockRequest(MockContext, String, String)
-   */
-  public MockRequest(@Nullable MockContext mockContext) {
-    this(mockContext, "", "");
+    this("GET", "");
   }
 
   /**
@@ -276,17 +249,14 @@ public class MockRequest {
    * {@code method}, and {@code requestURI}.
    * <p>The preferred locale will be set to {@link Locale#ENGLISH}.
    *
-   * @param mockContext the MockContext that the request runs in (may be
-   * {@code null} to use a default {@link MockContextImpl})
    * @param method the request method (may be {@code null})
    * @param requestURI the request URI (may be {@code null})
    * @see #setMethod
    * @see #setRequestURI
    * @see #setPreferredLocales
-   * @see MockContextImpl
+   * @see DefaultMockContext
    */
-  public MockRequest(@Nullable MockContext mockContext, @Nullable String method, @Nullable String requestURI) {
-    this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
+  public MockRequest(@Nullable String method, @Nullable String requestURI) {
     this.method = method;
     this.requestURI = requestURI;
     this.locales.add(Locale.ENGLISH);
@@ -295,14 +265,6 @@ public class MockRequest {
   // ---------------------------------------------------------------------
   // Lifecycle methods
   // ---------------------------------------------------------------------
-
-  /**
-   * Return the MockContext that this request is associated with. (Not
-   * available in the standard MockRequest interface for some reason.)
-   */
-  public MockContext getMockContext() {
-    return this.mockContext;
-  }
 
   /**
    * Return whether this request is still active (that is, not completed yet).
@@ -335,7 +297,7 @@ public class MockRequest {
   }
 
   // ---------------------------------------------------------------------
-  // ServletRequest interface
+  // MockRequest interface
   // ---------------------------------------------------------------------
 
   public Object getAttribute(String name) {
@@ -757,7 +719,7 @@ public class MockRequest {
    * <p>If no locales have been explicitly configured, the default,
    * preferred {@link Locale} for the <em>server</em> mocked by this
    * request is {@link Locale#ENGLISH}.
-   * <p>In contrast to the Servlet specification, this mock implementation
+   * <p>In contrast to the Mock specification, this mock implementation
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
@@ -774,7 +736,7 @@ public class MockRequest {
    * <p>If no locales have been explicitly configured, the default,
    * preferred {@link Locale} for the <em>server</em> mocked by this
    * request is {@link Locale#ENGLISH}.
-   * <p>In contrast to the Servlet specification, this mock implementation
+   * <p>In contrast to the Mock specification, this mock implementation
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
@@ -1185,11 +1147,6 @@ public class MockRequest {
     return getSession(true);
   }
 
-  /**
-   * The implementation of this (Servlet 3.1+) method calls
-   * {@link MockSession#changeSessionId()} if the session is a mock session.
-   * Otherwise it simply returns the current session id.
-   */
   public String changeSessionId() {
     Assert.isTrue(this.session != null, "The request does not have a session");
     if (this.session instanceof MockSession mockSession) {

@@ -31,7 +31,7 @@ import infra.web.mock.api.AsyncListener;
 /**
  * A Mock implementation of {@link AsyncWebRequest}.
  *
- * <p>The servlet and all filters involved in an async request must have async
+ * <p>The mock and all filters involved in an async request must have async
  * support enabled using the Mock API or by adding an
  * <code>&lt;async-supported&gt;true&lt;/async-supported&gt;</code> element to Mock and filter
  * declarations in {@code web.xml}.
@@ -78,9 +78,9 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
   @Override
   public void startAsync() {
     Assert.state(mockRequest.isAsyncSupported(),
-            "Async support must be enabled on a servlet and for all filters involved " +
-                    "in async request processing. This is done in Java code using the Servlet API " +
-                    "or by adding \"<async-supported>true</async-supported>\" to servlet and " +
+            "Async support must be enabled on a mock and for all filters involved " +
+                    "in async request processing. This is done in Java code using the Mock API " +
+                    "or by adding \"<async-supported>true</async-supported>\" to mock and " +
                     "filter declarations in web.xml.");
     Assert.state(!isAsyncComplete(), "Async processing has already completed");
 

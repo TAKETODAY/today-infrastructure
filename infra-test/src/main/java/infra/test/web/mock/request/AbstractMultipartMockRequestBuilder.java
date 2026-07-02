@@ -120,7 +120,7 @@ public abstract class AbstractMultipartMockRequestBuilder<B extends AbstractMult
    */
   @Override
   protected final MockRequest createMockRequest(MockContext mockContext) {
-    MultipartMockRequest mockRequest = new MultipartMockRequest(mockContext);
+    MultipartMockRequest mockRequest = new MultipartMockRequest();
     Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
             Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 

@@ -242,7 +242,7 @@ class ConditionEvaluationReportTests {
             "infra.context.condition.config.first.SampleAutoConfiguration",
             "infra.context.condition.config.second.SampleAutoConfiguration");
     assertThat(reportMessage)
-            .doesNotContain("infra.context..web.servlet.WebMvcAutoConfiguration");
+            .doesNotContain("infra.context.web.mock.WebMvcAutoConfiguration");
     context.close();
   }
 

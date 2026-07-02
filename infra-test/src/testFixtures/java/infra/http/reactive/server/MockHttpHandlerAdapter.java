@@ -137,7 +137,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
   protected MockServerHttpRequest createRequest(MockRequest request, AsyncContext context)
           throws IOException, URISyntaxException {
 
-    Assert.notNull(this.mockPath, "Servlet path is not initialized");
+    Assert.notNull(this.mockPath, "Mock path is not initialized");
     return new MockServerHttpRequest(
             request, context, this.mockPath, getDataBufferFactory(), getBufferSize());
   }
@@ -283,7 +283,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
       }
       runIfAsyncNotComplete(this.asyncContext, this.completionFlag, () -> {
         if (this.asyncContext.getResponse().isCommitted()) {
-          logger.trace("{}Dispatch to container, to raise the error on servlet thread", this.logPrefix);
+          logger.trace("{}Dispatch to container, to raise the error on mock thread", this.logPrefix);
           this.asyncContext.getRequest().setAttribute(WRITE_ERROR_ATTRIBUTE_NAME, ex);
           this.asyncContext.dispatch();
         }

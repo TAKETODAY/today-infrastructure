@@ -25,6 +25,6 @@ import infra.web.mock.api.MockContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockContextImpl extends DefaultAttributeAccessor implements MockContext {
+public class DefaultMockContext extends DefaultAttributeAccessor implements MockContext {
 
 }

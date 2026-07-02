@@ -48,10 +48,6 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
 import infra.lang.Assert;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockSession;
 import infra.session.Session;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
@@ -62,6 +58,10 @@ import infra.util.StringUtils;
 import infra.web.RedirectModel;
 import infra.web.client.ApiVersionFormatter;
 import infra.web.client.ApiVersionInserter;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockSession;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.api.MockContext;
 import infra.web.util.UriComponentsBuilder;
 import infra.web.util.UriUtils;
 
@@ -387,10 +387,10 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
 
   /**
    * Add a request parameter to {@link MockRequest#getParameterMap()}.
-   * <p>In the Servlet API, a request parameter may be parsed from the query
+   * <p>In the Mock API, a request parameter may be parsed from the query
    * string and/or from the body of an {@code application/x-www-form-urlencoded}
    * request. This method simply adds to the request parameter map. You may
-   * also use add Servlet request parameters by specifying the query or form
+   * also use add Mock request parameters by specifying the query or form
    * data through one of the following:
    * <ul>
    * <li>Supply a URL with a query to {@link MockMvcRequestBuilders}.
@@ -923,7 +923,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
    * <p>Can be overridden in subclasses.
    */
   protected MockRequest createMockRequest(MockContext mockContext) {
-    return new MockRequest(mockContext);
+    return new MockRequest();
   }
 
   /**

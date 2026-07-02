@@ -21,7 +21,7 @@
 package infra.web.mock.api;
 
 /**
- * Defines a general exception a servlet can throw when it encounters difficulty.
+ * Defines a general exception a mock can throw when it encounters difficulty.
  *
  * @author Various
  */
@@ -32,14 +32,14 @@ public class MockException extends Exception {
   private Throwable rootCause;
 
   /**
-   * Constructs a new servlet exception.
+   * Constructs a new mock exception.
    */
   public MockException() {
     super();
   }
 
   /**
-   * Constructs a new servlet exception with the specified message. The message can be written to the server log and/or
+   * Constructs a new mock exception with the specified message. The message can be written to the server log and/or
    * displayed for the user.
    *
    * @param message a <code>String</code> specifying the text of the exception message
@@ -49,12 +49,12 @@ public class MockException extends Exception {
   }
 
   /**
-   * Constructs a new servlet exception when the servlet needs to throw an exception and include a message about the "root
+   * Constructs a new mock exception when the mock needs to throw an exception and include a message about the "root
    * cause" exception that interfered with its normal operation, including a description message.
    *
    * @param message a <code>String</code> containing the text of the exception message
-   * @param rootCause the <code>Throwable</code> exception that interfered with the servlet's normal operation, making
-   * this servlet exception necessary
+   * @param rootCause the <code>Throwable</code> exception that interfered with the mock's normal operation, making
+   * this mock exception necessary
    */
   public MockException(String message, Throwable rootCause) {
     super(message, rootCause);
@@ -62,7 +62,7 @@ public class MockException extends Exception {
   }
 
   /**
-   * Constructs a new servlet exception when the servlet needs to throw an exception and include a message about the "root
+   * Constructs a new mock exception when the mock needs to throw an exception and include a message about the "root
    * cause" exception that interfered with its normal operation. The exception's message is based on the localized message
    * of the underlying exception.
    *
@@ -71,8 +71,8 @@ public class MockException extends Exception {
    * localized exception message. When subclassing <code>ServletException</code>, this method can be overridden to create
    * an exception message designed for a specific locale.
    *
-   * @param rootCause the <code>Throwable</code> exception that interfered with the servlet's normal operation, making the
-   * servlet exception necessary
+   * @param rootCause the <code>Throwable</code> exception that interfered with the mock's normal operation, making the
+   * mock exception necessary
    */
   public MockException(Throwable rootCause) {
     super(rootCause);
@@ -80,9 +80,9 @@ public class MockException extends Exception {
   }
 
   /**
-   * Returns the exception that caused this servlet exception.
+   * Returns the exception that caused this mock exception.
    *
-   * @return the <code>Throwable</code> that caused this servlet exception
+   * @return the <code>Throwable</code> that caused this mock exception
    */
   public Throwable getRootCause() {
     return rootCause;

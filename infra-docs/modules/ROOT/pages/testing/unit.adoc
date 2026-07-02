@@ -14,7 +14,7 @@ Infra 包含许多专门用于 mocking 的包：
 
 * xref:testing/unit.adoc#mock-objects-env[Environment]
 * xref:testing/unit.adoc#mock-objects-jndi[JNDI]
-* xref:testing/unit.adoc#mock-objects-mockApi[Servlet API]
+* xref:testing/unit.adoc#mock-objects-mockApi[Mock API]
 * xref:testing/unit.adoc#mock-objects-web-reactive[Infra Web Reactive]
 
 
@@ -35,10 +35,10 @@ WARNING: `infra.mock.jndi` 包中的 mock JNDI 支持自 TODAY Framework 5.2 起
 [[mock-objects-mockApi]]
 === Mock API
 
-`infra.mock.web` 包包含一套全面的 Servlet API mock 对象，对于测试 Web 上下文、控制器和过滤器非常有用。这些 mock 对象旨在与 Infra Web MVC 框架一起使用，并且通常比动态 mock 对象（如 https://easymock.org/[EasyMock]）或其他 Servlet API mock 对象（如 http://www.mockobjects.com[MockObjects]）更易于使用。
+`infra.mock.web` 包包含一套全面的 Mock API mock 对象，对于测试 Web 上下文、控制器和过滤器非常有用。这些 mock 对象旨在与 Infra Web MVC 框架一起使用，并且通常比动态 mock 对象（如 https://easymock.org/[EasyMock]）或其他 Mock API mock 对象（如 http://www.mockobjects.com[MockObjects]）更易于使用。
 
 
-Web MVC Test 框架建立在 mock Servlet API 对象之上，为 Web MVC 提供集成测试框架。参见 xref:testing/mvc-test-framework.adoc[MockMvc]。
+Web MVC Test 框架建立在 mock Mock API 对象之上，为 Web MVC 提供集成测试框架。参见 xref:testing/mvc-test-framework.adoc[MockMvc]。
 
 
 [[mock-objects-web-reactive]]

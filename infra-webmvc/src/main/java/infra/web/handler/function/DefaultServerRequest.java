@@ -94,8 +94,8 @@ class DefaultServerRequest implements ServerRequest {
   @Nullable
   private MultiValueMap<String, Part> parts;
 
-  public DefaultServerRequest(RequestContext servletRequest, List<HttpMessageConverter<?>> messageConverters) {
-    this(servletRequest, messageConverters, null);
+  public DefaultServerRequest(RequestContext mockRequest, List<HttpMessageConverter<?>> messageConverters) {
+    this(mockRequest, messageConverters, null);
   }
 
   public DefaultServerRequest(RequestContext requestContext,

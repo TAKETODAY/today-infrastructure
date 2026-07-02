@@ -77,14 +77,14 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
     @Override
     public ClientHttpResponse executeInternal() {
       try {
-        var servletRequestBuilder = request(getMethod(), getURI())
+        var requestBuilder = request(getMethod(), getURI())
                 .headers(getHeaders())
                 .content(getBodyAsBytes());
 
-        addCookies(servletRequestBuilder);
+        addCookies(requestBuilder);
 
         MockResponse mockResponse = MockMvcClientHttpRequestFactory.this.mockMvc
-                .perform(servletRequestBuilder)
+                .perform(requestBuilder)
                 .andReturn()
                 .getResponse();
 

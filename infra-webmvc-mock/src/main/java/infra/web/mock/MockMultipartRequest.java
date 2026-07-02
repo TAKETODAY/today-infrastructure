@@ -28,7 +28,7 @@ import infra.web.multipart.AbstractMultipartRequest;
 import infra.web.multipart.Part;
 
 /**
- * For Servlet Multipart
+ * For mock Multipart
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 17:22
@@ -38,10 +38,10 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
   private final MockRequest request;
 
   /**
-   * Create a new ServletMultipartRequest wrapper for the given request,
+   * Create a new mockMultipartRequest wrapper for the given request,
    * immediately parsing the multipart content.
    *
-   * @param request the servlet request to wrap
+   * @param request the mock request to wrap
    * @throws MultipartException if parsing failed
    */
   public MockMultipartRequest(MockRequest request) throws MultipartException {
@@ -49,9 +49,9 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
   }
 
   /**
-   * Create a new ServletMultipartRequest wrapper for the given request.
+   * Create a new mockMultipartRequest wrapper for the given request.
    *
-   * @param request the servlet request to wrap
+   * @param request the mock request to wrap
    * @param lazyParsing whether multipart parsing should be triggered lazily on
    * first access of multipart files or parameters
    * @throws MultipartException if an immediate parsing attempt failed
@@ -99,7 +99,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
       }
     }
     catch (Throwable ex) {
-      throw new MultipartException("Could not access multipart servlet request", ex);
+      throw new MultipartException("Could not access multipart mock request", ex);
     }
   }
 

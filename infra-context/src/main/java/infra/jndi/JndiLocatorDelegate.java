@@ -44,8 +44,7 @@ public class JndiLocatorDelegate extends JndiLocatorSupport {
    * <p>Note that this flag just affects JNDI fallback searches, not explicitly configured
    * JNDI lookups such as for a {@code DataSource} or some other environment resource.
    * The flag literally just affects code which attempts JNDI searches based on the
-   * {@code JndiLocatorDelegate.isDefaultJndiEnvironmentAvailable()} check: in particular,
-   * {@code StandardServletEnvironment} and {@code StandardPortletEnvironment}.
+   * {@code JndiLocatorDelegate.isDefaultJndiEnvironmentAvailable()} check
    *
    * @see #isDefaultJndiEnvironmentAvailable()
    * @see JndiPropertySource

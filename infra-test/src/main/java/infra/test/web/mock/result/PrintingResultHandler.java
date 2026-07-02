@@ -286,12 +286,10 @@ public class PrintingResultHandler implements ResultHandler {
       cookieStrings[i] = new ToStringBuilder(cookie)
               .append("name", cookie.getName())
               .append("value", cookie.getValue())
-              .append("comment", cookie.getComment())
               .append("domain", cookie.getDomain())
               .append("maxAge", cookie.getMaxAge())
               .append("path", cookie.getPath())
               .append("secure", cookie.getSecure())
-              .append("version", cookie.getVersion())
               .append("httpOnly", cookie.isHttpOnly())
               .toString();
     }

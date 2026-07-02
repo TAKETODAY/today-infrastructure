@@ -136,7 +136,7 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
    *
    * @param resourceLoader the delegate resource loader
    * @param preferFileResolution if file based resolution is preferred over
-   * {@code ServletContextResource} or {@link ClassPathResource} when no resource prefix
+   * {@code ContextResource} or {@link ClassPathResource} when no resource prefix
    * is provided.
    * @return a {@link ResourceLoader} instance
    */

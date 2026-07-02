@@ -24,14 +24,14 @@ import infra.web.FilterChain;
 import infra.web.RequestContext;
 
 /**
- * A generic composite servlet {@link Filter} that just delegates its behavior
+ * A generic composite mock {@link Filter} that just delegates its behavior
  * to a chain (list) of user-supplied filters, achieving the functionality of a
  * {@link FilterChain}, but conveniently using only {@link Filter} instances.
  *
  * <p>This is useful for filters that require dependency injection, and can
  * therefore be set up in a Infra application context. Typically, this
  * composite would be used in conjunction with {@link DelegatingFilterProxy},
- * so that it can be declared in Infra but applied to a servlet context.
+ * so that it can be declared in Infra but applied to a mock context.
  *
  * @author Dave Syer
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

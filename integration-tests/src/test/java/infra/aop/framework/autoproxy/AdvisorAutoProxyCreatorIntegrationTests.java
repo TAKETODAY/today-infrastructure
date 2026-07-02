@@ -121,7 +121,7 @@ class AdvisorAutoProxyCreatorIntegrationTests {
   }
 
   /**
-   * Should not roll back on servlet exception.
+   * Should not roll back on mock exception.
    */
   @Test
   void testRollbackRulesOnMethodCauseRollback() throws Exception {

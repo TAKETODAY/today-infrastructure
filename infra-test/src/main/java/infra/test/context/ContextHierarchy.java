@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * <p>{@code ControllerIntegrationTests} represents a typical integration testing
  * scenario for a MVC web application by declaring a context hierarchy
  * consisting of two levels, one for the <em>root</em> {@code WebApplicationContext}
- * (with {@code TestAppConfig}) and one for the <em>dispatcher servlet</em>
+ * (with {@code TestAppConfig}) and one for the <em>dispatcher</em>
  * {@code WebApplicationContext} (with {@code WebConfig}). The {@code
  * WebApplicationContext} that is <em>autowired</em> into the test instance is
  * the one for the child context (i.e., the lowest context in the hierarchy).

@@ -44,7 +44,7 @@ import infra.web.mock.api.WriteListener;
 import infra.web.mock.MockResponse;
 
 /**
- * Adapt {@link ServerHttpResponse} to the Servlet {@link MockResponse}.
+ * Adapt {@link ServerHttpResponse} to the mock {@link MockResponse}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -154,8 +154,8 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
   @Override
   protected void applyCookies() {
 
-    // Servlet Cookie doesn't support same site:
-    // https://github.com/eclipse-ee4j/servlet-api/issues/175
+    // mock Cookie doesn't support same site:
+    // https://github.com/eclipse-ee4j/mock-api/issues/175
 
     // For Tomcat it seems to be a global option only:
     // https://tomcat.apache.org/tomcat-8.5-doc/config/cookie-processor.html
@@ -169,7 +169,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   /**
    * Return an {@link ResponseAsyncListener} that notifies the response
-   * body Publisher and Subscriber of Servlet container events. The listener
+   * body Publisher and Subscriber of mock container events. The listener
    * is not actually registered but is rather exposed for
    * {@link MockHttpHandlerAdapter} to ensure events are delegated.
    */

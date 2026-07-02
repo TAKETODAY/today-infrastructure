@@ -62,7 +62,7 @@ class WebMockTestExecutionListenerJUnitIntegrationTests {
 
   private void assertInjectedRequestEqualsRequestInRequestContextHolder() {
     assertThat(MockUtils.getMockRequest(RequestContextHolder.current()))
-            .as("Injected ServletRequest must be stored in the RequestContextHolder")
+            .as("Injected MockRequest must be stored in the RequestContextHolder")
             .isEqualTo(mockRequest);
   }
 

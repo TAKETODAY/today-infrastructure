@@ -27,12 +27,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
 
-import infra.web.mock.MockResponse;
 import infra.test.json.AbstractJsonContentAssert;
 import infra.test.json.JsonContent;
 import infra.test.json.JsonContentAssert;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.UriAssert;
+import infra.web.mock.MockResponse;
 
 /**
  * Extension of {@link AbstractResponseAssert} for
@@ -168,14 +168,14 @@ public abstract class AbstractMockResponseAssert<SELF extends AbstractMockRespon
   }
 
   /**
-   * Verify that the {@link MockResponse#sendError(int, String)} Servlet error message}
+   * Verify that the {@link MockResponse#sendError(int, String)} Mock error message}
    * is equal to the given value.
    *
-   * @param errorMessage the expected Servlet error message (can be null)
+   * @param errorMessage the expected Mock error message (can be null)
    */
   public SELF hasErrorMessage(@Nullable String errorMessage) {
     new StringAssert(getResponse().getErrorMessage())
-            .as("Servlet error message").isEqualTo(errorMessage);
+            .as("Mock error message").isEqualTo(errorMessage);
     return this.myself;
   }
 

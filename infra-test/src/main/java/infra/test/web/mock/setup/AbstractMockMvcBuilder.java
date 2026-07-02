@@ -27,7 +27,7 @@ import java.util.List;
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
 import infra.web.mock.api.MockContext;
-import infra.web.mock.MockContextImpl;
+import infra.web.mock.DefaultMockContext;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
@@ -158,7 +158,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
     ApplicationContext ctx = initWebAppContext();
-    MockContext mockContext = new MockContextImpl();
+    MockContext mockContext = new DefaultMockContext();
 
     for (MockMvcConfigurer configurer : this.configurers) {
       RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, ctx);

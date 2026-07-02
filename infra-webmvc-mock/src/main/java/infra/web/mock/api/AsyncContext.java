@@ -24,7 +24,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 /**
- * Class representing the execution context for an asynchronous operation that was initiated on a ServletRequest.
+ * Class representing the execution context for an asynchronous operation that was initiated on a MockRequest.
  *
  * <p>
  * An AsyncContext is created and initialized by a call to {@link MockRequest#startAsync()} or
@@ -35,7 +35,7 @@ import infra.web.mock.MockResponse;
  * In the event that an asynchronous operation has timed out, the container must run through these steps:
  * <ol>
  * <li>Invoke, at their {@link AsyncListener#onTimeout onTimeout} method, all {@link AsyncListener} instances registered
- * with the ServletRequest on which the asynchronous operation was initiated.</li>
+ * with the MockRequest on which the asynchronous operation was initiated.</li>
  * <li>If none of the listeners called {@link #complete} or any of the {@link #dispatch} methods, perform an error
  * dispatch with a status code equal to <tt>HttpMockResponse.SC_INTERNAL_SERVER_ERROR</tt>.</li>
  * <li>If no matching error page was found, or the error page did not call {@link #complete} or any of the
@@ -74,13 +74,13 @@ public interface AsyncContext {
    *
    * @return true if this AsyncContext was initialized with the original request and response objects by calling
    * {@link MockRequest#startAsync()}, or if it was initialized by calling
-   * {@link MockRequest#startAsync(MockRequest, MockResponse)}, and neither the ServletRequest nor
+   * {@link MockRequest#startAsync(MockRequest, MockResponse)}, and neither the MockRequest nor
    * MockResponse arguments carried any application-provided wrappers; false otherwise
    */
   boolean hasOriginalRequestAndResponse();
 
   /**
-   * Dispatches the request and response objects of this AsyncContext to the servlet container.
+   * Dispatches the request and response objects of this AsyncContext to the mock container.
    *
    * <p>
    * If the asynchronous cycle was started with {@link MockRequest#startAsync(MockRequest, MockResponse)}, and
@@ -134,7 +134,7 @@ public interface AsyncContext {
    * container, as follows:
    * <ol>
    * <li>Invoke, at their {@link AsyncListener#onError onError} method, all {@link AsyncListener} instances registered
-   * with the ServletRequest for which this AsyncContext was created, and make the caught <tt>Throwable</tt> available via
+   * with the MockRequest for which this AsyncContext was created, and make the caught <tt>Throwable</tt> available via
    * {@link AsyncEvent#getThrowable}.</li>
    * <li>If none of the listeners called {@link #complete} or any of the {@link #dispatch} methods, perform an error
    * dispatch with a status code equal to <tt>HttpMockResponse.SC_INTERNAL_SERVER_ERROR</tt>, and make the above
@@ -177,7 +177,7 @@ public interface AsyncContext {
    * closing the response that was used to initialize this AsyncContext.
    *
    * <p>
-   * Any listeners of type {@link AsyncListener} that were registered with the ServletRequest for which this AsyncContext
+   * Any listeners of type {@link AsyncListener} that were registered with the MockRequest for which this AsyncContext
    * was created will be invoked at their {@link AsyncListener#onComplete(AsyncEvent) onComplete} method.
    *
    * <p>
@@ -234,7 +234,7 @@ public interface AsyncContext {
    * AsyncListener instances will be notified in the order in which they were added.
    *
    * <p>
-   * The given ServletRequest and MockResponse objects will be made available to the given AsyncListener via the
+   * The given MockRequest and MockResponse objects will be made available to the given AsyncListener via the
    * {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and {@link AsyncEvent#getSuppliedResponse
    * getSuppliedResponse} methods, respectively, of the {@link AsyncEvent} delivered to it. These objects should not be
    * read from or written to, respectively, at the time the AsyncEvent is delivered, because additional wrapping may have
@@ -242,36 +242,12 @@ public interface AsyncContext {
    * with them.
    *
    * @param listener the AsyncListener to be registered
-   * @param mockRequest the ServletRequest that will be included in the AsyncEvent
+   * @param mockRequest the MockRequest that will be included in the AsyncEvent
    * @param mockResponse the MockResponse that will be included in the AsyncEvent
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
    * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
   void addListener(AsyncListener listener, MockRequest mockRequest, MockResponse mockResponse);
-
-  /**
-   * Instantiates the given {@link AsyncListener} class.
-   *
-   * <p>
-   * The returned AsyncListener instance may be further customized before it is registered with this AsyncContext via a
-   * call to one of the <code>addListener</code> methods.
-   *
-   * <p>
-   * The given AsyncListener class must define a zero argument constructor, which is used to instantiate it.
-   *
-   * <p>
-   * This method supports resource injection if the given <tt>clazz</tt> represents a Managed Bean. See the Jakarta EE
-   * platform and CDI specifications for additional details about Managed Beans and resource injection.
-   *
-   * <p>
-   * This method supports any annotations applicable to AsyncListener.
-   *
-   * @param <T> the class of the object to instantiate
-   * @param clazz the AsyncListener class to instantiate
-   * @return the new AsyncListener instance
-   * @throws MockException if the given <tt>clazz</tt> fails to be instantiated
-   */
-  <T extends AsyncListener> T createListener(Class<T> clazz) throws MockException;
 
   /**
    * Sets the timeout (in milliseconds) for this AsyncContext.

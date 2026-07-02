@@ -32,22 +32,17 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 /**
- * Creates a cookie, a small amount of information sent by a servlet to a Web browser, saved by the browser, and later
+ * Creates a cookie, a small amount of information sent by a mock to a Web browser, saved by the browser, and later
  * sent back to the server. A cookie's value can uniquely identify a client, so cookies are commonly used for session
  * management.
  *
  * <p>
- * A cookie has a name, a single value, and optional attributes such as a comment, path and domain qualifiers, a maximum
- * age, and a version number. Some Web browsers have bugs in how they handle the optional attributes, so use them
- * sparingly to improve the interoperability of your servlets.
- *
- * <p>
- * The servlet sends cookies to the browser by using the {@link MockResponse#addCookie} method, which adds fields
+ * The mock sends cookies to the browser by using the {@link MockResponse#addCookie} method, which adds fields
  * to HTTP response headers to send cookies to the browser, one at a time. The browser is expected to support 20 cookies
  * for each Web server, 300 cookies total, and may limit cookie size to 4 KB each.
  *
  * <p>
- * The browser returns cookies to the servlet by adding fields to HTTP request headers. Cookies can be retrieved from a
+ * The browser returns cookies to the mock by adding fields to HTTP request headers. Cookies can be retrieved from a
  * request by using the {@link MockRequest#getCookies} method. Several cookies might have the same name but
  * different path attributes.
  *
@@ -112,7 +107,6 @@ public class Cookie implements Cloneable, Serializable {
    * @throws IllegalArgumentException if the cookie name is null or empty or contains any illegal characters (for example,
    * a comma, space, or semicolon) or matches a token reserved for use by the cookie protocol
    * @see #setValue
-   * @see #setVersion
    */
   public Cookie(String name, String value) {
     if (name == null || name.isEmpty()) {
@@ -126,32 +120,6 @@ public class Cookie implements Cloneable, Serializable {
 
     this.name = name;
     this.value = value;
-  }
-
-  /**
-   * With the adoption of support for RFC 6265, this method should no longer be used.
-   * <p>
-   * If called, this method has no effect.
-   *
-   * @param purpose This parameter is ignored
-   * @see #getComment
-   * @deprecated This is no longer required with RFC 6265
-   */
-  @Deprecated(since = "Servlet 6.0", forRemoval = true)
-  public void setComment(String purpose) {
-    // NO-OP
-  }
-
-  /**
-   * With the adoption of support for RFC 6265, this method should no longer be used.
-   *
-   * @return Always {@code null}
-   * @see #setComment
-   * @deprecated This is no longer required with RFC 6265
-   */
-  @Deprecated(since = "Servlet 6.0", forRemoval = true)
-  public String getComment() {
-    return null;
   }
 
   /**
@@ -222,7 +190,7 @@ public class Cookie implements Cloneable, Serializable {
    *
    * <p>
    * The cookie is visible to all the pages in the directory you specify, and all the pages in that directory's
-   * subdirectories. A cookie's path must include the servlet that set the cookie, for example, <i>/catalog</i>, which
+   * subdirectories. A cookie's path must include the mock that set the cookie, for example, <i>/catalog</i>, which
    * makes the cookie visible to all directories on the server under <i>/catalog</i>.
    *
    * <p>
@@ -240,7 +208,7 @@ public class Cookie implements Cloneable, Serializable {
    * Returns the path on the server to which the browser returns this cookie. The cookie is visible to all subpaths on the
    * server.
    *
-   * @return a <code>String</code> specifying a path that contains a servlet name, for example, <i>/catalog</i>
+   * @return a <code>String</code> specifying a path that contains a mock name, for example, <i>/catalog</i>
    * @see #setPath
    */
   public String getPath() {
@@ -307,32 +275,6 @@ public class Cookie implements Cloneable, Serializable {
    */
   public String getValue() {
     return value;
-  }
-
-  /**
-   * With the adoption of support for RFC 6265, this method should no longer be used.
-   *
-   * @return Always 0
-   * @see #setVersion
-   * @deprecated This is no longer required with RFC 6265
-   */
-  @Deprecated(since = "Servlet 6.0", forRemoval = true)
-  public int getVersion() {
-    return 0;
-  }
-
-  /**
-   * With the adoption of support for RFC 6265, this method should no longer be used.
-   * <p>
-   * If called, this method has no effect.
-   *
-   * @param v This parameter is ignored
-   * @see #getVersion
-   * @deprecated This is no longer required with RFC 6265
-   */
-  @Deprecated(since = "Servlet 6.0", forRemoval = true)
-  public void setVersion(int v) {
-    // NO-OP
   }
 
   /*
@@ -477,11 +419,9 @@ public class Cookie implements Cloneable, Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof Cookie) {
-      Cookie c = (Cookie) obj;
+    if (obj instanceof Cookie c) {
       return Objects.equals(getName(), c.getName()) &&
               Objects.equals(getValue(), c.getValue()) &&
-              getVersion() == c.getVersion() &&
               Objects.equals(getAttributes(), c.getAttributes());
     }
     return false;

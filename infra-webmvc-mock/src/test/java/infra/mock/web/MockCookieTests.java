@@ -86,7 +86,6 @@ class MockCookieTests {
     assertThat(cookie.getExpires()).isEqualTo(ZonedDateTime.parse("Tue, 8 Oct 2019 19:50:00 GMT",
             DateTimeFormatter.RFC_1123_DATE_TIME));
     assertThat(cookie.getSameSite()).isEqualTo("Lax");
-    assertThat(cookie.getComment()).isNull();
   }
 
   @ParameterizedTest

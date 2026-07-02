@@ -34,7 +34,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.web.mock.api.Cookie;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockContextImpl;
+import infra.web.mock.DefaultMockContext;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
 import infra.util.FileCopyUtils;
@@ -59,7 +59,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class MockHttpRequestBuilderTests {
 
-  private final MockContextImpl mockContext = new MockContextImpl();
+  private final DefaultMockContext mockContext = new DefaultMockContext();
 
   private MockHttpRequestBuilder builder = new MockHttpRequestBuilder(GET, "/foo/bar");
 
@@ -132,7 +132,7 @@ class MockHttpRequestBuilderTests {
     testContextPathMockPathInvalid("Context path must start with a '/'");
     testContextPathMockPathInvalid("Context path must not end with a '/'");
 
-    testContextPathMockPathInvalid("Invalid servlet path [/Bar] for request URI [/foo/bar]");
+    testContextPathMockPathInvalid("Invalid mock path [/Bar] for request URI [/foo/bar]");
     testContextPathMockPathInvalid("Mock path must start with a '/'");
     testContextPathMockPathInvalid("Mock path must not end with a '/'");
   }

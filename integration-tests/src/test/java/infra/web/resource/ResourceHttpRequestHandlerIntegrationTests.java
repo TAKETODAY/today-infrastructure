@@ -68,8 +68,8 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     MockRequest request = initRequest(pathPrefix + "/test/foo.css");
     MockResponse response = new MockResponse();
 
-    MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
-    servlet.service(request, response);
+    MockDispatcherHandler mock = initDispatcher(WebConfig.class);
+    mock.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
     assertThat(response.getStatus()).as(description).isEqualTo(200);
@@ -83,8 +83,8 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     MockRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
     MockResponse response = new MockResponse();
 
-    MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
-    servlet.service(request, response);
+    MockDispatcherHandler mock = initDispatcher(WebConfig.class);
+    mock.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
     assertThat(response.getStatus()).as(description).isEqualTo(200);

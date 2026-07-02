@@ -117,9 +117,7 @@ public class RepackageMojo extends AbstractPackagerMojo {
    * <p>
    * Currently, some tools do not accept this format so you may not always be able to
    * use this technique. For example, {@code jar -xf} may silently fail to extract a jar
-   * or war that has been made fully-executable. It is recommended that you only enable
-   * this option if you intend to execute it directly, rather than running it with
-   * {@code java -jar} or deploying it to a servlet container.
+   * or war that has been made fully-executable.
    */
   @Parameter(defaultValue = "false")
   private boolean executable;

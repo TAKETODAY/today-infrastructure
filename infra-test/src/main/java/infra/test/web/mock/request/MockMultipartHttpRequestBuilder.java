@@ -33,13 +33,13 @@ import java.util.List;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockMemoryFilePart;
-import infra.web.mock.MultipartMockRequest;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.web.mock.MockMemoryFilePart;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MultipartMockRequest;
+import infra.web.mock.api.MockContext;
 import infra.web.multipart.Part;
 
 /**
@@ -58,7 +58,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
   /**
    * Package-private constructor. Use static factory methods in
    * {@link MockMvcRequestBuilders}.
-   * <p>For other ways to initialize a {@code MockMultipartHttpServletRequest},
+   * <p>For other ways to initialize a {@code MultipartMockRequest},
    * see {@link #with(RequestPostProcessor)} and the
    * {@link RequestPostProcessor} extension point.
    *
@@ -155,7 +155,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
    */
   @Override
   protected final MockRequest createMockRequest(MockContext mockContext) {
-    MultipartMockRequest mockRequest = new MultipartMockRequest(mockContext);
+    MultipartMockRequest mockRequest = new MultipartMockRequest();
     Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
             Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 

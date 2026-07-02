@@ -35,7 +35,7 @@ import infra.web.mock.MockRequest;
  *
  *
  * <p>
- * This is an abstract class that a servlet container implements. Subclasses of this class must implement the
+ * This is an abstract class that a mock container implements. Subclasses of this class must implement the
  * <code>java.io.InputStream.read()</code> method.
  *
  * @author Various

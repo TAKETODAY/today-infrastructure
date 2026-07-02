@@ -39,9 +39,9 @@ import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
 
 /**
- * Subclass of {@link GenericApplicationContext}, suitable for web servlet environments.
+ * Subclass of {@link GenericApplicationContext}, suitable for web mock environments.
  *
- * <p>Interprets resource paths as servlet context resources, i.e. as paths beneath
+ * <p>Interprets resource paths as mock context resources, i.e. as paths beneath
  * the web application root. Absolute paths &mdash; for example, for files outside
  * the web app root &mdash; can be accessed via {@code file:} URLs, as implemented
  * by {@code AbstractApplicationContext}.

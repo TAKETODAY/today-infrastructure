@@ -27,7 +27,7 @@ import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.mock.MockRequestContext;
 
 /**
- * Resolves servlet backed request-related method arguments. Supports values of the
+ * Resolves mock backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
  * <li>{@link MockRequest}

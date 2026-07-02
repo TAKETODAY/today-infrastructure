@@ -21,7 +21,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 /**
- * Interface to indicate {@link RequestContext} running in servlet
+ * Interface to indicate {@link RequestContext} running in mock
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestContext

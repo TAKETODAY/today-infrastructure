@@ -47,8 +47,8 @@ class WebContentInterceptorTests {
   RequestContext context = new MockRequestContext(null, mockRequest, response);
 
   Function<String, RequestContext> requestFactory = path -> {
-    MockRequest servletRequest = new MockRequest("GET", path);
-    return new MockRequestContext(null, servletRequest, response);
+    MockRequest mockRequest = new MockRequest("GET", path);
+    return new MockRequestContext(null, mockRequest, response);
   };
 
   @Test

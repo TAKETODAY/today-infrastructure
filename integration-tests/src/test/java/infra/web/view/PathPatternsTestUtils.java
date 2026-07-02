@@ -47,12 +47,12 @@ public abstract class PathPatternsTestUtils {
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
-      MockRequest servletRequest = new MockRequest(method, requestUri);
-      return new MockRequestContext(context, servletRequest, new MockResponse());
+      MockRequest mockRequest = new MockRequest(method, requestUri);
+      return new MockRequestContext(context, mockRequest, new MockResponse());
     }
     else {
-      MockRequest servletRequest = new MockRequest(method, path);
-      return new MockRequestContext(context, servletRequest, new MockResponse());
+      MockRequest mockRequest = new MockRequest(method, path);
+      return new MockRequestContext(context, mockRequest, new MockResponse());
     }
   }
 

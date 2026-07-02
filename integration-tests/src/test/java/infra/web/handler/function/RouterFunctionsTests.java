@@ -115,10 +115,10 @@ public class RouterFunctionsTests {
     RouterFunction<ServerResponse> result = RouterFunctions.nest(RequestPredicates.path("/{foo}"), nestedFunction);
     assertThat(result).isNotNull();
 
-    MockRequest servletRequest = new MockRequest("GET", "/bar");
+    MockRequest mockRequest = new MockRequest("GET", "/bar");
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> resultHandlerFunction = result.route(request);
