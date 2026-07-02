@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RedirectModel;
 import infra.web.RequestContext;
@@ -139,7 +139,7 @@ class UrlFilenameViewControllerTests {
   @Test
   void withContextMapping() throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/docs/cvs/commit.html");
+    MockRequest request = new MockRequest("GET", "/docs/cvs/commit.html");
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
     MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());

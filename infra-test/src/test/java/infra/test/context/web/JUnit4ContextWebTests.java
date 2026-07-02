@@ -22,7 +22,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.mock.api.MockContext;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockSession;
 import infra.test.context.ContextConfiguration;
@@ -62,7 +62,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
   protected MockContext mockContextIm;
 
   @Autowired
-  protected HttpMockRequest request;
+  protected MockRequest request;
 
   @Autowired
   protected MockHttpResponseImpl response;
@@ -88,7 +88,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
     assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
     assertThat(mockContextIm).as("MockContext should have been autowired from the WAC.").isNotNull();
-    assertThat(request).as("HttpMockRequestImpl should have been autowired from the WAC.").isNotNull();
+    assertThat(request).as("MockRequest should have been autowired from the WAC.").isNotNull();
     assertThat(response).as("MockHttpResponseImpl should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("RequestContext should have been autowired from the WAC.").isNotNull();

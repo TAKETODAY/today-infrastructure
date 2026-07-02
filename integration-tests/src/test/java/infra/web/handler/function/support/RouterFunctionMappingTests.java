@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.converter.HttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.function.HandlerFunction;
@@ -173,7 +173,7 @@ class RouterFunctionMappingTests {
   }
 
   private MockRequestContext createTestRequest(String path) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
+    MockRequest request = new MockRequest("GET", path);
     return new MockRequestContext(null, request, new MockHttpResponseImpl());
   }
 

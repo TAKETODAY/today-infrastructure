@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ class MediaTypeParamApiVersionResolverTests {
 
   private final ApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(mediaType, "version");
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+  private final MockRequest request = new MockRequest("GET", "/path");
 
   @Test
   void resolveFromAccept() {
@@ -79,7 +79,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnNull_WhenNoAcceptOrContentTypeHeader() {
     MediaType mediaType = MediaType.APPLICATION_JSON;
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(mediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
 
@@ -90,7 +90,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnNull_WhenMediaTypeNotCompatible() {
     MediaType compatibleMediaType = MediaType.APPLICATION_JSON;
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/xml;version=1");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -102,7 +102,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnVersion_FromAcceptHeader_WhenMultipleMediaTypes() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/x.abc+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/xml, application/x.abc+json;version=2, text/plain");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -114,7 +114,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnVersion_FromContentTypeHeader_WhenNoAcceptHeader() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/x.abc+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/path");
+    MockRequest request = new MockRequest("POST", "/path");
     request.setContentType("application/x.abc+json;version=3");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -126,7 +126,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnNull_WhenContentTypeNotCompatible() {
     MediaType compatibleMediaType = MediaType.APPLICATION_JSON;
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/path");
+    MockRequest request = new MockRequest("POST", "/path");
     request.setContentType("application/xml;version=1");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -138,7 +138,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnNull_WhenParameterNotFound() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/x.abc+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/x.abc+json");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -150,7 +150,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnNull_WhenContentTypeParameterNotFound() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/x.abc+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/path");
+    MockRequest request = new MockRequest("POST", "/path");
     request.setContentType("application/x.abc+json");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -162,7 +162,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldPreferAcceptHeader_OverContentType() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/x.abc+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/path");
+    MockRequest request = new MockRequest("POST", "/path");
     request.addHeader("Accept", "application/x.abc+json;version=accept-version");
     request.setContentType("application/x.abc+json;version=content-version");
 
@@ -175,7 +175,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldHandleMultipleAcceptHeaders() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/x.abc+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/xml;version=1");
     request.addHeader("Accept", "application/x.abc+json;version=2");
 
@@ -188,7 +188,7 @@ class MediaTypeParamApiVersionResolverTests {
   void resolveVersion_ShouldReturnFirstMatchingMediaTypeVersion() {
     MediaType compatibleMediaType = MediaType.parseMediaType("application/*+json");
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(compatibleMediaType, "version");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/vnd.api.v1+json;version=1, application/vnd.api.v2+json;version=2");
 
     String result = resolver.resolveVersion(new MockRequestContext(request));
@@ -200,7 +200,7 @@ class MediaTypeParamApiVersionResolverTests {
     return new MediaType(this.mediaType, Map.of("version", version));
   }
 
-  private void testResolve(ApiVersionResolver resolver, HttpMockRequestImpl request, String expected) {
+  private void testResolve(ApiVersionResolver resolver, MockRequest request, String expected) {
     String actual = resolver.resolveVersion(new MockRequestContext(request));
     assertThat(actual).isEqualTo(expected);
   }

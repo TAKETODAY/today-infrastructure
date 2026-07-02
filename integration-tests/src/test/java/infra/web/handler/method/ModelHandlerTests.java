@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
@@ -68,7 +68,7 @@ class ModelHandlerTests {
   @BeforeEach
   public void setUp() throws Throwable {
     this.webRequest = new MockRequestContext(
-            context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+            context, new MockRequest(), new MockHttpResponseImpl());
 
     webRequest.setBinding(new BindingContext());
     bindingContext = webRequest.getBinding();

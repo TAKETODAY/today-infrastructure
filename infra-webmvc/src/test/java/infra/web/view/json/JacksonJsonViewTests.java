@@ -35,7 +35,7 @@ import java.util.Set;
 
 import infra.beans.DirectFieldAccessor;
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.ui.ModelMap;
 import infra.validation.BindingResult;
@@ -68,7 +68,7 @@ class JacksonJsonViewTests {
 
   private JacksonJsonView view = new JacksonJsonView();
 
-  private HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private MockRequest request = new MockRequest();
 
   private MockHttpResponseImpl response = new MockHttpResponseImpl();
 

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.MethodParameter;
 import infra.http.ResponseEntity;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.async.AsyncWebRequest;
 import infra.web.handler.StreamingResponseBody;
@@ -49,7 +49,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
   private MockRequestContext webRequest;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -57,7 +57,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
   public void setup() throws Exception {
     this.handler = new StreamingResponseBodyReturnValueHandler();
 
-    this.request = new HttpMockRequestImpl("GET", "/path");
+    this.request = new MockRequest("GET", "/path");
     this.response = new MockHttpResponseImpl();
     this.webRequest = new MockRequestContext(null, this.request, this.response);
 

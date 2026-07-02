@@ -17,6 +17,8 @@ package infra.mock.api;
 
 import java.io.IOException;
 
+import infra.mock.web.MockRequest;
+
 public interface MockHandler {
 
   void service(MockRequest req, MockResponse res) throws MockException, IOException;

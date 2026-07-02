@@ -20,8 +20,7 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.mock.api.MockRequest;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
@@ -54,7 +53,7 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    HttpMockRequest request = ((MockRequestContext) context).getRequest();
+    MockRequest request = ((MockRequestContext) context).getRequest();
 
     Class<?> paramType = resolvable.getParameterType();
     if (Session.class.isAssignableFrom(paramType)) {
@@ -66,8 +65,7 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
       return session;
     }
 
-    // ServletRequest / HttpMockRequest
-    return MockUtils.getNativeRequest(request, paramType);
+    return request;
   }
 
 }

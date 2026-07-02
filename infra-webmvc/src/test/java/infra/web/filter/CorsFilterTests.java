@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.FilterChain;
 import infra.web.cors.CorsConfiguration;
@@ -47,7 +47,7 @@ class CorsFilterTests {
   @Test
   void nonCorsRequest() throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(HttpMethod.GET.name(), "/test.html");
+    MockRequest request = new MockRequest(HttpMethod.GET.name(), "/test.html");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     FilterChain filterChain = (filterRequest) -> {
@@ -60,7 +60,7 @@ class CorsFilterTests {
   @Test
   void sameOriginRequest() throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(HttpMethod.GET.name(), "https://domain1.com/test.html");
+    MockRequest request = new MockRequest(HttpMethod.GET.name(), "https://domain1.com/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain1.com");
     request.setScheme("https");
     request.setServerName("domain1.com");
@@ -77,7 +77,7 @@ class CorsFilterTests {
   @Test
   void validActualRequest() throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(HttpMethod.GET.name(), "/test.html");
+    MockRequest request = new MockRequest(HttpMethod.GET.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader("header2", "foo");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -92,7 +92,7 @@ class CorsFilterTests {
   @Test
   void invalidActualRequest() throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(HttpMethod.DELETE.name(), "/test.html");
+    MockRequest request = new MockRequest(HttpMethod.DELETE.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader("header2", "foo");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -106,7 +106,7 @@ class CorsFilterTests {
   @Test
   void validPreFlightRequest() throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(HttpMethod.OPTIONS.name(), "/test.html");
+    MockRequest request = new MockRequest(HttpMethod.OPTIONS.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET.name());
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "header1, header2");
@@ -124,7 +124,7 @@ class CorsFilterTests {
   @Test
   void invalidPreFlightRequest() throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(HttpMethod.OPTIONS.name(), "/test.html");
+    MockRequest request = new MockRequest(HttpMethod.OPTIONS.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.DELETE.name());
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "header1, header2");

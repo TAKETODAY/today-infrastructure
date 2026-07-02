@@ -30,7 +30,7 @@ import java.util.List;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,11 +43,11 @@ public class MockServerHttpRequestTests {
 
   private MockServerHttpRequest request;
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   @BeforeEach
   void create() {
-    mockRequest = new HttpMockRequestImpl();
+    mockRequest = new MockRequest();
     request = new MockServerHttpRequest(mockRequest);
   }
 

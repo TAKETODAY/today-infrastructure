@@ -25,7 +25,7 @@ import infra.core.Conventions;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.context.TestContext;
@@ -45,7 +45,7 @@ import infra.web.mock.WebApplicationContext;
  * state via Infra Web's {@link RequestContextHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
- * HttpMockRequestImpl}, {@link MockHttpResponseImpl}, and
+ * MockRequest}, {@link MockHttpResponseImpl}, and
  * {@link infra.web.RequestContext} based on the {@link MockContextImpl} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
  * {@code MockHttpMockResponse} and {@code MockWebRequest} can be injected
@@ -85,7 +85,7 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Attribute name for a request attribute which indicates that the
-   * {@link HttpMockRequestImpl} stored in the {@link infra.web.RequestContext}
+   * {@link MockRequest} stored in the {@link infra.web.RequestContext}
    * in Infra Web's {@link RequestContextHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
@@ -188,7 +188,7 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
       logger.debug("Setting up MockHttpRequest, MockHttpResponse, and RequestContextHolder for test context .",
               testContext);
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
       MockHttpResponseImpl response = new MockHttpResponseImpl();
 

@@ -29,7 +29,7 @@ import infra.http.HttpCookie;
 import infra.http.HttpMethod;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockCookie;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
@@ -46,7 +46,7 @@ class DefaultServerRequestBuilderTests {
 
   @Test
   void from() throws IOException {
-    HttpMockRequestImpl request = PathPatternsTestUtils.initRequest("POST", "https://example.com", true);
+    MockRequest request = PathPatternsTestUtils.initRequest("POST", "https://example.com", true);
     request.addHeader("foo", "bar");
     request.setCookies(new MockCookie("foo", "bar"));
     request.addParameter("foo", "bar");

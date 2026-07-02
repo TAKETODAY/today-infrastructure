@@ -18,11 +18,11 @@
 
 package infra.test.web.mock.request;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 
 /**
  * Extension point for applications or 3rd party libraries that wish to further
- * initialize a {@link HttpMockRequestImpl} instance after it has been built
+ * initialize a {@link MockRequest} instance after it has been built
  * by {@link MockHttpRequestBuilder} or its subclass
  * {@link MockMultipartHttpRequestBuilder}.
  *
@@ -38,12 +38,12 @@ import infra.mock.web.HttpMockRequestImpl;
 public interface RequestPostProcessor {
 
   /**
-   * Post-process the given {@code HttpMockRequestImpl} after its creation
+   * Post-process the given {@code MockRequest} after its creation
    * and initialization through a {@code MockHttpServletRequestBuilder}.
    *
    * @param request the request to initialize
    * @return the request to use, either the one passed in or a wrapped one
    */
-  HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request);
+  MockRequest postProcessRequest(MockRequest request);
 
 }

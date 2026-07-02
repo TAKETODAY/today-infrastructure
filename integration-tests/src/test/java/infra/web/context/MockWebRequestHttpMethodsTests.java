@@ -31,7 +31,7 @@ import java.time.temporal.ChronoUnit;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ExceptionUtils;
 import infra.web.mock.MockRequestContext;
@@ -53,7 +53,7 @@ class MockWebRequestHttpMethodsTests {
 
   private static final Instant NOW = Instant.now();
 
-  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+  private final MockRequest mockRequest = new MockRequest();
 
   private final MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 

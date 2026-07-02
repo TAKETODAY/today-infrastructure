@@ -24,8 +24,8 @@ import java.util.Collections;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static infra.http.HttpMethod.DELETE;
@@ -61,20 +61,20 @@ public class RequestMethodsRequestConditionTests {
     RequestMethodsRequestCondition condition = new RequestMethodsRequestCondition();
     for (HttpMethod method : HttpMethod.values()) {
       if (method != OPTIONS) {
-        HttpMockRequest request = new HttpMockRequestImpl(method.name(), "");
+        MockRequest request = new MockRequest(method.name(), "");
         assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
       }
     }
     testNoMatch(condition, OPTIONS);
   }
 
-  private MockRequestContext createContext(HttpMockRequest request) {
+  private MockRequestContext createContext(MockRequest request) {
     return new MockRequestContext(null, request, null);
   }
 
   @Test
   public void getMatchingConditionWithCorsPreFlight() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "");
+    MockRequest request = new MockRequest("OPTIONS", "");
     request.addHeader("Origin", "https://example.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PUT");
 
@@ -89,7 +89,7 @@ public class RequestMethodsRequestConditionTests {
     RequestMethodsRequestCondition c2 = new RequestMethodsRequestCondition(POST);
     RequestMethodsRequestCondition c3 = new RequestMethodsRequestCondition();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     int result = c1.compareTo(c2, createContext(request));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
@@ -114,14 +114,14 @@ public class RequestMethodsRequestConditionTests {
   }
 
   private void testMatch(RequestMethodsRequestCondition condition, HttpMethod method) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl(method.name(), "");
+    MockRequest request = new MockRequest(method.name(), "");
     RequestMethodsRequestCondition actual = condition.getMatchingCondition(createContext(request));
     assertThat(actual).isNotNull();
     assertThat(actual.getContent()).isEqualTo(Collections.singleton(method));
   }
 
   private void testNoMatch(RequestMethodsRequestCondition condition, HttpMethod method) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl(method.name(), "");
+    MockRequest request = new MockRequest(method.name(), "");
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
 

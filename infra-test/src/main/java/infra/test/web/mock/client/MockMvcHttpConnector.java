@@ -48,7 +48,7 @@ import infra.mock.api.http.Cookie;
 import infra.mock.http.client.reactive.MockClientHttpRequest;
 import infra.mock.http.client.reactive.MockClientHttpResponse;
 import infra.mock.http.server.reactive.MockServerHttpRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMemoryPart;
 import infra.test.web.mock.MockMvc;
@@ -249,7 +249,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public HttpMockRequestImpl getRequest() {
+    public MockRequest getRequest() {
       return this.mvcResult.getRequest();
     }
 

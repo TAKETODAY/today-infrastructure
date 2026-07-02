@@ -29,7 +29,7 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -143,7 +143,7 @@ public class VersionResourceResolverTests {
     String version = "version";
     String file = "bar.css";
     Resource expected = new ClassPathResource("test/" + file, getClass());
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/resources/bar-version.css");
+    MockRequest request = new MockRequest("GET", "/resources/bar-version.css");
     MockRequestContext context = new MockRequestContext(null, request, null);
     given(this.chain.resolveResource(context, versionFile, this.locations)).willReturn(null);
     given(this.chain.resolveResource(context, file, this.locations)).willReturn(expected);

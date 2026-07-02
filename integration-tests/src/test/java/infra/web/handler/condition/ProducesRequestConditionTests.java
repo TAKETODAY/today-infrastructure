@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.accept.HeaderContentNegotiationStrategy;
@@ -44,7 +44,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void match() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -52,7 +52,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchNegated() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -60,7 +60,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchNegatedWithoutAcceptHeader() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
     assertThat(condition.getProducibleMediaTypes()).isEmpty();
@@ -75,7 +75,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchWildcard() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/*");
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -83,7 +83,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchMultiple() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -91,7 +91,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchSingle() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
-    HttpMockRequest request = createRequest("application/xml");
+    MockRequest request = createRequest("application/xml");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -100,7 +100,7 @@ public class ProducesRequestConditionTests {
   public void matchWithParameters() {
     String base = "application/atom+xml";
     ProducesRequestCondition condition = new ProducesRequestCondition(base + ";type=feed");
-    HttpMockRequest request = createRequest(base + ";type=entry");
+    MockRequest request = createRequest(base + ";type=entry");
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
 
     condition = new ProducesRequestCondition(base + ";type=feed");
@@ -119,7 +119,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchParseError() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
-    HttpMockRequest request = createRequest("bogus");
+    MockRequest request = createRequest("bogus");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -127,7 +127,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchParseErrorWithNegation() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-    HttpMockRequest request = createRequest("bogus");
+    MockRequest request = createRequest("bogus");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -137,7 +137,7 @@ public class ProducesRequestConditionTests {
     String[] produces = { "text/plain" };
     String[] headers = {};
     ProducesRequestCondition condition = new ProducesRequestCondition(produces, headers);
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/foo.txt");
+    MockRequest request = new MockRequest("GET", "/foo.txt");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -145,7 +145,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchWithNegationAndMediaTypeAllWithQualityParameter() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!application/json");
-    HttpMockRequest request = createRequest(
+    MockRequest request = createRequest(
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
@@ -160,7 +160,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition none = new ProducesRequestCondition(new String[0], null, manager);
     ProducesRequestCondition html = new ProducesRequestCondition(new String[] { "text/html" }, null, manager);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     request.addHeader("Accept", "*/*");
 
     ProducesRequestCondition noneMatch = none.getMatchingCondition(createContext(request));
@@ -175,7 +175,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition xml = new ProducesRequestCondition("application/xml");
     ProducesRequestCondition none = new ProducesRequestCondition();
 
-    HttpMockRequest request = createRequest("application/xml, text/html");
+    MockRequest request = createRequest("application/xml, text/html");
 
     assertThat(html.compareTo(xml, createContext(request)) > 0).isTrue();
     assertThat(xml.compareTo(html, createContext(request)) < 0).isTrue();
@@ -202,7 +202,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToWithSingleExpression() {
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*");
@@ -219,7 +219,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition condition1 = new ProducesRequestCondition("*/*", "text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*", "text/plain;q=0.7");
 
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     int result = condition1.compareTo(condition2, createContext(request));
     assertThat(result).as("Invalid comparison result: " + result).isGreaterThan(0);
@@ -233,7 +233,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition condition1 = new ProducesRequestCondition("text/*", "text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("application/*", "application/xml");
 
-    HttpMockRequest request = createRequest("text/plain", "application/xml");
+    MockRequest request = createRequest("text/plain", "application/xml");
 
     int result = condition1.compareTo(condition2, createContext(request));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
@@ -254,7 +254,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToMediaTypeAll() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition();
     ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
@@ -287,7 +287,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToMediaTypeAllWithParameter() {
-    HttpMockRequest request = createRequest("*/*;q=0.9");
+    MockRequest request = createRequest("*/*;q=0.9");
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition();
     ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
@@ -298,7 +298,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToEqualMatch() {
-    HttpMockRequest request = createRequest("text/*");
+    MockRequest request = createRequest("text/*");
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("text/xhtml");
@@ -339,7 +339,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void getMatchingCondition() {
-    HttpMockRequest request = createRequest("text/plain");
+    MockRequest request = createRequest("text/plain");
 
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
 
@@ -352,12 +352,12 @@ public class ProducesRequestConditionTests {
     assertThat(result).isNull();
   }
 
-  private MockRequestContext createContext(HttpMockRequest request) {
+  private MockRequestContext createContext(MockRequest request) {
     return new MockRequestContext(null, request, null);
   }
 
-  private HttpMockRequestImpl createRequest(String... headerValue) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+  private MockRequest createRequest(String... headerValue) {
+    MockRequest request = new MockRequest("GET", "/");
     Arrays.stream(headerValue).forEach(value -> request.addHeader("Accept", headerValue));
     return request;
   }

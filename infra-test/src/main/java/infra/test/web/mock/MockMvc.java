@@ -32,7 +32,7 @@ import infra.mock.api.MockContext;
 import infra.mock.api.MockResponse;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.api.http.HttpMockResponseWrapper;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
@@ -174,7 +174,7 @@ public final class MockMvc {
       requestBuilder = (RequestBuilder) mergeable.merge(this.defaultRequestBuilder);
     }
 
-    HttpMockRequestImpl request = requestBuilder.buildRequest(this.mockContext);
+    MockRequest request = requestBuilder.buildRequest(this.mockContext);
 
     AsyncContext asyncContext = request.getAsyncContext();
     MockHttpResponseImpl mockResponse;

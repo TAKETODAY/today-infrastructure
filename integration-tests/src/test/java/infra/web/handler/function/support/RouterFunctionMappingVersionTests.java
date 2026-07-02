@@ -25,7 +25,7 @@ import java.net.URI;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.config.annotation.ApiVersionConfigurer;
@@ -71,7 +71,7 @@ public class RouterFunctionMappingVersionTests {
 
   @Test
   void deprecation() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-Version", "1");
 
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -88,7 +88,7 @@ public class RouterFunctionMappingVersionTests {
   }
 
   private void testGetHandler(String version, String expectedBody) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-Version", version);
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(new MockRequestContext(request));
     HandlerFunction<?> handler = (HandlerFunction<?>) chain.getRawHandler();

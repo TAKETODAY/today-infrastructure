@@ -27,8 +27,8 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
@@ -164,7 +164,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     FreeMarkerViewResolver resolver = this.context.getBean(FreeMarkerViewResolver.class);
     View view = resolver.resolveViewName(viewName, Locale.UK);
     assertThat(view).isNotNull();
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 

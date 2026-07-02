@@ -31,16 +31,16 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
-import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockMemoryFilePart;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.multipart.Part;
 
 /**
- * Base builder for {@link MockMultipartHttpServletRequest}.
+ * Base builder for {@link MultipartMockRequest}.
  *
  * @param <B> a self reference to the builder type
  * @author Rossen Stoyanchev
@@ -48,14 +48,14 @@ import infra.web.multipart.Part;
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractMockMultipartHttpMockRequestBuilder<B extends AbstractMockMultipartHttpMockRequestBuilder<B>>
-        extends AbstractMockHttpMockRequestBuilder<B> {
+public abstract class AbstractMultipartMockRequestBuilder<B extends AbstractMultipartMockRequestBuilder<B>>
+        extends AbstractMockRequestBuilder<B> {
 
   private final List<MockMemoryFilePart> files = new ArrayList<>();
 
   private final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
 
-  protected AbstractMockMultipartHttpMockRequestBuilder(HttpMethod httpMethod) {
+  protected AbstractMultipartMockRequestBuilder(HttpMethod httpMethod) {
     super(httpMethod);
     super.contentType(MediaType.MULTIPART_FORM_DATA);
   }
@@ -99,9 +99,9 @@ public abstract class AbstractMockMultipartHttpMockRequestBuilder<B extends Abst
     if (parent == null) {
       return this;
     }
-    if (parent instanceof AbstractMockHttpMockRequestBuilder<?>) {
+    if (parent instanceof AbstractMockRequestBuilder<?>) {
       super.merge(parent);
-      if (parent instanceof AbstractMockMultipartHttpMockRequestBuilder<?> parentBuilder) {
+      if (parent instanceof AbstractMultipartMockRequestBuilder<?> parentBuilder) {
         this.files.addAll(parentBuilder.files);
         parentBuilder.parts.keySet().forEach(name ->
                 this.parts.putIfAbsent(name, parentBuilder.parts.get(name)));
@@ -114,13 +114,13 @@ public abstract class AbstractMockMultipartHttpMockRequestBuilder<B extends Abst
   }
 
   /**
-   * Create a new {@link MockMultipartHttpMockRequest} based on the
+   * Create a new {@link MultipartMockRequest} based on the
    * supplied {@code MockContext} and the {@code MockMultipartFiles}
    * added to this builder.
    */
   @Override
-  protected final HttpMockRequestImpl createMockRequest(MockContext mockContext) {
-    MockMultipartHttpMockRequest mockRequest = new MockMultipartHttpMockRequest(mockContext);
+  protected final MockRequest createMockRequest(MockContext mockContext) {
+    MultipartMockRequest mockRequest = new MultipartMockRequest(mockContext);
     Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
             Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 

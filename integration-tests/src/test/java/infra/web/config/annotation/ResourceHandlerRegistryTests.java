@@ -30,7 +30,7 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.context.support.GenericApplicationContext;
 import infra.core.io.Resource;
 import infra.http.CacheControl;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.SimpleUrlHandlerMapping;
@@ -85,7 +85,7 @@ class ResourceHandlerRegistryTests {
 
   @Test
   public void mapPathToLocation() throws Throwable {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setMethod("GET");
     request.setRequestURI("/testStylesheet.css");
 

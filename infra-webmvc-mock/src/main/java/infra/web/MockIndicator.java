@@ -16,7 +16,7 @@
 
 package infra.web;
 
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.api.http.HttpMockResponse;
 
 /**
@@ -28,7 +28,7 @@ import infra.mock.api.http.HttpMockResponse;
  */
 public interface MockIndicator {
 
-  HttpMockRequest getRequest();
+  MockRequest getRequest();
 
   HttpMockResponse getResponse();
 

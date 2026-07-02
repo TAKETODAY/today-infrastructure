@@ -47,7 +47,7 @@ import infra.util.function.SingletonSupplier;
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractHttpMockResponseAssert<R extends HttpMockResponse, SELF extends AbstractHttpMockResponseAssert<R, SELF, ACTUAL>, ACTUAL>
+public abstract class AbstractResponseAssert<R extends HttpMockResponse, SELF extends AbstractResponseAssert<R, SELF, ACTUAL>, ACTUAL>
         extends AbstractObjectAssert<SELF, ACTUAL> {
 
   private final Supplier<MediaTypeAssert> contentTypeAssertSupplier;
@@ -56,7 +56,7 @@ public abstract class AbstractHttpMockResponseAssert<R extends HttpMockResponse,
 
   private final Supplier<AbstractIntegerAssert<?>> statusAssert;
 
-  protected AbstractHttpMockResponseAssert(ACTUAL actual, Class<?> selfType) {
+  protected AbstractResponseAssert(ACTUAL actual, Class<?> selfType) {
     super(actual, selfType);
     this.contentTypeAssertSupplier = SingletonSupplier.of(() -> new MediaTypeAssert(getResponse().getContentType()));
     this.headersAssertSupplier = SingletonSupplier.of(() -> new HttpHeadersAssert(getHttpHeaders(getResponse())));

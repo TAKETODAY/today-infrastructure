@@ -19,7 +19,7 @@ package infra.web.handler;
 import org.junit.jupiter.api.Test;
 
 import infra.http.HttpStatus;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HttpRequestHandler;
 import infra.web.mock.MockRequestContext;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SimpleNotFoundHandlerTests {
   SimpleNotFoundHandler notFoundHandler = new SimpleNotFoundHandler();
 
-  HttpMockRequestImpl request = new HttpMockRequestImpl();
+  MockRequest request = new MockRequest();
   MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   @Test

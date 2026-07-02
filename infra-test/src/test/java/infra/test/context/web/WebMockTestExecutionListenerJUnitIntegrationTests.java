@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Configuration;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockUtils;
@@ -42,7 +42,7 @@ class WebMockTestExecutionListenerJUnitIntegrationTests {
   }
 
   @Autowired
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   /**
    * @see #ensureMocksAreReinjectedBetweenTests_2

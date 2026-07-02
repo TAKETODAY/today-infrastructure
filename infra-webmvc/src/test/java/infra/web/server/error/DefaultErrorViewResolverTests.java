@@ -36,7 +36,7 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProviders;
@@ -71,7 +71,7 @@ class DefaultErrorViewResolverTests {
   private final MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
   private final RequestContext request = new MockRequestContext(null,
-          new HttpMockRequestImpl(), mockResponse);
+          new MockRequest(), mockResponse);
 
   @BeforeEach
   void setup() {

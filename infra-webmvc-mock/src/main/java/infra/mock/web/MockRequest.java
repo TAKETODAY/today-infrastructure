@@ -51,10 +51,8 @@ import infra.mock.api.DispatcherType;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
 import infra.mock.api.MockInputStream;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.session.Session;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -65,7 +63,7 @@ import infra.util.StringUtils;
 import infra.web.multipart.Part;
 
 /**
- * Mock implementation of the {@link HttpMockRequest} interface.
+ * Mock implementation of the {@link MockRequest} interface.
  *
  * <p>The default, preferred {@link Locale} for the <em>server</em> mocked by this request
  * is {@link Locale#ENGLISH}. This value can be changed via {@link #addPreferredLocale}
@@ -80,7 +78,7 @@ import infra.web.multipart.Part;
  * @author Brian Clozel
  * @since 4.0
  */
-public class HttpMockRequestImpl implements HttpMockRequest {
+public class MockRequest {
 
   private static final String HTTP = "http";
 
@@ -203,7 +201,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private DispatcherType dispatcherType = DispatcherType.REQUEST;
 
   // ---------------------------------------------------------------------
-  // HttpMockRequest properties
+  // MockRequest properties
   // ---------------------------------------------------------------------
 
   private @Nullable String authType;
@@ -241,42 +239,42 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   // ---------------------------------------------------------------------
 
   /**
-   * Create a new {@code HttpMockRequestImpl} with a default
+   * Create a new {@code MockRequest} with a default
    * {@link MockContextImpl}.
    *
-   * @see #HttpMockRequestImpl(MockContext, String, String)
+   * @see #MockRequest(MockContext, String, String)
    */
-  public HttpMockRequestImpl() {
+  public MockRequest() {
     this(null, "GET", "");
   }
 
   /**
-   * Create a new {@code HttpMockRequestImpl} with a default
+   * Create a new {@code MockRequest} with a default
    * {@link MockContextImpl}.
    *
    * @param method the request method (may be {@code null})
    * @param requestURI the request URI (may be {@code null})
    * @see #setMethod
    * @see #setRequestURI
-   * @see #HttpMockRequestImpl(MockContext, String, String)
+   * @see #MockRequest(MockContext, String, String)
    */
-  public HttpMockRequestImpl(@Nullable String method, @Nullable String requestURI) {
+  public MockRequest(@Nullable String method, @Nullable String requestURI) {
     this(null, method, requestURI);
   }
 
   /**
-   * Create a new {@code HttpMockRequestImpl} with the supplied {@link MockContext}.
+   * Create a new {@code MockRequest} with the supplied {@link MockContext}.
    *
    * @param mockContext the MockContext that the request runs in
    * (may be {@code null} to use a default {@link MockContextImpl})
-   * @see #HttpMockRequestImpl(MockContext, String, String)
+   * @see #MockRequest(MockContext, String, String)
    */
-  public HttpMockRequestImpl(@Nullable MockContext mockContext) {
+  public MockRequest(@Nullable MockContext mockContext) {
     this(mockContext, "", "");
   }
 
   /**
-   * Create a new {@code HttpMockRequestImpl} with the supplied {@link MockContext},
+   * Create a new {@code MockRequest} with the supplied {@link MockContext},
    * {@code method}, and {@code requestURI}.
    * <p>The preferred locale will be set to {@link Locale#ENGLISH}.
    *
@@ -289,7 +287,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * @see #setPreferredLocales
    * @see MockContextImpl
    */
-  public HttpMockRequestImpl(@Nullable MockContext mockContext, @Nullable String method, @Nullable String requestURI) {
+  public MockRequest(@Nullable MockContext mockContext, @Nullable String method, @Nullable String requestURI) {
     this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
     this.method = method;
     this.requestURI = requestURI;
@@ -302,9 +300,8 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   /**
    * Return the MockContext that this request is associated with. (Not
-   * available in the standard HttpMockRequest interface for some reason.)
+   * available in the standard MockRequest interface for some reason.)
    */
-  @Override
   public MockContext getMockContext() {
     return this.mockContext;
   }
@@ -343,25 +340,21 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   // ServletRequest interface
   // ---------------------------------------------------------------------
 
-  @Override
   public Object getAttribute(String name) {
     checkActive();
     return this.attributes.get(name);
   }
 
-  @Override
   public Enumeration<String> getAttributeNames() {
     checkActive();
     return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
   }
 
-  @Override
   @Nullable
   public String getCharacterEncoding() {
     return this.characterEncoding;
   }
 
-  @Override
   public void setCharacterEncoding(@Nullable String characterEncoding) {
     this.characterEncoding = characterEncoding;
     updateContentTypeHeader();
@@ -428,12 +421,10 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return new String(this.content, this.characterEncoding);
   }
 
-  @Override
   public int getContentLength() {
     return (this.content != null ? this.content.length : -1);
   }
 
-  @Override
   public long getContentLengthLong() {
     return getContentLength();
   }
@@ -458,13 +449,11 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     }
   }
 
-  @Override
   @Nullable
   public String getContentType() {
     return this.contentType;
   }
 
-  @Override
   public MockInputStream getInputStream() {
     if (this.inputStream != null) {
       return this.inputStream;
@@ -584,7 +573,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.parameters.clear();
   }
 
-  @Override
   @Nullable
   public String getParameter(String name) {
     Assert.notNull(name, "Parameter name is required");
@@ -592,18 +580,15 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return (arr != null && arr.length > 0 ? arr[0] : null);
   }
 
-  @Override
   public Enumeration<String> getParameterNames() {
     return Collections.enumeration(this.parameters.keySet());
   }
 
-  @Override
   public String[] getParameterValues(String name) {
     Assert.notNull(name, "Parameter name is required");
     return this.parameters.get(name);
   }
 
-  @Override
   public Map<String, String[]> getParameterMap() {
     return Collections.unmodifiableMap(this.parameters);
   }
@@ -612,7 +597,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.protocol = protocol;
   }
 
-  @Override
   public String getProtocol() {
     return this.protocol;
   }
@@ -621,7 +605,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.scheme = scheme;
   }
 
-  @Override
   public String getScheme() {
     return this.scheme;
   }
@@ -630,7 +613,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.serverName = serverName;
   }
 
-  @Override
   public String getServerName() {
     String rawHostHeader = getHeader(HttpHeaders.HOST);
     String host = rawHostHeader;
@@ -655,7 +637,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.serverPort = serverPort;
   }
 
-  @Override
   public int getServerPort() {
     String rawHostHeader = getHeader(HttpHeaders.HOST);
     String host = rawHostHeader;
@@ -679,7 +660,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return this.serverPort;
   }
 
-  @Override
   public BufferedReader getReader() throws UnsupportedEncodingException {
     if (this.reader != null) {
       return this.reader;
@@ -706,7 +686,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.remoteAddr = remoteAddr;
   }
 
-  @Override
   public String getRemoteAddr() {
     return this.remoteAddr;
   }
@@ -715,12 +694,10 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.remoteHost = remoteHost;
   }
 
-  @Override
   public String getRemoteHost() {
     return this.remoteHost;
   }
 
-  @Override
   public void setAttribute(String name, @Nullable Object value) {
     checkActive();
     Assert.notNull(name, "Attribute name is required");
@@ -732,7 +709,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     }
   }
 
-  @Override
   public void removeAttribute(String name) {
     checkActive();
     Assert.notNull(name, "Attribute name is required");
@@ -787,11 +763,9 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see MockRequest#getLocale()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
-  @Override
   public Locale getLocale() {
     return this.locales.getFirst();
   }
@@ -806,11 +780,9 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see MockRequest#getLocales()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
-  @Override
   public Enumeration<Locale> getLocales() {
     return Collections.enumeration(this.locales);
   }
@@ -830,10 +802,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   /**
    * Return {@code true} if the {@link #setSecure secure} flag has been set
    * to {@code true} or if the {@link #getScheme scheme} is {@code https}.
-   *
-   * @see MockRequest#isSecure()
    */
-  @Override
   public boolean isSecure() {
     return (this.secure || HTTPS.equalsIgnoreCase(this.scheme));
   }
@@ -842,7 +811,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.remotePort = remotePort;
   }
 
-  @Override
   public int getRemotePort() {
     return this.remotePort;
   }
@@ -851,7 +819,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.localName = localName;
   }
 
-  @Override
   public String getLocalName() {
     return this.localName;
   }
@@ -860,7 +827,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.localAddr = localAddr;
   }
 
-  @Override
   public String getLocalAddr() {
     return this.localAddr;
   }
@@ -869,17 +835,14 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.localPort = localPort;
   }
 
-  @Override
   public int getLocalPort() {
     return this.localPort;
   }
 
-  @Override
   public AsyncContext startAsync() {
     return startAsync(this, null);
   }
 
-  @Override
   public AsyncContext startAsync(MockRequest request, @Nullable MockResponse response) {
     Assert.state(this.asyncSupported, "Async not supported");
     this.asyncStarted = true;
@@ -891,7 +854,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.asyncStarted = asyncStarted;
   }
 
-  @Override
   public boolean isAsyncStarted() {
     return this.asyncStarted;
   }
@@ -900,7 +862,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.asyncSupported = asyncSupported;
   }
 
-  @Override
   public boolean isAsyncSupported() {
     return this.asyncSupported;
   }
@@ -909,7 +870,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.asyncContext = asyncContext;
   }
 
-  @Override
   @Nullable
   public AsyncContext getAsyncContext() {
     return this.asyncContext;
@@ -919,30 +879,26 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.dispatcherType = dispatcherType;
   }
 
-  @Override
   public DispatcherType getDispatcherType() {
     return this.dispatcherType;
   }
 
-  @Override
   public String getRequestId() {
     return "";
   }
 
-  @Override
   public String getProtocolRequestId() {
     return "";
   }
 
   // ---------------------------------------------------------------------
-  // HttpMockRequest interface
+  // MockRequest interface
   // ---------------------------------------------------------------------
 
   public void setAuthType(@Nullable String authType) {
     this.authType = authType;
   }
 
-  @Override
   @Nullable
   public String getAuthType() {
     return this.authType;
@@ -964,7 +920,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
             .collect(Collectors.joining("; "));
   }
 
-  @Override
   @Nullable
   public Cookie[] getCookies() {
     return this.cookies;
@@ -1052,7 +1007,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * @param name the header name
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section 7.1.1.1 of RFC 7231</a>
    */
-  @Override
   public long getDateHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     Object value = (header != null ? header.getValue() : null);
@@ -1088,25 +1042,21 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     throw new IllegalArgumentException("Cannot parse date value '" + value + "' for '" + name + "' header");
   }
 
-  @Override
   @Nullable
   public String getHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     return (header != null ? header.getStringValue() : null);
   }
 
-  @Override
   public Enumeration<String> getHeaders(String name) {
     HeaderValueHolder header = this.headers.get(name);
     return Collections.enumeration(header != null ? header.getStringValues() : new LinkedList<>());
   }
 
-  @Override
   public Enumeration<String> getHeaderNames() {
     return Collections.enumeration(this.headers.keySet());
   }
 
-  @Override
   public int getIntHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     Object value = (header != null ? header.getValue() : null);
@@ -1128,7 +1078,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.method = method;
   }
 
-  @Override
   @Nullable
   public String getMethod() {
     return this.method;
@@ -1138,7 +1087,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.pathInfo = pathInfo;
   }
 
-  @Override
   @Nullable
   public String getPathInfo() {
     return this.pathInfo;
@@ -1148,7 +1096,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.queryString = queryString;
   }
 
-  @Override
   @Nullable
   public String getQueryString() {
     return this.queryString;
@@ -1158,7 +1105,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.userPrincipal = userPrincipal;
   }
 
-  @Override
   @Nullable
   public Principal getUserPrincipal() {
     return this.userPrincipal;
@@ -1168,7 +1114,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.requestedSessionId = requestedSessionId;
   }
 
-  @Override
   @Nullable
   public String getRequestedSessionId() {
     return this.requestedSessionId;
@@ -1178,7 +1123,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.requestURI = requestURI;
   }
 
-  @Override
   @Nullable
   public String getRequestURI() {
     return this.requestURI;
@@ -1201,7 +1145,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return this.uriTemplate;
   }
 
-  @Override
   public StringBuffer getRequestURL() {
     String scheme = getScheme();
     String server = getServerName();
@@ -1226,7 +1169,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     }
   }
 
-  @Override
   @Nullable
   public Session getSession(boolean create) {
     checkActive();
@@ -1241,7 +1183,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return this.session;
   }
 
-  @Override
   public Session getSession() {
     return getSession(true);
   }
@@ -1251,7 +1192,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * {@link MockSession#changeSessionId()} if the session is a mock session.
    * Otherwise it simply returns the current session id.
    */
-  @Override
   public String changeSessionId() {
     Assert.isTrue(this.session != null, "The request does not have a session");
     if (this.session instanceof MockSession mockSession) {
@@ -1264,7 +1204,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.requestedSessionIdValid = requestedSessionIdValid;
   }
 
-  @Override
   public boolean isRequestedSessionIdValid() {
     return this.requestedSessionIdValid;
   }
@@ -1273,7 +1212,6 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.requestedSessionIdFromCookie = requestedSessionIdFromCookie;
   }
 
-  @Override
   public boolean isRequestedSessionIdFromCookie() {
     return this.requestedSessionIdFromCookie;
   }
@@ -1282,22 +1220,18 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.requestedSessionIdFromURL = requestedSessionIdFromURL;
   }
 
-  @Override
   public boolean isRequestedSessionIdFromURL() {
     return this.requestedSessionIdFromURL;
   }
 
-  @Override
   public boolean authenticate(HttpMockResponse response) throws IOException, MockException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public void login(String username, String password) throws MockException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public void logout() throws MockException {
     this.userPrincipal = null;
     this.authType = null;
@@ -1307,13 +1241,11 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     this.parts.add(part.getName(), part);
   }
 
-  @Override
   @Nullable
   public Part getPart(String name) {
     return this.parts.getFirst(name);
   }
 
-  @Override
   public Collection<Part> getParts() {
     List<Part> result = new LinkedList<>();
     for (List<Part> list : this.parts.values()) {

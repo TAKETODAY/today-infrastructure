@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 public class DefaultMvcResultTests {
 
   private final DefaultMvcResult mvcResult = new DefaultMvcResult(
-          new HttpMockRequestImpl(), null, null);
+          new MockRequest(), null, null);
 
   @Test
   public void getAsyncResultSuccess() {

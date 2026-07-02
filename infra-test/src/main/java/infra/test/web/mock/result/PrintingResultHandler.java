@@ -32,9 +32,8 @@ import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultHandler;
@@ -117,7 +116,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the request.
    */
-  protected void printRequest(HttpMockRequestImpl request, RequestContext context) throws Exception {
+  protected void printRequest(MockRequest request, RequestContext context) throws Exception {
     String body = (request.getCharacterEncoding() != null ?
             request.getContentAsString() : MISSING_CHARACTER_ENCODING);
 
@@ -129,7 +128,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printValue("Session Attrs", getSessionAttributes(request, context));
   }
 
-  protected final HttpHeaders getRequestHeaders(HttpMockRequestImpl request) {
+  protected final HttpHeaders getRequestHeaders(MockRequest request) {
     HttpHeaders headers = HttpHeaders.forWritable();
     Enumeration<String> names = request.getHeaderNames();
     while (names.hasMoreElements()) {
@@ -139,7 +138,7 @@ public class PrintingResultHandler implements ResultHandler {
     return headers;
   }
 
-  protected final MultiValueMap<String, String> getParamsMultiValueMap(HttpMockRequestImpl request) {
+  protected final MultiValueMap<String, String> getParamsMultiValueMap(MockRequest request) {
     Map<String, String[]> params = request.getParameterMap();
     MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
     params.forEach((name, values) -> {
@@ -152,7 +151,7 @@ public class PrintingResultHandler implements ResultHandler {
     return multiValueMap;
   }
 
-  protected final Map<String, Object> getSessionAttributes(HttpMockRequestImpl request, RequestContext context) {
+  protected final Map<String, Object> getSessionAttributes(MockRequest request, RequestContext context) {
     Map<String, Object> map = new LinkedHashMap<>();
     Session session = request.getSession(false);
     if (session != null) {
@@ -174,7 +173,7 @@ public class PrintingResultHandler implements ResultHandler {
   }
 
   protected void printAsyncResult(MvcResult result) throws Exception {
-    HttpMockRequest request = result.getRequest();
+    MockRequest request = result.getRequest();
     this.printer.printValue("Async started", request.isAsyncStarted());
     Object asyncResult = null;
     try {

@@ -65,7 +65,7 @@ public interface HttpMockResponse extends MockResponse {
    * rewriting cannot be used with browsers which do not support cookies.
    *
    * <p>
-   * If the URL is relative, it is always relative to the current HttpMockRequest.
+   * If the URL is relative, it is always relative to the current MockRequest.
    *
    * @param url the url to be encoded.
    * @return the encoded URL if encoding is needed; the unchanged URL otherwise.
@@ -85,7 +85,7 @@ public interface HttpMockResponse extends MockResponse {
    * Otherwise, URL rewriting cannot be used with browsers which do not support cookies.
    *
    * <p>
-   * If the URL is relative, it is always relative to the current HttpMockRequest.
+   * If the URL is relative, it is always relative to the current MockRequest.
    *
    * @param url the url to be encoded.
    * @return the encoded URL if encoding is needed; the unchanged URL otherwise.

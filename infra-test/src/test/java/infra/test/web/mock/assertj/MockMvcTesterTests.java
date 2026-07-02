@@ -39,7 +39,7 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.mock.api.MockContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.test.json.AbstractJsonContentAssert;
 import infra.test.web.mock.assertj.MockMvcTester.MockMvcRequestBuilder;
@@ -218,12 +218,12 @@ class MockMvcTesterTests {
             .satisfies(hasSettings(HttpMethod.GET, null, "/hello/world"));
   }
 
-  private HttpMockRequestImpl createMockHttpRequest(Function<MockMvcTester, MockMvcRequestBuilder> builder) {
+  private MockRequest createMockHttpRequest(Function<MockMvcTester, MockMvcRequestBuilder> builder) {
     MockMvcTester mockMvcTester = MockMvcTester.of(HelloController.class);
     return builder.apply(mockMvcTester).buildRequest(this.mockContext);
   }
 
-  private Consumer<HttpMockRequestImpl> hasSettings(HttpMethod method, @Nullable String uriTemplate, String uri) {
+  private Consumer<MockRequest> hasSettings(HttpMethod method, @Nullable String uriTemplate, String uri) {
     return request -> {
       assertThat(request.getMethod()).isEqualTo(method.name());
       assertThat(request.getUriTemplate()).isEqualTo(uriTemplate);

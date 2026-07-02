@@ -42,15 +42,14 @@ import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.MockRequest;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.util.ArrayIterator;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 import infra.web.mock.MockUtils;
 
 /**
- * {@link ServerHttpRequest} implementation that is based on a {@link HttpMockRequest}.
+ * {@link ServerHttpRequest} implementation that is based on a {@link MockRequest}.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
@@ -62,7 +61,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
 
   protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 
-  private final HttpMockRequest mockRequest;
+  private final MockRequest mockRequest;
 
   @Nullable
   private URI uri;
@@ -74,20 +73,20 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
 
   /**
    * Construct a new instance of the ServletServerHttpRequest based on the
-   * given {@link HttpMockRequest}.
+   * given {@link MockRequest}.
    *
    * @param mockRequest the servlet request
    */
-  public MockServerHttpRequest(HttpMockRequest mockRequest) {
-    Assert.notNull(mockRequest, "HttpMockRequest is required");
+  public MockServerHttpRequest(MockRequest mockRequest) {
+    Assert.notNull(mockRequest, "MockRequest is required");
     this.mockRequest = mockRequest;
     this.method = HttpMethod.valueOf(mockRequest.getMethod());
   }
 
   /**
-   * Returns the {@code HttpMockRequest} this object is based on.
+   * Returns the {@code MockRequest} this object is based on.
    */
-  public HttpMockRequest getRequest() {
+  public MockRequest getRequest() {
     return this.mockRequest;
   }
 
@@ -110,7 +109,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
    * @param servletRequest the request
    * @return the initialized URI
    */
-  public static URI initURI(HttpMockRequest servletRequest) {
+  public static URI initURI(MockRequest servletRequest) {
     String urlString = null;
     boolean hasQuery = false;
     try {
@@ -126,7 +125,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
     catch (URISyntaxException ex) {
       if (!hasQuery) {
         throw new IllegalStateException(
-                "Could not resolve HttpMockRequest as URI: " + urlString, ex);
+                "Could not resolve MockRequest as URI: " + urlString, ex);
       }
       // Maybe a malformed query string... try plain request URL
       try {
@@ -135,7 +134,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
       }
       catch (URISyntaxException ex2) {
         throw new IllegalStateException(
-                "Could not resolve HttpMockRequest as URI: " + urlString, ex2);
+                "Could not resolve MockRequest as URI: " + urlString, ex2);
       }
     }
   }
@@ -153,7 +152,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
         }
       }
 
-      // HttpMockRequest exposes some headers as properties:
+      // MockRequest exposes some headers as properties:
       // we should include those if not already present
       try {
         MediaType contentType = this.headers.getContentType();
@@ -224,7 +223,7 @@ public class MockServerHttpRequest extends AbstractHttpRequest implements Server
    * from the body, which can fail if any other code has used the ServletRequest
    * to access a parameter, thus causing the input stream to be "consumed".
    */
-  private InputStream getBodyFromRequestParameters(HttpMockRequest request) throws IOException {
+  private InputStream getBodyFromRequestParameters(MockRequest request) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
     OutputStreamWriter writer = new OutputStreamWriter(bos, FORM_CHARSET);
 

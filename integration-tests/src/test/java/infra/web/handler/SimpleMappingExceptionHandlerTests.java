@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ExceptionUtils;
 import infra.web.mock.MockRequestContext;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class SimpleMappingExceptionHandlerTests {
 
   private SimpleMappingExceptionHandler exceptionHandler;
-  private HttpMockRequestImpl request;
+  private MockRequest request;
   private MockHttpResponseImpl response;
   private Object handler1;
   private Object handler2;
@@ -49,7 +49,7 @@ class SimpleMappingExceptionHandlerTests {
     exceptionHandler = new SimpleMappingExceptionHandler();
     handler1 = new String();
     handler2 = new Object();
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     response = new MockHttpResponseImpl();
     request.setMethod("GET");
     genericException = new Exception();

@@ -30,7 +30,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.http.Cookie;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.web.mock.StubMvcResult;
 import infra.test.web.mock.samples.standalone.resulthandlers.PrintingResultHandlerSmokeTests;
@@ -58,7 +58,7 @@ class PrintingResultHandlerTests {
 
   private final TestPrintingResultHandler handler = new TestPrintingResultHandler();
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/") {
+  private final MockRequest request = new MockRequest("GET", "/") {
     @Override
     public boolean isAsyncStarted() {
       return false;

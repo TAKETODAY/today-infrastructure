@@ -35,7 +35,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerExceptionHandler;
 import infra.web.server.MethodNotAllowedException;
@@ -53,7 +53,7 @@ class ResponseStatusExceptionHandlerTests {
 
   private final ResponseStatusExceptionHandler exceptionHandler = new ResponseStatusExceptionHandler();
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "");
+  private final MockRequest request = new MockRequest("GET", "");
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 

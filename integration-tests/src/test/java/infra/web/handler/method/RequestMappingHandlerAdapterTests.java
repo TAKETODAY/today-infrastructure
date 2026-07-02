@@ -43,7 +43,7 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
@@ -82,7 +82,7 @@ class RequestMappingHandlerAdapterTests {
 
   private RequestMappingHandlerAdapter handlerAdapter;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -111,7 +111,7 @@ class RequestMappingHandlerAdapterTests {
     handlerAdapter.setResolvingRegistry(webAppContext.getBean(ParameterResolvingRegistry.class));
     handlerAdapter.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
 
-    this.request = new HttpMockRequestImpl("GET", "/");
+    this.request = new MockRequest("GET", "/");
     this.response = new MockHttpResponseImpl();
 
     context = new MockRequestContext(webAppContext, request, response);
@@ -254,7 +254,7 @@ class RequestMappingHandlerAdapterTests {
   @Test
   void handleMethodWithoutSessionSynchronization() throws Throwable {
     this.handlerAdapter.setSynchronizeOnSession(false);
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
     handlerAdapter.afterPropertiesSet();
@@ -266,7 +266,7 @@ class RequestMappingHandlerAdapterTests {
   @Test
   void handleMethodWithSessionSynchronizationNoSession() throws Throwable {
     this.handlerAdapter.setSynchronizeOnSession(true);
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
     handlerAdapter.afterPropertiesSet();
     Object result = this.handlerAdapter.handleInternal(new MockRequestContext(webAppContext, request), handlerMethod);
@@ -282,7 +282,7 @@ class RequestMappingHandlerAdapterTests {
 
     this.handlerAdapter.setRedirectModelManager(redirectModelManager);
     handlerAdapter.afterPropertiesSet();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
     MockRequestContext request1 = new MockRequestContext(request);
@@ -296,7 +296,7 @@ class RequestMappingHandlerAdapterTests {
     WebBindingInitializer initializer = mock(WebBindingInitializer.class);
     this.handlerAdapter.setWebBindingInitializer(initializer);
     handlerAdapter.afterPropertiesSet();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
     this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
@@ -306,7 +306,7 @@ class RequestMappingHandlerAdapterTests {
 
   @Test
   void handleMethodWithoutCacheControlHeader() throws Throwable {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
     MockRequestContext requestContext = new MockRequestContext(request);

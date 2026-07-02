@@ -22,7 +22,7 @@ import java.net.URI;
 
 import infra.http.HttpMethod;
 import infra.mock.api.DispatcherType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
@@ -281,7 +281,7 @@ public abstract class MockMvcRequestBuilders {
     mvcResult.getAsyncResult();
 
     return mockContext -> {
-      HttpMockRequestImpl request = mvcResult.getRequest();
+      MockRequest request = mvcResult.getRequest();
       request.setDispatcherType(DispatcherType.ASYNC);
       request.setAsyncStarted(false);
       return request;

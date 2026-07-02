@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.ResolvableMethod;
@@ -57,7 +57,7 @@ class MapMethodProcessorTests {
   public void setUp() throws Exception {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
-    this.webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    this.webRequest = new MockRequestContext(null, new MockRequest(), null);
     webRequest.setBinding(mavContainer);
 
   }
@@ -186,7 +186,7 @@ class MapMethodProcessorTests {
 
   @Test
   public void handleReturnValueWhenBindingContextIsNull() throws Exception {
-    MockRequestContext request = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    MockRequestContext request = new MockRequestContext(null, new MockRequest(), null);
     // Not setting binding context to simulate null case
 
     Map<String, Object> returnValue = Map.of("key", "value");

@@ -34,7 +34,7 @@ import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.async.AsyncWebRequest;
@@ -62,7 +62,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   private ResponseBodyEmitterReturnValueHandler handler;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -75,7 +75,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
             Collections.singletonList(new JacksonJsonHttpMessageConverter());
 
     this.handler = new ResponseBodyEmitterReturnValueHandler(converters);
-    this.request = new HttpMockRequestImpl();
+    this.request = new MockRequest();
     this.response = new MockHttpResponseImpl();
     this.webRequest = new MockRequestContext(null, this.request, this.response);
 

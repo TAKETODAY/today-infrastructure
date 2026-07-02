@@ -31,11 +31,11 @@ import infra.mock.web.MockHttpResponseImpl;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link AbstractHttpMockResponseAssert}.
+ * Tests for {@link AbstractResponseAssert}.
  *
  * @author Stephane Nicoll
  */
-class AbstractHttpMockResponseAssertTests {
+class AbstractResponseAssertTests {
 
   @Nested
   class HeadersTests {
@@ -181,7 +181,7 @@ class AbstractHttpMockResponseAssertTests {
     return new ResponseAssert(response);
   }
 
-  private static final class ResponseAssert extends AbstractHttpMockResponseAssert<HttpMockResponse, ResponseAssert, HttpMockResponse> {
+  private static final class ResponseAssert extends AbstractResponseAssert<HttpMockResponse, ResponseAssert, HttpMockResponse> {
 
     ResponseAssert(HttpMockResponse actual) {
       super(actual, ResponseAssert.class);

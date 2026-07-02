@@ -35,7 +35,7 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.validation.BeanPropertyBindingResult;
 import infra.web.HandlerExceptionHandler;
@@ -62,7 +62,7 @@ class SimpleHandlerExceptionHandlerTests {
 
   private final SimpleHandlerExceptionHandler exceptionResolver = new SimpleHandlerExceptionHandler();
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+  private final MockRequest request = new MockRequest("GET", "/");
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
@@ -97,7 +97,7 @@ class SimpleHandlerExceptionHandlerTests {
   void patchHttpMediaTypeNotSupported() throws Exception {
     HttpMediaTypeNotSupportedException ex = new HttpMediaTypeNotSupportedException(new MediaType("text", "plain"),
             Collections.singletonList(new MediaType("application", "pdf")), HttpMethod.PATCH);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PATCH", "/");
+    MockRequest request = new MockRequest("PATCH", "/");
     MockRequestContext context1 = new MockRequestContext(request, response);
     Object mav = exceptionResolver.handleException(context1, ex, null);
     assertThat(mav).as("No ModelAndView returned").isNotNull().isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
@@ -182,7 +182,7 @@ class SimpleHandlerExceptionHandlerTests {
 
   @Test
   void handleNoHandlerFoundException() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "/resource");
+    MockRequest mockRequest = new MockRequest("GET", "/resource");
     HandlerNotFoundException ex = new HandlerNotFoundException(mockRequest.getMethod(), mockRequest.getRequestURI(), HttpHeaders.empty());
     Object mav = exceptionResolver.handleException(context, ex, null);
     assertThat(mav).as("No ModelAndView returned").isNotNull().isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);

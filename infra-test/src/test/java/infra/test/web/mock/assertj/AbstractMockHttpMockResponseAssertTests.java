@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link AbstractMockHttpMockResponseAssert}.
+ * Tests for {@link AbstractMockResponseAssert}.
  *
  * @author Stephane Nicoll
  */
@@ -136,7 +136,7 @@ public class AbstractMockHttpMockResponseAssertTests {
     return () -> new ResponseAssert(response);
   }
 
-  private static final class ResponseAssert extends AbstractMockHttpMockResponseAssert<ResponseAssert, MockHttpResponseImpl> {
+  private static final class ResponseAssert extends AbstractMockResponseAssert<ResponseAssert, MockHttpResponseImpl> {
 
     ResponseAssert(MockHttpResponseImpl actual) {
       super((JsonConverterDelegate) null, actual, ResponseAssert.class);

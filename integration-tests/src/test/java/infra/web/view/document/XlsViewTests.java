@@ -33,7 +33,7 @@ import java.util.Map;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
@@ -49,7 +49,7 @@ public class XlsViewTests {
 
   private final ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
   private final MockContextImpl sc = new MockContextImpl();
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl(this.sc);
+  private final MockRequest request = new MockRequest(this.sc);
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
   RequestContext requestContext = new MockRequestContext(wac, request, response);
 

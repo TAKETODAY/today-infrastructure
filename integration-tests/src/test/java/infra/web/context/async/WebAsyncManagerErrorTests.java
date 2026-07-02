@@ -25,7 +25,7 @@ import java.util.concurrent.Callable;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.mock.api.AsyncEvent;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
@@ -56,7 +56,7 @@ public class WebAsyncManagerErrorTests {
 
   private StandardMockAsyncWebRequest asyncWebRequest;
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockHttpResponseImpl mockResponse;
 
@@ -64,7 +64,7 @@ public class WebAsyncManagerErrorTests {
 
   @BeforeEach
   public void setup() {
-    this.mockRequest = new HttpMockRequestImpl("GET", "/test");
+    this.mockRequest = new MockRequest("GET", "/test");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockHttpResponseImpl();
 

@@ -28,7 +28,7 @@ import infra.beans.FatalBeanException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.StaticApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
@@ -72,7 +72,7 @@ public class SimpleUrlHandlerMappingTests {
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping(Collections.singletonMap("/*/baz", controller));
     mapping.setApplicationContext(new StaticApplicationContext());
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo%0a%0dbar/baz");
+    MockRequest request = new MockRequest("GET", "/foo%0a%0dbar/baz");
 
     HandlerExecutionChain hec = (HandlerExecutionChain) mapping.getHandler(new MockRequestContext(
             null, request, new MockHttpResponseImpl()));
@@ -93,7 +93,7 @@ public class SimpleUrlHandlerMappingTests {
     HandlerMapping hm = (HandlerMapping) wac.getBean(beanName);
     wac.close();
 
-    HttpMockRequestImpl request = PathPatternsTestUtils.initRequest("GET", "/welcome.html");
+    MockRequest request = PathPatternsTestUtils.initRequest("GET", "/welcome.html");
     HandlerExecutionChain chain = getHandler(hm, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).isEqualTo("/welcome.html");
@@ -151,7 +151,7 @@ public class SimpleUrlHandlerMappingTests {
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).isEqualTo("/somePath");
   }
 
-  private HandlerExecutionChain getHandler(HandlerMapping mapping, HttpMockRequestImpl request) throws Throwable {
+  private HandlerExecutionChain getHandler(HandlerMapping mapping, MockRequest request) throws Throwable {
 
     MockRequestContext context = new MockRequestContext(
             null, request, new MockHttpResponseImpl());

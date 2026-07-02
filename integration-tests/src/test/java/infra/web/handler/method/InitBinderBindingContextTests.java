@@ -25,7 +25,7 @@ import java.util.List;
 
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.annotation.RequestParam;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
@@ -49,7 +49,7 @@ class InitBinderBindingContextTests {
   private final ParameterResolvingRegistry argumentResolvers =
           new ParameterResolvingRegistry();
 
-  HttpMockRequestImpl request = new HttpMockRequestImpl();
+  MockRequest request = new MockRequest();
 
   private final MockRequestContext webRequest = new MockRequestContext(null, request, null);
 

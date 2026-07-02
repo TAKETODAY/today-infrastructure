@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class PathExtensionContentNegotiationStrategyTests {
 
-  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+  private final MockRequest mockRequest = new MockRequest();
 
   private final RequestContext webRequest = new MockRequestContext(null, mockRequest, null);
 

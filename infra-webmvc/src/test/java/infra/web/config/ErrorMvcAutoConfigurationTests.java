@@ -31,7 +31,7 @@ import infra.app.test.system.OutputCaptureExtension;
 import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.WebUtils;
@@ -105,7 +105,7 @@ class ErrorMvcAutoConfigurationTests {
   }
 
   private MockRequestContext createWebRequest(Exception ex, boolean committed) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     MockRequestContext context = new MockRequestContext(null, request, response);

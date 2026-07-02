@@ -27,12 +27,10 @@ import java.util.concurrent.CountDownLatch;
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
 import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockAsyncContext;
+import infra.mock.web.MockRequest;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.ReturnValueHandler;
@@ -74,12 +72,12 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
   @Override
   public void service(MockRequest request, MockResponse response) throws MockException {
     RequestContext context = RequestContextHolder.required();
-    HttpMockRequest servletRequest = MockUtils.getMockRequest(context);
+    MockRequest servletRequest = MockUtils.getMockRequest(context);
     HttpMockResponse servletResponse = MockUtils.getMockResponse(context);
 
     if (request != servletRequest && response != servletResponse) {
       context = new MockRequestContext(
-              getApplicationContext(), (HttpMockRequest) request, (HttpMockResponse) response, this);
+              getApplicationContext(), request, (HttpMockResponse) response, this);
       RequestContextHolder.set(context);
     }
 
@@ -93,13 +91,12 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
         asyncContext = mockAsyncContext;
       }
       else {
-        var mockRequest = MockUtils.getNativeRequest(request, HttpMockRequestImpl.class);
-        Assert.notNull(mockRequest, "Expected HttpMockRequestImpl");
-        asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
+        Assert.notNull(request, "Expected MockRequest");
+        asyncContext = (MockAsyncContext) request.getAsyncContext();
         Assert.notNull(asyncContext, () ->
                 "Outer request wrapper " + request.getClass().getName() + " has an AsyncContext," +
                         "but it is not a MockAsyncContext, while the nested " +
-                        mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
+                        request.getClass().getName() + " does not have an AsyncContext at all.");
       }
 
       CountDownLatch dispatchLatch = new CountDownLatch(1);

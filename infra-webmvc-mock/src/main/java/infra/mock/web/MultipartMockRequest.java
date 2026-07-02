@@ -49,7 +49,7 @@ import infra.web.util.WebUtils;
  * @see MockMemoryFilePart
  * @since 4.0
  */
-public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
+public class MultipartMockRequest extends MockRequest {
 
   private final MapMultipartRequest multipartRequest;
 
@@ -57,9 +57,9 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
    * Create a new {@code MockMultipartHttpServletRequest} with a default
    * {@link MockContextImpl}.
    *
-   * @see #MockMultipartHttpMockRequest(MockContext)
+   * @see #MultipartMockRequest(MockContext)
    */
-  public MockMultipartHttpMockRequest() {
+  public MultipartMockRequest() {
     this(null);
   }
 
@@ -69,7 +69,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
    * @param mockContext the MockContext that the request runs in
    * (may be {@code null} to use a default {@link MockContextImpl})
    */
-  public MockMultipartHttpMockRequest(@Nullable MockContext mockContext) {
+  public MultipartMockRequest(@Nullable MockContext mockContext) {
     super(mockContext);
     this.multipartRequest = new MapMultipartRequest();
     setMethod("POST");
@@ -98,7 +98,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
     public @Nullable Part getPart(String name) {
       Part first = multipartData.getFirst(name);
       if (first == null) {
-        first = MockMultipartHttpMockRequest.super.getPart(name);
+        first = MultipartMockRequest.super.getPart(name);
       }
       return first;
     }
@@ -106,7 +106,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
     @Override
     public Iterable<String> getPartNames() {
       Set<String> strings = new LinkedHashSet<>();
-      CollectionUtils.addAll(strings, MockMultipartHttpMockRequest.super.parts.keySet());
+      CollectionUtils.addAll(strings, MultipartMockRequest.super.parts.keySet());
       CollectionUtils.addAll(strings, multipartData.keySet());
       return strings;
     }
@@ -115,7 +115,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
     public List<Part> getParts(String name) {
       List<Part> list = multipartData.get(name);
       if (list == null) {
-        list = MockMultipartHttpMockRequest.super.parts.get(name);
+        list = MultipartMockRequest.super.parts.get(name);
       }
       return list;
     }
@@ -123,7 +123,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
     @Override
     public MultiValueMap<String, Part> getParts() {
       LinkedMultiValueMap<String, Part> copied = MultiValueMap.copyOf(multipartData);
-      copied.addAll(MockMultipartHttpMockRequest.super.parts);
+      copied.addAll(MultipartMockRequest.super.parts);
       return copied;
     }
 
@@ -138,7 +138,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
         return headers;
       }
       try {
-        var part = MockMultipartHttpMockRequest.this.getPart(name);
+        var part = MultipartMockRequest.this.getPart(name);
         if (part != null) {
           HttpHeaders headers = HttpHeaders.forWritable();
           for (String headerName : part.getHeaderNames()) {
@@ -156,7 +156,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl {
     @Override
     public void cleanup() {
       WebUtils.cleanupMultipartRequest(multipartData);
-      WebUtils.cleanupMultipartRequest(MockMultipartHttpMockRequest.super.parts);
+      WebUtils.cleanupMultipartRequest(MultipartMockRequest.super.parts);
     }
   }
 }

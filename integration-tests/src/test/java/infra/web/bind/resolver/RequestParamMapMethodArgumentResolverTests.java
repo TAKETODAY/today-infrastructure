@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.ResolvableMethod;
@@ -45,7 +45,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   private RequestParamMapMethodArgumentResolver resolver = new RequestParamMapMethodArgumentResolver();
 
-  private HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private MockRequest request = new MockRequest();
 
   private MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -103,7 +103,7 @@ class RequestParamMapMethodArgumentResolverTests {
   @Test
   @SuppressWarnings("unchecked")
   public void resolveMapOfMultipartFile() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected1 = new MockMultipartFile("mfile", "Hello World".getBytes());
     Part expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
     request.addPart(expected1);
@@ -124,7 +124,7 @@ class RequestParamMapMethodArgumentResolverTests {
   @Test
   @SuppressWarnings("unchecked")
   public void resolveMultiValueMapOfMultipartFile() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
     Part expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
     Part expected3 = new MockMultipartFile("other", "Hello World 3".getBytes());

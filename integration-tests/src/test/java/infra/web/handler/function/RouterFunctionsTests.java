@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import infra.http.HttpStatus;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
@@ -115,7 +115,7 @@ public class RouterFunctionsTests {
     RouterFunction<ServerResponse> result = RouterFunctions.nest(RequestPredicates.path("/{foo}"), nestedFunction);
     assertThat(result).isNotNull();
 
-    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/bar");
+    MockRequest servletRequest = new MockRequest("GET", "/bar");
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
     var requestContext = new MockRequestContext(null, servletRequest, servletResponse);

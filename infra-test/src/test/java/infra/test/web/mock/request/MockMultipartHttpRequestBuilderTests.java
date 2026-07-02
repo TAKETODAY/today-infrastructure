@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockMemoryFilePart;
 import infra.mock.web.MockMemoryPart;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.web.multipart.Part;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -39,8 +39,8 @@ class MockMultipartHttpRequestBuilderTests {
 
   @Test
   void addFileAndParts() throws Exception {
-    MockMultipartHttpMockRequest mockRequest =
-            (MockMultipartHttpMockRequest) new MockMultipartHttpRequestBuilder("/upload")
+    MultipartMockRequest mockRequest =
+            (MultipartMockRequest) new MockMultipartHttpRequestBuilder("/upload")
                     .file(new MockMemoryFilePart("file", "test.txt", "text/plain", "Test".getBytes(UTF_8)))
                     .part(new MockMemoryPart("name", "value".getBytes(UTF_8)))
                     .buildRequest(new MockContextImpl());
@@ -55,8 +55,8 @@ class MockMultipartHttpRequestBuilderTests {
     MockMemoryPart jsonPart = new MockMemoryPart("data", "{\"node\":\"node\"}".getBytes(UTF_8));
     jsonPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-    MockMultipartHttpMockRequest mockRequest =
-            (MockMultipartHttpMockRequest) new MockMultipartHttpRequestBuilder("/upload")
+    MultipartMockRequest mockRequest =
+            (MultipartMockRequest) new MockMultipartHttpRequestBuilder("/upload")
                     .file(new MockMemoryFilePart("file", "Test".getBytes(UTF_8)))
                     .part(jsonPart)
                     .buildRequest(new MockContextImpl());
@@ -77,7 +77,7 @@ class MockMultipartHttpRequestBuilderTests {
     assertThat(result.getClass()).isEqualTo(MockMultipartHttpRequestBuilder.class);
 
     MockMultipartHttpRequestBuilder builder = (MockMultipartHttpRequestBuilder) result;
-    HttpMockRequestImpl request = builder.buildRequest(new MockContextImpl());
+    MockRequest request = builder.buildRequest(new MockContextImpl());
     assertThat(request.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 

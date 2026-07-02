@@ -29,7 +29,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.BindingContext;
 import infra.web.RequestContextHolder;
@@ -52,7 +52,7 @@ public class ExpressionValueMethodArgumentResolverTests {
   private ResolvableMethodParameter paramContextPath;
 
   private ResolvableMethodParameter paramNotSupported;
-  HttpMockRequestImpl request = new HttpMockRequestImpl();
+  MockRequest request = new MockRequest();
 
   private MockRequestContext webRequest;
 

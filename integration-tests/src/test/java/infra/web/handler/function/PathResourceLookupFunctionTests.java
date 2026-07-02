@@ -27,15 +27,13 @@ import java.util.function.Function;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
-import infra.core.io.PathResource;
 import infra.core.io.Resource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
@@ -106,7 +104,7 @@ class PathResourceLookupFunctionTests {
   }
 
   private ServerRequest initRequest(String httpMethod, String requestUri) {
-    HttpMockRequestImpl request = PathPatternsTestUtils.initRequest(httpMethod, requestUri, true);
+    MockRequest request = PathPatternsTestUtils.initRequest(httpMethod, requestUri, true);
     var requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
     return new DefaultServerRequest(
             requestContext,

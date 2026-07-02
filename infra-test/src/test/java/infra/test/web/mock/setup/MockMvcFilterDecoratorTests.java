@@ -24,9 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 
 import infra.mock.api.DispatcherType;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.Filter;
@@ -43,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MockMvcFilterDecoratorTests {
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -55,7 +54,7 @@ class MockMvcFilterDecoratorTests {
 
   @BeforeEach
   public void setup() {
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     response = new MockHttpResponseImpl();
     filterChain = new MockFilterChain();
     delegate = new MockFilter();
@@ -245,7 +244,7 @@ class MockMvcFilterDecoratorTests {
 
   private static class MockFilter implements Filter {
 
-    private MockRequest request;
+    private infra.mock.web.MockRequest request;
 
     private MockResponse response;
 

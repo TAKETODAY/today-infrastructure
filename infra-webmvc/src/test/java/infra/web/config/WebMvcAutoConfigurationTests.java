@@ -72,7 +72,7 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
@@ -318,7 +318,7 @@ class WebMvcAutoConfigurationTests {
     this.contextRunner.withPropertyValues("web.locale:en_UK", "web.locale-resolver=fixed")
             .run((loader) -> {
               // mock request and set user preferred locale
-              HttpMockRequestImpl request = new HttpMockRequestImpl();
+              MockRequest request = new MockRequest();
               request.addPreferredLocale(StringUtils.parseLocaleString("nl_NL"));
               request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "nl_NL");
               LocaleResolver localeResolver = loader.getBean(LocaleResolver.class);
@@ -334,7 +334,7 @@ class WebMvcAutoConfigurationTests {
   void useAcceptHeaderLocale() {
     this.contextRunner.withPropertyValues("web.locale:en_UK").run((loader) -> {
       // mock request and set user preferred locale
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addPreferredLocale(StringUtils.parseLocaleString("nl_NL"));
       request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "nl_NL");
       LocaleResolver localeResolver = loader.getBean(LocaleResolver.class);
@@ -349,7 +349,7 @@ class WebMvcAutoConfigurationTests {
   void useDefaultLocaleIfAcceptHeaderNoSet() {
     this.contextRunner.withPropertyValues("web.locale:en_UK").run((context) -> {
       // mock request and set user preferred locale
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       LocaleResolver localeResolver = context.getBean(LocaleResolver.class);
       assertThat(localeResolver).isInstanceOf(AcceptHeaderLocaleResolver.class);
       Locale locale = localeResolver.resolveLocale(new MockRequestContext(null, request, null));
@@ -788,9 +788,9 @@ class WebMvcAutoConfigurationTests {
               DefaultApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy",
                       DefaultApiVersionStrategy.class);
               assertThatExceptionOfType(MissingApiVersionException.class)
-                      .isThrownBy(() -> versionStrategy.validateVersion(null, new MockRequestContext(new HttpMockRequestImpl())));
+                      .isThrownBy(() -> versionStrategy.validateVersion(null, new MockRequestContext(new MockRequest())));
               assertThatExceptionOfType(InvalidApiVersionException.class).isThrownBy(() -> versionStrategy
-                      .validateVersion(versionStrategy.parseVersion("789"), new MockRequestContext(new HttpMockRequestImpl())));
+                      .validateVersion(versionStrategy.parseVersion("789"), new MockRequestContext(new MockRequest())));
               assertThat(versionStrategy.detectSupportedVersions()).isFalse();
             });
   }
@@ -805,8 +805,8 @@ class WebMvcAutoConfigurationTests {
               versionStrategy.addSupportedVersion("1.0.0");
               Comparable<?> version = versionStrategy.parseVersion("1.0.0");
               assertThat(versionStrategy.getDefaultVersion()).isEqualTo(version);
-              versionStrategy.validateVersion(version, new MockRequestContext(new HttpMockRequestImpl()));
-              versionStrategy.validateVersion(null, new MockRequestContext(new HttpMockRequestImpl()));
+              versionStrategy.validateVersion(version, new MockRequestContext(new MockRequest()));
+              versionStrategy.validateVersion(null, new MockRequestContext(new MockRequest()));
             });
   }
 
@@ -814,7 +814,7 @@ class WebMvcAutoConfigurationTests {
   void apiVersionUseHeaderPropertyIsApplied() {
     this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.header=hv").run((context) -> {
       ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addHeader("hv", "123");
       assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
     });
@@ -824,7 +824,7 @@ class WebMvcAutoConfigurationTests {
   void apiVersionUseQueryParameterPropertyIsApplied() {
     this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.request-param=rpv").run((context) -> {
       ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.setParameter("rpv", "123");
       assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
     });
@@ -834,7 +834,7 @@ class WebMvcAutoConfigurationTests {
   void apiVersionUsePathSegmentPropertyIsApplied() {
     this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.path-segment=1").run((context) -> {
       ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
-      HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test/123");
+      MockRequest request = new MockRequest("GET", "/test/123");
       assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
     });
   }
@@ -844,7 +844,7 @@ class WebMvcAutoConfigurationTests {
     this.contextRunner.withPropertyValues("web.mvc.apiVersion.use.media-type-parameter[application/json]=mtpv")
             .run((context) -> {
               ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
-              HttpMockRequestImpl request = new HttpMockRequestImpl();
+              MockRequest request = new MockRequest();
               request.addHeader(HttpHeaders.CONTENT_TYPE, "application/json;mtpv=123");
               assertThat(versionStrategy.resolveVersion(new MockRequestContext(request))).isEqualTo("123");
             });
@@ -859,19 +859,19 @@ class WebMvcAutoConfigurationTests {
             .run((context) -> {
               ApiVersionStrategy versionStrategy = context.getBean("mvcApiVersionStrategy", ApiVersionStrategy.class);
 
-              var requestWithHeader = new HttpMockRequestImpl("GET", "/test/456");
+              var requestWithHeader = new MockRequest("GET", "/test/456");
               requestWithHeader.addHeader("hv", "123");
               assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestWithHeader))).isEqualTo("123");
 
-              var requestWithQueryParameter = new HttpMockRequestImpl("GET", "/test/456");
+              var requestWithQueryParameter = new MockRequest("GET", "/test/456");
               requestWithQueryParameter.setQueryString("rpv=123");
               assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestWithQueryParameter))).isEqualTo("123");
 
-              var requestWithMediaType = new HttpMockRequestImpl("GET", "/test/456");
+              var requestWithMediaType = new MockRequest("GET", "/test/456");
               requestWithMediaType.addHeader(HttpHeaders.CONTENT_TYPE, "application/json;mtpv=123");
               assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestWithMediaType))).isEqualTo("123");
 
-              var requestFallbacksToApiSegment = new HttpMockRequestImpl("GET", "/test/456");
+              var requestFallbacksToApiSegment = new MockRequest("GET", "/test/456");
               assertThat(versionStrategy.resolveVersion(new MockRequestContext(requestFallbacksToApiSegment))).isEqualTo("456");
             });
   }

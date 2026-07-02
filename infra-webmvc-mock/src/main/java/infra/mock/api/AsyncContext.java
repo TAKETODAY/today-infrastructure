@@ -20,7 +20,7 @@
 
 package infra.mock.api;
 
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 
 /**
  * Class representing the execution context for an asynchronous operation that was initiated on a ServletRequest.
@@ -83,8 +83,8 @@ public interface AsyncContext {
    *
    * <p>
    * If the asynchronous cycle was started with {@link MockRequest#startAsync(MockRequest, MockResponse)}, and
-   * the request passed is an instance of HttpMockRequest, then the dispatch is to the URI returned by
-   * {@link HttpMockRequest#getRequestURI}. Otherwise, the dispatch is to the URI of the request
+   * the request passed is an instance of MockRequest, then the dispatch is to the URI returned by
+   * {@link MockRequest#getRequestURI}. Otherwise, the dispatch is to the URI of the request
    * when it was last dispatched by the container.
    *
    * <p>

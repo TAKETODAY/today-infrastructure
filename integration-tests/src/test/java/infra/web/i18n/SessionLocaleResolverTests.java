@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.Session;
 import infra.session.config.EnableSession;
@@ -56,7 +56,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   public void testResolveLocale() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     RequestContext context = new MockRequestContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
@@ -69,7 +69,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   public void testSetAndResolveLocale() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     RequestContext context = new MockRequestContext(webApplicationContext, request, response);
 
@@ -78,7 +78,7 @@ public class SessionLocaleResolverTests {
     assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.GERMAN);
 
     Session session = request.getSession();
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     request.setSession(session);
     resolver = new SessionLocaleResolver();
 
@@ -87,7 +87,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   public void testResolveLocaleWithoutSession() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.TAIWAN);
     RequestContext context = new MockRequestContext(webApplicationContext, request, null);
 
@@ -98,7 +98,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   public void testResolveLocaleWithoutSessionAndDefaultLocale() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.TAIWAN);
     RequestContext context = new MockRequestContext(webApplicationContext, request, null);
 
@@ -110,7 +110,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   public void testSetLocaleToNullLocale() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     RequestContext context = new MockRequestContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
@@ -123,7 +123,7 @@ public class SessionLocaleResolverTests {
     assertThat(locale).isNull();
 
     Session session = request.getSession();
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     request.addPreferredLocale(Locale.TAIWAN);
     request.setSession(session);
     resolver = new SessionLocaleResolver();

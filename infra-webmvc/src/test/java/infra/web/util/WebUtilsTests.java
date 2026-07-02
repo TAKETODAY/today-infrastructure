@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.http.HttpHeaders;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.MultiValueMap;
 import infra.web.mock.MockRequestContext;
@@ -163,7 +163,7 @@ public class WebUtilsTests {
   }
 
   private boolean checkValidOrigin(String serverName, int port, String originHeader, List<String> allowed) {
-    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+    MockRequest servletRequest = new MockRequest();
     servletRequest.setServerName(serverName);
     if (port != -1) {
       servletRequest.setServerPort(port);
@@ -174,7 +174,7 @@ public class WebUtilsTests {
   }
 
   private boolean checkSameOrigin(String scheme, String serverName, int port, String originHeader) {
-    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+    MockRequest servletRequest = new MockRequest();
     servletRequest.setScheme(scheme);
     servletRequest.setServerName(serverName);
     if (port != -1) {
@@ -189,7 +189,7 @@ public class WebUtilsTests {
   private void testWithXForwardedHeaders(String serverName, int port, String forwardedProto,
           String forwardedHost, int forwardedPort, String originHeader) throws Exception {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setServerName(serverName);
     if (port != -1) {
       request.setServerPort(port);
@@ -205,7 +205,7 @@ public class WebUtilsTests {
     }
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-//    HttpMockRequest requestToUse = adaptFromForwardedHeaders(request);
+//    MockRequest requestToUse = adaptFromForwardedHeaders(request);
 //    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
 //
 //    assertThat(WebUtils.isSameOrigin(httpRequest)).isTrue();
@@ -214,7 +214,7 @@ public class WebUtilsTests {
   private void testWithForwardedHeader(String serverName, int port, String forwardedHeader,
           String originHeader) throws Exception {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setServerName(serverName);
     if (port != -1) {
       request.setServerPort(port);
@@ -222,7 +222,7 @@ public class WebUtilsTests {
     request.addHeader("Forwarded", forwardedHeader);
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-//    HttpMockRequest requestToUse = adaptFromForwardedHeaders(request);
+//    MockRequest requestToUse = adaptFromForwardedHeaders(request);
 //    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
 
   }

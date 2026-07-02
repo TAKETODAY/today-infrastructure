@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
@@ -42,7 +42,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   private RequestContext webRequest;
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private ResolvableMethodParameter builderParam;
   private ResolvableMethodParameter mockBuilderParam;
@@ -51,7 +51,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Exception {
     this.resolver = new UriComponentsBuilderParameterStrategy();
-    this.mockRequest = new HttpMockRequestImpl();
+    this.mockRequest = new MockRequest();
     this.webRequest = new MockRequestContext(
             null, this.mockRequest, new MockHttpResponseImpl());
 

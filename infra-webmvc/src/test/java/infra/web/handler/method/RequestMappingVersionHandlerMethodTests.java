@@ -26,7 +26,7 @@ import java.net.URI;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.annotation.GET;
@@ -85,7 +85,7 @@ public class RequestMappingVersionHandlerMethodTests {
   }
 
   private MockHttpResponseImpl requestWithVersion(String version) throws MockException {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-VERSION", version);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     this.dispatcher.service(request, response);

@@ -28,7 +28,7 @@ import java.util.Set;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.mock;
  */
 class DefaultCorsProcessorTests {
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockHttpResponseImpl mockResponse;
 
@@ -55,7 +55,7 @@ class DefaultCorsProcessorTests {
 
   @BeforeEach
   void setup() {
-    this.mockRequest = new HttpMockRequestImpl();
+    this.mockRequest = new MockRequest();
     this.mockRequest.setRequestURI("/test.html");
     this.mockRequest.setServerName("domain1.example");
     this.conf = new CorsConfiguration();
@@ -533,7 +533,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void processWithNullConfigAndCorsRequest() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.setRequestURI("/test.html");
     mockRequest.setServerName("domain1.example");
     mockRequest.setMethod(HttpMethod.GET.name());
@@ -553,7 +553,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void processWithExistingCorsHeaders() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.setRequestURI("/test.html");
     mockRequest.setServerName("domain1.example");
     mockRequest.setMethod(HttpMethod.GET.name());
@@ -575,7 +575,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void rejectRequestSetsForbiddenStatusAndMessage() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
     MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
@@ -589,7 +589,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void handleInternalWithInvalidOrigin() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.setRequestURI("/test.html");
     mockRequest.setServerName("domain1.example");
     mockRequest.setMethod(HttpMethod.GET.name());
@@ -610,7 +610,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void handleInternalWithInvalidMethod() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.setRequestURI("/test.html");
     mockRequest.setServerName("domain1.example");
     mockRequest.setMethod(HttpMethod.POST.name());
@@ -632,7 +632,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void handleInternalWithInvalidHeadersInPreFlight() throws Exception {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.setRequestURI("/test.html");
     mockRequest.setServerName("domain1.example");
     mockRequest.setMethod(HttpMethod.OPTIONS.name());
@@ -725,7 +725,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void getMethodToUseReturnsRequestMethodForNonPreFlight() {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.setMethod(HttpMethod.GET.name());
 
     MockRequestContext request = mock(MockRequestContext.class);
@@ -740,7 +740,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void getMethodToUseReturnsAccessControlRequestMethodForPreFlight() {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST");
 
     MockRequestContext request = mock(MockRequestContext.class);
@@ -757,7 +757,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void getHeadersToUseReturnsAllHeadersForNonPreFlight() {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.addHeader("Header1", "value1");
     mockRequest.addHeader("Header2", "value2");
 
@@ -775,7 +775,7 @@ class DefaultCorsProcessorTests {
 
   @Test
   void getHeadersToUseReturnsAccessControlRequestHeadersForPreFlight() {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Header1, Header2");
 
     MockRequestContext request = mock(MockRequestContext.class);

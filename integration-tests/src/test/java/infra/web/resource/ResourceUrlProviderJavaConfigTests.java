@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.mock.api.MockHandler;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.config.annotation.ResourceHandlerRegistry;
@@ -45,7 +45,7 @@ public class ResourceUrlProviderJavaConfigTests {
 
   private MockFilterChain filterChain;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -55,7 +55,7 @@ public class ResourceUrlProviderJavaConfigTests {
     context.register(WebConfig.class);
     context.refresh();
 
-    this.request = new HttpMockRequestImpl("GET", "/");
+    this.request = new MockRequest("GET", "/");
     this.response = new MockHttpResponseImpl();
 
     this.filterChain = new MockFilterChain(this.testMock/*,

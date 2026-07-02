@@ -36,10 +36,9 @@ import infra.mock.api.AsyncListener;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockRequest;
 
 /**
  * Adapt {@link HttpHandler}
@@ -108,7 +107,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
     AsyncListener requestListener;
     String logPrefix;
     try {
-      httpRequest = createRequest(((HttpMockRequest) request), asyncContext);
+      httpRequest = createRequest(request, asyncContext);
       requestListener = httpRequest.getAsyncListener();
       logPrefix = httpRequest.getLogPrefix();
     }
@@ -136,7 +135,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
     this.httpHandler.handle(httpRequest, httpResponse).subscribe(subscriber);
   }
 
-  protected MockServerHttpRequest createRequest(HttpMockRequest request, AsyncContext context)
+  protected MockServerHttpRequest createRequest(MockRequest request, AsyncContext context)
           throws IOException, URISyntaxException {
 
     Assert.notNull(this.mockPath, "Servlet path is not initialized");
@@ -172,27 +171,11 @@ public class MockHttpHandlerAdapter implements MockHandler {
    * request body Subscriber, and in {@link MockServerHttpResponse} to
    * cancel the write Publisher and signal onError/onComplete downstream to
    * the writing result Subscriber.
+   *
+   * @param handlerDisposeTask We cannot have AsyncListener and HandlerResultSubscriber until WildFly 12+: https://issues.jboss.org/browse/WFLY-8515
    */
-  private static class HttpHandlerAsyncListener implements AsyncListener {
-
-    private final String logPrefix;
-    private final AsyncListener requestAsyncListener;
-    private final AsyncListener responseAsyncListener;
-    // We cannot have AsyncListener and HandlerResultSubscriber until WildFly 12+:
-    // https://issues.jboss.org/browse/WFLY-8515
-    private final Runnable handlerDisposeTask;
-    private final AtomicBoolean completionFlag;
-
-    public HttpHandlerAsyncListener(
-            AsyncListener requestAsyncListener, AsyncListener responseAsyncListener,
-            Runnable handlerDisposeTask, AtomicBoolean completionFlag, String logPrefix) {
-
-      this.requestAsyncListener = requestAsyncListener;
-      this.responseAsyncListener = responseAsyncListener;
-      this.handlerDisposeTask = handlerDisposeTask;
-      this.completionFlag = completionFlag;
-      this.logPrefix = logPrefix;
-    }
+  private record HttpHandlerAsyncListener(AsyncListener requestAsyncListener, AsyncListener responseAsyncListener, Runnable handlerDisposeTask, AtomicBoolean completionFlag, String logPrefix)
+          implements AsyncListener {
 
     @Override
     public void onTimeout(AsyncEvent event) {

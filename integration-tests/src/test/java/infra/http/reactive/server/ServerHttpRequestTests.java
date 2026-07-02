@@ -32,9 +32,9 @@ import infra.lang.Constant;
 import infra.mock.api.AsyncContext;
 import infra.mock.api.MockInputStream;
 import infra.mock.api.ReadListener;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.DelegatingMockInputStream;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.MultiValueMap;
@@ -211,19 +211,19 @@ public class ServerHttpRequestTests {
     request = request.mutate().header("key", "value").build();
 
     Object nativeRequest = DecoratingServerHttpRequest.getNativeRequest(request);
-    assertThat(nativeRequest).isInstanceOf(HttpMockRequest.class);
+    assertThat(nativeRequest).isInstanceOf(MockRequest.class);
   }
 
   private ServerHttpRequest createRequest(String uriString) throws Exception {
     URI uri = URI.create(uriString);
-    HttpMockRequestImpl request = new TestHttpMockRequest(uri);
+    MockRequest request = new TestMockRequest(uri);
     AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpResponseImpl());
     return new MockServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
   }
 
-  private static class TestHttpMockRequest extends HttpMockRequestImpl {
+  private static class TestMockRequest extends MockRequest {
 
-    TestHttpMockRequest(URI uri) {
+    TestMockRequest(URI uri) {
       super("GET", uri.getRawPath());
       if (uri.getScheme() != null) {
         setScheme(uri.getScheme());

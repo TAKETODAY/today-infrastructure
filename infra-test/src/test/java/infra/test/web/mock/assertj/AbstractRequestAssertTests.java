@@ -24,19 +24,18 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link AbstractHttpMockRequestAssert}.
+ * Tests for {@link AbstractRequestAssert}.
  *
  * @author Stephane Nicoll
  */
-public class AbstractHttpMockRequestAssertTests {
+public class AbstractRequestAssertTests {
 
   @Nested
   class AttributesTests {
@@ -52,14 +51,14 @@ public class AbstractHttpMockRequestAssertTests {
 
     @Test
     void attributesWithWrongKey() {
-      HttpMockRequest request = createRequest(Map.of("one", 1));
+      MockRequest request = createRequest(Map.of("one", 1));
       assertThatExceptionOfType(AssertionError.class)
               .isThrownBy(() -> assertThat(request).attributes().containsKey("two"))
               .withMessageContainingAll("Request Attributes", "two", "one");
     }
 
-    private HttpMockRequest createRequest(Map<String, Object> attributes) {
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+    private MockRequest createRequest(Map<String, Object> attributes) {
+      MockRequest request = new MockRequest();
       attributes.forEach(request::setAttribute);
       return request;
     }
@@ -80,14 +79,14 @@ public class AbstractHttpMockRequestAssertTests {
 
     @Test
     void sessionAttributesWithWrongKey() {
-      HttpMockRequest request = createRequest(Map.of("one", 1));
+      MockRequest request = createRequest(Map.of("one", 1));
       assertThatExceptionOfType(AssertionError.class)
               .isThrownBy(() -> assertThat(request).sessionAttributes().containsKey("two"))
               .withMessageContainingAll("Session Attributes", "two", "one");
     }
 
-    private HttpMockRequest createRequest(Map<String, Object> attributes) {
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+    private MockRequest createRequest(Map<String, Object> attributes) {
+      MockRequest request = new MockRequest();
       Session session = request.getSession();
       attributes.forEach(session::setAttribute);
       return request;
@@ -97,14 +96,14 @@ public class AbstractHttpMockRequestAssertTests {
 
   @Test
   void hasAsyncStartedTrue() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncStarted(true);
     assertThat(request).hasAsyncStarted(true);
   }
 
   @Test
   void hasAsyncStartedTrueWithFalse() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncStarted(false);
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(request).hasAsyncStarted(true))
@@ -113,27 +112,27 @@ public class AbstractHttpMockRequestAssertTests {
 
   @Test
   void hasAsyncStartedFalse() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncStarted(false);
     assertThat(request).hasAsyncStarted(false);
   }
 
   @Test
   void hasAsyncStartedFalseWithTrue() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncStarted(true);
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> assertThat(request).hasAsyncStarted(false))
             .withMessage("Async expected not to have started");
   }
 
-  private static RequestAssert assertThat(HttpMockRequest request) {
+  private static RequestAssert assertThat(MockRequest request) {
     return new RequestAssert(request);
   }
 
-  private static final class RequestAssert extends AbstractHttpMockRequestAssert<RequestAssert, HttpMockRequest> {
+  private static final class RequestAssert extends AbstractRequestAssert<RequestAssert, MockRequest> {
 
-    RequestAssert(HttpMockRequest actual) {
+    RequestAssert(MockRequest actual) {
       super(actual, RequestAssert.class);
     }
   }

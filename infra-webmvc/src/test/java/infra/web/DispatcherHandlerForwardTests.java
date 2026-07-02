@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.stereotype.Component;
 import infra.util.MultiValueMapAdapter;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -202,7 +202,7 @@ class DispatcherHandlerForwardTests {
     handler.start();
 
     MockRequestContext request = new MockRequestContext(
-            new HttpMockRequestImpl("GET", "/first"), handler);
+            new MockRequest("GET", "/first"), handler);
     request.setUseForward(true);
     handler.handleRequest(request);
 
@@ -236,7 +236,7 @@ class DispatcherHandlerForwardTests {
     handler.start();
 
     MockRequestContext request = new MockRequestContext(
-            new HttpMockRequestImpl("GET", "/a"), handler);
+            new MockRequest("GET", "/a"), handler);
     request.setUseForward(true);
     handler.handleRequest(request);
 

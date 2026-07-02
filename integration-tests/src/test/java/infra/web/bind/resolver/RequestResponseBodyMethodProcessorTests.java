@@ -60,7 +60,7 @@ import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.MultiValueMap;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
@@ -91,7 +91,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   protected static final String NEWLINE_SYSTEM_PROPERTY = System.getProperty("line.separator");
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockHttpResponseImpl mockResponse;
 
@@ -107,7 +107,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    mockRequest = new HttpMockRequestImpl();
+    mockRequest = new MockRequest();
     mockRequest.setMethod("POST");
     mockResponse = new MockHttpResponseImpl();
     request = new MockRequestContext(null, mockRequest, mockResponse);
@@ -881,7 +881,7 @@ class RequestResponseBodyMethodProcessorTests {
               .isNull();
     }
 
-    this.mockRequest = new HttpMockRequestImpl();
+    this.mockRequest = new MockRequest();
     this.mockResponse = new MockHttpResponseImpl();
     this.request = new MockRequestContext(null, mockRequest, mockResponse);
   }

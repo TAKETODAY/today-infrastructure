@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import infra.http.server.RequestPath;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.BindingContext;
@@ -58,7 +58,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
     this.resolver = new MatrixVariableMapMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
-    this.webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    this.webRequest = new MockRequestContext(null, new MockRequest(), null);
     webRequest.setBinding(binding);
 
     PathMatchInfo info = new MockPathMatchInfo();

@@ -49,9 +49,8 @@ import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockRequest;
 import infra.mock.api.http.Cookie;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockSession;
 import infra.session.Session;
 import infra.test.web.mock.MockMvc;
@@ -67,7 +66,7 @@ import infra.web.util.UriComponentsBuilder;
 import infra.web.util.UriUtils;
 
 /**
- * Base builder for {@link HttpMockRequestImpl} required as input to
+ * Base builder for {@link MockRequest} required as input to
  * perform requests in {@link MockMvc}.
  *
  * @param <B> a self reference to the builder type
@@ -78,7 +77,7 @@ import infra.web.util.UriUtils;
  * @author Kamill Sokol
  * @since 5.0
  */
-public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockHttpMockRequestBuilder<B>>
+public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBuilder<B>>
         implements ConfigurableSmartRequestBuilder<B>, Mergeable {
 
   private static final SimpleDateFormat simpleDateFormat;
@@ -139,7 +138,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    *
    * @param httpMethod the HTTP method (GET, POST, etc.)
    */
-  protected AbstractMockHttpMockRequestBuilder(HttpMethod httpMethod) {
+  protected AbstractMockRequestBuilder(HttpMethod httpMethod) {
     Assert.notNull(httpMethod, "'httpMethod' is required");
     this.method = httpMethod;
   }
@@ -193,7 +192,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   /**
-   * Set the secure property of the {@link MockRequest} indicating use of a
+   * Set the secure property of the {@link infra.mock.web.MockRequest} indicating use of a
    * secure channel, such as HTTPS.
    *
    * @param secure whether the request is using a secure channel
@@ -342,7 +341,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
    */
   public B header(String name, Object... values) {
 
-    // Prior to 7.0, header values were passed as Objects to HttpMockRequestImpl.
+    // Prior to 7.0, header values were passed as Objects to MockRequest.
     // Here we add some formatting for backwards compatibility.
 
     if (values.length == 1) {
@@ -387,7 +386,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   /**
-   * Add a request parameter to {@link HttpMockRequestImpl#getParameterMap()}.
+   * Add a request parameter to {@link MockRequest#getParameterMap()}.
    * <p>In the Servlet API, a request parameter may be parsed from the query
    * string and/or from the body of an {@code application/x-www-form-urlencoded}
    * request. This method simply adds to the request parameter map. You may
@@ -632,7 +631,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   /**
-   * An extension point for further initialization of {@link HttpMockRequestImpl}
+   * An extension point for further initialization of {@link MockRequest}
    * in ways not built directly into the {@code MockHttpRequestBuilder}.
    * Implementation of this interface can have builder-style methods themselves
    * and be made accessible through static factory methods.
@@ -668,7 +667,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
     if (parent == null) {
       return this;
     }
-    if (!(parent instanceof AbstractMockHttpMockRequestBuilder<?> parentBuilder)) {
+    if (!(parent instanceof AbstractMockRequestBuilder<?> parentBuilder)) {
       throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
     }
     if (this.uri == null) {
@@ -780,10 +779,10 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   /**
-   * Build a {@link HttpMockRequestImpl}.
+   * Build a {@link MockRequest}.
    */
   @Override
-  public final HttpMockRequestImpl buildRequest(MockContext servletContext) {
+  public final MockRequest buildRequest(MockContext servletContext) {
 
     URI uri = this.uri;
     Assert.notNull(uri, "'uri' is required");
@@ -793,7 +792,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
       uri = this.versionInserter.insertVersion(this.version, uri);
     }
 
-    HttpMockRequestImpl request = createMockRequest(servletContext);
+    MockRequest request = createMockRequest(servletContext);
 
     request.setAsyncSupported(true);
     request.setMethod(this.method.name());
@@ -919,18 +918,18 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   /**
-   * Create a new {@link HttpMockRequestImpl} based on the supplied
+   * Create a new {@link MockRequest} based on the supplied
    * {@code MockContext}.
    * <p>Can be overridden in subclasses.
    */
-  protected HttpMockRequestImpl createMockRequest(MockContext mockContext) {
-    return new HttpMockRequestImpl(mockContext);
+  protected MockRequest createMockRequest(MockContext mockContext) {
+    return new MockRequest(mockContext);
   }
 
   /**
    * Update the pathInfo of the request.
    */
-  private void updatePathRequestProperties(HttpMockRequestImpl request, String requestUri) {
+  private void updatePathRequestProperties(MockRequest request, String requestUri) {
     String path = this.pathInfo;
     if ("".equals(path)) {
       path = StringUtils.hasText(requestUri) ? UriUtils.decode(requestUri, StandardCharsets.UTF_8) : null;
@@ -938,7 +937,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
     request.setPathInfo(path);
   }
 
-  private void addRequestParams(HttpMockRequestImpl request, MultiValueMap<String, String> map) {
+  private void addRequestParams(MockRequest request, MultiValueMap<String, String> map) {
     map.forEach((key, values) ->
             request.addParameter(
                     UriUtils.decode(key, StandardCharsets.UTF_8),
@@ -978,7 +977,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
     HttpInputMessage message = new HttpInputMessage() {
       @Override
       public InputStream getBody() {
-        byte[] bodyContent = AbstractMockHttpMockRequestBuilder.this.content;
+        byte[] bodyContent = AbstractMockRequestBuilder.this.content;
         return (bodyContent != null ? new ByteArrayInputStream(bodyContent) : InputStream.nullInputStream());
       }
 
@@ -999,7 +998,7 @@ public abstract class AbstractMockHttpMockRequestBuilder<B extends AbstractMockH
   }
 
   @Override
-  public HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request) {
+  public MockRequest postProcessRequest(MockRequest request) {
     for (RequestPostProcessor postProcessor : this.postProcessors) {
       request = postProcessor.postProcessRequest(request);
     }

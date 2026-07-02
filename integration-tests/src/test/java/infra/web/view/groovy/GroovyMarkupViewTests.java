@@ -39,7 +39,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContextHolder;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
@@ -161,7 +161,7 @@ public class GroovyMarkupViewTests {
 
     GroovyMarkupView view = createViewWithUrl(viewUrl);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(locale);
     LocaleContextHolder.setLocale(locale);
     view.renderMergedTemplateModel(model, new MockRequestContext(request, response));

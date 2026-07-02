@@ -20,28 +20,28 @@ package infra.test.web.mock.assertj;
 
 import org.junit.jupiter.api.Test;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 
 /**
- * Tests for {@link AbstractMockHttpMockRequestAssert}.
+ * Tests for {@link AbstractMockRequestAssert}.
  *
  * @author Stephane Nicoll
  */
-class AbstractMockHttpMockRequestAssertTests {
+class AbstractMockRequestAssertTests {
 
   @Test
   void requestCanBeAsserted() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     assertThat(request).satisfies(actual -> assertThat(actual).isSameAs(request));
   }
 
-  private static RequestAssert assertThat(HttpMockRequestImpl request) {
+  private static RequestAssert assertThat(MockRequest request) {
     return new RequestAssert(request);
   }
 
-  private static final class RequestAssert extends AbstractMockHttpMockRequestAssert<RequestAssert> {
+  private static final class RequestAssert extends AbstractMockRequestAssert<RequestAssert> {
 
-    RequestAssert(HttpMockRequestImpl actual) {
+    RequestAssert(MockRequest actual) {
       super(actual, RequestAssert.class);
     }
   }

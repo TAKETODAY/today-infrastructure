@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.TimeZone;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.mock.MockRequestContext;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 @SuppressWarnings("cast")
 class RequestContextUtilsTests {
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   MockRequestContext context = new MockRequestContext(null, request, null);
 

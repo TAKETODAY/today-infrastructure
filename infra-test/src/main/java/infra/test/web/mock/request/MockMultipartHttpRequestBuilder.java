@@ -34,16 +34,16 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.mock.api.MockContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockMemoryFilePart;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.multipart.Part;
 
 /**
- * Default builder for {@link MockMultipartHttpMockRequest}.
+ * Default builder for {@link MultipartMockRequest}.
  *
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
@@ -149,13 +149,13 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
   }
 
   /**
-   * Create a new {@link MockMultipartHttpMockRequest} based on the
+   * Create a new {@link MultipartMockRequest} based on the
    * supplied {@code MockContext} and the {@code MockMultipartFiles}
    * added to this builder.
    */
   @Override
-  protected final HttpMockRequestImpl createMockRequest(MockContext mockContext) {
-    MockMultipartHttpMockRequest mockRequest = new MockMultipartHttpMockRequest(mockContext);
+  protected final MockRequest createMockRequest(MockContext mockContext) {
+    MultipartMockRequest mockRequest = new MultipartMockRequest(mockContext);
     Charset defaultCharset = (mockRequest.getCharacterEncoding() != null ?
             Charset.forName(mockRequest.getCharacterEncoding()) : StandardCharsets.UTF_8);
 

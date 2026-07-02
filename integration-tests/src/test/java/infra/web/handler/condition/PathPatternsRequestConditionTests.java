@@ -20,8 +20,8 @@ package infra.web.handler.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.pattern.PathPatternParser;
 
@@ -88,7 +88,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchDirectPath() {
-    HttpMockRequestImpl request = createRequest("/foo");
+    MockRequest request = createRequest("/foo");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
@@ -98,7 +98,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPattern() {
-    HttpMockRequestImpl request = createRequest("/foo/bar");
+    MockRequest request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
@@ -108,7 +108,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPatternWithContextPath() {
-    HttpMockRequestImpl request = createRequest("", "/foo/bar");
+    MockRequest request = createRequest("", "/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
@@ -118,7 +118,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchSortPatterns() {
-    HttpMockRequestImpl request = createRequest("/foo/bar");
+    MockRequest request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/**", "/foo/bar", "/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
@@ -129,7 +129,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchTrailingSlash() {
-    HttpMockRequestImpl request = createRequest("/foo/");
+    MockRequest request = createRequest("/foo/");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
@@ -148,7 +148,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPatternContainsExtension() {
-    HttpMockRequestImpl request = createRequest("/foo.html");
+    MockRequest request = createRequest("/foo.html");
     PathPatternsRequestCondition match = createCondition("/foo.jpg")
             .getMatchingCondition(new MockRequestContext(null, request, null));
 
@@ -185,7 +185,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void compareNumberOfMatchingPatterns() {
-    HttpMockRequest request = createRequest("/foo");
+    MockRequest request = createRequest("/foo");
 
     PathPatternsRequestCondition c1 = createCondition("/foo", "/bar");
     PathPatternsRequestCondition c2 = createCondition("/foo", "/f*");
@@ -196,7 +196,7 @@ public class PathPatternsRequestConditionTests {
     assertThat(match1.compareTo(match2, new MockRequestContext(null, request, null))).isEqualTo(1);
   }
 
-  private HttpMockRequestImpl createRequest(String requestURI) {
+  private MockRequest createRequest(String requestURI) {
     return createRequest("", requestURI);
   }
 
@@ -208,8 +208,8 @@ public class PathPatternsRequestConditionTests {
     return new MockRequestContext(null, createRequest(contextPath, requestURI), null);
   }
 
-  private HttpMockRequestImpl createRequest(String contextPath, String requestURI) {
-    return new HttpMockRequestImpl("GET", requestURI);
+  private MockRequest createRequest(String contextPath, String requestURI) {
+    return new MockRequest("GET", requestURI);
   }
 
   private PathPatternsRequestCondition createCondition(String... patterns) {

@@ -29,7 +29,7 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.HttpStatus;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ReflectionUtils;
 import infra.validation.BindException;
@@ -56,7 +56,7 @@ class DefaultErrorAttributesTests {
 
   private final infra.web.server.error.DefaultErrorAttributes errorAttributes = new infra.web.server.error.DefaultErrorAttributes();
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   private final RequestContext webRequest = new MockRequestContext(
           null, this.request, new MockHttpResponseImpl());

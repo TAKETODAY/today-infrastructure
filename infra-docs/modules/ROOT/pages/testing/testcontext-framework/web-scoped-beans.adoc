@@ -32,9 +32,9 @@ Infra 自早期以来一直支持 xref:core/beans/factory-scopes.adoc#beans-fact
 </beans>
 ----
 
-在 `RequestScopedBeanTests` 中，我们将 `UserService`（即被测对象）和 `HttpMockRequestImpl` 注入到我们的测试实例中。
-在我们的 `requestScope()` 测试方法中，我们通过在提供的 `HttpMockRequestImpl` 中设置请求参数来设置我们的测试夹具。
-当在我们的 `userService` 上调用 `loginUser()` 方法时，我们可以确信用户服务可以访问当前 `HttpMockRequestImpl`（即我们刚刚设置参数的那个）的请求作用域 `loginAction`。
+在 `RequestScopedBeanTests` 中，我们将 `UserService`（即被测对象）和 `MockRequest` 注入到我们的测试实例中。
+在我们的 `requestScope()` 测试方法中，我们通过在提供的 `MockRequest` 中设置请求参数来设置我们的测试夹具。
+当在我们的 `userService` 上调用 `loginUser()` 方法时，我们可以确信用户服务可以访问当前 `MockRequest`（即我们刚刚设置参数的那个）的请求作用域 `loginAction`。
 然后，我们可以根据已知的用户名和密码输入对结果执行断言。
 以下清单显示了如何执行此操作：
 

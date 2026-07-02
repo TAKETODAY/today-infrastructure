@@ -26,13 +26,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Map;
 
-import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -53,7 +52,7 @@ public class DefaultRenderingResponseTests {
     String name = "foo";
     RenderingResponse result = RenderingResponse.create(name).build();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     ModelAndView mav = getModelAndView(result, request, response);
@@ -66,7 +65,7 @@ public class DefaultRenderingResponseTests {
     HttpStatus status = HttpStatus.I_AM_A_TEAPOT;
     RenderingResponse result = RenderingResponse.create("foo").status(status).build();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -75,7 +74,7 @@ public class DefaultRenderingResponseTests {
 
   @Nullable
   private static ModelAndView getModelAndView(
-          RenderingResponse result, HttpMockRequestImpl request, MockHttpResponseImpl response) throws Throwable {
+          RenderingResponse result, MockRequest request, MockHttpResponseImpl response) throws Throwable {
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
     Object write = result.writeTo(mockRequestContext, EMPTY_CONTEXT);
     mockRequestContext.flush();
@@ -93,7 +92,7 @@ public class DefaultRenderingResponseTests {
             .headers(h -> h.addAll(headers))
             .build();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -106,7 +105,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttribute("foo", "bar").build();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -118,7 +117,7 @@ public class DefaultRenderingResponseTests {
   public void modelAttributeConventions() throws Throwable {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttribute("bar").build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -130,7 +129,7 @@ public class DefaultRenderingResponseTests {
     Map<String, String> model = Collections.singletonMap("foo", "bar");
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes(model).build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -141,7 +140,7 @@ public class DefaultRenderingResponseTests {
   public void modelAttributesConventions() throws Throwable {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes("bar").build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -153,7 +152,7 @@ public class DefaultRenderingResponseTests {
     MultiValueMap<String, ResponseCookie> newCookies = new LinkedMultiValueMap<>();
     newCookies.add("name", ResponseCookie.forSimple("name", "value"));
     RenderingResponse result = RenderingResponse.create("foo").cookies(cookies -> cookies.addAll(newCookies)).build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
@@ -169,7 +168,7 @@ public class DefaultRenderingResponseTests {
             .header(HttpHeaders.ETAG, etag)
             .build();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "https://example.com");
+    MockRequest request = new MockRequest("GET", "https://example.com");
     request.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
@@ -187,7 +186,7 @@ public class DefaultRenderingResponseTests {
             .header(HttpHeaders.LAST_MODIFIED, DateTimeFormatter.RFC_1123_DATE_TIME.format(oneMinuteBeforeNow))
             .build();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "https://example.com");
+    MockRequest request = new MockRequest("GET", "https://example.com");
     request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 

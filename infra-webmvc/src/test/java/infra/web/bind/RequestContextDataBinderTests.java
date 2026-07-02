@@ -38,9 +38,9 @@ import infra.beans.PropertyValues;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.web.HandlerMatchingMetadata;
@@ -64,7 +64,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class RequestContextDataBinderTests {
 
-  HttpMockRequestImpl request = new HttpMockRequestImpl();
+  MockRequest request = new MockRequest();
 
   MockRequestContext context = new MockRequestContext(request);
 
@@ -80,7 +80,7 @@ class RequestContextDataBinderTests {
       }
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("spouse", "someValue");
     request.addParameter("spouse.name", "test");
     binder.bind(new MockRequestContext(null, request, null));
@@ -96,7 +96,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(tb, "person");
     binder.setIgnoreUnknownFields(false);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("concreteSpouse.name", "test");
     binder.bind(new MockRequestContext(null, request, null));
 
@@ -112,7 +112,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.setIgnoreUnknownFields(ignoreUnknownFields);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
     binder.bind(new MockRequestContext(request));
@@ -128,7 +128,7 @@ class RequestContextDataBinderTests {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("stringArray[0]", "ONE");
     request.addParameter("stringArray[1]", "TWO");
     binder.bind(new MockRequestContext(request));
@@ -140,7 +140,7 @@ class RequestContextDataBinderTests {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("stringArray", "ONE");
     request.addParameter("stringArray", "TWO");
     binder.bind(new MockRequestContext(request));
@@ -153,7 +153,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("stringArray[0]", "ONE");
     request.addParameter("stringArray[1]", "TWO");
     binder.bind(new MockRequestContext(request));
@@ -166,7 +166,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("stringArray[]", "ONE");
     request.addParameter("stringArray[]", "TWO");
     binder.bind(new MockRequestContext(request));
@@ -178,7 +178,7 @@ class RequestContextDataBinderTests {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("!postProcessed", "off");
     request.addParameter("postProcessed", "on");
     binder.bind(new MockRequestContext(request));
@@ -197,7 +197,7 @@ class RequestContextDataBinderTests {
     target.setSomeMap(null);
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("_someSet", "visible");
     request.addParameter("_someList", "visible");
     request.addParameter("_someMap", "visible");
@@ -213,7 +213,7 @@ class RequestContextDataBinderTests {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("!postProcessed", "on");
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
@@ -235,7 +235,7 @@ class RequestContextDataBinderTests {
     target.setSpouse(new TestBean());
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("!spouse.postProcessed", "on");
     request.addParameter("_spouse.postProcessed", "visible");
     request.addParameter("spouse.postProcessed", "on");
@@ -256,7 +256,7 @@ class RequestContextDataBinderTests {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("!name", "anonymous");
     request.addParameter("name", "Scott");
     binder.bind(new MockRequestContext(request));
@@ -272,7 +272,7 @@ class RequestContextDataBinderTests {
     TestBean target = new TestBean();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("stringArray", "bar");
     request.addParameter("stringArray", "abc");
     request.addParameter("stringArray", "123,def");
@@ -290,7 +290,7 @@ class RequestContextDataBinderTests {
     EnumHolder target = new EnumHolder();
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("myEnum", "FOO");
     binder.bind(new MockRequestContext(request));
     assertThat(target.getMyEnum()).isEqualTo(MyEnum.FOO);
@@ -302,7 +302,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("name", "Juergen".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
     assertThat(target.getName()).isEqualTo("Juergen");
@@ -314,7 +314,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
     assertThat(target.getStringArray().length).isEqualTo(1);
@@ -327,7 +327,7 @@ class RequestContextDataBinderTests {
     RequestContextDataBinder binder = new RequestContextDataBinder(target);
     binder.registerCustomEditor(String.class, new StringPartEditor());
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     request.addPart(new MockMultipartFile("stringArray", "Eva".getBytes()));
     binder.bind(new MockMultipartMockRequestContext(request, new MockHttpResponseImpl()));
@@ -338,7 +338,7 @@ class RequestContextDataBinderTests {
 
   @Test
   public void testNoPrefix() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("forname", "Tony");
     request.addParameter("surname", "Blair");
     request.addParameter("age", "" + 50);
@@ -347,22 +347,22 @@ class RequestContextDataBinderTests {
     doTestTony(pvs);
   }
 
-  private static PropertyValues createPropertyValues(HttpMockRequestImpl request) {
+  private static PropertyValues createPropertyValues(MockRequest request) {
     return createPropertyValues(request, null, null);
   }
 
-  private static PropertyValues createPropertyValues(HttpMockRequestImpl request, String prefix) {
+  private static PropertyValues createPropertyValues(MockRequest request, String prefix) {
     return createPropertyValues(request, prefix, "_");
   }
 
-  private static PropertyValues createPropertyValues(HttpMockRequestImpl request, @Nullable String prefix, @Nullable String prefixSeparator) {
+  private static PropertyValues createPropertyValues(MockRequest request, @Nullable String prefix, @Nullable String prefixSeparator) {
     return new PropertyValues(MockUtils.getParametersStartingWith(
             request, (prefix != null ? prefix + prefixSeparator : null)));
   }
 
   @Test
   public void testPrefix() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addParameter("test_forname", "Tony");
     request.addParameter("test_surname", "Blair");
     request.addParameter("test_age", "" + 50);
@@ -405,14 +405,14 @@ class RequestContextDataBinderTests {
 
   @Test
   public void testNoParameters() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     PropertyValues pvs = createPropertyValues(request);
     assertThat(pvs.toArray().length == 0).as("Found no parameters").isTrue();
   }
 
   @Test
   public void testMultipleValuesForParameter() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     String[] original = new String[] { "Tony", "Rod" };
     request.addParameter("forname", original);
 
@@ -433,7 +433,7 @@ class RequestContextDataBinderTests {
 
     binder.setAllowedFields("name");
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     request.addParameter("name", "infra");
     request.addParameter("!someMap[key1]", "test");
@@ -449,7 +449,7 @@ class RequestContextDataBinderTests {
   void filteredHeaders(String headerName) {
     TestBinder binder = new TestBinder();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     PropertyValues mpvs = new PropertyValues();
     request.addHeader(headerName, "u1");
@@ -854,7 +854,7 @@ class RequestContextDataBinderTests {
       RequestContextDataBinder binder = new RequestContextDataBinder(tb);
       binder.setAllowedFields("name");
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addParameter("name", "infra");
       request.addParameter(prefix + "country", "test");
       binder.bind(new MockRequestContext(request));
@@ -870,7 +870,7 @@ class RequestContextDataBinderTests {
       RequestContextDataBinder binder = new RequestContextDataBinder(tb);
       binder.setDisallowedFields("country");
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addParameter("name", "infra");
       request.addParameter(prefix + "country", "test");
       binder.bind(new MockRequestContext(request));
@@ -886,7 +886,7 @@ class RequestContextDataBinderTests {
       RequestContextDataBinder binder = new RequestContextDataBinder(tb);
       binder.setAllowedFields("name");
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addParameter("name", "infra");
       request.addParameter(prefix + "stringArray[]", "ONE");
       request.addParameter(prefix + "stringArray[]", "TWO");
@@ -904,7 +904,7 @@ class RequestContextDataBinderTests {
       RequestContextDataBinder binder = new RequestContextDataBinder(tb);
       binder.setDisallowedFields(disallowedField);
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addParameter("name", "infra");
       request.addParameter(prefix + "stringArray[]", "ONE");
       request.addParameter(prefix + "stringArray[]", "TWO");
@@ -922,7 +922,7 @@ class RequestContextDataBinderTests {
       RequestContextDataBinder binder = new RequestContextDataBinder(tb);
       binder.setAllowedFields("name");
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addParameter("name", "infra");
       request.addParameter(prefix + "someMap[key1]", "test");
       binder.bind(new MockRequestContext(request));
@@ -940,7 +940,7 @@ class RequestContextDataBinderTests {
       RequestContextDataBinder binder = new RequestContextDataBinder(tb);
       binder.setDisallowedFields(disallowedField);
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       request.addParameter("name", "infra");
       request.addParameter(prefix + "someMap[key1]", "test");
       binder.bind(new MockRequestContext(request));

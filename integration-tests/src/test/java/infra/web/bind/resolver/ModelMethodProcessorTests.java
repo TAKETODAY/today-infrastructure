@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
@@ -61,7 +61,7 @@ class ModelMethodProcessorTests {
     paramModel = new MethodParameter(method, 0);
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
-    webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    webRequest = new MockRequestContext(null, new MockRequest(), null);
     webRequest.setBinding(new BindingContext());
   }
 

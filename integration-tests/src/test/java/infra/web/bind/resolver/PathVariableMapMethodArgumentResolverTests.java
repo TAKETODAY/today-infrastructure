@@ -29,7 +29,7 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.server.RequestPath;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.annotation.PathVariable;
@@ -50,7 +50,7 @@ class PathVariableMapMethodArgumentResolverTests {
 
   private MockRequestContext webRequest;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private ResolvableMethodParameter paramMap;
   private ResolvableMethodParameter paramNamedMap;
@@ -59,7 +59,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Exception {
     resolver = new PathVariableMapMethodArgumentResolver();
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     Method method = getClass().getMethod("handle", Map.class, Map.class, Map.class);
@@ -149,7 +149,7 @@ class PathVariableMapMethodArgumentResolverTests {
 
   @Test
   void resolveArgumentWithoutMatchingMetadata() throws Throwable {
-    MockRequestContext context = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+    MockRequestContext context = new MockRequestContext(null, new MockRequest(), new MockHttpResponseImpl());
     // No matching metadata
 
     PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();

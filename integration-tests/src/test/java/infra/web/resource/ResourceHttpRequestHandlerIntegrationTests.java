@@ -35,7 +35,7 @@ import infra.core.io.FileSystemResource;
 import infra.core.io.UrlResource;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.annotation.ControllerAdvice;
@@ -68,7 +68,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @ParameterizedTest
   @MethodSource("argumentSource")
   void cssFile(boolean usePathPatterns, String pathPrefix) throws Exception {
-    HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo.css");
+    MockRequest request = initRequest(pathPrefix + "/test/foo.css");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
@@ -83,7 +83,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @ParameterizedTest
   @MethodSource("argumentSource")
   void classpathLocationWithEncodedPath(boolean usePathPatterns, String pathPrefix) throws Exception {
-    HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo with spaces.css");
+    MockRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     MockDispatcherHandler servlet = initDispatcher(WebConfig.class);
@@ -105,7 +105,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     MockDispatcherHandler handler = new MockDispatcherHandler(context);
     handler.start();
 
-    HttpMockRequestImpl request = initRequest("/cp/non-existing");
+    MockRequest request = initRequest("/cp/non-existing");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     handler.service(request, response);
@@ -131,9 +131,9 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     return handler;
   }
 
-  private HttpMockRequestImpl initRequest(String path) {
+  private MockRequest initRequest(String path) {
     path = UriUtils.encodePath(path, StandardCharsets.UTF_8);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
+    MockRequest request = new MockRequest("GET", path);
     request.setCharacterEncoding(StandardCharsets.UTF_8.name());
     return request;
   }

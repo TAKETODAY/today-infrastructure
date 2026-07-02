@@ -37,7 +37,7 @@ import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.ClassPathResource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.BuildOutput;
 import infra.test.classpath.resources.WithResource;
@@ -296,7 +296,7 @@ class GroovyTemplateAutoConfigurationTests {
     View view = resolver.resolveViewName(viewName, locale);
     assertThat(view).isNotNull();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     view.render(null, new MockRequestContext(request, response));

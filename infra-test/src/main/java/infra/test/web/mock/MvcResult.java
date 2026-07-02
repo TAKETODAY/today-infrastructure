@@ -21,7 +21,7 @@ package infra.test.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.Conventions;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockAsyncContext;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerExceptionHandler;
@@ -53,7 +53,7 @@ public interface MvcResult {
    *
    * @return the request, never {@code null}
    */
-  HttpMockRequestImpl getRequest();
+  MockRequest getRequest();
 
   /**
    * Return the resulting response.

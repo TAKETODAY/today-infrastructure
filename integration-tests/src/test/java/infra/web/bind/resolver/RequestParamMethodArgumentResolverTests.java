@@ -27,9 +27,9 @@ import java.util.Map;
 
 import infra.beans.propertyeditors.StringTrimmerEditor;
 import infra.core.conversion.support.DefaultConversionService;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.web.BindingContext;
 import infra.web.RequestContext;
 import infra.web.ResolvableMethod;
@@ -59,7 +59,7 @@ class RequestParamMethodArgumentResolverTests {
 
   private RequestParamMethodArgumentResolver resolver = new RequestParamMethodArgumentResolver(null, true);
 
-  private HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private MockRequest request = new MockRequest();
 
   private MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -160,7 +160,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFile() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addPart(expected);
     webRequest = new MockRequestContext(null, request, null);
@@ -176,7 +176,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileList() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
     Part expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
     request.addPart(expected1);
@@ -195,7 +195,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileListMissing() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
@@ -207,7 +207,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileArray() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected1 = new MockMultipartFile("mfilearray", "Hello World 1".getBytes());
     Part expected2 = new MockMultipartFile("mfilearray", "Hello World 2".getBytes());
     request.addPart(expected1);
@@ -229,7 +229,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileArrayMissing() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
@@ -241,7 +241,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileNotAnnot() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
     request.addPart(expected);
     MockRequestContext webRequest = new MockRequestContext(null, request, null);
@@ -257,7 +257,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileListNotannot() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected1 = new MockMultipartFile("multipartFileList", "Hello World 1".getBytes());
     Part expected2 = new MockMultipartFile("multipartFileList", "Hello World 2".getBytes());
     request.addPart(expected1);
@@ -285,7 +285,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void isMultipartRequestHttpPut() throws Throwable {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
     request.addPart(expected);
     request.setMethod("PUT");
@@ -581,7 +581,7 @@ class RequestParamMethodArgumentResolverTests {
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addPart(expected);
     webRequest = new MockRequestContext(null, request, null);

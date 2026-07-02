@@ -46,7 +46,7 @@ import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.ErrorResponse;
 import infra.web.annotation.RequestMapping;
@@ -67,7 +67,7 @@ class HttpEntityMethodProcessorTests {
 
   private ResolvableMethodParameter paramSimpleBean;
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockRequestContext webRequest;
 
@@ -79,7 +79,7 @@ class HttpEntityMethodProcessorTests {
     paramList = new ResolvableMethodParameter(new MethodParameter(method, 0));
     paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
 
-    mockRequest = new HttpMockRequestImpl();
+    mockRequest = new MockRequest();
     mockResponse = new MockHttpResponseImpl();
     mockRequest.setMethod("POST");
     webRequest = new MockRequestContext(null, mockRequest, mockResponse);

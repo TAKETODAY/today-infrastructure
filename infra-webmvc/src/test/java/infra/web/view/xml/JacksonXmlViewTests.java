@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.validation.BindingResult;
 import infra.web.RequestContext;
@@ -61,7 +61,7 @@ class JacksonXmlViewTests {
 
   private JacksonXmlView view = new JacksonXmlView();
 
-  private HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private MockRequest request = new MockRequest();
 
   private MockHttpResponseImpl response = new MockHttpResponseImpl();
 

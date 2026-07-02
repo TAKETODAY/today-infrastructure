@@ -14,7 +14,7 @@ mockMvc.perform(post("/hotels/{id}", 42).accept(MediaType.APPLICATION_JSON));
 ----
 
 
-你也可以执行文件上传请求，其内部使用 `MockMultipartHttpMockRequest`，因此不会对多部分请求进行实际解析。相反，你必须将其设置为类似于以下示例：
+你也可以执行文件上传请求，其内部使用 `MultipartMockRequest`，因此不会对多部分请求进行实际解析。相反，你必须将其设置为类似于以下示例：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

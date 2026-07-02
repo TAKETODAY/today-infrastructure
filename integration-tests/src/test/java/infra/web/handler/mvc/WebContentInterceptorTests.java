@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -39,7 +39,7 @@ class WebContentInterceptorTests {
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+  private final MockRequest mockRequest = new MockRequest();
 
   private final WebContentInterceptor interceptor = new WebContentInterceptor();
 
@@ -47,7 +47,7 @@ class WebContentInterceptorTests {
   RequestContext context = new MockRequestContext(null, mockRequest, response);
 
   Function<String, RequestContext> requestFactory = path -> {
-    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", path);
+    MockRequest servletRequest = new MockRequest("GET", path);
     return new MockRequestContext(null, servletRequest, response);
   };
 

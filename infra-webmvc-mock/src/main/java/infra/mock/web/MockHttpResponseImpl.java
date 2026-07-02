@@ -194,7 +194,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return this.characterEncodingSet;
   }
 
-  @Override
   public void setCharacterEncoding(@Nullable String characterEncoding) {
     setExplicitCharacterEncoding(characterEncoding);
     updateContentTypePropertyAndHeader();
@@ -244,18 +243,15 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     }
   }
 
-  @Override
   public String getCharacterEncoding() {
     return this.characterEncoding;
   }
 
-  @Override
   public MockOutputStream getOutputStream() {
     Assert.state(this.outputStreamAccessAllowed, "OutputStream access not allowed");
     return this.outputStream;
   }
 
-  @Override
   public PrintWriter getWriter() throws UnsupportedEncodingException {
     Assert.state(this.writerAccessAllowed, "Writer access not allowed");
     if (this.writer == null) {
@@ -308,7 +304,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return this.content.toString(fallbackCharset);
   }
 
-  @Override
   public void setContentLength(int contentLength) {
     this.contentLength = contentLength;
     doAddHeaderValue(HttpHeaders.CONTENT_LENGTH, contentLength, true);
@@ -318,7 +313,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return (int) this.contentLength;
   }
 
-  @Override
   public void setContentLengthLong(long contentLength) {
     this.contentLength = contentLength;
     doAddHeaderValue(HttpHeaders.CONTENT_LENGTH, contentLength, true);
@@ -328,7 +322,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return this.contentLength;
   }
 
-  @Override
   public void setContentType(@Nullable String contentType) {
     this.contentType = contentType;
     if (contentType != null) {
@@ -349,28 +342,23 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     }
   }
 
-  @Override
   @Nullable
   public String getContentType() {
     return this.contentType;
   }
 
-  @Override
   public void setBufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
   }
 
-  @Override
   public int getBufferSize() {
     return this.bufferSize;
   }
 
-  @Override
   public void flushBuffer() {
     setCommitted(true);
   }
 
-  @Override
   public void resetBuffer() {
     Assert.state(!isCommitted(), "Cannot reset buffer - response is already committed");
     this.content.reset();
@@ -387,12 +375,10 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     this.committed = committed;
   }
 
-  @Override
   public boolean isCommitted() {
     return this.committed;
   }
 
-  @Override
   public void reset() {
     resetBuffer();
     this.characterEncoding = this.defaultCharacterEncoding;
@@ -406,7 +392,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     this.errorMessage = null;
   }
 
-  @Override
   public void setLocale(@Nullable Locale locale) {
     // Although the Javadoc for infra.mock.api.ServletResponse.setLocale(Locale) does not
     // state how a null value for the supplied Locale should be handled, both Tomcat and
@@ -418,7 +403,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     doAddHeaderValue(HttpHeaders.CONTENT_LANGUAGE, locale.toLanguageTag(), true);
   }
 
-  @Override
   public Locale getLocale() {
     return this.locale;
   }
@@ -427,7 +411,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
   // HttpMockResponse interface
   //---------------------------------------------------------------------
 
-  @Override
   public void addCookie(Cookie cookie) {
     Assert.notNull(cookie, "Cookie is required");
     this.cookies.add(cookie);
@@ -495,7 +478,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return null;
   }
 
-  @Override
   public boolean containsHeader(String name) {
     return this.headers.containsKey(name);
   }
@@ -505,7 +487,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
    *
    * @return the {@code Set} of header name {@code Strings}, or an empty {@code Set} if none
    */
-  @Override
   public Collection<String> getHeaderNames() {
     return this.headers.keySet();
   }
@@ -517,7 +498,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
    * @param name the name of the header
    * @return the associated header value, or {@code null} if none
    */
-  @Override
   @Nullable
   public String getHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
@@ -530,7 +510,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
    * @param name the name of the header
    * @return the associated header values, or an empty List if none
    */
-  @Override
   public List<String> getHeaders(String name) {
     HeaderValueHolder header = this.headers.get(name);
     if (header != null) {
@@ -574,7 +553,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
    * The default implementation returns the given URL String as-is.
    * <p>Can be overridden in subclasses, appending a session id or the like.
    */
-  @Override
   public String encodeURL(String url) {
     return url;
   }
@@ -587,12 +565,10 @@ public class MockHttpResponseImpl implements HttpMockResponse {
    * override the common {@link #encodeURL} method instead, applying
    * to redirect URLs as well as to general URLs.
    */
-  @Override
   public String encodeRedirectURL(String url) {
     return encodeURL(url);
   }
 
-  @Override
   public void sendError(int status, String errorMessage) throws IOException {
     Assert.state(!isCommitted(), "Cannot set error status - response is already committed");
     this.status = status;
@@ -600,14 +576,12 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     setCommitted(true);
   }
 
-  @Override
   public void sendError(int status) throws IOException {
     Assert.state(!isCommitted(), "Cannot set error status - response is already committed");
     this.status = status;
     setCommitted(true);
   }
 
-  @Override
   public void sendRedirect(String url) throws IOException {
     Assert.state(!isCommitted(), "Cannot send redirect - response is already committed");
     Assert.notNull(url, "Redirect URL is required");
@@ -621,12 +595,10 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return getHeader(HttpHeaders.LOCATION);
   }
 
-  @Override
   public void setDateHeader(String name, long value) {
     setHeaderValue(name, formatDate(value));
   }
 
-  @Override
   public void addDateHeader(String name, long value) {
     addHeaderValue(name, formatDate(value));
   }
@@ -655,22 +627,18 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     return dateFormat;
   }
 
-  @Override
   public void setHeader(String name, @Nullable String value) {
     setHeaderValue(name, value);
   }
 
-  @Override
   public void addHeader(String name, @Nullable String value) {
     addHeaderValue(name, value);
   }
 
-  @Override
   public void setIntHeader(String name, int value) {
     setHeaderValue(name, value);
   }
 
-  @Override
   public void addIntHeader(String name, int value) {
     addHeaderValue(name, value);
   }
@@ -759,14 +727,12 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     doAddHeaderValue(HttpHeaders.SET_COOKIE, getCookieHeader(cookie), true);
   }
 
-  @Override
   public void setStatus(int status) {
     if (!this.isCommitted()) {
       this.status = status;
     }
   }
 
-  @Override
   public int getStatus() {
     return this.status;
   }
@@ -823,14 +789,12 @@ public class MockHttpResponseImpl implements HttpMockResponse {
       super(out);
     }
 
-    @Override
     public void write(int b) throws IOException {
       super.write(b);
       super.flush();
       setCommittedIfBufferSizeExceeded();
     }
 
-    @Override
     public void flush() throws IOException {
       super.flush();
       setCommitted(true);
@@ -847,34 +811,29 @@ public class MockHttpResponseImpl implements HttpMockResponse {
       super(out, true);
     }
 
-    @Override
     public void write(char[] buf, int off, int len) {
       super.write(buf, off, len);
       super.flush();
       setCommittedIfBufferSizeExceeded();
     }
 
-    @Override
     public void write(String s, int off, int len) {
       super.write(s, off, len);
       super.flush();
       setCommittedIfBufferSizeExceeded();
     }
 
-    @Override
     public void write(int c) {
       super.write(c);
       super.flush();
       setCommittedIfBufferSizeExceeded();
     }
 
-    @Override
     public void flush() {
       super.flush();
       setCommitted(true);
     }
 
-    @Override
     public void close() {
       super.flush();
       super.close();

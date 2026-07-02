@@ -30,7 +30,7 @@ import infra.cache.Cache;
 import infra.cache.concurrent.ConcurrentMapCache;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.resource.GzipSupport.GzippedFiles;
 
@@ -123,7 +123,7 @@ class CachingResourceResolverTests {
 
     // 1. Resolve plain resource
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", file);
+    MockRequest request = new MockRequest("GET", file);
     MockRequestContext requestContext = new MockRequestContext(request);
     this.chain.resolveResource(requestContext, file, this.locations);
 
@@ -132,7 +132,7 @@ class CachingResourceResolverTests {
 
     // 2. Resolve with Accept-Encoding
 
-    request = new HttpMockRequestImpl("GET", file);
+    request = new MockRequest("GET", file);
     request.addHeader("Accept-Encoding", "gzip ; a=b  , deflate ,  br  ; c=d ");
     requestContext = new MockRequestContext(request);
     this.chain.resolveResource(requestContext, file, this.locations);
@@ -142,7 +142,7 @@ class CachingResourceResolverTests {
 
     // 3. Resolve with Accept-Encoding but no matching codings
 
-    request = new HttpMockRequestImpl("GET", file);
+    request = new MockRequest("GET", file);
     request.addHeader("Accept-Encoding", "deflate");
     requestContext = new MockRequestContext(request);
     this.chain.resolveResource(requestContext, file, this.locations);
@@ -154,7 +154,7 @@ class CachingResourceResolverTests {
   @Test
   void resolveResourceNoAcceptEncoding() throws IOException {
     String file = "bar.css";
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", file);
+    MockRequest request = new MockRequest("GET", file);
     MockRequestContext requestContext = new MockRequestContext(request);
     this.chain.resolveResource(requestContext, file, this.locations);
 
@@ -167,11 +167,11 @@ class CachingResourceResolverTests {
     Resource resource = mock();
     Resource gzipped = mock();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "bar.css");
+    MockRequest request = new MockRequest("GET", "bar.css");
     MockRequestContext requestContext = new MockRequestContext(request);
     this.cache.put(this.cachingResolver.computeKey(requestContext, "bar.css", this.locations), resource);
 
-    HttpMockRequestImpl gzipRequest = new HttpMockRequestImpl("GET", "bar.css");
+    MockRequest gzipRequest = new MockRequest("GET", "bar.css");
     gzipRequest.addHeader("Accept-Encoding", "gzip");
     MockRequestContext gzipRequestContext = new MockRequestContext(gzipRequest);
     this.cache.put(this.cachingResolver.computeKey(gzipRequestContext, "bar.css", this.locations), gzipped);
@@ -182,7 +182,7 @@ class CachingResourceResolverTests {
 
   @Test
   void shareCacheBetweenResourceLocations() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "bar.css");
+    MockRequest request = new MockRequest("GET", "bar.css");
 
     List<Resource> firstLocations = List.of(new ClassPathResource("testalternatepath/", getClass()));
     MockRequestContext requestContext = new MockRequestContext(request);
@@ -194,7 +194,7 @@ class CachingResourceResolverTests {
     assertThat(firstResource).isNotSameAs(secondResource);
   }
 
-  private Resource getFromResourceCache(HttpMockRequestImpl request, String file) {
+  private Resource getFromResourceCache(MockRequest request, String file) {
     MockRequestContext requestContext = new MockRequestContext(request);
     String cacheKey = this.cachingResolver.computeKey(requestContext, file, this.locations);
     return this.cache.get(cacheKey, Resource.class);

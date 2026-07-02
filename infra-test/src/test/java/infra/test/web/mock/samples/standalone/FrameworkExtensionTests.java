@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.stereotype.Controller;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.request.RequestPostProcessor;
@@ -90,7 +90,7 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request) {
+    public MockRequest postProcessRequest(MockRequest request) {
       for (String headerName : this.headers.names()) {
         request.addHeader(headerName, this.headers.get(headerName));
       }

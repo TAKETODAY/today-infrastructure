@@ -25,10 +25,9 @@ import infra.context.ApplicationContext;
 import infra.mock.api.DispatcherType;
 import infra.mock.api.MockException;
 import infra.mock.api.MockHandler;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockRequest;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
@@ -72,7 +71,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     boolean reset = false;
     if (context == null) {
       context = new MockRequestContext(getApplicationContext(),
-              (HttpMockRequest) request, (HttpMockResponse) response, this);
+              request, (HttpMockResponse) response, this);
       RequestContextHolder.set(context);
       reset = true;
     }

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.testfixture.xml.XmlContent;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -46,7 +46,7 @@ public class AtomFeedViewTests {
 
   @Test
   public void render() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     Map<String, String> model = new LinkedHashMap<>();

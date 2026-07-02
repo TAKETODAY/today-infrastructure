@@ -43,7 +43,7 @@ import infra.web.multipart.Part;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see HttpMockRequestImpl#addPart
+ * @see MockRequest#addPart
  * @see MockMemoryFilePart
  * @since 4.0
  */

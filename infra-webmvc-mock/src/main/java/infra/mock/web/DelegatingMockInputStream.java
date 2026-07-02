@@ -28,11 +28,11 @@ import infra.mock.api.ReadListener;
 /**
  * Delegating implementation of {@link MockInputStream}.
  *
- * <p>Used by {@link HttpMockRequestImpl}; typically not directly
+ * <p>Used by {@link MockRequest}; typically not directly
  * used for testing application controllers.
  *
  * @author Juergen Hoeller
- * @see HttpMockRequestImpl
+ * @see MockRequest
  * @since 4.0
  */
 public class DelegatingMockInputStream extends MockInputStream {

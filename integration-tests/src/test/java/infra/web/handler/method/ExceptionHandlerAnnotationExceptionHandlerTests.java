@@ -40,7 +40,7 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import org.jspecify.annotations.Nullable;
 import infra.mock.api.MockException;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.ui.Model;
@@ -72,7 +72,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private ExceptionHandlerAnnotationExceptionHandler handler;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -87,7 +87,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler = new ExceptionHandlerAnnotationExceptionHandler();
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
 
-    this.request = new HttpMockRequestImpl("GET", "/");
+    this.request = new MockRequest("GET", "/");
     this.response = new MockHttpResponseImpl();
   }
 

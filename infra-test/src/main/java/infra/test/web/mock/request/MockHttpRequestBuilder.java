@@ -22,19 +22,19 @@ import java.net.URI;
 
 import infra.http.HttpMethod;
 import infra.lang.Assert;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.web.mock.MockMvc;
 import infra.web.util.UriComponentsBuilder;
 
 /**
- * Default builder for {@link HttpMockRequestImpl} required as input to
+ * Default builder for {@link MockRequest} required as input to
  * perform requests in {@link MockMvc}.
  *
  * <p>Application tests will typically access this builder through the static
  * factory methods in {@link MockMvcRequestBuilders}.
  *
  * <p>This class is not open for extension. To apply custom initialization to
- * the created {@code MockHttpMockRequest}, please use the
+ * the created {@code MockMockRequest}, please use the
  * {@link #with(RequestPostProcessor)} extension point.
  *
  * @author Rossen Stoyanchev
@@ -45,13 +45,13 @@ import infra.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockHttpRequestBuilder extends AbstractMockHttpMockRequestBuilder<MockHttpRequestBuilder> {
+public class MockHttpRequestBuilder extends AbstractMockRequestBuilder<MockHttpRequestBuilder> {
 
   /**
    * Package private constructor. To get an instance, use static factory
    * methods in {@link MockMvcRequestBuilders}.
    * <p>Although this class cannot be extended, additional ways to initialize
-   * the {@code HttpMockRequestImpl} can be plugged in via
+   * the {@code MockRequest} can be plugged in via
    * {@link #with(RequestPostProcessor)}.
    *
    * @param httpMethod the HTTP method (GET, POST, etc.)
@@ -64,7 +64,7 @@ public class MockHttpRequestBuilder extends AbstractMockHttpMockRequestBuilder<M
    * Package private constructor. To get an instance, use static factory
    * methods in {@link MockMvcRequestBuilders}.
    * <p>Although this class cannot be extended, additional ways to initialize
-   * the {@code MockHttpMockRequest} can be plugged in via
+   * the {@code MockMockRequest} can be plugged in via
    * {@link #with(RequestPostProcessor)}.
    *
    * @param httpMethod the HTTP method (GET, POST, etc)

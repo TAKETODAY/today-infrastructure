@@ -31,13 +31,10 @@ import infra.mock.api.AsyncEvent;
 import infra.mock.api.AsyncListener;
 import infra.mock.api.MockContext;
 import infra.mock.api.MockException;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
-import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
 import infra.web.async.DeferredResult;
 import infra.web.handler.result.SseEmitter;
-import infra.web.mock.MockUtils;
 
 /**
  * Mock implementation of the {@link AsyncContext} interface.
@@ -47,7 +44,7 @@ import infra.web.mock.MockUtils;
  */
 public class MockAsyncContext implements AsyncContext {
 
-  private final HttpMockRequest request;
+  private final MockRequest request;
 
   @Nullable
   private final HttpMockResponse response;
@@ -62,7 +59,7 @@ public class MockAsyncContext implements AsyncContext {
   private final List<Runnable> dispatchHandlers = new ArrayList<>();
 
   public MockAsyncContext(MockRequest request, @Nullable MockResponse response) {
-    this.request = (HttpMockRequest) request;
+    this.request = request;
     this.response = (HttpMockResponse) response;
   }
 
@@ -91,7 +88,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public boolean hasOriginalRequestAndResponse() {
-    return (this.request instanceof HttpMockRequestImpl && this.response instanceof MockHttpResponseImpl);
+    return (this.request instanceof MockRequest && this.response instanceof MockHttpResponseImpl);
   }
 
   @Override
@@ -119,10 +116,8 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public void complete() {
-    HttpMockRequestImpl mockRequest = MockUtils.getNativeRequest(this.request, HttpMockRequestImpl.class);
-    if (mockRequest != null) {
-      mockRequest.setAsyncStarted(false);
-    }
+    request.setAsyncStarted(false);
+
     for (AsyncListener listener : this.listeners) {
       try {
         listener.onComplete(new AsyncEvent(this, this.request, this.response));
@@ -144,7 +139,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   @Override
-  public void addListener(AsyncListener listener, MockRequest request, MockResponse response) {
+  public void addListener(AsyncListener listener, infra.mock.web.MockRequest request, MockResponse response) {
     this.listeners.add(listener);
   }
 

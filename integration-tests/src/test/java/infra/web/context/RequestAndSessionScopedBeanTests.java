@@ -24,8 +24,8 @@ import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.Session;
 import infra.session.config.EnableSession;
@@ -57,7 +57,7 @@ public class RequestAndSessionScopedBeanTests {
     RequestContextUtils.registerScopes(wac.getBeanFactory());
     wac.refresh();
 
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     RequestContextHolder.set(new MockRequestContext(null, request, null));
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
@@ -68,7 +68,7 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(target).isSameAs(target2);
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target2);
 
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     RequestContextHolder.set(new MockRequestContext(null, request, null));
     TestBean target3 = (TestBean) wac.getBean(targetBeanName);
     assertThat(target3.getName()).isEqualTo("abc");
@@ -83,7 +83,7 @@ public class RequestAndSessionScopedBeanTests {
   @Test
   public void testPutBeanInSession() {
     String targetBeanName = "target";
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 

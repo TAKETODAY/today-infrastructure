@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.mock.api.MockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.ui.ModelMap;
@@ -193,7 +192,7 @@ class ViewResolutionIntegrationTests {
   }
 
   private static MockHttpResponseImpl runTest(Class<?> configClass) throws Exception {
-    MockRequest request = new HttpMockRequestImpl("GET", "/");
+    infra.mock.web.MockRequest request = new MockRequest("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();

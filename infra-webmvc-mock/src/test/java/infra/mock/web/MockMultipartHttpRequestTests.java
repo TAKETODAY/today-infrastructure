@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MockMultipartHttpRequestTests {
 
   @Test
-  void mockMultipartHttpMockRequestWithByteArray() throws IOException {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+  void mockMultipartMockRequestWithByteArray() throws IOException {
+    MultipartMockRequest request = new MultipartMockRequest();
     MultipartRequest multipartRequest = request.getMultipartRequest();
     assertThat(multipartRequest.getPartNames().iterator().hasNext()).isFalse();
     assertThat(multipartRequest.getPart("file1")).isNull();
@@ -55,8 +55,8 @@ class MockMultipartHttpRequestTests {
   }
 
   @Test
-  void mockMultipartHttpMockRequestWithInputStream() throws IOException {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+  void mockMultipartMockRequestWithInputStream() throws IOException {
+    MultipartMockRequest request = new MultipartMockRequest();
     MultipartRequest multipartRequest = request.getMultipartRequest();
 
     request.addPart(new MockMemoryFilePart("file1", new ByteArrayInputStream("myContent1".getBytes())));
@@ -66,8 +66,8 @@ class MockMultipartHttpRequestTests {
   }
 
   @Test
-  void mockMultiPartHttpMockRequestWithMixedData() {
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+  void mockMultiPartMockRequestWithMixedData() {
+    MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMemoryFilePart("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
 
     MockMemoryPart metadataPart = new MockMemoryPart("metadata", "{\"foo\": \"bar\"}".getBytes());

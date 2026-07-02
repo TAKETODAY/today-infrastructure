@@ -24,8 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
@@ -55,7 +54,8 @@ public class RequestResultMatchers {
    * Protected constructor.
    * <p>Use {@link MockMvcResultMatchers#request()}.
    */
-  protected RequestResultMatchers() { }
+  protected RequestResultMatchers() {
+  }
 
   /**
    * Assert whether asynchronous processing started, usually as a result of a
@@ -64,7 +64,7 @@ public class RequestResultMatchers {
    * {@link #asyncResult(Matcher)} or {@link #asyncResult(Object)} can be used
    * to assert the resulting value.
    * <p>Neither a {@code Callable} nor a {@code DeferredResult} will complete
-   * processing all the way since a {@link HttpMockRequestImpl} does not
+   * processing all the way since a {@link MockRequest} does not
    * perform asynchronous dispatches.
    *
    * @see #asyncNotStarted()
@@ -90,7 +90,7 @@ public class RequestResultMatchers {
   @SuppressWarnings("unchecked")
   public <T> ResultMatcher asyncResult(Matcher<? super T> matcher) {
     return result -> {
-      HttpMockRequest request = result.getRequest();
+      MockRequest request = result.getRequest();
       assertAsyncStarted(request);
       assertThat("Async result", (T) result.getAsyncResult(), matcher);
     };
@@ -104,7 +104,7 @@ public class RequestResultMatchers {
    */
   public ResultMatcher asyncResult(@Nullable Object expectedResult) {
     return result -> {
-      HttpMockRequest request = result.getRequest();
+      MockRequest request = result.getRequest();
       assertAsyncStarted(request);
       assertEquals("Async result", expectedResult, result.getAsyncResult());
     };
@@ -182,7 +182,7 @@ public class RequestResultMatchers {
     return result -> contextConsumer.accept(result.getRequestContext());
   }
 
-  private static void assertAsyncStarted(HttpMockRequest request) {
+  private static void assertAsyncStarted(MockRequest request) {
     assertTrue("Async not started", request.isAsyncStarted());
   }
 

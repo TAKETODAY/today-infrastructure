@@ -44,12 +44,11 @@ import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockSession;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
@@ -74,7 +73,7 @@ import infra.web.util.UriBuilder;
 @SuppressWarnings("NullAway")
 public class MockRequestContext extends RequestContext implements MockIndicator {
 
-  public final HttpMockRequest request;
+  public final MockRequest request;
 
   public final HttpMockResponse response;
 
@@ -99,35 +98,35 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public MockRequestContext(ApplicationContext context) {
-    this(context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+    this(context, new MockRequest(), new MockHttpResponseImpl());
   }
 
-  public MockRequestContext(HttpMockRequest request) {
+  public MockRequestContext(MockRequest request) {
     this(null, request, new MockHttpResponseImpl());
   }
 
-  public MockRequestContext(HttpMockRequest request, HttpMockResponse response) {
+  public MockRequestContext(MockRequest request, HttpMockResponse response) {
     this(null, request, response);
   }
 
-  public MockRequestContext(ApplicationContext context, HttpMockRequest request) {
+  public MockRequestContext(ApplicationContext context, MockRequest request) {
     this(context, request, new MockHttpResponseImpl(), null);
   }
 
   public MockRequestContext(ApplicationContext context,
-          HttpMockRequest request, HttpMockResponse response) {
+          MockRequest request, HttpMockResponse response) {
     this(context, request, response, null);
   }
 
-  public MockRequestContext(HttpMockRequest request, HttpMockResponse response, DispatcherHandler dispatcherHandler) {
+  public MockRequestContext(MockRequest request, HttpMockResponse response, DispatcherHandler dispatcherHandler) {
     this(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
   }
 
-  public MockRequestContext(HttpMockRequest request, DispatcherHandler dispatcherHandler) {
+  public MockRequestContext(MockRequest request, DispatcherHandler dispatcherHandler) {
     this(dispatcherHandler.getApplicationContext(), request, new MockHttpResponseImpl(), dispatcherHandler);
   }
 
-  public MockRequestContext(@Nullable ApplicationContext context, HttpMockRequest request,
+  public MockRequestContext(@Nullable ApplicationContext context, MockRequest request,
           HttpMockResponse response, @Nullable DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.request = request;
@@ -135,7 +134,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  public HttpMockRequest getRequest() {
+  public MockRequest getRequest() {
     return request;
   }
 
@@ -394,7 +393,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
       }
     }
 
-    // HttpMockRequest exposes some headers as properties:
+    // MockRequest exposes some headers as properties:
     // we should include those if not already present
     try {
       MediaType contentType = httpHeaders.getContentType();
@@ -449,7 +448,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   @Override
   protected MultipartRequest createMultipartRequest() {
-    if (request instanceof MockMultipartHttpMockRequest mockRequest) {
+    if (request instanceof MultipartMockRequest mockRequest) {
       return mockRequest.getMultipartRequest();
     }
     return new MockMultipartRequest(request);

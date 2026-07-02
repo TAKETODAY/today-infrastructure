@@ -32,7 +32,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
@@ -82,7 +82,7 @@ class ModelAttributeMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    this.request = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    this.request = new MockRequestContext(null, new MockRequest(), null);
     this.container = new BindingContext();
     request.setBinding(container);
     this.processor = new ModelAttributeMethodProcessor(false);
@@ -305,7 +305,7 @@ class ModelAttributeMethodProcessorTests {
 
   @Test  // gh-25182
   public void resolveConstructorListArgumentFromCommaSeparatedRequestParameter() throws Throwable {
-    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+    MockRequest mockRequest = new MockRequest();
     mockRequest.addParameter("listOfStrings", "1,2");
     MockRequestContext requestWithParam = new MockRequestContext(null, mockRequest, null);
 

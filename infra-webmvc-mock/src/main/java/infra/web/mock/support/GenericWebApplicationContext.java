@@ -30,8 +30,8 @@ import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.mock.api.MockContext;
-import infra.mock.api.MockRequest;
 import infra.mock.api.MockResponse;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.stereotype.Component;
 import infra.web.RequestContextHolder;
@@ -190,7 +190,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
 
     @Override
     public String toString() {
-      return "Current HttpMockRequest";
+      return "Current MockRequest";
     }
 
   }

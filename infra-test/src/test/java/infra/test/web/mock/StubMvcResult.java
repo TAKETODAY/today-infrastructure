@@ -20,7 +20,7 @@ package infra.test.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;
@@ -35,7 +35,7 @@ import infra.web.view.ModelAndView;
  */
 public class StubMvcResult implements MvcResult {
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private Object handler;
 
@@ -52,7 +52,7 @@ public class StubMvcResult implements MvcResult {
 
   private final @Nullable Throwable unresolvedException;
 
-  public StubMvcResult(HttpMockRequestImpl request,
+  public StubMvcResult(MockRequest request,
           Object handler,
           HandlerInterceptor[] interceptors,
           Exception resolvedException,
@@ -62,7 +62,7 @@ public class StubMvcResult implements MvcResult {
     this(request, handler, interceptors, resolvedException, mav, flashMap, response, null);
   }
 
-  public StubMvcResult(HttpMockRequestImpl request,
+  public StubMvcResult(MockRequest request,
           Object handler,
           HandlerInterceptor[] interceptors,
           Exception resolvedException,
@@ -82,7 +82,7 @@ public class StubMvcResult implements MvcResult {
   }
 
   @Override
-  public HttpMockRequestImpl getRequest() {
+  public MockRequest getRequest() {
     return request;
   }
 
@@ -134,7 +134,7 @@ public class StubMvcResult implements MvcResult {
     this.mav = mav;
   }
 
-  public void setRequest(HttpMockRequestImpl request) {
+  public void setRequest(MockRequest request) {
     this.request = request;
   }
 

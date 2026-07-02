@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.Conventions;
 import infra.lang.Assert;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
@@ -51,7 +51,7 @@ class DefaultMvcResult implements MvcResult {
 
   private static final Object RESULT_NONE = new Object();
 
-  private final HttpMockRequestImpl mockRequest;
+  private final MockRequest mockRequest;
 
   private final MockHttpResponseImpl mockResponse;
 
@@ -74,7 +74,7 @@ class DefaultMvcResult implements MvcResult {
   /**
    * Create a new instance with the given request and response.
    */
-  public DefaultMvcResult(HttpMockRequestImpl request,
+  public DefaultMvcResult(MockRequest request,
           MockHttpResponseImpl response, RequestContext requestContext) {
     this.mockRequest = request;
     this.mockResponse = response;
@@ -83,7 +83,7 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public HttpMockRequestImpl getRequest() {
+  public MockRequest getRequest() {
     return this.mockRequest;
   }
 

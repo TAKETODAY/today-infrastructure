@@ -41,13 +41,13 @@ import static org.mockito.Mockito.verify;
  */
 class MockFilterChainTests {
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
   @BeforeEach
   void setup() {
-    this.request = new HttpMockRequestImpl();
+    this.request = new MockRequest();
     this.response = new MockHttpResponseImpl();
   }
 

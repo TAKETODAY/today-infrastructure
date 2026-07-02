@@ -41,10 +41,9 @@ import javax.xml.transform.stream.StreamSource;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -60,7 +59,7 @@ public class XsltViewTests {
 
   private static final String HTML_OUTPUT = "/infra/web/view/xslt/products.xsl";
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 

@@ -39,7 +39,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.core.env.PropertiesPropertySource;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.web.HandlerInterceptor;
@@ -82,7 +82,7 @@ class CrossOriginTests {
     return Stream.of(mapping1, mapping2);
   }
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   @BeforeEach
   void setup() {
@@ -93,7 +93,7 @@ class CrossOriginTests {
   @PathPatternsParameterizedTest
   void noAnnotationWithoutOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/no");
+    MockRequest request = new MockRequest("GET", "/no");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(getCorsConfiguration(chain, false)).isNull();
   }
@@ -101,7 +101,7 @@ class CrossOriginTests {
   @PathPatternsParameterizedTest
   void noAnnotationWithAccessControlHttpMethod(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/no");
+    MockRequest request = new MockRequest("OPTIONS", "/no");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(chain).isNotNull();
@@ -112,7 +112,7 @@ class CrossOriginTests {
   @PathPatternsParameterizedTest
   void noAnnotationWithPreflightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/no");
+    MockRequest request = new MockRequest("OPTIONS", "/no");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com/");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
@@ -292,7 +292,7 @@ class CrossOriginTests {
   }
 
   @Nullable
-  private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, HttpMockRequestImpl request) throws Exception {
+  private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, MockRequest request) throws Exception {
     Object handler = mapping.getHandler(new MockRequestContext(null, request, null));
     if (handler instanceof HandlerExecutionChain chain) {
       return chain;
@@ -359,7 +359,7 @@ class CrossOriginTests {
 
   @PathPatternsParameterizedTest
   void preFlightRequestWithoutHttpMethodHeader(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/default");
+    MockRequest request = new MockRequest("OPTIONS", "/default");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     assertThat(getHandler(mapping, request)).isNull();
   }

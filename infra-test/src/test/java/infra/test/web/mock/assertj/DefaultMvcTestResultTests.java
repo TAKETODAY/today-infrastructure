@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.web.mock.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ class DefaultMvcTestResultTests {
 
   @Test
   void createWithMvcResultDelegatesToIt() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MvcResult mvcResult = mock(MvcResult.class);
     given(mvcResult.getRequest()).willReturn(request);
     DefaultMvcTestResult result = new DefaultMvcTestResult(mvcResult, null, null);

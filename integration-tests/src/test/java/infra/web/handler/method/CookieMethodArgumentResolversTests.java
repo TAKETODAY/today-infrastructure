@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.mock.api.http.Cookie;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.annotation.CookieValue;
@@ -50,7 +50,7 @@ class CookieMethodArgumentResolversTests {
 
   private MockRequestContext webRequest;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
   final MockContextImpl mockContext = new MockContextImpl();
@@ -68,7 +68,7 @@ class CookieMethodArgumentResolversTests {
     paramNamedDefaultValueString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 1));
     paramString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 2));
 
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
   }
 

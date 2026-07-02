@@ -45,14 +45,14 @@ import infra.mock.api.AsyncListener;
 import infra.mock.api.MockInputStream;
 import infra.mock.api.ReadListener;
 import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 /**
- * Adapt {@link ServerHttpRequest} to the Servlet {@link HttpMockRequest}.
+ * Adapt {@link ServerHttpRequest} to the Servlet {@link MockRequest}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -66,7 +66,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
 
   private final byte[] buffer;
 
-  private final HttpMockRequest request;
+  private final MockRequest request;
 
   private final AsyncListener asyncListener;
 
@@ -76,13 +76,13 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
 
   private final RequestBodyPublisher bodyPublisher;
 
-  public MockServerHttpRequest(HttpMockRequest request, AsyncContext asyncContext,
+  public MockServerHttpRequest(MockRequest request, AsyncContext asyncContext,
           String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
     this(createDefaultHttpHeaders(request), request, asyncContext, servletPath, bufferFactory, bufferSize);
   }
 
-  public MockServerHttpRequest(MultiValueMap<String, String> headers, HttpMockRequest request,
+  public MockServerHttpRequest(MultiValueMap<String, String> headers, MockRequest request,
           AsyncContext asyncContext, String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
 
@@ -103,7 +103,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
     this.bodyPublisher.registerReadListener();
   }
 
-  private static MultiValueMap<String, String> createDefaultHttpHeaders(HttpMockRequest request) {
+  private static MultiValueMap<String, String> createDefaultHttpHeaders(MockRequest request) {
     var headers = MultiValueMap.<String, String>forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
     for (Enumeration<String> names = request.getHeaderNames(); names.hasMoreElements(); ) {
       String name = names.nextElement();
@@ -112,7 +112,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
     return headers;
   }
 
-  private static URI initUri(HttpMockRequest request) throws URISyntaxException {
+  private static URI initUri(MockRequest request) throws URISyntaxException {
     Assert.notNull(request, "'request' is required");
     StringBuffer url = request.getRequestURL();
     String query = request.getQueryString();
@@ -123,7 +123,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private static MultiValueMap<String, String> initHeaders(
-          MultiValueMap<String, String> headerValues, HttpMockRequest request) {
+          MultiValueMap<String, String> headerValues, MockRequest request) {
 
     HttpHeaders headers = null;
     MediaType contentType = null;

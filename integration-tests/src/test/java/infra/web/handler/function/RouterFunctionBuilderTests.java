@@ -36,7 +36,7 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import org.jspecify.annotations.Nullable;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
@@ -235,7 +235,7 @@ class RouterFunctionBuilderTests {
             .onError(Exception.class, (t, r) -> ServerResponse.status(201).build())
             .build();
 
-    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/error");
+    MockRequest servletRequest = new MockRequest("GET", "/error");
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
     var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
@@ -254,8 +254,8 @@ class RouterFunctionBuilderTests {
   }
 
   private ServerRequest initRequest(
-          String httpMethod, String requestUri, @Nullable Consumer<HttpMockRequestImpl> consumer) {
-    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
+          String httpMethod, String requestUri, @Nullable Consumer<MockRequest> consumer) {
+    MockRequest servletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
     var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
     return new DefaultServerRequest(requestContext, emptyList());

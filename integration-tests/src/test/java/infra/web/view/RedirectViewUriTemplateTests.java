@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 class RedirectViewUriTemplateTests {
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
@@ -45,7 +45,7 @@ class RedirectViewUriTemplateTests {
   @BeforeEach
   public void setUp() throws Exception {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    this.request = new HttpMockRequestImpl();
+    this.request = new MockRequest();
     this.response = new MockHttpResponseImpl();
     context.refresh();
 

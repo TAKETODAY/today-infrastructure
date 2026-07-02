@@ -29,7 +29,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.mock.api.MockContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
@@ -69,7 +69,7 @@ public class JythonScriptTemplateTests {
   private MockHttpResponseImpl render(String viewUrl, Map<String, Object> model) throws Exception {
     ScriptTemplateView view = createViewWithUrl(viewUrl);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     view.renderMergedOutputModel(model, new MockRequestContext(webAppContext, request, response));
     return response;
   }

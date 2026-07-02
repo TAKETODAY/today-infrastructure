@@ -26,7 +26,7 @@ import java.util.List;
 
 import infra.core.Conventions;
 import infra.http.HttpStatus;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
@@ -45,7 +45,7 @@ public class StatusResultMatchersTests {
 
   private final StatusResultMatchers matchers = new StatusResultMatchers();
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   @Test
   public void testHttpStatusCodeResultMatchers() throws Exception {

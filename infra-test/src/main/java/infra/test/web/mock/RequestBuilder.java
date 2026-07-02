@@ -19,11 +19,11 @@
 package infra.test.web.mock;
 
 import infra.mock.api.MockContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 
 /**
- * Builds a {@link HttpMockRequestImpl}.
+ * Builds a {@link MockRequest}.
  *
  * <p>See static factory methods in
  * {@link MockMvcRequestBuilders MockMvcRequestBuilders}.
@@ -41,6 +41,6 @@ public interface RequestBuilder {
    * @param mockContext the {@link MockContext} to use to create the request
    * @return the request
    */
-  HttpMockRequestImpl buildRequest(MockContext mockContext);
+  MockRequest buildRequest(MockContext mockContext);
 
 }

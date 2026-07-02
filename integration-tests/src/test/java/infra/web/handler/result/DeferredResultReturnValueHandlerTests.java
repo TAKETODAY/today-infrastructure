@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CompletableFuture;
 
 import infra.core.MethodParameter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
@@ -43,14 +43,14 @@ class DeferredResultReturnValueHandlerTests {
 
   private DeferredResultReturnValueHandler handler;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockRequestContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
     this.handler = new DeferredResultReturnValueHandler();
-    this.request = new HttpMockRequestImpl();
+    this.request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     this.webRequest = new MockRequestContext(null, this.request, response);
 

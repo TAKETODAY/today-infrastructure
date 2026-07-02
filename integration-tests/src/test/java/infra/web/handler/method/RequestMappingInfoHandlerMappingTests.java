@@ -36,8 +36,8 @@ import infra.core.annotation.AnnotationUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
@@ -112,7 +112,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerDirectMatch(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
+    MockRequest request = new MockRequest("GET", "/foo");
     HandlerMethod handlerMethod = getHandler(mapping, request);
 
     assertThat(handlerMethod.getMethod()).isEqualTo(this.fooMethod.getMethod());
@@ -120,14 +120,14 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerGlobMatch(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bar");
+    MockRequest request = new MockRequest("GET", "/bar");
     HandlerMethod handlerMethod = getHandler(mapping, request);
     assertThat(handlerMethod.getMethod()).isEqualTo(this.barMethod.getMethod());
   }
 
   @PathPatternsParameterizedTest
   void getHandlerEmptyPathMatch(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "");
+    MockRequest request = new MockRequest("GET", "");
     HandlerMethod handlerMethod = getHandler(mapping, request);
 
     assertThat(handlerMethod.getMethod()).isEqualTo(this.emptyMethod.getMethod());
@@ -135,7 +135,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerBestMatch(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
+    MockRequest request = new MockRequest("GET", "/foo");
     request.setParameter("p", "anything");
     HandlerMethod handlerMethod = getHandler(mapping, request);
 
@@ -144,7 +144,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerHttpMethodNotAllowed(TestRequestMappingInfoHandlerMapping mapping) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/bar");
+    MockRequest request = new MockRequest("POST", "/bar");
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
     assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class)
             .isThrownBy(() -> mapping.getHandler(context))
@@ -153,7 +153,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerHttpMethodMatchFalsePositive(TestRequestMappingInfoHandlerMapping mapping) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/users");
+    MockRequest request = new MockRequest("GET", "/users");
     request.addHeader("Accept", "application/xml");
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
@@ -172,7 +172,7 @@ class RequestMappingInfoHandlerMappingTests {
   // gh-28062
   @PathPatternsParameterizedTest
   void getHandlerMethodTypeNotSupportedWithParseError(TestRequestMappingInfoHandlerMapping mapping) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/person/1");
+    MockRequest request = new MockRequest("PUT", "/person/1");
     request.setContentType("This string");
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -192,7 +192,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerTestInvalidContentType(TestRequestMappingInfoHandlerMapping mapping) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/person/1");
+    MockRequest request = new MockRequest("PUT", "/person/1");
     request.setContentType("bogus");
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
@@ -212,7 +212,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerUnsatisfiedRequestParameterException(TestRequestMappingInfoHandlerMapping mapping) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/params");
+    MockRequest request = new MockRequest("GET", "/params");
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     assertThatExceptionOfType(UnsatisfiedRequestParameterException.class)
@@ -223,7 +223,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void getHandlerProducibleMediaTypesAttribute(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/content");
+    MockRequest request = new MockRequest("GET", "/content");
     request.addHeader("Accept", "application/xml");
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
@@ -236,7 +236,7 @@ class RequestMappingInfoHandlerMappingTests {
     var producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
     assertThat(producibleMediaTypes).isNotNull().contains(MediaType.APPLICATION_XML);
 
-    request = new HttpMockRequestImpl("GET", "/content");
+    request = new MockRequest("GET", "/content");
     context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     request.addHeader("Accept", "application/json");
@@ -260,7 +260,7 @@ class RequestMappingInfoHandlerMappingTests {
     mapping.setInterceptors(mappedInterceptor);
     mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
+    MockRequest request = new MockRequest("GET", path);
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     Object handler = mapping.getHandler(context);
@@ -270,7 +270,7 @@ class RequestMappingInfoHandlerMappingTests {
     HandlerExecutionChain chain = (HandlerExecutionChain) handler;
     assertThat(chain.getInterceptors()).isNotEmpty().containsExactly(mappedInterceptor);
 
-    request = new HttpMockRequestImpl("GET", "/invalid");
+    request = new MockRequest("GET", "/invalid");
     context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     handler = mapping.getHandler(context);
@@ -281,7 +281,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void handleMatchUriTemplateVariables(TestRequestMappingInfoHandlerMapping mapping) {
     RequestMappingInfo key = RequestMappingInfo.paths("/{path1}/{path2}").build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/1/2");
+    MockRequest request = new MockRequest("GET", "/1/2");
     String lookupPath = request.getRequestURI();
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
@@ -304,7 +304,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void handleMatchUriTemplateVariablesDecode(TestRequestMappingInfoHandlerMapping mapping) {
     RequestMappingInfo key = RequestMappingInfo.paths("/{group}/{identifier}").build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/group/a%2Fb");
+    MockRequest request = new MockRequest("GET", "/group/a%2Fb");
 
     String lookupPath = UriUtils.decode(request.getRequestURI(), "UTF-8");
 
@@ -328,7 +328,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void handleMatchBestMatchingPatternAttribute(TestRequestMappingInfoHandlerMapping mapping) {
     RequestMappingInfo key = RequestMappingInfo.paths("/{path1}/2", "/**").build();
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/1/2");
+    MockRequest request = new MockRequest("GET", "/1/2");
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     var infoMatch = getMappingInfoMatch(mapping, key);
@@ -343,7 +343,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void handleMatchBestMatchingPatternAttributeNoPatternsDefined(TestRequestMappingInfoHandlerMapping mapping) {
     String path = "";
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
+    MockRequest request = new MockRequest("GET", path);
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     RequestMappingInfo build = RequestMappingInfo.paths().build();
@@ -360,12 +360,12 @@ class RequestMappingInfoHandlerMappingTests {
 
   @PathPatternsParameterizedTest
   void handleMatchMatrixVariables(TestRequestMappingInfoHandlerMapping mapping) {
-    HttpMockRequestImpl request;
+    MockRequest request;
     MultiValueMap<String, String> matrixVariables;
     Map<String, String> uriVariables;
 
     // URI var parsed into path variable + matrix params..
-    request = new HttpMockRequestImpl("GET", "/cars;colors=red,blue,green;year=2012");
+    request = new MockRequest("GET", "/cars;colors=red,blue,green;year=2012");
     handleMatch(mapping, request, "/{cars}", request.getRequestURI());
 
     matrixVariables = getMatrixVariables(request, "cars");
@@ -377,7 +377,7 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(uriVariables.get("cars")).isEqualTo("cars");
 
     // URI var with regex for path variable, and URI var for matrix params.
-    request = new HttpMockRequestImpl("GET", "/cars;colors=red,blue,green;year=2012");
+    request = new MockRequest("GET", "/cars;colors=red,blue,green;year=2012");
     handleMatch(mapping, request, "/{cars:[^;]+}{params}", request.getRequestURI());
 
     matrixVariables = getMatrixVariables(request, "params");
@@ -392,7 +392,7 @@ class RequestMappingInfoHandlerMappingTests {
     }
 
     // URI var with regex for path variable, and (empty) URI var for matrix params.
-    request = new HttpMockRequestImpl("GET", "/cars");
+    request = new MockRequest("GET", "/cars");
     handleMatch(mapping, request, "/{cars:[^;]+}{params}", request.getRequestURI());
 
     matrixVariables = getMatrixVariables(request, "params");
@@ -402,7 +402,7 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(uriVariables.get("cars")).isEqualTo("cars");
     assertThat(uriVariables.get("params")).isEqualTo("");
 
-    request = new HttpMockRequestImpl("GET", "/a=42;b=c");
+    request = new MockRequest("GET", "/a=42;b=c");
     handleMatch(mapping, request, "/{foo}", request.getRequestURI());
 
     matrixVariables = getMatrixVariables(request, "foo");
@@ -425,7 +425,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void handleMatchMatrixVariablesDecoding(TestRequestMappingInfoHandlerMapping mapping) {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/cars;mvar=a%2Fb");
+    MockRequest request = new MockRequest("GET", "/cars;mvar=a%2Fb");
     handleMatch(mapping, request, "/{cars}", request.getRequestURI());
 
     MultiValueMap<String, String> matrixVariables = getMatrixVariables(request, "cars");
@@ -439,7 +439,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void handleNoMatchWithoutPartialMatches(TestRequestMappingInfoHandlerMapping mapping) {
     String path = "/non-existent";
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
+    MockRequest request = new MockRequest("GET", path);
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -451,7 +451,7 @@ class RequestMappingInfoHandlerMappingTests {
   }
 
   private HandlerMethod getHandler(
-          TestRequestMappingInfoHandlerMapping mapping, HttpMockRequestImpl request) throws Exception {
+          TestRequestMappingInfoHandlerMapping mapping, MockRequest request) throws Exception {
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     Object handler = mapping.getHandler(context);
@@ -461,7 +461,7 @@ class RequestMappingInfoHandlerMappingTests {
   }
 
   private void testHttpMediaTypeNotSupportedException(TestRequestMappingInfoHandlerMapping mapping, String url) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", url);
+    MockRequest request = new MockRequest("PUT", url);
     request.setContentType("application/json");
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -473,7 +473,7 @@ class RequestMappingInfoHandlerMappingTests {
   private void testHttpOptions(TestRequestMappingInfoHandlerMapping mapping, String requestURI,
           String allowHeader, @Nullable MediaType acceptPatch) throws Throwable {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", requestURI);
+    MockRequest request = new MockRequest("OPTIONS", requestURI);
     HandlerMethod handlerMethod = getHandler(mapping, request);
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
@@ -495,7 +495,7 @@ class RequestMappingInfoHandlerMappingTests {
   }
 
   private void testHttpMediaTypeNotAcceptableException(TestRequestMappingInfoHandlerMapping mapping, String url) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", url);
+    MockRequest request = new MockRequest("GET", url);
     request.addHeader("Accept", "application/json");
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -506,7 +506,7 @@ class RequestMappingInfoHandlerMappingTests {
   }
 
   private void handleMatch(TestRequestMappingInfoHandlerMapping mapping,
-          HttpMockRequestImpl request, String pattern, String lookupPath) {
+          MockRequest request, String pattern, String lookupPath) {
 
     var context = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
@@ -534,7 +534,7 @@ class RequestMappingInfoHandlerMappingTests {
     return new AbstractHandlerMethodMapping.Match<>(info, registration);
   }
 
-  private MultiValueMap<String, String> getMatrixVariables(HttpMockRequest request, String uriVarName) {
+  private MultiValueMap<String, String> getMatrixVariables(MockRequest request, String uriVarName) {
     Object attribute = request.getAttribute(HandlerMatchingMetadataKey);
     if (attribute instanceof HandlerMatchingMetadata matchingMetadata) {
       return matchingMetadata.getMatrixVariable(uriVarName);
@@ -542,7 +542,7 @@ class RequestMappingInfoHandlerMappingTests {
     return fail("");
   }
 
-  private Map<String, String> getUriTemplateVariables(HttpMockRequest request) {
+  private Map<String, String> getUriTemplateVariables(MockRequest request) {
     Object attribute = request.getAttribute(HandlerMatchingMetadataKey);
     if (attribute instanceof HandlerMatchingMetadata matchingMetadata) {
       return matchingMetadata.getUriVariables();

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HttpRequestHandler;
 import infra.web.handler.HandlerExecutionChain;
@@ -50,7 +50,7 @@ public class WebSocketHandlerMappingTests {
     context1.refresh();
     mapping.setApplicationContext(context1);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     MockRequestContext context = new MockRequestContext(null, request, new MockHttpResponseImpl());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();

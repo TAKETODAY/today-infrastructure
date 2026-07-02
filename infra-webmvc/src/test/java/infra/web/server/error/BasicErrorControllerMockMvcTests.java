@@ -40,7 +40,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.mock.api.MockContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.annotation.DirtiesContext;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
@@ -219,8 +219,8 @@ class BasicErrorControllerMockMvcTests {
     }
 
     @Override
-    public HttpMockRequestImpl buildRequest(MockContext mockContext) {
-      HttpMockRequestImpl request = this.result.getRequest();
+    public MockRequest buildRequest(MockContext mockContext) {
+      MockRequest request = this.result.getRequest();
       request.setRequestURI(this.path);
       return request;
     }

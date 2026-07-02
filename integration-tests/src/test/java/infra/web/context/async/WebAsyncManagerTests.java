@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.util.concurrent.Future;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.CallableProcessingInterceptor;
@@ -59,7 +59,7 @@ class WebAsyncManagerTests {
 
   private AsyncWebRequest asyncWebRequest;
 
-  private HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
+  private MockRequest mockRequest = new MockRequest();
 
   private MockRequestContext request = new MockRequestContext(null, mockRequest, null);
 
@@ -238,7 +238,7 @@ class WebAsyncManagerTests {
   @Test
   public void startCallableProcessingWithAsyncTask() throws Exception {
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-//    given(this.request.unwrapRequest(HttpMockRequest.class)).willReturn(this.servletRequest);
+//    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.servletRequest);
 
     WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(1000L, executor, mock(Callable.class));
     this.asyncManager.startCallableProcessing(asyncTask);
@@ -375,7 +375,7 @@ class WebAsyncManagerTests {
   }
 
   private void setupDefaultAsyncScenario() {
-//    given(this.request.unwrapRequest(HttpMockRequest.class)).willReturn(this.servletRequest);
+//    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.servletRequest);
     given(this.asyncWebRequest.isAsyncComplete()).willReturn(false);
   }
 

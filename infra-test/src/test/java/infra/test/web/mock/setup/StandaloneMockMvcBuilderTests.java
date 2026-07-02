@@ -21,7 +21,7 @@ package infra.test.web.mock.setup;
 import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.web.Filter;
@@ -51,7 +51,7 @@ class StandaloneMockMvcBuilderTests {
 
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
+    MockRequest request = new MockRequest("GET", "/foo");
     HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
             request, new MockHttpResponseImpl()));
 
@@ -66,13 +66,13 @@ class StandaloneMockMvcBuilderTests {
 
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/persons");
+    MockRequest request = new MockRequest("GET", "/persons");
     HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
             request, new MockHttpResponseImpl()));
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("persons");
 
-    request = new HttpMockRequestImpl("GET", "/persons.xml");
+    request = new MockRequest("GET", "/persons.xml");
     chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
             request, new MockHttpResponseImpl()));
     assertThat(chain).isNull();

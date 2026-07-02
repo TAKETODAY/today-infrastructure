@@ -43,8 +43,8 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.mock.api.MockException;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.validation.MapBindingResult;
@@ -81,7 +81,7 @@ class ResponseEntityExceptionHandlerTests {
 
   private SimpleHandlerExceptionHandler defaultExceptionResolver = new SimpleHandlerExceptionHandler();
 
-  private HttpMockRequest mockRequest = new HttpMockRequestImpl("GET", "/");
+  private MockRequest mockRequest = new MockRequest("GET", "/");
 
   private MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
@@ -124,7 +124,7 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   void patchHttpMediaTypeNotSupported() {
-    this.mockRequest = new HttpMockRequestImpl("PATCH", "/");
+    this.mockRequest = new MockRequest("PATCH", "/");
     this.request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 
     ResponseEntity<Object> entity = testException(

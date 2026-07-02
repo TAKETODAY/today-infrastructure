@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
@@ -58,7 +58,7 @@ public class WebSocketHttpRequestHandlerTests {
     TestInterceptor interceptor = new TestInterceptor(true);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
     MockRequestContext request = new MockRequestContext(
-            null, new HttpMockRequestImpl(), this.response);
+            null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
     request.requestCompleted();
 
@@ -75,7 +75,7 @@ public class WebSocketHttpRequestHandlerTests {
             .willThrow(new IllegalStateException("bad state"));
 
     MockRequestContext request = new MockRequestContext(
-            null, new HttpMockRequestImpl(), this.response);
+            null, new MockRequest(), this.response);
     assertThatThrownBy(() -> this.requestHandler.handleRequest(request))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageEndingWith("bad state");
@@ -92,7 +92,7 @@ public class WebSocketHttpRequestHandlerTests {
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
 
     MockRequestContext request = new MockRequestContext(
-            null, new HttpMockRequestImpl(), this.response);
+            null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
     request.requestCompleted();
 

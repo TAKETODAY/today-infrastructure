@@ -29,9 +29,9 @@ import java.util.Properties;
 
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
@@ -55,7 +55,7 @@ public class BaseViewTests {
   public void renderWithoutStaticAttributes() throws Exception {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HttpMockResponse response = new MockHttpResponseImpl();
     TestView tv = new TestView(wac);
 
@@ -83,7 +83,7 @@ public class BaseViewTests {
   public void renderWithStaticAttributesNoCollision() throws Exception {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HttpMockResponse response = new MockHttpResponseImpl();
     TestView tv = new TestView(wac);
 
@@ -111,7 +111,7 @@ public class BaseViewTests {
   public void pathVarsOverrideStaticAttributes() throws Exception {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HttpMockResponse response = new MockHttpResponseImpl();
 
     TestView tv = new TestView(wac);
@@ -143,7 +143,7 @@ public class BaseViewTests {
   public void dynamicModelOverridesStaticAttributesIfCollision() throws Exception {
     ApplicationContext wac = Mockito.mock(ApplicationContext.class);
 
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     HttpMockResponse response = new MockHttpResponseImpl();
     TestView tv = new TestView(wac);
 
@@ -175,7 +175,7 @@ public class BaseViewTests {
     TestView tv = new TestView(wac);
     tv.setApplicationContext(wac);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     Map<String, Object> pathVars = new HashMap<>();

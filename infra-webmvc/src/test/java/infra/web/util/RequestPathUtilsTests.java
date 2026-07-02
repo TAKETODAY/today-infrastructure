@@ -19,7 +19,7 @@ package infra.web.util;
 import org.junit.jupiter.api.Test;
 
 import infra.http.server.RequestPath;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ class RequestPathUtilsTests {
   }
 
   private void testParseAndCache(String requestUri, String pathWithinApplication) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", requestUri);
+    MockRequest request = new MockRequest("GET", requestUri);
     MockRequestContext context = new MockRequestContext(null, request, null);
     RequestPath requestPath = context.getRequestPath();
 

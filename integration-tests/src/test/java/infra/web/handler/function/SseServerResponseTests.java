@@ -27,7 +27,7 @@ import java.time.Duration;
 import java.util.Collections;
 
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import tools.jackson.databind.SerializationFeature;
@@ -40,13 +40,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SseServerResponseTests {
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockHttpResponseImpl mockResponse;
 
   @BeforeEach
   void setUp() {
-    this.mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
+    this.mockRequest = new MockRequest("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockHttpResponseImpl();
   }
@@ -65,7 +65,7 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = Collections::emptyList;
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
     var requestContext = new MockRequestContext(null, request, mockResponse);
 
@@ -89,7 +89,7 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
     var requestContext = new MockRequestContext(null, request, mockResponse);
 
@@ -147,7 +147,7 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = Collections::emptyList;
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
     var requestContext = new MockRequestContext(null, request, mockResponse);
 
@@ -177,7 +177,7 @@ class SseServerResponseTests {
     });
 
     ServerResponse.Context context = Collections::emptyList;
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
     var requestContext = new MockRequestContext(null, request, mockResponse);
 

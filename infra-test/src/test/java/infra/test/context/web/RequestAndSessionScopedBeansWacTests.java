@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
@@ -44,7 +44,7 @@ class RequestAndSessionScopedBeansWacTests {
   ApplicationContext wac;
 
   @Autowired
-  HttpMockRequestImpl request;
+  MockRequest request;
 
   @Autowired
   Session session;

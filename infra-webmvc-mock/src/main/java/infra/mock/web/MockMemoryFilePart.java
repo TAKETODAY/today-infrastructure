@@ -42,13 +42,13 @@ import infra.web.multipart.Part;
  * Mock implementation of the {@link infra.web.multipart.Part}
  * interface.
  *
- * <p>Useful in conjunction with a {@link MockMultipartHttpMockRequest}
+ * <p>Useful in conjunction with a {@link MultipartMockRequest}
  * for testing application controllers that access multipart uploads.
  *
  * @author Juergen Hoeller
  * @author Eric Crampton
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MockMultipartHttpMockRequest
+ * @see MultipartMockRequest
  * @since 4.0
  */
 public class MockMemoryFilePart implements Part {

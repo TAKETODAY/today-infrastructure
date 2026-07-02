@@ -23,6 +23,8 @@ package infra.mock.api;
 import java.io.IOException;
 import java.util.EventListener;
 
+import infra.mock.web.MockRequest;
+
 /**
  * Listener that will be notified in the event that an asynchronous operation initiated on a ServletRequest to which the
  * listener had been added has completed, timed out, or resulted in an error.

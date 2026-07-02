@@ -34,13 +34,13 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.lang.Assert;
 import infra.mock.api.DispatcherType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
-import infra.test.web.mock.request.AbstractMockHttpMockRequestBuilder;
-import infra.test.web.mock.request.AbstractMockMultipartHttpMockRequestBuilder;
+import infra.test.web.mock.request.AbstractMockRequestBuilder;
+import infra.test.web.mock.request.AbstractMultipartMockRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
@@ -456,7 +456,7 @@ public final class MockMvcTester {
 
         // Perform ASYNC dispatch
         RequestBuilder dispatchRequest = servletContext -> {
-          HttpMockRequestImpl request = result.getMvcResult().getRequest();
+          MockRequest request = result.getMvcResult().getRequest();
           request.setDispatcherType(DispatcherType.ASYNC);
           request.setAsyncStarted(false);
           return request;
@@ -468,9 +468,9 @@ public final class MockMvcTester {
   }
 
   /**
-   * A builder for {@link HttpMockRequestImpl} that supports AssertJ.
+   * A builder for {@link MockRequest} that supports AssertJ.
    */
-  public final class MockMvcRequestBuilder extends AbstractMockHttpMockRequestBuilder<MockMvcRequestBuilder>
+  public final class MockMvcRequestBuilder extends AbstractMockRequestBuilder<MockMvcRequestBuilder>
           implements AssertProvider<MvcTestResultAssert> {
 
     private final HttpMethod httpMethod;
@@ -538,8 +538,7 @@ public final class MockMvcTester {
     }
   }
 
-  public final class MockMultipartMvcRequestBuilder
-          extends AbstractMockMultipartHttpMockRequestBuilder<MockMultipartMvcRequestBuilder>
+  public final class MockMultipartMvcRequestBuilder extends AbstractMultipartMockRequestBuilder<MockMultipartMvcRequestBuilder>
           implements AssertProvider<MvcTestResultAssert> {
 
     private MockMultipartMvcRequestBuilder(MockMvcRequestBuilder currentBuilder) {

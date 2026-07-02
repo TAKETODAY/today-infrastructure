@@ -39,7 +39,7 @@ import infra.context.ApplicationContextException;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.LocaleResolver;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
@@ -102,7 +102,7 @@ public class FreeMarkerViewTests {
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.US);
     given(wac.getBean(LocaleResolver.BEAN_NAME)).willReturn(new AcceptHeaderLocaleResolver());
     given(wac.getBean(LocaleResolver.BEAN_NAME, LocaleResolver.class)).willReturn(new AcceptHeaderLocaleResolver());
@@ -133,7 +133,7 @@ public class FreeMarkerViewTests {
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.US);
 
     HttpMockResponse response = new MockHttpResponseImpl();
@@ -162,7 +162,7 @@ public class FreeMarkerViewTests {
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.US);
     request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
     HttpMockResponse response = new MockHttpResponseImpl();

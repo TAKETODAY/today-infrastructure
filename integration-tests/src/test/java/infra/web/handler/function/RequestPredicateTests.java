@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Optional;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
@@ -40,7 +40,7 @@ class RequestPredicateTests {
 
   @BeforeEach
   void createRequest() {
-    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     MockRequestContext requestContext = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
     this.request = new DefaultServerRequest(requestContext, Collections.emptyList());
   }

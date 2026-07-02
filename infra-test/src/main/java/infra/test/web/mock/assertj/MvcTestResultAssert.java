@@ -34,8 +34,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import infra.mock.api.http.Cookie;
-import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockRequest;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultHandler;
@@ -51,7 +51,7 @@ import infra.web.view.ModelAndView;
  * @author Brian Clozel
  * @since 5.0
  */
-public class MvcTestResultAssert extends AbstractMockHttpMockResponseAssert<MvcTestResultAssert, MvcTestResult> {
+public class MvcTestResultAssert extends AbstractMockResponseAssert<MvcTestResultAssert, MvcTestResult> {
 
   MvcTestResultAssert(MvcTestResult actual, @Nullable JsonConverterDelegate converterDelegate) {
     super(converterDelegate, actual, MvcTestResultAssert.class);
@@ -73,11 +73,11 @@ public class MvcTestResultAssert extends AbstractMockHttpMockResponseAssert<MvcT
   }
 
   /**
-   * Return a new {@linkplain AbstractMockHttpMockRequestAssert assertion}
-   * object that uses the {@link HttpMockRequestImpl} as the object to test.
+   * Return a new {@linkplain AbstractRequestAssert assertion}
+   * object that uses the {@link MockRequest} as the object to test.
    */
-  public AbstractMockHttpMockRequestAssert<?> request() {
-    return new MockHttpRequestAssert(getMvcResult());
+  public AbstractMockRequestAssert<?> request() {
+    return new MockRequestAssert(getMvcResult());
   }
 
   /**
@@ -234,10 +234,10 @@ public class MvcTestResultAssert extends AbstractMockHttpMockResponseAssert<MvcT
     return this.actual.getMvcResult();
   }
 
-  private static final class MockHttpRequestAssert extends AbstractMockHttpMockRequestAssert<MockHttpRequestAssert> {
+  private static final class MockRequestAssert extends AbstractMockRequestAssert<MockRequestAssert> {
 
-    private MockHttpRequestAssert(MvcResult result) {
-      super(result, MockHttpRequestAssert.class);
+    private MockRequestAssert(MvcResult result) {
+      super(result, MockRequestAssert.class);
     }
   }
 

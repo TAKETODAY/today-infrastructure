@@ -28,7 +28,7 @@ import java.util.List;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
@@ -46,7 +46,7 @@ public class ResourceTransformerSupportTests {
 
   private TestResourceTransformerSupport transformer;
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+  private final MockRequest request = new MockRequest("GET", "/");
 
   @BeforeEach
   public void setUp() {
@@ -107,11 +107,11 @@ public class ResourceTransformerSupportTests {
   @Test
   public void toAbsolutePath() {
     String absolute = this.transformer.toAbsolutePath("img/image.png",
-            new MockRequestContext(null, new HttpMockRequestImpl("GET", "/resources/style.css"), null));
+            new MockRequestContext(null, new MockRequest("GET", "/resources/style.css"), null));
     assertThat(absolute).isEqualTo("/resources/img/image.png");
 
     absolute = this.transformer.toAbsolutePath("/img/image.png",
-            new MockRequestContext(null, new HttpMockRequestImpl("GET", "/resources/style.css"), null));
+            new MockRequestContext(null, new MockRequest("GET", "/resources/style.css"), null));
     assertThat(absolute).isEqualTo("/img/image.png");
   }
 

@@ -30,7 +30,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.server.MockServerHttpRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,7 +43,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequest() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -62,7 +62,7 @@ class ForwardedHeaderUtilsTests {
   @ParameterizedTest // gh-17368, gh-27097
   @ValueSource(strings = { "https", "wss" })
   void fromHttpRequestResetsPort443(String protocol) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("X-Forwarded-Proto", protocol);
     request.addHeader("X-Forwarded-Host", "84.198.58.199");
     request.addHeader("X-Forwarded-Port", 443);
@@ -83,7 +83,7 @@ class ForwardedHeaderUtilsTests {
   @ParameterizedTest // gh-27097
   @ValueSource(strings = { "http", "ws" })
   void fromHttpRequestResetsPort80(String protocol) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("X-Forwarded-Proto", protocol);
     request.addHeader("X-Forwarded-Host", "84.198.58.199");
     request.addHeader("X-Forwarded-Port", 80);
@@ -103,7 +103,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedIPv4Host() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("https");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -118,7 +118,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedIPv6() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -133,7 +133,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedIPv6Host() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -148,7 +148,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedIPv6HostAndPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -163,7 +163,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedInvalidIPv6Address() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -179,7 +179,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedHost() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("https");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -194,7 +194,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedHostIncludingPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -210,7 +210,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedHostMultiValuedHeader() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(-1);
@@ -225,7 +225,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedHostAndPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(8080);
@@ -241,7 +241,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedHostWithDefaultPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(10080);
@@ -256,7 +256,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedProtoWithDefaultPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("example.org");
     request.setServerPort(10080);
@@ -272,7 +272,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedSsl() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("example.org");
     request.setServerPort(10080);
@@ -288,7 +288,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedHostWithForwardedScheme() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(10080);
@@ -305,7 +305,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedProtoAndDefaultPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(80);
@@ -322,7 +322,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedPortMultiValueHeader() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(9090);
@@ -338,7 +338,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestWithForwardedProtoMultiValueHeader() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setScheme("http");
     request.setServerName("localhost");
     request.setServerPort(8080);
@@ -378,7 +378,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeader() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "proto=https; host=84.198.58.199");
     request.setScheme("http");
     request.setServerName("example.com");
@@ -394,7 +394,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeaderQuoted() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "proto=\"https\"; host=\"84.198.58.199\"");
     request.setScheme("http");
     request.setServerName("example.com");
@@ -410,7 +410,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestMultipleForwardedHeader() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "host=84.198.58.199;proto=https");
     request.addHeader("Forwarded", "proto=ftp; host=1.2.3.4");
     request.setScheme("http");
@@ -427,7 +427,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestMultipleForwardedHeaderComma() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "host=84.198.58.199 ;proto=https, proto=ftp; host=1.2.3.4");
     request.setScheme("http");
     request.setServerName("example.com");
@@ -443,7 +443,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeaderWithHostPortAndWithoutServerPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "proto=https; host=84.198.58.199:9090");
     request.setScheme("http");
     request.setServerName("example.com");
@@ -461,7 +461,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeaderWithHostPortAndServerPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "proto=https; host=84.198.58.199:9090");
     request.setScheme("http");
     request.setServerPort(8080);
@@ -480,7 +480,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeaderWithoutHostPortAndWithServerPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "proto=https; host=84.198.58.199");
     request.setScheme("http");
     request.setServerPort(8080);
@@ -499,7 +499,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeaderWithProtoAndServerPort() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "proto=https");
     request.setScheme("http");
     request.setServerPort(8080);
@@ -518,7 +518,7 @@ class ForwardedHeaderUtilsTests {
 
   @Test
   void fromHttpRequestForwardedHeaderComma() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Forwarded", "for=192.0.2.0,for=192.0.2.1;proto=https;host=192.0.2.3:9090");
     request.setScheme("http");
     request.setServerPort(8080);

@@ -89,9 +89,9 @@ import infra.lang.Assert;
 import infra.mock.api.MockException;
 import infra.mock.api.http.Cookie;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.mock.web.MultipartMockRequest;
 import infra.oxm.jaxb.Jaxb2Marshaller;
 import infra.session.Session;
 import infra.session.SessionManager;
@@ -164,12 +164,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void emptyValueMapping() throws Exception {
     initDispatcher(ControllerWithEmptyValueMapping.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test");
 
-    request = new HttpMockRequestImpl("GET", "/");
+    request = new MockRequest("GET", "/");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -180,7 +180,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void errorThrownFromHandlerMethod() throws Exception {
     initDispatcher(ControllerWithErrorThrown.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test");
@@ -190,7 +190,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void customAnnotationController() throws Exception {
     initDispatcher(CustomAnnotationController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpMockResponse.SC_OK);
@@ -200,7 +200,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void requiredParamMissing() throws Exception {
     ApplicationContext webAppContext = initDispatcher(RequiredParamController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpMockResponse.SC_BAD_REQUEST);
@@ -211,7 +211,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void typeConversionError() throws Exception {
     initDispatcher(RequiredParamController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("id", "foo");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -222,7 +222,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void optionalParamPresent() throws Exception {
     initDispatcher(OptionalParamController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("id", "val");
     request.addParameter("flag", "true");
     request.addHeader("header", "otherVal");
@@ -235,7 +235,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void optionalParamMissing() throws Exception {
     initDispatcher(OptionalParamController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("null-false-null");
@@ -245,7 +245,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void defaultParameters() throws Exception {
     initDispatcher(DefaultValueParamController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("foo--bar");
@@ -259,7 +259,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("ppc", ppc);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     System.setProperty("myHeader", "bar");
     try {
@@ -283,7 +283,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("testBeanSet", "1", "2");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -302,7 +302,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath/1");
+    MockRequest request = new MockRequest("GET", "/myPath/1");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(404);
@@ -312,7 +312,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void methodNotAllowed() throws Exception {
     initDispatcher(MethodNotAllowedController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -334,7 +334,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void emptyParameterListHandleMethod() throws Exception {
     initDispatcher(EmptyParameterListHandlerMethodController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/emptyParameterListHandler");
+    MockRequest request = new MockRequest("GET", "/emptyParameterListHandler");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     EmptyParameterListHandlerMethodController.called = false;
@@ -350,7 +350,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBean("viewResolver", ModelExposingViewResolver.class);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPage");
+    MockRequest request = new MockRequest("GET", "/myPage");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
@@ -358,7 +358,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     assertThat(session).isNotNull();
 
-    request = new HttpMockRequestImpl("POST", "/myPage");
+    request = new MockRequest("POST", "/myPage");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
     response = new MockHttpResponseImpl();
@@ -377,7 +377,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPage");
+    MockRequest request = new MockRequest("GET", "/myPage");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
@@ -386,7 +386,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     assertThat(session).isNotNull();
 
-    request = new HttpMockRequestImpl("POST", "/myPage");
+    request = new MockRequest("POST", "/myPage");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
     response = new MockHttpResponseImpl();
@@ -401,7 +401,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBean("viewResolver", ModelExposingViewResolver.class);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPage");
+    MockRequest request = new MockRequest("GET", "/myPage");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
@@ -411,7 +411,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(session).isNotNull();
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 
-    request = new HttpMockRequestImpl("POST", "/myPage");
+    request = new MockRequest("POST", "/myPage");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
     response = new MockHttpResponseImpl();
@@ -428,7 +428,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
             wac -> wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(ModelExposingViewResolver.class))
     );
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPage");
+    MockRequest request = new MockRequest("GET", "/myPage");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
@@ -438,7 +438,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(session).isNotNull();
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 
-    request = new HttpMockRequestImpl("POST", "/myPage");
+    request = new MockRequest("POST", "/myPage");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
     response = new MockHttpResponseImpl();
@@ -465,14 +465,14 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   private void doTestAdaptedHandleMethods() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath1.do");
+    MockRequest request = new MockRequest("GET", "/myPath1.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     request.addParameter("param1", "value1");
     request.addParameter("param2", "2");
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test");
 
-    request = new HttpMockRequestImpl("GET", "/myPath3.do");
+    request = new MockRequest("GET", "/myPath3.do");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "2");
     request.addParameter("name", "name1");
@@ -480,7 +480,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
-    request = new HttpMockRequestImpl("GET", "/myPath4.do");
+    request = new MockRequest("GET", "/myPath4.do");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "2");
     request.addParameter("name", "name1");
@@ -489,7 +489,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-name1-typeMismatch");
 
-    request = new HttpMockRequestImpl("GET", "/myPath2.do");
+    request = new MockRequest("GET", "/myPath2.do");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "2");
     request.addHeader("header1", "10");
@@ -507,7 +507,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
             wac -> wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class))
     );
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("name", "name1");
     request.addParameter("age", "value2");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -522,7 +522,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
             wac -> wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class))
     );
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("name", "name1");
     request.addParameter("age", "value2");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -537,7 +537,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
             wac -> wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class))
     );
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("name", "name1");
     request.addParameter("age", "value2");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -556,7 +556,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("name", "name1");
     request.addParameter("age", "value2");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -573,7 +573,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("defaultName", "myDefaultName");
     request.addParameter("age", "value2");
     request.addParameter("date", "2007-10-02");
@@ -591,7 +591,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(new MySpecialArgumentResolver());
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     request.addParameter("defaultName", "10");
     request.addParameter("age", "value2");
     request.addParameter("date", "2007-10-02");
@@ -599,7 +599,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView-Integer:10-typeMismatch-tb1-myOriginalValue");
 
-    request = new HttpMockRequestImpl("GET", "/myOtherPath.do");
+    request = new MockRequest("GET", "/myOtherPath.do");
     request.addParameter("defaultName", "10");
     request.addParameter("age", "value2");
     request.addParameter("date", "2007-10-02");
@@ -607,7 +607,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView-myName-typeMismatch-tb1-myOriginalValue");
 
-    request = new HttpMockRequestImpl("GET", "/myThirdPath.do");
+    request = new MockRequest("GET", "/myThirdPath.do");
     request.addParameter("defaultName", "10");
     request.addParameter("age", "100");
     request.addParameter("date", "2007-10-02");
@@ -622,7 +622,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
             wac -> wac.registerBean("viewResolver", TestViewResolver.class)
     );
 
-    var request = new HttpMockRequestImpl("GET", "/myPath.do");
+    var request = new MockRequest("GET", "/myPath.do");
     request.addParameter("defaultName", "myDefaultName");
     request.addParameter("age", "value2");
     request.addParameter("date", "2007-10-02");
@@ -639,7 +639,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
                     new RootBeanDefinition(TestViewResolver.class))
     );
 
-    var request = new HttpMockRequestImpl("GET", "/myPath.do");
+    var request = new MockRequest("GET", "/myPath.do");
     request.addParameter("defaultName", "myDefaultName");
     request.addParameter("age", "value2");
     request.addParameter("date", "2007-10-02");
@@ -654,7 +654,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     ApplicationContext webAppContext = initDispatcher(MyParameterDispatchingController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath.do");
+    MockRequest request = new MockRequest("GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     Session session = request.getSession();
     assertThat(session).isNotNull();
@@ -664,7 +664,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
     assertThat(request.getAttribute("locale")).isSameAs(request.getLocale());
 
-    request = new HttpMockRequestImpl("GET", "/myPath.do");
+    request = new MockRequest("GET", "/myPath.do");
     response = new MockHttpResponseImpl();
     session = request.getSession();
     assertThat(session).isNotNull();
@@ -673,20 +673,20 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
 
-    request = new HttpMockRequestImpl("GET", "/myPath.do");
+    request = new MockRequest("GET", "/myPath.do");
     request.addParameter("view", "other");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myOtherView");
 
-    request = new HttpMockRequestImpl("GET", "/myPath.do");
+    request = new MockRequest("GET", "/myPath.do");
     request.addParameter("view", "my");
     request.addParameter("lang", "de");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myLangView");
 
-    request = new HttpMockRequestImpl("GET", "/myPath.do");
+    request = new MockRequest("GET", "/myPath.do");
     request.addParameter("surprise", "!");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -703,22 +703,22 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void relativePathDispatchingController() throws Exception {
     initDispatcher(MyRelativePathDispatchingController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myApp/myHandle");
+    MockRequest request = new MockRequest("GET", "/myApp/myHandle");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
 
-    request = new HttpMockRequestImpl("GET", "/myApp/myOther");
+    request = new MockRequest("GET", "/myApp/myOther");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myOtherView");
 
-    request = new HttpMockRequestImpl("GET", "/myApp/myLang");
+    request = new MockRequest("GET", "/myApp/myLang");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myLangView");
 
-    request = new HttpMockRequestImpl("GET", "/myApp/surprise.do");
+    request = new MockRequest("GET", "/myApp/surprise.do");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
@@ -728,22 +728,22 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void relativeMethodPathDispatchingController() throws Exception {
     initDispatcher(MyRelativeMethodPathDispatchingController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myApp/myHandle");
+    MockRequest request = new MockRequest("GET", "/myApp/myHandle");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
 
-    request = new HttpMockRequestImpl("GET", "/yourApp/myOther");
+    request = new MockRequest("GET", "/yourApp/myOther");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myOtherView");
 
-    request = new HttpMockRequestImpl("GET", "/hisApp/myLang");
+    request = new MockRequest("GET", "/hisApp/myLang");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myLangView");
 
-    request = new HttpMockRequestImpl("GET", "/herApp/surprise.do");
+    request = new MockRequest("GET", "/herApp/surprise.do");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -757,7 +757,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     initDispatcher(MyNullCommandController.class);
     getMockHandler().start();
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/myPath");
+    MockRequest request = new MockRequest("GET", "/myPath");
     request.setUserPrincipal(new OtherPrincipal());
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -777,12 +777,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void unmappedPathMapping() throws Exception {
     initDispatcher(UnmappedPathController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bogus-unmapped");
+    MockRequest request = new MockRequest("GET", "/bogus-unmapped");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(404);
 
-    request = new HttpMockRequestImpl("GET", "");
+    request = new MockRequest("GET", "");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
@@ -793,12 +793,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void explicitAndEmptyPathsControllerMapping() throws Exception {
     initDispatcher(ExplicitAndEmptyPathsController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("get");
 
-    request = new HttpMockRequestImpl("GET", "");
+    request = new MockRequest("GET", "");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("get");
@@ -808,7 +808,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void pathOrdering() throws Exception {
     initDispatcher(PathOrderingController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/dir/myPath1.do");
+    MockRequest request = new MockRequest("GET", "/dir/myPath1.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("method1");
@@ -818,7 +818,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void requestBodyResponseBody() throws Exception {
     initDispatcher(RequestResponseBodyController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
@@ -833,7 +833,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void httpPatch() throws Exception {
     initDispatcher(RequestResponseBodyController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PATCH", "/something");
+    MockRequest request = new MockRequest("PATCH", "/something");
     String requestBody = "Hello world!";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
@@ -850,7 +850,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(new StringHttpMessageConverter());
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
@@ -864,7 +864,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void responseBodyWildCardMediaType() throws Exception {
     initDispatcher(RequestResponseBodyController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
@@ -882,7 +882,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(converter);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "application/pdf");
@@ -900,7 +900,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(converter);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PATCH", "/something");
+    MockRequest request = new MockRequest("PATCH", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "application/pdf");
@@ -914,7 +914,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void responseBodyNoAcceptHeader() throws Exception {
     initDispatcher(RequestResponseBodyController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
@@ -937,7 +937,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
               .getPropertyValues().add("messageConverters", new NotReadableMessageConverter()); ;
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "application/pdf");
@@ -950,7 +950,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void httpEntity() throws Exception {
     initDispatcher(ResponseEntityController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/foo");
+    MockRequest request = new MockRequest("POST", "/foo");
     String requestBody = "Hello World";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
@@ -962,7 +962,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getContentAsString()).isEqualTo(requestBody);
     assertThat(response.getHeader("MyResponseHeader")).isEqualTo("MyValue");
 
-    request = new HttpMockRequestImpl("GET", "/bar");
+    request = new MockRequest("GET", "/bar");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getHeader("MyResponseHeader")).isEqualTo("MyValue");
@@ -976,7 +976,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(new Jaxb2RootElementHttpMessageConverter());
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test-entity");
+    MockRequest request = new MockRequest("GET", "/test-entity");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
@@ -993,7 +993,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(new SimpleMessageConverter(new MediaType("application", "json"), MediaType.ALL));
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     request.setContent("Hello World".getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "text/plain; charset=utf-8");
     request.addHeader("Accept", "application/json, text/javascript, */*");
@@ -1006,7 +1006,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void responseBodyVoid() throws Exception {
     initDispatcher(ResponseBodyVoidController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/something");
+    MockRequest request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "text/*, */*");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1029,7 +1029,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(messageConverter);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("PUT", "/something");
+    MockRequest request = new MockRequest("PUT", "/something");
     String requestBody = "<b/>";
     request.setContent(requestBody.getBytes(StandardCharsets.UTF_8));
     request.addHeader("Content-Type", "application/xml; charset=utf-8");
@@ -1042,19 +1042,19 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void contentTypeHeaders() throws Exception {
     initDispatcher(ContentTypeHeadersController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/something");
+    MockRequest request = new MockRequest("POST", "/something");
     request.setContentType("application/pdf");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("pdf");
 
-    request = new HttpMockRequestImpl("POST", "/something");
+    request = new MockRequest("POST", "/something");
     request.setContentType("text/html");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("text");
 
-    request = new HttpMockRequestImpl("POST", "/something");
+    request = new MockRequest("POST", "/something");
     request.setContentType("application/xml");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1065,19 +1065,19 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void consumes() throws Exception {
     initDispatcher(ConsumesController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/something");
+    MockRequest request = new MockRequest("POST", "/something");
     request.setContentType("application/pdf");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("pdf");
 
-    request = new HttpMockRequestImpl("POST", "/something");
+    request = new MockRequest("POST", "/something");
     request.setContentType("text/html");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("text");
 
-    request = new HttpMockRequestImpl("POST", "/something");
+    request = new MockRequest("POST", "/something");
     request.setContentType("application/xml");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1088,13 +1088,13 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void negatedContentTypeHeaders() throws Exception {
     initDispatcher(NegatedContentTypeHeadersController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/something");
+    MockRequest request = new MockRequest("POST", "/something");
     request.setContentType("application/pdf");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("pdf");
 
-    request = new HttpMockRequestImpl("POST", "/something");
+    request = new MockRequest("POST", "/something");
     request.setContentType("text/html");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1105,31 +1105,31 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void acceptHeaders() throws Exception {
     initDispatcher(AcceptHeadersController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/something");
+    MockRequest request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "text/html");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("html");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "application/xml");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("xml");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "application/xml, text/html");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("xml");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "text/html;q=0.9, application/xml");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("xml");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "application/msword");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1143,37 +1143,37 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerSingleton(new Jaxb2RootElementHttpMessageConverter());
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/something");
+    MockRequest request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "text/html");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("html");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "application/xml");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("xml");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "application/xml, text/html");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("xml");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "text/html;q=0.9, application/xml");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("xml");
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "application/msword");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(406);
 
-    request = new HttpMockRequestImpl("GET", "/something");
+    request = new MockRequest("GET", "/something");
     request.addHeader("Accept", "text/csv,application/problem+json");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1186,7 +1186,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void responseStatus() throws Exception {
     initDispatcher(ResponseStatusController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/something");
+    MockRequest request = new MockRequest("GET", "/something");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("something");
@@ -1198,7 +1198,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void bindingCookieValue() throws Exception {
     initDispatcher(BindingCookieValueController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test");
+    MockRequest request = new MockRequest("GET", "/test");
     request.setCookies(new Cookie("date", "2008-11-18"));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1209,12 +1209,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void ambiguousParams() throws Exception {
     initDispatcher(AmbiguousParamsController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test");
+    MockRequest request = new MockRequest("GET", "/test");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("noParams");
 
-    request = new HttpMockRequestImpl("GET", "/test");
+    request = new MockRequest("GET", "/test");
     request.addParameter("myParam", "42");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1225,7 +1225,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void ambiguousPathAndHttpMethod() throws Exception {
     initDispatcher(AmbiguousPathAndHttpMethodController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bug/EXISTING");
+    MockRequest request = new MockRequest("GET", "/bug/EXISTING");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
@@ -1236,7 +1236,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void bridgeMethods() throws Exception {
     initDispatcher(TestControllerImpl.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/method");
+    MockRequest request = new MockRequest("GET", "/method");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
   }
@@ -1245,7 +1245,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void bridgeMethodsWithMultipleInterfaces() throws Exception {
     initDispatcher(ArticleController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/method");
+    MockRequest request = new MockRequest("GET", "/method");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
   }
@@ -1254,7 +1254,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void requestParamMap() throws Exception {
     initDispatcher(RequestParamMapController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/map");
+    MockRequest request = new MockRequest("GET", "/map");
     request.addParameter("key1", "value1");
     request.addParameter("key2", "value21", "value22");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1273,7 +1273,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void requestHeaderMap() throws Exception {
     initDispatcher(RequestHeaderMapController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/map");
+    MockRequest request = new MockRequest("GET", "/map");
     request.addHeader("Content-Type", "text/html");
     request.addHeader("Custom-Header", new String[] { "value21", "value22" });
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1301,12 +1301,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void requestMappingInterface() throws Exception {
     initDispatcher(IMyControllerImpl.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/handle");
+    MockRequest request = new MockRequest("GET", "/handle");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("handle null");
 
-    request = new HttpMockRequestImpl("GET", "/handle");
+    request = new MockRequest("GET", "/handle");
     request.addParameter("p", "value");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1324,12 +1324,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/handle");
+    MockRequest request = new MockRequest("GET", "/handle");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("handle null");
 
-    request = new HttpMockRequestImpl("GET", "/handle");
+    request = new MockRequest("GET", "/handle");
     request.addParameter("p", "value");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1340,7 +1340,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void requestMappingBaseClass() throws Exception {
     initDispatcher(MyAbstractControllerImpl.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/handle");
+    MockRequest request = new MockRequest("GET", "/handle");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("handle");
@@ -1351,7 +1351,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void trailingSlash() throws Exception {
     initDispatcher(TrailingSlashController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo/");
+    MockRequest request = new MockRequest("GET", "/foo/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("templatePath");
@@ -1361,7 +1361,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void customMapEditor() throws Exception {
     initDispatcher(CustomMapEditorController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/handle");
+    MockRequest request = new MockRequest("GET", "/handle");
     request.addParameter("map", "bar");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
@@ -1374,7 +1374,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void multipartFileAsSingleString() throws Exception {
     initDispatcher(MultipartController.class);
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.setRequestURI("/singleString");
     request.addPart(new MockMultipartFile("content", "Juergen".getBytes()));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1386,7 +1386,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void regularParameterAsSingleString() throws Exception {
     initDispatcher(MultipartController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setRequestURI("/singleString");
     request.setMethod("POST");
     request.addParameter("content", "Juergen");
@@ -1399,7 +1399,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void multipartFileAsStringArray() throws Exception {
     initDispatcher(MultipartController.class);
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.setRequestURI("/stringArray");
     request.addPart(new MockMultipartFile("content", "Juergen".getBytes()));
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1411,7 +1411,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void regularParameterAsStringArray() throws Exception {
     initDispatcher(MultipartController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setRequestURI("/stringArray");
     request.setMethod("POST");
     request.addParameter("content", "Juergen");
@@ -1424,7 +1424,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void multipartFilesAsStringArray() throws Exception {
     initDispatcher(MultipartController.class);
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.setRequestURI("/stringArray");
     request.addPart(new MockMultipartFile("content", "Juergen".getBytes()));
     request.addPart(new MockMultipartFile("content", "Eva".getBytes()));
@@ -1437,7 +1437,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void regularParametersAsStringArray() throws Exception {
     initDispatcher(MultipartController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setRequestURI("/stringArray");
     request.setMethod("POST");
     request.addParameter("content", "Juergen");
@@ -1458,7 +1458,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setRequestURI("/integerArray");
     request.setMethod("POST");
     request.addParameter("content", "1,2");
@@ -1471,7 +1471,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void testMatchWithoutMethodLevelPath() throws Exception {
     initDispatcher(NoPathGetAndM2PostController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/t1/m2");
+    MockRequest request = new MockRequest("GET", "/t1/m2");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getStatus()).isEqualTo(405);
@@ -1482,7 +1482,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     initDispatcher(HeadersConditionController.class);
 
     // No "Accept" header
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1490,7 +1490,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getForwardedUrl()).isEqualTo("home");
 
     // Accept "*/*"
-    request = new HttpMockRequestImpl("GET", "/");
+    request = new MockRequest("GET", "/");
     request.addHeader("Accept", "*/*");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1499,7 +1499,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getForwardedUrl()).isEqualTo("home");
 
     // Accept "application/json"
-    request = new HttpMockRequestImpl("GET", "/");
+    request = new MockRequest("GET", "/");
     request.addHeader("Accept", "application/json");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1513,7 +1513,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void redirectAttribute() throws Exception {
     ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/messages");
+    MockRequest request = new MockRequest("POST", "/messages");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1528,7 +1528,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 //    assertThat(RequestContextUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
 
     // POST -> success
-    request = new HttpMockRequestImpl("POST", "/messages");
+    request = new MockRequest("POST", "/messages");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
     request.addParameter("name", "Jeff");
@@ -1541,7 +1541,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(RequestContextUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
 
     // GET after POST
-    request = new HttpMockRequestImpl("GET", "/messages/1");
+    request = new MockRequest("GET", "/messages/1");
     request.setQueryString("name=value");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
@@ -1556,7 +1556,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void flashAttributesWithResponseEntity() throws Exception {
     ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/messages-response-entity");
+    MockRequest request = new MockRequest("POST", "/messages-response-entity");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     getMockHandler().service(request, response);
@@ -1569,7 +1569,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(RequestContextUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
 
     // GET after POST
-    request = new HttpMockRequestImpl("GET", "/messages/1");
+    request = new MockRequest("GET", "/messages/1");
     request.setQueryString("name=value");
     request.setCookies(new Cookie("SESSION", session.getId()));
 
@@ -1588,7 +1588,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("controller", beanDef);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     request.addParameter("param", "1");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1605,7 +1605,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void restController() throws Exception {
     initDispatcher(ThisWillActuallyRun.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("Hello World!");
@@ -1615,7 +1615,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void responseAsHttpHeaders() throws Exception {
     initDispatcher(HttpHeadersResponseController.class);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    getMockHandler().service(new HttpMockRequestImpl("POST", "/"), response);
+    getMockHandler().service(new MockRequest("POST", "/"), response);
 
     assertThat(response.getStatus()).as("Wrong status code").isEqualTo(MockHttpResponseImpl.SC_CREATED);
     assertThat(response.getHeaderNames().size()).as("Wrong number of headers").isEqualTo(1);
@@ -1627,7 +1627,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void responseAsHttpHeadersNoHeader() throws Exception {
     initDispatcher(HttpHeadersResponseController.class);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
-    getMockHandler().service(new HttpMockRequestImpl("POST", "/empty"), response);
+    getMockHandler().service(new MockRequest("POST", "/empty"), response);
 
     assertThat(response.getStatus()).as("Wrong status code").isEqualTo(MockHttpResponseImpl.SC_CREATED);
     assertThat(response.getHeaderNames().size()).as("Wrong number of headers").isEqualTo(0);
@@ -1639,7 +1639,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     initDispatcher(TextRestController.class);
 
     byte[] content = "alert('boo')".getBytes(StandardCharsets.ISO_8859_1);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/a1.html");
+    MockRequest request = new MockRequest("GET", "/a1.html");
     request.setContent(content);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
@@ -1661,7 +1661,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     });
 
     byte[] content = "alert('boo')".getBytes(StandardCharsets.ISO_8859_1);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/a2.html");
+    MockRequest request = new MockRequest("GET", "/a2.html");
     request.setContent(content);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
@@ -1678,7 +1678,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     initDispatcher(TextRestController.class);
 
     byte[] content = "alert('boo')".getBytes(StandardCharsets.ISO_8859_1);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/a3.html");
+    MockRequest request = new MockRequest("GET", "/a3.html");
     request.setContent(content);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
@@ -1701,7 +1701,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     });
 
     byte[] content = "body".getBytes(StandardCharsets.ISO_8859_1);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/a4");
+    MockRequest request = new MockRequest("GET", "/a4");
     request.addParameter("format", "css");
     request.setContent(content);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1719,7 +1719,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void modelAndViewWithStatus() throws Exception {
     initDispatcher(ModelAndViewController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1731,7 +1731,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void modelAndViewWithStatusForRedirect() throws Exception {
     initDispatcher(ModelAndViewController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/redirect");
+    MockRequest request = new MockRequest("GET", "/redirect");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1744,7 +1744,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void modelAndViewWithStatusInExceptionHandler() throws Exception {
     initDispatcher(ModelAndViewController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/exception");
+    MockRequest request = new MockRequest("GET", "/exception");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1757,7 +1757,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void httpHead() throws Exception {
     initDispatcher(ResponseEntityController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("HEAD", "/baz");
+    MockRequest request = new MockRequest("HEAD", "/baz");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1767,7 +1767,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getContentAsByteArray().length).isEqualTo(0);
 
     // Now repeat with GET
-    request = new HttpMockRequestImpl("GET", "/baz");
+    request = new MockRequest("GET", "/baz");
     response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1781,7 +1781,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void httpHeadExplicit() throws Exception {
     initDispatcher(ResponseEntityController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("HEAD", "/stores");
+    MockRequest request = new MockRequest("HEAD", "/stores");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1793,7 +1793,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void httpOptions() throws Exception {
     initDispatcher(ResponseEntityController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/baz");
+    MockRequest request = new MockRequest("OPTIONS", "/baz");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 
@@ -1806,7 +1806,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBinding() throws Exception {
     initDispatcher(DataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1818,7 +1818,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithPathVariable() throws Exception {
     initDispatcher(PathVariableDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind/true");
+    MockRequest request = new MockRequest("GET", "/bind/true");
     request.addParameter("param1", "value1");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1829,7 +1829,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithMultipartFile() throws Exception {
     initDispatcher(MultipartFileDataClassController.class);
 
-    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
+    MultipartMockRequest request = new MultipartMockRequest();
     request.setRequestURI("/bind");
     request.addPart(new MockMultipartFile("param1", "value1".getBytes(StandardCharsets.UTF_8)));
     request.addParameter("param2", "true");
@@ -1842,7 +1842,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithAdditionalSetter() throws Exception {
     initDispatcher(DataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("param3", "3");
@@ -1862,7 +1862,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       wac.registerBeanDefinition("handlerAdapter", mappingDef);
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("param3", "3");
@@ -1875,7 +1875,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithResult() throws Exception {
     initDispatcher(ValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", " value1");
     request.addParameter("param2", "true");
     request.addParameter("param3", "3");
@@ -1888,7 +1888,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithOptionalParameter() throws Exception {
     initDispatcher(ValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", " value1");
     request.addParameter("param2", "true");
     request.addParameter("optionalParam", "8");
@@ -1901,7 +1901,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithMissingParameter() throws Exception {
     initDispatcher(ValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", " value1");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1912,7 +1912,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithConversionError() throws Exception {
     initDispatcher(ValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", " value1");
     request.addParameter("param2", "x");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1924,7 +1924,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithValidationError() throws Exception {
     initDispatcher(ValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param2", "true");
     request.addParameter("param3", "0");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1936,7 +1936,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithValidationErrorAndConversionError() throws Exception {
     initDispatcher(ValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param2", "x");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -1947,7 +1947,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithNullable() throws Exception {
     initDispatcher(NullableDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("param3", "3");
@@ -1960,7 +1960,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithNullableAndConversionError() throws Exception {
     initDispatcher(NullableDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "x");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1972,7 +1972,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithOptional() throws Exception {
     initDispatcher(OptionalDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("param3", "3");
@@ -1985,7 +1985,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithOptionalAndConversionError() throws Exception {
     initDispatcher(OptionalDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "x");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -1997,7 +1997,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithFieldMarker() throws Exception {
     initDispatcher(DataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("_param2", "on");
@@ -2010,7 +2010,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithFieldMarkerFallback() throws Exception {
     initDispatcher(DataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("_param2", "on");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -2022,7 +2022,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithFieldDefault() throws Exception {
     initDispatcher(DataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("!param2", "false");
@@ -2035,7 +2035,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithFieldDefaultFallback() throws Exception {
     initDispatcher(DataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("!param2", "false");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -2047,7 +2047,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataClassBindingWithLocalDate() throws Exception {
     initDispatcher(DateClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("date", "2010-01-01");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
@@ -2058,7 +2058,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void dataRecordBinding() throws Exception {
     initDispatcher(DataRecordController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("param2", "true");
     request.addParameter("param3", "3");
@@ -2071,7 +2071,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBinding() throws Exception {
     initDispatcher(NestedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param1", "nestedValue1");
     request.addParameter("nestedParam2.param2", "true");
@@ -2084,7 +2084,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithAdditionalSetter() throws Exception {
     initDispatcher(NestedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param1", "nestedValue1");
     request.addParameter("nestedParam2.param2", "true");
@@ -2098,7 +2098,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithOptionalParameter() throws Exception {
     initDispatcher(NestedValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param1", "nestedValue1");
     request.addParameter("nestedParam2.param2", "true");
@@ -2112,7 +2112,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithMissingParameter() throws Exception {
     initDispatcher(NestedValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param1", "nestedValue1");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -2124,7 +2124,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithConversionError() throws Exception {
     initDispatcher(NestedValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param1", "nestedValue1");
     request.addParameter("nestedParam2.param2", "x");
@@ -2137,7 +2137,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithValidationError() throws Exception {
     initDispatcher(NestedValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param2", "true");
     request.addParameter("nestedParam2.param3", "0");
@@ -2150,7 +2150,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithValidationErrorAndConversionError() throws Exception {
     initDispatcher(NestedValidatedDataClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param2", "x");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -2162,7 +2162,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   void nestedDataClassBindingWithDataAndLocalDate() throws Exception {
     initDispatcher(NestedDataAndDateClassController.class);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/bind");
+    MockRequest request = new MockRequest("GET", "/bind");
     request.addParameter("param1", "value1");
     request.addParameter("nestedParam2.param1", "nestedValue1");
     request.addParameter("nestedParam2.param2", "true");
@@ -2183,7 +2183,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
+    MockRequest request = new MockRequest("GET", "/foo");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     getMockHandler().service(request, response);
 

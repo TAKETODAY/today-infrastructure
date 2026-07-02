@@ -21,7 +21,7 @@ package infra.test.web.mock.assertj;
 import org.assertj.core.api.AssertProvider;
 import org.jspecify.annotations.Nullable;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.web.mock.MvcResult;
 
@@ -63,9 +63,9 @@ public interface MvcTestResult extends AssertProvider<MvcTestResultAssert> {
   MvcResult getMvcResult();
 
   /**
-   * Return the performed {@linkplain  HttpMockRequestImpl request}.
+   * Return the performed {@linkplain  MockRequest request}.
    */
-  default HttpMockRequestImpl getRequest() {
+  default MockRequest getRequest() {
     return getMvcResult().getRequest();
   }
 

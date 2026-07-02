@@ -36,7 +36,7 @@ import infra.core.io.UrlResource;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ExceptionUtils;
@@ -290,7 +290,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private HttpMockRequestImpl request;
+    private MockRequest request;
 
     private MockHttpResponseImpl response;
     private MockRequestContext requestContext;
@@ -301,7 +301,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
+      this.request = new MockRequest(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -397,7 +397,7 @@ public class ResourceHttpRequestHandlerTests {
       handler.setLocations(paths);
       handler.afterPropertiesSet();
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext, "GET", "");
+      MockRequest request = new MockRequest(mockContext, "GET", "");
       request.setRequestURI("foo.css");
       handler.handleRequest(new MockRequestContext(null, request, response));
 
@@ -416,7 +416,7 @@ public class ResourceHttpRequestHandlerTests {
     @Test
     void testResourceNotFound() throws Throwable {
       for (HttpMethod method : HttpMethod.values()) {
-        this.request = new HttpMockRequestImpl("GET", "");
+        this.request = new MockRequest("GET", "");
         this.request.setRequestURI("not-there.css");
         this.request.setMethod(method.name());
         this.response = new MockHttpResponseImpl();
@@ -433,7 +433,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private HttpMockRequestImpl request;
+    private MockRequest request;
 
     private MockHttpResponseImpl response;
 
@@ -445,7 +445,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
+      this.request = new MockRequest(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -628,7 +628,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private HttpMockRequestImpl request;
+    private MockRequest request;
 
     private MockHttpResponseImpl response;
     private MockRequestContext requestContext;
@@ -638,7 +638,7 @@ public class ResourceHttpRequestHandlerTests {
       TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
+      this.request = new MockRequest(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -782,7 +782,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private HttpMockRequestImpl request;
+    private MockRequest request;
 
     private MockHttpResponseImpl response;
 
@@ -793,7 +793,7 @@ public class ResourceHttpRequestHandlerTests {
       TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
+      this.request = new MockRequest(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -896,7 +896,7 @@ public class ResourceHttpRequestHandlerTests {
     void shouldRejectPathWithTraversal() throws Throwable {
       this.handler.afterPropertiesSet();
       for (HttpMethod method : HttpMethod.values()) {
-        this.request = new HttpMockRequestImpl("GET", "");
+        this.request = new MockRequest("GET", "");
         this.response = new MockHttpResponseImpl();
         shouldRejectPathWithTraversal(method);
       }

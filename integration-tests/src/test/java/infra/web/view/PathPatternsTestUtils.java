@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 
@@ -47,27 +47,27 @@ public abstract class PathPatternsTestUtils {
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
-      HttpMockRequestImpl servletRequest = new HttpMockRequestImpl(method, requestUri);
+      MockRequest servletRequest = new MockRequest(method, requestUri);
       return new MockRequestContext(context, servletRequest, new MockHttpResponseImpl());
     }
     else {
-      HttpMockRequestImpl servletRequest = new HttpMockRequestImpl(method, path);
+      MockRequest servletRequest = new MockRequest(method, path);
       return new MockRequestContext(context, servletRequest, new MockHttpResponseImpl());
     }
   }
 
-  public static HttpMockRequestImpl initRequest(String method, String requestUri) {
+  public static MockRequest initRequest(String method, String requestUri) {
     return initRequest(method, null, requestUri, true);
   }
 
-  public static HttpMockRequestImpl initRequest(String method, String requestUri, boolean parsedPatterns) {
+  public static MockRequest initRequest(String method, String requestUri, boolean parsedPatterns) {
     return initRequest(method, null, requestUri, parsedPatterns);
   }
 
   /**
    * See {@link #initRequest(String, String, boolean)}. This variant adds a contextPath.
    */
-  public static HttpMockRequestImpl initRequest(
+  public static MockRequest initRequest(
           String method, @Nullable String contextPath, String path, boolean parsedPatterns) {
 
     return initRequest(method, contextPath, path, parsedPatterns, null);
@@ -78,11 +78,11 @@ public abstract class PathPatternsTestUtils {
    * and a post-construct initializer to apply further changes before the
    * lookupPath is resolved.
    */
-  public static HttpMockRequestImpl initRequest(
+  public static MockRequest initRequest(
           String method, @Nullable String contextPath, String path,
-          boolean parsedPatterns, @Nullable Consumer<HttpMockRequestImpl> postConstructInitializer) {
+          boolean parsedPatterns, @Nullable Consumer<MockRequest> postConstructInitializer) {
 
-    HttpMockRequestImpl request = createRequest0(method, contextPath, path);
+    MockRequest request = createRequest0(method, contextPath, path);
     if (postConstructInitializer != null) {
       postConstructInitializer.accept(request);
     }
@@ -90,13 +90,13 @@ public abstract class PathPatternsTestUtils {
     return request;
   }
 
-  private static HttpMockRequestImpl createRequest0(String method, @Nullable String contextPath, String path) {
+  private static MockRequest createRequest0(String method, @Nullable String contextPath, String path) {
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
-      return new HttpMockRequestImpl(method, requestUri);
+      return new MockRequest(method, requestUri);
     }
     else {
-      return new HttpMockRequestImpl(method, path);
+      return new MockRequest(method, path);
     }
   }
 

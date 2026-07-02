@@ -24,8 +24,8 @@ import java.util.List;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 
@@ -51,7 +51,7 @@ class LiteWebJarsResourceResolverTests {
 
   private final ResourceResolvingChain chain = mock();
 
-  private final HttpMockRequest request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   private final MockRequestContext requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
 

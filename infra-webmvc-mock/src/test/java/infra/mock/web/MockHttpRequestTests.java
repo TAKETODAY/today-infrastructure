@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Unit tests for {@link HttpMockRequestImpl}.
+ * Unit tests for {@link MockRequest}.
  *
  * @author Rick Evans
  * @author Mark Fisher
@@ -57,12 +57,12 @@ class MockHttpRequestTests {
 
   private static final String HOST = "Host";
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   @Test
   void protocolAndScheme() {
-    assertThat(request.getProtocol()).isEqualTo(HttpMockRequestImpl.DEFAULT_PROTOCOL);
-    assertThat(request.getScheme()).isEqualTo(HttpMockRequestImpl.DEFAULT_SCHEME);
+    assertThat(request.getProtocol()).isEqualTo(MockRequest.DEFAULT_PROTOCOL);
+    assertThat(request.getScheme()).isEqualTo(MockRequest.DEFAULT_SCHEME);
     request.setProtocol("HTTP/2.0");
     request.setScheme("https");
     assertThat(request.getProtocol()).isEqualTo("HTTP/2.0");
@@ -83,11 +83,11 @@ class MockHttpRequestTests {
 
   @Test
   void readEmptyInputStreamWorksAcrossRequests() throws IOException {
-    HttpMockRequestImpl firstRequest = new HttpMockRequestImpl();
+    MockRequest firstRequest = new MockRequest();
     firstRequest.getInputStream().readAllBytes();
     firstRequest.getInputStream().close();
 
-    HttpMockRequestImpl secondRequest = new HttpMockRequestImpl();
+    MockRequest secondRequest = new MockRequest();
     secondRequest.getInputStream().readAllBytes();
     secondRequest.getInputStream().close();
   }
@@ -327,7 +327,7 @@ class MockHttpRequestTests {
       Locale newDefaultLocale = originalDefaultLocale.equals(Locale.GERMANY) ? Locale.FRANCE : Locale.GERMANY;
       Locale.setDefault(newDefaultLocale);
       // Create the request after changing the default locale.
-      HttpMockRequestImpl request = new HttpMockRequestImpl();
+      MockRequest request = new MockRequest();
       assertThat(newDefaultLocale.equals(request.getLocale())).isFalse();
       assertThat(request.getLocale()).isEqualTo(Locale.ENGLISH);
     }

@@ -48,7 +48,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Conventions;
 import infra.core.io.ClassPathResource;
 import infra.lang.Assert;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.CookieSessionIdResolver;
 import infra.session.MapSession;
@@ -101,7 +101,7 @@ public class SessionScopeTests {
 
   @Test
   public void getFromScope() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockRequestContext requestAttributes = getContext(request);
     Session session = requestAttributes.getSession();
 
@@ -122,7 +122,7 @@ public class SessionScopeTests {
   @Test
   public void destructionAtSessionTermination() throws Exception {
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     MockRequestContext requestAttributes = getContext(request);
     Session session = requestAttributes.getSession();
@@ -137,7 +137,7 @@ public class SessionScopeTests {
     assertThat(bean.wasDestroyed()).isTrue();
   }
 
-  private MockRequestContext getContext(HttpMockRequestImpl request) {
+  private MockRequestContext getContext(MockRequest request) {
     MockRequestContext requestAttributes = new MockRequestContext(
             context, request, new MockHttpResponseImpl(), new DispatcherHandler(context));
 
@@ -164,7 +164,7 @@ public class SessionScopeTests {
 
   @Test
   void getConversationIdReturnsNullWhenNoSession() {
-    RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(),
+    RequestContextHolder.set(new MockRequestContext(context, new MockRequest(),
             new MockHttpResponseImpl(), new DispatcherHandler(context)));
 
     SessionScope sessionScope = new SessionScope();
@@ -175,7 +175,7 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithRequestKey() {
-    MockRequestContext requestContext = new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+    MockRequestContext requestContext = new MockRequestContext(context, new MockRequest(), new MockHttpResponseImpl());
     RequestContextHolder.set(requestContext);
 
     SessionScope sessionScope = new SessionScope();
@@ -186,7 +186,7 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithSessionKey() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockRequestContext requestAttributes = getContext(request);
     Session session = requestAttributes.getSession();
 
@@ -198,7 +198,7 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithInvalidKey() {
-    RequestContextHolder.set(new MockRequestContext(context, new HttpMockRequestImpl(), new MockHttpResponseImpl()));
+    RequestContextHolder.set(new MockRequestContext(context, new MockRequest(), new MockHttpResponseImpl()));
 
     SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject("invalidKey");
@@ -218,7 +218,7 @@ public class SessionScopeTests {
 
   @Test
   void registerDestructionCallbackStoresCallback() throws Exception {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockRequestContext requestAttributes = getContext(request);
     Session session = requestAttributes.getSession();
 
@@ -261,7 +261,7 @@ public class SessionScopeTests {
 
   @Test
   void getWithObjectFactoryCreatesAndStoresBean() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockRequestContext requestAttributes = getContext(request);
     RequestContextHolder.set(requestAttributes);
 
@@ -279,7 +279,7 @@ public class SessionScopeTests {
 
   @Test
   void getReturnsExistingBeanFromSession() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockRequestContext requestAttributes = getContext(request);
     RequestContextHolder.set(requestAttributes);
 
@@ -300,7 +300,7 @@ public class SessionScopeTests {
 
   @Test
   void removeReturnsAndRemovesBeanFromSession() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     MockRequestContext requestAttributes = getContext(request);
     RequestContextHolder.set(requestAttributes);
 
@@ -377,7 +377,7 @@ public class SessionScopeTests {
 
   private void doTestDestructionWithSessionSerialization(boolean beanNameReset) throws Exception {
     Serializable serializedState = null;
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     MockRequestContext requestAttributes = getContext(request);
     Session session = requestAttributes.getSession();
@@ -404,7 +404,7 @@ public class SessionScopeTests {
 
     Session finalSession = session;
     sessions.replaceAll((s, webSession) -> finalSession);
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
 
     requestAttributes = getContext(request);
 

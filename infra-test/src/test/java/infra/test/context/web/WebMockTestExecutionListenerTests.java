@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 
 import infra.context.ApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.context.TestContext;
@@ -58,7 +58,7 @@ class WebMockTestExecutionListenerTests {
     given(wac.getMockContext()).willReturn(mockContext);
     given(testContext.getApplicationContext()).willReturn(wac);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext);
+    MockRequest request = new MockRequest(mockContext);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     RequestContext servletWebRequest = new MockRequestContext(null, request, response);
 

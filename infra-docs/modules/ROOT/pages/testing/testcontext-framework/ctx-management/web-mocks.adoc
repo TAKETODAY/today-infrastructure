@@ -3,7 +3,7 @@
 
 为了提供全面的 Web 测试支持，TestContext 框架具有默认启用的 `WebMockTestExecutionListener`。
 当针对 `WebApplicationContext` 进行测试时，此 xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`]
-在每个测试方法之前使用 Infra Web 的 `RequestContextHolder` 设置默认的线程本地状态 创建 `HttpMockRequestImpl`、`MockHttpResponseImpl` 和 `MockRequestContext`。
+在每个测试方法之前使用 Infra Web 的 `RequestContextHolder` 设置默认的线程本地状态 创建 `MockRequest`、`MockHttpResponseImpl` 和 `MockRequestContext`。
 `WebMockTestExecutionListener` 还确保可以将
 `MockHttpResponseImpl` 和 `MockRequestContext` 注入到测试实例中，并且一旦测试完成，它就会清理线程本地状态。
 

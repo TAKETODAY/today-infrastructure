@@ -36,7 +36,7 @@ import infra.test.json.JsonConverterDelegate;
 import infra.test.web.UriAssert;
 
 /**
- * Extension of {@link AbstractHttpMockResponseAssert} for
+ * Extension of {@link AbstractResponseAssert} for
  * {@link MockHttpResponseImpl}.
  *
  * @param <SELF> the type of assertions
@@ -44,12 +44,12 @@ import infra.test.web.UriAssert;
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractMockHttpMockResponseAssert<SELF extends AbstractMockHttpMockResponseAssert<SELF, ACTUAL>, ACTUAL>
-        extends AbstractHttpMockResponseAssert<MockHttpResponseImpl, SELF, ACTUAL> {
+public abstract class AbstractMockResponseAssert<SELF extends AbstractMockResponseAssert<SELF, ACTUAL>, ACTUAL>
+        extends AbstractResponseAssert<MockHttpResponseImpl, SELF, ACTUAL> {
 
   private final @Nullable JsonConverterDelegate converterDelegate;
 
-  protected AbstractMockHttpMockResponseAssert(
+  protected AbstractMockResponseAssert(
           @Nullable JsonConverterDelegate converterDelegate, ACTUAL actual, Class<?> selfType) {
 
     super(actual, selfType);

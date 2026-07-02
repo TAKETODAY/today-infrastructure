@@ -29,7 +29,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.session.config.EnableSession;
 import infra.test.annotation.DirtiesContext;
 import infra.test.context.ContextConfiguration;
@@ -74,7 +74,7 @@ public class RequestContextHolderTests {
   private WebApplicationContext wac;
 
   @Autowired
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   @Autowired
   private RequestScopedController requestScopedController;

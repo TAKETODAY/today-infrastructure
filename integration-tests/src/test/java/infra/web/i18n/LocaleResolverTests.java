@@ -31,7 +31,7 @@ import infra.core.i18n.LocaleContext;
 import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.DefaultSessionManager;
@@ -88,7 +88,7 @@ public class LocaleResolverTests {
     applicationContext.refresh();
     // create mocks
     MockContextImpl context = new MockContextImpl();
-    HttpMockRequestImpl request = new HttpMockRequestImpl(context);
+    MockRequest request = new MockRequest(context);
     request.addPreferredLocale(Locale.UK);
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     MockRequestContext requestContext = new MockRequestContext(applicationContext, request, response, new DispatcherHandler(applicationContext));

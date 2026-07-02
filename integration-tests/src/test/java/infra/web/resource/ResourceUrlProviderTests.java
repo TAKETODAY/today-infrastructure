@@ -33,7 +33,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.mock.MockRequestContext;
 
@@ -76,7 +76,7 @@ public class ResourceUrlProviderTests {
 
   @Test
   void getStaticResourceUrlRequestWithQueryOrHash() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setRequestURI("/");
     MockRequestContext requestContext = new MockRequestContext(null, request, null);
 

@@ -18,18 +18,15 @@ package infra.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import infra.http.HttpHeaders;
-import infra.mock.api.MockException;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.MultipartException;
-import infra.web.server.NotMultipartRequestException;
-import infra.web.multipart.Part;
 import infra.web.multipart.AbstractMultipartRequest;
+import infra.web.multipart.Part;
 
 /**
  * For Servlet Multipart
@@ -39,7 +36,7 @@ import infra.web.multipart.AbstractMultipartRequest;
  */
 public class MockMultipartRequest extends AbstractMultipartRequest {
 
-  private final HttpMockRequest request;
+  private final MockRequest request;
 
   /**
    * Create a new ServletMultipartRequest wrapper for the given request,
@@ -48,7 +45,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
    * @param request the servlet request to wrap
    * @throws MultipartException if parsing failed
    */
-  public MockMultipartRequest(HttpMockRequest request) throws MultipartException {
+  public MockMultipartRequest(MockRequest request) throws MultipartException {
     this(request, true);
   }
 
@@ -60,14 +57,14 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
    * first access of multipart files or parameters
    * @throws MultipartException if an immediate parsing attempt failed
    */
-  public MockMultipartRequest(HttpMockRequest request, boolean lazyParsing) throws MultipartException {
+  public MockMultipartRequest(MockRequest request, boolean lazyParsing) throws MultipartException {
     this.request = request;
     if (!lazyParsing) {
       parseRequest(request);
     }
   }
 
-  private MultiValueMap<String, Part> parseRequest(HttpMockRequest request) {
+  private MultiValueMap<String, Part> parseRequest(MockRequest request) {
     try {
       Collection<Part> parts = request.getParts();
       LinkedMultiValueMap<String, Part> files = new LinkedMultiValueMap<>(parts.size());
@@ -76,12 +73,6 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
         files.add(part.getName(), part);
       }
       return files;
-    }
-    catch (IOException e) {
-      throw new MultipartException("Part parsing failed.", e);
-    }
-    catch (MockException e) {
-      throw new NotMultipartRequestException("This is not a multipart request", e);
     }
     catch (Throwable ex) {
       throw new MultipartException("Failed to parse multipart request", ex);

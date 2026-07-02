@@ -34,7 +34,7 @@ import infra.http.MediaType;
 import infra.http.server.MockServerHttpRequest;
 import infra.http.server.MockServerHttpResponse;
 import infra.lang.Constant;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,20 +126,20 @@ public class ObjectToStringHttpMessageConverterTests {
   @Test
   public void read() throws IOException {
     Short shortValue = Short.valueOf((short) 781);
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setContent(shortValue.toString().getBytes(Constant.DEFAULT_CHARSET));
     assertThat(this.converter.read(Short.class, new MockServerHttpRequest(request))).isEqualTo(shortValue);
 
     Float floatValue = Float.valueOf(123);
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setCharacterEncoding("UTF-16");
     request.setContent(floatValue.toString().getBytes("UTF-16"));
     assertThat(this.converter.read(Float.class, new MockServerHttpRequest(request))).isEqualTo(floatValue);
 
     Long longValue = Long.valueOf(55819182821331L);
-    request = new HttpMockRequestImpl();
+    request = new MockRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setCharacterEncoding("UTF-8");
     request.setContent(longValue.toString().getBytes("UTF-8"));

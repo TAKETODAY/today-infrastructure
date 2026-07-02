@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 import infra.context.ApplicationContext;
 import infra.context.support.ClassPathXmlApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
@@ -68,15 +68,15 @@ public class PathMatchingUrlHandlerMappingTests {
   void requestsWithHandlers(HandlerMapping mapping, ApplicationContext wac) throws Throwable {
     Object bean = wac.getBean("mainController");
 
-    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/welcome.html");
+    MockRequest req = new MockRequest("GET", "/welcome.html");
     HandlerExecutionChain hec = getHandler(mapping, wac, req);
     assertThat(hec.getRawHandler()).isSameAs(bean);
 
-    req = new HttpMockRequestImpl("GET", "/show.html");
+    req = new MockRequest("GET", "/show.html");
     hec = getHandler(mapping, wac, req);
     assertThat(hec.getRawHandler()).isSameAs(bean);
 
-    req = new HttpMockRequestImpl("GET", "/bookseats.html");
+    req = new MockRequest("GET", "/bookseats.html");
     hec = getHandler(mapping, wac, req);
     assertThat(hec.getRawHandler()).isSameAs(bean);
   }
@@ -90,153 +90,153 @@ public class PathMatchingUrlHandlerMappingTests {
     Object defaultBean = wac.getBean("starController");
 
     // testing some normal behavior
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/pathmatchingTest.html");
+    MockRequest request = new MockRequest("GET", "/pathmatchingTest.html");
     HandlerExecutionChain chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
             .isEqualTo("/pathmatchingTest.html");
 
     // no match, no forward slash included
-    request = new HttpMockRequestImpl("GET", "welcome.html");
+    request = new MockRequest("GET", "welcome.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
             .isEqualTo("welcome.html");
 
     // testing some ????? behavior
-    request = new HttpMockRequestImpl("GET", "/pathmatchingAA.html");
+    request = new MockRequest("GET", "/pathmatchingAA.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
             .isEqualTo("pathmatchingAA.html");
 
     // testing some ????? behavior
-    request = new HttpMockRequestImpl("GET", "/pathmatchingA.html");
+    request = new MockRequest("GET", "/pathmatchingA.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
             .isEqualTo("/pathmatchingA.html");
 
     // testing some ????? behavior
-    request = new HttpMockRequestImpl("GET", "/administrator/pathmatching.html");
+    request = new MockRequest("GET", "/administrator/pathmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
     // testing simple /**/behavior
-    request = new HttpMockRequestImpl("GET", "/administrator/test/pathmatching.html");
+    request = new MockRequest("GET", "/administrator/test/pathmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
     // this should not match because of the administratorT
-    request = new HttpMockRequestImpl("GET", "/administratort/pathmatching.html");
+    request = new MockRequest("GET", "/administratort/pathmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
     // this should match because of *.jsp
-    request = new HttpMockRequestImpl("GET", "/bla.jsp");
+    request = new MockRequest("GET", "/bla.jsp");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
     // should match because exact pattern is there
-    request = new HttpMockRequestImpl("GET", "/administrator/another/bla.xml");
+    request = new MockRequest("GET", "/administrator/another/bla.xml");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
     // should not match, because there's not .gif extension in there
-    request = new HttpMockRequestImpl("GET", "/administrator/another/bla.gif");
+    request = new MockRequest("GET", "/administrator/another/bla.gif");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
     // should match because there testlast* in there
-    request = new HttpMockRequestImpl("GET", "/administrator/test/testlastbit");
+    request = new MockRequest("GET", "/administrator/test/testlastbit");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
     // but this not, because it's testlast and not testla
-    request = new HttpMockRequestImpl("GET", "/administrator/test/testla");
+    request = new MockRequest("GET", "/administrator/test/testla");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
     if (mapping.getPatternParser() != null) {
-      request = new HttpMockRequestImpl("GET", "/administrator/testing/longer/bla");
+      request = new MockRequest("GET", "/administrator/testing/longer/bla");
       chain = getHandler(mapping, wac, request);
       assertThat(chain.getRawHandler()).isSameAs(bean);
 
-      request = new HttpMockRequestImpl("GET", "/administrator/testing/longer/test.jsp");
+      request = new MockRequest("GET", "/administrator/testing/longer/test.jsp");
       chain = getHandler(mapping, wac, request);
       assertThat(chain.getRawHandler()).isSameAs(bean);
     }
 
-    request = new HttpMockRequestImpl("GET", "/administrator/testing/longer2/notmatching/notmatching");
+    request = new MockRequest("GET", "/administrator/testing/longer2/notmatching/notmatching");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/shortpattern/testing/toolong");
+    request = new MockRequest("GET", "/shortpattern/testing/toolong");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/XXpathXXmatching.html");
+    request = new MockRequest("GET", "/XXpathXXmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/pathXXmatching.html");
+    request = new MockRequest("GET", "/pathXXmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/XpathXXmatching.html");
+    request = new MockRequest("GET", "/XpathXXmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/XXpathmatching.html");
+    request = new MockRequest("GET", "/XXpathmatching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/show12.html");
+    request = new MockRequest("GET", "/show12.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/show123.html");
+    request = new MockRequest("GET", "/show123.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/show1.html");
+    request = new MockRequest("GET", "/show1.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/reallyGood-test-is-this.jpeg");
+    request = new MockRequest("GET", "/reallyGood-test-is-this.jpeg");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/reallyGood-tst-is-this.jpeg");
+    request = new MockRequest("GET", "/reallyGood-tst-is-this.jpeg");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/testing/test.jpeg");
+    request = new MockRequest("GET", "/testing/test.jpeg");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/testing/test.jpg");
+    request = new MockRequest("GET", "/testing/test.jpg");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/anotherTest");
+    request = new MockRequest("GET", "/anotherTest");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = new HttpMockRequestImpl("GET", "/stillAnotherTest");
+    request = new MockRequest("GET", "/stillAnotherTest");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
     // there outofpattern*yeah in the pattern, so this should fail
-    request = new HttpMockRequestImpl("GET", "/outofpattern*ye");
+    request = new MockRequest("GET", "/outofpattern*ye");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/test't%20est/path'm%20atching.html");
+    request = new MockRequest("GET", "/test't%20est/path'm%20atching.html");
     chain = getHandler(mapping, wac, request);
     assertThat(chain.getRawHandler()).isSameAs(defaultBean);
 
-    request = new HttpMockRequestImpl("GET", "/test%26t%20est/path%26m%20atching.html");
+    request = new MockRequest("GET", "/test%26t%20est/path%26m%20atching.html");
     chain = getHandler(mapping, wac, request);
     if (!mapping.getPathPatternHandlerMap().isEmpty()) {
       assertThat(chain.getRawHandler())
@@ -253,7 +253,7 @@ public class PathMatchingUrlHandlerMappingTests {
   @PathPatternsParameterizedTest
   void defaultMapping(HandlerMapping mapping, ApplicationContext wac) throws Throwable {
     Object bean = wac.getBean("starController");
-    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/goggog.html");
+    MockRequest req = new MockRequest("GET", "/goggog.html");
     HandlerExecutionChain hec = getHandler(mapping, wac, req);
     assertThat(hec.getRawHandler()).isSameAs(bean);
   }
@@ -261,7 +261,7 @@ public class PathMatchingUrlHandlerMappingTests {
   @PathPatternsParameterizedTest
   void mappingExposedInRequest(HandlerMapping mapping, ApplicationContext wac) throws Throwable {
     Object bean = wac.getBean("mainController");
-    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/show.html");
+    MockRequest req = new MockRequest("GET", "/show.html");
     HandlerExecutionChain hec = getHandler(mapping, wac, req);
     assertThat(hec.getRawHandler()).isSameAs(bean);
     assertThat(req.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
@@ -269,7 +269,7 @@ public class PathMatchingUrlHandlerMappingTests {
   }
 
   private HandlerExecutionChain getHandler(
-          HandlerMapping mapping, ApplicationContext wac, HttpMockRequestImpl request)
+          HandlerMapping mapping, ApplicationContext wac, MockRequest request)
           throws Throwable {
 
     MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());

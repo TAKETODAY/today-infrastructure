@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 
 import infra.http.server.PathContainer;
 import infra.http.server.RequestPath;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,7 +63,7 @@ class PathApiVersionResolverTests {
               elements.get(3).value().matches("\\d+\\.\\d+"));
     };
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", requestUri);
+    MockRequest request = new MockRequest("GET", requestUri);
     MockRequestContext context = new MockRequestContext(null, request, null);
 
     PathApiVersionResolver resolver = new PathApiVersionResolver(1, versionPathPredicate);
@@ -72,7 +72,7 @@ class PathApiVersionResolverTests {
   }
 
   private static void testResolve(int index, String requestUri, String expected) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", requestUri);
+    MockRequest request = new MockRequest("GET", requestUri);
     MockRequestContext context = new MockRequestContext(null, request, null);
 
     String actual = new PathApiVersionResolver(index).resolveVersion(context);

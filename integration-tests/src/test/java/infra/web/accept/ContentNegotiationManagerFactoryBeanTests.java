@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockContextImpl;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.mock.MockRequestContext;
@@ -46,7 +46,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   private ContentNegotiationManagerFactoryBean factoryBean;
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   MockRequestContext webRequest;
 
@@ -55,7 +55,7 @@ class ContentNegotiationManagerFactoryBeanTests {
     TestMockContext mockContext = new TestMockContext();
     mockContext.getMimeTypes().put("foo", "application/foo");
 
-    this.mockRequest = new HttpMockRequestImpl(mockContext);
+    this.mockRequest = new MockRequest(mockContext);
     webRequest = new MockRequestContext(mockRequest);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }

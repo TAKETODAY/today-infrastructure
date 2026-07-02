@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +83,7 @@ class CompositeRequestConditionTests {
 
   @Test
   public void match() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     request.setParameter("param1", "paramValue1");
     request.addHeader("header1", "headerValue1");
 
@@ -99,7 +99,7 @@ class CompositeRequestConditionTests {
 
   @Test
   public void noMatch() {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    MockRequest request = new MockRequest("GET", "/");
     CompositeRequestCondition cond = new CompositeRequestCondition(this.param1);
     MockRequestContext context = new MockRequestContext(null, request, null);
 
@@ -109,14 +109,14 @@ class CompositeRequestConditionTests {
   @Test
   public void matchEmpty() {
     CompositeRequestCondition empty = new CompositeRequestCondition();
-    MockRequestContext context = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    MockRequestContext context = new MockRequestContext(null, new MockRequest(), null);
 
     assertThat(empty.getMatchingCondition(context)).isSameAs(empty);
   }
 
   @Test
   public void compare() {
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     CompositeRequestCondition cond1 = new CompositeRequestCondition(this.param1);
     CompositeRequestCondition cond3 = new CompositeRequestCondition(this.param3);
@@ -127,7 +127,7 @@ class CompositeRequestConditionTests {
 
   @Test
   public void compareEmpty() {
-    HttpMockRequest request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
 
     CompositeRequestCondition empty = new CompositeRequestCondition();
     CompositeRequestCondition notEmpty = new CompositeRequestCondition(this.param1);
@@ -140,7 +140,7 @@ class CompositeRequestConditionTests {
 
   @Test
   public void compareDifferentLength() {
-    MockRequestContext context = new MockRequestContext(null, new HttpMockRequestImpl(), null);
+    MockRequestContext context = new MockRequestContext(null, new MockRequest(), null);
 
     CompositeRequestCondition cond1 = new CompositeRequestCondition(this.param1);
     CompositeRequestCondition cond2 = new CompositeRequestCondition(this.param1, this.header1);

@@ -37,7 +37,7 @@ import infra.http.server.MockServerHttpResponse;
 import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
 import org.jspecify.annotations.Nullable;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.util.ReflectionUtils;
@@ -79,7 +79,7 @@ class RequestResponseBodyAdviceChainTests {
     this.paramType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), 0);
     this.returnType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), -1);
 
-    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+    MockRequest servletRequest = new MockRequest();
     this.request = new MockServerHttpRequest(servletRequest);
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
@@ -96,7 +96,7 @@ class RequestResponseBodyAdviceChainTests {
     List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
 
-    HttpInputMessage wrapped = new MockServerHttpRequest(new HttpMockRequestImpl());
+    HttpInputMessage wrapped = new MockServerHttpRequest(new MockRequest());
     given(requestAdvice.supports(this.paramType, String.class, this.converterType)).willReturn(true);
     given(requestAdvice.beforeBodyRead(ArgumentMatchers.eq(this.request), ArgumentMatchers.eq(this.paramType), ArgumentMatchers.eq(String.class),
             ArgumentMatchers.eq(this.converterType))).willReturn(wrapped);

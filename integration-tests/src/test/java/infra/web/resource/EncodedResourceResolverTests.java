@@ -33,7 +33,7 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;
 
@@ -81,7 +81,7 @@ public class EncodedResourceResolverTests {
   public void resolveGzipped(GzipSupport.GzippedFiles gzippedFiles) {
     String file = "js/foo.js";
     gzippedFiles.create(file);
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
 
     MockRequestContext requestContext = new MockRequestContext(null, request, null);
@@ -102,7 +102,7 @@ public class EncodedResourceResolverTests {
   public void resolveGzippedWithVersion(GzipSupport.GzippedFiles gzippedFiles) {
     gzippedFiles.create("foo.css");
     String file = "foo-e36d2e05253c6c7085a91522ce43a0b4.css";
-    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
     MockRequestContext requestContext = new MockRequestContext(null, request, null);
 
@@ -119,7 +119,7 @@ public class EncodedResourceResolverTests {
     // 1. Resolve, and cache .gz variant
     String file = "js/foo.js";
     gzippedFiles.create(file);
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/js/foo.js");
+    MockRequest request = new MockRequest("GET", "/js/foo.js");
     request.addHeader("Accept-Encoding", "gzip");
     MockRequestContext requestContext = new MockRequestContext(null, request, null);
 
@@ -131,7 +131,7 @@ public class EncodedResourceResolverTests {
     assertThat(condition).isTrue();
 
     // 2. Resolve unencoded resource
-    request = new HttpMockRequestImpl("GET", "/js/foo.js");
+    request = new MockRequest("GET", "/js/foo.js");
     requestContext = new MockRequestContext(null, request, null);
 
     resolved = this.resolver.resolveResource(requestContext, file, this.locations);

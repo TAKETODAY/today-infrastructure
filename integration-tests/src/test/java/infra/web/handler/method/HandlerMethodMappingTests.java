@@ -32,7 +32,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.HttpHeaders;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
@@ -87,7 +87,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/foo", this.handler, this.method1);
     this.mapping.registerMapping("/fo*", this.handler, this.method2);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
+    MockRequest request = new MockRequest("GET", "/foo");
     MockRequestContext context = new MockRequestContext(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
@@ -104,7 +104,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/fo*", this.handler, this.method1);
     this.mapping.registerMapping("/f*", this.handler, this.method2);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
+    MockRequest request = new MockRequest("GET", "/foo");
 
     MockRequestContext context = new MockRequestContext(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
@@ -125,7 +125,7 @@ public class HandlerMethodMappingTests {
 
     assertThatIllegalStateException().isThrownBy(() ->
             this.mapping.getHandlerInternal(new MockRequestContext(
-                    null, new HttpMockRequestImpl("GET", "/foo"), null)));
+                    null, new MockRequest("GET", "/foo"), null)));
   }
 
   @Test
@@ -133,7 +133,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/foo", this.handler, this.method1);
     this.mapping.registerMapping("/f??", this.handler, this.method2);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/foo");
+    MockRequest request = new MockRequest("OPTIONS", "/foo");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
 
@@ -168,7 +168,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/f?o", this.handler, this.method1);
     this.mapping.registerMapping("/fo?", this.handler, this.handler.getClass().getMethod("corsHandlerMethod"));
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/foo");
+    MockRequest request = new MockRequest("OPTIONS", "/foo");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
 
@@ -276,10 +276,10 @@ public class HandlerMethodMappingTests {
     HandlerMethod handlerMethod = new HandlerMethod(this.handler, this.method1);
 
     this.mapping.registerMapping(key, this.handler, this.method1);
-    assertThat(this.mapping.getHandlerInternal(new MockRequestContext(null, new HttpMockRequestImpl("GET", key), null))).isNotNull();
+    assertThat(this.mapping.getHandlerInternal(new MockRequestContext(null, new MockRequest("GET", key), null))).isNotNull();
 
     this.mapping.unregisterMapping(key);
-    assertThat(mapping.getHandlerInternal(new MockRequestContext(null, new HttpMockRequestImpl("GET", key), null))).isNull();
+    assertThat(mapping.getHandlerInternal(new MockRequestContext(null, new MockRequest("GET", key), null))).isNull();
     assertThat(this.mapping.mappingRegistry.getDirectPathMappings(key)).isNull();
     assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
     assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
@@ -297,7 +297,7 @@ public class HandlerMethodMappingTests {
     this.mapping.setApplicationContext(context);
     this.mapping.registerMapping(key, beanName, this.method1);
     HandlerMethod handlerMethod = this.mapping.getHandlerInternal(new MockRequestContext(
-            null, new HttpMockRequestImpl("GET", key), null));
+            null, new MockRequest("GET", key), null));
   }
 
   private static class MyHandlerMethodMapping extends AbstractHandlerMethodMapping<String> {

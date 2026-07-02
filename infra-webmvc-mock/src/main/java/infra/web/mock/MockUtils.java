@@ -26,12 +26,8 @@ import infra.core.Conventions;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.mock.api.MockRequest;
-import infra.mock.api.MockRequestWrapper;
-import infra.mock.api.MockResponse;
-import infra.mock.api.MockResponseWrapper;
-import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.MockRequest;
 import infra.util.ObjectUtils;
 import infra.web.MockIndicator;
 import infra.web.RequestContext;
@@ -55,59 +51,13 @@ public abstract class MockUtils {
   public static final String[] SUBMIT_IMAGE_SUFFIXES = { ".x", ".y" };
 
   /**
-   * Return an appropriate request object of the specified type, if available,
-   * unwrapping the given request as far as necessary.
-   *
-   * @param request the mock request to introspect
-   * @param requiredType the desired type of request object
-   * @return the matching request object, or {@code null} if none
-   * of that type is available
-   */
-  @SuppressWarnings("unchecked")
-  @Nullable
-  public static <T> T getNativeRequest(MockRequest request, @Nullable Class<T> requiredType) {
-    if (requiredType != null) {
-      if (requiredType.isInstance(request)) {
-        return (T) request;
-      }
-      else if (request instanceof MockRequestWrapper wrapper) {
-        return getNativeRequest(wrapper.getRequest(), requiredType);
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Return an appropriate response object of the specified type, if available,
-   * unwrapping the given response as far as necessary.
-   *
-   * @param response the mock response to introspect
-   * @param requiredType the desired type of response object
-   * @return the matching response object, or {@code null} if none
-   * of that type is available
-   */
-  @SuppressWarnings("unchecked")
-  @Nullable
-  public static <T> T getNativeResponse(MockResponse response, @Nullable Class<T> requiredType) {
-    if (requiredType != null) {
-      if (requiredType.isInstance(response)) {
-        return (T) response;
-      }
-      else if (response instanceof MockResponseWrapper wrapper) {
-        return getNativeResponse(wrapper.getResponse(), requiredType);
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Return an appropriate HttpMockRequest object
+   * Return an appropriate MockRequest object
    *
    * @param context the context to introspect
    * @return the matching request object
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
-  public static HttpMockRequest getMockRequest(RequestContext context) {
+  public static MockRequest getMockRequest(RequestContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getRequest();
     }
@@ -139,7 +89,7 @@ public abstract class MockUtils {
   /**
    * @since 4.0
    */
-  public static boolean isPostForm(HttpMockRequest request) {
+  public static boolean isPostForm(MockRequest request) {
     String contentType = request.getContentType();
     return contentType != null
             && HttpMethod.POST.matches(request.getMethod())

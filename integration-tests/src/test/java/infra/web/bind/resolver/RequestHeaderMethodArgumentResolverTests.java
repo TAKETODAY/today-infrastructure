@@ -33,7 +33,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.util.ReflectionUtils;
 import infra.web.BindingContext;
@@ -69,7 +69,7 @@ class RequestHeaderMethodArgumentResolverTests {
   private ResolvableMethodParameter paramUuid;
   private ResolvableMethodParameter paramUuidOptional;
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockRequestContext webRequest;
   DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
@@ -95,7 +95,7 @@ class RequestHeaderMethodArgumentResolverTests {
     paramUuid = new ResolvableMethodParameter(getParameter(method, 9));
     paramUuidOptional = new ResolvableMethodParameter(getParameter(method, 10));
 
-    mockRequest = new HttpMockRequestImpl();
+    mockRequest = new MockRequest();
     webRequest = new MockRequestContext(null, mockRequest, new MockHttpResponseImpl());
 
     // Expose request to the current thread (for SpEL expressions)

@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.PathPatternsParameterizedTest;
@@ -87,7 +87,7 @@ class RequestMappingInfoTests {
   void matchPatternsCondition(RequestMappingInfo.Builder builder) {
 
     boolean useParsedPatterns = builder.build().getPathPatternsCondition() != null;
-    HttpMockRequest request = initRequest("GET", "/foo", useParsedPatterns);
+    MockRequest request = initRequest("GET", "/foo", useParsedPatterns);
 
     RequestMappingInfo info = builder.paths("/foo*", "/bar").build();
     RequestMappingInfo expected = builder.paths("/foo*").build();
@@ -102,7 +102,7 @@ class RequestMappingInfoTests {
 
   @Test
   void matchParamsCondition() {
-    HttpMockRequestImpl request = initRequest("GET", "/foo", false);
+    MockRequest request = initRequest("GET", "/foo", false);
     request.setParameter("foo", "bar");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").params("foo=bar").build();
@@ -118,7 +118,7 @@ class RequestMappingInfoTests {
 
   @Test
   void matchHeadersCondition() {
-    HttpMockRequestImpl request = initRequest("GET", "/foo", false);
+    MockRequest request = initRequest("GET", "/foo", false);
     request.addHeader("foo", "bar");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").headers("foo=bar").build();
@@ -134,7 +134,7 @@ class RequestMappingInfoTests {
 
   @Test
   void matchConsumesCondition() {
-    HttpMockRequestImpl request = initRequest("GET", "/foo", false);
+    MockRequest request = initRequest("GET", "/foo", false);
     request.setContentType("text/plain");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").consumes("text/plain").build();
@@ -150,7 +150,7 @@ class RequestMappingInfoTests {
 
   @Test
   void matchProducesCondition() {
-    HttpMockRequestImpl request = initRequest("GET", "/foo", false);
+    MockRequest request = initRequest("GET", "/foo", false);
     request.addHeader("Accept", "text/plain");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").produces("text/plain").build();
@@ -166,7 +166,7 @@ class RequestMappingInfoTests {
 
   @Test
   void matchCustomCondition() {
-    HttpMockRequestImpl request = initRequest("GET", "/foo", false);
+    MockRequest request = initRequest("GET", "/foo", false);
     request.setParameter("foo", "bar");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").params("foo=bar").build();
@@ -186,7 +186,7 @@ class RequestMappingInfoTests {
     RequestMappingInfo oneMethod = RequestMappingInfo.paths().methods(GET).build();
     RequestMappingInfo oneMethodOneParam = RequestMappingInfo.paths().methods(GET).params("foo").build();
 
-    HttpMockRequestImpl request = initRequest("GET", "/", false);
+    MockRequest request = initRequest("GET", "/", false);
     Comparator<RequestMappingInfo> comparator = (info, otherInfo) -> info.compareTo(
             otherInfo, new MockRequestContext(null, request, null));
 
@@ -202,7 +202,7 @@ class RequestMappingInfoTests {
   @Test
 
   void compareToWithHttpHeadMapping() {
-    HttpMockRequestImpl request = initRequest("GET", "/", false);
+    MockRequest request = initRequest("GET", "/", false);
     request.setMethod("HEAD");
     request.addHeader("Accept", "application/json");
 
@@ -296,7 +296,7 @@ class RequestMappingInfoTests {
 
   @Test
   void preFlightRequest() {
-    HttpMockRequestImpl request = initRequest("OPTIONS", "/foo", false);
+    MockRequest request = initRequest("OPTIONS", "/foo", false);
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST");
 
@@ -311,8 +311,8 @@ class RequestMappingInfoTests {
     assertThat(match).as("Pre-flight should match the ACCESS_CONTROL_REQUEST_METHOD").isNull();
   }
 
-  private HttpMockRequestImpl initRequest(String method, String requestUri, boolean parsedPatterns) {
-    return new HttpMockRequestImpl(method, requestUri);
+  private MockRequest initRequest(String method, String requestUri, boolean parsedPatterns) {
+    return new MockRequest(method, requestUri);
   }
 
   @Test

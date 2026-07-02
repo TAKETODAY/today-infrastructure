@@ -30,8 +30,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.session.Session;
 import infra.util.function.SingletonSupplier;
 import infra.web.RequestContext;
@@ -39,32 +38,32 @@ import infra.web.async.DeferredResult;
 
 /**
  * Base AssertJ {@linkplain org.assertj.core.api.Assert assertions} that can be
- * applied to an {@link HttpMockRequest}.
+ * applied to an {@link MockRequest}.
  *
  * @param <SELF> the type of assertions
  * @param <ACTUAL> the type of the object to assert
  * @author Stephane Nicoll
  * @since 5.0
  */
-public abstract class AbstractHttpMockRequestAssert<SELF extends AbstractHttpMockRequestAssert<SELF, ACTUAL>, ACTUAL extends HttpMockRequest>
+public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<SELF, ACTUAL>, ACTUAL extends MockRequest>
         extends AbstractObjectAssert<SELF, ACTUAL> {
 
   private final Supplier<MapAssert<String, Object>> attributesAssertProvider;
 
   private final Supplier<MapAssert<String, Object>> sessionAttributesAssertProvider;
 
-  protected AbstractHttpMockRequestAssert(ACTUAL actual, Class<?> selfType) {
+  protected AbstractRequestAssert(ACTUAL actual, Class<?> selfType) {
     super(actual, selfType);
     this.attributesAssertProvider = SingletonSupplier.of(() -> createAttributesAssert(actual));
     this.sessionAttributesAssertProvider = SingletonSupplier.of(() -> createSessionAttributesAssert(actual));
   }
 
-  private static MapAssert<String, Object> createAttributesAssert(HttpMockRequest request) {
+  private static MapAssert<String, Object> createAttributesAssert(MockRequest request) {
     Map<String, Object> map = toMap(request.getAttributeNames().asIterator(), request::getAttribute);
     return Assertions.assertThat(map).as("Request Attributes");
   }
 
-  protected MapAssert<String, Object> createSessionAttributesAssert(HttpMockRequest request) {
+  protected MapAssert<String, Object> createSessionAttributesAssert(MockRequest request) {
     Session httpSession = request.getSession();
     Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
     Map<String, Object> map = toMap(httpSession.attributeNames().iterator(), httpSession::getAttribute);
@@ -112,7 +111,7 @@ public abstract class AbstractHttpMockRequestAssert<SELF extends AbstractHttpMoc
    * <p>The test will await the completion of a {@code Callable} so that
    * the asynchronous result is available and can be further asserted.
    * <p>Neither a {@code Callable} nor a {@code DeferredResult} will complete
-   * processing all the way since a {@link HttpMockRequestImpl} does not
+   * processing all the way since a {@link MockRequest} does not
    * perform asynchronous dispatches.
    *
    * @param started whether asynchronous processing should have started

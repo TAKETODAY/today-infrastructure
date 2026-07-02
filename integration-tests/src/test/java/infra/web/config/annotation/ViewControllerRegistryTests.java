@@ -29,7 +29,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.http.HttpStatus;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.InfraConfigurationException;
 import infra.web.handler.SimpleUrlHandlerMapping;
@@ -50,14 +50,14 @@ class ViewControllerRegistryTests {
 
   private ViewControllerRegistry registry;
 
-  private HttpMockRequestImpl request;
+  private MockRequest request;
 
   private MockHttpResponseImpl response;
 
   @BeforeEach
   public void setup() {
     this.registry = new ViewControllerRegistry(new StaticApplicationContext());
-    this.request = new HttpMockRequestImpl("GET", "/");
+    this.request = new MockRequest("GET", "/");
     this.response = new MockHttpResponseImpl();
   }
 

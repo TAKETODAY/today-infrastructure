@@ -25,9 +25,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import infra.http.MediaType;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class StandardApiVersionDeprecationHandlerTests {
 
-  private final HttpMockRequest request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
 
   private final HttpMockResponse response = new MockHttpResponseImpl();
 
@@ -82,7 +82,7 @@ class StandardApiVersionDeprecationHandlerTests {
     handler.configureVersion("1.0")
             .setDeprecationDate(getDate("Fri, 30 Jun 2023 23:59:59 GMT"));
 
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v2.0/resource");
+    MockRequest request = new MockRequest("GET", "/api/v2.0/resource");
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
@@ -101,7 +101,7 @@ class StandardApiVersionDeprecationHandlerTests {
             .setRequestPredicate(request -> request.getRequestURL().toString().contains("internal"))
             .setDeprecationDate(getDate("Fri, 30 Jun 2023 23:59:59 GMT"));
 
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v1.0/resource");
+    MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
@@ -122,7 +122,7 @@ class StandardApiVersionDeprecationHandlerTests {
     handler.configureVersion("1.0")
             .setDeprecationLink(deprecationUri, customMediaType);
 
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v1.0/resource");
+    MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
@@ -145,7 +145,7 @@ class StandardApiVersionDeprecationHandlerTests {
     handler.configureVersion("1.0")
             .setSunsetLink(sunsetUri, customMediaType);
 
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v1.0/resource");
+    MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
@@ -169,7 +169,7 @@ class StandardApiVersionDeprecationHandlerTests {
             .setDeprecationLink(deprecationUri)
             .setSunsetLink(sunsetUri);
 
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v1.0/resource");
+    MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 
@@ -198,7 +198,7 @@ class StandardApiVersionDeprecationHandlerTests {
             .setSunsetDate(sunsetDate)
             .setSunsetLink(sunsetUri);
 
-    HttpMockRequest request = new HttpMockRequestImpl("GET", "/api/v1.0/resource");
+    MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     HttpMockResponse response = new MockHttpResponseImpl();
     MockRequestContext context = new MockRequestContext(request, response);
 

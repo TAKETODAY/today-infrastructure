@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.HandlerMapping;
 import infra.web.RequestContext;
 import infra.web.accept.DefaultApiVersionStrategy;
@@ -181,11 +181,11 @@ class VersionRequestConditionTests {
   }
 
   private static MockRequestContext exchange() {
-    return new MockRequestContext(new HttpMockRequestImpl("GET", "/path"));
+    return new MockRequestContext(new MockRequest("GET", "/path"));
   }
 
   private MockRequestContext requestWithVersion(String v) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    MockRequest request = new MockRequest("GET", "/path");
     request.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, this.strategy.parseVersion(v));
 
     return new MockRequestContext(request);

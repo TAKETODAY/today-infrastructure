@@ -40,7 +40,7 @@ import infra.format.annotation.DateTimeFormat;
 import infra.http.HttpEntity;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
@@ -73,7 +73,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class MvcUriComponentsBuilderTests {
 
-  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
+  private final MockRequest request = new MockRequest();
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   @BeforeEach

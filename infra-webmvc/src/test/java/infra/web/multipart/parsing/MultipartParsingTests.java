@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
@@ -540,7 +540,7 @@ class MultipartParsingTests {
   }
 
   public List<Part> parseRequest(final byte[] bytes, final String contentType) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/part");
+    MockRequest request = new MockRequest("POST", "/part");
     MockRequestContext context = new MockRequestContext(request);
     request.setContentType(contentType);
     request.setContent(bytes);
@@ -563,7 +563,7 @@ class MultipartParsingTests {
   }
 
   public MultipartRequest parse(final byte[] bytes, final String contentType) {
-    HttpMockRequestImpl request = new HttpMockRequestImpl("POST", "/part");
+    MockRequest request = new MockRequest("POST", "/part");
     MockRequestContext context = new MockRequestContext(request);
     request.setContentType(contentType);
     request.setContent(bytes);

@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.mock.api.MockContext;
-import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockSession;
 import infra.test.context.junit4.InfraRunner;
@@ -50,7 +50,7 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
   protected MockContext mockContextIn;
 
   @Autowired
-  protected HttpMockRequest request;
+  protected MockRequest request;
 
   @Autowired
   protected MockHttpResponseImpl response;
@@ -76,7 +76,7 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
     assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
     assertThat(mockContextIn).as("MockContext should have been autowired from the WAC.").isNotNull();
-    assertThat(request).as("HttpMockRequestImpl should have been autowired from the WAC.").isNotNull();
+    assertThat(request).as("MockRequest should have been autowired from the WAC.").isNotNull();
     assertThat(response).as("MockHttpResponseImpl should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("ServletWebRequest should have been autowired from the WAC.").isNotNull();

@@ -29,7 +29,7 @@ import java.util.Collections;
 import infra.http.CacheControl;
 import infra.http.MediaType;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockRequest;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class StreamingServerResponseTests {
 
-  private HttpMockRequestImpl mockRequest;
+  private MockRequest mockRequest;
 
   private MockHttpResponseImpl mockResponse;
 
@@ -49,7 +49,7 @@ class StreamingServerResponseTests {
 
   @BeforeEach
   void setUp() {
-    this.mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
+    this.mockRequest = new MockRequest("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockHttpResponseImpl();
 
