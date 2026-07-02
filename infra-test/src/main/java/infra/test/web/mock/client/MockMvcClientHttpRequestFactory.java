@@ -83,16 +83,16 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
 
         addCookies(servletRequestBuilder);
 
-        MockResponse servletResponse = MockMvcClientHttpRequestFactory.this.mockMvc
+        MockResponse mockResponse = MockMvcClientHttpRequestFactory.this.mockMvc
                 .perform(servletRequestBuilder)
                 .andReturn()
                 .getResponse();
 
         MockClientHttpResponse clientResponse = new MockClientHttpResponse(
-                getResponseBody(servletResponse),
-                HttpStatusCode.valueOf(servletResponse.getStatus()));
+                getResponseBody(mockResponse),
+                HttpStatusCode.valueOf(mockResponse.getStatus()));
 
-        copyHeaders(servletResponse, clientResponse);
+        copyHeaders(mockResponse, clientResponse);
 
         return clientResponse;
       }
@@ -116,10 +116,10 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
       }
     }
 
-    private static byte[] getResponseBody(MockResponse servletResponse) {
-      byte[] body = servletResponse.getContentAsByteArray();
+    private static byte[] getResponseBody(MockResponse mockResponse) {
+      byte[] body = mockResponse.getContentAsByteArray();
       if (body.length == 0) {
-        String error = servletResponse.getErrorMessage();
+        String error = mockResponse.getErrorMessage();
         if (StringUtils.isNotEmpty(error)) {
           body = error.getBytes(StandardCharsets.UTF_8);
         }
@@ -128,10 +128,10 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
     }
 
     private static void copyHeaders(
-            MockResponse servletResponse, MockClientHttpResponse clientResponse) {
+            MockResponse mockResponse, MockClientHttpResponse clientResponse) {
 
-      servletResponse.getHeaderNames()
-              .forEach(name -> servletResponse.getHeaders(name)
+      mockResponse.getHeaderNames()
+              .forEach(name -> mockResponse.getHeaders(name)
                       .forEach(value -> clientResponse.getHeaders().add(name, value)));
     }
   }

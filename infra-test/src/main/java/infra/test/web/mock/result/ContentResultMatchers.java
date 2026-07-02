@@ -29,10 +29,10 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import infra.http.MediaType;
-import infra.web.mock.MockResponse;
 import infra.test.util.JsonExpectationsHelper;
 import infra.test.util.XmlExpectationsHelper;
 import infra.test.web.mock.ResultMatcher;
+import infra.web.mock.MockResponse;
 
 import static infra.test.util.AssertionErrors.assertEquals;
 import static infra.test.util.AssertionErrors.assertNotNull;
@@ -65,7 +65,7 @@ public class ContentResultMatchers {
   }
 
   /**
-   * Assert the ServletResponse content type. The given content type must
+   * Assert the MockResponse content type. The given content type must
    * fully match including type, subtype, and parameters. For checking
    * only the type and subtype see {@link #contentTypeCompatibleWith(String)}.
    */
@@ -74,7 +74,7 @@ public class ContentResultMatchers {
   }
 
   /**
-   * Assert the ServletResponse content type after parsing it as a MediaType.
+   * Assert the MockResponse content type after parsing it as a MediaType.
    * The given content type must fully match including type, subtype, and
    * parameters. For checking only the type and subtype see
    * {@link #contentTypeCompatibleWith(MediaType)}.
@@ -88,7 +88,7 @@ public class ContentResultMatchers {
   }
 
   /**
-   * Assert the ServletResponse content type is compatible with the given
+   * Assert the MockResponse content type is compatible with the given
    * content type as defined by {@link MediaType#isCompatibleWith(MediaType)}.
    */
   public ResultMatcher contentTypeCompatibleWith(String contentType) {
@@ -96,7 +96,7 @@ public class ContentResultMatchers {
   }
 
   /**
-   * Assert the ServletResponse content type is compatible with the given
+   * Assert the MockResponse content type is compatible with the given
    * content type as defined by {@link MediaType#isCompatibleWith(MediaType)}.
    */
   public ResultMatcher contentTypeCompatibleWith(MediaType contentType) {
@@ -110,7 +110,7 @@ public class ContentResultMatchers {
   }
 
   /**
-   * Assert the character encoding in the ServletResponse.
+   * Assert the character encoding in the MockResponse.
    *
    * @see StandardCharsets
    * @see #encoding(String)
@@ -120,7 +120,7 @@ public class ContentResultMatchers {
   }
 
   /**
-   * Assert the character encoding in the ServletResponse.
+   * Assert the character encoding in the MockResponse.
    *
    * @see MockResponse#getCharacterEncoding()
    */

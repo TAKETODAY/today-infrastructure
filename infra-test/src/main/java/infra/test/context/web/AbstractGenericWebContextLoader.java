@@ -30,15 +30,13 @@ import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.MockContextImpl;
 import infra.test.context.ContextLoadException;
 import infra.test.context.ContextLoader;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.aot.AotContextLoader;
 import infra.test.context.support.AbstractContextLoader;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.MockContextImpl;
 import infra.web.mock.support.GenericWebApplicationContext;
 
 /**
@@ -293,9 +291,6 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * {@link FileSystemResourceLoader} will be used.</li>
    * <li>A {@code MockContext} will be created using the resource base
    * path and resource loader.</li>
-   * <li>The supplied {@link GenericWebApplicationContext} is then stored in
-   * the {@code MockContext} under the
-   * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.</li>
    * <li>Finally, the {@code MockContext} is set in the
    * {@code WebApplicationContext}.</li>
    * </ul>
@@ -306,29 +301,6 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   protected void configureWebResources(GenericWebApplicationContext context,
           WebMergedContextConfiguration webMergedConfig) {
 
-    ApplicationContext parent = context.getParent();
-
-    // If the WebApplicationContext has no parent or the parent is not a WebApplicationContext,
-    // set the current context as the root WebApplicationContext:
-    if (!(parent instanceof WebApplicationContext)) {
-      MockContextImpl mockContext = new MockContextImpl();
-      mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
-      context.setMockContext(mockContext);
-    }
-    else {
-      MockContext mockContext = null;
-      // Find the root WebApplicationContext
-      while (parent != null) {
-        if (parent instanceof WebApplicationContext parentWac &&
-                !(parent.getParent() instanceof WebApplicationContext)) {
-          mockContext = parentWac.getMockContext();
-          break;
-        }
-        parent = parent.getParent();
-      }
-      Assert.state(mockContext != null, "Failed to find root WebApplicationContext in the context hierarchy");
-      context.setMockContext(mockContext);
-    }
   }
 
   /**

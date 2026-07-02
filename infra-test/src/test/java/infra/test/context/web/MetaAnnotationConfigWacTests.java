@@ -25,8 +25,6 @@ import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
-import infra.web.mock.WebApplicationContext;
-import infra.web.mock.api.MockContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,25 +44,11 @@ class MetaAnnotationConfigWacTests {
   ApplicationContext wac;
 
   @Autowired
-  MockContext mockContext;
-
-  @Autowired
   String foo;
 
   @Test
   void fooEnigmaAutowired() {
     assertThat(foo).isEqualTo("enigma");
-  }
-
-  @Test
-  void basicWacFeatures() throws Exception {
-
-    assertThat(mockContext).as("MockContext should have been autowired from the WAC.").isNotNull();
-
-    Object rootWac = mockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-    assertThat(rootWac).as("Root WAC must be stored in the MockContext as: "
-            + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
-    assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
   }
 
 }

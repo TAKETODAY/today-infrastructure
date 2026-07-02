@@ -26,12 +26,6 @@ import java.util.List;
 
 import infra.beans.Mergeable;
 import infra.lang.Assert;
-import infra.web.mock.api.AsyncContext;
-import infra.web.mock.api.DispatcherType;
-import infra.web.mock.api.MockContext;
-import infra.web.mock.MockFilterChain;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
@@ -41,7 +35,13 @@ import infra.web.Filter;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.mock.MockDispatcherHandler;
+import infra.web.mock.MockFilterChain;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.DispatcherType;
+import infra.web.mock.api.MockContext;
 
 /**
  * <strong>Main entry point for server-side Web MVC test support.</strong>
@@ -175,14 +175,14 @@ public final class MockMvc {
 
     AsyncContext asyncContext = request.getAsyncContext();
     MockResponse mockResponse;
-    MockResponse servletResponse;
+    MockResponse response;
     if (asyncContext != null) {
-      servletResponse = asyncContext.getResponse();
-      mockResponse = servletResponse;
+      response = asyncContext.getResponse();
+      mockResponse = response;
     }
     else {
       mockResponse = new MockResponse();
-      servletResponse = mockResponse;
+      response = mockResponse;
     }
 
     if (this.defaultResponseCharacterEncoding != null) {
@@ -195,7 +195,7 @@ public final class MockMvc {
 
     RequestContext previous = RequestContextHolder.current();
 
-    var context = new MockRequestContext(dispatcherHandler.getApplicationContext(), request, servletResponse, dispatcherHandler);
+    var context = new MockRequestContext(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
 
     RequestContextHolder.set(context);

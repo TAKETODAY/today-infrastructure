@@ -68,15 +68,15 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
           HttpMethod httpMethod, URI uri, HttpHeaders requestHeaders, byte[] requestBody) {
 
     try {
-      MockResponse servletResponse = this.mockMvc
+      MockResponse mockResponse = this.mockMvc
               .perform(request(httpMethod, uri).content(requestBody).headers(requestHeaders))
               .andReturn()
               .getResponse();
 
-      HttpStatusCode status = HttpStatusCode.valueOf(servletResponse.getStatus());
-      byte[] body = servletResponse.getContentAsByteArray();
+      HttpStatusCode status = HttpStatusCode.valueOf(mockResponse.getStatus());
+      byte[] body = mockResponse.getContentAsByteArray();
       if (body.length == 0) {
-        String error = servletResponse.getErrorMessage();
+        String error = mockResponse.getErrorMessage();
         if (StringUtils.isNotEmpty(error)) {
           // sendError message as default body
           body = error.getBytes(StandardCharsets.UTF_8);
@@ -84,7 +84,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
       }
 
       MockClientHttpResponse clientResponse = new MockClientHttpResponse(body, status);
-      clientResponse.getHeaders().setAll(getResponseHeaders(servletResponse));
+      clientResponse.getHeaders().setAll(getResponseHeaders(mockResponse));
       return clientResponse;
     }
     catch (Exception ex) {

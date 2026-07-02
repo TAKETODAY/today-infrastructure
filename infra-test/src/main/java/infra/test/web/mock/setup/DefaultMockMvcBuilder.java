@@ -20,19 +20,11 @@ package infra.test.web.mock.setup;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.web.mock.api.MockContext;
 import infra.web.mock.WebApplicationContext;
 
 /**
  * A concrete implementation of {@link AbstractMockMvcBuilder} that provides
  * the {@link WebApplicationContext} supplied to it as a constructor argument.
- *
- * <p>In addition, if the {@link MockContext} in the supplied
- * {@code WebApplicationContext} does not contain an entry for the
- * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
- * key, the root {@code WebApplicationContext} will be detected and stored
- * in the {@code MockContext} under the
- * {@code ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch

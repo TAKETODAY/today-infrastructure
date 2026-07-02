@@ -122,7 +122,7 @@ public class MockResponse {
   private final List<String> includedUrls = new ArrayList<>();
 
   //---------------------------------------------------------------------
-  // ServletResponse interface
+  // MockResponse interface
   //---------------------------------------------------------------------
 
   /**
@@ -386,7 +386,7 @@ public class MockResponse {
   }
 
   public void setLocale(@Nullable Locale locale) {
-    // Although the Javadoc for infra.mock.api.ServletResponse.setLocale(Locale) does not
+    // Although the Javadoc for infra.mock.api.MockResponse.setLocale(Locale) does not
     // state how a null value for the supplied Locale should be handled, both Tomcat and
     // Jetty simply ignore a null value. So we do the same here.
     if (locale == null) {

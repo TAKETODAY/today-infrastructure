@@ -289,7 +289,7 @@ public class MockHttpHandlerAdapter implements MockHandler {
         }
         else {
           try {
-            logger.trace("{}Setting ServletResponse status to 500 Server Error", this.logPrefix);
+            logger.trace("{}Setting MockResponse status to 500 Server Error", this.logPrefix);
             this.asyncContext.getResponse().resetBuffer();
             this.asyncContext.getResponse().setStatus(500);
           }

@@ -52,8 +52,6 @@ public class VersionedConfiguration implements WebMvcConfigurer {
 
 然后，您可以使用 `ResourceUrlProvider` 来重写 URL 并应用解析器和转换器的完整链 -- 例如，
 插入版本。MVC 配置提供了一个 `ResourceUrlProvider` Bean，以便可以注入到其他组件中。
-您也可以使用 `ResourceUrlEncodingFilter` 使重写对 Thymeleaf、JSPs、FreeMarker 等使用
-URL 标签并依赖于 `HttpServletResponse#encodeURL` 的组件透明。
 
 注意，当同时使用 `EncodedResourceResolver`（例如，用于提供 gzipped 或 brotli-encoded 资源）
 和 `VersionResourceResolver` 时，必须按此顺序注册它们。这确保基于内容的版本始终可靠地计算，基于未编码的文件。

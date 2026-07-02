@@ -18,13 +18,12 @@
 
 package infra.web.mock.support;
 
-import org.jspecify.annotations.Nullable;
-
 import java.io.Serializable;
 import java.util.function.Supplier;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
@@ -34,13 +33,10 @@ import infra.stereotype.Component;
 import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
 import infra.web.context.StandardWebEnvironment;
-import infra.web.mock.ConfigurableWebApplicationContext;
-import infra.web.mock.MockContextAware;
-import infra.web.mock.MockContextAwareProcessor;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
-import infra.web.mock.api.MockContext;
+import infra.web.mock.WebApplicationContext;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web servlet environments.
@@ -71,15 +67,11 @@ import infra.web.mock.api.MockContext;
  * @since 4.0 2022/2/20 21:03
  */
 public class GenericWebApplicationContext extends GenericApplicationContext
-        implements ConfigurableWebApplicationContext {
-
-  @Nullable
-  private MockContext mockContext;
+        implements WebApplicationContext, ConfigurableApplicationContext {
 
   /**
    * Create a new {@code GenericWebApplicationContext}.
    *
-   * @see #setMockContext
    * @see #registerBeanDefinition
    * @see #refresh
    */
@@ -91,51 +83,11 @@ public class GenericWebApplicationContext extends GenericApplicationContext
    * Create a new {@code GenericWebApplicationContext} with the given {@link StandardBeanFactory}.
    *
    * @param beanFactory the {@code StandardBeanFactory} instance to use for this context
-   * @see #setMockContext
    * @see #registerBeanDefinition
    * @see #refresh
    */
   public GenericWebApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-  }
-
-  /**
-   * Create a new {@code GenericWebApplicationContext} for the given {@link MockContext}.
-   *
-   * @param mockContext the {@code MockContext} to run in
-   * @see #registerBeanDefinition
-   * @see #refresh
-   */
-  public GenericWebApplicationContext(@Nullable MockContext mockContext) {
-    this.mockContext = mockContext;
-  }
-
-  /**
-   * Create a new {@code GenericWebApplicationContext} with the given {@link StandardBeanFactory}
-   * and {@link MockContext}.
-   *
-   * @param beanFactory the {@code StandardBeanFactory} instance to use for this context
-   * @param mockContext the {@code MockContext} to run in
-   * @see #registerBeanDefinition
-   * @see #refresh
-   */
-  public GenericWebApplicationContext(StandardBeanFactory beanFactory, @Nullable MockContext mockContext) {
-    super(beanFactory);
-    this.mockContext = mockContext;
-  }
-
-  /**
-   * Set the {@link MockContext} that this {@code WebApplicationContext} runs in.
-   */
-  @Override
-  public void setMockContext(@Nullable MockContext mockContext) {
-    this.mockContext = mockContext;
-  }
-
-  @Override
-  @Nullable
-  public MockContext getMockContext() {
-    return this.mockContext;
   }
 
   /**
@@ -149,12 +101,8 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    if (this.mockContext != null) {
-      beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext));
-      beanFactory.ignoreDependencyInterface(MockContextAware.class);
-    }
 
-    registerWebApplicationScopes(beanFactory, this.mockContext);
+    registerWebApplicationScopes(beanFactory);
   }
 
   /**
@@ -162,15 +110,9 @@ public class GenericWebApplicationContext extends GenericApplicationContext
    * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param beanFactory the BeanFactory to configure
-   * @param sc the MockContext that we're running within
    */
-  static void registerWebApplicationScopes(
-          ConfigurableBeanFactory beanFactory, @Nullable MockContext sc) {
+  static void registerWebApplicationScopes(ConfigurableBeanFactory beanFactory) {
     RequestContextUtils.registerScopes(beanFactory);
-
-    if (sc != null) {
-      beanFactory.registerResolvableDependency(MockContext.class, sc);
-    }
 
     beanFactory.registerResolvableDependency(Session.class, new SessionObjectSupplier());
     beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());

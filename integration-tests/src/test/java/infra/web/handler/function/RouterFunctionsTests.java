@@ -117,8 +117,8 @@ public class RouterFunctionsTests {
 
     MockRequest servletRequest = new MockRequest("GET", "/bar");
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> resultHandlerFunction = result.route(request);

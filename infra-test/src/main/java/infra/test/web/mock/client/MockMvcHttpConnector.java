@@ -189,16 +189,16 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
 
   private MockClientHttpResponse adaptResponse(MvcResult mvcResult) {
     MockClientHttpResponse clientResponse = new MockMvcServerClientHttpResponse(mvcResult);
-    MockResponse servletResponse = mvcResult.getResponse();
-    for (String header : servletResponse.getHeaderNames()) {
-      for (String value : servletResponse.getHeaders(header)) {
+    MockResponse mockResponse = mvcResult.getResponse();
+    for (String header : mockResponse.getHeaderNames()) {
+      for (String value : mockResponse.getHeaders(header)) {
         clientResponse.getHeaders().add(header, value);
       }
     }
-    if (servletResponse.getForwardedUrl() != null) {
-      clientResponse.getHeaders().add("Forwarded-Url", servletResponse.getForwardedUrl());
+    if (mockResponse.getForwardedUrl() != null) {
+      clientResponse.getHeaders().add("Forwarded-Url", mockResponse.getForwardedUrl());
     }
-    for (Cookie cookie : servletResponse.getCookies()) {
+    for (Cookie cookie : mockResponse.getCookies()) {
       ResponseCookie httpCookie =
               ResponseCookie.forClientResponse(cookie.getName(), cookie.getValue())
                       .maxAge(Duration.ofSeconds(cookie.getMaxAge()))
@@ -210,7 +210,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                       .build();
       clientResponse.getCookies().add(httpCookie.getName(), httpCookie);
     }
-    byte[] bytes = servletResponse.getContentAsByteArray();
+    byte[] bytes = mockResponse.getContentAsByteArray();
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
     clientResponse.setBody(Mono.just(dataBuffer));
     return clientResponse;

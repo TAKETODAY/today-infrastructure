@@ -82,10 +82,10 @@ class RequestResponseBodyAdviceChainTests {
     MockRequest servletRequest = new MockRequest();
     this.request = new MockServerHttpRequest(servletRequest);
 
-    MockResponse servletResponse = new MockResponse();
+    MockResponse mockResponse = new MockResponse();
 
-    this.response = new MockServerHttpResponse(servletResponse);
-    this.requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    this.response = new MockServerHttpResponse(mockResponse);
+    this.requestContext = new MockRequestContext(null, servletRequest, mockResponse);
   }
 
   @SuppressWarnings("unchecked")

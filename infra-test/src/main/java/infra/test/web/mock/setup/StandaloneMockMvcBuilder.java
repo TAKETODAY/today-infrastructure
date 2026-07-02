@@ -47,7 +47,6 @@ import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.web.mock.MockContextImpl;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.test.web.mock.MvcResult;
@@ -388,15 +387,12 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
   @Override
   protected ApplicationContext initWebAppContext() {
-    MockContextImpl mockContext = new MockContextImpl();
     StubWebApplicationContext wac = new StubWebApplicationContext();
 
     var reader = new AnnotatedBeanDefinitionReader(wac);
     reader.register(StandaloneConfiguration.class);
 
     registerMvcSingletons(wac);
-
-    mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
     return wac;
   }
 

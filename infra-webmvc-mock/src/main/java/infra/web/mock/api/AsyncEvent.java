@@ -45,11 +45,11 @@ public class AsyncEvent {
   }
 
   /**
-   * Constructs an AsyncEvent from the given AsyncContext, ServletRequest, and ServletResponse.
+   * Constructs an AsyncEvent from the given AsyncContext, ServletRequest, and MockResponse.
    *
    * @param context the AsyncContex to be delivered with this AsyncEvent
    * @param request the ServletRequest to be delivered with this AsyncEvent
-   * @param response the ServletResponse to be delivered with this AsyncEvent
+   * @param response the MockResponse to be delivered with this AsyncEvent
    */
   public AsyncEvent(AsyncContext context, MockRequest request, MockResponse response) {
     this(context, request, response, null);
@@ -66,11 +66,11 @@ public class AsyncEvent {
   }
 
   /**
-   * Constructs an AsyncEvent from the given AsyncContext, ServletRequest, ServletResponse, and Throwable.
+   * Constructs an AsyncEvent from the given AsyncContext, ServletRequest, MockResponse, and Throwable.
    *
    * @param context the AsyncContex to be delivered with this AsyncEvent
    * @param request the ServletRequest to be delivered with this AsyncEvent
-   * @param response the ServletResponse to be delivered with this AsyncEvent
+   * @param response the MockResponse to be delivered with this AsyncEvent
    * @param throwable the Throwable to be delivered with this AsyncEvent
    */
   public AsyncEvent(AsyncContext context, MockRequest request, MockResponse response, Throwable throwable) {
@@ -106,16 +106,16 @@ public class AsyncEvent {
   }
 
   /**
-   * Gets the ServletResponse from this AsyncEvent.
+   * Gets the MockResponse from this AsyncEvent.
    *
    * <p>
    * If the AsyncListener to which this AsyncEvent is being delivered was added using
-   * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the returned ServletResponse will
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the returned MockResponse will
    * be the same as the one supplied to the above method. If the AsyncListener was added via
    * {@link AsyncContext#addListener(AsyncListener)}, this method must return null.
    *
-   * @return the ServletResponse that was used to initialize this AsyncEvent, or null if this AsyncEvent was initialized
-   * without any ServletResponse
+   * @return the MockResponse that was used to initialize this AsyncEvent, or null if this AsyncEvent was initialized
+   * without any MockResponse
    */
   public MockResponse getSuppliedResponse() {
     return response;

@@ -70,8 +70,8 @@ class ResourceHandlerFunctionTests {
   void get() throws Throwable {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -85,22 +85,22 @@ class ResourceHandlerFunctionTests {
     Object mav = response.writeTo(requestContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
-    assertThat(servletResponse.getStatus()).isEqualTo(200);
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
     byte[] expectedBytes = Files.readAllBytes(this.resource.getFile().toPath());
-    byte[] actualBytes = servletResponse.getContentAsByteArray();
+    byte[] actualBytes = mockResponse.getContentAsByteArray();
     assertThat(actualBytes).isEqualTo(expectedBytes);
-    assertThat(servletResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
-    assertThat(servletResponse.getContentLength()).isEqualTo(this.resource.contentLength());
+    assertThat(mockResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+    assertThat(mockResponse.getContentLength()).isEqualTo(this.resource.contentLength());
   }
 
   @Test
   void getRange() throws Throwable {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-5");
-    MockResponse servletResponse = new MockResponse();
+    MockResponse mockResponse = new MockResponse();
 
     MockRequestContext requestContext = new MockRequestContext(
-            null, servletRequest, servletResponse);
+            null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -114,16 +114,16 @@ class ResourceHandlerFunctionTests {
     Object mav = response.writeTo(requestContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
-    assertThat(servletResponse.getStatus()).isEqualTo(206);
+    assertThat(mockResponse.getStatus()).isEqualTo(206);
     byte[] expectedBytes = new byte[6];
     try (InputStream is = this.resource.getInputStream()) {
       is.read(expectedBytes);
     }
-    byte[] actualBytes = servletResponse.getContentAsByteArray();
+    byte[] actualBytes = mockResponse.getContentAsByteArray();
     assertThat(actualBytes).isEqualTo(expectedBytes);
-    assertThat(servletResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
-    assertThat(servletResponse.getContentLength()).isEqualTo(6);
-    assertThat(servletResponse.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+    assertThat(mockResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+    assertThat(mockResponse.getContentLength()).isEqualTo(6);
+    assertThat(mockResponse.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
   }
 
   @Test
@@ -131,9 +131,9 @@ class ResourceHandlerFunctionTests {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
-    MockResponse servletResponse = new MockResponse();
+    MockResponse mockResponse = new MockResponse();
     MockRequestContext requestContext = new MockRequestContext(
-            null, servletRequest, servletResponse);
+            null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -147,21 +147,21 @@ class ResourceHandlerFunctionTests {
     Object mav = response.writeTo(requestContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
-    assertThat(servletResponse.getStatus()).isEqualTo(416);
+    assertThat(mockResponse.getStatus()).isEqualTo(416);
     byte[] expectedBytes = Files.readAllBytes(this.resource.getFile().toPath());
-    byte[] actualBytes = servletResponse.getContentAsByteArray();
+    byte[] actualBytes = mockResponse.getContentAsByteArray();
     assertThat(actualBytes).isEqualTo(expectedBytes);
-    assertThat(servletResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
-    assertThat(servletResponse.getContentLength()).isEqualTo(this.resource.contentLength());
-    assertThat(servletResponse.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+    assertThat(mockResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+    assertThat(mockResponse.getContentLength()).isEqualTo(this.resource.contentLength());
+    assertThat(mockResponse.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
   }
 
   @Test
   void head() throws Throwable {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -176,19 +176,19 @@ class ResourceHandlerFunctionTests {
     Object mav = response.writeTo(requestContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
-    assertThat(servletResponse.getStatus()).isEqualTo(200);
-    byte[] actualBytes = servletResponse.getContentAsByteArray();
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
+    byte[] actualBytes = mockResponse.getContentAsByteArray();
     assertThat(actualBytes.length).isEqualTo(0);
-    assertThat(servletResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
-    assertThat(servletResponse.getContentLength()).isEqualTo(this.resource.contentLength());
+    assertThat(mockResponse.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+    assertThat(mockResponse.getContentLength()).isEqualTo(this.resource.contentLength());
   }
 
   @Test
   void options() throws Throwable {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -200,11 +200,11 @@ class ResourceHandlerFunctionTests {
     assertThat(mav).isNull();
     requestContext.flush();
 
-    assertThat(servletResponse.getStatus()).isEqualTo(200);
-    String allowHeader = servletResponse.getHeader("Allow");
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
+    String allowHeader = mockResponse.getHeader("Allow");
     String[] methods = StringUtils.tokenizeToStringArray(allowHeader, ",");
     assertThat(methods).containsExactlyInAnyOrder("GET", "HEAD", "OPTIONS");
-    byte[] actualBytes = servletResponse.getContentAsByteArray();
+    byte[] actualBytes = mockResponse.getContentAsByteArray();
     assertThat(actualBytes.length).isEqualTo(0);
   }
 
@@ -212,8 +212,8 @@ class ResourceHandlerFunctionTests {
   void postMethodNotAllowed() throws Exception {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -226,8 +226,8 @@ class ResourceHandlerFunctionTests {
   void putMethodNotAllowed() throws Exception {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -240,8 +240,8 @@ class ResourceHandlerFunctionTests {
   void deleteMethodNotAllowed() throws Exception {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -254,8 +254,8 @@ class ResourceHandlerFunctionTests {
   void patchMethodNotAllowed() throws Exception {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -268,8 +268,8 @@ class ResourceHandlerFunctionTests {
   void traceMethodNotAllowed() throws Exception {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
 
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -307,8 +307,8 @@ class ResourceHandlerFunctionTests {
   @Test
   void resourceHandlerFunctionWithHeadersConsumer() throws Throwable {
     MockRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    MockResponse servletResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
+    MockResponse mockResponse = new MockResponse();
+    var requestContext = new MockRequestContext(null, servletRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     BiConsumer<Resource, HttpHeaders> headersConsumer = (resource, headers) -> headers.set("X-Test-Header", "test-value");
@@ -318,7 +318,7 @@ class ResourceHandlerFunctionTests {
     Object mav = response.writeTo(requestContext, this.context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
-    assertThat(servletResponse.getHeader("X-Test-Header")).isEqualTo("test-value");
+    assertThat(mockResponse.getHeader("X-Test-Header")).isEqualTo("test-value");
   }
 
 }

@@ -75,7 +75,7 @@ public interface AsyncContext {
    * @return true if this AsyncContext was initialized with the original request and response objects by calling
    * {@link MockRequest#startAsync()}, or if it was initialized by calling
    * {@link MockRequest#startAsync(MockRequest, MockResponse)}, and neither the ServletRequest nor
-   * ServletResponse arguments carried any application-provided wrappers; false otherwise
+   * MockResponse arguments carried any application-provided wrappers; false otherwise
    */
   boolean hasOriginalRequestAndResponse();
 
@@ -234,7 +234,7 @@ public interface AsyncContext {
    * AsyncListener instances will be notified in the order in which they were added.
    *
    * <p>
-   * The given ServletRequest and ServletResponse objects will be made available to the given AsyncListener via the
+   * The given ServletRequest and MockResponse objects will be made available to the given AsyncListener via the
    * {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and {@link AsyncEvent#getSuppliedResponse
    * getSuppliedResponse} methods, respectively, of the {@link AsyncEvent} delivered to it. These objects should not be
    * read from or written to, respectively, at the time the AsyncEvent is delivered, because additional wrapping may have
@@ -243,7 +243,7 @@ public interface AsyncContext {
    *
    * @param listener the AsyncListener to be registered
    * @param mockRequest the ServletRequest that will be included in the AsyncEvent
-   * @param mockResponse the ServletResponse that will be included in the AsyncEvent
+   * @param mockResponse the MockResponse that will be included in the AsyncEvent
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
    * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */

@@ -25,11 +25,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.aop.support.AopUtils;
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
-import infra.web.mock.MockRequest;
 import infra.session.config.EnableSession;
 import infra.test.annotation.DirtiesContext;
 import infra.test.context.ContextConfiguration;
@@ -46,7 +46,7 @@ import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.filter.GenericFilterBean;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.MockRequest;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
@@ -71,7 +71,7 @@ public class RequestContextHolderTests {
   private static final String FROM_REQUEST_ATTRIBUTES_FILTER = "fromRequestAttributesFilter";
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   @Autowired
   private MockRequest mockRequest;

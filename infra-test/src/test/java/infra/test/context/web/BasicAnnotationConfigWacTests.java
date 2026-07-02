@@ -20,7 +20,6 @@ package infra.test.context.web;
 
 import org.junit.Test;
 
-import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.test.context.ContextConfiguration;
@@ -42,24 +41,11 @@ public class BasicAnnotationConfigWacTests extends AbstractBasicWacTests {
       return "enigma";
     }
 
-    @Bean
-    public MockContextAwareBean mockContextAwareBean() {
-      return new MockContextAwareBean();
-    }
   }
-
-  @Autowired
-  protected MockContextAwareBean mockContextAwareBean;
 
   @Test
   public void fooEnigmaAutowired() {
     assertThat(foo).isEqualTo("enigma");
-  }
-
-  @Test
-  public void mockContextAwareBeanProcessed() {
-    assertThat(mockContextAwareBean).isNotNull();
-    assertThat(mockContextAwareBean.mockContext).isNotNull();
   }
 
 }

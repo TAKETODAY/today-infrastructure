@@ -42,7 +42,7 @@ public interface AsyncListener extends EventListener {
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
    * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the supplied ServletRequest and
-   * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
+   * MockResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
    * @param event the AsyncEvent indicating that an asynchronous operation has been completed
@@ -60,7 +60,7 @@ public interface AsyncListener extends EventListener {
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
    * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the supplied ServletRequest and
-   * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
+   * MockResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
    * @param event the AsyncEvent indicating that an asynchronous operation has timed out
@@ -78,7 +78,7 @@ public interface AsyncListener extends EventListener {
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
    * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the supplied ServletRequest and
-   * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
+   * MockResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
    * @param event the AsyncEvent indicating that an asynchronous operation has failed to complete
@@ -97,7 +97,7 @@ public interface AsyncListener extends EventListener {
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
    * {@link AsyncContext#addListener(AsyncListener, MockRequest, MockResponse)}, the supplied ServletRequest and
-   * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
+   * MockResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
    * <p>

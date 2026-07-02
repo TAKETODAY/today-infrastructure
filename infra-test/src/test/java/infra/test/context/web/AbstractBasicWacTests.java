@@ -24,12 +24,10 @@ import org.junit.runner.RunWith;
 import infra.beans.factory.annotation.Autowired;
 import infra.test.context.junit4.InfraRunner;
 import infra.web.RequestContext;
-import infra.web.mock.MockContextAware;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
 import infra.web.mock.WebApplicationContext;
-import infra.web.mock.api.MockContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,15 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(InfraRunner.class)
 @WebAppConfiguration
-public abstract class AbstractBasicWacTests implements MockContextAware {
-
-  protected MockContext mockContext;
+public abstract class AbstractBasicWacTests {
 
   @Autowired
   protected WebApplicationContext wac;
-
-  @Autowired
-  protected MockContext mockContextIn;
 
   @Autowired
   protected MockRequest request;
@@ -64,25 +57,13 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
   @Autowired
   protected String foo;
 
-  @Override
-  public void setMockContext(MockContext mockContext) {
-    this.mockContext = mockContext;
-  }
-
   @Test
   public void basicWacFeatures() throws Exception {
-    assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
-    assertThat(mockContextIn).as("MockContext should have been autowired from the WAC.").isNotNull();
     assertThat(request).as("MockRequest should have been autowired from the WAC.").isNotNull();
-    assertThat(response).as("MockHttpResponseImpl should have been autowired from the WAC.").isNotNull();
-    assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
-    assertThat(webRequest).as("ServletWebRequest should have been autowired from the WAC.").isNotNull();
-
-    Object rootWac = mockContextIn.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-    assertThat(rootWac).as("Root WAC must be stored in the MockContext as: "
-            + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
-    assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
+    assertThat(response).as("MockResponse should have been autowired from the WAC.").isNotNull();
+    assertThat(session).as("MockSession should have been autowired from the WAC.").isNotNull();
+    assertThat(webRequest).as("RequestContext should have been autowired from the WAC.").isNotNull();
 
   }
 
