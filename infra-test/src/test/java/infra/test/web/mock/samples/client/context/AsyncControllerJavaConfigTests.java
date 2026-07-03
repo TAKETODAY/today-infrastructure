@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.MediaType;
@@ -43,7 +44,6 @@ import infra.web.async.CallableProcessingInterceptor;
 import infra.web.config.annotation.AsyncSupportConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.WebApplicationContext;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 public class AsyncControllerJavaConfigTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   @Autowired
   private CallableProcessingInterceptor callableInterceptor;

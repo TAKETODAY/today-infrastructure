@@ -20,12 +20,12 @@ import org.junit.runner.RunWith;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Value;
+import infra.context.ApplicationContext;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.TestPropertySource;
 import infra.test.context.junit4.InfraRunner;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
-import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.content;
@@ -46,7 +46,7 @@ public class WebInfraVintageTests {
   MockMvc mockMvc;
 
   @Autowired
-  WebApplicationContext wac;
+  ApplicationContext wac;
 
   @Value("${test.engine}")
   String testEngine;

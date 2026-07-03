@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.HttpMethod;
@@ -37,7 +38,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.options;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HttpOptionsTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   private MockMvc mockMvc;
 

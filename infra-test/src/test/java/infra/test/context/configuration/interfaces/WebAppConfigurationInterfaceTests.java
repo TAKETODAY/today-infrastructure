@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.test.context.junit.jupiter.InfraExtension;
-import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WebAppConfigurationInterfaceTests implements WebAppConfigurationTestInterface {
 
   @Autowired
-  WebApplicationContext wac;
+  ApplicationContext wac;
 
   @Test
   void wacLoaded() {

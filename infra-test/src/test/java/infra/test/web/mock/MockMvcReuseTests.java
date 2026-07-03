@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.session.config.EnableSession;
@@ -29,7 +30,6 @@ import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
-import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.content;
@@ -57,7 +57,7 @@ class MockMvcReuseTests {
 
   private final MockMvc mvc;
 
-  MockMvcReuseTests(WebApplicationContext wac) {
+  MockMvcReuseTests(ApplicationContext wac) {
     this.mvc = webAppContextSetup(wac).build();
   }
 

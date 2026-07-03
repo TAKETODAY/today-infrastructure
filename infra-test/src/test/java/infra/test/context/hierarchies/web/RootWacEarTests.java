@@ -54,7 +54,7 @@ class RootWacEarTests extends EarTests {
   // -------------------------------------------------------------------------
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   @Autowired
   private String ear;

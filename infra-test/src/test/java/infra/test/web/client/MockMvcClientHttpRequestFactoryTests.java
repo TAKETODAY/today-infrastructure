@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.Configuration;
 import infra.http.HttpMethod;
@@ -60,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class MockMvcClientHttpRequestFactoryTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   private RestTemplate template;
 

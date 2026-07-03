@@ -27,6 +27,7 @@ import java.net.URI;
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.PriorityOrdered;
@@ -38,7 +39,6 @@ import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.ResultActions;
-import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestMapping;
@@ -46,8 +46,8 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.ViewResolverRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.method.RequestMappingHandlerMapping;
-import infra.web.mock.WebApplicationContext;
 import infra.web.util.UriComponentsBuilder;
+import infra.web.view.InternalResourceViewResolver;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.model;
@@ -64,7 +64,7 @@ import static org.hamcrest.core.Is.is;
 public class EncodedUriTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   private MockMvc mockMvc;
 

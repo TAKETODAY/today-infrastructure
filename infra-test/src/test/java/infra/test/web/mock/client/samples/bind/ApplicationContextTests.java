@@ -19,13 +19,13 @@ package infra.test.web.mock.client.samples.bind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.mock.client.RestTestClient;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * Sample tests demonstrating "mock" server tests binding to server infrastructure
@@ -38,9 +38,9 @@ class ApplicationContextTests {
 
   private RestTestClient client;
 
-  private final WebApplicationContext context;
+  private final ApplicationContext context;
 
-  public ApplicationContextTests(WebApplicationContext context) {
+  public ApplicationContextTests(ApplicationContext context) {
     this.context = context;
   }
 

@@ -70,7 +70,7 @@ import static org.mockito.Mockito.mock;
 public class JavaConfigTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   @Autowired
   private PersonDao personDao;

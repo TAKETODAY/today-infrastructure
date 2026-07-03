@@ -21,12 +21,12 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import infra.context.ApplicationContext;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.mock.MockMvc;
 import infra.web.annotation.PostMapping;
 import infra.web.annotation.RestController;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
 import static infra.test.web.mock.result.MockMvcResultMatchers.content;
@@ -37,7 +37,7 @@ import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 class RequestDataBinderIntegrationTests {
 
   @Test
-  void postMap(WebApplicationContext wac) throws Exception {
+  void postMap(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/map")
                     .param("someMap[a]", "valueA")
@@ -47,7 +47,7 @@ class RequestDataBinderIntegrationTests {
   }
 
   @Test
-  void postArray(WebApplicationContext wac) throws Exception {
+  void postArray(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/array")
                     .param("someArray[0]", "valueA")
@@ -57,7 +57,7 @@ class RequestDataBinderIntegrationTests {
   }
 
   @Test
-  void postArrayWithEmptyIndex(WebApplicationContext wac) throws Exception {
+  void postArrayWithEmptyIndex(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/array")
                     .param("someArray[]", "valueA")
@@ -67,7 +67,7 @@ class RequestDataBinderIntegrationTests {
   }
 
   @Test
-  void postArrayWithoutIndex(WebApplicationContext wac) throws Exception {
+  void postArrayWithoutIndex(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/array")
                     .param("someArray", "valueA")
@@ -77,7 +77,7 @@ class RequestDataBinderIntegrationTests {
   }
 
   @Test
-  void postList(WebApplicationContext wac) throws Exception {
+  void postList(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/list")
                     .param("someList[0]", "valueA")
@@ -87,7 +87,7 @@ class RequestDataBinderIntegrationTests {
   }
 
   @Test
-  void postListWithEmptyIndex(WebApplicationContext wac) throws Exception {
+  void postListWithEmptyIndex(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/list")
                     .param("someList[]", "valueA")
@@ -97,7 +97,7 @@ class RequestDataBinderIntegrationTests {
   }
 
   @Test
-  void postListWithoutIndex(WebApplicationContext wac) throws Exception {
+  void postListWithoutIndex(ApplicationContext wac) throws Exception {
     MockMvc mockMvc = webAppContextSetup(wac).build();
     mockMvc.perform(post("/list")
                     .param("someList", "valueA")

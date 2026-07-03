@@ -337,7 +337,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
       assertThat(context.getEnvironment().getProperty("test.engine"))
               .as("Environment").isNotNull();
 
-      MockMvc mockMvc = webAppContextSetup((WebApplicationContext) context).build();
+      MockMvc mockMvc = webAppContextSetup(context).build();
       mockMvc.perform(get("/hello"))
               .andExpectAll(status().isOk(), content().string("Hello, AOT!"));
     });

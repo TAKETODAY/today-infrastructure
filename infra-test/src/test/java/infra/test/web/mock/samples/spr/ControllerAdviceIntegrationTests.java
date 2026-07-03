@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Scope;
@@ -30,7 +31,6 @@ import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.mock.MockMvc;
-import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.GetMapping;
@@ -38,7 +38,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.context.annotation.RequestScope;
-import infra.web.mock.WebApplicationContext;
+import infra.web.view.InternalResourceViewResolver;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.forwardedUrl;
@@ -60,7 +60,7 @@ class ControllerAdviceIntegrationTests {
   MockMvc mockMvc;
 
   @BeforeEach
-  void setUpMockMvc(WebApplicationContext wac) {
+  void setUpMockMvc(ApplicationContext wac) {
     this.mockMvc = webAppContextSetup(wac)
             .build();
     resetCounters();

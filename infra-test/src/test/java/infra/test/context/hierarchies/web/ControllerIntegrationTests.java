@@ -69,7 +69,7 @@ class ControllerIntegrationTests {
   // -------------------------------------------------------------------------
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   @Autowired
   private String foo;

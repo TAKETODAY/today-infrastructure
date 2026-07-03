@@ -22,12 +22,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationContext;
 import infra.test.context.junit4.InfraRunner;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
-import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractBasicWacTests {
 
   @Autowired
-  protected WebApplicationContext wac;
+  protected ApplicationContext wac;
 
   @Autowired
   protected MockRequest request;

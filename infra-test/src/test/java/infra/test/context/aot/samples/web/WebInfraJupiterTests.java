@@ -18,10 +18,10 @@ package infra.test.context.aot.samples.web;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Value;
+import infra.context.ApplicationContext;
 import infra.test.context.TestPropertySource;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.mock.MockMvc;
-import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.content;
@@ -40,7 +40,7 @@ public class WebInfraJupiterTests {
   MockMvc mockMvc;
 
   @Autowired
-  WebApplicationContext wac;
+  ApplicationContext wac;
 
   @org.junit.jupiter.api.BeforeEach
   void setUpMockMvc() {
