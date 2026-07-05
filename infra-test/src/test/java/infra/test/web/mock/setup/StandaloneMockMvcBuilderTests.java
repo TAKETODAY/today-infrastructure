@@ -101,8 +101,8 @@ class StandaloneMockMvcBuilderTests {
     }
 
     @Override
-    protected ApplicationContext initWebAppContext() {
-      this.wac = super.initWebAppContext();
+    protected ApplicationContext initApplicationContext() {
+      this.wac = super.initApplicationContext();
       return this.wac;
     }
   }

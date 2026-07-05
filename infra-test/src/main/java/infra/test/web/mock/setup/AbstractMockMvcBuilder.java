@@ -157,7 +157,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @Override
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
-    ApplicationContext ctx = initWebAppContext();
+    ApplicationContext ctx = initApplicationContext();
     MockContext mockContext = new DefaultMockContext();
 
     for (MockMvcConfigurer configurer : this.configurers) {
@@ -189,10 +189,10 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   }
 
   /**
-   * A method to obtain the {@code WebApplicationContext} to be passed to the
+   * A method to obtain the {@code ApplicationContext} to be passed to the
    * {@code DispatcherHandler}. Invoked from {@link #build()} before the
    * {@link MockMvc} instance is created.
    */
-  protected abstract ApplicationContext initWebAppContext();
+  protected abstract ApplicationContext initApplicationContext();
 
 }

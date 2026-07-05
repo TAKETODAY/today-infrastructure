@@ -51,7 +51,7 @@ public class DefaultMockMvcBuilderTests {
     dispatcher.setParent(root);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(dispatcher);
-    ApplicationContext wac = builder.initWebAppContext();
+    ApplicationContext wac = builder.initApplicationContext();
 
     assertThat(wac).isSameAs(dispatcher);
     assertThat(wac.getParent()).isSameAs(root);

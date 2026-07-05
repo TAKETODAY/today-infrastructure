@@ -20,11 +20,10 @@ package infra.test.web.mock.setup;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * A concrete implementation of {@link AbstractMockMvcBuilder} that provides
- * the {@link WebApplicationContext} supplied to it as a constructor argument.
+ * the {@link ApplicationContext} supplied to it as a constructor argument.
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
@@ -46,7 +45,7 @@ public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvc
   }
 
   @Override
-  protected ApplicationContext initWebAppContext() {
+  protected ApplicationContext initApplicationContext() {
     return this.context;
   }
 

@@ -386,7 +386,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   @Override
-  protected ApplicationContext initWebAppContext() {
+  protected ApplicationContext initApplicationContext() {
     StubWebApplicationContext wac = new StubWebApplicationContext();
 
     var reader = new AnnotatedBeanDefinitionReader(wac);
