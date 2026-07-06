@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-present the original author or authors.
+ * Copyright 2017 - 2026 the TODAY authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-// Modifications Copyright 2017 - 2026 the TODAY authors.
-
 package infra.web.mock;
 
 import infra.context.ApplicationContext;
 
 /**
- * Interface to provide configuration for a web mvc application. This is read-only while
+ * Interface to provide configuration for a mock web mvc application. This is read-only while
  * the application is running, but may be reloaded if the implementation supports this.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
