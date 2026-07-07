@@ -77,12 +77,8 @@ public final class JsonContent<T> implements AssertProvider<JsonContentAssert> {
   /**
    * Use AssertJ's {@link org.assertj.core.api.Assertions#assertThat assertThat}
    * instead.
-   *
-   * @deprecated to prevent accidental use. Prefer standard AssertJ
-   * {@code assertThat(context)...} calls instead.
    */
   @Override
-  @Deprecated
   public JsonContentAssert assertThat() {
     return new JsonContentAssert(this.resourceLoadClass, null, this.json, this.configuration);
   }
