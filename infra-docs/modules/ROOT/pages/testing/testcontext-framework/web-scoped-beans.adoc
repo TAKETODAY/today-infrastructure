@@ -48,7 +48,7 @@ Infra 自早期以来一直支持 xref:core/beans/factory-scopes.adoc#beans-fact
 class RequestScopedBeanTests {
 
   @Autowired UserService userService;
-  @Autowired MockHttpRequest request;
+  @Autowired MockRequest request;
 
   @Test
   void requestScope() {
@@ -101,7 +101,7 @@ class RequestScopedBeanTests {
 class SessionScopedBeanTests {
 
   @Autowired UserService userService;
-  @Autowired MockHttpSession session;
+  @Autowired MockSession session;
 
   @Test
   void sessionScope() throws Exception {

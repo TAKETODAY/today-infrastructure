@@ -3,7 +3,7 @@
 :page-section-summary-toc: 1
 
 应用程序可以声明在 xref:web/webmvc/mvc-core/special-bean-types.adoc[特殊 Bean 类型]
-中列出的处理请求所需的基础设施 Bean。`DispatcherHandler` 检查 `WebApplicationContext` 中的每个特殊 Bean。
+中列出的处理请求所需的基础设施 Bean。`DispatcherHandler` 检查 `ApplicationContext` 中的每个特殊 Bean。
 
 在大多数情况下，xref:web/webmvc/mvc-config.adoc[MVC 配置] 是最佳起点。它以 Java 的方式声明所需的 Bean，
 并提供了一个更高级别的配置回调 API 来自定义它。

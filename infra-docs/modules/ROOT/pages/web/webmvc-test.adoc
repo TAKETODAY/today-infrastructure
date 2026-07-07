@@ -18,6 +18,6 @@
 您可以将其用作用于测试内部使用 `RestTemplate` 的客户端代码的模拟服务器。有关详细信息，
 请参阅 xref:testing/mvc-test-client.adoc[客户端 REST 测试]。
 
-* `WebTestClient`: 专为测试 WebFlux 应用程序设计，但也可用于端到端集成测试，连接到任何服务器的 HTTP 连接。
+* `WebTestClient`: 专为测试 Reactive 应用程序设计，但也可用于端到端集成测试，连接到任何服务器的 HTTP 连接。
 它是一个非阻塞、反应式客户端，非常适合测试异步和流式场景。有关详细信息，请参阅 xref:testing/webtestclient.adoc[`WebTestClient`]。
 

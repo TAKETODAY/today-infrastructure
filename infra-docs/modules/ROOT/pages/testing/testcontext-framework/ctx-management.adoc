@@ -4,7 +4,6 @@
 每个 `TestContext` 为其负责的测试实例提供上下文管理和缓存支持。
 测试实例不会自动获得对已配置的 `ApplicationContext` 的访问权限。
 但是，如果测试类实现了 `ApplicationContextAware` 接口，则会将对 `ApplicationContext` 的引用提供给测试实例。
-请注意，`AbstractJUnit4InfraContextTests` 和 `AbstractTestNGInfraContextTests` 实现了 `ApplicationContextAware`，因此会自动提供对 `ApplicationContext` 的访问。
 
 .@Autowired ApplicationContext
 [TIP]
@@ -23,7 +22,6 @@ class MyTest {
   @Autowired // <1>
   ApplicationContext applicationContext;
 
-  // 类体...
 }
 ----
 <1> 注入 `ApplicationContext`。
@@ -45,7 +43,6 @@ class MyWebAppTest {
   @Autowired // <2>
   WebApplicationContext wac;
 
-  // 类体...
 }
 ----
 <1> 配置 `WebApplicationContext`。

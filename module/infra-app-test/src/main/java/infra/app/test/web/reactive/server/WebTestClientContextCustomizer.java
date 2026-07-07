@@ -18,6 +18,8 @@
 
 package infra.app.test.web.reactive.server;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 
 import infra.aot.AotDetector;
@@ -179,10 +181,10 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
       return (sslEnabled ? "https" : "http") + "://localhost:" + port + pathSegment;
     }
 
-    private String deduceBasePath() {
+    private @Nullable String deduceBasePath() {
       ApplicationType webApplicationType = deduceFromApplicationContext(this.applicationContext.getClass());
       if (webApplicationType == ApplicationType.REACTIVE_WEB) {
-        return this.applicationContext.getEnvironment().getProperty("infra.webflux.base-path");
+        return this.applicationContext.getEnvironment().getProperty("infra.reactive.base-path");
       }
       return null;
     }

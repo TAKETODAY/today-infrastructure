@@ -46,7 +46,7 @@ Infra 集成测试支持的主要目标包括：
 [[testing-ctx-management]]
 === 上下文管理与缓存
 
-Infra TestContext Framework 提供对 Infra `ApplicationContext` 与 `WebApplicationContext`
+Infra TestContext Framework 提供对 Infra `ApplicationContext`
 的加载与一致缓存。缓存加载的上下文很重要，因为启动时间可能成为问题——并非 Infra 本身的
 开销，而是 Infra 容器实例化对象所需的时间。例如，一个包含 50 到 100 个 Hibernate 映射
 文件的项目可能需要 10 到 20 秒加载映射文件；如果每个测试夹具在运行前都要承担这个成本，

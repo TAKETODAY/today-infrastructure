@@ -1,7 +1,7 @@
 [[testcontext-ctx-management-caching]]
 = 上下文缓存
 
-一旦 TestContext 框架为测试加载了 `ApplicationContext`（或 `WebApplicationContext`），该上下文将被缓存并重新用于所有在同一测试套件中声明相同唯一上下文配置的后续测试。要了解缓存的工作原理，重要的是要理解 "`唯一`" 和 "`测试套件`" 的含义。
+一旦 TestContext 框架为测试加载了 `ApplicationContext`，该上下文将被缓存并重新用于所有在同一测试套件中声明相同唯一上下文配置的后续测试。要了解缓存的工作原理，重要的是要理解 "`唯一`" 和 "`测试套件`" 的含义。
 
 `ApplicationContext` 可以通过用于加载它的配置参数组合来唯一标识。因此，配置参数的唯一组合用于生成缓存上下文的键。TestContext 框架使用以下配置参数来构建上下文缓存键：
 

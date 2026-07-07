@@ -148,7 +148,7 @@ public @interface InfraTest {
     /**
      * Creates a {@link WebApplicationContext} with a mock environment if
      * mock APIs are on the classpath, a {@link ReactiveWebApplicationContext} if
-     * Infra WebFlux is on the classpath or a regular {@link ApplicationContext}
+     * Infra Reactive is on the classpath or a regular {@link ApplicationContext}
      * otherwise.
      */
     MOCK(false),

@@ -64,7 +64,7 @@ public class MockSession extends AbstractSession {
   private Duration maxIdleTime = Duration.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
   /**
-   * Create a new MockHttpSession with a default {@link DefaultMockContext}.
+   * Create a new MockSession with a default {@link DefaultMockContext}.
    *
    * @see DefaultMockContext
    */
@@ -73,7 +73,7 @@ public class MockSession extends AbstractSession {
   }
 
   /**
-   * Create a new MockHttpSession.
+   * Create a new MockSession.
    *
    * @param id a unique identifier for this session
    */

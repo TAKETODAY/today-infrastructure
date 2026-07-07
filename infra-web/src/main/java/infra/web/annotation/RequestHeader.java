@@ -31,7 +31,7 @@ import infra.util.MultiValueMap;
 /**
  * Annotation which indicates that a method parameter should be bound to a web request header.
  *
- * <p>Supported for annotated handler methods in Web MVC and Infra WebFlux.
+ * <p>Supported for annotated handler methods in Web MVC and Infra Reactive.
  *
  * <p>If the method parameter is {@link java.util.Map Map&lt;String, String&gt;},
  * {@link MultiValueMap MultiValueMap&lt;String, String&gt;},

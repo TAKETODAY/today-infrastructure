@@ -53,7 +53,7 @@ import infra.web.util.UriBuilderFactory;
 /**
  * Client for testing web servers that uses {@link WebClient} internally to
  * perform requests while also providing a fluent API to verify responses.
- * This client can connect to any server over HTTP, or to a WebFlux application
+ * This client can connect to any server over HTTP, or to a Reactive application
  * via mock request and response objects.
  *
  * <p>Use one of the bindToXxx methods to create an instance. For example:
@@ -162,7 +162,7 @@ public interface WebTestClient {
   /**
    * Use this option to set up a server from a {@link RouterFunction}.
    * Internally the provided configuration is passed to
-   * {@code RouterFunctions#toWebHandler}. The resulting WebFlux application
+   * {@code RouterFunctions#toWebHandler}. The resulting Reactive application
    * will be tested without an HTTP server using a mock request and response.
    *
    * @param routerFunction the RouterFunction to test

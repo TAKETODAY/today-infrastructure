@@ -6,11 +6,6 @@
 
 在测试类上使用 `@WebAppConfiguration` 会指示 TestContext 框架（TCF）为你的集成测试加载
 `WebApplicationContext`（WAC）。
-这会被解释为相对于 JVM 根目录的路径（通常为项目路径）。如果你熟悉 Maven 项目的
-Web 应用目录结构，就会知道 `src/main/webapp` 是 WAR 根目录的默认位置。
-如需覆盖该默认值，可以为 `@WebAppConfiguration` 提供另一个路径
-（例如 `@WebAppConfiguration("src/test/webapp")`）。如果希望从 classpath 而不是
-文件系统引用基础资源路径，可以使用 Infra 的 `classpath:` 前缀。
 
 请注意，Infra 对 `WebApplicationContext` 实现的测试支持与对标准 `ApplicationContext`
 实现的支持一致。使用 `WebApplicationContext` 测试时，你可以通过
@@ -29,7 +24,6 @@ Conventions::
 ----
 @ExtendWith(InfraExtension.class)
 
-// 默认为 "file:src/main/webapp"
 @WebAppConfiguration
 
 // 检测同一包中的 "WacTests-context.xml"
@@ -60,10 +54,10 @@ Default resource semantics::
 @ExtendWith(InfraExtension.class)
 
 // 文件系统资源
-@WebAppConfiguration("webapp")
+@WebAppConfiguration
 
 // 类路径资源
-@ContextConfiguration("/spring/test-servlet-config.xml")
+@ContextConfiguration("/config/test-config-config.xml")
 class WacTests {
   //...
 }
@@ -84,11 +78,10 @@ Explicit resource semantics::
 ----
 @ExtendWith(InfraExtension.class)
 
-// 类路径资源
-@WebAppConfiguration("classpath:test-web-resources")
+@WebAppConfiguration
 
 // 文件系统资源
-@ContextConfiguration("file:src/main/webapp/WEB-INF/servlet-config.xml")
+@ContextConfiguration("file:src/main/webapp/WEB-INF/config-config.xml")
 class WacTests {
   //...
 }

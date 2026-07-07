@@ -37,7 +37,7 @@ public interface WebTestClientConfigurer {
 
   /**
    * Use methods on {@link WebTestClient.Builder} to modify test client
-   * settings. For a mock WebFlux server, For a MockMvc server, mutate the
+   * settings. For a mock Reactive server, For a MockMvc server, mutate the
    * {@link MockMvcHttpConnector} and set it on {@link WebTestClient.Builder}.
    *
    * @param builder the WebTestClient builder for test client changes

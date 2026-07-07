@@ -231,7 +231,7 @@ XML::
 方法验证依赖于围绕目标类的 xref:core/aop/introduction-proxies.adoc[AOP 代理]，即用于接口方法的 JDK 动态代理或 CGLIB 代理。使用代理有一定的限制，其中一些在 xref:core/aop/proxying.adoc#aop-understanding-aop-proxies[理解 AOP 代理] 中有描述。此外，请记住始终在代理类上使用方法和访问器；直接字段访问将不起作用。
 ====
 
-Web MVC 和 WebFlux 对相同的底层方法验证具有内置支持，但不需要 AOP。因此，请务必查看本节的其余部分，并参阅 Web MVC xref:web/webmvc/mvc-controller/ann-validation.adoc[验证] 和 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应] 部分。
+Web MVC 和 Reactive 对相同的底层方法验证具有内置支持，但不需要 AOP。因此，请务必查看本节的其余部分，并参阅 Web MVC xref:web/webmvc/mvc-controller/ann-validation.adoc[验证] 和 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应] 部分。
 
 
 [[validation-beanvalidation-infra-method-exceptions]]

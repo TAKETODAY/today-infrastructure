@@ -49,15 +49,15 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
-import infra.web.mock.MockMemoryPart;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.web.HttpMediaTypeNotSupportedException;
+import infra.web.mock.MockMemoryPart;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.Cookie;
 import infra.web.multipart.Part;
 import infra.web.view.PathPatternsTestUtils;
 
@@ -351,19 +351,6 @@ class DefaultServerRequestTests {
     assertThatExceptionOfType(HttpMediaTypeNotSupportedException.class).isThrownBy(() ->
             request.body(String.class));
   }
-
-//  @Test
-//  void session() {
-//    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-//    MockHttpSession session = new MockHttpSession();
-//    mockRequest.setSession(session);
-//
-//    DefaultServerRequest request = new DefaultServerRequest(mockRequest,
-//            this.messageConverters);
-//
-//    assertThat(request.session()).isEqualTo(session);
-//
-//  }
 
   @Test
   void bindToConstructor() throws BindException {

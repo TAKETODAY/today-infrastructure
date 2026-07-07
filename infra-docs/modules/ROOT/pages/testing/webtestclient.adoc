@@ -1,7 +1,7 @@
 [[webtestclient]]
 = WebTestClient
 
-`WebTestClient` 是一个设计用于测试服务器应用程序的 HTTP 客户端。它包装了 WebClient 并使用它来执行请求，但暴露了一个测试门面（testing facade）用于验证响应。`WebTestClient` 可用于执行端到端 HTTP 测试。它还可以通过 mock 服务器请求和响应对象，在没有运行服务器的情况下测试 Web MVC 和 Infra WebFlux 应用程序。
+`WebTestClient` 是一个设计用于测试服务器应用程序的 HTTP 客户端。它包装了 WebClient 并使用它来执行请求，但暴露了一个测试门面（testing facade）用于验证响应。`WebTestClient` 可用于执行端到端 HTTP 测试。它还可以通过 mock 服务器请求和响应对象，在没有运行服务器的情况下测试 Web MVC 和 Infra Reactive 应用程序。
 
 
 
@@ -50,7 +50,7 @@ WebTestClient client =
 [[webtestclient-context-config]]
 === 绑定到 `ApplicationContext`
 
-此设置允许你加载带有 Web MVC 或 Infra WebFlux 基础设施和控制器声明的 Infra 配置，并使用它通过 mock 请求和响应对象处理请求，而无需运行服务器。
+此设置允许你加载带有 Web MVC 或 Infra Reactive 基础设施和控制器声明的 Infra 配置，并使用它通过 mock 请求和响应对象处理请求，而无需运行服务器。
 
 对于 Web MVC，使用以下代码，其中 Infra `ApplicationContext` 被传递给 {today-framework-api}/test/web/mock/setup/MockMvcBuilders.html#webAppContextSetup-infra.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup] 以创建一个 xref:testing/mvc-test-framework.adoc[MockMvc] 实例来处理请求：
 
@@ -85,7 +85,7 @@ class MyTests {
 
 此设置允许你通过 mock 请求和响应对象测试函数式端点，而无需运行服务器。
 
-对于 WebFlux，使用以下代码，它委托给 `RouterFunctions.toWebHandler` 创建服务器设置以处理请求：
+对于 Reactive，使用以下代码，它委托给 `RouterFunctions.toWebHandler` 创建服务器设置以处理请求：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

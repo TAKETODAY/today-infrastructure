@@ -50,7 +50,6 @@ void databaseTest() {
 ======
 
 请注意，`ResourceDatabasePopulator` 在内部委托给 `ScriptUtils` 来解析和运行 SQL 脚本。
-同样，xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`] 和 xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`] 中的 `executeSqlScript(..)` 方法在内部使用 `ResourceDatabasePopulator` 来运行 SQL 脚本。
 有关更多详细信息，请参阅各种 `executeSqlScript(..)` 方法的 Javadoc。
 
 [[testcontext-executing-sql-declaratively]]

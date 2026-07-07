@@ -45,7 +45,7 @@ import reactor.core.publisher.Mono;
  */
 @InfraTest(webEnvironment = InfraTest.WebEnvironment.RANDOM_PORT,
         properties = "app.main.application-type=reactive_web")
-@TestPropertySource(properties = "webflux.base-path=/test")
+@TestPropertySource(properties = "infra.reactive.base-path=/test")
 @Disabled
 class WebTestClientContextCustomizerWithCustomBasePathTests {
 
