@@ -630,7 +630,7 @@ class SampleReflectionRuntimeHintsTests {
 [source,txt,indent=0,subs="verbatim,quotes"]
 ----
 infra.docs.core.aot.hints.testing.SampleReflection performReflection
-INFO: Infra version:6.0.0-SNAPSHOT
+INFO: Infra version:5.0.0-SNAPSHOT
 
 Missing <"ReflectionHints"> for invocation <java.lang.Class#forName>
 with arguments ["infra.lang.Version",

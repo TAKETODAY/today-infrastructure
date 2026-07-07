@@ -362,7 +362,7 @@ public abstract class AbstractMethodMessageHandler<T>
 
   /**
    * Register a handler method and its unique mapping.
-   * <p><strong>Note:</strong> As of 5.3 this method is public (rather than
+   * <p><strong>Note:</strong> this method is public (rather than
    * protected) and can be used both at startup and at runtime.
    *
    * @param handler the bean name of the handler or the handler instance

@@ -35,8 +35,6 @@ import io.rsocket.core.RSocketClient;
 import io.rsocket.loadbalance.LoadbalanceStrategy;
 import io.rsocket.loadbalance.LoadbalanceTarget;
 import io.rsocket.transport.ClientTransport;
-import io.rsocket.transport.netty.client.TcpClientTransport;
-import io.rsocket.transport.netty.client.WebsocketClientTransport;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -54,8 +52,6 @@ public interface RSocketRequester extends Disposable {
 
   /**
    * Return the underlying {@link RSocketClient} used to make requests with.
-   *
-   * @since 5.0
    */
   RSocketClient rsocketClient();
 
@@ -122,8 +118,6 @@ public interface RSocketRequester extends Disposable {
    * Shortcut method that delegates to the same on the underlying
    * {@link #rsocketClient()} in order to close the connection from the
    * underlying transport and notify subscribers.
-   *
-   * @since 5.0
    */
   @Override
   default void dispose() {
@@ -133,8 +127,6 @@ public interface RSocketRequester extends Disposable {
   /**
    * Shortcut method that delegates to the same on the underlying
    * {@link #rsocketClient()}.
-   *
-   * @since 5.0
    */
   @Override
   default boolean isDisposed() {
@@ -246,8 +238,6 @@ public interface RSocketRequester extends Disposable {
      * <li>To configure client side responding, see
      * {@link RSocketMessageHandler#responder(RSocketStrategies, Object...)}.
      * </ul>
-     *
-     * @since 5.0
      */
     RSocketRequester.Builder rsocketConnector(RSocketConnectorConfigurer configurer);
 
@@ -270,7 +260,6 @@ public interface RSocketRequester extends Disposable {
      * @param host the host to connect to
      * @param port the port to connect to
      * @return the created {@code RSocketRequester}
-     * @since 5.0
      */
     RSocketRequester tcp(String host, int port);
 
@@ -283,7 +272,6 @@ public interface RSocketRequester extends Disposable {
      *
      * @param uri the URL to connect to
      * @return the created {@code RSocketRequester}
-     * @since 5.0
      */
     RSocketRequester websocket(URI uri);
 
@@ -293,7 +281,6 @@ public interface RSocketRequester extends Disposable {
      *
      * @param transport the transport to connect with
      * @return the created {@code RSocketRequester}
-     * @since 5.0
      */
     RSocketRequester transport(ClientTransport transport);
 
@@ -309,44 +296,10 @@ public interface RSocketRequester extends Disposable {
      * @param loadbalanceStrategy the strategy to use for selecting from
      * the list of loadbalance targets.
      * @return the created {@code RSocketRequester}
-     * @since 5.0
      */
     RSocketRequester transports(
             Publisher<List<LoadbalanceTarget>> targetPublisher,
             LoadbalanceStrategy loadbalanceStrategy);
-
-    /**
-     * Connect to the server over TCP.
-     *
-     * @param host the server host
-     * @param port the server port
-     * @return an {@code RSocketRequester} for the connection
-     * @see TcpClientTransport
-     * @deprecated in favor of {@link #tcp(String, int)}
-     */
-    @Deprecated(since = "5.3")
-    Mono<RSocketRequester> connectTcp(String host, int port);
-
-    /**
-     * Connect to the server over WebSocket.
-     *
-     * @param uri the RSocket server endpoint URI
-     * @return an {@code RSocketRequester} for the connection
-     * @see WebsocketClientTransport
-     * @deprecated in favor of {@link #websocket(URI)}
-     */
-    @Deprecated(since = "5.3")
-    Mono<RSocketRequester> connectWebSocket(URI uri);
-
-    /**
-     * Connect to the server with the given {@code ClientTransport}.
-     *
-     * @param transport the client transport to use
-     * @return an {@code RSocketRequester} for the connection
-     * @deprecated in favor of {@link #transport(ClientTransport)}
-     */
-    @Deprecated(since = "5.3")
-    Mono<RSocketRequester> connect(ClientTransport transport);
 
   }
 
@@ -367,8 +320,6 @@ public interface RSocketRequester extends Disposable {
 
     /**
      * Perform a {@link RSocket#metadataPush(Payload) metadataPush}.
-     *
-     * @since 5.0
      */
     Mono<Void> sendMetadata();
 
@@ -437,8 +388,6 @@ public interface RSocketRequester extends Disposable {
 
   /**
    * Spec to declare the expected output for an RSocket request.
-   *
-   * @since 5.0
    */
   interface RetrieveSpec {
 

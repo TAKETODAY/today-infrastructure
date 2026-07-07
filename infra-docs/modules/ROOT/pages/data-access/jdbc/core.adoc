@@ -560,7 +560,7 @@ NOTE: `JdbcClient` 是 JDBC 查询/更新语句的灵活但简化的外观。
 
 `SQLExceptionTranslator` 是一个接口，由可以在 ``SQLException`` 和 Infra 自己的 `infra.dao.DataAccessException` 之间进行转换的类实现，后者与数据访问策略无关。实现可以是通用的（例如，使用 JDBC 的 SQLState 代码）或专有的（例如，使用 Oracle 错误代码）以获得更高的精度。这种异常转换机制用于通用的 `JdbcTemplate` 和 `JdbcTransactionManager` 入口点之后，它们不传播 `SQLException`，而是传播 `DataAccessException`。
 
-NOTE: 从 6.0 开始，默认的异常转换器是 `SQLExceptionSubclassTranslator`，它通过一些额外的检查检测 JDBC 4 `SQLException` 子类，并通过 `SQLStateSQLExceptionTranslator` 回退到 `SQLState` 内省。这通常足以满足常见的数据库访问需求，不需要特定于供应商的检测。为了向后兼容，请考虑如下所述使用 `SQLErrorCodeSQLExceptionTranslator`，可能带有自定义错误代码映射。
+NOTE: 默认的异常转换器是 `SQLExceptionSubclassTranslator`，它通过一些额外的检查检测 JDBC 4 `SQLException` 子类，并通过 `SQLStateSQLExceptionTranslator` 回退到 `SQLState` 内省。这通常足以满足常见的数据库访问需求，不需要特定于供应商的检测。为了向后兼容，请考虑如下所述使用 `SQLErrorCodeSQLExceptionTranslator`，可能带有自定义错误代码映射。
 
 `SQLErrorCodeSQLExceptionTranslator` 是 `SQLExceptionTranslator` 的实现，当类路径的根目录中存在名为 `sql-error-codes.xml` 的文件时，默认使用该实现。此实现使用特定的供应商代码。它比 `SQLState` 或 `SQLException` 子类转换更精确。错误代码转换基于名为 `SQLErrorCodes` 的 JavaBean 类型类中保存的代码。此类由 `SQLErrorCodesFactory` 创建和填充，顾名思义，它是一个基于名为 `sql-error-codes.xml` 的配置文件的内容创建 `SQLErrorCodes` 的工厂。此文件填充了供应商代码，并基于从 `DatabaseMetaData` 获取的 `DatabaseProductName`。使用您正在使用的实际数据库的代码。
 

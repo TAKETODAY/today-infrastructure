@@ -5,7 +5,7 @@
 
 如果 `@ContextConfiguration` 中的 `inheritLocations` 或 `inheritInitializers` 属性设置为 `false`，则测试类的资源位置或组件类以及上下文初始化器将分别遮蔽并有效地替换超类定义的配置。
 
-NOTE: 自 TODAY Framework 5.3 起，测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
+NOTE: 测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
 
 在下一个使用 XML 资源位置的示例中，`ExtendedTest` 的 `ApplicationContext` 按顺序从 `base-config.xml` 和 `extended-config.xml` 加载。因此，在 `extended-config.xml` 中定义的 Bean 可以覆盖（即替换）在 `base-config.xml` 中定义的 Bean。以下示例显示了一个类如何扩展另一个类并同时使用其自己的配置文件和超类的配置文件：
 

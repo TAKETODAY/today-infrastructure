@@ -1,7 +1,7 @@
 [[testcontext-application-events]]
 = 应用程序事件
 
-自 TODAY Framework 5.3.3 起，TestContext 框架提供了对记录在 `ApplicationContext` 中发布的
+TestContext 框架提供了对记录在 `ApplicationContext` 中发布的
 xref:core/beans/context-introduction.adoc#context-functionality-events[应用程序事件] 的支持，
 以便在测试中对这些事件进行断言。在单个测试执行期间发布的所有事件都可以通过
 `ApplicationEvents` API 获得，该 API 允许你将事件作为 `java.util.Stream` 进行处理。

@@ -61,7 +61,7 @@ public class ProxyCachingConfiguration extends AbstractCachingConfiguration {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CacheOperationSource cacheOperationSource() {
-    // Accept protected @Cacheable etc methods on CGLIB proxies, as of 6.0.
+    // Accept protected @Cacheable etc methods on CGLIB proxies
     return new AnnotationCacheOperationSource(false);
   }
 

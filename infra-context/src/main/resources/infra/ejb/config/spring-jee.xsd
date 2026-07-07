@@ -121,7 +121,7 @@
               <xsd:documentation source="java:java.lang.Class"><![CDATA[
 	The home interface that will be narrowed to before performing the
 	parameterless SLSB create() call that returns the actual SLSB proxy.
-	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+	NOTE: Effectively ignored as of 5.0 in favor of plain JNDI lookups.
 							]]></xsd:documentation>
             </xsd:annotation>
           </xsd:attribute>
@@ -129,7 +129,7 @@
             <xsd:annotation>
               <xsd:documentation><![CDATA[
 	Controls whether to refresh the EJB home on connect failure.
-	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+	NOTE: Effectively ignored as of 5.0 in favor of plain JNDI lookups.
 
 	Can be turned on to allow for hot restart of the EJB server.
 	If a cached EJB home throws an RMI exception that indicates a
@@ -142,7 +142,7 @@
             <xsd:annotation>
               <xsd:documentation><![CDATA[
 	Controls whether to cache the actual session bean object.
-	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+	NOTE: Effectively ignored as of 5.0 in favor of plain JNDI lookups.
 
 	Off by default for standard EJB compliance. Turn this flag
 	on to optimize session bean access for servers that are
@@ -237,7 +237,7 @@
 	Controls whether the lookup of the EJB home object is performed
 	immediately on startup (if true, the default), or on first access
 	(if false).
-	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+	NOTE: Effectively ignored as of 5.0 in favor of plain JNDI lookups.
 						]]></xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
@@ -246,7 +246,7 @@
             <xsd:documentation><![CDATA[
 	Controls whether the EJB home object is cached once it has been located.
 	On by default; turn this flag off to always reobtain fresh home objects.
-	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+	NOTE: Effectively ignored as of 5.0 in favor of plain JNDI lookups.
 						]]></xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
@@ -254,7 +254,7 @@
           <xsd:annotation>
             <xsd:documentation source="java:java.lang.Class"><![CDATA[
 	The business interface of the EJB being proxied.
-	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+	NOTE: Effectively ignored as of 5.0 in favor of plain JNDI lookups.
 						]]></xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>

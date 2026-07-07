@@ -180,7 +180,7 @@ class TransferServiceTest {
 
 通常情况下，在给定项目中的多个测试类中使用同一组配置文件。因此，为了避免重复声明 `@ActiveProfiles` 注解，你可以将 `@ActiveProfiles` 声明在基类上一次，子类会自动从基类继承 `@ActiveProfiles` 配置。在以下示例中，`@ActiveProfiles` 的声明（以及其他注解）已移动到抽象超类 `AbstractIntegrationTest` 中：
 
-NOTE: 自 TODAY Framework 5.3 起，测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
+NOTE: 测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

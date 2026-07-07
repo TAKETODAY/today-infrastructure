@@ -506,7 +506,7 @@ public class MimeMessageHelper {
    * <p>The default is {@code false} for standard MIME behavior; turn this to
    * {@code true} for compatibility with older email clients. On a related note,
    * check out JavaMail's {@code mail.mime.encodefilename} system property.
-   * <p><b>NOTE:</b> The default changed to {@code false} in 5.3, in favor of
+   * <p><b>NOTE:</b> The default changed to {@code false}, in favor of
    * JavaMail's standard {@code mail.mime.encodefilename} system property.
    *
    * @see #addAttachment(String, DataSource)

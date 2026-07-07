@@ -184,32 +184,6 @@ final class DefaultRSocketRequesterBuilder implements RSocketRequester.Builder {
     return new DefaultRSocketRequester(client, null, dataMimeType, metaMimeType, strategies);
   }
 
-  @Override
-  @SuppressWarnings("deprecation")
-  public Mono<RSocketRequester> connectTcp(String host, int port) {
-    return connect(TcpClientTransport.create(host, port));
-  }
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public Mono<RSocketRequester> connectWebSocket(URI uri) {
-    return connect(WebsocketClientTransport.create(uri));
-  }
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public Mono<RSocketRequester> connect(ClientTransport transport) {
-    RSocketStrategies rsocketStrategies = getRSocketStrategies();
-    MimeType metaMimeType = getMetadataMimeType();
-    MimeType dataMimeType = getDataMimeType(rsocketStrategies);
-
-    RSocketConnector connector = initConnector(
-            this.rsocketConnectorConfigurers, metaMimeType, dataMimeType, rsocketStrategies);
-
-    return connector.connect(transport).map(rsocket ->
-            new DefaultRSocketRequester(null, rsocket, dataMimeType, metaMimeType, rsocketStrategies));
-  }
-
   public MimeType getMetadataMimeType() {
     return this.metadataMimeType != null ? this.metadataMimeType :
             MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());

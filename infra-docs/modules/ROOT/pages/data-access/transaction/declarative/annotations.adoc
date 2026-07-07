@@ -126,9 +126,9 @@ public class DefaultFooService implements FooService {
 .方法可见性和代理模式下的 `@Transactional`
 [NOTE]
 ====
-`@Transactional` 注解通常用于具有 `public` 可见性的方法。从 6.0 开始，默认情况下，对于基于类的代理，`protected` 或包可见的方法也可以设为事务性。请注意，基于接口的代理中的事务方法必须始终是 `public` 的，并且在被代理的接口中定义。对于这两种代理，只有通过代理传入的外部方法调用才会被拦截。
+`@Transactional` 注解通常用于具有 `public` 可见性的方法。默认情况下，对于基于类的代理，`protected` 或包可见的方法也可以设为事务性。请注意，基于接口的代理中的事务方法必须始终是 `public` 的，并且在被代理的接口中定义。对于这两种代理，只有通过代理传入的外部方法调用才会被拦截。
 
-如果您希望在不同类型的代理之间对方法可见性进行一致的处理（直到 5.3 版本这都是默认设置），请考虑指定 `publicMethodsOnly`：
+如果您希望在不同类型的代理之间对方法可见性进行一致的处理，请考虑指定 `publicMethodsOnly`：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----

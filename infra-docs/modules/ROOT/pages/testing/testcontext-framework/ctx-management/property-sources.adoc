@@ -137,7 +137,7 @@ class MyIntegrationTests {
 
 如果 `@TestPropertySource` 中的 `inheritLocations` 或 `inheritProperties` 属性设置为 `false`，则测试类的位置或内联属性将分别遮蔽并有效地替换超类定义的配置。
 
-NOTE: 自 TODAY Framework 5.3 起，测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
+NOTE: 测试配置也可以从封闭类继承。有关详细信息，请参阅 xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` 测试类配置]。
 
 在下一个示例中，`BaseTest` 的 `ApplicationContext` 仅使用 `base.properties` 文件作为测试属性源加载。相比之下，`ExtendedTest` 的 `ApplicationContext` 使用 `base.properties` 和 `extended.properties` 文件作为测试属性源位置加载。以下示例显示了如何使用 `properties` 文件在子类及其超类中定义属性：
 

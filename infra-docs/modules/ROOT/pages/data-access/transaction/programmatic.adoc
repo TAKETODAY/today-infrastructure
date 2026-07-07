@@ -218,7 +218,7 @@ transactionalOperator.execute(new TransactionCallback<>() {
 在 Reactive Streams 中，`Subscriber` 可以取消其 `Subscription` 并停止其 `Publisher`。
 Project Reactor 以及其他库中的操作符，例如 `next()`、`take(long)`、`timeout(Duration)` 等，都可以发出取消信号。
 无法知道取消的原因，是由于错误还是仅仅因为缺乏进一步消费的兴趣。
-从 5.3 版本开始，取消信号会导致回滚。
+取消信号会导致回滚。
 因此，重要的是要考虑在事务 `Publisher` 下游使用的操作符。
 特别是在 `Flux` 或其他多值 `Publisher` 的情况下，必须使用完整的输出以允许事务完成。
 

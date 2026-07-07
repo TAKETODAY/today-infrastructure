@@ -227,9 +227,9 @@ class OrderServiceIntegrationTests {
 [[testcontext-junit-jupiter-nested-test-configuration]]
 === `@Nested` 测试类配置
 
-自 TODAY Framework 5.0 起，_Infra TestContext 框架_ 支持在 JUnit Jupiter 中的 `@Nested` 测试类上使用测试相关注解；然而，在 Infra Framework 5.3 之前，类级测试配置注解不会像从超类那样从封闭类 *继承*。
+_Infra TestContext 框架_ 支持在 JUnit Jupiter 中的 `@Nested` 测试类上使用测试相关注解；
 
-TODAY Framework 5.3 引入了对从封闭类继承测试类配置的一流支持，默认情况下将继承此类配置。
+引入了对从封闭类继承测试类配置的一流支持，默认情况下将继承此类配置。
 要将默认的 `INHERIT` 模式更改为 `OVERRIDE` 模式，您可以使用 `@NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)` 注解单个 `@Nested` 测试类。
 显式 `@NestedTestConfiguration` 声明将应用于带注解的测试类及其任何子类和嵌套类。
 因此，您可以使用 `@NestedTestConfiguration` 注解顶级测试类，这将递归应用于其所有嵌套测试类。
