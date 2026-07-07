@@ -75,7 +75,6 @@ import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.WebApplicationContext;
 import infra.web.view.InternalResourceViewResolver;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -353,7 +352,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * In a standalone setup there is no support for placeholder values embedded in
    * request mappings. This method allows manually provided placeholder values so they
    * can be resolved. Alternatively consider creating a test that initializes a
-   * {@link WebApplicationContext}.
+   * {@link ApplicationContext}.
    */
   public StandaloneMockMvcBuilder addPlaceholderValue(String name, Object value) {
     this.placeholderValues.put(name, value);

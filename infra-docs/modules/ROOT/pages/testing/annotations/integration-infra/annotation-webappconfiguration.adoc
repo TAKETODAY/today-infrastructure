@@ -1,8 +1,8 @@
 [[infra-testing-annotation-webappconfiguration]]
 = `@WebAppConfiguration`
 
-`@WebAppConfiguration` 是一个类级注解，您可以使用它来声明为集成测试加载的 `ApplicationContext` 应该是 `WebApplicationContext`。
-测试类上仅存在 `@WebAppConfiguration` 即可确保为测试加载 `WebApplicationContext`。
+`@WebAppConfiguration` 是一个类级注解，您可以使用它来声明为集成测试加载的 `ApplicationContext` 应该是 `GenericWebApplicationContext`。
+测试类上仅存在 `@WebAppConfiguration` 即可确保为测试加载 `GenericWebApplicationContext`。
 
 以下示例显示了如何使用 `@WebAppConfiguration` 注解：
 

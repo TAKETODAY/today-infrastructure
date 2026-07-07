@@ -34,7 +34,6 @@ import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web mock environments.
@@ -65,7 +64,7 @@ import infra.web.mock.WebApplicationContext;
  * @since 4.0 2022/2/20 21:03
  */
 public class GenericWebApplicationContext extends GenericApplicationContext
-        implements WebApplicationContext, ConfigurableApplicationContext {
+        implements ConfigurableApplicationContext {
 
   /**
    * Create a new {@code GenericWebApplicationContext}.

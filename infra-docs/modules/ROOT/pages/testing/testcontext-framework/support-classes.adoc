@@ -64,7 +64,7 @@ class SimpleTests {
 
 ======
 
-同样，以下示例使用 `@JUnitWebConfig` 创建用于 JUnit Jupiter 的 `WebApplicationContext`：
+同样，以下示例使用 `@JUnitWebConfig` 创建用于 JUnit Jupiter 的 `GenericWebApplicationContext`：
 
 [tabs]
 ======

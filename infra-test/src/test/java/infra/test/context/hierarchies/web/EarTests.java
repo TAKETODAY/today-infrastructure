@@ -27,7 +27,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +58,7 @@ class EarTests {
 
   @Test
   void verifyEarConfig() {
-    boolean condition = context instanceof WebApplicationContext;
+    boolean condition = context instanceof GenericWebApplicationContext;
     assertThat(condition).isFalse();
     assertThat(context.getParent()).isNull();
     assertThat(ear).isEqualTo("ear");

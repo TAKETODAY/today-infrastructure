@@ -18,7 +18,6 @@ import infra.app.Application;
 import infra.app.ApplicationContextFactory;
 import infra.app.InfraConfiguration;
 import infra.app.test.context.InfraTest.UseMainMethod;
-import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 import infra.beans.factory.BeanCreationException;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -39,7 +38,8 @@ import infra.test.context.TestPropertySource;
 import infra.test.context.support.TestPropertySourceUtils;
 import infra.test.util.ReflectionTestUtils;
 import infra.test.util.TestPropertyValues;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -155,7 +155,7 @@ class InfraApplicationContextLoaderTests {
   void whenEnvironmentChangesWebApplicationTypeToNoneThenContextTypeChangesAccordingly() {
     TestContext context = new ExposedTestContextManager(ChangingWebApplicationTypeToNone.class)
             .getExposedTestContext();
-    assertThat(context.getApplicationContext()).isNotInstanceOf(WebApplicationContext.class);
+    assertThat(context.getApplicationContext()).isNotInstanceOf(GenericWebApplicationContext.class);
   }
 
   @Test

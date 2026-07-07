@@ -29,7 +29,7 @@ class MyTest {
 ======
 
 
-同样，如果您的测试配置为加载 `WebApplicationContext`，则可以将 Web 应用程序上下文注入到您的测试中，如下所示：
+同样，如果您的测试配置为加载 `GenericWebApplicationContext`，则可以将 Web 应用程序上下文注入到您的测试中，如下所示：
 
 [tabs]
 ======
@@ -41,12 +41,12 @@ Java::
 class MyWebAppTest {
 
   @Autowired // <2>
-  WebApplicationContext wac;
+  GenericWebApplicationContext wac;
 
 }
 ----
-<1> 配置 `WebApplicationContext`。
-<2> 注入 `WebApplicationContext`。
+<1> 配置 `GenericWebApplicationContext`。
+<2> 注入 `GenericWebApplicationContext`。
 ======
 
 
@@ -72,7 +72,7 @@ class MyWebAppTest {
 * xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[使用环境配置文件的上下文配置]
 * xref:testing/testcontext-framework/ctx-management/property-sources.adoc[使用测试属性源的上下文配置]
 * xref:testing/testcontext-framework/ctx-management/dynamic-property-sources.adoc[使用动态属性源的上下文配置]
-* xref:testing/testcontext-framework/ctx-management/web.adoc[加载 `WebApplicationContext`]
+* xref:testing/testcontext-framework/ctx-management/web.adoc[加载 `GenericWebApplicationContext`]
 * xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存]
 * xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[上下文失败阈值]
 * xref:testing/testcontext-framework/ctx-management/hierarchies.adoc[上下文层次结构]

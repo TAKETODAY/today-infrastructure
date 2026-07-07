@@ -28,13 +28,13 @@ import infra.web.RequestContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit-based integration tests that verify support for loading a
- * {@link WebApplicationContext} when extending {@link AbstractJUnit4ContextTests}.
+ * {@link GenericWebApplicationContext} when extending {@link AbstractJUnit4ContextTests}.
  *
  * @author Sam Brannen
  * @since 4.0

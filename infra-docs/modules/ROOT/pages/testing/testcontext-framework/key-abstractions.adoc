@@ -37,7 +37,7 @@
 == Context Loaders
 
 `ContextLoader` 是一个策略接口，用于为 Infra TestContext 框架管理的集成测试加载 `ApplicationContext`。
-您应该实现 `SmartContextLoader` 而不是此接口，以提供对组件类、活动 Bean 定义配置文件 (profiles)、测试属性源、上下文层次结构和 `WebApplicationContext` 支持的支持。
+您应该实现 `SmartContextLoader` 而不是此接口，以提供对组件类、活动 Bean 定义配置文件 (profiles)、测试属性源、上下文层次结构和 `GenericWebApplicationContext` 支持的支持。
 
 `SmartContextLoader` 是 `ContextLoader` 接口的扩展，它取代了原始的最小 `ContextLoader` SPI。
 具体来说，`SmartContextLoader` 可以选择处理资源位置、组件类或上下文初始化器。
@@ -51,6 +51,6 @@ Infra 提供了以下实现：
 仅当测试类上存在 `@WebAppConfiguration` 时才使用 Web `ContextLoader`。
 只有在类路径上有 Groovy 时才启用 Groovy 支持。
 * `AnnotationConfigContextLoader`：从组件类加载标准的 `ApplicationContext`。
-* `AnnotationConfigWebContextLoader`：从组件类加载 `WebApplicationContext`。
+* `AnnotationConfigWebContextLoader`：从组件类加载 `GenericWebApplicationContext`。
 * `GenericXmlContextLoader`：从 XML 资源位置加载标准的 `ApplicationContext`。
-* `GenericXmlWebContextLoader`：从 XML 资源位置加载 `WebApplicationContext`。
+* `GenericXmlWebContextLoader`：从 XML 资源位置加载 `GenericWebApplicationContext`。

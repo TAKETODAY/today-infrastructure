@@ -30,7 +30,7 @@ import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.web.WebAppConfiguration;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,9 +84,9 @@ class ControllerIntegrationTests {
 
     ApplicationContext parent = wac.getParent();
     assertThat(parent).isNotNull();
-    boolean condition = parent instanceof WebApplicationContext;
+    boolean condition = parent instanceof GenericWebApplicationContext;
     assertThat(condition).isTrue();
-    WebApplicationContext root = (WebApplicationContext) parent;
+    GenericWebApplicationContext root = (GenericWebApplicationContext) parent;
     assertThat(root.getBeansOfType(String.class).containsKey("bar")).isFalse();
 
   }

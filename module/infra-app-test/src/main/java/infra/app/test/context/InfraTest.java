@@ -41,7 +41,6 @@ import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextLoader;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.web.reactive.server.WebTestClient;
-import infra.web.mock.WebApplicationContext;
 import infra.web.reactive.context.ReactiveWebApplicationContext;
 
 /**
@@ -146,7 +145,7 @@ public @interface InfraTest {
   enum WebEnvironment {
 
     /**
-     * Creates a {@link WebApplicationContext} with a mock environment if
+     * Creates a {@code GenericWebApplicationContext} with a mock environment if
      * mock APIs are on the classpath, a {@link ReactiveWebApplicationContext} if
      * Infra Reactive is on the classpath or a regular {@link ApplicationContext}
      * otherwise.

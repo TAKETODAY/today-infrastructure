@@ -34,11 +34,11 @@ import infra.web.mock.DefaultMockContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
-import infra.web.mock.WebApplicationContext;
+import infra.web.mock.support.GenericWebApplicationContext;
 
 /**
  * {@code TestExecutionListener} which provides mock Web API support to
- * {@link WebApplicationContext WebMockApplicationContext} loaded by the <em>Infra
+ * {@link GenericWebApplicationContext} loaded by the <em>Infra
  * TestContext Framework</em>.
  *
  * <p>Specifically, {@code MockTestExecutionListener} sets up thread-local
