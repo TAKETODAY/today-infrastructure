@@ -40,7 +40,7 @@ import infra.web.client.HttpClientErrorException;
 import infra.web.client.RestTemplate;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Tests that use a {@link RestTemplate} configured with a
  * {@link MockMvcClientHttpRequestFactory} that is in turn configured with a
- * {@link MockMvc} instance that uses a {@link GenericWebApplicationContext} loaded by
+ * {@link MockMvc} instance that uses a {@link GenericMockWebApplicationContext} loaded by
  * the TestContext framework.
  *
  * @author Rossen Stoyanchev

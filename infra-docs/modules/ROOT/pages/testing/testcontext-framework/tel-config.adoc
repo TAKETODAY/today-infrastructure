@@ -3,7 +3,7 @@
 
 Infra 提供了以下默认注册的 `TestExecutionListener` 实现，顺序如下：
 
-* `WebMockTestExecutionListener`：为 `GenericWebApplicationContext` 配置 Mock API 模拟对象。
+* `WebMockTestExecutionListener`：为 `GenericMockWebApplicationContext` 配置 Mock API 模拟对象。
 * `DirtiesContextBeforeModesTestExecutionListener`：处理 "`before`" 模式的 `@DirtiesContext` 注解。
 * `ApplicationEventsTestExecutionListener`：提供对 xref:testing/testcontext-framework/application-events.adoc[`ApplicationEvents`] 的支持。
 * `DependencyInjectionTestExecutionListener`：为测试实例提供依赖注入。

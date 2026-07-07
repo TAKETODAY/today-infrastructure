@@ -29,7 +29,7 @@ class MyTest {
 ======
 
 
-同样，如果您的测试配置为加载 `GenericWebApplicationContext`，则可以将 Web 应用程序上下文注入到您的测试中，如下所示：
+同样，如果您的测试配置为加载 `GenericMockWebApplicationContext`，则可以将 Web 应用程序上下文注入到您的测试中，如下所示：
 
 [tabs]
 ======
@@ -45,8 +45,8 @@ class MyWebAppTest {
 
 }
 ----
-<1> 配置 `GenericWebApplicationContext`。
-<2> 注入 `GenericWebApplicationContext`。
+<1> 配置 `GenericMockWebApplicationContext`。
+<2> 注入 `GenericMockWebApplicationContext`。
 ======
 
 

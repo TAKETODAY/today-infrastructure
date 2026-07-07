@@ -27,12 +27,12 @@ import java.lang.annotation.Target;
 
 import infra.test.context.ContextConfiguration;
 import infra.test.context.NestedTestConfiguration;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
  * {@code @WebAppConfiguration} is a class-level annotation that is used to
  * declare that the {@code ApplicationContext} loaded for an integration test
- * should be a {@link GenericWebApplicationContext GenericWebApplicationContext}.
+ * should be a {@link GenericMockWebApplicationContext GenericWebApplicationContext}.
  *
  * <p>Note that {@code @WebAppConfiguration} must be used in conjunction with
  * {@link ContextConfiguration @ContextConfiguration},
@@ -47,7 +47,7 @@ import infra.web.mock.support.GenericWebApplicationContext;
  * for details.
  *
  * @author Sam Brannen
- * @see GenericWebApplicationContext
+ * @see GenericMockWebApplicationContext
  * @see ContextConfiguration
  * @see WebMockTestExecutionListener
  * @since 4.0

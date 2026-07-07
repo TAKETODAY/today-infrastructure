@@ -39,7 +39,7 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.ViewControllerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultHandlers.print;
@@ -138,7 +138,7 @@ public class JavaConfigTests {
 
     ApplicationContext parent = wac.getParent();
     assertThat(parent).isNotNull();
-    assertThat(parent).isInstanceOf(GenericWebApplicationContext.class);
+    assertThat(parent).isInstanceOf(GenericMockWebApplicationContext.class);
   }
 
   @Configuration

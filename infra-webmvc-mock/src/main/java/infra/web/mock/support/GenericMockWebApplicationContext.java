@@ -63,7 +63,7 @@ import infra.web.mock.MockUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 21:03
  */
-public class GenericWebApplicationContext extends GenericApplicationContext
+public class GenericMockWebApplicationContext extends GenericApplicationContext
         implements ConfigurableApplicationContext {
 
   /**
@@ -72,7 +72,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
    * @see #registerBeanDefinition
    * @see #refresh
    */
-  public GenericWebApplicationContext() {
+  public GenericMockWebApplicationContext() {
     super();
   }
 
@@ -83,7 +83,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
    * @see #registerBeanDefinition
    * @see #refresh
    */
-  public GenericWebApplicationContext(StandardBeanFactory beanFactory) {
+  public GenericMockWebApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
   }
 

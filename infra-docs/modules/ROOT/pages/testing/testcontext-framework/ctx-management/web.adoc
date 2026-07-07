@@ -1,19 +1,19 @@
 [[testcontext-ctx-management-web]]
 = 加载 `GenericWebApplicationContext`
 
-要让 TestContext 框架加载 `GenericWebApplicationContext` 而不是标准的 `ApplicationContext`，
+要让 TestContext 框架加载 `GenericMockWebApplicationContext` 而不是标准的 `ApplicationContext`，
 可以在相应测试类上标注 `@WebAppConfiguration`。
 
 在测试类上使用 `@WebAppConfiguration` 会指示 TestContext 框架（TCF）为你的集成测试加载
-`GenericWebApplicationContext`（WAC）。
+`GenericMockWebApplicationContext`（WAC）。
 
-请注意，Infra 对 `GenericWebApplicationContext` 实现的测试支持与对标准 `ApplicationContext`
-实现的支持一致。使用 `GenericWebApplicationContext` 测试时，你可以通过
+请注意，Infra 对 `GenericMockWebApplicationContext` 实现的测试支持与对标准 `ApplicationContext`
+实现的支持一致。使用 `GenericMockWebApplicationContext` 测试时，你可以通过
 `@ContextConfiguration` 声明 XML 配置文件、Groovy 脚本或 `@Configuration` 类。
 也可以使用其他测试注解，例如 `@ActiveProfiles`、`@TestExecutionListeners`、`@Sql`、
 `@Rollback` 等。
 
-本节剩余示例展示了加载 `GenericWebApplicationContext` 的多种配置选项。
+本节剩余示例展示了加载 `GenericMockWebApplicationContext` 的多种配置选项。
 下面示例展示了 TestContext 框架对“约定优于配置”的支持：
 
 [tabs]

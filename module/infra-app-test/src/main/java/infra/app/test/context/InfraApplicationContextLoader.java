@@ -73,7 +73,7 @@ import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.function.ThrowingSupplier;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 
 /**
@@ -256,7 +256,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
           return new GenericReactiveWebApplicationContext();
         }
         if (applicationType == ApplicationType.WEB) {
-          return new GenericWebApplicationContext();
+          return new GenericMockWebApplicationContext();
         }
       }
       return ApplicationContextFactory.DEFAULT.create(applicationType);

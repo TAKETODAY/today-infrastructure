@@ -74,7 +74,7 @@ import infra.test.context.web.WebMockTestExecutionListener;
 import infra.test.context.web.WebTestContextBootstrapper;
 import infra.test.web.mock.MockMvc;
 import infra.util.function.ThrowingConsumer;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 import static infra.aot.hint.MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
 import static infra.aot.hint.MemberCategory.INVOKE_DECLARED_METHODS;
@@ -151,7 +151,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           assertThat(contextInitializer).isNotNull();
           ApplicationContext context = ((AotContextLoader) mergedConfig.getContextLoader())
                   .loadContextForAotRuntime(mergedConfig, contextInitializer);
-          if (context instanceof GenericWebApplicationContext wac) {
+          if (context instanceof GenericMockWebApplicationContext wac) {
             assertContextForWebTests(wac);
           }
           else if (testClass.getPackageName().contains("jdbc")) {

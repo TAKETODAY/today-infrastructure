@@ -2,10 +2,6 @@
 = 上下文层级结构
 
 在编写依赖于已加载的 Infra `ApplicationContext` 的集成测试时，针对单个上下文进行测试通常就足够了。
-但是，有时针对 `ApplicationContext` 实例的层级结构进行测试是有益的甚至必要的。例如，如果你正在开发 Web MVC web 应用程序，
-你通常有一个由 Infra `ContextLoaderListener` 加载的根 `GenericWebApplicationContext` 和一个由 Infra `DispatcherHandler`
-加载的子 `GenericWebApplicationContext`。这导致了一个父子上下文层级结构，其中共享组件和基础设施配置在根上下文中声明，并在子上下文中由特定于 web 的组件使用。
-另一个用例可以在 Infra Batch 应用程序中找到，你通常有一个父上下文为共享批处理基础设施提供配置，以及一个子上下文用于特定批处理作业的配置。
 
 你可以通过在单个测试类上或测试类层次结构中声明带有 `@ContextHierarchy` 注解的上下文配置来编写使用上下文层级结构的集成测试。
 如果在测试类层次结构中的多个类上声明了上下文层级结构，你还可以合并或覆盖上下文层级结构中特定命名级别的上下文配置。
@@ -16,9 +12,9 @@
 **具有上下文层级结构的单个测试类**
 --
 `ControllerIntegrationTests` 代表了 Web MVC web 应用程序的典型集成测试场景，它通过声明一个包含两个级别的上下文层级结构来实现，
-一级用于根 `GenericWebApplicationContext`（使用 `TestAppConfig` `@Configuration` 类加载），
-另一级用于 dispatcher Handler `GenericWebApplicationContext`（使用 `WebConfig` `@Configuration` 类加载）。
-自动装配到测试实例中的 `GenericWebApplicationContext` 是子上下文（即层级结构中最低的上下文）的上下文。以下清单显示了此配置场景：
+一级用于根 `GenericMockWebApplicationContext`（使用 `TestAppConfig` `@Configuration` 类加载），
+另一级用于 dispatcher Handler `GenericMockWebApplicationContext`（使用 `WebConfig` `@Configuration` 类加载）。
+自动装配到测试实例中的 `GenericMockWebApplicationContext` 是子上下文（即层级结构中最低的上下文）的上下文。以下清单显示了此配置场景：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -41,7 +37,7 @@ class ControllerIntegrationTests {
 
 **具有隐式父上下文的类层次结构**
 --
-此示例中的测试类在测试类层次结构中定义了上下文层级结构。`AbstractWebTests` 声明了 Infra 驱动的 web 应用程序中根 `GenericWebApplicationContext` 的配置。
+此示例中的测试类在测试类层次结构中定义了上下文层级结构。`AbstractWebTests` 声明了 Infra 驱动的 web 应用程序中根 `GenericMockWebApplicationContext` 的配置。
 但请注意，`AbstractWebTests` 没有声明 `@ContextHierarchy`。因此，`AbstractWebTests` 的子类可以选择参与上下文层级结构或遵循 `@ContextConfiguration` 的标准语义。
 `SoapWebServiceTests` 和 `RestWebServiceTests` 都扩展了 `AbstractWebTests` 并使用 `@ContextHierarchy` 定义了上下文层级结构。结果是加载了三个应用程序上下文
 （每个 `@ContextConfiguration` 声明一个），并且基于 `AbstractWebTests` 中的配置加载的应用程序上下文被设置为为具体子类加载的每个上下文的父上下文。以下清单显示了此配置场景：

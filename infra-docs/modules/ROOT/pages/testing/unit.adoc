@@ -90,4 +90,4 @@ Infra 代理背后的底层目标对象的引用。例如，如果你使用 Easy
 
 .单元测试 Web MVC 控制器
 TIP: 要将 Web MVC `Controller` 类作为 POJO 进行单元测试，请使用 `ModelAndViewAssert` 结合来自 Infra xref:testing/unit.adoc#mock-objects-mockApi[API mocks]
-的 `MockRequest`、`MockSession` 等。要结合 Web MVC 的 `GenericWebApplicationContext` 配置对 Web MVC 和 REST `Controller` 类进行全面的集成测试，请改用 xref:testing/mvc-test-framework.adoc[Web MVC Test Framework]。
+的 `MockRequest`、`MockSession` 等。要结合 Web MVC 的 `GenericMockWebApplicationContext` 配置对 Web MVC 和 REST `Controller` 类进行全面的集成测试，请改用 xref:testing/mvc-test-framework.adoc[Web MVC Test Framework]。

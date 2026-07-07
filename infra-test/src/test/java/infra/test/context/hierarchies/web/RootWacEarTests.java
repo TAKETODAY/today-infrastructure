@@ -29,7 +29,7 @@ import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.aot.DisabledInAotMode;
 import infra.test.context.web.WebAppConfiguration;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,7 +73,7 @@ class RootWacEarTests extends EarTests {
   void verifyRootWacConfig() {
     ApplicationContext parent = wac.getParent();
     assertThat(parent).isNotNull();
-    boolean condition = parent instanceof GenericWebApplicationContext;
+    boolean condition = parent instanceof GenericMockWebApplicationContext;
     assertThat(condition).isFalse();
     assertThat(ear).isEqualTo("ear");
     assertThat(root).isEqualTo("root");

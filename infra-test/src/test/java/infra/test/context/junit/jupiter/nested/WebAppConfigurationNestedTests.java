@@ -29,7 +29,7 @@ import infra.test.context.junit.jupiter.JUnitConfig;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.context.junit4.nested.NestedTestsWithInfraRulesTests;
 import infra.test.context.web.WebAppConfiguration;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 import static infra.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static infra.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -50,7 +50,7 @@ class WebAppConfigurationNestedTests {
 
   @Test
   void test(ApplicationContext context) {
-    assertThat(context).isInstanceOf(GenericWebApplicationContext.class);
+    assertThat(context).isInstanceOf(GenericMockWebApplicationContext.class);
   }
 
   @Nested
@@ -59,7 +59,7 @@ class WebAppConfigurationNestedTests {
 
     @Test
     void test(ApplicationContext context) {
-      assertThat(context).isNotInstanceOf(GenericWebApplicationContext.class);
+      assertThat(context).isNotInstanceOf(GenericMockWebApplicationContext.class);
     }
   }
 
@@ -69,7 +69,7 @@ class WebAppConfigurationNestedTests {
 
     @Test
     void test(ApplicationContext context) {
-      assertThat(context).isInstanceOf(GenericWebApplicationContext.class);
+      assertThat(context).isInstanceOf(GenericMockWebApplicationContext.class);
     }
   }
 
@@ -79,7 +79,7 @@ class WebAppConfigurationNestedTests {
 
     @Test
     void test(ApplicationContext context) {
-      assertThat(context).isInstanceOf(GenericWebApplicationContext.class);
+      assertThat(context).isInstanceOf(GenericMockWebApplicationContext.class);
     }
 
     @Nested
@@ -87,7 +87,7 @@ class WebAppConfigurationNestedTests {
 
       @Test
       void test(ApplicationContext context) {
-        assertThat(context).isInstanceOf(GenericWebApplicationContext.class);
+        assertThat(context).isInstanceOf(GenericMockWebApplicationContext.class);
       }
     }
 
@@ -98,7 +98,7 @@ class WebAppConfigurationNestedTests {
 
       @Test
       void test(ApplicationContext context) {
-        assertThat(context).isNotInstanceOf(GenericWebApplicationContext.class);
+        assertThat(context).isNotInstanceOf(GenericMockWebApplicationContext.class);
       }
 
       @Nested
@@ -107,7 +107,7 @@ class WebAppConfigurationNestedTests {
 
         @Test
         void test(ApplicationContext context) {
-          assertThat(context).isNotInstanceOf(GenericWebApplicationContext.class);
+          assertThat(context).isNotInstanceOf(GenericMockWebApplicationContext.class);
         }
       }
 
@@ -117,7 +117,7 @@ class WebAppConfigurationNestedTests {
 
         @Test
         void test(ApplicationContext context) {
-          assertThat(context).isInstanceOf(GenericWebApplicationContext.class);
+          assertThat(context).isInstanceOf(GenericMockWebApplicationContext.class);
         }
       }
     }

@@ -30,7 +30,7 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.support.AbstractContextLoader;
 import infra.test.context.support.AnnotationConfigContextLoaderUtils;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
  * Concrete implementation of {@link AbstractGenericWebContextLoader} that loads
@@ -56,7 +56,7 @@ import infra.web.mock.support.GenericWebApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #processContextConfiguration(ContextConfigurationAttributes)
  * @see #detectDefaultConfigurationClasses(Class)
- * @see #loadBeanDefinitions(GenericWebApplicationContext, WebMergedContextConfiguration)
+ * @see #loadBeanDefinitions(GenericMockWebApplicationContext, WebMergedContextConfiguration)
  * @see GenericXmlWebContextLoader
  * @since 4.0
  */
@@ -152,7 +152,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
   // AbstractGenericWebContextLoader
 
   /**
-   * Register classes in the supplied {@linkplain GenericWebApplicationContext context}
+   * Register classes in the supplied {@linkplain GenericMockWebApplicationContext context}
    * from the classes in the supplied {@link WebMergedContextConfiguration}.
    * <p>Each class must represent an <em>annotated class</em>. An
    * {@link AnnotatedBeanDefinitionReader} is used to register the appropriate
@@ -164,7 +164,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
    */
   @Override
   protected void loadBeanDefinitions(
-          GenericWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
+          GenericMockWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
 
     Class<?>[] annotatedClasses = webMergedConfig.getClasses();
     if (logger.isDebugEnabled()) {

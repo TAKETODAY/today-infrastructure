@@ -27,7 +27,7 @@ import infra.context.ApplicationContext;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.web.Filter;
 import infra.web.mock.api.MockContext;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
  * Base class for MockMvc builder implementations, providing the capability to
@@ -35,7 +35,7 @@ import infra.web.mock.support.GenericWebApplicationContext;
  *
  * <p>{@link DefaultMockMvcBuilder},
  * which derives from this class, provides a concrete {@code build} method,
- * and delegates to abstract methods to obtain a {@link GenericWebApplicationContext}.
+ * and delegates to abstract methods to obtain a {@link GenericMockWebApplicationContext}.
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch

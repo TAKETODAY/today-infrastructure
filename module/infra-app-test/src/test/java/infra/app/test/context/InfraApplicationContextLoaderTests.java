@@ -38,7 +38,7 @@ import infra.test.context.TestPropertySource;
 import infra.test.context.support.TestPropertySourceUtils;
 import infra.test.util.ReflectionTestUtils;
 import infra.test.util.TestPropertyValues;
-import infra.web.mock.support.GenericWebApplicationContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,7 +155,7 @@ class InfraApplicationContextLoaderTests {
   void whenEnvironmentChangesWebApplicationTypeToNoneThenContextTypeChangesAccordingly() {
     TestContext context = new ExposedTestContextManager(ChangingWebApplicationTypeToNone.class)
             .getExposedTestContext();
-    assertThat(context.getApplicationContext()).isNotInstanceOf(GenericWebApplicationContext.class);
+    assertThat(context.getApplicationContext()).isNotInstanceOf(GenericMockWebApplicationContext.class);
   }
 
   @Test

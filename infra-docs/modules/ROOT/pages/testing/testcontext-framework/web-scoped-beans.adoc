@@ -3,9 +3,9 @@
 
 Infra 自早期以来一直支持 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[请求和会话作用域的 Bean]，您可以按照以下步骤测试请求作用域和会话作用域的 Bean：
 
-* 通过使用 `@WebAppConfiguration` 注解测试类，确保为测试加载 `GenericWebApplicationContext`。
+* 通过使用 `@WebAppConfiguration` 注解测试类，确保为测试加载 `GenericMockWebApplicationContext`。
 * 将模拟请求或会话注入到测试实例中，并适当地准备测试夹具。
-* 调用从配置的 `GenericWebApplicationContext` 中检索到的 Web 组件（通过依赖注入）。
+* 调用从配置的 `GenericMockWebApplicationContext` 中检索到的 Web 组件（通过依赖注入）。
 * 对模拟对象执行断言。
 
 下一个代码片段显示了登录用例的 XML 配置。
