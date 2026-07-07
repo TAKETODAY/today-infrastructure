@@ -21,8 +21,8 @@ package infra.test.context.web;
 import java.util.Arrays;
 
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
+import infra.context.support.GenericApplicationContext;
 import infra.test.context.MergedContextConfiguration;
-import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
  * Concrete implementation of {@link AbstractGenericWebContextLoader} that loads
@@ -39,15 +39,14 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
 public class GenericXmlWebContextLoader extends AbstractGenericWebContextLoader {
 
   /**
-   * Load bean definitions into the supplied {@link GenericMockWebApplicationContext context}
+   * Load bean definitions into the supplied {@link GenericApplicationContext context}
    * from the locations in the supplied {@code WebMergedContextConfiguration}, using an
    * {@link XmlBeanDefinitionReader}.
    *
    * @see AbstractGenericWebContextLoader#loadBeanDefinitions
    */
   @Override
-  protected void loadBeanDefinitions(GenericMockWebApplicationContext context,
-          WebMergedContextConfiguration webMergedConfig) {
+  protected void loadBeanDefinitions(GenericApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
     new XmlBeanDefinitionReader(context).loadBeanDefinitions(webMergedConfig.getLocations());
   }
 

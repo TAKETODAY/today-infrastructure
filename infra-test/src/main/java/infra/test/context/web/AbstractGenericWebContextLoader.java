@@ -24,6 +24,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
+import infra.context.support.GenericApplicationContext;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.FileSystemResourceLoader;
 import infra.core.io.ResourceLoader;
@@ -41,7 +42,7 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
  * Abstract, generic extension of {@link AbstractContextLoader} that loads a
- * {@link GenericMockWebApplicationContext}.
+ * {@link GenericApplicationContext}.
  *
  * <p>If instances of concrete subclasses are invoked via the
  * {@link SmartContextLoader SmartContextLoader}
@@ -70,18 +71,18 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   // SmartContextLoader
 
   /**
-   * Load a {@link GenericMockWebApplicationContext} for the supplied
+   * Load a {@link GenericApplicationContext} for the supplied
    * {@link MergedContextConfiguration}.
    * <p>Implementation details:
    * <ul>
    * <li>Calls {@link #validateMergedContextConfiguration(WebMergedContextConfiguration)}
    * to allow subclasses to validate the supplied configuration before proceeding.</li>
-   * <li>Creates a {@link GenericMockWebApplicationContext} instance.</li>
+   * <li>Creates a {@link GenericApplicationContext} instance.</li>
    * <li>If the supplied {@code MergedContextConfiguration} references a
    * {@linkplain MergedContextConfiguration#getParent() parent configuration},
    * the corresponding {@link MergedContextConfiguration#getParentApplicationContext()
    * ApplicationContext} will be retrieved and
-   * {@linkplain GenericMockWebApplicationContext#setParent(ApplicationContext) set as the parent}
+   * {@linkplain GenericApplicationContext#setParent(ApplicationContext) set as the parent}
    * for the context created by this method.</li>
    * <li>Delegates to {@link #configureWebResources} to create the
    * {@link DefaultMockContext} and set it in the {@code WebApplicationContext}.</li>
@@ -111,7 +112,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   }
 
   /**
-   * Load a {@link GenericMockWebApplicationContext} for AOT build-time processing based
+   * Load a {@link GenericApplicationContext} for AOT build-time processing based
    * on the supplied {@link MergedContextConfiguration}.
    * <p>In contrast to {@link #loadContext(MergedContextConfiguration)}, this
    * method does not
@@ -129,14 +130,14 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
   @Override
-  public final GenericMockWebApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig,
+  public final ApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig,
           RuntimeHints runtimeHints) throws Exception {
 
     return loadContext(mergedConfig, true);
   }
 
   /**
-   * Load a {@link GenericMockWebApplicationContext} for AOT run-time execution based on
+   * Load a {@link GenericApplicationContext} for AOT run-time execution based on
    * the supplied {@link MergedContextConfiguration} and
    * {@link ApplicationContextInitializer}.
    *
@@ -149,7 +150,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see AotContextLoader#loadContextForAotRuntime(MergedContextConfiguration, ApplicationContextInitializer)
    */
   @Override
-  public final GenericMockWebApplicationContext loadContextForAotRuntime(MergedContextConfiguration mergedConfig,
+  public final GenericApplicationContext loadContextForAotRuntime(MergedContextConfiguration mergedConfig,
           ApplicationContextInitializer initializer) throws Exception {
 
     Assert.notNull(mergedConfig, "MergedContextConfiguration is required");
@@ -171,7 +172,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
 
     validateMergedContextConfiguration(webMergedConfig);
 
-    GenericMockWebApplicationContext context = createContext();
+    GenericApplicationContext context = createContext();
     try {
       configureWebResources(context, webMergedConfig);
       prepareContext(context, webMergedConfig);
@@ -186,7 +187,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   }
 
   /**
-   * Load a {@link GenericMockWebApplicationContext} for the supplied
+   * Load a {@link ApplicationContext} for the supplied
    * {@link MergedContextConfiguration}.
    *
    * @param mergedConfig the merged context configuration to use to load the
@@ -198,7 +199,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see SmartContextLoader#loadContext(MergedContextConfiguration)
    * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
-  private GenericMockWebApplicationContext loadContext(MergedContextConfiguration mergedConfig, boolean forAotProcessing) throws Exception {
+  private ApplicationContext loadContext(MergedContextConfiguration mergedConfig, boolean forAotProcessing) throws Exception {
     if (!(mergedConfig instanceof WebMergedContextConfiguration webMergedConfig)) {
       throw new IllegalArgumentException("""
               Cannot load WebApplicationContext from non-web merged context configuration %s. \
@@ -217,7 +218,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
 
     validateMergedContextConfiguration(webMergedConfig);
 
-    GenericMockWebApplicationContext context = createContext();
+    GenericApplicationContext context = createContext();
     try {
       ApplicationContext parent = mergedConfig.getParentApplicationContext();
       if (parent != null) {
@@ -257,7 +258,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   }
 
   /**
-   * Factory method for creating the {@link GenericMockWebApplicationContext} used
+   * Factory method for creating the {@link GenericApplicationContext} used
    * by this {@code ContextLoader}.
    * <p>The default implementation creates a {@code GenericWebApplicationContext}
    * using the default constructor. This method may be overridden &mdash; for
@@ -267,7 +268,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    *
    * @return a newly instantiated {@code GenericWebApplicationContext}
    */
-  protected GenericMockWebApplicationContext createContext() {
+  protected GenericApplicationContext createContext() {
     return new GenericMockWebApplicationContext();
   }
 
@@ -298,7 +299,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @param context the web application context for which to configure the web resources
    * @param webMergedConfig the merged context configuration to use to load the web application context
    */
-  protected void configureWebResources(GenericMockWebApplicationContext context,
+  protected void configureWebResources(GenericApplicationContext context,
           WebMergedContextConfiguration webMergedConfig) {
 
   }
@@ -323,7 +324,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   }
 
   /**
-   * Load bean definitions into the supplied {@link GenericMockWebApplicationContext context}
+   * Load bean definitions into the supplied {@link GenericApplicationContext context}
    * from the locations or classes in the supplied {@code WebMergedContextConfiguration}.
    * <p>Concrete subclasses must provide an appropriate implementation.
    *
@@ -333,10 +334,10 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see #loadContext(MergedContextConfiguration)
    */
   protected abstract void loadBeanDefinitions(
-          GenericMockWebApplicationContext context, WebMergedContextConfiguration webMergedConfig);
+          GenericApplicationContext context, WebMergedContextConfiguration webMergedConfig);
 
   /**
-   * Customize the {@link GenericMockWebApplicationContext} created by this context
+   * Customize the {@link GenericApplicationContext} created by this context
    * loader <i>after</i> bean definitions have been loaded into the context but
    * <i>before</i> the context is refreshed.
    * <p>The default implementation simply delegates to
@@ -349,7 +350,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see #customizeContext(ConfigurableApplicationContext, MergedContextConfiguration)
    */
   protected void customizeContext(
-          GenericMockWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
+          GenericApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
 
     super.customizeContext(context, webMergedConfig);
   }

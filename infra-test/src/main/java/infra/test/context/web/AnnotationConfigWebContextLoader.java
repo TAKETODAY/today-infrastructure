@@ -21,6 +21,7 @@ package infra.test.context.web;
 import java.util.Arrays;
 
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
+import infra.context.support.GenericApplicationContext;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ContextConfiguration;
@@ -56,7 +57,7 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #processContextConfiguration(ContextConfigurationAttributes)
  * @see #detectDefaultConfigurationClasses(Class)
- * @see #loadBeanDefinitions(GenericMockWebApplicationContext, WebMergedContextConfiguration)
+ * @see #loadBeanDefinitions(GenericApplicationContext, WebMergedContextConfiguration)
  * @see GenericXmlWebContextLoader
  * @since 4.0
  */
@@ -163,9 +164,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
    * @see AbstractGenericWebContextLoader#loadBeanDefinitions
    */
   @Override
-  protected void loadBeanDefinitions(
-          GenericMockWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
-
+  protected void loadBeanDefinitions(GenericApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
     Class<?>[] annotatedClasses = webMergedConfig.getClasses();
     if (logger.isDebugEnabled()) {
       logger.debug("Registering annotated classes: {}", Arrays.toString(annotatedClasses));
