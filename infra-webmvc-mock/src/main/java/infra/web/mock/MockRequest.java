@@ -310,8 +310,7 @@ public class MockRequest {
     return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
   }
 
-  @Nullable
-  public String getCharacterEncoding() {
+  public @Nullable String getCharacterEncoding() {
     return this.characterEncoding;
   }
 
@@ -353,8 +352,7 @@ public class MockRequest {
    * @see #setContent(byte[])
    * @see #getContentAsString()
    */
-  @Nullable
-  public byte[] getContentAsByteArray() {
+  public byte @Nullable [] getContentAsByteArray() {
     return this.content;
   }
 
@@ -369,8 +367,7 @@ public class MockRequest {
    * @see #setCharacterEncoding(String)
    * @see #getContentAsByteArray()
    */
-  @Nullable
-  public String getContentAsString() throws IllegalStateException, UnsupportedEncodingException {
+  public @Nullable String getContentAsString() throws IllegalStateException, UnsupportedEncodingException {
     Assert.state(this.characterEncoding != null,
             "Cannot get content as a String for a null character encoding. " +
                     "Consider setting the characterEncoding in the request.");
@@ -409,8 +406,7 @@ public class MockRequest {
     }
   }
 
-  @Nullable
-  public String getContentType() {
+  public @Nullable String getContentType() {
     return this.contentType;
   }
 
@@ -533,8 +529,7 @@ public class MockRequest {
     this.parameters.clear();
   }
 
-  @Nullable
-  public String getParameter(String name) {
+  public @Nullable String getParameter(String name) {
     Assert.notNull(name, "Parameter name is required");
     String[] arr = this.parameters.get(name);
     return (arr != null && arr.length > 0 ? arr[0] : null);
@@ -830,8 +825,7 @@ public class MockRequest {
     this.asyncContext = asyncContext;
   }
 
-  @Nullable
-  public AsyncContext getAsyncContext() {
+  public @Nullable AsyncContext getAsyncContext() {
     return this.asyncContext;
   }
 
@@ -859,8 +853,7 @@ public class MockRequest {
     this.authType = authType;
   }
 
-  @Nullable
-  public String getAuthType() {
+  public @Nullable String getAuthType() {
     return this.authType;
   }
 
@@ -880,8 +873,7 @@ public class MockRequest {
             .collect(Collectors.joining("; "));
   }
 
-  @Nullable
-  public Cookie[] getCookies() {
+  public Cookie @Nullable [] getCookies() {
     return this.cookies;
   }
 
@@ -1002,8 +994,7 @@ public class MockRequest {
     throw new IllegalArgumentException("Cannot parse date value '" + value + "' for '" + name + "' header");
   }
 
-  @Nullable
-  public String getHeader(String name) {
+  public @Nullable String getHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     return (header != null ? header.getStringValue() : null);
   }
@@ -1038,8 +1029,7 @@ public class MockRequest {
     this.method = method;
   }
 
-  @Nullable
-  public String getMethod() {
+  public @Nullable String getMethod() {
     return this.method;
   }
 
@@ -1047,8 +1037,7 @@ public class MockRequest {
     this.pathInfo = pathInfo;
   }
 
-  @Nullable
-  public String getPathInfo() {
+  public @Nullable String getPathInfo() {
     return this.pathInfo;
   }
 
@@ -1056,8 +1045,7 @@ public class MockRequest {
     this.queryString = queryString;
   }
 
-  @Nullable
-  public String getQueryString() {
+  public @Nullable String getQueryString() {
     return this.queryString;
   }
 
@@ -1065,8 +1053,7 @@ public class MockRequest {
     this.userPrincipal = userPrincipal;
   }
 
-  @Nullable
-  public Principal getUserPrincipal() {
+  public @Nullable Principal getUserPrincipal() {
     return this.userPrincipal;
   }
 
@@ -1074,8 +1061,7 @@ public class MockRequest {
     this.requestedSessionId = requestedSessionId;
   }
 
-  @Nullable
-  public String getRequestedSessionId() {
+  public @Nullable String getRequestedSessionId() {
     return this.requestedSessionId;
   }
 
@@ -1083,8 +1069,7 @@ public class MockRequest {
     this.requestURI = requestURI;
   }
 
-  @Nullable
-  public String getRequestURI() {
+  public @Nullable String getRequestURI() {
     return this.requestURI;
   }
 
@@ -1099,7 +1084,6 @@ public class MockRequest {
 
   /**
    * Return the original URI template used to prepare the request, if any.
-   *
    */
   public @Nullable String getUriTemplate() {
     return this.uriTemplate;
@@ -1129,8 +1113,7 @@ public class MockRequest {
     }
   }
 
-  @Nullable
-  public Session getSession(boolean create) {
+  public @Nullable Session getSession(boolean create) {
     checkActive();
     // Reset session if invalidated.
     if (this.session instanceof MockSession mockSession && mockSession.isInvalid()) {
@@ -1196,8 +1179,7 @@ public class MockRequest {
     this.parts.add(part.getName(), part);
   }
 
-  @Nullable
-  public Part getPart(String name) {
+  public @Nullable Part getPart(String name) {
     return this.parts.getFirst(name);
   }
 

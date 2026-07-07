@@ -910,9 +910,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
 
     RedirectModel flashMap = new RedirectModel();
     flashMap.putAll(this.flashAttributes);
-//    RedirectModelManager flashMapManager = getFlashMapManager(request);
-//    flashMapManager.saveRedirectModel(new MockRequestContext(
-//            null, request, new MockHttpMockResponse()), flashMap);
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, flashMap);
     return request;
   }

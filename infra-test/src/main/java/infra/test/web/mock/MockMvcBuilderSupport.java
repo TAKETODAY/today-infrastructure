@@ -52,12 +52,12 @@ public abstract class MockMvcBuilderSupport {
    * with the supplied {@code defaultResponseCharacterEncoding}.
    */
   protected final MockMvc createMockMvc(Filter[] filters, MockContext mockContext,
-          ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
+          ApplicationContext context, @Nullable RequestBuilder defaultRequestBuilder,
           @Nullable Charset defaultResponseCharacterEncoding,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
 
-    MockMvc mockMvc = createMockMvc(filters, mockContext, webAppContext, defaultRequestBuilder,
+    MockMvc mockMvc = createMockMvc(filters, mockContext, context, defaultRequestBuilder,
             globalResultMatchers, globalResultHandlers, dispatcherCustomizers);
 
     mockMvc.setDefaultResponseCharacterEncoding(defaultResponseCharacterEncoding);
@@ -65,11 +65,11 @@ public abstract class MockMvcBuilderSupport {
   }
 
   protected final MockMvc createMockMvc(Filter[] filters, MockContext mockContext,
-          ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
+          ApplicationContext context, @Nullable RequestBuilder defaultRequestBuilder,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
 
-    TestMockDispatcherHandler dispatcherHandler = new TestMockDispatcherHandler(webAppContext);
+    TestMockDispatcherHandler dispatcherHandler = new TestMockDispatcherHandler(context);
     if (dispatcherCustomizers != null) {
       for (DispatcherCustomizer customizers : dispatcherCustomizers) {
         customizers.customize(dispatcherHandler);

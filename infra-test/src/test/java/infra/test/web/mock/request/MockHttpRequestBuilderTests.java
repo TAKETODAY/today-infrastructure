@@ -32,16 +32,16 @@ import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
-import infra.web.mock.DefaultMockContext;
-import infra.web.mock.MockResponse;
-import infra.web.mock.MockSession;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.RedirectModel;
+import infra.web.mock.DefaultMockContext;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockSession;
+import infra.web.mock.api.Cookie;
 
 import static infra.http.HttpMethod.GET;
 import static infra.http.HttpMethod.POST;
@@ -527,7 +527,6 @@ class MockHttpRequestBuilderTests {
 
     assertThat(request.getAttribute(ATTR)).isEqualTo(EXPECTED);
   }
-
 
   private static RequestAttributePostProcessor requestAttr(String attrName) {
     return new RequestAttributePostProcessor().attr(attrName);

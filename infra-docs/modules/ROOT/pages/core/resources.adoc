@@ -91,7 +91,6 @@ public interface Resource extends InputStreamSource {
 * xref:core/resources.adoc#resources-implementations-classpathresource[`ClassPathResource`]
 * xref:core/resources.adoc#resources-implementations-filesystemresource[`FileSystemResource`]
 * xref:core/resources.adoc#resources-implementations-pathresource[`PathResource`]
-* xref:core/resources.adoc#resources-implementations-servletcontextresource[`ServletContextResource`]
 * xref:core/resources.adoc#resources-implementations-inputstreamresource[`InputStreamResource`]
 * xref:core/resources.adoc#resources-implementations-bytearrayresource[`ByteArrayResource`]
 

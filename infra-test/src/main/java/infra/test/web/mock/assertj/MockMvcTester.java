@@ -456,7 +456,7 @@ public final class MockMvcTester {
         result.getMvcResult().getAsyncResult(waitMs);
 
         // Perform ASYNC dispatch
-        RequestBuilder dispatchRequest = servletContext -> {
+        RequestBuilder dispatchRequest = mockContext -> {
           MockRequest request = result.getMvcResult().getRequest();
           request.setDispatcherType(DispatcherType.ASYNC);
           request.setAsyncStarted(false);

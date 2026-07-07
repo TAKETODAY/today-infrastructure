@@ -64,8 +64,8 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
   /**
    * Create a new instance with the given web application context.
    */
-  public TestMockDispatcherHandler(ApplicationContext webApplicationContext) {
-    super(webApplicationContext);
+  public TestMockDispatcherHandler(ApplicationContext context) {
+    super(context);
   }
 
   @Override
