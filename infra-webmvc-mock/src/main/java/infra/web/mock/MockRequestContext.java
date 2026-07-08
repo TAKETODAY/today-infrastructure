@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import infra.context.ApplicationContext;
 import infra.http.DefaultHttpHeaders;
@@ -713,6 +714,20 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   public void setUseForward(boolean useForward) {
     this.useForward = useForward;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (!(o instanceof MockRequestContext context))
+      return false;
+    if (!super.equals(o))
+      return false;
+    return Objects.equals(request, context.request) && Objects.equals(response, context.response);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), request, response);
   }
 
   class MockSessionManager implements SessionManager {
