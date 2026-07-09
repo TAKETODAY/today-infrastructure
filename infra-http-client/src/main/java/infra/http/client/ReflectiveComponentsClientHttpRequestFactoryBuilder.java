@@ -56,7 +56,7 @@ final class ReflectiveComponentsClientHttpRequestFactoryBuilder<T extends Client
   private static <T extends ClientHttpRequestFactory> T createRequestFactory(Class<T> requestFactory) {
     try {
       Constructor<T> constructor = requestFactory.getDeclaredConstructor();
-      constructor.setAccessible(true);
+      ReflectionUtils.makeAccessible(constructor);
       return constructor.newInstance();
     }
     catch (Exception ex) {

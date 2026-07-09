@@ -10,6 +10,7 @@ exclude_paths:
   - "**.adoc"
   - "**.gradle"
   - "**/test/**/*"
+  - "**/src/jmh/**/*"
   - "**/buildSrc/**/*"
   - "buildSrc/**/*"
   - "**/testFixtures/**/*"
