@@ -63,7 +63,7 @@ final class DefaultRSocketStrategies implements RSocketStrategies {
 
   private final MetadataExtractor metadataExtractor;
 
-  private DefaultRSocketStrategies(List<Encoder<?>> encoders, List<Decoder<?>> decoders,
+  DefaultRSocketStrategies(List<Encoder<?>> encoders, List<Decoder<?>> decoders,
           RouteMatcher routeMatcher, ReactiveAdapterRegistry adapterRegistry,
           DataBufferFactory bufferFactory, MetadataExtractor metadataExtractor) {
 

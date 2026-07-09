@@ -555,7 +555,7 @@ public class MariaDB {
       }
     }
     catch (IOException e) {
-      throw new RuntimeException("Error unpacking embedded DB", e);
+      throw new IllegalStateException("Error unpacking embedded DB", e);
     }
   }
 
