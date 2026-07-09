@@ -466,7 +466,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
         }
       }
 
-      // HttpMockResponse exposes some headers as properties: we should include those if not already present
+      // MockResponse exposes some headers as properties: we should include those if not already present
       MediaType contentType = headers.getContentType();
       if (response.getContentType() == null && contentType != null) {
         response.setContentType(contentType.toString());
