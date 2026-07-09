@@ -663,6 +663,8 @@ public abstract class NettyRequestContext extends RequestContext {
       responseBody.clear();
     }
     writer = null;
+    responseContentType = null;
+    responseContentLength = -1L;
     status = HttpResponseStatus.OK;
   }
 

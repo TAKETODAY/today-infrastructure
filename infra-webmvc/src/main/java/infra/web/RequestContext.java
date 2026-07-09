@@ -1867,6 +1867,8 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @throws IllegalStateException if the response has already been committed
    */
   public void reset() {
+    responseContentLength = -1L;
+    responseContentType = null;
     if (responseHeaders != null) {
       responseHeaders.clear();
     }

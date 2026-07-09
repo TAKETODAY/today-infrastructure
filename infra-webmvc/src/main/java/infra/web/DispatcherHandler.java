@@ -862,7 +862,6 @@ public class DispatcherHandler extends WebLifecycleManager {
     request.requestPath = null;
     request.uri = null;
     request.matchingMetadata = null;
-    request.responseContentType = null;
     handleRequestInternal(request);
   }
 
