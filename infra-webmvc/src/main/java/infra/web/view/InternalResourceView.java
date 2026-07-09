@@ -124,19 +124,19 @@ public class InternalResourceView extends AbstractUrlBasedView {
    * @see #getUrl()
    */
   protected String prepareForRendering(RequestContext request) throws Exception {
-
     String path = getUrl();
     Assert.state(path != null, "'url' not set");
 
+    String dispatcherPath = path.startsWith("/") ? path : "/" + path;
     if (this.preventDispatchLoop) {
       String uri = request.getRequestURI();
-      if (path.startsWith("/") ? uri.equals(path) : uri.equals(StringUtils.applyRelativePath(uri, path))) {
-        throw new Exception("Circular view path [" + path + "]: would dispatch back " +
+      if (uri.equals(dispatcherPath)) {
+        throw new IllegalStateException("Circular view path [" + path + "]: would dispatch back " +
                 "to the current handler URL [" + uri + "] again. Check your ViewResolver setup! " +
                 "(Hint: This may be the result of an unspecified view, due to default view name generation.)");
       }
     }
-    return path;
+    return dispatcherPath;
   }
 
 }
