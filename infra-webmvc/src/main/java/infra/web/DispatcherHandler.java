@@ -547,6 +547,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @since 4.0
    */
   public void handleRequest(RequestContext context) throws Throwable {
+    logRequest(context);
     var filters = this.filters;
     if (filters == null) {
       handleRequestInternal(context);
@@ -557,7 +558,6 @@ public class DispatcherHandler extends WebLifecycleManager {
   }
 
   private void handleRequestInternal(RequestContext context) throws Exception {
-    logRequest(context);
     Object handler = null;
     Object returnValue = null;
     Throwable throwable = null;
@@ -862,6 +862,10 @@ public class DispatcherHandler extends WebLifecycleManager {
     request.requestPath = null;
     request.uri = null;
     request.matchingMetadata = null;
+
+    if (log.isDebugEnabled()) {
+      log.debug("Forwarding {} {} -> {}", request.getMethod(), requestURI, path);
+    }
     handleRequestInternal(request);
   }
 
