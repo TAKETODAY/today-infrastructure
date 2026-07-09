@@ -61,8 +61,6 @@ public abstract class AbstractEncoderMethodReturnValueHandler implements Handler
 
   private static final ResolvableType OBJECT_RESOLVABLE_TYPE = ResolvableType.forClass(Object.class);
 
-  private static final String COROUTINES_FLOW_CLASS_NAME = "kotlinx.coroutines.flow.Flow";
-
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final List<Encoder<?>> encoders;

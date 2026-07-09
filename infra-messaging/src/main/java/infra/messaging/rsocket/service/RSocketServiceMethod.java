@@ -53,8 +53,6 @@ import reactor.core.publisher.Mono;
  */
 final class RSocketServiceMethod {
 
-  private static final String COROUTINES_FLOW_CLASS_NAME = "kotlinx.coroutines.flow.Flow";
-
   private final Method method;
 
   private final MethodParameter[] parameters;

@@ -47,7 +47,7 @@ class OracleUcpJdbcConnectionDetailsBeanPostProcessor extends JdbcConnectionDeta
       return dataSource;
     }
     catch (SQLException ex) {
-      throw new RuntimeException("Failed to set URL / user / password of datasource", ex);
+      throw new IllegalArgumentException("Failed to set URL / user / password of datasource", ex);
     }
   }
 
