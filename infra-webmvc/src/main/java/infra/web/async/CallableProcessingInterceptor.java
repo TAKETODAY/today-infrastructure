@@ -82,7 +82,6 @@ public interface CallableProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void beforeConcurrentHandling(RequestContext request, Callable<T> task) throws Exception {
-
   }
 
   /**
@@ -96,7 +95,6 @@ public interface CallableProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void preProcess(RequestContext request, Callable<T> task) throws Exception {
-
   }
 
   /**
@@ -112,9 +110,7 @@ public interface CallableProcessingInterceptor {
    * be a {@link Throwable} if the {@code Callable} raised an exception
    * @throws Exception in case of errors
    */
-  default <T> void postProcess(
-          RequestContext request, Callable<T> task, Object concurrentResult) throws Exception {
-
+  default <T> void postProcess(RequestContext request, Callable<T> task, Object concurrentResult) throws Exception {
   }
 
   /**
@@ -164,7 +160,6 @@ public interface CallableProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void afterCompletion(RequestContext request, Callable<T> task) throws Exception {
-
   }
 
 }

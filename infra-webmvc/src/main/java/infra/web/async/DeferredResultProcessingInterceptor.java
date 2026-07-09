@@ -57,7 +57,6 @@ public interface DeferredResultProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
-
   }
 
   /**
@@ -72,7 +71,6 @@ public interface DeferredResultProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
-
   }
 
   /**
@@ -90,7 +88,6 @@ public interface DeferredResultProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult, @Nullable Object concurrentResult) throws Exception {
-
   }
 
   /**
@@ -108,7 +105,6 @@ public interface DeferredResultProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
-
     return true;
   }
 
@@ -141,7 +137,6 @@ public interface DeferredResultProcessingInterceptor {
    * @throws Exception in case of errors
    */
   default <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
-
   }
 
 }
