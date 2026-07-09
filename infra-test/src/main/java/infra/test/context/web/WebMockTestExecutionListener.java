@@ -48,7 +48,7 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
  * MockRequest}, {@link MockResponse}, and
  * {@link infra.web.RequestContext} based on the {@link DefaultMockContext} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
- * {@code MockHttpMockResponse} and {@code MockRequestContext} can be injected
+ * {@code MockResponse} and {@code MockRequestContext} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain
  * #afterTestMethod(TestContext) cleans up} thread-local state.
  *

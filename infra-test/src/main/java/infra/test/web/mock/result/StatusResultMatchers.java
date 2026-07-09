@@ -638,7 +638,7 @@ public class StatusResultMatchers {
   }
 
   /**
-   * Match the expected response status to that of the HttpMockResponse.
+   * Match the expected response status to that of the MockResponse.
    */
   private ResultMatcher matcher(HttpStatusCode status) {
     return result -> assertEquals("Status", status.value(), result.getResponse().getStatus());

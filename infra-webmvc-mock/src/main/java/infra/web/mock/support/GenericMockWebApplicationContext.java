@@ -147,7 +147,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public String toString() {
-      return "Current HttpMockResponse";
+      return "Current MockResponse";
     }
   }
 

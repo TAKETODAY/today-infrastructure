@@ -37,7 +37,7 @@ import infra.web.mock.MockResponse;
  * <li>Invoke, at their {@link AsyncListener#onTimeout onTimeout} method, all {@link AsyncListener} instances registered
  * with the MockRequest on which the asynchronous operation was initiated.</li>
  * <li>If none of the listeners called {@link #complete} or any of the {@link #dispatch} methods, perform an error
- * dispatch with a status code equal to <tt>HttpMockResponse.SC_INTERNAL_SERVER_ERROR</tt>.</li>
+ * dispatch with a status code equal to <tt>MockResponse.SC_INTERNAL_SERVER_ERROR</tt>.</li>
  * <li>If no matching error page was found, or the error page did not call {@link #complete} or any of the
  * {@link #dispatch} methods, call {@link #complete}.</li>
  * </ol>
@@ -137,7 +137,7 @@ public interface AsyncContext {
    * with the MockRequest for which this AsyncContext was created, and make the caught <tt>Throwable</tt> available via
    * {@link AsyncEvent#getThrowable}.</li>
    * <li>If none of the listeners called {@link #complete} or any of the {@link #dispatch} methods, perform an error
-   * dispatch with a status code equal to <tt>HttpMockResponse.SC_INTERNAL_SERVER_ERROR</tt>, and make the above
+   * dispatch with a status code equal to <tt>MockResponse.SC_INTERNAL_SERVER_ERROR</tt>, and make the above
    * <tt>Throwable</tt> available as the value of the <tt>RequestDispatcher.ERROR_EXCEPTION</tt> request attribute.</li>
    * <li>If no matching error page was found, or the error page did not call {@link #complete} or any of the
    * {@link #dispatch} methods, call {@link #complete}.</li>

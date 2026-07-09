@@ -54,7 +54,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
  * @author Sebastien Deleuze
  * @author Vedran Pavic
  */
-class HttpMockResponseTests {
+class MockResponseTests {
 
   private MockResponse response = new MockResponse();
 

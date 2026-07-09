@@ -100,7 +100,7 @@ public class MockResponse {
   private Locale locale = Locale.getDefault();
 
   //---------------------------------------------------------------------
-  // HttpMockResponse properties
+  // MockResponse properties
   //---------------------------------------------------------------------
 
   private final List<Cookie> cookies = new ArrayList<>();
@@ -401,7 +401,7 @@ public class MockResponse {
   }
 
   //---------------------------------------------------------------------
-  // HttpMockResponse interface
+  // MockResponse interface
   //---------------------------------------------------------------------
 
   public void addCookie(Cookie cookie) {

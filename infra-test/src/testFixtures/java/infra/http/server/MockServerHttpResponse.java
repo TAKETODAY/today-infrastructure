@@ -64,13 +64,13 @@ public class MockServerHttpResponse implements ServerHttpResponse {
    * @param mockResponse the mock response
    */
   public MockServerHttpResponse(MockResponse mockResponse) {
-    Assert.notNull(mockResponse, "HttpMockResponse is required");
+    Assert.notNull(mockResponse, "MockResponse is required");
     this.mockResponse = mockResponse;
     this.headers = new MockResponseHttpHeaders();
   }
 
   /**
-   * Return the {@code HttpMockResponse} this object is based on.
+   * Return the {@code MockResponse} this object is based on.
    */
   public MockResponse getResponse() {
     return this.mockResponse;
@@ -126,7 +126,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
         }
       }
 
-      // HttpMockResponse exposes some headers as properties: we should include those if not already present
+      // MockResponse exposes some headers as properties: we should include those if not already present
       MediaType contentTypeHeader = this.headers.getContentType();
       if (mockResponse.getContentType() == null && contentTypeHeader != null) {
         mockResponse.setContentType(contentTypeHeader.toString());
@@ -145,9 +145,9 @@ public class MockServerHttpResponse implements ServerHttpResponse {
 
   /**
    * Extends HttpHeaders with the ability to look up headers already present in
-   * the underlying HttpMockResponse.
+   * the underlying MockResponse.
    *
-   * <p>The intent is merely to expose what is available through the HttpMockResponse
+   * <p>The intent is merely to expose what is available through the MockResponse
    * i.e. the ability to look up specific header values by name. All other
    * map-related operations (e.g. iteration, removal, etc) apply only to values
    * added directly through HttpHeaders methods.
