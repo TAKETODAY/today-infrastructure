@@ -184,9 +184,9 @@ public class DBConfigurationBuilder {
             new File(
                     (tmpDir == null)
                             ? ApplicationTemp.instance
-                            + File.separator
-                            + path()
-                            + DEFAULT_TMP_DIR
+                              + File.separator
+                              + path()
+                              + DEFAULT_TMP_DIR
                             : tmpDir);
     return this;
   }
@@ -250,7 +250,7 @@ public class DBConfigurationBuilder {
     }
     catch (IOException e) {
       // This should never happen
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
