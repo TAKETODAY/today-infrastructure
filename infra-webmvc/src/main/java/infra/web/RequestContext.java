@@ -323,11 +323,8 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   public abstract boolean isSecure();
 
   /**
-   * Returns the name of the scheme used to make this request,
-   * for example,
-   * <code>http</code>, <code>https</code>, or <code>ftp</code>.
-   * Different schemes have different rules for constructing URLs,
-   * as noted in RFC 1738.
+   * Returns the name of the scheme used to make this request, for example, <code>http</code>, <code>https</code>, or
+   * <code>ftp</code>. Different schemes have different rules for constructing URLs, as noted in RFC 1738.
    *
    * @return a <code>String</code> containing the name
    * of the scheme used to make this request
@@ -336,9 +333,10 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   public abstract String getScheme();
 
   /**
-   * Returns the host name of the server to which the request was sent.
-   * It is the value of the part before ":" in the <code>Host</code>
-   * header value, if any, or the resolved server name, or the server IP address.
+   * Returns the host name of the server to which the request was sent. It may be derived from a protocol specific
+   * mechanism, such as the <code>Host</code> header, or the HTTP/2 authority, or
+   * <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>, otherwise the resolved server name or the server IP
+   * address.
    *
    * @return a <code>String</code> containing the name of the server
    * @since 4.0
@@ -346,9 +344,9 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   public abstract String getServerName();
 
   /**
-   * Returns the port number to which the request was sent. It is the
-   * value of the part after ":" in the <code>Host</code> header value,
-   * if any, or the server port where the client connection was accepted on.
+   * Returns the port number to which the request was sent. It may be derived from a protocol specific mechanism, such as
+   * the <code>Host</code> header, or HTTP authority, or <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>,
+   * otherwise the server port where the client connection was accepted on.
    *
    * @return an integer specifying the port number
    * @since 4.0
@@ -497,11 +495,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @return A URL
    */
   public String getRequestURL() {
-    String host = getHeader(HttpHeaders.HOST);
-    if (host == null) {
-      host = "localhost";
-    }
-    return getScheme() + "://" + host + StringUtils.prependLeadingSlash(getRequestURI());
+    return getScheme() + "://" + getServerName() + StringUtils.prependLeadingSlash(getRequestURI());
   }
 
   /**
