@@ -81,6 +81,7 @@ import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
 
+import static infra.http.HttpHeaders.HOST;
 import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
@@ -229,11 +230,17 @@ public abstract class NettyRequestContext extends RequestContext {
 
   @Override
   public String getServerName() {
-    SocketAddress socketAddress = localAddress();
-    if (socketAddress instanceof InetSocketAddress) {
-      return ((InetSocketAddress) socketAddress).getHostString();
+    String host = getHeader(HOST);
+    if (host == null) {
+      SocketAddress socketAddress = localAddress();
+      if (socketAddress instanceof InetSocketAddress) {
+        host = ((InetSocketAddress) socketAddress).getHostString();
+      }
+      if (host == null) {
+        host = "localhost";
+      }
     }
-    throw new IllegalStateException("unable to determine server name");
+    return host;
   }
 
   @Override
@@ -285,15 +292,6 @@ public abstract class NettyRequestContext extends RequestContext {
       this.queryStringIndex = index;
     }
     return index;
-  }
-
-  @Override
-  public String getRequestURL() {
-    String host = request.headers().get(DefaultHttpHeaders.HOST);
-    if (host == null) {
-      host = "localhost";
-    }
-    return getScheme() + "://" + host + StringUtils.prependLeadingSlash(getRequestURI());
   }
 
   @Override
