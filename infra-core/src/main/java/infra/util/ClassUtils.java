@@ -63,6 +63,8 @@ import infra.core.io.ClassPathResource;
 import infra.lang.Assert;
 import infra.lang.Constant;
 
+import static infra.util.StringUtils.prependLeadingSlash;
+
 /**
  * @author Juergen Hoeller
  * @author Keith Donald
@@ -1229,10 +1231,7 @@ public abstract class ClassUtils {
    */
   public static String addResourcePathToPackagePath(Class<?> clazz, String resourceName) {
     Assert.notNull(resourceName, "Resource name is required");
-    if (!resourceName.startsWith("/")) {
-      return classPackageAsResourcePath(clazz) + '/' + resourceName;
-    }
-    return classPackageAsResourcePath(clazz) + resourceName;
+    return classPackageAsResourcePath(clazz) + prependLeadingSlash(resourceName);
   }
 
   /**

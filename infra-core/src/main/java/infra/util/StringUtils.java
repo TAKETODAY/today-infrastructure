@@ -655,6 +655,15 @@ public abstract class StringUtils {
   }
 
   /**
+   * Tests if this string starts with the slash.
+   *
+   * @since 5.0
+   */
+  public static boolean startsWithSlash(@Nullable String str) {
+    return str != null && str.startsWith("/");
+  }
+
+  /**
    * Check Url, format url like :
    *
    * <pre>

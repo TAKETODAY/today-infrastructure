@@ -44,6 +44,8 @@ import infra.util.StringUtils;
 import infra.web.util.HierarchicalUriComponents.PathComponent;
 import infra.web.util.UriComponents.UriTemplateVariables;
 
+import static infra.util.StringUtils.prependLeadingSlash;
+
 /**
  * Builder for {@link UriComponents}.
  *
@@ -809,7 +811,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         PathSegmentComponentBuilder psBuilder = getLastBuilder(PathSegmentComponentBuilder.class);
         FullPathComponentBuilder fpBuilder = getLastBuilder(FullPathComponentBuilder.class);
         if (psBuilder != null) {
-          path = (path.startsWith("/") ? path : "/" + path);
+          path = prependLeadingSlash(path);
         }
         if (fpBuilder == null) {
           fpBuilder = new FullPathComponentBuilder();

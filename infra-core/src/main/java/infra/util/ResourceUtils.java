@@ -44,6 +44,7 @@ import infra.lang.Assert;
 
 import static infra.lang.Constant.BLANK;
 import static infra.lang.Constant.PATH_SEPARATOR;
+import static infra.util.StringUtils.prependLeadingSlash;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -236,9 +237,7 @@ public abstract class ResourceUtils {
       catch (MalformedURLException ex) {
         // Probably no protocol in original jar URL, like "jar:C:/mypath/myjar.jar".
         // This usually indicates that the jar file resides in the file system.
-        if (!jarFile.startsWith("/")) {
-          jarFile = '/' + jarFile;
-        }
+        jarFile = prependLeadingSlash(jarFile);
         return toURL(FILE_URL_PREFIX.concat(jarFile));
       }
     }

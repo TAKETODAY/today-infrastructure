@@ -23,6 +23,8 @@ import java.util.Map;
 import infra.lang.Assert;
 import infra.web.RequestContext;
 
+import static infra.util.StringUtils.prependLeadingSlash;
+
 /**
  * Wrapper for other resource within the same web application.
  * Exposes model objects as request attributes and forwards the request to
@@ -125,17 +127,16 @@ public class InternalResourceView extends AbstractUrlBasedView {
   protected String prepareForRendering(RequestContext request) throws Exception {
     String path = getUrl();
     Assert.state(path != null, "'url' not set");
-
-    String dispatcherPath = path.startsWith("/") ? path : "/" + path;
     if (this.preventDispatchLoop) {
       String uri = request.getRequestURI();
+      String dispatcherPath = prependLeadingSlash(path);
       if (uri.equals(dispatcherPath)) {
-        throw new IllegalStateException("Circular view path [" + path + "]: would dispatch back " +
+        throw new IllegalStateException("Circular view path [" + dispatcherPath + "]: would dispatch back " +
                 "to the current handler URL [" + uri + "] again. Check your ViewResolver setup! " +
                 "(Hint: This may be the result of an unspecified view, due to default view name generation.)");
       }
     }
-    return dispatcherPath;
+    return path;
   }
 
 }

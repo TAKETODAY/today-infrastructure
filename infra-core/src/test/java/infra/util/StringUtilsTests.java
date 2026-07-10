@@ -453,6 +453,14 @@ class StringUtilsTests {
   }
 
   @Test
+  void startsWithSlash() {
+    assertThat(StringUtils.startsWithSlash("")).isFalse();
+    assertThat(StringUtils.startsWithSlash("/")).isTrue();
+    assertThat(StringUtils.startsWithSlash(null)).isFalse();
+    assertThat(StringUtils.startsWithSlash("dsfdfdfd")).isFalse();
+  }
+
+  @Test
   void sortStringArray() {
     String[] input = new String[] { "myString2" };
     input = StringUtils.addStringToArray(input, "myString1");

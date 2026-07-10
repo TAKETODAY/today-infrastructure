@@ -54,6 +54,7 @@ import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
 import infra.web.view.ViewRef;
 
+import static infra.util.StringUtils.prependLeadingSlash;
 import static infra.web.RequestContext.FORWARD_ATTRIBUTE;
 import static infra.web.RequestContext.FORWARD_REQUEST_URI_ATTRIBUTE;
 
@@ -837,6 +838,8 @@ public class DispatcherHandler extends WebLifecycleManager {
       queryString = path.substring(queryIndex + 1);
       path = path.substring(0, queryIndex);
     }
+
+    path = prependLeadingSlash(path);
 
     String requestURI = request.getRequestURI();
 

@@ -118,10 +118,11 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     this.path = StringUtils.cleanPath(path);
 
     String absolutePath = this.path;
-    if (clazz != null && !absolutePath.startsWith("/")) {
+    boolean startsWithSlash = StringUtils.startsWithSlash(absolutePath);
+    if (clazz != null && !startsWithSlash) {
       absolutePath = ClassUtils.classPackageAsResourcePath(clazz) + "/" + absolutePath;
     }
-    else if (absolutePath.startsWith("/")) {
+    else if (startsWithSlash) {
       absolutePath = absolutePath.substring(1);
     }
     this.absolutePath = absolutePath;

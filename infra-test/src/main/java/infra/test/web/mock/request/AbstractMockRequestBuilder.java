@@ -969,7 +969,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
     }
   }
 
-  @SuppressWarnings("unchecked")
   private MultiValueMap<String, String> parseFormData(MediaType mediaType) {
     HttpInputMessage message = new HttpInputMessage() {
       @Override

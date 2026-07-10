@@ -27,6 +27,8 @@ import infra.util.AntPathMatcher;
 import infra.util.CollectionUtils;
 import infra.web.HandlerMapping;
 
+import static infra.util.StringUtils.prependLeadingSlash;
+
 /**
  * Implementation of the {@link HandlerMapping} interface that maps from URLs
  * to request handler beans. Supports both mapping to bean instances and mapping
@@ -166,9 +168,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
         String url = entry.getKey();
         Object handler = entry.getValue();
         // Prepend with slash if not already present.
-        if (!url.startsWith("/")) {
-          url = "/" + url;
-        }
+        url = prependLeadingSlash(url);
         // Remove whitespace from handler bean name.
         if (handler instanceof String) {
           handler = ((String) handler).trim();

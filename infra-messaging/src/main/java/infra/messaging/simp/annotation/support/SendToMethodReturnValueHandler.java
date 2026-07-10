@@ -51,6 +51,8 @@ import infra.util.PlaceholderResolver;
 import infra.util.PropertyPlaceholderHandler;
 import infra.util.StringUtils;
 
+import static infra.util.StringUtils.prependLeadingSlash;
+
 /**
  * A {@link HandlerMethodReturnValueHandler} for sending to destinations specified in a
  * {@link SendTo} or {@link SendToUser} method-level annotations.
@@ -259,8 +261,7 @@ public class SendToMethodReturnValueHandler implements HandlerMethodReturnValueH
       throw new IllegalStateException("No lookup destination header in " + message);
     }
 
-    return (destination.startsWith("/") ?
-            new String[] { defaultPrefix + destination } : new String[] { defaultPrefix + '/' + destination });
+    return new String[] { defaultPrefix + prependLeadingSlash(destination) };
   }
 
   private MessageHeaders createHeaders(

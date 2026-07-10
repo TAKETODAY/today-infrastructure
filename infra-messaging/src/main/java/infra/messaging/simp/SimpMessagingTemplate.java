@@ -38,6 +38,8 @@ import infra.messaging.support.MessageHeaderInitializer;
 import infra.messaging.support.NativeMessageHeaderAccessor;
 import infra.util.StringUtils;
 
+import static infra.util.StringUtils.prependLeadingSlash;
+
 /**
  * An implementation of
  * {@link SimpMessageSendingOperations}.
@@ -228,7 +230,7 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
     String username = user;
     Assert.isTrue(!user.contains("%2F"), () -> "Invalid sequence \"%2F\" in user name: " + username);
     user = StringUtils.replace(user, "/", "%2F");
-    destination = destination.startsWith("/") ? destination : "/" + destination;
+    destination = prependLeadingSlash(destination);
     super.convertAndSend(this.destinationPrefix + user + destination, payload, headers, postProcessor);
   }
 
