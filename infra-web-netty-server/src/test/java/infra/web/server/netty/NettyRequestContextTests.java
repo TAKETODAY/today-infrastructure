@@ -579,6 +579,81 @@ class NettyRequestContextTests {
     assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]:abc")).isEqualTo(-1);
   }
 
+  // -- onResponseCommitted tests --
+
+  @Test
+  void onResponseCommittedFiredOnFlush() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(0);
+
+    ctx.flush();
+
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedFiredOnlyOnce() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.flush();
+    ctx.flush();
+    ctx.flush();
+
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedFiredOnSendRedirect() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.sendRedirect("/redirect");
+
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedFiredOnOutputStreamWriteThenFlush() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.getOutputStream().write('X');
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(0);
+
+    ctx.flush();
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedNotCalledOnResetAfterFlushWithoutCommit() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.getOutputStream();
+    // flush not called, so response not committed
+    ctx.reset();
+
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(0);
+  }
+
   // -- stub --
 
   private static Channel mockChannel() {
@@ -617,6 +692,20 @@ class NettyRequestContextTests {
 
     SecureNettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
       super(request, channel, NettyRequestConfig.forBuilder(true));
+    }
+  }
+
+  private static class OnCommittedTrackingStub extends NettyRequestContextStub {
+
+    int onCommittedCallCount;
+
+    OnCommittedTrackingStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      super(request, channel);
+    }
+
+    @Override
+    protected void onResponseCommitted() {
+      onCommittedCallCount++;
     }
   }
 

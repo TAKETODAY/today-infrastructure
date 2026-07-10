@@ -2373,11 +2373,44 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * write headers to response
+   * Write response headers to the client.
+   * <p>Subclasses must override this method to write the actual headers.
+   * Implementations should call {@link #onResponseCommitting()} before
+   * writing headers and {@link #onResponseCommitted()} after writing.
    *
+   * @see #onResponseCommitting
+   * @see #onResponseCommitted
+   * @see #flush
    * @since 4.0
    */
   protected void writeHeaders() {
+  }
+
+  /**
+   * Template method invoked before the response headers are committed.
+   * <p>Subclasses may override to perform actions just before headers are
+   * written to the client. At this point, the status code and headers can
+   * still be modified.
+   *
+   * @see #onResponseCommitted
+   * @see #flush
+   * @since 5.0
+   */
+  protected void onResponseCommitting() {
+  }
+
+  /**
+   * Template method invoked when the response is committed, i.e., after
+   * the status code and headers have been written to the client.
+   * <p>Subclasses may override to perform actions after response commitment,
+   * such as logging or notifying listeners. Headers can no longer be modified.
+   *
+   * @see #onResponseCommitting
+   * @see #flush
+   * @see #isCommitted
+   * @since 5.0
+   */
+  protected void onResponseCommitted() {
   }
 
   protected final void processException(Throwable exception) throws Throwable {
