@@ -20,6 +20,8 @@ package infra.docker.compose.core;
 
 import java.util.regex.Pattern;
 
+import infra.lang.Constant;
+
 /**
  * Regular Expressions for image names and references based on those found in the CNCF
  * Distribution Project codebase.
