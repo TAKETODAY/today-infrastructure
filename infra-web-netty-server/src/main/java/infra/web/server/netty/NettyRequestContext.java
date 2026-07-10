@@ -225,7 +225,37 @@ public abstract class NettyRequestContext extends RequestContext {
     if (socketAddress instanceof InetSocketAddress) {
       return ((InetSocketAddress) socketAddress).getPort();
     }
-    throw new IllegalStateException("unable to determine server port");
+    String hostHeader = getHeader(HOST);
+    if (hostHeader != null) {
+      int port = parsePortFromHostHeader(hostHeader);
+      if (port > 0) {
+        return port;
+      }
+    }
+    return isSecure() ? 443 : 80;
+  }
+
+  static int parsePortFromHostHeader(String hostHeader) {
+    int idx;
+    if (hostHeader.charAt(0) == '[') {
+      int closingBracket = hostHeader.indexOf(']');
+      if (closingBracket < 0) {
+        return -1;
+      }
+      idx = hostHeader.indexOf(':', closingBracket);
+    }
+    else {
+      idx = hostHeader.indexOf(':');
+    }
+    if (idx < 0) {
+      return -1;
+    }
+    try {
+      return Integer.parseInt(hostHeader.substring(idx + 1));
+    }
+    catch (NumberFormatException e) {
+      return -1;
+    }
   }
 
   @Override

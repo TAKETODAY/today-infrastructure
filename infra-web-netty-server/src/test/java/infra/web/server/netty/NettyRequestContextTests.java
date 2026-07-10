@@ -477,6 +477,50 @@ class NettyRequestContextTests {
     assertThat(ctx.getServerName()).isEqualTo("localhost");
   }
 
+  // -- getServerPort tests --
+
+  @Test
+  void getServerPortFromLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(new InetSocketAddress("0.0.0.0", 3000));
+
+    var ctx = new NettyRequestContextStub(request, channel);
+    assertThat(ctx.getServerPort()).isEqualTo(3000);
+  }
+
+  @Test
+  void getServerPortDefaultsTo80WhenNoLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(null);
+
+    var ctx = new NettyRequestContextStub(request, channel);
+    assertThat(ctx.getServerPort()).isEqualTo(80);
+  }
+
+  @Test
+  void getServerPortDefaultsTo443WhenSecureAndNoLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(null);
+
+    var ctx = new SecureNettyRequestContextStub(request, channel);
+    assertThat(ctx.getServerPort()).isEqualTo(443);
+  }
+
   // -- stub --
 
   private static Channel mockChannel() {
@@ -486,10 +530,14 @@ class NettyRequestContextTests {
   private static class NettyRequestContextStub extends NettyRequestContext {
 
     NettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      this(request, channel, NettyRequestConfig.forBuilder(false));
+    }
+
+    NettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel, NettyRequestConfig.Builder configBuilder) {
       super(mock(ApplicationContext.class),
               channel != null ? channel : mockChannel(),
               request,
-              NettyRequestConfig.forBuilder(false)
+              configBuilder
                       .sendErrorHandler((req, msg) -> { })
                       .multipartParser(mock(infra.web.multipart.MultipartParser.class))
                       .build(),
@@ -504,6 +552,13 @@ class NettyRequestContextTests {
     @Override
     protected InputStream createInputStream() throws IOException {
       return InputStream.nullInputStream();
+    }
+  }
+
+  private static class SecureNettyRequestContextStub extends NettyRequestContextStub {
+
+    SecureNettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      super(request, channel, NettyRequestConfig.forBuilder(true));
     }
   }
 
