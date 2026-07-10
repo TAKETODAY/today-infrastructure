@@ -49,6 +49,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import infra.lang.Assert;
+import infra.lang.Constant;
 
 /**
  * References to container images used for integration tests. This class also acts a
@@ -228,7 +229,7 @@ public enum TestImage {
   PULSAR("apachepulsar/pulsar", "4.2.0", () -> PulsarContainer.class,
           (container) -> ((PulsarContainer) container).withStartupAttempts(2)
                   .withStartupTimeout(Duration.ofMinutes(3))
-                  .withEnv("PULSAR_PREFIX_advertisedAddress", "localhost")),
+                  .withEnv("PULSAR_PREFIX_advertisedAddress", Constant.LOCALHOST)),
 
   /**
    * A container image suitable for testing RabbitMQ.

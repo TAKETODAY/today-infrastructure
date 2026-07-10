@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
+import infra.lang.Constant;
 import infra.session.Session;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
@@ -122,7 +123,7 @@ public class MockRequest {
   /**
    * The default server name: 'localhost'.
    */
-  public static final String DEFAULT_SERVER_NAME = "localhost";
+  public static final String DEFAULT_SERVER_NAME = Constant.LOCALHOST;
 
   /**
    * The default server port: '80'.
@@ -137,7 +138,7 @@ public class MockRequest {
   /**
    * The default remote host: 'localhost'.
    */
-  public static final String DEFAULT_REMOTE_HOST = "localhost";
+  public static final String DEFAULT_REMOTE_HOST = Constant.LOCALHOST;
 
   // ---------------------------------------------------------------------
   // Lifecycle properties

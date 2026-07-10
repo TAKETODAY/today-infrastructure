@@ -45,7 +45,7 @@ final class Regex implements CharSequence {
     Regex dottedDomain = Regex.group(component, dotComponent.oneOrMoreTimes());
     Regex dottedDomainAndPort = Regex.group(component, dotComponent.oneOrMoreTimes(), colonPort);
     Regex nameAndPort = Regex.group(component, colonPort);
-    DOMAIN = Regex.oneOf(dottedDomain, nameAndPort, dottedDomainAndPort, "localhost").compile();
+    DOMAIN = Regex.oneOf(dottedDomain, nameAndPort, dottedDomainAndPort, Constant.LOCALHOST).compile();
   }
 
   private static final Regex PATH_COMPONENT;
