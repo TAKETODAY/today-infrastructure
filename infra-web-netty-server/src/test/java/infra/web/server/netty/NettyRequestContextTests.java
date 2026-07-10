@@ -483,6 +483,7 @@ class NettyRequestContextTests {
   void getServerPortFromLocalAddress() {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:9999");
 
     var channel = mock(Channel.class);
     var pipeline = mock(ChannelPipeline.class);
@@ -494,31 +495,88 @@ class NettyRequestContextTests {
   }
 
   @Test
-  void getServerPortDefaultsTo80WhenNoLocalAddress() {
+  void getServerPortFromHostHeaderWhenNoLocalAddress() {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:8080");
 
-    var channel = mock(Channel.class);
-    var pipeline = mock(ChannelPipeline.class);
-    when(channel.pipeline()).thenReturn(pipeline);
-    when(channel.localAddress()).thenReturn(null);
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(8080);
+  }
 
-    var ctx = new NettyRequestContextStub(request, channel);
+  @Test
+  void getServerPortFromHostHeaderWithIpv6WhenNoLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]:9090");
+
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(9090);
+  }
+
+  @Test
+  void getServerPortDefaultsTo80WhenNoLocalAddressAndNoPortInHostHeader() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com");
+
+    var ctx = new NettyRequestContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(80);
   }
 
   @Test
-  void getServerPortDefaultsTo443WhenSecureAndNoLocalAddress() {
+  void getServerPortDefaultsTo80WhenNoAddressAndNoHostHeader() {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
 
-    var channel = mock(Channel.class);
-    var pipeline = mock(ChannelPipeline.class);
-    when(channel.pipeline()).thenReturn(pipeline);
-    when(channel.localAddress()).thenReturn(null);
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(80);
+  }
 
-    var ctx = new SecureNettyRequestContextStub(request, channel);
+  @Test
+  void getServerPortDefaultsTo443WhenSecureAndNoAddressAndNoHostHeader() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new SecureNettyRequestContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(443);
+  }
+
+  @Test
+  void getServerPortWithMalformedPortInHostHeader_fallsBackToDefault() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:abc");
+
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(80);
+  }
+
+  // -- parsePortFromHostHeader tests --
+
+  @Test
+  void parsePortFromHostHeaderWithIpv4AndPort() {
+    assertThat(NettyRequestContext.parsePortFromHostHeader("example.com:8080")).isEqualTo(8080);
+  }
+
+  @Test
+  void parsePortFromHostHeaderWithIpv4WithoutPort() {
+    assertThat(NettyRequestContext.parsePortFromHostHeader("example.com")).isEqualTo(-1);
+  }
+
+  @Test
+  void parsePortFromHostHeaderWithIpv6AndPort() {
+    assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]:9090")).isEqualTo(9090);
+  }
+
+  @Test
+  void parsePortFromHostHeaderWithIpv6WithoutPort() {
+    assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]")).isEqualTo(-1);
+  }
+
+  @Test
+  void parsePortFromHostHeaderWithIpv6AndMalformedPort() {
+    assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]:abc")).isEqualTo(-1);
   }
 
   // -- stub --
