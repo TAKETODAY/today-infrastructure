@@ -70,6 +70,7 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
+import infra.lang.Constant;
 import infra.lang.NullValue;
 import infra.lang.TodayStrategies;
 import infra.session.Session;
@@ -495,7 +496,14 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @return A URL
    */
   public String getRequestURL() {
-    return getScheme() + "://" + getServerName() + StringUtils.prependLeadingSlash(getRequestURI());
+    String scheme = getScheme();
+    int port = getServerPort();
+    String url = scheme + "://" + getServerName();
+    if (port > 0 && !(port == 80 && Constant.HTTP.equals(scheme))
+            && !(port == 443 && Constant.HTTPS.equals(scheme))) {
+      url += ":" + port;
+    }
+    return url + StringUtils.prependLeadingSlash(getRequestURI());
   }
 
   /**

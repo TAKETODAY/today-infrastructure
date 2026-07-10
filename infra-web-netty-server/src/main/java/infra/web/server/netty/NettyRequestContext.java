@@ -231,14 +231,27 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   public String getServerName() {
     String host = getHeader(HOST);
+    if (host != null) {
+      if (host.charAt(0) == '[') {
+        int closingBracket = host.indexOf(']');
+        if (closingBracket > 0) {
+          host = host.substring(0, closingBracket + 1);
+        }
+      }
+      else {
+        int colonIndex = host.indexOf(':');
+        if (colonIndex >= 0) {
+          host = host.substring(0, colonIndex);
+        }
+      }
+      return host;
+    }
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      host = ((InetSocketAddress) socketAddress).getHostString();
+    }
     if (host == null) {
-      SocketAddress socketAddress = localAddress();
-      if (socketAddress instanceof InetSocketAddress) {
-        host = ((InetSocketAddress) socketAddress).getHostString();
-      }
-      if (host == null) {
-        host = "localhost";
-      }
+      host = Constant.LOCALHOST;
     }
     return host;
   }

@@ -90,6 +90,8 @@ public interface Constant extends Serializable {
 
   String HTTPS = "https";
 
+  String LOCALHOST = "localhost";
+
   byte[] EMPTY_BYTES = {};
   Field[] EMPTY_FIELDS = {};
   Method[] EMPTY_METHODS = {};

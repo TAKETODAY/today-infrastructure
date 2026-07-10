@@ -843,7 +843,7 @@ public abstract class DecorableRequestContext extends RequestContext {
   public abstract RequestContext delegate();
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof DecorableRequestContext that))

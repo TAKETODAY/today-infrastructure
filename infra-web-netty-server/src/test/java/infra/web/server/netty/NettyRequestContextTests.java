@@ -18,13 +18,25 @@ package infra.web.server.netty;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.util.List;
 
+import infra.context.ApplicationContext;
 import infra.util.MultiValueMap;
+import infra.web.DispatcherHandler;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -388,6 +400,111 @@ class NettyRequestContextTests {
             .hasSize(1)
             .containsEntry("key;with;semicolons", List.of("value"));
 
+  }
+
+  // -- getServerName tests --
+
+  @Test
+  void getServerNameFromHostHeaderWithoutPort() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com");
+
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("example.com");
+  }
+
+  @Test
+  void getServerNameFromHostHeaderWithPort() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:8080");
+
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("example.com");
+  }
+
+  @Test
+  void getServerNameFromHostHeaderWithIpv6WithoutPort() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]");
+
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("[::1]");
+  }
+
+  @Test
+  void getServerNameFromHostHeaderWithIpv6WithPort() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]:8080");
+
+    var ctx = new NettyRequestContextStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("[::1]");
+  }
+
+  @Test
+  void getServerNameFallbackToLocalAddress() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(new InetSocketAddress("192.168.1.1", 80));
+
+    var ctx = new NettyRequestContextStub(request, channel);
+    assertThat(ctx.getServerName()).isEqualTo("192.168.1.1");
+  }
+
+  @Test
+  void getServerNameFallbackToLocalhost() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(null);
+
+    var ctx = new NettyRequestContextStub(request, channel);
+    assertThat(ctx.getServerName()).isEqualTo("localhost");
+  }
+
+  // -- stub --
+
+  private static Channel mockChannel() {
+    return new EmbeddedChannel();
+  }
+
+  private static class NettyRequestContextStub extends NettyRequestContext {
+
+    NettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      super(mock(ApplicationContext.class),
+              channel != null ? channel : mockChannel(),
+              request,
+              NettyRequestConfig.forBuilder(false)
+                      .sendErrorHandler((req, msg) -> { })
+                      .multipartParser(mock(infra.web.multipart.MultipartParser.class))
+                      .build(),
+              mock(DispatcherHandler.class));
+    }
+
+    @Override
+    public long getContentLength() {
+      return 0;
+    }
+
+    @Override
+    protected InputStream createInputStream() throws IOException {
+      return InputStream.nullInputStream();
+    }
   }
 
 }
