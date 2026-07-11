@@ -21,14 +21,17 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Objects;
 
 import infra.lang.Assert;
+import infra.util.function.IOConsumer;
 
 /**
  * This class implements the Wrapper or Decorator pattern.
@@ -65,6 +68,36 @@ public class DecoratingResource implements Resource {
   @Override
   public ReadableByteChannel readableChannel() throws IOException {
     return getDelegate().readableChannel();
+  }
+
+  @Override
+  public Path getFilePath() throws IOException {
+    return delegate.getFilePath();
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    return delegate.getContentAsByteArray();
+  }
+
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
+    return delegate.getContentAsString(charset);
+  }
+
+  @Override
+  public String getContentAsString() throws IOException {
+    return delegate.getContentAsString();
+  }
+
+  @Override
+  public void consumeContent(IOConsumer<InputStream> consumer) throws IOException {
+    delegate.consumeContent(consumer);
+  }
+
+  @Override
+  public long transferTo(OutputStream out) throws IOException {
+    return delegate.transferTo(out);
   }
 
   // Resource

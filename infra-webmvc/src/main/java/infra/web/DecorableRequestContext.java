@@ -591,11 +591,6 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  protected void writeHeaders() {
-    delegate().writeHeaders();
-  }
-
-  @Override
   public void flush() throws IOException {
     delegate().flush();
   }
@@ -716,11 +711,6 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  protected RequestPath readRequestPath() {
-    return delegate().readRequestPath();
-  }
-
-  @Override
   public MessageSource getMessageSource() {
     return delegate().getMessageSource();
   }
@@ -813,6 +803,21 @@ public abstract class DecorableRequestContext extends RequestContext {
   @Override
   public void registerCommittingCallback(Runnable callback) {
     delegate().registerCommittingCallback(callback);
+  }
+
+  @Override
+  public void registerCallback(Lifecycle phase, String name, Runnable callback) {
+    delegate().registerCallback(phase, name, callback);
+  }
+
+  @Override
+  public void forward(String path) throws Exception {
+    delegate().forward(path);
+  }
+
+  @Override
+  public long transferTo(OutputStream out) throws IOException {
+    return delegate().transferTo(out);
   }
 
   @Override
