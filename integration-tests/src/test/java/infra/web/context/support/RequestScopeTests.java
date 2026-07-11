@@ -101,7 +101,7 @@ public class RequestScopeTests {
     assertThat(request.getAttribute(name)).isSameAs(bean);
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
-    requestAttributes.flush();
+    requestAttributes.requestCompleted();
     assertThat(bean.wasDestroyed()).isTrue();
   }
 
@@ -143,7 +143,7 @@ public class RequestScopeTests {
     assertThat(request.getAttribute(outerBeanName)).isNotNull();
     TestBean inner1 = (TestBean) outer1.getSpouse();
     assertThat(this.beanFactory.getBean(outerBeanName)).isSameAs(outer1);
-    requestAttributes.flush();
+    requestAttributes.requestCompleted();
     assertThat(outer1.wasDestroyed()).isTrue();
     assertThat(inner1.wasDestroyed()).isTrue();
     request = new MockRequest();
@@ -166,7 +166,7 @@ public class RequestScopeTests {
     TestBean outer2 = (TestBean) this.beanFactory.getBean(outerBeanName);
     assertThat(outer2).isSameAs(outer1);
     assertThat(outer2.getSpouse()).isSameAs(inner1);
-    requestAttributes.flush();
+    requestAttributes.requestCompleted();
     assertThat(inner1.wasDestroyed()).isTrue();
     assertThat(outer1.wasDestroyed()).isFalse();
   }

@@ -711,6 +711,10 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     this.useForward = useForward;
   }
 
+  public void requestCompleted() {
+    requestCompleted(null);
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (!(o instanceof MockRequestContext context))
