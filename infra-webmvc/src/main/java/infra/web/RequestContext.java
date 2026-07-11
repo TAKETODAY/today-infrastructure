@@ -2413,6 +2413,17 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   protected void onResponseCommitted() {
   }
 
+  /**
+   * assert that response is committed?
+   *
+   * @throws IllegalStateException if response is committed
+   */
+  protected final void assertNotCommitted() {
+    if (isCommitted()) {
+      throw new IllegalStateException("The response has been committed");
+    }
+  }
+
   protected final void processException(Throwable exception) throws Throwable {
     dispatcherHandler.processDispatchResult(this, null, null, exception);
   }

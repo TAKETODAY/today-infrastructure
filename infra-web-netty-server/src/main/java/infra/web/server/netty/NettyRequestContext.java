@@ -712,17 +712,6 @@ public abstract class NettyRequestContext extends RequestContext {
     status = HttpResponseStatus.OK;
   }
 
-  /**
-   * assert that response is committed?
-   *
-   * @throws IllegalStateException if response is committed
-   */
-  private void assertNotCommitted() {
-    if (committed.get()) {
-      throw new IllegalStateException("The response has been committed");
-    }
-  }
-
   @Override
   public void setStatus(int sc) {
     this.status = HttpResponseStatus.valueOf(sc);
