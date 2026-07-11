@@ -79,7 +79,7 @@ public class RequestScope extends AbstractWebContextScope<RequestContext> {
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
     var request = RequestContextHolder.required();
-    request.registerCompletedCallback(name, callback);
+    request.registerCallback(RequestContext.Lifecycle.COMPLETED, name, callback);
   }
 
 }

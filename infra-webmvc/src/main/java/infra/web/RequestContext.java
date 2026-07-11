@@ -1217,17 +1217,6 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * Register the given callback as to be executed after request completion.
-   *
-   * @param name the name of the attribute to register the callback for
-   * @param callback the callback to be executed for destruction
-   * @since 5.0
-   */
-  public void registerCompletedCallback(String name, Runnable callback) {
-    registerCallback(Lifecycle.COMPLETED, name, callback);
-  }
-
-  /**
    * Register a callback to be invoked just before the response headers
    * are committed. At this point, the status code and headers can still
    * be modified.

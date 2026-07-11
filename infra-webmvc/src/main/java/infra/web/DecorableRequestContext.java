@@ -791,11 +791,6 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  public void registerCompletedCallback(String name, Runnable callback) {
-    delegate().registerCompletedCallback(name, callback);
-  }
-
-  @Override
   public void registerCommittedCallback(Runnable callback) {
     delegate().registerCommittedCallback(callback);
   }
