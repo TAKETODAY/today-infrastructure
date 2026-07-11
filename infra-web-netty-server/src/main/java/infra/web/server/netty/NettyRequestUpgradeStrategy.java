@@ -126,7 +126,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
     nettyContext.setStatus(response.status());
     nettyContext.nettyResponseHeaders.add(response.headers());
-    nettyContext.registerDestructionCallback(handshakeChannel);
+    nettyContext.registerCompletedCallback(handshakeChannel);
 
     if (selectedProtocol != null) {
       nettyContext.nettyResponseHeaders.set(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL, selectedProtocol);

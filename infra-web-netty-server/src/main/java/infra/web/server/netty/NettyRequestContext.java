@@ -629,7 +629,7 @@ public abstract class NettyRequestContext extends RequestContext {
   @Override
   protected void writeHeaders() {
     if (committed.compareAndSet(false, true)) {
-      onResponseCommitting();
+      onCommitting();
       // ---------------------------------------------
       // apply Status code and headers
       // ---------------------------------------------
@@ -679,7 +679,7 @@ public abstract class NettyRequestContext extends RequestContext {
       }
 
       channel.write(new DefaultHttpResponse(version(), status, headers));
-      onResponseCommitted();
+      onCommitted();
     }
   }
 

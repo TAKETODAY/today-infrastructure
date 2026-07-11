@@ -35,6 +35,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -190,6 +191,20 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    */
   public static final boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
 
+  /**
+   * Lifecycle phases for response event callbacks.
+   *
+   * @since 5.0
+   */
+  public enum Lifecycle {
+    /** Before response headers are committed */
+    COMMITTING,
+    /** After response headers have been committed */
+    COMMITTED,
+    /** After request processing completes */
+    COMPLETED
+  }
+
   private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 
   /**
@@ -259,9 +274,6 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
   protected @Nullable Boolean corsRequestFlag;
 
-  /** Map from attribute name String to destruction callback Runnable.  @since 5.0 */
-  protected @Nullable LinkedHashMap<String, Runnable> destructionCallbacks;
-
   protected @Nullable MediaType contentType;
 
   protected final DispatcherHandler dispatcherHandler;
@@ -274,6 +286,8 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   private @Nullable Session session;
 
   private long requestCompletedTimeMillis;
+
+  private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
 
   protected RequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -1138,17 +1152,51 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
     requestCompletedInternal(notHandled);
 
-    var callbacks = destructionCallbacks;
-    if (callbacks != null) {
-      destructionCallbacks = null;
-      for (Runnable runnable : callbacks.values()) {
-        runnable.run();
-      }
-      callbacks.clear();
-    }
+    fireCallbacks(Lifecycle.COMPLETED);
   }
 
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  }
+
+  // ---------------------------------------------------------------------
+  // lifecycle callback
+  // ---------------------------------------------------------------------
+
+  /**
+   * Add a lifecycle callback for the given phase.
+   *
+   * @param phase lifecycle phase
+   * @param name the name of the callback
+   * @param callback the callback to execute
+   * @since 5.0
+   */
+  public void registerCallback(Lifecycle phase, String name, Runnable callback) {
+    Assert.notNull(phase, "Phase is required");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(callback, "Callback is required");
+    if (lifecycleCallbacks == null) {
+      lifecycleCallbacks = new EnumMap<>(Lifecycle.class);
+    }
+    lifecycleCallbacks.computeIfAbsent(phase, k -> new LinkedHashMap<>(8))
+            .put(name, callback);
+  }
+
+  /**
+   * Remove a lifecycle callback for the given phase and name.
+   *
+   * @param phase lifecycle phase
+   * @param name the name of the callback to remove
+   * @since 5.0
+   */
+  public void removeCallback(Lifecycle phase, String name) {
+    Assert.notNull(phase, "Phase is required");
+    Assert.notNull(name, "Name is required");
+    if (lifecycleCallbacks != null) {
+      var callbacks = lifecycleCallbacks.get(phase);
+      if (callbacks != null) {
+        callbacks.remove(name);
+      }
+    }
   }
 
   /**
@@ -1161,10 +1209,10 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @throws IllegalArgumentException if the callback is {@code null}
    * @since 5.0
    */
-  public String registerDestructionCallback(Runnable callback) {
+  public String registerCompletedCallback(Runnable callback) {
     Assert.notNull(callback, "Destruction Callback is required");
     String variableName = Conventions.getVariableName(callback);
-    registerDestructionCallback(variableName, callback);
+    registerCallback(Lifecycle.COMPLETED, variableName, callback);
     return variableName;
   }
 
@@ -1175,25 +1223,50 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @param callback the callback to be executed for destruction
    * @since 5.0
    */
-  public void registerDestructionCallback(String name, Runnable callback) {
-    Assert.notNull(name, "Name is required");
-    Assert.notNull(callback, "Destruction Callback is required");
-    if (destructionCallbacks == null) {
-      destructionCallbacks = new LinkedHashMap<>(8);
-    }
-    destructionCallbacks.put(name, callback);
+  public void registerCompletedCallback(String name, Runnable callback) {
+    registerCallback(Lifecycle.COMPLETED, name, callback);
   }
 
   /**
-   * Remove the request destruction callback for the specified attribute, if any.
+   * Register a callback to be invoked just before the response headers
+   * are committed. At this point, the status code and headers can still
+   * be modified.
    *
-   * @param name the name of the attribute to remove the callback for
+   * @param callback the callback to execute; must not be {@code null}
    * @since 5.0
    */
-  public void removeDestructionCallback(String name) {
-    Assert.notNull(name, "Name is required");
-    if (destructionCallbacks != null) {
-      destructionCallbacks.remove(name);
+  public void registerCommittingCallback(Runnable callback) {
+    Assert.notNull(callback, "Callback is required");
+    registerCallback(Lifecycle.COMMITTING, Conventions.getVariableName(callback), callback);
+  }
+
+  /**
+   * Register a callback to be invoked after the response has been
+   * committed. At this point, headers can no longer be modified.
+   *
+   * @param callback the callback to execute; must not be {@code null}
+   * @since 5.0
+   */
+  public void registerCommittedCallback(Runnable callback) {
+    Assert.notNull(callback, "Callback is required");
+    registerCallback(Lifecycle.COMMITTED, Conventions.getVariableName(callback), callback);
+  }
+
+  /**
+   * Fire and clear all lifecycle callbacks for the given phase.
+   *
+   * @param phase lifecycle phase
+   * @since 5.0
+   */
+  protected final void fireCallbacks(Lifecycle phase) {
+    if (lifecycleCallbacks == null) {
+      return;
+    }
+    var callbacks = lifecycleCallbacks.remove(phase);
+    if (callbacks != null) {
+      for (Runnable callback : callbacks.values()) {
+        callback.run();
+      }
     }
   }
 
@@ -2368,11 +2441,11 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   /**
    * Write response headers to the client.
    * <p>Subclasses must override this method to write the actual headers.
-   * Implementations should call {@link #onResponseCommitting()} before
-   * writing headers and {@link #onResponseCommitted()} after writing.
+   * Implementations should call {@link #onCommitting()} before
+   * writing headers and {@link #onCommitted()} after writing.
    *
-   * @see #onResponseCommitting
-   * @see #onResponseCommitted
+   * @see #onCommitting
+   * @see #onCommitted
    * @see #flush
    * @since 4.0
    */
@@ -2380,30 +2453,37 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   }
 
   /**
-   * Template method invoked before the response headers are committed.
-   * <p>Subclasses may override to perform actions just before headers are
-   * written to the client. At this point, the status code and headers can
-   * still be modified.
+   * Invoked before the response headers are about to be committed.
+   * <p>Fires all registered {@linkplain #registerCallback(Lifecycle, String, Runnable)
+   * committing callbacks}. This method is {@code final}; use
+   * {@link #registerCallback(Lifecycle, String, Runnable)} or
+   * {@link #registerCommittingCallback(Runnable)} to register custom
+   * commit lifecycle actions.
    *
-   * @see #onResponseCommitted
+   * @see #onCommitted
    * @see #flush
    * @since 5.0
    */
-  protected void onResponseCommitting() {
+  protected final void onCommitting() {
+    fireCallbacks(Lifecycle.COMMITTING);
   }
 
   /**
-   * Template method invoked when the response is committed, i.e., after
+   * Invoked after the response has been committed, i.e., after
    * the status code and headers have been written to the client.
-   * <p>Subclasses may override to perform actions after response commitment,
-   * such as logging or notifying listeners. Headers can no longer be modified.
+   * <p>Fires all registered {@linkplain #registerCallback(Lifecycle, String, Runnable)
+   * committed callbacks}. This method is {@code final}; use
+   * {@link #registerCallback(Lifecycle, String, Runnable)} or
+   * {@link #registerCommittedCallback(Runnable)} to register custom
+   * commit lifecycle actions.
    *
-   * @see #onResponseCommitting
+   * @see #onCommitting
    * @see #flush
    * @see #isCommitted
    * @since 5.0
    */
-  protected void onResponseCommitted() {
+  protected final void onCommitted() {
+    fireCallbacks(Lifecycle.COMMITTED);
   }
 
   /**

@@ -654,6 +654,32 @@ class NettyRequestContextTests {
     assertThat(ctx.onCommittedCallCount).isEqualTo(0);
   }
 
+  @Test
+  void committedCallback_FiresWhenFlushed() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyRequestContextStub(request, null);
+    var committed = new boolean[1];
+
+    ctx.registerCommittedCallback(() -> committed[0] = true);
+    ctx.flush();
+
+    assertThat(committed[0]).isTrue();
+  }
+
+  @Test
+  void committingCallback_FiresWhenFlushed() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyRequestContextStub(request, null);
+    var committed = new boolean[1];
+
+    ctx.registerCommittingCallback(() -> committed[0] = true);
+    ctx.flush();
+
+    assertThat(committed[0]).isTrue();
+  }
+
   // -- stub --
 
   private static Channel mockChannel() {
@@ -701,11 +727,7 @@ class NettyRequestContextTests {
 
     OnCommittedTrackingStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
       super(request, channel);
-    }
-
-    @Override
-    protected void onResponseCommitted() {
-      onCommittedCallCount++;
+      registerCommittedCallback(() -> onCommittedCallCount++);
     }
   }
 

@@ -796,18 +796,28 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  public String registerDestructionCallback(Runnable callback) {
-    return delegate().registerDestructionCallback(callback);
+  public String registerCompletedCallback(Runnable callback) {
+    return delegate().registerCompletedCallback(callback);
   }
 
   @Override
-  public void registerDestructionCallback(String name, Runnable callback) {
-    delegate().registerDestructionCallback(name, callback);
+  public void registerCompletedCallback(String name, Runnable callback) {
+    delegate().registerCompletedCallback(name, callback);
   }
 
   @Override
-  public void removeDestructionCallback(String name) {
-    delegate().removeDestructionCallback(name);
+  public void registerCommittedCallback(Runnable callback) {
+    delegate().registerCommittedCallback(callback);
+  }
+
+  @Override
+  public void registerCommittingCallback(Runnable callback) {
+    delegate().registerCommittingCallback(callback);
+  }
+
+  @Override
+  public void removeCallback(Lifecycle phase, String name) {
+    delegate().removeCallback(phase, name);
   }
 
   @Override

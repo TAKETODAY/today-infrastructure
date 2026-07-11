@@ -457,7 +457,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   @Override
   protected void writeHeaders() {
     if (!headersWritten) {
-      onResponseCommitting();
+      onCommitting();
       HttpHeaders headers = responseHeaders();
       for (Map.Entry<String, List<String>> entry : headers.entries()) {
         String headerName = entry.getKey();
@@ -478,7 +478,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
       }
 
       this.headersWritten = true;
-      onResponseCommitted();
+      onCommitted();
     }
   }
 
