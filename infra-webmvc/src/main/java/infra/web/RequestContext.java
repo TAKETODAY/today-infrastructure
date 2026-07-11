@@ -43,7 +43,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import infra.beans.factory.BeanFactoryUtils;
@@ -211,9 +210,6 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   protected long responseContentLength = -1L;
 
   protected boolean notModified = false;
-
-  // headers and status-code is written? default = false
-  private final AtomicBoolean committed = new AtomicBoolean();
 
   protected HttpCookie @Nullable [] cookies;
 
@@ -1850,9 +1846,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @return a boolean indicating if the response has been committed
    * @see #reset
    */
-  public boolean isCommitted() {
-    return committed.get();
-  }
+  public abstract boolean isCommitted();
 
   /**
    * Clears any data that exists in the buffer as well as the status code,
@@ -2373,33 +2367,16 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
   /**
    * Write response headers to the client.
-   * <p>This template method invokes {@link #onResponseCommitting()} before
-   * and {@link #onResponseCommitted()} after delegating to
-   * {@link #writeHeadersInternal()}. Subclasses must override
-   * {@link #writeHeadersInternal()} to write the actual headers.
+   * <p>Subclasses must override this method to write the actual headers.
+   * Implementations should call {@link #onResponseCommitting()} before
+   * writing headers and {@link #onResponseCommitted()} after writing.
    *
    * @see #onResponseCommitting
    * @see #onResponseCommitted
-   * @see #writeHeadersInternal
    * @see #flush
    * @since 4.0
    */
-  protected final void writeHeaders() {
-    if (committed.compareAndSet(false, true)) {
-      onResponseCommitting();
-      writeHeadersInternal();
-      onResponseCommitted();
-    }
-  }
-
-  /**
-   * Actual write headers implementation.
-   * <p>Subclasses must override this method to write the actual headers.
-   *
-   * @see #writeHeaders
-   * @since 5.0
-   */
-  protected void writeHeadersInternal() {
+  protected void writeHeaders() {
   }
 
   /**

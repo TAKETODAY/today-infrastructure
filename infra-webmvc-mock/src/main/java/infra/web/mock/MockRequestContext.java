@@ -455,30 +455,31 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected void writeHeadersInternal() {
-    if (headersWritten) {
-      return;
-    }
-    HttpHeaders headers = responseHeaders();
-    for (Map.Entry<String, List<String>> entry : headers.entries()) {
-      String headerName = entry.getKey();
-      for (String headerValue : entry.getValue()) {
-        response.addHeader(headerName, headerValue);
+  protected void writeHeaders() {
+    if (!headersWritten) {
+      onResponseCommitting();
+      HttpHeaders headers = responseHeaders();
+      for (Map.Entry<String, List<String>> entry : headers.entries()) {
+        String headerName = entry.getKey();
+        for (String headerValue : entry.getValue()) {
+          response.addHeader(headerName, headerValue);
+        }
       }
-    }
 
-    // MockResponse exposes some headers as properties: we should include those if not already present
-    MediaType contentType = headers.getContentType();
-    if (response.getContentType() == null && contentType != null) {
-      response.setContentType(contentType.toString());
-    }
+      // MockResponse exposes some headers as properties: we should include those if not already present
+      MediaType contentType = headers.getContentType();
+      if (response.getContentType() == null && contentType != null) {
+        response.setContentType(contentType.toString());
+      }
 
-    long contentLength = headers.getContentLength();
-    if (contentLength != -1) {
-      response.setContentLengthLong(contentLength);
-    }
+      long contentLength = headers.getContentLength();
+      if (contentLength != -1) {
+        response.setContentLengthLong(contentLength);
+      }
 
-    this.headersWritten = true;
+      this.headersWritten = true;
+      onResponseCommitted();
+    }
   }
 
   @Override

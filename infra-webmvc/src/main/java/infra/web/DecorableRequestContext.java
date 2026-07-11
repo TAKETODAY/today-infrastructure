@@ -591,8 +591,8 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  protected void writeHeadersInternal() {
-    delegate().writeHeadersInternal();
+  protected void writeHeaders() {
+    delegate().writeHeaders();
   }
 
   @Override
