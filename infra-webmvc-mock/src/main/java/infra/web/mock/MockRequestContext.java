@@ -47,7 +47,6 @@ import infra.http.ResponseCookie;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
-import infra.util.ExceptionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -456,35 +455,34 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected void writeHeaders() {
-    if (!headersWritten) {
-      onResponseCommitting();
-      HttpHeaders headers = responseHeaders();
-      for (Map.Entry<String, List<String>> entry : headers.entries()) {
-        String headerName = entry.getKey();
-        for (String headerValue : entry.getValue()) {
-          response.addHeader(headerName, headerValue);
-        }
-      }
-
-      // MockResponse exposes some headers as properties: we should include those if not already present
-      MediaType contentType = headers.getContentType();
-      if (response.getContentType() == null && contentType != null) {
-        response.setContentType(contentType.toString());
-      }
-
-      long contentLength = headers.getContentLength();
-      if (contentLength != -1) {
-        response.setContentLengthLong(contentLength);
-      }
-
-      this.headersWritten = true;
-      onResponseCommitted();
+  protected void writeHeadersInternal() {
+    if (headersWritten) {
+      return;
     }
+    HttpHeaders headers = responseHeaders();
+    for (Map.Entry<String, List<String>> entry : headers.entries()) {
+      String headerName = entry.getKey();
+      for (String headerValue : entry.getValue()) {
+        response.addHeader(headerName, headerValue);
+      }
+    }
+
+    // MockResponse exposes some headers as properties: we should include those if not already present
+    MediaType contentType = headers.getContentType();
+    if (response.getContentType() == null && contentType != null) {
+      response.setContentType(contentType.toString());
+    }
+
+    long contentLength = headers.getContentLength();
+    if (contentLength != -1) {
+      response.setContentLengthLong(contentLength);
+    }
+
+    this.headersWritten = true;
   }
 
   @Override
-  public void flush() throws IOException {
+  public void flush() {
     writeHeaders();
 
     if (bodyUsed) {
@@ -499,12 +497,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     if (notHandled == null) {
-      try {
-        flush();
-      }
-      catch (IOException e) {
-        throw ExceptionUtils.sneakyThrow(e);
-      }
+      flush();
     }
   }
 

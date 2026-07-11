@@ -126,7 +126,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
     ResponseEntity<?> emitter = ResponseEntity.noContent().header("foo", "bar").build();
     MethodParameter returnType = returnType(TestController.class, "handleResponseEntity");
     this.handler.handleReturnValue(webRequest, returnType, emitter);
-    webRequest.requestCompleted();
+    webRequest.flush();
     assertThat(this.response.getHeaders("foo")).isEqualTo(Collections.singletonList("bar"));
   }
 

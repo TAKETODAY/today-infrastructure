@@ -578,7 +578,6 @@ class DefaultServerRequest implements ServerRequest {
 
     @Override
     public void sendRedirect(String location) throws IOException {
-
     }
 
   }

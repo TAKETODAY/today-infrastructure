@@ -591,23 +591,13 @@ public abstract class DecorableRequestContext extends RequestContext {
   }
 
   @Override
-  protected void writeHeaders() {
-    delegate().writeHeaders();
+  protected void writeHeadersInternal() {
+    delegate().writeHeadersInternal();
   }
 
   @Override
   public void flush() throws IOException {
     delegate().flush();
-  }
-
-  @Override
-  public void requestCompleted() {
-    delegate().requestCompleted();
-  }
-
-  @Override
-  public void requestCompleted(@Nullable Throwable notHandled) {
-    delegate().requestCompleted(notHandled);
   }
 
   @Override

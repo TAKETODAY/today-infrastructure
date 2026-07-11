@@ -32,7 +32,6 @@ import infra.web.mock.MockResponse;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
 import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
 import infra.web.server.MockWebServerFactory;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.view.AbstractTemplateViewResolver;
@@ -168,7 +167,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
 
     MockRequestContext requestContext = new MockRequestContext(request, response);
     view.render(null, requestContext);
-    requestContext.requestCompleted();
+    requestContext.flush();
     return response;
   }
 

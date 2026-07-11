@@ -1131,29 +1131,6 @@ class DecoratingRequestContextTests {
   }
 
   @Test
-  void requestCompleted_ShouldDelegateToDelegate() {
-    RequestContext delegate = mock(RequestContext.class);
-
-    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
-
-    wrapper.requestCompleted();
-
-    verify(delegate).requestCompleted();
-  }
-
-  @Test
-  void requestCompletedWithThrowable_ShouldDelegateToDelegate() {
-    RequestContext delegate = mock(RequestContext.class);
-    Throwable throwable = new RuntimeException("test");
-
-    DecoratingRequestContext wrapper = new DecoratingRequestContext(delegate);
-
-    wrapper.requestCompleted(throwable);
-
-    verify(delegate).requestCompleted(throwable);
-  }
-
-  @Test
   void asyncWebRequest_ShouldDelegateToDelegate() {
     RequestContext delegate = mock(RequestContext.class);
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);

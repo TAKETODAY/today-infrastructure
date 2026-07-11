@@ -127,7 +127,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).getName()).isEqualTo("scoped");
       assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
-      requestAttributes.requestCompleted();
+      requestAttributes.flush();
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).wasDestroyed()).isTrue();
     }
     finally {

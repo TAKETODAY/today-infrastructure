@@ -78,7 +78,7 @@ class WebContentInterceptorTests {
     request = requestFactory.apply("/example/bingo.html");
     interceptor.preProcessing(request, handler);
 
-    request.requestCompleted();
+    request.flush();
 
     cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
@@ -89,7 +89,7 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(0);
     RequestContext requestContext = requestFactory.apply("/");
     interceptor.preProcessing(requestContext, handler);
-    requestContext.requestCompleted();
+    requestContext.flush();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("no-store");
   }

@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import infra.beans.factory.BeanFactoryUtils;
@@ -210,6 +211,9 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   protected long responseContentLength = -1L;
 
   protected boolean notModified = false;
+
+  // headers and status-code is written? default = false
+  private final AtomicBoolean committed = new AtomicBoolean();
 
   protected HttpCookie @Nullable [] cookies;
 
@@ -1125,18 +1129,10 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   /**
    * Signal that the request has been completed.
    * <p>Executes all request destruction callbacks and other resources cleanup
-   */
-  public void requestCompleted() {
-    requestCompleted(null);
-  }
-
-  /**
-   * Signal that the request has been completed.
-   * <p>Executes all request destruction callbacks and other resources cleanup
    *
    * @param notHandled exception not handled
    */
-  public void requestCompleted(@Nullable Throwable notHandled) {
+  protected void requestCompleted(@Nullable Throwable notHandled) {
     requestCompletedTimeMillis = System.currentTimeMillis();
 
     if (multipartRequest != null) {
@@ -1854,7 +1850,9 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @return a boolean indicating if the response has been committed
    * @see #reset
    */
-  public abstract boolean isCommitted();
+  public boolean isCommitted() {
+    return committed.get();
+  }
 
   /**
    * Clears any data that exists in the buffer as well as the status code,
@@ -1869,6 +1867,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @throws IllegalStateException if the response has already been committed
    */
   public void reset() {
+    assertNotCommitted();
     responseContentLength = -1L;
     responseContentType = null;
     if (responseHeaders != null) {
@@ -2374,16 +2373,33 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
   /**
    * Write response headers to the client.
-   * <p>Subclasses must override this method to write the actual headers.
-   * Implementations should call {@link #onResponseCommitting()} before
-   * writing headers and {@link #onResponseCommitted()} after writing.
+   * <p>This template method invokes {@link #onResponseCommitting()} before
+   * and {@link #onResponseCommitted()} after delegating to
+   * {@link #writeHeadersInternal()}. Subclasses must override
+   * {@link #writeHeadersInternal()} to write the actual headers.
    *
    * @see #onResponseCommitting
    * @see #onResponseCommitted
+   * @see #writeHeadersInternal
    * @see #flush
    * @since 4.0
    */
-  protected void writeHeaders() {
+  protected final void writeHeaders() {
+    if (committed.compareAndSet(false, true)) {
+      onResponseCommitting();
+      writeHeadersInternal();
+      onResponseCommitted();
+    }
+  }
+
+  /**
+   * Actual write headers implementation.
+   * <p>Subclasses must override this method to write the actual headers.
+   *
+   * @see #writeHeaders
+   * @since 5.0
+   */
+  protected void writeHeadersInternal() {
   }
 
   /**

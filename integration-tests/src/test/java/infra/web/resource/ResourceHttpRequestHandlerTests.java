@@ -318,7 +318,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setMethod("HEAD");
       this.request.setRequestURI("foo.css");
       this.handler.handleRequest(requestContext);
-      requestContext.requestCompleted();
+      requestContext.flush();
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentLength()).isEqualTo(17);
@@ -330,7 +330,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setMethod("OPTIONS");
       this.request.setRequestURI("foo.css");
       this.handler.handleRequest(requestContext);
-      requestContext.requestCompleted();
+      requestContext.flush();
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getHeader("Allow")).isEqualTo("GET,HEAD,OPTIONS");
     }
@@ -535,7 +535,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.txt");
       this.handler.handleRequest(requestContext);
 
-      requestContext.requestCompleted();
+      requestContext.flush();
       assertThat(this.response.getStatus()).isEqualTo(416);
       assertThat(this.response.getHeader("Content-Range")).isEqualTo("bytes */10");
       assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
@@ -687,7 +687,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
       this.handler.handleRequest(requestContext);
-      requestContext.requestCompleted();
+      requestContext.flush();
       assertThat(this.response.getStatus()).isEqualTo(304);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
@@ -710,7 +710,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.handler.handleRequest(requestContext);
-      requestContext.requestCompleted();
+      requestContext.flush();
       assertThat(this.response.getStatus()).isEqualTo(304);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
@@ -747,7 +747,7 @@ public class ResourceHttpRequestHandlerTests {
 
       this.handler.handleRequest(requestContext);
 
-      requestContext.requestCompleted();
+      requestContext.flush();
 
       assertThat(this.requestContext.responseHeaders().getFirst("Cache-Control")).isEqualTo("max-age=3600");
     }

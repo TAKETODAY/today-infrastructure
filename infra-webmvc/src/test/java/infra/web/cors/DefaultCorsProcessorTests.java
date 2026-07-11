@@ -71,7 +71,7 @@ class DefaultCorsProcessorTests {
     this.mockRequest.setMethod(HttpMethod.GET.name());
 
     this.processor.process(this.conf, request);
-    request.requestCompleted();
+    request.flush();
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
@@ -84,7 +84,7 @@ class DefaultCorsProcessorTests {
     this.mockRequest.addHeader(HttpHeaders.ORIGIN, "http://domain1.example");
 
     this.processor.process(this.conf, request);
-    request.requestCompleted();
+    request.flush();
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
     assertThat(this.mockResponse.getHeaders(HttpHeaders.VARY)).contains(HttpHeaders.ORIGIN,
             HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
@@ -139,7 +139,7 @@ class DefaultCorsProcessorTests {
     this.conf.setAllowCredentials(true);
 
     this.processor.process(this.conf, request);
-    request.requestCompleted();
+    request.flush();
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isTrue();
     assertThat(this.mockResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS)).isTrue();

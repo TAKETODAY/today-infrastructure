@@ -80,7 +80,7 @@ public class RouterFunctionMappingVersionTests {
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
     assertThat(chain).isNotNull();
 
-    context.requestCompleted();
+    context.flush();
 
     assertThat(((TestHandler) chain.getRawHandler()).body()).isEqualTo("none");
     assertThat(response.getHeader("Link"))

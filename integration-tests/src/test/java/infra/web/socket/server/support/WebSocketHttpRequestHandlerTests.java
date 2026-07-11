@@ -60,7 +60,7 @@ public class WebSocketHttpRequestHandlerTests {
     MockRequestContext request = new MockRequestContext(
             null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
-    request.requestCompleted();
+    request.flush();
 
     verify(this.handshakeHandler).doHandshake(any(), any(), any());
     assertThat(this.response.getHeader("headerName")).isEqualTo("headerValue");
@@ -80,7 +80,7 @@ public class WebSocketHttpRequestHandlerTests {
             .isInstanceOf(IllegalStateException.class)
             .hasMessageEndingWith("bad state");
 
-    request.requestCompleted();
+    request.flush();
 
     assertThat(this.response.getHeader("headerName")).isEqualTo("headerValue");
     assertThat(this.response.getHeader("exceptionHeaderName")).isEqualTo("exceptionHeaderValue");
@@ -94,7 +94,7 @@ public class WebSocketHttpRequestHandlerTests {
     MockRequestContext request = new MockRequestContext(
             null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
-    request.requestCompleted();
+    request.flush();
 
     verifyNoMoreInteractions(this.handshakeHandler);
     assertThat(this.response.getHeader("headerName")).isEqualTo("headerValue");

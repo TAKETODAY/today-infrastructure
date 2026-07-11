@@ -33,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.context.ApplicationContext;
 import infra.http.DefaultHttpHeaders;
@@ -165,9 +164,6 @@ public abstract class NettyRequestContext extends RequestContext {
   // UNSAFE fields END
 
   protected final HttpRequest request;
-
-  // headers and status-code is written? default = false
-  private final AtomicBoolean committed = new AtomicBoolean();
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
@@ -628,61 +624,56 @@ public abstract class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected void writeHeaders() {
-    if (committed.compareAndSet(false, true)) {
-      onResponseCommitting();
-      // ---------------------------------------------
-      // apply Status code and headers
-      // ---------------------------------------------
-      HttpHeaders headers = nettyResponseHeaders;
-      if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
-        // set Content-Length header
-        if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
-          headers.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-          headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
-        }
-        else if (!isTransferEncodingChunked(headers)) {
-          if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-            ByteBuf responseBody = this.responseBody;
-            if (responseBody == null) {
-              if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-                headers.set(DefaultHttpHeaders.CONTENT_LENGTH, nbStream.contentLength);
-              }
-              else {
-                headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
-              }
+  protected void writeHeadersInternal() {
+    // ---------------------------------------------
+    // apply Status code and headers
+    // ---------------------------------------------
+    HttpHeaders headers = nettyResponseHeaders;
+    if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
+      // set Content-Length header
+      if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
+        headers.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+        headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
+      }
+      else if (!isTransferEncodingChunked(headers)) {
+        if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+          ByteBuf responseBody = this.responseBody;
+          if (responseBody == null) {
+            if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
+              headers.set(DefaultHttpHeaders.CONTENT_LENGTH, nbStream.contentLength);
             }
             else {
-              headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
+              headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
             }
           }
-        }
-      }
-
-      // apply cookies
-      var responseCookies = this.responseCookies;
-      if (responseCookies != null) {
-        var cookieEncoder = config.cookieEncoder;
-        for (HttpCookie cookie : responseCookies) {
-          DefaultCookie nc = new DefaultCookie(cookie.getName(), cookie.getValue());
-          if (cookie instanceof ResponseCookie rc) {
-            nc.setPath(rc.getPath());
-            nc.setDomain(rc.getDomain());
-            nc.setMaxAge(rc.getMaxAge().getSeconds());
-            nc.setSecure(rc.isSecure());
-            nc.setHttpOnly(rc.isHttpOnly());
-            nc.setSameSite(forSameSite(rc.getSameSite()));
-            nc.setPartitioned(rc.isPartitioned());
+          else {
+            headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
           }
-
-          headers.add(DefaultHttpHeaders.SET_COOKIE, cookieEncoder.encode(nc));
         }
       }
-
-      channel.write(new DefaultHttpResponse(version(), status, headers));
-      onResponseCommitted();
     }
 
+    // apply cookies
+    var responseCookies = this.responseCookies;
+    if (responseCookies != null) {
+      var cookieEncoder = config.cookieEncoder;
+      for (HttpCookie cookie : responseCookies) {
+        DefaultCookie nc = new DefaultCookie(cookie.getName(), cookie.getValue());
+        if (cookie instanceof ResponseCookie rc) {
+          nc.setPath(rc.getPath());
+          nc.setDomain(rc.getDomain());
+          nc.setMaxAge(rc.getMaxAge().getSeconds());
+          nc.setSecure(rc.isSecure());
+          nc.setHttpOnly(rc.isHttpOnly());
+          nc.setSameSite(forSameSite(rc.getSameSite()));
+          nc.setPartitioned(rc.isPartitioned());
+        }
+
+        headers.add(DefaultHttpHeaders.SET_COOKIE, cookieEncoder.encode(nc));
+      }
+    }
+
+    channel.write(new DefaultHttpResponse(version(), status, headers));
   }
 
   @Override
@@ -692,14 +683,8 @@ public abstract class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public boolean isCommitted() {
-    return committed.get();
-  }
-
-  @Override
   public void reset() {
     assertNotCommitted();
-    super.reset();
     nettyResponseHeaders.clear();
 
     ByteBuf responseBody = this.responseBody;

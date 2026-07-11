@@ -48,8 +48,6 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Conventions;
 import infra.core.io.ClassPathResource;
 import infra.lang.Assert;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.session.CookieSessionIdResolver;
 import infra.session.MapSession;
 import infra.session.Session;
@@ -59,7 +57,9 @@ import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -115,7 +115,7 @@ public class SessionScopeTests {
     assertThat(session.getAttributes().size()).isEqualTo(1);
 
     // should re-propagate updated attribute
-    requestAttributes.requestCompleted();
+    requestAttributes.flush();
     assertThat(bean).isEqualTo(session.getAttribute(name));
   }
 
@@ -132,7 +132,7 @@ public class SessionScopeTests {
     assertThat(bean).isEqualTo(session.getAttribute(name));
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
-    requestAttributes.requestCompleted();
+    requestAttributes.flush();
     session.invalidate();
     assertThat(bean.wasDestroyed()).isTrue();
   }
@@ -387,7 +387,7 @@ public class SessionScopeTests {
     assertThat(bean).isEqualTo(session.getAttribute(name));
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
-    requestAttributes.requestCompleted();
+    requestAttributes.flush();
     serializedState = serializeState(session);
     assertThat(bean.wasDestroyed()).isFalse();
 
@@ -417,7 +417,7 @@ public class SessionScopeTests {
     assertThat(bean).isEqualTo(session.getAttribute(name));
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
-    requestAttributes.requestCompleted();
+    requestAttributes.flush();
     requestAttributes.getSession().invalidate();
     assertThat(bean.wasDestroyed()).isTrue();
 

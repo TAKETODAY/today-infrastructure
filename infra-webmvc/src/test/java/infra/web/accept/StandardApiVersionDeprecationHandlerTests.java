@@ -26,8 +26,8 @@ import java.time.format.DateTimeFormatter;
 
 import infra.http.MediaType;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +60,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequestContext context = new MockRequestContext(request, response);
     handler.handleVersion("1.1", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeader("Deprecation")).isEqualTo("@1688169599");
     assertThat(response.getHeader("Sunset")).isEqualTo(sunsetDate);
@@ -85,7 +85,7 @@ class StandardApiVersionDeprecationHandlerTests {
     MockRequestContext context = new MockRequestContext(request, response);
 
     handler.handleVersion("2.0", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeader("Deprecation")).isNull();
   }
@@ -104,7 +104,7 @@ class StandardApiVersionDeprecationHandlerTests {
     MockRequestContext context = new MockRequestContext(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeader("Deprecation")).isNull();
   }
@@ -125,7 +125,7 @@ class StandardApiVersionDeprecationHandlerTests {
     MockRequestContext context = new MockRequestContext(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeaders("Link")).containsExactly(
             "<" + deprecationUri + ">; rel=\"deprecation\"; type=\"" + customMediaType + "\""
@@ -148,7 +148,7 @@ class StandardApiVersionDeprecationHandlerTests {
     MockRequestContext context = new MockRequestContext(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeaders("Link")).containsExactly(
             "<" + sunsetUri + ">; rel=\"sunset\"; type=\"" + customMediaType + "\""
@@ -172,7 +172,7 @@ class StandardApiVersionDeprecationHandlerTests {
     MockRequestContext context = new MockRequestContext(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeaders("Link")).containsExactlyInAnyOrder(
             "<" + deprecationUri + ">; rel=\"deprecation\"; type=\"text/html\"",
@@ -201,7 +201,7 @@ class StandardApiVersionDeprecationHandlerTests {
     MockRequestContext context = new MockRequestContext(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
-    context.requestCompleted();
+    context.flush();
 
     assertThat(response.getHeader("Deprecation")).isEqualTo("@1688169599");
     assertThat(response.getHeader("Sunset")).isEqualTo("Wed, 11 Nov 2026 11:11:11 GMT");
