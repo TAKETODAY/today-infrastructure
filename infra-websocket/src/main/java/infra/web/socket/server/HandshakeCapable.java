@@ -42,14 +42,14 @@ public interface HandshakeCapable {
    * This method will invoke after all {@link
    * HandshakeInterceptor#beforeHandshake(HttpContext, WebSocketHandler, Map)}
    *
-   * @param request the current request
+   * @param context the current request
    * @param attributes the attributes from the HTTP handshake to associate with the WebSocket
    * session; the provided attributes are copied, the original map is not used.
    * @return whether to proceed with the handshake ({@code true}) or abort ({@code false})
    * @throws Throwable The error will handle by {@link infra.web.HandlerExceptionHandler}
    * @see HandshakeInterceptor#beforeHandshake(HttpContext, WebSocketHandler, Map)
    */
-  default boolean beforeHandshake(HttpContext request, Map<String, Object> attributes) throws Throwable {
+  default boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
     return true;
   }
 
@@ -60,15 +60,14 @@ public interface HandshakeCapable {
    * This method will invoke before all {@link
    * HandshakeInterceptor#afterHandshake(HttpContext, WebSocketHandler, Throwable)}
    *
-   * @param request the current request
+   * @param context the current request
    * @param session websocket session, or {@code null} if handshake failed
    * @param failure an exception raised during the handshake, or {@code null} if none
    * @throws Throwable The error will handle by {@link infra.web.HandlerExceptionHandler}
    * @see HandshakeInterceptor#afterHandshake(HttpContext, WebSocketHandler, Throwable)
    */
-  default void afterHandshake(HttpContext request, @Nullable WebSocketSession session, @Nullable Throwable failure)
+  default void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure)
           throws Throwable {
-
   }
 
 }

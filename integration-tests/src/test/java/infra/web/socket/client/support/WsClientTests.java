@@ -70,14 +70,14 @@ class WsClientTests {
   static class ServerWebSocketHandler extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    public boolean beforeHandshake(HttpContext request, Map<String, Object> attributes) throws Throwable {
-      log.info("server beforeHandshake,{} {}", request, attributes);
-      return HandshakeCapable.super.beforeHandshake(request, attributes);
+    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
+      log.info("server beforeHandshake,{} {}", context, attributes);
+      return HandshakeCapable.super.beforeHandshake(context, attributes);
     }
 
     @Override
-    public void afterHandshake(HttpContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) {
-      log.info("server afterHandshake,{} {}", request, session);
+    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) {
+      log.info("server afterHandshake,{} {}", context, session);
     }
 
     @Override

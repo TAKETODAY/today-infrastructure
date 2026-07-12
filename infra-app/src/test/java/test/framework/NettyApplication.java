@@ -192,9 +192,9 @@ public class NettyApplication {
     }
 
     @Override
-    public void afterHandshake(HttpContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) {
+    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) {
       System.out.println("afterHandshake");
-      request.addCookie("name", "demo");
+      context.addCookie("name", "demo");
     }
 
     @Override

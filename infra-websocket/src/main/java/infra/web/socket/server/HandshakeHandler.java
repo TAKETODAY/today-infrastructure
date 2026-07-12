@@ -41,7 +41,7 @@ public interface HandshakeHandler {
   /**
    * Initiate the handshake.
    *
-   * @param request the current request
+   * @param context the current request
    * @param wsHandler the handler to process WebSocket messages; see
    * {@link PerConnectionWebSocketHandler} for providing a handler with
    * per-connection lifecycle.
@@ -55,7 +55,7 @@ public interface HandshakeHandler {
    * opposed to a failure to successfully negotiate the handshake.
    */
   @Nullable
-  WebSocketSession doHandshake(HttpContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
+  WebSocketSession doHandshake(HttpContext context, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws HandshakeFailureException;
 
 }

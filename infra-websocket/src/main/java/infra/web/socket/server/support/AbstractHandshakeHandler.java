@@ -131,18 +131,18 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
   @Nullable
   @Override
-  public final WebSocketSession doHandshake(HttpContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
+  public final WebSocketSession doHandshake(HttpContext context, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws HandshakeFailureException {
 
-    WebSocketHttpHeaders headers = new WebSocketHttpHeaders(request.getHeaders());
+    WebSocketHttpHeaders headers = new WebSocketHttpHeaders(context.getHeaders());
     if (logger.isTraceEnabled()) {
-      logger.trace("Processing request {} with headers={}", request.getURI(), headers);
+      logger.trace("Processing request {} with headers={}", context.getURI(), headers);
     }
     try {
-      HttpMethod method = request.getMethod();
+      HttpMethod method = context.getMethod();
       if (HttpMethod.GET != method && method != HttpMethod.CONNECT) {
-        request.setStatus(HttpStatus.METHOD_NOT_ALLOWED);
-        request.responseHeaders().setAllow(Set.of(HttpMethod.GET, HttpMethod.CONNECT));
+        context.setStatus(HttpStatus.METHOD_NOT_ALLOWED);
+        context.responseHeaders().setAllow(Set.of(HttpMethod.GET, HttpMethod.CONNECT));
         if (logger.isDebugEnabled()) {
           logger.debug("Handshake failed due to unexpected HTTP method: {}", method);
         }
@@ -151,12 +151,12 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
       if (HttpMethod.GET == method) {
         if (!"WebSocket".equalsIgnoreCase(headers.getUpgrade())) {
-          handleInvalidUpgradeHeader(request);
+          handleInvalidUpgradeHeader(context);
           return null;
         }
         List<String> connection = headers.getConnection();
         if (!connection.contains("Upgrade") && !connection.contains("upgrade")) {
-          handleInvalidConnectHeader(request);
+          handleInvalidConnectHeader(context);
           return null;
         }
         String key = headers.getSecWebSocketKey();
@@ -164,35 +164,35 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
           if (logger.isErrorEnabled()) {
             logger.error("Missing \"Sec-WebSocket-Key\" header");
           }
-          request.setStatus(HttpStatus.BAD_REQUEST);
+          context.setStatus(HttpStatus.BAD_REQUEST);
           return null;
         }
       }
 
       if (!isWebSocketVersionSupported(headers)) {
-        handleWebSocketVersionNotSupported(request);
+        handleWebSocketVersionNotSupported(context);
         return null;
       }
-      if (!isValidOrigin(request)) {
-        request.setStatus(HttpStatus.FORBIDDEN);
+      if (!isValidOrigin(context)) {
+        context.setStatus(HttpStatus.FORBIDDEN);
         return null;
       }
     }
     catch (IOException ex) {
       throw new HandshakeFailureException(
-              "Response update failed during upgrade to WebSocket: " + request.getURI(), ex);
+              "Response update failed during upgrade to WebSocket: " + context.getURI(), ex);
     }
 
     String subProtocol = selectProtocol(headers.getSecWebSocketProtocol(), wsHandler);
     List<WebSocketExtension> requested = headers.getSecWebSocketExtensions();
-    List<WebSocketExtension> supported = requestUpgradeStrategy.getSupportedExtensions(request);
-    List<WebSocketExtension> extensions = filterRequestedExtensions(request, requested, supported);
+    List<WebSocketExtension> supported = requestUpgradeStrategy.getSupportedExtensions(context);
+    List<WebSocketExtension> extensions = filterRequestedExtensions(context, requested, supported);
 
     if (logger.isTraceEnabled()) {
       logger.trace("Upgrading to WebSocket, subProtocol={}, extensions={}", subProtocol, extensions);
     }
 
-    return requestUpgradeStrategy.upgrade(request, subProtocol, extensions, wsHandler, attributes);
+    return requestUpgradeStrategy.upgrade(context, subProtocol, extensions, wsHandler, attributes);
   }
 
   protected void handleInvalidUpgradeHeader(HttpContext request) throws IOException {

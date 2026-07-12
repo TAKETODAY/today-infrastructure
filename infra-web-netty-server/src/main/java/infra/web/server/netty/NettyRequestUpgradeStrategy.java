@@ -85,7 +85,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   @Override
-  public List<WebSocketExtension> getSupportedExtensions(HttpContext request) {
+  public List<WebSocketExtension> getSupportedExtensions(HttpContext context) {
     return Collections.emptyList();
   }
 

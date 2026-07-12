@@ -141,13 +141,13 @@ class DispatchTests {
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
     @Override
-    public boolean beforeHandshake(HttpContext request, Map<String, Object> attributes) throws Throwable {
-      return HandshakeCapable.super.beforeHandshake(request, attributes);
+    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
+      return HandshakeCapable.super.beforeHandshake(context, attributes);
     }
 
     @Override
-    public void afterHandshake(HttpContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
-      HandshakeCapable.super.afterHandshake(request, session, failure);
+    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
+      HandshakeCapable.super.afterHandshake(context, session, failure);
     }
 
     @Override

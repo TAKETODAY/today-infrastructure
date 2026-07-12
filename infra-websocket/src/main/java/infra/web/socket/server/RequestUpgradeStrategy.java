@@ -45,13 +45,13 @@ public interface RequestUpgradeStrategy {
   /**
    * Return the WebSocket protocol extensions supported by the underlying WebSocket server.
    */
-  List<WebSocketExtension> getSupportedExtensions(HttpContext request);
+  List<WebSocketExtension> getSupportedExtensions(HttpContext context);
 
   /**
    * Perform runtime specific steps to complete the upgrade. Invoked after successful
    * negotiation of the handshake request.
    *
-   * @param request the current request
+   * @param context the current context
    * @param selectedProtocol the selected sub-protocol, if any
    * @param selectedExtensions the selected WebSocket protocol extensions
    * @param wsHandler the handler for WebSocket messages
@@ -64,7 +64,7 @@ public interface RequestUpgradeStrategy {
    * handshake request.
    */
   @Nullable
-  WebSocketSession upgrade(HttpContext request, @Nullable String selectedProtocol,
+  WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol,
           List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler,
           Map<String, Object> attributes) throws HandshakeFailureException;
 
