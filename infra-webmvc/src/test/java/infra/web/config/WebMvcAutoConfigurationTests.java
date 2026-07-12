@@ -1306,12 +1306,12 @@ class WebMvcAutoConfigurationTests {
 
   static class CustomLocaleResolver implements LocaleResolver {
     @Override
-    public Locale resolveLocale(HttpContext request) {
+    public Locale resolveLocale(HttpContext context) {
       return Locale.ENGLISH;
     }
 
     @Override
-    public void setLocale(HttpContext request, @Nullable Locale locale) {
+    public void setLocale(HttpContext context, @Nullable Locale locale) {
 
     }
 

@@ -96,7 +96,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
 
   @Nullable
   @Override
-  public ModelAndView resolveErrorView(HttpContext request, HttpStatusCode status, Map<String, Object> model) {
+  public ModelAndView resolveErrorView(HttpContext context, HttpStatusCode status, Map<String, Object> model) {
     ModelAndView view = resolve(String.valueOf(status.value()), model);
     if (view == null) {
       HttpStatus.Series series = HttpStatus.Series.resolve(status.value());
@@ -159,9 +159,9 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
     }
 
     @Override
-    public void render(@Nullable Map<String, ?> model, HttpContext request) throws Exception {
-      request.setContentType(getContentType());
-      FileCopyUtils.copy(resource.getInputStream(), request.getOutputStream());
+    public void render(@Nullable Map<String, ?> model, HttpContext context) throws Exception {
+      context.setContentType(getContentType());
+      FileCopyUtils.copy(resource.getInputStream(), context.getOutputStream());
     }
 
   }

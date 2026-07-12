@@ -48,7 +48,7 @@ public interface SendErrorHandler {
    * provided {@code HttpContext} and optional error message. It can be used to
    * log errors, send error responses, or perform other custom error-handling logic.</p>
    *
-   * @param request the {@link HttpContext} representing the current HTTP request.
+   * @param http the {@link HttpContext} representing the current HTTP request.
    * This object provides methods to send error responses or access
    * request-specific details.
    * @param message an optional error message describing the issue. If no message
@@ -56,6 +56,6 @@ public interface SendErrorHandler {
    * @throws IOException if an I/O error occurs while handling the error, such as
    * when sending an error response to the client.
    */
-  void handleError(HttpContext request, @Nullable String message) throws IOException;
+  void handleError(HttpContext http, @Nullable String message) throws IOException;
 
 }

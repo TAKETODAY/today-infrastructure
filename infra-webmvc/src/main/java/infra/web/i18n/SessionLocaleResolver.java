@@ -105,31 +105,31 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public Locale resolveLocale(HttpContext request) {
-    Locale locale = getSessionAttribute(request, this.localeAttributeName);
+  public Locale resolveLocale(HttpContext context) {
+    Locale locale = getSessionAttribute(context, this.localeAttributeName);
     if (locale == null) {
-      locale = determineDefaultLocale(request);
+      locale = determineDefaultLocale(context);
     }
     return locale;
   }
 
   @Override
-  public LocaleContext resolveLocaleContext(final HttpContext request) {
+  public LocaleContext resolveLocaleContext(final HttpContext context) {
     return new TimeZoneAwareLocaleContext() {
       @Override
       public Locale getLocale() {
-        Locale locale = getSessionAttribute(request, localeAttributeName);
+        Locale locale = getSessionAttribute(context, localeAttributeName);
         if (locale == null) {
-          locale = determineDefaultLocale(request);
+          locale = determineDefaultLocale(context);
         }
         return locale;
       }
 
       @Override
       public @Nullable TimeZone getTimeZone() {
-        TimeZone timeZone = getSessionAttribute(request, timeZoneAttributeName);
+        TimeZone timeZone = getSessionAttribute(context, timeZoneAttributeName);
         if (timeZone == null) {
-          timeZone = determineDefaultTimeZone(request);
+          timeZone = determineDefaultTimeZone(context);
         }
         return timeZone;
       }
@@ -137,7 +137,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public void setLocaleContext(HttpContext request, @Nullable LocaleContext localeContext) {
+  public void setLocaleContext(HttpContext context, @Nullable LocaleContext localeContext) {
     Locale locale = null;
     TimeZone timeZone = null;
     if (localeContext != null) {
@@ -146,8 +146,8 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
         timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
     }
-    setSessionAttribute(request, localeAttributeName, locale);
-    setSessionAttribute(request, timeZoneAttributeName, timeZone);
+    setSessionAttribute(context, localeAttributeName, locale);
+    setSessionAttribute(context, timeZoneAttributeName, timeZone);
   }
 
   @SuppressWarnings("unchecked")

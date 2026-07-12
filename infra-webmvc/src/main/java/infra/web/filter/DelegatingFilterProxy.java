@@ -151,7 +151,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
   }
 
   @Override
-  public void doFilter(HttpContext request, FilterChain chain) throws Exception {
+  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
     // Lazily initialize the delegate if necessary.
     Filter delegateToUse = this.delegate;
     if (delegateToUse == null) {
@@ -173,7 +173,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
     }
 
     // Let the delegate perform the actual doFilter operation.
-    invokeDelegate(delegateToUse, request, chain);
+    invokeDelegate(delegateToUse, http, chain);
   }
 
   /**

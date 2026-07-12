@@ -30,9 +30,9 @@ public interface FilterChain {
    * Proceed with the next filter in the chain, or invoke the terminal handler
    * if no filters remain.
    *
-   * @param request the current request context
+   * @param context the current request context
    * @throws Exception if any filter or the terminal handler fails
    */
-  void doFilter(HttpContext request) throws Exception;
+  void doFilter(HttpContext context) throws Exception;
 
 }

@@ -37,6 +37,6 @@ public interface CorsConfigurationSource {
    * @return the associated {@link CorsConfiguration}, or {@code null} if none
    */
   @Nullable
-  CorsConfiguration getCorsConfiguration(HttpContext request);
+  CorsConfiguration getCorsConfiguration(HttpContext ctx);
 
 }

@@ -216,7 +216,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     BindingContext bindingContext = new BindingContext() {
 
       @Override
-      public void initBinder(WebDataBinder dataBinder, HttpContext request) {
+      public void initBinder(WebDataBinder dataBinder, HttpContext context) {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         dataBinder.setValidator(validator);

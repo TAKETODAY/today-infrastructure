@@ -109,14 +109,14 @@ public class BindingContext {
    * Create a {@link WebDataBinder} to apply data binding and
    * validation with on the target, command object.
    *
-   * @param request the current request
+   * @param context the current context
    * @param target the object to create a data binder for
    * @param objectName the name of the target object
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(HttpContext request, @Nullable Object target, String objectName) throws Throwable {
-    return createBinder(request, target, objectName, null);
+  public WebDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) throws Throwable {
+    return createBinder(context, target, objectName, null);
   }
 
   /**
@@ -125,10 +125,10 @@ public class BindingContext {
    * This may be used to construct the target, or otherwise provide more
    * insight on how to initialize the binder.
    */
-  public WebDataBinder createBinder(HttpContext request, @Nullable Object target,
+  public WebDataBinder createBinder(HttpContext context, @Nullable Object target,
           String objectName, @Nullable ResolvableType targetType) throws Throwable {
 
-    WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
+    WebDataBinder dataBinder = createBinderInstance(target, objectName, context);
     dataBinder.setNameResolver(new BindParamNameResolver());
 
     if (target == null && targetType != null) {
@@ -138,7 +138,7 @@ public class BindingContext {
     if (initializer != null) {
       initializer.initBinder(dataBinder);
     }
-    initBinder(dataBinder, request);
+    initBinder(dataBinder, context);
 
     if (methodValidationApplicable && targetType != null) {
       if (targetType.getSource() instanceof MethodParameter parameter) {
@@ -155,10 +155,10 @@ public class BindingContext {
    *
    * @param target the binding target or {@code null} for type conversion only
    * @param objectName the binding target object name
-   * @param request the current request
+   * @param context the current context
    * @throws Exception in case of invalid state or arguments
    */
-  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
     return new HttpContextDataBinder(target, objectName);
   }
 
@@ -167,7 +167,7 @@ public class BindingContext {
    *
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public void initBinder(WebDataBinder dataBinder, HttpContext request) throws Throwable {
+  public void initBinder(WebDataBinder dataBinder, HttpContext context) throws Throwable {
   }
 
   /**
@@ -221,10 +221,10 @@ public class BindingContext {
    * Promote model attributes listed as {@code @SessionAttributes} to the session.
    * Add {@link BindingResult} attributes where necessary.
    *
-   * @param request the current request
+   * @param context the current context
    * @throws Throwable if creating BindingResult attributes fails
    */
-  public void updateModel(HttpContext request) throws Throwable {
+  public void updateModel(HttpContext context) throws Throwable {
   }
 
   /**
@@ -237,10 +237,10 @@ public class BindingContext {
    * an exception if necessary.
    * </ol>
    *
-   * @param request the current request
+   * @param context the current context
    * @throws Throwable may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(HttpContext request) throws Throwable {
+  public void initModel(HttpContext context) throws Throwable {
   }
 
   /**

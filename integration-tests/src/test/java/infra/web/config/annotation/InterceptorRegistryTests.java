@@ -51,8 +51,8 @@ class InterceptorRegistryTests {
 
   private final HandlerInterceptor interceptor2 = new HandlerInterceptor() {
     @Override
-    public Object intercept(HttpContext request, InterceptorChain chain) throws Throwable {
-      return HandlerInterceptor.super.intercept(request, chain);
+    public Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+      return HandlerInterceptor.super.intercept(context, chain);
     }
   };
 
@@ -153,13 +153,13 @@ class InterceptorRegistryTests {
     private boolean preHandleInvoked = false;
 
     @Override
-    public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
+    public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
       preHandleInvoked = true;
       return true;
     }
 
     @Override
-    public void postProcessing(HttpContext request, Object handler, Object result) throws Throwable {
+    public void postProcessing(HttpContext context, Object handler, Object result) throws Throwable {
 
     }
 

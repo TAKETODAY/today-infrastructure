@@ -79,12 +79,12 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
   }
 
   @Override
-  public @Nullable Object handleRequest(HttpContext request) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
     var interceptors = this.interceptors;
     if (interceptors == null) {
-      return handlerAdapter.handle(request, handler);
+      return handlerAdapter.handle(context, handler);
     }
-    return new Chain(interceptors, handler).proceed(request);
+    return new Chain(interceptors, handler).proceed(context);
   }
 
   public HandlerInterceptor @Nullable [] getInterceptors() {

@@ -181,25 +181,25 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
 
   @Override
   @SuppressWarnings("NullAway")
-  public Locale resolveLocale(HttpContext request) {
-    parseLocaleCookieIfNecessary(request);
-    return (Locale) request.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
+  public Locale resolveLocale(HttpContext context) {
+    parseLocaleCookieIfNecessary(context);
+    return (Locale) context.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
   }
 
   @Override
-  public LocaleContext resolveLocaleContext(final HttpContext request) {
-    parseLocaleCookieIfNecessary(request);
+  public LocaleContext resolveLocaleContext(final HttpContext context) {
+    parseLocaleCookieIfNecessary(context);
     return new TimeZoneAwareLocaleContext() {
       @Override
       @Nullable
       public Locale getLocale() {
-        return (Locale) request.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
+        return (Locale) context.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
       }
 
       @Override
       @Nullable
       public TimeZone getTimeZone() {
-        return (TimeZone) request.getAttribute(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
+        return (TimeZone) context.getAttribute(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
       }
     };
   }
@@ -261,12 +261,12 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
   }
 
   @Override
-  public void setLocale(HttpContext request, @Nullable Locale locale) {
-    setLocaleContext(request, (locale != null ? new SimpleLocaleContext(locale) : null));
+  public void setLocale(HttpContext context, @Nullable Locale locale) {
+    setLocaleContext(context, (locale != null ? new SimpleLocaleContext(locale) : null));
   }
 
   @Override
-  public void setLocaleContext(HttpContext request, @Nullable LocaleContext localeContext) {
+  public void setLocaleContext(HttpContext context, @Nullable LocaleContext localeContext) {
     Locale locale = null;
     TimeZone timeZone = null;
     if (localeContext != null) {
@@ -274,16 +274,16 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
       if (localeContext instanceof TimeZoneAwareLocaleContext) {
         timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
-      addCookie(request,
+      addCookie(context,
               (locale != null ? toLocaleValue(locale) : "-") + (timeZone != null ? '/' + timeZone.getID() : ""));
     }
     else {
-      removeCookie(request);
+      removeCookie(context);
     }
-    request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME,
-            (locale != null ? locale : determineDefaultLocale(request)));
-    request.setAttribute(TIME_ZONE_REQUEST_ATTRIBUTE_NAME,
-            (timeZone != null ? timeZone : determineDefaultTimeZone(request)));
+    context.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME,
+            (locale != null ? locale : determineDefaultLocale(context)));
+    context.setAttribute(TIME_ZONE_REQUEST_ATTRIBUTE_NAME,
+            (timeZone != null ? timeZone : determineDefaultTimeZone(context)));
   }
 
   /**

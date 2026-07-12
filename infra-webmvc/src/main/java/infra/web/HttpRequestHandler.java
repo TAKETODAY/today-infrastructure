@@ -80,12 +80,12 @@ public interface HttpRequestHandler {
    * explicit result to handle. a {@link #NONE_RETURN_VALUE} indicates that no
    * result to handle by {@link ReturnValueHandler}
    *
-   * @param request Current request context
+   * @param context Current request context
    * @return Result to be handled by {@link ReturnValueHandler}
    * @throws Throwable If any exception occurred
    * @see ReturnValueHandler
    */
   @Nullable
-  Object handleRequest(HttpContext request) throws Throwable;
+  Object handleRequest(HttpContext context) throws Throwable;
 
 }

@@ -250,9 +250,9 @@ class MockMvcFilterDecoratorTests {
     private FilterChain chain;
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
-      this.request = MockUtils.getMockRequest(request);
-      this.response = MockUtils.getMockResponse(request);
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+      this.request = MockUtils.getMockRequest(http);
+      this.response = MockUtils.getMockResponse(http);
       this.chain = chain;
     }
 

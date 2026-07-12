@@ -72,9 +72,9 @@ class DefaultResourceResolvingChain implements ResourceResolvingChain {
   @Override
   @Nullable
   public Resource resolveResource(
-          @Nullable HttpContext request, String requestPath, List<? extends Resource> locations) {
+          @Nullable HttpContext context, String requestPath, List<? extends Resource> locations) {
     return resolver != null && nextChain != null
-            ? resolver.resolveResource(request, requestPath, locations, nextChain) : null;
+            ? resolver.resolveResource(context, requestPath, locations, nextChain) : null;
   }
 
   @Override

@@ -327,23 +327,23 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * Look up a handler for the given request, falling back to the default
    * handler if no specific one is found.
    *
-   * @param request current HTTP request context
+   * @param context current HTTP request context
    * @return the corresponding handler instance, or the default handler
    * @see #getHandlerInternal
    */
   @Override
-  public final @Nullable Object getHandler(final HttpContext request) throws Exception {
+  public final @Nullable Object getHandler(final HttpContext context) throws Exception {
     Comparable<?> version = null;
     if (this.apiVersionStrategy != null) {
-      version = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
+      version = (Comparable<?>) context.getAttribute(API_VERSION_ATTRIBUTE);
       if (version == null) {
-        version = apiVersionStrategy.resolveParseAndValidateVersion(request);
+        version = apiVersionStrategy.resolveParseAndValidateVersion(context);
         if (version != null) {
-          request.setAttribute(API_VERSION_ATTRIBUTE, version);
+          context.setAttribute(API_VERSION_ATTRIBUTE, version);
         }
       }
     }
-    Object handler = getHandlerInternal(request);
+    Object handler = getHandlerInternal(context);
     if (handler == null) {
       handler = getDefaultHandler();
     }
@@ -356,13 +356,13 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     HandlerExecutionChain chain;
-    if (hasCorsConfigurationSource(handler) || request.isPreFlightRequest()) {
+    if (hasCorsConfigurationSource(handler) || context.isPreFlightRequest()) {
       // handler config
-      CorsConfiguration config = getCorsConfiguration(handler, request);
+      CorsConfiguration config = getCorsConfiguration(handler, context);
       CorsConfigurationSource global = getCorsConfigurationSource();
       if (global != null) {
         // global config
-        CorsConfiguration globalConfig = global.getCorsConfiguration(request);
+        CorsConfiguration globalConfig = global.getCorsConfiguration(context);
         if (globalConfig != null) {
           config = globalConfig.combine(config);
         }
@@ -371,18 +371,18 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
         config.validateAllowCredentials();
         config.validateAllowPrivateNetwork();
       }
-      chain = getCorsHandlerExecutionChain(request, handler, config);
+      chain = getCorsHandlerExecutionChain(context, handler, config);
     }
     else {
       chain = getHandlerExecutionChain(handler, null);
     }
 
-    if (!request.hasMatchingMetadata()) {
-      request.setMatchingMetadata(new HandlerMatchingMetadata(handler, request, patternParser));
+    if (!context.hasMatchingMetadata()) {
+      context.setMatchingMetadata(new HandlerMatchingMetadata(handler, context, patternParser));
     }
 
     if (version != null) {
-      apiVersionStrategy.handleDeprecations(version, handler, request);
+      apiVersionStrategy.handleDeprecations(version, handler, context);
     }
     return chain;
   }
@@ -530,13 +530,13 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public Object handleRequest(HttpContext request) throws Throwable {
-      corsProcessor.process(this.config, request);
+    public Object handleRequest(HttpContext context) throws Throwable {
+      corsProcessor.process(this.config, context);
       return NONE_RETURN_VALUE;
     }
 
     @Override
-    public @Nullable CorsConfiguration getCorsConfiguration(HttpContext request) {
+    public @Nullable CorsConfiguration getCorsConfiguration(HttpContext ctx) {
       return this.config;
     }
 
@@ -551,12 +551,12 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
-      return corsProcessor.process(config, request);
+    public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+      return corsProcessor.process(config, context);
     }
 
     @Override
-    public @Nullable CorsConfiguration getCorsConfiguration(HttpContext request) {
+    public @Nullable CorsConfiguration getCorsConfiguration(HttpContext ctx) {
       return this.config;
     }
 

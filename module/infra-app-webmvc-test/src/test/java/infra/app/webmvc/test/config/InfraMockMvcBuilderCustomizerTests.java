@@ -109,7 +109,7 @@ class InfraMockMvcBuilderCustomizerTests {
     private final Map<String, String> initParams = new HashMap<>();
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
 
     }
 
@@ -123,7 +123,7 @@ class InfraMockMvcBuilderCustomizerTests {
     private final Map<String, String> initParams = new HashMap<>();
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
 
     }
 

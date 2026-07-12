@@ -156,20 +156,20 @@ public final class ErrorMvcAutoConfiguration {
   private static final class StaticView implements View {
 
     @Override
-    public void render(Map<String, ?> model, HttpContext request) throws Exception {
-      if (request.isCommitted()) {
+    public void render(Map<String, ?> model, HttpContext context) throws Exception {
+      if (context.isCommitted()) {
         String message = getMessage(model);
         LoggerFactory.getLogger(StaticView.class).error(message);
         return;
       }
 
-      PrintWriter writer = request.getWriter();
+      PrintWriter writer = context.getWriter();
       Object timestamp = model.get("timestamp");
       Object message = model.get("message");
       Object trace = model.get("trace");
 
-      if (request.getResponseContentType() == null) {
-        request.setContentType(getContentType());
+      if (context.getResponseContentType() == null) {
+        context.setContentType(getContentType());
       }
 
       writer.append("<html><body><h1>Whitelabel Error Page</h1>")

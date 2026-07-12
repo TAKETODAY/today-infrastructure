@@ -27,12 +27,12 @@ public class PreFlightRequestInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public @Nullable Object intercept(HttpContext request, InterceptorChain chain) throws Throwable {
-    if (request.isPreFlightRequest()) {
-      handler.handlePreFlight(request);
+  public @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+    if (context.isPreFlightRequest()) {
+      handler.handlePreFlight(context);
       return NONE_RETURN_VALUE;
     }
-    return chain.proceed(request);
+    return chain.proceed(context);
   }
 
 }

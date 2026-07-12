@@ -122,7 +122,7 @@ public class ResourceTransformerSupportTests {
   private static class TestResourceTransformerSupport extends ResourceTransformerSupport {
 
     @Override
-    public Resource transform(HttpContext request, Resource resource, ResourceTransformerChain transformerChain) throws IOException {
+    public Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain) throws IOException {
       throw new IllegalStateException("Should never be called");
     }
   }

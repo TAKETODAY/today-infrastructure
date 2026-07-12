@@ -67,12 +67,12 @@ public interface RequestContinueExpectedResolver {
    * <p>Implementations typically examine request properties such as content type, content length,
    * authentication credentials, or other application-specific criteria to make the decision.
    *
-   * @param request the {@link HttpContext} containing the request with {@code Expect: 100-continue} header
+   * @param context the {@link HttpContext} containing the request with {@code Expect: 100-continue} header
    * @return Boolean result indicating if request should continue, or null if undetermined
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.2.3">HTTP/1.1 100 Continue</a>
    * @see DispatcherHandler#requestContinueExpected(HttpContext)
    */
   @Nullable
-  Boolean shouldContinue(HttpContext request);
+  Boolean shouldContinue(HttpContext context);
 
 }

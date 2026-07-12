@@ -112,14 +112,14 @@ final class MockMvcFilterDecorator implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext request, FilterChain filterChain) throws Exception {
-    String requestPath = request.getRequestURI();
-    if (matchDispatcherType(MockUtils.getMockRequest(request).getDispatcherType())
+  public void doFilter(HttpContext http, FilterChain filterChain) throws Exception {
+    String requestPath = http.getRequestURI();
+    if (matchDispatcherType(MockUtils.getMockRequest(http).getDispatcherType())
             && matchRequestPath(requestPath)) {
-      this.delegate.doFilter(request, filterChain);
+      this.delegate.doFilter(http, filterChain);
     }
     else {
-      filterChain.doFilter(request);
+      filterChain.doFilter(http);
     }
   }
 

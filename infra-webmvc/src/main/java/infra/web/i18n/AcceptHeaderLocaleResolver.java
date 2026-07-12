@@ -105,17 +105,17 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   @Override
-  public Locale resolveLocale(HttpContext request) {
+  public Locale resolveLocale(HttpContext context) {
     Locale defaultLocale = getDefaultLocale();
-    if (defaultLocale != null && StringUtils.isBlank(request.getHeader(HttpHeaders.ACCEPT_LANGUAGE))) {
+    if (defaultLocale != null && StringUtils.isBlank(context.getHeader(HttpHeaders.ACCEPT_LANGUAGE))) {
       return defaultLocale;
     }
-    Locale requestLocale = request.getLocale();
+    Locale requestLocale = context.getLocale();
     List<Locale> supportedLocales = getSupportedLocales();
     if (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) {
       return requestLocale;
     }
-    Locale supportedLocale = findSupportedLocale(request, supportedLocales);
+    Locale supportedLocale = findSupportedLocale(context, supportedLocales);
     if (supportedLocale != null) {
       return supportedLocale;
     }
@@ -147,7 +147,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   @Override
-  public void setLocale(HttpContext request, @Nullable Locale locale) {
+  public void setLocale(HttpContext context, @Nullable Locale locale) {
     throw new UnsupportedOperationException(
             "Cannot change HTTP accept header - use a different locale resolution strategy");
   }

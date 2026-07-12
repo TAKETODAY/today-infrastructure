@@ -44,9 +44,9 @@ public class HandlerRegistries implements HandlerMapping {
 
   @Nullable
   @Override
-  public Object getHandler(final HttpContext request) throws Exception {
+  public Object getHandler(final HttpContext context) throws Exception {
     for (final HandlerMapping registry : handlerRegistries) {
-      final Object ret = registry.getHandler(request);
+      final Object ret = registry.getHandler(context);
       if (ret != null) {
         return ret;
       }

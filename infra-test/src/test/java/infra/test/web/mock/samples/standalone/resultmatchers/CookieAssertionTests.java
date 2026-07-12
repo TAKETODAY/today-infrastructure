@@ -67,8 +67,8 @@ public class CookieAssertionTests {
             .addInterceptors(new HandlerInterceptor() {
 
               @Override
-              public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
-                request.addCookie(cookie);
+              public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+                context.addCookie(cookie);
                 return true;
               }
             })

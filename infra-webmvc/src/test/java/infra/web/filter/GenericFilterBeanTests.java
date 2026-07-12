@@ -40,7 +40,7 @@ class GenericFilterBeanTests {
   void defaultOrderIsLowestPrecedence() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     assertThat(filter.getOrder()).isEqualTo(Ordered.LOWEST_PRECEDENCE);
@@ -50,7 +50,7 @@ class GenericFilterBeanTests {
   void setOrder() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     filter.setOrder(42);
@@ -61,7 +61,7 @@ class GenericFilterBeanTests {
   void getFilterNameReturnsBeanName() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     filter.setBeanName("myFilter");
@@ -72,7 +72,7 @@ class GenericFilterBeanTests {
   void getFilterNameReturnsNullByDefault() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     assertThat(filter.getFilterName()).isNull();
@@ -82,7 +82,7 @@ class GenericFilterBeanTests {
   void getEnvironmentReturnsSetValue() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     Environment env = mockEnvironment();
@@ -94,7 +94,7 @@ class GenericFilterBeanTests {
   void getEnvironmentReturnsNullByDefault() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     assertThat(filter.getEnvironment()).isNotNull();
@@ -105,7 +105,7 @@ class GenericFilterBeanTests {
     var invoked = new boolean[] { false };
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
 
       @Override
@@ -121,7 +121,7 @@ class GenericFilterBeanTests {
   void afterPropertiesSetDoesNotThrowByDefault() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     assertThatCode(filter::afterPropertiesSet).doesNotThrowAnyException();
@@ -131,7 +131,7 @@ class GenericFilterBeanTests {
   void destroyDoesNotThrowByDefault() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     assertThatCode(filter::destroy).doesNotThrowAnyException();
@@ -141,7 +141,7 @@ class GenericFilterBeanTests {
   void loggerIsAvailable() {
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
       }
     };
     assertThat(filter.logger).isNotNull();
@@ -152,7 +152,7 @@ class GenericFilterBeanTests {
     var invoked = new boolean[] { false };
     var filter = new GenericFilterBean() {
       @Override
-      public void doFilter(HttpContext request, FilterChain chain) {
+      public void doFilter(HttpContext http, FilterChain chain) {
         invoked[0] = true;
       }
     };

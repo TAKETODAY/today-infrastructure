@@ -135,32 +135,32 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
   }
 
   @Override
-  public boolean preProcessing(HttpContext request, Object handler) {
-    checkRequest(request);
+  public boolean preProcessing(HttpContext context, Object handler) {
+    checkRequest(context);
 
     if (!cacheControlMappings.isEmpty()) {
-      CacheControl control = lookupCacheControl(request.getRequestPath());
+      CacheControl control = lookupCacheControl(context.getRequestPath());
       if (control != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("Applying {}", control);
         }
-        applyCacheControl(request, control);
+        applyCacheControl(context, control);
         return true;
       }
     }
 
     if (!cacheMappings.isEmpty()) {
-      Integer cacheSeconds = lookupCacheSeconds(request.getRequestPath());
+      Integer cacheSeconds = lookupCacheSeconds(context.getRequestPath());
       if (cacheSeconds != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("Applying cacheSeconds {}", cacheSeconds);
         }
-        applyCacheSeconds(request, cacheSeconds);
+        applyCacheSeconds(context, cacheSeconds);
         return true;
       }
     }
 
-    prepareResponse(request);
+    prepareResponse(context);
     return true;
   }
 

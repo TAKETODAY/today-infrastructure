@@ -163,7 +163,7 @@ public interface HandlerInterceptor {
    * }
    * }</pre>
    *
-   * @param request Current request context containing details about the request
+   * @param context Current HTTP context containing details about the request
    * @param handler The handler object that will process the request. This could
    * be a {@link HandlerMethod} or another
    * type of handler
@@ -171,7 +171,7 @@ public interface HandlerInterceptor {
    * @throws Throwable If any exception occurs during the execution of this method
    * @see HandlerMethod#unwrap(Object)
    */
-  default boolean preProcessing(HttpContext request, Object handler) throws Throwable {
+  default boolean preProcessing(HttpContext context, Object handler) throws Throwable {
     return true;
   }
 
@@ -202,14 +202,14 @@ public interface HandlerInterceptor {
    * }
    * }</pre>
    *
-   * @param request Current request context containing details about the request
+   * @param context Current HTTP context containing details about the request
    * @param handler The handler object that processed the request. This could
    * be a {@link HandlerMethod} or another type of handler
    * @param result The result returned by the handler after processing the request.
    * This may be {@code null} if the handler does not return a value
    * @throws Throwable If any exception occurs during the execution of this method
    */
-  default void postProcessing(HttpContext request, Object handler, @Nullable Object result) throws Throwable {
+  default void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Throwable {
   }
 
   /**
@@ -221,13 +221,13 @@ public interface HandlerInterceptor {
    * <pre>{@code
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
-   *   public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
-   *     System.out.println("Pre-processing request: " + request.getRequestURI());
+   *   public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+   *     System.out.println("Pre-processing request: " + context.getRequestURI());
    *     return true; // Continue processing
    *   }
    *
    *   @Override
-   *   public void postProcessing(HttpContext request, Object handler,
+   *   public void postProcessing(HttpContext context, Object handler,
    *                             @Nullable Object result) throws Throwable {
    *     if (result instanceof String) {
    *       System.out.println("Post-processing result: " + result);
@@ -236,13 +236,13 @@ public interface HandlerInterceptor {
    *
    *   @Override
    *   @Nullable
-   *   public Object intercept(HttpContext request, InterceptorChain chain) throws Throwable {
-   *     return HandlerInterceptor.super.intercept(request, chain);
+   *   public Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+   *     return HandlerInterceptor.super.intercept(context, chain);
    *   }
    * }
    * }</pre>
    *
-   * @param request The current request context containing details about the request
+   * @param context The current HTTP context containing details about the request
    * @param chain The interceptor chain that allows proceeding to the next interceptor
    * or the final handler
    * @return The result of the request processing if {@link #preProcessing} returns true;
@@ -251,11 +251,11 @@ public interface HandlerInterceptor {
    * @throws Throwable If any exception occurs during the execution of this method or
    * within the interceptor chain
    */
-  default @Nullable Object intercept(HttpContext request, InterceptorChain chain) throws Throwable {
+  default @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
     Object handler = chain.getHandler();
-    if (preProcessing(request, handler)) {
-      Object result = chain.proceed(request);
-      postProcessing(request, handler, result);
+    if (preProcessing(context, handler)) {
+      Object result = chain.proceed(context);
+      postProcessing(context, handler, result);
       return result;
     }
     return NONE_RETURN_VALUE;

@@ -192,22 +192,21 @@ public final class MappedInterceptor implements HandlerInterceptor {
   // HandlerInterceptor delegation
 
   @Override
-  public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
-    return interceptor.preProcessing(request, handler);
+  public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+    return interceptor.preProcessing(context, handler);
   }
 
   @Override
-  public void postProcessing(HttpContext request, Object handler, @Nullable Object result) throws Throwable {
-    interceptor.postProcessing(request, handler, result);
+  public void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Throwable {
+    interceptor.postProcessing(context, handler, result);
   }
 
-  @Nullable
   @Override
-  public Object intercept(HttpContext request, InterceptorChain chain) throws Throwable {
-    if (matches(request)) {
-      return interceptor.intercept(request, chain);
+  public @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+    if (matches(context)) {
+      return interceptor.intercept(context, chain);
     }
-    return chain.proceed(request);
+    return chain.proceed(context);
   }
 
   /**
@@ -220,8 +219,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
     public final String patternString;
 
-    @Nullable
-    public final PathPattern pathPattern;
+    public final @Nullable PathPattern pathPattern;
 
     public CompiledPattern(String pattern, @Nullable PathPatternParser parser) {
       this.patternString = pattern;

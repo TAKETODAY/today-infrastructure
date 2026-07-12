@@ -52,10 +52,10 @@ public class CorsInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
-    CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(request);
-    return processor.process(corsConfiguration, request)
-            && !request.isPreFlightRequest();
+  public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+    CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(context);
+    return processor.process(corsConfiguration, context)
+            && !context.isPreFlightRequest();
   }
 
 }

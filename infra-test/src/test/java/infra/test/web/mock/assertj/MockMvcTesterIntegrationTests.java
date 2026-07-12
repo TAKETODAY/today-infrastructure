@@ -288,8 +288,8 @@ public class MockMvcTesterIntegrationTests {
               new HandlerInterceptor() {
 
                 @Override
-                public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
-                  request.addCookie(ResponseCookie.forSimple(cookie.getName(), cookie.getValue()));
+                public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+                  context.addCookie(ResponseCookie.forSimple(cookie.getName(), cookie.getValue()));
                   return true;
                 }
               }).build());

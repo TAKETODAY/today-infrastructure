@@ -62,10 +62,10 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
   }
 
   @Override
-  public Resource transform(HttpContext request, Resource resource, ResourceTransformerChain transformerChain)
+  public Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException {
 
-    resource = transformerChain.transform(request, resource);
+    resource = transformerChain.transform(context, resource);
 
     String filename = resource.getName();
     if (!"css".equals(StringUtils.getFilenameExtension(filename))
@@ -92,8 +92,8 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
       String link = content.substring(linkContentChunkInfo.getStart(), linkContentChunkInfo.getEnd());
       String newLink = null;
       if (!hasScheme(link)) {
-        String absolutePath = toAbsolutePath(link, request);
-        newLink = resolveUrlPath(absolutePath, request, resource, transformerChain);
+        String absolutePath = toAbsolutePath(link, context);
+        newLink = resolveUrlPath(absolutePath, context, resource, transformerChain);
       }
       writer.write(newLink != null ? newLink : link);
       index = linkContentChunkInfo.getEnd();

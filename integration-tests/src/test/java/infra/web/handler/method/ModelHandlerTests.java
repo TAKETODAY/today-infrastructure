@@ -164,7 +164,7 @@ class ModelHandlerTests {
     }
 
     @Override
-    public HttpContextDataBinder createBinder(HttpContext request, @Nullable Object target, String objectName) throws Throwable {
+    public HttpContextDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) throws Throwable {
       return dataBinder;
     }
   }

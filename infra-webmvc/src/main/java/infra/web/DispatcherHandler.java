@@ -997,17 +997,17 @@ public class DispatcherHandler extends WebLifecycleManager {
      * Proceed with the next filter in the chain, or invoke the terminal handler
      * if no filters remain.
      *
-     * @param request the current request context
+     * @param context the current request context
      * @throws Exception if any filter or the terminal handler fails
      */
     @Override
-    public void doFilter(HttpContext request) throws Exception {
+    public void doFilter(HttpContext context) throws Exception {
       final Filter[] filters = this.filters;
       if (index < filters.length) {
-        filters[index++].doFilter(request, this);
+        filters[index++].doFilter(context, this);
       }
       else {
-        dispatcherHandler.handleRequestInternal(request);
+        dispatcherHandler.handleRequestInternal(context);
       }
     }
 

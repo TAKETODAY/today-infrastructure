@@ -45,14 +45,14 @@ public interface ResourceResolver {
    * Resolve the supplied request and request path to a {@link Resource} that
    * exists under one of the given resource locations.
    *
-   * @param request the current request (may not be present in some calls)
+   * @param context the current request (may not be present in some calls)
    * @param requestPath the portion of the request path to use
    * @param locations the locations to search in when looking up resources
    * @param chain the chain of remaining resolvers to delegate to
    * @return the resolved resource, or {@code null} if unresolved
    */
   @Nullable
-  Resource resolveResource(@Nullable HttpContext request, String requestPath,
+  Resource resolveResource(@Nullable HttpContext context, String requestPath,
           List<? extends Resource> locations, ResourceResolvingChain chain);
 
   /**

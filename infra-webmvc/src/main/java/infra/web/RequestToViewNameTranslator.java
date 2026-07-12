@@ -34,13 +34,13 @@ public interface RequestToViewNameTranslator {
   /**
    * Translate the given {@link HttpContext} into a view name.
    *
-   * @param request the incoming {@link HttpContext} providing
+   * @param http the incoming {@link HttpContext} providing
    * the context from which a view name is to be resolved
    * @return the view name, or {@code null} if no default found
    * @throws Exception if view name translation fails
    */
   @Nullable
-  String getViewName(HttpContext request) throws Exception;
+  String getViewName(HttpContext http) throws Exception;
 
 }
 

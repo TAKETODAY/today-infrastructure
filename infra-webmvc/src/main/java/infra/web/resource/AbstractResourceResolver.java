@@ -41,9 +41,9 @@ public abstract class AbstractResourceResolver implements ResourceResolver {
 
   @Override
   @Nullable
-  public Resource resolveResource(@Nullable HttpContext request, String requestPath,
+  public Resource resolveResource(@Nullable HttpContext context, String requestPath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {
-    return resolveResourceInternal(request, requestPath, locations, chain);
+    return resolveResourceInternal(context, requestPath, locations, chain);
   }
 
   @Override

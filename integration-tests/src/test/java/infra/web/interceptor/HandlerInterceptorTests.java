@@ -71,7 +71,7 @@ class HandlerInterceptorTests {
   static class ModifyResult implements HandlerInterceptor {
 
     @Override
-    public void postProcessing(HttpContext request, Object handler, Object result) {
+    public void postProcessing(HttpContext context, Object handler, Object result) {
       if (result instanceof List list) {
         list.add(new TestBean("add"));
       }

@@ -307,7 +307,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * Return the specified CORS configuration.
    */
   @Override
-  public @Nullable CorsConfiguration getCorsConfiguration(HttpContext request) {
+  public @Nullable CorsConfiguration getCorsConfiguration(HttpContext ctx) {
     return this.corsConfiguration;
   }
 
@@ -511,42 +511,42 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public @Nullable Object handleRequest(HttpContext request) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
     // For very general mappings (e.g. "/") we need to check 404 first
-    Resource resource = getResource(request);
+    Resource resource = getResource(context);
     if (resource == null) {
-      return notFoundHandler.handleNotFound(request);
+      return notFoundHandler.handleNotFound(context);
     }
 
-    if (HttpMethod.OPTIONS == request.getMethod()) {
-      request.setHeader(HttpHeaders.ALLOW, getAllowHeader());
+    if (HttpMethod.OPTIONS == context.getMethod()) {
+      context.setHeader(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
     }
 
     // Supported methods and required session
-    checkRequest(request);
+    checkRequest(context);
 
     // Apply cache settings, if any
-    prepareResponse(request);
+    prepareResponse(context);
 
     // Header phase
     String eTag = getETag(resource);
-    if (request.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
+    if (context.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
       logger.trace("Resource not modified");
       return NONE_RETURN_VALUE;
     }
 
     // Check the media type for the resource
-    MediaType mediaType = getMediaType(request, resource);
-    setHeaders(request, resource, mediaType);
+    MediaType mediaType = getMediaType(context, resource);
+    setHeaders(context, resource, mediaType);
 
     // Content phase
-    ServerHttpResponse outputMessage = request.asHttpOutputMessage();
-    if (request.requestHeaders().get(HttpHeaders.RANGE) == null) {
+    ServerHttpResponse outputMessage = context.asHttpOutputMessage();
+    if (context.requestHeaders().get(HttpHeaders.RANGE) == null) {
       ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
 
-      if (HttpMethod.HEAD == request.getMethod()) {
+      if (HttpMethod.HEAD == context.getMethod()) {
         converter.addDefaultHeaders(outputMessage, resource, mediaType);
       }
       else {
@@ -557,13 +557,13 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
       try {
-        List<HttpRange> httpRanges = request.getHeaders().getRange();
-        request.setStatus(HttpStatus.PARTIAL_CONTENT);
+        List<HttpRange> httpRanges = context.getHeaders().getRange();
+        context.setStatus(HttpStatus.PARTIAL_CONTENT);
         converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
-        request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+        context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+        context.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
       }
     }
 

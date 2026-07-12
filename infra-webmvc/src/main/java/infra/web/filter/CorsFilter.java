@@ -74,13 +74,13 @@ public class CorsFilter implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext request, FilterChain chain) throws Exception {
-    CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(request);
-    boolean isValid = this.processor.process(corsConfiguration, request);
-    if (!isValid || request.isPreFlightRequest()) {
+  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+    CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(http);
+    boolean isValid = this.processor.process(corsConfiguration, http);
+    if (!isValid || http.isPreFlightRequest()) {
       return;
     }
-    chain.doFilter(request);
+    chain.doFilter(http);
   }
 
 }

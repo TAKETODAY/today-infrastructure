@@ -261,20 +261,20 @@ public class HttpContextHolderTests {
   static class RequestFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
-      request.setAttribute(FROM_REQUEST_FILTER, FROM_REQUEST_FILTER);
-      chain.doFilter(request);
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+      http.setAttribute(FROM_REQUEST_FILTER, FROM_REQUEST_FILTER);
+      chain.doFilter(http);
     }
   }
 
   static class RequestAttributesFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
       HttpContextHolder.required()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
 
-      chain.doFilter(request);
+      chain.doFilter(http);
     }
   }
 

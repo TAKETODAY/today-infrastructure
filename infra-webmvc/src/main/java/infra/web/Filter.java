@@ -53,10 +53,10 @@ public interface Filter {
    * Process the current request, optionally delegating to the next filter
    * in the chain via {@link FilterChain#doFilter(HttpContext)}.
    *
-   * @param request the current request context
+   * @param http the current request context
    * @param chain the filter chain to delegate to
    * @throws Exception if any error occurs during filtering
    */
-  void doFilter(HttpContext request, FilterChain chain) throws Exception;
+  void doFilter(HttpContext http, FilterChain chain) throws Exception;
 
 }

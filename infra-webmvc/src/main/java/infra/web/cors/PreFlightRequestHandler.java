@@ -33,8 +33,8 @@ public interface PreFlightRequestHandler {
    * response should be updated with CORS headers or rejected with
    * {@link infra.http.HttpStatus#FORBIDDEN}.
    *
-   * @param request current HTTP request
+   * @param context current HTTP context
    */
-  void handlePreFlight(HttpContext request) throws Exception;
+  void handlePreFlight(HttpContext context) throws Exception;
 
 }

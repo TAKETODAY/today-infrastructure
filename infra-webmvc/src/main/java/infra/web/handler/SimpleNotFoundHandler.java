@@ -38,15 +38,15 @@ public class SimpleNotFoundHandler implements NotFoundHandler {
    * <p>
    * This method logs the missing mapping and sends an HTTP 404 error response.
    *
-   * @param request the current request context
+   * @param http the current request context
    * @return {@code null} as there is no return value for error handling
    * @throws IOException if an I/O error occurs while sending the error response
    */
   @Override
-  public Object handleNotFound(HttpContext request) throws IOException {
-    logNotFound(request);
+  public Object handleNotFound(HttpContext http) throws IOException {
+    logNotFound(http);
 
-    request.sendError(HttpStatus.NOT_FOUND);
+    http.sendError(HttpStatus.NOT_FOUND);
     return NONE_RETURN_VALUE;
   }
 

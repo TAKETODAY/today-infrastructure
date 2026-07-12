@@ -113,9 +113,9 @@ public class MockFilterChain implements FilterChain {
   }
 
   @Override
-  public void doFilter(HttpContext http) throws Exception {
-    this.httpContext = http;
-    Assert.notNull(http, "Request is required");
+  public void doFilter(HttpContext context) throws Exception {
+    this.httpContext = context;
+    Assert.notNull(context, "Request is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
 
     if (this.iterator == null) {
@@ -124,11 +124,11 @@ public class MockFilterChain implements FilterChain {
 
     if (this.iterator.hasNext()) {
       Filter nextFilter = this.iterator.next();
-      nextFilter.doFilter(http, this);
+      nextFilter.doFilter(context, this);
     }
 
-    this.request = MockUtils.getMockRequest(http);
-    this.response = MockUtils.getMockResponse(http);
+    this.request = MockUtils.getMockRequest(context);
+    this.response = MockUtils.getMockResponse(context);
   }
 
   /**
@@ -150,8 +150,8 @@ public class MockFilterChain implements FilterChain {
     }
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
-      this.delegateMockHandler.service(MockUtils.getMockRequest(request), MockUtils.getMockResponse(request));
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+      this.delegateMockHandler.service(MockUtils.getMockRequest(http), MockUtils.getMockResponse(http));
     }
 
     @Override

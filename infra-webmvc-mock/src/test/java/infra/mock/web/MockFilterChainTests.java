@@ -128,13 +128,13 @@ class MockFilterChainTests {
     }
 
     @Override
-    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
       this.invoked = true;
       if (this.mockHandler != null) {
-        this.mockHandler.service(MockUtils.getMockRequest(request), MockUtils.getMockResponse(request));
+        this.mockHandler.service(MockUtils.getMockRequest(http), MockUtils.getMockResponse(http));
       }
       else {
-        chain.doFilter(request);
+        chain.doFilter(http);
       }
     }
 

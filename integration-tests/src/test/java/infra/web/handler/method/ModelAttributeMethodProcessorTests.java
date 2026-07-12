@@ -179,7 +179,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, objectName);
         ref.set(dataBinder);
         return dataBinder;
@@ -203,7 +203,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext factory = new BindingContext() {
 
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return dataBinder;
       }
     };
@@ -228,7 +228,7 @@ class ModelAttributeMethodProcessorTests {
     StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return dataBinder;
       }
     };
@@ -250,7 +250,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext binderFactory = new BindingContext() {
 
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
         dataBinder.getBindingResult().reject("error");
         return dataBinder;
@@ -270,7 +270,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return dataBinder;
       }
     };
@@ -311,7 +311,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         HttpContextDataBinder binder = new HttpContextDataBinder(target, objectName);
         binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter()));
 

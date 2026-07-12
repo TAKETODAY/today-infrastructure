@@ -75,7 +75,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public Locale resolveLocale(HttpContext request) {
+  public Locale resolveLocale(HttpContext context) {
     Locale locale = getDefaultLocale();
     if (locale == null) {
       locale = Locale.getDefault();
@@ -84,7 +84,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public LocaleContext resolveLocaleContext(HttpContext request) {
+  public LocaleContext resolveLocaleContext(HttpContext context) {
     return new TimeZoneAwareLocaleContext() {
       @Override
       @Nullable
@@ -101,7 +101,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public void setLocaleContext(HttpContext request, @Nullable LocaleContext localeContext) {
+  public void setLocaleContext(HttpContext context, @Nullable LocaleContext localeContext) {
     throw new UnsupportedOperationException("Cannot change fixed locale - use a different locale resolution strategy");
   }
 

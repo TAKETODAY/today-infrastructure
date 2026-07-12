@@ -90,7 +90,7 @@ public class InitBinderBindingContext extends BindingContext {
    * @see #isBinderMethodApplicable(HandlerMethod, WebDataBinder)
    */
   @Override
-  public void initBinder(WebDataBinder dataBinder, HttpContext request) throws Throwable {
+  public void initBinder(WebDataBinder dataBinder, HttpContext context) throws Throwable {
     List<InvocableHandlerMethod> binderMethods = this.binderMethods;
     if (binderMethods == null) {
       binderMethods = methodResolver.getBinderMethods(handlerMethod);
@@ -98,11 +98,11 @@ public class InitBinderBindingContext extends BindingContext {
     }
 
     if (!binderMethods.isEmpty()) {
-      BindingContext bindingContext = request.getBinding();
-      request.setBinding(binderMethodContext);
+      BindingContext bindingContext = context.getBinding();
+      context.setBinding(binderMethodContext);
       for (InvocableHandlerMethod binderMethod : binderMethods) {
         if (isBinderMethodApplicable(binderMethod, dataBinder)) {
-          Object returnValue = binderMethod.invokeForRequest(request, null, new Object[] { dataBinder });
+          Object returnValue = binderMethod.invokeForRequest(context, null, new Object[] { dataBinder });
           if (returnValue != null) {
             throw new IllegalStateException(
                     "@InitBinder methods must not return a value (should be void): " + binderMethod);
@@ -114,7 +114,7 @@ public class InitBinderBindingContext extends BindingContext {
           }
         }
       }
-      request.setBinding(bindingContext);
+      context.setBinding(bindingContext);
     }
   }
 
@@ -131,13 +131,13 @@ public class InitBinderBindingContext extends BindingContext {
   }
 
   @Override
-  public void updateModel(HttpContext request) throws Throwable {
-    modelHandler.updateModel(request, this);
+  public void updateModel(HttpContext context) throws Throwable {
+    modelHandler.updateModel(context, this);
   }
 
   @Override
-  public void initModel(HttpContext request) throws Throwable {
-    modelHandler.initModel(request, this, handlerMethod);
+  public void initModel(HttpContext context) throws Throwable {
+    modelHandler.initModel(context, this, handlerMethod);
   }
 
 }

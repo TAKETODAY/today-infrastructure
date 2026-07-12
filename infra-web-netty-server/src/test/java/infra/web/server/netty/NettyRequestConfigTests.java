@@ -324,7 +324,7 @@ class NettyRequestConfigTests {
   static class SendErrorHandler0 implements SendErrorHandler {
 
     @Override
-    public void handleError(HttpContext request, @Nullable String message) throws IOException {
+    public void handleError(HttpContext http, @Nullable String message) throws IOException {
 
     }
 

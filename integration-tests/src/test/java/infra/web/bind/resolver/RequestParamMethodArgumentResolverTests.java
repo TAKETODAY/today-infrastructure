@@ -363,7 +363,7 @@ class RequestParamMethodArgumentResolverTests {
 
     BindingContext binderFactory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return new HttpContextDataBinder(null);
       }
     };

@@ -121,19 +121,19 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public boolean preProcessing(HttpContext request, Object handler) {
-    String newLocale = request.getParameter(getParamName());
+  public boolean preProcessing(HttpContext context, Object handler) {
+    String newLocale = context.getParameter(getParamName());
     if (newLocale != null) {
-      if (checkHttpMethod(request.getMethodAsString())) {
+      if (checkHttpMethod(context.getMethodAsString())) {
         LocaleResolver localeResolver = getLocaleResolver();
         if (localeResolver == null) {
-          localeResolver = HttpContextUtils.getLocaleResolver(request);
+          localeResolver = HttpContextUtils.getLocaleResolver(context);
           if (localeResolver == null) {
             throw new IllegalStateException("No LocaleResolver found");
           }
         }
         try {
-          localeResolver.setLocale(request, parseLocaleValue(newLocale));
+          localeResolver.setLocale(context, parseLocaleValue(newLocale));
         }
         catch (IllegalArgumentException ex) {
           if (isIgnoreInvalidLocale()) {

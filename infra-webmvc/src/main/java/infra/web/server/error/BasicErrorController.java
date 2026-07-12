@@ -75,16 +75,16 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @RequestMapping("${server.error.path:${error.path:/error}}")
-  public Object error(HttpContext request) {
-    return handleRequest(request, null);
+  public Object error(HttpContext ctx) {
+    return handleRequest(ctx, null);
   }
 
   @Override
-  public void handleError(HttpContext request, @Nullable String message) {
-    Object returnValue = handleRequest(request, message);
+  public void handleError(HttpContext http, @Nullable String message) {
+    Object returnValue = handleRequest(http, message);
     if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       try {
-        returnValueHandler.handleReturnValue(request, null, returnValue);
+        returnValueHandler.handleReturnValue(http, null, returnValue);
       }
       catch (Throwable e) {
         throw ExceptionUtils.sneakyThrow(e);
@@ -92,21 +92,21 @@ public class BasicErrorController extends AbstractErrorController implements Sen
     }
   }
 
-  private Object handleRequest(HttpContext request, @Nullable String message) {
+  private Object handleRequest(HttpContext http, @Nullable String message) {
     if (StringUtils.hasText(message)) {
-      request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, message);
+      http.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, message);
     }
 
-    HttpStatus status = getStatus(request);
+    HttpStatus status = getStatus(http);
     if (status.is2xxSuccessful()) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    boolean acceptsTextHtml = ifAcceptsTextHtml(request);
-    Map<String, Object> model = getErrorAttributes(request, acceptsTextHtml ? MediaType.TEXT_HTML : MediaType.ALL);
-    request.setStatus(status);
+    boolean acceptsTextHtml = ifAcceptsTextHtml(http);
+    Map<String, Object> model = getErrorAttributes(http, acceptsTextHtml ? MediaType.TEXT_HTML : MediaType.ALL);
+    http.setStatus(status);
     if (acceptsTextHtml) {
-      return resolveErrorView(request, status, model);
+      return resolveErrorView(http, status, model);
     }
     return model;
   }

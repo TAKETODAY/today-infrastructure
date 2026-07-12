@@ -68,15 +68,15 @@ public class DefaultCorsProcessor implements CorsProcessor {
   static final String ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK = "Access-Control-Allow-Private-Network";
 
   @Override
-  public boolean process(@Nullable CorsConfiguration config, HttpContext context) throws IOException {
+  public boolean process(@Nullable CorsConfiguration config, HttpContext ctx) throws IOException {
     if (config == null) {
-      if (log.isDebugEnabled() && context.isCorsRequest()) {
+      if (log.isDebugEnabled() && ctx.isCorsRequest()) {
         log.debug("Skip: no CORS configuration has been provided");
       }
       return true;
     }
 
-    HttpHeaders responseHeaders = context.responseHeaders();
+    HttpHeaders responseHeaders = ctx.responseHeaders();
 
     List<String> varyHeaders = responseHeaders.getVary();
     if (!varyHeaders.contains(HttpHeaders.ORIGIN)) {
@@ -90,13 +90,13 @@ public class DefaultCorsProcessor implements CorsProcessor {
     }
 
     try {
-      if (!context.isCorsRequest()) {
+      if (!ctx.isCorsRequest()) {
         return true;
       }
     }
     catch (IllegalArgumentException ex) {
       log.debug("Reject: origin is malformed");
-      rejectRequest(context);
+      rejectRequest(ctx);
       return false;
     }
 
@@ -104,7 +104,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
-    return handleInternal(context, config, context.isPreFlightRequest());
+    return handleInternal(ctx, config, ctx.isPreFlightRequest());
   }
 
   /**

@@ -34,9 +34,9 @@ import infra.web.HttpContext;
 public class ExampleFilter implements Filter, Ordered {
 
   @Override
-  public void doFilter(HttpContext request, FilterChain chain) throws Exception {
-    chain.doFilter(request);
-    request.addHeader("x-test", "abc");
+  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+    chain.doFilter(http);
+    http.addHeader("x-test", "abc");
   }
 
   @Override

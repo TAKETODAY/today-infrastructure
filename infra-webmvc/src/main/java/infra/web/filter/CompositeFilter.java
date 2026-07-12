@@ -53,8 +53,8 @@ public class CompositeFilter implements Filter {
    * @see Filter#doFilter(HttpContext, FilterChain)
    */
   @Override
-  public void doFilter(HttpContext request, FilterChain chain) throws Exception {
-    new VirtualFilterChain(chain, this.filters).doFilter(request);
+  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+    new VirtualFilterChain(chain, this.filters).doFilter(http);
   }
 
   private static class VirtualFilterChain implements FilterChain {
@@ -71,14 +71,14 @@ public class CompositeFilter implements Filter {
     }
 
     @Override
-    public void doFilter(HttpContext request) throws Exception {
+    public void doFilter(HttpContext context) throws Exception {
       if (this.currentPosition == this.additionalFilters.size()) {
-        this.originalChain.doFilter(request);
+        this.originalChain.doFilter(context);
       }
       else {
         this.currentPosition++;
         Filter nextFilter = this.additionalFilters.get(this.currentPosition - 1);
-        nextFilter.doFilter(request, this);
+        nextFilter.doFilter(context, this);
       }
     }
   }
