@@ -34,7 +34,7 @@ package infra.web.view;
  * @see #setViewClass
  * @see #setPrefix
  * @see #setSuffix
- * @see #setRequestContextAttribute
+ * @see #setHttpContextAttribute
  * @see InternalResourceView
  * @since 4.0
  */

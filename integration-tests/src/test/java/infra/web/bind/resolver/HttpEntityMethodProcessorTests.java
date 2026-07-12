@@ -46,6 +46,7 @@ import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.ErrorResponse;
@@ -53,7 +54,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,7 +69,7 @@ class HttpEntityMethodProcessorTests {
 
   private MockRequest mockRequest;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private MockResponse mockResponse;
 
@@ -82,7 +82,7 @@ class HttpEntityMethodProcessorTests {
     mockRequest = new MockRequest();
     mockResponse = new MockResponse();
     mockRequest.setMethod("POST");
-    webRequest = new MockRequestContext(null, mockRequest, mockResponse);
+    webRequest = new MockHttpContext(null, mockRequest, mockResponse);
   }
 
   @Test

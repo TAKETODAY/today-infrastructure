@@ -31,9 +31,6 @@ import java.util.stream.Collectors;
 import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultHandler;
@@ -43,10 +40,13 @@ import infra.util.ObjectUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.handler.method.HandlerMethod;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.Cookie;
 import infra.web.view.ModelAndView;
 
 /**
@@ -92,7 +92,7 @@ public class PrintingResultHandler implements ResultHandler {
   @Override
   public final void handle(MvcResult result) throws Exception {
     this.printer.printHeading("HttpRequest");
-    printRequest(result.getRequest(), result.getRequestContext());
+    printRequest(result.getRequest(), result.getContext());
 
     this.printer.printHeading("Handler");
     printHandler(result.getHandler(), result.getInterceptors());
@@ -107,7 +107,7 @@ public class PrintingResultHandler implements ResultHandler {
     printModelAndView(result.getModelAndView());
 
     this.printer.printHeading("RedirectModel");
-    printFlashMap(RequestContextUtils.getOutputRedirectModel(result.getRequestContext()));
+    printFlashMap(HttpContextUtils.getOutputRedirectModel(result.getContext()));
 
     this.printer.printHeading("HttpResponse");
     printResponse(result.getResponse());
@@ -116,7 +116,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the request.
    */
-  protected void printRequest(MockRequest request, RequestContext context) throws Exception {
+  protected void printRequest(MockRequest request, HttpContext context) throws Exception {
     String body = (request.getCharacterEncoding() != null ?
             request.getContentAsString() : MISSING_CHARACTER_ENCODING);
 
@@ -151,7 +151,7 @@ public class PrintingResultHandler implements ResultHandler {
     return multiValueMap;
   }
 
-  protected final Map<String, Object> getSessionAttributes(MockRequest request, RequestContext context) {
+  protected final Map<String, Object> getSessionAttributes(MockRequest request, HttpContext context) {
     Map<String, Object> map = new LinkedHashMap<>();
     Session session = request.getSession(false);
     if (session != null) {

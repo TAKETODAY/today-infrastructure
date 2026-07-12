@@ -25,7 +25,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Base class for {@link ServerResponse} implementations with error handling.
@@ -47,7 +47,7 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
   }
 
   @Nullable
-  protected final Object handleError(Throwable t, RequestContext request, Context context) throws Throwable {
+  protected final Object handleError(Throwable t, HttpContext request, Context context) throws Throwable {
     ServerResponse serverResponse = errorResponse(t, request);
     if (serverResponse != null) {
       return serverResponse.writeTo(request, context);
@@ -56,7 +56,7 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
   }
 
   @Nullable
-  protected final ServerResponse errorResponse(Throwable t, RequestContext request) {
+  protected final ServerResponse errorResponse(Throwable t, HttpContext request) {
     for (ErrorHandler<?> errorHandler : errorHandlers) {
       if (errorHandler.test(t)) {
         ServerRequest serverRequest = ServerRequest.findRequired(request);

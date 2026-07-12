@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.setup.MockMvcBuilders;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.CookieValue;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
@@ -77,18 +77,18 @@ class MockMvcRestTestClientTests {
   static class TestController {
 
     @GetMapping("/foo")
-    void foo(@CookieValue("session") String session, RequestContext response) throws IOException {
+    void foo(@CookieValue("session") String session, HttpContext response) throws IOException {
       response.getWriter().write("bar");
       response.addCookie("session", builder -> builder.value(session));
     }
 
     @GetMapping("/error")
-    void handleError(RequestContext response) throws Exception {
+    void handleError(HttpContext response) throws Exception {
       response.sendError(400);
     }
 
     @GetMapping("/errorbody")
-    void handleErrorWithBody(RequestContext response) throws Exception {
+    void handleErrorWithBody(HttpContext response) throws Exception {
       response.sendError(400);
       response.getWriter().write("some really bad request");
     }

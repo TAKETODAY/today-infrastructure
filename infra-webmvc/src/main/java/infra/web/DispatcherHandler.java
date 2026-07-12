@@ -55,8 +55,8 @@ import infra.web.util.WebUtils;
 import infra.web.view.ViewRef;
 
 import static infra.util.StringUtils.prependLeadingSlash;
-import static infra.web.RequestContext.FORWARD_ATTRIBUTE;
-import static infra.web.RequestContext.FORWARD_REQUEST_URI_ATTRIBUTE;
+import static infra.web.HttpContext.FORWARD_ATTRIBUTE;
+import static infra.web.HttpContext.FORWARD_REQUEST_URI_ATTRIBUTE;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers.
@@ -86,7 +86,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Attribute name for the set of paths already forwarded to in the current
    * forward chain, used to detect circular forwards.
    *
-   * @see #forward(RequestContext, String)
+   * @see #forward(HttpContext, String)
    */
   static final String FORWARDED_PATHS_ATTRIBUTE = Conventions.getQualifiedAttributeName(DispatcherHandler.class, "forwardedPaths");
 
@@ -496,7 +496,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
    */
-  public @Nullable Object lookupHandler(final RequestContext context) throws Exception {
+  public @Nullable Object lookupHandler(final HttpContext context) throws Exception {
     return handlerMapping.getHandler(context);
   }
 
@@ -507,7 +507,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param handler sync handler
    * @param concurrentResult async result
    */
-  public void handleConcurrentResult(RequestContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Throwable {
+  public void handleConcurrentResult(HttpContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Throwable {
     Throwable throwable = null;
     try {
       if (handler instanceof AsyncHandler asyncHandler) {
@@ -547,7 +547,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @see HttpRequestHandler
    * @since 4.0
    */
-  public void handleRequest(RequestContext context) throws Throwable {
+  public void handleRequest(HttpContext context) throws Throwable {
     logRequest(context);
     var filters = this.filters;
     if (filters == null) {
@@ -558,7 +558,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  private void handleRequestInternal(RequestContext context) throws Exception {
+  private void handleRequestInternal(HttpContext context) throws Exception {
     Object handler = null;
     Object returnValue = null;
     Throwable throwable = null;
@@ -621,7 +621,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Handle the result of handler selection and handler invocation, which is
    * either a view or an Exception to be resolved to a view.
    */
-  protected void processDispatchResult(RequestContext request, @Nullable Object handler,
+  protected void processDispatchResult(HttpContext request, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Throwable {
 
     if (handler instanceof HandlerWrapper wrapper) {
@@ -696,7 +696,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param selected the specific {@code ReturnValueHandler} chosen to process this return value
    * @throws Exception if handling the return value fails
    */
-  protected void handleReturnValue(ReturnValueHandler selected, RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  protected void handleReturnValue(ReturnValueHandler selected, HttpContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     selected.handleReturnValue(request, handler, returnValue);
   }
 
@@ -709,7 +709,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @return a corresponding view to forward to
    * @throws Throwable if no handler can handle the exception
    */
-  protected @Nullable Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+  protected @Nullable Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Throwable {
     // Success and error responses may use different content types
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
@@ -738,7 +738,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     return returnValue;
   }
 
-  protected @Nullable Object handleUnresolvedException(RequestContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
+  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
     // throw it to top level to handle
     throw unresolved;
   }
@@ -749,7 +749,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param request current HTTP request
    * @throws Exception if preparing the response failed
    */
-  protected @Nullable Object handlerNotFound(RequestContext request) throws Throwable {
+  protected @Nullable Object handlerNotFound(HttpContext request) throws Throwable {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
               request.getMethodAsString(), request.getRequestURI(), request.requestHeaders());
@@ -759,7 +759,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Exception {
+  protected void requestCompleted(HttpContext request, @Nullable Throwable notHandled) throws Exception {
     if (!requestCompletedActions.isEmpty()) {
       for (RequestCompletedListener action : requestCompletedActions) {
         action.requestCompleted(request, notHandled);
@@ -792,7 +792,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * {@code false} if it does not, or {@code null} if uncertain
    * @since 5.0
    */
-  public @Nullable Boolean requestContinueExpected(RequestContext request) {
+  public @Nullable Boolean requestContinueExpected(HttpContext request) {
     for (RequestContinueExpectedResolver resolver : requestContinueExpectedResolvers) {
       Boolean resolved = resolver.shouldContinue(request);
       if (resolved != null) {
@@ -809,7 +809,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @return the view name (or {@code null} if no default found)
    * @throws Exception if view name translation failed
    */
-  protected @Nullable String getDefaultViewName(RequestContext request) throws Exception {
+  protected @Nullable String getDefaultViewName(HttpContext request) throws Exception {
     return viewNameTranslator != null ? viewNameTranslator.getViewName(request) : null;
   }
 
@@ -827,7 +827,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * or a circular forward is detected
    * @since 5.0
    */
-  void forward(RequestContext request, String path) throws Exception {
+  void forward(HttpContext request, String path) throws Exception {
     if (request.isCommitted()) {
       throw new IllegalStateException("Cannot forward after response has been committed");
     }
@@ -873,7 +873,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   }
 
   // @since 4.0
-  private void logRequest(RequestContext request) {
+  private void logRequest(HttpContext request) {
     if (log.isDebugEnabled()) {
       String params;
       if (request.isMultipart()) {
@@ -933,7 +933,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  private void logResult(RequestContext request, @Nullable Throwable failureCause) {
+  private void logResult(HttpContext request, @Nullable Throwable failureCause) {
     if (log.isDebugEnabled()) {
       if (failureCause != null) {
         if (log.isTraceEnabled()) {
@@ -997,17 +997,17 @@ public class DispatcherHandler extends WebLifecycleManager {
      * Proceed with the next filter in the chain, or invoke the terminal handler
      * if no filters remain.
      *
-     * @param request the current request context
+     * @param context the current request context
      * @throws Exception if any filter or the terminal handler fails
      */
     @Override
-    public void doFilter(RequestContext request) throws Exception {
+    public void doFilter(HttpContext context) throws Exception {
       final Filter[] filters = this.filters;
       if (index < filters.length) {
-        filters[index++].doFilter(request, this);
+        filters[index++].doFilter(context, this);
       }
       else {
-        dispatcherHandler.handleRequestInternal(request);
+        dispatcherHandler.handleRequestInternal(context);
       }
     }
 

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
@@ -89,7 +89,7 @@ class AbstractTemplateViewTests {
     view.setContentType("text/html");
 
     Map<String, Object> model = new LinkedHashMap<>();
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     when(context.getResponseContentType()).thenReturn(null);
 
     // when & then
@@ -103,7 +103,7 @@ class AbstractTemplateViewTests {
     view.setContentType("text/html");
 
     Map<String, Object> model = new LinkedHashMap<>();
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     when(context.getResponseContentType()).thenReturn("application/json");
 
     // when & then
@@ -113,7 +113,7 @@ class AbstractTemplateViewTests {
   static class TestAbstractTemplateView extends AbstractTemplateView {
 
     @Override
-    protected void renderMergedTemplateModel(Map<String, Object> model, RequestContext context) throws Exception {
+    protected void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) throws Exception {
       // No-op implementation for testing
     }
   }

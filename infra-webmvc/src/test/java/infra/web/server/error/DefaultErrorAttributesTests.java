@@ -29,6 +29,7 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.http.HttpStatus;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.ReflectionUtils;
@@ -36,9 +37,8 @@ import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.validation.MapBindingResult;
 import infra.validation.ObjectError;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.mock.MockRequestContext;
 import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
 import infra.web.server.error.ErrorAttributeOptions.Include;
@@ -58,7 +58,7 @@ class DefaultErrorAttributesTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final RequestContext webRequest = new MockRequestContext(
+  private final HttpContext webRequest = new MockHttpContext(
           null, this.request, new MockResponse());
 
   @Test
@@ -267,7 +267,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = new infra.web.server.error.DefaultErrorAttributes() {
 
       @Override
-      protected String getMessage(RequestContext request, @Nullable Throwable error) {
+      protected String getMessage(HttpContext request, @Nullable Throwable error) {
         return "custom message";
       }
 

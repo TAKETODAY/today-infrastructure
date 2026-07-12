@@ -58,8 +58,8 @@ import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.util.UriUtils;
@@ -104,7 +104,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * header with a safe attachment file name ("f.txt") is added to prevent
    * RFD exploits.
    *
-   * @see #addContentDispositionHeader(RequestContext, Object)
+   * @see #addContentDispositionHeader(HttpContext, Object)
    * @since 5.0
    */
   private static final boolean preventRFDExploits = TodayStrategies.getFlag("infra.web.prevent-RFD-exploits", true);
@@ -178,7 +178,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * has no compatible converter.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, RequestContext context)
+  protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, HttpContext context)
           throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException //
   {
 
@@ -391,7 +391,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * </ul>
    */
   @SuppressWarnings("NullAway")
-  protected Collection<MediaType> getProducibleMediaTypes(RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
+  protected Collection<MediaType> getProducibleMediaTypes(HttpContext request, Class<?> valueClass, @Nullable Type targetType) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       var mediaTypes = matchingMetadata.getProducibleMediaTypes();
@@ -441,7 +441,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
   }
 
-  private List<MediaType> getAcceptableMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
+  private List<MediaType> getAcceptableMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
     return this.contentNegotiationManager.resolveMediaTypes(request);
   }
 
@@ -480,7 +480,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * header with a safe attachment file name ("f.txt") is added to prevent
    * RFD exploits.
    */
-  private void addContentDispositionHeader(RequestContext request, Object body) {
+  private void addContentDispositionHeader(HttpContext request, Object body) {
     if (request.containsResponseHeader(HttpHeaders.CONTENT_DISPOSITION)) {
       return;
     }
@@ -525,7 +525,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
   }
 
-  private boolean notSafeExtension(RequestContext request, @Nullable String extension) {
+  private boolean notSafeExtension(HttpContext request, @Nullable String extension) {
     if (StringUtils.isBlank(extension)) {
       return false;
     }

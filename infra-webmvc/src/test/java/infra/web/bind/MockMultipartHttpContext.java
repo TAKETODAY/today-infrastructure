@@ -17,9 +17,9 @@
 package infra.web.bind;
 
 import infra.context.ApplicationContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MultipartMockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.multipart.MultipartRequest;
 
 /**
@@ -27,16 +27,16 @@ import infra.web.multipart.MultipartRequest;
  * @since 4.0 2022/3/5 17:04
  */
 @SuppressWarnings("serial")
-public class MockMultipartMockRequestContext extends MockRequestContext {
+public class MockMultipartHttpContext extends MockHttpContext {
 
   private final MultipartMockRequest request;
 
-  public MockMultipartMockRequestContext(MultipartMockRequest request, MockResponse response) {
+  public MockMultipartHttpContext(MultipartMockRequest request, MockResponse response) {
     super(request, response);
     this.request = request;
   }
 
-  public MockMultipartMockRequestContext(ApplicationContext applicationContext, MultipartMockRequest request, MockResponse response) {
+  public MockMultipartHttpContext(ApplicationContext applicationContext, MultipartMockRequest request, MockResponse response) {
     super(applicationContext, request, response);
     this.request = request;
   }

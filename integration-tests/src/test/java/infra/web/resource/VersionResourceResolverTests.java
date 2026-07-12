@@ -29,8 +29,8 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -144,7 +144,7 @@ public class VersionResourceResolverTests {
     String file = "bar.css";
     Resource expected = new ClassPathResource("test/" + file, getClass());
     MockRequest request = new MockRequest("GET", "/resources/bar-version.css");
-    MockRequestContext context = new MockRequestContext(null, request, null);
+    MockHttpContext context = new MockHttpContext(null, request, null);
     given(this.chain.resolveResource(context, versionFile, this.locations)).willReturn(null);
     given(this.chain.resolveResource(context, file, this.locations)).willReturn(expected);
     given(this.versionStrategy.extractVersion(versionFile)).willReturn(version);

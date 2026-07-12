@@ -20,7 +20,7 @@ package infra.web.accept;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Contract to extract the version from a request.
@@ -39,6 +39,6 @@ public interface ApiVersionResolver {
    * @return the version value, or {@code null} if not found
    */
   @Nullable
-  String resolveVersion(RequestContext request);
+  String resolveVersion(HttpContext request);
 
 }

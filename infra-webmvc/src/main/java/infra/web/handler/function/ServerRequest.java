@@ -46,12 +46,12 @@ import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
+import infra.web.MultipartException;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
-import infra.web.MultipartException;
 import infra.web.server.NotMultipartRequestException;
 import infra.web.util.UriBuilder;
 
@@ -201,7 +201,7 @@ public interface ServerRequest extends ServerResponse.Context {
    *
    * @param name the parameter name
    * @return the parameter value
-   * @see RequestContext#getParameter(String)
+   * @see HttpContext#getParameter(String)
    */
   default Optional<String> param(String name) {
     List<String> paramValues = params().get(name);
@@ -224,7 +224,7 @@ public interface ServerRequest extends ServerResponse.Context {
    *
    * @param name the parameter name
    * @return the parameter value
-   * @see RequestContext#getParameter(String)
+   * @see HttpContext#getParameter(String)
    */
   default List<String> params(String name) {
     List<String> paramValues = params().get(name);
@@ -238,7 +238,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * Get all parameters for this request. parameters are contained
    * in the query string or posted form data.
    *
-   * @see RequestContext#getParameters()
+   * @see HttpContext#getParameters()
    */
   MultiValueMap<String, String> params();
 
@@ -249,7 +249,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the multipart data, mapping from name to part(s)
    * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
    * @throws MultipartException if parsing fails
-   * @see RequestContext#asMultipartRequest()
+   * @see HttpContext#asMultipartRequest()
    * @see MultipartRequest#getParts()
    */
   MultiValueMap<String, Part> parts() throws MultipartException;
@@ -279,7 +279,7 @@ public interface ServerRequest extends ServerResponse.Context {
   /**
    * Get the request that this request is based on.
    */
-  RequestContext exchange();
+  HttpContext exchange();
 
   /**
    * Check whether the requested resource has been modified given the
@@ -388,19 +388,19 @@ public interface ServerRequest extends ServerResponse.Context {
   // Static methods
 
   /**
-   * Create a new {@code ServerRequest} based on the given {@code RequestContext} and
+   * Create a new {@code ServerRequest} based on the given {@code HttpContext} and
    * message converters.
    *
    * @param context the request
    * @param messageReaders the message readers
    * @return the created {@code ServerRequest}
    */
-  static ServerRequest create(RequestContext context, List<HttpMessageConverter<?>> messageReaders) {
+  static ServerRequest create(HttpContext context, List<HttpMessageConverter<?>> messageReaders) {
     return new DefaultServerRequest(context, messageReaders);
   }
 
   /**
-   * Create a new {@code ServerRequest} based on the given {@code RequestContext} and
+   * Create a new {@code ServerRequest} based on the given {@code HttpContext} and
    * message converters.
    *
    * @param context the request
@@ -409,7 +409,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the created {@code ServerRequest}
    * @since 5.0
    */
-  static ServerRequest create(RequestContext context, List<HttpMessageConverter<?>> messageReaders,
+  static ServerRequest create(HttpContext context, List<HttpMessageConverter<?>> messageReaders,
           @Nullable ApiVersionStrategy versionStrategy) {
 
     return new DefaultServerRequest(context, messageReaders, versionStrategy);
@@ -426,7 +426,7 @@ public interface ServerRequest extends ServerResponse.Context {
   }
 
   @Nullable
-  static ServerRequest find(RequestContext context) {
+  static ServerRequest find(HttpContext context) {
     Object attribute = context.getAttribute(RouterFunctions.REQUEST_ATTRIBUTE);
     if (attribute instanceof ServerRequest serverRequest) {
       return serverRequest;
@@ -434,7 +434,7 @@ public interface ServerRequest extends ServerResponse.Context {
     return null;
   }
 
-  static ServerRequest findRequired(RequestContext context) {
+  static ServerRequest findRequired(HttpContext context) {
     ServerRequest serverRequest = find(context);
     if (serverRequest == null) {
       throw new IllegalStateException(

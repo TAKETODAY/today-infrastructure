@@ -22,10 +22,10 @@ import org.mockito.BDDMockito;
 
 import infra.context.ApplicationContext;
 import infra.test.context.TestContext;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 
 import static infra.test.context.web.WebMockTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
@@ -56,11 +56,11 @@ class WebMockTestExecutionListenerTests {
 
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    RequestContext servletWebRequest = new MockRequestContext(null, request, response);
+    HttpContext servletWebRequest = new MockHttpContext(null, request, response);
 
     request.setAttribute(SET_UP_OUTSIDE_OF_STEL, "true");
 
-    RequestContextHolder.set(servletWebRequest);
+    HttpContextHolder.set(servletWebRequest);
     assertSetUpOutsideOfStelAttributeExists();
   }
 
@@ -86,7 +86,7 @@ class WebMockTestExecutionListenerTests {
   void legacyWebTestCaseWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(LegacyWebTestCase.class);
 
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
     assertRequestAttributesDoNotExist();
 
     listener.beforeTestClass(testContext);
@@ -131,7 +131,7 @@ class WebMockTestExecutionListenerTests {
   void atWebAppConfigTestCaseWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(AtWebAppConfigWebTestCase.class);
 
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
     listener.beforeTestClass(testContext);
     assertRequestAttributesDoNotExist();
 
@@ -156,31 +156,31 @@ class WebMockTestExecutionListenerTests {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(NoAtWebAppConfigWebTestCase.class);
     given(testContext.getAttribute(WebMockTestExecutionListener.ACTIVATE_LISTENER)).willReturn(true);
 
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
     listener.beforeTestClass(testContext);
     assertRequestAttributesDoNotExist();
 
     assertWebAppConfigTestCase();
   }
 
-  private RequestContext assertRequestAttributesExist() {
-    RequestContext requestAttributes = RequestContextHolder.current();
+  private HttpContext assertRequestAttributesExist() {
+    HttpContext requestAttributes = HttpContextHolder.current();
     assertThat(requestAttributes).as("request attributes should exist").isNotNull();
     return requestAttributes;
   }
 
   private void assertRequestAttributesDoNotExist() {
-    assertThat(RequestContextHolder.current()).as("request attributes should not exist").isNull();
+    assertThat(HttpContextHolder.current()).as("request attributes should not exist").isNull();
   }
 
   private void assertSetUpOutsideOfStelAttributeExists() {
-    RequestContext requestAttributes = assertRequestAttributesExist();
+    HttpContext requestAttributes = assertRequestAttributesExist();
     Object setUpOutsideOfStel = requestAttributes.getAttribute(SET_UP_OUTSIDE_OF_STEL);
     assertThat(setUpOutsideOfStel).as(SET_UP_OUTSIDE_OF_STEL + " should exist as a request attribute").isNotNull();
   }
 
   private void assertSetUpOutsideOfStelAttributeDoesNotExist() {
-    RequestContext requestAttributes = assertRequestAttributesExist();
+    HttpContext requestAttributes = assertRequestAttributesExist();
     Object setUpOutsideOfStel = requestAttributes.getAttribute(SET_UP_OUTSIDE_OF_STEL);
     assertThat(setUpOutsideOfStel).as(SET_UP_OUTSIDE_OF_STEL + " should NOT exist as a request attribute").isNull();
   }

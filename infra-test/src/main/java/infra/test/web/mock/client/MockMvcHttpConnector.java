@@ -44,13 +44,9 @@ import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpRequest;
 import infra.http.reactive.client.ClientHttpResponse;
 import infra.lang.Assert;
-import infra.web.mock.api.Cookie;
 import infra.mock.http.client.reactive.MockClientHttpRequest;
 import infra.mock.http.client.reactive.MockClientHttpResponse;
 import infra.mock.http.server.reactive.MockServerHttpRequest;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
-import infra.web.mock.MockMemoryPart;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
@@ -63,8 +59,12 @@ import infra.test.web.reactive.server.MockServerClientHttpResponse;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
+import infra.web.mock.MockMemoryPart;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.Cookie;
 import infra.web.view.ModelAndView;
 import reactor.core.publisher.Mono;
 
@@ -259,8 +259,8 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public RequestContext getRequestContext() {
-      return mvcResult.getRequestContext();
+    public HttpContext getContext() {
+      return mvcResult.getContext();
     }
 
     @Nullable

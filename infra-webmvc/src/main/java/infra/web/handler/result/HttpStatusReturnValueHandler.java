@@ -19,7 +19,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.HandlerMethod;
 
 /**
@@ -39,7 +39,7 @@ public class HttpStatusReturnValueHandler implements HandlerMethodReturnValueHan
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) {
     if (returnValue instanceof HttpStatus status) {
       context.setStatus(status);
     }

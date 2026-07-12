@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import infra.util.ObjectUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 
 /**
@@ -109,7 +109,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
    */
   @Override
   @Nullable
-  public ParamsRequestCondition getMatchingCondition(RequestContext request) {
+  public ParamsRequestCondition getMatchingCondition(HttpContext request) {
     for (ParamExpression expression : this.expressions) {
       if (!expression.match(request)) {
         return null;
@@ -126,11 +126,11 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
    * <li>A greater number of non-negated expressions with a concrete value.
    * </ol>
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(RequestContext)} and each instance
+   * {@link #getMatchingCondition(HttpContext)} and each instance
    * contains the matching parameter expressions only or is otherwise empty.
    */
   @Override
-  public int compareTo(ParamsRequestCondition other, RequestContext request) {
+  public int compareTo(ParamsRequestCondition other, HttpContext request) {
     int result = other.expressions.size() - this.expressions.size();
     if (result != 0) {
       return result;
@@ -171,7 +171,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     }
 
     @Override
-    protected boolean matchName(RequestContext request) {
+    protected boolean matchName(HttpContext request) {
       var parameters = request.getParameters();
       for (String current : namesToMatch) {
         if (parameters.get(current) != null) {
@@ -182,7 +182,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     }
 
     @Override
-    protected boolean matchValue(RequestContext request) {
+    protected boolean matchValue(HttpContext request) {
       return ObjectUtils.nullSafeEquals(this.value, request.getParameter(this.name));
     }
   }

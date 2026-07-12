@@ -29,9 +29,9 @@ import java.util.Collections;
 import infra.http.CacheControl;
 import infra.http.MediaType;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +45,7 @@ class StreamingServerResponseTests {
 
   private MockResponse mockResponse;
 
-  MockRequestContext requestContext;
+  MockHttpContext httpContext;
 
   @BeforeEach
   void setUp() {
@@ -53,7 +53,7 @@ class StreamingServerResponseTests {
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
 
-    requestContext = new MockRequestContext(mockRequest, mockResponse);
+    httpContext = new MockHttpContext(mockRequest, mockResponse);
   }
 
   @Test
@@ -71,7 +71,7 @@ class StreamingServerResponseTests {
             });
 
     ServerResponse.Context context = Collections::emptyList;
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(body);
@@ -93,7 +93,7 @@ class StreamingServerResponseTests {
               }
             });
     ServerResponse.Context context = Collections::emptyList;
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(body);
@@ -120,7 +120,7 @@ class StreamingServerResponseTests {
             });
 
     ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.APPLICATION_NDJSON.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("""

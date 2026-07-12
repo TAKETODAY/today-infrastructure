@@ -18,7 +18,7 @@ package infra.session;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,7 +49,7 @@ class HeaderSessionIdResolverTests {
   @Test
   void getSessionId() {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.requestHeaders().setOrRemove(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
     assertThat(resolver.getSessionId(context))
             .isEqualTo("value");
@@ -58,7 +58,7 @@ class HeaderSessionIdResolverTests {
   @Test
   void setSessionId() {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     context.requestHeaders().setOrRemove(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
     assertThat(resolver.getSessionId(context)).isEqualTo("value");
@@ -70,7 +70,7 @@ class HeaderSessionIdResolverTests {
   @Test
   void expireSession() {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     context.requestHeaders().setOrRemove(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
     assertThat(resolver.getSessionId(context)).isEqualTo("value");

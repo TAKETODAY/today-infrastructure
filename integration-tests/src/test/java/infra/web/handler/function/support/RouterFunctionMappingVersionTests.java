@@ -25,6 +25,7 @@ import java.net.URI;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
@@ -37,7 +38,6 @@ import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerRequest;
 import infra.web.handler.function.ServerResponse;
-import infra.web.mock.MockRequestContext;
 
 import static infra.web.handler.function.RequestPredicates.version;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +76,7 @@ public class RouterFunctionMappingVersionTests {
 
     MockResponse response = new MockResponse();
 
-    MockRequestContext context = new MockRequestContext(request, response);
+    MockHttpContext context = new MockHttpContext(request, response);
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
     assertThat(chain).isNotNull();
 
@@ -90,7 +90,7 @@ public class RouterFunctionMappingVersionTests {
   private void testGetHandler(String version, String expectedBody) throws Exception {
     MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-Version", version);
-    HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(new MockRequestContext(request));
+    HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(new MockHttpContext(request));
     HandlerFunction<?> handler = (HandlerFunction<?>) chain.getRawHandler();
     assertThat(((TestHandler) handler).body()).isEqualTo(expectedBody);
   }

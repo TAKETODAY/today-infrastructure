@@ -21,7 +21,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpEntity;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
 
@@ -67,7 +67,7 @@ public class ResponseEntityReturnValueHandler implements ReturnValueHandler {
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof HttpEntity<?> httpEntity) {
       Object body = httpEntity.getBody();
       if (body != null) {

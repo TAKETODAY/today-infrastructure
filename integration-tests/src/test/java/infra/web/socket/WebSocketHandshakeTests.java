@@ -33,7 +33,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.util.concurrent.Future;
 import infra.web.HandlerExceptionHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.client.WebSocketClient;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
@@ -114,7 +114,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
       return new HandlerExceptionHandler() {
 
         @Override
-        public Object handleException(RequestContext context,
+        public Object handleException(HttpContext context,
                 Throwable exception, @Nullable Object handler) throws Exception {
           return NONE_RETURN_VALUE;
         }

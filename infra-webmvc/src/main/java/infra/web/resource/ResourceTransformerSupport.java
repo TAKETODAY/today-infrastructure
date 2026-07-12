@@ -25,7 +25,7 @@ import java.util.Collections;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A base class for a {@code ResourceTransformer} with an optional helper method
@@ -73,7 +73,7 @@ public abstract class ResourceTransformerSupport implements ResourceTransformer 
    * @return the resolved URL, or {@code} if not resolvable
    */
   @Nullable
-  protected String resolveUrlPath(String resourcePath, RequestContext request,
+  protected String resolveUrlPath(String resourcePath, HttpContext request,
           Resource resource, ResourceTransformerChain transformerChain) {
 
     if (resourcePath.startsWith("/")) {
@@ -97,7 +97,7 @@ public abstract class ResourceTransformerSupport implements ResourceTransformer 
    * @param request the referer request
    * @return the absolute request path for the given resource path
    */
-  protected String toAbsolutePath(String path, RequestContext request) {
+  protected String toAbsolutePath(String path, HttpContext request) {
     String absolutePath = path;
     if (!path.startsWith("/")) {
       ResourceUrlProvider urlProvider = getResourceUrlProvider();

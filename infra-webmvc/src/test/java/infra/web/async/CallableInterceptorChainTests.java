@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +53,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     chain.applyBeforeConcurrentHandling(request, task);
@@ -71,7 +71,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     chain.applyPreProcess(request, task);
@@ -90,7 +90,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
     chain.preProcessIndex = 1; // Simulate preProcess having been called
 
@@ -110,7 +110,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
     chain.preProcessIndex = 1; // Simulate preProcess having been called
 
@@ -131,7 +131,7 @@ class CallableInterceptorChainTests {
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
     FutureTask<String> future = new FutureTask<>(() -> "test");
     chain.setTaskFuture(future);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     Object result = chain.triggerAfterTimeout(request, task);
@@ -151,7 +151,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     Object result = chain.triggerAfterTimeout(request, task);
@@ -170,7 +170,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     Object result = chain.triggerAfterTimeout(request, task);
@@ -190,7 +190,7 @@ class CallableInterceptorChainTests {
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
     FutureTask<String> future = new FutureTask<>(() -> "test");
     chain.setTaskFuture(future);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
     RuntimeException error = new RuntimeException("test error");
 
@@ -211,7 +211,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     chain.triggerAfterCompletion(request, task);
@@ -229,7 +229,7 @@ class CallableInterceptorChainTests {
     interceptors.add(interceptor2);
 
     CallableInterceptorChain chain = new CallableInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     Callable<String> task = () -> "test";
 
     // Should not throw exception
@@ -247,66 +247,66 @@ class CallableInterceptorChainTests {
     boolean afterCompletionInvoked = false;
 
     @Override
-    public <T> void beforeConcurrentHandling(RequestContext request, Callable<T> task) throws Exception {
+    public <T> void beforeConcurrentHandling(HttpContext request, Callable<T> task) throws Exception {
       beforeConcurrentHandlingInvoked = true;
     }
 
     @Override
-    public <T> void preProcess(RequestContext request, Callable<T> task) throws Exception {
+    public <T> void preProcess(HttpContext request, Callable<T> task) throws Exception {
       preProcessInvoked = true;
     }
 
     @Override
-    public <T> void postProcess(RequestContext request, Callable<T> task, Object concurrentResult) throws Exception {
+    public <T> void postProcess(HttpContext request, Callable<T> task, Object concurrentResult) throws Exception {
       postProcessInvoked = true;
     }
 
     @Override
-    public <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
+    public <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
       handleTimeoutInvoked = true;
       return RESULT_NONE;
     }
 
     @Override
-    public <T> Object handleError(RequestContext request, Callable<T> task, Throwable t) throws Exception {
+    public <T> Object handleError(HttpContext request, Callable<T> task, Throwable t) throws Exception {
       handleErrorInvoked = true;
       return RESULT_NONE;
     }
 
     @Override
-    public <T> void afterCompletion(RequestContext request, Callable<T> task) throws Exception {
+    public <T> void afterCompletion(HttpContext request, Callable<T> task) throws Exception {
       afterCompletionInvoked = true;
     }
   }
 
   static class FailingCallableProcessingInterceptor implements CallableProcessingInterceptor {
     @Override
-    public <T> void beforeConcurrentHandling(RequestContext request, Callable<T> task) throws Exception {
+    public <T> void beforeConcurrentHandling(HttpContext request, Callable<T> task) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> void preProcess(RequestContext request, Callable<T> task) throws Exception {
+    public <T> void preProcess(HttpContext request, Callable<T> task) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> void postProcess(RequestContext request, Callable<T> task, Object concurrentResult) throws Exception {
+    public <T> void postProcess(HttpContext request, Callable<T> task, Object concurrentResult) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
+    public <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> Object handleError(RequestContext request, Callable<T> task, Throwable t) throws Exception {
+    public <T> Object handleError(HttpContext request, Callable<T> task, Throwable t) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> void afterCompletion(RequestContext request, Callable<T> task) throws Exception {
+    public <T> void afterCompletion(HttpContext request, Callable<T> task) throws Exception {
       throw new RuntimeException("Test exception");
     }
   }
@@ -315,7 +315,7 @@ class CallableInterceptorChainTests {
     boolean handleTimeoutInvoked = false;
 
     @Override
-    public <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
+    public <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
       handleTimeoutInvoked = true;
       return RESPONSE_HANDLED;
     }
@@ -325,7 +325,7 @@ class CallableInterceptorChainTests {
     boolean handleTimeoutInvoked = false;
 
     @Override
-    public <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
+    public <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
       handleTimeoutInvoked = true;
       return "custom result";
     }

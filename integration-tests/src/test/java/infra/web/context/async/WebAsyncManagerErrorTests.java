@@ -24,17 +24,17 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import infra.core.task.AsyncTaskExecutor;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.api.AsyncEvent;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.StandardMockAsyncWebRequest;
 
 import static infra.web.async.CallableProcessingInterceptor.RESULT_NONE;
@@ -60,7 +60,7 @@ public class WebAsyncManagerErrorTests {
 
   private MockResponse mockResponse;
 
-  private MockRequestContext request;
+  private MockHttpContext request;
 
   @BeforeEach
   public void setup() {
@@ -69,7 +69,7 @@ public class WebAsyncManagerErrorTests {
     this.mockResponse = new MockResponse();
 
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-    request = new MockRequestContext(null, mockRequest, mockResponse);
+    request = new MockHttpContext(null, mockRequest, mockResponse);
 
     this.asyncWebRequest = (StandardMockAsyncWebRequest) request.asyncWebRequest();
     this.asyncManager = request.asyncManager();
@@ -226,7 +226,7 @@ public class WebAsyncManagerErrorTests {
 
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
-      public <T> boolean handleError(RequestContext request, DeferredResult<T> result, Throwable t)
+      public <T> boolean handleError(HttpContext request, DeferredResult<T> result, Throwable t)
               throws Exception {
         result.setErrorResult(t);
         return true;
@@ -254,7 +254,7 @@ public class WebAsyncManagerErrorTests {
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
       public <T> boolean handleError(
-              RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+              HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
         throw exception;
       }
     };

@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -48,26 +48,26 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
+  public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
     if (logger.isDebugEnabled()) {
-      logger.debug("Before Handshake {}", request);
+      logger.debug("Before Handshake {}", context);
     }
     if (delegate instanceof HandshakeCapable hc) {
-      return hc.beforeHandshake(request, attributes);
+      return hc.beforeHandshake(context, attributes);
     }
     return true;
   }
 
   @Override
-  public void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
+  public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
     if (failure != null) {
-      logger.error("Handshake failed {}", request, failure);
+      logger.error("Handshake failed {}", context, failure);
     }
     else if (logger.isDebugEnabled()) {
-      logger.debug("After Handshake {}", request);
+      logger.debug("After Handshake {}", context);
     }
     if (delegate instanceof HandshakeCapable hc) {
-      hc.afterHandshake(request, session, failure);
+      hc.afterHandshake(context, session, failure);
     }
   }
 

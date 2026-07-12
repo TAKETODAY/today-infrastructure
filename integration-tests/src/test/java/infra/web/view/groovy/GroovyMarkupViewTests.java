@@ -40,7 +40,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContextHolder;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,7 +158,7 @@ public class GroovyMarkupViewTests {
     MockRequest request = new MockRequest();
     request.addPreferredLocale(locale);
     LocaleContextHolder.setLocale(locale);
-    view.renderMergedTemplateModel(model, new MockRequestContext(request, response));
+    view.renderMergedTemplateModel(model, new MockHttpContext(request, response));
     return response;
   }
 

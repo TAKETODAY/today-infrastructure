@@ -35,7 +35,7 @@ import infra.http.HttpMethod;
 import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestMapping;
@@ -653,7 +653,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
 
         @Override
         protected void renderMergedOutputModel(Map<String, Object> model,
-                RequestContext request) throws Exception {
+                HttpContext http) throws Exception {
           for (String key : attrsToValidate.keySet()) {
             assertThat(model.containsKey(key)).as("Model should contain attribute named " + key).isTrue();
             assertThat(model.get(key)).isEqualTo(attrsToValidate.get(key));

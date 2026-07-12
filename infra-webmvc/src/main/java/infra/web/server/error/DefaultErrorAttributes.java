@@ -31,11 +31,11 @@ import infra.http.HttpStatus;
 import infra.util.StringUtils;
 import infra.validation.BindingResult;
 import infra.validation.ObjectError;
+import infra.web.HttpContext;
 import infra.web.HttpStatusProvider;
-import infra.web.RequestContext;
 import infra.web.server.ResponseStatusException;
-import infra.web.util.WebUtils;
 import infra.web.server.error.ErrorAttributeOptions.Include;
+import infra.web.util.WebUtils;
 
 /**
  * Default implementation of {@link ErrorAttributes}. Provides the following attributes
@@ -70,7 +70,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   }
 
   @Override
-  public Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
+  public Map<String, Object> getErrorAttributes(HttpContext context, ErrorAttributeOptions options) {
     HashMap<String, Object> errorAttributes = new HashMap<>();
     errorAttributes.put("timestamp", Instant.now());
     addPath(context, errorAttributes);
@@ -84,11 +84,11 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     return errorAttributes;
   }
 
-  private void addPath(RequestContext request, HashMap<String, Object> attributes) {
+  private void addPath(HttpContext request, HashMap<String, Object> attributes) {
     attributes.put("path", request.getRequestURI());
   }
 
-  private void addStatus(Map<String, Object> attributes, RequestContext request) {
+  private void addStatus(Map<String, Object> attributes, HttpContext request) {
     int status = request.getStatus();
 
     Throwable error = getError(request);
@@ -113,7 +113,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   }
 
   @SuppressWarnings("NullAway")
-  private void addErrorDetails(Map<String, Object> attributes, RequestContext request, ErrorAttributeOptions options) {
+  private void addErrorDetails(Map<String, Object> attributes, HttpContext request, ErrorAttributeOptions options) {
     Throwable error = getError(request);
     if (error != null) {
       if (options.isIncluded(Include.EXCEPTION)) {
@@ -167,7 +167,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    * @param error current error, if any
    * @return message to include in the error attributes
    */
-  protected String getMessage(RequestContext request, @Nullable Throwable error) {
+  protected String getMessage(HttpContext request, @Nullable Throwable error) {
     Object attribute = request.getAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE);
     if (attribute instanceof String message && StringUtils.hasText(message)) {
       return message;
@@ -181,7 +181,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
 
   @Override
   @Nullable
-  public Throwable getError(RequestContext request) {
+  public Throwable getError(HttpContext request) {
     Object attribute = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
     if (attribute instanceof Throwable exception) {
       return exception;

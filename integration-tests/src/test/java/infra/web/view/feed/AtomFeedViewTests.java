@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.testfixture.xml.XmlContent;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +52,7 @@ public class AtomFeedViewTests {
     Map<String, String> model = new LinkedHashMap<>();
     model.put("2", "This is entry 2");
     model.put("1", "This is entry 1");
-    view.render(model, new MockRequestContext(null, request, response));
+    view.render(model, new MockHttpContext(null, request, response));
 
     assertThat(response.getContentType()).as("Invalid content-type").isEqualTo("application/atom+xml");
     String expected = "<feed xmlns=\"http://www.w3.org/2005/Atom\">" + "<title>Test Feed</title>" +
@@ -64,12 +64,12 @@ public class AtomFeedViewTests {
   private static class MyAtomFeedView extends AbstractAtomFeedView {
 
     @Override
-    protected void buildFeedMetadata(Map<String, Object> model, Feed feed, RequestContext request) {
+    protected void buildFeedMetadata(Map<String, Object> model, Feed feed, HttpContext request) {
       feed.setTitle("Test Feed");
     }
 
     @Override
-    protected List<Entry> buildFeedEntries(Map<String, Object> model, RequestContext requestContext) {
+    protected List<Entry> buildFeedEntries(Map<String, Object> model, HttpContext httpContext) {
       List<Entry> entries = new ArrayList<>();
       for (String name : model.keySet()) {
         Entry entry = new Entry();

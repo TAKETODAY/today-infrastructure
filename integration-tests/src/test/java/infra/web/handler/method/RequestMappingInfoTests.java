@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.PathPatternsParameterizedTest;
 
@@ -91,12 +91,12 @@ class RequestMappingInfoTests {
     RequestMappingInfo info = builder.paths("/foo*", "/bar").build();
     RequestMappingInfo expected = builder.paths("/foo*").build();
 
-    assertThat(info.getMatchingCondition(new MockRequestContext(null, request, null))).isEqualTo(expected);
+    assertThat(info.getMatchingCondition(new MockHttpContext(null, request, null))).isEqualTo(expected);
 
     info = builder.paths("/**", "/foo*", "/foo").build();
     expected = builder.paths("/foo", "/foo*", "/**").build();
 
-    assertThat(info.getMatchingCondition(new MockRequestContext(null, request, null))).isEqualTo(expected);
+    assertThat(info.getMatchingCondition(new MockHttpContext(null, request, null))).isEqualTo(expected);
   }
 
   @Test
@@ -105,12 +105,12 @@ class RequestMappingInfoTests {
     request.setParameter("foo", "bar");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").params("foo=bar").build();
-    RequestMappingInfo match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    RequestMappingInfo match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNotNull();
 
     info = RequestMappingInfo.paths("/foo").params("foo!=bar").build();
-    match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -121,12 +121,12 @@ class RequestMappingInfoTests {
     request.addHeader("foo", "bar");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").headers("foo=bar").build();
-    RequestMappingInfo match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    RequestMappingInfo match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNotNull();
 
     info = RequestMappingInfo.paths("/foo").headers("foo!=bar").build();
-    match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -137,12 +137,12 @@ class RequestMappingInfoTests {
     request.setContentType("text/plain");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").consumes("text/plain").build();
-    RequestMappingInfo match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    RequestMappingInfo match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNotNull();
 
     info = RequestMappingInfo.paths("/foo").consumes("application/xml").build();
-    match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -153,12 +153,12 @@ class RequestMappingInfoTests {
     request.addHeader("Accept", "text/plain");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").produces("text/plain").build();
-    RequestMappingInfo match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    RequestMappingInfo match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNotNull();
 
     info = RequestMappingInfo.paths("/foo").produces("application/xml").build();
-    match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -169,12 +169,12 @@ class RequestMappingInfoTests {
     request.setParameter("foo", "bar");
 
     RequestMappingInfo info = RequestMappingInfo.paths("/foo").params("foo=bar").build();
-    RequestMappingInfo match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    RequestMappingInfo match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNotNull();
 
     info = RequestMappingInfo.paths("/foo").params("foo!=bar").params("foo!=bar").build();
-    match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    match = info.getMatchingCondition(new MockHttpContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -187,7 +187,7 @@ class RequestMappingInfoTests {
 
     MockRequest request = initRequest("GET", "/", false);
     Comparator<RequestMappingInfo> comparator = (info, otherInfo) -> info.compareTo(
-            otherInfo, new MockRequestContext(null, request, null));
+            otherInfo, new MockHttpContext(null, request, null));
 
     List<RequestMappingInfo> list = asList(noMethods, oneMethod, oneMethodOneParam);
     Collections.shuffle(list);
@@ -210,7 +210,7 @@ class RequestMappingInfoTests {
     RequestMappingInfo headMethod = RequestMappingInfo.paths().methods(HEAD).build();
 
     Comparator<RequestMappingInfo> comparator = (info, otherInfo)
-            -> info.compareTo(otherInfo, new MockRequestContext(null, request, null));
+            -> info.compareTo(otherInfo, new MockHttpContext(null, request, null));
 
     List<RequestMappingInfo> list = asList(noMethods, getMethod, headMethod);
     Collections.shuffle(list);
@@ -302,11 +302,11 @@ class RequestMappingInfoTests {
     RequestMappingInfo info = RequestMappingInfo.paths("/foo")
             .methods(HttpMethod.POST)
             .build();
-    RequestMappingInfo match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    RequestMappingInfo match = info.getMatchingCondition(new MockHttpContext(null, request, null));
     assertThat(match).isNotNull();
 
     info = RequestMappingInfo.paths("/foo").methods(HttpMethod.OPTIONS).build();
-    match = info.getMatchingCondition(new MockRequestContext(null, request, null));
+    match = info.getMatchingCondition(new MockHttpContext(null, request, null));
     assertThat(match).as("Pre-flight should match the ACCESS_CONTROL_REQUEST_METHOD").isNull();
   }
 

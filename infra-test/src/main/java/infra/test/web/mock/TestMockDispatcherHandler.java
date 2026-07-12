@@ -26,20 +26,20 @@ import java.util.concurrent.CountDownLatch;
 
 import infra.context.ApplicationContext;
 import infra.lang.Assert;
-import infra.web.mock.api.MockException;
-import infra.web.mock.MockAsyncContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.ReturnValueHandler;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.handler.HandlerExecutionChain;
+import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
+import infra.web.mock.api.MockException;
 import infra.web.view.ModelAndView;
 import infra.web.view.ViewRef;
 import infra.web.view.ViewReturnValueHandler;
@@ -70,14 +70,14 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   @Override
   public void service(MockRequest request, MockResponse response) throws MockException {
-    RequestContext context = RequestContextHolder.required();
+    HttpContext context = HttpContextHolder.required();
     MockRequest mockRequest = MockUtils.getMockRequest(context);
     MockResponse mockResponse = MockUtils.getMockResponse(context);
 
     if (request != mockRequest && response != mockResponse) {
-      context = new MockRequestContext(
+      context = new MockHttpContext(
               getApplicationContext(), request, response, this);
-      RequestContextHolder.set(context);
+      HttpContextHolder.set(context);
     }
 
     registerAsyncResultInterceptors(context);
@@ -106,19 +106,19 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   }
 
-  private void registerAsyncResultInterceptors(RequestContext context) {
+  private void registerAsyncResultInterceptors(HttpContext context) {
     var interceptor = new MvcResultProcessingInterceptor();
     context.asyncManager().registerCallableInterceptor(KEY, interceptor);
     context.asyncManager().registerDeferredResultInterceptor(KEY, interceptor);
   }
 
-  private DefaultMvcResult getMvcResult(RequestContext request) {
+  private DefaultMvcResult getMvcResult(HttpContext request) {
     return DefaultMvcResult.forContext(request);
   }
 
   @Nullable
   @Override
-  public Object lookupHandler(RequestContext context) throws Exception {
+  public Object lookupHandler(HttpContext context) throws Exception {
     Object handler = super.lookupHandler(context);
     if (handler instanceof HandlerExecutionChain chain) {
       DefaultMvcResult mvcResult = getMvcResult(context);
@@ -130,7 +130,7 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   @Nullable
   @Override
-  protected Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+  protected Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Throwable {
     Object mav = super.processHandlerException(request, handler, ex);
 
     // We got this far, exception was processed..
@@ -144,13 +144,13 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
   }
 
   @Override
-  protected @Nullable Object handleUnresolvedException(RequestContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
+  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
     getMvcResult(request).setUnresolvedException(unresolved);
     return super.handleUnresolvedException(request, unresolved, handler);
   }
 
   @Override
-  protected void handleReturnValue(ReturnValueHandler selected, RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  protected void handleReturnValue(ReturnValueHandler selected, HttpContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (selected instanceof ViewReturnValueHandler) {
       if (returnValue instanceof ModelAndView mv) {
         request.setAttribute(MvcResult.MODEL_AND_VIEW_ATTRIBUTE, mv);
@@ -170,13 +170,13 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
           implements CallableProcessingInterceptor, DeferredResultProcessingInterceptor {
 
     @Override
-    public <T> void postProcess(RequestContext context, Callable<T> task, Object value) {
+    public <T> void postProcess(HttpContext context, Callable<T> task, Object value) {
       // We got the result, must also wait for the dispatch
       getMvcResult(context).setAsyncResult(value);
     }
 
     @Override
-    public <T> void postProcess(RequestContext context, DeferredResult<T> result, Object value) {
+    public <T> void postProcess(HttpContext context, DeferredResult<T> result, Object value) {
       getMvcResult(context).setAsyncResult(value);
     }
 

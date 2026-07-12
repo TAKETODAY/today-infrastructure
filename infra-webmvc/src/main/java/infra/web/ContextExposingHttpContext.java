@@ -27,30 +27,30 @@ import infra.context.ApplicationContext;
 import infra.lang.Assert;
 
 /**
- * RequestContext decorator that makes all beans in a
+ * HttpContext decorator that makes all beans in a
  * given ApplicationContext accessible as request attributes,
  * through lazy checking once an attribute gets accessed.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/5 14:27
  */
-public class ContextExposingRequestContext extends DecoratingRequestContext {
+public class ContextExposingHttpContext extends DecoratingHttpContext {
 
   private final @Nullable Set<String> exposedContextBeanNames;
 
   private @Nullable Set<String> explicitAttributes;
 
   /**
-   * Create a new ContextExposingRequestContext for the given request.
+   * Create a new ContextExposingHttpContext for the given request.
    *
-   * @param delegate the original RequestContext
+   * @param delegate the original HttpContext
    * @param context the ApplicationContext that this request runs in
    * @param exposedContextBeanNames the names of beans in the context which
    * are supposed to be exposed (if this is non-null, only the beans in this
    * Set are eligible for exposure as attributes)
-   * @throws NullPointerException if RequestContext is {@code null}
+   * @throws NullPointerException if HttpContext is {@code null}
    */
-  public ContextExposingRequestContext(RequestContext delegate, ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
+  public ContextExposingHttpContext(HttpContext delegate, ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
     super(delegate, context, delegate.dispatcherHandler);
     Assert.notNull(context, "ApplicationContext is required");
     this.exposedContextBeanNames = exposedContextBeanNames;

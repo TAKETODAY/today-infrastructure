@@ -41,7 +41,7 @@ import infra.web.HandlerExceptionHandler;
 import infra.web.server.MethodNotAllowedException;
 import infra.web.server.ResponseStatusException;
 import infra.web.annotation.ResponseStatus;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,7 +112,7 @@ class ResponseStatusExceptionHandlerTests {
 
   @Nullable
   private Object handleException(Exception ex) throws Exception {
-    MockRequestContext context = new MockRequestContext(null, request, response);
+    MockHttpContext context = new MockHttpContext(null, request, response);
     try {
       return exceptionHandler.handleException(context, ex, null);
     }

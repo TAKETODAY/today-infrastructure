@@ -74,7 +74,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public ResponseEntity<Book> handleRequest(RequestContext request) throws Throwable {
+  public ResponseEntity<Book> handleRequest(HttpContext request) throws Throwable {
     Book book = findBook(id);
     String version = book.getVersion();
 
@@ -96,7 +96,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @RequestMapping
-public String myHandleMethod(RequestContext request, Model model) {
+public String myHandleMethod(HttpContext request, Model model) {
 
   long eTag = ... // <1>
 

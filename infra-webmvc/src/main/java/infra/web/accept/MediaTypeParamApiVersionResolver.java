@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * {@link ApiVersionResolver} that extracts the version from a media type
@@ -51,7 +51,7 @@ public class MediaTypeParamApiVersionResolver implements ApiVersionResolver {
   }
 
   @Override
-  public @Nullable String resolveVersion(RequestContext request) {
+  public @Nullable String resolveVersion(HttpContext request) {
     for (String header : request.getHeaders(HttpHeaders.ACCEPT)) {
       for (MediaType mediaType : MediaType.parseMediaTypes(header)) {
         if (compatibleMediaType.isCompatibleWith(mediaType)) {

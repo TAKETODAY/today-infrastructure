@@ -32,12 +32,12 @@ import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.web.Filter;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockFilterChain;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.AsyncContext;
 import infra.web.mock.api.DispatcherType;
@@ -193,19 +193,19 @@ public final class MockMvc {
       request = smartRequestBuilder.postProcessRequest(request);
     }
 
-    RequestContext previous = RequestContextHolder.current();
+    HttpContext previous = HttpContextHolder.current();
 
-    var context = new MockRequestContext(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
+    var context = new MockHttpContext(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
 
-    RequestContextHolder.set(context);
+    HttpContextHolder.set(context);
 
     MockFilterChain filterChain = new MockFilterChain(this.dispatcherHandler, this.filters);
     filterChain.doFilter(context);
 
-    RequestContext maybeNew = RequestContextHolder.required();
+    HttpContext maybeNew = HttpContextHolder.required();
     if (maybeNew != context) {
-      mvcResult.setRequestContext(maybeNew);
+      mvcResult.setContext(maybeNew);
     }
 
     if (DispatcherType.ASYNC.equals(request.getDispatcherType()) &&
@@ -214,7 +214,7 @@ public final class MockMvc {
     }
 
     applyDefaultResultActions(mvcResult);
-    RequestContextHolder.set(previous);
+    HttpContextHolder.set(previous);
     return ResultActions.forMvcResult(mvcResult);
   }
 

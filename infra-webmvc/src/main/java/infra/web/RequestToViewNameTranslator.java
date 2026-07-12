@@ -21,7 +21,7 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Strategy interface for translating an incoming {@link RequestContext}
+ * Strategy interface for translating an incoming {@link HttpContext}
  * into a logical view name when no view name is explicitly supplied.
  *
  * @author Rob Harrop
@@ -32,15 +32,15 @@ import org.jspecify.annotations.Nullable;
 public interface RequestToViewNameTranslator {
 
   /**
-   * Translate the given {@link RequestContext} into a view name.
+   * Translate the given {@link HttpContext} into a view name.
    *
-   * @param request the incoming {@link RequestContext} providing
+   * @param http the incoming {@link HttpContext} providing
    * the context from which a view name is to be resolved
    * @return the view name, or {@code null} if no default found
    * @throws Exception if view name translation fails
    */
   @Nullable
-  String getViewName(RequestContext request) throws Exception;
+  String getViewName(HttpContext http) throws Exception;
 
 }
 

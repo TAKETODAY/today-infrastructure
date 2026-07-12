@@ -52,7 +52,7 @@ import infra.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 23:21
  */
-public final class RequestContextUtils {
+public final class HttpContextUtils {
 
   private static final IntParser INT_PARSER = new IntParser();
   private static final LongParser LONG_PARSER = new LongParser();
@@ -62,10 +62,10 @@ public final class RequestContextUtils {
 
   private static final StringParser STRING_PARSER = new StringParser();
 
-  private RequestContextUtils() {
+  private HttpContextUtils() {
   }
 
-  public static <T> @Nullable T getBean(RequestContext request, String beanName, Class<T> requiredType) {
+  public static <T> @Nullable T getBean(HttpContext request, String beanName, Class<T> requiredType) {
     ApplicationContext beanFactory = request.getApplicationContext();
     if (beanFactory != null) {
       return BeanFactoryUtils.find(beanFactory, beanName, requiredType);
@@ -75,12 +75,12 @@ public final class RequestContextUtils {
 
   /**
    * Return the LocaleResolver that has been bound to the request by the
-   * RequestContext.
+   * HttpContext.
    *
    * @param request current HTTP request
    * @return the current LocaleResolver, or {@code null} if not found
    */
-  public static @Nullable LocaleResolver getLocaleResolver(RequestContext request) {
+  public static @Nullable LocaleResolver getLocaleResolver(HttpContext request) {
     return getBean(request, LocaleResolver.BEAN_NAME, LocaleResolver.class);
   }
 
@@ -89,7 +89,7 @@ public final class RequestContextUtils {
    * LocaleResolver bound to the request by the DispatcherHandler
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * Web {@link RequestContext#getLocale()} method,
+   * Web {@link HttpContext#getLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
@@ -100,7 +100,7 @@ public final class RequestContextUtils {
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getLocale()
    */
-  public static Locale getLocale(RequestContext request) {
+  public static Locale getLocale(HttpContext request) {
     LocaleResolver localeResolver = getLocaleResolver(request);
     return localeResolver != null ? localeResolver.resolveLocale(request) : request.getLocale();
   }
@@ -124,7 +124,7 @@ public final class RequestContextUtils {
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getTimeZone()
    */
-  public static @Nullable TimeZone getTimeZone(RequestContext request) {
+  public static @Nullable TimeZone getTimeZone(HttpContext request) {
     LocaleResolver localeResolver = getLocaleResolver(request);
     if (localeResolver instanceof LocaleContextResolver lcr) {
       LocaleContext localeContext = lcr.resolveLocaleContext(request);
@@ -141,7 +141,7 @@ public final class RequestContextUtils {
    * @param request current request
    * @return a {@link RedirectModel} instance
    */
-  public static @Nullable RedirectModel getOutputRedirectModel(RequestContext request) {
+  public static @Nullable RedirectModel getOutputRedirectModel(HttpContext request) {
     return RedirectModel.findOutputModel(request);
   }
 
@@ -153,7 +153,7 @@ public final class RequestContextUtils {
    * @param request the current request
    * @return a {@link RedirectModelManager} instance
    */
-  public static @Nullable RedirectModelManager getRedirectModelManager(RequestContext request) {
+  public static @Nullable RedirectModelManager getRedirectModelManager(HttpContext request) {
     return getBean(request, RedirectModelManager.BEAN_NAME, RedirectModelManager.class);
   }
 
@@ -165,7 +165,7 @@ public final class RequestContextUtils {
    * @param location the target URL for the redirect
    * @param request the current request
    */
-  public static void saveRedirectModel(String location, RequestContext request) {
+  public static void saveRedirectModel(String location, HttpContext request) {
     saveRedirectModel(location, request, null);
   }
 
@@ -178,7 +178,7 @@ public final class RequestContextUtils {
    * @param request the current request
    * @param manager RedirectModelManager
    */
-  public static void saveRedirectModel(String location, RequestContext request, @Nullable RedirectModelManager manager) {
+  public static void saveRedirectModel(String location, HttpContext request, @Nullable RedirectModelManager manager) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
     if (CollectionUtils.isNotEmpty(redirectModel)) {
       if (manager == null) {
@@ -207,12 +207,12 @@ public final class RequestContextUtils {
     // @Autowired Session currentSession;
     beanFactory.registerResolvableDependency(Session.class, new WebSessionProvider());
 
-    beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
-    beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope());
+    beanFactory.registerScope(HttpContext.SCOPE_REQUEST, RequestScope.instance);
+    beanFactory.registerScope(HttpContext.SCOPE_SESSION, new SessionScope());
 
-    // register RequestContext
-    // @Autowired RequestContext currentRequest;
-    beanFactory.registerResolvableDependency(RequestContext.class, new InjectableRequestContext());
+    // register HttpContext
+    // @Autowired HttpContext currentRequest;
+    beanFactory.registerResolvableDependency(HttpContext.class, new InjectableHttpContext());
   }
 
   //---------------------------------------------------------------------
@@ -229,7 +229,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Integer getIntParameter(RequestContext request, String name)
+  public static @Nullable Integer getIntParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -246,7 +246,7 @@ public final class RequestContextUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static int getIntParameter(RequestContext request, String name, int defaultVal) {
+  public static int getIntParameter(HttpContext request, String name, int defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -264,7 +264,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static int[] getIntParameters(RequestContext request, String name) {
+  public static int[] getIntParameters(HttpContext request, String name) {
     try {
       return getRequiredIntParameters(request, name);
     }
@@ -281,7 +281,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static int getRequiredIntParameter(RequestContext request, String name)
+  public static int getRequiredIntParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     return INT_PARSER.parseInt(name, request.getParameter(name));
@@ -295,7 +295,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static int[] getRequiredIntParameters(RequestContext request, String name)
+  public static int[] getRequiredIntParameters(HttpContext request, String name)
           throws RequestBindingException {
 
     return INT_PARSER.parseInts(name, request.getParameters(name));
@@ -311,7 +311,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Long getLongParameter(RequestContext request, String name)
+  public static @Nullable Long getLongParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -328,7 +328,7 @@ public final class RequestContextUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static long getLongParameter(RequestContext request, String name, long defaultVal) {
+  public static long getLongParameter(HttpContext request, String name, long defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -346,7 +346,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static long[] getLongParameters(RequestContext request, String name) {
+  public static long[] getLongParameters(HttpContext request, String name) {
     try {
       return getRequiredLongParameters(request, name);
     }
@@ -363,7 +363,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static long getRequiredLongParameter(RequestContext request, String name)
+  public static long getRequiredLongParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     return LONG_PARSER.parseLong(name, request.getParameter(name));
@@ -377,7 +377,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static long[] getRequiredLongParameters(RequestContext request, String name)
+  public static long[] getRequiredLongParameters(HttpContext request, String name)
           throws RequestBindingException {
 
     return LONG_PARSER.parseLongs(name, request.getParameters(name));
@@ -393,7 +393,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Float getFloatParameter(RequestContext request, String name)
+  public static @Nullable Float getFloatParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -410,7 +410,7 @@ public final class RequestContextUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static float getFloatParameter(RequestContext request, String name, float defaultVal) {
+  public static float getFloatParameter(HttpContext request, String name, float defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -428,7 +428,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static float[] getFloatParameters(RequestContext request, String name) {
+  public static float[] getFloatParameters(HttpContext request, String name) {
     try {
       return getRequiredFloatParameters(request, name);
     }
@@ -445,7 +445,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static float getRequiredFloatParameter(RequestContext request, String name)
+  public static float getRequiredFloatParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     return FLOAT_PARSER.parseFloat(name, request.getParameter(name));
@@ -459,7 +459,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static float[] getRequiredFloatParameters(RequestContext request, String name)
+  public static float[] getRequiredFloatParameters(HttpContext request, String name)
           throws RequestBindingException {
 
     return FLOAT_PARSER.parseFloats(name, request.getParameters(name));
@@ -475,7 +475,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Double getDoubleParameter(RequestContext request, String name)
+  public static @Nullable Double getDoubleParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -492,7 +492,7 @@ public final class RequestContextUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static double getDoubleParameter(RequestContext request, String name, double defaultVal) {
+  public static double getDoubleParameter(HttpContext request, String name, double defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -510,7 +510,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static double[] getDoubleParameters(RequestContext request, String name) {
+  public static double[] getDoubleParameters(HttpContext request, String name) {
     try {
       return getRequiredDoubleParameters(request, name);
     }
@@ -527,7 +527,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static double getRequiredDoubleParameter(RequestContext request, String name)
+  public static double getRequiredDoubleParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     return DOUBLE_PARSER.parseDouble(name, request.getParameter(name));
@@ -541,7 +541,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static double[] getRequiredDoubleParameters(RequestContext request, String name)
+  public static double[] getRequiredDoubleParameters(HttpContext request, String name)
           throws RequestBindingException {
 
     return DOUBLE_PARSER.parseDoubles(name, request.getParameters(name));
@@ -559,7 +559,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Boolean getBooleanParameter(RequestContext request, String name)
+  public static @Nullable Boolean getBooleanParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -578,7 +578,7 @@ public final class RequestContextUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static boolean getBooleanParameter(RequestContext request, String name, boolean defaultVal) {
+  public static boolean getBooleanParameter(HttpContext request, String name, boolean defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -598,7 +598,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static boolean[] getBooleanParameters(RequestContext request, String name) {
+  public static boolean[] getBooleanParameters(HttpContext request, String name) {
     try {
       return getRequiredBooleanParameters(request, name);
     }
@@ -618,7 +618,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static boolean getRequiredBooleanParameter(RequestContext request, String name)
+  public static boolean getRequiredBooleanParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     return BOOLEAN_PARSER.parseBoolean(name, request.getParameter(name));
@@ -635,7 +635,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static boolean[] getRequiredBooleanParameters(RequestContext request, String name)
+  public static boolean[] getRequiredBooleanParameters(HttpContext request, String name)
           throws RequestBindingException {
     return BOOLEAN_PARSER.parseBooleans(name, request.getParameters(name));
   }
@@ -649,7 +649,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable String getStringParameter(RequestContext request, String name)
+  public static @Nullable String getStringParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -666,7 +666,7 @@ public final class RequestContextUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static String getStringParameter(RequestContext request, String name, String defaultVal) {
+  public static String getStringParameter(HttpContext request, String name, String defaultVal) {
     String val = request.getParameter(name);
     return (val != null ? val : defaultVal);
   }
@@ -677,7 +677,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static String[] getStringParameters(RequestContext request, String name) {
+  public static String[] getStringParameters(HttpContext request, String name) {
     try {
       return getRequiredStringParameters(request, name);
     }
@@ -694,7 +694,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static String getRequiredStringParameter(RequestContext request, String name)
+  public static String getRequiredStringParameter(HttpContext request, String name)
           throws RequestBindingException {
 
     return STRING_PARSER.validateRequiredString(name, request.getParameter(name));
@@ -708,7 +708,7 @@ public final class RequestContextUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static String[] getRequiredStringParameters(RequestContext request, String name)
+  public static String[] getRequiredStringParameters(HttpContext request, String name)
           throws RequestBindingException {
 
     return STRING_PARSER.validateRequiredStrings(name, request.getParameters(name));
@@ -911,7 +911,7 @@ public final class RequestContextUtils {
 
     @Override
     public Session get() {
-      return RequestContextHolder.required().getSession();
+      return HttpContextHolder.required().getSession();
     }
 
     @Override
@@ -924,16 +924,16 @@ public final class RequestContextUtils {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  private static final class InjectableRequestContext extends DecorableRequestContext {
+  private static final class InjectableHttpContext extends DecorableHttpContext {
 
     @Override
-    public RequestContext delegate() {
-      return RequestContextHolder.required();
+    public HttpContext delegate() {
+      return HttpContextHolder.required();
     }
 
     @Override
     public String toString() {
-      return "Current RequestContext";
+      return "Current HttpContext";
     }
 
   }

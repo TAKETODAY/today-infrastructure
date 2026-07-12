@@ -22,7 +22,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpCookie;
 import infra.session.Session;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.CookieValue;
 import infra.web.annotation.SessionAttribute;
 import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
@@ -65,7 +65,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return MockUtils.getMockRequest(context);
     }
   }
@@ -78,7 +78,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return MockUtils.getMockResponse(context);
     }
   }
@@ -91,7 +91,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
       Session session = context.getSession(false);
       if (session == null) {
         return null;
@@ -116,7 +116,7 @@ public class MockParameterResolvers {
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
       return MockUtils.getMockRequest(context).getCookies();
     }
 
@@ -131,7 +131,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return MockUtils.getMockRequest(context).getCookies();
     }
   }
@@ -155,13 +155,13 @@ public class MockParameterResolvers {
     }
 
     @Override
-    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
+    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) {
       throw new MissingRequestCookieException(name, parameter, true);
     }
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) {
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
       HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
         if (resolvable.is(Cookie.class)) {

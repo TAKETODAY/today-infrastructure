@@ -18,11 +18,11 @@ package infra.session;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Manages {@link Session} instances for HTTP requests, providing methods to create,
- * retrieve, and access sessions associated with a {@link RequestContext}.
+ * retrieve, and access sessions associated with a {@link HttpContext}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionIdResolver
@@ -44,12 +44,12 @@ public interface SessionManager {
   Session createSession();
 
   /**
-   * Creates a new session associated with the given {@link RequestContext}.
+   * Creates a new session associated with the given {@link HttpContext}.
    *
    * @param context the current request context
    * @return the newly created session
    */
-  Session createSession(RequestContext context);
+  Session createSession(HttpContext context);
 
   /**
    * Retrieves the session associated with the given session ID.
@@ -66,9 +66,9 @@ public interface SessionManager {
    *
    * @param context Current request
    * @return the <code>Session</code> associated with this request
-   * @see #getSession(RequestContext, boolean)
+   * @see #getSession(HttpContext, boolean)
    */
-  Session getSession(RequestContext context);
+  Session getSession(HttpContext context);
 
   /**
    * Returns the current <code>Session</code> associated with this request or,
@@ -92,9 +92,9 @@ public interface SessionManager {
    * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
-   * @see #getSession(RequestContext)
+   * @see #getSession(HttpContext)
    */
   @Nullable
-  Session getSession(RequestContext context, boolean create);
+  Session getSession(HttpContext context, boolean create);
 
 }

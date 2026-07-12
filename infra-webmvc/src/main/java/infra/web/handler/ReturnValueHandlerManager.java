@@ -41,8 +41,8 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.web.ErrorResponse;
+import infra.web.HttpContext;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncTask;
@@ -240,7 +240,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
    * @throws Exception throws when write data to response
    */
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     delegate.handleReturnValue(context, handler, returnValue);
   }
 

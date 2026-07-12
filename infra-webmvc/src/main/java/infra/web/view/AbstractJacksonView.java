@@ -34,7 +34,7 @@ import java.util.Objects;
 import infra.http.HttpHeaders;
 import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.JacksonModule;
@@ -131,7 +131,7 @@ public abstract class AbstractJacksonView extends AbstractView {
   }
 
   @Override
-  protected void prepareResponse(RequestContext context) {
+  protected void prepareResponse(HttpContext context) {
     setResponseContentType(context);
     if (disableCaching) {
       context.addHeader(HttpHeaders.CACHE_CONTROL, "no-store");
@@ -139,7 +139,7 @@ public abstract class AbstractJacksonView extends AbstractView {
   }
 
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     ByteArrayOutputStream temporaryStream = null;
     OutputStream stream;
 
@@ -148,10 +148,10 @@ public abstract class AbstractJacksonView extends AbstractView {
       stream = temporaryStream;
     }
     else {
-      stream = request.getOutputStream();
+      stream = http.getOutputStream();
     }
 
-    Object value = filterModel(model, request);
+    Object value = filterModel(model, http);
     Map<String, Object> hints = null;
     boolean containsFilterProviderHint = model.containsKey(FILTER_PROVIDER_HINT);
     if (model.containsKey(JSON_VIEW_HINT)) {
@@ -170,7 +170,7 @@ public abstract class AbstractJacksonView extends AbstractView {
     writeContent(stream, value, hints);
 
     if (temporaryStream != null) {
-      writeToResponse(request, temporaryStream);
+      writeToResponse(http, temporaryStream);
     }
   }
 
@@ -219,7 +219,7 @@ public abstract class AbstractJacksonView extends AbstractView {
    * @param request current HTTP request
    * @return the value to be rendered
    */
-  protected abstract Object filterModel(Map<String, Object> model, RequestContext request);
+  protected abstract Object filterModel(Map<String, Object> model, HttpContext request);
 
   /**
    * Write a prefix before the main content.

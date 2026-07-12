@@ -43,6 +43,8 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.session.config.EnableSession;
@@ -51,7 +53,6 @@ import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
@@ -66,7 +67,6 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.result.ResponseBodyEmitter;
 import infra.web.handler.result.SseEmitter;
-import infra.web.mock.MockRequestContext;
 import infra.web.testfixture.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,7 +88,7 @@ class RequestMappingHandlerAdapterTests {
 
   private AnnotationConfigApplicationContext webAppContext;
 
-  private MockRequestContext context;
+  private MockHttpContext context;
 
   private final AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(Config.class);
 
@@ -114,7 +114,7 @@ class RequestMappingHandlerAdapterTests {
     this.request = new MockRequest("GET", "/");
     this.response = new MockResponse();
 
-    context = new MockRequestContext(webAppContext, request, response);
+    context = new MockHttpContext(webAppContext, request, response);
   }
 
   @EnableWebMvc
@@ -177,7 +177,7 @@ class RequestMappingHandlerAdapterTests {
     ModelMap model = context.binding().getModel();
 
     Object instance = model.get("instance");
-    context = new MockRequestContext(null, request, response);
+    context = new MockHttpContext(null, request, response);
     context.setBinding(new BindingContext());
     model = context.binding().getModel();
     this.handlerAdapter.handle(context, handlerMethod);
@@ -258,7 +258,7 @@ class RequestMappingHandlerAdapterTests {
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
     handlerAdapter.afterPropertiesSet();
-    Object result = this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
+    Object result = this.handlerAdapter.handleInternal(new MockHttpContext(request), handlerMethod);
 
     assertThat(result).isNull();
   }
@@ -269,7 +269,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
     handlerAdapter.afterPropertiesSet();
-    Object result = this.handlerAdapter.handleInternal(new MockRequestContext(webAppContext, request), handlerMethod);
+    Object result = this.handlerAdapter.handleInternal(new MockHttpContext(webAppContext, request), handlerMethod);
     assertThat(result).isNull();
   }
 
@@ -285,7 +285,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
-    MockRequestContext request1 = new MockRequestContext(request);
+    MockHttpContext request1 = new MockHttpContext(request);
     Object result = this.handlerAdapter.handleInternal(request1, handlerMethod);
 
     assertThat(request1.getBinding().getModel()).containsEntry("attr", "value");
@@ -299,7 +299,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
-    this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
+    this.handlerAdapter.handleInternal(new MockHttpContext(request), handlerMethod);
 
 //    verify(initializer).initBinder(any());
   }
@@ -309,11 +309,11 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
-    MockRequestContext requestContext = new MockRequestContext(request);
+    MockHttpContext httpContext = new MockHttpContext(request);
     handlerAdapter.afterPropertiesSet();
-    this.handlerAdapter.handleInternal(requestContext, handlerMethod);
+    this.handlerAdapter.handleInternal(httpContext, handlerMethod);
 
-    assertThat(requestContext.responseHeaders().get(HttpHeaders.CACHE_CONTROL)).isNull();
+    assertThat(httpContext.responseHeaders().get(HttpHeaders.CACHE_CONTROL)).isNull();
   }
 
   private HandlerMethod handlerMethod(Object handler, String methodName, Class<?>... paramTypes) throws Exception {
@@ -412,7 +412,7 @@ class RequestMappingHandlerAdapterTests {
 
     @Override
     public @Nullable Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
-            MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
+            MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
 
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("status", context.getStatus());

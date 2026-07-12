@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Callable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.HandlerMethod;
 
 /**
@@ -44,7 +44,7 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Callable<?> callable) {
       context.asyncManager().startCallableProcessing(callable, handler);
     }
@@ -53,7 +53,7 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
     }
   }
 
-  static void startCallableProcessing(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  static void startCallableProcessing(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     context.asyncManager().startCallableProcessing(() -> returnValue, handler);
   }
 

@@ -27,13 +27,13 @@ import java.util.Map;
 
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.http.HttpHeaders;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.annotation.RequestHeader;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +78,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     MockRequest request = new MockRequest();
     request.addHeader(name, value);
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, paramMap);
 
@@ -101,7 +101,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     expected.add(name, value1);
     expected.add(name, value2);
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, paramMultiValueMap);
 
@@ -123,7 +123,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     expected.add(name, value1);
     expected.add(name, value2);
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
     Object result = resolver.resolveArgument(webRequest, paramHttpHeaders);
 
     boolean condition = result instanceof HttpHeaders;
@@ -134,7 +134,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
   @Test
   void resolveMapArgumentWithNoHeaders() throws Throwable {
     MockRequest request = new MockRequest();
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, paramMap);
 
@@ -145,7 +145,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
   @Test
   void resolveMultiValueMapArgumentWithNoHeaders() throws Throwable {
     MockRequest request = new MockRequest();
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, paramMultiValueMap);
 
@@ -156,7 +156,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
   @Test
   void resolveHttpHeadersArgumentWithNoHeaders() throws Throwable {
     MockRequest request = new MockRequest();
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, paramHttpHeaders);
 
@@ -169,7 +169,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     MockRequest request = new MockRequest();
     request.addHeader("header1", "value1");
     request.addHeader("header2", "value2");
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, paramMap);
 
@@ -186,7 +186,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
 
     MockRequest request = new MockRequest();
     request.addHeader("test", "value");
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, customMapParam);
 
@@ -203,7 +203,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     MockRequest request = new MockRequest();
     request.addHeader("test", "value1");
     request.addHeader("test", "value2");
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Object result = resolver.resolveArgument(webRequest, customMultiValueMapParam);
 

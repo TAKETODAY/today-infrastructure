@@ -31,7 +31,7 @@ import infra.lang.Assert;
 import infra.util.StringUtils;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.pattern.PathPattern;
 
 /**
@@ -103,7 +103,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @since 4.0
    */
   @Override
-  protected @Nullable Object getHandlerInternal(RequestContext request) {
+  protected @Nullable Object getHandlerInternal(HttpContext request) {
     Object handler = lookupHandler(request);
     if (handler == null) {
       // We need to care for the default handler directly
@@ -134,7 +134,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @return a matching handler, or {@code null} if not found
    * @since 4.0
    */
-  protected @Nullable Object lookupHandler(RequestContext request) {
+  protected @Nullable Object lookupHandler(HttpContext request) {
     PathContainer lookupPath = request.getRequestPath();
 
     String requestPath = lookupPath.value();
@@ -181,7 +181,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     return handler;
   }
 
-  private @Nullable Object getDirectMatch(String urlPath, RequestContext request) {
+  private @Nullable Object getDirectMatch(String urlPath, HttpContext request) {
     Object handler = handlerMap.get(urlPath);
     if (handler != null) {
       // Bean name or resolved handler?
@@ -202,7 +202,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @param handler the handler object to validate
    * @param request current HTTP request
    */
-  protected void validateHandler(@Nullable Object handler, RequestContext request) {
+  protected void validateHandler(@Nullable Object handler, HttpContext request) {
   }
 
   /**

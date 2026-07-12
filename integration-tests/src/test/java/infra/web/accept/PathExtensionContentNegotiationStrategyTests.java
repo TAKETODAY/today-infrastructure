@@ -24,10 +24,10 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.http.MediaType;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -41,7 +41,7 @@ class PathExtensionContentNegotiationStrategyTests {
 
   private final MockRequest mockRequest = new MockRequest();
 
-  private final RequestContext webRequest = new MockRequestContext(null, mockRequest, null);
+  private final HttpContext webRequest = new MockHttpContext(null, mockRequest, null);
 
   private PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy();
 

@@ -27,7 +27,7 @@ import infra.beans.factory.config.BeanExpressionResolver;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.web.BindingContext;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.bind.MissingRequestValueException;
 import infra.web.bind.WebDataBinder;
 import infra.web.context.support.RequestScope;
@@ -87,7 +87,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public final Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     MethodParameter methodParameter = resolvable.getParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
 
@@ -137,7 +137,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   }
 
   @Nullable
-  private static Object convertIfNecessary(RequestContext context, BindingContext bindingContext,
+  private static Object convertIfNecessary(HttpContext context, BindingContext bindingContext,
           NamedValueInfo namedValueInfo, MethodParameter methodParameter, @Nullable Object arg) throws Throwable {
 
     WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
@@ -187,12 +187,12 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @throws Exception in case of errors
    */
   @Nullable
-  protected abstract Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context)
+  protected abstract Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context)
           throws Exception;
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, ResolvableMethodParameter, RequestContext)}
+   * {@link #resolveName(String, ResolvableMethodParameter, HttpContext)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -200,7 +200,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    * @param request the current request
    */
-  protected void handleMissingValue(String name, MethodParameter parameter, RequestContext request)
+  protected void handleMissingValue(String name, MethodParameter parameter, HttpContext request)
           throws Exception {
 
     handleMissingValue(name, parameter);
@@ -208,7 +208,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, ResolvableMethodParameter, RequestContext)}
+   * {@link #resolveName(String, ResolvableMethodParameter, HttpContext)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -227,7 +227,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    * @param request the current request
    */
-  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) throws Exception {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) throws Exception {
     throw new MissingRequestValueException("Missing argument '%s' for method parameter of type %s"
             .formatted(name, parameter.getParameterType().getSimpleName()), true);
   }
@@ -261,7 +261,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param context the current request
    */
   protected void handleResolvedValue(@Nullable Object arg,
-          String name, ResolvableMethodParameter resolvable, RequestContext context) {
+          String name, ResolvableMethodParameter resolvable, HttpContext context) {
 
   }
 

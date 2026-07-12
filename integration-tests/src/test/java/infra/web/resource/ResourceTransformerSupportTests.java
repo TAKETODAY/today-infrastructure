@@ -29,8 +29,8 @@ import java.util.List;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.web.mock.MockRequest;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,7 +79,7 @@ public class ResourceTransformerSupportTests {
     String resourcePath = "/resources/bar.css";
     Resource resource = getResource("main.css");
     String actual = this.transformer.resolveUrlPath(
-            resourcePath, new MockRequestContext(null, request, null), resource, this.transformerChain);
+            resourcePath, new MockHttpContext(null, request, null), resource, this.transformerChain);
 
     assertThat(actual).isEqualTo("/resources/bar-11e16cf79faee7ac698c805cf28248d2.css");
   }
@@ -88,7 +88,7 @@ public class ResourceTransformerSupportTests {
   public void resolveUrlPathWithRelativePath() {
     Resource resource = getResource("main.css");
     String actual = this.transformer.resolveUrlPath(
-            "bar.css", new MockRequestContext(null, request, null), resource, this.transformerChain);
+            "bar.css", new MockHttpContext(null, request, null), resource, this.transformerChain);
 
     assertThat(actual).isEqualTo("bar-11e16cf79faee7ac698c805cf28248d2.css");
   }
@@ -98,7 +98,7 @@ public class ResourceTransformerSupportTests {
     Resource resource = getResource("images/image.png");
 
     String actual = this.transformer.resolveUrlPath("../bar.css",
-            new MockRequestContext(null, request, null)
+            new MockHttpContext(null, request, null)
             , resource, this.transformerChain);
 
     assertThat(actual).isEqualTo("../bar-11e16cf79faee7ac698c805cf28248d2.css");
@@ -107,11 +107,11 @@ public class ResourceTransformerSupportTests {
   @Test
   public void toAbsolutePath() {
     String absolute = this.transformer.toAbsolutePath("img/image.png",
-            new MockRequestContext(null, new MockRequest("GET", "/resources/style.css"), null));
+            new MockHttpContext(null, new MockRequest("GET", "/resources/style.css"), null));
     assertThat(absolute).isEqualTo("/resources/img/image.png");
 
     absolute = this.transformer.toAbsolutePath("/img/image.png",
-            new MockRequestContext(null, new MockRequest("GET", "/resources/style.css"), null));
+            new MockHttpContext(null, new MockRequest("GET", "/resources/style.css"), null));
     assertThat(absolute).isEqualTo("/img/image.png");
   }
 
@@ -122,7 +122,7 @@ public class ResourceTransformerSupportTests {
   private static class TestResourceTransformerSupport extends ResourceTransformerSupport {
 
     @Override
-    public Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain) throws IOException {
+    public Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain) throws IOException {
       throw new IllegalStateException("Should never be called");
     }
   }

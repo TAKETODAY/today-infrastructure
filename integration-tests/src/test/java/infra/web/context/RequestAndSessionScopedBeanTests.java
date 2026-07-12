@@ -24,15 +24,15 @@ import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
-import infra.web.RequestContextUtils;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContextHolder;
+import infra.web.HttpContextUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -50,14 +50,14 @@ public class RequestAndSessionScopedBeanTests {
 
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
-    bd.setScope(RequestContext.SCOPE_REQUEST);
+    bd.setScope(HttpContext.SCOPE_REQUEST);
     bd.getPropertyValues().add("name", "abc");
     wac.registerBeanDefinition(targetBeanName, bd);
-    RequestContextUtils.registerScopes(wac.getBeanFactory());
+    HttpContextUtils.registerScopes(wac.getBeanFactory());
     wac.refresh();
 
     MockRequest request = new MockRequest();
-    RequestContextHolder.set(new MockRequestContext(null, request, null));
+    HttpContextHolder.set(new MockHttpContext(null, request, null));
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target);
@@ -68,13 +68,13 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target2);
 
     request = new MockRequest();
-    RequestContextHolder.set(new MockRequestContext(null, request, null));
+    HttpContextHolder.set(new MockHttpContext(null, request, null));
     TestBean target3 = (TestBean) wac.getBean(targetBeanName);
     assertThat(target3.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target3);
     assertThat(target).isNotSameAs(target3);
 
-    RequestContextHolder.set(null);
+    HttpContextHolder.set(null);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
             wac.getBean(targetBeanName));
   }
@@ -86,18 +86,18 @@ public class RequestAndSessionScopedBeanTests {
 
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
-    MockRequestContext context = new MockRequestContext(wac, request, new MockResponse(), new DispatcherHandler(wac));
-    RequestContextHolder.set(context);
+    MockHttpContext context = new MockHttpContext(wac, request, new MockResponse(), new DispatcherHandler(wac));
+    HttpContextHolder.set(context);
 
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
-    bd.setScope(RequestContext.SCOPE_SESSION);
+    bd.setScope(HttpContext.SCOPE_SESSION);
     bd.getPropertyValues().add("name", "abc");
 
     wac.register(Config.class);
     wac.refresh();
     wac.registerBeanDefinition(targetBeanName, bd);
 
-    RequestContextUtils.registerScopes(wac.getBeanFactory());
+    HttpContextUtils.registerScopes(wac.getBeanFactory());
 
     Session session = context.getSession();
 
@@ -105,7 +105,7 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(target.getName()).isEqualTo("abc");
     assertThat(session.getAttribute(targetBeanName)).isSameAs(target);
 
-    RequestContextHolder.set(null);
+    HttpContextHolder.set(null);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
             wac.getBean(targetBeanName));
   }

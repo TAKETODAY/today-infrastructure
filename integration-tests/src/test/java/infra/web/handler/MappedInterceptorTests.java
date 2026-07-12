@@ -34,9 +34,9 @@ import infra.http.server.RequestPath;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
 import infra.web.InterceptorChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.i18n.LocaleChangeInterceptor;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.PathPatternsParameterizedTest;
 import infra.web.view.PathPatternsTestUtils;
@@ -58,7 +58,7 @@ class MappedInterceptorTests {
 
   private static final LocaleChangeInterceptor delegate = new LocaleChangeInterceptor();
 
-  public static Stream<Named<Function<String, MockRequestContext>>> requestArguments(@Nullable String contextPath) {
+  public static Stream<Named<Function<String, MockHttpContext>>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
             Named.named("MockRequestPathUtils",
                     path -> PathPatternsTestUtils.createRequest("GET", contextPath, path)
@@ -67,18 +67,18 @@ class MappedInterceptorTests {
   }
 
   @SuppressWarnings("unused")
-  private static Stream<Named<Function<String, MockRequestContext>>> pathPatternsArguments() {
+  private static Stream<Named<Function<String, MockHttpContext>>> pathPatternsArguments() {
     return requestArguments(null);
   }
 
   @PathPatternsParameterizedTest
-  void noPatterns(Function<String, MockRequestContext> requestFactory) {
+  void noPatterns(Function<String, MockHttpContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(null, null, delegate);
     Assertions.assertThat(interceptor.matches(requestFactory.apply("/foo"))).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void includePattern(Function<String, RequestContext> requestFactory) {
+  void includePattern(Function<String, HttpContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/*" }, null, delegate);
 
     assertThat(interceptor.matches(requestFactory.apply("/foo/bar"))).isTrue();
@@ -86,13 +86,13 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-  void includePatternWithMatrixVariables(Function<String, RequestContext> requestFactory) {
+  void includePatternWithMatrixVariables(Function<String, HttpContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo*/*" }, null, delegate);
     assertThat(interceptor.matches(requestFactory.apply("/foo;q=1/bar;s=2"))).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void excludePattern(Function<String, MockRequestContext> requestFactory) {
+  void excludePattern(Function<String, MockHttpContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(null, new String[] { "/admin/**" }, delegate);
 
     Assertions.assertThat(interceptor.matches(requestFactory.apply("/foo"))).isTrue();
@@ -100,7 +100,7 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-  void includeAndExcludePatterns(Function<String, RequestContext> requestFactory) {
+  void includeAndExcludePatterns(Function<String, HttpContext> requestFactory) {
     MappedInterceptor interceptor =
             new MappedInterceptor(new String[] { "/**" }, new String[] { "/admin/**" }, delegate);
 
@@ -109,7 +109,7 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-  void includePatternWithFallbackOnPathMatcher(Function<String, RequestContext> requestFactory) {
+  void includePatternWithFallbackOnPathMatcher(Function<String, HttpContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/path1/**/path2" }, null, delegate);
 
     assertThat(interceptor.matches(requestFactory.apply("/path1/foo/bar/path2"))).isTrue();
@@ -119,7 +119,7 @@ class MappedInterceptorTests {
 
   @Disabled
   @PathPatternsParameterizedTest
-  void customPathMatcher(Function<String, MockRequestContext> requestFactory) {
+  void customPathMatcher(Function<String, MockHttpContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/[0-9]*" }, null, delegate);
     interceptor.setPathMatcher(new TestPathMatcher());
 
@@ -132,9 +132,9 @@ class MappedInterceptorTests {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
 
     new MappedInterceptor(null, delegate).preProcessing(
-            mock(RequestContext.class), null);
+            mock(HttpContext.class), null);
 
-    then(delegate).should().preProcessing(any(RequestContext.class), any());
+    then(delegate).should().preProcessing(any(HttpContext.class), any());
   }
 
   @Test
@@ -142,7 +142,7 @@ class MappedInterceptorTests {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
 
     new MappedInterceptor(null, delegate).postProcessing(
-            mock(RequestContext.class), null, mock(ModelAndView.class));
+            mock(HttpContext.class), null, mock(ModelAndView.class));
 
     then(delegate).should().postProcessing(any(), any(), any());
   }
@@ -200,8 +200,8 @@ class MappedInterceptorTests {
   }
 
   @Test
-  void matchesWithRequestContext() {
-    RequestContext request = mock(RequestContext.class);
+  void matchesWithHttpContext() {
+    HttpContext request = mock(HttpContext.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/test", null));
 
     MappedInterceptor mappedInterceptor = new MappedInterceptor(new String[] { "/test" }, mock(HandlerInterceptor.class));
@@ -280,7 +280,7 @@ class MappedInterceptorTests {
   @Test
   void preProcessingDelegatesToInterceptor() throws Throwable {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     Object handler = new Object();
     given(delegate.preProcessing(request, handler)).willReturn(true);
 
@@ -295,7 +295,7 @@ class MappedInterceptorTests {
   @Test
   void postProcessingDelegatesToInterceptor() throws Throwable {
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     Object handler = new Object();
     Object result = new Object();
 
@@ -308,7 +308,7 @@ class MappedInterceptorTests {
 
   @Test
   void interceptWhenNotMatchingProceedsWithChain() throws Throwable {
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/other", null));
 
     HandlerInterceptor delegate = mock(HandlerInterceptor.class);

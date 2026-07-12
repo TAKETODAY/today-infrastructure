@@ -18,7 +18,7 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.view.ModelAndView;
 
@@ -45,7 +45,7 @@ public class ModelAndViewMethodArgumentResolver implements ParameterResolvingStr
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     return context.binding().getModelAndView();
   }
 

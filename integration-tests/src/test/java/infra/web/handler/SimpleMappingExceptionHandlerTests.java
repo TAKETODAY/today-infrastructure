@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Properties;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.util.ExceptionUtils;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
 
@@ -95,7 +95,7 @@ class SimpleMappingExceptionHandlerTests {
 
   private ModelAndView handleException(Object handler, Exception ex) {
     try {
-      Object ret = this.exceptionHandler.handleException(new MockRequestContext(null, request, response), ex, handler);
+      Object ret = this.exceptionHandler.handleException(new MockHttpContext(null, request, response), ex, handler);
       if (ret instanceof ModelAndView mav) {
         return mav;
       }

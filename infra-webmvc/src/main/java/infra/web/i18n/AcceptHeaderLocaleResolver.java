@@ -26,8 +26,8 @@ import java.util.Locale;
 
 import infra.http.HttpHeaders;
 import infra.util.StringUtils;
+import infra.web.HttpContext;
 import infra.web.LocaleResolver;
-import infra.web.RequestContext;
 
 /**
  * {@link LocaleResolver} implementation that looks for a match between locales
@@ -44,7 +44,7 @@ import infra.web.RequestContext;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see RequestContext#getLocale()
+ * @see HttpContext#getLocale()
  * @since 4.0
  */
 public class AcceptHeaderLocaleResolver implements LocaleResolver {
@@ -55,7 +55,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
   /**
    * Configure the list of supported locales to compare and match against
-   * {@link RequestContext#getLocale() requested locales}.
+   * {@link HttpContext#getLocale() requested locales}.
    * <p>In order for a supported locale to be considered a match, it must match
    * on both country and language. If you want to support a language-only match
    * as a fallback, you must configure the language explicitly as a supported
@@ -67,7 +67,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
    * supported locales.
    * <p>If there is no match, then the {@link #setDefaultLocale(Locale)
    * defaultLocale} is used, if configured, or otherwise falling back on
-   * {@link RequestContext#getLocale()}.
+   * {@link HttpContext#getLocale()}.
    *
    * @param locales the supported locales
    */
@@ -88,7 +88,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
    * have an "Accept-Language" header.
    * <p>By default this is not set in which case when there is no "Accept-Language"
    * header, the default locale for the server is used as defined in
-   * {@link RequestContext#getLocale()}.
+   * {@link HttpContext#getLocale()}.
    *
    * @param defaultLocale the default locale to use
    */
@@ -105,24 +105,24 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   @Override
-  public Locale resolveLocale(RequestContext request) {
+  public Locale resolveLocale(HttpContext context) {
     Locale defaultLocale = getDefaultLocale();
-    if (defaultLocale != null && StringUtils.isBlank(request.getHeader(HttpHeaders.ACCEPT_LANGUAGE))) {
+    if (defaultLocale != null && StringUtils.isBlank(context.getHeader(HttpHeaders.ACCEPT_LANGUAGE))) {
       return defaultLocale;
     }
-    Locale requestLocale = request.getLocale();
+    Locale requestLocale = context.getLocale();
     List<Locale> supportedLocales = getSupportedLocales();
     if (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) {
       return requestLocale;
     }
-    Locale supportedLocale = findSupportedLocale(request, supportedLocales);
+    Locale supportedLocale = findSupportedLocale(context, supportedLocales);
     if (supportedLocale != null) {
       return supportedLocale;
     }
     return defaultLocale != null ? defaultLocale : requestLocale;
   }
 
-  private @Nullable Locale findSupportedLocale(RequestContext request, List<Locale> supportedLocales) {
+  private @Nullable Locale findSupportedLocale(HttpContext request, List<Locale> supportedLocales) {
     Locale languageMatch = null;
     List<Locale> requestLocales = request.requestHeaders().getAcceptLanguageAsLocales();
     for (Locale locale : requestLocales) {
@@ -147,7 +147,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   @Override
-  public void setLocale(RequestContext request, @Nullable Locale locale) {
+  public void setLocale(HttpContext context, @Nullable Locale locale) {
     throw new UnsupportedOperationException(
             "Cannot change HTTP accept header - use a different locale resolution strategy");
   }

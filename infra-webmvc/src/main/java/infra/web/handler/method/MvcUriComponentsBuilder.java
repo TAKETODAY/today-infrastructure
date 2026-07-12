@@ -53,8 +53,8 @@ import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.resolver.PathVariableMethodArgumentResolver;
 import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
@@ -540,7 +540,7 @@ public class MvcUriComponentsBuilder {
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
     return baseUrl == null ?
-            UriComponentsBuilder.forHttpRequest(RequestContextHolder.required()) :
+            UriComponentsBuilder.forHttpRequest(HttpContextHolder.required()) :
             baseUrl.cloneBuilder();
   }
 
@@ -648,7 +648,7 @@ public class MvcUriComponentsBuilder {
 
   @Nullable
   private static ApplicationContext getApplicationContext() {
-    RequestContext context = RequestContextHolder.current();
+    HttpContext context = HttpContextHolder.current();
     if (context == null) {
       return null;
     }
@@ -838,7 +838,7 @@ public class MvcUriComponentsBuilder {
 
     @Deprecated
     private static String getPath() {
-      UriComponentsBuilder builder = UriComponentsBuilder.forHttpRequest(RequestContextHolder.current());
+      UriComponentsBuilder builder = UriComponentsBuilder.forHttpRequest(HttpContextHolder.current());
       String path = builder.build().getPath();
       return path != null ? path : "";
     }

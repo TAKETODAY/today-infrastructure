@@ -28,7 +28,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
@@ -70,14 +70,14 @@ class WsClientTests {
   static class ServerWebSocketHandler extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    public boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
-      log.info("server beforeHandshake,{} {}", request, attributes);
-      return HandshakeCapable.super.beforeHandshake(request, attributes);
+    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
+      log.info("server beforeHandshake,{} {}", context, attributes);
+      return HandshakeCapable.super.beforeHandshake(context, attributes);
     }
 
     @Override
-    public void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) {
-      log.info("server afterHandshake,{} {}", request, session);
+    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) {
+      log.info("server afterHandshake,{} {}", context, session);
     }
 
     @Override

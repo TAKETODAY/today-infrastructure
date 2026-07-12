@@ -16,11 +16,12 @@
 
 package infra.samples;
 
-import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
+
+import infra.http.HttpStatus;
 import infra.stereotype.Component;
+import infra.web.HttpContext;
 import infra.web.NotFoundHandler;
-import infra.web.RequestContext;
 import infra.web.handler.SimpleNotFoundHandler;
 
 /**
@@ -33,7 +34,7 @@ class ResourceNotFoundHandler implements NotFoundHandler {
 
   @Nullable
   @Override
-  public Object handleNotFound(RequestContext request) throws Throwable {
+  public Object handleNotFound(HttpContext request) throws Throwable {
     request.setStatus(HttpStatus.NOT_FOUND);
 
     SimpleNotFoundHandler.logNotFound(request);

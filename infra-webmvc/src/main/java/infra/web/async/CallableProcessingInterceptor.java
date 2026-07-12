@@ -21,7 +21,7 @@ package infra.web.async;
 import java.util.concurrent.Callable;
 
 import infra.core.task.AsyncTaskExecutor;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Intercepts concurrent request handling, where the concurrent result is
@@ -38,7 +38,7 @@ import infra.web.RequestContext;
  * the Exception instance as the concurrent result. Such exceptions will then
  * be processed through the {@code HandlerExceptionHandler} mechanism.
  *
- * <p>The {@link #handleTimeout(RequestContext, Callable) handleTimeout} method
+ * <p>The {@link #handleTimeout(HttpContext, Callable) handleTimeout} method
  * can select a value to be used to resume processing.
  *
  * @author Rossen Stoyanchev
@@ -72,7 +72,7 @@ public interface CallableProcessingInterceptor {
    * <p>This is useful for capturing the state of the current thread just prior to
    * invoking the {@link Callable}. Once the state is captured, it can then be
    * transferred to the new {@link Thread} in
-   * {@link #preProcess(RequestContext, Callable)}. Capturing the state of
+   * {@link #preProcess(HttpContext, Callable)}. Capturing the state of
    * Infra Security's SecurityContextHolder and migrating it to the new Thread
    * is a concrete example of where this is useful.
    * <p>The default implementation is empty.
@@ -81,7 +81,7 @@ public interface CallableProcessingInterceptor {
    * @param task the task for the current async request
    * @throws Exception in case of errors
    */
-  default <T> void beforeConcurrentHandling(RequestContext request, Callable<T> task) throws Exception {
+  default <T> void beforeConcurrentHandling(HttpContext request, Callable<T> task) throws Exception {
   }
 
   /**
@@ -94,7 +94,7 @@ public interface CallableProcessingInterceptor {
    * @param task the task for the current async request
    * @throws Exception in case of errors
    */
-  default <T> void preProcess(RequestContext request, Callable<T> task) throws Exception {
+  default <T> void preProcess(HttpContext request, Callable<T> task) throws Exception {
   }
 
   /**
@@ -110,7 +110,7 @@ public interface CallableProcessingInterceptor {
    * be a {@link Throwable} if the {@code Callable} raised an exception
    * @throws Exception in case of errors
    */
-  default <T> void postProcess(RequestContext request, Callable<T> task, Object concurrentResult) throws Exception {
+  default <T> void postProcess(HttpContext request, Callable<T> task, Object concurrentResult) throws Exception {
   }
 
   /**
@@ -127,7 +127,7 @@ public interface CallableProcessingInterceptor {
    * is resumed and subsequent interceptors are not invoked
    * @throws Exception in case of errors
    */
-  default <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
+  default <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
     return RESULT_NONE;
   }
 
@@ -146,7 +146,7 @@ public interface CallableProcessingInterceptor {
    * is resumed and subsequent interceptors are not invoked
    * @throws Exception in case of errors
    */
-  default <T> Object handleError(RequestContext request, Callable<T> task, Throwable t) throws Exception {
+  default <T> Object handleError(HttpContext request, Callable<T> task, Throwable t) throws Exception {
     return RESULT_NONE;
   }
 
@@ -159,7 +159,7 @@ public interface CallableProcessingInterceptor {
    * @param task the task for the current async request
    * @throws Exception in case of errors
    */
-  default <T> void afterCompletion(RequestContext request, Callable<T> task) throws Exception {
+  default <T> void afterCompletion(HttpContext request, Callable<T> task) throws Exception {
   }
 
 }

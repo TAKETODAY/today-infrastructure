@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 import infra.app.test.context.assertj.AssertableWebApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContextUtils;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Mock
@@ -46,7 +46,7 @@ public final class WebApplicationContextRunner
   public WebApplicationContextRunner() {
     this(() -> {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-      RequestContextUtils.registerScopes(context.getBeanFactory());
+      HttpContextUtils.registerScopes(context.getBeanFactory());
       return context;
     });
   }

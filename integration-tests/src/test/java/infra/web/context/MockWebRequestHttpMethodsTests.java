@@ -31,10 +31,11 @@ import java.time.temporal.ChronoUnit;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
+
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.ExceptionUtils;
-import infra.web.mock.MockRequestContext;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +58,7 @@ class MockWebRequestHttpMethodsTests {
 
   private final MockResponse mockResponse = new MockResponse();
 
-  private final MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
+  private final MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
 
   @Test
   void ifMatchWildcardShouldMatchWhenETagPresent() {

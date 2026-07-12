@@ -32,8 +32,8 @@ import infra.session.Session;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.DecorableRequestContext;
-import infra.web.RequestContext;
+import infra.web.DecorableHttpContext;
+import infra.web.HttpContext;
 import infra.web.multipart.Part;
 
 /**
@@ -130,19 +130,19 @@ public abstract class WebUtils {
    * Return an appropriate request object of the specified type, if available,
    * unwrapping the given request as far as necessary.
    *
-   * @param request the RequestContext to introspect
+   * @param request the HttpContext to introspect
    * @param requiredType the desired type of request object
    * @return the matching request object, or {@code null} if none
    * of that type is available
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  public static <T> T getNativeContext(RequestContext request, @Nullable Class<T> requiredType) {
+  public static <T> T getNativeContext(HttpContext request, @Nullable Class<T> requiredType) {
     if (requiredType != null) {
       if (requiredType.isInstance(request)) {
         return (T) request;
       }
-      else if (request instanceof DecorableRequestContext wrapper) {
+      else if (request instanceof DecorableHttpContext wrapper) {
         return getNativeContext(wrapper.delegate(), requiredType);
       }
     }
@@ -207,7 +207,7 @@ public abstract class WebUtils {
    * @return {@code true} if the request origin is valid, {@code false} otherwise
    * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454: The Web Origin Concept</a>
    */
-  public static boolean isValidOrigin(RequestContext request, Collection<String> allowedOrigins) {
+  public static boolean isValidOrigin(HttpContext request, Collection<String> allowedOrigins) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(allowedOrigins, "Allowed origins is required");
 
@@ -236,7 +236,7 @@ public abstract class WebUtils {
    * @return {@code true} if the request is a same-origin one, {@code false} in case
    * of cross-origin request
    */
-  public static boolean isSameOrigin(RequestContext request) {
+  public static boolean isSameOrigin(HttpContext request) {
     HttpHeaders headers = request.getHeaders();
     String origin = headers.getOrigin();
     if (origin == null) {

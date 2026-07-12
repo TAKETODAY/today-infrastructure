@@ -34,14 +34,14 @@ import freemarker.template.TemplateException;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
 import infra.web.BindStatus;
-import infra.web.RequestContext;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
-import infra.web.mock.MockRequestContext;
 
 import static infra.web.view.config.AbstractTemplateViewResolverProperties.DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ class FreeMarkerMacroTests {
 
   private final MockResponse response = new MockResponse();
 
-  private final MockRequestContext context = new MockRequestContext(wac, request, response);
+  private final MockHttpContext context = new MockHttpContext(wac, request, response);
 
   private final FreeMarkerConfigurer fc = new FreeMarkerConfigurer();
 
@@ -85,10 +85,10 @@ class FreeMarkerMacroTests {
     FreeMarkerView fv = new FreeMarkerView() {
 
       @Override
-      protected void processTemplate(Template template, SimpleHash fmModel, RequestContext response) throws IOException, TemplateException {
+      protected void processTemplate(Template template, SimpleHash fmModel, HttpContext response) throws IOException, TemplateException {
         Map model = fmModel.toMap();
-        assertThat(model.get(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE)).isInstanceOf(RequestContext.class);
-        RequestContext rc = (RequestContext) model.get(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE);
+        assertThat(model.get(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE)).isInstanceOf(HttpContext.class);
+        HttpContext rc = (HttpContext) model.get(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE);
         BindStatus status = rc.getBindStatus("tb.name");
         assertThat(status.getExpression()).isEqualTo("name");
         assertThat(status.getValue()).isEqualTo("juergen");
@@ -96,7 +96,7 @@ class FreeMarkerMacroTests {
     };
     fv.setUrl(TEMPLATE_FILE);
     fv.setApplicationContext(wac);
-    fv.setRequestContextAttribute(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE);
+    fv.setHttpContextAttribute(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE);
 
     Map<String, Object> model = new HashMap<>();
     model.put("tb", new TestBean("juergen", 99));
@@ -212,7 +212,7 @@ class FreeMarkerMacroTests {
     assertThat(macro).isNotNull();
     storeTemplateInTempDir(macro);
 
-    DummyMacroRequestContext rc = new DummyMacroRequestContext(context);
+    DummyMacroHttpContext rc = new DummyMacroHttpContext(context);
     Map<String, String> msgMap = new HashMap<>();
     msgMap.put("hello", "Howdy");
     msgMap.put("world", "Mundo");

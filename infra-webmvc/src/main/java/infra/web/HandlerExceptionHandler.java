@@ -60,7 +60,7 @@ public interface HandlerExceptionHandler {
    * @throws Exception error handle failed
    */
   @Nullable
-  Object handleException(RequestContext context, Throwable exception, @Nullable Object handler)
+  Object handleException(HttpContext context, Throwable exception, @Nullable Object handler)
           throws Exception;
 
   // static factory method

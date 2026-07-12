@@ -34,7 +34,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   private static final Logger log = LoggerFactory.getLogger(NettyAsyncWebRequest.class);
 
-  private final NettyRequestContext request;
+  private final NettyHttpContext request;
 
   private final Channel channel;
 
@@ -42,7 +42,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   private @Nullable ScheduledFuture<?> timeoutFuture;
 
-  NettyAsyncWebRequest(NettyRequestContext request) {
+  NettyAsyncWebRequest(NettyHttpContext request) {
     this.request = request;
     this.channel = request.channel;
   }

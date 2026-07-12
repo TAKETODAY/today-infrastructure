@@ -27,8 +27,8 @@ import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,9 +96,9 @@ class CompletedAsyncServerResponseTests {
   void writeToDelegatesToWrappedResponse() throws Throwable {
     ServerResponse wrappedResponse = ServerResponse.ok().body("test content");
     CompletedAsyncServerResponse asyncResponse = new CompletedAsyncServerResponse(wrappedResponse);
-    RequestContext requestContext = new MockRequestContext();
+    HttpContext http = new MockHttpContext();
 
-    Object result = asyncResponse.writeTo(requestContext, new ServerResponse.Context() {
+    Object result = asyncResponse.writeTo(http, new ServerResponse.Context() {
       @Override
       public java.util.List<HttpMessageConverter<?>> messageConverters() {
         return List.of(new StringHttpMessageConverter());

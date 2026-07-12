@@ -52,7 +52,7 @@ import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.xml.TransformerUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.WebUtils;
 import infra.web.view.AbstractUrlBasedView;
 
@@ -234,7 +234,7 @@ public class XsltView extends AbstractUrlBasedView {
 
   @Override
   protected void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws Exception {
+          Map<String, Object> model, HttpContext http) throws Exception {
 
     Templates templates = this.cachedTemplates;
     if (templates == null) {
@@ -242,15 +242,15 @@ public class XsltView extends AbstractUrlBasedView {
     }
 
     Transformer transformer = createTransformer(templates);
-    configureTransformer(model, request, transformer);
-    configureResponse(model, request, transformer);
+    configureTransformer(model, http, transformer);
+    configureResponse(model, http, transformer);
     Source source = null;
     try {
       source = locateSource(model);
       if (source == null) {
         throw new IllegalArgumentException("Unable to locate Source object in model: " + model);
       }
-      transformer.transform(source, createResult(request));
+      transformer.transform(source, createResult(http));
     }
     finally {
       closeSourceIfNecessary(source);
@@ -260,13 +260,13 @@ public class XsltView extends AbstractUrlBasedView {
   /**
    * Create the XSLT {@link Result} used to render the result of the transformation.
    * <p>The default implementation creates a {@link StreamResult} wrapping the supplied
-   * RequestContext's {@link RequestContext#getOutputStream() OutputStream}.
+   * HttpContext's {@link HttpContext#getOutputStream() OutputStream}.
    *
    * @param response current HTTP response
    * @return the XSLT Result to use
    * @throws Exception if the Result cannot be built
    */
-  protected Result createResult(RequestContext response) throws Exception {
+  protected Result createResult(HttpContext response) throws Exception {
     return new StreamResult(response.getOutputStream());
   }
 
@@ -354,7 +354,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @see #configureIndentation(Transformer)
    */
   protected void configureTransformer(
-          Map<String, Object> model, RequestContext response, Transformer transformer) {
+          Map<String, Object> model, HttpContext response, Transformer transformer) {
 
     copyModelParameters(model, transformer);
     copyOutputProperties(transformer);
@@ -407,9 +407,9 @@ public class XsltView extends AbstractUrlBasedView {
   }
 
   /**
-   * Configure the supplied {@link RequestContext}.
+   * Configure the supplied {@link HttpContext}.
    * <p>The default implementation of this method sets the
-   * {@link RequestContext#setContentType content type}
+   * {@link HttpContext#setContentType content type}
    * from the "media-type" and "encoding" output properties
    * specified in the {@link Transformer}.
    *
@@ -417,7 +417,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @param response current HTTP response
    * @param transformer the target transformer
    */
-  protected void configureResponse(Map<String, Object> model, RequestContext response, Transformer transformer) {
+  protected void configureResponse(Map<String, Object> model, HttpContext response, Transformer transformer) {
     String contentType = getContentType();
     String mediaType = transformer.getOutputProperty(OutputKeys.MEDIA_TYPE);
     String encoding = transformer.getOutputProperty(OutputKeys.ENCODING);

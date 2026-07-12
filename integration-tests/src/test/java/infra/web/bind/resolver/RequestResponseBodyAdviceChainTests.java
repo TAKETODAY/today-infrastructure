@@ -37,17 +37,18 @@ import infra.http.server.MockServerHttpResponse;
 import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
 import org.jspecify.annotations.Nullable;
+
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.ReflectionUtils;
-import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResponseBodyAdvice;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -70,7 +71,7 @@ class RequestResponseBodyAdviceChainTests {
 
   private ServerHttpRequest request;
   private ServerHttpResponse response;
-  private MockRequestContext requestContext;
+  private MockHttpContext httpContext;
 
   @BeforeEach
   public void setup() {
@@ -85,7 +86,7 @@ class RequestResponseBodyAdviceChainTests {
     MockResponse mockResponse = new MockResponse();
 
     this.response = new MockServerHttpResponse(mockResponse);
-    this.requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    this.httpContext = new MockHttpContext(null, mockRequest, mockResponse);
   }
 
   @SuppressWarnings("unchecked")
@@ -122,10 +123,10 @@ class RequestResponseBodyAdviceChainTests {
     String expected = "body++";
     given(responseAdvice.supports(body, this.returnType, this.converterType)).willReturn(true);
     given(responseAdvice.beforeBodyWrite(ArgumentMatchers.eq(this.body), ArgumentMatchers.eq(this.returnType), ArgumentMatchers.eq(this.contentType),
-            ArgumentMatchers.eq(this.converterType), ArgumentMatchers.same(requestContext))).willReturn(expected);
+            ArgumentMatchers.eq(this.converterType), ArgumentMatchers.same(httpContext))).willReturn(expected);
 
     String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-            this.converterType, requestContext);
+            this.converterType, httpContext);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -136,7 +137,7 @@ class RequestResponseBodyAdviceChainTests {
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
 
     String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-            this.converterType, requestContext);
+            this.converterType, httpContext);
 
     assertThat(actual).isEqualTo("body-MyControllerAdvice");
   }
@@ -147,7 +148,7 @@ class RequestResponseBodyAdviceChainTests {
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
 
     String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-            this.converterType, requestContext);
+            this.converterType, httpContext);
 
     assertThat(actual).isEqualTo(this.body);
   }
@@ -163,7 +164,7 @@ class RequestResponseBodyAdviceChainTests {
     @Nullable
     @Override
     public String beforeBodyWrite(@Nullable Object body, MethodParameter returnType,
-            MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
+            MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
       return body + "-MyControllerAdvice";
     }
   }
@@ -181,7 +182,7 @@ class RequestResponseBodyAdviceChainTests {
     @Override
     public String beforeBodyWrite(
             @Nullable Object body, MethodParameter returnType,
-            MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
+            MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
       return body + "-TargetedControllerAdvice";
     }
   }

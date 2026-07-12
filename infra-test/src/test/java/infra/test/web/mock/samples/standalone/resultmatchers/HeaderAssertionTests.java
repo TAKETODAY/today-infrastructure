@@ -32,7 +32,7 @@ import infra.stereotype.Controller;
 import infra.test.web.Person;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.ResultMatcher;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestMapping;
 
@@ -225,7 +225,7 @@ public class HeaderAssertionTests {
     }
 
     @RequestMapping("/persons/{id}")
-    public ResponseEntity<Person> showEntity(@PathVariable long id, RequestContext request) {
+    public ResponseEntity<Person> showEntity(@PathVariable long id, HttpContext request) {
       return ResponseEntity
               .ok()
               .lastModified(this.timestamp)

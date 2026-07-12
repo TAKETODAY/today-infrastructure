@@ -62,7 +62,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
 
   public static final String DEFAULT_SUFFIX = ".tpl";
 
-  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "request";
+  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "http";
 
   private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("text/html");
 
@@ -104,9 +104,9 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   private String suffix = DEFAULT_SUFFIX;
 
   /**
-   * Name of the RequestContext attribute for all views.
+   * Name of the HttpContext attribute for all views.
    */
-  private String requestContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
+  private String httpContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with
@@ -344,12 +344,12 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     this.suffix = suffix;
   }
 
-  public String getRequestContextAttribute() {
-    return this.requestContextAttribute;
+  public String getHttpContextAttribute() {
+    return this.httpContextAttribute;
   }
 
-  public void setRequestContextAttribute(String requestContextAttribute) {
-    this.requestContextAttribute = requestContextAttribute;
+  public void setHttpContextAttribute(String httpContextAttribute) {
+    this.httpContextAttribute = httpContextAttribute;
   }
 
   public boolean isExposeRequestAttributes() {
@@ -446,7 +446,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     resolver.setAllowRequestOverride(isAllowRequestOverride());
     resolver.setAllowSessionOverride(isAllowSessionOverride());
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
-    resolver.setRequestContextAttribute(getRequestContextAttribute());
+    resolver.setHttpContextAttribute(getHttpContextAttribute());
     // The resolver usually acts as a fallback resolver (e.g. like a
     // InternalResourceViewResolver) so it needs to have low precedence
     resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 5);

@@ -22,7 +22,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import infra.http.HttpStatus;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Simple {@link ServiceExecutor} implementation that delegates to an {@link Executor}.
@@ -53,7 +53,7 @@ public class SimpleServiceExecutor implements ServiceExecutor {
    * @throws IOException if an I/O error occurs
    */
   @Override
-  public void execute(RequestContext ctx, Runnable command) throws IOException {
+  public void execute(HttpContext ctx, Runnable command) throws IOException {
     try {
       executor.execute(command);
     }

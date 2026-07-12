@@ -30,11 +30,11 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.context.support.GenericApplicationContext;
 import infra.core.io.Resource;
 import infra.http.CacheControl;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.SimpleUrlHandlerMapping;
-import infra.web.mock.MockRequestContext;
 import infra.web.resource.CachingResourceResolver;
 import infra.web.resource.CachingResourceTransformer;
 import infra.web.resource.CssLinkResourceTransformer;
@@ -90,7 +90,7 @@ class ResourceHandlerRegistryTests {
     request.setRequestURI("/testStylesheet.css");
 
     ResourceHttpRequestHandler handler = getHandler("/resources/**");
-    handler.handleRequest(new MockRequestContext(null, request, this.response));
+    handler.handleRequest(new MockHttpContext(null, request, this.response));
 
     assertThat(this.response.getContentAsString()).isEqualTo("test stylesheet content");
   }

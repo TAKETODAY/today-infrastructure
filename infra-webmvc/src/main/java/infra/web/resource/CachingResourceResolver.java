@@ -30,7 +30,7 @@ import infra.cache.CacheManager;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A {@link infra.web.resource.ResourceResolver} that
@@ -102,7 +102,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected @Nullable Resource resolveResourceInternal(@Nullable RequestContext request,
+  protected @Nullable Resource resolveResourceInternal(@Nullable HttpContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String key = computeKey(request, requestPath, locations);
@@ -126,7 +126,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
   /**
    * Compute the caching key for the given request and resource request path in the configured locations.
    */
-  protected String computeKey(@Nullable RequestContext request, String requestPath, List<? extends Resource> locations) {
+  protected String computeKey(@Nullable HttpContext request, String requestPath, List<? extends Resource> locations) {
     StringBuilder builder = new StringBuilder(RESOLVED_RESOURCE_CACHE_KEY_PREFIX);
     if (!locations.isEmpty()) {
       builder.append(Integer.toHexString(locations.hashCode())).append(":");
@@ -141,7 +141,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return builder.toString();
   }
 
-  @Nullable String getContentCodingKey(RequestContext request) {
+  @Nullable String getContentCodingKey(HttpContext request) {
     List<String> acceptedCodings = EncodedResourceResolver.parseAcceptEncoding(request);
     if (acceptedCodings.isEmpty()) {
       return null;

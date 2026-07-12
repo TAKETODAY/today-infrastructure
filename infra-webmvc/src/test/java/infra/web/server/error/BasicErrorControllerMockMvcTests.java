@@ -45,7 +45,7 @@ import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.validation.BindException;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
@@ -150,8 +150,8 @@ class BasicErrorControllerMockMvcTests {
     View error() {
       return new AbstractView() {
         @Override
-        protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
-          request.getWriter().write("ERROR_BEAN");
+        protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+          http.getWriter().write("ERROR_BEAN");
         }
       };
     }

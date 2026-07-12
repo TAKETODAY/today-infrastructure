@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   private UriComponentsBuilderParameterStrategy resolver;
 
-  private RequestContext webRequest;
+  private HttpContext webRequest;
 
   private MockRequest mockRequest;
 
@@ -52,7 +52,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   public void setup() throws Exception {
     this.resolver = new UriComponentsBuilderParameterStrategy();
     this.mockRequest = new MockRequest();
-    this.webRequest = new MockRequestContext(
+    this.webRequest = new MockHttpContext(
             null, this.mockRequest, new MockResponse());
 
     Method method = this.getClass().getDeclaredMethod(

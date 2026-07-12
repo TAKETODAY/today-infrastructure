@@ -18,7 +18,7 @@ package infra.web.cors;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -75,7 +75,7 @@ class CorsInterceptorTests {
   void preProcessingReturnsTrueWhenNotPreFlightRequest() throws Throwable {
     CorsConfigurationSource configSource = mock(CorsConfigurationSource.class);
     CorsProcessor processor = mock(CorsProcessor.class);
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     Object handler = new Object();
     CorsConfiguration corsConfig = mock(CorsConfiguration.class);
 
@@ -98,7 +98,7 @@ class CorsInterceptorTests {
   void preProcessingReturnsFalseWhenPreFlightRequest() throws Throwable {
     CorsConfigurationSource configSource = mock(CorsConfigurationSource.class);
     CorsProcessor processor = mock(CorsProcessor.class);
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     Object handler = new Object();
     CorsConfiguration corsConfig = mock(CorsConfiguration.class);
 
@@ -121,7 +121,7 @@ class CorsInterceptorTests {
   void preProcessingReturnsFalseWhenProcessorReturnsFalse() throws Throwable {
     CorsConfigurationSource configSource = mock(CorsConfigurationSource.class);
     CorsProcessor processor = mock(CorsProcessor.class);
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     Object handler = new Object();
     CorsConfiguration corsConfig = mock(CorsConfiguration.class);
 

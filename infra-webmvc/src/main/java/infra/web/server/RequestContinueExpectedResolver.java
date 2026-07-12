@@ -19,7 +19,7 @@ package infra.web.server;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.DispatcherHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Strategy interface for determining whether a request is expected to continue.
@@ -44,7 +44,7 @@ public interface RequestContinueExpectedResolver {
    * with sending its request body.
    *
    * <p>This method is invoked when a request contains the {@code Expect: 100-continue} header.
-   * It evaluates the provided {@link RequestContext} and returns a Boolean indicating the
+   * It evaluates the provided {@link HttpContext} and returns a Boolean indicating the
    * server's decision:
    * <ul>
    *   <li>{@code true} - The server accepts the request; client should proceed with the request body</li>
@@ -67,12 +67,12 @@ public interface RequestContinueExpectedResolver {
    * <p>Implementations typically examine request properties such as content type, content length,
    * authentication credentials, or other application-specific criteria to make the decision.
    *
-   * @param request the {@link RequestContext} containing the request with {@code Expect: 100-continue} header
+   * @param context the {@link HttpContext} containing the request with {@code Expect: 100-continue} header
    * @return Boolean result indicating if request should continue, or null if undetermined
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.2.3">HTTP/1.1 100 Continue</a>
-   * @see DispatcherHandler#requestContinueExpected(RequestContext)
+   * @see DispatcherHandler#requestContinueExpected(HttpContext)
    */
   @Nullable
-  Boolean shouldContinue(RequestContext request);
+  Boolean shouldContinue(HttpContext context);
 
 }

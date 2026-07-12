@@ -55,9 +55,9 @@ import infra.validation.Validator;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
@@ -608,25 +608,25 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     @Override
-    public void renderView(RequestContext context, View view, @Nullable Map<String, @Nullable Object> model) {
+    public void renderView(HttpContext context, View view, @Nullable Map<String, @Nullable Object> model) {
       super.renderView(context, view, model);
       context.setAttribute(MvcResult.VIEW_ATTRIBUTE, view);
     }
 
     @Override
-    public void renderView(RequestContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
+    public void renderView(HttpContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
       super.renderView(request, mv);
       request.setAttribute(MvcResult.MODEL_AND_VIEW_ATTRIBUTE, mv);
     }
 
     @Override
-    public void renderView(RequestContext context, String viewName) {
+    public void renderView(HttpContext context, String viewName) {
       super.renderView(context, viewName);
       context.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, viewName);
     }
 
     @Override
-    public void renderView(RequestContext context, ViewRef viewRef) {
+    public void renderView(HttpContext context, ViewRef viewRef) {
       super.renderView(context, viewRef);
       String viewName = viewRef.getViewName();
       context.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, viewName);

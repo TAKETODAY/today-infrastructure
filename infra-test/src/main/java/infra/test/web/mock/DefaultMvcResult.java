@@ -26,14 +26,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.Conventions;
 import infra.lang.Assert;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
 
@@ -57,7 +57,7 @@ class DefaultMvcResult implements MvcResult {
 
   private final AtomicReference<Object> asyncResult = new AtomicReference<>(RESULT_NONE);
 
-  private RequestContext requestContext;
+  private HttpContext httpContext;
 
   private @Nullable Object handler;
 
@@ -75,10 +75,10 @@ class DefaultMvcResult implements MvcResult {
    * Create a new instance with the given request and response.
    */
   public DefaultMvcResult(MockRequest request,
-          MockResponse response, RequestContext requestContext) {
+          MockResponse response, HttpContext httpContext) {
     this.mockRequest = request;
     this.mockResponse = response;
-    this.requestContext = requestContext;
+    this.httpContext = httpContext;
     request.setAttribute(MVC_RESULT_ATTRIBUTE, this);
   }
 
@@ -93,8 +93,8 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public RequestContext getRequestContext() {
-    return requestContext;
+  public HttpContext getContext() {
+    return httpContext;
   }
 
   public void setHandler(@Nullable Object handler) {
@@ -143,23 +143,23 @@ class DefaultMvcResult implements MvcResult {
   @Nullable
   public ModelAndView getModelAndView() {
     if (modelAndView == null) {
-      Object attribute = requestContext.getAttribute(MODEL_AND_VIEW_ATTRIBUTE);
+      Object attribute = httpContext.getAttribute(MODEL_AND_VIEW_ATTRIBUTE);
       if (attribute instanceof ModelAndView view) {
         this.modelAndView = view;
       }
-      else if (requestContext.hasBinding()) {
-        BindingContext bindingContext = requestContext.binding();
+      else if (httpContext.hasBinding()) {
+        BindingContext bindingContext = httpContext.binding();
         if (bindingContext.hasModelAndView()) {
           ModelAndView modelAndView = bindingContext.getModelAndView();
           setModelAndView(modelAndView);
         }
         else {
           ModelMap model = bindingContext.getModel();
-          Object viewNameAttribute = requestContext.getAttribute(VIEW_NAME_ATTRIBUTE);
+          Object viewNameAttribute = httpContext.getAttribute(VIEW_NAME_ATTRIBUTE);
           if (viewNameAttribute instanceof String viewName) {
             modelAndView = new ModelAndView(viewName, model);
           }
-          else if (requestContext.getAttribute(VIEW_ATTRIBUTE) instanceof View view) {
+          else if (httpContext.getAttribute(VIEW_ATTRIBUTE) instanceof View view) {
             modelAndView = new ModelAndView(view, model);
           }
           else {
@@ -174,10 +174,10 @@ class DefaultMvcResult implements MvcResult {
 
   @Override
   public RedirectModel getFlashMap() {
-    RedirectModel model = RequestContextUtils.getOutputRedirectModel(this.requestContext);
+    RedirectModel model = HttpContextUtils.getOutputRedirectModel(this.httpContext);
     if (model == null) {
       model = new RedirectModel();
-      requestContext.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
+      httpContext.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
     }
     return model;
   }
@@ -224,11 +224,11 @@ class DefaultMvcResult implements MvcResult {
     this.asyncDispatchLatch = asyncDispatchLatch;
   }
 
-  void setRequestContext(RequestContext maybeNew) {
-    this.requestContext = maybeNew;
+  void setContext(HttpContext maybeNew) {
+    this.httpContext = maybeNew;
   }
 
-  static DefaultMvcResult forContext(RequestContext request) {
+  static DefaultMvcResult forContext(HttpContext request) {
     Object attribute = request.getAttribute(MVC_RESULT_ATTRIBUTE);
     if (attribute instanceof DefaultMvcResult mvcResult) {
       return mvcResult;

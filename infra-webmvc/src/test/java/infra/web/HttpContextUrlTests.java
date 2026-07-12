@@ -18,12 +18,10 @@ package infra.web;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
 
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
@@ -34,15 +32,15 @@ import infra.web.multipart.MultipartRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link RequestContext#getRequestURL()}.
+ * Tests for {@link HttpContext#getRequestURL()}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-class RequestContextRequestUrlTests {
+class HttpContextUrlTests {
 
-  private static StubRequestContext create(String scheme, String serverName, int port, String requestURI) {
-    return new StubRequestContext(scheme, serverName, port, requestURI);
+  private static StubHttpContext create(String scheme, String serverName, int port, String requestURI) {
+    return new StubHttpContext(scheme, serverName, port, requestURI);
   }
 
   @Test
@@ -83,7 +81,7 @@ class RequestContextRequestUrlTests {
 
   // -- stub --
 
-  private static class StubRequestContext extends RequestContext {
+  private static class StubHttpContext extends HttpContext {
 
     private final String scheme;
 
@@ -93,7 +91,7 @@ class RequestContextRequestUrlTests {
 
     private final String requestURI;
 
-    StubRequestContext(String scheme, String serverName, int serverPort, String requestURI) {
+    StubHttpContext(String scheme, String serverName, int serverPort, String requestURI) {
       super(null, null);
       this.scheme = scheme;
       this.serverName = serverName;

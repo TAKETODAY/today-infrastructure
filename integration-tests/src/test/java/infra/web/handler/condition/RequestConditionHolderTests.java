@@ -21,8 +21,8 @@ package infra.web.handler.condition;
 import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -113,8 +113,8 @@ public class RequestConditionHolderTests {
     assertThat(empty.compareTo(notEmpty, createContext(request))).isEqualTo(1);
   }
 
-  private MockRequestContext createContext(MockRequest request) {
-    return new MockRequestContext(null, request, null);
+  private MockHttpContext createContext(MockRequest request) {
+    return new MockHttpContext(null, request, null);
   }
 
   @Test

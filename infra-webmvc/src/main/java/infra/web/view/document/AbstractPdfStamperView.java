@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.AbstractUrlBasedView;
 
 /**
@@ -60,18 +60,18 @@ public abstract class AbstractPdfStamperView extends AbstractUrlBasedView {
 
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws Exception {
+          Map<String, Object> model, HttpContext http) throws Exception {
 
     // IE workaround: write into byte array first.
     ByteArrayOutputStream baos = createTemporaryOutputStream();
 
     PdfReader reader = readPdfResource();
     PdfStamper stamper = new PdfStamper(reader, baos);
-    mergePdfDocument(model, stamper, request);
+    mergePdfDocument(model, stamper, http);
     stamper.close();
 
     // Flush to HTTP response.
-    writeToResponse(request, baos);
+    writeToResponse(http, baos);
   }
 
   /**
@@ -116,6 +116,6 @@ public abstract class AbstractPdfStamperView extends AbstractUrlBasedView {
    * @throws Exception any exception that occurred during document building
    */
   protected abstract void mergePdfDocument(
-          Map<String, Object> model, PdfStamper stamper, RequestContext context) throws Exception;
+          Map<String, Object> model, PdfStamper stamper, HttpContext context) throws Exception;
 
 }

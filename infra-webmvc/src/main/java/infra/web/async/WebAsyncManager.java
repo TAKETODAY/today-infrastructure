@@ -32,8 +32,8 @@ import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.util.DisconnectedClientHelper;
 
 /**
@@ -58,7 +58,7 @@ import infra.web.util.DisconnectedClientHelper;
 public final class WebAsyncManager {
 
   /**
-   * The name attribute of the {@link RequestContext}.
+   * The name attribute of the {@link HttpContext}.
    */
   public static final String WEB_ASYNC_REQUEST_ATTRIBUTE = WebAsyncManager.class.getName() + ".WEB_REQUEST";
 
@@ -109,10 +109,10 @@ public final class WebAsyncManager {
   @Nullable
   private LinkedHashMap<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
-  private final RequestContext requestContext;
+  private final HttpContext httpContext;
 
-  public WebAsyncManager(RequestContext requestContext) {
-    this.requestContext = requestContext;
+  public WebAsyncManager(HttpContext httpContext) {
+    this.httpContext = httpContext;
   }
 
   /**
@@ -322,7 +322,7 @@ public final class WebAsyncManager {
       if (logger.isDebugEnabled()) {
         logger.debug("Async request timeout for {}", formatRequestUri());
       }
-      Object result = interceptorChain.triggerAfterTimeout(requestContext, callable);
+      Object result = interceptorChain.triggerAfterTimeout(httpContext, callable);
       if (result != CallableProcessingInterceptor.RESULT_NONE) {
         setConcurrentResultAndDispatch(result);
       }
@@ -333,49 +333,49 @@ public final class WebAsyncManager {
         if (logger.isDebugEnabled()) {
           logger.debug("Async request error for {}: {}", formatRequestUri(), ex);
         }
-        Object result = interceptorChain.triggerAfterError(requestContext, callable, ex);
+        Object result = interceptorChain.triggerAfterError(httpContext, callable, ex);
         result = result != CallableProcessingInterceptor.RESULT_NONE ? result : ex;
         setConcurrentResultAndDispatch(result);
       }
     });
 
     asyncRequest.addCompletionHandler(
-            () -> interceptorChain.triggerAfterCompletion(requestContext, callable));
+            () -> interceptorChain.triggerAfterCompletion(httpContext, callable));
 
-    interceptorChain.applyBeforeConcurrentHandling(requestContext, callable);
+    interceptorChain.applyBeforeConcurrentHandling(httpContext, callable);
     startAsyncProcessing(asyncRequest, processingContext);
     try {
       Future<?> future = taskExecutor.submit(() -> {
         // context aware
-        RequestContextHolder.set(requestContext);
+        HttpContextHolder.set(httpContext);
         Object result = null;
         try {
-          interceptorChain.applyPreProcess(requestContext, callable);
+          interceptorChain.applyPreProcess(httpContext, callable);
           result = callable.call();
         }
         catch (Throwable ex) {
           result = ex;
         }
         finally {
-          result = interceptorChain.applyPostProcess(requestContext, callable, result);
+          result = interceptorChain.applyPostProcess(httpContext, callable, result);
         }
         setConcurrentResultAndDispatch(result);
-        RequestContextHolder.cleanup();
+        HttpContextHolder.cleanup();
       });
       interceptorChain.setTaskFuture(future);
     }
     catch (Throwable ex) {
-      Object result = interceptorChain.applyPostProcess(requestContext, callable, ex);
+      Object result = interceptorChain.applyPostProcess(httpContext, callable, ex);
       setConcurrentResultAndDispatch(result);
     }
   }
 
   private AsyncWebRequest getAsyncWebRequest() {
-    return requestContext.asyncWebRequest();
+    return httpContext.asyncWebRequest();
   }
 
   private String formatRequestUri() {
-    return requestContext.getRequestURI();
+    return httpContext.getRequestURI();
   }
 
   private void setConcurrentResultAndDispatch(@Nullable Object result) {
@@ -442,7 +442,7 @@ public final class WebAsyncManager {
     var chain = new DeferredResultInterceptorChain(interceptors);
     asyncRequest.addTimeoutHandler(() -> {
       try {
-        chain.triggerAfterTimeout(requestContext, deferred);
+        chain.triggerAfterTimeout(httpContext, deferred);
       }
       catch (Throwable ex) {
         setConcurrentResultAndDispatch(ex);
@@ -452,7 +452,7 @@ public final class WebAsyncManager {
     asyncRequest.addErrorHandler(ex -> {
       if (!errorHandlingInProgress) {
         try {
-          if (!chain.triggerAfterError(requestContext, deferred, ex)) {
+          if (!chain.triggerAfterError(httpContext, deferred, ex)) {
             return;
           }
           deferred.setErrorResult(ex);
@@ -464,15 +464,15 @@ public final class WebAsyncManager {
     });
 
     asyncRequest.addCompletionHandler(() ->
-            chain.triggerAfterCompletion(requestContext, deferred));
+            chain.triggerAfterCompletion(httpContext, deferred));
 
-    chain.applyBeforeConcurrentHandling(requestContext, deferred);
+    chain.applyBeforeConcurrentHandling(httpContext, deferred);
     startAsyncProcessing(asyncRequest, processingContext);
 
     try {
-      chain.applyPreProcess(requestContext, deferred);
+      chain.applyPreProcess(httpContext, deferred);
       deferred.setResultHandler(result -> {
-        result = chain.applyPostProcess(requestContext, deferred, result);
+        result = chain.applyPostProcess(httpContext, deferred, result);
         setConcurrentResultAndDispatch(result);
       });
     }
@@ -497,7 +497,7 @@ public final class WebAsyncManager {
   //
 
   @Nullable
-  public static Object findHttpRequestHandler(RequestContext request) {
+  public static Object findHttpRequestHandler(HttpContext request) {
     @Nullable Object[] concurrentResultContext = request.asyncManager().getConcurrentResultContext();
     if (concurrentResultContext != null && concurrentResultContext.length == 1) {
       return concurrentResultContext[0];

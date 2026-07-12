@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.http.MediaType;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -75,7 +75,7 @@ class FixedContentNegotiationStrategyTests {
     List<MediaType> contentTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_XML);
     FixedContentNegotiationStrategy strategy = new FixedContentNegotiationStrategy(contentTypes);
 
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     List<MediaType> result = strategy.resolveMediaTypes(request);
 
     assertThat(result).containsExactlyElementsOf(contentTypes);
@@ -86,7 +86,7 @@ class FixedContentNegotiationStrategyTests {
     List<MediaType> contentTypes = List.of(MediaType.APPLICATION_JSON);
     FixedContentNegotiationStrategy strategy = new FixedContentNegotiationStrategy(contentTypes);
 
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     List<MediaType> result1 = strategy.resolveMediaTypes(request);
     List<MediaType> result2 = strategy.resolveMediaTypes(request);
 

@@ -21,7 +21,7 @@ package infra.web.resource;
 import java.io.IOException;
 
 import infra.core.io.Resource;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A contract for invoking a chain of {@link ResourceTransformer ResourceTransformers} where each resolver
@@ -48,6 +48,6 @@ public interface ResourceTransformerChain {
    * @return the transformed or the same resource, never {@code null}
    * @throws IOException if transformation fails
    */
-  Resource transform(RequestContext request, Resource resource) throws IOException;
+  Resource transform(HttpContext request, Resource resource) throws IOException;
 
 }

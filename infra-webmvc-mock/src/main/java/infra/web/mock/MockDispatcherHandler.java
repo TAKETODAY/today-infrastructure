@@ -23,8 +23,8 @@ import java.io.Serializable;
 
 import infra.context.ApplicationContext;
 import infra.web.DispatcherHandler;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.async.WebAsyncManager;
 import infra.web.mock.api.DispatcherType;
 import infra.web.mock.api.MockException;
@@ -51,7 +51,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     if (request.getDispatcherType() == DispatcherType.ASYNC) {
       // send async results
       Object concurrentResult = request.getAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE);
-      RequestContext context = (RequestContext) request.getAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE);
+      HttpContext context = (HttpContext) request.getAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE);
       Object httpRequestHandler = WebAsyncManager.findHttpRequestHandler(context);
 
       try {
@@ -63,13 +63,13 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
       return;
     }
 
-    RequestContext context = RequestContextHolder.current();
+    HttpContext context = HttpContextHolder.current();
 
     boolean reset = false;
     if (context == null) {
-      context = new MockRequestContext(getApplicationContext(),
+      context = new MockHttpContext(getApplicationContext(),
               request, response, this);
-      RequestContextHolder.set(context);
+      HttpContextHolder.set(context);
       reset = true;
     }
 
@@ -81,7 +81,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     }
     finally {
       if (reset) {
-        RequestContextHolder.cleanup();
+        HttpContextHolder.cleanup();
       }
     }
   }

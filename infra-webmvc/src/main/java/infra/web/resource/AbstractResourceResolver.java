@@ -25,7 +25,7 @@ import java.util.List;
 import infra.core.io.Resource;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Base class for {@link infra.web.resource.ResourceResolver}
@@ -41,9 +41,9 @@ public abstract class AbstractResourceResolver implements ResourceResolver {
 
   @Override
   @Nullable
-  public Resource resolveResource(@Nullable RequestContext request, String requestPath,
+  public Resource resolveResource(@Nullable HttpContext context, String requestPath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {
-    return resolveResourceInternal(request, requestPath, locations, chain);
+    return resolveResourceInternal(context, requestPath, locations, chain);
   }
 
   @Override
@@ -53,7 +53,7 @@ public abstract class AbstractResourceResolver implements ResourceResolver {
   }
 
   @Nullable
-  protected abstract Resource resolveResourceInternal(@Nullable RequestContext request,
+  protected abstract Resource resolveResourceInternal(@Nullable HttpContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain);
 
   @Nullable

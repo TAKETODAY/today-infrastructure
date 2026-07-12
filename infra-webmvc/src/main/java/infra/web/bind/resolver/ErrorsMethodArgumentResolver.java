@@ -24,7 +24,7 @@ import infra.ui.ModelMap;
 import infra.util.CollectionUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -49,7 +49,7 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     ModelMap model = context.binding().getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {

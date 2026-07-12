@@ -28,8 +28,8 @@ import java.util.Map;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.server.HandshakeHandler;
@@ -78,18 +78,18 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public Object handleRequest(RequestContext request) throws Throwable {
+  public Object handleRequest(HttpContext context) throws Throwable {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
     Throwable failure = null;
     try {
       if (logger.isDebugEnabled()) {
-        logger.debug(request);
+        logger.debug(context);
       }
 
       Map<String, Object> attributes = new HashMap<>();
-      if (chain.applyBeforeHandshake(request, attributes)) {
-        WebSocketSession session = handshakeHandler.doHandshake(request, wsHandler, attributes);
-        chain.applyAfterHandshake(request, session, null);
+      if (chain.applyBeforeHandshake(context, attributes)) {
+        WebSocketSession session = handshakeHandler.doHandshake(context, wsHandler, attributes);
+        chain.applyAfterHandshake(context, session, null);
       }
     }
     catch (Throwable ex) {
@@ -97,7 +97,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
     }
     finally {
       if (failure != null) {
-        chain.applyAfterHandshake(request, null, failure);
+        chain.applyAfterHandshake(context, null, failure);
         throw failure;
       }
     }

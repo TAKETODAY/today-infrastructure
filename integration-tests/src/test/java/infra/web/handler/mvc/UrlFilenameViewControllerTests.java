@@ -24,11 +24,11 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.PathPatternsParameterizedTest;
 import infra.web.view.PathPatternsTestUtils;
@@ -42,94 +42,94 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UrlFilenameViewControllerTests {
 
   @SuppressWarnings("unused")
-  private static Stream<Function<String, MockRequestContext>> pathPatternsArguments() {
+  private static Stream<Function<String, MockHttpContext>> pathPatternsArguments() {
     return PathPatternsTestUtils.requestArguments();
   }
 
   @PathPatternsParameterizedTest
-  void withPlainFilename(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withPlainFilename(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/index");
+    HttpContext request = requestFactory.apply("/index");
     ModelAndView mv = (ModelAndView) controller.handleRequest(request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withFilenamePlusExtension(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withFilenamePlusExtension(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/index.html");
+    HttpContext request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
-  private static ModelAndView getModelAndView(UrlFilenameViewController controller, RequestContext request) throws Throwable {
+  private static ModelAndView getModelAndView(UrlFilenameViewController controller, HttpContext request) throws Throwable {
     return (ModelAndView) controller.handleRequest(request);
   }
 
   @PathPatternsParameterizedTest
-  void withFilenameAndMatrixVariables(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withFilenameAndMatrixVariables(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/index;a=A;b=B");
+    HttpContext request = requestFactory.apply("/index;a=A;b=B");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withPrefixAndSuffix(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withPrefixAndSuffix(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setPrefix("mypre_");
     controller.setSuffix("_mysuf");
-    RequestContext request = requestFactory.apply("/index.html");
+    HttpContext request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("mypre_index_mysuf");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withPrefix(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withPrefix(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setPrefix("mypre_");
-    RequestContext request = requestFactory.apply("/index.html");
+    HttpContext request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("mypre_index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withSuffix(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withSuffix(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setSuffix("_mysuf");
-    RequestContext request = requestFactory.apply("/index.html");
+    HttpContext request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index_mysuf");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void multiLevel(Function<String, RequestContext> requestFactory) throws Throwable {
+  void multiLevel(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/docs/cvs/commit.html");
+    HttpContext request = requestFactory.apply("/docs/cvs/commit.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void multiLevelWithMapping(Function<String, RequestContext> requestFactory) throws Throwable {
+  void multiLevelWithMapping(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/cvs/commit.html");
+    HttpContext request = requestFactory.apply("/cvs/commit.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void multiLevelMappingWithFallback(Function<String, RequestContext> requestFactory) throws Throwable {
+  void multiLevelMappingWithFallback(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/docs/cvs/commit.html");
+    HttpContext request = requestFactory.apply("/docs/cvs/commit.html");
     exposePathInMapping(request, "/docs/cvs/commit.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
@@ -142,7 +142,7 @@ class UrlFilenameViewControllerTests {
     MockRequest request = new MockRequest("GET", "/docs/cvs/commit.html");
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
-    MockRequestContext context = new MockRequestContext(wac, request, new MockResponse());
+    MockHttpContext context = new MockHttpContext(wac, request, new MockResponse());
     ModelAndView mv = getModelAndView(controller, context);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
@@ -177,19 +177,19 @@ class UrlFilenameViewControllerTests {
    */
   @PathPatternsParameterizedTest
   void nestedPathisUsedAsViewName_InBreakingChange(
-          Function<String, RequestContext> requestFactory) throws Throwable {
+          Function<String, HttpContext> requestFactory) throws Throwable {
 
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/products/view.html");
+    HttpContext request = requestFactory.apply("/products/view.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("products/view");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withFlashAttributes(Function<String, RequestContext> requestFactory) throws Throwable {
+  void withFlashAttributes(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    RequestContext request = requestFactory.apply("/index");
+    HttpContext request = requestFactory.apply("/index");
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
@@ -197,7 +197,7 @@ class UrlFilenameViewControllerTests {
     assertThat(mv.getModel().get("name")).isEqualTo("value");
   }
 
-  private void exposePathInMapping(RequestContext request, String mapping) {
+  private void exposePathInMapping(HttpContext request, String mapping) {
 
   }
 

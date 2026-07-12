@@ -27,9 +27,9 @@ import java.time.Duration;
 import java.util.Collections;
 
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -67,9 +67,9 @@ class SseServerResponseTests {
 
     MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
-    var requestContext = new MockRequestContext(null, request, mockResponse);
+    var httpContext = new MockHttpContext(null, request, mockResponse);
 
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     String expected = "data:" + body + "\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
@@ -91,9 +91,9 @@ class SseServerResponseTests {
 
     MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
-    var requestContext = new MockRequestContext(null, request, mockResponse);
+    var httpContext = new MockHttpContext(null, request, mockResponse);
 
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     String expected = "data:{\"name\":\"John Doe\",\"age\":42}\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
@@ -115,9 +115,9 @@ class SseServerResponseTests {
     JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter(jsonMapper);
     ServerResponse.Context context = () -> Collections.singletonList(converter);
 
-    var requestContext = new MockRequestContext(null, this.mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, this.mockRequest, mockResponse);
 
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     String expected = """
@@ -149,9 +149,9 @@ class SseServerResponseTests {
 
     MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
-    var requestContext = new MockRequestContext(null, request, mockResponse);
+    var httpContext = new MockHttpContext(null, request, mockResponse);
 
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     String expected = """
             id:id
@@ -179,9 +179,9 @@ class SseServerResponseTests {
     ServerResponse.Context context = Collections::emptyList;
     MockRequest request = new MockRequest();
     request.setAsyncSupported(true);
-    var requestContext = new MockRequestContext(null, request, mockResponse);
+    var httpContext = new MockHttpContext(null, request, mockResponse);
 
-    assertThat(response.writeTo(requestContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
+    assertThat(response.writeTo(httpContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
 
     String expected = "event:custom\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
@@ -199,9 +199,9 @@ class SseServerResponseTests {
     });
 
     ServerResponse.Context context = Collections::emptyList;
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    assertThat(response.writeTo(requestContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
+    assertThat(response.writeTo(httpContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
 
     String expected = ":\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);

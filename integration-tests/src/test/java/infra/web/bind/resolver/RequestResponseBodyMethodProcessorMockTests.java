@@ -39,6 +39,7 @@ import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.validation.BindingResult;
@@ -47,14 +48,13 @@ import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
-import infra.web.RequestContext;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.ResponseBody;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -88,7 +88,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
   private MockResponse mockResponse;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private ResolvableMethodParameter paramRequestBodyString;
   private ResolvableMethodParameter paramInt;
@@ -125,7 +125,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest = new MockRequest();
     mockRequest.setMethod("POST");
     mockResponse = new MockResponse();
-    webRequest = new MockRequestContext(null, mockRequest, mockResponse);
+    webRequest = new MockHttpContext(null, mockRequest, mockResponse);
 
     Method methodHandle1 = getClass().getMethod("handle1", String.class, Integer.TYPE);
     paramRequestBodyString = new ResolvableMethodParameter(new MethodParameter(methodHandle1, 0));
@@ -216,7 +216,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     BindingContext bindingContext = new BindingContext() {
 
       @Override
-      public void initBinder(WebDataBinder dataBinder, RequestContext request) {
+      public void initBinder(WebDataBinder dataBinder, HttpContext context) {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         dataBinder.setValidator(validator);

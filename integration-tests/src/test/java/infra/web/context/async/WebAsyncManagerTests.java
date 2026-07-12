@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.util.concurrent.Future;
 import infra.web.async.AsyncWebRequest;
@@ -36,7 +37,6 @@ import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.TimeoutAsyncProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -61,7 +61,7 @@ class WebAsyncManagerTests {
 
   private MockRequest mockRequest = new MockRequest();
 
-  private MockRequestContext request = new MockRequestContext(null, mockRequest, null);
+  private MockHttpContext request = new MockHttpContext(null, mockRequest, null);
 
   @BeforeEach
   public void setup() {

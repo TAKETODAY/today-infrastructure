@@ -49,7 +49,7 @@ class InterceptorChainTests {
     Object handler = new Object();
 
     TestInterceptorChain chain = new TestInterceptorChain(interceptors, handler);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
 
     when(interceptor1.intercept(context, chain)).thenReturn("result1");
 
@@ -68,7 +68,7 @@ class InterceptorChainTests {
     Object handler = new Object();
 
     TestInterceptorChain chain = new TestInterceptorChain(interceptors, handler);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
 
     when(interceptor1.intercept(context, chain)).thenReturn(null);
     when(interceptor2.intercept(context, chain)).thenReturn("interceptor2Result");
@@ -87,7 +87,7 @@ class InterceptorChainTests {
     Object handler = new Object();
 
     TestInterceptorChain chain = new TestInterceptorChain(interceptors, handler);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     chain.testResult = "finalResult";
 
     Object result = chain.proceed(context);
@@ -123,7 +123,7 @@ class InterceptorChainTests {
 
   static class TestInterceptorChain extends InterceptorChain {
     boolean invokeHandlerCalled = false;
-    RequestContext invokeHandlerContext;
+    HttpContext invokeHandlerContext;
     Object invokeHandlerHandler;
     Object testResult;
 
@@ -133,7 +133,7 @@ class InterceptorChainTests {
 
     @Nullable
     @Override
-    protected Object invokeHandler(RequestContext context, Object handler) throws Throwable {
+    protected Object invokeHandler(HttpContext context, Object handler) throws Throwable {
       invokeHandlerCalled = true;
       invokeHandlerContext = context;
       invokeHandlerHandler = handler;

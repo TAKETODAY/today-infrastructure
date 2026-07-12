@@ -21,7 +21,7 @@ package infra.web.resource;
 import java.io.IOException;
 
 import infra.core.io.Resource;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * An abstraction for transforming the content of a resource.
@@ -37,13 +37,13 @@ public interface ResourceTransformer {
   /**
    * Transform the given resource.
    *
-   * @param request the current request
+   * @param context the current request
    * @param resource the resource to transform
    * @param transformerChain the chain of remaining transformers to delegate to
    * @return the transformed resource (never {@code null})
    * @throws IOException if the transformation fails
    */
-  Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain)
+  Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException;
 
 }

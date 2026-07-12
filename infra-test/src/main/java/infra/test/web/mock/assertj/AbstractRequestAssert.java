@@ -30,11 +30,11 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.util.function.SingletonSupplier;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
+import infra.web.mock.MockRequest;
 
 /**
  * Base AssertJ {@linkplain org.assertj.core.api.Assert assertions} that can be
@@ -67,9 +67,9 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     Session httpSession = request.getSession();
     Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
     Map<String, Object> map = toMap(httpSession.attributeNames().iterator(), httpSession::getAttribute);
-    RequestContext requestContext = getRequestContext();
-    if (requestContext != null) {
-      Session session = requestContext.getSession(false);
+    HttpContext httpContext = getHttpContext();
+    if (httpContext != null) {
+      Session session = httpContext.getSession(false);
       if (session != null) {
         map.putAll(session.getAttributes());
       }
@@ -77,7 +77,7 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     return Assertions.assertThat(map).as("Session Attributes");
   }
 
-  protected @Nullable RequestContext getRequestContext() {
+  protected @Nullable HttpContext getHttpContext() {
     return null;
   }
 

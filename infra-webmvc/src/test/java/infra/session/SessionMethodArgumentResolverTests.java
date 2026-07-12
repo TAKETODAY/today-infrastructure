@@ -18,7 +18,7 @@ package infra.session;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 import static org.assertj.core.api.Assertions.*;
@@ -63,7 +63,7 @@ class SessionMethodArgumentResolverTests {
     Session session = mock(Session.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
 
     when(parameter.isRequired()).thenReturn(true);
@@ -80,7 +80,7 @@ class SessionMethodArgumentResolverTests {
     Session session = mock(Session.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
 
     when(parameter.isRequired()).thenReturn(false);
@@ -96,7 +96,7 @@ class SessionMethodArgumentResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
 
     when(parameter.isRequired()).thenReturn(false);

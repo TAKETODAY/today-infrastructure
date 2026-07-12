@@ -36,7 +36,7 @@ import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.function.ThrowingConsumer;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
 
 /**
@@ -71,7 +71,7 @@ final class StreamingServerResponse extends AbstractServerResponse {
 
   @Nullable
   @Override
-  protected Object writeToInternal(RequestContext request, Context context) throws Throwable {
+  protected Object writeToInternal(HttpContext request, Context context) throws Throwable {
     DeferredResult<?> result = new DeferredResult<>(timeout != null ? timeout.toMillis() : null);
     DefaultAsyncServerResponse.writeAsync(request, result);
     this.streamConsumer.accept(new DefaultStreamBuilder(request, context, result, headers()));
@@ -90,7 +90,7 @@ final class StreamingServerResponse extends AbstractServerResponse {
 
     private boolean sendFailed;
 
-    public DefaultStreamBuilder(RequestContext response, Context context,
+    public DefaultStreamBuilder(HttpContext response, Context context,
             DeferredResult<?> deferredResult, HttpHeaders httpHeaders) {
       this.outputMessage = response.asHttpOutputMessage();
       this.deferredResult = deferredResult;

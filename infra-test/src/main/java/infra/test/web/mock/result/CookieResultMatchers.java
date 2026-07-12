@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import infra.http.ResponseCookie;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 import static infra.test.util.AssertionErrors.assertEquals;
 import static infra.test.util.AssertionErrors.assertNotNull;
@@ -87,7 +87,7 @@ public class CookieResultMatchers {
    */
   public ResultMatcher doesNotExist(String name) {
     return result -> {
-      ResponseCookie cookie = getCookie(result.getRequestContext(), name);
+      ResponseCookie cookie = getCookie(result.getContext(), name);
       assertNull("Unexpected cookie with name '" + name + "'", cookie);
     };
   }
@@ -201,14 +201,14 @@ public class CookieResultMatchers {
   }
 
   private static ResponseCookie getCookie(MvcResult result, String cookieName) {
-    RequestContext context = result.getRequestContext();
+    HttpContext context = result.getContext();
     ResponseCookie cookie = getCookie(context, cookieName);
     assertNotNull("No cookie with name '" + cookieName + "'", cookie);
     return cookie;
   }
 
   @Nullable
-  private static ResponseCookie getCookie(RequestContext context, String cookieName) {
+  private static ResponseCookie getCookie(HttpContext context, String cookieName) {
     ArrayList<ResponseCookie> httpCookies = context.responseCookies();
     for (ResponseCookie httpCookie : httpCookies) {
       if (cookieName.equals(httpCookie.getName())) {

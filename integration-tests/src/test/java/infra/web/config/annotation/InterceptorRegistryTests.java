@@ -28,11 +28,11 @@ import java.util.List;
 
 import infra.core.Ordered;
 import infra.http.server.RequestPath;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.InterceptorChain;
-import infra.web.RequestContext;
 import infra.web.handler.MappedInterceptor;
 import infra.web.i18n.LocaleChangeInterceptor;
 
@@ -51,8 +51,8 @@ class InterceptorRegistryTests {
 
   private final HandlerInterceptor interceptor2 = new HandlerInterceptor() {
     @Override
-    public Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
-      return HandlerInterceptor.super.intercept(request, chain);
+    public Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+      return HandlerInterceptor.super.intercept(context, chain);
     }
   };
 
@@ -153,13 +153,13 @@ class InterceptorRegistryTests {
     private boolean preHandleInvoked = false;
 
     @Override
-    public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
+    public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
       preHandleInvoked = true;
       return true;
     }
 
     @Override
-    public void postProcessing(RequestContext request, Object handler, Object result) throws Throwable {
+    public void postProcessing(HttpContext context, Object handler, Object result) throws Throwable {
 
     }
 

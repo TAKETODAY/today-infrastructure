@@ -40,11 +40,12 @@ import infra.format.annotation.DateTimeFormat;
 import infra.http.HttpEntity;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContextHolder;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestBody;
@@ -53,7 +54,6 @@ import infra.web.annotation.RequestParam;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.PathMatchConfigurer;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.MockRequestContext;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 import infra.web.view.ModelAndView;
@@ -78,13 +78,13 @@ class MvcUriComponentsBuilderTests {
 
   @BeforeEach
   public void setup() {
-    RequestContextHolder.set(new MockRequestContext(
+    HttpContextHolder.set(new MockHttpContext(
             null, this.request, response));
   }
 
   @AfterEach
   public void reset() {
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
   }
 
   @Test
@@ -473,7 +473,7 @@ class MvcUriComponentsBuilderTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configClass);
     context.refresh();
-    RequestContextHolder.set(new MockRequestContext(context, request, new MockResponse()));
+    HttpContextHolder.set(new MockHttpContext(context, request, new MockResponse()));
   }
 
   static class Person {

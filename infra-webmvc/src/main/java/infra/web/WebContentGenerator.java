@@ -160,7 +160,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    * automatically adding "OPTIONS" to the list even if not present as a supported
    * method. This means subclasses don't have to explicitly list "OPTIONS" as a
    * supported method as long as HTTP OPTIONS requests are handled before making a
-   * call to {@link #checkRequest(RequestContext)}.
+   * call to {@link #checkRequest(HttpContext)}.
    */
   protected @Nullable String getAllowHeader() {
     return this.allowHeader;
@@ -245,7 +245,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    *
    * @param request current HTTP request
    */
-  protected final void checkRequest(RequestContext request) {
+  protected final void checkRequest(HttpContext request) {
     // Check whether we should support the request method.
     if (supportedMethods != null && !supportedMethods.contains(request.getMethodAsString())) {
       throw new HttpRequestMethodNotSupportedException(request.getMethodAsString(), this.supportedMethods);
@@ -263,7 +263,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    *
    * @param response current HTTP response
    */
-  protected final void prepareResponse(RequestContext response) {
+  protected final void prepareResponse(HttpContext response) {
     if (this.cacheControl != null) {
       if (logger.isTraceEnabled()) {
         logger.trace("Applying default {}", getCacheControl());
@@ -287,7 +287,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    * @param response current HTTP response
    * @param cacheControl the pre-configured cache control settings
    */
-  protected final void applyCacheControl(RequestContext response, CacheControl cacheControl) {
+  protected final void applyCacheControl(HttpContext response, CacheControl cacheControl) {
     String ccValue = cacheControl.getHeaderValue();
     if (ccValue != null) {
       // Set computed HTTP 1.1 Cache-Control header
@@ -305,7 +305,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    * @param cacheSeconds positive number of seconds into the future that the
    * response should be cacheable for, 0 to prevent caching
    */
-  protected final void applyCacheSeconds(RequestContext response, int cacheSeconds) {
+  protected final void applyCacheSeconds(HttpContext response, int cacheSeconds) {
     CacheControl cControl;
     if (cacheSeconds > 0) {
       cControl = CacheControl.maxAge(cacheSeconds, TimeUnit.SECONDS);
@@ -319,7 +319,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
     applyCacheControl(response, cControl);
   }
 
-  private Collection<String> getVaryRequestHeadersToAdd(RequestContext response, String[] varyByRequestHeaders) {
+  private Collection<String> getVaryRequestHeadersToAdd(HttpContext response, String[] varyByRequestHeaders) {
     if (!response.containsResponseHeader(HttpHeaders.VARY)) {
       return Arrays.asList(varyByRequestHeaders);
     }

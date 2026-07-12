@@ -27,7 +27,8 @@ import infra.core.i18n.LocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.lang.Assert;
 import infra.session.Session;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 
 /**
  * {@link infra.web.LocaleResolver} implementation that
@@ -48,7 +49,7 @@ import infra.web.RequestContext;
  * <p>Note that there is no direct relationship with external session management
  * mechanisms such as the "Session" project. This {@code LocaleResolver}
  * will simply evaluate and modify corresponding {@code HttpSession} attributes
- * against the current {@code RequestContext}.
+ * against the current {@code HttpContext}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -61,21 +62,21 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   /**
    * Default name of the session attribute that holds the Locale.
    * Only used internally by this implementation.
-   * <p>Use {@code RequestContext(Utils).getLocale()}
+   * <p>Use {@code HttpContext(Utils).getLocale()}
    * to retrieve the current locale in controllers or views.
    *
-   * @see infra.web.RequestContext#getLocale
-   * @see infra.web.RequestContextUtils#getLocale
+   * @see HttpContext#getLocale
+   * @see HttpContextUtils#getLocale
    */
   public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
 
   /**
    * Default name of the session attribute that holds the TimeZone.
    * Only used internally by this implementation.
-   * <p>Use {@code RequestContext(Utils).getTimeZone()}
+   * <p>Use {@code HttpContext(Utils).getTimeZone()}
    * to retrieve the current time zone in controllers or views.
    *
-   * @see infra.web.RequestContextUtils#getTimeZone
+   * @see HttpContextUtils#getTimeZone
    */
   public static final String TIME_ZONE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".TIME_ZONE";
 
@@ -104,31 +105,31 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public Locale resolveLocale(RequestContext request) {
-    Locale locale = getSessionAttribute(request, this.localeAttributeName);
+  public Locale resolveLocale(HttpContext context) {
+    Locale locale = getSessionAttribute(context, this.localeAttributeName);
     if (locale == null) {
-      locale = determineDefaultLocale(request);
+      locale = determineDefaultLocale(context);
     }
     return locale;
   }
 
   @Override
-  public LocaleContext resolveLocaleContext(final RequestContext request) {
+  public LocaleContext resolveLocaleContext(final HttpContext context) {
     return new TimeZoneAwareLocaleContext() {
       @Override
       public Locale getLocale() {
-        Locale locale = getSessionAttribute(request, localeAttributeName);
+        Locale locale = getSessionAttribute(context, localeAttributeName);
         if (locale == null) {
-          locale = determineDefaultLocale(request);
+          locale = determineDefaultLocale(context);
         }
         return locale;
       }
 
       @Override
       public @Nullable TimeZone getTimeZone() {
-        TimeZone timeZone = getSessionAttribute(request, timeZoneAttributeName);
+        TimeZone timeZone = getSessionAttribute(context, timeZoneAttributeName);
         if (timeZone == null) {
-          timeZone = determineDefaultTimeZone(request);
+          timeZone = determineDefaultTimeZone(context);
         }
         return timeZone;
       }
@@ -136,7 +137,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public void setLocaleContext(RequestContext request, @Nullable LocaleContext localeContext) {
+  public void setLocaleContext(HttpContext context, @Nullable LocaleContext localeContext) {
     Locale locale = null;
     TimeZone timeZone = null;
     if (localeContext != null) {
@@ -145,12 +146,12 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
         timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
     }
-    setSessionAttribute(request, localeAttributeName, locale);
-    setSessionAttribute(request, timeZoneAttributeName, timeZone);
+    setSessionAttribute(context, localeAttributeName, locale);
+    setSessionAttribute(context, timeZoneAttributeName, timeZone);
   }
 
   @SuppressWarnings("unchecked")
-  private <T> @Nullable T getSessionAttribute(RequestContext request, String attributeName) {
+  private <T> @Nullable T getSessionAttribute(HttpContext request, String attributeName) {
     Session session = request.getSession(false);
     if (session != null) {
       return (T) session.getAttribute(attributeName);
@@ -158,7 +159,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     return null;
   }
 
-  private void setSessionAttribute(RequestContext request, String attributeName, @Nullable Object attribute) {
+  private void setSessionAttribute(HttpContext request, String attributeName, @Nullable Object attribute) {
     Session session = request.getSession();
     session.setAttribute(attributeName, attribute);
   }
@@ -174,9 +175,9 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
    * @see #setDefaultLocale
-   * @see RequestContext#getLocale()
+   * @see HttpContext#getLocale()
    */
-  protected Locale determineDefaultLocale(RequestContext request) {
+  protected Locale determineDefaultLocale(HttpContext request) {
     Locale defaultLocale = getDefaultLocale();
     if (defaultLocale == null) {
       defaultLocale = request.getLocale();
@@ -194,7 +195,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * @return the default time zone (or {@code null} if none defined)
    * @see #setDefaultTimeZone
    */
-  protected @Nullable TimeZone determineDefaultTimeZone(RequestContext request) {
+  protected @Nullable TimeZone determineDefaultTimeZone(HttpContext request) {
     return getDefaultTimeZone();
   }
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.core.ResolvableType;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartRequest;
@@ -47,7 +47,7 @@ import infra.web.multipart.Part;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestParamMethodArgumentResolver
- * @see RequestContext#getParameters()
+ * @see HttpContext#getParameters()
  * @see MultipartRequest#getParts()
  * @since 4.0 2022/4/28 15:26
  */
@@ -65,7 +65,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     ResolvableType resolvableType = resolvable.getResolvableType();
 
     if (MultiValueMap.class.isAssignableFrom(resolvable.getParameterType())) {

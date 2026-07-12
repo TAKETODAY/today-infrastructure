@@ -42,7 +42,7 @@ import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.function.ThrowingConsumer;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.ModelAndView;
 
 /**
@@ -263,7 +263,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
     @Nullable
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) throws Throwable {
+    protected Object writeToInternal(HttpContext request, Context context) throws Throwable {
       return this.writeFunction.write(request);
     }
   }

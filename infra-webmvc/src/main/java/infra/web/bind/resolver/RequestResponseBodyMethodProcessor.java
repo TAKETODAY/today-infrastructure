@@ -30,8 +30,8 @@ import infra.http.ProblemDetail;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.web.ErrorResponse;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
-import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestBody;
 import infra.web.handler.method.HandlerMethod;
@@ -118,7 +118,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    */
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     MethodParameter parameter = resolvable.getParameter();
     Object arg = readWithMessageConverters(context, parameter, parameter.getNestedGenericParameterType());
     validateIfApplicable(context, parameter, arg);
@@ -127,7 +127,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
   @Nullable
   @Override
-  protected Object readWithMessageConverters(RequestContext request, MethodParameter parameter, Type paramType)
+  protected Object readWithMessageConverters(HttpContext request, MethodParameter parameter, Type paramType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
     Object arg = super.readWithMessageConverters(request, parameter, paramType);
@@ -160,7 +160,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
       if (detail.getInstance() == null) {

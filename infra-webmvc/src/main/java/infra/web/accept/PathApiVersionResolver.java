@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import infra.http.server.PathContainer;
 import infra.http.server.RequestPath;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * {@link ApiVersionResolver} that extract the version from a path segment.
@@ -62,7 +62,7 @@ public class PathApiVersionResolver implements ApiVersionResolver {
   }
 
   @Override
-  public @Nullable String resolveVersion(RequestContext request) {
+  public @Nullable String resolveVersion(HttpContext request) {
     RequestPath path = request.getRequestPath();
     if (!isVersionedPath(path)) {
       return null;

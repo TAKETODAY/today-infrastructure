@@ -31,18 +31,18 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.MediaType;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.accept.HeaderContentNegotiationStrategy;
 import infra.web.accept.MappingMediaTypeFileExtensionResolver;
 import infra.web.accept.ParameterContentNegotiationStrategy;
 import infra.web.accept.PathExtensionContentNegotiationStrategy;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -57,7 +57,7 @@ public class ContentNegotiatingViewResolverTests {
 
   private MockRequest request;
 
-  RequestContext requestContext;
+  HttpContext httpContext;
   AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
   @BeforeEach
@@ -67,25 +67,25 @@ public class ContentNegotiatingViewResolverTests {
     viewResolver.setApplicationContext(wac);
     request = new MockRequest("GET", "/test");
     MockResponse response = new MockResponse();
-    this.requestContext = new MockRequestContext(wac, request, response);
-    RequestContextHolder.set(requestContext);
+    this.httpContext = new MockHttpContext(wac, request, response);
+    HttpContextHolder.set(httpContext);
   }
 
   @AfterEach
-  public void resetRequestContextHolder() {
-    RequestContextHolder.cleanup();
+  public void resetHttpContextHolder() {
+    HttpContextHolder.cleanup();
   }
 
   @Test
   public void getMediaTypeAcceptHeaderWithProduces() throws Exception {
 
-    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestContext);
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(httpContext);
     matchingMetadata.setProducibleMediaTypes(List.of(MediaType.APPLICATION_XHTML_XML));
-    requestContext.setMatchingMetadata(matchingMetadata);
+    httpContext.setMatchingMetadata(matchingMetadata);
 
     request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");
     viewResolver.afterPropertiesSet();
-    List<MediaType> result = viewResolver.getMediaTypes(requestContext);
+    List<MediaType> result = viewResolver.getMediaTypes(httpContext);
     assertThat(result.get(0)).as("Invalid content type").isEqualTo(new MediaType("application", "xhtml+xml"));
   }
 
@@ -449,9 +449,9 @@ public class ContentNegotiatingViewResolverTests {
     View result = viewResolver.resolveViewName(viewName, locale);
     assertThat(result).as("Invalid view").isNotNull();
     MockResponse response = new MockResponse();
-    this.requestContext = new MockRequestContext(wac, request, response);
-    RequestContextHolder.set(requestContext);
-    result.render(null, requestContext);
+    this.httpContext = new MockHttpContext(wac, request, response);
+    HttpContextHolder.set(httpContext);
+    result.render(null, httpContext);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);
   }
 

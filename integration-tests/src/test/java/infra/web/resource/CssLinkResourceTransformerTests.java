@@ -29,9 +29,9 @@ import java.util.List;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.util.StringUtils;
-import infra.web.mock.MockRequestContext;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,9 +93,9 @@ public class CssLinkResourceTransformerTests {
             "@import \"/static/foo-e36d2e05253c6c7085a91522ce43a0b4.css\";\n" +
             "@import '/static/foo-e36d2e05253c6c7085a91522ce43a0b4.css';\n\n" +
             "body { background: url(\"/static/images/image-f448cd1d5dba82b774f3202c878230b3.png?#iefix\") }\n";
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    TransformedResource actual = (TransformedResource) this.transformerChain.transform(requestContext, css);
+    TransformedResource actual = (TransformedResource) this.transformerChain.transform(httpContext, css);
     String result = new String(actual.getByteArray(), StandardCharsets.UTF_8);
     result = StringUtils.deleteAny(result, "\r");
     assertThat(result).isEqualTo(expected);
@@ -105,9 +105,9 @@ public class CssLinkResourceTransformerTests {
   public void transformNoLinks() throws Exception {
     this.request = new MockRequest("GET", "/static/foo.css");
     Resource expected = getResource("foo.css");
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    Resource actual = this.transformerChain.transform(requestContext, expected);
+    Resource actual = this.transformerChain.transform(httpContext, expected);
     assertThat(actual).isSameAs(expected);
   }
 
@@ -124,9 +124,9 @@ public class CssLinkResourceTransformerTests {
             "body { background: url(\"file:///home/spring/image.png\") }\n" +
             "figure { background: url(\"//example.org/style.css\")}";
 
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    TransformedResource transformedResource = (TransformedResource) chain.transform(requestContext, resource);
+    TransformedResource transformedResource = (TransformedResource) chain.transform(httpContext, resource);
     String result = new String(transformedResource.getByteArray(), StandardCharsets.UTF_8);
     result = StringUtils.deleteAny(result, "\r");
     assertThat(result).isEqualTo(expected);
@@ -140,10 +140,10 @@ public class CssLinkResourceTransformerTests {
   @Test
   public void transformSkippedForNonCssResource() throws Exception {
     this.request = new MockRequest("GET", "/static/images/image.png");
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
     Resource expected = getResource("images/image.png");
-    Resource actual = this.transformerChain.transform(requestContext, expected);
+    Resource actual = this.transformerChain.transform(httpContext, expected);
 
     assertThat(actual).isSameAs(expected);
   }
@@ -154,10 +154,10 @@ public class CssLinkResourceTransformerTests {
 
     this.request = new MockRequest("GET", "/static/main.css");
     Resource original = new ClassPathResource("test/main.css", getClass());
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
     EncodedResource gzipped = new EncodedResource(original, "gzip", ".gz");
-    Resource actual = this.transformerChain.transform(requestContext, gzipped);
+    Resource actual = this.transformerChain.transform(httpContext, gzipped);
 
     assertThat(actual).isSameAs(gzipped);
   }
@@ -170,9 +170,9 @@ public class CssLinkResourceTransformerTests {
             ".fooStyle {\n" +
                     "\tbackground: transparent url() no-repeat left top;\n" +
                     "}";
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    TransformedResource actual = (TransformedResource) this.transformerChain.transform(requestContext, css);
+    TransformedResource actual = (TransformedResource) this.transformerChain.transform(httpContext, css);
     String result = new String(actual.getByteArray(), StandardCharsets.UTF_8);
     result = StringUtils.deleteAny(result, "\r");
     assertThat(result).isEqualTo(expected);

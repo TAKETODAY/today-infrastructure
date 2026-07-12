@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import infra.http.server.PathContainer;
 import infra.util.ArrayIterator;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
 
@@ -181,7 +181,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    * or {@code null} if no patterns match.
    */
   @Override
-  public @Nullable PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
+  public @Nullable PathPatternsRequestCondition getMatchingCondition(HttpContext request) {
     if (patterns.length == 1) {
       return patterns[0].matches(request.getRequestPath()) ? this : null;
     }
@@ -221,13 +221,13 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    * patterns match equally, but one instance has more patterns, it is
    * considered a closer match.
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(RequestContext)} to ensure they
+   * {@link #getMatchingCondition(HttpContext)} to ensure they
    * contain only patterns that match the request and are sorted with
    * the best matches on top.
    */
   @Override
   @SuppressWarnings("NullAway")
-  public int compareTo(PathPatternsRequestCondition other, RequestContext request) {
+  public int compareTo(PathPatternsRequestCondition other, HttpContext request) {
     var iterator = new ArrayIterator<>(patterns);
     var iteratorOther = new ArrayIterator<>(other.patterns);
     while (iterator.hasNext() && iteratorOther.hasNext()) {

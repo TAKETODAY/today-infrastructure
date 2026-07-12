@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationStrategy;
 import infra.web.accept.FixedContentNegotiationStrategy;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,14 +45,14 @@ class ContentNegotiationConfigurerTests {
 
   private ContentNegotiationConfigurer configurer;
 
-  private RequestContext webRequest;
+  private HttpContext webRequest;
 
   private MockRequest mockRequest;
 
   @BeforeEach
   public void setup() {
     this.mockRequest = new MockRequest();
-    this.webRequest = new MockRequestContext(this.mockRequest);
+    this.webRequest = new MockHttpContext(this.mockRequest);
     this.configurer = new ContentNegotiationConfigurer();
   }
 

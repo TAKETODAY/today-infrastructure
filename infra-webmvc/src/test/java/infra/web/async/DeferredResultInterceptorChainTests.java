@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +48,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     chain.applyBeforeConcurrentHandling(request, deferredResult);
@@ -66,7 +66,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     chain.applyPreProcess(request, deferredResult);
@@ -85,7 +85,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     chain.preProcessingIndex = 1; // Simulate preProcess having been called
 
@@ -105,7 +105,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     chain.preProcessingIndex = 1; // Simulate preProcess having been called
 
@@ -124,7 +124,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     chain.triggerAfterTimeout(request, deferredResult);
@@ -142,7 +142,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     deferredResult.setResult("test"); // Set the deferred result
 
@@ -161,7 +161,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     chain.triggerAfterTimeout(request, deferredResult);
@@ -180,7 +180,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     RuntimeException error = new RuntimeException("test error");
 
@@ -200,7 +200,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     deferredResult.setResult("test"); // Set the deferred result
 
@@ -220,7 +220,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     boolean result = chain.triggerAfterError(request, deferredResult, new RuntimeException("test error"));
@@ -239,7 +239,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     chain.preProcessingIndex = 1; // Simulate preProcess having been called
 
@@ -258,7 +258,7 @@ class DeferredResultInterceptorChainTests {
     interceptors.add(interceptor2);
 
     DeferredResultInterceptorChain chain = new DeferredResultInterceptorChain(interceptors);
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
     chain.preProcessingIndex = 1; // Simulate preProcess having been called
 
@@ -277,66 +277,66 @@ class DeferredResultInterceptorChainTests {
     boolean afterCompletionInvoked = false;
 
     @Override
-    public <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> void beforeConcurrentHandling(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       beforeConcurrentHandlingInvoked = true;
     }
 
     @Override
-    public <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> void preProcess(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       preProcessInvoked = true;
     }
 
     @Override
-    public <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+    public <T> void postProcess(HttpContext request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
       postProcessInvoked = true;
     }
 
     @Override
-    public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       handleTimeoutInvoked = true;
       return true;
     }
 
     @Override
-    public <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+    public <T> boolean handleError(HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
       handleErrorInvoked = true;
       return true;
     }
 
     @Override
-    public <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> void afterCompletion(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       afterCompletionInvoked = true;
     }
   }
 
   static class FailingDeferredResultProcessingInterceptor implements DeferredResultProcessingInterceptor {
     @Override
-    public <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> void beforeConcurrentHandling(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> void preProcess(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+    public <T> void postProcess(HttpContext request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+    public <T> boolean handleError(HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
       throw new RuntimeException("Test exception");
     }
 
     @Override
-    public <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> void afterCompletion(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       throw new RuntimeException("Test exception");
     }
   }
@@ -346,13 +346,13 @@ class DeferredResultInterceptorChainTests {
     boolean handleErrorInvoked = false;
 
     @Override
-    public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+    public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
       handleTimeoutInvoked = true;
       return false;
     }
 
     @Override
-    public <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+    public <T> boolean handleError(HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
       handleErrorInvoked = true;
       return false;
     }

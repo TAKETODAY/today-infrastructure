@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.Ordered;
 import infra.web.HandlerAdapter;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.WebContentGenerator;
 
 /**
@@ -81,7 +81,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    */
   @Override
   @Nullable
-  public final Object handle(RequestContext request, Object handler)
+  public final Object handle(HttpContext request, Object handler)
           throws Throwable {
 
     return handleInternal(request, (HandlerMethod) handler);
@@ -98,6 +98,6 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    */
   @Nullable
   protected abstract Object handleInternal(
-          RequestContext request, HandlerMethod handlerMethod) throws Throwable;
+          HttpContext request, HandlerMethod handlerMethod) throws Throwable;
 
 }

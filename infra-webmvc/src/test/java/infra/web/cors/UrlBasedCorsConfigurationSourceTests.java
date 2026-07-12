@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import infra.http.server.RequestPath;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
 
@@ -106,7 +106,7 @@ class UrlBasedCorsConfigurationSourceTests {
     config.addAllowedOrigin("*");
     source.registerCorsConfiguration("/api/**", config);
 
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/api/users", null));
 
     CorsConfiguration result = source.getCorsConfiguration(request);
@@ -121,7 +121,7 @@ class UrlBasedCorsConfigurationSourceTests {
     CorsConfiguration config = new CorsConfiguration();
     source.registerCorsConfiguration("/api/**", config);
 
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/admin/users", null));
 
     CorsConfiguration result = source.getCorsConfiguration(request);
@@ -136,7 +136,7 @@ class UrlBasedCorsConfigurationSourceTests {
     config.addAllowedMethod("GET");
     source.registerCorsConfiguration("/admin", config);
 
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/admin", null));
 
     CorsConfiguration result = source.getCorsConfiguration(request);

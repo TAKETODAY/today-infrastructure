@@ -27,11 +27,11 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
-import infra.web.mock.MockRequestContext;
 import infra.web.server.MockWebServerFactory;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.view.AbstractTemplateViewResolver;
@@ -165,9 +165,9 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
 
-    MockRequestContext requestContext = new MockRequestContext(request, response);
-    view.render(null, requestContext);
-    requestContext.flush();
+    MockHttpContext httpContext = new MockHttpContext(request, response);
+    view.render(null, httpContext);
+    httpContext.flush();
     return response;
   }
 

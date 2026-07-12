@@ -42,37 +42,37 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/5/19 16:56
  */
-class NettyRequestContextTests {
+class NettyHttpContextTests {
 
   @Test
   void parseParameters() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
 
-    NettyRequestContext.parseParameters(parameters, "most-popular");
+    NettyHttpContext.parseParameters(parameters, "most-popular");
     assertThat(parameters).hasSize(1).containsKey("most-popular");
 
     parameters.clear();
-    NettyRequestContext.parseParameters(parameters, "most-popular&name=value&name=");
+    NettyHttpContext.parseParameters(parameters, "most-popular&name=value&name=");
     assertThat(parameters).hasSize(2).containsKeys("name", "most-popular")
             .containsValues(List.of(""), List.of("value", ""));
 
     parameters.clear();
 
-    NettyRequestContext.parseParameters(parameters, "1=1&=2&n=v");
+    NettyHttpContext.parseParameters(parameters, "1=1&=2&n=v");
     assertThat(parameters).hasSize(3).containsKey("n").containsKey("1").containsKey("2");
   }
 
   @Test
   void parseParameters_withEmptyString_shouldNotAddParameters() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "");
+    NettyHttpContext.parseParameters(parameters, "");
     assertThat(parameters).isEmpty();
   }
 
   @Test
   void parseParameters_withSingleKeyValuePair_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "key=value");
+    NettyHttpContext.parseParameters(parameters, "key=value");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of("value"));
   }
@@ -80,7 +80,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMultipleKeyValuePairs_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "key1=value1&key2=value2;key3=value3");
+    NettyHttpContext.parseParameters(parameters, "key1=value1&key2=value2;key3=value3");
     assertThat(parameters).hasSize(3)
             .containsEntry("key1", List.of("value1"))
             .containsEntry("key2", List.of("value2"))
@@ -90,7 +90,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withEmptyValue_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "key=");
+    NettyHttpContext.parseParameters(parameters, "key=");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of(""));
   }
@@ -98,7 +98,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withKeyOnly_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "key");
+    NettyHttpContext.parseParameters(parameters, "key");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of(""));
   }
@@ -106,7 +106,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMultipleEquals_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "key=value=more");
+    NettyHttpContext.parseParameters(parameters, "key=value=more");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of("value=more"));
   }
@@ -114,7 +114,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withFragmentInUrl_shouldIgnoreFragmentPart() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(parameters, "key1=value1#key2=value2");
+    NettyHttpContext.parseParameters(parameters, "key1=value1#key2=value2");
     assertThat(parameters).hasSize(1)
             .containsEntry("key1", List.of("value1"));
   }
@@ -125,7 +125,7 @@ class NettyRequestContextTests {
     QueryStringEncoder encoder = new QueryStringEncoder("");
     encoder.addParam("key@123", "value$456");
     encoder.addParam("key#789", "value%0A");
-    NettyRequestContext.parseParameters(parameters, encoder.toString().substring(1));
+    NettyHttpContext.parseParameters(parameters, encoder.toString().substring(1));
     assertThat(parameters).hasSize(2)
             .containsEntry("key@123", List.of("value$456"))
             .containsEntry("key#789", List.of("value%0A"));
@@ -134,7 +134,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withUTF8SpecialCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "name=张三&age=25&city=北京");
+    NettyHttpContext.parseParameters(params, "name=张三&age=25&city=北京");
 
     assertThat(params)
             .hasSize(3)
@@ -146,7 +146,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withEncodedCharacters_shouldDecodeCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "title=Hello+World&q=Java%2BSpring");
+    NettyHttpContext.parseParameters(params, "title=Hello+World&q=Java%2BSpring");
 
     assertThat(params)
             .hasSize(2)
@@ -157,7 +157,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMixedDelimiters_shouldParseAllParameters() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "a=1&b=2;c=3&d=4");
+    NettyHttpContext.parseParameters(params, "a=1&b=2;c=3&d=4");
 
     assertThat(params)
             .hasSize(4)
@@ -170,7 +170,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withEmptyValues_shouldParseAsEmptyStrings() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "a=&b&c=");
+    NettyHttpContext.parseParameters(params, "a=&b&c=");
 
     assertThat(params)
             .hasSize(3)
@@ -182,7 +182,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withEqualSignInValue_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "equation=x=1&formula=a=b=c");
+    NettyHttpContext.parseParameters(params, "equation=x=1&formula=a=b=c");
 
     assertThat(params)
             .hasSize(2)
@@ -198,14 +198,14 @@ class NettyRequestContextTests {
       query.append("p").append(i).append("=").append(i).append("&");
     }
 
-    NettyRequestContext.parseParameters(params, query.toString());
+    NettyHttpContext.parseParameters(params, query.toString());
     assertThat(params).hasSize(1024);
   }
 
   @Test
   void parseParameters_withFragmentIdentifier_shouldIgnoreFragment() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "a=1&b=2#fragment&c=3");
+    NettyHttpContext.parseParameters(params, "a=1&b=2#fragment&c=3");
 
     assertThat(params)
             .hasSize(2)
@@ -218,7 +218,7 @@ class NettyRequestContextTests {
   void parseParameters_withMalformedEncoding_shouldThrowIllegalArgumentException() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
 
-    assertThatThrownBy(() -> NettyRequestContext.parseParameters(params, "key=%2"))
+    assertThatThrownBy(() -> NettyHttpContext.parseParameters(params, "key=%2"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("unterminated escape sequence");
   }
@@ -226,7 +226,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withPercentEncodedValues_shouldDecodeCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "name=%E5%BC%A0%E4%B8%89&city=%E5%8C%97%E4%BA%AC");
+    NettyHttpContext.parseParameters(params, "name=%E5%BC%A0%E4%B8%89&city=%E5%8C%97%E4%BA%AC");
 
     assertThat(params)
             .hasSize(2)
@@ -237,7 +237,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withReservedCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "q=Java%3A%24%26%2B%2C%2F%3F%23%5B%5D%40");
+    NettyHttpContext.parseParameters(params, "q=Java%3A%24%26%2B%2C%2F%3F%23%5B%5D%40");
 
     assertThat(params)
             .hasSize(1)
@@ -248,18 +248,18 @@ class NettyRequestContextTests {
   void parseParameters_withMalformedPercentEncoding_shouldThrowException() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
 
-    assertThatThrownBy(() -> NettyRequestContext.parseParameters(params, "invalid=%2"))
+    assertThatThrownBy(() -> NettyHttpContext.parseParameters(params, "invalid=%2"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("unterminated escape sequence");
 
-    assertThatThrownBy(() -> NettyRequestContext.parseParameters(params, "invalid=%2G"))
+    assertThatThrownBy(() -> NettyHttpContext.parseParameters(params, "invalid=%2G"))
             .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void parseParameters_withSpaceEncoding_shouldHandlePlusAndPercent20() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "q1=hello+world&q2=hello%20world");
+    NettyHttpContext.parseParameters(params, "q1=hello+world&q2=hello%20world");
 
     assertThat(params)
             .hasSize(2)
@@ -270,7 +270,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withControlCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "data=%00%01%02%03%04%05");
+    NettyHttpContext.parseParameters(params, "data=%00%01%02%03%04%05");
 
     assertThat(params)
             .hasSize(1)
@@ -280,7 +280,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMultipleEncodedDelimiters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key1=value%26one&key2=value%3Btwo");
+    NettyHttpContext.parseParameters(params, "key1=value%26one&key2=value%3Btwo");
 
     assertThat(params)
             .hasSize(2)
@@ -291,7 +291,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withNonAsciiCharactersInKeys_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "%E5%90%8D%E5%AD%97=zhang&%E5%B9%B4%E9%BE%84=20");
+    NettyHttpContext.parseParameters(params, "%E5%90%8D%E5%AD%97=zhang&%E5%B9%B4%E9%BE%84=20");
 
     assertThat(params)
             .hasSize(2)
@@ -302,7 +302,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMultipleEmptyValues_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key1=&key2=&key3=");
+    NettyHttpContext.parseParameters(params, "key1=&key2=&key3=");
 
     assertThat(params)
             .hasSize(3)
@@ -314,7 +314,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMultipleKeysNoValues_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key1&key2&key3");
+    NettyHttpContext.parseParameters(params, "key1&key2&key3");
 
     assertThat(params)
             .hasSize(3)
@@ -326,7 +326,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withComplexEncodedCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key=%E2%98%83%E2%9C%88%F0%9F%98%80");
+    NettyHttpContext.parseParameters(params, "key=%E2%98%83%E2%9C%88%F0%9F%98%80");
 
     assertThat(params)
             .hasSize(1)
@@ -336,7 +336,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withNullBytes_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key1=abc%00def&key2=ghi%00jkl");
+    NettyHttpContext.parseParameters(params, "key1=abc%00def&key2=ghi%00jkl");
 
     assertThat(params)
             .hasSize(2)
@@ -351,7 +351,7 @@ class NettyRequestContextTests {
     for (int i = 0; i < 1000; i++) {
       longValue.append("a");
     }
-    NettyRequestContext.parseParameters(params, "key=" + longValue);
+    NettyHttpContext.parseParameters(params, "key=" + longValue);
 
     assertThat(params)
             .hasSize(1)
@@ -361,7 +361,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withConsecutiveDelimiters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key1=value1&&&&key2=value2;;;;key3=value3");
+    NettyHttpContext.parseParameters(params, "key1=value1&&&&key2=value2;;;;key3=value3");
 
     assertThat(params)
             .hasSize(3)
@@ -373,7 +373,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withSemicolonAndFlagTrue_shouldTreatSemicolonAsNormal() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key1=value;1&key2=value;2", true);
+    NettyHttpContext.parseParameters(params, "key1=value;1&key2=value;2", true);
 
     assertThat(params)
             .hasSize(2)
@@ -384,7 +384,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withMultipleSemicolonsAndFlagTrue_shouldNotSplitOnSemicolons() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key=a;b;c;d", true);
+    NettyHttpContext.parseParameters(params, "key=a;b;c;d", true);
 
     assertThat(params)
             .hasSize(1)
@@ -394,7 +394,7 @@ class NettyRequestContextTests {
   @Test
   void parseParameters_withSemicolonInKeyAndFlagTrue_shouldTreatAsNormal() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyRequestContext.parseParameters(params, "key;with;semicolons=value", true);
+    NettyHttpContext.parseParameters(params, "key;with;semicolons=value", true);
 
     assertThat(params)
             .hasSize(1)
@@ -411,7 +411,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerName()).isEqualTo("example.com");
   }
 
@@ -421,7 +421,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:8080");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerName()).isEqualTo("example.com");
   }
 
@@ -432,7 +432,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerName()).isEqualTo("[::1]");
   }
 
@@ -443,7 +443,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]:8080");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerName()).isEqualTo("[::1]");
   }
 
@@ -458,7 +458,7 @@ class NettyRequestContextTests {
     when(channel.pipeline()).thenReturn(pipeline);
     when(channel.localAddress()).thenReturn(new InetSocketAddress("192.168.1.1", 80));
 
-    var ctx = new NettyRequestContextStub(request, channel);
+    var ctx = new NettyHttpContextStub(request, channel);
     assertThat(ctx.getServerName()).isEqualTo("192.168.1.1");
   }
 
@@ -473,7 +473,7 @@ class NettyRequestContextTests {
     when(channel.pipeline()).thenReturn(pipeline);
     when(channel.localAddress()).thenReturn(null);
 
-    var ctx = new NettyRequestContextStub(request, channel);
+    var ctx = new NettyHttpContextStub(request, channel);
     assertThat(ctx.getServerName()).isEqualTo("localhost");
   }
 
@@ -490,7 +490,7 @@ class NettyRequestContextTests {
     when(channel.pipeline()).thenReturn(pipeline);
     when(channel.localAddress()).thenReturn(new InetSocketAddress("0.0.0.0", 3000));
 
-    var ctx = new NettyRequestContextStub(request, channel);
+    var ctx = new NettyHttpContextStub(request, channel);
     assertThat(ctx.getServerPort()).isEqualTo(3000);
   }
 
@@ -500,7 +500,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:8080");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(8080);
   }
 
@@ -510,7 +510,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]:9090");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(9090);
   }
 
@@ -520,7 +520,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(80);
   }
 
@@ -529,7 +529,7 @@ class NettyRequestContextTests {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(80);
   }
 
@@ -538,7 +538,7 @@ class NettyRequestContextTests {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
 
-    var ctx = new SecureNettyRequestContextStub(request, null);
+    var ctx = new SecureNettyHttpContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(443);
   }
 
@@ -548,7 +548,7 @@ class NettyRequestContextTests {
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
     request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:abc");
 
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     assertThat(ctx.getServerPort()).isEqualTo(80);
   }
 
@@ -556,27 +556,27 @@ class NettyRequestContextTests {
 
   @Test
   void parsePortFromHostHeaderWithIpv4AndPort() {
-    assertThat(NettyRequestContext.parsePortFromHostHeader("example.com:8080")).isEqualTo(8080);
+    assertThat(NettyHttpContext.parsePortFromHostHeader("example.com:8080")).isEqualTo(8080);
   }
 
   @Test
   void parsePortFromHostHeaderWithIpv4WithoutPort() {
-    assertThat(NettyRequestContext.parsePortFromHostHeader("example.com")).isEqualTo(-1);
+    assertThat(NettyHttpContext.parsePortFromHostHeader("example.com")).isEqualTo(-1);
   }
 
   @Test
   void parsePortFromHostHeaderWithIpv6AndPort() {
-    assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]:9090")).isEqualTo(9090);
+    assertThat(NettyHttpContext.parsePortFromHostHeader("[::1]:9090")).isEqualTo(9090);
   }
 
   @Test
   void parsePortFromHostHeaderWithIpv6WithoutPort() {
-    assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]")).isEqualTo(-1);
+    assertThat(NettyHttpContext.parsePortFromHostHeader("[::1]")).isEqualTo(-1);
   }
 
   @Test
   void parsePortFromHostHeaderWithIpv6AndMalformedPort() {
-    assertThat(NettyRequestContext.parsePortFromHostHeader("[::1]:abc")).isEqualTo(-1);
+    assertThat(NettyHttpContext.parsePortFromHostHeader("[::1]:abc")).isEqualTo(-1);
   }
 
   // -- onResponseCommitted tests --
@@ -658,7 +658,7 @@ class NettyRequestContextTests {
   void committedCallback_FiresWhenFlushed() throws IOException {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     var committed = new boolean[1];
 
     ctx.registerCommittedCallback(() -> committed[0] = true);
@@ -671,7 +671,7 @@ class NettyRequestContextTests {
   void committingCallback_FiresWhenFlushed() throws IOException {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
             io.netty.handler.codec.http.HttpMethod.GET, "/test");
-    var ctx = new NettyRequestContextStub(request, null);
+    var ctx = new NettyHttpContextStub(request, null);
     var committed = new boolean[1];
 
     ctx.registerCommittingCallback(() -> committed[0] = true);
@@ -686,13 +686,13 @@ class NettyRequestContextTests {
     return new EmbeddedChannel();
   }
 
-  private static class NettyRequestContextStub extends NettyRequestContext {
+  private static class NettyHttpContextStub extends NettyHttpContext {
 
-    NettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+    NettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
       this(request, channel, NettyRequestConfig.forBuilder(false));
     }
 
-    NettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel, NettyRequestConfig.Builder configBuilder) {
+    NettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel, NettyRequestConfig.Builder configBuilder) {
       super(mock(ApplicationContext.class),
               channel != null ? channel : mockChannel(),
               request,
@@ -714,14 +714,14 @@ class NettyRequestContextTests {
     }
   }
 
-  private static class SecureNettyRequestContextStub extends NettyRequestContextStub {
+  private static class SecureNettyHttpContextStub extends NettyHttpContextStub {
 
-    SecureNettyRequestContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+    SecureNettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
       super(request, channel, NettyRequestConfig.forBuilder(true));
     }
   }
 
-  private static class OnCommittedTrackingStub extends NettyRequestContextStub {
+  private static class OnCommittedTrackingStub extends NettyHttpContextStub {
 
     int onCommittedCallCount;
 

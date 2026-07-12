@@ -28,7 +28,7 @@ import infra.core.env.Environment;
 import infra.lang.Assert;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Proxy for a standard Filter, delegating to a Infra-managed bean that
@@ -75,8 +75,8 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
    *
    * @param delegate the {@code Filter} instance that this proxy will delegate to and
    * manage the lifecycle for (must not be {@code null}).
-   * @see #doFilter(RequestContext, FilterChain)
-   * @see #invokeDelegate(Filter, RequestContext, FilterChain)
+   * @see #doFilter(HttpContext, FilterChain)
+   * @see #invokeDelegate(Filter, HttpContext, FilterChain)
    * @see #destroy()
    * @see #setEnvironment(Environment)
    */
@@ -151,7 +151,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
   }
 
   @Override
-  public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
     // Lazily initialize the delegate if necessary.
     Filter delegateToUse = this.delegate;
     if (delegateToUse == null) {
@@ -173,7 +173,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
     }
 
     // Let the delegate perform the actual doFilter operation.
-    invokeDelegate(delegateToUse, request, chain);
+    invokeDelegate(delegateToUse, http, chain);
   }
 
   /**
@@ -200,7 +200,7 @@ public class DelegatingFilterProxy extends GenericFilterBean implements Applicat
    * @param request the current HTTP request
    * @param filterChain the current FilterChain
    */
-  protected void invokeDelegate(Filter delegate, RequestContext request, FilterChain filterChain) throws Exception {
+  protected void invokeDelegate(Filter delegate, HttpContext request, FilterChain filterChain) throws Exception {
     delegate.doFilter(request, filterChain);
   }
 

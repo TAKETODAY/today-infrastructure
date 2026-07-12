@@ -23,7 +23,7 @@ import infra.core.conversion.ConversionService;
 import infra.validation.BindingErrorProcessor;
 import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -131,7 +131,7 @@ class ConfigurableWebBindingInitializerTests {
   @Test
   void initBinderAppliesAllConfigurations() throws Exception {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
-    RequestContextDataBinder binder = new RequestContextDataBinder(new TestBean());
+    HttpContextDataBinder binder = new HttpContextDataBinder(new TestBean());
 
     MessageCodesResolver messageCodesResolver = mock(MessageCodesResolver.class);
     BindingErrorProcessor bindingErrorProcessor = mock(BindingErrorProcessor.class);

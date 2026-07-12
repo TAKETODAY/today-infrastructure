@@ -38,9 +38,9 @@ import infra.lang.Constant;
  *
  * <p><strong>Warning</strong>: when using this annotation on an exception
  * class, or when setting the {@code reason} attribute of this annotation,
- * the {@code RequestContext.sendError} method will be used.
+ * the {@code HttpContext.sendError} method will be used.
  *
- * <p>With {@code RequestContext.sendError}, the response is considered
+ * <p>With {@code HttpContext.sendError}, the response is considered
  * complete and should not be written to any further. Furthermore, the Web
  * container will typically write an HTML error page therefore making the
  * use of a {@code reason} unsuitable for REST APIs. For such cases it is
@@ -72,8 +72,8 @@ public @interface ResponseStatus {
    * <p>Default is {@link HttpStatus#INTERNAL_SERVER_ERROR}, which should
    * typically be changed to something more appropriate.
    *
-   * @see infra.web.RequestContext#setStatus(int)
-   * @see infra.web.RequestContext#sendError(int)
+   * @see infra.web.HttpContext#setStatus(int)
+   * @see infra.web.HttpContext#sendError(int)
    * @since 3.0
    */
   @AliasFor("value")
@@ -85,7 +85,7 @@ public @interface ResponseStatus {
    * non-empty value to have it used to send a Web container error page.
    * In this case, the return value of the handler method will be ignored.
    *
-   * @see infra.web.RequestContext#sendError(int, String)
+   * @see infra.web.HttpContext#sendError(int, String)
    * @since 3.0
    */
   String reason() default Constant.BLANK;

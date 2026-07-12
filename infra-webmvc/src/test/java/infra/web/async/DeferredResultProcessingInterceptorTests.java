@@ -18,8 +18,8 @@ package infra.web.async;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +32,7 @@ class DeferredResultProcessingInterceptorTests {
   @Test
   void defaultMethodsDoNotThrowExceptions() throws Exception {
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() { };
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     // Should not throw any exceptions
@@ -51,7 +51,7 @@ class DeferredResultProcessingInterceptorTests {
   @Test
   void handleTimeoutReturnsTrueByDefault() throws Exception {
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() { };
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     boolean result = interceptor.handleTimeout(request, deferredResult);
@@ -62,7 +62,7 @@ class DeferredResultProcessingInterceptorTests {
   @Test
   void handleErrorReturnsTrueByDefault() throws Exception {
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() { };
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     boolean result = interceptor.handleError(request, deferredResult, new RuntimeException("test"));
@@ -76,39 +76,39 @@ class DeferredResultProcessingInterceptorTests {
 
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
-      public <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+      public <T> void beforeConcurrentHandling(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
         called[0] = true;
       }
 
       @Override
-      public <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+      public <T> void preProcess(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
         called[1] = true;
       }
 
       @Override
-      public <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+      public <T> void postProcess(HttpContext request, DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
         called[2] = true;
       }
 
       @Override
-      public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+      public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
         called[3] = true;
         return false;
       }
 
       @Override
-      public <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+      public <T> boolean handleError(HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
         called[4] = true;
         return false;
       }
 
       @Override
-      public <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+      public <T> void afterCompletion(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
         called[5] = true;
       }
     };
 
-    RequestContext request = new MockRequestContext();
+    HttpContext request = new MockHttpContext();
     DeferredResult<String> deferredResult = new DeferredResult<>();
 
     interceptor.beforeConcurrentHandling(request, deferredResult);

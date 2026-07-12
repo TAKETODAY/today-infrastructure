@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.http.MediaType;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -43,7 +43,7 @@ class HeaderContentNegotiationStrategyTests {
 
   private final MockRequest mockRequest = new MockRequest();
 
-  final RequestContext context = new MockRequestContext(null, mockRequest, null);
+  final HttpContext context = new MockHttpContext(null, mockRequest, null);
 
   @Test
   public void resolveMediaTypes() throws Exception {

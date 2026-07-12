@@ -30,7 +30,7 @@ import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Abstract base class for {@link ServerResponse} implementations.
@@ -82,7 +82,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   @Nullable
   @Override
-  public Object writeTo(RequestContext request, Context context) throws Throwable {
+  public Object writeTo(HttpContext request, Context context) throws Throwable {
     try {
       writeStatusAndHeaders(request);
 
@@ -99,13 +99,13 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
     }
   }
 
-  private void writeStatusAndHeaders(RequestContext response) {
+  private void writeStatusAndHeaders(HttpContext response) {
     response.setStatus(statusCode);
     writeHeaders(response);
     writeCookies(response);
   }
 
-  private void writeHeaders(RequestContext context) {
+  private void writeHeaders(HttpContext context) {
     context.addHeaders(headers);
 
     if (context.getResponseContentType() == null && headers.getContentTypeAsString() != null) {
@@ -114,7 +114,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   }
 
-  private void writeCookies(RequestContext context) {
+  private void writeCookies(HttpContext context) {
     if (CollectionUtils.isNotEmpty(cookies)) {
       for (Map.Entry<String, List<ResponseCookie>> entry : cookies.entrySet()) {
         for (ResponseCookie cookie : entry.getValue()) {
@@ -125,6 +125,6 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   }
 
   @Nullable
-  protected abstract Object writeToInternal(RequestContext request, Context context) throws Throwable;
+  protected abstract Object writeToInternal(HttpContext request, Context context) throws Throwable;
 
 }

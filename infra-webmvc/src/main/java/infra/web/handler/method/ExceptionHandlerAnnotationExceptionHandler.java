@@ -34,8 +34,8 @@ import infra.context.ApplicationContextAware;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
@@ -91,7 +91,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   @Nullable
   @Override
-  protected Object handleInternal(RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
+  protected Object handleInternal(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
     var exHandler = getExceptionHandlerMethod(context, handlerMethod, target);
     if (exHandler == null) {
@@ -151,7 +151,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
    * @return a method to handle the exception, or {@code null} if none
    */
   @Nullable
-  protected InvocableHandlerMethod getExceptionHandlerMethod(RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
+  protected InvocableHandlerMethod getExceptionHandlerMethod(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
     List<MediaType> acceptedMediaTypes = List.of(MediaType.ALL);
     try {
       acceptedMediaTypes = contentNegotiationManager.resolveMediaTypes(context);
@@ -199,7 +199,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     return null;
   }
 
-  private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, RequestContext context, Object advice) {
+  private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
     if (!mappingInfo.getProducibleTypes().isEmpty()) {
       var matchingMetadata = context.getMatchingMetadata();
       if (matchingMetadata != null) {
@@ -215,7 +215,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   @Override
-  protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
+  protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
     return (handler instanceof ResourceHttpRequestHandler ?
             hasGlobalExceptionHandlers() : super.shouldApplyTo(request, handler));
   }

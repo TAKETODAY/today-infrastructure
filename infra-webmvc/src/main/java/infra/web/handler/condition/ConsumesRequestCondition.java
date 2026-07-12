@@ -29,7 +29,7 @@ import infra.http.HttpHeaders;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 
 /**
@@ -174,7 +174,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   @Nullable
-  public ConsumesRequestCondition getMatchingCondition(RequestContext request) {
+  public ConsumesRequestCondition getMatchingCondition(HttpContext request) {
     if (request.isPreFlightRequest()) {
       return EMPTY_CONDITION;
     }
@@ -205,7 +205,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     return null;
   }
 
-  private static boolean hasBody(RequestContext request) {
+  private static boolean hasBody(HttpContext request) {
     String transferEncoding = request.requestHeaders().getFirst(HttpHeaders.TRANSFER_ENCODING);
     return StringUtils.hasText(transferEncoding) || (request.getContentLength() > 0L);
   }
@@ -237,11 +237,11 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * <li>Greater than 0 if "other" has more or more specific media type expressions
    * </ul>
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(RequestContext)} and each instance contains
+   * {@link #getMatchingCondition(HttpContext)} and each instance contains
    * the matching consumable media type expression only or is otherwise empty.
    */
   @Override
-  public int compareTo(ConsumesRequestCondition other, RequestContext request) {
+  public int compareTo(ConsumesRequestCondition other, HttpContext request) {
     ArrayList<MediaTypeExpression> expressions = this.expressions;
     ArrayList<MediaTypeExpression> otherExpressions = other.expressions;
     if (expressions == null && otherExpressions == null) {

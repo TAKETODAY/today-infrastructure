@@ -1,4 +1,3 @@
-
 /**
  * Annotation-based setup for Web MVC.
  */

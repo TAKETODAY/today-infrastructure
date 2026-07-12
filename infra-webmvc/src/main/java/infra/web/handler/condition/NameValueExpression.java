@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 import infra.util.ObjectUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 
 /**
@@ -64,7 +64,7 @@ public abstract class NameValueExpression {
     }
   }
 
-  public final boolean match(RequestContext request) {
+  public final boolean match(HttpContext request) {
     boolean isMatch;
     if (this.value != null) {
       isMatch = matchValue(request);
@@ -77,9 +77,9 @@ public abstract class NameValueExpression {
 
   protected abstract boolean isCaseSensitiveName();
 
-  protected abstract boolean matchName(RequestContext request);
+  protected abstract boolean matchName(HttpContext request);
 
-  protected abstract boolean matchValue(RequestContext request);
+  protected abstract boolean matchValue(HttpContext request);
 
   @Override
   public boolean equals(@Nullable Object other) {

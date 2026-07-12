@@ -25,7 +25,7 @@ import javax.imageio.ImageIO;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.HandlerMethod;
 
 /**
@@ -56,13 +56,13 @@ public class RenderedImageReturnValueHandler implements HandlerMethodReturnValue
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws IOException {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws IOException {
     if (returnValue instanceof RenderedImage renderedImage) {
       write(renderedImage, context);
     }
   }
 
-  public void write(RenderedImage image, RequestContext context) throws IOException {
+  public void write(RenderedImage image, HttpContext context) throws IOException {
     context.setContentType(contentType);
     ImageIO.write(image, formatName, context.getOutputStream());
   }

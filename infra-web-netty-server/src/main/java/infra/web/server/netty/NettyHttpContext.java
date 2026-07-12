@@ -51,7 +51,7 @@ import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
@@ -86,7 +86,7 @@ import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
- * Netty-based implementation of the {@link RequestContext}, providing access to the
+ * Netty-based implementation of the {@link HttpContext}, providing access to the
  * underlying Netty {@link Channel}, {@link HttpRequest}, and response handling mechanisms.
  * <p>
  * This class serves as the bridge between the Netty transport layer and the web framework,
@@ -105,7 +105,7 @@ import static io.netty.util.internal.StringUtil.decodeHexByte;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:24
  */
-public abstract class NettyRequestContext extends RequestContext {
+public abstract class NettyHttpContext extends HttpContext {
 
   /**
    * System property to configure the nio file chunk size when ssl is enabled.
@@ -186,7 +186,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
   private @Nullable ServerHttpResponse outputMessage;
 
-  protected NettyRequestContext(ApplicationContext context, Channel channel,
+  protected NettyHttpContext(ApplicationContext context, Channel channel,
           HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.http2 = channel.pipeline().context(HttpChannelInitializer.H2ToHttp11Codec) != null;
@@ -782,7 +782,7 @@ public abstract class NettyRequestContext extends RequestContext {
    * @param msg an optional error message describing the issue; may be {@code null}
    * if no specific message is available
    * @throws IOException if an I/O error occurs while sending the error response
-   * @see SendErrorHandler#handleError(RequestContext, String)
+   * @see SendErrorHandler#handleError(HttpContext, String)
    */
   @Override
   public void sendError(int sc, @Nullable String msg) throws IOException {
@@ -993,7 +993,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
     @Override
     public void flush() {
-      NettyRequestContext.this.flush();
+      NettyHttpContext.this.flush();
     }
 
   }
@@ -1005,42 +1005,42 @@ public abstract class NettyRequestContext extends RequestContext {
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
       this.contentType = mediaType;
-      NettyRequestContext.this.setContentType(mediaType);
+      NettyHttpContext.this.setContentType(mediaType);
     }
 
     @Override
     public void setContentLength(long length) {
-      NettyRequestContext.this.setContentLength(length);
+      NettyHttpContext.this.setContentLength(length);
     }
 
     @Override
     public void setHeader(String name, @Nullable String value) {
-      NettyRequestContext.this.setHeader(name, value);
+      NettyHttpContext.this.setHeader(name, value);
     }
 
     @Override
     public void setHeaders(infra.http.@Nullable HttpHeaders headers) {
-      NettyRequestContext.this.setHeaders(headers);
+      NettyHttpContext.this.setHeaders(headers);
     }
 
     @Override
     public void addHeader(String name, @Nullable String value) {
-      NettyRequestContext.this.addHeader(name, value);
+      NettyHttpContext.this.addHeader(name, value);
     }
 
     @Override
     public void addHeaders(infra.http.@Nullable HttpHeaders headers) {
-      NettyRequestContext.this.addHeaders(headers);
+      NettyHttpContext.this.addHeaders(headers);
     }
 
     @Override
     public boolean removeHeader(String name) {
-      return NettyRequestContext.this.removeHeader(name);
+      return NettyHttpContext.this.removeHeader(name);
     }
 
     @Override
     public boolean containsHeader(String name) {
-      return NettyRequestContext.this.containsResponseHeader(name);
+      return NettyHttpContext.this.containsResponseHeader(name);
     }
 
     @Override
@@ -1068,7 +1068,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
     @Override
     public void flush() {
-      NettyRequestContext.this.flush();
+      NettyHttpContext.this.flush();
     }
 
     @Override
@@ -1103,7 +1103,7 @@ public abstract class NettyRequestContext extends RequestContext {
 
     @Override
     public @Nullable String getContentTypeAsString() {
-      return NettyRequestContext.this.getResponseContentType();
+      return NettyHttpContext.this.getResponseContentType();
     }
 
     @Override

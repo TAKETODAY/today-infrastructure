@@ -33,7 +33,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
 
 /**
@@ -66,7 +66,7 @@ final class SseServerResponse extends AbstractServerResponse {
   }
 
   @Override
-  protected Object writeToInternal(RequestContext request, Context context) throws Exception {
+  protected Object writeToInternal(HttpContext request, Context context) throws Exception {
     DeferredResult<?> result;
     if (timeout != null) {
       result = new DeferredResult<>(timeout.toMillis());
@@ -90,11 +90,11 @@ final class SseServerResponse extends AbstractServerResponse {
 
     private final StringBuilder builder = new StringBuilder();
 
-    private final RequestContext request;
+    private final HttpContext request;
 
     private boolean sendFailed;
 
-    public DefaultSseBuilder(RequestContext request, Context context, DeferredResult<?> deferredResult) {
+    public DefaultSseBuilder(HttpContext request, Context context, DeferredResult<?> deferredResult) {
       this.request = request;
       this.deferredResult = deferredResult;
       this.messageConverters = context.messageConverters();

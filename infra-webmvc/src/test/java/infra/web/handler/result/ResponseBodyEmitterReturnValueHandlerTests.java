@@ -34,13 +34,13 @@ import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockResponse;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.StandardMockAsyncWebRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -66,7 +66,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   private MockResponse response;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -77,7 +77,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.handler = new ResponseBodyEmitterReturnValueHandler(converters);
     this.request = new MockRequest();
     this.response = new MockResponse();
-    this.webRequest = new MockRequestContext(null, this.request, this.response);
+    this.webRequest = new MockHttpContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
     webRequest.setAsyncRequest(asyncWebRequest);

@@ -26,7 +26,7 @@ import java.util.Optional;
 
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +41,8 @@ class RequestPredicateTests {
   @BeforeEach
   void createRequest() {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, new MockResponse());
-    this.request = new DefaultServerRequest(requestContext, Collections.emptyList());
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, new MockResponse());
+    this.request = new DefaultServerRequest(httpContext, Collections.emptyList());
   }
 
   @Test

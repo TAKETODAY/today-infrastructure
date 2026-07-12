@@ -48,9 +48,9 @@ import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.NotFoundHandler;
-import infra.web.RequestContext;
 import infra.web.WebContentGenerator;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.cors.CorsConfiguration;
@@ -307,7 +307,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * Return the specified CORS configuration.
    */
   @Override
-  public @Nullable CorsConfiguration getCorsConfiguration(RequestContext request) {
+  public @Nullable CorsConfiguration getCorsConfiguration(HttpContext ctx) {
     return this.corsConfiguration;
   }
 
@@ -334,7 +334,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * Configure a generator function that will be used to create the ETag information,
    * given a {@link Resource} that is about to be written to the response.
    * <p>This function should return a String that will be used as an argument in
-   * {@link RequestContext#checkNotModified(String)}, or {@code null} if no value
+   * {@link HttpContext#checkNotModified(String)}, or {@code null} if no value
    * can be generated for the given resource.
    *
    * @param etagGenerator the HTTP ETag generator function to use.
@@ -511,42 +511,42 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public @Nullable Object handleRequest(RequestContext request) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
     // For very general mappings (e.g. "/") we need to check 404 first
-    Resource resource = getResource(request);
+    Resource resource = getResource(context);
     if (resource == null) {
-      return notFoundHandler.handleNotFound(request);
+      return notFoundHandler.handleNotFound(context);
     }
 
-    if (HttpMethod.OPTIONS == request.getMethod()) {
-      request.setHeader(HttpHeaders.ALLOW, getAllowHeader());
+    if (HttpMethod.OPTIONS == context.getMethod()) {
+      context.setHeader(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
     }
 
     // Supported methods and required session
-    checkRequest(request);
+    checkRequest(context);
 
     // Apply cache settings, if any
-    prepareResponse(request);
+    prepareResponse(context);
 
     // Header phase
     String eTag = getETag(resource);
-    if (request.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
+    if (context.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
       logger.trace("Resource not modified");
       return NONE_RETURN_VALUE;
     }
 
     // Check the media type for the resource
-    MediaType mediaType = getMediaType(request, resource);
-    setHeaders(request, resource, mediaType);
+    MediaType mediaType = getMediaType(context, resource);
+    setHeaders(context, resource, mediaType);
 
     // Content phase
-    ServerHttpResponse outputMessage = request.asHttpOutputMessage();
-    if (request.requestHeaders().get(HttpHeaders.RANGE) == null) {
+    ServerHttpResponse outputMessage = context.asHttpOutputMessage();
+    if (context.requestHeaders().get(HttpHeaders.RANGE) == null) {
       ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
 
-      if (HttpMethod.HEAD == request.getMethod()) {
+      if (HttpMethod.HEAD == context.getMethod()) {
         converter.addDefaultHeaders(outputMessage, resource, mediaType);
       }
       else {
@@ -557,13 +557,13 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
       try {
-        List<HttpRange> httpRanges = request.getHeaders().getRange();
-        request.setStatus(HttpStatus.PARTIAL_CONTENT);
+        List<HttpRange> httpRanges = context.getHeaders().getRange();
+        context.setStatus(HttpStatus.PARTIAL_CONTENT);
         converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
-        request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+        context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+        context.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
       }
     }
 
@@ -578,7 +578,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     return null;
   }
 
-  protected @Nullable Resource getResource(RequestContext request) throws IOException {
+  protected @Nullable Resource getResource(HttpContext request) throws IOException {
     String path;
     var matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata == null) {
@@ -636,7 +636,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param resource the resource to check
    * @return the corresponding media type, or {@code null} if none found
    */
-  protected @Nullable MediaType getMediaType(RequestContext request, Resource resource) {
+  protected @Nullable MediaType getMediaType(HttpContext request, Resource resource) {
     MediaType result = null;
     MediaType mediaType = null;
     String filename = resource.getName();
@@ -665,7 +665,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param mediaType the resource's media type (never {@code null})
    * @throws IOException in case of errors while setting the headers
    */
-  protected void setHeaders(RequestContext response, Resource resource, @Nullable MediaType mediaType)
+  protected void setHeaders(HttpContext response, Resource resource, @Nullable MediaType mediaType)
           throws IOException {
 
     if (mediaType != null) {

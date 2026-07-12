@@ -28,8 +28,8 @@ import java.util.Optional;
 import infra.http.MediaType;
 import infra.http.MediaTypeFactory;
 import infra.util.StringUtils;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
 
 /**
  * Base class for {@code ContentNegotiationStrategy} implementations with the
@@ -90,17 +90,17 @@ public abstract class AbstractMappingContentNegotiationStrategy
   }
 
   @Override
-  public List<MediaType> resolveMediaTypes(RequestContext context)
+  public List<MediaType> resolveMediaTypes(HttpContext context)
           throws HttpMediaTypeNotAcceptableException {
 
     return resolveMediaTypeKey(context, getMediaTypeKey(context));
   }
 
   /**
-   * An alternative to {@link #resolveMediaTypes(RequestContext)} that accepts
+   * An alternative to {@link #resolveMediaTypes(HttpContext)} that accepts
    * an already extracted key.
    */
-  public List<MediaType> resolveMediaTypeKey(RequestContext webRequest, @Nullable String key)
+  public List<MediaType> resolveMediaTypeKey(HttpContext webRequest, @Nullable String key)
           throws HttpMediaTypeNotAcceptableException {
 
     if (StringUtils.hasText(key)) {
@@ -124,7 +124,7 @@ public abstract class AbstractMappingContentNegotiationStrategy
    * @return the lookup key, or {@code null} if none
    */
   @Nullable
-  protected abstract String getMediaTypeKey(RequestContext request);
+  protected abstract String getMediaTypeKey(HttpContext request);
 
   /**
    * Override to provide handling when a key is successfully resolved via
@@ -139,7 +139,7 @@ public abstract class AbstractMappingContentNegotiationStrategy
    * this method it will be added to the cache in the base class.
    */
   @Nullable
-  protected MediaType handleNoMatch(RequestContext request, String key)
+  protected MediaType handleNoMatch(HttpContext request, String key)
           throws HttpMediaTypeNotAcceptableException {
 
     if (!isUseRegisteredExtensionsOnly()) {

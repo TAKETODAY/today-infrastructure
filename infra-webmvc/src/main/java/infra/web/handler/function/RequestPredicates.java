@@ -53,7 +53,7 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.validation.BindException;
 import infra.web.HandlerMapping;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Part;
@@ -1257,7 +1257,7 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public RequestContext exchange() {
+    public HttpContext exchange() {
       return request.exchange();
     }
 

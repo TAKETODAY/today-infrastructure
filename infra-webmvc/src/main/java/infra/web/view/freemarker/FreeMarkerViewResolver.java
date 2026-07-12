@@ -55,7 +55,7 @@ import infra.web.view.View;
  * @see #setViewClass
  * @see #setPrefix
  * @see #setSuffix
- * @see #setRequestContextAttribute
+ * @see #setHttpContextAttribute
  * @see FreeMarkerView
  * @since 4.0
  */

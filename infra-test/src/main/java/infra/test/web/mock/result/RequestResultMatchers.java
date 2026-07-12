@@ -24,13 +24,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
 import infra.web.async.WebAsyncTask;
+import infra.web.mock.MockRequest;
 
 import static infra.test.util.AssertionErrors.assertEquals;
 import static infra.test.util.AssertionErrors.assertFalse;
@@ -143,7 +143,7 @@ public class RequestResultMatchers {
 
   private static Session getSession(MvcResult result) {
     Session httpSession = result.getRequest().getSession();
-    Session session = result.getRequestContext().getSession();
+    Session session = result.getContext().getSession();
     if (httpSession != null) {
       // 暂时使用合并的方式
       for (String attr : httpSession.attributeNames()) {
@@ -176,10 +176,10 @@ public class RequestResultMatchers {
   }
 
   /**
-   * Assert the given RequestContext.
+   * Assert the given HttpContext.
    */
-  public ResultMatcher request(Consumer<RequestContext> contextConsumer) {
-    return result -> contextConsumer.accept(result.getRequestContext());
+  public ResultMatcher request(Consumer<HttpContext> contextConsumer) {
+    return result -> contextConsumer.accept(result.getContext());
   }
 
   private static void assertAsyncStarted(MockRequest request) {

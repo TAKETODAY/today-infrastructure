@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.web.HandlerAdapter;
 import infra.web.HandlerInterceptor;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -100,7 +100,7 @@ class HandlerExecutionChainTests {
   void handleRequestWithNoInterceptors() throws Throwable {
     Object handler = new Object();
     HandlerAdapter adapter = mock(HandlerAdapter.class);
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     Object result = new Object();
 
     given(adapter.handle(request, handler)).willReturn(result);

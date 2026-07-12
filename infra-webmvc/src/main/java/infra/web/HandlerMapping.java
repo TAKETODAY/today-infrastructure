@@ -81,7 +81,7 @@ public interface HandlerMapping {
   String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
 
   /**
-   * Name of the {@link RequestContext} attribute that contains the
+   * Name of the {@link HttpContext} attribute that contains the
    * resolved and parsed API version.
    *
    * @since 5.0
@@ -99,13 +99,13 @@ public interface HandlerMapping {
    * The DispatcherHandler will query all registered HandlerMapping beans to find
    * a match, and only decide there is an error if none can find a handler.
    *
-   * @param request Current request context
+   * @param context Current request context
    * @return a fgA instance containing handler object and
    * any interceptors, or {@code null} if no mapping found
    * @throws Exception if there is an internal error
    */
   @Nullable
-  Object getHandler(RequestContext request) throws Exception;
+  Object getHandler(HttpContext context) throws Exception;
 
   // static factory method
 

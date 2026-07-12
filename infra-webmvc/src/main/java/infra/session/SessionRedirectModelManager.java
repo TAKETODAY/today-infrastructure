@@ -23,9 +23,9 @@ import java.util.List;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.web.AbstractRedirectModelManager;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
 import infra.web.util.WebUtils;
 
 /**
@@ -50,7 +50,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
 
   @Override
   @SuppressWarnings("unchecked")
-  protected @Nullable List<RedirectModel> retrieveRedirectModel(RequestContext request) {
+  protected @Nullable List<RedirectModel> retrieveRedirectModel(HttpContext request) {
     Session session = getSession(request, false);
     if (session != null) {
       return (List<RedirectModel>) session.getAttribute(SESSION_ATTRIBUTE);
@@ -59,7 +59,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   }
 
   @Override
-  protected void updateRedirectModel(List<RedirectModel> redirectModels, RequestContext request) {
+  protected void updateRedirectModel(List<RedirectModel> redirectModels, HttpContext request) {
     if (CollectionUtils.isEmpty(redirectModels)) {
       Session session = getSession(request, false);
       if (session != null) {
@@ -74,7 +74,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   }
 
   @Override
-  protected @Nullable Object getRedirectModelMutex(RequestContext request) {
+  protected @Nullable Object getRedirectModelMutex(HttpContext request) {
     Session session = getSession(request, false);
     if (session != null) {
       return WebUtils.getSessionMutex(session);
@@ -87,7 +87,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
     return sessionManager;
   }
 
-  @Nullable Session getSession(RequestContext context, boolean create) {
+  @Nullable Session getSession(HttpContext context, boolean create) {
     SessionManager sessionManager = getSessionManager();
     if (sessionManager == null) {
       return context.getSession(create);

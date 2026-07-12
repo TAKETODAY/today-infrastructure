@@ -35,9 +35,9 @@ import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
 import infra.http.HttpMethod;
 import infra.web.DispatcherHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.multipart.MultipartRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,14 +49,14 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/9 17:08
  */
-class RequestContextMethodArgumentResolverTests {
+class HttpContextMethodArgumentResolverTests {
 
   @Test
   void supportsParameterWithSupportedTypes() throws Exception {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
 
     Method method = TestController.class.getDeclaredMethod("handleRequest",
-            RequestContext.class, MultipartRequest.class, InputStream.class, OutputStream.class,
+            HttpContext.class, MultipartRequest.class, InputStream.class, OutputStream.class,
             Reader.class, Writer.class, HttpMethod.class, Locale.class, TimeZone.class,
             InputStreamSource.class, OutputStreamSource.class, ZoneId.class);
 
@@ -70,7 +70,7 @@ class RequestContextMethodArgumentResolverTests {
 
   @Test
   void supportsParameterWithUnsupportedType() throws Exception {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
 
     Method method = TestController.class.getDeclaredMethod("handleUnsupported", String.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
@@ -79,302 +79,302 @@ class RequestContextMethodArgumentResolverTests {
   }
 
   @Test
-  void resolveArgumentWithRequestContext() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+  void resolveArgumentWithHttpContext() throws Throwable {
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
-    Method method = TestController.class.getDeclaredMethod("handleRequestContext", RequestContext.class);
+    Method method = TestController.class.getDeclaredMethod("handleHttpContext", HttpContext.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
-    assertThat(result).isSameAs(requestContext);
+    assertThat(result).isSameAs(httpContext);
   }
 
   @Test
   void resolveArgumentWithHttpMethod() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
-    requestContext.setHttpMethod(HttpMethod.POST);
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
+    httpContext.setHttpMethod(HttpMethod.POST);
 
     Method method = TestController.class.getDeclaredMethod("handleMethod", HttpMethod.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
     assertThat(result).isEqualTo(HttpMethod.POST);
   }
 
   @Test
   void resolveArgumentWithLocale() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleLocale", Locale.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
     assertThat(result).isEqualTo(Locale.ENGLISH);
   }
 
   @Test
   void resolveArgumentWithTimeZone() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleTimeZone", TimeZone.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
     assertThat(result).isEqualTo(TimeZone.getDefault());
   }
 
   @Test
   void resolveArgumentWithZoneId() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleZoneId", ZoneId.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
     assertThat(result).isEqualTo(ZoneId.systemDefault());
   }
 
   @Test
   void resolveArgumentWithInputStreamSource() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleInputStreamSource", InputStreamSource.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
-    assertThat(result).isSameAs(requestContext);
+    assertThat(result).isSameAs(httpContext);
   }
 
   @Test
   void resolveArgumentWithOutputStreamSource() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleOutputStreamSource", OutputStreamSource.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
-    assertThat(result).isSameAs(requestContext);
+    assertThat(result).isSameAs(httpContext);
   }
 
   @Test
   void resolveArgumentWithMultipartRequest() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
     MultipartRequest multipartRequest = mock(MultipartRequest.class);
-    when(requestContext.asMultipartRequest()).thenReturn(multipartRequest);
+    when(http.asMultipartRequest()).thenReturn(multipartRequest);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", MultipartRequest.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(http, parameter);
 
     assertThat(result).isSameAs(multipartRequest);
   }
 
   @Test
   void resolveArgumentWithInputStream() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
     InputStream inputStream = mock(InputStream.class);
-    when(requestContext.getInputStream()).thenReturn(inputStream);
+    when(http.getInputStream()).thenReturn(inputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", InputStream.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(http, parameter);
 
     assertThat(result).isSameAs(inputStream);
   }
 
   @Test
   void resolveArgumentWithOutputStream() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
     OutputStream outputStream = mock(OutputStream.class);
-    when(requestContext.getOutputStream()).thenReturn(outputStream);
+    when(http.getOutputStream()).thenReturn(outputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", OutputStream.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(http, parameter);
 
     assertThat(result).isSameAs(outputStream);
   }
 
   @Test
   void resolveArgumentWithReader() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
     BufferedReader reader = mock(BufferedReader.class);
-    when(requestContext.getReader()).thenReturn(reader);
+    when(http.getReader()).thenReturn(reader);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", Reader.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(http, parameter);
 
     assertThat(result).isSameAs(reader);
   }
 
   @Test
   void resolveArgumentWithWriter() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
     PrintWriter writer = mock(PrintWriter.class);
-    when(requestContext.getWriter()).thenReturn(writer);
+    when(http.getWriter()).thenReturn(writer);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", Writer.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(http, parameter);
 
     assertThat(result).isSameAs(writer);
   }
 
   @Test
-  void resolveArgumentWithWrongRequestContextType() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    MockRequestContext requestContext = new MockRequestContext();
+  void resolveArgumentWithWrongHttpContextType() throws Throwable {
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    MockHttpContext httpContext = new MockHttpContext();
 
-    requestContext.setHttpMethod(HttpMethod.GET);
+    httpContext.setHttpMethod(HttpMethod.GET);
 
-    Method method = TestController.class.getDeclaredMethod("handleWrongRequestContext", WrongRequestContext.class);
+    Method method = TestController.class.getDeclaredMethod("handleWrongHttpContext", WrongHttpContext.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(requestContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(httpContext, parameter))
             .withMessageContaining("Current request is not of type");
   }
 
   @Test
   void resolveArgumentWithWrongMultipartRequestType() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
-    when(requestContext.asMultipartRequest()).thenReturn(mock(MultipartRequest.class));
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
+    when(http.asMultipartRequest()).thenReturn(mock(MultipartRequest.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongMultipartRequest", WrongMultipartRequest.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(requestContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(http, parameter))
             .withMessageContaining("Current multipart request is not of type");
   }
 
   @Test
   void resolveArgumentWithWrongInputStreamType() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
-    when(requestContext.getInputStream()).thenReturn(mock(InputStream.class));
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
+    when(http.getInputStream()).thenReturn(mock(InputStream.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongInputStream", WrongInputStream.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(requestContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(http, parameter))
             .withMessageContaining("Request input stream is not of type");
   }
 
   @Test
   void resolveArgumentWithWrongOutputStreamType() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
-    when(requestContext.getOutputStream()).thenReturn(mock(OutputStream.class));
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
+    when(http.getOutputStream()).thenReturn(mock(OutputStream.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongOutputStream", WrongOutputStream.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(requestContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(http, parameter))
             .withMessageContaining("Response output stream is not of type");
   }
 
   @Test
   void resolveArgumentWithWrongReaderType() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
-    when(requestContext.getReader()).thenReturn(mock(BufferedReader.class));
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
+    when(http.getReader()).thenReturn(mock(BufferedReader.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongReader", WrongReader.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(requestContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(http, parameter))
             .withMessageContaining("Request body reader is not of type");
   }
 
   @Test
   void resolveArgumentWithWrongWriterType() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
-    when(requestContext.getWriter()).thenReturn(mock(PrintWriter.class));
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext http = mock();
+    when(http.getWriter()).thenReturn(mock(PrintWriter.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongWriter", WrongWriter.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(requestContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(http, parameter))
             .withMessageContaining("Request body writer is not of type");
   }
 
   @Test
-  void resolveArgumentWithCustomRequestContextImplementation() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    CustomRequestContext requestContext = new CustomRequestContext();
+  void resolveArgumentWithCustomHttpContextImplementation() throws Throwable {
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    CustomHttpContext httpContext = new CustomHttpContext();
 
-    Method method = TestController.class.getDeclaredMethod("handleRequestContext", RequestContext.class);
+    Method method = TestController.class.getDeclaredMethod("handleHttpContext", HttpContext.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
-    assertThat(result).isSameAs(requestContext);
+    assertThat(result).isSameAs(httpContext);
   }
 
   @Test
   void resolveArgumentWithCustomInputStreamImplementation() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext httpContext = mock();
     CustomInputStream inputStream = new CustomInputStream();
-    when(requestContext.getInputStream()).thenReturn(inputStream);
+    when(httpContext.getInputStream()).thenReturn(inputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", InputStream.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
     assertThat(result).isSameAs(inputStream);
   }
 
   @Test
   void resolveArgumentWithCustomOutputStreamImplementation() throws Throwable {
-    RequestContextMethodArgumentResolver resolver = new RequestContextMethodArgumentResolver();
-    RequestContext requestContext = mock();
+    HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
+    HttpContext httpContext = mock();
     CustomOutputStream outputStream = new CustomOutputStream();
-    when(requestContext.getOutputStream()).thenReturn(outputStream);
+    when(httpContext.getOutputStream()).thenReturn(outputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", OutputStream.class);
     ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(requestContext, parameter);
+    Object result = resolver.resolveArgument(httpContext, parameter);
 
     assertThat(result).isSameAs(outputStream);
   }
 
-  static class CustomRequestContext extends MockRequestContext {
-    // Inherits all behavior from MockRequestContext
+  static class CustomHttpContext extends MockHttpContext {
+    // Inherits all behavior from MockHttpContext
   }
 
   static abstract class CustomMultipartRequest implements MultipartRequest {
@@ -432,7 +432,7 @@ class RequestContextMethodArgumentResolverTests {
   }
 
   static class TestController {
-    public void handleRequest(RequestContext requestContext, MultipartRequest multipartRequest,
+    public void handleRequest(HttpContext httpContext, MultipartRequest multipartRequest,
             InputStream inputStream, OutputStream outputStream,
             Reader reader, Writer writer, HttpMethod method,
             Locale locale, TimeZone timeZone, InputStreamSource inputSource,
@@ -455,7 +455,7 @@ class RequestContextMethodArgumentResolverTests {
 
     public void handleUnsupported(String unsupported) { }
 
-    public void handleRequestContext(RequestContext context) { }
+    public void handleHttpContext(HttpContext context) { }
 
     public void handleMethod(HttpMethod method) { }
 
@@ -469,7 +469,7 @@ class RequestContextMethodArgumentResolverTests {
 
     public void handleOutputStreamSource(OutputStreamSource source) { }
 
-    public void handleWrongRequestContext(WrongRequestContext context) { }
+    public void handleWrongHttpContext(WrongHttpContext context) { }
 
     public void handleWrongMultipartRequest(WrongMultipartRequest request) { }
 
@@ -483,8 +483,8 @@ class RequestContextMethodArgumentResolverTests {
 
   }
 
-  static abstract class WrongRequestContext extends RequestContext {
-    protected WrongRequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
+  static abstract class WrongHttpContext extends HttpContext {
+    protected WrongHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
       super(context, dispatcherHandler);
     }
 

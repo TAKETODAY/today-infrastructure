@@ -26,7 +26,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.core.task.AsyncTaskExecutor;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Holder for a {@link Callable}, a timeout value, and a task executor.
@@ -191,17 +191,17 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   CallableProcessingInterceptor createInterceptor() {
     return new CallableProcessingInterceptor() {
       @Override
-      public <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
+      public <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
         return (timeoutCallback != null ? timeoutCallback.call() : RESULT_NONE);
       }
 
       @Override
-      public <T> Object handleError(RequestContext request, Callable<T> task, Throwable t) throws Exception {
+      public <T> Object handleError(HttpContext request, Callable<T> task, Throwable t) throws Exception {
         return (errorCallback != null ? errorCallback.call() : RESULT_NONE);
       }
 
       @Override
-      public <T> void afterCompletion(RequestContext request, Callable<T> task) throws Exception {
+      public <T> void afterCompletion(HttpContext request, Callable<T> task) throws Exception {
         if (completionCallback != null) {
           completionCallback.run();
         }

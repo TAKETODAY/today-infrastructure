@@ -20,14 +20,14 @@ package infra.web.handler.condition;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Contract for request mapping conditions.
  *
  * <p>Request conditions can be combined via {@link #combine(Object)}, matched to
- * a request via {@link #getMatchingCondition(RequestContext)}, and compared
- * to each other via {@link #compareTo(Object, RequestContext)} to determine
+ * a request via {@link #getMatchingCondition(HttpContext)}, and compared
+ * to each other via {@link #compareTo(Object, HttpContext)} to determine
  * which is a closer match for a given request.
  *
  * @param <T> the type of objects that this RequestCondition can be combined
@@ -64,16 +64,16 @@ public interface RequestCondition<T> {
    * @return a condition instance in case of a match or {@code null} otherwise.
    */
   @Nullable
-  T getMatchingCondition(RequestContext request);
+  T getMatchingCondition(HttpContext request);
 
   /**
    * Compare this condition to another condition in the context of
    * a specific request. This method assumes both instances have
-   * been obtained via {@link #getMatchingCondition(RequestContext)}
+   * been obtained via {@link #getMatchingCondition(HttpContext)}
    * to ensure they have content relevant to current request only.
    *
    * @param request the current request context
    */
-  int compareTo(T other, RequestContext request);
+  int compareTo(T other, HttpContext request);
 
 }

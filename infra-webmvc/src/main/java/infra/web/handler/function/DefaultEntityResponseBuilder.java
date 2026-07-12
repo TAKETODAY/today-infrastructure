@@ -61,8 +61,8 @@ import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
 import infra.web.async.DeferredResult;
 
 /**
@@ -261,14 +261,14 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(HttpContext request, Context context) throws Exception {
       writeEntityWithMessageConverters(this.entity, request, context);
       return NONE_RETURN_VALUE;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void writeEntityWithMessageConverters(Object entity,
-            RequestContext request, ServerResponse.Context context) throws IOException {
+            HttpContext request, ServerResponse.Context context) throws IOException {
 
       MediaType contentType = getContentType(request);
       Class<?> entityClass = entity.getClass();
@@ -323,7 +323,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @SuppressWarnings("NullAway")
-    private static MediaType getContentType(RequestContext response) {
+    private static MediaType getContentType(HttpContext response) {
       try {
         return MediaType.parseMediaType(response.getResponseContentType()).removeQualityValue();
       }
@@ -333,7 +333,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     protected void tryWriteEntityWithMessageConverters(Object entity,
-            RequestContext request, ServerResponse.Context context) throws Throwable {
+            HttpContext request, ServerResponse.Context context) throws Throwable {
       try {
         writeEntityWithMessageConverters(entity, request, context);
       }
@@ -366,7 +366,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(HttpContext request, Context context) throws Exception {
 
       DeferredResult<ServerResponse> deferredResult = createDeferredResult(request, context);
       DefaultAsyncServerResponse.writeAsync(request, deferredResult);
@@ -374,7 +374,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     private DeferredResult<ServerResponse> createDeferredResult(
-            RequestContext request, Context context) {
+            HttpContext request, Context context) {
 
       DeferredResult<ServerResponse> result = new DeferredResult<>();
       entity().whenComplete((value, ex) -> {
@@ -417,7 +417,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(HttpContext request, Context context) throws Exception {
       DeferredResult<?> deferredResult = new DeferredResult<>();
       DefaultAsyncServerResponse.writeAsync(request, deferredResult);
 
@@ -430,10 +430,10 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       private final Context context;
       @Nullable
       private Subscription subscription;
-      private final RequestContext request;
+      private final HttpContext request;
       private final DeferredResult<?> deferredResult;
 
-      public DeferredResultSubscriber(RequestContext request,
+      public DeferredResultSubscriber(HttpContext request,
               Context context, DeferredResult<?> deferredResult) {
         this.request = request;
         this.context = context;

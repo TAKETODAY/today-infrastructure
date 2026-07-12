@@ -30,7 +30,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.FutureListener;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * {@code DeferredResult} provides an alternative to using a {@link Callable} for
@@ -305,7 +305,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
   final DeferredResultProcessingInterceptor createInterceptor() {
     return new DeferredResultProcessingInterceptor() {
       @Override
-      public <S> boolean handleTimeout(RequestContext request, DeferredResult<S> deferredResult) {
+      public <S> boolean handleTimeout(HttpContext request, DeferredResult<S> deferredResult) {
         boolean continueProcessing = true;
         try {
           if (timeoutCallback != null) {
@@ -328,7 +328,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
       }
 
       @Override
-      public <S> boolean handleError(RequestContext request, DeferredResult<S> deferredResult, Throwable t) {
+      public <S> boolean handleError(HttpContext request, DeferredResult<S> deferredResult, Throwable t) {
         try {
           if (errorCallback != null) {
             errorCallback.accept(t);
@@ -346,7 +346,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
       }
 
       @Override
-      public <S> void afterCompletion(RequestContext request, DeferredResult<S> deferredResult) {
+      public <S> void afterCompletion(HttpContext request, DeferredResult<S> deferredResult) {
         expired = true;
         if (completionCallback != null) {
           completionCallback.run();

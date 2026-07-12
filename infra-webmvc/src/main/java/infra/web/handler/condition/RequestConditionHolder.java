@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A holder for a {@link RequestCondition} useful when the type of the request
@@ -114,7 +114,7 @@ public final class RequestConditionHolder extends AbstractRequestCondition<Reque
    */
   @Override
   @Nullable
-  public RequestConditionHolder getMatchingCondition(RequestContext request) {
+  public RequestConditionHolder getMatchingCondition(HttpContext request) {
     if (this.condition == null) {
       return this;
     }
@@ -128,7 +128,7 @@ public final class RequestConditionHolder extends AbstractRequestCondition<Reque
    * Or if one holder is empty, the other holder is preferred.
    */
   @Override
-  public int compareTo(RequestConditionHolder other, RequestContext request) {
+  public int compareTo(RequestConditionHolder other, HttpContext request) {
     if (this.condition == null && other.condition == null) {
       return 0;
     }

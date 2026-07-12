@@ -33,8 +33,8 @@ import java.util.function.Function;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
 
 /**
  * Central class to determine requested {@linkplain MediaType media types}
@@ -125,7 +125,7 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
   }
 
   @Override
-  public List<MediaType> resolveMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
+  public List<MediaType> resolveMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
     for (ContentNegotiationStrategy strategy : this.strategies) {
       List<MediaType> mediaTypes = strategy.resolveMediaTypes(request);
       if (mediaTypes.equals(MEDIA_TYPE_ALL_LIST)) {

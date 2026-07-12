@@ -16,7 +16,7 @@
 
 package infra.web.cors;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Handler for CORS pre-flight requests.
@@ -33,8 +33,8 @@ public interface PreFlightRequestHandler {
    * response should be updated with CORS headers or rejected with
    * {@link infra.http.HttpStatus#FORBIDDEN}.
    *
-   * @param request current HTTP request
+   * @param context current HTTP context
    */
-  void handlePreFlight(RequestContext request) throws Exception;
+  void handlePreFlight(HttpContext context) throws Exception;
 
 }

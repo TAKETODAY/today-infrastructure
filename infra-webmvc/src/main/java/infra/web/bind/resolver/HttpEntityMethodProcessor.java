@@ -41,10 +41,10 @@ import infra.http.converter.HttpMessageConverter;
 import infra.lang.Assert;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -122,7 +122,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public @Nullable Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable)
+  public @Nullable Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable)
           throws IOException, HttpMediaTypeNotSupportedException //
   {
     MethodParameter parameter = resolvable.getParameter();
@@ -181,7 +181,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -286,7 +286,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     return entityHeadersVary;
   }
 
-  private boolean isResourceNotModified(RequestContext context, HttpMethod method) {
+  private boolean isResourceNotModified(HttpContext context, HttpMethod method) {
     HttpHeaders responseHeaders = context.responseHeaders();
     String etag = responseHeaders.getETag();
     long lastModifiedTimestamp = responseHeaders.getLastModified();
@@ -297,8 +297,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     return context.checkNotModified(etag, lastModifiedTimestamp);
   }
 
-  private void saveRedirectAttributes(RequestContext request, String location) {
-    RequestContextUtils.saveRedirectModel(location, request, redirectModelManager);
+  private void saveRedirectAttributes(HttpContext request, String location) {
+    HttpContextUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 
   @Override

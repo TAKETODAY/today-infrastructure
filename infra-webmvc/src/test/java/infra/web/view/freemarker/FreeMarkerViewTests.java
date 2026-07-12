@@ -38,12 +38,11 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequest;
 import infra.web.LocaleResolver;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
-import infra.web.mock.MockRequestContext;
-import infra.web.mock.MockUtils;
 import infra.web.view.AbstractView;
 import infra.web.view.InternalResourceView;
 import infra.web.view.RedirectView;
@@ -110,7 +109,7 @@ public class FreeMarkerViewTests {
 
     Map<String, Object> model = new HashMap<>();
     model.put("myattr", "myvalue");
-    MockRequestContext context = new MockRequestContext(wac, request, response);
+    MockHttpContext context = new MockHttpContext(wac, request, response);
     fv.render(model, context);
     assertThat(response.getContentType()).isEqualTo(AbstractView.DEFAULT_CONTENT_TYPE);
   }
@@ -140,7 +139,7 @@ public class FreeMarkerViewTests {
 
     Map<String, Object> model = new HashMap<>();
     model.put("myattr", "myvalue");
-    MockRequestContext context = new MockRequestContext(wac, request, response);
+    MockHttpContext context = new MockHttpContext(wac, request, response);
     fv.render(model, context);
 
     assertThat(response.getContentType()).isEqualTo("myContentType");
@@ -166,7 +165,7 @@ public class FreeMarkerViewTests {
     MockResponse response = new MockResponse();
 
     request.setAttribute("myattr", "myvalue");
-    fv.render(null, new MockRequestContext(wac, request, response));
+    fv.render(null, new MockHttpContext(wac, request, response));
   }
 
   @Test

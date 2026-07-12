@@ -29,8 +29,8 @@ import java.util.Properties;
 
 import infra.http.MediaType;
 import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,13 +46,13 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   private MockRequest mockRequest;
 
-  MockRequestContext webRequest;
+  MockHttpContext webRequest;
 
   @BeforeEach
   void setup() {
 
     this.mockRequest = new MockRequest();
-    webRequest = new MockRequestContext(mockRequest);
+    webRequest = new MockHttpContext(mockRequest);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }
 
@@ -118,14 +118,14 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.mockRequest.setRequestURI("/flower.foo");
 
     this.mockRequest.setRequestURI("/flower.bar");
-    webRequest = new MockRequestContext(mockRequest);
+    webRequest = new MockHttpContext(mockRequest);
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
 
     this.mockRequest.setRequestURI("/flower.gif");
 
-    webRequest = new MockRequestContext(mockRequest);
+    webRequest = new MockHttpContext(mockRequest);
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
   }

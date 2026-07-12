@@ -23,9 +23,9 @@ import org.jspecify.annotations.Nullable;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.InterceptorChain;
-import infra.web.RequestContext;
 
 /**
  * Handler execution chain, consisting of handler object and any handler interceptors.
@@ -79,12 +79,12 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
   }
 
   @Override
-  public @Nullable Object handleRequest(RequestContext request) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
     var interceptors = this.interceptors;
     if (interceptors == null) {
-      return handlerAdapter.handle(request, handler);
+      return handlerAdapter.handle(context, handler);
     }
-    return new Chain(interceptors, handler).proceed(request);
+    return new Chain(interceptors, handler).proceed(context);
   }
 
   public HandlerInterceptor @Nullable [] getInterceptors() {
@@ -107,7 +107,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
     }
 
     @Override
-    protected @Nullable Object invokeHandler(RequestContext context, Object handler) throws Throwable {
+    protected @Nullable Object invokeHandler(HttpContext context, Object handler) throws Throwable {
       return handlerAdapter.handle(context, handler);
     }
   }

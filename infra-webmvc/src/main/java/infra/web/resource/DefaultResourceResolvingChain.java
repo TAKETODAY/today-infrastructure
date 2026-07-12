@@ -27,7 +27,7 @@ import java.util.ListIterator;
 
 import infra.core.io.Resource;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Default immutable implementation of {@link ResourceResolvingChain}.
@@ -72,9 +72,9 @@ class DefaultResourceResolvingChain implements ResourceResolvingChain {
   @Override
   @Nullable
   public Resource resolveResource(
-          @Nullable RequestContext request, String requestPath, List<? extends Resource> locations) {
+          @Nullable HttpContext context, String requestPath, List<? extends Resource> locations) {
     return resolver != null && nextChain != null
-            ? resolver.resolveResource(request, requestPath, locations, nextChain) : null;
+            ? resolver.resolveResource(context, requestPath, locations, nextChain) : null;
   }
 
   @Override

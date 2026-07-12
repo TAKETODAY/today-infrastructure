@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
 
 import static infra.http.HttpMethod.GET;
 import static infra.web.handler.function.RequestPredicates.GET;
@@ -44,7 +44,7 @@ class RouterFunctionTests {
   MockResponse mockResponse = new MockResponse();
 
   private final ServerRequest request = new DefaultServerRequest(
-          new MockRequestContext(null, initRequest("GET", "", true), mockResponse), Collections.emptyList());
+          new MockHttpContext(null, initRequest("GET", "", true), mockResponse), Collections.emptyList());
 
   @Test
   void and() {
@@ -236,21 +236,21 @@ class RouterFunctionTests {
 
     // Test first route
     ServerRequest request1 = new DefaultServerRequest(
-            new MockRequestContext(null, initRequest("GET", "/route1", true), mockResponse),
+            new MockHttpContext(null, initRequest("GET", "/route1", true), mockResponse),
             Collections.emptyList());
     Optional<HandlerFunction<ServerResponse>> handler1 = result.route(request1);
     assertThat(handler1.isPresent()).isTrue();
 
     // Test second route
     ServerRequest request2 = new DefaultServerRequest(
-            new MockRequestContext(null, initRequest("GET", "/route2", true), mockResponse),
+            new MockHttpContext(null, initRequest("GET", "/route2", true), mockResponse),
             Collections.emptyList());
     Optional<HandlerFunction<ServerResponse>> handler2 = result.route(request2);
     assertThat(handler2.isPresent()).isTrue();
 
     // Test third route
     ServerRequest request3 = new DefaultServerRequest(
-            new MockRequestContext(null, initRequest("GET", "/route3", true), mockResponse),
+            new MockHttpContext(null, initRequest("GET", "/route3", true), mockResponse),
             Collections.emptyList());
     Optional<HandlerFunction<ServerResponse>> handler3 = result.route(request3);
     assertThat(handler3.isPresent()).isTrue();
@@ -357,7 +357,7 @@ class RouterFunctionTests {
 
     // Test filtered route
     ServerRequest request1 = new DefaultServerRequest(
-            new MockRequestContext(null, initRequest("GET", "/filter", true), mockResponse),
+            new MockHttpContext(null, initRequest("GET", "/filter", true), mockResponse),
             Collections.emptyList());
 
     Optional<EntityResponse<String>> response1 = result.route(request1)
@@ -375,7 +375,7 @@ class RouterFunctionTests {
 
     // Test second route
     ServerRequest request2 = new DefaultServerRequest(
-            new MockRequestContext(null, initRequest("GET", "/second", true), mockResponse),
+            new MockHttpContext(null, initRequest("GET", "/second", true), mockResponse),
             Collections.emptyList());
 
     Optional<EntityResponse<String>> response2 = result.route(request2)

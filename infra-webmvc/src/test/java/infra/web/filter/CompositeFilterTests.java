@@ -22,8 +22,8 @@ import java.util.List;
 
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,7 +41,7 @@ class CompositeFilterTests {
     CompositeFilter composite = new CompositeFilter();
     composite.setFilters(List.of(targetFilter));
 
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     composite.doFilter(context, null);
 
     assertThat(context.getRequest().getAttribute("called")).isEqualTo(Boolean.TRUE);
@@ -54,7 +54,7 @@ class CompositeFilterTests {
 
     CompositeFilter composite = new CompositeFilter();
     composite.setFilters(List.of());
-    composite.doFilter(new MockRequestContext(), originalChain);
+    composite.doFilter(new MockHttpContext(), originalChain);
 
     assertThat(chainInvoked[0]).isTrue();
   }
@@ -70,7 +70,7 @@ class CompositeFilterTests {
 
     var chainInvoked = new boolean[] { false };
     FilterChain originalChain = request -> chainInvoked[0] = true;
-    composite.doFilter(new MockRequestContext(), originalChain);
+    composite.doFilter(new MockHttpContext(), originalChain);
 
     assertThat(order.toString()).isEqualTo("AB");
     assertThat(chainInvoked[0]).isTrue();
@@ -87,7 +87,7 @@ class CompositeFilterTests {
 
     var chainInvoked = new boolean[] { false };
     FilterChain originalChain = request -> chainInvoked[0] = true;
-    composite.doFilter(new MockRequestContext(), originalChain);
+    composite.doFilter(new MockHttpContext(), originalChain);
 
     assertThat(order.toString()).isEqualTo("A");
     assertThat(chainInvoked[0]).isFalse();
@@ -101,7 +101,7 @@ class CompositeFilterTests {
             (request, chain) -> { throw expected; }
     ));
 
-    assertThatThrownBy(() -> composite.doFilter(new MockRequestContext(), null))
+    assertThatThrownBy(() -> composite.doFilter(new MockHttpContext(), null))
             .isSameAs(expected);
   }
 
@@ -121,8 +121,8 @@ class CompositeFilterTests {
   public static class MockFilter implements Filter {
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
-      request.setAttribute("called", Boolean.TRUE);
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+      http.setAttribute("called", Boolean.TRUE);
     }
 
   }

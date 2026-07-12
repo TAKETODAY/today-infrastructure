@@ -47,11 +47,11 @@ import infra.web.util.HtmlUtils;
  * @author Juergen Hoeller
  * @author Darren Davison
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see RequestContext#getBindStatus
+ * @see HttpContext#getBindStatus
  */
 public class BindStatus {
 
-  private final RequestContext request;
+  private final HttpContext request;
 
   private final String path;
 
@@ -80,13 +80,13 @@ public class BindStatus {
   /**
    * Create a new BindStatus instance, representing a field or object status.
    *
-   * @param request the current RequestContext
+   * @param request the current HttpContext
    * @param path the bean and property path for which values and errors
    * will be resolved (for example, "customer.address.street")
    * @param htmlEscape whether to HTML-escape error messages and string values
    * @throws IllegalStateException if no corresponding Errors object found
    */
-  public BindStatus(RequestContext request, String path, boolean htmlEscape) throws IllegalStateException {
+  public BindStatus(HttpContext request, String path, boolean htmlEscape) throws IllegalStateException {
     this.request = request;
     this.path = path;
     this.htmlEscape = htmlEscape;

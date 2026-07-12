@@ -32,6 +32,8 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.HttpHeaders;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
@@ -39,13 +41,11 @@ import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestMapping;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.HandlerMethodMappingNamingStrategy;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -88,7 +88,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/fo*", this.handler, this.method2);
 
     MockRequest request = new MockRequest("GET", "/foo");
-    MockRequestContext context = new MockRequestContext(null, request, null);
+    MockHttpContext context = new MockHttpContext(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
     assertThat(result.getMethod()).isEqualTo(method1);
@@ -106,7 +106,7 @@ public class HandlerMethodMappingTests {
 
     MockRequest request = new MockRequest("GET", "/foo");
 
-    MockRequestContext context = new MockRequestContext(null, request, null);
+    MockHttpContext context = new MockHttpContext(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
     assertThat(result.getMethod()).isEqualTo(method1);
@@ -124,7 +124,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/fo?", this.handler, this.method2);
 
     assertThatIllegalStateException().isThrownBy(() ->
-            this.mapping.getHandlerInternal(new MockRequestContext(
+            this.mapping.getHandlerInternal(new MockHttpContext(
                     null, new MockRequest("GET", "/foo"), null)));
   }
 
@@ -139,7 +139,7 @@ public class HandlerMethodMappingTests {
 
     MockResponse response = new MockResponse();
 
-    MockRequestContext context = new MockRequestContext(null, request, response);
+    MockHttpContext context = new MockHttpContext(null, request, response);
 
     HandlerExecutionChain chain = getHandler(context);
 
@@ -155,7 +155,7 @@ public class HandlerMethodMappingTests {
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isNull();
   }
 
-  private HandlerExecutionChain getHandler(MockRequestContext context) throws Exception {
+  private HandlerExecutionChain getHandler(MockHttpContext context) throws Exception {
     Object mappingHandler = this.mapping.getHandler(context);
     if (mappingHandler instanceof HandlerExecutionChain chain) {
       return chain;
@@ -174,7 +174,7 @@ public class HandlerMethodMappingTests {
 
     MockResponse response = new MockResponse();
 
-    MockRequestContext context = new MockRequestContext(null, request, response);
+    MockHttpContext context = new MockHttpContext(null, request, response);
     HandlerExecutionChain chain = getHandler(context);
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
@@ -276,10 +276,10 @@ public class HandlerMethodMappingTests {
     HandlerMethod handlerMethod = new HandlerMethod(this.handler, this.method1);
 
     this.mapping.registerMapping(key, this.handler, this.method1);
-    assertThat(this.mapping.getHandlerInternal(new MockRequestContext(null, new MockRequest("GET", key), null))).isNotNull();
+    assertThat(this.mapping.getHandlerInternal(new MockHttpContext(null, new MockRequest("GET", key), null))).isNotNull();
 
     this.mapping.unregisterMapping(key);
-    assertThat(mapping.getHandlerInternal(new MockRequestContext(null, new MockRequest("GET", key), null))).isNull();
+    assertThat(mapping.getHandlerInternal(new MockHttpContext(null, new MockRequest("GET", key), null))).isNull();
     assertThat(this.mapping.mappingRegistry.getDirectPathMappings(key)).isNull();
     assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
     assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
@@ -296,7 +296,7 @@ public class HandlerMethodMappingTests {
 
     this.mapping.setApplicationContext(context);
     this.mapping.registerMapping(key, beanName, this.method1);
-    HandlerMethod handlerMethod = this.mapping.getHandlerInternal(new MockRequestContext(
+    HandlerMethod handlerMethod = this.mapping.getHandlerInternal(new MockHttpContext(
             null, new MockRequest("GET", key), null));
   }
 
@@ -342,12 +342,12 @@ public class HandlerMethodMappingTests {
     }
 
     @Override
-    protected void handleMatch(Match<String> bestMatch, String directLookupPath, RequestContext request) {
+    protected void handleMatch(Match<String> bestMatch, String directLookupPath, HttpContext request) {
 
     }
 
     @Override
-    protected String getMatchingMapping(String pattern, RequestContext request) {
+    protected String getMatchingMapping(String pattern, HttpContext request) {
       String lookupPath = request.getRequestPath().value();
       String match = (this.pathMatcher.match(pattern, lookupPath) ? pattern : null);
       if (match != null) {
@@ -357,7 +357,7 @@ public class HandlerMethodMappingTests {
     }
 
     @Override
-    protected Comparator<String> getMappingComparator(RequestContext request) {
+    protected Comparator<String> getMappingComparator(HttpContext request) {
       String lookupPath = request.getRequestPath().value();
       return this.pathMatcher.getPatternComparator(lookupPath);
     }

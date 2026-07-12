@@ -26,7 +26,7 @@ import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A {@link infra.web.resource.ResourceTransformer} that checks a
@@ -65,7 +65,7 @@ public class CachingResourceTransformer implements ResourceTransformer {
   }
 
   @Override
-  public Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain)
+  public Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException {
 
     Resource transformed = this.cache.get(resource, Resource.class);
@@ -74,7 +74,7 @@ public class CachingResourceTransformer implements ResourceTransformer {
       return transformed;
     }
 
-    transformed = transformerChain.transform(request, resource);
+    transformed = transformerChain.transform(context, resource);
     this.cache.put(resource, transformed);
 
     return transformed;

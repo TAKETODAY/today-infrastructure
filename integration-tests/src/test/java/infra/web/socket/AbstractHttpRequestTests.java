@@ -22,10 +22,10 @@ import org.junit.jupiter.api.BeforeEach;
 
 import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
 
 /**
  * Base class for tests using {@link ServerHttpRequest} and {@link ServerHttpResponse}.
@@ -34,7 +34,7 @@ import infra.web.mock.MockRequestContext;
  */
 public abstract class AbstractHttpRequestTests {
 
-  protected RequestContext request;
+  protected HttpContext request;
 
   protected MockRequest mockRequest;
 
@@ -48,7 +48,7 @@ public abstract class AbstractHttpRequestTests {
   protected void setRequest(String method, String requestUri) {
     this.mockRequest.setMethod(method);
     this.mockRequest.setRequestURI(requestUri);
-    this.request = new MockRequestContext(null, this.mockRequest, mockResponse);
+    this.request = new MockHttpContext(null, this.mockRequest, mockResponse);
   }
 
   protected void resetRequestAndResponse() {
@@ -59,7 +59,7 @@ public abstract class AbstractHttpRequestTests {
   protected void resetRequest() {
     this.mockRequest = new MockRequest();
     this.mockRequest.setAsyncSupported(true);
-    this.request = new MockRequestContext(null, this.mockRequest, mockResponse);
+    this.request = new MockHttpContext(null, this.mockRequest, mockResponse);
   }
 
   protected void resetResponse() {

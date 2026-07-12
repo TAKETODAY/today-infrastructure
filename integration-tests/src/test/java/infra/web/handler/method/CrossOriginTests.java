@@ -49,7 +49,7 @@ import infra.web.annotation.PostMapping;
 import infra.web.annotation.RequestMapping;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.HandlerExecutionChain;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -293,7 +293,7 @@ class CrossOriginTests {
 
   @Nullable
   private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, MockRequest request) throws Exception {
-    Object handler = mapping.getHandler(new MockRequestContext(null, request, null));
+    Object handler = mapping.getHandler(new MockHttpContext(null, request, null));
     if (handler instanceof HandlerExecutionChain chain) {
       return chain;
     }

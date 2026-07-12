@@ -24,7 +24,7 @@ import infra.core.MethodParameter;
 import infra.http.MediaType;
 import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A convenient base class for {@code ResponseBodyAdvice} implementations
@@ -46,7 +46,7 @@ public abstract class AbstractJacksonResponseBodyAdvice implements ResponseBodyA
   @Nullable
   @Override
   public Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
-          MediaType contentType, HttpMessageConverter<?> selected, RequestContext context) {
+          MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
 
     return body;
   }

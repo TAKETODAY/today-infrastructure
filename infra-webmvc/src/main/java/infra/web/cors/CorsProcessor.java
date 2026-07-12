@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A strategy that takes a request and a {@link CorsConfiguration} and updates
@@ -46,9 +46,9 @@ public interface CorsProcessor {
    * Process a request given a {@code CorsConfiguration}.
    *
    * @param configuration the applicable CORS configuration (possibly {@code null})
-   * @param context the current HTTP context
+   * @param ctx the current HTTP context
    * @return {@code false} if the request is rejected, {@code true} otherwise
    */
-  boolean process(@Nullable CorsConfiguration configuration, RequestContext context) throws IOException;
+  boolean process(@Nullable CorsConfiguration configuration, HttpContext ctx) throws IOException;
 
 }

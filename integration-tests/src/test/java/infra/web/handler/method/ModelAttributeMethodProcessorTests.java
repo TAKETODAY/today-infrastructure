@@ -32,15 +32,15 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.core.ResolvableType;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.RequestContext;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.mock.MockRequestContext;
 import infra.web.multipart.Part;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.verify;
  */
 class ModelAttributeMethodProcessorTests {
 
-  private MockRequestContext request;
+  private MockHttpContext request;
 
   private BindingContext container;
 
@@ -82,7 +82,7 @@ class ModelAttributeMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    this.request = new MockRequestContext(null, new MockRequest(), null);
+    this.request = new MockHttpContext(null, new MockRequest(), null);
     this.container = new BindingContext();
     request.setBinding(container);
     this.processor = new ModelAttributeMethodProcessor(false);
@@ -158,7 +158,7 @@ class ModelAttributeMethodProcessorTests {
 
   @Test
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(null);
+    HttpContextDataBinder dataBinder = new HttpContextDataBinder(null);
     dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getParameter()));
 
     BindingContext factory = mock();
@@ -175,12 +175,12 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
     this.container.addAttribute(name, target);
 
-    AtomicReference<StubRequestDataBinder> ref = new AtomicReference<>();
+    AtomicReference<StubHttpDataBinder> ref = new AtomicReference<>();
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-        StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, objectName);
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+        StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, objectName);
         ref.set(dataBinder);
         return dataBinder;
       }
@@ -199,11 +199,11 @@ class ModelAttributeMethodProcessorTests {
     String name = "attrName";
     Object target = new TestBean();
 
-    StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
+    StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
     BindingContext factory = new BindingContext() {
 
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return dataBinder;
       }
     };
@@ -225,10 +225,10 @@ class ModelAttributeMethodProcessorTests {
   public void resolveArgumentBindingDisabled() throws Throwable {
     String name = "noBindAttr";
     Object target = new TestBean();
-    StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
+    StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
     BindingContext factory = new BindingContext() {
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return dataBinder;
       }
     };
@@ -250,8 +250,8 @@ class ModelAttributeMethodProcessorTests {
     BindingContext binderFactory = new BindingContext() {
 
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-        StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+        StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
         dataBinder.getBindingResult().reject("error");
         return dataBinder;
       }
@@ -266,11 +266,11 @@ class ModelAttributeMethodProcessorTests {
   public void resolveArgumentOrdering() throws Throwable {
     String name = "testBean";
     Object testBean = new TestBean(name);
-    StubRequestDataBinder dataBinder = new StubRequestDataBinder(testBean, name);
+    StubHttpDataBinder dataBinder = new StubHttpDataBinder(testBean, name);
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         return dataBinder;
       }
     };
@@ -307,12 +307,12 @@ class ModelAttributeMethodProcessorTests {
   public void resolveConstructorListArgumentFromCommaSeparatedRequestParameter() throws Throwable {
     MockRequest mockRequest = new MockRequest();
     mockRequest.addParameter("listOfStrings", "1,2");
-    MockRequestContext requestWithParam = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext requestWithParam = new MockHttpContext(null, mockRequest, null);
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-        RequestContextDataBinder binder = new RequestContextDataBinder(target, objectName);
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+        HttpContextDataBinder binder = new HttpContextDataBinder(target, objectName);
         binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter()));
 
         // Add conversion service which will convert "1,2" to a list
@@ -339,13 +339,13 @@ class ModelAttributeMethodProcessorTests {
     this.processor.resolveArgument(request, param);
   }
 
-  private static class StubRequestDataBinder extends RequestContextDataBinder {
+  private static class StubHttpDataBinder extends HttpContextDataBinder {
 
     private boolean bindInvoked;
 
     private boolean validateInvoked;
 
-    public StubRequestDataBinder(Object target, String objectName) {
+    public StubHttpDataBinder(Object target, String objectName) {
       super(target, objectName);
     }
 
@@ -358,7 +358,7 @@ class ModelAttributeMethodProcessorTests {
     }
 
     @Override
-    public void bind(RequestContext request) {
+    public void bind(HttpContext request) {
       bindInvoked = true;
     }
 

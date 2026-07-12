@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.AbstractView;
 
 /**
@@ -68,7 +68,7 @@ public abstract class AbstractPdfView extends AbstractView {
 
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws Exception {
+          Map<String, Object> model, HttpContext http) throws Exception {
 
     // IE workaround: write into byte array first.
     ByteArrayOutputStream baos = createTemporaryOutputStream();
@@ -76,16 +76,16 @@ public abstract class AbstractPdfView extends AbstractView {
     // Apply preferences and build metadata.
     Document document = newDocument();
     PdfWriter writer = newWriter(document, baos);
-    prepareWriter(model, writer, request);
-    buildPdfMetadata(model, document, request);
+    prepareWriter(model, writer, http);
+    buildPdfMetadata(model, document, http);
 
     // Build PDF document.
     document.open();
-    buildPdfDocument(model, document, writer, request);
+    buildPdfDocument(model, document, writer, http);
     document.close();
 
     // Flush to HTTP response.
-    writeToResponse(request, baos);
+    writeToResponse(http, baos);
   }
 
   /**
@@ -128,7 +128,7 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.pdf.PdfWriter#setViewerPreferences
    * @see #getViewerPreferences()
    */
-  protected void prepareWriter(Map<String, Object> model, PdfWriter writer, RequestContext request)
+  protected void prepareWriter(Map<String, Object> model, PdfWriter writer, HttpContext request)
           throws DocumentException {
 
     writer.setViewerPreferences(getViewerPreferences());
@@ -168,7 +168,7 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.Document#addCreationDate
    * @see com.lowagie.text.Document#addHeader
    */
-  protected void buildPdfMetadata(Map<String, Object> model, Document document, RequestContext request) {
+  protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpContext request) {
   }
 
   /**
@@ -188,6 +188,6 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.Document#close()
    */
   protected abstract void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer,
-          RequestContext context) throws Exception;
+          HttpContext context) throws Exception;
 
 }

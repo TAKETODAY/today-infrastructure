@@ -26,7 +26,7 @@ import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Assert;
 import infra.util.DataSize;
 import infra.util.ExceptionUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
@@ -85,16 +85,16 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   @Override
-  public List<WebSocketExtension> getSupportedExtensions(RequestContext request) {
+  public List<WebSocketExtension> getSupportedExtensions(HttpContext context) {
     return Collections.emptyList();
   }
 
   @Nullable
   @Override
-  public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
+  public WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
-    if (!(context instanceof NettyRequestContext nettyContext)) {
+    if (!(context instanceof NettyHttpContext nettyContext)) {
       throw new IllegalStateException("not running in netty");
     }
 
@@ -152,7 +152,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected NettyWebSocketSession createSession(@Nullable String selectedProtocol,
-          NettyRequestContext context, NettyDataBufferFactory allocator) {
+          NettyHttpContext context, NettyDataBufferFactory allocator) {
     return new NettyWebSocketSession(context.config.secure, context.channel, allocator, selectedProtocol);
   }
 

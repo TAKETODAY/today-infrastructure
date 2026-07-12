@@ -30,8 +30,8 @@ import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.validation.method.MethodValidator;
+import infra.web.HttpContext;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
@@ -170,7 +170,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   }
 
   @Override
-  protected @Nullable Object handleInternal(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected @Nullable Object handleInternal(HttpContext request, HandlerMethod handlerMethod) throws Throwable {
     Object returnValue;
 
     // Execute invokeHandlerMethod in synchronized block if required.
@@ -199,7 +199,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
     return returnValue;
   }
 
-  private @Nullable Session getSession(RequestContext request) {
+  private @Nullable Session getSession(HttpContext request) {
     return request.getSession(false);
   }
 
@@ -209,7 +209,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
    *
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
-  protected @Nullable Object invokeHandlerMethod(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Throwable {
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
     binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
     request.setBinding(binding);

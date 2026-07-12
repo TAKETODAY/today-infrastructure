@@ -74,7 +74,7 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
 import infra.web.i18n.LocaleChangeInterceptor;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
 import infra.web.view.ViewResolver;
@@ -115,7 +115,7 @@ class WebMvcConfigurationSupportTests {
     rmHandlerMapping.afterPropertiesSet();
 
     HandlerExecutionChain chain = (HandlerExecutionChain) rmHandlerMapping.getHandler(
-            new MockRequestContext(new MockRequest("GET", "/")));
+            new MockHttpContext(new MockRequest("GET", "/")));
 
     assertThat(chain).isNotNull();
     HandlerInterceptor[] interceptors = chain.getInterceptors();
@@ -138,13 +138,13 @@ class WebMvcConfigurationSupportTests {
     assertThat(handlerMapping).isNotNull();
     assertThat(handlerMapping.getOrder()).isEqualTo(1);
     chain = (HandlerExecutionChain) handlerMapping.getHandler(
-            new MockRequestContext(new MockRequest("GET", "/path")));
+            new MockHttpContext(new MockRequest("GET", "/path")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
-    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockRequestContext(new MockRequest("GET", "/bad")));
+    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(new MockRequest("GET", "/bad")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
-    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockRequestContext(new MockRequest("GET", "/old")));
+    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(new MockRequest("GET", "/old")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
 
@@ -154,7 +154,7 @@ class WebMvcConfigurationSupportTests {
     assertThat(handlerMapping).isNotNull();
     assertThat(handlerMapping.getOrder()).isEqualTo((Integer.MAX_VALUE - 1));
     chain = (HandlerExecutionChain) handlerMapping.getHandler(
-            new MockRequestContext(new MockRequest("GET", "/resources/foo.gif")));
+            new MockHttpContext(new MockRequest("GET", "/resources/foo.gif")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
     interceptors = chain.getInterceptors();
@@ -212,14 +212,14 @@ class WebMvcConfigurationSupportTests {
 
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
-    assertThat(manager.resolveMediaTypes(new MockRequestContext(request))).isEqualTo(Collections.singletonList(APPLICATION_JSON));
+    assertThat(manager.resolveMediaTypes(new MockHttpContext(request))).isEqualTo(Collections.singletonList(APPLICATION_JSON));
 
     SimpleUrlHandlerMapping handlerMapping = (SimpleUrlHandlerMapping) this.config.resourceHandlerMapping(
             null, this.config.mvcContentNegotiationManager());
     handlerMapping.setApplicationContext(this.context);
 
     request = new MockRequest("GET", "/resources/foo.gif");
-    HandlerExecutionChain chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockRequestContext(request));
+    HandlerExecutionChain chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(request));
     assertThat(chain).isNotNull();
   }
 

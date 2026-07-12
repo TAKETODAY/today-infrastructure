@@ -23,7 +23,7 @@ import java.util.Set;
 
 import infra.context.ApplicationContext;
 import infra.context.support.StaticApplicationContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,50 +32,50 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/7 09:45
  */
-class ContextExposingRequestContextTests {
+class ContextExposingHttpContextTests {
 
   @Test
   void getAttributeReturnsBeanFromApplicationContext() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerSingleton("testBean", "testValue");
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, null);
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, null);
 
-    Object attribute = requestContext.getAttribute("testBean");
+    Object attribute = httpContext.getAttribute("testBean");
 
     assertThat(attribute).isEqualTo("testValue");
   }
 
   @Test
   void getAttributeReturnsNullForNonExistentBean() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, null);
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, null);
 
-    Object attribute = requestContext.getAttribute("nonExistentBean");
+    Object attribute = httpContext.getAttribute("nonExistentBean");
 
     assertThat(attribute).isNull();
   }
 
   @Test
   void getAttributeReturnsExplicitAttributeOverBean() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerSingleton("testBean", "contextValue");
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, null);
-    requestContext.setAttribute("testBean", "explicitValue");
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, null);
+    httpContext.setAttribute("testBean", "explicitValue");
 
-    Object attribute = requestContext.getAttribute("testBean");
+    Object attribute = httpContext.getAttribute("testBean");
 
     assertThat(attribute).isEqualTo("explicitValue");
   }
 
   @Test
   void getAttributeWithExposedBeanNamesOnlyReturnsExposedBeans() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerSingleton("exposedBean", "exposedValue");
     context.registerSingleton("hiddenBean", "hiddenValue");
@@ -83,10 +83,10 @@ class ContextExposingRequestContextTests {
     Set<String> exposedNames = new HashSet<>();
     exposedNames.add("exposedBean");
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, exposedNames);
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, exposedNames);
 
-    Object exposedAttribute = requestContext.getAttribute("exposedBean");
-    Object hiddenAttribute = requestContext.getAttribute("hiddenBean");
+    Object exposedAttribute = httpContext.getAttribute("exposedBean");
+    Object hiddenAttribute = httpContext.getAttribute("hiddenBean");
 
     assertThat(exposedAttribute).isEqualTo("exposedValue");
     assertThat(hiddenAttribute).isNull();
@@ -94,66 +94,66 @@ class ContextExposingRequestContextTests {
 
   @Test
   void setAttributeStoresExplicitAttribute() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, null);
-    requestContext.setAttribute("explicitAttr", "explicitValue");
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, null);
+    httpContext.setAttribute("explicitAttr", "explicitValue");
 
-    Object attribute = requestContext.getAttribute("explicitAttr");
+    Object attribute = httpContext.getAttribute("explicitAttr");
 
     assertThat(attribute).isEqualTo("explicitValue");
   }
 
   @Test
   void getApplicationContextReturnsCorrectContext() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, null);
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, null);
 
-    ApplicationContext returnedContext = requestContext.getApplicationContext();
+    ApplicationContext returnedContext = httpContext.getApplicationContext();
 
     assertThat(returnedContext).isSameAs(context);
   }
 
   @Test
   void constructorWithNullContextThrowsException() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
 
-    assertThatThrownBy(() -> new ContextExposingRequestContext(mockRequest, null, null))
+    assertThatThrownBy(() -> new ContextExposingHttpContext(mockRequest, null, null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("ApplicationContext is required");
   }
 
   @Test
   void getAttributeWorksWithEmptyExposedBeanNamesSet() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerSingleton("testBean", "testValue");
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, new HashSet<>());
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, new HashSet<>());
 
-    Object attribute = requestContext.getAttribute("testBean");
+    Object attribute = httpContext.getAttribute("testBean");
 
     assertThat(attribute).isNull();
   }
 
   @Test
   void multipleSetAttributeCallsWorkCorrectly() {
-    MockRequestContext mockRequest = new MockRequestContext();
+    MockHttpContext mockRequest = new MockHttpContext();
     StaticApplicationContext context = new StaticApplicationContext();
     context.registerSingleton("bean1", "value1");
     context.registerSingleton("bean2", "value2");
 
-    ContextExposingRequestContext requestContext = new ContextExposingRequestContext(mockRequest, context, null);
-    requestContext.setAttribute("explicit1", "explicitValue1");
-    requestContext.setAttribute("explicit2", "explicitValue2");
+    ContextExposingHttpContext httpContext = new ContextExposingHttpContext(mockRequest, context, null);
+    httpContext.setAttribute("explicit1", "explicitValue1");
+    httpContext.setAttribute("explicit2", "explicitValue2");
 
-    Object attr1 = requestContext.getAttribute("explicit1");
-    Object attr2 = requestContext.getAttribute("explicit2");
-    Object bean1 = requestContext.getAttribute("bean1");
-    Object bean2 = requestContext.getAttribute("bean2");
+    Object attr1 = httpContext.getAttribute("explicit1");
+    Object attr2 = httpContext.getAttribute("explicit2");
+    Object bean1 = httpContext.getAttribute("bean1");
+    Object bean2 = httpContext.getAttribute("bean2");
 
     assertThat(attr1).isEqualTo("explicitValue1");
     assertThat(attr2).isEqualTo("explicitValue2");

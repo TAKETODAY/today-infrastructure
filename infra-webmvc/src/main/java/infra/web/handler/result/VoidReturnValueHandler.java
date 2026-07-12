@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.lang.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.view.ModelAndView;
 import infra.web.view.ViewReturnValueHandler;
@@ -62,7 +62,7 @@ public class VoidReturnValueHandler implements SmartReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    */
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     BindingContext binding = context.getBinding();
     if (binding != null && binding.hasModelAndView()) {
       ModelAndView modelAndView = binding.getModelAndView();

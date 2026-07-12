@@ -1,5 +1,3 @@
-
-
 /**
  * Provides the types that make up Infra functional web framework.
  */

@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
- * Extends {@link RequestContext} with methods for asynchronous request processing.
+ * Extends {@link HttpContext} with methods for asynchronous request processing.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

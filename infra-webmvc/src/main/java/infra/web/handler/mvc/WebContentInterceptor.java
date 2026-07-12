@@ -30,7 +30,7 @@ import infra.http.server.PathContainer;
 import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.WebContentGenerator;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
@@ -135,32 +135,32 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
   }
 
   @Override
-  public boolean preProcessing(RequestContext request, Object handler) {
-    checkRequest(request);
+  public boolean preProcessing(HttpContext context, Object handler) {
+    checkRequest(context);
 
     if (!cacheControlMappings.isEmpty()) {
-      CacheControl control = lookupCacheControl(request.getRequestPath());
+      CacheControl control = lookupCacheControl(context.getRequestPath());
       if (control != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("Applying {}", control);
         }
-        applyCacheControl(request, control);
+        applyCacheControl(context, control);
         return true;
       }
     }
 
     if (!cacheMappings.isEmpty()) {
-      Integer cacheSeconds = lookupCacheSeconds(request.getRequestPath());
+      Integer cacheSeconds = lookupCacheSeconds(context.getRequestPath());
       if (cacheSeconds != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("Applying cacheSeconds {}", cacheSeconds);
         }
-        applyCacheSeconds(request, cacheSeconds);
+        applyCacheSeconds(context, cacheSeconds);
         return true;
       }
     }
 
-    prepareResponse(request);
+    prepareResponse(context);
     return true;
   }
 

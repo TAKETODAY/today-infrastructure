@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.converter.HttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.handler.HandlerExecutionChain;
@@ -35,7 +36,6 @@ import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +57,7 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    MockRequestContext request = createTestRequest("/match");
+    MockHttpContext request = createTestRequest("/match");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
@@ -71,7 +71,7 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    MockRequestContext request = createTestRequest("/match");
+    MockHttpContext request = createTestRequest("/match");
     Object result = mapping.getHandler(request);
 
     assertThat(result).isNull();
@@ -87,7 +87,7 @@ class RouterFunctionMappingTests {
     mapping.setApplicationContext(context);
     mapping.afterPropertiesSet();
 
-    MockRequestContext request = createTestRequest("/match");
+    MockHttpContext request = createTestRequest("/match");
     Object result = mapping.getHandler(request);
 
     assertThat(result).isNull();
@@ -149,7 +149,7 @@ class RouterFunctionMappingTests {
     mapping.setUseCaseSensitiveMatch(false);
     mapping.afterPropertiesSet();
 
-    MockRequestContext request = createTestRequest("/FOO");
+    MockHttpContext request = createTestRequest("/FOO");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
@@ -166,15 +166,15 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    MockRequestContext request = createTestRequest("/match");
+    MockHttpContext request = createTestRequest("/match");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
   }
 
-  private MockRequestContext createTestRequest(String path) {
+  private MockHttpContext createTestRequest(String path) {
     MockRequest request = new MockRequest("GET", path);
-    return new MockRequestContext(null, request, new MockResponse());
+    return new MockHttpContext(null, request, new MockResponse());
   }
 
 }

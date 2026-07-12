@@ -33,7 +33,7 @@ import infra.web.mock.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,7 +74,7 @@ public class SimpleUrlHandlerMappingTests {
 
     MockRequest request = new MockRequest("GET", "/foo%0a%0dbar/baz");
 
-    HandlerExecutionChain hec = (HandlerExecutionChain) mapping.getHandler(new MockRequestContext(
+    HandlerExecutionChain hec = (HandlerExecutionChain) mapping.getHandler(new MockHttpContext(
             null, request, new MockResponse()));
     assertThat(hec).isNotNull();
     assertThat(hec.getRawHandler()).isSameAs(controller);
@@ -153,7 +153,7 @@ public class SimpleUrlHandlerMappingTests {
 
   private HandlerExecutionChain getHandler(HandlerMapping mapping, MockRequest request) throws Throwable {
 
-    MockRequestContext context = new MockRequestContext(
+    MockHttpContext context = new MockHttpContext(
             null, request, new MockResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     HandlerInterceptor[] interceptors = chain.getInterceptors();

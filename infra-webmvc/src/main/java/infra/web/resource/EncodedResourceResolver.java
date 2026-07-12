@@ -42,7 +42,7 @@ import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Resolver that delegates to the chain, and if a resource is found, it then
@@ -136,7 +136,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected @Nullable Resource resolveResourceInternal(@Nullable RequestContext request,
+  protected @Nullable Resource resolveResourceInternal(@Nullable HttpContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resource = chain.resolveResource(request, requestPath, locations);
@@ -180,7 +180,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
   /**
    * Parse the accepted encodings from the given HTTP request.
    */
-  static List<String> parseAcceptEncoding(RequestContext request) {
+  static List<String> parseAcceptEncoding(HttpContext request) {
     String header = request.getHeader("Accept-Encoding");
     if (StringUtils.isBlank(header)) {
       return Collections.emptyList();

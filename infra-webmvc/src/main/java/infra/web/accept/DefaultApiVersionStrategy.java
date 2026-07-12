@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Default implementation of {@link ApiVersionStrategy} that delegates to the
@@ -147,7 +147,7 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
   }
 
   @Override
-  public @Nullable String resolveVersion(RequestContext request) {
+  public @Nullable String resolveVersion(HttpContext request) {
     for (ApiVersionResolver resolver : this.versionResolvers) {
       String version = resolver.resolveVersion(request);
       if (version != null) {
@@ -163,7 +163,7 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
   }
 
   @Override
-  public void validateVersion(@Nullable Comparable<?> requestVersion, RequestContext request)
+  public void validateVersion(@Nullable Comparable<?> requestVersion, HttpContext request)
           throws MissingApiVersionException, InvalidApiVersionException {
 
     if (requestVersion == null) {
@@ -179,7 +179,7 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
   }
 
   @Override
-  public void handleDeprecations(Comparable<?> version, Object handler, RequestContext request) {
+  public void handleDeprecations(Comparable<?> version, Object handler, HttpContext request) {
     if (deprecationHandler != null) {
       deprecationHandler.handleVersion(version, handler, request);
     }

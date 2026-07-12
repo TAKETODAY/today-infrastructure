@@ -41,8 +41,8 @@ import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.util.UriUtils;
 
 /**
@@ -79,7 +79,7 @@ import infra.web.util.UriUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setHttp10Compatible
  * @see #setExposeModelAttributes
- * @see RequestContext#sendRedirect
+ * @see HttpContext#sendRedirect
  * @since 4.0
  */
 public class RedirectView extends AbstractUrlBasedView implements SmartView {
@@ -157,7 +157,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * difference. However, some clients depend on 303 when redirecting
    * after a POST request; turn this flag off in such a scenario.
    *
-   * @see RequestContext#sendRedirect
+   * @see HttpContext#sendRedirect
    */
   public void setHttp10Compatible(boolean http10Compatible) {
     this.http10Compatible = http10Compatible;
@@ -255,14 +255,14 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @see #sendRedirect
    */
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws IOException {
-    String targetUrl = createTargetUrl(model, request);
+  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws IOException {
+    String targetUrl = createTargetUrl(model, http);
 
     // Save RedirectModel
-    RequestContextUtils.saveRedirectModel(targetUrl, request);
+    HttpContextUtils.saveRedirectModel(targetUrl, http);
 
     // Redirect
-    sendRedirect(request, targetUrl);
+    sendRedirect(http, targetUrl);
   }
 
   /**
@@ -270,7 +270,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * expanding it with the given model, and then optionally appending simple type model
    * attributes as query String parameters.
    */
-  protected final String createTargetUrl(Map<String, Object> model, RequestContext request) {
+  protected final String createTargetUrl(Map<String, Object> model, HttpContext request) {
 
     // Prepare target URL.
     StringBuilder targetUrl = new StringBuilder();
@@ -328,7 +328,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     return result;
   }
 
-  private Map<String, String> getCurrentRequestUriVariables(RequestContext request) {
+  private Map<String, String> getCurrentRequestUriVariables(HttpContext request) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
@@ -342,7 +342,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the StringBuilder to append the properties to
    * @param request the current request
    */
-  protected void appendCurrentQueryParams(StringBuilder targetUrl, RequestContext request) {
+  protected void appendCurrentQueryParams(StringBuilder targetUrl, HttpContext request) {
     String query = request.getQueryString();
     if (StringUtils.hasText(query)) {
       // Extract anchor fragment, if any.
@@ -526,7 +526,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the target URL to redirect to
    * @throws IOException if thrown by response methods
    */
-  protected void sendRedirect(RequestContext context, String targetUrl) throws IOException {
+  protected void sendRedirect(HttpContext context, String targetUrl) throws IOException {
     HttpStatusCode httpStatus = getHttpStatus(context, targetUrl);
     if (httpStatus != null) {
       context.setStatus(httpStatus);
@@ -549,7 +549,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @return the response status
    */
   @Nullable
-  protected HttpStatusCode getHttpStatus(RequestContext context, String targetUrl) {
+  protected HttpStatusCode getHttpStatus(HttpContext context, String targetUrl) {
     if (statusCode != null) {
       return statusCode;
     }

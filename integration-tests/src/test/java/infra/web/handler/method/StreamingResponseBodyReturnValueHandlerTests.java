@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.MethodParameter;
 import infra.http.ResponseEntity;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.async.AsyncWebRequest;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.handler.result.StreamingResponseBodyReturnValueHandler;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.StandardMockAsyncWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
   private StreamingResponseBodyReturnValueHandler handler;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private MockRequest request;
 
@@ -59,7 +59,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
     this.request = new MockRequest("GET", "/path");
     this.response = new MockResponse();
-    this.webRequest = new MockRequestContext(null, this.request, this.response);
+    this.webRequest = new MockHttpContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
     webRequest.setAsyncRequest(asyncWebRequest);

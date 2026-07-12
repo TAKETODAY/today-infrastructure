@@ -25,7 +25,7 @@ import infra.http.ResponseCookie;
 import infra.stereotype.Controller;
 import infra.test.web.mock.MockMvc;
 import infra.web.HandlerInterceptor;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.i18n.CookieLocaleResolver;
 import infra.web.i18n.LocaleChangeInterceptor;
@@ -67,8 +67,8 @@ public class CookieAssertionTests {
             .addInterceptors(new HandlerInterceptor() {
 
               @Override
-              public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
-                request.addCookie(cookie);
+              public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+                context.addCookie(cookie);
                 return true;
               }
             })

@@ -39,7 +39,7 @@ import static infra.web.handler.function.ServerResponse.ok;
 @Configuration(proxyBeanMethods = false)
 public class AppConfig {
   private final Logger log = LoggerFactory.getLogger(getClass());
-  
+
   private ServerResponse params(ServerRequest request) {
     return ok()
             .contentType(MediaType.APPLICATION_JSON)

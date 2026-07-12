@@ -32,7 +32,7 @@ import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -51,7 +51,7 @@ class InitBinderBindingContextTests {
 
   MockRequest request = new MockRequest();
 
-  private final MockRequestContext webRequest = new MockRequestContext(null, request, null);
+  private final MockHttpContext webRequest = new MockHttpContext(null, request, null);
 
   @Test
   public void createBinder() throws Throwable {

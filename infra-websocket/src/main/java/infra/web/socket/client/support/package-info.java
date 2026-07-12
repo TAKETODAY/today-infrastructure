@@ -1,4 +1,3 @@
-
 /**
  * Client-side supports for WebSocket applications.
  *

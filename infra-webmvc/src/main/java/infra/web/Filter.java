@@ -20,7 +20,7 @@ package infra.web;
  * Intercepts incoming HTTP requests at the {@link DispatcherHandler} level, before
  * handler mapping and execution.
  *
- * <p>A {@code Filter} operates on the raw {@link RequestContext}, allowing
+ * <p>A {@code Filter} operates on the raw {@link HttpContext}, allowing
  * cross-cutting concerns such as security, rate-limiting, request logging, or
  * header manipulation to be applied globally, regardless of the specific handler
  * or controller that processes the request.
@@ -38,7 +38,7 @@ package infra.web;
  * by {@link infra.core.annotation.Order @Order} or {@link infra.core.Ordered Ordered}.
  *
  * <p>This is a {@linkplain FunctionalInterface functional interface} whose
- * functional method is {@link #doFilter(RequestContext, FilterChain)}.
+ * functional method is {@link #doFilter(HttpContext, FilterChain)}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FilterChain
@@ -51,12 +51,12 @@ public interface Filter {
 
   /**
    * Process the current request, optionally delegating to the next filter
-   * in the chain via {@link FilterChain#doFilter(RequestContext)}.
+   * in the chain via {@link FilterChain#doFilter(HttpContext)}.
    *
-   * @param request the current request context
+   * @param http the current request context
    * @param chain the filter chain to delegate to
    * @throws Exception if any error occurs during filtering
    */
-  void doFilter(RequestContext request, FilterChain chain) throws Exception;
+  void doFilter(HttpContext http, FilterChain chain) throws Exception;
 
 }

@@ -60,6 +60,7 @@ import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.MultiValueMap;
@@ -73,7 +74,6 @@ import infra.web.handler.method.JsonViewRequestBodyAdvice;
 import infra.web.handler.method.JsonViewResponseBodyAdvice;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.json.JacksonJsonView;
 import tools.jackson.databind.SerializationFeature;
@@ -95,7 +95,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   private MockResponse mockResponse;
 
-  private MockRequestContext request;
+  private MockHttpContext request;
 
   private ResolvableMethodParameter paramGenericList;
   private ResolvableMethodParameter paramSimpleBean;
@@ -110,7 +110,7 @@ class RequestResponseBodyMethodProcessorTests {
     mockRequest = new MockRequest();
     mockRequest.setMethod("POST");
     mockResponse = new MockResponse();
-    request = new MockRequestContext(null, mockRequest, mockResponse);
+    request = new MockHttpContext(null, mockRequest, mockResponse);
 
     Method method = getClass().getDeclaredMethod("handle",
             List.class, SimpleBean.class, MultiValueMap.class, String.class);
@@ -883,7 +883,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     this.mockRequest = new MockRequest();
     this.mockResponse = new MockResponse();
-    this.request = new MockRequestContext(null, mockRequest, mockResponse);
+    this.request = new MockHttpContext(null, mockRequest, mockResponse);
   }
 
   String handle(

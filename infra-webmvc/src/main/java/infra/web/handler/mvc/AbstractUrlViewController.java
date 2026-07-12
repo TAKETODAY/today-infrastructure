@@ -18,8 +18,8 @@
 
 package infra.web.handler.mvc;
 
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
 import infra.web.view.ModelAndView;
 
 /**
@@ -39,10 +39,10 @@ public abstract class AbstractUrlViewController extends AbstractController {
   /**
    * Retrieves the URL path to use for lookup and delegates to
    * {@link #getViewNameForRequest}. Also adds the content of
-   * {@link RequestContext#getInputRedirectModel()} to the model.
+   * {@link HttpContext#getInputRedirectModel()} to the model.
    */
   @Override
-  protected ModelAndView handleRequestInternal(RequestContext request) {
+  protected ModelAndView handleRequestInternal(HttpContext request) {
     String viewName = getViewNameForRequest(request);
     if (logger.isTraceEnabled()) {
       logger.trace("Returning view name '{}'", viewName);
@@ -62,6 +62,6 @@ public abstract class AbstractUrlViewController extends AbstractController {
    * @return a view name for this request (never {@code null})
    * @see #handleRequestInternal
    */
-  protected abstract String getViewNameForRequest(RequestContext request);
+  protected abstract String getViewNameForRequest(HttpContext request);
 
 }

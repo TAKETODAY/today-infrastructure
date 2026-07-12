@@ -24,7 +24,7 @@ import java.util.List;
 import infra.core.ArraySizeTrimmer;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;
 
 /**
@@ -69,7 +69,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    * @throws Exception throws when write data to response
    */
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (handleSelectively(context, handler, returnValue) == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
@@ -86,7 +86,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    */
   @Nullable
   public final ReturnValueHandler handleSelectively(
-          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+          HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     ReturnValueHandler selected = selectHandler(handler, returnValue);
     if (selected != null && selected != this) {
       selected.handleReturnValue(context, handler, returnValue);

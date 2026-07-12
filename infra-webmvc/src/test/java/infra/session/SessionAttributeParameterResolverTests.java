@@ -18,7 +18,7 @@ package infra.session;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.SessionAttribute;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -71,7 +71,7 @@ class SessionAttributeParameterResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     Session session = mock(Session.class);
 
     when(sessionManager.getSession(context, false)).thenReturn(session);
@@ -87,7 +87,7 @@ class SessionAttributeParameterResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
 
     when(sessionManager.getSession(context, false)).thenReturn(null);
 
@@ -101,7 +101,7 @@ class SessionAttributeParameterResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     Session session = mock(Session.class);
 
     when(sessionManager.getSession(context, false)).thenReturn(session);

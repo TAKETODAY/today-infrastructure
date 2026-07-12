@@ -20,7 +20,7 @@ package infra.web.cors;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Interface to be implemented by classes (usually HTTP request handlers) that
@@ -37,6 +37,6 @@ public interface CorsConfigurationSource {
    * @return the associated {@link CorsConfiguration}, or {@code null} if none
    */
   @Nullable
-  CorsConfiguration getCorsConfiguration(RequestContext request);
+  CorsConfiguration getCorsConfiguration(HttpContext ctx);
 
 }

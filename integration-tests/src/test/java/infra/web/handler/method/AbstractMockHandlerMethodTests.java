@@ -30,7 +30,7 @@ import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContextUtils;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcherHandler;
@@ -96,7 +96,7 @@ public abstract class AbstractMockHandlerMethodTests {
 
     register("testConfig", TestConfig.class, context);
     AnnotationConfigUtils.registerAnnotationConfigProcessors(context);
-    RequestContextUtils.registerScopes(context.getBeanFactory());
+    HttpContextUtils.registerScopes(context.getBeanFactory());
 
     context.refresh();
 

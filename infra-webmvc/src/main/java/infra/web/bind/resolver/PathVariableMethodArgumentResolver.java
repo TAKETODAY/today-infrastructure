@@ -29,7 +29,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.conversion.Converter;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.PathVariable;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -77,7 +77,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
     HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariable(name);
@@ -91,12 +91,12 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) {
     throw new MissingPathVariableException(name, parameter, true);
   }
 
   @Override
-  protected void handleResolvedValue(@Nullable Object arg, String name, ResolvableMethodParameter resolvable, RequestContext request) {
+  protected void handleResolvedValue(@Nullable Object arg, String name, ResolvableMethodParameter resolvable, HttpContext request) {
     request.matchingMetadata().getPathVariables().put(name, arg);
   }
 

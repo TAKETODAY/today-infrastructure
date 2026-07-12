@@ -20,7 +20,7 @@ package infra.web.async;
 
 import java.util.concurrent.Callable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Sends a 503 (SERVICE_UNAVAILABLE) in case of a timeout if the response is not
@@ -43,12 +43,12 @@ import infra.web.RequestContext;
 public class TimeoutAsyncProcessingInterceptor implements CallableProcessingInterceptor, DeferredResultProcessingInterceptor {
 
   @Override
-  public <T> Object handleTimeout(RequestContext request, Callable<T> task) {
+  public <T> Object handleTimeout(HttpContext request, Callable<T> task) {
     return new AsyncRequestTimeoutException();
   }
 
   @Override
-  public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> result) {
+  public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> result) {
     result.setErrorResult(new AsyncRequestTimeoutException());
     return false;
   }

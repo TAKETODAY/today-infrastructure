@@ -41,7 +41,7 @@ import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
 import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockResponse;
 import infra.web.view.View;
 import infra.web.view.groovy.GroovyMarkupConfig;
@@ -297,7 +297,7 @@ class GroovyTemplateAutoConfigurationTests {
 
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    view.render(null, new MockRequestContext(request, response));
+    view.render(null, new MockHttpContext(request, response));
     return response;
   }
 

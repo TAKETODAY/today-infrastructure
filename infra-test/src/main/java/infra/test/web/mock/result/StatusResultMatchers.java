@@ -107,7 +107,7 @@ public class StatusResultMatchers {
   }
 
   private HttpStatus.@Nullable Series getHttpStatusSeries(MvcResult result) {
-    return HttpStatus.Series.resolve(result.getRequestContext().getStatus());
+    return HttpStatus.Series.resolve(result.getContext().getStatus());
   }
 
   /**

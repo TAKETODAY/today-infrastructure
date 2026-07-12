@@ -227,9 +227,9 @@ public class DemoApplication {
   }
 
   @GET("/request-context")
-  public String context(RequestContext context) {
-    String requestURL = context.getRequestURL();
-    String queryString = context.getQueryString();
+  public String context(HttpContext http) {
+    String requestURL = http.getRequestURL();
+    String queryString = http.getQueryString();
     System.out.println(requestURL);
     System.out.println(queryString);
 

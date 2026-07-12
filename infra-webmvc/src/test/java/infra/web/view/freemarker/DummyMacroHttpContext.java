@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.web.BindStatus;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 
@@ -33,15 +33,15 @@ import infra.web.util.UriComponentsBuilder;
  * @author Juergen Hoeller
  * @since 25.01.2005
  */
-public class DummyMacroRequestContext {
+public class DummyMacroHttpContext {
 
-  private final RequestContext request;
+  private final HttpContext request;
 
   private Map<String, String> messageMap;
 
   private String contextPath;
 
-  public DummyMacroRequestContext(RequestContext request) {
+  public DummyMacroHttpContext(HttpContext request) {
     this.request = request;
   }
 
@@ -50,14 +50,14 @@ public class DummyMacroRequestContext {
   }
 
   /**
-   * @see infra.web.RequestContext#getMessage(String)
+   * @see HttpContext#getMessage(String)
    */
   public String getMessage(String code) {
     return this.messageMap.get(code);
   }
 
   /**
-   * @see infra.web.RequestContext#getMessage(String, String)
+   * @see HttpContext#getMessage(String, String)
    */
   public String getMessage(String code, String defaultMsg) {
     String msg = this.messageMap.get(code);
@@ -65,14 +65,14 @@ public class DummyMacroRequestContext {
   }
 
   /**
-   * @see infra.web.RequestContext#getMessage(String, List)
+   * @see HttpContext#getMessage(String, List)
    */
   public String getMessage(String code, List<?> args) {
     return this.messageMap.get(code) + args;
   }
 
   /**
-   * @see infra.web.RequestContext#getMessage(String, List, String)
+   * @see HttpContext#getMessage(String, List, String)
    */
   public String getMessage(String code, List<?> args, String defaultMsg) {
     String msg = this.messageMap.get(code);
@@ -97,14 +97,14 @@ public class DummyMacroRequestContext {
   }
 
   /**
-   * @see infra.web.RequestContext#getBindStatus(String)
+   * @see HttpContext#getBindStatus(String)
    */
   public BindStatus getBindStatus(String path) throws IllegalStateException {
     return getBindStatus(path, false);
   }
 
   /**
-   * @see infra.web.RequestContext#getBindStatus(String, boolean)
+   * @see HttpContext#getBindStatus(String, boolean)
    */
   public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
     return new BindStatus(request, path, htmlEscape);

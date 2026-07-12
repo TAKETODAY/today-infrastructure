@@ -35,7 +35,7 @@ import infra.core.i18n.LocaleContextHolder;
  * {@link infra.web.i18n.AcceptHeaderLocaleResolver},
  * simply using the request's locale provided by the respective HTTP header.
  *
- * <p>Use {@link infra.web.RequestContext#getLocale()}
+ * <p>Use {@link HttpContext#getLocale()}
  * to retrieve the current locale in controllers or views, independent
  * of the actual resolution strategy.
  *
@@ -50,8 +50,8 @@ import infra.core.i18n.LocaleContextHolder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LocaleContextResolver
  * @see LocaleContextHolder
- * @see infra.web.RequestContext#getLocale
- * @see infra.web.RequestContextUtils#getLocale
+ * @see HttpContext#getLocale
+ * @see HttpContextUtils#getLocale
  * @since 4.0 2022/2/3 22:54
  */
 public interface LocaleResolver {
@@ -65,20 +65,20 @@ public interface LocaleResolver {
    * Resolve the current locale via the given request.
    * Can return a default locale as fallback in any case.
    *
-   * @param request the request to resolve the locale for
+   * @param context the request to resolve the locale for
    * @return the current locale (never {@code null})
    */
-  Locale resolveLocale(RequestContext request);
+  Locale resolveLocale(HttpContext context);
 
   /**
    * Set the current locale to the given one.
    *
-   * @param request the request to be used for locale modification
+   * @param context the request to be used for locale modification
    * @param locale the new locale, or {@code null} to clear the locale
    * @throws UnsupportedOperationException if the LocaleResolver
    * implementation does not support dynamic changing of the locale
    */
-  void setLocale(RequestContext request, @Nullable Locale locale);
+  void setLocale(HttpContext context, @Nullable Locale locale);
 
 }
 

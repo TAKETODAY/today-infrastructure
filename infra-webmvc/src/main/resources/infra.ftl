@@ -1,5 +1,5 @@
 <#ftl output_format="HTML" strip_whitespace=true>
-<#-- @ftlvariable name="request" type="infra.web.RequestContext" -->
+<#-- @ftlvariable name="request" type="infra.web.HttpContext" -->
 <#--
  * infra.ftl
  *
@@ -54,7 +54,7 @@
  * within a form to bind to multiple command objects and/or field names.
  *
  * This macro will participate in the default HTML escape setting for the given
- * RequestContext. This can be customized by calling "setDefaultHtmlEscape"
+ * HttpContext. This can be customized by calling "setDefaultHtmlEscape"
  * on the "request" context variable, or via the
  * "defaultHtmlEscape" context-param in web.xml (same as for the JSP bind tag).
  * Also regards a "htmlEscape" variable in the namespace of this library.

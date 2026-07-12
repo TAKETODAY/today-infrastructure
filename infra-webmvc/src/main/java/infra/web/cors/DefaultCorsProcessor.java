@@ -33,7 +33,7 @@ import infra.lang.Unmodifiable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * The default implementation of {@link CorsProcessor}, as defined by the
@@ -68,15 +68,15 @@ public class DefaultCorsProcessor implements CorsProcessor {
   static final String ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK = "Access-Control-Allow-Private-Network";
 
   @Override
-  public boolean process(@Nullable CorsConfiguration config, RequestContext context) throws IOException {
+  public boolean process(@Nullable CorsConfiguration config, HttpContext ctx) throws IOException {
     if (config == null) {
-      if (log.isDebugEnabled() && context.isCorsRequest()) {
+      if (log.isDebugEnabled() && ctx.isCorsRequest()) {
         log.debug("Skip: no CORS configuration has been provided");
       }
       return true;
     }
 
-    HttpHeaders responseHeaders = context.responseHeaders();
+    HttpHeaders responseHeaders = ctx.responseHeaders();
 
     List<String> varyHeaders = responseHeaders.getVary();
     if (!varyHeaders.contains(HttpHeaders.ORIGIN)) {
@@ -90,13 +90,13 @@ public class DefaultCorsProcessor implements CorsProcessor {
     }
 
     try {
-      if (!context.isCorsRequest()) {
+      if (!ctx.isCorsRequest()) {
         return true;
       }
     }
     catch (IllegalArgumentException ex) {
       log.debug("Reject: origin is malformed");
-      rejectRequest(context);
+      rejectRequest(ctx);
       return false;
     }
 
@@ -104,14 +104,14 @@ public class DefaultCorsProcessor implements CorsProcessor {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
-    return handleInternal(context, config, context.isPreFlightRequest());
+    return handleInternal(ctx, config, ctx.isPreFlightRequest());
   }
 
   /**
    * Invoked when one of the CORS checks failed. The default implementation sets
    * the response status to 403 and writes "Invalid CORS request" to the response.
    */
-  protected void rejectRequest(RequestContext context) throws IOException {
+  protected void rejectRequest(HttpContext context) throws IOException {
 
     context.setStatus(HttpStatus.FORBIDDEN);
     context.getOutputStream()
@@ -123,7 +123,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
    * Handle the given request.
    */
   @SuppressWarnings("NullAway")
-  protected boolean handleInternal(RequestContext context, CorsConfiguration config, boolean preFlightRequest) throws IOException {
+  protected boolean handleInternal(HttpContext context, CorsConfiguration config, boolean preFlightRequest) throws IOException {
     String requestOrigin = context.requestHeaders().getOrigin();
 
     String allowOrigin = checkOrigin(config, requestOrigin);
@@ -202,7 +202,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   }
 
   @Nullable
-  HttpMethod getMethodToUse(RequestContext request, boolean isPreFlight) {
+  HttpMethod getMethodToUse(HttpContext request, boolean isPreFlight) {
     return isPreFlight ? request.getHeaders().getAccessControlRequestMethod() : request.getMethod();
   }
 
@@ -216,7 +216,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     return config.checkHeaders(requestHeaders);
   }
 
-  List<String> getHeadersToUse(RequestContext context, boolean isPreFlight) {
+  List<String> getHeadersToUse(HttpContext context, boolean isPreFlight) {
     if (isPreFlight) {
       return context.requestHeaders().getAccessControlRequestHeaders();
     }

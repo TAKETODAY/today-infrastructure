@@ -36,12 +36,12 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProviders;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +70,7 @@ class DefaultErrorViewResolverTests {
 
   private final MockResponse mockResponse = new MockResponse();
 
-  private final RequestContext request = new MockRequestContext(null,
+  private final HttpContext request = new MockHttpContext(null,
           new MockRequest(), mockResponse);
 
   @BeforeEach

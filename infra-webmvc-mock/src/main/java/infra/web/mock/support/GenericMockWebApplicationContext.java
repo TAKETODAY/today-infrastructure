@@ -28,8 +28,8 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.session.Session;
 import infra.stereotype.Component;
-import infra.web.RequestContextHolder;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContextHolder;
+import infra.web.HttpContextUtils;
 import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -109,7 +109,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
    * @param beanFactory the BeanFactory to configure
    */
   static void registerWebApplicationScopes(ConfigurableBeanFactory beanFactory) {
-    RequestContextUtils.registerScopes(beanFactory);
+    HttpContextUtils.registerScopes(beanFactory);
 
     beanFactory.registerResolvableDependency(Session.class, new SessionObjectSupplier());
     beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());
@@ -124,7 +124,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public MockRequest get() {
-      return MockUtils.getMockRequest(RequestContextHolder.current());
+      return MockUtils.getMockRequest(HttpContextHolder.current());
     }
 
     @Override
@@ -142,7 +142,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public MockResponse get() {
-      return MockUtils.getMockResponse(RequestContextHolder.current());
+      return MockUtils.getMockResponse(HttpContextHolder.current());
     }
 
     @Override
@@ -159,7 +159,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public Session get() {
-      return RequestContextHolder.required().getSession();
+      return HttpContextHolder.required().getSession();
     }
 
     @Override

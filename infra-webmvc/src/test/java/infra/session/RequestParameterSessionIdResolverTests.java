@@ -18,7 +18,7 @@ package infra.session;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static infra.session.SessionIdResolver.WRITTEN_SESSION_ID_ATTR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ class RequestParameterSessionIdResolverTests {
   @Test
   void getSessionId() {
     SessionIdResolver resolver = SessionIdResolver.forParameter("auth");
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("auth", "sessionId");
     assertThat(resolver.getSessionId(context))
             .isEqualTo("sessionId");
@@ -60,7 +60,7 @@ class RequestParameterSessionIdResolverTests {
   @Test
   void setSessionId() {
     RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("auth");
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("auth", "sessionId");
 
     assertThat(resolver.getSessionId(context)).isEqualTo("sessionId");
@@ -73,7 +73,7 @@ class RequestParameterSessionIdResolverTests {
   @Test
   void expireSession() {
     RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("auth");
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("auth", "sessionId");
 
     assertThat(resolver.getSessionId(context)).isEqualTo("sessionId");

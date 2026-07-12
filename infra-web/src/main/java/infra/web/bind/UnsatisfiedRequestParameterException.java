@@ -104,7 +104,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
   /**
    * Return the actual parameter Map associated with the Request.
    *
-   * @see infra.web.RequestContext#getParameters()
+   * @see infra.web.HttpContext#getParameters()
    */
   public final MultiValueMap<String, String> getActualParams() {
     return this.actualParams;

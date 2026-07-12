@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
 import infra.util.concurrent.Future;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
 import infra.web.handler.method.HandlerMethod;
 
@@ -51,7 +51,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
 
   @Override
   @SuppressWarnings("unchecked")
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }

@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  * is typically used in web frameworks to process incoming requests and return
  * results that can be further handled by the framework.
  *
- * <p>The {@link #handleRequest(RequestContext)} method is the core of this interface.
+ * <p>The {@link #handleRequest(HttpContext)} method is the core of this interface.
  * It processes the request and returns an object that represents the result of
  * the processing. The returned object can be explicitly handled by a
  * {@link ReturnValueHandler} or indicate that no further processing is needed.
@@ -61,7 +61,7 @@ import org.jspecify.annotations.Nullable;
  * </ul>
  *
  * @see ReturnValueHandler
- * @see RequestContext
+ * @see HttpContext
  * @since 2019-12-21 17:37
  */
 @FunctionalInterface
@@ -80,12 +80,12 @@ public interface HttpRequestHandler {
    * explicit result to handle. a {@link #NONE_RETURN_VALUE} indicates that no
    * result to handle by {@link ReturnValueHandler}
    *
-   * @param request Current request context
+   * @param context Current request context
    * @return Result to be handled by {@link ReturnValueHandler}
    * @throws Throwable If any exception occurred
    * @see ReturnValueHandler
    */
   @Nullable
-  Object handleRequest(RequestContext request) throws Throwable;
+  Object handleRequest(HttpContext context) throws Throwable;
 
 }

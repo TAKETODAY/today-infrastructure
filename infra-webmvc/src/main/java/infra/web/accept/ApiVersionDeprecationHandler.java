@@ -18,7 +18,7 @@
 
 package infra.web.accept;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Contract to add handling of requests with a deprecated API version. Typically,
@@ -41,6 +41,6 @@ public interface ApiVersionDeprecationHandler {
    * @param handler the handler chosen for the request
    * @param request the current request
    */
-  void handleVersion(Comparable<?> version, Object handler, RequestContext request);
+  void handleVersion(Comparable<?> version, Object handler, HttpContext request);
 
 }

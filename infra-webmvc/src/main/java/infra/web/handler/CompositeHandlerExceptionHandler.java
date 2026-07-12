@@ -23,7 +23,7 @@ import java.util.List;
 import infra.core.OrderedSupport;
 import infra.lang.Assert;
 import infra.web.HandlerExceptionHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * @author TODAY 2020/12/23 21:53
@@ -47,7 +47,7 @@ public class CompositeHandlerExceptionHandler extends OrderedSupport implements 
 
   @Nullable
   @Override
-  public Object handleException(final RequestContext context, final Throwable exception, @Nullable final Object handler) throws Exception {
+  public Object handleException(final HttpContext context, final Throwable exception, @Nullable final Object handler) throws Exception {
     var handlers = getExceptionHandlers();
     if (handlers != null) {
       for (var exceptionHandler : handlers) {

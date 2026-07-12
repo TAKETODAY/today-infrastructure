@@ -26,8 +26,8 @@ import infra.util.AntPathMatcher;
 import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
 import infra.web.InterceptorChain;
-import infra.web.RequestContext;
 import infra.web.util.WebUtils;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
@@ -147,7 +147,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * @param request the request to match to
    * @return {@code true} if the interceptor should be applied to the request
    */
-  public boolean matches(RequestContext request) {
+  public boolean matches(HttpContext request) {
     PathContainer lookupPath = request.getRequestPath();
     return matches(lookupPath);
   }
@@ -192,22 +192,21 @@ public final class MappedInterceptor implements HandlerInterceptor {
   // HandlerInterceptor delegation
 
   @Override
-  public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
-    return interceptor.preProcessing(request, handler);
+  public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+    return interceptor.preProcessing(context, handler);
   }
 
   @Override
-  public void postProcessing(RequestContext request, Object handler, @Nullable Object result) throws Throwable {
-    interceptor.postProcessing(request, handler, result);
+  public void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Throwable {
+    interceptor.postProcessing(context, handler, result);
   }
 
-  @Nullable
   @Override
-  public Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
-    if (matches(request)) {
-      return interceptor.intercept(request, chain);
+  public @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+    if (matches(context)) {
+      return interceptor.intercept(context, chain);
     }
-    return chain.proceed(request);
+    return chain.proceed(context);
   }
 
   /**
@@ -220,8 +219,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
     public final String patternString;
 
-    @Nullable
-    public final PathPattern pathPattern;
+    public final @Nullable PathPattern pathPattern;
 
     public CompiledPattern(String pattern, @Nullable PathPatternParser parser) {
       this.patternString = pattern;

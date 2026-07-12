@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -40,7 +40,7 @@ class RedirectViewUriTemplateTests {
 
   private MockResponse response;
 
-  RequestContext context;
+  HttpContext context;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -49,7 +49,7 @@ class RedirectViewUriTemplateTests {
     this.response = new MockResponse();
     context.refresh();
 
-    this.context = new MockRequestContext(context, request, response);
+    this.context = new MockHttpContext(context, request, response);
   }
 
   @Test

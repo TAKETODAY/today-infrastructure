@@ -36,9 +36,10 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import org.jspecify.annotations.Nullable;
+
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static infra.web.handler.function.RequestPredicates.HEAD;
@@ -238,9 +239,9 @@ class RouterFunctionBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "/error");
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest serverRequest = new DefaultServerRequest(requestContext, emptyList());
+    ServerRequest serverRequest = new DefaultServerRequest(httpContext, emptyList());
 
     Optional<HttpStatusCode> responseStatus = route.route(serverRequest)
             .map(handlerFunction -> handle(handlerFunction, serverRequest))
@@ -257,8 +258,8 @@ class RouterFunctionBuilderTests {
           String httpMethod, String requestUri, @Nullable Consumer<MockRequest> consumer) {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
-    return new DefaultServerRequest(requestContext, emptyList());
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    return new DefaultServerRequest(httpContext, emptyList());
   }
 
   @Test

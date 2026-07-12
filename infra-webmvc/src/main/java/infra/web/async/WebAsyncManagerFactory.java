@@ -27,7 +27,7 @@ import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * WebAsyncManager Factory
@@ -94,7 +94,7 @@ public class WebAsyncManagerFactory {
     this.deferredResultInterceptors = interceptors;
   }
 
-  public WebAsyncManager createWebAsyncManager(RequestContext request) {
+  public WebAsyncManager createWebAsyncManager(HttpContext request) {
     WebAsyncManager asyncManager = new WebAsyncManager(request);
     asyncManager.setTaskExecutor(taskExecutor);
     asyncManager.setTimeout(asyncRequestTimeout);

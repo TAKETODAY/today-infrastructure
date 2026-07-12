@@ -57,11 +57,11 @@ import infra.util.MimeTypeUtils;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
-import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.async.AsyncWebRequest;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
@@ -69,7 +69,7 @@ import infra.web.util.UriBuilder;
 import infra.web.util.UriComponentsBuilder;
 
 /**
- * {@code ServerRequest} implementation based on a {@link RequestContext}.
+ * {@code ServerRequest} implementation based on a {@link HttpContext}.
  *
  * @author Arjen Poutsma
  * @author Sam Brannen
@@ -82,7 +82,7 @@ class DefaultServerRequest implements ServerRequest {
 
   private final RequestPath requestPath;
 
-  private final RequestContext requestContext;
+  private final HttpContext httpContext;
 
   private final MultiValueMap<String, String> params;
 
@@ -94,39 +94,39 @@ class DefaultServerRequest implements ServerRequest {
   @Nullable
   private MultiValueMap<String, Part> parts;
 
-  public DefaultServerRequest(RequestContext mockRequest, List<HttpMessageConverter<?>> messageConverters) {
+  public DefaultServerRequest(HttpContext mockRequest, List<HttpMessageConverter<?>> messageConverters) {
     this(mockRequest, messageConverters, null);
   }
 
-  public DefaultServerRequest(RequestContext requestContext,
+  public DefaultServerRequest(HttpContext httpContext,
           List<HttpMessageConverter<?>> messageConverters, @Nullable ApiVersionStrategy versionStrategy) {
 
-    this.requestContext = requestContext;
+    this.httpContext = httpContext;
     this.versionStrategy = versionStrategy;
-    this.params = requestContext.getParameters();
-    this.requestPath = requestContext.getRequestPath();
+    this.params = httpContext.getParameters();
+    this.requestPath = httpContext.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
-    this.headers = new DefaultRequestHeaders(requestContext.getHeaders());
+    this.headers = new DefaultRequestHeaders(httpContext.getHeaders());
   }
 
   @Override
   public HttpMethod method() {
-    return requestContext.getMethod();
+    return httpContext.getMethod();
   }
 
   @Override
   public String methodName() {
-    return requestContext.getMethodAsString();
+    return httpContext.getMethodAsString();
   }
 
   @Override
   public URI uri() {
-    return requestContext.getURI();
+    return httpContext.getURI();
   }
 
   @Override
   public UriBuilder uriBuilder() {
-    return UriComponentsBuilder.forHttpRequest(requestContext);
+    return UriComponentsBuilder.forHttpRequest(httpContext);
   }
 
   @Override
@@ -141,7 +141,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public MultiValueMap<String, HttpCookie> cookies() {
-    HttpCookie[] cookies = requestContext.getCookies();
+    HttpCookie[] cookies = httpContext.getCookies();
     var result = new LinkedMultiValueMap<String, HttpCookie>(cookies.length);
     for (HttpCookie cookie : cookies) {
       result.add(cookie.getName(), cookie);
@@ -150,13 +150,13 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public RequestContext exchange() {
-    return requestContext;
+  public HttpContext exchange() {
+    return httpContext;
   }
 
   @Override
   public InetSocketAddress remoteAddress() {
-    return requestContext.remoteAddress();
+    return httpContext.remoteAddress();
   }
 
   @Override
@@ -199,7 +199,7 @@ class DefaultServerRequest implements ServerRequest {
     for (HttpMessageConverter converter : messageConverters) {
       if (converter instanceof GenericHttpMessageConverter generic) {
         if (generic.canRead(bodyType, bodyClass, contentType)) {
-          return (T) generic.read(bodyType, bodyClass, requestContext);
+          return (T) generic.read(bodyType, bodyClass, httpContext);
         }
       }
 
@@ -208,12 +208,12 @@ class DefaultServerRequest implements ServerRequest {
           resolvableType = ResolvableType.forType(bodyType);
         }
         if (smart.canRead(resolvableType, contentType)) {
-          return (T) smart.read(resolvableType, requestContext, null);
+          return (T) smart.read(resolvableType, httpContext, null);
         }
       }
 
       if (converter.canRead(bodyClass, contentType)) {
-        return (T) converter.read(bodyClass, requestContext);
+        return (T) converter.read(bodyClass, httpContext);
       }
     }
     throw new HttpMediaTypeNotSupportedException(contentType, getSupportedMediaTypes(bodyClass), method());
@@ -234,11 +234,11 @@ class DefaultServerRequest implements ServerRequest {
     Assert.notNull(bindType, "BindType is required");
     Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer is required");
 
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(null);
+    HttpContextDataBinder dataBinder = new HttpContextDataBinder(null);
     dataBinder.setTargetType(ResolvableType.forClass(bindType));
     dataBinderCustomizer.accept(dataBinder);
 
-    RequestContext context = exchange();
+    HttpContext context = exchange();
     dataBinder.construct(context);
     dataBinder.bind(context);
 
@@ -260,17 +260,17 @@ class DefaultServerRequest implements ServerRequest {
   @Override
   @Nullable
   public Object attribute(String name) {
-    return requestContext.getAttribute(name);
+    return httpContext.getAttribute(name);
   }
 
   @Override
   public Map<String, Object> attributes() {
-    return requestContext.getAttributes();
+    return httpContext.getAttributes();
   }
 
   @Override
   public Optional<String> param(String name) {
-    return Optional.ofNullable(requestContext.getParameter(name));
+    return Optional.ofNullable(httpContext.getParameter(name));
   }
 
   @Override
@@ -291,7 +291,7 @@ class DefaultServerRequest implements ServerRequest {
   public MultiValueMap<String, Part> parts() {
     MultiValueMap<String, Part> result = this.parts;
     if (result == null) {
-      result = requestContext.asMultipartRequest().getParts();
+      result = httpContext.asMultipartRequest().getParts();
       this.parts = result;
     }
     return result;
@@ -300,7 +300,7 @@ class DefaultServerRequest implements ServerRequest {
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Map<String, String> pathVariables() {
-    if (requestContext.getAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE) instanceof Map pathVariables) {
+    if (httpContext.getAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE) instanceof Map pathVariables) {
       return pathVariables;
     }
     return Collections.emptyMap();
@@ -311,7 +311,7 @@ class DefaultServerRequest implements ServerRequest {
     return String.format("HTTP %s %s", method(), path());
   }
 
-  static Optional<ServerResponse> checkNotModified(RequestContext context,
+  static Optional<ServerResponse> checkNotModified(HttpContext context,
           @Nullable Instant lastModified, @Nullable String etag) {
 
     long lastModifiedTimestamp = -1;
@@ -396,16 +396,16 @@ class DefaultServerRequest implements ServerRequest {
     }
   }
 
-  static class CheckNotModifiedResponse extends RequestContext {
+  static class CheckNotModifiedResponse extends HttpContext {
 
     private int status = 200;
 
     private final HttpHeaders headers = HttpHeaders.forWritable();
 
-    private final RequestContext context;
+    private final HttpContext context;
 
     @SuppressWarnings("NullAway")
-    protected CheckNotModifiedResponse(RequestContext context) {
+    protected CheckNotModifiedResponse(HttpContext context) {
       super(null, null);
       this.context = context;
     }

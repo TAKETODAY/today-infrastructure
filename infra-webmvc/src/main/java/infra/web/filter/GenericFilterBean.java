@@ -32,13 +32,13 @@ import infra.logging.LoggerFactory;
 import infra.web.DispatcherHandler;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Abstract base class for {@link Filter} implementations, providing
  * convenient infrastructure for working with the application context.
  *
- * <p>Subclasses need to implement the {@link #doFilter(RequestContext, FilterChain)}
+ * <p>Subclasses need to implement the {@link #doFilter(HttpContext, FilterChain)}
  * method, and may optionally override the {@link #initFilterBean()} lifecycle hook.
  *
  * <p>This base class provides:

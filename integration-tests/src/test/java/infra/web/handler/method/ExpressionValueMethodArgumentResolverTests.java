@@ -29,12 +29,12 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.BindingContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContextHolder;
 import infra.web.bind.resolver.ExpressionValueMethodArgumentResolver;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +54,7 @@ public class ExpressionValueMethodArgumentResolverTests {
   private ResolvableMethodParameter paramNotSupported;
   MockRequest request = new MockRequest();
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   @BeforeEach
   @SuppressWarnings("resource")
@@ -74,15 +74,15 @@ public class ExpressionValueMethodArgumentResolverTests {
     paramContextPath.getParameter().initParameterNameDiscovery(discoverer);
     paramNotSupported.getParameter().initParameterNameDiscovery(discoverer);
 
-    webRequest = new MockRequestContext(null, request, new MockResponse());
+    webRequest = new MockHttpContext(null, request, new MockResponse());
 
     // Expose request to the current thread (for SpEL expressions)
-    RequestContextHolder.set(webRequest);
+    HttpContextHolder.set(webRequest);
   }
 
   @AfterEach
   public void teardown() {
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
   }
 
   @Test

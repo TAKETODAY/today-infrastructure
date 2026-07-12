@@ -33,7 +33,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.AbstractTemplateView;
 import infra.web.view.ViewRenderingException;
 
@@ -113,7 +113,7 @@ public class GroovyMarkupView extends AbstractTemplateView {
   }
 
   @Override
-  protected void renderMergedTemplateModel(Map<String, Object> model, RequestContext context) throws Exception {
+  protected void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) throws Exception {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
 

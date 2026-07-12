@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.lang.Assert;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Default implementation of {@link SessionManager} delegating to a
@@ -61,7 +61,7 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
-  public Session createSession(RequestContext context) {
+  public Session createSession(HttpContext context) {
     Session session = sessionRepository.createSession();
     sessionRepository.saveOrUpdate(session);
     sessionIdResolver.setSessionId(context, session.getId());
@@ -77,12 +77,12 @@ public class DefaultSessionManager implements SessionManager {
   }
 
   @Override
-  public Session getSession(RequestContext context) {
+  public Session getSession(HttpContext context) {
     return getSession(context, true);
   }
 
   @Override
-  public @Nullable Session getSession(RequestContext context, boolean create) {
+  public @Nullable Session getSession(HttpContext context, boolean create) {
     String sessionId = sessionIdResolver.getSessionId(context);
     if (StringUtils.hasText(sessionId)) {
       Session session = sessionRepository.retrieveSession(sessionId);

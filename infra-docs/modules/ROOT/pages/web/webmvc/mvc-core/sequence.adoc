@@ -12,7 +12,7 @@
 `ApplicationContext` 中声明的 `HandlerExceptionHandler` bean 用于解决请求处理期间抛出的异常。
 这些异常解析器允许自定义解决异常的逻辑。有关更多详细信息，请参阅 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]。
 
-对于 HTTP 缓存支持，处理程序可以使用 `RequestContext` 的 `checkNotModified` 方法，
+对于 HTTP 缓存支持，处理程序可以使用 `HttpContext` 的 `checkNotModified` 方法，
 以及 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器的 HTTP 缓存]
 中描述的带注解控制器的更多选项。
 
