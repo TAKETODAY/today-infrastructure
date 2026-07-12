@@ -16,9 +16,10 @@
 
 package infra.samples;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
-import org.jspecify.annotations.Nullable;
 import infra.web.annotation.GET;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;

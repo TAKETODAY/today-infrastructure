@@ -16,11 +16,12 @@
 
 package infra.samples;
 
-import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
+
+import infra.http.HttpStatus;
 import infra.stereotype.Component;
-import infra.web.NotFoundHandler;
 import infra.web.HttpContext;
+import infra.web.NotFoundHandler;
 import infra.web.handler.SimpleNotFoundHandler;
 
 /**

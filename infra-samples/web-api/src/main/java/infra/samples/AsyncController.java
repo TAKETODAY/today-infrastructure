@@ -16,12 +16,13 @@
 
 package infra.samples;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 import infra.http.HttpHeaders;
-import org.jspecify.annotations.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
@@ -82,7 +83,7 @@ class AsyncController {
   public Callable<String> callable() {
     return () -> {
       // 可以获取 HttpContext
-      HttpContext request = HttpContextHolder.getRequired();
+      HttpContext request = HttpContextHolder.required();
       logger.info("异步任务开始执行");
 //        TimeUnit.SECONDS.sleep(2);
       LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));
