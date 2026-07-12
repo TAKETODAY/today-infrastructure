@@ -676,6 +676,11 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     return new MockSessionManager();
   }
 
+  @Override
+  public @Nullable Session getSession(boolean create) {
+    return sessionManager().getSession(this, create);
+  }
+
   public void setFormUrlencoded(@Nullable MultiValueMap<String, String> formUrlencoded) {
     if (formUrlencoded != null) {
       setAttribute(FORM_URLENCODED_ATTRIBUTE, formUrlencoded);
