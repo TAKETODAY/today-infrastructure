@@ -23,7 +23,7 @@ import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ class DefaultMultipartRequestTests {
   @Test
   void constructorInitializesFieldsCorrectly() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
 
     DefaultMultipartRequest request = new DefaultMultipartRequest(parser, context);
 
@@ -50,7 +50,7 @@ class DefaultMultipartRequestTests {
   @Test
   void parseRequestDelegatesToMultipartParser() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> expectedParts = mock(MultiValueMap.class);
 
     when(parser.parseRequest(context)).thenReturn(expectedParts);
@@ -66,7 +66,7 @@ class DefaultMultipartRequestTests {
   @Test
   void getPartDelegatesToParsedParts() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
     Part expectedPart = mock(Part.class);
 
@@ -83,7 +83,7 @@ class DefaultMultipartRequestTests {
   @Test
   void getPartsReturnsAllParts() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> expectedParts = mock(MultiValueMap.class);
 
     when(parser.parseRequest(context)).thenReturn(expectedParts);
@@ -98,7 +98,7 @@ class DefaultMultipartRequestTests {
   @Test
   void getPartNamesDelegatesToPartsKeySet() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
     Set<String> expectedNames = mock(Set.class);
 
@@ -115,7 +115,7 @@ class DefaultMultipartRequestTests {
   @Test
   void isResolvedReturnsFalseBeforeParsing() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
 
     DefaultMultipartRequest request = new DefaultMultipartRequest(parser, context);
 
@@ -125,7 +125,7 @@ class DefaultMultipartRequestTests {
   @Test
   void isResolvedReturnsTrueAfterGettingParts() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
 
     when(parser.parseRequest(context)).thenReturn(partsMap);
@@ -139,7 +139,7 @@ class DefaultMultipartRequestTests {
   @Test
   void cleanupClearsPartsAndCallsWebUtils() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
 
     when(parser.parseRequest(context)).thenReturn(partsMap);
@@ -155,7 +155,7 @@ class DefaultMultipartRequestTests {
   @Test
   void getPartsByNameDelegatesToParsedParts() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
     List<Part> expectedParts = java.util.Arrays.asList(mock(Part.class), mock(Part.class));
 
@@ -172,7 +172,7 @@ class DefaultMultipartRequestTests {
   @Test
   void getHeadersDelegatesToPartHeaders() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
     Part part = mock(Part.class);
     HttpHeaders expectedHeaders = mock(HttpHeaders.class);
@@ -191,7 +191,7 @@ class DefaultMultipartRequestTests {
   @Test
   void getHeadersReturnsNullWhenPartNotFound() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
 
     when(parser.parseRequest(context)).thenReturn(partsMap);
@@ -207,7 +207,7 @@ class DefaultMultipartRequestTests {
   @Test
   void parseRequestIsCalledOnlyOnce() {
     DefaultMultipartParser parser = mock(DefaultMultipartParser.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     MultiValueMap<String, Part> partsMap = mock(MultiValueMap.class);
 
     when(parser.parseRequest(context)).thenReturn(partsMap);

@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import infra.context.ApplicationContext;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
  */
 class DelegatingFilterProxyTests {
 
-  private final MockRequestContext request = new MockRequestContext();
+  private final MockHttpContext request = new MockHttpContext();
 
   private final FilterChain chain = mock(FilterChain.class);
 
@@ -120,7 +120,7 @@ class DelegatingFilterProxyTests {
     Filter delegate = mock(Filter.class);
     DelegatingFilterProxy proxy = new DelegatingFilterProxy(delegate) {
       @Override
-      protected void invokeDelegate(Filter delegate, RequestContext request, FilterChain filterChain) throws Exception {
+      protected void invokeDelegate(Filter delegate, HttpContext request, FilterChain filterChain) throws Exception {
         request.setAttribute("intercepted", Boolean.TRUE);
         super.invokeDelegate(delegate, request, filterChain);
       }

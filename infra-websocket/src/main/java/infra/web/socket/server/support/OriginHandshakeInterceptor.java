@@ -30,7 +30,7 @@ import infra.http.HttpStatus;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.cors.CorsConfiguration;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.HandshakeInterceptor;
@@ -115,7 +115,7 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
   }
 
   @Override
-  public boolean beforeHandshake(RequestContext request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
+  public boolean beforeHandshake(HttpContext request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
     if (request.isCorsRequest() && corsConfiguration.checkOrigin(request.getHeaders().getOrigin()) == null) {
       request.setStatus(HttpStatus.FORBIDDEN);
       if (logger.isDebugEnabled()) {
@@ -127,7 +127,7 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
   }
 
   @Override
-  public void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Throwable exception) {
+  public void afterHandshake(HttpContext request, WebSocketHandler wsHandler, @Nullable Throwable exception) {
 
   }
 

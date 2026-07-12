@@ -21,7 +21,7 @@ package infra.web.view;
 import org.jspecify.annotations.Nullable;
 
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.RequestToViewNameTranslator;
 import infra.web.util.WebUtils;
 
@@ -134,7 +134,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   }
 
   /**
-   * Translates the request URI of the incoming {@link RequestContext}
+   * Translates the request URI of the incoming {@link HttpContext}
    * into the view name based on the configured parameters.
    *
    * @throws IllegalArgumentException if neither a parsed RequestPath, nor a
@@ -142,7 +142,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
    * @see #transformPath
    */
   @Override
-  public String getViewName(RequestContext request) {
+  public String getViewName(HttpContext request) {
     String lookupPath = removeSemicolonContent
             ? WebUtils.removeSemicolonContent(request.getRequestPath().value())
             : request.getRequestPath().value();

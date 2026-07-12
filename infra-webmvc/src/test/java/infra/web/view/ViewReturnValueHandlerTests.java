@@ -18,8 +18,8 @@ package infra.web.view;
 
 import org.junit.jupiter.api.Test;
 
+import infra.web.HttpContext;
 import infra.web.LocaleResolver;
-import infra.web.RequestContext;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
 
@@ -201,7 +201,7 @@ class ViewReturnValueHandlerTests {
     // given
     ViewResolver viewResolver = mock(ViewResolver.class);
     ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     View view = mock(View.class);
 
     when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
@@ -215,7 +215,7 @@ class ViewReturnValueHandlerTests {
     // given
     ViewResolver viewResolver = mock(ViewResolver.class);
     ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     View view = mock(View.class);
 
     // when & then
@@ -227,7 +227,7 @@ class ViewReturnValueHandlerTests {
     // given
     ViewResolver viewResolver = mock(ViewResolver.class);
     ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     ViewRef viewRef = ViewRef.forViewName("viewName");
     View view = mock(View.class);
 
@@ -242,7 +242,7 @@ class ViewReturnValueHandlerTests {
     // given
     ViewResolver viewResolver = mock(ViewResolver.class);
     ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     ModelAndView modelAndView = new ModelAndView("viewName");
     View view = mock(View.class);
 
@@ -257,7 +257,7 @@ class ViewReturnValueHandlerTests {
     // given
     ViewResolver viewResolver = mock(ViewResolver.class);
     ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     Object unsupportedReturnValue = new Object();
 
     // when & then

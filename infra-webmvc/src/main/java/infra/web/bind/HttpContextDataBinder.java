@@ -34,7 +34,7 @@ import infra.util.StringUtils;
 import infra.validation.BindException;
 import infra.validation.DataBinder;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.multipart.Part;
 
 /**
@@ -57,14 +57,14 @@ import infra.web.multipart.Part;
  * not present, can specify a value for the field other then empty.
  *
  * <p>Can also used for manual data binding in custom web controllers or interceptors
- * that build on Infra {@link RequestContext} implementation. Simply instantiate
+ * that build on Infra {@link HttpContext} implementation. Simply instantiate
  * a WebDataBinder for each binding process, and invoke {@code bind} with
- * the current RequestContext as argument:
+ * the current HttpContext as argument:
  *
  * <pre> {@code
  * MyBean myBean = new MyBean();
  * // apply binder to custom target object
- * RequestContextDataBinder binder = new RequestContextDataBinder(myBean);
+ * HttpContextDataBinder binder = new HttpContextDataBinder(myBean);
  * // register custom editors, if desired
  * binder.registerCustomEditor(...);
  * // trigger actual binding of request parameters
@@ -85,7 +85,7 @@ import infra.web.multipart.Part;
  * @see #setFieldDefaultPrefix
  * @since 4.0 2022/3/2 16:28
  */
-public class RequestContextDataBinder extends WebDataBinder {
+public class HttpContextDataBinder extends WebDataBinder {
 
   private static final Set<String> FILTERED_HEADER_NAMES = Set.of("accept", "authorization", "connection",
           "cookie", "from", "host", "origin", "priority", "range", "referer", "upgrade");
@@ -100,7 +100,7 @@ public class RequestContextDataBinder extends WebDataBinder {
    * if the binder is just used to convert a plain parameter value)
    * @see #DEFAULT_OBJECT_NAME
    */
-  public RequestContextDataBinder(@Nullable Object target) {
+  public HttpContextDataBinder(@Nullable Object target) {
     super(target);
   }
 
@@ -111,7 +111,7 @@ public class RequestContextDataBinder extends WebDataBinder {
    * if the binder is just used to convert a plain parameter value)
    * @param objectName the name of the target object
    */
-  public RequestContextDataBinder(@Nullable Object target, String objectName) {
+  public HttpContextDataBinder(@Nullable Object target, String objectName) {
     super(target, objectName);
   }
 
@@ -144,12 +144,12 @@ public class RequestContextDataBinder extends WebDataBinder {
    * Use a default or single data constructor to create the target by
    * binding request parameters, multipart files, or parts to constructor args.
    * <p>After the call, use {@link #getBindingResult()} to check for bind errors.
-   * If there are none, the target is set, and {@link #bind(RequestContext)}
+   * If there are none, the target is set, and {@link #bind(HttpContext)}
    * can be called for further initialization via setters.
    *
    * @param request the request to bind
    */
-  public void construct(RequestContext request) {
+  public void construct(HttpContext request) {
     construct(new RequestValueResolver(request, this));
   }
 
@@ -177,7 +177,7 @@ public class RequestContextDataBinder extends WebDataBinder {
    * @see infra.web.multipart.Part
    * @see #bind(PropertyValues)
    */
-  public void bind(RequestContext request) {
+  public void bind(HttpContext request) {
     if (shouldNotBindPropertyValues()) {
       return;
     }
@@ -190,7 +190,7 @@ public class RequestContextDataBinder extends WebDataBinder {
    * @param request the current exchange
    * @return a map of bind values
    */
-  public PropertyValues getValuesToBind(RequestContext request) {
+  public PropertyValues getValuesToBind(HttpContext request) {
     PropertyValues pv = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
     if (request.isMultipart()) {
       var multipartFiles = request.asMultipartRequest().getParts();
@@ -219,7 +219,7 @@ public class RequestContextDataBinder extends WebDataBinder {
   /**
    * Merge URI variables into the property values to use for data binding.
    */
-  protected void addBindValues(PropertyValues pv, RequestContext request) {
+  protected void addBindValues(PropertyValues pv, HttpContext request) {
     Map<String, String> uriVars = getUriVars(request);
     if (uriVars != null) {
       for (var entry : uriVars.entrySet()) {
@@ -267,7 +267,7 @@ public class RequestContextDataBinder extends WebDataBinder {
     return StringUtils.uncapitalize(name.replace("-", ""));
   }
 
-  private static @Nullable Map<String, String> getUriVars(RequestContext request) {
+  private static @Nullable Map<String, String> getUriVars(HttpContext request) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
@@ -286,7 +286,7 @@ public class RequestContextDataBinder extends WebDataBinder {
     }
   }
 
-  private @Nullable Object getHeaderValue(RequestContext request, String name) {
+  private @Nullable Object getHeaderValue(HttpContext request, String name) {
     if (!this.headerPredicate.test(name)) {
       return null;
     }
@@ -304,22 +304,22 @@ public class RequestContextDataBinder extends WebDataBinder {
   }
 
   /**
-   * Resolver that looks up values to bind in a {@link RequestContext}.
+   * Resolver that looks up values to bind in a {@link HttpContext}.
    */
   protected class RequestValueResolver implements ValueResolver {
 
-    private final RequestContext request;
+    private final HttpContext request;
 
-    private final RequestContextDataBinder dataBinder;
+    private final HttpContextDataBinder dataBinder;
 
     private @Nullable Set<String> parameterNames;
 
-    protected RequestValueResolver(RequestContext request, RequestContextDataBinder dataBinder) {
+    protected RequestValueResolver(HttpContext request, HttpContextDataBinder dataBinder) {
       this.request = request;
       this.dataBinder = dataBinder;
     }
 
-    protected RequestContext getRequest() {
+    protected HttpContext getRequest() {
       return this.request;
     }
 
@@ -374,7 +374,7 @@ public class RequestContextDataBinder extends WebDataBinder {
       return this.parameterNames;
     }
 
-    private Set<String> initParameterNames(RequestContext request) {
+    private Set<String> initParameterNames(HttpContext request) {
       Set<String> set = request.getParameterNames();
       Map<String, String> uriVars = getUriVars(getRequest());
       if (uriVars != null) {

@@ -23,7 +23,7 @@ import java.util.List;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A {@code ContentNegotiationStrategy} that returns a fixed content type.
@@ -62,7 +62,7 @@ public class FixedContentNegotiationStrategy implements ContentNegotiationStrate
   }
 
   @Override
-  public List<MediaType> resolveMediaTypes(RequestContext request) {
+  public List<MediaType> resolveMediaTypes(HttpContext request) {
     return this.contentTypes;
   }
 

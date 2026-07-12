@@ -33,7 +33,7 @@ import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.setup.MockMvcBuilders;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.client.HttpClientErrorException;
@@ -108,12 +108,12 @@ public class MockMvcClientHttpRequestFactoryTests {
     }
 
     @RequestMapping(value = "/error", method = HttpMethod.GET)
-    public void handleError(RequestContext response) throws Exception {
+    public void handleError(HttpContext response) throws Exception {
       response.sendError(400, "some bad request");
     }
 
     @RequestMapping(value = "/errorbody", method = HttpMethod.GET)
-    public void handleErrorWithBody(RequestContext response) throws Exception {
+    public void handleErrorWithBody(HttpContext response) throws Exception {
       response.sendError(400, "some bad request");
       response.getWriter().write("some really bad request");
     }

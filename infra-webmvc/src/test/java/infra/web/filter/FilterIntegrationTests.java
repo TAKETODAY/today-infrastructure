@@ -25,9 +25,9 @@ import infra.web.DispatcherHandler;
 import infra.web.Filter;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerMapping;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.ReturnValueHandlerManager;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +64,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     handler.handleRequest(request);
 
     assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
@@ -90,7 +90,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     handler.handleRequest(request);
 
     assertThat(order.toString()).isEqualTo("AB");
@@ -111,7 +111,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     handler.handleRequest(request);
 
     assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
@@ -128,7 +128,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     handler.handleRequest(request);
 
     // No filters configured, request should reach handler mapping
@@ -150,7 +150,7 @@ class FilterIntegrationTests {
       }
 
       @Override
-      public Object handle(RequestContext request, Object handler) {
+      public Object handle(HttpContext request, Object handler) {
         return null;
       }
     };

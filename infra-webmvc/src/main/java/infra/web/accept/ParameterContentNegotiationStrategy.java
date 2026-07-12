@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.http.MediaType;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Strategy that resolves the requested content type from a query parameter.
@@ -65,7 +65,7 @@ public class ParameterContentNegotiationStrategy extends AbstractMappingContentN
 
   @Override
   @Nullable
-  protected String getMediaTypeKey(RequestContext request) {
+  protected String getMediaTypeKey(HttpContext request) {
     return request.getParameter(getParameterName());
   }
 

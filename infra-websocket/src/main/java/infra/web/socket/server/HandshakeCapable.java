@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 
@@ -40,16 +40,16 @@ public interface HandshakeCapable {
    * Invoked before the handshake is processed.
    * <p>
    * This method will invoke after all {@link
-   * HandshakeInterceptor#beforeHandshake(RequestContext, WebSocketHandler, Map)}
+   * HandshakeInterceptor#beforeHandshake(HttpContext, WebSocketHandler, Map)}
    *
    * @param request the current request
    * @param attributes the attributes from the HTTP handshake to associate with the WebSocket
    * session; the provided attributes are copied, the original map is not used.
    * @return whether to proceed with the handshake ({@code true}) or abort ({@code false})
    * @throws Throwable The error will handle by {@link infra.web.HandlerExceptionHandler}
-   * @see HandshakeInterceptor#beforeHandshake(RequestContext, WebSocketHandler, Map)
+   * @see HandshakeInterceptor#beforeHandshake(HttpContext, WebSocketHandler, Map)
    */
-  default boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
+  default boolean beforeHandshake(HttpContext request, Map<String, Object> attributes) throws Throwable {
     return true;
   }
 
@@ -58,15 +58,15 @@ public interface HandshakeCapable {
    * the results of the handshake, i.e. whether it was successful or not.
    * <p>
    * This method will invoke before all {@link
-   * HandshakeInterceptor#afterHandshake(RequestContext, WebSocketHandler, Throwable)}
+   * HandshakeInterceptor#afterHandshake(HttpContext, WebSocketHandler, Throwable)}
    *
    * @param request the current request
    * @param session websocket session, or {@code null} if handshake failed
    * @param failure an exception raised during the handshake, or {@code null} if none
    * @throws Throwable The error will handle by {@link infra.web.HandlerExceptionHandler}
-   * @see HandshakeInterceptor#afterHandshake(RequestContext, WebSocketHandler, Throwable)
+   * @see HandshakeInterceptor#afterHandshake(HttpContext, WebSocketHandler, Throwable)
    */
-  default void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure)
+  default void afterHandshake(HttpContext request, @Nullable WebSocketSession session, @Nullable Throwable failure)
           throws Throwable {
 
   }

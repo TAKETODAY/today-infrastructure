@@ -22,50 +22,50 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Holder class to expose the web request in the form of a thread-bound
- * {@link RequestContext} object.
+ * {@link HttpContext} object.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-03-23 10:29
  */
-public abstract class RequestContextHolder {
+public abstract class HttpContextHolder {
 
   private static final RequestThreadLocal contextHolder = RequestThreadLocal.lookup();
 
   /**
-   * Reset the {@link RequestContext} for the current thread.
+   * Reset the {@link HttpContext} for the current thread.
    */
   public static void cleanup() {
     contextHolder.remove();
   }
 
   /**
-   * Bind the given {@link RequestContext} to the current thread.
+   * Bind the given {@link HttpContext} to the current thread.
    *
-   * @param requestContext the request context to bind, or {@code null} to reset the thread-local
+   * @param httpContext the request context to bind, or {@code null} to reset the thread-local
    */
-  public static void set(@Nullable RequestContext requestContext) {
-    contextHolder.set(requestContext);
+  public static void set(@Nullable HttpContext httpContext) {
+    contextHolder.set(httpContext);
   }
 
   /**
-   * Return the {@link RequestContext} currently bound to the thread.
+   * Return the {@link HttpContext} currently bound to the thread.
    *
    * @return the current request context, or {@code null} if none bound
    */
-  public static @Nullable RequestContext current() {
+  public static @Nullable HttpContext current() {
     return contextHolder.get();
   }
 
   /**
-   * Return the {@link RequestContext} currently bound to the thread.
+   * Return the {@link HttpContext} currently bound to the thread.
    *
    * @return the current request context (never {@code null})
    * @throws IllegalStateException if no request context is bound to the current thread
    */
-  public static RequestContext required() {
-    RequestContext context = contextHolder.get();
+  public static HttpContext required() {
+    HttpContext context = contextHolder.get();
     if (context == null) {
-      throw new IllegalStateException("No RequestContext set");
+      throw new IllegalStateException("No HttpContext set");
     }
     return context;
   }

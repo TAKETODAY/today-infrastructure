@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import infra.core.ArraySizeTrimmer;
 import infra.core.style.ToStringBuilder;
 import infra.util.CollectionUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -53,7 +53,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  *
  * Resolving arguments using the first supporting strategy:
  * <pre>{@code
- * RequestContext context = ...;
+ * HttpContext context = ...;
  * ResolvableMethodParameter parameter = ...;
  * Object result = strategies.resolveArgument(context, parameter);
  * }</pre>
@@ -83,7 +83,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * <h3>Implementation Details</h3>
  *
  * <p>This class delegates the {@link #supportsParameter(ResolvableMethodParameter)} and
- * {@link #resolveArgument(RequestContext, ResolvableMethodParameter)} methods to the
+ * {@link #resolveArgument(HttpContext, ResolvableMethodParameter)} methods to the
  * first strategy in the list that supports the given parameter. If no strategy supports
  * the parameter, the methods return {@code false} or {@code null}, respectively.</p>
  *
@@ -128,7 +128,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(resolvable)) {
         return strategy.resolveArgument(context, resolvable);

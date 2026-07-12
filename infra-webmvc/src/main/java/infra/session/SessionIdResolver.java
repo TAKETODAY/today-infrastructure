@@ -22,7 +22,7 @@ import java.util.List;
 
 import infra.core.Conventions;
 import infra.session.config.CookieProperties;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Contract for session id resolution strategies. Allows for session id
@@ -54,13 +54,13 @@ public interface SessionIdResolver {
    * Resolves the session id from the given request context.
    * <p>
    * The returned session id may include the one previously applied via
-   * {@link #setSessionId(RequestContext, String)}.
+   * {@link #setSessionId(HttpContext, String)}.
    *
    * @param exchange the current request context
    * @return the resolved session id, or {@code null} if not found
    */
   @Nullable
-  String getSessionId(RequestContext exchange);
+  String getSessionId(HttpContext exchange);
 
   /**
    * Sends the given session id to the client in the response.
@@ -68,14 +68,14 @@ public interface SessionIdResolver {
    * @param exchange the current request context
    * @param sessionId the session id to send
    */
-  void setSessionId(RequestContext exchange, String sessionId);
+  void setSessionId(HttpContext exchange, String sessionId);
 
   /**
    * Instructs the client to expire the current session.
    *
    * @param exchange the current request context
    */
-  void expireSession(RequestContext exchange);
+  void expireSession(HttpContext exchange);
 
   // Static Factory Methods
 

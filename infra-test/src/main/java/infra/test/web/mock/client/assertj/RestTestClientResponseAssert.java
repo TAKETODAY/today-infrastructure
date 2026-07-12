@@ -36,7 +36,6 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.web.mock.api.Cookie;
 import infra.test.http.HttpHeadersAssert;
 import infra.test.http.MediaTypeAssert;
 import infra.test.json.AbstractJsonContentAssert;
@@ -46,6 +45,7 @@ import infra.test.web.mock.assertj.CookieMapAssert;
 import infra.test.web.mock.client.ExchangeResult;
 import infra.util.MultiValueMap;
 import infra.util.function.SingletonSupplier;
+import infra.web.mock.api.Cookie;
 
 /**
  * AssertJ {@linkplain org.assertj.core.api.Assert assertions} for the result from a

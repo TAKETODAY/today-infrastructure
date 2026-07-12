@@ -19,7 +19,7 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Central abstraction for session operations.
@@ -61,9 +61,9 @@ public class SessionManagerOperations {
    *
    * @param context Current request
    * @return the <code>Session</code> associated with this request
-   * @see #getSession(RequestContext, boolean)
+   * @see #getSession(HttpContext, boolean)
    */
-  public Session getSession(RequestContext context) {
+  public Session getSession(HttpContext context) {
     return sessionManager.getSession(context);
   }
 
@@ -89,9 +89,9 @@ public class SessionManagerOperations {
    * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
-   * @see #getSession(RequestContext)
+   * @see #getSession(HttpContext)
    */
-  public @Nullable Session getSession(RequestContext context, boolean create) {
+  public @Nullable Session getSession(HttpContext context, boolean create) {
     return sessionManager.getSession(context, create);
   }
 
@@ -114,7 +114,7 @@ public class SessionManagerOperations {
    * @param name the unique attribute key
    * @return the current value of the attribute, or {@code null} if no session exists or the attribute is not present
    */
-  public @Nullable Object getAttribute(RequestContext context, String name) {
+  public @Nullable Object getAttribute(HttpContext context, String name) {
     Session session = getSession(context, false);
     if (session != null) {
       return getAttribute(session, name);
@@ -135,7 +135,7 @@ public class SessionManagerOperations {
    * @param attribute the attribute value to be attached
    * @since 4.0
    */
-  public void setAttribute(RequestContext context, String name, @Nullable Object attribute) {
+  public void setAttribute(HttpContext context, String name, @Nullable Object attribute) {
     Session session = getSession(context, false);
     if (session != null) {
       session.setAttribute(name, attribute);
@@ -150,7 +150,7 @@ public class SessionManagerOperations {
    * @return the last value of the attribute, if any
    * @since 4.0
    */
-  public @Nullable Object removeAttribute(RequestContext context, String name) {
+  public @Nullable Object removeAttribute(HttpContext context, String name) {
     Session session = getSession(context, false);
     if (session != null) {
       return session.removeAttribute(name);

@@ -33,7 +33,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A {@link ResourceTransformer} implementation that modifies links in a CSS
@@ -62,7 +62,7 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
   }
 
   @Override
-  public Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain)
+  public Resource transform(HttpContext request, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException {
 
     resource = transformerChain.transform(request, resource);

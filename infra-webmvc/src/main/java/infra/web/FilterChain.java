@@ -33,6 +33,6 @@ public interface FilterChain {
    * @param request the current request context
    * @throws Exception if any filter or the terminal handler fails
    */
-  void doFilter(RequestContext request) throws Exception;
+  void doFilter(HttpContext request) throws Exception;
 
 }

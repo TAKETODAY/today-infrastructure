@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import infra.http.HttpStatus;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +43,7 @@ public class RouterFunctionsTests {
   MockResponse mockResponse = new MockResponse();
 
   private final ServerRequest request = new DefaultServerRequest(
-          new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), mockResponse), Collections.emptyList());
+          new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "", true), mockResponse), Collections.emptyList());
 
   @Test
   public void routeMatch() {
@@ -118,8 +118,8 @@ public class RouterFunctionsTests {
     MockRequest mockRequest = new MockRequest("GET", "/bar");
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.emptyList());
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> resultHandlerFunction = result.route(request);
     assertThat(resultHandlerFunction.isPresent()).isTrue();
@@ -134,7 +134,7 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest getRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> result = routerFunction.route(getRequest);
@@ -150,11 +150,11 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest matchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
             Collections.emptyList());
 
     ServerRequest nonMatchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/other", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/other", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> matchingResult = routerFunction.route(matchingRequest);
@@ -175,11 +175,11 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest matchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/route", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/route", true), mockResponse),
             Collections.emptyList());
 
     ServerRequest nonMatchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/other", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/other", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> matchingResult = routerFunction.route(matchingRequest);
@@ -201,11 +201,11 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest matchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/api/users", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/api/users", true), mockResponse),
             Collections.emptyList());
 
     ServerRequest nonMatchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/users", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/users", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> matchingResult = routerFunction.route(matchingRequest);
@@ -225,11 +225,11 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest matchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/api/users", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/api/users", true), mockResponse),
             Collections.emptyList());
 
     ServerRequest nonMatchingRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/users", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/users", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> matchingResult = routerFunction.route(matchingRequest);
@@ -259,7 +259,7 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest testRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> result = routerFunction.route(testRequest);
@@ -286,7 +286,7 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest testRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> result = routerFunction.route(testRequest);
@@ -315,7 +315,7 @@ public class RouterFunctionsTests {
             .build();
 
     ServerRequest testRequest = new DefaultServerRequest(
-            new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
+            new MockHttpContext(null, PathPatternsTestUtils.initRequest("GET", "/test", true), mockResponse),
             Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> result = routerFunction.route(testRequest);

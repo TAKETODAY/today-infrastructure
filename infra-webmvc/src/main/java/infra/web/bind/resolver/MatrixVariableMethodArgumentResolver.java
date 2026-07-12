@@ -30,7 +30,7 @@ import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.bind.MissingMatrixVariableException;
 import infra.web.bind.RequestBindingException;
@@ -70,7 +70,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext request) throws Exception {
     Map<String, MultiValueMap<String, String>> pathParameters = request.matchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;
@@ -122,7 +122,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
 
   @Override
   protected void handleMissingValueAfterConversion(
-          String name, MethodParameter parameter, RequestContext request) throws Exception {
+          String name, MethodParameter parameter, HttpContext request) throws Exception {
     throw new MissingMatrixVariableException(name, parameter, true);
   }
 

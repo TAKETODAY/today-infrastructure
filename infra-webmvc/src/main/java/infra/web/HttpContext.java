@@ -92,7 +92,7 @@ import infra.web.util.WebUtils;
 import static infra.lang.Constant.DEFAULT_CHARSET;
 
 /**
- * RequestContext encapsulates the context of an HTTP request, providing access to request-related
+ * HttpContext encapsulates the context of an HTTP request, providing access to request-related
  * information such as headers, cookies, query parameters, and other metadata. It also provides
  * methods for managing the response, including setting cookies and tracking request processing time.
  *
@@ -102,7 +102,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  *
  * <p><b>Example Usage:</b></p>
  * <pre>{@code
- *   RequestContext context = ...;
+ *   HttpContext context = ...;
  *
  *   // Access request details
  *   String requestURI = context.getRequestURI();
@@ -138,7 +138,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 15:48
  */
-public abstract class RequestContext extends DefaultAttributeAccessor
+public abstract class HttpContext extends DefaultAttributeAccessor
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
 
   /**
@@ -159,7 +159,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @see #forward(String)
    */
   public static final String FORWARD_REQUEST_URI_ATTRIBUTE =
-          Conventions.getQualifiedAttributeName(RequestContext.class, "forward.requestUri");
+          Conventions.getQualifiedAttributeName(HttpContext.class, "forward.requestUri");
 
   /**
    * Attribute name for the forwarded request marker.
@@ -167,12 +167,12 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @see #forward(String)
    */
   public static final String FORWARD_ATTRIBUTE =
-          Conventions.getQualifiedAttributeName(RequestContext.class, "forward");
+          Conventions.getQualifiedAttributeName(HttpContext.class, "forward");
 
   /**
    * Attribute name for the cached form-urlencoded body parameters.
    * <p>Populated by {@link #readParameters()} implementations so that after a
-   * {@link DispatcherHandler#forward(RequestContext, String) forward}
+   * {@link DispatcherHandler#forward(HttpContext, String) forward}
    * resets {@link #parameters}, the body parameters can be re-merged
    * with the new query string without re-reading the consumed input stream.
    *
@@ -180,7 +180,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * @see #setAttribute(String, Object)
    */
   public static final String FORM_URLENCODED_ATTRIBUTE =
-          Conventions.getQualifiedAttributeName(RequestContext.class, "form-urlencoded");
+          Conventions.getQualifiedAttributeName(HttpContext.class, "form-urlencoded");
 
   /**
    * Flag indicating whether HTML escaping is enabled by default for message resolution.
@@ -289,7 +289,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
   private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
 
-  protected RequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
+  protected HttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
     this.dispatcherHandler = dispatcherHandler;
   }
@@ -428,7 +428,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
       catch (URISyntaxException ex) {
         if (!hasQuery) {
           throw new IllegalStateException(
-                  "Could not resolve RequestContext as URI: " + urlString, ex);
+                  "Could not resolve HttpContext as URI: " + urlString, ex);
         }
         // Maybe a malformed query string... try plain request URL
         try {
@@ -437,7 +437,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
         }
         catch (URISyntaxException ex2) {
           throw new IllegalStateException(
-                  "Could not resolve RequestContext as URI: " + urlString, ex2);
+                  "Could not resolve HttpContext as URI: " + urlString, ex2);
         }
       }
     }
@@ -1442,7 +1442,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * and HTTP status when applicable.
    * <p>Typical usage:
    * <pre>{@code
-   * public String myHandleMethod(RequestContext request, Model model) {
+   * public String myHandleMethod(HttpContext request, Model model) {
    *   long lastModified = // application-specific calculation
    *   if (request.checkNotModified(lastModified)) {
    *     // shortcut exit - no further processing necessary
@@ -1484,7 +1484,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * and HTTP status when applicable.
    * <p>Typical usage:
    * <pre>{@code
-   * public String myHandleMethod(RequestContext request, Model model) {
+   * public String myHandleMethod(HttpContext request, Model model) {
    *   String eTag = // application-specific calculation
    *   if (request.checkNotModified(eTag)) {
    *     // shortcut exit - no further processing necessary
@@ -1520,7 +1520,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * response headers, and HTTP status when applicable.
    * <p>Typical usage:
    * <pre>{@code
-   * public String myHandleMethod(RequestContext request, Model model) {
+   * public String myHandleMethod(HttpContext request, Model model) {
    *   String eTag = // application-specific calculation
    *   long lastModified = // application-specific calculation
    *   if (request.checkNotModified(eTag, lastModified)) {
@@ -1872,7 +1872,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
     }
 
     if (manager == null) {
-      manager = RequestContextUtils.getRedirectModelManager(this);
+      manager = HttpContextUtils.getRedirectModelManager(this);
     }
     if (manager != null) {
       RedirectModel redirectModel = manager.retrieveAndUpdate(this);
@@ -1965,12 +1965,12 @@ public abstract class RequestContext extends DefaultAttributeAccessor
    * The response buffer is cleared and the request path is updated before
    * re-dispatching.
    * <p>This is a convenience that delegates to
-   * {@link DispatcherHandler#forward(RequestContext, String)}.
+   * {@link DispatcherHandler#forward(HttpContext, String)}.
    *
    * @param path the new path to forward to
    * @throws Exception if forwarding fails
    * @throws IllegalStateException if the response has already been committed
-   * @see DispatcherHandler#forward(RequestContext, String)
+   * @see DispatcherHandler#forward(HttpContext, String)
    * @since 5.0
    */
   public void forward(String path) throws Exception {
@@ -2394,7 +2394,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
   // ----------------------
 
   public ServerHttpResponse asHttpOutputMessage() {
-    return new RequestContextHttpOutputMessage();
+    return new HttpContextHttpOutputMessage();
   }
 
   /**
@@ -2779,7 +2779,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
     return getMethodAsString() + " " + url;
   }
 
-  final class RequestContextHttpOutputMessage implements ServerHttpResponse {
+  final class HttpContextHttpOutputMessage implements ServerHttpResponse {
 
     @Override
     public void setStatusCode(HttpStatusCode status) {
@@ -2788,7 +2788,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
     @Override
     public void flush() throws IOException {
-      RequestContext.this.flush();
+      HttpContext.this.flush();
     }
 
     @Override
@@ -2808,7 +2808,7 @@ public abstract class RequestContext extends DefaultAttributeAccessor
 
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
-      RequestContext.this.setContentType(mediaType);
+      HttpContext.this.setContentType(mediaType);
     }
   }
 

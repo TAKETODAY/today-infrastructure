@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MultipartMockRequest;
@@ -31,7 +32,6 @@ import infra.util.MultiValueMap;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
 
@@ -47,7 +47,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   private MockRequest request = new MockRequest();
 
-  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+  private MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
   private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
@@ -108,7 +108,7 @@ class RequestParamMapMethodArgumentResolverTests {
     Part expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
     request.addPart(expected1);
     request.addPart(expected2);
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
 
     ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -131,7 +131,7 @@ class RequestParamMapMethodArgumentResolverTests {
     request.addPart(expected1);
     request.addPart(expected2);
     request.addPart(expected3);
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
 
     ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);

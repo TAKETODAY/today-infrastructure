@@ -25,9 +25,9 @@ import java.util.function.Supplier;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
 
@@ -170,14 +170,14 @@ public class ParameterizableViewController extends AbstractController {
 
   /**
    * Return a ModelAndView object with the specified view name.
-   * <p>The content of the {@link RequestContext#getInputRedirectModel()}
+   * <p>The content of the {@link HttpContext#getInputRedirectModel()}
    * "input" RedirectModel} is also added to the model.
    *
    * @see #getViewName()
    */
   @Nullable
   @Override
-  protected Object handleRequestInternal(RequestContext request) throws Throwable {
+  protected Object handleRequestInternal(HttpContext request) throws Throwable {
     String contentType = getContentType();
     if (contentType != null) {
       request.setContentType(contentType);

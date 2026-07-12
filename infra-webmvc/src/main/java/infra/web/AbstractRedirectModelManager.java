@@ -69,7 +69,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
   }
 
   @Override
-  public @Nullable RedirectModel retrieveAndUpdate(RequestContext context) {
+  public @Nullable RedirectModel retrieveAndUpdate(HttpContext context) {
     List<RedirectModel> allRedirectModels = retrieveRedirectModel(context);
     if (CollectionUtils.isEmpty(allRedirectModels)) {
       return null;
@@ -119,7 +119,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    *
    * @return a matching RedirectModel or {@code null}
    */
-  private @Nullable RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, RequestContext request) {
+  private @Nullable RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, HttpContext request) {
     ArrayList<RedirectModel> result = new ArrayList<>();
     for (RedirectModel model : allMaps) {
       if (isRedirectModelForRequest(model, request)) {
@@ -140,7 +140,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * Whether the given RedirectModel matches the current request.
    * Uses the expected request path and query parameters saved in the RedirectModel.
    */
-  protected boolean isRedirectModelForRequest(RedirectModel model, RequestContext request) {
+  protected boolean isRedirectModelForRequest(RedirectModel model, HttpContext request) {
     String expectedPath = model.getTargetRequestPath();
     if (expectedPath != null) {
       String requestUri = request.getRequestURI();
@@ -164,13 +164,13 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
     return true;
   }
 
-  private MultiValueMap<String, String> getOriginatingRequestParams(RequestContext request) {
+  private MultiValueMap<String, String> getOriginatingRequestParams(HttpContext request) {
     String query = request.getQueryString();
     return UriComponentsBuilder.forPath("/").query(query).build().getQueryParams();
   }
 
   @Override
-  public void saveRedirectModel(RequestContext context, @Nullable RedirectModel redirectModel) {
+  public void saveRedirectModel(HttpContext context, @Nullable RedirectModel redirectModel) {
     if (CollectionUtils.isEmpty(redirectModel)) {
       return;
     }
@@ -198,7 +198,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
   }
 
   @Nullable
-  private String decodeAndNormalizePath(@Nullable String path, RequestContext request) {
+  private String decodeAndNormalizePath(@Nullable String path, HttpContext request) {
     if (path != null && !path.isEmpty()) {
       path = URLDecoder.decode(path, StandardCharsets.UTF_8);
       if (path.charAt(0) != '/') {
@@ -216,7 +216,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param request the current request
    * @return a List with RedirectModel instances, or {@code null} if none found
    */
-  protected abstract @Nullable List<RedirectModel> retrieveRedirectModel(RequestContext request);
+  protected abstract @Nullable List<RedirectModel> retrieveRedirectModel(HttpContext request);
 
   /**
    * Update the RedirectModel instances in the underlying storage.
@@ -224,7 +224,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param redirectModels a (potentially empty) list of RedirectModel instances to save
    * @param request the current request
    */
-  protected abstract void updateRedirectModel(List<RedirectModel> redirectModels, RequestContext request);
+  protected abstract void updateRedirectModel(List<RedirectModel> redirectModels, HttpContext request);
 
   /**
    * Obtain a mutex for modifying the RedirectModel List as handled by
@@ -236,7 +236,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param request the current request
    * @return the mutex to use (may be {@code null} if none applicable)
    */
-  protected @Nullable Object getRedirectModelMutex(RequestContext request) {
+  protected @Nullable Object getRedirectModelMutex(HttpContext request) {
     return DEFAULT_FLASH_MAPS_MUTEX;
   }
 

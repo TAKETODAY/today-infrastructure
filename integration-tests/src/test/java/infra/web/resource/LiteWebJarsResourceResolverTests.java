@@ -26,7 +26,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -52,7 +52,7 @@ class LiteWebJarsResourceResolverTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final MockRequestContext requestContext = new MockRequestContext(null, request, new MockResponse());
+  private final MockHttpContext httpContext = new MockHttpContext(null, request, new MockResponse());
 
   @Test
   void resolveUrlExisting() {
@@ -121,12 +121,12 @@ class LiteWebJarsResourceResolverTests {
   void resolveResourceExisting() {
     Resource expected = mock();
     String file = "foo/2.3/foo.txt";
-    given(this.chain.resolveResource(requestContext, file, this.locations)).willReturn(expected);
+    given(this.chain.resolveResource(httpContext, file, this.locations)).willReturn(expected);
 
-    Resource actual = this.resolver.resolveResource(requestContext, file, this.locations, this.chain);
+    Resource actual = this.resolver.resolveResource(httpContext, file, this.locations, this.chain);
 
     assertThat(actual).isEqualTo(expected);
-    verify(this.chain, times(1)).resolveResource(requestContext, file, this.locations);
+    verify(this.chain, times(1)).resolveResource(httpContext, file, this.locations);
   }
 
   @Test
@@ -134,11 +134,11 @@ class LiteWebJarsResourceResolverTests {
     String file = "something/something.js";
     given(this.chain.resolveUrlPath(file, this.locations)).willReturn(null);
 
-    Resource actual = this.resolver.resolveResource(requestContext, file, this.locations, this.chain);
+    Resource actual = this.resolver.resolveResource(httpContext, file, this.locations, this.chain);
 
     assertThat(actual).isNull();
-    verify(this.chain, times(1)).resolveResource(requestContext, file, this.locations);
-    verify(this.chain, never()).resolveResource(requestContext, null, this.locations);
+    verify(this.chain, times(1)).resolveResource(httpContext, file, this.locations);
+    verify(this.chain, never()).resolveResource(httpContext, null, this.locations);
   }
 
   @Test
@@ -146,12 +146,12 @@ class LiteWebJarsResourceResolverTests {
     Resource expected = mock();
     String file = "momentjs/momentjs.js";
     String expectedPath = "momentjs/2.29.4/momentjs.js";
-    given(this.chain.resolveResource(requestContext, expectedPath, this.locations)).willReturn(expected);
+    given(this.chain.resolveResource(httpContext, expectedPath, this.locations)).willReturn(expected);
 
-    Resource actual = this.resolver.resolveResource(requestContext, file, this.locations, this.chain);
+    Resource actual = this.resolver.resolveResource(httpContext, file, this.locations, this.chain);
 
     assertThat(actual).isEqualTo(expected);
-    verify(this.chain, times(1)).resolveResource(requestContext, file, this.locations);
+    verify(this.chain, times(1)).resolveResource(httpContext, file, this.locations);
   }
 
 }

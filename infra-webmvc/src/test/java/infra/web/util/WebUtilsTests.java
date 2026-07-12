@@ -25,8 +25,8 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -169,7 +169,7 @@ public class WebUtilsTests {
       mockRequest.setServerPort(port);
     }
     mockRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    MockRequestContext context = new MockRequestContext(null, mockRequest, new MockResponse());
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
     return WebUtils.isValidOrigin(context, allowed);
   }
 
@@ -182,7 +182,7 @@ public class WebUtilsTests {
     }
     mockRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    MockRequestContext context = new MockRequestContext(null, mockRequest, new MockResponse());
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
     return WebUtils.isSameOrigin(context);
   }
 

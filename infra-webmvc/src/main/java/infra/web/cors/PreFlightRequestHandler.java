@@ -16,7 +16,7 @@
 
 package infra.web.cors;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Handler for CORS pre-flight requests.
@@ -35,6 +35,6 @@ public interface PreFlightRequestHandler {
    *
    * @param request current HTTP request
    */
-  void handlePreFlight(RequestContext request) throws Exception;
+  void handlePreFlight(HttpContext request) throws Exception;
 
 }

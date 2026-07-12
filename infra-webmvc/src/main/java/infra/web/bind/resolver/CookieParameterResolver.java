@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpCookie;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.CookieValue;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -45,7 +45,7 @@ public class CookieParameterResolver
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
     return context.getCookie(name);
   }
 
@@ -73,13 +73,13 @@ public class CookieParameterResolver
     }
 
     @Override
-    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
+    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) {
       throw new MissingRequestCookieException(name, parameter, true);
     }
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) {
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
       HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
         if (resolvable.is(HttpCookie.class)) {
@@ -101,8 +101,8 @@ public class CookieParameterResolver
     }
 
     @Override
-    public Object resolveArgument(RequestContext requestContext, ResolvableMethodParameter resolvable) {
-      return requestContext.getCookies();
+    public Object resolveArgument(HttpContext http, ResolvableMethodParameter resolvable) {
+      return http.getCookies();
     }
   }
 
@@ -120,7 +120,7 @@ public class CookieParameterResolver
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
       return context.getCookies();
     }
 

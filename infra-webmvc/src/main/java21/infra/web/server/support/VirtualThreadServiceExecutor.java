@@ -16,7 +16,7 @@
 
 package infra.web.server.support;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.server.ServiceExecutor;
 
 /**
@@ -35,7 +35,7 @@ public class VirtualThreadServiceExecutor implements ServiceExecutor {
    * @param command the command to execute
    */
   @Override
-  public void execute(RequestContext ctx, Runnable command) {
+  public void execute(HttpContext ctx, Runnable command) {
     Thread.startVirtualThread(command);
   }
 

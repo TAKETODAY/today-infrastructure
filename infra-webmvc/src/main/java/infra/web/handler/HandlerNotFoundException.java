@@ -22,6 +22,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.web.DispatcherHandler;
 import infra.web.ErrorResponse;
+import infra.web.HttpContext;
 import infra.web.InfraConfigurationException;
 
 /**
@@ -33,7 +34,7 @@ import infra.web.InfraConfigurationException;
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DispatcherHandler#setThrowExceptionIfNoHandlerFound(boolean)
- * @see DispatcherHandler#handlerNotFound(infra.web.RequestContext)
+ * @see DispatcherHandler#handlerNotFound(HttpContext)
  * @since 4.0 2022/1/28 23:19
  */
 public class HandlerNotFoundException extends InfraConfigurationException implements ErrorResponse {

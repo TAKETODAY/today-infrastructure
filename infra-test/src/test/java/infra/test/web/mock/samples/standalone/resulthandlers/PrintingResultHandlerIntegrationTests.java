@@ -25,7 +25,7 @@ import java.io.StringWriter;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.test.web.mock.result.PrintingResultHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 
@@ -105,13 +105,13 @@ class PrintingResultHandlerIntegrationTests {
   private static class SimpleController {
 
     @GetMapping("/")
-    String hello(RequestContext response) {
+    String hello(HttpContext response) {
       response.addCookie(ResponseCookie.forSimple("enigma", "42"));
       return "Hello Response";
     }
 
     @GetMapping("/utf8")
-    String utf8(RequestContext response) {
+    String utf8(HttpContext response) {
       return "Grüß dich!";
     }
   }

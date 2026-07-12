@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
@@ -45,7 +45,7 @@ public interface RequestUpgradeStrategy {
   /**
    * Return the WebSocket protocol extensions supported by the underlying WebSocket server.
    */
-  List<WebSocketExtension> getSupportedExtensions(RequestContext request);
+  List<WebSocketExtension> getSupportedExtensions(HttpContext request);
 
   /**
    * Perform runtime specific steps to complete the upgrade. Invoked after successful
@@ -64,7 +64,7 @@ public interface RequestUpgradeStrategy {
    * handshake request.
    */
   @Nullable
-  WebSocketSession upgrade(RequestContext request, @Nullable String selectedProtocol,
+  WebSocketSession upgrade(HttpContext request, @Nullable String selectedProtocol,
           List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler,
           Map<String, Object> attributes) throws HandshakeFailureException;
 

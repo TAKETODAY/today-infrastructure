@@ -26,8 +26,8 @@ import infra.http.MediaType;
 import infra.util.CollectionUtils;
 import infra.util.InvalidMimeTypeException;
 import infra.util.MimeTypeUtils;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.RequestContext;
 
 /**
  * A {@code ContentNegotiationStrategy} that checks the 'Accept' request header.
@@ -45,7 +45,7 @@ public class HeaderContentNegotiationStrategy implements ContentNegotiationStrat
    * @throws HttpMediaTypeNotAcceptableException if the 'Accept' header cannot be parsed
    */
   @Override
-  public List<MediaType> resolveMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
+  public List<MediaType> resolveMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
     List<String> headerValues = request.requestHeaders().get(HttpHeaders.ACCEPT);
     if (headerValues == null) {
       return MEDIA_TYPE_ALL_LIST;

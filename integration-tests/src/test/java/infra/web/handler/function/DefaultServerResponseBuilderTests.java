@@ -48,11 +48,11 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
 import reactor.core.publisher.Mono;
 
@@ -263,7 +263,7 @@ class DefaultServerResponseBuilderTests {
   @Nullable
   private static Object getObject(
           ServerResponse response, MockRequest mockRequest, MockResponse mockResponse) throws Throwable {
-    MockRequestContext context = new MockRequestContext(null, mockRequest, mockResponse);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, mockResponse);
     try {
       return response.writeTo(context, EMPTY_CONTEXT);
     }
@@ -315,9 +315,9 @@ class DefaultServerResponseBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
-    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    Object mav = response.writeTo(requestContext, context);
+    Object mav = response.writeTo(httpContext, context);
 
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
@@ -334,8 +334,8 @@ class DefaultServerResponseBuilderTests {
     MockResponse mockResponse = new MockResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
 
-    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(requestContext, context);
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    Object mav = response.writeTo(httpContext, context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
@@ -354,8 +354,8 @@ class DefaultServerResponseBuilderTests {
 
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
 
-    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(requestContext, context);
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    Object mav = response.writeTo(httpContext, context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
@@ -374,8 +374,8 @@ class DefaultServerResponseBuilderTests {
 
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
 
-    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(requestContext, context);
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
@@ -532,10 +532,10 @@ class DefaultServerResponseBuilderTests {
   void buildWithWriteFunction() throws Throwable {
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
-    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
     ServerResponse response = ServerResponse.ok().build(request -> "custom response");
-    Object result = response.writeTo(requestContext, DefaultServerResponseBuilderTests.EMPTY_CONTEXT);
+    Object result = response.writeTo(httpContext, DefaultServerResponseBuilderTests.EMPTY_CONTEXT);
 
     assertThat(result).isEqualTo("custom response");
   }

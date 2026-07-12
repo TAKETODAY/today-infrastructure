@@ -32,7 +32,7 @@ import infra.web.view.AbstractTemplateViewResolver;
  */
 public abstract class AbstractTemplateViewResolverProperties extends AbstractViewResolverProperties {
 
-  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "request";
+  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "http";
 
   /**
    * Prefix that gets prepended to view names when building a URL.
@@ -45,9 +45,9 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
   private String suffix;
 
   /**
-   * Name of the RequestContext attribute for all views.
+   * Name of the HttpContext attribute for all views.
    */
-  private @Nullable String requestContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
+  private @Nullable String httpContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with
@@ -94,12 +94,12 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
     this.suffix = suffix;
   }
 
-  public @Nullable String getRequestContextAttribute() {
-    return this.requestContextAttribute;
+  public @Nullable String getHttpContextAttribute() {
+    return this.httpContextAttribute;
   }
 
-  public void setRequestContextAttribute(@Nullable String requestContextAttribute) {
-    this.requestContextAttribute = requestContextAttribute;
+  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
+    this.httpContextAttribute = httpContextAttribute;
   }
 
   public boolean isExposeRequestAttributes() {
@@ -155,7 +155,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
     resolver.setAllowRequestOverride(isAllowRequestOverride());
     resolver.setAllowSessionOverride(isAllowSessionOverride());
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
-    resolver.setRequestContextAttribute(getRequestContextAttribute());
+    resolver.setHttpContextAttribute(getHttpContextAttribute());
     resolver.setOrder(Ordered.HIGHEST_PRECEDENCE + 100);
   }
 

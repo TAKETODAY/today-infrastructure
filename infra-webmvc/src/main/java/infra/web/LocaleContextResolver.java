@@ -37,7 +37,7 @@ import infra.core.i18n.TimeZoneAwareLocaleContext;
  * @see LocaleContext
  * @see TimeZoneAwareLocaleContext
  * @see LocaleContextHolder
- * @see infra.web.RequestContextUtils#getTimeZone
+ * @see HttpContextUtils#getTimeZone
  * @since 4.0 2022/2/3 22:54
  */
 public interface LocaleContextResolver extends LocaleResolver {
@@ -45,8 +45,8 @@ public interface LocaleContextResolver extends LocaleResolver {
   /**
    * Resolve the current locale context via the given request.
    * <p>This is primarily intended for framework-level processing; consider using
-   * {@link infra.web.RequestContextUtils} or
-   * {@link infra.web.RequestContext} for
+   * {@link HttpContextUtils} or
+   * {@link HttpContext} for
    * application-level access to the current locale and/or time zone.
    * <p>The returned context may be a
    * {@link TimeZoneAwareLocaleContext},
@@ -57,11 +57,11 @@ public interface LocaleContextResolver extends LocaleResolver {
    *
    * @param request the request to resolve the locale context for
    * @return the current locale context (never {@code null}
-   * @see #resolveLocale(RequestContext)
-   * @see infra.web.RequestContextUtils#getLocale
-   * @see infra.web.RequestContextUtils#getTimeZone
+   * @see #resolveLocale(HttpContext)
+   * @see HttpContextUtils#getLocale
+   * @see HttpContextUtils#getTimeZone
    */
-  LocaleContext resolveLocaleContext(RequestContext request);
+  LocaleContext resolveLocaleContext(HttpContext request);
 
   /**
    * Set the current locale context to the given one,
@@ -71,10 +71,10 @@ public interface LocaleContextResolver extends LocaleResolver {
    * @param localeContext the new locale context, or {@code null} to clear the locale
    * @throws UnsupportedOperationException if the LocaleResolver implementation
    * does not support dynamic changing of the locale or time zone
-   * @see #setLocale(RequestContext, Locale)
+   * @see #setLocale(HttpContext, Locale)
    * @see SimpleLocaleContext
    * @see SimpleTimeZoneAwareLocaleContext
    */
-  void setLocaleContext(RequestContext request, @Nullable LocaleContext localeContext);
+  void setLocaleContext(HttpContext request, @Nullable LocaleContext localeContext);
 
 }

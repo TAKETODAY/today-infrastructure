@@ -18,7 +18,7 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.bind.MethodParameterResolvingException;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -42,7 +42,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  *   }
  *
  *   @Override
- *   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+ *   public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
  *     HttpSession httpSession = getHttpSession(context, false);
  *     if (httpSession == null) {
  *       return null;
@@ -115,6 +115,6 @@ public interface ParameterResolvingStrategy {
    * @throws Throwable if an error occurs during argument resolution
    */
   @Nullable
-  Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable;
+  Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable;
 
 }

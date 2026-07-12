@@ -21,9 +21,9 @@ package infra.test.web.mock.assertj;
 import org.assertj.core.api.AssertProvider;
 import org.jspecify.annotations.Nullable;
 
+import infra.test.web.mock.MvcResult;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.test.web.mock.MvcResult;
 
 /**
  * Provides the result of an executed request using {@link infra.test.web.mock.assertj.MockMvcTester} that

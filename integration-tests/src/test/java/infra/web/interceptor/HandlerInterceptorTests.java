@@ -24,7 +24,7 @@ import java.util.List;
 import infra.beans.testfixture.beans.TestBean;
 import infra.test.classpath.ClassPathExclusions;
 import infra.web.HandlerInterceptor;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.GET;
 import infra.web.annotation.Interceptor;
 import infra.web.annotation.RestController;
@@ -71,7 +71,7 @@ class HandlerInterceptorTests {
   static class ModifyResult implements HandlerInterceptor {
 
     @Override
-    public void postProcessing(RequestContext request, Object handler, Object result) {
+    public void postProcessing(HttpContext request, Object handler, Object result) {
       if (result instanceof List list) {
         list.add(new TestBean("add"));
       }

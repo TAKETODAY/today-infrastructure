@@ -16,7 +16,7 @@
 
 package infra.web.multipart;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.MultipartException;
 
 /**
@@ -38,6 +38,6 @@ public interface MultipartParser {
    * @return the parsed MultipartRequest
    * @throws MultipartException if parsing fails
    */
-  MultipartRequest parse(RequestContext request) throws MultipartException;
+  MultipartRequest parse(HttpContext request) throws MultipartException;
 
 }

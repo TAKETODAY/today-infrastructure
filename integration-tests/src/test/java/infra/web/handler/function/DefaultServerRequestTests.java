@@ -53,9 +53,9 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.web.HttpMediaTypeNotSupportedException;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockMemoryPart;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.Cookie;
 import infra.web.multipart.Part;
@@ -78,7 +78,7 @@ class DefaultServerRequestTests {
   @Test
   void method() {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
-    MockRequestContext context = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, null);
 
     DefaultServerRequest request = new DefaultServerRequest(context, this.messageConverters);
 
@@ -92,7 +92,7 @@ class DefaultServerRequestTests {
     mockRequest.setScheme("https");
     mockRequest.setServerPort(443);
 
-    MockRequestContext context = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, null);
 
     DefaultServerRequest request =
             new DefaultServerRequest(context, this.messageConverters);
@@ -104,7 +104,7 @@ class DefaultServerRequestTests {
   void uriBuilder() {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/path", true);
     mockRequest.setQueryString("a=1");
-    MockRequestContext context = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, null);
     DefaultServerRequest request =
             new DefaultServerRequest(context, this.messageConverters);
 
@@ -129,7 +129,7 @@ class DefaultServerRequestTests {
   @Test
   void attributes() {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    MockRequestContext context = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, null);
     context.setAttribute("foo", "bar");
     context.setAttribute("baz", "qux");
 
@@ -164,7 +164,7 @@ class DefaultServerRequestTests {
   }
 
   private DefaultServerRequest getRequest(MockRequest mockRequest) {
-    MockRequestContext context = new MockRequestContext(null, mockRequest, new MockResponse());
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
     return new DefaultServerRequest(context, this.messageConverters);
   }
 
@@ -326,7 +326,7 @@ class DefaultServerRequestTests {
     mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
     mockRequest.setContent("[\"foo\",\"bar\"]".getBytes(UTF_8));
 
-    MockRequestContext context = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, null);
 
     DefaultServerRequest request = new DefaultServerRequest(context,
             Collections.singletonList(new JacksonJsonHttpMessageConverter()));
@@ -343,7 +343,7 @@ class DefaultServerRequestTests {
     mockRequest.setContentType(MediaType.TEXT_PLAIN_VALUE);
     mockRequest.setContent("foo".getBytes(UTF_8));
 
-    MockRequestContext context = new MockRequestContext(null, mockRequest, null);
+    MockHttpContext context = new MockHttpContext(null, mockRequest, null);
 
     DefaultServerRequest request =
             new DefaultServerRequest(context, Collections.emptyList());

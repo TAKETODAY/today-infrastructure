@@ -47,7 +47,7 @@ import infra.core.type.AnnotatedTypeMetadata;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
 import infra.ui.template.TemplateAvailabilityProviders;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.server.error.BasicErrorController;
 import infra.web.server.error.DefaultErrorAttributes;
@@ -156,7 +156,7 @@ public final class ErrorMvcAutoConfiguration {
   private static final class StaticView implements View {
 
     @Override
-    public void render(Map<String, ?> model, RequestContext request) throws Exception {
+    public void render(Map<String, ?> model, HttpContext request) throws Exception {
       if (request.isCommitted()) {
         String message = getMessage(model);
         LoggerFactory.getLogger(StaticView.class).error(message);

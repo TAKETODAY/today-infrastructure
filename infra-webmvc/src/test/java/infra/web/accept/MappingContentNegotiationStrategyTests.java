@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,12 +91,12 @@ public class MappingContentNegotiationStrategyTests {
 
     @Nullable
     @Override
-    protected String getMediaTypeKey(RequestContext request) {
+    protected String getMediaTypeKey(HttpContext request) {
       return this.extension;
     }
 
     @Override
-    protected MediaType handleNoMatch(RequestContext request, String mappingKey) {
+    protected MediaType handleNoMatch(HttpContext request, String mappingKey) {
       return "xml".equals(mappingKey) ? MediaType.APPLICATION_XML : null;
     }
   }

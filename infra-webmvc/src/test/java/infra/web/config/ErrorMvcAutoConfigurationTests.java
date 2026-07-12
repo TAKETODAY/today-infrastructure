@@ -33,7 +33,7 @@ import infra.context.annotation.config.AutoConfigurations;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.context.StandardWebEnvironment;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.server.error.ErrorAttributeOptions;
 import infra.web.server.error.ErrorAttributes;
 import infra.web.util.WebUtils;
@@ -62,7 +62,7 @@ class ErrorMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       View errorView = context.getBean("error", View.class);
       ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
-      MockRequestContext webRequest = createWebRequest(
+      MockHttpContext webRequest = createWebRequest(
               new IllegalStateException("Exception message"), false);
       errorView.render(errorAttributes.getErrorAttributes(webRequest, withAllOptions()), webRequest);
       assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
@@ -79,7 +79,7 @@ class ErrorMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       View errorView = context.getBean("error", View.class);
       ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
-      MockRequestContext webRequest = createWebRequest(new IllegalStateException("Exception message"),
+      MockHttpContext webRequest = createWebRequest(new IllegalStateException("Exception message"),
               false);
       Map<String, Object> attributes = errorAttributes.getErrorAttributes(webRequest, withAllOptions());
       attributes.put("timestamp", Clock.systemUTC().instant());
@@ -95,7 +95,7 @@ class ErrorMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       View errorView = context.getBean("error", View.class);
       ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
-      MockRequestContext webRequest = createWebRequest(
+      MockHttpContext webRequest = createWebRequest(
               new IllegalStateException("Exception message"), true);
       errorView.render(errorAttributes.getErrorAttributes(webRequest, withAllOptions()), webRequest);
       Assertions.assertThat(output).contains("Cannot render error page for request [/path] "
@@ -104,11 +104,11 @@ class ErrorMvcAutoConfigurationTests {
     });
   }
 
-  private MockRequestContext createWebRequest(Exception ex, boolean committed) {
+  private MockHttpContext createWebRequest(Exception ex, boolean committed) {
     MockRequest request = new MockRequest("GET", "/path");
     MockResponse response = new MockResponse();
 
-    MockRequestContext context = new MockRequestContext(null, request, response);
+    MockHttpContext context = new MockHttpContext(null, request, response);
 
     context.setAttribute("infra.mock.api.error.exception", ex);
     context.setAttribute("infra.mock.api.error.request_uri", "/path");

@@ -30,12 +30,12 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.MultipartException;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.MultipartRequest;
-import infra.web.server.NotMultipartRequestException;
 import infra.web.multipart.Part;
+import infra.web.server.NotMultipartRequestException;
 import infra.web.util.WebUtils;
 
 /**
@@ -259,7 +259,7 @@ public class DefaultMultipartParser implements MultipartParser {
   }
 
   @Override
-  public MultipartRequest parse(RequestContext request) throws MultipartException {
+  public MultipartRequest parse(HttpContext request) throws MultipartException {
     return new DefaultMultipartRequest(this, request);
   }
 
@@ -270,7 +270,7 @@ public class DefaultMultipartParser implements MultipartParser {
    * @return A Map of {@code Part} instances parsed from the request, in the order that they were transmitted.
    * @throws MultipartException if there are problems reading/parsing the request or storing files.
    */
-  public MultiValueMap<String, Part> parseRequest(final RequestContext request) throws MultipartException {
+  public MultiValueMap<String, Part> parseRequest(final HttpContext request) throws MultipartException {
     if (!request.isMultipart()) {
       throw new NotMultipartRequestException("the request doesn't contain a %s or %s stream, content type header is %s"
               .formatted(MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.MULTIPART_MIXED_VALUE, request.getContentType()), null);

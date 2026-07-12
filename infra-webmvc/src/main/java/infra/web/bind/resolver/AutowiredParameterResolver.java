@@ -22,7 +22,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.beans.factory.support.DependencyInjector;
 import infra.beans.factory.support.DependencyInjectorProvider;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -46,7 +46,7 @@ public class AutowiredParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public @Nullable Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public @Nullable Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), resolvable.isRequired()));
   }
 

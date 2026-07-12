@@ -121,7 +121,7 @@ public interface HandlerAdapter {
    * @see ReturnValueHandler
    */
   @Nullable
-  Object handle(RequestContext context, Object handler) throws Throwable;
+  Object handle(HttpContext context, Object handler) throws Throwable;
 
   // static factory method
 

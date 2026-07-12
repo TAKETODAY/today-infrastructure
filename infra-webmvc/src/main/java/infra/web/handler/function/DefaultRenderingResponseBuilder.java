@@ -35,7 +35,7 @@ import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.ModelAndView;
 
 /**
@@ -205,7 +205,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
     }
 
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) {
+    protected Object writeToInternal(HttpContext request, Context context) {
 
       ModelAndView mav = new ModelAndView(this.name, statusCode());
       mav.addAllObjects(this.model);

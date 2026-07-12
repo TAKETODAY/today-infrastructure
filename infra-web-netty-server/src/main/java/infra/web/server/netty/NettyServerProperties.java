@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.util.DataSize;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.handler.logging.LogLevel;
@@ -172,7 +172,7 @@ public class NettyServerProperties {
    * Whether the PrintWriter should auto-flush after each write operation.
    * <p>
    * When set to {@code true}, the PrintWriter returned by
-   * {@link RequestContext#getWriter()} will automatically flush its output
+   * {@link HttpContext#getWriter()} will automatically flush its output
    * buffer after each write operation. This ensures that data is immediately
    * sent to the client, which can be important for streaming responses.
    * <p>

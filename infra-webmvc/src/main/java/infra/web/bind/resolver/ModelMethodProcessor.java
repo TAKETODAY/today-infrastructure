@@ -22,8 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import infra.ui.Model;
 import infra.web.BindingContext;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -51,7 +51,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     if (resolvable.is(RedirectModel.class)) {
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
@@ -82,7 +82,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Model model) {
       BindingContext bindingContext = context.binding();
       if (returnValue instanceof RedirectModel redirectModel) {

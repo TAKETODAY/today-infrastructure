@@ -19,8 +19,8 @@ package infra.web.handler;
 import java.io.IOException;
 
 import infra.http.HttpStatus;
+import infra.web.HttpContext;
 import infra.web.NotFoundHandler;
-import infra.web.RequestContext;
 
 /**
  * A simple implementation of {@link NotFoundHandler} that handles requests
@@ -43,7 +43,7 @@ public class SimpleNotFoundHandler implements NotFoundHandler {
    * @throws IOException if an I/O error occurs while sending the error response
    */
   @Override
-  public Object handleNotFound(RequestContext request) throws IOException {
+  public Object handleNotFound(HttpContext request) throws IOException {
     logNotFound(request);
 
     request.sendError(HttpStatus.NOT_FOUND);
@@ -57,7 +57,7 @@ public class SimpleNotFoundHandler implements NotFoundHandler {
    *
    * @param context the request context containing method and URI information
    */
-  public static void logNotFound(RequestContext context) {
+  public static void logNotFound(HttpContext context) {
     if (pageNotFoundLogger.isWarnEnabled()) {
       pageNotFoundLogger.warn("No mapping for {} {}", context.getMethodAsString(), context.getRequestURI());
     }

@@ -17,7 +17,7 @@
 package infra.web.multipart.parsing;
 
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.multipart.AbstractMultipartRequest;
 import infra.web.multipart.Part;
 
@@ -31,9 +31,9 @@ final class DefaultMultipartRequest extends AbstractMultipartRequest {
 
   private final DefaultMultipartParser multipartParser;
 
-  private final RequestContext context;
+  private final HttpContext context;
 
-  public DefaultMultipartRequest(DefaultMultipartParser multipartParser, RequestContext context) {
+  public DefaultMultipartRequest(DefaultMultipartParser multipartParser, HttpContext context) {
     this.multipartParser = multipartParser;
     this.context = context;
   }

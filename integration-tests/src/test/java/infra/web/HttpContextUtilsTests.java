@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.TimeZone;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -35,11 +35,11 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * @since 4.0 2022/1/22 23:23
  */
 @SuppressWarnings("cast")
-class RequestContextUtilsTests {
+class HttpContextUtilsTests {
 
   private final MockRequest request = new MockRequest();
 
-  MockRequestContext context = new MockRequestContext(null, request, null);
+  MockHttpContext context = new MockHttpContext(null, request, null);
 
   @Test
   void testIntParameter() throws RequestBindingException {
@@ -47,21 +47,21 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "e");
     request.addParameter("paramEmpty", "");
 
-    Assertions.assertThat(RequestContextUtils.getIntParameter(context, "param1")).isEqualTo(5);
-    assertThat(RequestContextUtils.getIntParameter(context, "param1", 6)).isEqualTo(5);
-    assertThat(RequestContextUtils.getRequiredIntParameter(context, "param1")).isEqualTo(5);
+    Assertions.assertThat(HttpContextUtils.getIntParameter(context, "param1")).isEqualTo(5);
+    assertThat(HttpContextUtils.getIntParameter(context, "param1", 6)).isEqualTo(5);
+    assertThat(HttpContextUtils.getRequiredIntParameter(context, "param1")).isEqualTo(5);
 
-    assertThat(RequestContextUtils.getIntParameter(context, "param2", 6)).isEqualTo(6);
+    assertThat(HttpContextUtils.getIntParameter(context, "param2", 6)).isEqualTo(6);
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredIntParameter(context, "param2"));
+            HttpContextUtils.getRequiredIntParameter(context, "param2"));
 
-    assertThat(RequestContextUtils.getIntParameter(context, "param3")).isNull();
-    assertThat(RequestContextUtils.getIntParameter(context, "param3", 6)).isEqualTo(6);
+    assertThat(HttpContextUtils.getIntParameter(context, "param3")).isNull();
+    assertThat(HttpContextUtils.getIntParameter(context, "param3", 6)).isEqualTo(6);
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredIntParameter(context, "param3"));
+            HttpContextUtils.getRequiredIntParameter(context, "param3"));
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredIntParameter(context, "paramEmpty"));
+            HttpContextUtils.getRequiredIntParameter(context, "paramEmpty"));
   }
 
   @Test
@@ -73,14 +73,14 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "bogus");
 
     int[] array = new int[] { 1, 2, 3 };
-    int[] values = RequestContextUtils.getRequiredIntParameters(context, "param");
+    int[] values = HttpContextUtils.getRequiredIntParameters(context, "param");
     assertThat(values).hasSize(3);
     for (int i = 0; i < array.length; i++) {
       assertThat(array[i]).isEqualTo(values[i]);
     }
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredIntParameters(context, "param2"));
+            HttpContextUtils.getRequiredIntParameters(context, "param2"));
   }
 
   @Test
@@ -89,21 +89,21 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "e");
     request.addParameter("paramEmpty", "");
 
-    assertThat(RequestContextUtils.getLongParameter(context, "param1")).isEqualTo(Long.valueOf(5L));
-    assertThat(RequestContextUtils.getLongParameter(context, "param1", 6L)).isEqualTo(5L);
-    assertThat(RequestContextUtils.getRequiredIntParameter(context, "param1")).isEqualTo(5L);
+    assertThat(HttpContextUtils.getLongParameter(context, "param1")).isEqualTo(Long.valueOf(5L));
+    assertThat(HttpContextUtils.getLongParameter(context, "param1", 6L)).isEqualTo(5L);
+    assertThat(HttpContextUtils.getRequiredIntParameter(context, "param1")).isEqualTo(5L);
 
-    assertThat(RequestContextUtils.getLongParameter(context, "param2", 6L)).isEqualTo(6L);
+    assertThat(HttpContextUtils.getLongParameter(context, "param2", 6L)).isEqualTo(6L);
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredLongParameter(context, "param2"));
+            HttpContextUtils.getRequiredLongParameter(context, "param2"));
 
-    assertThat(RequestContextUtils.getLongParameter(context, "param3")).isNull();
-    assertThat(RequestContextUtils.getLongParameter(context, "param3", 6L)).isEqualTo(6L);
+    assertThat(HttpContextUtils.getLongParameter(context, "param3")).isNull();
+    assertThat(HttpContextUtils.getLongParameter(context, "param3", 6L)).isEqualTo(6L);
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredLongParameter(context, "param3"));
+            HttpContextUtils.getRequiredLongParameter(context, "param3"));
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredLongParameter(context, "paramEmpty"));
+            HttpContextUtils.getRequiredLongParameter(context, "paramEmpty"));
   }
 
   @Test
@@ -115,19 +115,19 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "2");
     request.addParameter("param2", "bogus");
 
-    long[] values = RequestContextUtils.getRequiredLongParameters(context, "param");
+    long[] values = HttpContextUtils.getRequiredLongParameters(context, "param");
     assertThat(values).containsExactly(1, 2, 3);
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredLongParameters(context, "param2"));
+            HttpContextUtils.getRequiredLongParameters(context, "param2"));
 
     context.setParameter("param2", "1", "2");
-    values = RequestContextUtils.getRequiredLongParameters(context, "param2");
+    values = HttpContextUtils.getRequiredLongParameters(context, "param2");
     assertThat(values).containsExactly(1, 2);
 
     context.removeParameter("param2");
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredLongParameters(context, "param2"));
+            HttpContextUtils.getRequiredLongParameters(context, "param2"));
   }
 
   @Test
@@ -136,21 +136,21 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "e");
     request.addParameter("paramEmpty", "");
 
-    assertThat(RequestContextUtils.getFloatParameter(context, "param1")).isEqualTo(Float.valueOf(5.5f));
-    assertThat(RequestContextUtils.getFloatParameter(context, "param1", 6.5f) == 5.5f).isTrue();
-    assertThat(RequestContextUtils.getRequiredFloatParameter(context, "param1") == 5.5f).isTrue();
+    assertThat(HttpContextUtils.getFloatParameter(context, "param1")).isEqualTo(Float.valueOf(5.5f));
+    assertThat(HttpContextUtils.getFloatParameter(context, "param1", 6.5f) == 5.5f).isTrue();
+    assertThat(HttpContextUtils.getRequiredFloatParameter(context, "param1") == 5.5f).isTrue();
 
-    assertThat(RequestContextUtils.getFloatParameter(context, "param2", 6.5f) == 6.5f).isTrue();
+    assertThat(HttpContextUtils.getFloatParameter(context, "param2", 6.5f) == 6.5f).isTrue();
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredFloatParameter(context, "param2"));
+            HttpContextUtils.getRequiredFloatParameter(context, "param2"));
 
-    assertThat(RequestContextUtils.getFloatParameter(context, "param3")).isNull();
-    assertThat(RequestContextUtils.getFloatParameter(context, "param3", 6.5f) == 6.5f).isTrue();
+    assertThat(HttpContextUtils.getFloatParameter(context, "param3")).isNull();
+    assertThat(HttpContextUtils.getFloatParameter(context, "param3", 6.5f) == 6.5f).isTrue();
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredFloatParameter(context, "param3"));
+            HttpContextUtils.getRequiredFloatParameter(context, "param3"));
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredFloatParameter(context, "paramEmpty"));
+            HttpContextUtils.getRequiredFloatParameter(context, "paramEmpty"));
   }
 
   @Test
@@ -161,11 +161,11 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "2");
     request.addParameter("param2", "bogus");
 
-    float[] values = RequestContextUtils.getRequiredFloatParameters(context, "param");
+    float[] values = HttpContextUtils.getRequiredFloatParameters(context, "param");
     assertThat(values).containsExactly(1.5F, 2.5F, 3F);
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredFloatParameters(context, "param2"));
+            HttpContextUtils.getRequiredFloatParameters(context, "param2"));
   }
 
   @Test
@@ -174,21 +174,21 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "e");
     request.addParameter("paramEmpty", "");
 
-    assertThat(RequestContextUtils.getDoubleParameter(context, "param1")).isEqualTo(Double.valueOf(5.5));
-    assertThat(RequestContextUtils.getDoubleParameter(context, "param1", 6.5) == 5.5).isTrue();
-    assertThat(RequestContextUtils.getRequiredDoubleParameter(context, "param1") == 5.5).isTrue();
+    assertThat(HttpContextUtils.getDoubleParameter(context, "param1")).isEqualTo(Double.valueOf(5.5));
+    assertThat(HttpContextUtils.getDoubleParameter(context, "param1", 6.5) == 5.5).isTrue();
+    assertThat(HttpContextUtils.getRequiredDoubleParameter(context, "param1") == 5.5).isTrue();
 
-    assertThat(RequestContextUtils.getDoubleParameter(context, "param2", 6.5) == 6.5).isTrue();
+    assertThat(HttpContextUtils.getDoubleParameter(context, "param2", 6.5) == 6.5).isTrue();
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredDoubleParameter(context, "param2"));
+            HttpContextUtils.getRequiredDoubleParameter(context, "param2"));
 
-    assertThat(RequestContextUtils.getDoubleParameter(context, "param3")).isNull();
-    assertThat(RequestContextUtils.getDoubleParameter(context, "param3", 6.5) == 6.5).isTrue();
+    assertThat(HttpContextUtils.getDoubleParameter(context, "param3")).isNull();
+    assertThat(HttpContextUtils.getDoubleParameter(context, "param3", 6.5) == 6.5).isTrue();
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredDoubleParameter(context, "param3"));
+            HttpContextUtils.getRequiredDoubleParameter(context, "param3"));
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredDoubleParameter(context, "paramEmpty"));
+            HttpContextUtils.getRequiredDoubleParameter(context, "paramEmpty"));
   }
 
   @Test
@@ -199,10 +199,10 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "2");
     request.addParameter("param2", "bogus");
 
-    double[] values = RequestContextUtils.getRequiredDoubleParameters(context, "param");
+    double[] values = HttpContextUtils.getRequiredDoubleParameters(context, "param");
     assertThat(values).containsExactly(1.5, 2.5, 3);
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredDoubleParameters(context, "param2"));
+            HttpContextUtils.getRequiredDoubleParameters(context, "param2"));
   }
 
   @Test
@@ -213,24 +213,24 @@ class RequestContextUtilsTests {
     request.addParameter("param5", "1");
     request.addParameter("paramEmpty", "");
 
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param1").equals(Boolean.TRUE)).isTrue();
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param1", false)).isTrue();
-    assertThat(RequestContextUtils.getRequiredBooleanParameter(context, "param1")).isTrue();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param1").equals(Boolean.TRUE)).isTrue();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param1", false)).isTrue();
+    assertThat(HttpContextUtils.getRequiredBooleanParameter(context, "param1")).isTrue();
 
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param2", true)).isFalse();
-    assertThat(RequestContextUtils.getRequiredBooleanParameter(context, "param2")).isFalse();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param2", true)).isFalse();
+    assertThat(HttpContextUtils.getRequiredBooleanParameter(context, "param2")).isFalse();
 
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param3")).isNull();
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param3", true)).isTrue();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param3")).isNull();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param3", true)).isTrue();
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredBooleanParameter(context, "param3"));
+            HttpContextUtils.getRequiredBooleanParameter(context, "param3"));
 
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param4", false)).isTrue();
-    assertThat(RequestContextUtils.getRequiredBooleanParameter(context, "param4")).isTrue();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param4", false)).isTrue();
+    assertThat(HttpContextUtils.getRequiredBooleanParameter(context, "param4")).isTrue();
 
-    assertThat(RequestContextUtils.getBooleanParameter(context, "param5", false)).isTrue();
-    assertThat(RequestContextUtils.getRequiredBooleanParameter(context, "param5")).isTrue();
-    assertThat(RequestContextUtils.getRequiredBooleanParameter(context, "paramEmpty")).isFalse();
+    assertThat(HttpContextUtils.getBooleanParameter(context, "param5", false)).isTrue();
+    assertThat(HttpContextUtils.getRequiredBooleanParameter(context, "param5")).isTrue();
+    assertThat(HttpContextUtils.getRequiredBooleanParameter(context, "paramEmpty")).isFalse();
   }
 
   @Test
@@ -242,14 +242,14 @@ class RequestContextUtilsTests {
     request.addParameter("param2", "");
 
     boolean[] array = new boolean[] { true, true, false, true, false };
-    boolean[] values = RequestContextUtils.getRequiredBooleanParameters(context, "param");
+    boolean[] values = HttpContextUtils.getRequiredBooleanParameters(context, "param");
     assertThat(array).hasSameSizeAs(values);
     for (int i = 0; i < array.length; i++) {
       assertThat(array[i]).isEqualTo(values[i]);
     }
 
     array = new boolean[] { false, true, false };
-    values = RequestContextUtils.getRequiredBooleanParameters(context, "param2");
+    values = HttpContextUtils.getRequiredBooleanParameters(context, "param2");
     assertThat(array).hasSameSizeAs(values);
     for (int i = 0; i < array.length; i++) {
       assertThat(array[i]).isEqualTo(values[i]);
@@ -261,392 +261,392 @@ class RequestContextUtilsTests {
     request.addParameter("param1", "str");
     request.addParameter("paramEmpty", "");
 
-    assertThat(RequestContextUtils.getStringParameter(context, "param1")).isEqualTo("str");
-    assertThat(RequestContextUtils.getStringParameter(context, "param1", "string")).isEqualTo("str");
-    assertThat(RequestContextUtils.getRequiredStringParameter(context, "param1")).isEqualTo("str");
+    assertThat(HttpContextUtils.getStringParameter(context, "param1")).isEqualTo("str");
+    assertThat(HttpContextUtils.getStringParameter(context, "param1", "string")).isEqualTo("str");
+    assertThat(HttpContextUtils.getRequiredStringParameter(context, "param1")).isEqualTo("str");
 
-    assertThat(RequestContextUtils.getStringParameter(context, "param3")).isNull();
-    assertThat(RequestContextUtils.getStringParameter(context, "param3", "string")).isEqualTo("string");
-    assertThat(RequestContextUtils.getStringParameter(context, "param3", null)).isNull();
+    assertThat(HttpContextUtils.getStringParameter(context, "param3")).isNull();
+    assertThat(HttpContextUtils.getStringParameter(context, "param3", "string")).isEqualTo("string");
+    assertThat(HttpContextUtils.getStringParameter(context, "param3", null)).isNull();
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
-            RequestContextUtils.getRequiredStringParameter(context, "param3"));
+            HttpContextUtils.getRequiredStringParameter(context, "param3"));
 
-    assertThat(RequestContextUtils.getStringParameter(context, "paramEmpty")).isEmpty();
-    assertThat(RequestContextUtils.getRequiredStringParameter(context, "paramEmpty")).isEmpty();
+    assertThat(HttpContextUtils.getStringParameter(context, "paramEmpty")).isEmpty();
+    assertThat(HttpContextUtils.getRequiredStringParameter(context, "paramEmpty")).isEmpty();
   }
 
   @Test
   void getBeanWithNameAndClassShouldReturnBeanWhenAvailable() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    assertThat((Object) RequestContextUtils.getBean(context, "testBean", String.class)).isNull();
+    assertThat((Object) HttpContextUtils.getBean(context, "testBean", String.class)).isNull();
   }
 
   @Test
   void getLocaleResolverShouldReturnNullWhenNotAvailable() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(context);
+    LocaleResolver localeResolver = HttpContextUtils.getLocaleResolver(context);
 
     assertThat(localeResolver).isNull();
   }
 
   @Test
   void getTimeZoneShouldReturnNullWhenNoLocaleResolver() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    TimeZone timeZone = RequestContextUtils.getTimeZone(context);
+    TimeZone timeZone = HttpContextUtils.getTimeZone(context);
 
     assertThat(timeZone).isNull();
   }
 
   @Test
   void getOutputRedirectModelShouldReturnNullWhenNotAvailable() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    RedirectModel redirectModel = RequestContextUtils.getOutputRedirectModel(context);
+    RedirectModel redirectModel = HttpContextUtils.getOutputRedirectModel(context);
 
     assertThat((Object) redirectModel).isNull();
   }
 
   @Test
   void getRedirectModelManagerShouldReturnNullWhenNotAvailable() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    RedirectModelManager manager = RequestContextUtils.getRedirectModelManager(context);
+    RedirectModelManager manager = HttpContextUtils.getRedirectModelManager(context);
 
     assertThat(manager).isNull();
   }
 
   @Test
   void saveRedirectModelShouldNotThrowExceptionWhenNoRedirectModel() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatNoException().isThrownBy(() ->
-            RequestContextUtils.saveRedirectModel("http://example.com", context));
+            HttpContextUtils.saveRedirectModel("http://example.com", context));
   }
 
   @Test
   void saveRedirectModelShouldNotThrowExceptionWhenNoManager() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, new RedirectModel());
 
     assertThatNoException().isThrownBy(() ->
-            RequestContextUtils.saveRedirectModel("http://example.com", context));
+            HttpContextUtils.saveRedirectModel("http://example.com", context));
   }
 
   @Test
   void getStringParameterShouldReturnNullWhenNotPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    String value = RequestContextUtils.getStringParameter(context, "nonexistent");
+    String value = HttpContextUtils.getStringParameter(context, "nonexistent");
 
     assertThat(value).isNull();
   }
 
   @Test
   void getStringParameterShouldReturnValueWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "testValue");
 
-    String value = RequestContextUtils.getStringParameter(context, "param");
+    String value = HttpContextUtils.getStringParameter(context, "param");
 
     assertThat(value).isEqualTo("testValue");
   }
 
   @Test
   void getStringParameterWithDefaultShouldReturnDefaultWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    String value = RequestContextUtils.getStringParameter(context, "nonexistent", "defaultValue");
+    String value = HttpContextUtils.getStringParameter(context, "nonexistent", "defaultValue");
 
     assertThat(value).isEqualTo("defaultValue");
   }
 
   @Test
   void getStringParameterWithDefaultShouldReturnValueWhenPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "testValue");
 
-    String value = RequestContextUtils.getStringParameter(context, "param", "defaultValue");
+    String value = HttpContextUtils.getStringParameter(context, "param", "defaultValue");
 
     assertThat(value).isEqualTo("testValue");
   }
 
   @Test
   void getStringParametersShouldReturnEmptyArrayWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    String[] values = RequestContextUtils.getStringParameters(context, "nonexistent");
+    String[] values = HttpContextUtils.getStringParameters(context, "nonexistent");
 
     assertThat(values).isEmpty();
   }
 
   @Test
   void getStringParametersShouldReturnValuesWhenPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "value1", "value2");
 
-    String[] values = RequestContextUtils.getStringParameters(context, "param");
+    String[] values = HttpContextUtils.getStringParameters(context, "param");
 
     assertThat(values).containsExactly("value1", "value2");
   }
 
   @Test
   void getRequiredStringParameterShouldThrowExceptionWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatExceptionOfType(MissingRequestParameterException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredStringParameter(context, "nonexistent"))
+            .isThrownBy(() -> HttpContextUtils.getRequiredStringParameter(context, "nonexistent"))
             .withMessage("Required request parameter 'nonexistent' for method parameter type string is not present");
   }
 
   @Test
   void getRequiredStringParameterShouldReturnValueWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "testValue");
 
-    String value = RequestContextUtils.getRequiredStringParameter(context, "param");
+    String value = HttpContextUtils.getRequiredStringParameter(context, "param");
 
     assertThat(value).isEqualTo("testValue");
   }
 
   @Test
   void getRequiredStringParametersShouldThrowExceptionWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatExceptionOfType(MissingRequestParameterException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredStringParameters(context, "nonexistent"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredStringParameters(context, "nonexistent"));
   }
 
   @Test
   void getRequiredStringParametersShouldReturnValuesWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "value1", "value2");
 
-    String[] values = RequestContextUtils.getRequiredStringParameters(context, "param");
+    String[] values = HttpContextUtils.getRequiredStringParameters(context, "param");
 
     assertThat(values).containsExactly("value1", "value2");
   }
 
   @Test
   void getFloatParameterShouldReturnNullWhenNotPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    Float value = RequestContextUtils.getFloatParameter(context, "nonexistent");
+    Float value = HttpContextUtils.getFloatParameter(context, "nonexistent");
 
     assertThat(value).isNull();
   }
 
   @Test
   void getFloatParameterShouldReturnValueWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "3.14");
 
-    Float value = RequestContextUtils.getFloatParameter(context, "param");
+    Float value = HttpContextUtils.getFloatParameter(context, "param");
 
     assertThat(value).isEqualTo(3.14f);
   }
 
   @Test
   void getFloatParameterWithDefaultShouldReturnDefaultWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    float value = RequestContextUtils.getFloatParameter(context, "nonexistent", 2.71f);
+    float value = HttpContextUtils.getFloatParameter(context, "nonexistent", 2.71f);
 
     assertThat(value).isEqualTo(2.71f);
   }
 
   @Test
   void getFloatParameterWithDefaultShouldReturnValueWhenPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "3.14");
 
-    float value = RequestContextUtils.getFloatParameter(context, "param", 2.71f);
+    float value = HttpContextUtils.getFloatParameter(context, "param", 2.71f);
 
     assertThat(value).isEqualTo(3.14f);
   }
 
   @Test
   void getFloatParametersShouldReturnEmptyArrayWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    float[] values = RequestContextUtils.getFloatParameters(context, "nonexistent");
+    float[] values = HttpContextUtils.getFloatParameters(context, "nonexistent");
 
     assertThat(values).isEmpty();
   }
 
   @Test
   void getFloatParametersShouldReturnValuesWhenPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "1.1", "2.2", "3.3");
 
-    float[] values = RequestContextUtils.getFloatParameters(context, "param");
+    float[] values = HttpContextUtils.getFloatParameters(context, "param");
 
     assertThat(values).containsExactly(1.1f, 2.2f, 3.3f);
   }
 
   @Test
   void getRequiredFloatParameterShouldThrowExceptionWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatExceptionOfType(MissingRequestParameterException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredFloatParameter(context, "nonexistent"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredFloatParameter(context, "nonexistent"));
   }
 
   @Test
   void getRequiredFloatParameterShouldThrowExceptionWhenInvalidValue() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "invalid");
 
     assertThatExceptionOfType(RequestBindingException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredFloatParameter(context, "param"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredFloatParameter(context, "param"));
   }
 
   @Test
   void getRequiredFloatParameterShouldReturnValueWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "3.14");
 
-    float value = RequestContextUtils.getRequiredFloatParameter(context, "param");
+    float value = HttpContextUtils.getRequiredFloatParameter(context, "param");
 
     assertThat(value).isEqualTo(3.14f);
   }
 
   @Test
   void getRequiredFloatParametersShouldThrowExceptionWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatExceptionOfType(MissingRequestParameterException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredFloatParameters(context, "nonexistent"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredFloatParameters(context, "nonexistent"));
   }
 
   @Test
   void getRequiredFloatParametersShouldThrowExceptionWhenInvalidValue() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "1.1", "invalid", "3.3");
 
     assertThatExceptionOfType(RequestBindingException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredFloatParameters(context, "param"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredFloatParameters(context, "param"));
   }
 
   @Test
   void getRequiredFloatParametersShouldReturnValuesWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "1.1", "2.2", "3.3");
 
-    float[] values = RequestContextUtils.getRequiredFloatParameters(context, "param");
+    float[] values = HttpContextUtils.getRequiredFloatParameters(context, "param");
 
     assertThat(values).containsExactly(1.1f, 2.2f, 3.3f);
   }
 
   @Test
   void getDoubleParameterShouldReturnNullWhenNotPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    Double value = RequestContextUtils.getDoubleParameter(context, "nonexistent");
+    Double value = HttpContextUtils.getDoubleParameter(context, "nonexistent");
 
     assertThat(value).isNull();
   }
 
   @Test
   void getDoubleParameterShouldReturnValueWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "3.14159");
 
-    Double value = RequestContextUtils.getDoubleParameter(context, "param");
+    Double value = HttpContextUtils.getDoubleParameter(context, "param");
 
     assertThat(value).isEqualTo(3.14159);
   }
 
   @Test
   void getDoubleParameterWithDefaultShouldReturnDefaultWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    double value = RequestContextUtils.getDoubleParameter(context, "nonexistent", 2.71828);
+    double value = HttpContextUtils.getDoubleParameter(context, "nonexistent", 2.71828);
 
     assertThat(value).isEqualTo(2.71828);
   }
 
   @Test
   void getDoubleParameterWithDefaultShouldReturnValueWhenPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "3.14159");
 
-    double value = RequestContextUtils.getDoubleParameter(context, "param", 2.71828);
+    double value = HttpContextUtils.getDoubleParameter(context, "param", 2.71828);
 
     assertThat(value).isEqualTo(3.14159);
   }
 
   @Test
   void getDoubleParametersShouldReturnEmptyArrayWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
-    double[] values = RequestContextUtils.getDoubleParameters(context, "nonexistent");
+    double[] values = HttpContextUtils.getDoubleParameters(context, "nonexistent");
 
     assertThat(values).isEmpty();
   }
 
   @Test
   void getDoubleParametersShouldReturnValuesWhenPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "1.11", "2.22", "3.33");
 
-    double[] values = RequestContextUtils.getDoubleParameters(context, "param");
+    double[] values = HttpContextUtils.getDoubleParameters(context, "param");
 
     assertThat(values).containsExactly(1.11, 2.22, 3.33);
   }
 
   @Test
   void getRequiredDoubleParameterShouldThrowExceptionWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatExceptionOfType(MissingRequestParameterException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredDoubleParameter(context, "nonexistent"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredDoubleParameter(context, "nonexistent"));
   }
 
   @Test
   void getRequiredDoubleParameterShouldThrowExceptionWhenInvalidValue() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "invalid");
 
     assertThatExceptionOfType(RequestBindingException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredDoubleParameter(context, "param"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredDoubleParameter(context, "param"));
   }
 
   @Test
   void getRequiredDoubleParameterShouldReturnValueWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "3.14159");
 
-    double value = RequestContextUtils.getRequiredDoubleParameter(context, "param");
+    double value = HttpContextUtils.getRequiredDoubleParameter(context, "param");
 
     assertThat(value).isEqualTo(3.14159);
   }
 
   @Test
   void getRequiredDoubleParametersShouldThrowExceptionWhenNotPresent() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     assertThatExceptionOfType(MissingRequestParameterException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredDoubleParameters(context, "nonexistent"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredDoubleParameters(context, "nonexistent"));
   }
 
   @Test
   void getRequiredDoubleParametersShouldThrowExceptionWhenInvalidValue() {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "1.11", "invalid", "3.33");
 
     assertThatExceptionOfType(RequestBindingException.class)
-            .isThrownBy(() -> RequestContextUtils.getRequiredDoubleParameters(context, "param"));
+            .isThrownBy(() -> HttpContextUtils.getRequiredDoubleParameters(context, "param"));
   }
 
   @Test
   void getRequiredDoubleParametersShouldReturnValuesWhenPresent() throws RequestBindingException {
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
     context.setParameter("param", "1.11", "2.22", "3.33");
 
-    double[] values = RequestContextUtils.getRequiredDoubleParameters(context, "param");
+    double[] values = HttpContextUtils.getRequiredDoubleParameters(context, "param");
 
     assertThat(values).containsExactly(1.11, 2.22, 3.33);
   }

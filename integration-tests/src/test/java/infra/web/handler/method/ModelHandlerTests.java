@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.session.config.EnableSession;
@@ -31,13 +33,11 @@ import infra.ui.Model;
 import infra.validation.BindingResult;
 import infra.web.BindingContext;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ModelMethodProcessor;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.ReturnValueHandlerManager;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mock;
  */
 class ModelHandlerTests {
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private TestController controller = new TestController();
 
@@ -67,7 +67,7 @@ class ModelHandlerTests {
 
   @BeforeEach
   public void setUp() throws Throwable {
-    this.webRequest = new MockRequestContext(
+    this.webRequest = new MockHttpContext(
             context, new MockRequest(), new MockResponse());
 
     webRequest.setBinding(new BindingContext());
@@ -143,7 +143,7 @@ class ModelHandlerTests {
   public void updateModelBindingResult() throws Throwable {
     String commandName = "attr1";
     Object command = new Object();
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(command, commandName);
+    HttpContextDataBinder dataBinder = new HttpContextDataBinder(command, commandName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(commandName, command);
 
@@ -157,14 +157,14 @@ class ModelHandlerTests {
   }
 
   static class BindingContext0 extends BindingContext {
-    final RequestContextDataBinder dataBinder;
+    final HttpContextDataBinder dataBinder;
 
-    BindingContext0(RequestContextDataBinder dataBinder) {
+    BindingContext0(HttpContextDataBinder dataBinder) {
       this.dataBinder = dataBinder;
     }
 
     @Override
-    public RequestContextDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
+    public HttpContextDataBinder createBinder(HttpContext request, @Nullable Object target, String objectName) throws Throwable {
       return dataBinder;
     }
   }
@@ -174,7 +174,7 @@ class ModelHandlerTests {
     String attributeName = "sessionAttr";
     String attribute = "value";
 
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    HttpContextDataBinder dataBinder = new HttpContextDataBinder(attribute, attributeName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 

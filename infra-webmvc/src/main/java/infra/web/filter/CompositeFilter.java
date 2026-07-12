@@ -21,7 +21,7 @@ import java.util.List;
 
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A generic composite mock {@link Filter} that just delegates its behavior
@@ -50,10 +50,10 @@ public class CompositeFilter implements Filter {
    * and executes them in order. Each filter delegates to the next one in the list, achieving
    * the normal behavior of a {@link FilterChain}, despite the fact that this is a {@link Filter}.
    *
-   * @see Filter#doFilter(RequestContext, FilterChain)
+   * @see Filter#doFilter(HttpContext, FilterChain)
    */
   @Override
-  public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+  public void doFilter(HttpContext request, FilterChain chain) throws Exception {
     new VirtualFilterChain(chain, this.filters).doFilter(request);
   }
 
@@ -71,7 +71,7 @@ public class CompositeFilter implements Filter {
     }
 
     @Override
-    public void doFilter(RequestContext request) throws Exception {
+    public void doFilter(HttpContext request) throws Exception {
       if (this.currentPosition == this.additionalFilters.size()) {
         this.originalChain.doFilter(request);
       }

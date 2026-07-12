@@ -65,8 +65,8 @@ import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
 import infra.web.DispatcherHandler;
 import infra.web.HandlerExceptionHandler;
+import infra.web.HttpContextUtils;
 import infra.web.LocaleResolver;
-import infra.web.RequestContextUtils;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
@@ -261,7 +261,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static BeanFactoryPostProcessor webScopeConfigurer() {
-    return RequestContextUtils::registerScopes;
+    return HttpContextUtils::registerScopes;
   }
 
   @Override

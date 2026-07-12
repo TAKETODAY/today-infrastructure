@@ -25,7 +25,7 @@ import java.nio.channels.ClosedChannelException;
 import infra.context.ApplicationContext;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -46,7 +46,7 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
 
 /**
- * Internal {@link NettyRequestContext} implementation that handles the lifecycle of an HTTP request
+ * Internal {@link NettyHttpContext} implementation that handles the lifecycle of an HTTP request
  * within the Netty transport layer. This class manages request body streaming, content length validation,
  * {@code 100 Continue} expectation handling, and delegates request processing to the configured
  * {@link DispatcherHandler}.
@@ -54,7 +54,7 @@ import static io.netty.handler.codec.http.HttpMethod.HEAD;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-final class HttpContext extends NettyRequestContext implements Runnable {
+final class HttpContext extends NettyHttpContext implements Runnable {
 
   private final HttpTrafficHandler httpTrafficHandler;
 
@@ -137,7 +137,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
 
   @Override
   public void run() {
-    RequestContextHolder.set(this);
+    HttpContextHolder.set(this);
 
     try {
       if (HttpUtil.is100ContinueExpected(request)) {
@@ -170,7 +170,7 @@ final class HttpContext extends NettyRequestContext implements Runnable {
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
-      RequestContextHolder.cleanup();
+      HttpContextHolder.cleanup();
     }
   }
 

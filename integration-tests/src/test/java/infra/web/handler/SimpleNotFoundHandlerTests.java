@@ -19,10 +19,10 @@ package infra.web.handler;
 import org.junit.jupiter.api.Test;
 
 import infra.http.HttpStatus;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HttpRequestHandler;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,9 +39,9 @@ class SimpleNotFoundHandlerTests {
   @Test
   void handleNotFound() throws Throwable {
     request.setRequestURI("/not-found");
-    MockRequestContext requestContext = new MockRequestContext(null, request, response);
-    assertThat(notFoundHandler.handleNotFound(requestContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
-    assertThat(requestContext.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
+    MockHttpContext httpContext = new MockHttpContext(null, request, response);
+    assertThat(notFoundHandler.handleNotFound(httpContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
+    assertThat(httpContext.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
     assertThat(response.isCommitted()).isTrue();
 
   }

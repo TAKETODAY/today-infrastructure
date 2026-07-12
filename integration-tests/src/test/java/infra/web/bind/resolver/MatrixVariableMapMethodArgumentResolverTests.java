@@ -33,7 +33,7 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.MatrixVariable;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.testfixture.ReflectionTestUtils;
 import infra.web.util.pattern.PathMatchInfo;
 import infra.web.util.pattern.PathPattern;
@@ -49,7 +49,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
 
   private MatrixVariableMapMethodArgumentResolver resolver;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private final ResolvableMethod testMethod = ResolvableMethod.on(this.getClass()).named("handle").build();
 
@@ -58,7 +58,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
     this.resolver = new MatrixVariableMapMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
-    this.webRequest = new MockRequestContext(null, new MockRequest(), null);
+    this.webRequest = new MockHttpContext(null, new MockRequest(), null);
     webRequest.setBinding(binding);
 
     PathMatchInfo info = new MockPathMatchInfo();

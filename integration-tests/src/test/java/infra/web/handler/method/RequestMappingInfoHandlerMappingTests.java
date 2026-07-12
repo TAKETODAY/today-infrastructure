@@ -36,6 +36,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
@@ -52,7 +53,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.MappedInterceptor;
-import infra.web.mock.MockRequestContext;
 import infra.web.util.UriUtils;
 import infra.web.view.PathPatternsParameterizedTest;
 
@@ -144,7 +144,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void getHandlerHttpMethodNotAllowed(TestRequestMappingInfoHandlerMapping mapping) {
     MockRequest request = new MockRequest("POST", "/bar");
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
     assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class)
             .isThrownBy(() -> mapping.getHandler(context))
             .satisfies(ex -> assertThat(ex.getSupportedMethods()).containsExactly("GET", "HEAD"));
@@ -155,7 +155,7 @@ class RequestMappingInfoHandlerMappingTests {
     MockRequest request = new MockRequest("GET", "/users");
     request.addHeader("Accept", "application/xml");
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     mapping.registerHandler(new UserController());
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
@@ -173,7 +173,7 @@ class RequestMappingInfoHandlerMappingTests {
   void getHandlerMethodTypeNotSupportedWithParseError(TestRequestMappingInfoHandlerMapping mapping) {
     MockRequest request = new MockRequest("PUT", "/person/1");
     request.setContentType("This string");
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     assertThatExceptionOfType(HttpMediaTypeNotSupportedException.class)
             .isThrownBy(() -> mapping.getHandler(context))
@@ -194,7 +194,7 @@ class RequestMappingInfoHandlerMappingTests {
     MockRequest request = new MockRequest("PUT", "/person/1");
     request.setContentType("bogus");
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
     assertThatExceptionOfType(HttpMediaTypeNotSupportedException.class)
             .isThrownBy(() -> mapping.getHandler(context))
             .withMessage("Invalid mime type \"bogus\": does not contain '/'");
@@ -212,7 +212,7 @@ class RequestMappingInfoHandlerMappingTests {
   @PathPatternsParameterizedTest
   void getHandlerUnsatisfiedRequestParameterException(TestRequestMappingInfoHandlerMapping mapping) {
     MockRequest request = new MockRequest("GET", "/params");
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     assertThatExceptionOfType(UnsatisfiedRequestParameterException.class)
             .isThrownBy(() -> mapping.getHandler(context))
@@ -225,7 +225,7 @@ class RequestMappingInfoHandlerMappingTests {
     MockRequest request = new MockRequest("GET", "/content");
     request.addHeader("Accept", "application/xml");
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     mapping.getHandler(context);
 
@@ -236,7 +236,7 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(producibleMediaTypes).isNotNull().contains(MediaType.APPLICATION_XML);
 
     request = new MockRequest("GET", "/content");
-    context = new MockRequestContext(null, request, new MockResponse());
+    context = new MockHttpContext(null, request, new MockResponse());
 
     request.addHeader("Accept", "application/json");
     mapping.getHandler(context);
@@ -260,7 +260,7 @@ class RequestMappingInfoHandlerMappingTests {
     mapping.setApplicationContext(new AnnotationConfigApplicationContext(Object.class));
 
     MockRequest request = new MockRequest("GET", path);
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     Object handler = mapping.getHandler(context);
     assertThat(handler).isNotNull()
@@ -270,7 +270,7 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(chain.getInterceptors()).isNotEmpty().containsExactly(mappedInterceptor);
 
     request = new MockRequest("GET", "/invalid");
-    context = new MockRequestContext(null, request, new MockResponse());
+    context = new MockHttpContext(null, request, new MockResponse());
 
     handler = mapping.getHandler(context);
     assertThat(handler).isNull();
@@ -283,7 +283,7 @@ class RequestMappingInfoHandlerMappingTests {
     MockRequest request = new MockRequest("GET", "/1/2");
     String lookupPath = request.getRequestURI();
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     var match = getMappingInfoMatch(mapping, key);
 
@@ -307,7 +307,7 @@ class RequestMappingInfoHandlerMappingTests {
 
     String lookupPath = UriUtils.decode(request.getRequestURI(), "UTF-8");
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     var match = getMappingInfoMatch(mapping, key);
 
@@ -328,7 +328,7 @@ class RequestMappingInfoHandlerMappingTests {
   void handleMatchBestMatchingPatternAttribute(TestRequestMappingInfoHandlerMapping mapping) {
     RequestMappingInfo key = RequestMappingInfo.paths("/{path1}/2", "/**").build();
     MockRequest request = new MockRequest("GET", "/1/2");
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     var infoMatch = getMappingInfoMatch(mapping, key);
     mapping.handleMatch(infoMatch, "/1/2", context);
@@ -343,7 +343,7 @@ class RequestMappingInfoHandlerMappingTests {
   void handleMatchBestMatchingPatternAttributeNoPatternsDefined(TestRequestMappingInfoHandlerMapping mapping) {
     String path = "";
     MockRequest request = new MockRequest("GET", path);
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     RequestMappingInfo build = RequestMappingInfo.paths().build();
     var match = getMappingInfoMatch(mapping, build);
@@ -440,7 +440,7 @@ class RequestMappingInfoHandlerMappingTests {
     String path = "/non-existent";
     MockRequest request = new MockRequest("GET", path);
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     HandlerMethod handlerMethod = mapping.handleNoMatch(new HashSet<>(), path, context);
     assertThat(handlerMethod).isNull();
@@ -451,7 +451,7 @@ class RequestMappingInfoHandlerMappingTests {
 
   private HandlerMethod getHandler(
           TestRequestMappingInfoHandlerMapping mapping, MockRequest request) throws Exception {
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     Object handler = mapping.getHandler(context);
     assertThat(handler).isNotNull().isInstanceOf(HandlerExecutionChain.class);
@@ -462,7 +462,7 @@ class RequestMappingInfoHandlerMappingTests {
   private void testHttpMediaTypeNotSupportedException(TestRequestMappingInfoHandlerMapping mapping, String url) {
     MockRequest request = new MockRequest("PUT", url);
     request.setContentType("application/json");
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     assertThatExceptionOfType(HttpMediaTypeNotSupportedException.class)
             .isThrownBy(() -> mapping.getHandler(context))
@@ -475,7 +475,7 @@ class RequestMappingInfoHandlerMappingTests {
     MockRequest request = new MockRequest("OPTIONS", requestURI);
     HandlerMethod handlerMethod = getHandler(mapping, request);
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     context.setBinding(new BindingContext());
     Object result = new InvocableHandlerMethod(handlerMethod, new ResolvableParameterFactory())
@@ -496,7 +496,7 @@ class RequestMappingInfoHandlerMappingTests {
   private void testHttpMediaTypeNotAcceptableException(TestRequestMappingInfoHandlerMapping mapping, String url) {
     MockRequest request = new MockRequest("GET", url);
     request.addHeader("Accept", "application/json");
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
             .isThrownBy(() ->
@@ -507,7 +507,7 @@ class RequestMappingInfoHandlerMappingTests {
   private void handleMatch(TestRequestMappingInfoHandlerMapping mapping,
           MockRequest request, String pattern, String lookupPath) {
 
-    var context = new MockRequestContext(null, request, new MockResponse());
+    var context = new MockHttpContext(null, request, new MockResponse());
 
     RequestMappingInfo info = mapping.createInfo(pattern);
     var match = getMappingInfoMatch(mapping, info);

@@ -34,8 +34,8 @@ import infra.core.Ordered;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 
 /**
  * Simple implementation of the {@link ViewResolver}
@@ -52,7 +52,7 @@ import infra.web.RequestContextUtils;
  *
  * <p>View names can either be resource URLs themselves, or get augmented by a
  * specified prefix and/or suffix. Exporting an attribute that holds the
- * RequestContext to all views is explicitly supported.
+ * HttpContext to all views is explicitly supported.
  *
  * <p>Example: prefix="/WEB-INF/jsp/", suffix=".jsp", viewname="test" &rarr;
  * "/WEB-INF/jsp/test.jsp"
@@ -83,7 +83,7 @@ import infra.web.RequestContextUtils;
  * @see #setViewClass
  * @see #setPrefix
  * @see #setSuffix
- * @see #setRequestContextAttribute
+ * @see #setHttpContextAttribute
  * @see #REDIRECT_URL_PREFIX
  * @see AbstractUrlBasedView
  * @see infra.web.view.freemarker.FreeMarkerView
@@ -119,7 +119,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
   private boolean redirectHttp10Compatible = true;
 
-  private @Nullable String requestContextAttribute;
+  private @Nullable String httpContextAttribute;
 
   /** Map of static attributes, keyed by attribute name (String). */
   private final Map<String, Object> staticAttributes = new HashMap<>();
@@ -258,20 +258,20 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   }
 
   /**
-   * Set the name of the RequestContext attribute for all views.
+   * Set the name of the HttpContext attribute for all views.
    *
-   * @param requestContextAttribute name of the RequestContext attribute
-   * @see AbstractView#setRequestContextAttribute
+   * @param httpContextAttribute name of the HttpContext attribute
+   * @see AbstractView#setHttpContextAttribute
    */
-  public void setRequestContextAttribute(@Nullable String requestContextAttribute) {
-    this.requestContextAttribute = requestContextAttribute;
+  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
+    this.httpContextAttribute = httpContextAttribute;
   }
 
   /**
-   * Return the name of the RequestContext attribute for all views, if any.
+   * Return the name of the HttpContext attribute for all views, if any.
    */
-  protected @Nullable String getRequestContextAttribute() {
-    return this.requestContextAttribute;
+  protected @Nullable String getHttpContextAttribute() {
+    return this.httpContextAttribute;
   }
 
   /**
@@ -398,7 +398,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
+   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -552,9 +552,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
       view.setContentType(contentType);
     }
 
-    String requestContextAttribute = getRequestContextAttribute();
-    if (requestContextAttribute != null) {
-      view.setRequestContextAttribute(requestContextAttribute);
+    String httpContextAttribute = getHttpContextAttribute();
+    if (httpContextAttribute != null) {
+      view.setHttpContextAttribute(httpContextAttribute);
     }
 
     Boolean exposePathVariables = getExposePathVariables();

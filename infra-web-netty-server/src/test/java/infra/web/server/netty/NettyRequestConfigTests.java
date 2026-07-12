@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 import infra.lang.Constant;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.SendErrorHandler;
@@ -135,7 +135,7 @@ class NettyRequestConfigTests {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
     MultipartParser multipartParser = mock(MultipartParser.class);
-    Function<RequestContext, ByteBuf> factory = mock(Function.class);
+    Function<HttpContext, ByteBuf> factory = mock(Function.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
@@ -324,7 +324,7 @@ class NettyRequestConfigTests {
   static class SendErrorHandler0 implements SendErrorHandler {
 
     @Override
-    public void handleError(RequestContext request, @Nullable String message) throws IOException {
+    public void handleError(HttpContext request, @Nullable String message) throws IOException {
 
     }
 

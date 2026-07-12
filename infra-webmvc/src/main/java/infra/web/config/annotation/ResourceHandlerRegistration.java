@@ -31,6 +31,7 @@ import infra.core.io.UrlResource;
 import infra.http.CacheControl;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
+import infra.web.HttpContext;
 import infra.web.NotFoundHandler;
 import infra.web.resource.PathResourceResolver;
 import infra.web.resource.ResourceHttpRequestHandler;
@@ -156,7 +157,7 @@ public class ResourceHandlerRegistration {
    * Configure a generator function that will be used to create the ETag information,
    * given a {@link Resource} that is about to be written to the response.
    * <p>This function should return a String that will be used as an argument in
-   * {@link infra.web.RequestContext#checkNotModified(String)}, or {@code null} if no value
+   * {@link HttpContext#checkNotModified(String)}, or {@code null} if no value
    * can be generated for the given resource.
    *
    * @param etagGenerator the HTTP ETag generator function to use.

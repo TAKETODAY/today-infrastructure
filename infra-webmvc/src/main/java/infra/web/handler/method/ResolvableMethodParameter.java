@@ -30,13 +30,13 @@ import infra.core.annotation.MergedAnnotations;
 import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestParam;
 
 /**
  * Abstraction for a method parameter.
  * <p>
- * This class supports resolving the parameter value within a {@link RequestContext}.
+ * This class supports resolving the parameter value within a {@link HttpContext}.
  * It also provides common metadata such as whether the parameter is required,
  * its default value, and its name. For more details on parameter configuration,
  * see {@link RequestParam}.
@@ -44,7 +44,7 @@ import infra.web.annotation.RequestParam;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodParameter
- * @see #resolveParameter(RequestContext)
+ * @see #resolveParameter(HttpContext)
  * @see Nullable
  * @since 2.3.7
  */
@@ -292,7 +292,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    * @return parameter object
    */
   @Nullable
-  public Object resolveParameter(RequestContext request) throws Throwable {
+  public Object resolveParameter(HttpContext request) throws Throwable {
     return request.getParameter(getName());
   }
 

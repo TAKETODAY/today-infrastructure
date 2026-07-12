@@ -47,7 +47,7 @@ import infra.web.annotation.RequestMapping;
  * must not have a return value; they are usually declared as {@code void}.
  *
  * <p>Typical arguments are {@link infra.web.bind.WebDataBinder}
- * in combination with {@link infra.web.RequestContext}
+ * in combination with {@link infra.web.HttpContext}
  * or {@link java.util.Locale}, allowing to register context-specific editors.
  *
  * @author Juergen Hoeller

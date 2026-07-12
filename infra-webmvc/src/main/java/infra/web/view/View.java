@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.core.Conventions;
 import infra.http.MediaType;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;
 
 /**
@@ -53,7 +53,7 @@ import infra.web.ReturnValueHandler;
 public interface View {
 
   /**
-   * Name of the {@link RequestContext} attribute that contains the response status code.
+   * Name of the {@link HttpContext} attribute that contains the response status code.
    * <p>Note: This attribute is not required to be supported by all View implementations.
    */
   String RESPONSE_STATUS_ATTRIBUTE = Conventions.getQualifiedAttributeName(
@@ -91,7 +91,7 @@ public interface View {
    * @param context current HTTP request and response context
    * @throws Exception if rendering failed
    */
-  void render(@Nullable Map<String, ?> model, RequestContext context)
+  void render(@Nullable Map<String, ?> model, HttpContext context)
           throws Exception;
 
 }

@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.web.BindingContext;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
@@ -59,7 +59,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     return context.binding().getModel();
   }
 
@@ -77,7 +77,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void handleReturnValue(RequestContext context,
+  public void handleReturnValue(HttpContext context,
           @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Map map) {
       BindingContext bindingContext = context.getBinding();

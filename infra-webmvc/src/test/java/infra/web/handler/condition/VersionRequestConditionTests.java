@@ -26,13 +26,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.HandlerMapping;
-import infra.web.RequestContext;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.NotAcceptableApiVersionException;
 import infra.web.accept.SemanticApiVersionParser;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -105,7 +105,7 @@ class VersionRequestConditionTests {
   private void testMatch(
           String requestVersion, VersionRequestCondition condition, boolean matches, boolean notAcceptable) {
 
-    RequestContext request = requestWithVersion(requestVersion);
+    HttpContext request = requestWithVersion(requestVersion);
     VersionRequestCondition match = condition.getMatchingCondition(request);
 
     if (!matches) {
@@ -164,7 +164,7 @@ class VersionRequestConditionTests {
   void noRequestVersion() {
     VersionRequestCondition condition = condition("1.1");
 
-    MockRequestContext exchange = exchange();
+    MockHttpContext exchange = exchange();
     VersionRequestCondition match = condition.getMatchingCondition(exchange);
     assertThat(match).isSameAs(condition);
 
@@ -180,15 +180,15 @@ class VersionRequestConditionTests {
     return new VersionRequestCondition(null, this.strategy);
   }
 
-  private static MockRequestContext exchange() {
-    return new MockRequestContext(new MockRequest("GET", "/path"));
+  private static MockHttpContext exchange() {
+    return new MockHttpContext(new MockRequest("GET", "/path"));
   }
 
-  private MockRequestContext requestWithVersion(String v) {
+  private MockHttpContext requestWithVersion(String v) {
     MockRequest request = new MockRequest("GET", "/path");
     request.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, this.strategy.parseVersion(v));
 
-    return new MockRequestContext(request);
+    return new MockHttpContext(request);
   }
 
 }

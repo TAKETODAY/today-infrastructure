@@ -61,7 +61,7 @@ import infra.web.ReturnValueHandler;
  *   }
  *
  *   @Override
- *   public void handleReturnValue(RequestContext context,
+ *   public void handleReturnValue(HttpContext context,
  *           @Nullable Object handler, @Nullable Object returnValue) throws Exception {
  *     BindingContext binding = context.getBinding();
  *     if (binding != null && binding.hasModelAndView()) {

@@ -37,7 +37,7 @@ Java::
 public class PdfWordList extends AbstractPdfView {
 
   protected void buildPdfDocument(Map<String, Object> model, Document doc, PdfWriter writer,
-      RequestContext request) throws Exception {
+      HttpContext request) throws Exception {
 
     List<String> words = (List<String>) model.get("wordList");
     for (String word : words) {

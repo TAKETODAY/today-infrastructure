@@ -42,6 +42,8 @@ import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.api.MockException;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -52,7 +54,6 @@ import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.MultipartException;
-import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
@@ -65,7 +66,6 @@ import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.MockRequestContext;
 import infra.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,14 +84,14 @@ class ResponseEntityExceptionHandlerTests {
 
   private MockResponse mockResponse = new MockResponse();
 
-  private RequestContext request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
+  private HttpContext request = new MockHttpContext(null, this.mockRequest, this.mockResponse);
 
   @SuppressWarnings("unchecked")
   @Test
   void supportsAllDefaultHandlerExceptionResolverExceptionTypes() throws Exception {
 
     ExceptionHandler annotation = ResponseEntityExceptionHandler.class
-            .getMethod("handleException", Exception.class, RequestContext.class)
+            .getMethod("handleException", Exception.class, HttpContext.class)
             .getAnnotation(ExceptionHandler.class);
 
     Arrays.stream(SimpleHandlerExceptionHandler.class.getDeclaredMethods())
@@ -124,7 +124,7 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   void patchHttpMediaTypeNotSupported() {
     this.mockRequest = new MockRequest("PATCH", "/");
-    this.request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
+    this.request = new MockHttpContext(null, this.mockRequest, this.mockResponse);
 
     ResponseEntity<Object> entity = testException(
             new HttpMediaTypeNotSupportedException(
@@ -338,7 +338,7 @@ class ResponseEntityExceptionHandlerTests {
     resolver.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException(new RequestBindingException("message"));
-    MockRequestContext context = new MockRequestContext(null, this.mockRequest, this.mockResponse);
+    MockHttpContext context = new MockHttpContext(null, this.mockRequest, this.mockResponse);
     assertThat(resolver.handleException(context, ex, null)).isNull();
   }
 
@@ -427,7 +427,7 @@ class ResponseEntityExceptionHandlerTests {
 
     @Override
     protected ResponseEntity<Object> handleRequestBindingException(
-            RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+            RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
 
       headers = HttpHeaders.forWritable();
       headers.setOrRemove("someHeader", "someHeaderValue");

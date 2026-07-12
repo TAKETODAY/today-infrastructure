@@ -34,10 +34,10 @@ import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.util.CollectionUtils;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
-import infra.web.RequestContext;
 import infra.web.bind.UnsatisfiedRequestParameterException;
 import infra.web.handler.condition.NameValueExpression;
 import infra.web.handler.condition.PathPatternsRequestCondition;
@@ -83,7 +83,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   @Nullable
   @Override
-  protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, RequestContext request) {
+  protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpContext request) {
     return info.getMatchingCondition(request);
   }
 
@@ -91,7 +91,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * Provide a Comparator to sort RequestMappingInfos matched to a request.
    */
   @Override
-  protected Comparator<RequestMappingInfo> getMappingComparator(final RequestContext request) {
+  protected Comparator<RequestMappingInfo> getMappingComparator(final HttpContext request) {
     return (info1, info2) -> info1.compareTo(info2, request);
   }
 
@@ -99,7 +99,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * Expose URI template variables, matrix variables, and producible media types in the request.
    */
   @Override
-  protected void handleMatch(Match<RequestMappingInfo> bestMatch, String directLookupPath, RequestContext request) {
+  protected void handleMatch(Match<RequestMappingInfo> bestMatch, String directLookupPath, HttpContext request) {
     RequestMappingInfo info = bestMatch.mapping;
     info.getVersionCondition().handleMatch(request);
 
@@ -127,7 +127,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   @Nullable
   @Override
-  protected HandlerMethod handleNoMatch(Set<RequestMappingInfo> infos, String lookupPath, RequestContext request) {
+  protected HandlerMethod handleNoMatch(Set<RequestMappingInfo> infos, String lookupPath, HttpContext request) {
     if (CollectionUtils.isEmpty(infos)) {
       return null;
     }
@@ -177,7 +177,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
     private final ArrayList<PartialMatch> partialMatches;
 
-    public PartialMatchHelper(Set<RequestMappingInfo> infos, RequestContext request) {
+    public PartialMatchHelper(Set<RequestMappingInfo> infos, HttpContext request) {
       this.partialMatches = new ArrayList<>(infos.size());
       for (RequestMappingInfo info : infos) {
         if (info.getPathPatternsCondition().getMatchingCondition(request) != null) {
@@ -340,7 +340,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
        * @param info the RequestMappingInfo that matches the URL path.
        * @param request the current request
        */
-      public PartialMatch(RequestMappingInfo info, RequestContext request) {
+      public PartialMatch(RequestMappingInfo info, HttpContext request) {
         this.info = info;
         this.methodsMatch = info.getMethodsCondition().getMatchingCondition(request) != null;
         this.consumesMatch = info.getConsumesCondition().getMatchingCondition(request) != null;

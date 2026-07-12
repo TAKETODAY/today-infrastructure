@@ -32,7 +32,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
 
 /**
@@ -100,16 +100,16 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   }
 
   @Override
-  public Object writeTo(RequestContext request, Context context) throws Exception {
+  public Object writeTo(HttpContext request, Context context) throws Exception {
     writeAsync(request, createDeferredResult(request));
     return NONE_RETURN_VALUE;
   }
 
-  static void writeAsync(RequestContext request, DeferredResult<?> deferredResult) throws Exception {
+  static void writeAsync(HttpContext request, DeferredResult<?> deferredResult) throws Exception {
     request.asyncManager().startDeferredResultProcessing(deferredResult);
   }
 
-  private DeferredResult<ServerResponse> createDeferredResult(RequestContext request) {
+  private DeferredResult<ServerResponse> createDeferredResult(HttpContext request) {
     DeferredResult<ServerResponse> result;
     if (timeout != null) {
       result = new DeferredResult<>(timeout.toMillis());

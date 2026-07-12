@@ -29,7 +29,7 @@ import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.mock.api.MockHandler;
 
 /**
@@ -58,7 +58,7 @@ public class MockFilterChain implements FilterChain {
   @Nullable
   private Iterator<Filter> iterator;
 
-  private RequestContext requestContext;
+  private HttpContext httpContext;
 
   /**
    * Register a single do-nothing {@link Filter} implementation. The first
@@ -108,14 +108,14 @@ public class MockFilterChain implements FilterChain {
     return this.response;
   }
 
-  public RequestContext getRequestContext() {
-    return requestContext;
+  public HttpContext getContext() {
+    return httpContext;
   }
 
   @Override
-  public void doFilter(RequestContext requestContext) throws Exception {
-    this.requestContext = requestContext;
-    Assert.notNull(requestContext, "Request is required");
+  public void doFilter(HttpContext http) throws Exception {
+    this.httpContext = http;
+    Assert.notNull(http, "Request is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
 
     if (this.iterator == null) {
@@ -124,11 +124,11 @@ public class MockFilterChain implements FilterChain {
 
     if (this.iterator.hasNext()) {
       Filter nextFilter = this.iterator.next();
-      nextFilter.doFilter(requestContext, this);
+      nextFilter.doFilter(http, this);
     }
 
-    this.request = MockUtils.getMockRequest(requestContext);
-    this.response = MockUtils.getMockResponse(requestContext);
+    this.request = MockUtils.getMockRequest(http);
+    this.response = MockUtils.getMockResponse(http);
   }
 
   /**
@@ -150,7 +150,7 @@ public class MockFilterChain implements FilterChain {
     }
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
       this.delegateMockHandler.service(MockUtils.getMockRequest(request), MockUtils.getMockResponse(request));
     }
 

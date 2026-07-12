@@ -27,16 +27,16 @@ import java.util.List;
 import infra.core.MethodParameter;
 import infra.http.converter.HttpMessageConverter;
 import infra.validation.annotation.ValidationAnnotationUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
+import infra.web.MultipartException;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.MultipartException;
-import infra.web.server.NotMultipartRequestException;
 import infra.web.multipart.Part;
+import infra.web.server.NotMultipartRequestException;
 
 /**
  * Resolves the following method arguments:
@@ -110,7 +110,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     MethodParameter parameter = resolvable.getParameter();
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();

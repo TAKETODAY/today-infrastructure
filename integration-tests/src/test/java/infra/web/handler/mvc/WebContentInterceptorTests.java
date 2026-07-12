@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,11 +44,11 @@ class WebContentInterceptorTests {
   private final WebContentInterceptor interceptor = new WebContentInterceptor();
 
   private final Object handler = new Object();
-  RequestContext context = new MockRequestContext(null, mockRequest, response);
+  HttpContext context = new MockHttpContext(null, mockRequest, response);
 
-  Function<String, RequestContext> requestFactory = path -> {
+  Function<String, HttpContext> requestFactory = path -> {
     MockRequest mockRequest = new MockRequest("GET", path);
-    return new MockRequestContext(null, mockRequest, response);
+    return new MockHttpContext(null, mockRequest, response);
   };
 
   @Test
@@ -69,7 +69,7 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(10);
     interceptor.setCacheMappings(mappings);
 
-    RequestContext request = requestFactory.apply("/example/adminhandle.vm");
+    HttpContext request = requestFactory.apply("/example/adminhandle.vm");
     interceptor.preProcessing(request, handler);
 
     List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
@@ -87,9 +87,9 @@ class WebContentInterceptorTests {
   @Test
   void preventCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(0);
-    RequestContext requestContext = requestFactory.apply("/");
-    interceptor.preProcessing(requestContext, handler);
-    requestContext.flush();
+    HttpContext http = requestFactory.apply("/");
+    interceptor.preProcessing(http, handler);
+    http.flush();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("no-store");
   }

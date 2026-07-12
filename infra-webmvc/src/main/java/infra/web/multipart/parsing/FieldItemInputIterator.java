@@ -31,7 +31,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.StreamUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.MultipartException;
 
 /**
@@ -93,7 +93,7 @@ class FieldItemInputIterator {
    * @throws MultipartException An error occurred while parsing the request.
    * @throws IOException An I/O error occurred.
    */
-  FieldItemInputIterator(final DefaultMultipartParser parser, final RequestContext context) throws MultipartException, IOException {
+  FieldItemInputIterator(final DefaultMultipartParser parser, final HttpContext context) throws MultipartException, IOException {
     MediaType contentType = context.getContentType();
     Assert.state(contentType != null, "No contentType");
 

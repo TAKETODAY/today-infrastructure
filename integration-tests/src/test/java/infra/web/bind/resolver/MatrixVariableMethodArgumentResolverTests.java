@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.server.RequestPath;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -33,7 +34,6 @@ import infra.web.ResolvableMethod;
 import infra.web.annotation.MatrixVariable;
 import infra.web.bind.RequestBindingException;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 import infra.web.testfixture.ReflectionTestUtils;
 import infra.web.util.pattern.PathMatchInfo;
 import infra.web.util.pattern.PathPattern;
@@ -50,7 +50,7 @@ class MatrixVariableMethodArgumentResolverTests {
 
   private MatrixVariableMethodArgumentResolver resolver;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private final ResolvableMethod testMethod = ResolvableMethod.on(this.getClass()).named("handle").build();
 
@@ -59,7 +59,7 @@ class MatrixVariableMethodArgumentResolverTests {
     this.resolver = new MatrixVariableMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
-    this.webRequest = new MockRequestContext(null, new MockRequest(), null);
+    this.webRequest = new MockHttpContext(null, new MockRequest(), null);
     webRequest.setBinding(binding);
 
     PathMatchInfo info = new MockPathMatchInfo();

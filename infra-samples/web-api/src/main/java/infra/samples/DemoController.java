@@ -21,7 +21,7 @@ import infra.context.ApplicationEventPublisher;
 import infra.context.event.EventListener;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
 import lombok.ToString;
@@ -61,7 +61,7 @@ class DemoController {
   }
 
   @GET("/request-context")
-  public String context(RequestContext context) {
+  public String context(HttpContext context) {
     String requestURL = context.getRequestURL();
     String queryString = context.getQueryString();
     System.out.println(requestURL);

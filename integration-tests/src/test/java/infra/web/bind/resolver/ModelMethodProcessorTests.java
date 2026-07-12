@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.ui.Model;
 import infra.ui.ModelMap;
@@ -31,7 +32,6 @@ import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -47,7 +47,7 @@ class ModelMethodProcessorTests {
   private MethodParameter paramModel;
   private MethodParameter redirectModelParam;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   HandlerMethod redirectModelHandler;
 
@@ -61,7 +61,7 @@ class ModelMethodProcessorTests {
     paramModel = new MethodParameter(method, 0);
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
-    webRequest = new MockRequestContext(null, new MockRequest(), null);
+    webRequest = new MockHttpContext(null, new MockRequest(), null);
     webRequest.setBinding(new BindingContext());
   }
 

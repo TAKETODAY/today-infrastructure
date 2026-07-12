@@ -27,14 +27,14 @@ import infra.beans.factory.config.Scope;
 import infra.session.Session;
 import infra.session.SessionAttributeListener;
 import infra.session.SessionManager;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.util.WebUtils;
 
 /**
  * Session-backed {@link Scope} implementation.
  *
- * <p>Relies on a thread-bound {@link RequestContext} instance
+ * <p>Relies on a thread-bound {@link HttpContext} instance
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -54,7 +54,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable String getConversationId() {
-    RequestContext context = RequestContextHolder.required();
+    HttpContext context = HttpContextHolder.required();
     Session session = getSession(context, false);
     if (session != null) {
       return session.getId();
@@ -64,7 +64,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
-    RequestContext context = RequestContextHolder.required();
+    HttpContext context = HttpContextHolder.required();
     Session session = getSession(context);
     Object sessionMutex = WebUtils.getSessionMutex(session);
     synchronized(sessionMutex) {
@@ -74,7 +74,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable Object remove(String name) {
-    RequestContext context = RequestContextHolder.current();
+    HttpContext context = HttpContextHolder.current();
     if (context != null) {
       Session session = getSession(context);
       if (session != null) {
@@ -93,10 +93,10 @@ public class SessionScope extends AbstractWebContextScope<Session> {
    *
    * @param context Current request
    * @return the <code>Session</code> associated with this request
-   * @see #getSession(RequestContext, boolean)
+   * @see #getSession(HttpContext, boolean)
    */
   @SuppressWarnings("NullAway")
-  private Session getSession(RequestContext context) {
+  private Session getSession(HttpContext context) {
     return getSession(context, true);
   }
 
@@ -122,9 +122,9 @@ public class SessionScope extends AbstractWebContextScope<Session> {
    * @return the <code>Session</code> associated with this request or
    * <code>null</code> if <code>create</code> is <code>false</code> and
    * the request has no valid session
-   * @see #getSession(RequestContext)
+   * @see #getSession(HttpContext)
    */
-  private @Nullable Session getSession(RequestContext request, boolean create) {
+  private @Nullable Session getSession(HttpContext request, boolean create) {
     return request.getSession(create);
   }
 
@@ -145,11 +145,11 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable Object resolveContextualObject(String key) {
-    if (RequestContext.SCOPE_REQUEST.equals(key)) {
-      return RequestContextHolder.current();
+    if (HttpContext.SCOPE_REQUEST.equals(key)) {
+      return HttpContextHolder.current();
     }
-    else if (RequestContext.SCOPE_SESSION.equals(key)) {
-      RequestContext context = RequestContextHolder.current();
+    else if (HttpContext.SCOPE_SESSION.equals(key)) {
+      HttpContext context = HttpContextHolder.current();
       if (context != null) {
         return getSession(context, false);
       }
@@ -159,7 +159,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    RequestContext context = RequestContextHolder.required();
+    HttpContext context = HttpContextHolder.required();
     Session session = getSession(context);
     session.setAttribute(getDestructionCallbackName(name),
             new DestructionCallbackBindingListener(callback));

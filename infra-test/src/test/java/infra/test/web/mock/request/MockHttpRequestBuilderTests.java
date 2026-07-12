@@ -37,8 +37,8 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.RedirectModel;
 import infra.web.mock.DefaultMockContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
 import infra.web.mock.api.Cookie;
@@ -487,7 +487,7 @@ class MockHttpRequestBuilderTests {
     MockRequest request = this.builder.buildRequest(this.mockContext);
 
     RedirectModel flashMap =
-            new MockRequestContext(null, request, new MockResponse()).getInputRedirectModel();
+            new MockHttpContext(null, request, new MockResponse()).getInputRedirectModel();
 
     assertThat(flashMap.get("foo")).isEqualTo("bar");
   }

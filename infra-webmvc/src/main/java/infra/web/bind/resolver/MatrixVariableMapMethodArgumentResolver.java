@@ -30,7 +30,7 @@ import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -59,7 +59,7 @@ public class MatrixVariableMapMethodArgumentResolver implements ParameterResolvi
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     var matrixVariables = context.matchingMetadata().getMatrixVariables();
     MethodParameter parameter = resolvable.getParameter();
     MultiValueMap<String, String> map = mapMatrixVariables(parameter, matrixVariables);

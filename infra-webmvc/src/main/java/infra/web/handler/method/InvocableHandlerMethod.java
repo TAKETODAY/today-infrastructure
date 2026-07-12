@@ -32,8 +32,8 @@ import infra.context.MessageSource;
 import infra.http.HttpStatusCode;
 import infra.util.StringUtils;
 import infra.validation.method.MethodValidator;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 import infra.web.annotation.ResponseStatus;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
@@ -109,7 +109,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @return the processed return value, or {@link HttpRequestHandler#NONE_RETURN_VALUE} if no content should be written
    * @throws Throwable if the invoked method throws an exception
    */
-  public @Nullable Object invokeAndHandle(RequestContext request,
+  public @Nullable Object invokeAndHandle(HttpContext request,
           @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Throwable {
     Object returnValue = invokeForRequest(request, methodValidator, providedArgs);
     applyResponseStatus(request);
@@ -129,7 +129,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  private void applyResponseStatus(RequestContext response) throws IOException {
+  private void applyResponseStatus(HttpContext response) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
       return;
@@ -165,7 +165,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * or if the method raised an exception
    * @see #getMethodArgumentValues
    */
-  public @Nullable Object invokeForRequest(RequestContext request,
+  public @Nullable Object invokeForRequest(HttpContext request,
           @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Throwable {
     @Nullable Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
@@ -213,7 +213,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * argument values and falling back to the configured argument resolvers.
    * <p>The resulting array will be passed into {@link Method#invoke(Object, Object...)}.
    */
-  private @Nullable Object[] getMethodArgumentValues(RequestContext request, Object @Nullable [] providedArgs) throws Throwable {
+  private @Nullable Object[] getMethodArgumentValues(HttpContext request, Object @Nullable [] providedArgs) throws Throwable {
     ResolvableMethodParameter[] parameters = this.resolvableParameters;
     int length = parameters.length;
     if (length == 0) {

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 import infra.core.io.Resource;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A contract for invoking a chain of {@link ResourceResolver ResourceResolvers} where each resolver
@@ -47,7 +47,7 @@ public interface ResourceResolvingChain {
    * @return the resolved resource, or {@code null} if unresolved
    */
   @Nullable
-  Resource resolveResource(@Nullable RequestContext request,
+  Resource resolveResource(@Nullable HttpContext request,
           String requestPath, List<? extends Resource> locations);
 
   /**

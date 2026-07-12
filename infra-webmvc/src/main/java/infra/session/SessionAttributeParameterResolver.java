@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.SessionAttribute;
 import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -50,7 +50,7 @@ public class SessionAttributeParameterResolver extends AbstractNamedValueResolvi
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
     Session session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;

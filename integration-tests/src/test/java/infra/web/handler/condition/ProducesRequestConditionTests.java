@@ -28,7 +28,7 @@ import infra.web.mock.MockRequest;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.accept.HeaderContentNegotiationStrategy;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -351,8 +351,8 @@ public class ProducesRequestConditionTests {
     assertThat(result).isNull();
   }
 
-  private MockRequestContext createContext(MockRequest request) {
-    return new MockRequestContext(null, request, null);
+  private MockHttpContext createContext(MockRequest request) {
+    return new MockHttpContext(null, request, null);
   }
 
   private MockRequest createRequest(String... headerValue) {

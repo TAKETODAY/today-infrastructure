@@ -34,11 +34,11 @@ import infra.beans.testfixture.beans.DummyFactory;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.io.ClassPathResource;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContextHolder;
 import infra.web.context.support.RequestScope;
-import infra.web.mock.MockRequestContext;
 
 import static infra.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,8 +66,8 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    HttpContextHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -80,7 +80,7 @@ public class RequestScopedProxyTests {
       assertThat(target.toString()).isEqualTo(bean.toString());
     }
     finally {
-      RequestContextHolder.set(null);
+      HttpContextHolder.set(null);
     }
   }
 
@@ -91,8 +91,8 @@ public class RequestScopedProxyTests {
     // assertTrue(AopUtils.isJdkDynamicProxy(bean));
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    HttpContextHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -105,7 +105,7 @@ public class RequestScopedProxyTests {
       assertThat(target.toString()).isEqualTo(bean.toString());
     }
     finally {
-      RequestContextHolder.set(null);
+      HttpContextHolder.set(null);
     }
   }
 
@@ -116,8 +116,8 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockResponse());
-    RequestContextHolder.set(requestAttributes);
+    MockHttpContext requestAttributes = new MockHttpContext(null, request, new MockResponse());
+    HttpContextHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -131,7 +131,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).wasDestroyed()).isTrue();
     }
     finally {
-      RequestContextHolder.set(null);
+      HttpContextHolder.set(null);
     }
   }
 
@@ -142,8 +142,8 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    HttpContextHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -153,7 +153,7 @@ public class RequestScopedProxyTests {
       assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
     }
     finally {
-      RequestContextHolder.set(null);
+      HttpContextHolder.set(null);
     }
   }
 
@@ -166,8 +166,8 @@ public class RequestScopedProxyTests {
     String name = "scopedInnerBean";
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    HttpContextHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -177,7 +177,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).getName()).isEqualTo("scoped");
     }
     finally {
-      RequestContextHolder.set(null);
+      HttpContextHolder.set(null);
     }
   }
 
@@ -193,8 +193,8 @@ public class RequestScopedProxyTests {
     String name = innerBeanDef.getBeanName();
 
     MockRequest request = new MockRequest();
-    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    HttpContextHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -204,7 +204,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).getName()).isEqualTo("scoped");
     }
     finally {
-      RequestContextHolder.set(null);
+      HttpContextHolder.set(null);
     }
   }
 

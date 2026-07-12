@@ -37,7 +37,7 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.DeferredResult;
 import infra.web.handler.method.HandlerMethod;
@@ -139,7 +139,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   }
 
   @Override
-  public void handleReturnValue(RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -205,11 +205,11 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    */
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
 
-    private final RequestContext request;
+    private final HttpContext request;
 
     private final DeferredResult<?> deferredResult;
 
-    public HttpMessageConvertingHandler(RequestContext request, DeferredResult<?> deferredResult) {
+    public HttpMessageConvertingHandler(HttpContext request, DeferredResult<?> deferredResult) {
       this.request = request;
       this.deferredResult = deferredResult;
     }

@@ -22,7 +22,7 @@ import infra.app.webmvc.test.config.WebMvcTest;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.stereotype.Controller;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 
@@ -52,7 +52,7 @@ public class ExampleController1 {
   }
 
   @GetMapping("/formatting")
-  public String formatting(RequestContext request, Session session) {
+  public String formatting(HttpContext request, Session session) {
     Object formattingFails = new Object() {
       @Override
       public String toString() {

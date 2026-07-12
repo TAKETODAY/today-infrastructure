@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +43,7 @@ class ControllerTests {
     // We don't care about the params.
     ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
-    MockRequestContext context = new MockRequestContext(wac, new MockRequest("GET", "foo.html"), new MockResponse());
+    MockHttpContext context = new MockHttpContext(wac, new MockRequest("GET", "foo.html"), new MockResponse());
     ModelAndView mv = (ModelAndView) pvc.handleRequest(context);
     assertThat(mv.getModel().size() == 0).as("model has no data").isTrue();
     assertThat(mv.getViewName().equals(viewName)).as("model has correct viewname").isTrue();

@@ -30,7 +30,7 @@ import infra.http.server.PathContainer;
 import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.WebContentGenerator;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
@@ -135,7 +135,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
   }
 
   @Override
-  public boolean preProcessing(RequestContext request, Object handler) {
+  public boolean preProcessing(HttpContext request, Object handler) {
     checkRequest(request);
 
     if (!cacheControlMappings.isEmpty()) {

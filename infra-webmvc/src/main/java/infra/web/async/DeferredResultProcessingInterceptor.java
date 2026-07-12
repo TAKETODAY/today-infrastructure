@@ -20,7 +20,7 @@ package infra.web.async;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Intercepts concurrent request handling, where the concurrent result is
@@ -37,7 +37,7 @@ import infra.web.RequestContext;
  * the Exception instance as the concurrent result. Such exceptions will then
  * be processed through the {@code HandlerExceptionHandler} mechanism.
  *
- * <p>The {@link #handleTimeout(RequestContext, DeferredResult) handleTimeout}
+ * <p>The {@link #handleTimeout(HttpContext, DeferredResult) handleTimeout}
  * method can set the {@code DeferredResult} in order to resume processing.
  *
  * @author Rossen Stoyanchev
@@ -56,7 +56,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> void beforeConcurrentHandling(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
   }
 
   /**
@@ -70,7 +70,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> void preProcess(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
   }
 
   /**
@@ -87,7 +87,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param concurrentResult the result to which the {@code DeferredResult}
    * @throws Exception in case of errors
    */
-  default <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult, @Nullable Object concurrentResult) throws Exception {
+  default <T> void postProcess(HttpContext request, DeferredResult<T> deferredResult, @Nullable Object concurrentResult) throws Exception {
   }
 
   /**
@@ -104,7 +104,7 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> boolean handleTimeout(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
     return true;
   }
 
@@ -123,7 +123,7 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should by bypassed and not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+  default <T> boolean handleError(HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
     return true;
   }
 
@@ -136,7 +136,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> void afterCompletion(HttpContext request, DeferredResult<T> deferredResult) throws Exception {
   }
 
 }

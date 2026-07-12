@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.handler.condition.ParamsRequestCondition.ParamExpression;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,7 +49,7 @@ public class ParamsRequestConditionTests {
     MockRequest request = new MockRequest();
     request.addParameter("foo", "");
 
-    assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -58,7 +58,7 @@ public class ParamsRequestConditionTests {
     MockRequest request = new MockRequest();
     request.addParameter("foo", (String) null);
 
-    assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ParamsRequestConditionTests {
     MockRequest request = new MockRequest();
     request.addHeader("bar", "");
 
-    assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test
@@ -74,7 +74,7 @@ public class ParamsRequestConditionTests {
     ParamsRequestCondition condition = new ParamsRequestCondition("!foo");
     MockRequest request = new MockRequest();
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -82,7 +82,7 @@ public class ParamsRequestConditionTests {
     MockRequest request = new MockRequest();
     request.addParameter("foo", "bar");
 
-    assertThat(new ParamsRequestCondition("foo=bar").getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(new ParamsRequestCondition("foo=bar").getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -90,7 +90,7 @@ public class ParamsRequestConditionTests {
     MockRequest request = new MockRequest();
     request.addParameter("foo", "bazz");
 
-    assertThat(new ParamsRequestCondition("foo=bar").getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(new ParamsRequestCondition("foo=bar").getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test
@@ -100,10 +100,10 @@ public class ParamsRequestConditionTests {
     ParamsRequestCondition condition1 = new ParamsRequestCondition("foo", "bar", "baz");
     ParamsRequestCondition condition2 = new ParamsRequestCondition("foo=a", "bar");
 
-    int result = condition1.compareTo(condition2, new MockRequestContext(null, request, null));
+    int result = condition1.compareTo(condition2, new MockHttpContext(null, request, null));
     assertThat(result).as("Invalid comparison result: " + result).isLessThan(0);
 
-    result = condition2.compareTo(condition1, new MockRequestContext(null, request, null));
+    result = condition2.compareTo(condition1, new MockHttpContext(null, request, null));
     assertThat(result).as("Invalid comparison result: " + result).isGreaterThan(0);
   }
 
@@ -115,7 +115,7 @@ public class ParamsRequestConditionTests {
     ParamsRequestCondition condition1 = new ParamsRequestCondition("response_type=code");
     ParamsRequestCondition condition2 = new ParamsRequestCondition("response_type");
 
-    int result = condition1.compareTo(condition2, new MockRequestContext(null, request, null));
+    int result = condition1.compareTo(condition2, new MockHttpContext(null, request, null));
     assertThat(result).as("Invalid comparison result: " + result).isLessThan(0);
   }
 
@@ -126,7 +126,7 @@ public class ParamsRequestConditionTests {
     ParamsRequestCondition condition1 = new ParamsRequestCondition("response_type!=code");
     ParamsRequestCondition condition2 = new ParamsRequestCondition("response_type");
 
-    assertThat(condition1.compareTo(condition2, new MockRequestContext(null, request, null)))
+    assertThat(condition1.compareTo(condition2, new MockHttpContext(null, request, null)))
             .as("Negated match should not count as more specific").isEqualTo(0);
   }
 

@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.session.Session;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -90,15 +90,15 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
-      for (String attribute : request.attributeNames()) {
+      for (String attribute : http.attributeNames()) {
         if (model.containsKey(attribute) && !allowRequestOverride) {
           throw new ViewRenderingException("Cannot expose request attribute '%s' because of an existing model object of the same name"
                   .formatted(attribute));
         }
-        Object attributeValue = request.getAttribute(attribute);
+        Object attributeValue = http.getAttribute(attribute);
         if (logger.isDebugEnabled()) {
           exposed = exposed != null ? exposed : new LinkedHashMap<>();
           exposed.put(attribute, attributeValue);
@@ -111,19 +111,19 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
     }
 
     if (exposeSessionAttributes) {
-      exposeSessionAttributes(model, request);
+      exposeSessionAttributes(model, http);
     }
 
-    applyContentType(request);
+    applyContentType(http);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Rendering [{}]", getUrl());
     }
 
-    renderMergedTemplateModel(model, request);
+    renderMergedTemplateModel(model, http);
   }
 
-  private void exposeSessionAttributes(Map<String, Object> model, RequestContext context) {
+  private void exposeSessionAttributes(Map<String, Object> model, HttpContext context) {
     Session session = context.getSession(false);
     if (session != null) {
       Map<String, Object> exposed = null;
@@ -156,7 +156,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
    * @param response current HTTP response
    * @see #setContentType
    */
-  protected void applyContentType(RequestContext response) {
+  protected void applyContentType(HttpContext response) {
     if (response.getResponseContentType() == null) {
       response.setContentType(getContentType());
     }
@@ -170,6 +170,6 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
    * @param context current HTTP request
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedTemplateModel(Map<String, Object> model, RequestContext context) throws Exception;
+  protected abstract void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) throws Exception;
 
 }

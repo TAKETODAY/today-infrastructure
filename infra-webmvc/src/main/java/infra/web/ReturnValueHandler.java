@@ -50,7 +50,7 @@ import infra.web.handler.result.SmartReturnValueHandler;
  *   }
  *
  *   @Override
- *   public void handleReturnValue(RequestContext context, Object handler, Object returnValue)
+ *   public void handleReturnValue(HttpContext context, Object handler, Object returnValue)
  *           throws Exception {
  *     // Process the return value
  *     if (returnValue instanceof MyCustomResult result) {
@@ -71,7 +71,7 @@ import infra.web.handler.result.SmartReturnValueHandler;
  *   }
  *
  *   @Override
- *   public void handleReturnValue(RequestContext context, Object handler, Object returnValue)
+ *   public void handleReturnValue(HttpContext context, Object handler, Object returnValue)
  *           throws Exception {
  *     // Handle the return value
  *     context.getResponse().write("Handled by SmartHandler");
@@ -195,12 +195,12 @@ public interface ReturnValueHandler {
    * in the context of a request. It ensures that the return value is appropriately
    * managed, transformed, or dispatched based on the implementation logic.
    *
-   * @param context the {@link RequestContext} representing the current request context
+   * @param context the {@link HttpContext} representing the current request context
    * @param handler the handler object associated with the request; may be {@code null}
    * @param returnValue the return value produced by the handler; may be {@code null}
    * @throws Exception if an error occurs while handling the return value
    */
-  void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue)
+  void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue)
           throws Exception;
 
   /**

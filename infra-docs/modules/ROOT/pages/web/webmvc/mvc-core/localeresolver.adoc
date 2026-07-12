@@ -5,7 +5,7 @@ Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。
 这是通过 `LocaleResolver` 对象完成的。
 
 当请求进来时，`DispatcherHandler` 会寻找一个区域设置解析器，如果找到，它会尝试使用它来设置区域设置。
-通过使用 `RequestContext.getLocale()` 方法，您始终可以检索由区域设置解析器解析的区域设置。
+通过使用 `HttpContext.getLocale()` 方法，您始终可以检索由区域设置解析器解析的区域设置。
 
 除了自动区域设置解析之外，您还可以将拦截器附加到处理程序映射
 （有关处理程序映射拦截器的更多信息，请参阅 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截]）
@@ -27,7 +27,7 @@ Infra 中包含以下区域设置解析器选择。
 除了获取客户端的区域设置外，了解其时区通常很有用。`LocaleContextResolver` 接口提供了对 `LocaleResolver`
 的扩展，让解析器提供更丰富的 `LocaleContext`，其中可能包括时区信息。
 
-如果可用，可以使用 `RequestContext.getTimeZone()` 方法获取用户的 `TimeZone`。
+如果可用，可以使用 `HttpContext.getTimeZone()` 方法获取用户的 `TimeZone`。
 任何向 Infra `ConversionService` 注册的日期/时间 `Converter` 和 `Formatter` 对象都会自动使用时区信息。
 
 

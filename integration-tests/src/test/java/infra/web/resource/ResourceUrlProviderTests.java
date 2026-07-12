@@ -33,9 +33,9 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.handler.SimpleUrlHandlerMapping;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -78,14 +78,14 @@ public class ResourceUrlProviderTests {
   void getStaticResourceUrlRequestWithQueryOrHash() {
     MockRequest request = new MockRequest();
     request.setRequestURI("/");
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
     String url = "/resources/foo.css?foo=bar&url=https://example.org";
-    String resolvedUrl = this.urlProvider.getForRequestUrl(requestContext, url);
+    String resolvedUrl = this.urlProvider.getForRequestUrl(httpContext, url);
     assertThat(resolvedUrl).isEqualTo("/resources/foo.css?foo=bar&url=https://example.org");
 
     url = "/resources/foo.css#hash";
-    resolvedUrl = this.urlProvider.getForRequestUrl(requestContext, url);
+    resolvedUrl = this.urlProvider.getForRequestUrl(httpContext, url);
     assertThat(resolvedUrl).isEqualTo("/resources/foo.css#hash");
   }
 

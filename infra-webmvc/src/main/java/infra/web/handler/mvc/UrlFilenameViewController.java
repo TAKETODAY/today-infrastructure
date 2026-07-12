@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.WebUtils;
 
 /**
@@ -109,7 +109,7 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    * @see #setSuffix
    */
   @Override
-  protected String getViewNameForRequest(RequestContext request) {
+  protected String getViewNameForRequest(HttpContext request) {
     String uri = extractOperableUrl(request);
     return getViewNameForUrlPath(uri);
   }
@@ -121,7 +121,7 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    * @param request current HTTP request
    * @return the URL to use for view name extraction
    */
-  protected String extractOperableUrl(RequestContext request) {
+  protected String extractOperableUrl(HttpContext request) {
     String path = request.getRequestPath().value();
     path = removeSemicolonContent
             ? WebUtils.removeSemicolonContent(path)

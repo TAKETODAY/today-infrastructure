@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 import infra.http.HttpHeaders;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("text/plain");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -53,7 +53,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("text/plain");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test
@@ -69,7 +69,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("text/plain");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -79,7 +79,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("text/plain");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -89,7 +89,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("application/xml");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test // gh-28024
@@ -98,23 +98,23 @@ public class ConsumesRequestConditionTests {
     ConsumesRequestCondition condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
     MockRequest request = new MockRequest();
     request.setContentType(base + ";profile=\"a\"");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
 
     condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
     request.setContentType(base + ";profile=\"b\"");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
 
     condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
     request.setContentType(base);
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
 
     condition = new ConsumesRequestCondition(base);
     request.setContentType(base + ";profile=\"a\"");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
 
     condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
     request.setContentType(base + ";profile=\"A\"");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -124,7 +124,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("01");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test
@@ -134,7 +134,7 @@ public class ConsumesRequestConditionTests {
     MockRequest request = new MockRequest("GET", "/");
     request.setContentType("01");
 
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test // gh-22010
@@ -143,19 +143,19 @@ public class ConsumesRequestConditionTests {
     condition.setBodyRequired(false);
 
     MockRequest request = new MockRequest("GET", "/");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
     request = new MockRequest("GET", "/");
     request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
 
     request = new MockRequest("GET", "/");
     request.addHeader(HttpHeaders.CONTENT_LENGTH, "21");
     request.setContent(new byte[21]);
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
 
     request = new MockRequest("GET", "/");
     request.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
-    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
   }
 
   @Test
@@ -165,10 +165,10 @@ public class ConsumesRequestConditionTests {
     ConsumesRequestCondition condition1 = new ConsumesRequestCondition("text/plain");
     ConsumesRequestCondition condition2 = new ConsumesRequestCondition("text/*");
 
-    int result = condition1.compareTo(condition2, new MockRequestContext(null, request, null));
+    int result = condition1.compareTo(condition2, new MockHttpContext(null, request, null));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
 
-    result = condition2.compareTo(condition1, new MockRequestContext(null, request, null));
+    result = condition2.compareTo(condition1, new MockHttpContext(null, request, null));
     assertThat(result > 0).as("Invalid comparison result: " + result).isTrue();
   }
 
@@ -179,10 +179,10 @@ public class ConsumesRequestConditionTests {
     ConsumesRequestCondition condition1 = new ConsumesRequestCondition("*/*", "text/plain");
     ConsumesRequestCondition condition2 = new ConsumesRequestCondition("text/*", "text/plain;q=0.7");
 
-    int result = condition1.compareTo(condition2, new MockRequestContext(null, request, null));
+    int result = condition1.compareTo(condition2, new MockHttpContext(null, request, null));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
 
-    result = condition2.compareTo(condition1, new MockRequestContext(null, request, null));
+    result = condition2.compareTo(condition1, new MockHttpContext(null, request, null));
     assertThat(result > 0).as("Invalid comparison result: " + result).isTrue();
   }
 
@@ -220,12 +220,12 @@ public class ConsumesRequestConditionTests {
 
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain", "application/xml");
 
-    ConsumesRequestCondition result = condition.getMatchingCondition(new MockRequestContext(null, request, null));
+    ConsumesRequestCondition result = condition.getMatchingCondition(new MockHttpContext(null, request, null));
     assertConditions(result, "text/plain");
 
     condition = new ConsumesRequestCondition("application/xml");
 
-    result = condition.getMatchingCondition(new MockRequestContext(null, request, null));
+    result = condition.getMatchingCondition(new MockHttpContext(null, request, null));
     assertThat(result).isNull();
   }
 

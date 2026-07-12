@@ -19,7 +19,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.HandlerExceptionHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -35,7 +35,7 @@ public interface AsyncReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    * @throws Exception return-value handled failed
    */
-  void handleAsyncReturnValue(RequestContext context, @Nullable Object returnValue)
+  void handleAsyncReturnValue(HttpContext context, @Nullable Object returnValue)
           throws Exception;
 
 }

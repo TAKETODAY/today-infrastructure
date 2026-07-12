@@ -21,7 +21,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.BeanFactory;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.WebAsyncTask;
 import infra.web.handler.method.HandlerMethod;
 
@@ -53,7 +53,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof WebAsyncTask<?> task) {
       if (this.beanFactory != null) {
         task.setBeanFactory(this.beanFactory);

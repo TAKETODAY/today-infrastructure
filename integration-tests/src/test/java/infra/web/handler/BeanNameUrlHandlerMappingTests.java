@@ -29,12 +29,12 @@ import infra.context.annotation.Configuration;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.env.MapPropertySource;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.api.MockException;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Component;
 import infra.web.HandlerMapping;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -59,12 +59,12 @@ class BeanNameUrlHandlerMappingTests {
     HandlerMapping hm = (HandlerMapping) wac.getBean("handlerMapping");
 
     MockRequest req = new MockRequest("GET", "/mypath/nonsense.html");
-    MockRequestContext request = new MockRequestContext(null, req, new MockResponse());
+    MockHttpContext request = new MockHttpContext(null, req, new MockResponse());
     Object h = hm.getHandler(request);
     assertThat(h).as("Handler is null").isNull();
 
     req = new MockRequest("GET", "/foo/bar/baz.html");
-    h = hm.getHandler(new MockRequestContext(null, req, new MockResponse()));
+    h = hm.getHandler(new MockHttpContext(null, req, new MockResponse()));
     assertThat(h).as("Handler is null").isNull();
   }
 
@@ -117,7 +117,7 @@ class BeanNameUrlHandlerMappingTests {
 
   @Nullable
   private static HandlerExecutionChain getChain(HandlerMapping hm, MockRequest req) throws Exception {
-    return (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null, req, new MockResponse()));
+    return (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null, req, new MockResponse()));
   }
 
   @Test

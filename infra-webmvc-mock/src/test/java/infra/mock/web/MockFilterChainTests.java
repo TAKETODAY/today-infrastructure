@@ -27,8 +27,8 @@ import infra.web.mock.MockResponse;
 import infra.web.mock.api.MockHandler;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,13 +76,13 @@ class MockFilterChainTests {
   @Test
   void doFilterEmptyChain() throws Exception {
     MockFilterChain chain = new MockFilterChain();
-    chain.doFilter(new MockRequestContext(request, response));
+    chain.doFilter(new MockHttpContext(request, response));
 
     assertThat(chain.getRequest()).isEqualTo(request);
     assertThat(chain.getResponse()).isEqualTo(response);
 
     assertThatIllegalStateException().isThrownBy(() ->
-                    chain.doFilter(new MockRequestContext(request, response)))
+                    chain.doFilter(new MockHttpContext(request, response)))
             .withMessage("This FilterChain has already been called!");
   }
 
@@ -90,10 +90,10 @@ class MockFilterChainTests {
   void doFilterWith() throws Exception {
     MockHandler mockHandler = mock(MockHandler.class);
     MockFilterChain chain = new MockFilterChain(mockHandler);
-    chain.doFilter(new MockRequestContext(request, response));
+    chain.doFilter(new MockHttpContext(request, response));
     verify(mockHandler).service(request, response);
     assertThatIllegalStateException().isThrownBy(() ->
-                    chain.doFilter(new MockRequestContext(request, response)))
+                    chain.doFilter(new MockHttpContext(request, response)))
             .withMessage("This FilterChain has already been called!");
   }
 
@@ -105,7 +105,7 @@ class MockFilterChainTests {
     MockFilter filter1 = new MockFilter(null);
     MockFilterChain chain = new MockFilterChain(mockHandler, filter1, filter2);
 
-    chain.doFilter(new MockRequestContext(request, response));
+    chain.doFilter(new MockHttpContext(request, response));
 
     assertThat(filter1.invoked).isTrue();
     assertThat(filter2.invoked).isTrue();
@@ -113,7 +113,7 @@ class MockFilterChainTests {
     verify(mockHandler).service(request, response);
 
     assertThatIllegalStateException().isThrownBy(() ->
-                    chain.doFilter(new MockRequestContext(request, response)))
+                    chain.doFilter(new MockHttpContext(request, response)))
             .withMessage("This FilterChain has already been called!");
   }
 
@@ -128,7 +128,7 @@ class MockFilterChainTests {
     }
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
       this.invoked = true;
       if (this.mockHandler != null) {
         this.mockHandler.service(MockUtils.getMockRequest(request), MockUtils.getMockResponse(request));

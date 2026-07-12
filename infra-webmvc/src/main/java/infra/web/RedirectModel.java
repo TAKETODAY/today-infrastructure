@@ -57,8 +57,8 @@ import infra.util.StringUtils;
  * </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see RequestContextUtils#getOutputRedirectModel
- * @see RequestContext#getInputRedirectModel
+ * @see HttpContextUtils#getOutputRedirectModel
+ * @see HttpContext#getInputRedirectModel
  * @since 2.3.3 2018-11-18 16:39
  */
 public class RedirectModel extends ModelMap implements Serializable, Comparable<RedirectModel> {
@@ -70,7 +70,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds a RedirectModel with "input"
    * redirect attributes saved by a previous request, if any.
    *
-   * @see RequestContext#getInputRedirectModel()
+   * @see HttpContext#getInputRedirectModel()
    */
   public static final String INPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "INPUT");
@@ -79,7 +79,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds the "output" {@link RedirectModel} with
    * attributes to save for a subsequent request.
    *
-   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
+   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
    */
   public static final String OUTPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "OUTPUT");

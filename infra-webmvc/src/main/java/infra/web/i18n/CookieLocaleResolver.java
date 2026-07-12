@@ -28,9 +28,10 @@ import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.http.HttpCookie;
 import infra.util.StringUtils;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
-import infra.web.RequestContext;
 import infra.web.util.WebUtils;
 
 /**
@@ -58,11 +59,11 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * The name of the request attribute that holds the {@code Locale}.
    * <p>Only used for overriding a cookie value if the locale has been
    * changed in the course of the current request!
-   * <p>Use {@code RequestContext(Utils).getLocale()}
+   * <p>Use {@code HttpContext(Utils).getLocale()}
    * to retrieve the current locale in controllers or views.
    *
-   * @see infra.web.RequestContext#getLocale
-   * @see infra.web.RequestContextUtils#getLocale
+   * @see HttpContext#getLocale
+   * @see HttpContextUtils#getLocale
    */
   public static final String LOCALE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
@@ -70,10 +71,10 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * The name of the request attribute that holds the {@code TimeZone}.
    * <p>Only used for overriding a cookie value if the locale has been
    * changed in the course of the current request!
-   * <p>Use {@code RequestContext(Utils).getTimeZone()}
+   * <p>Use {@code HttpContext(Utils).getTimeZone()}
    * to retrieve the current time zone in controllers or views.
    *
-   * @see infra.web.RequestContextUtils#getTimeZone
+   * @see HttpContextUtils#getTimeZone
    */
   public static final String TIME_ZONE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".TIME_ZONE";
 
@@ -180,13 +181,13 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
 
   @Override
   @SuppressWarnings("NullAway")
-  public Locale resolveLocale(RequestContext request) {
+  public Locale resolveLocale(HttpContext request) {
     parseLocaleCookieIfNecessary(request);
     return (Locale) request.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
   }
 
   @Override
-  public LocaleContext resolveLocaleContext(final RequestContext request) {
+  public LocaleContext resolveLocaleContext(final HttpContext request) {
     parseLocaleCookieIfNecessary(request);
     return new TimeZoneAwareLocaleContext() {
       @Override
@@ -203,7 +204,7 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
     };
   }
 
-  private void parseLocaleCookieIfNecessary(RequestContext request) {
+  private void parseLocaleCookieIfNecessary(HttpContext request) {
     if (request.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME) == null) {
       Locale locale = null;
       TimeZone timeZone = null;
@@ -260,12 +261,12 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
   }
 
   @Override
-  public void setLocale(RequestContext request, @Nullable Locale locale) {
+  public void setLocale(HttpContext request, @Nullable Locale locale) {
     setLocaleContext(request, (locale != null ? new SimpleLocaleContext(locale) : null));
   }
 
   @Override
-  public void setLocaleContext(RequestContext request, @Nullable LocaleContext localeContext) {
+  public void setLocaleContext(HttpContext request, @Nullable LocaleContext localeContext) {
     Locale locale = null;
     TimeZone timeZone = null;
     if (localeContext != null) {
@@ -322,9 +323,9 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
    * @see #setDefaultLocale
-   * @see RequestContext#getLocale()
+   * @see HttpContext#getLocale()
    */
-  protected Locale determineDefaultLocale(RequestContext request) {
+  protected Locale determineDefaultLocale(HttpContext request) {
     Locale defaultLocale = getDefaultLocale();
     if (defaultLocale == null) {
       defaultLocale = request.getLocale();
@@ -343,7 +344,7 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * @see #setDefaultTimeZone
    */
   @Nullable
-  protected TimeZone determineDefaultTimeZone(RequestContext request) {
+  protected TimeZone determineDefaultTimeZone(HttpContext request) {
     return getDefaultTimeZone();
   }
 

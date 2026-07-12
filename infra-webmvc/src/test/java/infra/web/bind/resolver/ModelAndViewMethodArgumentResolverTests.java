@@ -19,7 +19,7 @@ package infra.web.bind.resolver;
 import org.junit.jupiter.api.Test;
 
 import infra.web.BindingContext;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.view.ModelAndView;
 
@@ -35,7 +35,7 @@ class ModelAndViewMethodArgumentResolverTests {
 
   @Test
   void resolveArgumentReturnsModelAndViewFromContext() throws Throwable {
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     BindingContext binding = mock(BindingContext.class);
     ModelAndView modelAndView = new ModelAndView();
 

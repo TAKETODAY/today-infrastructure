@@ -66,6 +66,6 @@ public interface NotFoundHandler {
    * @throws Throwable if an error occurs during the handling process
    */
   @Nullable
-  Object handleNotFound(RequestContext request) throws Throwable;
+  Object handleNotFound(HttpContext request) throws Throwable;
 
 }

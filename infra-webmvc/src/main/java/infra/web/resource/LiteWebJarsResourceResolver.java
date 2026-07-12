@@ -24,7 +24,7 @@ import org.webjars.WebJarVersionLocator;
 import java.util.List;
 
 import infra.core.io.Resource;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.config.annotation.ResourceChainRegistration;
 
 /**
@@ -69,7 +69,7 @@ public class LiteWebJarsResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected @Nullable Resource resolveResourceInternal(@Nullable RequestContext request, String requestPath,
+  protected @Nullable Resource resolveResourceInternal(@Nullable HttpContext request, String requestPath,
           List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);

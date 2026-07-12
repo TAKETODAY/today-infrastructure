@@ -27,7 +27,7 @@ import java.util.Set;
 
 import infra.util.CollectionUtils;
 import infra.validation.BindingResult;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.AbstractJacksonView;
 import infra.web.view.View;
 import tools.jackson.core.JsonGenerator;
@@ -165,7 +165,7 @@ public class JacksonJsonView extends AbstractJacksonView {
    * @return the value to be rendered
    */
   @Override
-  protected Object filterModel(Map<String, Object> model, RequestContext request) {
+  protected Object filterModel(Map<String, Object> model, HttpContext request) {
     Map<String, Object> result = CollectionUtils.newHashMap(model.size());
     Set<String> modelKeys = (CollectionUtils.isNotEmpty(this.modelKeys) ? this.modelKeys : model.keySet());
     model.forEach((clazz, value) -> {

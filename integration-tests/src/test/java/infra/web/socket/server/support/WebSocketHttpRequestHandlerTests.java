@@ -24,10 +24,11 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
+
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.HandshakeHandler;
 import infra.web.socket.server.HandshakeInterceptor;
@@ -57,7 +58,7 @@ public class WebSocketHttpRequestHandlerTests {
   public void success() throws Throwable {
     TestInterceptor interceptor = new TestInterceptor(true);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
-    MockRequestContext request = new MockRequestContext(
+    MockHttpContext request = new MockHttpContext(
             null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
     request.flush();
@@ -74,7 +75,7 @@ public class WebSocketHttpRequestHandlerTests {
     given(this.handshakeHandler.doHandshake(any(), any(), any()))
             .willThrow(new IllegalStateException("bad state"));
 
-    MockRequestContext request = new MockRequestContext(
+    MockHttpContext request = new MockHttpContext(
             null, new MockRequest(), this.response);
     assertThatThrownBy(() -> this.requestHandler.handleRequest(request))
             .isInstanceOf(IllegalStateException.class)
@@ -91,7 +92,7 @@ public class WebSocketHttpRequestHandlerTests {
     TestInterceptor interceptor = new TestInterceptor(false);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
 
-    MockRequestContext request = new MockRequestContext(
+    MockHttpContext request = new MockHttpContext(
             null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
     request.flush();
@@ -109,7 +110,7 @@ public class WebSocketHttpRequestHandlerTests {
     }
 
     @Override
-    public boolean beforeHandshake(RequestContext request,
+    public boolean beforeHandshake(HttpContext request,
             WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
       request.responseHeaders().add("headerName", "headerValue");
@@ -117,7 +118,7 @@ public class WebSocketHttpRequestHandlerTests {
     }
 
     @Override
-    public void afterHandshake(RequestContext request,
+    public void afterHandshake(HttpContext request,
             WebSocketHandler wsHandler, @Nullable Throwable exception) {
 
       request.responseHeaders().add("exceptionHeaderName", "exceptionHeaderValue");

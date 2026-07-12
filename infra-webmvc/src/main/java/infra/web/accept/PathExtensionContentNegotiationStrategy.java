@@ -27,7 +27,7 @@ import infra.core.io.Resource;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.UriUtils;
 
 /**
@@ -64,7 +64,7 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 
   @Override
   @Nullable
-  protected String getMediaTypeKey(RequestContext request) {
+  protected String getMediaTypeKey(HttpContext request) {
     String extension = UriUtils.extractFileExtension(request.getRequestURI());
     return StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ROOT) : null;
   }

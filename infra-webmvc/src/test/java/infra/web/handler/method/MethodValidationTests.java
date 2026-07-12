@@ -42,6 +42,7 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.http.MediaType;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.validation.Errors;
@@ -62,7 +63,6 @@ import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.mock.MockRequestContext;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -100,7 +100,7 @@ class MethodValidationTests {
 
   private final MockResponse response = new MockResponse();
 
-  private final MockRequestContext context = new MockRequestContext(request, response);
+  private final MockHttpContext context = new MockHttpContext(request, response);
 
   private RequestMappingHandlerAdapter handlerAdapter;
 

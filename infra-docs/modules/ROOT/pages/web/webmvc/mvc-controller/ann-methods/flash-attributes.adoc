@@ -11,7 +11,7 @@ Web MVC 有两个主要的抽象来支持 Flash 属性。`FlashMap` 用于保存
 Flash 属性支持始终是“开启”的，不需要显式启用。但是，如果不使用，它绝不会导致创建 HTTP 会话。
 在每个请求上，都有一个具有从上一个请求传递的属性（如果有）的“输入”`FlashMap`，
 以及一个具有要为后续请求保存的属性的“输出”`FlashMap`。
-这两个 `FlashMap` 实例都可以通过 `RequestContextUtils` 中的静态方法在 Web MVC 的任何地方访问。
+这两个 `FlashMap` 实例都可以通过 `HttpContextUtils` 中的静态方法在 Web MVC 的任何地方访问。
 
 带注解的控制器通常不需要直接使用 `FlashMap`。相反，`@RequestMapping` 方法可以接受 `RedirectAttributes`
 类型的参数，并使用它为重定向场景添加 Flash 属性。通过 `RedirectAttributes` 添加的 Flash 属性会自动传播到“输出”FlashMap。

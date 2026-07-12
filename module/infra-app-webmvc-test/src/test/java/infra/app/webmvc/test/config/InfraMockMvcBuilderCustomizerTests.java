@@ -35,7 +35,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,7 +109,7 @@ class InfraMockMvcBuilderCustomizerTests {
     private final Map<String, String> initParams = new HashMap<>();
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
 
     }
 
@@ -123,7 +123,7 @@ class InfraMockMvcBuilderCustomizerTests {
     private final Map<String, String> initParams = new HashMap<>();
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
 
     }
 

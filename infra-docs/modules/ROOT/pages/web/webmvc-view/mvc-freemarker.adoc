@@ -278,7 +278,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	protected Map<String, ?> referenceData(RequestContext request) throws Exception {
+	protected Map<String, ?> referenceData(HttpContext request) throws Exception {
 		Map<String, String> cityMap = new LinkedHashMap<>();
 		cityMap.put("LDN", "London");
 		cityMap.put("PRS", "Paris");

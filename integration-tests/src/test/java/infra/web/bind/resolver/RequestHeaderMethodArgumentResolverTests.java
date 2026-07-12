@@ -33,17 +33,17 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.ReflectionUtils;
 import infra.web.BindingContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContextHolder;
 import infra.web.annotation.RequestHeader;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -71,7 +71,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
   private MockRequest mockRequest;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
   DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
   @BeforeEach
@@ -96,10 +96,10 @@ class RequestHeaderMethodArgumentResolverTests {
     paramUuidOptional = new ResolvableMethodParameter(getParameter(method, 10));
 
     mockRequest = new MockRequest();
-    webRequest = new MockRequestContext(null, mockRequest, new MockResponse());
+    webRequest = new MockHttpContext(null, mockRequest, new MockResponse());
 
     // Expose request to the current thread (for SpEL expressions)
-    RequestContextHolder.set(webRequest);
+    HttpContextHolder.set(webRequest);
 
   }
 
@@ -111,7 +111,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
   @AfterEach
   void reset() {
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
   }
 
   @Test

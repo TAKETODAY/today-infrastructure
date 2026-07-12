@@ -33,9 +33,9 @@ import java.util.Map;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockResponse;
 import infra.web.view.View;
 
@@ -49,13 +49,13 @@ public class XlsViewTests {
   private final ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
   private final MockRequest request = new MockRequest();
   private final MockResponse response = new MockResponse();
-  RequestContext requestContext = new MockRequestContext(wac, request, response);
+  HttpContext http = new MockHttpContext(wac, request, response);
 
   @Test
   public void testXls() throws Exception {
     View excelView = new AbstractXlsView() {
       @Override
-      protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, RequestContext request) throws Exception {
+      protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpContext request) throws Exception {
         Sheet sheet = workbook.createSheet("Test Sheet");
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
@@ -63,7 +63,7 @@ public class XlsViewTests {
       }
     };
 
-    excelView.render(new HashMap<>(), requestContext);
+    excelView.render(new HashMap<>(), http);
 
     Workbook wb = new HSSFWorkbook(new ByteArrayInputStream(response.getContentAsByteArray()));
     Assertions.assertThat(wb.getSheetName(0)).isEqualTo("Test Sheet");
@@ -79,7 +79,7 @@ public class XlsViewTests {
     View excelView = new AbstractXlsxView() {
       @Override
       protected void buildExcelDocument(Map<String, Object> model, Workbook workbook,
-              RequestContext request) throws Exception {
+              HttpContext request) throws Exception {
         Sheet sheet = workbook.createSheet("Test Sheet");
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
@@ -87,7 +87,7 @@ public class XlsViewTests {
       }
     };
 
-    excelView.render(new HashMap<>(), requestContext);
+    excelView.render(new HashMap<>(), http);
 
     Workbook wb = new XSSFWorkbook(new ByteArrayInputStream(response.getContentAsByteArray()));
     Assertions.assertThat(wb.getSheetName(0)).isEqualTo("Test Sheet");
@@ -103,7 +103,7 @@ public class XlsViewTests {
     View excelView = new AbstractXlsxStreamingView() {
       @Override
       protected void buildExcelDocument(Map<String, Object> model, Workbook workbook,
-              RequestContext request) throws Exception {
+              HttpContext request) throws Exception {
         Sheet sheet = workbook.createSheet("Test Sheet");
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
@@ -111,7 +111,7 @@ public class XlsViewTests {
       }
     };
 
-    excelView.render(new HashMap<>(), requestContext);
+    excelView.render(new HashMap<>(), http);
 
     Workbook wb = new XSSFWorkbook(new ByteArrayInputStream(response.getContentAsByteArray()));
     Assertions.assertThat(wb.getSheetName(0)).isEqualTo("Test Sheet");

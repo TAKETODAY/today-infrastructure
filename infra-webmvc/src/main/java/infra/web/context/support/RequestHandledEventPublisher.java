@@ -21,8 +21,8 @@ import org.jspecify.annotations.Nullable;
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
 import infra.lang.Assert;
+import infra.web.HttpContext;
 import infra.web.RequestCompletedListener;
-import infra.web.RequestContext;
 
 /**
  * publish {@link RequestHandledEvent}
@@ -41,7 +41,7 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
   }
 
   @Override
-  public void requestCompleted(RequestContext request, @Nullable Throwable notHandled) {
+  public void requestCompleted(HttpContext request, @Nullable Throwable notHandled) {
     // Whether we succeeded, publish an event.
     var event = createRequestHandledEvent(request, notHandled);
     eventPublisher.publishEvent(event);
@@ -54,7 +54,7 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
    * @param notHandled failure cause
    * @return the event
    */
-  protected ApplicationEvent createRequestHandledEvent(RequestContext request, @Nullable Throwable notHandled) {
+  protected ApplicationEvent createRequestHandledEvent(HttpContext request, @Nullable Throwable notHandled) {
     return new RequestHandledEvent(this, request.getRequestURI(), request.getRemoteAddress(),
             request.getMethodAsString(), request.getSessionId(), request.getRequestProcessingTime(), notHandled, request.getStatus());
   }

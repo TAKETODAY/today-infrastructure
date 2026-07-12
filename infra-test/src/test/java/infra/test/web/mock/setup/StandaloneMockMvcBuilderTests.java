@@ -21,6 +21,7 @@ package infra.test.web.mock.setup;
 import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
@@ -29,7 +30,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.RequestMappingHandlerMapping;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -52,7 +52,7 @@ class StandaloneMockMvcBuilderTests {
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
     MockRequest request = new MockRequest("GET", "/foo");
-    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
+    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null,
             request, new MockResponse()));
 
     assertThat(chain).isNotNull();
@@ -67,13 +67,13 @@ class StandaloneMockMvcBuilderTests {
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
     MockRequest request = new MockRequest("GET", "/persons");
-    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
+    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null,
             request, new MockResponse()));
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("persons");
 
     request = new MockRequest("GET", "/persons.xml");
-    chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
+    chain = (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null,
             request, new MockResponse()));
     assertThat(chain).isNull();
   }

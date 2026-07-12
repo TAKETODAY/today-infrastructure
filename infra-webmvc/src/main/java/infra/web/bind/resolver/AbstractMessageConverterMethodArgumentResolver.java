@@ -57,8 +57,8 @@ import infra.validation.Errors;
 import infra.validation.annotation.Validated;
 import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.web.BindingContext;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
-import infra.web.RequestContext;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.ControllerAdviceBean;
@@ -121,7 +121,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * @throws HttpMediaTypeNotSupportedException if no suitable message converter is found
    */
   @Nullable
-  protected Object readWithMessageConverters(RequestContext request, MethodParameter parameter, Type paramType)
+  protected Object readWithMessageConverters(HttpContext request, MethodParameter parameter, Type paramType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
     return readWithMessageConverters((HttpInputMessage) request, parameter, paramType);
   }
@@ -272,7 +272,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     return genericType;
   }
 
-  protected void validateIfApplicable(RequestContext context, MethodParameter parameter, @Nullable Object arg) throws Throwable {
+  protected void validateIfApplicable(HttpContext context, MethodParameter parameter, @Nullable Object arg) throws Throwable {
     BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
       String name = Conventions.getVariableNameForParameter(parameter);

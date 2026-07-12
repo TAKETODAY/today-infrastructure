@@ -26,11 +26,11 @@ import infra.lang.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.SmartReturnValueHandler;
 
@@ -98,7 +98,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @throws ViewRenderingException Could not resolve view with given name
    */
   @Override
-  public void handleReturnValue(RequestContext context,
+  public void handleReturnValue(HttpContext context,
           @Nullable Object handler, @Nullable Object returnValue) throws ViewRenderingException {
     if (returnValue instanceof CharSequence viewName) {
       renderView(context, viewName);
@@ -122,7 +122,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   /**
    * Resolve {@link ModelAndView} return type
    */
-  public void renderView(RequestContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
+  public void renderView(HttpContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
     if (mv != null) {
       if (mv.getStatus() != null) {
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
@@ -149,7 +149,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewName View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, CharSequence viewName) {
+  public void renderView(HttpContext context, CharSequence viewName) {
     renderView(context, viewName.toString());
   }
 
@@ -160,7 +160,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewName View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, String viewName) {
+  public void renderView(HttpContext context, String viewName) {
     renderView(context, viewName, null);
   }
 
@@ -171,7 +171,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewName View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, String viewName, @Nullable Map<String, Object> model) {
+  public void renderView(HttpContext context, String viewName, @Nullable Map<String, Object> model) {
     View view = resolveViewName(context, viewName, null);
     renderView(context, view, model);
   }
@@ -183,7 +183,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewRef ViewRef to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, ViewRef viewRef) {
+  public void renderView(HttpContext context, ViewRef viewRef) {
     renderView(context, viewRef, null);
   }
 
@@ -194,7 +194,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewRef ViewRef to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, ViewRef viewRef, @Nullable Map<String, Object> model) {
+  public void renderView(HttpContext context, ViewRef viewRef, @Nullable Map<String, Object> model) {
     View view = resolveViewName(context, viewRef.getViewName(), viewRef.getLocale());
     renderView(context, view, model);
   }
@@ -204,7 +204,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * LocaleResolver bound to the request by the Ioc
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * {@link RequestContext#getLocale()} method,
+   * {@link HttpContext#getLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
@@ -213,10 +213,10 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @return the current locale for the given request, either from the
    * LocaleResolver or from the plain request itself
    */
-  private Locale getLocale(RequestContext request) {
+  private Locale getLocale(HttpContext request) {
     LocaleResolver localeResolver = this.localeResolver;
     if (localeResolver == null) {
-      localeResolver = RequestContextUtils.getLocaleResolver(request);
+      localeResolver = HttpContextUtils.getLocaleResolver(request);
     }
 
     if (localeResolver != null) {
@@ -232,7 +232,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param view View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, View view) {
+  public void renderView(HttpContext context, View view) {
     renderView(context, view, null);
   }
 
@@ -243,7 +243,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param view View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, View view, @Nullable Map<String, @Nullable Object> model) {
+  public void renderView(HttpContext context, View view, @Nullable Map<String, @Nullable Object> model) {
     // Model from BindingContext
     BindingContext binding = context.getBinding();
     if (binding != null) {
@@ -278,7 +278,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * to resolve the view. ViewResolvers that support internationalization
    * should respect this.
    * <p>
-   * If {@link #localeResolver} is null use {@link RequestContextUtils#getLocale(RequestContext)}
+   * If {@link #localeResolver} is null use {@link HttpContextUtils#getLocale(HttpContext)}
    * to find Locale
    *
    * @param localeResolver to determine the Locale in which to resolve the view
@@ -305,7 +305,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     return viewResolver;
   }
 
-  private View resolveViewName(RequestContext context, String viewName, @Nullable Locale locale) {
+  private View resolveViewName(HttpContext context, String viewName, @Nullable Locale locale) {
     if (locale == null) {
       locale = getLocale(context);
     }

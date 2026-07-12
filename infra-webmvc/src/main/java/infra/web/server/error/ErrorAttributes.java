@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.ResponseBody;
 import infra.web.view.ModelAndView;
 
@@ -46,7 +46,7 @@ public interface ErrorAttributes {
    * @param options options for error attribute contents
    * @return a map of error attributes
    */
-  Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options);
+  Map<String, Object> getErrorAttributes(HttpContext context, ErrorAttributeOptions options);
 
   /**
    * Return the underlying cause of the error or {@code null} if the error cannot be
@@ -56,6 +56,6 @@ public interface ErrorAttributes {
    * @return the {@link Exception} that caused the error or {@code null}
    */
   @Nullable
-  Throwable getError(RequestContext webRequest);
+  Throwable getError(HttpContext webRequest);
 
 }

@@ -39,14 +39,14 @@ import infra.core.ResolvableType;
 import infra.core.task.SyncTaskExecutor;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
-import infra.web.mock.MockRequestContext;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleEmitter;
 import reactor.core.publisher.Flux;
@@ -69,7 +69,7 @@ class ReactiveTypeHandlerTests {
 
   private MockResponse mockResponse;
 
-  private RequestContext webRequest;
+  private HttpContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -84,7 +84,7 @@ class ReactiveTypeHandlerTests {
   private void resetRequest() {
     this.mockRequest = new MockRequest();
     this.mockResponse = new MockResponse();
-    this.webRequest = new MockRequestContext(null, this.mockRequest, this.mockResponse);
+    this.webRequest = new MockHttpContext(null, this.mockRequest, this.mockResponse);
 
     this.mockRequest.setAsyncSupported(true);
   }
@@ -276,8 +276,8 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockRequestContext requestContext = new MockRequestContext(null, null, mockResponse);
-    emitter.extendResponse(requestContext);
+    MockHttpContext httpContext = new MockHttpContext(null, null, mockResponse);
+    emitter.extendResponse(httpContext);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -286,7 +286,7 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(requestContext.responseHeaders().getContentType()).hasToString(mediaType);
+    assertThat(httpContext.responseHeaders().getContentType()).hasToString(mediaType);
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 
@@ -302,8 +302,8 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockRequestContext requestContext = new MockRequestContext(null, null, mockResponse);
-    emitter.extendResponse(requestContext);
+    MockHttpContext httpContext = new MockHttpContext(null, null, mockResponse);
+    emitter.extendResponse(httpContext);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -312,7 +312,7 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(requestContext.getResponseContentType()).isEqualTo("application/vnd.myapp.v1+x-ndjson");
+    assertThat(httpContext.getResponseContentType()).isEqualTo("application/vnd.myapp.v1+x-ndjson");
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 

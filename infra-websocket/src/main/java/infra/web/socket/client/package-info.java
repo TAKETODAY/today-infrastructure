@@ -1,4 +1,3 @@
-
 /**
  * Client-side abstractions for WebSocket applications.
  */

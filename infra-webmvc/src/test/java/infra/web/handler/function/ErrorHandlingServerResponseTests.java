@@ -24,8 +24,8 @@ import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.util.MultiValueMap;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,8 +41,8 @@ class ErrorHandlingServerResponseTests {
   void handleErrorWithoutMatchingHandler() throws Throwable {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    RequestContext requestContext = new MockRequestContext();
-    requestContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
+    HttpContext http = new MockHttpContext();
+    http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     response.addErrorHandler(
             throwable -> throwable instanceof IllegalStateException,
@@ -51,7 +51,7 @@ class ErrorHandlingServerResponseTests {
 
     Throwable testException = new IllegalArgumentException("test");
 
-    assertThatThrownBy(() -> response.handleError(testException, requestContext, new ServerResponse.Context() {
+    assertThatThrownBy(() -> response.handleError(testException, http, new ServerResponse.Context() {
       @Override
       public java.util.List<HttpMessageConverter<?>> messageConverters() {
         return new java.util.ArrayList<>();
@@ -63,8 +63,8 @@ class ErrorHandlingServerResponseTests {
   void errorResponseWithMatchingHandler() {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    RequestContext requestContext = new MockRequestContext();
-    requestContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
+    HttpContext http = new MockHttpContext();
+    http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     ServerResponse expectedResponse = ServerResponse.badRequest().build();
     response.addErrorHandler(
@@ -73,7 +73,7 @@ class ErrorHandlingServerResponseTests {
     );
 
     Throwable testException = new IllegalArgumentException("test");
-    ServerResponse result = response.errorResponse(testException, requestContext);
+    ServerResponse result = response.errorResponse(testException, http);
 
     assertThat(result).isSameAs(expectedResponse);
   }
@@ -82,8 +82,8 @@ class ErrorHandlingServerResponseTests {
   void errorResponseWithoutMatchingHandler() {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    RequestContext requestContext = new MockRequestContext();
-    requestContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
+    HttpContext http = new MockHttpContext();
+    http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     response.addErrorHandler(
             throwable -> throwable instanceof IllegalStateException,
@@ -91,7 +91,7 @@ class ErrorHandlingServerResponseTests {
     );
 
     Throwable testException = new IllegalArgumentException("test");
-    ServerResponse result = response.errorResponse(testException, requestContext);
+    ServerResponse result = response.errorResponse(testException, http);
 
     assertThat(result).isNull();
   }
@@ -100,11 +100,11 @@ class ErrorHandlingServerResponseTests {
   void errorResponseWithoutAnyHandlers() {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    RequestContext requestContext = new MockRequestContext();
-    requestContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
+    HttpContext http = new MockHttpContext();
+    http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     Throwable testException = new IllegalArgumentException("test");
-    ServerResponse result = response.errorResponse(testException, requestContext);
+    ServerResponse result = response.errorResponse(testException, http);
 
     assertThat(result).isNull();
   }
@@ -132,7 +132,7 @@ class ErrorHandlingServerResponseTests {
     }
 
     @Override
-    public @Nullable Object writeTo(RequestContext request, Context context) throws Throwable {
+    public @Nullable Object writeTo(HttpContext request, Context context) throws Throwable {
       return null;
     }
   }

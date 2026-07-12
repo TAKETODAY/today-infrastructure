@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
@@ -32,7 +33,6 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ class MapMethodProcessorTests {
 
   private BindingContext mavContainer;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   private final ResolvableMethod resolvable =
           ResolvableMethod.on(getClass()).annotPresent(RequestMapping.class).build();
@@ -57,7 +57,7 @@ class MapMethodProcessorTests {
   public void setUp() throws Exception {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
-    this.webRequest = new MockRequestContext(null, new MockRequest(), null);
+    this.webRequest = new MockHttpContext(null, new MockRequest(), null);
     webRequest.setBinding(mavContainer);
 
   }
@@ -186,7 +186,7 @@ class MapMethodProcessorTests {
 
   @Test
   public void handleReturnValueWhenBindingContextIsNull() throws Exception {
-    MockRequestContext request = new MockRequestContext(null, new MockRequest(), null);
+    MockHttpContext request = new MockHttpContext(null, new MockRequest(), null);
     // Not setting binding context to simulate null case
 
     Map<String, Object> returnValue = Map.of("key", "value");

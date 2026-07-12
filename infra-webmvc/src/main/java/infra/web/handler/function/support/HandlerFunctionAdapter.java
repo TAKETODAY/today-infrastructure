@@ -25,7 +25,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;
 import infra.web.HandlerAdapter;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.WebAsyncManager;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerRequest;
@@ -66,7 +66,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
 
   @Nullable
   @Override
-  public Object handle(RequestContext context, Object handler) throws Throwable {
+  public Object handle(HttpContext context, Object handler) throws Throwable {
     WebAsyncManager asyncManager = context.asyncManager();
 
     ServerRequest serverRequest = ServerRequest.findRequired(context);

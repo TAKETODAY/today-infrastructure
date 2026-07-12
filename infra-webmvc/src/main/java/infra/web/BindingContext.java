@@ -36,7 +36,7 @@ import infra.validation.DataBinder;
 import infra.validation.Errors;
 import infra.validation.SmartValidator;
 import infra.web.bind.EscapedErrors;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.BindParamNameResolver;
 import infra.web.bind.support.WebBindingInitializer;
@@ -101,7 +101,7 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext context, String objectName) throws Throwable {
+  public WebDataBinder createBinder(HttpContext context, String objectName) throws Throwable {
     return createBinder(context, null, objectName, null);
   }
 
@@ -115,17 +115,17 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
+  public WebDataBinder createBinder(HttpContext request, @Nullable Object target, String objectName) throws Throwable {
     return createBinder(request, target, objectName, null);
   }
 
   /**
-   * Variant of {@link #createBinder(RequestContext, Object, String)} with a
+   * Variant of {@link #createBinder(HttpContext, Object, String)} with a
    * {@link ResolvableType} for which the {@code DataBinder} is created.
    * This may be used to construct the target, or otherwise provide more
    * insight on how to initialize the binder.
    */
-  public WebDataBinder createBinder(RequestContext request, @Nullable Object target,
+  public WebDataBinder createBinder(HttpContext request, @Nullable Object target,
           String objectName, @Nullable ResolvableType targetType) throws Throwable {
 
     WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
@@ -158,8 +158,8 @@ public class BindingContext {
    * @param request the current request
    * @throws Exception in case of invalid state or arguments
    */
-  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-    return new RequestContextDataBinder(target, objectName);
+  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+    return new HttpContextDataBinder(target, objectName);
   }
 
   /**
@@ -167,13 +167,13 @@ public class BindingContext {
    *
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
+  public void initBinder(WebDataBinder dataBinder, HttpContext request) throws Throwable {
   }
 
   /**
    * Get a {@link ModelAndView}
    * <p>
-   * If there isn't a {@link ModelAndView} in this {@link RequestContext},
+   * If there isn't a {@link ModelAndView} in this {@link HttpContext},
    * <b>Create One</b>
    *
    * @return Returns {@link ModelAndView}
@@ -224,7 +224,7 @@ public class BindingContext {
    * @param request the current request
    * @throws Throwable if creating BindingResult attributes fails
    */
-  public void updateModel(RequestContext request) throws Throwable {
+  public void updateModel(HttpContext request) throws Throwable {
   }
 
   /**
@@ -240,7 +240,7 @@ public class BindingContext {
    * @param request the current request
    * @throws Throwable may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(RequestContext request) throws Throwable {
+  public void initModel(HttpContext request) throws Throwable {
   }
 
   /**

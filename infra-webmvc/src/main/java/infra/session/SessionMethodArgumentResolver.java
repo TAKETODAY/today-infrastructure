@@ -18,7 +18,7 @@ package infra.session;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -67,7 +67,7 @@ public class SessionMethodArgumentResolver extends SessionManagerOperations impl
 
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
     // todo type checking?
     if (resolvable.isRequired()) {
       return getSession(context);

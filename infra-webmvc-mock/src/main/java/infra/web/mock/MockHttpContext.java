@@ -51,7 +51,7 @@ import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.async.AsyncWebRequest;
 import infra.web.context.support.SessionManagerDiscover;
 import infra.web.mock.api.Cookie;
@@ -66,7 +66,7 @@ import infra.web.util.UriBuilder;
  * @since 2.3.7
  */
 @SuppressWarnings("NullAway")
-public class MockRequestContext extends RequestContext implements MockIndicator {
+public class MockHttpContext extends HttpContext implements MockIndicator {
 
   public final MockRequest request;
 
@@ -84,44 +84,44 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   /**
    * Cached body-encoded parameters (e.g. {@code application/x-www-form-urlencoded}).
    * Set by {@link #readParameters()} implementations so that after a
-   * {@link DispatcherHandler#forward(RequestContext, String) forward}
+   * {@link DispatcherHandler#forward(HttpContext, String) forward}
    * resets {@link #parameters}, the body parameters can be re-merged
    * with the new query string without re-reading the consumed input stream.
    */
-  public MockRequestContext() {
+  public MockHttpContext() {
     this((ApplicationContext) null);
   }
 
-  public MockRequestContext(ApplicationContext context) {
+  public MockHttpContext(ApplicationContext context) {
     this(context, new MockRequest(), new MockResponse());
   }
 
-  public MockRequestContext(MockRequest request) {
+  public MockHttpContext(MockRequest request) {
     this(null, request, new MockResponse());
   }
 
-  public MockRequestContext(MockRequest request, MockResponse response) {
+  public MockHttpContext(MockRequest request, MockResponse response) {
     this(null, request, response);
   }
 
-  public MockRequestContext(ApplicationContext context, MockRequest request) {
+  public MockHttpContext(ApplicationContext context, MockRequest request) {
     this(context, request, new MockResponse(), null);
   }
 
-  public MockRequestContext(ApplicationContext context,
+  public MockHttpContext(ApplicationContext context,
           MockRequest request, MockResponse response) {
     this(context, request, response, null);
   }
 
-  public MockRequestContext(MockRequest request, MockResponse response, DispatcherHandler dispatcherHandler) {
+  public MockHttpContext(MockRequest request, MockResponse response, DispatcherHandler dispatcherHandler) {
     this(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
   }
 
-  public MockRequestContext(MockRequest request, DispatcherHandler dispatcherHandler) {
+  public MockHttpContext(MockRequest request, DispatcherHandler dispatcherHandler) {
     this(dispatcherHandler.getApplicationContext(), request, new MockResponse(), dispatcherHandler);
   }
 
-  public MockRequestContext(@Nullable ApplicationContext context, MockRequest request,
+  public MockHttpContext(@Nullable ApplicationContext context, MockRequest request,
           MockResponse response, @Nullable DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.request = request;
@@ -723,7 +723,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   @Override
   public boolean equals(@Nullable Object o) {
-    if (!(o instanceof MockRequestContext context))
+    if (!(o instanceof MockHttpContext context))
       return false;
     if (!super.equals(o))
       return false;
@@ -743,7 +743,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     }
 
     @Override
-    public Session createSession(RequestContext context) {
+    public Session createSession(HttpContext context) {
       return new MockSession();
     }
 
@@ -753,12 +753,12 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     }
 
     @Override
-    public Session getSession(RequestContext context) {
+    public Session getSession(HttpContext context) {
       return request.getSession();
     }
 
     @Override
-    public @Nullable Session getSession(RequestContext context, boolean create) {
+    public @Nullable Session getSession(HttpContext context, boolean create) {
       return request.getSession(create);
     }
 

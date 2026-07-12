@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.socket.WebSocketHandler;
 
 /**
@@ -47,7 +47,7 @@ public interface HandshakeInterceptor {
    * @return whether to proceed with the handshake ({@code true}) or abort ({@code false})
    * @throws Exception The error will handle by {@link infra.web.HandlerExceptionHandler}
    */
-  boolean beforeHandshake(RequestContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
+  boolean beforeHandshake(HttpContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws Exception;
 
   /**
@@ -58,6 +58,6 @@ public interface HandshakeInterceptor {
    * @param wsHandler the target WebSocket handler
    * @param exception an exception raised during the handshake, or {@code null} if none
    */
-  void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Throwable exception);
+  void afterHandshake(HttpContext request, WebSocketHandler wsHandler, @Nullable Throwable exception);
 
 }

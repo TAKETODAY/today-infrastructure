@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.function.Predicate;
 
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -114,7 +114,7 @@ class DefaultApiVersionStrategyTests {
             List.of(request -> null), new SemanticApiVersionParser(),
             null, null, false, null, null);
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     String version = strategy.resolveVersion(request);
 
     assertThat(version).isNull();
@@ -130,7 +130,7 @@ class DefaultApiVersionStrategyTests {
             ), new SemanticApiVersionParser(),
             null, null, false, null, null);
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setParameter("v", "2.0");
     request.setParameter("version", "3.0");
 
@@ -160,7 +160,7 @@ class DefaultApiVersionStrategyTests {
             List.of(request -> "invalid"), failingParser,
             null, null, false, null, null);
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setParameter("api-version", "invalid");
 
     assertThatThrownBy(() -> strategy.resolveParseAndValidateVersion(request))
@@ -174,7 +174,7 @@ class DefaultApiVersionStrategyTests {
             List.of(request -> request.getParameter("api-version")), new SemanticApiVersionParser(),
             null, null, false, null, version -> true);
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setParameter("api-version", "1.0");
 
     Comparable<?> result = strategy.resolveParseAndValidateVersion(request);
@@ -190,7 +190,7 @@ class DefaultApiVersionStrategyTests {
             false, defaultVersion, false, null,
             (d) -> true);
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
 
     Comparable<?> result = strategy.resolveParseAndValidateVersion(request);
 
@@ -203,7 +203,7 @@ class DefaultApiVersionStrategyTests {
             List.of(request -> request.getParameter("api-version")), new SemanticApiVersionParser(),
             null, null, false, null, null);
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
 
     // Should not throw exception
     strategy.handleDeprecations(parser.parseVersion("1.0"), 1, request);
@@ -220,7 +220,7 @@ class DefaultApiVersionStrategyTests {
     strategy.addSupportedVersion("1.0");
     strategy.addSupportedVersion("2.0");
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setParameter("api-version", "1.0");
 
     // Should not throw exception as version is supported
@@ -236,7 +236,7 @@ class DefaultApiVersionStrategyTests {
     strategy.addMappedVersion("1.0");
     strategy.addMappedVersion("2.0");
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setParameter("api-version", "1.0");
 
     // Should not throw exception as version is mapped
@@ -261,7 +261,7 @@ class DefaultApiVersionStrategyTests {
   }
 
   private void validateVersion(@Nullable String version, DefaultApiVersionStrategy strategy) {
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     if (version != null) {
       request.setParameter("api-version", version);
     }

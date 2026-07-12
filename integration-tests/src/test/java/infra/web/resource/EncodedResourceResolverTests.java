@@ -33,8 +33,8 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,9 +84,9 @@ public class EncodedResourceResolverTests {
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
 
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    Resource actual = this.resolver.resolveResource(requestContext, file, this.locations);
+    Resource actual = this.resolver.resolveResource(httpContext, file, this.locations);
 
     assertThat(actual).isEqualTo(getResource(file + ".gz"));
     assertThat(actual.getName()).isEqualTo(getResource(file).getName());
@@ -104,9 +104,9 @@ public class EncodedResourceResolverTests {
     String file = "foo-e36d2e05253c6c7085a91522ce43a0b4.css";
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    Resource resolved = this.resolver.resolveResource(requestContext, file, this.locations);
+    Resource resolved = this.resolver.resolveResource(httpContext, file, this.locations);
 
     assertThat(resolved).isEqualTo(getResource("foo.css.gz"));
     assertThat(resolved.getName()).isEqualTo(getResource("foo.css").getName());
@@ -121,9 +121,9 @@ public class EncodedResourceResolverTests {
     gzippedFiles.create(file);
     MockRequest request = new MockRequest("GET", "/js/foo.js");
     request.addHeader("Accept-Encoding", "gzip");
-    MockRequestContext requestContext = new MockRequestContext(null, request, null);
+    MockHttpContext httpContext = new MockHttpContext(null, request, null);
 
-    Resource resolved = this.resolver.resolveResource(requestContext, file, this.locations);
+    Resource resolved = this.resolver.resolveResource(httpContext, file, this.locations);
 
     assertThat(resolved).isEqualTo(getResource(file + ".gz"));
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());
@@ -132,9 +132,9 @@ public class EncodedResourceResolverTests {
 
     // 2. Resolve unencoded resource
     request = new MockRequest("GET", "/js/foo.js");
-    requestContext = new MockRequestContext(null, request, null);
+    httpContext = new MockHttpContext(null, request, null);
 
-    resolved = this.resolver.resolveResource(requestContext, file, this.locations);
+    resolved = this.resolver.resolveResource(httpContext, file, this.locations);
 
     assertThat(resolved.toString()).isEqualTo(getResource(file).toString());
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());
@@ -229,7 +229,7 @@ public class EncodedResourceResolverTests {
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     when(chain.resolveResource(any(), any(), any())).thenReturn(originalResource);
 
-    MockRequestContext request = mock(MockRequestContext.class);
+    MockHttpContext request = mock(MockHttpContext.class);
     HttpHeaders headers = HttpHeaders.forWritable();
     when(request.getHeaders()).thenReturn(headers);
 
@@ -246,7 +246,7 @@ public class EncodedResourceResolverTests {
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     when(chain.resolveResource(any(), any(), any())).thenReturn(originalResource);
 
-    MockRequestContext request = mock(MockRequestContext.class);
+    MockHttpContext request = mock(MockHttpContext.class);
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Accept-Encoding", "gzip, deflate");
     when(request.getHeaders()).thenReturn(headers);

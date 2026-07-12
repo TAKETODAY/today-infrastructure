@@ -33,9 +33,9 @@ import infra.stereotype.Controller;
 import infra.util.ExceptionUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -75,12 +75,12 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @RequestMapping("${server.error.path:${error.path:/error}}")
-  public Object error(RequestContext request) {
+  public Object error(HttpContext request) {
     return handleRequest(request, null);
   }
 
   @Override
-  public void handleError(RequestContext request, @Nullable String message) {
+  public void handleError(HttpContext request, @Nullable String message) {
     Object returnValue = handleRequest(request, message);
     if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       try {
@@ -92,7 +92,7 @@ public class BasicErrorController extends AbstractErrorController implements Sen
     }
   }
 
-  private Object handleRequest(RequestContext request, @Nullable String message) {
+  private Object handleRequest(HttpContext request, @Nullable String message) {
     if (StringUtils.hasText(message)) {
       request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, message);
     }
@@ -117,7 +117,7 @@ public class BasicErrorController extends AbstractErrorController implements Sen
    * <p>
    * The "match-all" media type is not considered here.
    */
-  static boolean ifAcceptsTextHtml(RequestContext context) {
+  static boolean ifAcceptsTextHtml(HttpContext context) {
     try {
       ArrayList<MediaType> acceptedMediaTypes = new ArrayList<>(context.getHeaders().getAccept());
       acceptedMediaTypes.removeIf(MediaType.ALL::equalsTypeAndSubtype);
@@ -130,7 +130,7 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-  public ResponseEntity<String> mediaTypeNotAcceptable(RequestContext request) {
+  public ResponseEntity<String> mediaTypeNotAcceptable(HttpContext request) {
     HttpStatus status = getStatus(request);
     return ResponseEntity.status(status).build();
   }

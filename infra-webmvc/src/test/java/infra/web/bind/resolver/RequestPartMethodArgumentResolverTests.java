@@ -29,7 +29,7 @@ import java.util.List;
 import infra.core.MethodParameter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestPart;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -53,7 +53,7 @@ class RequestPartMethodArgumentResolverTests {
 
   private RequestPartMethodArgumentResolver resolver;
 
-  private RequestContext context;
+  private HttpContext context;
 
   private List<HttpMessageConverter<?>> messageConverters;
 
@@ -61,7 +61,7 @@ class RequestPartMethodArgumentResolverTests {
   void setup() {
     messageConverters = Collections.singletonList(new StringHttpMessageConverter());
     resolver = new RequestPartMethodArgumentResolver(messageConverters);
-    context = mock(RequestContext.class);
+    context = mock(HttpContext.class);
   }
 
   @Test

@@ -24,12 +24,12 @@ import java.util.stream.Stream;
 
 import infra.context.ApplicationContext;
 import infra.context.support.ClassPathXmlApplicationContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -272,7 +272,7 @@ public class PathMatchingUrlHandlerMappingTests {
           HandlerMapping mapping, ApplicationContext wac, MockRequest request)
           throws Throwable {
 
-    MockRequestContext context = new MockRequestContext(wac, request, new MockResponse());
+    MockHttpContext context = new MockHttpContext(wac, request, new MockResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
 
     HandlerInterceptor[] interceptors = chain.getInterceptors();

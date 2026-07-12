@@ -25,11 +25,11 @@ import java.util.EnumSet;
 import java.util.List;
 
 import infra.lang.Assert;
-import infra.web.mock.api.DispatcherType;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.mock.MockUtils;
+import infra.web.mock.api.DispatcherType;
 
 /**
  * A Filter that invokes a delegate {@link Filter} only if the request URL
@@ -112,7 +112,7 @@ final class MockMvcFilterDecorator implements Filter {
   }
 
   @Override
-  public void doFilter(RequestContext request, FilterChain filterChain) throws Exception {
+  public void doFilter(HttpContext request, FilterChain filterChain) throws Exception {
     String requestPath = request.getRequestURI();
     if (matchDispatcherType(MockUtils.getMockRequest(request).getDispatcherType())
             && matchRequestPath(requestPath)) {

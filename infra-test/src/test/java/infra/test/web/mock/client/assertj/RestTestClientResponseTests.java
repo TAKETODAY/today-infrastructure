@@ -26,7 +26,7 @@ import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverters;
 import infra.test.web.mock.client.RestTestClient;
 import infra.test.web.mock.client.RestTestClient.ResponseSpec;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 
@@ -118,7 +118,7 @@ public class RestTestClientResponseTests {
     }
 
     @GetMapping("/cookie")
-    public void getCookie(RequestContext response) {
+    public void getCookie(HttpContext response) {
       response.addCookie(ResponseCookie.forSimple("foo", "bar"));
     }
   }

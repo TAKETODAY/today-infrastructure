@@ -24,7 +24,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
 import infra.session.config.EnableSession;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ class DefaultSessionManagerTests {
     applicationContext.register(AppConfig.class);
     applicationContext.refresh();
     SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
-    MockRequestContext context = new MockRequestContext();
+    MockHttpContext context = new MockHttpContext();
 
     Session noneExistingSession = sessionManager.getSession(context, false);
 

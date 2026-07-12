@@ -30,7 +30,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public DeferredResult<String> handleRequest(RequestContext request) throws Throwable {
+  public DeferredResult<String> handleRequest(HttpContext request) throws Throwable {
     DeferredResult<String> deferredResult = new DeferredResult<>();
     // 其他地方引用 deferredResult 变量.
     return deferredResult;
@@ -63,7 +63,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public Callable<String> handleRequest(RequestContext request) throws Throwable {
+  public Callable<String> handleRequest(HttpContext request) throws Throwable {
     MultipartFile file = request.getMultipartRequest().getFile("file");
     // ...
     return () -> "someView";
@@ -145,7 +145,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public ResponseBodyEmitter handleRequest(RequestContext request) throws Throwable {
+  public ResponseBodyEmitter handleRequest(HttpContext request) throws Throwable {
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
     // 其他地方引用 emitter 变量.
     return emitter;
@@ -191,7 +191,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public SseEmitter handleRequest(RequestContext request) throws Throwable {
+  public SseEmitter handleRequest(HttpContext request) throws Throwable {
     SseEmitter emitter = forServerSentEvents();
     // 其他地方引用 emitter 变量.
     return emitter;

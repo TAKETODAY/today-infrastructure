@@ -19,7 +19,7 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 import infra.lang.Assert;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * A {@link HeaderSessionIdResolver} that uses a header to resolve the session id.
@@ -72,7 +72,7 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
 
   @Nullable
   @Override
-  public String getSessionId(RequestContext exchange) {
+  public String getSessionId(HttpContext exchange) {
     // find in request attribute
     Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
@@ -82,14 +82,14 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setSessionId(RequestContext exchange, String sessionId) {
+  public void setSessionId(HttpContext exchange, String sessionId) {
     Assert.notNull(sessionId, "sessionId is required");
     exchange.setHeader(headerName, sessionId);
     exchange.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
   }
 
   @Override
-  public void expireSession(RequestContext exchange) {
+  public void expireSession(HttpContext exchange) {
     exchange.removeHeader(headerName);
     exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }

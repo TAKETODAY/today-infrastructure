@@ -23,7 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Map;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Convenient superclass for Excel document views in the Office 2007 XLSX format
@@ -50,7 +50,7 @@ public abstract class AbstractXlsxView extends AbstractXlsView {
    * This implementation creates an {@link XSSFWorkbook} for the XLSX format.
    */
   @Override
-  protected Workbook createWorkbook(Map<String, Object> model, RequestContext request) {
+  protected Workbook createWorkbook(Map<String, Object> model, HttpContext request) {
     return new XSSFWorkbook();
   }
 

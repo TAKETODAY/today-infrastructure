@@ -31,11 +31,11 @@ import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,9 +75,9 @@ public class DefaultRenderingResponseTests {
   @Nullable
   private static ModelAndView getModelAndView(
           RenderingResponse result, MockRequest request, MockResponse response) throws Throwable {
-    MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
-    Object write = result.writeTo(mockRequestContext, EMPTY_CONTEXT);
-    mockRequestContext.flush();
+    MockHttpContext mockHttpContext = new MockHttpContext(null, request, response);
+    Object write = result.writeTo(mockHttpContext, EMPTY_CONTEXT);
+    mockHttpContext.flush();
     if (write instanceof ModelAndView andView) {
       return andView;
     }

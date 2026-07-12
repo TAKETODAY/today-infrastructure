@@ -26,13 +26,13 @@ import infra.web.mock.MockRequest;
 import infra.stereotype.Component;
 import infra.util.MultiValueMapAdapter;
 import infra.web.handler.ReturnValueHandlerManager;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Tests for {@link DispatcherHandler#forward(RequestContext, String)} cycle detection.
+ * Tests for {@link DispatcherHandler#forward(HttpContext, String)} cycle detection.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -55,21 +55,21 @@ class DispatcherHandlerForwardTests {
   void forwardToNewPathSucceeds() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/source";
 
     handler.forward(request, "/target");
 
     assertThat(request.requestURI).isEqualTo("/target");
-    assertThat(request.getAttribute(RequestContext.FORWARD_ATTRIBUTE)).isEqualTo(Boolean.TRUE);
-    assertThat(request.getAttribute(RequestContext.FORWARD_REQUEST_URI_ATTRIBUTE)).isEqualTo("/source");
+    assertThat(request.getAttribute(HttpContext.FORWARD_ATTRIBUTE)).isEqualTo(Boolean.TRUE);
+    assertThat(request.getAttribute(HttpContext.FORWARD_REQUEST_URI_ATTRIBUTE)).isEqualTo("/source");
   }
 
   @Test
   void forwardToSamePathDetectedAsCycle() {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/a";
 
     assertThatThrownBy(() -> handler.forward(request, "/a"))
@@ -82,7 +82,7 @@ class DispatcherHandlerForwardTests {
   void forwardCycleABCADetected() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/a";
 
     handler.forward(request, "/b");
@@ -98,7 +98,7 @@ class DispatcherHandlerForwardTests {
   void forwardChainWithoutCycleSucceeds() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/start";
 
     handler.forward(request, "/a");
@@ -113,7 +113,7 @@ class DispatcherHandlerForwardTests {
   void forwardAfterCommitThrowsIllegalState() {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext() {
+    MockHttpContext request = new MockHttpContext() {
       @Override
       public boolean isCommitted() {
         return true;
@@ -129,14 +129,14 @@ class DispatcherHandlerForwardTests {
   void forwardSetsForwardRequestUriAttribute() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/original";
 
     handler.forward(request, "/forwarded");
 
-    assertThat(request.getAttribute(RequestContext.FORWARD_REQUEST_URI_ATTRIBUTE))
+    assertThat(request.getAttribute(HttpContext.FORWARD_REQUEST_URI_ATTRIBUTE))
             .isEqualTo("/original");
-    assertThat(request.getAttribute(RequestContext.FORWARD_ATTRIBUTE))
+    assertThat(request.getAttribute(HttpContext.FORWARD_ATTRIBUTE))
             .isEqualTo(Boolean.TRUE);
   }
 
@@ -145,13 +145,13 @@ class DispatcherHandlerForwardTests {
     var handler = createHandlerWithEchoMapping();
 
     // First request: forward /a -> /b works
-    MockRequestContext req1 = new MockRequestContext();
+    MockHttpContext req1 = new MockHttpContext();
     req1.requestURI = "/a";
     handler.forward(req1, "/b");
     assertThat(req1.requestURI).isEqualTo("/b");
 
     // Second request: forward /a -> /b also works (different request, no cycle)
-    MockRequestContext req2 = new MockRequestContext();
+    MockHttpContext req2 = new MockHttpContext();
     req2.requestURI = "/a";
     handler.forward(req2, "/b");
     assertThat(req2.requestURI).isEqualTo("/b");
@@ -162,7 +162,7 @@ class DispatcherHandlerForwardTests {
     var handler = createHandlerWithEchoMapping();
 
     // /a -> /b works
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/a";
     handler.forward(request, "/b");
 
@@ -201,14 +201,14 @@ class DispatcherHandlerForwardTests {
     });
     handler.start();
 
-    MockRequestContext request = new MockRequestContext(
+    MockHttpContext request = new MockHttpContext(
             new MockRequest("GET", "/first"), handler);
     request.setUseForward(true);
     handler.handleRequest(request);
 
     assertThat(request.requestURI).isEqualTo("/second");
     assertThat(request.getAttribute("reachedSecond")).isEqualTo(Boolean.TRUE);
-    assertThat(request.getAttribute(RequestContext.FORWARD_ATTRIBUTE)).isEqualTo(Boolean.TRUE);
+    assertThat(request.getAttribute(HttpContext.FORWARD_ATTRIBUTE)).isEqualTo(Boolean.TRUE);
   }
 
   @Test
@@ -235,7 +235,7 @@ class DispatcherHandlerForwardTests {
     });
     handler.start();
 
-    MockRequestContext request = new MockRequestContext(
+    MockHttpContext request = new MockHttpContext(
             new MockRequest("GET", "/a"), handler);
     request.setUseForward(true);
     handler.handleRequest(request);
@@ -252,7 +252,7 @@ class DispatcherHandlerForwardTests {
   void forwardIsNotCommittedAfterChain() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setUseForward(true);
     request.requestURI = "/a";
 
@@ -269,7 +269,7 @@ class DispatcherHandlerForwardTests {
   void forwardWithQueryString() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/source";
 
     handler.forward(request, "/target?foo=bar&baz=1");
@@ -284,7 +284,7 @@ class DispatcherHandlerForwardTests {
   void forwardWithQueryStringDetectsCycle() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.setRequestURI("/a");
 
     handler.forward(request, "/b?x=1");
@@ -299,7 +299,7 @@ class DispatcherHandlerForwardTests {
   void forwardWithoutQueryStringClearsIt() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/source";
     request.queryString = "old=param";
 
@@ -313,7 +313,7 @@ class DispatcherHandlerForwardTests {
   void forwardResetsParametersAndQueryStringRoundTrips() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/source";
 
     handler.forward(request, "/target?foo=bar");
@@ -330,7 +330,7 @@ class DispatcherHandlerForwardTests {
   void forwardResetsParametersPreservesBodyParams() throws Exception {
     var handler = createHandlerWithEchoMapping();
 
-    MockRequestContext request = new MockRequestContext();
+    MockHttpContext request = new MockHttpContext();
     request.requestURI = "/source";
     // Simulate body parameters already parsed and cached
     MultiValueMapAdapter<String, String> formUrlencoded = new MultiValueMapAdapter<>(new HashMap<>());
@@ -377,7 +377,7 @@ class DispatcherHandlerForwardTests {
       }
 
       @Override
-      public Object handle(RequestContext request, Object handler) throws Throwable {
+      public Object handle(HttpContext request, Object handler) throws Throwable {
         return ((HttpRequestHandler) handler).handleRequest(request);
       }
     };

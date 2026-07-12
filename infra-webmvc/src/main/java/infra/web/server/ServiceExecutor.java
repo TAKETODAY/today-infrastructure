@@ -18,7 +18,7 @@ package infra.web.server;
 
 import java.io.IOException;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * ServiceExecutor is a dedicated independent thread pool within the framework
@@ -48,6 +48,6 @@ public interface ServiceExecutor {
    * @param command the runnable task
    * @throws IOException if an I/O error occurs during execution
    */
-  void execute(RequestContext ctx, Runnable command) throws IOException;
+  void execute(HttpContext ctx, Runnable command) throws IOException;
 
 }

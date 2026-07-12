@@ -34,7 +34,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.PostMapping;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestHeader;
@@ -331,7 +331,7 @@ class RestTestClientTests {
 
     @RequestMapping(path = { "/test", "/test/*" }, produces = "application/json")
     public Map<String, Object> handle(
-            @RequestHeader HttpHeaders headers, RequestContext request) {
+            @RequestHeader HttpHeaders headers, HttpContext request) {
 
       request.addCookie(ResponseCookie.builder("session", "abc"));
 

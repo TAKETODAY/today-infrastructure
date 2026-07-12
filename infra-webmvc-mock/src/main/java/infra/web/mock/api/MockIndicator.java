@@ -16,15 +16,15 @@
 
 package infra.web.mock.api;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 /**
- * Interface to indicate {@link RequestContext} running in mock
+ * Interface to indicate {@link HttpContext} running in mock
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see RequestContext
+ * @see HttpContext
  * @since 4.0 2023/3/6 17:27
  */
 public interface MockIndicator {

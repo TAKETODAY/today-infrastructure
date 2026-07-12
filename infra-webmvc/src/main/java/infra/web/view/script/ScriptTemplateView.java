@@ -50,8 +50,8 @@ import infra.scripting.support.StandardScriptUtils;
 import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.resource.ResourceHandlerUtils;
 import infra.web.view.AbstractUrlBasedView;
 import infra.web.view.ViewRenderingException;
@@ -391,14 +391,14 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected void prepareResponse(RequestContext context) {
+  protected void prepareResponse(HttpContext context) {
     super.prepareResponse(context);
     setResponseContentType(context);
   }
 
   @Override
   protected void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws Exception {
+          Map<String, Object> model, HttpContext http) throws Exception {
 
     try {
       ScriptEngine engine = getEngine();
@@ -415,7 +415,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
         }
       };
 
-      Locale locale = RequestContextUtils.getLocale(request);
+      Locale locale = HttpContextUtils.getLocale(http);
       RenderingContext context = new RenderingContext(applicationContext(), locale, templateLoader, url);
 
       Object html;
@@ -433,7 +433,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
         html = ((Invocable) engine).invokeFunction(this.renderFunction, template, model, context);
       }
 
-      request.getWriter().write(String.valueOf(html));
+      http.getWriter().write(String.valueOf(html));
     }
     catch (ScriptException ex) {
       throw new ViewRenderingException("Failed to render script template", new StandardScriptEvalException(ex));

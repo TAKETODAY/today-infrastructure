@@ -27,9 +27,9 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import infra.web.mock.MockResponse;
 import infra.test.util.XpathExpectationsHelper;
 import infra.test.web.mock.ResultMatcher;
+import infra.web.mock.MockResponse;
 
 /**
  * Factory for assertions on the response content using XPath expressions.

@@ -37,8 +37,8 @@ import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
 import infra.web.FilterChain;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
@@ -56,13 +56,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @see CustomRequestAttributesRequestContextHolderTests
+ * @see CustomRequestAttributesHttpContextHolderTests
  */
 @ExtendWith(InfraExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
 @DirtiesContext
-public class RequestContextHolderTests {
+public class HttpContextHolderTests {
 
   private static final String FROM_TCF_MOCK = "fromTestContextFrameworkMock";
   private static final String FROM_MVC_TEST_DEFAULT = "fromWebMvcTestDefault";
@@ -188,7 +188,7 @@ public class RequestContextHolderTests {
   static class RequestScopedController {
 
     @Autowired
-    private RequestContext request;
+    private HttpContext request;
 
     @RequestMapping("/requestScopedController")
     public void handle() {
@@ -200,7 +200,7 @@ public class RequestContextHolderTests {
   static class RequestScopedService {
 
     @Autowired
-    private RequestContext request;
+    private HttpContext request;
 
     void process() {
       assertRequestAttributes(request);
@@ -210,7 +210,7 @@ public class RequestContextHolderTests {
   static class SessionScopedService {
 
     @Autowired
-    private RequestContext request;
+    private HttpContext request;
 
     void process() {
       assertRequestAttributes(this.request);
@@ -249,10 +249,10 @@ public class RequestContextHolderTests {
     private SessionScopedService service;
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
       this.service.process();
-      RequestContext requestContext = RequestContextHolder.current();
-      assertRequestAttributes(requestContext);
+      HttpContext http = HttpContextHolder.current();
+      assertRequestAttributes(http);
       assertRequestAttributes();
       chain.doFilter(request);
     }
@@ -261,7 +261,7 @@ public class RequestContextHolderTests {
   static class RequestFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
       request.setAttribute(FROM_REQUEST_FILTER, FROM_REQUEST_FILTER);
       chain.doFilter(request);
     }
@@ -270,8 +270,8 @@ public class RequestContextHolderTests {
   static class RequestAttributesFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(RequestContext request, FilterChain chain) throws Exception {
-      RequestContextHolder.required()
+    public void doFilter(HttpContext request, FilterChain chain) throws Exception {
+      HttpContextHolder.required()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
 
       chain.doFilter(request);
@@ -283,15 +283,15 @@ public class RequestContextHolderTests {
   }
 
   private static void assertRequestAttributes(boolean withinMockMvc) {
-    RequestContext requestAttributes = RequestContextHolder.required();
+    HttpContext requestAttributes = HttpContextHolder.required();
     assertRequestAttributes(requestAttributes, withinMockMvc);
   }
 
-  private static void assertRequestAttributes(RequestContext request) {
+  private static void assertRequestAttributes(HttpContext request) {
     assertRequestAttributes(request, true);
   }
 
-  private static void assertRequestAttributes(RequestContext request, boolean withinMockMvc) {
+  private static void assertRequestAttributes(HttpContext request, boolean withinMockMvc) {
     if (withinMockMvc) {
       assertThat(request.getAttribute(FROM_TCF_MOCK)).isNull();
       assertThat(request.getAttribute(FROM_MVC_TEST_DEFAULT)).isEqualTo(FROM_MVC_TEST_DEFAULT);

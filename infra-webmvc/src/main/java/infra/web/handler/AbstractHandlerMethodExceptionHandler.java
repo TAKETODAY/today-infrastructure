@@ -21,7 +21,7 @@ package infra.web.handler;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.HandlerExceptionHandler;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.method.HandlerMethod;
 
@@ -38,11 +38,11 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
 
   /**
    * Checks if the handler is a {@link HandlerMethod} and then delegates to the
-   * base class implementation of {@code #shouldApplyTo(RequestContext, Object)}
+   * base class implementation of {@code #shouldApplyTo(HttpContext, Object)}
    * passing the bean of the {@code HandlerMethod}. Otherwise returns {@code false}.
    */
   @Override
-  protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
+  protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
     if (handler == null) {
       return super.shouldApplyTo(request, null);
     }
@@ -78,7 +78,7 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
 
   @Nullable
   @Override
-  protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) throws Exception {
+  protected Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
     if (handler instanceof HandlerExecutionChain chain) {
       handler = chain.getRawHandler();
     }
@@ -107,6 +107,6 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
    */
   @Nullable
   protected abstract Object handleInternal(
-          RequestContext request, @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception;
+          HttpContext request, @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception;
 
 }

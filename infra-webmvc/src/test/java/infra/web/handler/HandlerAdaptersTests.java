@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import infra.web.HandlerAdapter;
 import infra.web.HandlerAdapterNotFoundException;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -116,7 +116,7 @@ class HandlerAdaptersTests {
   @Test
   void handleWithHttpRequestHandler() throws Throwable {
     HttpRequestHandler httpRequestHandler = mock(HttpRequestHandler.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     Object expectedResult = new Object();
     given(httpRequestHandler.handleRequest(context)).willReturn(expectedResult);
 
@@ -133,7 +133,7 @@ class HandlerAdaptersTests {
   void handleWithSupportedHandlerAdapter() throws Throwable {
     HandlerAdapter adapter1 = mock(HandlerAdapter.class);
     HandlerAdapter adapter2 = mock(HandlerAdapter.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     Object handler = new Object();
     Object expectedResult = new Object();
 
@@ -154,7 +154,7 @@ class HandlerAdaptersTests {
   void handleThrowsExceptionWhenNoAdapterSupportsHandler() throws Throwable {
     HandlerAdapter adapter1 = mock(HandlerAdapter.class);
     HandlerAdapter adapter2 = mock(HandlerAdapter.class);
-    RequestContext context = mock(RequestContext.class);
+    HttpContext context = mock(HttpContext.class);
     Object handler = new Object();
 
     given(adapter1.supports(handler)).willReturn(false);

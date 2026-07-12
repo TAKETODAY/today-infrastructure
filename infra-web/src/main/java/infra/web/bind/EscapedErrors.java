@@ -32,7 +32,7 @@ import infra.web.util.HtmlUtils;
 /**
  * Errors wrapper that adds automatic HTML escaping to the wrapped instance,
  * for convenient usage in HTML views. Can be retrieved easily via
- * RequestContext's {@code getErrors} method.
+ * HttpContext's {@code getErrors} method.
  *
  * <p>Note that BindTag does <i>not</i> use this class to avoid unnecessary
  * creation of ObjectError instances. It just escapes the messages and values
@@ -40,7 +40,7 @@ import infra.web.util.HtmlUtils;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see infra.web.RequestContext#getErrors
+ * @see infra.web.HttpContext#getErrors
  * @since 5.0
  */
 public class EscapedErrors implements Errors {

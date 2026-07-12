@@ -32,6 +32,6 @@ public interface RequestCompletedListener {
    * @param request current request
    * @param notHandled failure cause
    */
-  void requestCompleted(RequestContext request, @Nullable Throwable notHandled);
+  void requestCompleted(HttpContext request, @Nullable Throwable notHandled);
 
 }

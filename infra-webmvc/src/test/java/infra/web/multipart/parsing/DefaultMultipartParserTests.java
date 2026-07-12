@@ -22,7 +22,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.server.NotMultipartRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -153,7 +153,7 @@ class DefaultMultipartParserTests {
   @Test
   void parseWithNonMultipartRequest() {
     DefaultMultipartParser parser = new DefaultMultipartParser();
-    RequestContext request = mock(RequestContext.class);
+    HttpContext request = mock(HttpContext.class);
     when(request.isMultipart()).thenReturn(false);
     when(request.getContentTypeAsString()).thenReturn("application/json");
 

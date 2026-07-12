@@ -19,29 +19,29 @@ package infra.web;
 import infra.context.ApplicationContext;
 
 /**
- * A {@link RequestContext} implementation that decorates another {@link RequestContext}.
+ * A {@link HttpContext} implementation that decorates another {@link HttpContext}.
  *
  * <p>This class provides a base for request context decorators that wrap an existing
- * {@link RequestContext} instance and potentially enhance or modify its behavior.
+ * {@link HttpContext} instance and potentially enhance or modify its behavior.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/13 23:38
  */
-public class DecoratingRequestContext extends DecorableRequestContext {
+public class DecoratingHttpContext extends DecorableHttpContext {
 
-  protected final RequestContext delegate;
+  protected final HttpContext delegate;
 
-  public DecoratingRequestContext(RequestContext delegate) {
+  public DecoratingHttpContext(HttpContext delegate) {
     this.delegate = delegate;
   }
 
-  public DecoratingRequestContext(RequestContext delegate, ApplicationContext context, DispatcherHandler dispatcherHandler) {
+  public DecoratingHttpContext(HttpContext delegate, ApplicationContext context, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.delegate = delegate;
   }
 
   @Override
-  public final RequestContext delegate() {
+  public final HttpContext delegate() {
     return delegate;
   }
 

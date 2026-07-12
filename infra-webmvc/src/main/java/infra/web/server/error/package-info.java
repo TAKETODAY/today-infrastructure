@@ -1,4 +1,3 @@
-
 /**
  * Web server error supporting
  */

@@ -31,9 +31,9 @@ import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.stereotype.Controller;
-import infra.web.RequestContext;
-import infra.web.view.ModelAndView;
+import infra.web.HttpContext;
 import infra.web.server.error.ErrorAttributeOptions.Include;
+import infra.web.view.ModelAndView;
 
 /**
  * Abstract base class for error {@link Controller @Controller} implementations.
@@ -71,7 +71,7 @@ public abstract class AbstractErrorController implements ErrorController {
     return sorted;
   }
 
-  protected Map<String, Object> getErrorAttributes(RequestContext request, MediaType mediaType) {
+  protected Map<String, Object> getErrorAttributes(HttpContext request, MediaType mediaType) {
     return this.errorAttributes.getErrorAttributes(request, getErrorAttributeOptions(request, mediaType));
   }
 
@@ -81,7 +81,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param request the request
    * @return whether the trace parameter is set
    */
-  protected boolean getTraceParameter(RequestContext request) {
+  protected boolean getTraceParameter(HttpContext request) {
     return getBooleanParameter(request, "trace");
   }
 
@@ -91,7 +91,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param request the request
    * @return whether the message parameter is set
    */
-  protected boolean getMessageParameter(RequestContext request) {
+  protected boolean getMessageParameter(HttpContext request) {
     return getBooleanParameter(request, "message");
   }
 
@@ -101,7 +101,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param request the request
    * @return whether the errors parameter is set
    */
-  protected boolean getErrorsParameter(RequestContext request) {
+  protected boolean getErrorsParameter(HttpContext request) {
     return getBooleanParameter(request, "errors");
   }
 
@@ -111,11 +111,11 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param request the request
    * @return whether the path parameter is set
    */
-  protected boolean getPathParameter(RequestContext request) {
+  protected boolean getPathParameter(HttpContext request) {
     return getBooleanParameter(request, "path");
   }
 
-  protected boolean getBooleanParameter(RequestContext request, String parameterName) {
+  protected boolean getBooleanParameter(HttpContext request, String parameterName) {
     String parameter = request.getParameter(parameterName);
     if (parameter == null) {
       return false;
@@ -123,7 +123,7 @@ public abstract class AbstractErrorController implements ErrorController {
     return !"false".equalsIgnoreCase(parameter);
   }
 
-  protected HttpStatus getStatus(RequestContext request) {
+  protected HttpStatus getStatus(HttpContext request) {
     int statusCode = request.getStatus();
     try {
       return HttpStatus.valueOf(statusCode);
@@ -143,7 +143,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return a specific {@link ModelAndView} or {@code null} if the default should be
    * used
    */
-  protected ModelAndView resolveErrorView(RequestContext request, HttpStatusCode status, Map<String, Object> model) {
+  protected ModelAndView resolveErrorView(HttpContext request, HttpStatusCode status, Map<String, Object> model) {
     for (ErrorViewResolver resolver : errorViewResolvers) {
       ModelAndView view = resolver.resolveErrorView(request, status, model);
       if (view != null) {
@@ -153,7 +153,7 @@ public abstract class AbstractErrorController implements ErrorController {
     return new ModelAndView("error", model);
   }
 
-  protected ErrorAttributeOptions getErrorAttributeOptions(RequestContext request, MediaType mediaType) {
+  protected ErrorAttributeOptions getErrorAttributeOptions(HttpContext request, MediaType mediaType) {
     ErrorAttributeOptions options = ErrorAttributeOptions.defaults();
     if (errorProperties.includeException) {
       options = options.including(Include.EXCEPTION);
@@ -180,7 +180,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param produces the media type produced (or {@code MediaType.ALL})
    * @return if the stacktrace attribute should be included
    */
-  protected boolean isIncludeStackTrace(RequestContext request, MediaType produces) {
+  protected boolean isIncludeStackTrace(HttpContext request, MediaType produces) {
     return switch (errorProperties.includeStacktrace) {
       case ALWAYS -> true;
       case ON_PARAM -> getTraceParameter(request);
@@ -195,7 +195,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param produces the media type produced (or {@code MediaType.ALL})
    * @return if the message attribute should be included
    */
-  protected boolean isIncludeMessage(RequestContext request, MediaType produces) {
+  protected boolean isIncludeMessage(HttpContext request, MediaType produces) {
     return switch (errorProperties.includeMessage) {
       case ALWAYS -> true;
       case ON_PARAM -> getMessageParameter(request);
@@ -210,7 +210,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param produces the media type produced (or {@code MediaType.ALL})
    * @return if the errors attribute should be included
    */
-  protected boolean isIncludeBindingErrors(RequestContext request, MediaType produces) {
+  protected boolean isIncludeBindingErrors(HttpContext request, MediaType produces) {
     return switch (errorProperties.includeBindingErrors) {
       case ALWAYS -> true;
       case ON_PARAM -> getErrorsParameter(request);
@@ -225,7 +225,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @param produces the media type produced (or {@code MediaType.ALL})
    * @return if the path attribute should be included
    */
-  protected boolean isIncludePath(RequestContext request, MediaType produces) {
+  protected boolean isIncludePath(HttpContext request, MediaType produces) {
     return switch (errorProperties.includePath) {
       case ALWAYS -> true;
       case ON_PARAM -> getPathParameter(request);

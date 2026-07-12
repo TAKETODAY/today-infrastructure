@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 
 import infra.logging.LoggerFactory;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Assists with the invocation of {@link DeferredResultProcessingInterceptor}'s.
@@ -42,7 +42,7 @@ final class DeferredResultInterceptorChain {
     this.interceptors = interceptors;
   }
 
-  public void applyBeforeConcurrentHandling(RequestContext request, DeferredResult<?> deferredResult)
+  public void applyBeforeConcurrentHandling(HttpContext request, DeferredResult<?> deferredResult)
           throws Exception {
 
     for (DeferredResultProcessingInterceptor interceptor : this.interceptors) {
@@ -50,7 +50,7 @@ final class DeferredResultInterceptorChain {
     }
   }
 
-  public void applyPreProcess(RequestContext request, DeferredResult<?> deferredResult) throws Exception {
+  public void applyPreProcess(HttpContext request, DeferredResult<?> deferredResult) throws Exception {
     for (DeferredResultProcessingInterceptor interceptor : this.interceptors) {
       interceptor.preProcess(request, deferredResult);
       this.preProcessingIndex++;
@@ -58,7 +58,7 @@ final class DeferredResultInterceptorChain {
   }
 
   @Nullable
-  public Object applyPostProcess(RequestContext request, DeferredResult<?> deferredResult, @Nullable Object concurrentResult) {
+  public Object applyPostProcess(HttpContext request, DeferredResult<?> deferredResult, @Nullable Object concurrentResult) {
 
     try {
       for (int i = this.preProcessingIndex; i >= 0; i--) {
@@ -71,7 +71,7 @@ final class DeferredResultInterceptorChain {
     return concurrentResult;
   }
 
-  public void triggerAfterTimeout(RequestContext request, DeferredResult<?> deferredResult) throws Exception {
+  public void triggerAfterTimeout(HttpContext request, DeferredResult<?> deferredResult) throws Exception {
     for (DeferredResultProcessingInterceptor interceptor : this.interceptors) {
       if (deferredResult.isSetOrExpired()) {
         return;
@@ -88,7 +88,7 @@ final class DeferredResultInterceptorChain {
    * @return {@code true} to continue error handling, or false to bypass any further
    * error handling
    */
-  public boolean triggerAfterError(RequestContext request, DeferredResult<?> deferredResult, Throwable ex)
+  public boolean triggerAfterError(HttpContext request, DeferredResult<?> deferredResult, Throwable ex)
           throws Exception {
 
     for (DeferredResultProcessingInterceptor interceptor : this.interceptors) {
@@ -102,7 +102,7 @@ final class DeferredResultInterceptorChain {
     return true;
   }
 
-  public void triggerAfterCompletion(RequestContext request, DeferredResult<?> deferredResult) {
+  public void triggerAfterCompletion(HttpContext request, DeferredResult<?> deferredResult) {
     for (int i = this.preProcessingIndex; i >= 0; i--) {
       try {
         this.interceptors.get(i).afterCompletion(request, deferredResult);

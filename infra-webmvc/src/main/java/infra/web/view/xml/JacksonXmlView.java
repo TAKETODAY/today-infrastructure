@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.lang.Assert;
 import infra.validation.BindingResult;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.AbstractJacksonView;
 import infra.web.view.View;
 import infra.web.view.json.JacksonJsonView;
@@ -100,7 +100,7 @@ public class JacksonXmlView extends AbstractJacksonView {
   }
 
   @Override
-  protected Object filterModel(Map<String, Object> model, RequestContext request) {
+  protected Object filterModel(Map<String, Object> model, HttpContext request) {
     Object value = null;
     if (this.modelKey != null) {
       value = model.get(this.modelKey);

@@ -26,7 +26,7 @@ import java.util.concurrent.Callable;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.http.ResponseEntity;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.handler.method.HandlerMethod;
 
@@ -65,7 +65,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }

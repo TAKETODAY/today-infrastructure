@@ -34,7 +34,7 @@ import infra.web.mock.MockResponse;
 import infra.web.InfraConfigurationException;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.mvc.ParameterizableViewController;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.RedirectView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +93,7 @@ class ViewControllerRegistryTests {
     this.registry.addRedirectViewController("/path", "/redirectTo");
     RedirectView redirectView = getRedirectView("/path");
     this.request.setQueryString("a=b");
-    redirectView.render(Collections.emptyMap(), new MockRequestContext(null, this.request, this.response));
+    redirectView.render(Collections.emptyMap(), new MockHttpContext(null, this.request, this.response));
 
     assertThat(this.response.getStatus()).isEqualTo(302);
     assertThat(this.response.getRedirectedUrl()).isEqualTo("/redirectTo");
@@ -109,7 +109,7 @@ class ViewControllerRegistryTests {
 
     RedirectView redirectView = getRedirectView("/path");
     this.request.setQueryString("a=b");
-    MockRequestContext context = new MockRequestContext(null, this.request, this.response);
+    MockHttpContext context = new MockHttpContext(null, this.request, this.response);
     redirectView.render(Collections.emptyMap(), context);
 
     context.flush();

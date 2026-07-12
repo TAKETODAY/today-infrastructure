@@ -34,7 +34,7 @@ import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.util.LogFormatUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.util.UriUtils;
 
 /**
@@ -118,7 +118,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
 
   @Nullable
   @Override
-  protected Resource resolveResourceInternal(@Nullable RequestContext request,
+  protected Resource resolveResourceInternal(@Nullable HttpContext request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     return getResource(requestPath, request, locations);
@@ -133,7 +133,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   @Nullable
-  private Resource getResource(String resourcePath, @Nullable RequestContext request, List<? extends Resource> locations) {
+  private Resource getResource(String resourcePath, @Nullable HttpContext request, List<? extends Resource> locations) {
     for (Resource location : locations) {
       try {
         String pathToUse = encodeOrDecodeIfNecessary(resourcePath, request, location);
@@ -209,7 +209,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return false;
   }
 
-  String encodeOrDecodeIfNecessary(String path, @Nullable RequestContext request, Resource location) {
+  String encodeOrDecodeIfNecessary(String path, @Nullable HttpContext request, Resource location) {
     if (request != null) {
       if (shouldDecodeRelativePath(location)) {
         try {

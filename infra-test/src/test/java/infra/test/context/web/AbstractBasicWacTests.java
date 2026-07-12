@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.test.context.junit4.InfraRunner;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
@@ -52,7 +52,7 @@ public abstract class AbstractBasicWacTests {
   protected MockSession session;
 
   @Autowired
-  protected RequestContext webRequest;
+  protected HttpContext webRequest;
 
   @Autowired
   protected String foo;
@@ -63,7 +63,7 @@ public abstract class AbstractBasicWacTests {
     assertThat(request).as("MockRequest should have been autowired from the WAC.").isNotNull();
     assertThat(response).as("MockResponse should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockSession should have been autowired from the WAC.").isNotNull();
-    assertThat(webRequest).as("RequestContext should have been autowired from the WAC.").isNotNull();
+    assertThat(webRequest).as("HttpContext should have been autowired from the WAC.").isNotNull();
 
   }
 

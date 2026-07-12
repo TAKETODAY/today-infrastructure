@@ -19,7 +19,7 @@ package infra.web.handler.method;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 
@@ -43,7 +43,7 @@ final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
 
   @Override
   @Nullable
-  public Object resolveParameter(final RequestContext request) throws Throwable {
+  public Object resolveParameter(final HttpContext request) throws Throwable {
     ParameterResolvingStrategy strategy = this.strategy;
     if (strategy == null) {
       strategy = resolvers.obtainStrategy(this);

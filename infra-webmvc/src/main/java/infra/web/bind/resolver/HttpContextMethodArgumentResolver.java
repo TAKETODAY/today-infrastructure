@@ -30,8 +30,8 @@ import java.util.TimeZone;
 import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
 import infra.http.HttpMethod;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartRequest;
 
@@ -39,7 +39,7 @@ import infra.web.multipart.MultipartRequest;
  * Resolves backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
- * <li>{@link RequestContext}
+ * <li>{@link HttpContext}
  * <li>{@link MultipartRequest}
  * <li>{@link InputStream}
  * <li>{@link OutputStream}
@@ -59,12 +59,12 @@ import infra.web.multipart.MultipartRequest;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 10:35
  */
-public class RequestContextMethodArgumentResolver implements ParameterResolvingStrategy {
+public class HttpContextMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     Class<?> paramType = resolvable.getParameterType();
-    return RequestContext.class.isAssignableFrom(paramType)
+    return HttpContext.class.isAssignableFrom(paramType)
             || MultipartRequest.class.isAssignableFrom(paramType)
             || InputStream.class.isAssignableFrom(paramType)
             || OutputStream.class.isAssignableFrom(paramType)
@@ -79,10 +79,10 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
   }
 
   @Override
-  public @Nullable Object resolveArgument(RequestContext request, ResolvableMethodParameter resolvable) throws Throwable {
+  public @Nullable Object resolveArgument(HttpContext request, ResolvableMethodParameter resolvable) throws Throwable {
     Class<?> paramType = resolvable.getParameterType();
-    // RequestContext
-    if (RequestContext.class.isAssignableFrom(paramType)) {
+    // HttpContext
+    if (HttpContext.class.isAssignableFrom(paramType)) {
       if (paramType.isInstance(request)) {
         return request;
       }
@@ -133,14 +133,14 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
       return request.getMethod();
     }
     else if (Locale.class == paramType) {
-      return RequestContextUtils.getLocale(request);
+      return HttpContextUtils.getLocale(request);
     }
     else if (TimeZone.class == paramType) {
-      TimeZone timeZone = RequestContextUtils.getTimeZone(request);
+      TimeZone timeZone = HttpContextUtils.getTimeZone(request);
       return timeZone != null ? timeZone : TimeZone.getDefault();
     }
     else if (ZoneId.class == paramType) {
-      TimeZone timeZone = RequestContextUtils.getTimeZone(request);
+      TimeZone timeZone = HttpContextUtils.getTimeZone(request);
       return timeZone != null ? timeZone.toZoneId() : ZoneId.systemDefault();
     }
     else if (InputStreamSource.class == paramType

@@ -27,13 +27,13 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamResult;
 
+import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.oxm.Marshaller;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 import jakarta.xml.bind.JAXBElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +83,7 @@ class MarshallingViewTests {
     given(marshallerMock.supports(Object.class)).willReturn(true);
     marshallerMock.marshal(eq(toBeMarshalled), isA(StreamResult.class));
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     view.render(model, context);
     assertThat(response.getContentType()).as("Invalid content type").isEqualTo("application/xml");
@@ -104,7 +104,7 @@ class MarshallingViewTests {
     given(marshallerMock.supports(String.class)).willReturn(true);
     marshallerMock.marshal(eq(toBeMarshalled), isA(StreamResult.class));
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     view.render(model, context);
     assertThat(response.getContentType()).as("Invalid content type").isEqualTo("application/xml");
@@ -122,7 +122,7 @@ class MarshallingViewTests {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     assertThatIllegalStateException()
             .isThrownBy(() ->
@@ -140,7 +140,7 @@ class MarshallingViewTests {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     assertThatIllegalStateException().isThrownBy(() ->
             view.render(model, context));
@@ -161,7 +161,7 @@ class MarshallingViewTests {
 
     given(marshallerMock.supports(Object.class)).willReturn(false);
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     assertThatIllegalStateException().isThrownBy(() ->
             view.render(model, context));
@@ -179,7 +179,7 @@ class MarshallingViewTests {
 
     given(marshallerMock.supports(Object.class)).willReturn(true);
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     view.render(model, context);
     assertThat(response.getContentType()).as("Invalid content type").isEqualTo("application/xml");
@@ -201,7 +201,7 @@ class MarshallingViewTests {
     given(marshallerMock.supports(BeanPropertyBindingResult.class)).willReturn(true);
     given(marshallerMock.supports(Object.class)).willReturn(true);
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     view.render(model, context);
     assertThat(response.getContentType()).as("Invalid content type").isEqualTo("application/xml");
@@ -221,7 +221,7 @@ class MarshallingViewTests {
 
     given(marshallerMock.supports(Object.class)).willReturn(false);
 
-    RequestContext context = new MockRequestContext(null, request, response);
+    HttpContext context = new MockHttpContext(null, request, response);
 
     assertThatIllegalStateException().isThrownBy(() ->
             view.render(model, context));

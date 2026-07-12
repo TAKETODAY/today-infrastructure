@@ -21,13 +21,13 @@ package infra.test.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.Conventions;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockAsyncContext;
-import infra.web.mock.MockResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
+import infra.web.mock.MockAsyncContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
 
 /**
@@ -62,7 +62,7 @@ public interface MvcResult {
    */
   MockResponse getResponse();
 
-  RequestContext getRequestContext();
+  HttpContext getContext();
 
   /**
    * Return the executed handler.

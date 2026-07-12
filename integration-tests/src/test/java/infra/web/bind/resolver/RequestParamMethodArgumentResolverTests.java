@@ -27,19 +27,19 @@ import java.util.Map;
 
 import infra.beans.propertyeditors.StringTrimmerEditor;
 import infra.core.conversion.support.DefaultConversionService;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MultipartMockRequest;
 import infra.web.BindingContext;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.ResolvableMethodParameter;
-import infra.web.mock.MockRequestContext;
 import infra.web.MultipartException;
 import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
@@ -61,7 +61,7 @@ class RequestParamMethodArgumentResolverTests {
 
   private MockRequest request = new MockRequest();
 
-  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+  private MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
   private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
@@ -163,7 +163,7 @@ class RequestParamMethodArgumentResolverTests {
     MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addPart(expected);
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
@@ -182,7 +182,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addPart(expected1);
     request.addPart(expected2);
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
@@ -197,7 +197,7 @@ class RequestParamMethodArgumentResolverTests {
   public void resolveMultipartFileListMissing() throws Throwable {
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
@@ -213,7 +213,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addPart(expected1);
     request.addPart(expected2);
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
-    MockRequestContext webRequest = new MockRequestContext(null, request, null);
+    MockHttpContext webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
@@ -231,7 +231,7 @@ class RequestParamMethodArgumentResolverTests {
   public void resolveMultipartFileArrayMissing() throws Throwable {
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
@@ -244,7 +244,7 @@ class RequestParamMethodArgumentResolverTests {
     MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
     request.addPart(expected);
-    MockRequestContext webRequest = new MockRequestContext(null, request, null);
+    MockHttpContext webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotNotPresent().arg(Part.class);
@@ -262,7 +262,7 @@ class RequestParamMethodArgumentResolverTests {
     Part expected2 = new MockMultipartFile("multipartFileList", "Hello World 2".getBytes());
     request.addPart(expected1);
     request.addPart(expected2);
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod
@@ -289,7 +289,7 @@ class RequestParamMethodArgumentResolverTests {
     Part expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
     request.addPart(expected);
     request.setMethod("PUT");
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
     ResolvableMethodParameter param = testMethod.annotNotPresent(
@@ -338,9 +338,9 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueConvertedToNull() throws Throwable {
-    RequestContextDataBinder binder = new RequestContextDataBinder(null);
+    HttpContextDataBinder binder = new HttpContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "stringNotAnnot")).willReturn(binder);
@@ -363,8 +363,8 @@ class RequestParamMethodArgumentResolverTests {
 
     BindingContext binderFactory = new BindingContext() {
       @Override
-      protected RequestContextDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
-        return new RequestContextDataBinder(null);
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext request) throws Exception {
+        return new HttpContextDataBinder(null);
       }
     };
 
@@ -379,11 +379,11 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueNotRequired() throws Throwable {
-    RequestContextDataBinder binder = new RequestContextDataBinder(null);
+    HttpContextDataBinder binder = new HttpContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     request.addParameter("name", "");
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "name")).willReturn(binder);
@@ -397,7 +397,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueNotRequiredWithDefaultValue() throws Throwable {
-    RequestContextDataBinder binder = new RequestContextDataBinder(null);
+    HttpContextDataBinder binder = new HttpContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 
     BindingContext context = mock(BindingContext.class);
@@ -462,7 +462,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -482,7 +482,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -501,7 +501,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request);
+    MockHttpContext webRequest = new MockHttpContext(null, request);
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -521,7 +521,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -539,7 +539,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -558,7 +558,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -576,7 +576,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -584,7 +584,7 @@ class RequestParamMethodArgumentResolverTests {
     MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addPart(expected);
-    webRequest = new MockRequestContext(null, request, null);
+    webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext(initializer));
 
     ResolvableMethodParameter param = testMethod.annotPresent(
@@ -599,7 +599,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -618,7 +618,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockResponse());
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);

@@ -1,4 +1,3 @@
-
 /**
  * Provides web-specific data binding functionality.
  */

@@ -4,8 +4,8 @@ import org.jspecify.annotations.Nullable;
 
 import infra.lang.Assert;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
 import infra.web.InterceptorChain;
-import infra.web.RequestContext;
 
 /**
  * HandlerInterceptor that handles pre-flight requests through a
@@ -27,7 +27,7 @@ public class PreFlightRequestInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public @Nullable Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
+  public @Nullable Object intercept(HttpContext request, InterceptorChain chain) throws Throwable {
     if (request.isPreFlightRequest()) {
       handler.handlePreFlight(request);
       return NONE_RETURN_VALUE;

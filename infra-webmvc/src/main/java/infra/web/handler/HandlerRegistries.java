@@ -22,7 +22,7 @@ import java.util.List;
 
 import infra.lang.Assert;
 import infra.web.HandlerMapping;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 
 /**
  * Composite HandlerMapping
@@ -44,7 +44,7 @@ public class HandlerRegistries implements HandlerMapping {
 
   @Nullable
   @Override
-  public Object getHandler(final RequestContext request) throws Exception {
+  public Object getHandler(final HttpContext request) throws Exception {
     for (final HandlerMapping registry : handlerRegistries) {
       final Object ret = registry.getHandler(request);
       if (ret != null) {

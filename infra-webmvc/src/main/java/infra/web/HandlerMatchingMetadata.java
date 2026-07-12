@@ -63,11 +63,11 @@ public class HandlerMatchingMetadata {
   @Nullable
   private Map<String, Object> pathVariables;
 
-  public HandlerMatchingMetadata(RequestContext request) {
+  public HandlerMatchingMetadata(HttpContext request) {
     this(NullValue.INSTANCE, request);
   }
 
-  public HandlerMatchingMetadata(Object handler, RequestContext request) {
+  public HandlerMatchingMetadata(Object handler, HttpContext request) {
     this.handler = handler;
     this.bestMatchingPattern = null;
     this.lookupPath = request.getRequestPath();
@@ -75,7 +75,7 @@ public class HandlerMatchingMetadata {
     this.patternParser = PathPatternParser.defaultInstance;
   }
 
-  public HandlerMatchingMetadata(Object handler, RequestContext request, PathPatternParser patternParser) {
+  public HandlerMatchingMetadata(Object handler, HttpContext request, PathPatternParser patternParser) {
     this.handler = handler;
     this.bestMatchingPattern = null;
     this.lookupPath = request.getRequestPath();

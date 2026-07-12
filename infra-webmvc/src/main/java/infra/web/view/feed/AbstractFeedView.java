@@ -26,7 +26,7 @@ import java.io.OutputStreamWriter;
 import java.util.Map;
 
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.view.AbstractView;
 
 /**
@@ -52,18 +52,18 @@ import infra.web.view.AbstractView;
 public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView {
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     T wireFeed = newFeed();
-    buildFeedMetadata(model, wireFeed, request);
-    buildFeedEntries(model, wireFeed, request);
+    buildFeedMetadata(model, wireFeed, http);
+    buildFeedEntries(model, wireFeed, http);
 
-    setResponseContentType(request);
+    setResponseContentType(http);
     if (StringUtils.isBlank(wireFeed.getEncoding())) {
       wireFeed.setEncoding(DEFAULT_ENCODING);
     }
 
     WireFeedOutput feedOutput = new WireFeedOutput();
-    OutputStream out = request.getOutputStream();
+    OutputStream out = http.getOutputStream();
     feedOutput.output(wireFeed, new OutputStreamWriter(out, wireFeed.getEncoding()));
     out.flush();
   }
@@ -84,7 +84,7 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
    * @param feed the feed being populated
    * @param request in case we need locale etc. Shouldn't look at attributes.
    */
-  protected void buildFeedMetadata(Map<String, Object> model, T feed, RequestContext request) {
+  protected void buildFeedMetadata(Map<String, Object> model, T feed, HttpContext request) {
   }
 
   /**
@@ -98,7 +98,7 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
    * @param context in case we need locale etc. Shouldn't look at attributes.
    * @throws Exception any exception that occurred during building
    */
-  protected abstract void buildFeedEntries(Map<String, Object> model, T feed, RequestContext context)
+  protected abstract void buildFeedEntries(Map<String, Object> model, T feed, HttpContext context)
           throws Exception;
 
 }

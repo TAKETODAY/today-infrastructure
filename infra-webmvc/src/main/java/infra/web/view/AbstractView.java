@@ -38,11 +38,11 @@ import infra.http.MediaType;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
-import infra.web.ContextExposingRequestContext;
+import infra.web.ContextExposingHttpContext;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 
 /**
  * Abstract base class for {@link View}
@@ -79,7 +79,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   private String contentType = DEFAULT_CONTENT_TYPE;
 
   @Nullable
-  private String requestContextAttribute;
+  private String httpContextAttribute;
 
   @Nullable
   private LinkedHashMap<String, Object> staticAttributes;
@@ -116,19 +116,19 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   }
 
   /**
-   * Set the name of the RequestContext attribute for this view.
+   * Set the name of the HttpContext attribute for this view.
    * Default is none.
    */
-  public void setRequestContextAttribute(@Nullable String requestContextAttribute) {
-    this.requestContextAttribute = requestContextAttribute;
+  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
+    this.httpContextAttribute = httpContextAttribute;
   }
 
   /**
-   * Return the name of the RequestContext attribute, if any.
+   * Return the name of the HttpContext attribute, if any.
    */
   @Nullable
-  public String getRequestContextAttribute() {
-    return this.requestContextAttribute;
+  public String getHttpContextAttribute() {
+    return this.httpContextAttribute;
   }
 
   /**
@@ -280,7 +280,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * attributes (as explicitly exposed to this view) of the same name will
    * always override context beans.
    *
-   * @see #getRequestContextToExpose
+   * @see #getHttpContextToExpose
    */
   public void setExposeContextBeansAsAttributes(boolean exposeContextBeansAsAttributes) {
     this.exposeContextBeansAsAttributes = exposeContextBeansAsAttributes;
@@ -322,7 +322,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
+   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -330,13 +330,13 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
   /**
    * Prepares the view given the specified model, merging it with static
-   * attributes and a RequestContext attribute, if necessary.
+   * attributes and a HttpContext attribute, if necessary.
    * Delegates to renderMergedOutputModel for the actual rendering.
    *
    * @see #renderMergedOutputModel
    */
   @Override
-  public void render(@Nullable Map<String, ?> model, RequestContext context) throws Exception {
+  public void render(@Nullable Map<String, ?> model, HttpContext context) throws Exception {
     if (logger.isDebugEnabled()) {
       LogFormatUtils.traceDebug(logger, traceOn -> LogFormatUtils.formatValue(LogMessage.format("View {}, model {} {}",
               formatViewName(), model != null ? model : Collections.emptyMap(),
@@ -345,14 +345,14 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     Map<String, Object> mergedModel = createMergedOutputModel(model, context);
     prepareResponse(context);
-    renderMergedOutputModel(mergedModel, getRequestContextToExpose(context));
+    renderMergedOutputModel(mergedModel, getHttpContextToExpose(context));
   }
 
   /**
    * Creates a combined output Map (never {@code null}) that includes dynamic values and static attributes.
    * Dynamic values take precedence over static attributes.
    */
-  protected Map<String, Object> createMergedOutputModel(@Nullable Map<String, ?> model, RequestContext context) {
+  protected Map<String, Object> createMergedOutputModel(@Nullable Map<String, ?> model, HttpContext context) {
     // Consolidate static and dynamic model attributes.
     Map<String, Object> staticAttributes = getStaticAttributes();
     int size = model != null ? model.size() : 0;
@@ -380,14 +380,14 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
       mergedModel.putAll(model);
     }
 
-    // Expose RequestContext?
-    if (requestContextAttribute != null) {
-      mergedModel.put(requestContextAttribute, context);
+    // Expose HttpContext?
+    if (httpContextAttribute != null) {
+      mergedModel.put(httpContextAttribute, context);
     }
 
     if (exposeOutputRedirectModel) {
       // put all output RedirectModel
-      RedirectModel output = RequestContextUtils.getOutputRedirectModel(context);
+      RedirectModel output = HttpContextUtils.getOutputRedirectModel(context);
       if (output != null) {
         mergedModel.putAll(output.asMap());
       }
@@ -403,7 +403,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param context current HTTP request context
    */
-  protected void prepareResponse(RequestContext context) {
+  protected void prepareResponse(HttpContext context) {
     if (generatesDownloadContent()) {
       HttpHeaders headers = context.responseHeaders();
       headers.setPragma("private");
@@ -420,7 +420,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * client side, typically via the response OutputStream.
    *
    * @see #prepareResponse
-   * @see RequestContext#getOutputStream()
+   * @see HttpContext#getOutputStream()
    */
   protected boolean generatesDownloadContent() {
     return false;
@@ -436,10 +436,10 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @see #setExposeContextBeansAsAttributes
    * @see #setExposedContextBeanNames
    */
-  protected RequestContext getRequestContextToExpose(RequestContext original) {
+  protected HttpContext getHttpContextToExpose(HttpContext original) {
     if (this.exposeContextBeansAsAttributes || this.exposedContextBeanNames != null) {
       ApplicationContext wac = applicationContext();
-      return new ContextExposingRequestContext(original, wac, this.exposedContextBeanNames);
+      return new ContextExposingHttpContext(original, wac, this.exposedContextBeanNames);
     }
     return original;
   }
@@ -453,10 +453,10 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param model combined output Map (never {@code null}),
    * with dynamic values taking precedence over static attributes
-   * @param request current HTTP request context
+   * @param http current HTTP request context
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedOutputModel(Map<String, Object> model, RequestContext request)
+  protected abstract void renderMergedOutputModel(Map<String, Object> model, HttpContext http)
           throws Exception;
 
   /**
@@ -466,7 +466,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param model a Map of model objects to expose
    * @param request current HTTP request
    */
-  protected void exposeModelAsRequestAttributes(Map<String, Object> model, RequestContext request) {
+  protected void exposeModelAsRequestAttributes(Map<String, Object> model, HttpContext request) {
     for (var entry : model.entrySet()) {
       String name = entry.getKey();
       request.setAttribute(name, entry.getValue());
@@ -489,7 +489,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param baos the temporary OutputStream to write
    * @throws IOException if writing/flushing failed
    */
-  protected void writeToResponse(RequestContext response, ByteArrayOutputStream baos) throws IOException {
+  protected void writeToResponse(HttpContext response, ByteArrayOutputStream baos) throws IOException {
     // Write content type and also length (determined via byte array).
     response.setContentType(getContentType());
     response.setContentLength(baos.size());
@@ -506,7 +506,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * {@link View#SELECTED_CONTENT_TYPE} request attribute is present and set
    * to a concrete media type.
    */
-  protected void setResponseContentType(RequestContext context) {
+  protected void setResponseContentType(HttpContext context) {
     if (context.getAttribute(View.SELECTED_CONTENT_TYPE) instanceof MediaType mediaType && mediaType.isConcrete()) {
       context.setContentType(mediaType.toString());
     }

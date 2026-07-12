@@ -38,8 +38,8 @@ import infra.util.CollectionUtils;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.cors.CorsConfiguration;
 import infra.web.cors.CorsConfigurationSource;
@@ -332,7 +332,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @see #getHandlerInternal
    */
   @Override
-  public final @Nullable Object getHandler(final RequestContext request) throws Exception {
+  public final @Nullable Object getHandler(final HttpContext request) throws Exception {
     Comparable<?> version = null;
     if (this.apiVersionStrategy != null) {
       version = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
@@ -395,7 +395,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * the pre-flight request but for the expected actual request based on the URL
    * path, the HTTP methods from the "Access-Control-Request-Method" header, and
    * the headers from the "Access-Control-Request-Headers" header thus allowing
-   * the CORS configuration to be obtained via {@link #getCorsConfiguration(Object, RequestContext)},
+   * the CORS configuration to be obtained via {@link #getCorsConfiguration(Object, HttpContext)},
    * <p>Note: This method may also return a pre-built {@link HandlerExecutionChain},
    * combining a handler object with dynamically determined interceptors.
    * Statically specified interceptors will get merged into such an existing chain.
@@ -404,7 +404,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @return the corresponding handler instance, or {@code null} if none found
    * @throws Exception if there is an internal error
    */
-  protected abstract @Nullable Object getHandlerInternal(RequestContext request) throws Exception;
+  protected abstract @Nullable Object getHandlerInternal(HttpContext request) throws Exception;
 
   /**
    * Build a {@link HandlerExecutionChain} for the given handler, including
@@ -477,7 +477,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @return the CORS configuration for the handler, or {@code null} if none
    * @since 4.0
    */
-  protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
+  protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, HttpContext request) {
     Object resolvedHandler = handler;
     if (handler instanceof HandlerWrapper wrapper) {
       resolvedHandler = wrapper.getRawHandler();
@@ -501,7 +501,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @param config the applicable CORS configuration (possibly {@code null})
    * @since 4.0
    */
-  protected HandlerExecutionChain getCorsHandlerExecutionChain(RequestContext request, Object handler, @Nullable CorsConfiguration config) {
+  protected HandlerExecutionChain getCorsHandlerExecutionChain(HttpContext request, Object handler, @Nullable CorsConfiguration config) {
     if (request.isPreFlightRequest()) {
       ArrayList<HandlerInterceptor> interceptors = new ArrayList<>();
       HandlerInterceptor[] interceptorsArr = getHandlerInterceptors(handler);
@@ -530,13 +530,13 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public Object handleRequest(RequestContext request) throws Throwable {
+    public Object handleRequest(HttpContext request) throws Throwable {
       corsProcessor.process(this.config, request);
       return NONE_RETURN_VALUE;
     }
 
     @Override
-    public @Nullable CorsConfiguration getCorsConfiguration(RequestContext request) {
+    public @Nullable CorsConfiguration getCorsConfiguration(HttpContext request) {
       return this.config;
     }
 
@@ -551,12 +551,12 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
+    public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
       return corsProcessor.process(config, request);
     }
 
     @Override
-    public @Nullable CorsConfiguration getCorsConfiguration(RequestContext request) {
+    public @Nullable CorsConfiguration getCorsConfiguration(HttpContext request) {
       return this.config;
     }
 

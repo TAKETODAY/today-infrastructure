@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
 
 import infra.beans.factory.BeanFactory;
 import infra.core.task.AsyncTaskExecutor;
-import infra.web.mock.MockRequestContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -189,7 +189,7 @@ class WebAsyncTaskTests {
     webAsyncTask.onTimeout(timeoutCallback);
 
     CallableProcessingInterceptor interceptor = webAsyncTask.createInterceptor();
-    Object result = interceptor.handleTimeout(new MockRequestContext(), () -> "test");
+    Object result = interceptor.handleTimeout(new MockHttpContext(), () -> "test");
 
     assertThat(result).isEqualTo("timeout");
   }
@@ -202,7 +202,7 @@ class WebAsyncTaskTests {
 
     CallableProcessingInterceptor interceptor = webAsyncTask.createInterceptor();
     Exception testException = new Exception("test");
-    Object result = interceptor.handleError(new MockRequestContext(), () -> "test", testException);
+    Object result = interceptor.handleError(new MockHttpContext(), () -> "test", testException);
 
     assertThat(result).isEqualTo("error");
   }
@@ -214,7 +214,7 @@ class WebAsyncTaskTests {
     webAsyncTask.onCompletion(() -> completionCalled[0] = true);
 
     CallableProcessingInterceptor interceptor = webAsyncTask.createInterceptor();
-    interceptor.afterCompletion(new MockRequestContext(), () -> "test");
+    interceptor.afterCompletion(new MockHttpContext(), () -> "test");
 
     assertThat(completionCalled[0]).isTrue();
   }
@@ -224,8 +224,8 @@ class WebAsyncTaskTests {
     WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(() -> "test");
 
     CallableProcessingInterceptor interceptor = webAsyncTask.createInterceptor();
-    Object timeoutResult = interceptor.handleTimeout(new MockRequestContext(), () -> "test");
-    Object errorResult = interceptor.handleError(new MockRequestContext(), () -> "test", new Exception());
+    Object timeoutResult = interceptor.handleTimeout(new MockHttpContext(), () -> "test");
+    Object errorResult = interceptor.handleError(new MockHttpContext(), () -> "test", new Exception());
 
     assertThat(timeoutResult).isEqualTo(CallableProcessingInterceptor.RESULT_NONE);
     assertThat(errorResult).isEqualTo(CallableProcessingInterceptor.RESULT_NONE);

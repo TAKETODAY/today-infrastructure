@@ -22,13 +22,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.core.MethodParameter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.resolver.ErrorsMethodArgumentResolver;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -46,13 +46,13 @@ public class ErrorsMethodArgumentResolverTests {
 
   private ResolvableMethodParameter paramErrors;
 
-  private MockRequestContext webRequest;
+  private MockHttpContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
     paramErrors = new ResolvableMethodParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
-    bindingResult = new RequestContextDataBinder(new Object(), "attr").getBindingResult();
-    webRequest = new MockRequestContext(null, new MockRequest(), null);
+    bindingResult = new HttpContextDataBinder(new Object(), "attr").getBindingResult();
+    webRequest = new MockHttpContext(null, new MockRequest(), null);
   }
 
   @Test

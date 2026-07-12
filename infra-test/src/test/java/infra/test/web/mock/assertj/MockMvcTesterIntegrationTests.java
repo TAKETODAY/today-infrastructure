@@ -47,6 +47,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
+import infra.web.HttpContext;
 import infra.web.mock.api.Cookie;
 import infra.web.mock.MockMemoryFilePart;
 import infra.web.mock.MockMemoryPart;
@@ -63,7 +64,6 @@ import infra.ui.Model;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;
-import infra.web.RequestContext;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.PostMapping;
@@ -288,7 +288,7 @@ public class MockMvcTesterIntegrationTests {
               new HandlerInterceptor() {
 
                 @Override
-                public boolean preProcessing(RequestContext request, Object handler) throws Throwable {
+                public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
                   request.addCookie(ResponseCookie.forSimple(cookie.getName(), cookie.getValue()));
                   return true;
                 }

@@ -35,8 +35,8 @@ import infra.beans.factory.DisposableBean;
  * <p>{@link infra.context.ApplicationContext} implementations
  * such as a {@link infra.web.server.context.WebServerApplicationContext}
  * may register additional standard scopes specific to their environment,
- * e.g. {@link infra.web.RequestContext#SCOPE_REQUEST "request"}
- * and {@link infra.web.RequestContext#SCOPE_SESSION "session"},
+ * e.g. {@link infra.web.HttpContext#SCOPE_REQUEST "request"}
+ * and {@link infra.web.HttpContext#SCOPE_SESSION "session"},
  * based on this Scope SPI.
  *
  * <p>Even if its primary use is for extended scopes in a web environment,
@@ -148,7 +148,7 @@ public interface Scope {
 
   /**
    * Resolve the contextual object for the given key, if any.
-   * E.g. the RequestContext object for key "request".
+   * E.g. the HttpContext object for key "request".
    *
    * @param key the contextual key
    * @return the corresponding object, or {@code null} if none found

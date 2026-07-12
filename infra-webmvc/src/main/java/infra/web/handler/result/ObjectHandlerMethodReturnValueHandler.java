@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.SelectableReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
@@ -32,7 +32,7 @@ import infra.web.handler.method.HandlerMethod;
  * </p>
  * <pre> {@code
  * @GET("/object")
- * public Object object(boolean key1, boolean key2, boolean key3, RequestContext context) throws IOException {
+ * public Object object(boolean key1, boolean key2, boolean key3, HttpContext context) throws IOException {
  *   if (key1) {
  *     return new Body("key1", 1);
  *   }
@@ -63,7 +63,7 @@ public class ObjectHandlerMethodReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     delegate.handleReturnValue(context, handler, returnValue);
   }
 

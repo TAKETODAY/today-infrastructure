@@ -28,8 +28,8 @@ import java.util.Map;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
-import infra.web.RequestContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.server.HandshakeHandler;
@@ -78,7 +78,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public Object handleRequest(RequestContext request) throws Throwable {
+  public Object handleRequest(HttpContext request) throws Throwable {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
     Throwable failure = null;
     try {

@@ -32,8 +32,8 @@ import infra.context.ApplicationContextException;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
-import infra.web.mock.MockRequestContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -65,9 +65,9 @@ public class BaseViewTests {
     model.put("foo", "bar");
     model.put("something", new Object());
 
-    RequestContext requestContext = new MockRequestContext(wac, request, response);
+    HttpContext httpContext = new MockHttpContext(wac, request, response);
 
-    tv.render(model, requestContext);
+    tv.render(model, httpContext);
 
     checkContainsAll(model, tv.model);
 
@@ -95,9 +95,9 @@ public class BaseViewTests {
     model.put("one", new HashMap<>());
     model.put("two", new Object());
 
-    RequestContext requestContext = new MockRequestContext(wac, request, response);
+    HttpContext httpContext = new MockHttpContext(wac, request, response);
 
-    tv.render(model, requestContext);
+    tv.render(model, httpContext);
 
     checkContainsAll(model, tv.model);
     checkContainsAll(p, tv.model);
@@ -123,12 +123,12 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", new HashMap<>());
     pathVars.put("two", new Object());
-    RequestContext requestContext = new MockRequestContext(wac, request, response);
-    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
+    HttpContext httpContext = new MockHttpContext(wac, request, response);
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(httpContext);
     metadata.getPathVariables().putAll(pathVars);
-    requestContext.setMatchingMetadata(metadata);
+    httpContext.setMatchingMetadata(metadata);
 
-    tv.render(new HashMap<>(), requestContext);
+    tv.render(new HashMap<>(), httpContext);
 
     checkContainsAll(pathVars, tv.model);
 
@@ -154,9 +154,9 @@ public class BaseViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());
     model.put("two", new Object());
-    RequestContext requestContext = new MockRequestContext(wac, request, response);
+    HttpContext httpContext = new MockHttpContext(wac, request, response);
 
-    tv.render(model, requestContext);
+    tv.render(model, httpContext);
 
     // Check it contains all
     checkContainsAll(model, tv.model);
@@ -179,17 +179,17 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", "bar");
     pathVars.put("something", "else");
-    RequestContext requestContext = new MockRequestContext(wac, request, response);
+    HttpContext httpContext = new MockHttpContext(wac, request, response);
 
-    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(httpContext);
     metadata.getPathVariables().putAll(pathVars);
-    requestContext.setMatchingMetadata(metadata);
+    httpContext.setMatchingMetadata(metadata);
 
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());
     model.put("two", new Object());
 
-    tv.render(model, requestContext);
+    tv.render(model, httpContext);
 
     checkContainsAll(model, tv.model);
     assertThat(tv.model.size()).isEqualTo(3);
@@ -288,7 +288,7 @@ public class BaseViewTests {
   private static class ConcreteView extends AbstractView {
     // Do-nothing concrete subclass
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws IOException {
+    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws IOException {
       throw new UnsupportedOperationException();
     }
   }
@@ -310,7 +310,7 @@ public class BaseViewTests {
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws IOException {
+    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws IOException {
       this.model = model;
     }
 

@@ -26,16 +26,16 @@ import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
+import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.test.web.mock.MockMvc;
-import infra.web.RequestContext;
-import infra.web.RequestContextHolder;
+import infra.web.HttpContextHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.mock.MockRequestContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
@@ -45,10 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  *
  * @author Sam Brannen
- * @see RequestContextHolderTests
+ * @see HttpContextHolderTests
  * @since 4.0
  */
-class CustomRequestAttributesRequestContextHolderTests {
+class CustomRequestAttributesHttpContextHolderTests {
 
   private static final String FROM_CUSTOM_MOCK = "fromCustomMock";
   private static final String FROM_MVC_TEST_DEFAULT = "fromSpringMvcTestDefault";
@@ -62,7 +62,7 @@ class CustomRequestAttributesRequestContextHolderTests {
   void setUp() {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setAttribute(FROM_CUSTOM_MOCK, FROM_CUSTOM_MOCK);
-    RequestContextHolder.set(new MockRequestContext(null, mockRequest, new MockResponse()));
+    HttpContextHolder.set(new MockHttpContext(null, mockRequest, new MockResponse()));
 
     new AnnotatedBeanDefinitionReader(this.wac).register(WebConfig.class);
     this.wac.refresh();
@@ -80,13 +80,13 @@ class CustomRequestAttributesRequestContextHolderTests {
 
   @AfterEach
   void verifyCustomRequestAttributesAreRestored() {
-    RequestContext context = RequestContextHolder.required();
+    HttpContext context = HttpContextHolder.required();
 
     assertThat(context.getAttribute(FROM_CUSTOM_MOCK)).isEqualTo(FROM_CUSTOM_MOCK);
     assertThat(context.getAttribute(FROM_MVC_TEST_DEFAULT)).isNull();
     assertThat(context.getAttribute(FROM_MVC_TEST_MOCK)).isNull();
 
-    RequestContextHolder.cleanup();
+    HttpContextHolder.cleanup();
     this.wac.close();
   }
 
@@ -112,11 +112,11 @@ class CustomRequestAttributesRequestContextHolderTests {
   }
 
   private static void assertRequestAttributes() {
-    RequestContext request = RequestContextHolder.required();
+    HttpContext request = HttpContextHolder.required();
     assertRequestAttributes(request);
   }
 
-  private static void assertRequestAttributes(RequestContext request) {
+  private static void assertRequestAttributes(HttpContext request) {
     assertThat(request.getAttribute(FROM_CUSTOM_MOCK)).isNull();
     assertThat(request.getAttribute(FROM_MVC_TEST_DEFAULT)).isEqualTo(FROM_MVC_TEST_DEFAULT);
     assertThat(request.getAttribute(FROM_MVC_TEST_MOCK)).isEqualTo(FROM_MVC_TEST_MOCK);

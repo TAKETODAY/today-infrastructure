@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.annotation.PathVariable;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -52,7 +52,7 @@ public class PathVariableMapMethodArgumentResolver implements ParameterResolving
    */
   @Nullable
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
     HandlerMatchingMetadata metadata = context.getMatchingMetadata();
     Map<Object, Object> map = CollectionUtils.createMap(resolvable.getParameterType());
     if (metadata != null) {

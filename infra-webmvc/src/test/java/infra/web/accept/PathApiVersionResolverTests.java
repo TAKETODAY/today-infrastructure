@@ -26,8 +26,8 @@ import java.util.function.Predicate;
 
 import infra.http.server.PathContainer;
 import infra.http.server.RequestPath;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -64,7 +64,7 @@ class PathApiVersionResolverTests {
     };
 
     MockRequest request = new MockRequest("GET", requestUri);
-    MockRequestContext context = new MockRequestContext(null, request, null);
+    MockHttpContext context = new MockHttpContext(null, request, null);
 
     PathApiVersionResolver resolver = new PathApiVersionResolver(1, versionPathPredicate);
     String actual = resolver.resolveVersion(context);
@@ -73,7 +73,7 @@ class PathApiVersionResolverTests {
 
   private static void testResolve(int index, String requestUri, String expected) {
     MockRequest request = new MockRequest("GET", requestUri);
-    MockRequestContext context = new MockRequestContext(null, request, null);
+    MockHttpContext context = new MockHttpContext(null, request, null);
 
     String actual = new PathApiVersionResolver(index).resolveVersion(context);
     Assertions.assertThat(actual).isEqualTo(expected);

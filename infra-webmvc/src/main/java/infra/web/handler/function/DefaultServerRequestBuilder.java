@@ -51,10 +51,10 @@ import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
-import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.bind.RequestContextDataBinder;
+import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Part;
 import infra.web.util.UriBuilder;
@@ -70,7 +70,7 @@ import infra.web.util.pattern.PathMatchInfo;
  */
 class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
-  private final RequestContext requestContext;
+  private final HttpContext httpContext;
 
   private final List<HttpMessageConverter<?>> messageConverters;
 
@@ -95,7 +95,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   public DefaultServerRequestBuilder(ServerRequest other) {
     Assert.notNull(other, "ServerRequest is required");
-    this.requestContext = other.exchange();
+    this.httpContext = other.exchange();
     this.versionStrategy = other.apiVersionStrategy();
     this.messageConverters = new ArrayList<>(other.messageConverters());
     this.method = other.method();
@@ -195,7 +195,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   @Override
   public ServerRequest build() {
-    return new BuiltServerRequest(this.requestContext, this.method, this.uri, this.headers, this.cookies,
+    return new BuiltServerRequest(this.httpContext, this.method, this.uri, this.headers, this.cookies,
             this.attributes, this.params, this.remoteAddress, this.body, this.messageConverters, versionStrategy);
   }
 
@@ -207,7 +207,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     private final HttpHeaders headers;
 
-    private final RequestContext requestContext;
+    private final HttpContext httpContext;
 
     private final MultiValueMap<String, HttpCookie> cookies;
 
@@ -224,7 +224,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Nullable
     private final ApiVersionStrategy versionStrategy;
 
-    public BuiltServerRequest(RequestContext requestContext, HttpMethod method, URI uri, HttpHeaders headers,
+    public BuiltServerRequest(HttpContext httpContext, HttpMethod method, URI uri, HttpHeaders headers,
             MultiValueMap<String, HttpCookie> cookies, Map<String, Object> attributes, MultiValueMap<String, String> params,
             InetSocketAddress remoteAddress, byte[] body, List<HttpMessageConverter<?>> messageConverters,
             @Nullable ApiVersionStrategy versionStrategy) {
@@ -233,7 +233,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       this.body = body;
       this.method = method;
       this.remoteAddress = remoteAddress;
-      this.requestContext = requestContext;
+      this.httpContext = httpContext;
       this.headers = HttpHeaders.copyOf(headers);
       this.messageConverters = messageConverters;
       this.params = new LinkedMultiValueMap<>(params);
@@ -244,7 +244,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     @Override
     public RequestPath requestPath() {
-      return requestContext.getRequestPath();
+      return httpContext.getRequestPath();
     }
 
     @Override
@@ -259,7 +259,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     @Override
     public MultiValueMap<String, Part> parts() {
-      return requestContext.asMultipartRequest().getParts();
+      return httpContext.asMultipartRequest().getParts();
     }
 
     @Override
@@ -344,11 +344,11 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       Assert.notNull(bindType, "BindType is required");
       Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer is required");
 
-      RequestContextDataBinder dataBinder = new RequestContextDataBinder(null);
+      HttpContextDataBinder dataBinder = new HttpContextDataBinder(null);
       dataBinder.setTargetType(ResolvableType.forClass(bindType));
       dataBinderCustomizer.accept(dataBinder);
 
-      RequestContext context = exchange();
+      HttpContext context = exchange();
       dataBinder.construct(context);
       dataBinder.bind(context);
 
@@ -380,7 +380,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map<String, String> pathVariables() {
-      HandlerMatchingMetadata matchingMetadata = requestContext.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = httpContext.getMatchingMetadata();
       if (matchingMetadata != null) {
         PathMatchInfo pathMatchInfo = matchingMetadata.getPathMatchInfo();
         if (pathMatchInfo != null) {
@@ -395,8 +395,8 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    public RequestContext exchange() {
-      return this.requestContext;
+    public HttpContext exchange() {
+      return this.httpContext;
     }
 
     private final class BuiltInputMessage implements HttpInputMessage {

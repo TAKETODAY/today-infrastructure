@@ -550,7 +550,7 @@ package infra.showcase.fortune.web
 
 import infra.showcase.fortune.service.FortuneService
 import infra.showcase.fortune.domain.Fortune
-import infra.web.RequestContext
+import infra.web.HttpContext
 import infra.web.mock.ModelAndView
 import infra.web.mock.mvc.Controller
 
@@ -560,7 +560,7 @@ class FortuneController implements Controller {
 
   @Property FortuneService fortuneService
 
-  ModelAndView handleRequest(RequestContext request) {
+  ModelAndView handleRequest(HttpContext request) {
     return new ModelAndView("tell", "fortune", this.fortuneService.tellFortune())
   }
 }

@@ -27,7 +27,7 @@ import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.web.RequestContext;
+import infra.web.HttpContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.condition.ConsumesRequestCondition;
@@ -274,7 +274,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
    * @return a new instance in case of a match; or {@code null} otherwise
    */
   @Override
-  public @Nullable RequestMappingInfo getMatchingCondition(RequestContext request) {
+  public @Nullable RequestMappingInfo getMatchingCondition(HttpContext request) {
     RequestMethodsRequestCondition methods = methodsCondition.getMatchingCondition(request);
     if (methods == null) {
       return null;
@@ -316,11 +316,11 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
    * Compares "this" info (i.e. the current instance) with another info in the
    * context of a request.
    * <p>Note: It is assumed both instances have been obtained via
-   * {@link #getMatchingCondition(RequestContext)} to ensure they have
+   * {@link #getMatchingCondition(HttpContext)} to ensure they have
    * conditions with content relevant to current request.
    */
   @Override
-  public int compareTo(RequestMappingInfo other, RequestContext request) {
+  public int compareTo(RequestMappingInfo other, HttpContext request) {
     int result;
     // Automatic vs explicit HTTP HEAD mapping
     if (HttpMethod.HEAD == request.getMethod()) {

@@ -37,11 +37,11 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.ResourceRegionHttpMessageConverter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.StringUtils;
 import infra.web.handler.function.ResourceHandlerFunction.HeadMethodResource;
-import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,9 +71,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -82,7 +82,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(requestContext, this.context);
+    Object mav = response.writeTo(httpContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
@@ -99,10 +99,10 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader("Range", "bytes=0-5");
     MockResponse mockResponse = new MockResponse();
 
-    MockRequestContext requestContext = new MockRequestContext(
+    MockHttpContext httpContext = new MockHttpContext(
             null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -111,7 +111,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(requestContext, this.context);
+    Object mav = response.writeTo(httpContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(206);
@@ -132,10 +132,10 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
     MockResponse mockResponse = new MockResponse();
-    MockRequestContext requestContext = new MockRequestContext(
+    MockHttpContext httpContext = new MockHttpContext(
             null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -144,7 +144,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(requestContext, this.context);
+    Object mav = response.writeTo(httpContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(416);
@@ -161,9 +161,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -173,7 +173,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity().getName()).isEqualTo(this.resource.getName());
 
-    Object mav = response.writeTo(requestContext, this.context);
+    Object mav = response.writeTo(httpContext, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
@@ -188,17 +188,17 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.headers().getAllow()).isEqualTo(Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS));
 
-    Object mav = response.writeTo(requestContext, this.context);
+    Object mav = response.writeTo(httpContext, this.context);
     assertThat(mav).isNull();
-    requestContext.flush();
+    httpContext.flush();
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
     String allowHeader = mockResponse.getHeader("Allow");
@@ -213,9 +213,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -227,9 +227,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -241,9 +241,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -255,9 +255,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -269,9 +269,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -308,14 +308,14 @@ class ResourceHandlerFunctionTests {
   void resourceHandlerFunctionWithHeadersConsumer() throws Throwable {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     MockResponse mockResponse = new MockResponse();
-    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
-    ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     BiConsumer<Resource, HttpHeaders> headersConsumer = (resource, headers) -> headers.set("X-Test-Header", "test-value");
     ResourceHandlerFunction handlerFunctionWithHeaders = new ResourceHandlerFunction(this.resource, headersConsumer);
 
     ServerResponse response = handlerFunctionWithHeaders.handle(request);
-    Object mav = response.writeTo(requestContext, this.context);
+    Object mav = response.writeTo(httpContext, this.context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
     assertThat(mockResponse.getHeader("X-Test-Header")).isEqualTo("test-value");
