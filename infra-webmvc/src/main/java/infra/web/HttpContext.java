@@ -1237,12 +1237,12 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * The response buffer is cleared and the request path is updated before
    * re-dispatching.
    * <p>This is a convenience that delegates to
-   * {@link DispatcherHandler#forward(HttpContext, String)}.
+   * {@link DispatcherHandler#forward(AbstractHttpContext, String)}.
    *
    * @param path the new path to forward to
    * @throws Exception if forwarding fails
    * @throws IllegalStateException if the response has already been committed
-   * @see DispatcherHandler#forward(HttpContext, String)
+   * @see DispatcherHandler#forward(AbstractHttpContext, String)
    * @since 5.0
    */
   void forward(String path) throws Exception;

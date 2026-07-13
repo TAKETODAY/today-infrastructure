@@ -124,7 +124,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   /**
    * Attribute name for the cached form-urlencoded body parameters.
    * <p>Populated by {@link #readParameters()} implementations so that after a
-   * {@link DispatcherHandler#forward(HttpContext, String) forward}
+   * {@link DispatcherHandler#forward(AbstractHttpContext, String) forward}
    * resets {@link #parameters}, the body parameters can be re-merged
    * with the new query string without re-reading the consumed input stream.
    *
@@ -1632,12 +1632,12 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * The response buffer is cleared and the request path is updated before
    * re-dispatching.
    * <p>This is a convenience that delegates to
-   * {@link DispatcherHandler#forward(HttpContext, String)}.
+   * {@link DispatcherHandler#forward(AbstractHttpContext, String)}.
    *
    * @param path the new path to forward to
    * @throws Exception if forwarding fails
    * @throws IllegalStateException if the response has already been committed
-   * @see DispatcherHandler#forward(HttpContext, String)
+   * @see DispatcherHandler#forward(AbstractHttpContext, String)
    * @since 5.0
    */
   @Override
