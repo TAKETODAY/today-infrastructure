@@ -22,7 +22,7 @@ import org.hamcrest.Matcher;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.List;
 
 import infra.http.ResponseCookie;
 import infra.test.web.mock.MvcResult;
@@ -209,7 +209,7 @@ public class CookieResultMatchers {
 
   @Nullable
   private static ResponseCookie getCookie(HttpContext context, String cookieName) {
-    ArrayList<ResponseCookie> httpCookies = context.responseCookies();
+    List<ResponseCookie> httpCookies = context.responseCookies();
     for (ResponseCookie httpCookie : httpCookies) {
       if (cookieName.equals(httpCookie.getName())) {
         return httpCookie;

@@ -57,6 +57,7 @@ import infra.util.MimeTypeUtils;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.validation.BindingResult;
+import infra.web.AbstractHttpContext;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.accept.ApiVersionStrategy;
@@ -396,7 +397,7 @@ class DefaultServerRequest implements ServerRequest {
     }
   }
 
-  static class CheckNotModifiedResponse extends HttpContext {
+  static class CheckNotModifiedResponse extends AbstractHttpContext {
 
     private int status = 200;
 
@@ -444,11 +445,6 @@ class DefaultServerRequest implements ServerRequest {
     @Override
     public HttpHeaders requestHeaders() {
       return context.requestHeaders();
-    }
-
-    @Override
-    public <T> T nativeRequest() {
-      throw new UnsupportedOperationException();
     }
 
     @Override

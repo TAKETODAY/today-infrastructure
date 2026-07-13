@@ -89,16 +89,15 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     return Collections.emptyList();
   }
 
-  @Nullable
   @Override
-  public WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
+  public @Nullable WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
-    if (!(context instanceof NettyHttpContext nettyContext)) {
+    NettyHttpContext nettyContext = context.unwrap(NettyHttpContext.class);
+    if (nettyContext == null) {
       throw new IllegalStateException("not running in netty");
     }
-
-    HttpRequest request = nettyContext.nativeRequest();
+    HttpRequest request = nettyContext.request;
     var handshaker = createHandshakeFactory(request, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channel;
     if (handshaker == null) {

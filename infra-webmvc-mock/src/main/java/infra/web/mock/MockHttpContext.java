@@ -50,6 +50,7 @@ import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.async.AsyncWebRequest;
@@ -66,7 +67,7 @@ import infra.web.util.UriBuilder;
  * @since 2.3.7
  */
 @SuppressWarnings("NullAway")
-public class MockHttpContext extends HttpContext implements MockIndicator {
+public class MockHttpContext extends AbstractHttpContext implements MockIndicator {
 
   public final MockRequest request;
 
@@ -84,7 +85,7 @@ public class MockHttpContext extends HttpContext implements MockIndicator {
   /**
    * Cached body-encoded parameters (e.g. {@code application/x-www-form-urlencoded}).
    * Set by {@link #readParameters()} implementations so that after a
-   * {@link DispatcherHandler#forward(HttpContext, String) forward}
+   * {@link DispatcherHandler#forward(AbstractHttpContext, String) forward}
    * resets {@link #parameters}, the body parameters can be re-merged
    * with the new query string without re-reading the consumed input stream.
    */
@@ -176,11 +177,6 @@ public class MockHttpContext extends HttpContext implements MockIndicator {
   @Override
   public SocketAddress localAddress() {
     return InetSocketAddress.createUnresolved(request.getLocalAddr(), request.getLocalPort());
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T nativeRequest() {
-    return (T) request;
   }
 
   @Override

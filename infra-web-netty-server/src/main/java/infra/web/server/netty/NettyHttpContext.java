@@ -50,6 +50,7 @@ import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.async.AsyncWebRequest;
@@ -105,7 +106,7 @@ import static io.netty.util.internal.StringUtil.decodeHexByte;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-04 21:24
  */
-public abstract class NettyHttpContext extends HttpContext {
+public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * System property to configure the nio file chunk size when ssl is enabled.
@@ -714,11 +715,6 @@ public abstract class NettyHttpContext extends HttpContext {
     this.status = HttpResponseStatus.valueOf(sc);
   }
 
-  @Override
-  public void setStatus(HttpStatusCode status) {
-    this.status = HttpResponseStatus.valueOf(status.value());
-  }
-
   /**
    * Set response status
    *
@@ -789,12 +785,6 @@ public abstract class NettyHttpContext extends HttpContext {
     reset();
     this.status = HttpResponseStatus.valueOf(sc);
     config.sendErrorHandler.handleError(this, msg);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public final HttpRequest nativeRequest() {
-    return request;
   }
 
   @Override

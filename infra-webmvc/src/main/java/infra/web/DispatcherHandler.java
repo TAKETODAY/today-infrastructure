@@ -86,7 +86,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Attribute name for the set of paths already forwarded to in the current
    * forward chain, used to detect circular forwards.
    *
-   * @see #forward(HttpContext, String)
+   * @see #forward(AbstractHttpContext, String)
    */
   static final String FORWARDED_PATHS_ATTRIBUTE = Conventions.getQualifiedAttributeName(DispatcherHandler.class, "forwardedPaths");
 
@@ -759,10 +759,10 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  protected void requestCompleted(HttpContext request, @Nullable Throwable notHandled) throws Exception {
+  protected void requestCompleted(HttpContext context, @Nullable Throwable notHandled) throws Exception {
     if (!requestCompletedActions.isEmpty()) {
       for (RequestCompletedListener action : requestCompletedActions) {
-        action.requestCompleted(request, notHandled);
+        action.requestCompleted(context, notHandled);
       }
     }
 
@@ -771,17 +771,20 @@ public class DispatcherHandler extends WebLifecycleManager {
       // try application level error handling
       try {
         var httpStatus = HttpStatusProvider.getStatusCode(notHandled);
-        request.sendError(httpStatus.first, httpStatus.second);
+        context.sendError(httpStatus.first, httpStatus.second);
       }
       catch (Throwable e) {
         if (notHandled != e) {
           notHandled.addSuppressed(e);
         }
-        request.requestCompleted(notHandled);
+        context.required(AbstractHttpContext.class)
+                .requestCompleted(notHandled);
         throw ExceptionUtils.sneakyThrow(notHandled);
       }
     }
-    request.requestCompleted(null);
+
+    context.required(AbstractHttpContext.class)
+            .requestCompleted(null);
   }
 
   /**
@@ -827,7 +830,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * or a circular forward is detected
    * @since 5.0
    */
-  void forward(HttpContext request, String path) throws Exception {
+  void forward(AbstractHttpContext request, String path) throws Exception {
     if (request.isCommitted()) {
       throw new IllegalStateException("Cannot forward after response has been committed");
     }

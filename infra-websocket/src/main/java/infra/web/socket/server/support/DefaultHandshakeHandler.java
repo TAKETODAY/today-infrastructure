@@ -36,7 +36,6 @@ public class DefaultHandshakeHandler extends AbstractHandshakeHandler {
    * @see #initRequestUpgradeStrategy()
    */
   public DefaultHandshakeHandler() {
-
   }
 
   public DefaultHandshakeHandler(RequestUpgradeStrategy requestUpgradeStrategy) {

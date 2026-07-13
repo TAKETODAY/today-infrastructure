@@ -21,32 +21,34 @@ import org.jspecify.annotations.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.Objects;
+import java.util.TimeZone;
 
+import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
-import infra.context.MessageSource;
-import infra.context.MessageSourceResolvable;
-import infra.context.NoSuchMessageException;
 import infra.core.Conventions;
-import infra.core.io.InputStreamSource;
-import infra.core.io.OutputStreamSource;
+import infra.core.DefaultAttributeAccessor;
+import infra.http.DefaultHttpHeaders;
+import infra.http.ETag;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
-import infra.http.HttpInputMessage;
 import infra.http.HttpMethod;
-import infra.http.HttpRequest;
+import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
@@ -54,20 +56,21 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
+import infra.lang.Constant;
+import infra.lang.NullValue;
 import infra.lang.TodayStrategies;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
-import infra.web.context.annotation.RequestScope;
-import infra.web.context.annotation.SessionScope;
+import infra.web.async.WebAsyncManagerFactory;
 import infra.web.multipart.MultipartRequest;
-import infra.web.util.HtmlUtils;
 import infra.web.util.WebUtils;
+
+import static infra.lang.Constant.DEFAULT_CHARSET;
 
 /**
  * HttpContext encapsulates the context of an HTTP request, providing access to request-related
@@ -113,36 +116,23 @@ import infra.web.util.WebUtils;
  *   <li>Integration with application context and dispatcher handler.</li>
  * </ul>
  *
- * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0 2026/7/12 23:08
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.3.7 2019-06-22 15:48
  */
-public interface HttpContext extends InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest {
+public abstract class AbstractHttpContext extends DefaultAttributeAccessor implements HttpContext {
 
   /**
-   * Scope identifier for request scope: "request".
-   * Supported in addition to the standard scopes "singleton" and "prototype".
-   */
-  String SCOPE_REQUEST = RequestScope.NAME;
-
-  /**
-   * Scope identifier for session scope: "session".
-   * Supported in addition to the standard scopes "singleton" and "prototype".
-   */
-  String SCOPE_SESSION = SessionScope.NAME;
-
-  /**
-   * Attribute name for the original request URI before forwarding.
+   * Attribute name for the cached form-urlencoded body parameters.
+   * <p>Populated by {@link #readParameters()} implementations so that after a
+   * {@link DispatcherHandler#forward(HttpContext, String) forward}
+   * resets {@link #parameters}, the body parameters can be re-merged
+   * with the new query string without re-reading the consumed input stream.
    *
-   * @see #forward(String)
+   * @see #getParameters()
+   * @see #setAttribute(String, Object)
    */
-  String FORWARD_REQUEST_URI_ATTRIBUTE = Conventions.getQualifiedAttributeName(HttpContext.class, "forward.requestUri");
-
-  /**
-   * Attribute name for the forwarded request marker.
-   *
-   * @see #forward(String)
-   */
-  String FORWARD_ATTRIBUTE = Conventions.getQualifiedAttributeName(HttpContext.class, "forward");
+  public static final String FORM_URLENCODED_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(HttpContext.class, "form-urlencoded");
 
   /**
    * Flag indicating whether HTML escaping is enabled by default for message resolution.
@@ -151,22 +141,93 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @since 5.0
    */
-  boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
+  public static final boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
 
-  HttpCookie[] EMPTY_COOKIES = {};
+  private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 
   /**
-   * Lifecycle phases for response event callbacks.
+   * Date formats as specified in the HTTP RFC.
    *
-   * @since 5.0
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section 7.1.1.1 of RFC 7231</a>
    */
-  enum Lifecycle {
-    /** Before response headers are committed */
-    COMMITTING,
-    /** After response headers have been committed */
-    COMMITTED,
-    /** After request processing completes */
-    COMPLETED
+  private static final String[] DATE_FORMATS = new String[] {
+          "EEE, dd MMM yyyy HH:mm:ss zzz",
+          "EEE, dd-MMM-yy HH:mm:ss zzz",
+          "EEE MMM dd HH:mm:ss yyyy"
+  };
+
+  private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+
+  protected long responseContentLength = -1L;
+
+  protected boolean notModified = false;
+
+  protected HttpCookie @Nullable [] cookies;
+
+  protected @Nullable PrintWriter writer;
+
+  protected @Nullable BufferedReader reader;
+
+  protected @Nullable InputStream inputStream;
+
+  protected @Nullable OutputStream outputStream;
+
+  protected @Nullable HttpHeaders requestHeaders;
+
+  protected @Nullable HttpHeaders responseHeaders;
+
+  protected @Nullable String requestURI;
+
+  protected @Nullable RequestPath requestPath;
+
+  protected @Nullable MultiValueMap<String, String> parameters;
+
+  protected @Nullable String queryString;
+
+  protected @Nullable ArrayList<ResponseCookie> responseCookies;
+
+  protected @Nullable URI uri;
+
+  protected @Nullable HttpMethod httpMethod;
+
+  protected @Nullable Locale locale;
+
+  protected @Nullable String responseContentType;
+
+  protected @Nullable MultipartRequest multipartRequest;
+
+  protected @Nullable AsyncWebRequest asyncRequest;
+
+  protected @Nullable WebAsyncManager webAsyncManager;
+
+  protected @Nullable BindingContext bindingContext;
+
+  protected @Nullable Object redirectModel;
+
+  protected @Nullable Boolean multipartFlag;
+
+  protected @Nullable Boolean preFlightRequestFlag;
+
+  protected @Nullable Boolean corsRequestFlag;
+
+  protected @Nullable MediaType contentType;
+
+  protected final DispatcherHandler dispatcherHandler;
+
+  /** @since 4.0 */
+  protected final ApplicationContext applicationContext;
+
+  protected @Nullable HandlerMatchingMetadata matchingMetadata;
+
+  private @Nullable Session session;
+
+  private long requestCompletedTimeMillis;
+
+  private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
+
+  protected AbstractHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
+    this.applicationContext = context;
+    this.dispatcherHandler = dispatcherHandler;
   }
 
   /**
@@ -174,7 +235,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @since 4.0
    */
-  ApplicationContext getApplicationContext();
+  @Override
+  public ApplicationContext getApplicationContext() {
+    return this.applicationContext;
+  }
 
   /**
    * Get start handling this request time millis
@@ -182,7 +246,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return start handling this request time millis
    * @since 4.0
    */
-  long getRequestTimeMillis();
+  public abstract long getRequestTimeMillis();
 
   /**
    * Get this request processing time millis
@@ -190,57 +254,14 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return this request processing time millis
    * @since 4.0
    */
-  long getRequestProcessingTime();
-
-  /**
-   * Returns a boolean indicating whether this request was
-   * made using a secure channel, such as HTTPS.
-   *
-   * @return a boolean indicating if the request was made
-   * using a secure channel
-   * @since 5.0
-   */
-  boolean isSecure();
-
-  /**
-   * Returns the name of the scheme used to make this request, for example, <code>http</code>, <code>https</code>, or
-   * <code>ftp</code>. Different schemes have different rules for constructing URLs, as noted in RFC 1738.
-   *
-   * @return a <code>String</code> containing the name
-   * of the scheme used to make this request
-   * @since 3.0.1
-   */
-  String getScheme();
-
-  /**
-   * Returns the host name of the server to which the request was sent. It may be derived from a protocol specific
-   * mechanism, such as the <code>Host</code> header, or the HTTP/2 authority, or
-   * <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>, otherwise the resolved server name or the server IP
-   * address.
-   *
-   * @return a <code>String</code> containing the name of the server
-   * @since 4.0
-   */
-  String getServerName();
-
-  /**
-   * Returns the port number to which the request was sent. It may be derived from a protocol specific mechanism, such as
-   * the <code>Host</code> header, or HTTP authority, or <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>,
-   * otherwise the server port where the client connection was accepted on.
-   *
-   * @return an integer specifying the port number
-   * @since 4.0
-   */
-  int getServerPort();
-
-  /**
-   * Returns the Internet Protocol (IP) address of the client or last proxy that
-   * sent the request.
-   *
-   * @return a <code>String</code> containing the IP address of the client that
-   * sent the request
-   */
-  String getRemoteAddress();
+  @Override
+  public long getRequestProcessingTime() {
+    long requestCompletedTimeMillis = this.requestCompletedTimeMillis;
+    if (requestCompletedTimeMillis > 0) {
+      return requestCompletedTimeMillis - getRequestTimeMillis();
+    }
+    return System.currentTimeMillis() - getRequestTimeMillis();
+  }
 
   /**
    * Returns the Internet Protocol (IP) source port the remote end of the connection on which the request was received. By
@@ -251,54 +272,45 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return an integer specifying the port number
    * @since 5.0
    */
-  int getRemotePort();
-
-  /**
-   * Returns the local address where this server is bound to. The returned
-   * {@link SocketAddress} is supposed to be down-cast into more concrete
-   * type such as {@link InetSocketAddress} to retrieve the detailed
-   * information.
-   *
-   * @return the local address of this server.
-   * @since 5.0
-   */
-  SocketAddress localAddress();
-
-  /**
-   * Get the remote address to which this request is connected, if available.
-   *
-   * @return the remote address of this request.
-   * @since 5.0
-   */
-  InetSocketAddress remoteAddress();
-
-  /**
-   * Return the HTTP method of the request.
-   *
-   * @return the HTTP method as an HttpMethod value
-   * @see HttpMethod#resolve(String)
-   */
   @Override
-  HttpMethod getMethod();
-
-  /**
-   * Return the HTTP method of the request as a String value.
-   *
-   * @return the HTTP method as a plain String
-   * @see #getMethod()
-   */
-  default String getMethodAsString() {
-    return getMethod().name();
+  public int getRemotePort() {
+    return remoteAddress().getPort();
   }
 
-  /**
-   * Return the URI of the request (including a query string if any,
-   * but only if it is well-formed for a URI representation).
-   *
-   * @return the URI of the request (never {@code null})
-   */
+  // @since 4.0
   @Override
-  URI getURI();
+  public URI getURI() {
+    if (this.uri == null) {
+      String urlString = null;
+      boolean hasQuery = false;
+      try {
+        StringBuilder url = new StringBuilder(getRequestURL());
+        String query = getQueryString();
+        hasQuery = StringUtils.hasText(query);
+        if (hasQuery) {
+          url.append('?').append(query);
+        }
+        urlString = url.toString();
+        this.uri = new URI(urlString);
+      }
+      catch (URISyntaxException ex) {
+        if (!hasQuery) {
+          throw new IllegalStateException(
+                  "Could not resolve HttpContext as URI: " + urlString, ex);
+        }
+        // Maybe a malformed query string... try plain request URL
+        try {
+          urlString = getRequestURL();
+          this.uri = new URI(urlString);
+        }
+        catch (URISyntaxException ex2) {
+          throw new IllegalStateException(
+                  "Could not resolve HttpContext as URI: " + urlString, ex2);
+        }
+      }
+    }
+    return this.uri;
+  }
 
   /**
    * Returns the part of this request's URL from the protocol name up to the query
@@ -326,7 +338,15 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  String getRequestURI();
+  @Override
+  public String getRequestURI() {
+    String requestURI = this.requestURI;
+    if (requestURI == null) {
+      requestURI = readRequestURI();
+      this.requestURI = requestURI;
+    }
+    return requestURI;
+  }
 
   /**
    * Returns the {@code RequestPath} associated with the current request.
@@ -337,7 +357,21 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @return the {@code RequestPath} instance associated with the current request.
    */
-  RequestPath getRequestPath();
+  @Override
+  public RequestPath getRequestPath() {
+    RequestPath requestPath = this.requestPath;
+    if (requestPath == null) {
+      requestPath = readRequestPath();
+      this.requestPath = requestPath;
+    }
+    return requestPath;
+  }
+
+  protected RequestPath readRequestPath() {
+    return RequestPath.parse(getRequestURI(), null);
+  }
+
+  protected abstract String readRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server
@@ -345,7 +379,17 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @return A URL
    */
-  String getRequestURL();
+  @Override
+  public String getRequestURL() {
+    String scheme = getScheme();
+    int port = getServerPort();
+    String url = scheme + "://" + getServerName();
+    if (port > 0 && !(port == 80 && Constant.HTTP.equals(scheme))
+            && !(port == 443 && Constant.HTTPS.equals(scheme))) {
+      url += ":" + port;
+    }
+    return url + StringUtils.prependLeadingSlash(getRequestURI());
+  }
 
   /**
    * Returns the query string that is contained in the request URL after the path.
@@ -356,7 +400,17 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <code>null</code> if the URL contains no query string. The value is
    * not decoded by the container.
    */
-  String getQueryString();
+  @Override
+  public String getQueryString() {
+    String queryString = this.queryString;
+    if (queryString == null) {
+      queryString = readQueryString();
+      this.queryString = queryString;
+    }
+    return queryString;
+  }
+
+  protected abstract String readQueryString();
 
   /**
    * Returns an array containing all of the <code>Cookie</code> objects the client
@@ -366,7 +420,21 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return an array of all the <code>Cookies</code> included with this request,
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
-  HttpCookie[] getCookies();
+  @Override
+  public HttpCookie[] getCookies() {
+    var cookies = this.cookies;
+    if (cookies == null) {
+      cookies = readCookies();
+      this.cookies = cookies;
+    }
+    return cookies;
+  }
+
+  /**
+   * @return an array of all the Cookies included with this request,or
+   * {@link #EMPTY_COOKIES} if the request has no cookies
+   */
+  protected abstract HttpCookie[] readCookies();
 
   /**
    * Returns a {@link HttpCookie} object the client sent with this request. This
@@ -377,18 +445,14 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * method returns <code>null</code> if no target cookie were sent.
    * @since 2.3.7
    */
-  @Nullable
-  HttpCookie getCookie(String name);
-
-  /**
-   * Returns a {@link Optional} HttpCookie the client sent with this request. This
-   * method returns <code>Optional.empty</code> if no target cookie were sent.
-   *
-   * @param name Cookie name
-   * @since 5.0
-   */
-  default Optional<HttpCookie> cookie(String name) {
-    return Optional.ofNullable(getCookie(name));
+  @Override
+  public @Nullable HttpCookie getCookie(String name) {
+    for (HttpCookie cookie : getCookies()) {
+      if (Objects.equals(name, cookie.getName())) {
+        return cookie;
+      }
+    }
+    return null;
   }
 
   /**
@@ -397,68 +461,9 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @param cookie the {@link ResponseCookie} to return to the client
    */
-  void addCookie(ResponseCookie cookie);
-
-  /**
-   * Adds the specified cookie to the response by building it from the provided builder.
-   * This method can be called multiple times to set more than one cookie.
-   *
-   * @param cookie the {@link ResponseCookie.Builder} used to construct the cookie to return to the client
-   * @since 5.0
-   */
-  default void addCookie(ResponseCookie.Builder cookie) {
-    addCookie(cookie.build());
-  }
-
-  /**
-   * Adds a cookie to the response by configuring its properties using the provided consumer.
-   * <p>
-   * This method creates a {@link ResponseCookie.Builder} with the specified name and applies
-   * the configuration defined in the {@code consumer}. The configured cookie is then added
-   * to the response.
-   *
-   * <p><b>Example Usage:</b>
-   * <pre>{@code
-   *   context.addCookie("sessionId", builder -> {
-   *     builder.value("12345")
-   *            .httpOnly(true)
-   *            .secure(true)
-   *            .maxAge(Duration.ofHours(1));
-   *   });
-   * }</pre>
-   *
-   * @param name the name of the cookie; must not be null or empty
-   * @param consumer a {@link Consumer} that configures the {@link ResponseCookie.Builder};
-   * must not be null
-   * @throws IllegalArgumentException if the name is null or empty, or if the consumer is null
-   * @since 5.0
-   */
-  default void addCookie(String name, Consumer<ResponseCookie.Builder> consumer) {
-    var builder = ResponseCookie.builder(name);
-    consumer.accept(builder);
-    addCookie(builder);
-  }
-
-  /**
-   * Adds the specified cookie to the response. This method can be called multiple
-   * times to set more than one cookie.
-   *
-   * @param name the Cookie name to return to the client
-   * @param value the Cookie value to return to the client
-   */
-  default void addCookie(String name, @Nullable String value) {
-    addCookie(ResponseCookie.builder(name, value).build());
-  }
-
-  /**
-   * Adds the specified {@link HttpCookie} to the response by extracting its name and value.
-   * This method can be called multiple times to set more than one cookie.
-   *
-   * @param cookie the {@link HttpCookie} to add to the response; must not be null
-   * @since 5.0
-   */
-  default void addCookie(HttpCookie cookie) {
-    addCookie(cookie.getName(), cookie.getValue());
+  @Override
+  public void addCookie(ResponseCookie cookie) {
+    responseCookies().add(cookie);
   }
 
   /**
@@ -480,8 +485,20 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a list of {@link HttpCookie} objects that were removed, or null
    * if no cookies were found or the internal cookie list is null
    */
-  @Nullable
-  List<ResponseCookie> removeCookie(String name);
+  @Override
+  public @Nullable List<ResponseCookie> removeCookie(String name) {
+    if (responseCookies != null) {
+      ArrayList<ResponseCookie> toRemove = new ArrayList<>(2);
+      for (ResponseCookie responseCookie : responseCookies) {
+        if (Objects.equals(name, responseCookie.getName())) {
+          toRemove.add(responseCookie);
+        }
+      }
+      responseCookies.removeAll(toRemove);
+      return toRemove;
+    }
+    return null;
+  }
 
   /**
    * Checks if there are any response cookies available.
@@ -503,7 +520,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @return true if response cookies are present, false otherwise
    */
-  boolean hasResponseCookie();
+  @Override
+  public boolean hasResponseCookie() {
+    return responseCookies != null;
+  }
 
   /**
    * Returns the list of response cookies associated with this object. If no
@@ -515,7 +535,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <p><strong>Example Usage:</strong>
    * <pre>{@code
    *   // Retrieve the response cookies
-   *   List<HttpCookie> cookies = responseCookies();
+   *   ArrayList<HttpCookie> cookies = responseCookies();
    *
    *   // Add a new cookie to the list
    *   cookies.add(new HttpCookie("sessionId", "12345"));
@@ -530,7 +550,15 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a modifiable list of {@link HttpCookie} objects representing the
    * response cookies. If no cookies exist, an empty list is returned.
    */
-  List<ResponseCookie> responseCookies();
+  @Override
+  public ArrayList<ResponseCookie> responseCookies() {
+    var responseCookies = this.responseCookies;
+    if (responseCookies == null) {
+      responseCookies = new ArrayList<>();
+      this.responseCookies = responseCookies;
+    }
+    return responseCookies;
+  }
 
   /**
    * Returns a {@link MultiValueMap} of the parameters of this request.
@@ -542,72 +570,43 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * as map values. The keys in the parameter map are of type {@code String}. The
    * values in the parameter map are of type {@code List<String>}.
    */
-  MultiValueMap<String, String> getParameters();
-
-  /**
-   * Returns an <code>Set</code> of <code>String</code> objects containing
-   * the names of the parameters contained in this request. If the request has no
-   * parameters, the method returns an empty {@link Collections#emptySet() Set}.
-   *
-   * @return an <code>Set</code> of <code>String</code> objects, each
-   * <code>String</code> containing the name of a request parameter; or an
-   * empty {@link Collections#emptySet() Set} if the request has no parameters
-   */
-  default Set<String> getParameterNames() {
-    return new LinkedHashSet<>(getParameters().keySet());
-  }
-
-  /**
-   * Returns an array of <code>String</code> objects containing all of the values
-   * the given request parameter has, or <code>null</code> if the parameter does
-   * not exist.
-   *
-   * <p>
-   * If the parameter has a single value, the array has a length of 1.
-   *
-   * @param name a <code>String</code> containing the name of the parameter whose
-   * value is requested
-   * @return an array of <code>String</code> objects containing the parameter's
-   * values
-   * @see #getParameters()
-   */
-  default String @Nullable [] getParameters(String name) {
-    List<String> list = getParameters().get(name);
-    if (CollectionUtils.isEmpty(list)) {
-      return null;
+  @Override
+  public MultiValueMap<String, String> getParameters() {
+    var parameters = this.parameters;
+    if (parameters == null) {
+      parameters = readParameters();
+      this.parameters = parameters;
     }
-    return StringUtils.toStringArray(list);
+    return parameters;
   }
 
   /**
-   * Returns the value of a request parameter as a <code>String</code>, or
-   * <code>null</code> if the parameter does not exist. Request parameters are
-   * extra information sent with the request. Parameters are contained in the
-   * query string or posted form data.
-   *
+   * Reads and parses the request parameters from the query string or form data.
    * <p>
-   * You should only use this method when you are sure the parameter has only one
-   * value. If the parameter might have more than one value, use
-   * {@link #getParameters(String)}.
+   * This method is intended to be implemented by subclasses to provide the specific
+   * logic for extracting parameters based on the underlying HTTP implementation.
+   * The returned map should contain parameter names as keys and lists of parameter
+   * values as map values.
    *
-   * <p>
-   * If you use this method with a multivalued parameter, the value returned is
-   * equal to the first value in the array returned by
-   * <code>parameters(String)</code>.
-   *
-   * <p>
-   * If the parameter data was sent in the request body, such as occurs with an
-   * HTTP POST request, then reading the body directly via {@link #getInputStream}
-   * or {@link #getReader} can interfere with the execution of this method.
-   *
-   * @param name a <code>String</code> specifying the name of the parameter
-   * @return a <code>String</code> representing the single value of the parameter
-   * @see #getParameters(String)
+   * @return a {@link MultiValueMap} containing the request parameters, never {@code null}
+   * @since 5.0
    */
-  default @Nullable String getParameter(String name) {
-    List<String> list = getParameters().get(name);
-    return CollectionUtils.firstElement(list);
+  protected abstract MultiValueMap<String, String> readParameters();
+
+  @Override
+  public HttpMethod getMethod() {
+    HttpMethod httpMethod = this.httpMethod;
+    if (httpMethod == null) {
+      httpMethod = HttpMethod.valueOf(readMethod());
+      this.httpMethod = httpMethod;
+    }
+    return httpMethod;
   }
+
+  /**
+   * @return upper-case http method
+   */
+  protected abstract String readMethod();
 
   /**
    * Returns the length, in bytes, of the request body and made available by the
@@ -616,28 +615,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
-  long getContentLength();
-
-  /**
-   * Return the body of the message as an input stream.
-   *
-   * @return the input stream body (never {@code null})
-   * @throws IOException in case of I/O errors
-   */
-  @Override
-  default InputStream getBody() throws IOException {
-    return getInputStream();
-  }
-
-  /**
-   * Return the headers of this message.
-   *
-   * @return a corresponding HttpHeaders object (never {@code null})
-   */
-  @Override
-  default HttpHeaders getHeaders() {
-    return requestHeaders();
-  }
+  public abstract long getContentLength();
 
   /**
    * Retrieves the body of the request as binary data using a {@link InputStream}.
@@ -650,7 +628,16 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @throws IOException if an input or output exception occurred
    */
   @Override
-  InputStream getInputStream() throws IOException;
+  public InputStream getInputStream() throws IOException {
+    InputStream inputStream = this.inputStream;
+    if (inputStream == null) {
+      inputStream = createInputStream();
+      this.inputStream = inputStream;
+    }
+    return inputStream;
+  }
+
+  protected abstract InputStream createInputStream() throws IOException;
 
   /**
    * Retrieves the body of the request as character data using a
@@ -665,7 +652,19 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see #getInputStream
    */
   @Override
-  BufferedReader getReader() throws IOException;
+  public BufferedReader getReader() throws IOException {
+    BufferedReader reader = this.reader;
+    if (reader == null) {
+      reader = createReader();
+      this.reader = reader;
+    }
+    return reader;
+  }
+
+  /** template method for get reader */
+  protected BufferedReader createReader() throws IOException {
+    return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
+  }
 
   // -----------------------------------------------------
 
@@ -679,7 +678,22 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @return true if the request is a multipart request, false otherwise.
    */
-  boolean isMultipart();
+  @Override
+  public boolean isMultipart() {
+    Boolean multipartFlag = this.multipartFlag;
+    if (multipartFlag == null) {
+      HttpMethod method = getMethod();
+      if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
+        multipartFlag = Boolean.FALSE;
+      }
+      else {
+        final MediaType contentType = getContentType();
+        multipartFlag = contentType != null && contentType.isMultipartType();
+      }
+      this.multipartFlag = multipartFlag;
+    }
+    return multipartFlag;
+  }
 
   /**
    * Returns the {@code MultipartRequest} instance associated with the current object.
@@ -704,7 +718,40 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see #isMultipart()
    * @since 4.0
    */
-  MultipartRequest asMultipartRequest();
+  @Override
+  public MultipartRequest asMultipartRequest() {
+    var multipartRequest = this.multipartRequest;
+    if (multipartRequest == null) {
+      multipartRequest = createMultipartRequest();
+      this.multipartRequest = multipartRequest;
+    }
+    return multipartRequest;
+  }
+
+  /**
+   * Creates a new instance of a multipart request object.
+   * This method is intended to be implemented by subclasses, which should
+   * provide the specific logic for constructing and returning a
+   * {@code MultipartRequest} object.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * public class CustomMultipartRequestCreator extends BaseClass {
+   *   @Override
+   *   protected MultipartRequest createMultipartRequest() {
+   *     // Custom implementation to create and return a MultipartRequest
+   *     MultipartRequest request = new MultipartRequest();
+   *     request.addPart("file", new File("example.txt"));
+   *     request.addPart("metadata", "additional data");
+   *     return request;
+   *   }
+   * }
+   * }</pre>
+   *
+   * @return a new instance of {@code MultipartRequest}, configured and ready
+   * for use in handling multipart data operations
+   */
+  protected abstract MultipartRequest createMultipartRequest();
 
   // ---------------------------------------------------------------------
   // Async
@@ -720,7 +767,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @since 4.0
    */
-  boolean isConcurrentHandlingStarted();
+  @Override
+  public boolean isConcurrentHandlingStarted() {
+    return asyncRequest != null && asyncRequest.isAsyncStarted();
+  }
 
   /**
    * Returns the current {@code AsyncWebRequest} instance associated with this context.
@@ -740,7 +790,34 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the current {@code AsyncWebRequest} instance, or a newly created instance
    * if none has been initialized yet
    */
-  AsyncWebRequest asyncWebRequest();
+  @Override
+  public AsyncWebRequest asyncWebRequest() {
+    var asyncRequest = this.asyncRequest;
+    if (asyncRequest == null) {
+      asyncRequest = createAsyncWebRequest();
+      this.asyncRequest = asyncRequest;
+    }
+    return asyncRequest;
+  }
+
+  /**
+   * Creates and returns a new asynchronous web request instance.
+   * This method is intended to be implemented by subclasses to provide
+   * a specific implementation of {@link AsyncWebRequest}.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * public class CustomAsyncWebRequestCreator {
+   *   protected AsyncWebRequest createAsyncWebRequest() {
+   *     return new CustomAsyncWebRequest();
+   *   }
+   * }
+   * }</pre>
+   *
+   * @return a new instance of {@link AsyncWebRequest} to handle asynchronous
+   * web requests
+   */
+  protected abstract AsyncWebRequest createAsyncWebRequest();
 
   /**
    * Returns the {@code WebAsyncManager} associated with this instance, lazily
@@ -763,7 +840,59 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the {@code WebAsyncManager} instance associated with this object,
    * ensuring it is initialized before returning
    */
-  WebAsyncManager asyncManager();
+  @Override
+  public WebAsyncManager asyncManager() {
+    WebAsyncManager webAsyncManager = this.webAsyncManager;
+    if (webAsyncManager == null) {
+      webAsyncManager = createWebAsyncManager();
+      this.webAsyncManager = webAsyncManager;
+    }
+    return webAsyncManager;
+  }
+
+  private WebAsyncManager createWebAsyncManager() {
+    DispatcherHandler dispatcherHandler = this.dispatcherHandler;
+    if (dispatcherHandler == null && getApplicationContext() != null) {
+      dispatcherHandler = BeanFactoryUtils.find(getApplicationContext(), DispatcherHandler.class);
+    }
+    WebAsyncManagerFactory factory = null;
+    if (dispatcherHandler != null) {
+      factory = dispatcherHandler.webAsyncManagerFactory;
+    }
+    if (factory == null && getApplicationContext() != null) {
+      factory = BeanFactoryUtils.find(getApplicationContext(), WebAsyncManagerFactory.class);
+    }
+    if (factory == null) {
+      factory = new WebAsyncManagerFactory();
+    }
+    return factory.createWebAsyncManager(this);
+  }
+
+  // ---------------------------------------------------------------------
+  // requestCompleted
+  // ---------------------------------------------------------------------
+
+  /**
+   * Signal that the request has been completed.
+   * <p>Executes all request destruction callbacks and other resources cleanup
+   *
+   * @param notHandled exception not handled
+   */
+  protected void requestCompleted(@Nullable Throwable notHandled) {
+    requestCompletedTimeMillis = System.currentTimeMillis();
+
+    if (multipartRequest != null) {
+      // @since 3.0 cleanup MultipartFiles
+      multipartRequest.cleanup();
+    }
+
+    requestCompletedInternal(notHandled);
+
+    fireCallbacks(Lifecycle.COMPLETED);
+  }
+
+  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  }
 
   // ---------------------------------------------------------------------
   // lifecycle callback
@@ -777,7 +906,17 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @param callback the callback to execute
    * @since 5.0
    */
-  void registerCallback(Lifecycle phase, String name, Runnable callback);
+  @Override
+  public void registerCallback(Lifecycle phase, String name, Runnable callback) {
+    Assert.notNull(phase, "Phase is required");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(callback, "Callback is required");
+    if (lifecycleCallbacks == null) {
+      lifecycleCallbacks = new EnumMap<>(Lifecycle.class);
+    }
+    lifecycleCallbacks.computeIfAbsent(phase, k -> new LinkedHashMap<>(8))
+            .put(name, callback);
+  }
 
   /**
    * Remove a lifecycle callback for the given phase and name.
@@ -786,57 +925,34 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @param name the name of the callback to remove
    * @since 5.0
    */
-  void removeCallback(Lifecycle phase, String name);
-
-  /**
-   * Register the given callback to be executed after request completion.
-   * <p>The callback is registered under a name derived from the callback object
-   * using {@link Conventions#getVariableName(Object)}.
-   *
-   * @param callback the callback to be executed for destruction; must not be {@code null}
-   * @return the name under which the callback was registered
-   * @throws IllegalArgumentException if the callback is {@code null}
-   * @since 5.0
-   */
-  default String registerCompletedCallback(Runnable callback) {
-    return registerCallback(Lifecycle.COMPLETED, callback);
+  @Override
+  public void removeCallback(Lifecycle phase, String name) {
+    Assert.notNull(phase, "Phase is required");
+    Assert.notNull(name, "Name is required");
+    if (lifecycleCallbacks != null) {
+      var callbacks = lifecycleCallbacks.get(phase);
+      if (callbacks != null) {
+        callbacks.remove(name);
+      }
+    }
   }
 
   /**
-   * Register a callback to be invoked just before the response headers
-   * are committed. At this point, the status code and headers can still
-   * be modified.
-   *
-   * @param callback the callback to execute; must not be {@code null}
-   * @since 5.0
-   */
-  default String registerCommittingCallback(Runnable callback) {
-    return registerCallback(Lifecycle.COMMITTING, callback);
-  }
-
-  /**
-   * Register a callback to be invoked after the response has been
-   * committed. At this point, headers can no longer be modified.
-   *
-   * @param callback the callback to execute; must not be {@code null}
-   * @since 5.0
-   */
-  default String registerCommittedCallback(Runnable callback) {
-    return registerCallback(Lifecycle.COMMITTED, callback);
-  }
-
-  /**
-   * Add a lifecycle callback for the given phase.
+   * Fire and clear all lifecycle callbacks for the given phase.
    *
    * @param phase lifecycle phase
-   * @param callback the callback to execute
    * @since 5.0
    */
-  default String registerCallback(Lifecycle phase, Runnable callback) {
-    Assert.notNull(callback, "Callback is required");
-    String variableName = Conventions.getVariableName(callback);
-    registerCallback(phase, variableName, callback);
-    return variableName;
+  protected final void fireCallbacks(Lifecycle phase) {
+    if (lifecycleCallbacks == null) {
+      return;
+    }
+    var callbacks = lifecycleCallbacks.remove(phase);
+    if (callbacks != null) {
+      for (Runnable callback : callbacks.values()) {
+        callback.run();
+      }
+    }
   }
 
   //
@@ -848,7 +964,22 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @since 4.0
    */
-  boolean isPreFlightRequest();
+  @Override
+  public boolean isPreFlightRequest() {
+    Boolean preFlightRequestFlag = this.preFlightRequestFlag;
+    if (preFlightRequestFlag == null) {
+      if (HttpMethod.OPTIONS == getMethod()) {
+        HttpHeaders httpHeaders = requestHeaders();
+        preFlightRequestFlag = httpHeaders.getFirst(HttpHeaders.ORIGIN) != null
+                && httpHeaders.getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null;
+      }
+      else {
+        preFlightRequestFlag = false;
+      }
+      this.preFlightRequestFlag = preFlightRequestFlag;
+    }
+    return preFlightRequestFlag;
+  }
 
   /**
    * Returns {@code true} if the request is a valid CORS one by checking
@@ -856,7 +987,15 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @since 4.0
    */
-  boolean isCorsRequest();
+  @Override
+  public boolean isCorsRequest() {
+    Boolean corsRequestFlag = this.corsRequestFlag;
+    if (corsRequestFlag == null) {
+      corsRequestFlag = !WebUtils.isSameOrigin(this);
+      this.corsRequestFlag = corsRequestFlag;
+    }
+    return corsRequestFlag;
+  }
 
   /**
    * Return the media type of the request body, or {@code null} if the
@@ -864,6 +1003,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <p>This method retrieves the Content-Type header from the request headers
    * and attempts to parse it into a {@link MediaType} object. If the header
    * is not present or cannot be parsed, this method returns {@code null}.
+   * <p>Cache parsed content type in {@link #contentType}.
    *
    * @return the {@link MediaType} of the request body, or {@code null} if
    * the media type is unknown or unparseable
@@ -872,8 +1012,24 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   @Override
-  @Nullable
-  MediaType getContentType();
+  public @Nullable MediaType getContentType() {
+    MediaType contentType = this.contentType;
+    if (contentType == null) {
+      String string = getContentTypeAsString();
+      if (string != null) {
+        contentType = MediaType.parseMediaType(string);
+        this.contentType = contentType;
+      }
+      else {
+        this.contentType = MediaType.ALL;
+        return null;
+      }
+    }
+    else if (contentType == MediaType.ALL) {
+      return null;
+    }
+    return contentType;
+  }
 
   /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the
@@ -882,8 +1038,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
-  @Nullable
-  String getContentTypeAsString();
+  public abstract @Nullable String getContentTypeAsString();
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers
@@ -903,7 +1058,39 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @return the {@link HttpHeaders} object containing the request headers
    */
-  HttpHeaders requestHeaders();
+  @Override
+  public HttpHeaders requestHeaders() {
+    HttpHeaders requestHeaders = this.requestHeaders;
+    if (requestHeaders == null) {
+      requestHeaders = createRequestHeaders();
+      this.requestHeaders = requestHeaders;
+    }
+    return requestHeaders;
+  }
+
+  /**
+   * Creates and returns the HTTP headers required for a request.
+   * This method is intended to be implemented by subclasses to
+   * define specific headers needed for different types of requests.
+   * <p>
+   * The returned {@code HttpHeaders} object can include common headers
+   * such as "Content-Type", "Authorization", or any custom headers
+   * required by the API being accessed.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * protected HttpHeaders createRequestHeaders() {
+   *   HttpHeaders headers = HttpHeaders.forWritable();
+   *   headers.set("Content-Type", "application/json");
+   *   headers.set("Authorization", "Bearer token123");
+   *   return headers;
+   * }
+   * }</pre>
+   *
+   * @return an instance of {@link HttpHeaders} containing the necessary
+   * headers for the request
+   */
+  protected abstract HttpHeaders createRequestHeaders();
 
   /**
    * Returns the preferred <code>Locale</code> that the client will
@@ -914,7 +1101,23 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the preferred <code>Locale</code> for the client
    * @since 4.0
    */
-  Locale getLocale();
+  @Override
+  public Locale getLocale() {
+    if (locale == null) {
+      locale = readLocale();
+    }
+    return locale;
+  }
+
+  // @since 4.0
+  protected Locale readLocale() {
+    List<Locale> locales = requestHeaders().getAcceptLanguageAsLocales();
+    Locale locale = CollectionUtils.firstElement(locales);
+    if (locale == null) {
+      return Locale.getDefault();
+    }
+    return locale;
+  }
 
   // checkNotModified
 
@@ -928,7 +1131,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return {@code true} if the object has not been modified,
    * {@code false} otherwise.
    */
-  boolean isNotModified();
+  @Override
+  public boolean isNotModified() {
+    return this.notModified;
+  }
 
   /**
    * Check whether the requested resource has been modified given the
@@ -968,7 +1174,8 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * telling the client that the content has not been modified
    * @since 4.0
    */
-  default boolean checkNotModified(long lastModifiedTimestamp) {
+  @Override
+  public boolean checkNotModified(long lastModifiedTimestamp) {
     return checkNotModified(null, lastModifiedTimestamp);
   }
 
@@ -1003,7 +1210,8 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return true if the request does not require further processing.
    * @since 4.0
    */
-  default boolean checkNotModified(String etag) {
+  @Override
+  public boolean checkNotModified(String etag) {
     return checkNotModified(etag, -1);
   }
 
@@ -1043,7 +1251,182 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return true if the request does not require further processing.
    * @since 4.0
    */
-  boolean checkNotModified(@Nullable String eTag, long lastModifiedTimestamp);
+  @Override
+  public boolean checkNotModified(@Nullable String eTag, long lastModifiedTimestamp) {
+    if (this.notModified || (HttpStatus.OK.value() != getStatus())) {
+      return this.notModified;
+    }
+    // Evaluate conditions in order of precedence.
+    // See https://datatracker.ietf.org/doc/html/rfc9110#section-13.2.2
+    if (validateIfMatch(eTag)) {
+      updateResponseStateChanging(eTag, lastModifiedTimestamp);
+      return this.notModified;
+    }
+    // 2) If-Unmodified-Since
+    else if (validateIfUnmodifiedSince(lastModifiedTimestamp)) {
+      updateResponseStateChanging(eTag, lastModifiedTimestamp);
+      return this.notModified;
+    }
+    // 3) If-None-Match
+    if (!validateIfNoneMatch(eTag)) {
+      // 4) If-Modified-Since
+      validateIfModifiedSince(lastModifiedTimestamp);
+    }
+    updateResponseIdempotent(eTag, lastModifiedTimestamp);
+    return this.notModified;
+  }
+
+  private boolean validateIfMatch(@Nullable String eTag) {
+    if (SAFE_METHODS.contains(getMethodAsString())) {
+      return false;
+    }
+
+    List<String> ifMatchHeaders = requestHeaders().get(HttpHeaders.IF_MATCH);
+    if (CollectionUtils.isEmpty(ifMatchHeaders)) {
+      return false;
+    }
+    this.notModified = matchRequestedETags(ifMatchHeaders, eTag, false);
+    return true;
+  }
+
+  private boolean validateIfNoneMatch(@Nullable String eTag) {
+    List<String> ifNoneMatchHeaders = requestHeaders().get(HttpHeaders.IF_NONE_MATCH);
+    if (CollectionUtils.isEmpty(ifNoneMatchHeaders)) {
+      return false;
+    }
+    this.notModified = !matchRequestedETags(ifNoneMatchHeaders, eTag, true);
+    return true;
+  }
+
+  private boolean matchRequestedETags(List<String> requestedETags, @Nullable String tag, boolean weakCompare) {
+    if (StringUtils.isNotEmpty(tag)) {
+      ETag eTag = ETag.create(tag);
+      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodAsString());
+      for (String requestedETagString : requestedETags) {
+        // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
+        for (ETag requestedETag : ETag.parse(requestedETagString)) {
+          // only consider "lost updates" checks for unsafe HTTP methods
+          if (requestedETag.isWildcard() && isNotSafeMethod) {
+            return false;
+          }
+          if (requestedETag.compare(eTag, !weakCompare)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
+    if (this.notModified) {
+      setStatus(HttpStatus.PRECONDITION_FAILED.value());
+    }
+    else {
+      addCachingResponseHeaders(eTag, lastModifiedTimestamp);
+    }
+  }
+
+  private boolean validateIfUnmodifiedSince(long lastModifiedTimestamp) {
+    if (lastModifiedTimestamp < 0) {
+      return false;
+    }
+    long ifUnmodifiedSince = parseDateHeader(HttpHeaders.IF_UNMODIFIED_SINCE);
+    if (ifUnmodifiedSince == -1) {
+      return false;
+    }
+    this.notModified = (ifUnmodifiedSince < (lastModifiedTimestamp / 1000 * 1000));
+    return true;
+  }
+
+  private void validateIfModifiedSince(long lastModifiedTimestamp) {
+    if (lastModifiedTimestamp < 0) {
+      return;
+    }
+    long ifModifiedSince = parseDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
+    if (ifModifiedSince != -1) {
+      // We will perform this validation...
+      this.notModified = ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000);
+    }
+  }
+
+  private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
+    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodAsString());
+    if (this.notModified) {
+      setStatus(isHttpGetOrHead ?
+              HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
+    }
+    if (isHttpGetOrHead) {
+      HttpHeaders httpHeaders = responseHeaders();
+      if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
+        httpHeaders.setDate(HttpHeaders.LAST_MODIFIED, lastModifiedTimestamp);
+      }
+      if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, ETag.quoteETagIfNecessary(eTag));
+      }
+    }
+  }
+
+  private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
+    if (SAFE_METHODS.contains(getMethodAsString())) {
+      HttpHeaders httpHeaders = responseHeaders();
+      if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
+        httpHeaders.setLastModified(lastModifiedTimestamp);
+      }
+      if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, ETag.quoteETagIfNecessary(eTag));
+      }
+    }
+  }
+
+  private long parseDateHeader(String headerName) {
+    long dateValue = -1;
+    HttpHeaders httpHeaders = requestHeaders();
+    try {
+      dateValue = httpHeaders.getFirstDate(headerName);
+    }
+    catch (IllegalArgumentException ex) {
+      String headerValue = httpHeaders.getFirst(headerName);
+      // Possibly an IE 10 style value: "Wed, 09 Apr 2014 09:57:42 GMT; length=13774"
+      if (headerValue != null) {
+        int separatorIndex = headerValue.indexOf(';');
+        if (separatorIndex != -1) {
+          String datePart = headerValue.substring(0, separatorIndex);
+          dateValue = parseDateValue(datePart);
+        }
+        else {
+          try {
+            return Long.parseLong(headerValue);
+          }
+          catch (NumberFormatException ignored) {
+          }
+        }
+      }
+    }
+    return dateValue;
+  }
+
+  private long parseDateValue(@Nullable String headerValue) {
+    if (headerValue == null) {
+      // No header value sent at all
+      return -1;
+    }
+    if (headerValue.length() >= 3) {
+      // Short "0" or "-1" like values are never valid HTTP date headers...
+      // Let's only bother with SimpleDateFormat parsing for long enough values.
+      for (String dateFormat : DATE_FORMATS) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat, Locale.US);
+        simpleDateFormat.setTimeZone(GMT);
+        try {
+          return simpleDateFormat.parse(headerValue).getTime();
+        }
+        catch (ParseException ex) {
+          // ignore
+        }
+      }
+    }
+    return -1;
+  }
 
   /**
    * Sets the matching metadata for this handler. The matching metadata provides
@@ -1053,7 +1436,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
    */
-  void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata);
+  @Override
+  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
+    this.matchingMetadata = handlerMatchingMetadata;
+  }
 
   /**
    * Returns the {@code HandlerMatchingMetadata} associated with this instance,
@@ -1067,8 +1453,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the {@code HandlerMatchingMetadata} associated with this instance,
    * or {@code null} if no metadata is available
    */
-  @Nullable
-  HandlerMatchingMetadata getMatchingMetadata();
+  @Override
+  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
+    return this.matchingMetadata;
+  }
 
   /**
    * Returns the {@code HandlerMatchingMetadata} associated with this instance.
@@ -1080,9 +1468,17 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the {@code HandlerMatchingMetadata} instance associated with this handler
    * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
    */
-  HandlerMatchingMetadata matchingMetadata();
+  @Override
+  public HandlerMatchingMetadata matchingMetadata() {
+    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
+    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
+    return matchingMetadata;
+  }
 
-  boolean hasMatchingMetadata();
+  @Override
+  public boolean hasMatchingMetadata() {
+    return matchingMetadata != null;
+  }
 
   /**
    * Sets the binding context for this component. The binding context is used to
@@ -1093,7 +1489,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @param bindingContext the {@link BindingContext} to set, or {@code null} to clear
    * the current binding context
    */
-  void setBinding(@Nullable BindingContext bindingContext);
+  @Override
+  public void setBinding(@Nullable BindingContext bindingContext) {
+    this.bindingContext = bindingContext;
+  }
 
   /**
    * Checks if the current instance has a binding context established.
@@ -1106,7 +1505,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * that a binding context exists; {@code false} otherwise.
    * @since 4.0
    */
-  boolean hasBinding();
+  @Override
+  public boolean hasBinding() {
+    return bindingContext != null;
+  }
 
   /**
    * Returns the current {@link BindingContext} associated with this instance.
@@ -1133,8 +1535,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * is associated with this instance
    * @since 4.0
    */
-  @Nullable
-  BindingContext getBinding();
+  @Override
+  public @Nullable BindingContext getBinding() {
+    return bindingContext;
+  }
 
   /**
    * Returns the {@link BindingContext} associated with this instance.
@@ -1147,16 +1551,11 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @throws IllegalStateException if BindingContext is not set
    * @since 4.0
    */
-  BindingContext binding();
-
-  /**
-   * Return read-only "input" flash attributes from request before redirect.
-   *
-   * @return a RedirectModel, or {@code null} if not found
-   * @see RedirectModel
-   */
-  default @Nullable RedirectModel getInputRedirectModel() {
-    return getInputRedirectModel(null);
+  @Override
+  public BindingContext binding() {
+    BindingContext bindingContext = this.bindingContext;
+    Assert.state(bindingContext != null, "BindingContext is required");
+    return bindingContext;
   }
 
   /**
@@ -1166,18 +1565,32 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a RedirectModel, or {@code null} if not found
    * @see RedirectModel
    */
-  @Nullable
-  RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager);
+  @Override
+  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
+    if (redirectModel instanceof RedirectModel ret) {
+      return ret;
+    }
+    else if (redirectModel == NullValue.INSTANCE) {
+      return null;
+    }
 
-  /**
-   * Sets the length of the content body in the response , this method sets the
-   * HTTP Content-Length header.
-   *
-   * @param length an long specifying the length of the content being returned to the
-   * client; sets the Content-Length header
-   */
-  default void setContentLength(long length) {
-    responseHeaders().setContentLength(length);
+    if (manager == null) {
+      manager = HttpContextUtils.getRedirectModelManager(this);
+    }
+    if (manager != null) {
+      RedirectModel redirectModel = manager.retrieveAndUpdate(this);
+      if (redirectModel != null) {
+        this.redirectModel = redirectModel;
+        return redirectModel;
+      }
+    }
+    Object attribute = getAttribute(RedirectModel.INPUT_ATTRIBUTE);
+    if (attribute instanceof RedirectModel ret) {
+      this.redirectModel = ret;
+      return ret;
+    }
+    this.redirectModel = NullValue.INSTANCE;
+    return null;
   }
 
   /**
@@ -1187,7 +1600,8 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a boolean indicating if the response has been committed
    * @see #reset
    */
-  boolean isCommitted();
+  @Override
+  public abstract boolean isCommitted();
 
   /**
    * Clears any data that exists in the buffer as well as the status code,
@@ -1201,34 +1615,15 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @throws IllegalStateException if the response has already been committed
    */
-  void reset();
-
-  /**
-   * Sends a temporary redirect response to the client using the specified
-   * redirect location URL and clears the buffer. The buffer will be replaced with
-   * the data set by this method. Calling this method sets the status code to 302
-   * (Found). This method can accept relative URLs;the Web container must
-   * convert the relative URL to an absolute URL before sending the response to
-   * the client. If the location is relative without a leading '/' the container
-   * interprets it as relative to the current request URI. If the location is
-   * relative with a leading '/' the container interprets it as relative to the
-   * web container root. If the location is relative with two leading '/' the
-   * container interprets it as a network-path reference (see
-   * <a href="http://www.ietf.org/rfc/rfc3986.txt"> RFC 3986: Uniform Resource
-   * Identifier (URI): Generic Syntax</a>, section 4.2 &quot;Relative
-   * Reference&quot;).
-   *
-   * <p>
-   * If the response has already been committed, this method throws an
-   * IllegalStateException. After using this method, the response should be
-   * considered to be committed and should not be written to.
-   *
-   * @param location the redirect location URL
-   * @throws IOException If an input or output exception occurs
-   * @throws IllegalStateException If the response was committed or if a partial URL is given and
-   * cannot be converted into a valid URL
-   */
-  void sendRedirect(String location) throws IOException;
+  @Override
+  public void reset() {
+    assertNotCommitted();
+    responseContentLength = -1L;
+    responseContentType = null;
+    if (responseHeaders != null) {
+      responseHeaders.clear();
+    }
+  }
 
   /**
    * Forward the request to a new path, re-dispatching through the handler
@@ -1245,30 +1640,9 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see DispatcherHandler#forward(HttpContext, String)
    * @since 5.0
    */
-  void forward(String path) throws Exception;
-
-  /**
-   * Sets the status code for this response.
-   *
-   * <p>
-   * This method is used to set the return status code when there is no error .
-   * <p>
-   * This method preserves any cookies and other response headers.
-   * <p>
-   * Valid status codes are those in the 2XX, 3XX, 4XX, and 5XX ranges. Other
-   * status codes are treated as container specific.
-   *
-   * @param sc the status code
-   */
-  void setStatus(int sc);
-
-  /**
-   * Sets the status code and message for this response.
-   *
-   * @param status the status
-   */
-  default void setStatus(HttpStatusCode status) {
-    setStatus(status.value());
+  @Override
+  public void forward(String path) throws Exception {
+    dispatcherHandler.forward(this, path);
   }
 
   /**
@@ -1276,67 +1650,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @return the current status code of this response
    */
-  int getStatus();
-
-  /**
-   * Sends an error response to the client using the specified status code and
-   * clears the buffer.
-   * <p>
-   * The server will preserve cookies and may clear or update any headers needed
-   * to serve the error page as a valid response.
-   * <p>
-   * If an error-page declaration has been made for the web application
-   * corresponding to the status code passed in, it will be served back the error
-   * page
-   *
-   * <p>
-   * If the response has already been committed, this method throws an
-   * IllegalStateException. After using this method, the response should be
-   * considered to be committed and should not be written to.
-   *
-   * @param code the error status code
-   * @throws IOException If an input or output exception occurs
-   * @throws IllegalStateException If the response was committed before this method call
-   * @since 4.0
-   */
-  default void sendError(HttpStatusCode code) throws IOException {
-    sendError(code.value());
-  }
-
-  /**
-   * <p>
-   * Sends an error response to the client using the specified status and clears
-   * the buffer. The server defaults to creating the response to look like an
-   * HTML-formatted server error page containing the specified message, setting
-   * the content type to "text/html". The caller is <strong>not</strong>
-   * responsible for escaping or re-encoding the message to ensure it is safe with
-   * respect to the current response encoding and content type. This aspect of
-   * safety is the responsibility of the container, as it is generating the error
-   * page containing the message. The server will preserve cookies and may clear
-   * or update any headers needed to serve the error page as a valid response.
-   * </p>
-   *
-   * <p>
-   * If an error-page declaration has been made for the web application
-   * corresponding to the status code passed in, it will be served back in
-   * preference to the suggested msg parameter and the msg parameter will be
-   * ignored.
-   * </p>
-   *
-   * <p>
-   * If the response has already been committed, this method throws an
-   * IllegalStateException. After using this method, the response should be
-   * considered to be committed and should not be written to.
-   *
-   * @param code the error status code
-   * @param msg the descriptive message
-   * @throws IOException If an input or output exception occurs
-   * @throws IllegalStateException If the response was committed
-   * @since 4.0
-   */
-  default void sendError(HttpStatusCode code, @Nullable String msg) throws IOException {
-    sendError(code.value(), msg);
-  }
+  public abstract int getStatus();
 
   /**
    * Sends an error response to the client using the specified status code and
@@ -1358,7 +1672,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @throws IOException If an input or output exception occurs
    * @throws IllegalStateException If the response was committed before this method call
    */
-  void sendError(int sc) throws IOException;
+  public abstract void sendError(int sc) throws IOException;
 
   /**
    * <p>
@@ -1390,7 +1704,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @throws IOException If an input or output exception occurs
    * @throws IllegalStateException If the response was committed
    */
-  void sendError(int sc, @Nullable String msg) throws IOException;
+  public abstract void sendError(int sc, @Nullable String msg) throws IOException;
 
   /**
    * Returns a {@link OutputStream} suitable for writing binary data in the
@@ -1409,7 +1723,19 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see #reset
    */
   @Override
-  OutputStream getOutputStream() throws IOException;
+  public OutputStream getOutputStream() throws IOException {
+    OutputStream outputStream = this.outputStream;
+    if (outputStream == null) {
+      outputStream = createOutputStream();
+      this.outputStream = outputStream;
+    }
+    return outputStream;
+  }
+
+  /**
+   * template method for create OutputStream
+   */
+  protected abstract OutputStream createOutputStream() throws IOException;
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
@@ -1428,7 +1754,21 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see PrintWriter#flush()
    */
   @Override
-  PrintWriter getWriter() throws IOException;
+  public PrintWriter getWriter() throws IOException {
+    PrintWriter writer = this.writer;
+    if (writer == null) {
+      writer = createWriter();
+      this.writer = writer;
+    }
+    return writer;
+  }
+
+  /**
+   * template method for get writer
+   */
+  protected PrintWriter createWriter() throws IOException {
+    return new PrintWriter(getOutputStream(), true);
+  }
 
   /**
    * Sets the content type of the response being sent to the client, if the
@@ -1451,31 +1791,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @param contentType a <code>String</code> specifying the MIME type of the content
    */
-  void setContentType(@Nullable String contentType);
-
-  /**
-   * Sets the content type of the response being sent to the client, if the
-   * response has not been committed yet. The given content type may include a
-   * character encoding specification, for example,
-   * <code>text/html;charset=UTF-8</code>. The response's character encoding is
-   * only set from the given content type if this method is called before
-   * <code>getWriter</code> is called.
-   * <p>
-   * This method may be called repeatedly to change content type and character
-   * encoding. This method has no effect if called after the response has been
-   * committed. It does not set the response's character encoding if it is called
-   * after <code>getWriter</code> has been called or after the response has been
-   * committed.
-   * <p>
-   * Containers must communicate the content type and the character encoding used
-   * for the http response's writer to the client if the protocol provides a
-   * way for doing so. In the case of HTTP, the <code>Content-Type</code> header
-   * is used.
-   *
-   * @param contentType a <code>String</code> specifying the MIME type of the content
-   */
-  default void setContentType(@Nullable MediaType contentType) {
-    setContentType(contentType == null ? null : contentType.toString());
+  @Override
+  public void setContentType(@Nullable String contentType) {
+    this.responseContentType = contentType;
+    setHeader(HttpHeaders.CONTENT_TYPE, contentType);
   }
 
   /**
@@ -1489,56 +1808,14 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * null
    * @see #getContentTypeAsString()
    */
-  @Nullable String getResponseContentType();
-
-  /**
-   * Sets a response header with the given name and value. If the
-   * header had already been set, the new value overwrites the
-   * previous one.
-   *
-   * @param name the name of the header
-   * @param value the header value If it contains octet string,
-   * it should be encoded according to RFC 2047
-   * (<a href="http://www.ietf.org/rfc/rfc2047.txt">RFC 2047</a>)
-   * @see HttpHeaders#setOrRemove
-   * @since 4.0
-   */
-  default void setHeader(String name, @Nullable String value) {
-    responseHeaders().setOrRemove(name, value);
-  }
-
-  /**
-   * Replace all headers
-   *
-   * @since 5.0
-   */
-  default void setHeaders(@Nullable HttpHeaders headers) {
-    responseHeaders().setAll(headers);
-  }
-
-  /**
-   * Add a response header with the given name and value.
-   *
-   * @param name the name of the header
-   * @param value the header value If it contains octet string,
-   * it should be encoded according to RFC 2047
-   * (<a href="http://www.ietf.org/rfc/rfc2047.txt">RFC 2047</a>)
-   * @see HttpHeaders#add(String, String)
-   * @since 4.0
-   */
-  default void addHeader(String name, @Nullable String value) {
-    responseHeaders().add(name, value);
-  }
-
-  /**
-   * merge headers to response http-headers
-   *
-   * @since 3.0
-   */
-  default void addHeaders(@Nullable HttpHeaders headers) {
-    if (HttpHeaders.isNotEmpty(headers)) {
-      responseHeaders().addAll(headers);
+  @Override
+  public @Nullable String getResponseContentType() {
+    if (responseContentType == null) {
+      if (responseHeaders != null) {
+        return responseHeaders.getContentTypeAsString();
+      }
     }
+    return responseContentType;
   }
 
   /**
@@ -1560,7 +1837,13 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @param name the name of the header to be removed
    */
-  boolean removeHeader(String name);
+  @Override
+  public boolean removeHeader(String name) {
+    if (responseHeaders != null) {
+      return responseHeaders.remove(name) != null;
+    }
+    return false;
+  }
 
   /**
    * Returns a boolean indicating whether the named
@@ -1571,7 +1854,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * has already been set; <code>false</code> otherwise
    * @since 4.0
    */
-  boolean containsResponseHeader(String name);
+  @Override
+  public boolean containsResponseHeader(String name) {
+    return responseHeaders != null && responseHeaders.contains(name);
+  }
 
   /**
    * Returns the HTTP response headers associated with this instance.
@@ -1599,9 +1885,29 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the {@link HttpHeaders} object representing the response headers.
    * This will never be {@code null}.
    */
-  HttpHeaders responseHeaders();
+  @Override
+  public HttpHeaders responseHeaders() {
+    HttpHeaders responseHeaders = this.responseHeaders;
+    if (responseHeaders == null) {
+      responseHeaders = createResponseHeaders();
+      this.responseHeaders = responseHeaders;
+    }
+    return responseHeaders;
+  }
 
-  ServerHttpResponse asHttpOutputMessage();
+  /**
+   * create a new response http-header
+   *
+   * @since 3.0
+   */
+  protected HttpHeaders createResponseHeaders() {
+    return new DefaultHttpHeaders();
+  }
+
+  @Override
+  public ServerHttpResponse asHttpOutputMessage() {
+    return new HttpContextHttpOutputMessage();
+  }
 
   /**
    * Forces any content in the buffer to be written to the client.  A call
@@ -1615,236 +1921,84 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see #isCommitted
    * @see #reset
    */
-  void flush() throws IOException;
+  @Override
+  public void flush() throws IOException {
+    writeHeaders();
 
-  // ---------------------------------------------------------------------
-  // MessageSource API
-  // ---------------------------------------------------------------------
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param defaultMessage the String to return if the lookup fails
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, String defaultMessage) {
-    return getMessage(code, null, defaultMessage, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @param defaultMessage the String to return if the lookup fails
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args, String defaultMessage) {
-    return getMessage(code, args, defaultMessage, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message as a List, or {@code null} if none
-   * @param defaultMessage the String to return if the lookup fails
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, @Nullable List<?> args, String defaultMessage) {
-    return getMessage(code, (args != null ? args.toArray() : null), defaultMessage, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @param defaultMessage the String to return if the lookup fails
-   * @param htmlEscape if the message should be HTML-escaped
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
-    String msg = getMessageSource().getMessage(code, args, defaultMessage, getLocale());
-    if (msg == null) {
-      return "";
+    if (writer != null) {
+      writer.flush();
     }
-    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code) throws NoSuchMessageException {
-    return getMessage(code, null, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args) throws NoSuchMessageException {
-    return getMessage(code, args, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message as a List, or {@code null} if none
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code, @Nullable List<?> args) throws NoSuchMessageException {
-    return getMessage(code, args != null ? args.toArray() : null, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @param htmlEscape if the message should be HTML-escaped
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
-    String msg = getMessageSource().getMessage(code, args, getLocale());
-    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
-  }
-
-  /**
-   * Retrieve the given MessageSourceResolvable (for example, an ObjectError instance), using the "defaultHtmlEscape" setting.
-   *
-   * @param resolvable the MessageSourceResolvable
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
-    return getMessage(resolvable, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the given MessageSourceResolvable (for example, an ObjectError instance).
-   *
-   * @param resolvable the MessageSourceResolvable
-   * @param htmlEscape if the message should be HTML-escaped
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
-    String msg = getMessageSource().getMessage(resolvable, getLocale());
-    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
-  }
-
-  /**
-   * Return the MessageSource to use (typically the current ApplicationContext).
-   *
-   * @since 5.0
-   */
-  default MessageSource getMessageSource() {
-    return getApplicationContext();
-  }
-
-  /**
-   * Determines whether HTML escaping is enabled by default for message resolution.
-   * This method returns the value of the static field {@code defaultHtmlEscape},
-   * which is initialized from the application's configuration.
-   *
-   * @return {@code true} if HTML escaping is enabled by default, {@code false} otherwise
-   * @since 5.0
-   */
-  default boolean isDefaultHtmlEscape() {
-    return defaultHtmlEscape;
-  }
-
-  /**
-   * Retrieve the Errors instance for the given bind object, using the "defaultHtmlEscape" setting.
-   *
-   * @param name the name of the bind object
-   * @return the Errors instance, or {@code null} if not found
-   * @since 5.0
-   */
-  default @Nullable Errors getErrors(String name) {
-    return getErrors(name, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the Errors instance for the given bind object.
-   *
-   * @param name the name of the bind object
-   * @param htmlEscape create an Errors instance with automatic HTML escaping?
-   * @return the Errors instance, or {@code null} if not found
-   * @since 5.0
-   */
-  default @Nullable Errors getErrors(String name, boolean htmlEscape) {
-    BindingContext binding = getBinding();
-    if (binding != null) {
-      return binding.getErrors(name, htmlEscape);
+    else if (outputStream != null) {
+      outputStream.flush();
     }
-    return null;
   }
 
   /**
-   * Create a BindStatus for the given bind object, using the "defaultHtmlEscape" setting.
+   * Write response headers to the client.
+   * <p>Subclasses must override this method to write the actual headers.
+   * Implementations should call {@link #onCommitting()} before
+   * writing headers and {@link #onCommitted()} after writing.
    *
-   * @param path the bean and property path for which values and errors will be resolved (for example, "person.age")
-   * @return the new BindStatus instance
-   * @throws IllegalStateException if no corresponding Errors object found
-   * @since 5.0
+   * @see #onCommitting
+   * @see #onCommitted
+   * @see #flush
+   * @since 4.0
    */
-  default BindStatus getBindStatus(String path) throws IllegalStateException {
-    return new BindStatus(this, path, isDefaultHtmlEscape());
+  protected void writeHeaders() {
   }
 
   /**
-   * Create a BindStatus for the given bind object, using the "defaultHtmlEscape" setting.
+   * Invoked before the response headers are about to be committed.
+   * <p>Fires all registered {@linkplain #registerCallback(Lifecycle, String, Runnable)
+   * committing callbacks}. This method is {@code final}; use
+   * {@link #registerCallback(Lifecycle, String, Runnable)} or
+   * {@link #registerCommittingCallback(Runnable)} to register custom
+   * commit lifecycle actions.
    *
-   * @param path the bean and property path for which values and errors will be resolved (for example, "person.age")
-   * @param htmlEscape create a BindStatus with automatic HTML escaping?
-   * @return the new BindStatus instance
-   * @throws IllegalStateException if no corresponding Errors object found
+   * @see #onCommitted
+   * @see #flush
    * @since 5.0
    */
-  default BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
-    return new BindStatus(this, path, htmlEscape);
+  protected final void onCommitting() {
+    fireCallbacks(Lifecycle.COMMITTING);
+  }
+
+  /**
+   * Invoked after the response has been committed, i.e., after
+   * the status code and headers have been written to the client.
+   * <p>Fires all registered {@linkplain #registerCallback(Lifecycle, String, Runnable)
+   * committed callbacks}. This method is {@code final}; use
+   * {@link #registerCallback(Lifecycle, String, Runnable)} or
+   * {@link #registerCommittedCallback(Runnable)} to register custom
+   * commit lifecycle actions.
+   *
+   * @see #onCommitting
+   * @see #flush
+   * @see #isCommitted
+   * @since 5.0
+   */
+  protected final void onCommitted() {
+    fireCallbacks(Lifecycle.COMMITTED);
+  }
+
+  /**
+   * assert that response is committed?
+   *
+   * @throws IllegalStateException if response is committed
+   */
+  protected final void assertNotCommitted() {
+    if (isCommitted()) {
+      throw new IllegalStateException("The response has been committed");
+    }
+  }
+
+  protected final void processException(Throwable exception) throws Throwable {
+    dispatcherHandler.processDispatchResult(this, null, null, exception);
   }
 
   // ---------------------------------------------------------------------
   // Session API
   // ---------------------------------------------------------------------
-
-  /**
-   * Returns the current {@link Session} associated with this request,
-   * or if the request does not have a session, creates one.
-   *
-   * @return the {@code Session} associated with this request
-   * @see #getSession(boolean)
-   * @see SessionManager
-   * @since 5.0
-   */
-  default Session getSession() {
-    return getSession(true);
-  }
 
   /**
    * Returns the current {@link Session} associated with this request or,
@@ -1861,58 +2015,57 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see SessionManager
    * @since 5.0
    */
-  @Nullable Session getSession(boolean create);
-
-  /**
-   * Change the session id of the current session associated with this request and return the new session id.
-   *
-   * @return the new session id
-   * @throws IllegalStateException if there is no session associated with the request
-   * @see SessionManager
-   * @since 5.0
-   */
-  default String changeSessionId() {
-    Session session = getSession(false);
-    if (session != null) {
-      return session.changeSessionId();
+  @Override
+  public @Nullable Session getSession(boolean create) {
+    Session session = this.session;
+    if (session == null) {
+      session = sessionManager().getSession(this, create);
+      this.session = session;
     }
-    throw new IllegalStateException("there is no session associated with the request");
+    return session;
   }
 
-  /**
-   * Determine the session id of the given request, if any.
-   *
-   * @return the session id, or {@code null} if none
-   */
-  default @Nullable String getSessionId() {
-    Session session = getSession(false);
-    return session != null ? session.getId() : null;
+  protected SessionManager sessionManager() {
+    return dispatcherHandler.sessionManagerDiscover.obtain(this);
   }
 
-  /**
-   * Return the underlying native context object, if available.
-   *
-   * @param type the desired type of context object
-   * @return the matching context object, or {@code null} if none
-   * of that type is available
-   * @since 5.0
-   */
-  default <T> @Nullable T unwrap(@Nullable Class<T> type) {
-    return WebUtils.getNativeContext(this, type);
+  @Override
+  public String toString() {
+    String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
+    return getMethodAsString() + " " + url;
   }
 
-  /**
-   * Return the underlying native context object, if available.
-   *
-   * @param type the desired type of context object
-   * @return the matching context object, or {@code null} if none
-   * of that type is available
-   * @since 5.0
-   */
-  default <T> T required(Class<T> type) {
-    T nativeContext = unwrap(type);
-    Assert.state(nativeContext != null, "There is no context associated with this instance");
-    return nativeContext;
+  final class HttpContextHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setStatusCode(HttpStatusCode status) {
+      setStatus(status);
+    }
+
+    @Override
+    public void flush() throws IOException {
+      AbstractHttpContext.this.flush();
+    }
+
+    @Override
+    public void close() {
+      writeHeaders();
+    }
+
+    @Override
+    public OutputStream getBody() throws IOException {
+      return getOutputStream();
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+      return responseHeaders();
+    }
+
+    @Override
+    public void setContentType(@Nullable MediaType mediaType) {
+      AbstractHttpContext.this.setContentType(mediaType);
+    }
   }
 
 }

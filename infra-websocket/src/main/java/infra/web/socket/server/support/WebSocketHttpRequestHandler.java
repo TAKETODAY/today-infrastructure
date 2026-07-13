@@ -76,9 +76,8 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
     }
   }
 
-  @Nullable
   @Override
-  public Object handleRequest(HttpContext context) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
     Throwable failure = null;
     try {

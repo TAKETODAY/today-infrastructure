@@ -412,7 +412,7 @@ class DecoratingHttpContextTests {
 
     DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
 
-    ArrayList<ResponseCookie> result = wrapper.responseCookies();
+    List<ResponseCookie> result = wrapper.responseCookies();
 
     assertThat(result).isSameAs(cookies);
     verify(delegate).responseCookies();
@@ -634,20 +634,6 @@ class DecoratingHttpContextTests {
 
     assertThat(result).isSameAs(headers);
     verify(delegate).requestHeaders();
-  }
-
-  @Test
-  void createRequestHeaders_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HttpHeaders headers = mock(HttpHeaders.class);
-    when(delegate.createRequestHeaders()).thenReturn(headers);
-
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
-
-    HttpHeaders result = wrapper.createRequestHeaders();
-
-    assertThat(result).isSameAs(headers);
-    verify(delegate).createRequestHeaders();
   }
 
   @Test
@@ -977,20 +963,6 @@ class DecoratingHttpContextTests {
   }
 
   @Test
-  void createResponseHeaders_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HttpHeaders headers = mock(HttpHeaders.class);
-    when(delegate.createResponseHeaders()).thenReturn(headers);
-
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
-
-    HttpHeaders result = wrapper.createResponseHeaders();
-
-    assertThat(result).isSameAs(headers);
-    verify(delegate).createResponseHeaders();
-  }
-
-  @Test
   void asHttpOutputMessage_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     ServerHttpResponse response = mock(ServerHttpResponse.class);
@@ -1002,20 +974,6 @@ class DecoratingHttpContextTests {
 
     assertThat(result).isSameAs(response);
     verify(delegate).asHttpOutputMessage();
-  }
-
-  @Test
-  void nativeRequest_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    Object nativeRequest = new Object();
-    when(delegate.nativeRequest()).thenReturn(nativeRequest);
-
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
-
-    Object result = wrapper.nativeRequest();
-
-    assertThat(result).isSameAs(nativeRequest);
-    verify(delegate).nativeRequest();
   }
 
   @Test

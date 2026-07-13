@@ -22,17 +22,17 @@ import java.util.HashMap;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.web.mock.MockRequest;
 import infra.stereotype.Component;
 import infra.util.MultiValueMapAdapter;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Tests for {@link DispatcherHandler#forward(HttpContext, String)} cycle detection.
+ * Tests for {@link DispatcherHandler#forward(AbstractHttpContext, String)} cycle detection.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0

@@ -81,7 +81,7 @@ class HttpContextUrlTests {
 
   // -- stub --
 
-  private static class StubHttpContext extends HttpContext {
+  private static class StubHttpContext extends AbstractHttpContext {
 
     private final String scheme;
 
@@ -227,9 +227,5 @@ class HttpContextUrlTests {
       return null;
     }
 
-    @Override
-    public <T> T nativeRequest() {
-      return null;
-    }
   }
 }

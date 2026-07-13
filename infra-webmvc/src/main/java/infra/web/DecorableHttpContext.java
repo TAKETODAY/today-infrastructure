@@ -30,7 +30,6 @@ import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -73,15 +72,7 @@ import infra.web.multipart.MultipartRequest;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/2/28 12:53
  */
-public abstract class DecorableHttpContext extends HttpContext {
-
-  protected DecorableHttpContext() {
-    super(null, null);
-  }
-
-  protected DecorableHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
-    super(context, dispatcherHandler);
-  }
+public abstract class DecorableHttpContext implements HttpContext {
 
   @Override
   public long getRequestTimeMillis() {
@@ -144,11 +135,6 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  protected String readRequestURI() {
-    return delegate().readRequestURI();
-  }
-
-  @Override
   public String getRequestURL() {
     return delegate().getRequestURL();
   }
@@ -159,23 +145,12 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  protected String readQueryString() {
-    return delegate().readQueryString();
-  }
-
-  @Override
   public HttpCookie[] getCookies() {
     return delegate().getCookies();
   }
 
   @Override
-  protected HttpCookie[] readCookies() {
-    return delegate().readCookies();
-  }
-
-  @Override
-  @Nullable
-  public HttpCookie getCookie(String name) {
+  public @Nullable HttpCookie getCookie(String name) {
     return delegate().getCookie(name);
   }
 
@@ -209,9 +184,8 @@ public abstract class DecorableHttpContext extends HttpContext {
     delegate().addCookie(cookie);
   }
 
-  @Nullable
   @Override
-  public List<ResponseCookie> removeCookie(String name) {
+  public @Nullable List<ResponseCookie> removeCookie(String name) {
     return delegate().removeCookie(name);
   }
 
@@ -221,18 +195,13 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  public ArrayList<ResponseCookie> responseCookies() {
+  public List<ResponseCookie> responseCookies() {
     return delegate().responseCookies();
   }
 
   @Override
   public MultiValueMap<String, String> getParameters() {
     return delegate().getParameters();
-  }
-
-  @Override
-  protected MultiValueMap<String, String> readParameters() {
-    return delegate().readParameters();
   }
 
   @Override
@@ -246,14 +215,8 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  @Nullable
-  public String getParameter(String name) {
+  public @Nullable String getParameter(String name) {
     return delegate().getParameter(name);
-  }
-
-  @Override
-  protected String readMethod() {
-    return delegate().readMethod();
   }
 
   @Override
@@ -297,11 +260,6 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  protected InputStream createInputStream() throws IOException {
-    return delegate().createInputStream();
-  }
-
-  @Override
   public BufferedReader getReader() throws IOException {
     return delegate().getReader();
   }
@@ -342,11 +300,6 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  public HttpHeaders createRequestHeaders() {
-    return delegate().createRequestHeaders();
-  }
-
-  @Override
   public @Nullable String getHeader(String name) {
     return delegate().getHeader(name);
   }
@@ -374,11 +327,6 @@ public abstract class DecorableHttpContext extends HttpContext {
   @Override
   public Locale getLocale() {
     return delegate().getLocale();
-  }
-
-  @Override
-  protected Locale readLocale() {
-    return delegate().readLocale();
   }
 
   @Override
@@ -462,18 +410,8 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  protected OutputStream createOutputStream() throws IOException {
-    return delegate().createOutputStream();
-  }
-
-  @Override
   public PrintWriter getWriter() throws IOException {
     return delegate().getWriter();
-  }
-
-  @Override
-  protected PrintWriter createWriter() throws IOException {
-    return delegate().createWriter();
   }
 
   @Override
@@ -486,9 +424,8 @@ public abstract class DecorableHttpContext extends HttpContext {
     delegate().setContentType(contentType);
   }
 
-  @Nullable
   @Override
-  public String getResponseContentType() {
+  public @Nullable String getResponseContentType() {
     return delegate().getResponseContentType();
   }
 
@@ -528,23 +465,12 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  public HttpHeaders createResponseHeaders() {
-    return delegate().createResponseHeaders();
-  }
-
-  @Override
   public ServerHttpResponse asHttpOutputMessage() {
     return delegate().asHttpOutputMessage();
   }
 
   @Override
-  public <T> T nativeRequest() {
-    return delegate().nativeRequest();
-  }
-
-  @Nullable
-  @Override
-  public HandlerMatchingMetadata getMatchingMetadata() {
+  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
     return delegate().getMatchingMetadata();
   }
 
@@ -558,9 +484,13 @@ public abstract class DecorableHttpContext extends HttpContext {
     return delegate().hasMatchingMetadata();
   }
 
-  @Nullable
   @Override
-  public Object getAttribute(String name) {
+  public HandlerMatchingMetadata matchingMetadata() {
+    return delegate().matchingMetadata();
+  }
+
+  @Override
+  public @Nullable Object getAttribute(String name) {
     return delegate().getAttribute(name);
   }
 
@@ -574,9 +504,8 @@ public abstract class DecorableHttpContext extends HttpContext {
     delegate().setAttributes(attributes);
   }
 
-  @Nullable
   @Override
-  public Object removeAttribute(String name) {
+  public @Nullable Object removeAttribute(String name) {
     return delegate().removeAttribute(name);
   }
 
@@ -593,16 +522,6 @@ public abstract class DecorableHttpContext extends HttpContext {
   @Override
   public void flush() throws IOException {
     delegate().flush();
-  }
-
-  @Override
-  protected MultipartRequest createMultipartRequest() {
-    return delegate().createMultipartRequest();
-  }
-
-  @Override
-  protected AsyncWebRequest createAsyncWebRequest() {
-    return delegate().createAsyncWebRequest();
   }
 
   @Override
@@ -625,9 +544,8 @@ public abstract class DecorableHttpContext extends HttpContext {
     delegate().setBinding(bindingContext);
   }
 
-  @Nullable
   @Override
-  public BindingContext getBinding() {
+  public @Nullable BindingContext getBinding() {
     return delegate().getBinding();
   }
 
@@ -641,15 +559,13 @@ public abstract class DecorableHttpContext extends HttpContext {
     return delegate().hasBinding();
   }
 
-  @Nullable
   @Override
-  public RedirectModel getInputRedirectModel() {
+  public @Nullable RedirectModel getInputRedirectModel() {
     return delegate().getInputRedirectModel();
   }
 
-  @Nullable
   @Override
-  public RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
+  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
     return delegate().getInputRedirectModel(manager);
   }
 
@@ -696,18 +612,8 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  public HandlerMatchingMetadata matchingMetadata() {
-    return delegate().matchingMetadata();
-  }
-
-  @Override
   public WebAsyncManager asyncManager() {
     return delegate().asyncManager();
-  }
-
-  @Override
-  public void requestCompletedInternal(@Nullable Throwable notHandled) {
-    delegate().requestCompletedInternal(notHandled);
   }
 
   @Override
@@ -791,18 +697,23 @@ public abstract class DecorableHttpContext extends HttpContext {
   }
 
   @Override
-  public void registerCommittedCallback(Runnable callback) {
-    delegate().registerCommittedCallback(callback);
+  public String registerCommittedCallback(Runnable callback) {
+    return delegate().registerCommittedCallback(callback);
   }
 
   @Override
-  public void registerCommittingCallback(Runnable callback) {
-    delegate().registerCommittingCallback(callback);
+  public String registerCommittingCallback(Runnable callback) {
+    return delegate().registerCommittingCallback(callback);
   }
 
   @Override
   public void registerCallback(Lifecycle phase, String name, Runnable callback) {
     delegate().registerCallback(phase, name, callback);
+  }
+
+  @Override
+  public String registerCallback(Lifecycle phase, Runnable callback) {
+    return delegate().registerCallback(phase, callback);
   }
 
   @Override
@@ -838,6 +749,21 @@ public abstract class DecorableHttpContext extends HttpContext {
   @Override
   public @Nullable String getSessionId() {
     return delegate().getSessionId();
+  }
+
+  @Override
+  public boolean isDefaultHtmlEscape() {
+    return delegate().isDefaultHtmlEscape();
+  }
+
+  @Override
+  public @Nullable <T> T unwrap(@Nullable Class<T> type) {
+    return delegate().unwrap(type);
+  }
+
+  @Override
+  public <T> T required(Class<T> type) {
+    return delegate().required(type);
   }
 
   public abstract HttpContext delegate();

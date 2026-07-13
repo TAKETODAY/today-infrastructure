@@ -129,9 +129,8 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     return StringUtils.toStringArray(this.supportedProtocols);
   }
 
-  @Nullable
   @Override
-  public final WebSocketSession doHandshake(HttpContext context, WebSocketHandler wsHandler, Map<String, Object> attributes)
+  public final @Nullable WebSocketSession doHandshake(HttpContext context, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws HandshakeFailureException {
 
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders(context.getHeaders());
@@ -263,8 +262,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    * @return the selected protocols or {@code null}
    * @see #determineHandlerSupportedProtocols(WebSocketHandler)
    */
-  @Nullable
-  protected String selectProtocol(List<String> requestedProtocols, WebSocketHandler webSocketHandler) {
+  protected @Nullable String selectProtocol(List<String> requestedProtocols, WebSocketHandler webSocketHandler) {
     List<String> handlerProtocols = determineHandlerSupportedProtocols(webSocketHandler);
     for (String protocol : requestedProtocols) {
       if (handlerProtocols.contains(protocol.toLowerCase(Locale.ROOT))) {

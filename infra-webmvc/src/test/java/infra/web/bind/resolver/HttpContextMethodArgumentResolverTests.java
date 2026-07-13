@@ -34,6 +34,7 @@ import infra.core.annotation.SynthesizingMethodParameter;
 import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
 import infra.http.HttpMethod;
+import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.handler.method.ResolvableMethodParameter;
@@ -483,7 +484,7 @@ class HttpContextMethodArgumentResolverTests {
 
   }
 
-  static abstract class WrongHttpContext extends HttpContext {
+  static abstract class WrongHttpContext extends AbstractHttpContext {
     protected WrongHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
       super(context, dispatcherHandler);
     }

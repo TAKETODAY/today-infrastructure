@@ -16,8 +16,6 @@
 
 package infra.web;
 
-import infra.context.ApplicationContext;
-
 /**
  * A {@link HttpContext} implementation that decorates another {@link HttpContext}.
  *
@@ -32,11 +30,6 @@ public class DecoratingHttpContext extends DecorableHttpContext {
   protected final HttpContext delegate;
 
   public DecoratingHttpContext(HttpContext delegate) {
-    this.delegate = delegate;
-  }
-
-  public DecoratingHttpContext(HttpContext delegate, ApplicationContext context, DispatcherHandler dispatcherHandler) {
-    super(context, dispatcherHandler);
     this.delegate = delegate;
   }
 

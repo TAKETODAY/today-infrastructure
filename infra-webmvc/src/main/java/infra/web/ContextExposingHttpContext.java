@@ -38,21 +38,24 @@ public class ContextExposingHttpContext extends DecoratingHttpContext {
 
   private final @Nullable Set<String> exposedContextBeanNames;
 
+  private final ApplicationContext applicationContext;
+
   private @Nullable Set<String> explicitAttributes;
 
   /**
    * Create a new ContextExposingHttpContext for the given request.
    *
    * @param delegate the original HttpContext
-   * @param context the ApplicationContext that this request runs in
+   * @param applicationContext the ApplicationContext that this request runs in
    * @param exposedContextBeanNames the names of beans in the context which
    * are supposed to be exposed (if this is non-null, only the beans in this
    * Set are eligible for exposure as attributes)
    * @throws NullPointerException if HttpContext is {@code null}
    */
-  public ContextExposingHttpContext(HttpContext delegate, ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
-    super(delegate, context, delegate.dispatcherHandler);
-    Assert.notNull(context, "ApplicationContext is required");
+  public ContextExposingHttpContext(HttpContext delegate, ApplicationContext applicationContext, @Nullable Set<String> exposedContextBeanNames) {
+    super(delegate);
+    this.applicationContext = applicationContext;
+    Assert.notNull(applicationContext, "ApplicationContext is required");
     this.exposedContextBeanNames = exposedContextBeanNames;
   }
 
@@ -62,8 +65,7 @@ public class ContextExposingHttpContext extends DecoratingHttpContext {
   }
 
   @Override
-  @Nullable
-  public Object getAttribute(String name) {
+  public @Nullable Object getAttribute(String name) {
     if ((explicitAttributes == null || !explicitAttributes.contains(name))
             && (exposedContextBeanNames == null || exposedContextBeanNames.contains(name))
             && applicationContext.containsBean(name)) {
