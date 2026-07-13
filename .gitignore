@@ -35,3 +35,7 @@ update_headers.sh
 
 buildSrc/bin
 node_modules
+
+AGENTS.md
+.codegraph
+opencode.jsonc
