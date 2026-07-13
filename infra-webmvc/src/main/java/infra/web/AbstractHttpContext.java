@@ -58,7 +58,6 @@ import infra.http.server.ServerHttpResponse;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
-import infra.lang.TodayStrategies;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
@@ -133,15 +132,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   public static final String FORM_URLENCODED_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(HttpContext.class, "form-urlencoded");
-
-  /**
-   * Flag indicating whether HTML escaping is enabled by default for message resolution.
-   * This value is retrieved from the application's configuration using the key
-   * "infra.web.default-html-escape". If the key is not found, the default value is {@code true}.
-   *
-   * @since 5.0
-   */
-  public static final boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
 
   private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 
