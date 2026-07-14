@@ -1846,28 +1846,34 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   }
 
   /**
-   * Return the underlying native context object, if available.
+   * Return the underlying native context object of the given type, if available,
+   * by traversing the decorator chain.
    *
-   * @param type the desired type of context object
-   * @return the matching context object, or {@code null} if none
-   * of that type is available
+   * @param type the desired type of native context object
+   * @param <T> the type of the native context
+   * @return the matching native context, or {@code null} if none is available
+   * @see #required(Class)
    * @since 5.0
    */
-  default <T> @Nullable T unwrap(@Nullable Class<T> type) {
+  default <T> @Nullable T unwrap(Class<T> type) {
     return WebUtils.getNativeContext(this, type);
   }
 
   /**
-   * Return the underlying native context object, if available.
+   * Return the underlying native context object of the given type, throwing
+   * an exception if none is available.
    *
-   * @param type the desired type of context object
-   * @return the matching context object, or {@code null} if none
-   * of that type is available
+   * @param type the desired type of native context object
+   * @param <T> the type of the native context
+   * @return the matching native context (never {@code null})
+   * @throws IllegalStateException if no matching context is available
    * @since 5.0
    */
   default <T> T required(Class<T> type) {
     T nativeContext = unwrap(type);
-    Assert.state(nativeContext != null, "There is no context associated with this instance");
+    if (nativeContext == null) {
+      throw new IllegalStateException("No native context of type " + type.getName() + " is available");
+    }
     return nativeContext;
   }
 
