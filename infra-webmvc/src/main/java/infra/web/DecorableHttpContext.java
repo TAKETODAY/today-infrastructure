@@ -746,13 +746,13 @@ public abstract class DecorableHttpContext implements HttpContext {
   }
 
   @Override
-  public @Nullable <T> T unwrap(Class<T> type) {
-    return delegate().unwrap(type);
+  public @Nullable <T> T getNativeContext(Class<T> type) {
+    return delegate().getNativeContext(type);
   }
 
   @Override
-  public <T> T required(Class<T> type) {
-    return delegate().required(type);
+  public <T> T nativeContext(Class<T> type) {
+    return delegate().nativeContext(type);
   }
 
   public abstract HttpContext delegate();

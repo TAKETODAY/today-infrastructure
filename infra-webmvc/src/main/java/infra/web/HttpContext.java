@@ -1852,10 +1852,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @param type the desired type of native context object
    * @param <T> the type of the native context
    * @return the matching native context, or {@code null} if none is available
-   * @see #required(Class)
+   * @see #nativeContext(Class)
    * @since 5.0
    */
-  default <T> @Nullable T unwrap(Class<T> type) {
+  default <T> @Nullable T getNativeContext(Class<T> type) {
     return WebUtils.getNativeContext(this, type);
   }
 
@@ -1869,8 +1869,8 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @throws IllegalStateException if no matching context is available
    * @since 5.0
    */
-  default <T> T required(Class<T> type) {
-    T nativeContext = unwrap(type);
+  default <T> T nativeContext(Class<T> type) {
+    T nativeContext = getNativeContext(type);
     if (nativeContext == null) {
       throw new IllegalStateException("No native context of type " + type.getName() + " is available");
     }

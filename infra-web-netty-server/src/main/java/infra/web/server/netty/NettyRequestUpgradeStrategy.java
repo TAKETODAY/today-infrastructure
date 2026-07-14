@@ -93,7 +93,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   public @Nullable WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
-    NettyHttpContext nettyContext = context.unwrap(NettyHttpContext.class);
+    NettyHttpContext nettyContext = context.getNativeContext(NettyHttpContext.class);
     if (nettyContext == null) {
       throw new IllegalStateException("not running in netty");
     }

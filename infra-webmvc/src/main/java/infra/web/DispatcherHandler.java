@@ -777,13 +777,13 @@ public class DispatcherHandler extends WebLifecycleManager {
         if (notHandled != e) {
           notHandled.addSuppressed(e);
         }
-        context.required(AbstractHttpContext.class)
+        context.nativeContext(AbstractHttpContext.class)
                 .requestCompleted(notHandled);
         throw ExceptionUtils.sneakyThrow(notHandled);
       }
     }
 
-    context.required(AbstractHttpContext.class)
+    context.nativeContext(AbstractHttpContext.class)
             .requestCompleted(null);
   }
 
