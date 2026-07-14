@@ -46,10 +46,10 @@ import infra.core.NamedThreadLocal;
  */
 public final class LocaleContextHolder {
 
-  private static final ThreadLocal<LocaleContext> localeContextHolder =
+  private static final ThreadLocal<@Nullable LocaleContext> localeContextHolder =
           new NamedThreadLocal<>("LocaleContext");
 
-  private static final ThreadLocal<LocaleContext> inheritableLocaleContextHolder =
+  private static final ThreadLocal<@Nullable LocaleContext> inheritableLocaleContextHolder =
           new NamedInheritableThreadLocal<>("LocaleContext");
 
   // Shared default locale at the framework level
@@ -120,8 +120,7 @@ public final class LocaleContextHolder {
    *
    * @return the current LocaleContext, or {@code null} if none
    */
-  @Nullable
-  public static LocaleContext getLocaleContext() {
+  public static @Nullable LocaleContext getLocaleContext() {
     LocaleContext localeContext = localeContextHolder.get();
     if (localeContext == null) {
       localeContext = inheritableLocaleContextHolder.get();
