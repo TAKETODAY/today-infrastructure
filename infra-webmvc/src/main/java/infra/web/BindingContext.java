@@ -387,6 +387,17 @@ public class BindingContext {
    * Retrieve the Errors instance for the given bind object.
    *
    * @param name the name of the bind object
+   * @return the Errors instance, or {@code null} if not found
+   * @since 5.0
+   */
+  public @Nullable Errors getErrors(String name) {
+    return getErrors(name, isDefaultHtmlEscape());
+  }
+
+  /**
+   * Retrieve the Errors instance for the given bind object.
+   *
+   * @param name the name of the bind object
    * @param htmlEscape create an Errors instance with automatic HTML escaping?
    * @return the Errors instance, or {@code null} if not found
    * @since 5.0
@@ -422,6 +433,15 @@ public class BindingContext {
       this.errorsMap.put(name, errors);
     }
     return errors;
+  }
+
+  /**
+   * Determine whether HTML escaping is enabled by default for error messages.
+   *
+   * @since 5.0
+   */
+  protected boolean isDefaultHtmlEscape() {
+    return HttpContext.defaultHtmlEscape;
   }
 
   /**

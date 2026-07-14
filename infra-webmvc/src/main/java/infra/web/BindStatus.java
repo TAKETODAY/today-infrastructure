@@ -51,7 +51,7 @@ import infra.web.util.HtmlUtils;
  */
 public class BindStatus {
 
-  private final HttpContext request;
+  private final HttpContext context;
 
   private final String path;
 
@@ -80,14 +80,14 @@ public class BindStatus {
   /**
    * Create a new BindStatus instance, representing a field or object status.
    *
-   * @param request the current HttpContext
+   * @param context the current HttpContext
    * @param path the bean and property path for which values and errors
    * will be resolved (for example, "customer.address.street")
    * @param htmlEscape whether to HTML-escape error messages and string values
    * @throws IllegalStateException if no corresponding Errors object found
    */
-  public BindStatus(HttpContext request, String path, boolean htmlEscape) throws IllegalStateException {
-    this.request = request;
+  public BindStatus(HttpContext context, String path, boolean htmlEscape) throws IllegalStateException {
+    this.context = context;
     this.path = path;
     this.htmlEscape = htmlEscape;
 
@@ -104,7 +104,8 @@ public class BindStatus {
       this.expression = path.substring(dotPos + 1);
     }
 
-    this.errors = request.getErrors(beanName, false);
+    BindingContext binding = context.getBinding();
+    this.errors = binding != null ? binding.getErrors(beanName, htmlEscape) : null;
 
     if (this.errors != null) {
       // Usual case: A BindingResult is available as request attribute.
@@ -140,7 +141,7 @@ public class BindStatus {
       // No BindingResult available as request attribute:
       // Probably forwarded directly to a form view.
       // Let's do the best we can: extract a plain target if appropriate.
-      Object target = request.getAttribute(beanName);
+      Object target = context.getAttribute(beanName);
       if (target == null) {
         throw new IllegalStateException("Neither BindingResult nor plain target object for bean name '" +
                 beanName + "' available as request attribute");
@@ -294,7 +295,7 @@ public class BindStatus {
         this.errorMessages = new String[this.objectErrors.size()];
         for (int i = 0; i < this.objectErrors.size(); i++) {
           ObjectError error = this.objectErrors.get(i);
-          this.errorMessages[i] = this.request.getMessage(error, this.htmlEscape);
+          this.errorMessages[i] = this.context.getMessage(error, this.htmlEscape);
         }
       }
       else {

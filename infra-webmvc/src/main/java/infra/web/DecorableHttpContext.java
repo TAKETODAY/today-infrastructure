@@ -55,7 +55,6 @@ import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.session.Session;
 import infra.util.MultiValueMap;
-import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
@@ -679,16 +678,6 @@ public abstract class DecorableHttpContext implements HttpContext {
   @Override
   public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
     return delegate().getBindStatus(path, htmlEscape);
-  }
-
-  @Override
-  public @Nullable Errors getErrors(String name) {
-    return delegate().getErrors(name);
-  }
-
-  @Override
-  public @Nullable Errors getErrors(String name, boolean htmlEscape) {
-    return delegate().getErrors(name, htmlEscape);
   }
 
   @Override

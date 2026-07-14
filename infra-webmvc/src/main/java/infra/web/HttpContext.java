@@ -60,7 +60,6 @@ import infra.session.SessionManager;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.validation.Errors;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.context.annotation.RequestScope;
@@ -1750,33 +1749,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    */
   default boolean isDefaultHtmlEscape() {
     return defaultHtmlEscape;
-  }
-
-  /**
-   * Retrieve the Errors instance for the given bind object, using the "defaultHtmlEscape" setting.
-   *
-   * @param name the name of the bind object
-   * @return the Errors instance, or {@code null} if not found
-   * @since 5.0
-   */
-  default @Nullable Errors getErrors(String name) {
-    return getErrors(name, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the Errors instance for the given bind object.
-   *
-   * @param name the name of the bind object
-   * @param htmlEscape create an Errors instance with automatic HTML escaping?
-   * @return the Errors instance, or {@code null} if not found
-   * @since 5.0
-   */
-  default @Nullable Errors getErrors(String name, boolean htmlEscape) {
-    BindingContext binding = getBinding();
-    if (binding != null) {
-      return binding.getErrors(name, htmlEscape);
-    }
-    return null;
   }
 
   /**
