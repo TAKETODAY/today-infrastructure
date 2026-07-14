@@ -70,39 +70,13 @@ import infra.web.util.HtmlUtils;
 import infra.web.util.WebUtils;
 
 /**
- * HttpContext encapsulates the context of an HTTP request, providing access to request-related
- * information such as headers, cookies, query parameters, and other metadata. It also provides
- * methods for managing the response, including setting cookies and tracking request processing time.
+ * Central API interface for an HTTP request/response context, providing access to request-related
+ * information such as headers, cookies, query parameters, and other metadata, along with
+ * methods for managing the response.
  *
- * <p>This class is designed to be used in web applications to facilitate handling HTTP requests
- * and responses in a structured and consistent manner. It supports various features like CORS,
- * multipart requests, asynchronous processing, and more.</p>
- *
- * <p><b>Example Usage:</b></p>
- * <pre>{@code
- *   HttpContext context = ...;
- *
- *   // Access request details
- *   String requestURI = context.getRequestURI();
- *   String method = context.getHttpMethod();
- *   System.out.println("Request URI: " + requestURI);
- *   System.out.println("HTTP Method: " + method);
- *
- *   // Add a cookie to the response
- *   context.addCookie("sessionId", "12345");
- *
- *   // Retrieve a specific cookie from the request
- *   HttpCookie sessionCookie = context.getCookie("sessionId");
- *   if (sessionCookie != null) {
- *     System.out.println("Session ID: " + sessionCookie.getValue());
- *   }
- *
- *   // Remove a cookie from the response
- *   List<HttpCookie> removedCookies = context.removeCookie("sessionId");
- *   if (removedCookies != null) {
- *     System.out.println("Removed cookies: " + removedCookies.size());
- *   }
- * }</pre>
+ * <p>This interface defines the contract for handling HTTP requests and responses in a structured
+ * manner, supporting features such as CORS, multipart requests, asynchronous processing,
+ * conditional {@code checkNotModified} handling, and lifecycle callbacks.</p>
  *
  * <p><b>Key Features:</b></p>
  * <ul>
@@ -114,6 +88,7 @@ import infra.web.util.WebUtils;
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see AbstractHttpContext
  * @since 5.0 2026/7/12 23:08
  */
 public interface HttpContext extends InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest {

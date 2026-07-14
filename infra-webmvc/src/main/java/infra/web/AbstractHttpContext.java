@@ -72,50 +72,30 @@ import infra.web.util.WebUtils;
 import static infra.lang.Constant.DEFAULT_CHARSET;
 
 /**
- * HttpContext encapsulates the context of an HTTP request, providing access to request-related
- * information such as headers, cookies, query parameters, and other metadata. It also provides
- * methods for managing the response, including setting cookies and tracking request processing time.
+ * Skeletal implementation of {@link HttpContext}, providing field-based caching and
+ * common request/response handling logic.
  *
- * <p>This class is designed to be used in web applications to facilitate handling HTTP requests
- * and responses in a structured and consistent manner. It supports various features like CORS,
- * multipart requests, asynchronous processing, and more.</p>
+ * <p>This class stores request metadata (URI, headers, parameters, cookies, etc.) in
+ * instance fields with lazy-initialization and caching. Subclasses need only implement
+ * a handful of abstract template methods — such as {@link #readRequestURI()},
+ * {@link #readParameters()}, {@link #createInputStream()} — to supply the raw data,
+ * and inherit all derived behavior (URI resolution, parameter parsing, entity-tag
+ * validation, etc.) for free.
  *
- * <p><b>Example Usage:</b></p>
- * <pre>{@code
- *   HttpContext context = ...;
- *
- *   // Access request details
- *   String requestURI = context.getRequestURI();
- *   String method = context.getHttpMethod();
- *   System.out.println("Request URI: " + requestURI);
- *   System.out.println("HTTP Method: " + method);
- *
- *   // Add a cookie to the response
- *   context.addCookie("sessionId", "12345");
- *
- *   // Retrieve a specific cookie from the request
- *   HttpCookie sessionCookie = context.getCookie("sessionId");
- *   if (sessionCookie != null) {
- *     System.out.println("Session ID: " + sessionCookie.getValue());
- *   }
- *
- *   // Remove a cookie from the response
- *   List<HttpCookie> removedCookies = context.removeCookie("sessionId");
- *   if (removedCookies != null) {
- *     System.out.println("Removed cookies: " + removedCookies.size());
- *   }
- * }</pre>
- *
- * <p><b>Key Features:</b></p>
+ * <p><b>Template methods to implement:</b></p>
  * <ul>
- *   <li>Access to request and response headers, cookies, and query parameters.</li>
- *   <li>Support for multipart and asynchronous requests.</li>
- *   <li>Tracking of request processing time and completion status.</li>
- *   <li>Management of CORS and pre-flight requests.</li>
- *   <li>Integration with application context and dispatcher handler.</li>
+ *   <li>{@link #readRequestURI()} — provide the raw request URI string</li>
+ *   <li>{@link #readQueryString()} — provide the raw query string</li>
+ *   <li>{@link #readMethod()} — provide the HTTP method name</li>
+ *   <li>{@link #readCookies()} — provide the request cookies</li>
+ *   <li>{@link #readParameters()} — parse query/form parameters</li>
+ *   <li>{@link #createInputStream()} / {@link #createOutputStream()} — supply the body streams</li>
+ *   <li>{@link #createRequestHeaders()} / {@link #createResponseHeaders()} — supply the headers</li>
+ *   <li>{@link #createMultipartRequest()} / {@link #createAsyncWebRequest()} — factory methods</li>
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see HttpContext
  * @since 2.3.7 2019-06-22 15:48
  */
 public abstract class AbstractHttpContext extends DefaultAttributeAccessor implements HttpContext {
