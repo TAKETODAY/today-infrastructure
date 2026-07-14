@@ -127,6 +127,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    */
   boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
 
+  /**
+   * Empty {@link HttpCookie} array constant used as a safe return value
+   * when a request has no cookies.
+   */
   HttpCookie[] EMPTY_COOKIES = {};
 
   /**
@@ -1058,6 +1062,13 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    */
   HandlerMatchingMetadata matchingMetadata();
 
+  /**
+   * Returns {@code true} if this instance has handler matching metadata
+   * associated with it.
+   *
+   * @return {@code true} if the {@link HandlerMatchingMetadata} is present,
+   * {@code false} otherwise
+   */
   boolean hasMatchingMetadata();
 
   /**
@@ -1430,25 +1441,12 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   void setContentType(@Nullable String contentType);
 
   /**
-   * Sets the content type of the response being sent to the client, if the
-   * response has not been committed yet. The given content type may include a
-   * character encoding specification, for example,
-   * <code>text/html;charset=UTF-8</code>. The response's character encoding is
-   * only set from the given content type if this method is called before
-   * <code>getWriter</code> is called.
-   * <p>
-   * This method may be called repeatedly to change content type and character
-   * encoding. This method has no effect if called after the response has been
-   * committed. It does not set the response's character encoding if it is called
-   * after <code>getWriter</code> has been called or after the response has been
-   * committed.
-   * <p>
-   * Containers must communicate the content type and the character encoding used
-   * for the http response's writer to the client if the protocol provides a
-   * way for doing so. In the case of HTTP, the <code>Content-Type</code> header
-   * is used.
+   * Sets the content type of the response from a {@link MediaType}.
+   * This is a convenience overload that delegates to
+   * {@link #setContentType(String)} with the string representation
+   * of the given media type.
    *
-   * @param contentType a <code>String</code> specifying the MIME type of the content
+   * @param contentType the {@link MediaType} specifying the MIME type of the content
    */
   default void setContentType(@Nullable MediaType contentType) {
     setContentType(contentType == null ? null : contentType.toString());
@@ -1577,6 +1575,12 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    */
   HttpHeaders responseHeaders();
 
+  /**
+   * Return this context as a {@link ServerHttpResponse}, suitable for use
+   * with message converters and other response-writing infrastructure.
+   *
+   * @return a {@link ServerHttpResponse} view of this context
+   */
   ServerHttpResponse asHttpOutputMessage();
 
   /**
