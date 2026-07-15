@@ -42,8 +42,6 @@ import java.util.function.Function;
 
 import infra.context.ApplicationContext;
 import infra.context.MessageSource;
-import infra.context.MessageSourceResolvable;
-import infra.context.NoSuchMessageException;
 import infra.core.AttributeAccessor;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
@@ -618,66 +616,6 @@ public abstract class DecorableHttpContext implements HttpContext {
   @Override
   public MessageSource getMessageSource() {
     return delegate().getMessageSource();
-  }
-
-  @Override
-  public String getMessage(String code) throws NoSuchMessageException {
-    return delegate().getMessage(code);
-  }
-
-  @Override
-  public String getMessage(String code, @Nullable List<?> args) throws NoSuchMessageException {
-    return delegate().getMessage(code, args);
-  }
-
-  @Override
-  public String getMessage(String code, Object @Nullable [] args) throws NoSuchMessageException {
-    return delegate().getMessage(code, args);
-  }
-
-  @Override
-  public String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
-    return delegate().getMessage(resolvable);
-  }
-
-  @Override
-  public String getMessage(String code, String defaultMessage) {
-    return delegate().getMessage(code, defaultMessage);
-  }
-
-  @Override
-  public String getMessage(String code, @Nullable List<?> args, String defaultMessage) {
-    return delegate().getMessage(code, args, defaultMessage);
-  }
-
-  @Override
-  public String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
-    return delegate().getMessage(code, args, htmlEscape);
-  }
-
-  @Override
-  public String getMessage(String code, Object @Nullable [] args, String defaultMessage) {
-    return delegate().getMessage(code, args, defaultMessage);
-  }
-
-  @Override
-  public String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
-    return delegate().getMessage(resolvable, htmlEscape);
-  }
-
-  @Override
-  public String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
-    return delegate().getMessage(code, args, defaultMessage, htmlEscape);
-  }
-
-  @Override
-  public BindStatus getBindStatus(String path) throws IllegalStateException {
-    return delegate().getBindStatus(path);
-  }
-
-  @Override
-  public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
-    return delegate().getBindStatus(path, htmlEscape);
   }
 
   @Override
