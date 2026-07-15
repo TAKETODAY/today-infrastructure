@@ -134,7 +134,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   HttpCookie[] EMPTY_COOKIES = {};
 
   /**
-   * Lifecycle phases for response event callbacks.
+   * Lifecycle phases for request/response event callbacks.
    *
    * @since 5.0
    */
