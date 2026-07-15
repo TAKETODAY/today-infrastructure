@@ -77,29 +77,23 @@ import infra.web.view.AbstractUrlBasedView;
  */
 public class XsltView extends AbstractUrlBasedView {
 
-  @Nullable
-  private Class<? extends TransformerFactory> transformerFactoryClass;
+  private @Nullable Class<? extends TransformerFactory> transformerFactoryClass;
 
-  @Nullable
-  private String sourceKey;
+  private @Nullable String sourceKey;
 
-  @Nullable
-  private URIResolver uriResolver;
+  private @Nullable URIResolver uriResolver;
 
   private ErrorListener errorListener = new SimpleTransformErrorListener(logger);
 
   private boolean indent = true;
 
-  @Nullable
-  private Properties outputProperties;
+  private @Nullable Properties outputProperties;
 
   private boolean cacheTemplates = true;
 
-  @Nullable
-  private TransformerFactory transformerFactory;
+  private @Nullable TransformerFactory transformerFactory;
 
-  @Nullable
-  private Templates cachedTemplates;
+  private @Nullable Templates cachedTemplates;
 
   /**
    * Specify the XSLT TransformerFactory class to use.
@@ -206,9 +200,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @see #setTransformerFactoryClass
    * @see #getTransformerFactory()
    */
-  protected TransformerFactory newTransformerFactory(
-          @Nullable Class<? extends TransformerFactory> transformerFactoryClass) {
-
+  protected TransformerFactory newTransformerFactory(@Nullable Class<? extends TransformerFactory> transformerFactoryClass) {
     if (transformerFactoryClass != null) {
       try {
         return ReflectionUtils.accessibleConstructor(transformerFactoryClass).newInstance();
@@ -233,9 +225,7 @@ public class XsltView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected void renderMergedOutputModel(
-          Map<String, Object> model, HttpContext http) throws Exception {
-
+  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     Templates templates = this.cachedTemplates;
     if (templates == null) {
       templates = loadTemplates();
@@ -283,8 +273,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @see #setSourceKey
    * @see #convertSource
    */
-  @Nullable
-  protected Source locateSource(Map<String, Object> model) throws Exception {
+  protected @Nullable Source locateSource(Map<String, Object> model) throws Exception {
     if (this.sourceKey != null) {
       return convertSource(model.get(this.sourceKey));
     }
@@ -353,9 +342,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @see #copyOutputProperties(Transformer)
    * @see #configureIndentation(Transformer)
    */
-  protected void configureTransformer(
-          Map<String, Object> model, HttpContext response, Transformer transformer) {
-
+  protected void configureTransformer(Map<String, Object> model, HttpContext response, Transformer transformer) {
     copyModelParameters(model, transformer);
     copyOutputProperties(transformer);
     configureIndentation(transformer);

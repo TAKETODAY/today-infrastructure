@@ -57,9 +57,7 @@ public abstract class AbstractXlsView extends AbstractView {
    * Renders the Excel view, given the specified model.
    */
   @Override
-  protected final void renderMergedOutputModel(
-          Map<String, Object> model, HttpContext http) throws Exception {
-
+  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     // Create a fresh workbook instance for this render step.
     Workbook workbook = createWorkbook(model, http);
 
@@ -109,8 +107,7 @@ public abstract class AbstractXlsView extends AbstractView {
    * @param workbook the Excel workbook to populate
    * @param context in case we need locale etc. Shouldn't look at attributes.
    */
-  protected abstract void buildExcelDocument(
-          Map<String, Object> model, Workbook workbook, HttpContext context)
+  protected abstract void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpContext context)
           throws Exception;
 
 }

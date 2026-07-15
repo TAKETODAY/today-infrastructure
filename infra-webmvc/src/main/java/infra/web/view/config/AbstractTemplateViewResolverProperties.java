@@ -32,7 +32,7 @@ import infra.web.view.AbstractTemplateViewResolver;
  */
 public abstract class AbstractTemplateViewResolverProperties extends AbstractViewResolverProperties {
 
-  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "http";
+  public static final String DEFAULT_HTTP_CONTEXT_ATTRIBUTE = "request";
 
   /**
    * Prefix that gets prepended to view names when building a URL.
@@ -47,7 +47,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
   /**
    * Name of the HttpContext attribute for all views.
    */
-  private @Nullable String httpContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
+  private @Nullable String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with

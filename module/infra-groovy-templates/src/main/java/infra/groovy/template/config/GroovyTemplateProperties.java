@@ -62,7 +62,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
 
   public static final String DEFAULT_SUFFIX = ".tpl";
 
-  public static final String DEFAULT_REQUEST_CONTEXT_ATTRIBUTE = "http";
+  public static final String DEFAULT_HTTP_CONTEXT_ATTRIBUTE = "request";
 
   private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("text/html");
 
@@ -106,7 +106,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   /**
    * Name of the HttpContext attribute for all views.
    */
-  private String httpContextAttribute = DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
+  private String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with

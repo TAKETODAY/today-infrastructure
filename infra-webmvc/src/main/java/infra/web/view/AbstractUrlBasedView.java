@@ -34,8 +34,7 @@ import infra.beans.factory.InitializingBean;
  */
 public abstract class AbstractUrlBasedView extends AbstractView implements InitializingBean {
 
-  @Nullable
-  private String url;
+  private @Nullable String url;
 
   /**
    * Constructor for use as a bean.
@@ -63,8 +62,7 @@ public abstract class AbstractUrlBasedView extends AbstractView implements Initi
   /**
    * Return the URL of the resource that this view wraps.
    */
-  @Nullable
-  public String getUrl() {
+  public @Nullable String getUrl() {
     return this.url;
   }
 

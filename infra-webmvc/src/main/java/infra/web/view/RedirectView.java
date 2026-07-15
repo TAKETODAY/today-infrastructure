@@ -90,11 +90,9 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
 
   private boolean exposeModelAttributes = true;
 
-  @Nullable
-  private Charset encoding;
+  private @Nullable Charset encoding;
 
-  @Nullable
-  private HttpStatusCode statusCode;
+  private @Nullable HttpStatusCode statusCode;
 
   private boolean expandUriTemplateVariables = true;
 
@@ -375,8 +373,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param encodingScheme the encoding scheme to use
    * @see #queryProperties
    */
-  protected void appendQueryProperties(
-          StringBuilder targetUrl, Map<String, Object> model, Charset encodingScheme) {
+  protected void appendQueryProperties(StringBuilder targetUrl, Map<String, Object> model, Charset encodingScheme) {
     // Extract anchor fragment, if any.
     String fragment = null;
     int anchorIndex = targetUrl.indexOf("#");
@@ -548,8 +545,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the target URL
    * @return the response status
    */
-  @Nullable
-  protected HttpStatusCode getHttpStatus(HttpContext context, String targetUrl) {
+  protected @Nullable HttpStatusCode getHttpStatus(HttpContext context, String targetUrl) {
     if (statusCode != null) {
       return statusCode;
     }

@@ -153,8 +153,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
   }
 
   @Override
-  @Nullable
-  public View resolveViewName(String viewName, Locale locale) throws Exception {
+  public @Nullable View resolveViewName(String viewName, Locale locale) throws Exception {
     if (isCache()) {
       Object cacheKey = getCacheKey(viewName, locale);
       View view = viewAccessCache.get(cacheKey);
@@ -256,8 +255,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
    * @throws Exception if the view couldn't be resolved
    * @see #loadView
    */
-  @Nullable
-  protected View createView(String viewName, Locale locale) throws Exception {
+  protected @Nullable View createView(String viewName, Locale locale) throws Exception {
     return loadView(viewName, locale);
   }
 
@@ -275,8 +273,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
    * @throws Exception if the view couldn't be resolved
    * @see #resolveViewName
    */
-  @Nullable
-  protected abstract View loadView(String viewName, Locale locale) throws Exception;
+  protected abstract @Nullable View loadView(String viewName, Locale locale) throws Exception;
 
   /**
    * Filter that determines if view should be cached.

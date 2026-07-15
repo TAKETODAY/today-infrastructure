@@ -75,26 +75,21 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   /** Initial size for the temporary output byte array (if any). */
   private static final int OUTPUT_BYTE_ARRAY_INITIAL_SIZE = 4096;
 
-  @Nullable
-  private String contentType = DEFAULT_CONTENT_TYPE;
+  private @Nullable String contentType = DEFAULT_CONTENT_TYPE;
 
-  @Nullable
-  private String httpContextAttribute;
+  private @Nullable String httpContextAttribute;
 
-  @Nullable
-  private LinkedHashMap<String, Object> staticAttributes;
+  private @Nullable LinkedHashMap<String, Object> staticAttributes;
+
+  private @Nullable Set<String> exposedContextBeanNames;
+
+  private @Nullable String beanName;
 
   private boolean exposePathVariables = true;
 
-  private boolean exposeContextBeansAsAttributes = false;
-
-  @Nullable
-  private Set<String> exposedContextBeanNames;
-
-  @Nullable
-  private String beanName;
-
   private boolean exposeOutputRedirectModel = false;
+
+  private boolean exposeContextBeansAsAttributes = false;
 
   /**
    * Set the content type for this view.
@@ -110,8 +105,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * Return the content type for this view.
    */
   @Override
-  @Nullable
-  public String getContentType() {
+  public @Nullable String getContentType() {
     return this.contentType;
   }
 
@@ -126,8 +120,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   /**
    * Return the name of the HttpContext attribute, if any.
    */
-  @Nullable
-  public String getHttpContextAttribute() {
+  public @Nullable String getHttpContextAttribute() {
     return this.httpContextAttribute;
   }
 
@@ -239,8 +232,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @return the static attributes in this view
    */
-  @Nullable
-  public Map<String, Object> getStaticAttributes() {
+  public @Nullable Map<String, Object> getStaticAttributes() {
     return staticAttributes;
   }
 
@@ -311,8 +303,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * Return the view's name. Should never be {@code null},
    * if the view was correctly configured.
    */
-  @Nullable
-  public String getBeanName() {
+  public @Nullable String getBeanName() {
     return this.beanName;
   }
 

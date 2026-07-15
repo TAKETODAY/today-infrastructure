@@ -87,9 +87,7 @@ public abstract class AbstractAtomFeedView extends AbstractFeedView<Feed> {
    * to get a list of feed entries.
    */
   @Override
-  protected final void buildFeedEntries(
-          Map<String, Object> model, Feed feed, HttpContext context) throws Exception {
-
+  protected final void buildFeedEntries(Map<String, Object> model, Feed feed, HttpContext context) throws Exception {
     List<Entry> entries = buildFeedEntries(model, context);
     feed.setEntries(entries);
   }
@@ -106,7 +104,7 @@ public abstract class AbstractAtomFeedView extends AbstractFeedView<Feed> {
    * @throws Exception any exception that occurred during document building
    * @see Entry
    */
-  protected abstract List<Entry> buildFeedEntries(
-          Map<String, Object> model, HttpContext context) throws Exception;
+  protected abstract List<Entry> buildFeedEntries(Map<String, Object> model, HttpContext context)
+          throws Exception;
 
 }

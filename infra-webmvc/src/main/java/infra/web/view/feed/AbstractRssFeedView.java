@@ -67,8 +67,7 @@ public abstract class AbstractRssFeedView extends AbstractFeedView<Channel> {
    * to get a list of feed items.
    */
   @Override
-  protected final void buildFeedEntries(
-          Map<String, Object> model, Channel channel, HttpContext context) throws Exception {
+  protected final void buildFeedEntries(Map<String, Object> model, Channel channel, HttpContext context) throws Exception {
     List<Item> items = buildFeedItems(model, context);
     channel.setItems(items);
   }
@@ -85,7 +84,7 @@ public abstract class AbstractRssFeedView extends AbstractFeedView<Channel> {
    * @throws Exception any exception that occurred during document building
    * @see Item
    */
-  protected abstract List<Item> buildFeedItems(
-          Map<String, Object> model, HttpContext context) throws Exception;
+  protected abstract List<Item> buildFeedItems(Map<String, Object> model, HttpContext context)
+          throws Exception;
 
 }

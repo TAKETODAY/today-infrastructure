@@ -97,14 +97,11 @@ import infra.web.view.AbstractTemplateView;
  */
 public class FreeMarkerView extends AbstractTemplateView {
 
-  @Nullable
-  private String encoding;
+  private @Nullable String encoding;
 
-  @Nullable
-  private Configuration configuration;
+  private @Nullable Configuration configuration;
 
-  @Nullable
-  private Locale locale;
+  private @Nullable Locale locale;
 
   /**
    * Set the encoding used to decode byte sequences to character sequences when
@@ -151,8 +148,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    *
    * @see #setEncoding(String)
    */
-  @Nullable
-  protected String getEncoding() {
+  protected @Nullable String getEncoding() {
     return this.encoding;
   }
 
@@ -168,8 +164,7 @@ public class FreeMarkerView extends AbstractTemplateView {
   /**
    * Return the FreeMarker {@link Configuration} used by this view.
    */
-  @Nullable
-  protected Configuration getConfiguration() {
+  protected @Nullable Configuration getConfiguration() {
     return this.configuration;
   }
 
@@ -194,8 +189,7 @@ public class FreeMarkerView extends AbstractTemplateView {
     this.locale = locale;
   }
 
-  @Nullable
-  protected Locale getLocale() {
+  protected @Nullable Locale getLocale() {
     return locale;
   }
 
@@ -294,11 +288,11 @@ public class FreeMarkerView extends AbstractTemplateView {
    * is empty. This method can be overridden to add custom helpers to the model.
    *
    * @param model the model that will be passed to the template at merge time
-   * @param request current HTTP request
+   * @param context current HTTP request
    * @throws Exception if there's a fatal error while we're adding information to the context
    * @see #renderMergedTemplateModel
    */
-  protected void exposeHelpers(Map<String, Object> model, HttpContext request) throws Exception {
+  protected void exposeHelpers(Map<String, Object> model, HttpContext context) throws Exception {
   }
 
   /**

@@ -84,36 +84,28 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
 
   private static final String DEFAULT_RESOURCE_LOADER_PATH = "classpath:";
 
-  private static final NamedThreadLocal<Map<Object, ScriptEngine>> enginesHolder =
+  private static final NamedThreadLocal<@Nullable Map<Object, ScriptEngine>> enginesHolder =
           new NamedThreadLocal<>("ScriptTemplateView engines");
 
-  @Nullable
-  private ScriptEngine engine;
+  private @Nullable ScriptEngine engine;
 
-  @Nullable
-  private Supplier<ScriptEngine> engineSupplier;
+  private @Nullable Supplier<ScriptEngine> engineSupplier;
 
-  @Nullable
-  private String engineName;
+  private @Nullable String engineName;
 
-  @Nullable
-  private Boolean sharedEngine;
+  private @Nullable Boolean sharedEngine;
 
   private String @Nullable [] scripts;
 
-  @Nullable
-  private String renderObject;
+  private @Nullable String renderObject;
 
-  @Nullable
-  private String renderFunction;
+  private @Nullable String renderFunction;
 
-  @Nullable
-  private Charset charset;
+  private @Nullable Charset charset;
 
   private String @Nullable [] resourceLoaderPaths;
 
-  @Nullable
-  private volatile ScriptEngineManager scriptEngineManager;
+  private volatile @Nullable ScriptEngineManager scriptEngineManager;
 
   /**
    * Constructor for use as a bean.
@@ -397,9 +389,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected void renderMergedOutputModel(
-          Map<String, Object> model, HttpContext http) throws Exception {
-
+  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     try {
       ScriptEngine engine = getEngine();
       String url = getUrl();

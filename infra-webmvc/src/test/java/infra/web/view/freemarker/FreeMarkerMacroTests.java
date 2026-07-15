@@ -43,7 +43,7 @@ import infra.util.StringUtils;
 import infra.web.BindStatus;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 
-import static infra.web.view.config.AbstractTemplateViewResolverProperties.DEFAULT_REQUEST_CONTEXT_ATTRIBUTE;
+import static infra.web.view.config.AbstractTemplateViewResolverProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -87,8 +87,8 @@ class FreeMarkerMacroTests {
       @Override
       protected void processTemplate(Template template, SimpleHash fmModel, HttpContext response) throws IOException, TemplateException {
         Map model = fmModel.toMap();
-        assertThat(model.get(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE)).isInstanceOf(HttpContext.class);
-        HttpContext rc = (HttpContext) model.get(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE);
+        assertThat(model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE)).isInstanceOf(HttpContext.class);
+        HttpContext rc = (HttpContext) model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE);
         BindStatus status = rc.getBindStatus("tb.name");
         assertThat(status.getExpression()).isEqualTo("name");
         assertThat(status.getValue()).isEqualTo("juergen");
@@ -96,7 +96,7 @@ class FreeMarkerMacroTests {
     };
     fv.setUrl(TEMPLATE_FILE);
     fv.setApplicationContext(wac);
-    fv.setHttpContextAttribute(DEFAULT_REQUEST_CONTEXT_ATTRIBUTE);
+    fv.setHttpContextAttribute(DEFAULT_HTTP_CONTEXT_ATTRIBUTE);
 
     Map<String, Object> model = new HashMap<>();
     model.put("tb", new TestBean("juergen", 99));
