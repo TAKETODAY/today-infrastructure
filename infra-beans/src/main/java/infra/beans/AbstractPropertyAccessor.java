@@ -44,7 +44,9 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 
   private boolean autoGrowNestedPaths = false;
 
-  boolean suppressNotWritablePropertyException = false;
+  protected boolean suppressNotWritablePropertyException = false;
+
+  protected int autoGrowCollectionLimit = Integer.MAX_VALUE;
 
   @Override
   public void setExtractOldValueForEditor(boolean extractOldValueForEditor) {
@@ -64,6 +66,23 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
   @Override
   public boolean isAutoGrowNestedPaths() {
     return this.autoGrowNestedPaths;
+  }
+
+  /**
+   * Specify a limit for array and collection auto-growing.
+   * <p>Default is unlimited on a plain accessor.
+   */
+  @Override
+  public void setAutoGrowCollectionLimit(int autoGrowCollectionLimit) {
+    this.autoGrowCollectionLimit = autoGrowCollectionLimit;
+  }
+
+  /**
+   * Return the limit for array and collection auto-growing.
+   */
+  @Override
+  public int getAutoGrowCollectionLimit() {
+    return this.autoGrowCollectionLimit;
   }
 
   @Override

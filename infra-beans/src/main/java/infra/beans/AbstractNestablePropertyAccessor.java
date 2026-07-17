@@ -78,7 +78,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    */
   private static final Logger log = LoggerFactory.getLogger(AbstractNestablePropertyAccessor.class);
 
-  private int autoGrowCollectionLimit = Integer.MAX_VALUE;
+
 
   protected @Nullable Object wrappedObject;
 
@@ -152,20 +152,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     setConversionService(parent.getConversionService());
   }
 
-  /**
-   * Specify a limit for array and collection auto-growing.
-   * <p>Default is unlimited on a plain accessor.
-   */
-  public void setAutoGrowCollectionLimit(int autoGrowCollectionLimit) {
-    this.autoGrowCollectionLimit = autoGrowCollectionLimit;
-  }
-
-  /**
-   * Return the limit for array and collection auto-growing.
-   */
-  public int getAutoGrowCollectionLimit() {
-    return this.autoGrowCollectionLimit;
-  }
 
   /**
    * Switch the target object, replacing the cached introspection results only
