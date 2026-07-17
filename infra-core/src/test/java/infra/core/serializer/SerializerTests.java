@@ -18,6 +18,7 @@
 
 package infra.core.serializer;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -26,8 +27,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import infra.core.serializer.support.SerializationDelegate;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Unit tests for {@link Serializer}, {@link Deserializer}, and {@link SerializationDelegate}.
@@ -53,8 +52,8 @@ class SerializerTests {
 
     SpyStringSerializer serializer = new SpyStringSerializer();
     serializer.serializeToByteArray(FRAMEWORK);
-    assertThat(serializer.expectedObject).isEqualTo(FRAMEWORK);
-    assertThat(serializer.expectedOutputStream).isNotNull();
+    Assertions.assertThat(serializer.expectedObject).isEqualTo(FRAMEWORK);
+    Assertions.assertThat(serializer.expectedOutputStream).isNotNull();
   }
 
   @Test
@@ -73,8 +72,19 @@ class SerializerTests {
 
     SpyStringDeserializer deserializer = new SpyStringDeserializer();
     Object deserializedObj = deserializer.deserializeFromByteArray(FRAMEWORK.getBytes());
-    assertThat(deserializedObj).isEqualTo(FRAMEWORK);
-    assertThat(deserializer.expectedInputStream).isNotNull();
+    Assertions.assertThat(deserializedObj).isEqualTo(FRAMEWORK);
+    Assertions.assertThat(deserializer.expectedInputStream).isNotNull();
+  }
+
+  @Test
+  void defaultDeserializerExposesNullClassLoaderByDefault() {
+    Assertions.assertThat(new DefaultDeserializer().getClassLoader()).isNull();
+  }
+
+  @Test
+  void defaultDeserializerExposesConfiguredClassLoader() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Assertions.assertThat(new DefaultDeserializer(classLoader).getClassLoader()).isSameAs(classLoader);
   }
 
   @Test
@@ -82,7 +92,7 @@ class SerializerTests {
     SerializationDelegate delegate = new SerializationDelegate(new DefaultSerializer(), new DefaultDeserializer());
     byte[] serializedObj = delegate.serializeToByteArray(FRAMEWORK);
     Object deserializedObj = delegate.deserialize(new ByteArrayInputStream(serializedObj));
-    assertThat(deserializedObj).isEqualTo(FRAMEWORK);
+    Assertions.assertThat(deserializedObj).isEqualTo(FRAMEWORK);
   }
 
   @Test
@@ -90,7 +100,7 @@ class SerializerTests {
     SerializationDelegate delegate = new SerializationDelegate(getClass().getClassLoader());
     byte[] serializedObj = delegate.serializeToByteArray(FRAMEWORK);
     Object deserializedObj = delegate.deserialize(new ByteArrayInputStream(serializedObj));
-    assertThat(deserializedObj).isEqualTo(FRAMEWORK);
+    Assertions.assertThat(deserializedObj).isEqualTo(FRAMEWORK);
   }
 
 }
