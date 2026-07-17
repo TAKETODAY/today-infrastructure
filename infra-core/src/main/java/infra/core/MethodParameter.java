@@ -115,8 +115,8 @@ public class MethodParameter implements AnnotatedElement {
    * return type; 0 for the first method parameter; 1 for the second method
    * parameter, etc.
    * @param nestingLevel the nesting level of the target type
-   * (typically 1; e.g. in case of a List of Lists, 1 would indicate the
-   * nested List, whereas 2 would indicate the element of the nested List)
+   * (1 for the top-level type; in case of a List of Lists, 2 would indicate
+   * the nested List, whereas 3 would indicate the element of the nested List)
    */
   public MethodParameter(Method method, int parameterIndex, int nestingLevel) {
     Assert.notNull(method, "Method is required");
@@ -136,13 +136,13 @@ public class MethodParameter implements AnnotatedElement {
   }
 
   /**
-   * Create a new MethodParameter for the given constructor.
+   * Create a new {@code MethodParameter} for the given constructor.
    *
    * @param constructor the Constructor to specify a parameter for
    * @param parameterIndex the index of the parameter
    * @param nestingLevel the nesting level of the target type
-   * (typically 1; e.g. in case of a List of Lists, 1 would indicate the
-   * nested List, whereas 2 would indicate the element of the nested List)
+   * (1 for the top-level type; in case of a List of Lists, 2 would indicate
+   * the nested List, whereas 3 would indicate the element of the nested List)
    */
   public MethodParameter(Constructor<?> constructor, int parameterIndex, int nestingLevel) {
     Assert.notNull(constructor, "Constructor is required");
@@ -275,8 +275,8 @@ public class MethodParameter implements AnnotatedElement {
 
   /**
    * Return the nesting level of the target type
-   * (typically 1; e.g. in case of a List of Lists, 1 would indicate the
-   * nested List, whereas 2 would indicate the element of the nested List).
+   * (1 for the top-level type; in case of a List of Lists, 2 would indicate
+   * the nested List, whereas 3 would indicate the element of the nested List).
    */
   public int getNestingLevel() {
     return this.nestingLevel;
