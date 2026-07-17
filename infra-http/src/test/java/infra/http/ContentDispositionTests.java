@@ -141,12 +141,12 @@ class ContentDispositionTests {
     @Test
     void parseQuotedPrintableFilenameMultipleSegments() {
       String input =
-              "attachment; filename=\"=?utf-8?Q?Spring=E6=A1=86=E6=9E=B6=E4=B8=BA=E5=9F=BA=E4=BA=8E?=" +
+              "attachment; filename=\"=?utf-8?Q?INFRA=E6=A1=86=E6=9E=B6=E4=B8=BA=E5=9F=BA=E4=BA=8E?=" +
                       "=?utf-8?Q?Java=E7=9A=84=E7=8E=B0=E4=BB=A3=E4=BC=81=E4=B8=9A=E5=BA=94?=" +
                       "=?utf-8?Q?=E7=94=A8=E7=A8=8B=E5=BA=8F=E6=8F=90=E4=BE=9B=E4=BA=86=E5=85=A8?=" +
                       "=?utf-8?Q?=E9=9D=A2=E7=9A=84=E7=BC=96=E7=A8=8B=E5=92=8C=E9=85=8D=E7=BD=AE?=" +
                       "=?utf-8?Q?=E6=A8=A1=E5=9E=8B.txt?=\"";
-      assertThat(parse(input).getFilename()).isEqualTo("Spring框架为基于Java的现代企业应用程序提供了全面的编程和配置模型.txt");
+      assertThat(parse(input).getFilename()).isEqualTo("INFRA框架为基于Java的现代企业应用程序提供了全面的编程和配置模型.txt");
 
     }
 
