@@ -631,7 +631,7 @@ bom {
 
 dependencies {
   api(platform("io.micrometer:micrometer-bom:1.16.4"))
-  api(platform("io.netty:netty-bom:4.2.13.Final"))
+  api(platform('io.netty:netty-bom:4.2.16.Final'))
   api(platform("io.projectreactor:reactor-bom:2025.0.4"))
   api(platform("io.rsocket:rsocket-bom:1.1.5"))
   api(platform("org.apache.groovy:groovy-bom:5.0.4"))
