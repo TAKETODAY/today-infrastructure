@@ -142,7 +142,7 @@ class MockResponseTests {
 
   @Test
   void contentTypeHeaderWithMoreComplexCharsetSyntax() {
-    String contentType = "test/plain;charset=\"utf-8\";foo=\"charset=bar\";foocharset=bar;foo=bar";
+    String contentType = "test/plain;charset=\"utf-8\";foo=\"charset=bar\";foocharset=bar;foobar=bar";
     response.setHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);

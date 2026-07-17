@@ -35,6 +35,7 @@ import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for {@link MimeType}.
@@ -111,6 +112,13 @@ class MimeTypeTests {
     assertThat(mimeType.getType()).as("Invalid type").isEqualTo("text");
     assertThat(mimeType.getSubtype()).as("Invalid subtype").isEqualTo("plain");
     assertThat(mimeType.getParameter("twelve")).isEqualTo("\"1\\\"2\"");
+  }
+
+  @Test
+  void rejectsDuplicateParameter() {
+    String s = "text/plain;dupe=\"1\";dupe=\"2\"";
+    assertThatThrownBy(() -> MimeType.valueOf(s)).isInstanceOf(InvalidMimeTypeException.class)
+            .hasMessageContaining("Invalid mime type \"text/plain;dupe=\"1\";dupe=\"2\"\": duplicate parameter 'dupe=\"2\"'");
   }
 
   @Test
