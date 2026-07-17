@@ -26,11 +26,9 @@ import java.util.Objects;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 
 /**
- * Representation for a Server-Sent Event for use with reactive Web support.
- * {@code Flux<ServerSentEvent>} or {@code Observable<ServerSentEvent>}
+ * Representation for a Server-Sent Event for use with Web support.
  *
  * @param <T> the type of data that this event contains
  * @author Sebastien Deleuze
@@ -115,7 +113,9 @@ public final class ServerSentEvent<T extends @Nullable Object> {
       appendAttribute("retry", this.retry.toMillis(), sb);
     }
     if (this.comment != null) {
-      sb.append(':').append(StringUtils.replace(this.comment, "\n", "\n:")).append('\n');
+      sb.append(':');
+      appendEscaped(this.comment, "\n:", sb);
+      sb.append('\n');
     }
     if (this.data != null) {
       sb.append("data:");
@@ -125,6 +125,30 @@ public final class ServerSentEvent<T extends @Nullable Object> {
 
   private void appendAttribute(String fieldName, Object fieldValue, StringBuilder sb) {
     sb.append(fieldName).append(':').append(fieldValue).append('\n');
+  }
+
+  private void appendEscaped(String input, String replacement, StringBuilder sb) {
+    if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
+      sb.append(input);
+    }
+    else {
+      int length = input.length();
+      for (int i = 0; i < length; i++) {
+        char c = input.charAt(i);
+        if (c == '\r') {
+          if (i + 1 < length && input.charAt(i + 1) == '\n') {
+            i++;
+          }
+          sb.append(replacement);
+        }
+        else if (c == '\n') {
+          sb.append(replacement);
+        }
+        else {
+          sb.append(c);
+        }
+      }
+    }
   }
 
   @Override
