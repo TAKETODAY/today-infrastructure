@@ -75,4 +75,19 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
    */
   boolean isAutoGrowNestedPaths();
 
+  /**
+   * Specify a limit for array and collection auto-growing.
+   * <p>Default is unlimited on a plain accessor.
+   *
+   * @since 5.0
+   */
+  void setAutoGrowCollectionLimit(int autoGrowCollectionLimit);
+
+  /**
+   * Return the limit for array and collection auto-growing.
+   *
+   * @since 5.0
+   */
+  int getAutoGrowCollectionLimit();
+
 }

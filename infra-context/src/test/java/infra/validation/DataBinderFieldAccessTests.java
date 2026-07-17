@@ -21,8 +21,10 @@ package infra.validation;
 import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyEditorSupport;
+import java.util.List;
 import java.util.Map;
 
+import infra.beans.InvalidPropertyException;
 import infra.beans.NotWritablePropertyException;
 import infra.beans.NullValueInNestedPathException;
 import infra.beans.PropertyValue;
@@ -53,17 +55,17 @@ class DataBinderFieldAccessTests {
     binder.bind(pvs);
     binder.close();
 
-    assertThat(rod.getName().equals("Rod")).as("changed name correctly").isTrue();
-    assertThat(rod.getAge() == 32).as("changed age correctly").isTrue();
+    assertThat(rod.getName()).as("changed name correctly").isEqualTo("Rod");
+    assertThat(rod.getAge()).as("changed age correctly").isEqualTo(32);
 
     Map<?, ?> m = binder.getBindingResult().getModel();
-    assertThat(m.size() == 2).as("There is one element in map").isTrue();
+    assertThat(m).as("There is one element in map").hasSize(2);
     FieldAccessBean tb = (FieldAccessBean) m.get("person");
-    assertThat(tb.equals(rod)).as("Same object").isTrue();
+    assertThat(tb).as("Same object").isEqualTo(rod);
   }
 
   @Test
-  void bindingNoErrorsNotIgnoreUnknown() throws Exception {
+  void bindingNoErrorsNotIgnoreUnknown() {
     FieldAccessBean rod = new FieldAccessBean();
     DataBinder binder = new DataBinder(rod, "person");
     binder.initDirectFieldAccess();
@@ -77,7 +79,7 @@ class DataBinderFieldAccessTests {
   }
 
   @Test
-  void bindingWithErrors() throws Exception {
+  void bindingWithErrors() {
     FieldAccessBean rod = new FieldAccessBean();
     DataBinder binder = new DataBinder(rod, "person");
     binder.initDirectFieldAccess();
@@ -123,7 +125,7 @@ class DataBinderFieldAccessTests {
   }
 
   @Test
-  void nestedBindingWithDisabledAutoGrow() throws Exception {
+  void nestedBindingWithDisabledAutoGrow() {
     FieldAccessBean rod = new FieldAccessBean();
     DataBinder binder = new DataBinder(rod, "person");
     binder.setAutoGrowNestedPaths(false);
@@ -136,7 +138,26 @@ class DataBinderFieldAccessTests {
   }
 
   @Test
-  void bindingWithErrorsAndCustomEditors() throws Exception {
+  void directFieldAccessHonorsDefaultAutoGrowCollectionLimit() {
+    FieldAccessForm target = new FieldAccessForm();
+    DataBinder binder = new DataBinder(target);
+    binder.initDirectFieldAccess();
+
+    PropertyValues pvs = new PropertyValues();
+    pvs.add("items[255].name", "value");
+    binder.bind(pvs);
+
+    assertThat(target.items).hasSize(256);
+    assertThat(target.items.get(255).name).isEqualTo("value");
+
+    PropertyValues outOfBounds = new PropertyValues();
+    outOfBounds.add("items[256].name", "too-far");
+    assertThatExceptionOfType(InvalidPropertyException.class).isThrownBy(() ->
+            binder.bind(outOfBounds));
+  }
+
+  @Test
+  void bindingWithErrorsAndCustomEditors() {
     FieldAccessBean rod = new FieldAccessBean();
     DataBinder binder = new DataBinder(rod, "person");
     binder.initDirectFieldAccess();
@@ -177,5 +198,15 @@ class DataBinderFieldAccessTests {
               assertThat(binder.getBindingResult().getFieldValue("spouse")).isEqualTo("Kerry");
               assertThat(tb.getSpouse()).isNotNull();
             });
+  }
+
+  static class FieldAccessForm {
+
+    public List<FieldAccessItem> items;
+  }
+
+  static class FieldAccessItem {
+
+    public String name;
   }
 }
