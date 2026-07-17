@@ -229,9 +229,11 @@ class ConfigurationClassParser {
           return;
         }
         else if (configClass.scanned) {
-          String beanName = configClass.beanName;
-          if (StringUtils.isNotEmpty(beanName) && bootstrapContext.containsBeanDefinition(beanName)) {
-            bootstrapContext.removeBeanDefinition(beanName);
+          if (existingClass.isImported()) {
+            String beanName = configClass.beanName;
+            if (StringUtils.isNotEmpty(beanName) && bootstrapContext.containsBeanDefinition(beanName)) {
+              bootstrapContext.removeBeanDefinition(beanName);
+            }
           }
           // An implicitly scanned bean definition should not override an explicit import.
           return;

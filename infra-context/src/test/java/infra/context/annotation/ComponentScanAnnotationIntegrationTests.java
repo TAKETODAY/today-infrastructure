@@ -30,6 +30,7 @@ import example.scannable.CustomComponent;
 import example.scannable.CustomStereotype;
 import example.scannable.DefaultNamedComponent;
 import example.scannable.FooService;
+import example.scannable.FooServiceImpl;
 import example.scannable.MessageBean;
 import example.scannable.ScopedProxyTestBean;
 import example.scannable_implicitbasepackage.ComponentScanAnnotatedConfigWithImplicitBasePackage;
@@ -44,6 +45,7 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.annotation.CustomAutowireConfigurer;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
+import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
@@ -82,6 +84,17 @@ class ComponentScanAnnotationIntegrationTests {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.scan(example.scannable.PackageMarker.class.getPackage().getName());
     ctx.refresh();
+    assertContextContainsBean(ctx, "fooServiceImpl");
+  }
+
+  @Test
+  void controlScanWithExplicitRegistration() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.registerBeanDefinition("myFooService", new RootBeanDefinition(FooServiceImpl.class));
+    ctx.scan(example.scannable.PackageMarker.class.getPackage().getName());
+    ctx.refresh();
+
+    assertContextContainsBean(ctx, "myFooService");
     assertContextContainsBean(ctx, "fooServiceImpl");
   }
 
@@ -526,39 +539,39 @@ class ComponentScanWithAwareTypeFilter { }
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable",
-               scopedProxy = ScopedProxyMode.INTERFACES,
-               useDefaultFilters = false,
-               includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ScopedProxyTestBean.class))
+        scopedProxy = ScopedProxyMode.INTERFACES,
+        useDefaultFilters = false,
+        includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ScopedProxyTestBean.class))
 class ComponentScanWithScopedProxy { }
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable",
-               scopedProxy = ScopedProxyMode.INTERFACES,
-               useDefaultFilters = false,
-               includeFilters = @Filter(type = FilterType.REGEX, pattern = "((?:[a-z.]+))ScopedProxyTestBean"))
+        scopedProxy = ScopedProxyMode.INTERFACES,
+        useDefaultFilters = false,
+        includeFilters = @Filter(type = FilterType.REGEX, pattern = "((?:[a-z.]+))ScopedProxyTestBean"))
 class ComponentScanWithScopedProxyThroughRegex { }
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable",
-               scopedProxy = ScopedProxyMode.INTERFACES,
-               useDefaultFilters = false,
-               includeFilters = @Filter(type = FilterType.ASPECTJ, pattern = "*..ScopedProxyTestBean"))
+        scopedProxy = ScopedProxyMode.INTERFACES,
+        useDefaultFilters = false,
+        includeFilters = @Filter(type = FilterType.ASPECTJ, pattern = "*..ScopedProxyTestBean"))
 class ComponentScanWithScopedProxyThroughAspectJPattern { }
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable",
-               useDefaultFilters = false,
-               includeFilters = {
-                       @Filter(CustomStereotype.class),
-                       @Filter(CustomComponent.class)
-               }
+        useDefaultFilters = false,
+        includeFilters = {
+                @Filter(CustomStereotype.class),
+                @Filter(CustomComponent.class)
+        }
 )
 class ComponentScanWithMultipleAnnotationIncludeFilters1 { }
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable",
-               useDefaultFilters = false,
-               includeFilters = @Filter({ CustomStereotype.class, CustomComponent.class })
+        useDefaultFilters = false,
+        includeFilters = @Filter({ CustomStereotype.class, CustomComponent.class })
 )
 class ComponentScanWithMultipleAnnotationIncludeFilters2 { }
 
