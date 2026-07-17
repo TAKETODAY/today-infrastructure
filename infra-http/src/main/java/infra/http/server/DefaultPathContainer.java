@@ -23,8 +23,8 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -42,12 +42,9 @@ final class DefaultPathContainer extends PathContainer {
 
   public static final PathContainer EMPTY_PATH = new DefaultPathContainer("", Collections.emptyList());
 
-  private static final HashMap<Character, DefaultSeparator> SEPARATORS = new HashMap<>(2);
-
-  static {
-    SEPARATORS.put('/', new DefaultSeparator('/', "%2F"));
-    SEPARATORS.put('.', new DefaultSeparator('.', "%2E"));
-  }
+  private static final Map<Character, DefaultSeparator> SEPARATORS = Map.of(
+          '/', new DefaultSeparator('/', "%2F"),
+          '.', new DefaultSeparator('.', "%2E"));
 
   private final String path;
   private final List<Element> elements;
