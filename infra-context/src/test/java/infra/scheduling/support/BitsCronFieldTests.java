@@ -21,6 +21,7 @@ package infra.scheduling.support;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,27 +38,32 @@ class BitsCronFieldTests {
   @Test
   void parse() {
     assertThat(BitsCronField.parseSeconds("42")).has(clearRange(0, 41)).has(set(42)).has(clearRange(43, 59));
-    assertThat(BitsCronField.parseSeconds("0-4,8-12")).has(setRange(0, 4)).has(clearRange(5, 7)).has(setRange(8, 12)).has(clearRange(13, 59));
-    assertThat(BitsCronField.parseSeconds("57/2")).has(clearRange(0, 56)).has(set(57)).has(clear(58)).has(set(59));
+    assertThat(BitsCronField.parseSeconds("0-4,8-12")).has(setRange(0, 4)).has(clearRange(5, 7))
+            .has(setRange(8, 12)).has(clearRange(13, 59));
+    assertThat(BitsCronField.parseSeconds("57/2")).has(clearRange(0, 56)).has(set(57))
+            .has(clear(58)).has(set(59));
 
     assertThat(BitsCronField.parseMinutes("30")).has(set(30)).has(clearRange(1, 29)).has(clearRange(31, 59));
 
     assertThat(BitsCronField.parseHours("23")).has(set(23)).has(clearRange(0, 23));
-    assertThat(BitsCronField.parseHours("0-23/2")).has(set(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22)).has(clear(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23));
+    assertThat(BitsCronField.parseHours("0-23/2")).has(set(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22))
+            .has(clear(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23));
 
     assertThat(BitsCronField.parseDaysOfMonth("1")).has(set(1)).has(clearRange(2, 31));
 
     assertThat(BitsCronField.parseMonth("1")).has(set(1)).has(clearRange(2, 12));
 
     assertThat(BitsCronField.parseDaysOfWeek("0")).has(set(7, 7)).has(clearRange(0, 6));
-
-    assertThat(BitsCronField.parseDaysOfWeek("7-5")).has(clear(0)).has(setRange(1, 5)).has(clear(6)).has(set(7));
+    assertThat(BitsCronField.parseDaysOfWeek("7-5")).has(clear(0)).has(setRange(1, 5))
+            .has(clear(6)).has(set(7));
   }
 
   @Test
   void parseLists() {
-    assertThat(BitsCronField.parseSeconds("15,30")).has(set(15, 30)).has(clearRange(1, 15)).has(clearRange(31, 59));
-    assertThat(BitsCronField.parseMinutes("1,2,5,9")).has(set(1, 2, 5, 9)).has(clear(0)).has(clearRange(3, 4)).has(clearRange(6, 8)).has(clearRange(10, 59));
+    assertThat(BitsCronField.parseSeconds("15,30")).has(set(15, 30)).has(clearRange(1, 15))
+            .has(clearRange(31, 59));
+    assertThat(BitsCronField.parseMinutes("1,2,5,9")).has(set(1, 2, 5, 9)).has(clear(0))
+            .has(clearRange(3, 4)).has(clearRange(6, 8)).has(clearRange(10, 59));
     assertThat(BitsCronField.parseHours("1,2,3")).has(set(1, 2, 3)).has(clearRange(4, 23));
     assertThat(BitsCronField.parseDaysOfMonth("1,2,3")).has(set(1, 2, 3)).has(clearRange(4, 31));
     assertThat(BitsCronField.parseMonth("1,2,3")).has(set(1, 2, 3)).has(clearRange(4, 12));
@@ -103,14 +109,32 @@ class BitsCronFieldTests {
 
   @Test
   void names() {
-    assertThat(((BitsCronField) CronField.parseMonth("JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC")))
+    assertThat((BitsCronField) CronField.parseMonth("JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC"))
             .has(clear(0)).has(setRange(1, 12));
-    assertThat(((BitsCronField) CronField.parseDaysOfWeek("SUN,MON,TUE,WED,THU,FRI,SAT")))
+    assertThat((BitsCronField) CronField.parseDaysOfWeek("SUN,MON,TUE,WED,THU,FRI,SAT"))
             .has(clear(0)).has(setRange(1, 7));
   }
 
+  @Test
+  void nextOrSameWithMidnightGap() {
+    BitsCronField field = BitsCronField.parseHours("0-23/2");
+    ZonedDateTime last = ZonedDateTime.parse("2025-04-24T23:00:00+02:00[Africa/Cairo]");
+    ZonedDateTime expected = ZonedDateTime.parse("2025-04-25T02:00:00+03:00[Africa/Cairo]");
+    ZonedDateTime actual = field.nextOrSame(last);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void nextOrSameWithGapAfterRollForward() {
+    BitsCronField field = BitsCronField.parseHours("0,2");
+    ZonedDateTime last = ZonedDateTime.parse("2026-03-08T01:00:00-05:00[America/New_York]");
+    ZonedDateTime expected = ZonedDateTime.parse("2026-03-09T00:00:00-04:00[America/New_York]");
+    ZonedDateTime actual = field.nextOrSame(last);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private static Condition<BitsCronField> set(int... indices) {
-    return new Condition<BitsCronField>(String.format("set bits %s", Arrays.toString(indices))) {
+    return new Condition<>(String.format("set bits %s", Arrays.toString(indices))) {
       @Override
       public boolean matches(BitsCronField value) {
         for (int index : indices) {
@@ -124,7 +148,7 @@ class BitsCronFieldTests {
   }
 
   private static Condition<BitsCronField> setRange(int min, int max) {
-    return new Condition<BitsCronField>(String.format("set range %d-%d", min, max)) {
+    return new Condition<>(String.format("set range %d-%d", min, max)) {
       @Override
       public boolean matches(BitsCronField value) {
         for (int i = min; i < max; i++) {
@@ -138,7 +162,7 @@ class BitsCronFieldTests {
   }
 
   private static Condition<BitsCronField> clear(int... indices) {
-    return new Condition<BitsCronField>(String.format("clear bits %s", Arrays.toString(indices))) {
+    return new Condition<>(String.format("clear bits %s", Arrays.toString(indices))) {
       @Override
       public boolean matches(BitsCronField value) {
         for (int index : indices) {
@@ -152,7 +176,7 @@ class BitsCronFieldTests {
   }
 
   private static Condition<BitsCronField> clearRange(int min, int max) {
-    return new Condition<BitsCronField>(String.format("clear range %d-%d", min, max)) {
+    return new Condition<>(String.format("clear range %d-%d", min, max)) {
       @Override
       public boolean matches(BitsCronField value) {
         for (int i = min; i < max; i++) {
