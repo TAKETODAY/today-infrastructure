@@ -23,6 +23,7 @@ import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
 
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -741,6 +742,20 @@ class CronTriggerTests {
     TriggerContext context = getTriggerContext(lastCompletionTime);
     Object nextExecutionTime = trigger.nextExecutionTime(context);
     assertThat(nextExecutionTime).isEqualTo(this.calendar.getTime());
+  }
+
+  @Test
+  void equalsAndHashCodeConsiderZoneId() {
+    String expression = "0 0 9 * * *";
+    CronTrigger amsterdam1 = new CronTrigger(expression, ZoneId.of("Europe/Amsterdam"));
+    CronTrigger amsterdam2 = new CronTrigger(expression, ZoneId.of("Europe/Amsterdam"));
+    CronTrigger newYork = new CronTrigger(expression, ZoneId.of("America/New_York"));
+
+    assertThat(amsterdam1)
+            .isEqualTo(amsterdam2)
+            .hasSameHashCodeAs(amsterdam2)
+            .isNotEqualTo(newYork)
+            .doesNotHaveSameHashCodeAs(newYork);
   }
 
   private static void roundup(Calendar calendar) {

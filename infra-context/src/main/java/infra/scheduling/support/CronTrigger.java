@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import infra.lang.Assert;
@@ -146,13 +147,14 @@ public class CronTrigger implements Trigger {
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof CronTrigger that &&
-            this.expression.equals(that.expression)));
+    return (this == other || (other instanceof CronTrigger that
+            && this.expression.equals(that.expression)
+            && Objects.equals(this.zoneId, that.zoneId)));
   }
 
   @Override
   public int hashCode() {
-    return this.expression.hashCode();
+    return Objects.hash(this.expression, this.zoneId);
   }
 
   @Override
