@@ -1079,7 +1079,7 @@ public abstract class DataBufferUtils {
 
     @Override
     protected void hookOnNext(DataBuffer dataBuffer) {
-      ByteBufferIterator iterator = dataBuffer.readableByteBuffers();
+      var iterator = dataBuffer.readableByteBuffers();
       if (iterator.hasNext()) {
         ByteBuffer byteBuffer = iterator.next();
         long pos = this.position.get();
@@ -1092,6 +1092,11 @@ public abstract class DataBufferUtils {
           // If the exception escapes, route it to the failure handler
           failed(ex, attachment);
         }
+      }
+      else {
+        iterator.close();
+        this.sink.next(dataBuffer);
+        request(1);
       }
     }
 
