@@ -21,10 +21,13 @@ package infra.web.view;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import infra.http.HttpStatus;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
+import infra.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -116,6 +119,22 @@ class DefaultRequestToViewNameTranslatorTests {
     HttpContext request = requestFactory.apply(VIEW_NAME);
     this.translator.setSuffix(null);
     assertViewName(request, VIEW_NAME);
+  }
+
+  @PathPatternsParameterizedTest
+  void getViewNameWithRedirectPrefixFails(Function<String, HttpContext> requestFactory) {
+    HttpContext request = requestFactory.apply(UrlBasedViewResolver.REDIRECT_URL_PREFIX + VIEW_NAME);
+    assertThatExceptionOfType(ResponseStatusException.class)
+            .isThrownBy(() -> this.translator.getViewName(request))
+            .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+  }
+
+  @PathPatternsParameterizedTest
+  void getViewNameWithForwardPrefixFails(Function<String, HttpContext> requestFactory) {
+    HttpContext request = requestFactory.apply(UrlBasedViewResolver.FORWARD_URL_PREFIX + VIEW_NAME);
+    assertThatExceptionOfType(ResponseStatusException.class)
+            .isThrownBy(() -> this.translator.getViewName(request))
+            .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   private void assertViewName(HttpContext request, String expectedViewName) {

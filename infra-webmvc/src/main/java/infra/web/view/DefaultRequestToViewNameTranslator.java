@@ -20,9 +20,11 @@ package infra.web.view;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.http.HttpStatus;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.RequestToViewNameTranslator;
+import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
 
 /**
@@ -143,10 +145,17 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
    */
   @Override
   public String getViewName(HttpContext http) {
-    String lookupPath = removeSemicolonContent
+    String path = removeSemicolonContent
             ? WebUtils.removeSemicolonContent(http.getRequestPath().value())
             : http.getRequestPath().value();
-    return prefix + transformPath(lookupPath) + suffix;
+    String viewName = prefix + transformPath(path) + suffix;
+    if (viewName.startsWith(UrlBasedViewResolver.REDIRECT_URL_PREFIX)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rejected path '" + path + "' with 'redirect:' prefix");
+    }
+    if (viewName.startsWith(UrlBasedViewResolver.FORWARD_URL_PREFIX)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rejected path '" + path + "' with 'forward:' prefix");
+    }
+    return viewName;
   }
 
   /**
@@ -158,7 +167,6 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
    * @return the transformed path, with slashes and extensions stripped
    * if desired
    */
-  @Nullable
   protected String transformPath(String lookupPath) {
     String path = lookupPath;
     if (this.stripLeadingSlash && path.startsWith(SLASH)) {
