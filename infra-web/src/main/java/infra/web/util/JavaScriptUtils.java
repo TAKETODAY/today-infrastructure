@@ -92,6 +92,12 @@ public abstract class JavaScriptUtils {
       else if (c == '\u2029') {
         filtered.append("\\u2029");
       }
+      else if (c == '`') {
+        filtered.append("\\u0060");
+      }
+      else if (c == '$') {
+        filtered.append("\\u0024");
+      }
       else {
         filtered.append(c);
       }

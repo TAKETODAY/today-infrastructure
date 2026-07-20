@@ -20,8 +20,6 @@ package infra.web.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.UnsupportedEncodingException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -29,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class JavaScriptUtilsTests {
+class JavaScriptUtilsTests {
 
   @Test
-  public void escape() {
+  void escape() {
     StringBuilder sb = new StringBuilder();
     sb.append('"');
     sb.append('\'');
@@ -47,10 +45,8 @@ public class JavaScriptUtilsTests {
     assertThat(JavaScriptUtils.javaScriptEscape(sb.toString())).isEqualTo("\\\"\\'\\\\\\/\\t\\n\\n\\f\\b\\v");
   }
 
-  //
-
   @Test
-  public void escapePsLsLineTerminators() {
+  void escapePsLsLineTerminators() {
     StringBuilder sb = new StringBuilder();
     sb.append('\u2028');
     sb.append('\u2029');
@@ -59,11 +55,19 @@ public class JavaScriptUtilsTests {
     assertThat(result).isEqualTo("\\u2028\\u2029");
   }
 
-  //
+  @Test
+  void escapeLessThanGreaterThanSigns() {
+    assertThat(JavaScriptUtils.javaScriptEscape("<>")).isEqualTo("\\u003C\\u003E");
+  }
 
   @Test
-  public void escapeLessThanGreaterThanSigns() throws UnsupportedEncodingException {
-    assertThat(JavaScriptUtils.javaScriptEscape("<>")).isEqualTo("\\u003C\\u003E");
+  void escapeBacktick() {
+    assertThat(JavaScriptUtils.javaScriptEscape("`")).isEqualTo("\\u0060");
+  }
+
+  @Test
+  void escapeDollar() {
+    assertThat(JavaScriptUtils.javaScriptEscape("$")).isEqualTo("\\u0024");
   }
 
 }
