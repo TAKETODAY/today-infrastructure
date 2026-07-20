@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,21 +36,21 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.validation.BeanPropertyBindingResult;
 import infra.web.HandlerExceptionHandler;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
-import infra.web.HttpContext;
+import infra.web.MultipartException;
 import infra.web.async.AsyncRequestTimeoutException;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.resolver.MissingRequestPartException;
-import infra.web.MultipartException;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -242,6 +243,14 @@ class SimpleHandlerExceptionHandlerTests {
 
     Object actual = resolver.handleException(context, ex, null);
     assertThat(actual).isSameAs(expected);
+  }
+
+  @Test
+  void handleDisconnectedClientException() throws Exception {
+    Exception ex = new IOException("Broken pipe");
+    Object mav = exceptionResolver.handleException(context, ex, null);
+    assertThat(mav).as("No ModelAndView returned").isNotNull();
+    assertThat(response.getStatus()).as("Should attempt to send server error").isEqualTo(500);
   }
 
   @SuppressWarnings("unused")

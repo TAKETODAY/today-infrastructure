@@ -199,9 +199,6 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
           view = handleAsyncRequestTimeoutException(
                   (AsyncRequestTimeoutException) ex, request, handler);
         }
-        else if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
-          return handleDisconnectedClientException(ex, request, handler);
-        }
 
         if (view == null) {
           return handleErrorResponse((ErrorResponse) ex, request, handler);
@@ -229,6 +226,9 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
       }
       else if (ex instanceof BindException) {
         return handleBindException((BindException) ex, request, handler);
+      }
+      else if (disconnectedClientHelper.checkAndLogClientDisconnectedException(ex)) {
+        return handleDisconnectedClientException(ex, request, handler);
       }
     }
     catch (Exception handlerEx) {
@@ -437,11 +437,11 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   }
 
   /**
-   * Handle an Exception that indicates the client has gone away. This is
-   * typically an {@link IOException} of a specific subtype or with a message
-   * specific to the underlying container. Those are detected through
-   * {@link DisconnectedClientHelper#isClientDisconnectedException(Throwable)}
-   * <p>By default, do nothing since the response is not usable.
+   * Handle an Exception that indicates the client has gone away as determined
+   * via {@link DisconnectedClientHelper}.
+   * <p>By default, as of 5.0 this method attempts to set the response status
+   * to 500 in case the exception is due to a connection issue to a remote host,
+   * as part of request handling, rather than to the client.
    *
    * @param ex the {@code Exception} to be handled
    * @param request current HTTP request
@@ -450,9 +450,13 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @return an empty ModelAndView indicating the exception was handled
    * @since 5.0
    */
-  protected Object handleDisconnectedClientException(
-          Throwable ex, HttpContext request, @Nullable Object handler) {
-
+  protected Object handleDisconnectedClientException(Throwable ex, HttpContext request, @Nullable Object handler) {
+    // Attempt to send 500 in case of onward (rather than client) connection issue
+    try {
+      sendServerError(ex, request);
+    }
+    catch (Exception ignored) {
+    }
     return NONE_RETURN_VALUE;
   }
 
@@ -594,7 +598,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @see WebUtils#ERROR_EXCEPTION_ATTRIBUTE
    * @since 4.0
    */
-  protected void sendServerError(Exception ex, HttpContext request) throws IOException {
+  protected void sendServerError(Throwable ex, HttpContext request) throws IOException {
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     request.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
   }
