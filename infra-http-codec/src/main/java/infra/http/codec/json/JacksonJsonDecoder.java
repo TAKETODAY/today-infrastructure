@@ -111,7 +111,7 @@ public class JacksonJsonDecoder extends AbstractJacksonDecoder<JsonMapper> {
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return super.canDecode(elementType, mimeType) && !CharSequence.class.isAssignableFrom(elementType.toClass());
+    return super.canDecode(elementType, mimeType) && String.class != elementType.toClass();
   }
 
   @Override
