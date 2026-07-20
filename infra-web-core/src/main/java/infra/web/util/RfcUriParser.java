@@ -80,8 +80,8 @@ abstract class RfcUriParser {
    * @param fragment the fragment, if present
    */
   record UriRecord(@Nullable String scheme, boolean isOpaque,
-          @Nullable String user, @Nullable String host, @Nullable String port,
-          @Nullable String path, @Nullable String query, @Nullable String fragment) {
+                   @Nullable String user, @Nullable String host, @Nullable String port,
+                   @Nullable String path, @Nullable String query, @Nullable String fragment) {
 
   }
 
@@ -233,11 +233,15 @@ abstract class RfcUriParser {
             parser.index(++i);
             parser.captureHost();
             if (parser.hasNext()) {
-              if (parser.charAtIndex() == ':') {
+              char next = parser.charAtIndex();
+              if (next == ':') {
                 parser.advanceTo(PORT, i + 1);
               }
-              else {
+              else if (next == '/') {
                 parser.advanceTo(PATH, i);
+              }
+              else {
+                fail(parser, "Bad authority");
               }
             }
             break;
