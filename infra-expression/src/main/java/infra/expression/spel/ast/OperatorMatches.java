@@ -18,7 +18,6 @@
 
 package infra.expression.spel.ast;
 
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -28,6 +27,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.BooleanTypedValue;
+import infra.util.ConcurrentLruCache;
 
 /**
  * Implements the matches operator. Matches takes two operands:
@@ -43,19 +43,32 @@ import infra.expression.spel.support.BooleanTypedValue;
  */
 public class OperatorMatches extends Operator {
 
+  /**
+   * Maximum number of compiled regular expressions in the pattern cache: {@value}.
+   *
+   * @since 5.0
+   */
+  public static final int MAX_PATTERN_CACHE_SIZE = 256;
+
   private static final int PATTERN_ACCESS_THRESHOLD = 1000000;
 
   /**
    * Maximum number of characters permitted in a regular expression.
+   *
+   * @since 5.0
    */
   private static final int MAX_REGEX_LENGTH = 1000;
 
-  private final ConcurrentMap<String, Pattern> patternCache;
+  private final ConcurrentLruCache<String, Pattern> patternCache;
 
   /**
    * Create a new {@link OperatorMatches} instance with a shared pattern cache.
+   *
+   * @since 5.0
    */
-  public OperatorMatches(ConcurrentMap<String, Pattern> patternCache, int startPos, int endPos, SpelNodeImpl... operands) {
+  public OperatorMatches(ConcurrentLruCache<String, Pattern> patternCache,
+          int startPos, int endPos, SpelNodeImpl... operands) {
+
     super("matches", startPos, endPos, operands);
     this.patternCache = patternCache;
   }
@@ -67,7 +80,7 @@ public class OperatorMatches extends Operator {
    * @return {@code true} if the first operand matches the regex specified as the
    * second operand, otherwise {@code false}
    * @throws EvaluationException if there is a problem evaluating the expression
-   * (e.g. the regex is invalid)
+   * (for example, the regex is invalid)
    */
   @Override
   public BooleanTypedValue getValueInternal(ExpressionState state) throws EvaluationException {
@@ -85,12 +98,13 @@ public class OperatorMatches extends Operator {
       throw new SpelEvaluationException(rightOp.getStartPosition(),
               SpelMessage.INVALID_SECOND_OPERAND_FOR_MATCHES_OPERATOR, right);
     }
+    if (regex.length() > MAX_REGEX_LENGTH) {
+      throw new SpelEvaluationException(rightOp.getStartPosition(),
+              SpelMessage.MAX_REGEX_LENGTH_EXCEEDED, MAX_REGEX_LENGTH);
+    }
 
     try {
-      Pattern pattern = this.patternCache.computeIfAbsent(regex, key -> {
-        checkRegexLength(key);
-        return Pattern.compile(key);
-      });
+      Pattern pattern = this.patternCache.get(regex);
       Matcher matcher = pattern.matcher(new MatcherInput(input, new AccessCount()));
       return BooleanTypedValue.forValue(matcher.matches());
     }
@@ -101,13 +115,6 @@ public class OperatorMatches extends Operator {
     catch (IllegalStateException ex) {
       throw new SpelEvaluationException(
               rightOp.getStartPosition(), ex, SpelMessage.FLAWED_PATTERN, right);
-    }
-  }
-
-  private void checkRegexLength(String regex) {
-    if (regex.length() > MAX_REGEX_LENGTH) {
-      throw new SpelEvaluationException(getRightOperand().getStartPosition(),
-              SpelMessage.MAX_REGEX_LENGTH_EXCEEDED, MAX_REGEX_LENGTH);
     }
   }
 
