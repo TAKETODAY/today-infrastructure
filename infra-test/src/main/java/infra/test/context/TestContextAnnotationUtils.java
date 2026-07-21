@@ -21,16 +21,17 @@ package infra.test.context;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotationCollectors;
-import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
@@ -577,10 +578,13 @@ public abstract class TestContextAnnotationUtils {
      * or an empty set if none were found
      */
     public Set<T> findAllLocalMergedAnnotations() {
-      SearchStrategy searchStrategy = SearchStrategy.TYPE_HIERARCHY;
-      return MergedAnnotations.from(getRootDeclaringClass(), searchStrategy, RepeatableContainers.none())
-              .stream(getAnnotationType())
-              .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
+      Class<T> annotationType = getAnnotationType();
+      Stream<MergedAnnotation<T>> classAnnotations = MergedAnnotations.from(this.rootDeclaringClass, SearchStrategy.DIRECT, RepeatableContainers.none())
+              .stream(annotationType);
+      Stream<MergedAnnotation<T>> interfaceAnnotations = Arrays.stream(this.rootDeclaringClass.getInterfaces())
+              .flatMap(ifc -> MergedAnnotations.from(ifc, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
+                      .stream(annotationType));
+      return Stream.concat(classAnnotations, interfaceAnnotations)
               .collect(MergedAnnotationCollectors.toAnnotationSet());
     }
 

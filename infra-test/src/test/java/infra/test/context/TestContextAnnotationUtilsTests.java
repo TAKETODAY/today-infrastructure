@@ -213,7 +213,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     void findAnnotationDescriptorOnMetaMetaAnnotatedClass() {
@@ -222,7 +222,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     void findAnnotationDescriptorOnMetaMetaMetaAnnotatedClass() {
@@ -231,7 +231,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     void findAnnotationDescriptorOnAnnotatedClassWithMissingTargetMetaAnnotation() {
@@ -242,7 +242,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     void findAnnotationDescriptorOnMetaCycleAnnotatedClassWithMissingTargetMetaAnnotation() {
@@ -272,6 +272,84 @@ class TestContextAnnotationUtilsTests {
       assertThat(descriptor.getDeclaringClass()).as("declaringClass").isEqualTo(declaringClass);
       assertThat(descriptor.getAnnotationType()).as("annotationType").isEqualTo(Component.class);
       assertThat(descriptor.getAnnotation().value()).as("component name").contains(name);
+    }
+
+  }
+
+  @Nested
+  @DisplayName("findAllLocalMergedAnnotations() tests")
+  class FindAllLocalMergedAnnotationsTests {
+
+    @Test
+    void annotationOnClassOnly() {
+      var descriptor = findAnnotationDescriptor(AnnotatedClass.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .singleElement()
+              .satisfies(config -> assertThat(config.classes()).containsExactly(Config1.class));
+    }
+
+    @Test
+    void annotationOnInterfaceOnly() {
+      var descriptor = findAnnotationDescriptor(ClassImplementingAnnotatedInterface.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .singleElement()
+              .satisfies(config -> assertThat(config.classes()).containsExactly(Config2.class));
+    }
+
+    @Test
+    void annotationOnTransitiveInterface() {
+      var descriptor = findAnnotationDescriptor(ClassImplementingTransitiveAnnotatedInterface.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .satisfiesExactly(
+                      config1 -> assertThat(config1.classes()).containsExactly(Config1.class),
+                      config2 -> assertThat(config2.classes()).containsExactly(Config2.class)
+              );
+    }
+
+    @Test
+    void annotationOnClassAndInterface() {
+      var descriptor = findAnnotationDescriptor(AnnotatedClassImplementingAnnotatedInterface.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .satisfiesExactly(
+                      config1 -> assertThat(config1.classes()).containsExactly(Config1.class),
+                      config2 -> assertThat(config2.classes()).containsExactly(Config2.class)
+              );
+    }
+
+    @Test
+    void annotationOnTwoInterfaces() {
+      var descriptor = findAnnotationDescriptor(ClassImplementingTwoAnnotatedInterfaces.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .satisfiesExactly(
+                      config1 -> assertThat(config1.classes()).containsExactly(Config2.class),
+                      config2 -> assertThat(config2.classes()).containsExactly(Config3.class)
+              );
+    }
+
+    @Test
+    void annotationOnSuperclassIsExcluded() {
+      var descriptor = findAnnotationDescriptor(SubAnnotatedClass.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.getRootDeclaringClass()).isEqualTo(AnnotatedClass.class);
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .singleElement()
+              .satisfies(config -> assertThat(config.classes()).containsExactly(Config1.class));
+    }
+
+    @Test
+    void metaAnnotationOnClassAndAnnotationOnInterface() {
+      var descriptor = findAnnotationDescriptor(MetaAnnotatedClassImplementingAnnotatedInterface.class, ContextConfiguration.class);
+      assertThat(descriptor).isNotNull();
+      assertThat(descriptor.findAllLocalMergedAnnotations())
+              .satisfiesExactly(
+                      config1 -> assertThat(config1.classes()).containsExactly(DevConfig.class, ProductionConfig.class),
+                      config2 -> assertThat(config2.classes()).containsExactly(Config2.class)
+              );
     }
 
   }
@@ -379,7 +457,7 @@ class TestContextAnnotationUtilsTests {
       assertThat(descriptor.getAnnotationType()).isEqualTo(annotationType);
       assertThat(((ContextConfiguration) descriptor.getAnnotation()).value()).isEmpty();
       assertThat(((ContextConfiguration) descriptor.getAnnotation()).classes())
-              .containsExactly(MetaConfig.DevConfig.class, MetaConfig.ProductionConfig.class);
+              .containsExactly(DevConfig.class, ProductionConfig.class);
     }
 
     @Test
@@ -433,7 +511,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     void findAnnotationDescriptorForTypesOnMetaMetaAnnotatedClass() {
@@ -443,7 +521,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     void findAnnotationDescriptorForTypesOnMetaMetaMetaAnnotatedClass() {
@@ -453,7 +531,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     @SuppressWarnings("unchecked")
@@ -466,7 +544,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     /**
-     * @since 4.0
+     * @since 4.0.3
      */
     @Test
     @SuppressWarnings("unchecked")
@@ -558,14 +636,15 @@ class TestContextAnnotationUtilsTests {
   @Target(ElementType.TYPE)
   @interface MetaConfig {
 
-    class DevConfig {
-    }
-
-    class ProductionConfig {
-    }
-
     @AliasFor(annotation = ContextConfiguration.class)
     Class<?>[] classes() default { DevConfig.class, ProductionConfig.class };
+
+  }
+
+  static class DevConfig {
+  }
+
+  static class ProductionConfig {
   }
 
   // -------------------------------------------------------------------------
@@ -667,6 +746,54 @@ class TestContextAnnotationUtilsTests {
       class DoubleNestedTestCase {
       }
     }
+  }
+
+  // -------------------------------------------------------------------------
+  // Fixtures for FindAllLocalMergedAnnotationsTests
+
+  static class Config1 {
+  }
+
+  static class Config2 {
+  }
+
+  static class Config3 {
+  }
+
+  @ContextConfiguration(classes = Config2.class)
+  interface AnnotatedInterface {
+  }
+
+  @ContextConfiguration(classes = Config3.class)
+  interface AnotherAnnotatedInterface {
+  }
+
+  @ContextConfiguration(classes = Config1.class)
+  static class AnnotatedClass {
+  }
+
+  static class SubAnnotatedClass extends AnnotatedClass {
+  }
+
+  static class ClassImplementingAnnotatedInterface implements AnnotatedInterface {
+  }
+
+  interface TransitiveAnnotatedInterface extends AnnotatedInterface {
+  }
+
+  @ContextConfiguration(classes = Config1.class)
+  static class ClassImplementingTransitiveAnnotatedInterface implements TransitiveAnnotatedInterface {
+  }
+
+  @ContextConfiguration(classes = Config1.class)
+  static class AnnotatedClassImplementingAnnotatedInterface implements AnnotatedInterface {
+  }
+
+  static class ClassImplementingTwoAnnotatedInterfaces implements AnnotatedInterface, AnotherAnnotatedInterface {
+  }
+
+  @MetaConfig
+  static class MetaAnnotatedClassImplementingAnnotatedInterface implements AnnotatedInterface {
   }
 
 }
