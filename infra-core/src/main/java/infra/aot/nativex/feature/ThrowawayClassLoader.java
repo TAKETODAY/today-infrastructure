@@ -56,32 +56,34 @@ class ThrowawayClassLoader extends ClassLoader {
         return super.loadClass(name, true);
       }
       catch (ClassNotFoundException ex) {
-        return loadClassFromResource(name);
+        Class<?> loadedFromResource = loadClassFromResource(name);
+        if (loadedFromResource == null) {
+          throw ex;
+        }
+        return loadedFromResource;
       }
     }
   }
 
-  private Class<?> loadClassFromResource(String name) throws ClassNotFoundException, ClassFormatError {
+  private @Nullable Class<?> loadClassFromResource(String name) throws ClassNotFoundException, ClassFormatError {
     String resourceName = name.replace('.', '/') + ".class";
     InputStream inputStream = this.resourceLoader.getResourceAsStream(resourceName);
     if (inputStream == null) {
-      throw new ClassNotFoundException(name);
+      return null;
     }
     try (inputStream) {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       inputStream.transferTo(outputStream);
       byte[] bytes = outputStream.toByteArray();
       return defineClass(name, bytes, 0, bytes.length);
-
     }
     catch (IOException ex) {
       throw new ClassNotFoundException("Cannot load resource for class [" + name + "]", ex);
     }
   }
 
-  @Nullable
   @Override
-  protected URL findResource(String name) {
+  protected @Nullable URL findResource(String name) {
     return this.resourceLoader.getResource(name);
   }
 
