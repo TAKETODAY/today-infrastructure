@@ -56,12 +56,12 @@ import infra.util.StringUtils;
  * @since 4.0 2022/2/17 17:46
  */
 public class TypeConverterDelegate {
+
   private static final Logger logger = LoggerFactory.getLogger(TypeConverterDelegate.class);
 
   private final PropertyEditorRegistrySupport propertyEditorRegistry;
 
-  @Nullable
-  private final Object targetObject;
+  private final @Nullable Object targetObject;
 
   /**
    * Create a new TypeConverterDelegate for the given editor registry.
@@ -94,8 +94,7 @@ public class TypeConverterDelegate {
    * @return the new value, possibly the result of type conversion
    * @throws IllegalArgumentException if type conversion failed
    */
-  @Nullable
-  public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
+  public <T> @Nullable T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
           Object newValue, @Nullable Class<T> requiredType) throws IllegalArgumentException {
 
     return convertIfNecessary(propertyName, oldValue, newValue, requiredType, TypeDescriptor.valueOf(requiredType));
@@ -115,8 +114,7 @@ public class TypeConverterDelegate {
    * @throws IllegalArgumentException if type conversion failed
    */
   @SuppressWarnings("unchecked")
-  @Nullable
-  public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
+  public <T> @Nullable T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
           @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
     ConversionFailedException conversionAttemptEx = null;
     // Custom editor for this type?
@@ -303,8 +301,13 @@ public class TypeConverterDelegate {
         ClassLoader cl = this.targetObject.getClass().getClassLoader();
         try {
           Class<?> enumValueType = ClassUtils.forName(enumType, cl);
-          Field enumField = enumValueType.getField(fieldName);
-          convertedValue = enumField.get(null);
+          if (enumValueType.isEnum()) {
+            Field enumField = enumValueType.getField(fieldName);
+            convertedValue = enumField.get(null);
+          }
+          else if (logger.isTraceEnabled()) {
+            logger.trace("Specified enum class [{}] is not a Java enum", enumType);
+          }
         }
         catch (ClassNotFoundException ex) {
           if (logger.isTraceEnabled()) {
@@ -320,9 +323,8 @@ public class TypeConverterDelegate {
     }
 
     if (convertedValue == currentConvertedValue) {
-      // Try field lookup as fallback: for JDK 1.5 enum or custom enum
-      // with values defined as static fields. Resulting value still needs
-      // to be checked, hence we don't return it right away.
+      // Try field lookup as fallback: for Java enum or custom enum
+      // with values defined as static fields.
       try {
         Field enumField = requiredType.getField(trimmedValue);
         ReflectionUtils.makeAccessible(enumField);
@@ -344,8 +346,7 @@ public class TypeConverterDelegate {
    * @param requiredType the type to find an editor for
    * @return the corresponding editor, or {@code null} if none
    */
-  @Nullable
-  private PropertyEditor findDefaultEditor(@Nullable Class<?> requiredType) {
+  private @Nullable PropertyEditor findDefaultEditor(@Nullable Class<?> requiredType) {
     PropertyEditor editor = null;
     if (requiredType != null) {
       // No custom editor -> check BeanWrapperImpl's default editors.
@@ -370,8 +371,7 @@ public class TypeConverterDelegate {
    * @return the new value, possibly the result of type conversion
    * @throws IllegalArgumentException if type conversion failed
    */
-  @Nullable
-  private Object doConvertValue(@Nullable Object oldValue, @Nullable Object newValue,
+  private @Nullable Object doConvertValue(@Nullable Object oldValue, @Nullable Object newValue,
           @Nullable Class<?> requiredType, @Nullable PropertyEditor editor) {
 
     Object convertedValue = newValue;
@@ -635,18 +635,16 @@ public class TypeConverterDelegate {
     return original.getClass().getName();
   }
 
-  @Nullable
-  private String buildIndexedPropertyName(@Nullable String propertyName, int index) {
+  private @Nullable String buildIndexedPropertyName(@Nullable String propertyName, int index) {
     return propertyName != null
-           ? propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + index + PropertyAccessor.PROPERTY_KEY_SUFFIX
-           : null;
+            ? propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + index + PropertyAccessor.PROPERTY_KEY_SUFFIX
+            : null;
   }
 
-  @Nullable
-  private String buildKeyedPropertyName(@Nullable String propertyName, Object key) {
+  private @Nullable String buildKeyedPropertyName(@Nullable String propertyName, Object key) {
     return propertyName != null
-           ? propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + key + PropertyAccessor.PROPERTY_KEY_SUFFIX
-           : null;
+            ? propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + key + PropertyAccessor.PROPERTY_KEY_SUFFIX
+            : null;
   }
 
   private boolean cannotCreateCopy(Class<?> requiredType) {
