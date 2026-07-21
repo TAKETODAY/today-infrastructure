@@ -202,6 +202,9 @@ public abstract class GenericTypeResolver {
       }
       resolvedType = variableResolver.resolveVariable(typeVariable);
       if (resolvedType != null) {
+        while (resolvedType.getType() instanceof TypeVariable<?>) {
+          resolvedType = resolvedType.resolveType();
+        }
         return resolvedType;
       }
     }
