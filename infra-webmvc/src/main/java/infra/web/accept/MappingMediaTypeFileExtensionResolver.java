@@ -22,14 +22,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import infra.http.MediaType;
+import infra.util.CollectionUtils;
 
 /**
  * An implementation of {@code MediaTypeFileExtensionResolver} that maintains
@@ -45,26 +46,19 @@ import infra.http.MediaType;
  */
 public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExtensionResolver {
 
-  private final CopyOnWriteArrayList<String> allFileExtensions = new CopyOnWriteArrayList<>();
-
   private final ConcurrentHashMap<String, MediaType> mediaTypes = new ConcurrentHashMap<>(64);
 
   private final ConcurrentHashMap<MediaType, List<String>> fileExtensions = new ConcurrentHashMap<>(64);
+
+  private final List<String> allFileExtensions = new CopyOnWriteArrayList<>();
 
   /**
    * Create an instance with the given map of file extensions and media types.
    */
   public MappingMediaTypeFileExtensionResolver(@Nullable Map<String, MediaType> mediaTypes) {
     if (mediaTypes != null) {
-      HashSet<String> allFileExtensions = new HashSet<>(mediaTypes.size());
-      for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
-        String extension = entry.getKey();
-        MediaType mediaType = entry.getValue();
-        String lowerCaseExtension = extension.toLowerCase(Locale.ROOT);
-        this.mediaTypes.put(lowerCaseExtension, mediaType);
-        addFileExtension(mediaType, lowerCaseExtension);
-        allFileExtensions.add(lowerCaseExtension);
-      }
+      Set<String> allFileExtensions = CollectionUtils.newHashSet(mediaTypes.size());
+      mediaTypes.forEach(this::addMapping);
       this.allFileExtensions.addAll(allFileExtensions);
     }
   }
@@ -80,17 +74,13 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
   /**
    * Map an extension to a MediaType. Ignore if extension already mapped.
    */
-  protected void addMapping(String extension, MediaType mediaType) {
-    MediaType previous = this.mediaTypes.putIfAbsent(extension, mediaType);
+  protected void addMapping(String key, MediaType mediaType) {
+    key = key.toLowerCase(Locale.ROOT);
+    MediaType previous = this.mediaTypes.putIfAbsent(key, mediaType);
     if (previous == null) {
-      addFileExtension(mediaType, extension);
-      this.allFileExtensions.add(extension);
+      this.fileExtensions.computeIfAbsent(mediaType, k -> new CopyOnWriteArrayList<>()).add(key);
+      this.allFileExtensions.add(key);
     }
-  }
-
-  private void addFileExtension(MediaType mediaType, String extension) {
-    this.fileExtensions.computeIfAbsent(mediaType, key -> new CopyOnWriteArrayList<>())
-            .add(extension);
   }
 
   @Override
@@ -109,8 +99,7 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
    *
    * @return a MediaType for the extension, or {@code null} if none found
    */
-  @Nullable
-  protected MediaType lookupMediaType(String extension) {
+  protected @Nullable MediaType lookupMediaType(String extension) {
     return this.mediaTypes.get(extension.toLowerCase(Locale.ROOT));
   }
 

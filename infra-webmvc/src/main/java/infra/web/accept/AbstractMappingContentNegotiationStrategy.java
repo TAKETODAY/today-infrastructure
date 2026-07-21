@@ -143,9 +143,11 @@ public abstract class AbstractMappingContentNegotiationStrategy
           throws HttpMediaTypeNotAcceptableException {
 
     if (!isUseRegisteredExtensionsOnly()) {
-      Optional<MediaType> mediaType = MediaTypeFactory.getMediaType("file." + key);
-      if (mediaType.isPresent()) {
-        return mediaType.get();
+      if (key.indexOf('.') == -1) {
+        Optional<MediaType> mediaType = MediaTypeFactory.getMediaType("file." + key);
+        if (mediaType.isPresent()) {
+          return mediaType.get();
+        }
       }
     }
     if (isIgnoreUnknownExtensions()) {
