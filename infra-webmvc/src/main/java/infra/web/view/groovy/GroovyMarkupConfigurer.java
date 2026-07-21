@@ -39,6 +39,7 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.util.StringUtils;
+import infra.web.resource.ResourceHandlerUtils;
 
 /**
  * An extension of Groovy's {@link groovy.text.markup.TemplateConfiguration} and
@@ -230,7 +231,11 @@ public class GroovyMarkupConfigurer extends TemplateConfiguration
     @Override
     public URL resolveTemplate(String templatePath) throws IOException {
       Assert.state(this.classLoader != null, "No template ClassLoader available");
-      return GroovyMarkupConfigurer.this.resolveTemplate(this.classLoader, templatePath);
+      String path = ResourceHandlerUtils.normalizeInputPath(templatePath);
+      if (ResourceHandlerUtils.shouldIgnoreInputPath(path)) {
+        throw new IOException("Invalid template path:" + templatePath);
+      }
+      return GroovyMarkupConfigurer.this.resolveTemplate(this.classLoader, path);
     }
   }
 
