@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 
 import infra.web.mock.MockRequest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
@@ -47,6 +48,21 @@ public class DefaultMvcResultTests {
   public void getAsyncResultFailure() {
     assertThatIllegalStateException().isThrownBy(() ->
             this.mvcResult.getAsyncResult(0));
+  }
+
+  @Test
+  void getAsyncResultRestoresInterruptStatusWhenInterrupted() {
+    this.mvcResult.setAsyncDispatchLatch(new CountDownLatch(1));
+    Thread.currentThread().interrupt();
+    try {
+      assertThatIllegalStateException().isThrownBy(() ->
+              this.mvcResult.getAsyncResult(1000));
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+    }
+    finally {
+      // Clear the interrupt status so it does not leak to other tests.
+      Thread.interrupted();
+    }
   }
 
 }
