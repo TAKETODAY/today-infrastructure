@@ -139,7 +139,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
    * TCP client internally.
    *
    * @see #setTcpClient(TcpOperations)
-   * @see #isPauseable()
+   * @see #isPausable()
    * @since 5.0
    */
   private boolean internallyManagedTcpClient = true;
@@ -361,7 +361,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
    * <p>By default {@link ReactorNettyTcpClient} is used.
    * <p><strong>Note:</strong> when this property is used, any
    * {@link #setRelayHost(String) host} or {@link #setRelayPort(int) port}
-   * specified will be effectively ignored, and {@link #isPauseable()} will
+   * specified will be effectively ignored, and {@link #isPausable()} will
    * return {@code false}.
    */
   public void setTcpClient(@Nullable TcpOperations<byte[]> tcpClient) {
@@ -465,7 +465,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
     accessor.setLogin(this.systemLogin);
     accessor.setPasscode(this.systemPasscode);
     accessor.setHeartbeat(this.systemHeartbeatSendInterval, this.systemHeartbeatReceiveInterval);
-    accessor.setHost(getVirtualHost() != null ? getVirtualHost() : getRelayHost());
+    accessor.setHost(getVirtualHost() != null ? getVirtualHost() : null);
     accessor.setSessionId(SYSTEM_SESSION_ID);
     if (logger.isDebugEnabled()) {
       logger.debug("Forwarding " + accessor.getShortLogMessage(EMPTY_PAYLOAD));
@@ -588,7 +588,7 @@ public class StompBrokerRelayMessageHandler extends AbstractBrokerMessageHandler
       stompHeaderAccessor = (stompHeaderAccessor.isMutable() ? stompHeaderAccessor : StompHeaderAccessor.wrap(message));
       stompHeaderAccessor.setLogin(this.clientLogin);
       stompHeaderAccessor.setPasscode(this.clientPasscode);
-      stompHeaderAccessor.setHost(getVirtualHost() != null ? getVirtualHost() : getRelayHost());
+      stompHeaderAccessor.setHost(getVirtualHost() != null ? getVirtualHost() : null);
       RelayConnectionHandler handler = new RelayConnectionHandler(sessionId, stompHeaderAccessor);
       this.connectionHandlers.put(sessionId, handler);
       this.stats.incrementConnectCount();
