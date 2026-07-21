@@ -1549,6 +1549,7 @@ public abstract class StringUtils {
       final String country = tokens[1];
       validateLocalePart(country);
       final String variant = Arrays.stream(tokens).skip(2).collect(Collectors.joining(delimiter));
+      validateLocalePart(variant);
       return new Locale(language, country, variant);
     }
     throw new IllegalArgumentException("Invalid locale format: '%s'".formatted(localeString));

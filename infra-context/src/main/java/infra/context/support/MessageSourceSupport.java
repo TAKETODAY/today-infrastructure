@@ -21,13 +21,17 @@ package infra.context.support;
 import org.jspecify.annotations.Nullable;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
+import infra.util.StringUtils;
 
 /**
  * Base class for message source implementations, providing support infrastructure
@@ -43,6 +47,9 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class MessageSourceSupport {
+
+  static final Set<Locale> JVM_LOCALES = Arrays.stream(Locale.getAvailableLocales()).
+          filter(l -> StringUtils.isNotEmpty(l.getLanguage())).collect(Collectors.toSet());
 
   private static final MessageFormat INVALID_MESSAGE_FORMAT = new MessageFormat("");
 
@@ -120,26 +127,46 @@ public abstract class MessageSourceSupport {
     if (!isAlwaysUseMessageFormat() && ObjectUtils.isEmpty(args)) {
       return msg;
     }
-    var messageFormatsPerLocale = messageFormatsPerMessage.computeIfAbsent(msg, key -> new ConcurrentHashMap<>());
-    MessageFormat messageFormat = messageFormatsPerLocale.computeIfAbsent(locale, key -> {
-      try {
-        return createMessageFormat(msg, locale);
-      }
-      catch (IllegalArgumentException ex) {
-        // Invalid message format - probably not intended for formatting,
-        // rather using a message structure with no arguments involved...
-        if (isAlwaysUseMessageFormat()) {
-          throw ex;
-        }
-        // Silently proceed with raw message if format not enforced...
-        return INVALID_MESSAGE_FORMAT;
-      }
-    });
+
+    MessageFormat messageFormat;
+    if (locale != null && JVM_LOCALES.contains(locale)) {
+      Map<Locale, MessageFormat> messageFormatsPerLocale = this.messageFormatsPerMessage
+              .computeIfAbsent(msg, key -> new ConcurrentHashMap<>());
+      messageFormat = messageFormatsPerLocale.computeIfAbsent(locale, key -> resolveMessageFormat(msg, key));
+    }
+    else {
+      messageFormat = resolveMessageFormat(msg, locale);
+    }
+
     if (messageFormat == INVALID_MESSAGE_FORMAT) {
       return msg;
     }
     synchronized(messageFormat) {
       return messageFormat.format(resolveArguments(args, locale));
+    }
+  }
+
+  /**
+   * Resolve a {@code MessageFormat} for the given message and Locale.
+   *
+   * @param msg the message to create a {@code MessageFormat} for
+   * @param locale the Locale to create a {@code MessageFormat} for
+   * @return the {@code MessageFormat} instance, or otherwise
+   * {@link #INVALID_MESSAGE_FORMAT} if not resolvable
+   * @see #createMessageFormat
+   */
+  private MessageFormat resolveMessageFormat(String msg, @Nullable Locale locale) {
+    try {
+      return createMessageFormat(msg, locale);
+    }
+    catch (IllegalArgumentException ex) {
+      // Invalid message format - probably not intended for formatting,
+      // rather using a message structure with no arguments involved...
+      if (isAlwaysUseMessageFormat()) {
+        throw ex;
+      }
+      // Silently proceed with raw message if format not enforced...
+      return INVALID_MESSAGE_FORMAT;
     }
   }
 

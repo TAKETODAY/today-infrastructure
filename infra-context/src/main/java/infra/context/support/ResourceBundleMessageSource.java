@@ -190,36 +190,35 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
    * found for the given basename and Locale
    */
   protected @Nullable ResourceBundle getResourceBundle(String basename, Locale locale) {
-    if (getCacheMillis() >= 0) {
+    if (getCacheMillis() >= 0 || !JVM_LOCALES.contains(locale)) {
       // Fresh ResourceBundle.getBundle call in order to let ResourceBundle
       // do its native caching, at the expense of more extensive lookup steps.
       return doGetBundle(basename, locale);
     }
-    else {
-      // Cache forever: prefer locale cache over repeated getBundle calls.
-      Map<Locale, ResourceBundle> localeMap = this.cachedResourceBundles.get(basename);
-      if (localeMap != null) {
-        ResourceBundle bundle = localeMap.get(locale);
-        if (bundle != null) {
-          return bundle;
-        }
-      }
-      try {
-        ResourceBundle bundle = doGetBundle(basename, locale);
-        if (localeMap == null) {
-          localeMap = this.cachedResourceBundles.computeIfAbsent(basename, bn -> new ConcurrentHashMap<>());
-        }
-        localeMap.put(locale, bundle);
+
+    // Cache forever: prefer local cache over repeated getBundle calls.
+    Map<Locale, ResourceBundle> localeMap = this.cachedResourceBundles.get(basename);
+    if (localeMap != null) {
+      ResourceBundle bundle = localeMap.get(locale);
+      if (bundle != null) {
         return bundle;
       }
-      catch (MissingResourceException ex) {
-        if (logger.isWarnEnabled()) {
-          logger.warn("ResourceBundle [{}] not found for MessageSource: {}", basename, ex.getMessage());
-        }
-        // Assume bundle not found
-        // -> do NOT throw the exception to allow for checking parent message source.
-        return null;
+    }
+    try {
+      ResourceBundle bundle = doGetBundle(basename, locale);
+      if (localeMap == null) {
+        localeMap = this.cachedResourceBundles.computeIfAbsent(basename, bn -> new ConcurrentHashMap<>());
       }
+      localeMap.put(locale, bundle);
+      return bundle;
+    }
+    catch (MissingResourceException ex) {
+      if (logger.isWarnEnabled()) {
+        logger.warn("ResourceBundle [{}] not found for MessageSource: {}", basename, ex.getMessage());
+      }
+      // Assume bundle not found
+      // -> do NOT throw the exception to allow for checking parent message source.
+      return null;
     }
   }
 
@@ -316,6 +315,11 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
   protected @Nullable MessageFormat getMessageFormat(ResourceBundle bundle, String code, Locale locale)
           throws MissingResourceException {
 
+    if (!JVM_LOCALES.contains(locale)) {
+      String msg = getStringOrNull(bundle, code);
+      return (msg != null ? createMessageFormat(msg, locale) : null);
+    }
+
     Map<String, Map<Locale, MessageFormat>> codeMap = this.cachedBundleMessageFormats.get(bundle);
     Map<Locale, MessageFormat> localeMap = null;
     if (codeMap != null) {
@@ -394,9 +398,11 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
       if (format.equals("java.properties")) {
         String bundleName = toBundleName(baseName, locale);
         final String resourceName = toResourceName(bundleName, "properties");
+        final ClassLoader classLoader = loader;
+        final boolean reloadFlag = reload;
         InputStream inputStream = null;
-        if (reload) {
-          URL url = loader.getResource(resourceName);
+        if (reloadFlag) {
+          URL url = classLoader.getResource(resourceName);
           if (url != null) {
             URLConnection connection = url.openConnection();
             if (connection != null) {
@@ -406,7 +412,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
           }
         }
         else {
-          inputStream = loader.getResourceAsStream(resourceName);
+          inputStream = classLoader.getResourceAsStream(resourceName);
         }
         if (inputStream != null) {
           Charset charset = getDefaultCharset();

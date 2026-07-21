@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.context.ResourceLoaderAware;
@@ -41,6 +42,7 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.util.CollectionUtils;
+import infra.util.ConcurrentLruCache;
 import infra.util.DefaultPropertiesPersister;
 import infra.util.PropertiesPersister;
 import infra.util.StringUtils;
@@ -111,14 +113,18 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
 
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
-  // Cache to hold filename lists per Locale
+  // Cache to hold filename lists per Locale.
   private final ConcurrentHashMap<String, Map<Locale, List<String>>> cachedFilenames = new ConcurrentHashMap<>();
 
-  // Cache to hold already loaded properties per filename
+  // Cache to hold already loaded properties per filename.
   private final ConcurrentHashMap<String, PropertiesHolder> cachedProperties = new ConcurrentHashMap<>();
 
-  // Cache to hold already loaded properties per filename
+  // Cache to hold already merged properties per Locale.
   private final ConcurrentHashMap<Locale, PropertiesHolder> cachedMergedProperties = new ConcurrentHashMap<>();
+
+  // Cache to hold merged properties per non-JVM Locale.
+  private final ConcurrentLruCache<Locale, PropertiesHolder> customLocaleProperties =
+          new ConcurrentLruCache<>(64, locale -> mergeProperties(collectPropertiesToMerge(locale)));
 
   /**
    * Set the list of supported file extensions.
@@ -127,7 +133,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * @param fileExtensions the file extensions (starts with a dot)
    */
   public void setFileExtensions(List<String> fileExtensions) {
-    Assert.isTrue(CollectionUtils.isNotEmpty(fileExtensions), "At least one file extension is required");
+    Assert.isTrue(!CollectionUtils.isEmpty(fileExtensions), "At least one file extension is required");
     for (String extension : fileExtensions) {
       if (!extension.startsWith(".")) {
         throw new IllegalArgumentException("File extension '" + extension + "' should start with '.'");
@@ -201,15 +207,14 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
       PropertiesHolder propHolder = getMergedProperties(locale);
       return propHolder.getProperty(code);
     }
-    else {
-      for (String basename : getBasenameSet()) {
-        List<String> filenames = calculateAllFilenames(basename, locale);
-        for (String filename : filenames) {
-          PropertiesHolder propHolder = getProperties(filename);
-          String result = propHolder.getProperty(code);
-          if (result != null) {
-            return result;
-          }
+
+    for (String basename : getBasenameSet()) {
+      List<String> filenames = calculateAllFilenames(basename, locale);
+      for (String filename : filenames) {
+        PropertiesHolder propHolder = getProperties(filename, locale);
+        String result = propHolder.getProperty(code);
+        if (result != null) {
+          return result;
         }
       }
     }
@@ -226,15 +231,14 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
       PropertiesHolder propHolder = getMergedProperties(locale);
       return propHolder.getMessageFormat(code, locale);
     }
-    else {
-      for (String basename : getBasenameSet()) {
-        List<String> filenames = calculateAllFilenames(basename, locale);
-        for (String filename : filenames) {
-          PropertiesHolder propHolder = getProperties(filename);
-          MessageFormat result = propHolder.getMessageFormat(code, locale);
-          if (result != null) {
-            return result;
-          }
+
+    for (String basename : getBasenameSet()) {
+      List<String> filenames = calculateAllFilenames(basename, locale);
+      for (String filename : filenames) {
+        PropertiesHolder propHolder = getProperties(filename, locale);
+        MessageFormat result = propHolder.getMessageFormat(code, locale);
+        if (result != null) {
+          return result;
         }
       }
     }
@@ -257,12 +261,18 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
     if (mergedHolder != null) {
       return mergedHolder;
     }
-    mergedHolder = mergeProperties(collectPropertiesToMerge(locale));
-    PropertiesHolder existing = this.cachedMergedProperties.putIfAbsent(locale, mergedHolder);
-    if (existing != null) {
-      mergedHolder = existing;
+
+    if (JVM_LOCALES.contains(locale)) {
+      mergedHolder = mergeProperties(collectPropertiesToMerge(locale));
+      PropertiesHolder existing = this.cachedMergedProperties.putIfAbsent(locale, mergedHolder);
+      if (existing != null) {
+        mergedHolder = existing;
+      }
+      return mergedHolder;
     }
-    return mergedHolder;
+    else {
+      return this.customLocaleProperties.get(locale);
+    }
   }
 
   /**
@@ -276,12 +286,12 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    */
   protected List<PropertiesHolder> collectPropertiesToMerge(Locale locale) {
     String[] basenames = StringUtils.toStringArray(getBasenameSet());
-    var holders = new ArrayList<PropertiesHolder>(basenames.length);
+    List<PropertiesHolder> holders = new ArrayList<>(basenames.length);
     for (int i = basenames.length - 1; i >= 0; i--) {
       List<String> filenames = calculateAllFilenames(basenames[i], locale);
       for (int j = filenames.size() - 1; j >= 0; j--) {
         String filename = filenames.get(j);
-        PropertiesHolder propHolder = getProperties(filename);
+        PropertiesHolder propHolder = getProperties(filename, locale);
         if (propHolder.getProperties() != null) {
           holders.add(propHolder);
         }
@@ -331,11 +341,11 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
       }
     }
 
-    // Filenames for given Locale
+    // Filenames for given Locale.
     List<String> filenames = new ArrayList<>(7);
     filenames.addAll(calculateFilenamesForLocale(basename, locale));
 
-    // Filenames for default Locale, if any
+    // Filenames for default Locale, if any.
     Locale defaultLocale = getDefaultLocale();
     if (defaultLocale != null && !defaultLocale.equals(locale)) {
       List<String> fallbackFilenames = calculateFilenamesForLocale(basename, defaultLocale);
@@ -347,24 +357,27 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
       }
     }
 
-    // Filename for default bundle file
+    // Filename for default bundle file.
     filenames.add(basename);
 
-    if (localeMap == null) {
-      localeMap = new ConcurrentHashMap<>();
-      Map<Locale, List<String>> existing = this.cachedFilenames.putIfAbsent(basename, localeMap);
-      if (existing != null) {
-        localeMap = existing;
+    if (JVM_LOCALES.contains(locale)) {
+      if (localeMap == null) {
+        localeMap = new ConcurrentHashMap<>();
+        Map<Locale, List<String>> existing = this.cachedFilenames.putIfAbsent(basename, localeMap);
+        if (existing != null) {
+          localeMap = existing;
+        }
       }
+      localeMap.put(locale, filenames);
     }
-    localeMap.put(locale, filenames);
+
     return filenames;
   }
 
   /**
    * Calculate the filenames for the given bundle basename and Locale,
    * appending language code, country code, and variant code.
-   * <p>For example, basename "messages", Locale "de_AT_oo" &rarr; "messages_de_AT_OO",
+   * <p>For example, basename "messages", Locale "de_AT_OO" &rarr; "messages_de_AT_OO",
    * "messages_de_AT", "messages_de".
    * <p>Follows the rules defined by {@link java.util.Locale#toString()}.
    *
@@ -373,7 +386,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
    * @return the List of filenames to check
    */
   protected List<String> calculateFilenamesForLocale(String basename, Locale locale) {
-    var result = new ArrayList<String>(3);
+    ArrayList<String> result = new ArrayList<>(3);
     String language = locale.getLanguage();
     String country = locale.getCountry();
     String variant = locale.getVariant();
@@ -397,6 +410,23 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
     }
 
     return result;
+  }
+
+  /**
+   * Get a PropertiesHolder for the given filename, either from the
+   * cache or freshly loaded.
+   *
+   * @param filename the bundle filename (basename + Locale)
+   * @param locale the requested locale (for cache filtering)
+   * @return the current PropertiesHolder for the bundle
+   * @see #getProperties(String)
+   */
+  private PropertiesHolder getProperties(String filename, Locale locale) {
+    PropertiesHolder propHolder = getProperties(filename);
+    if (propHolder.getProperties() == null && !JVM_LOCALES.contains(locale)) {
+      this.cachedProperties.remove(filename);
+    }
+    return propHolder;
   }
 
   /**
@@ -561,12 +591,12 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
   protected Properties loadProperties(Resource resource, String filename) throws IOException {
     Properties props = newProperties();
     String resourceFilename = resource.getName();
-    resource.consumeContent(in -> {
+    resource.consumeContent(inputStream -> {
       if (resourceFilename != null && resourceFilename.endsWith(XML_EXTENSION)) {
         if (logger.isDebugEnabled()) {
           logger.debug("Loading properties [{}]", resource.getName());
         }
-        this.propertiesPersister.loadFromXml(props, in);
+        this.propertiesPersister.loadFromXml(props, inputStream);
       }
       else {
         Charset charset = null;
@@ -583,13 +613,13 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
           if (logger.isDebugEnabled()) {
             logger.debug("Loading properties [{}] with encoding '{}'", resource.getName(), charset);
           }
-          this.propertiesPersister.load(props, new InputStreamReader(in, charset));
+          this.propertiesPersister.load(props, new InputStreamReader(inputStream, charset));
         }
         else {
           if (logger.isDebugEnabled()) {
             logger.debug("Loading properties [{}]", resource.getName());
           }
-          this.propertiesPersister.load(props, in);
+          this.propertiesPersister.load(props, inputStream);
         }
       }
     });
@@ -650,7 +680,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
 
     private volatile long refreshTimestamp = -2;
 
-    private final ReentrantLock refreshLock = new ReentrantLock();
+    private final Lock refreshLock = new ReentrantLock();
 
     /** Cache to hold already generated MessageFormats per message code. */
     private final ConcurrentMap<String, Map<Locale, MessageFormat>> cachedMessageFormats =
