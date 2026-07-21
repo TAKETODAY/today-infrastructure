@@ -39,6 +39,12 @@ import infra.core.type.MethodMetadata;
  * Where the name does matter, make sure to declare {@code @Bean("myBeanName")}
  * in such a scenario, even if it repeats the method name as the bean name.
  *
+ *  <p>the original {@code @Bean} method name will be registered
+ * as an alias if that name has not been taken already: effectively on first
+ * occurrence, whereas any later {@code @Bean} methods of the same name will
+ * not have aliases applied. This preserves the availability of common beans
+ * under the original bean names for retrieval and injection purposes.
+ *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AnnotationBeanNameGenerator
