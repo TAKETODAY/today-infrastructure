@@ -254,6 +254,12 @@ class GenericTypeResolverTests {
     assertThat(resolvedType).isEqualTo(BridgeMethodResolver.findBridgedMethod(method(MyOptionalInterfaceType.class, "get")).getGenericReturnType());
   }
 
+  @Test
+  void resolveTypeAgainstSameNamedVariables() {
+    Type resolvedType = resolveType(method(Create.class, "create", Object.class).getGenericParameterTypes()[0], Controller.class);
+    assertThat(resolvedType).isEqualTo(Long.class);
+  }
+
   private static Method method(Class<?> target, String methodName, Class<?>... parameterTypes) {
     Method method = findMethod(target, methodName, parameterTypes);
     assertThat(method).describedAs(target.getName() + "#" + methodName).isNotNull();
@@ -519,6 +525,18 @@ class GenericTypeResolverTests {
 
     static class ConcreteType implements AbstractType {
     }
+  }
+
+  interface Search<I, O> {
+  }
+
+  interface Create<I, O> {
+    default O create(I body) {
+      return null;
+    }
+  }
+
+  static class Controller implements Search<String, Long>, Create<Long, Long> {
   }
 
 }
