@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.expression.EvaluationException;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelNode;
 import infra.expression.spel.support.StandardEvaluationContext;
@@ -160,21 +160,23 @@ public class InlineList extends SpelNodeImpl {
     if (!nested) {
       mv.visitFieldInsn(PUTSTATIC, clazzname, constantFieldName, "Ljava/util/List;");
     }
-    for (SpelNodeImpl child : children) {
+    int childCount = getChildCount();
+    for (int c = 0; c < childCount; c++) {
       if (!nested) {
         mv.visitFieldInsn(GETSTATIC, clazzname, constantFieldName, "Ljava/util/List;");
       }
       else {
         mv.visitInsn(DUP);
       }
-      // The children might be further lists if they are not constants. In this
-      // situation do not call back into generateCode() because it will register another clinit adder.
-      // Instead, directly build the list here:
-      if (child instanceof InlineList inlineList) {
+      // Nested InlineList children are always constant (guaranteed by isCompilable/isConstant).
+      // Thus, we call generateClinitCode() directly rather than generateCode() to avoid registering
+      // a separate static field and clinit entry for each nested list. In other words, we build each
+      // nested list inline within the current clinit sequence.
+      if (this.children[c] instanceof InlineList inlineList) {
         inlineList.generateClinitCode(clazzname, constantFieldName, mv, codeflow, true);
       }
       else {
-        child.generateCode(mv, codeflow);
+        this.children[c].generateCode(mv, codeflow);
         String lastDesc = codeflow.lastDescriptor();
         if (CodeFlow.isPrimitive(lastDesc)) {
           CodeFlow.insertBoxIfNecessary(mv, lastDesc.charAt(0));
@@ -182,6 +184,18 @@ public class InlineList extends SpelNodeImpl {
       }
       mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
       mv.visitInsn(POP);
+    }
+    // Wrap the mutable ArrayList in an unmodifiable list, matching the behavior
+    // of the interpreted mode (see createList()). For the non-nested case, retrieve
+    // the list from the static field first, then store the wrapped list back. For
+    // the nested case, the list is already on the stack for the caller to use.
+    if (!nested) {
+      mv.visitFieldInsn(GETSTATIC, clazzname, constantFieldName, "Ljava/util/List;");
+    }
+    mv.visitMethodInsn(INVOKESTATIC, "java/util/Collections", "unmodifiableList",
+            "(Ljava/util/List;)Ljava/util/List;", false);
+    if (!nested) {
+      mv.visitFieldInsn(PUTSTATIC, clazzname, constantFieldName, "Ljava/util/List;");
     }
   }
 
