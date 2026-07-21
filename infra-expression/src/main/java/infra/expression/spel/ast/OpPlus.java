@@ -24,12 +24,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.core.TypeDescriptor;
 import infra.expression.EvaluationException;
 import infra.expression.Operation;
 import infra.expression.TypeConverter;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
@@ -153,16 +153,19 @@ public class OpPlus extends Operator {
   }
 
   private void checkStringLength(String string) {
-    if (string.length() > MAX_CONCATENATED_STRING_LENGTH) {
+    checkStringLength(string.length());
+  }
+
+  private void checkStringLength(int stringLength) {
+    if (stringLength > MAX_CONCATENATED_STRING_LENGTH) {
       throw new SpelEvaluationException(getStartPosition(),
               SpelMessage.MAX_CONCATENATED_STRING_LENGTH_EXCEEDED, MAX_CONCATENATED_STRING_LENGTH);
     }
   }
 
   private TypedValue concatenate(String leftString, String rightString) {
-    String result = leftString + rightString;
-    checkStringLength(result);
-    return new TypedValue(result);
+    checkStringLength(leftString.length() + rightString.length());
+    return new TypedValue(leftString + rightString);
   }
 
   @Override

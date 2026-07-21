@@ -22,10 +22,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.expression.EvaluationException;
 import infra.expression.Operation;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
@@ -126,9 +126,9 @@ public class OpMultiply extends Operator {
       throw new SpelEvaluationException(getStartPosition(),
               SpelMessage.NEGATIVE_REPEATED_TEXT_COUNT, count);
     }
-    int result = text.length() * count;
+    long result = (long) text.length() * (long) count;
     if (result < 0 || result > MAX_REPEATED_TEXT_SIZE) {
-      throw new SpelEvaluationException(getStartPosition(),
+      throw new SpelEvaluationException(getRightOperand().getStartPosition(),
               SpelMessage.MAX_REPEATED_TEXT_SIZE_EXCEEDED, MAX_REPEATED_TEXT_SIZE);
     }
   }
