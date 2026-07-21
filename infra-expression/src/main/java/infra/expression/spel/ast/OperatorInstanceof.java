@@ -22,9 +22,9 @@ import org.jspecify.annotations.Nullable;
 
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Type;
-import infra.expression.spel.CodeFlow;
 import infra.expression.EvaluationException;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
@@ -73,7 +73,7 @@ public class OperatorInstanceof extends Operator {
       result = BooleanTypedValue.FALSE;  // null is not an instanceof anything
     }
     else {
-      result = BooleanTypedValue.forValue(rightClass.isAssignableFrom(leftValue.getClass()));
+      result = BooleanTypedValue.forValue(rightClass.isInstance(leftValue));
     }
     this.type = rightClass;
     if (rightOperand instanceof TypeReference) {
