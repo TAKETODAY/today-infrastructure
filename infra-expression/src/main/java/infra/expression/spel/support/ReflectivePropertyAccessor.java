@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
 import infra.expression.AccessException;
@@ -39,6 +38,7 @@ import infra.expression.EvaluationContext;
 import infra.expression.EvaluationException;
 import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.CompilablePropertyAccessor;
 import infra.lang.Assert;
 import infra.reflect.Property;
@@ -319,8 +319,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     throw new AccessException("Neither setter method nor field found for property '%s'".formatted(name));
   }
 
-  @Nullable
-  private TypeDescriptor getTypeDescriptor(EvaluationContext context, Object target, String name) {
+  private @Nullable TypeDescriptor getTypeDescriptor(EvaluationContext context, Object target, String name) {
     Class<?> type = (target instanceof Class<?> clazz ? clazz : target.getClass());
 
     if (type.isArray() && name.equals("length")) {
@@ -342,8 +341,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     return typeDescriptor;
   }
 
-  @Nullable
-  private Method findGetterForProperty(String propertyName, Class<?> clazz, Object target) {
+  private @Nullable Method findGetterForProperty(String propertyName, Class<?> clazz, Object target) {
     boolean targetIsAClass = (target instanceof Class);
     Method method = findGetterForProperty(propertyName, clazz, targetIsAClass);
     if (method == null && targetIsAClass) {
@@ -353,8 +351,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     return method;
   }
 
-  @Nullable
-  private Method findSetterForProperty(String propertyName, Class<?> clazz, Object target) {
+  private @Nullable Method findSetterForProperty(String propertyName, Class<?> clazz, Object target) {
     // In contrast to findGetterForProperty(), we do not look for setters in
     // java.lang.Class as a fallback, since Class doesn't have any public setters.
     return findSetterForProperty(propertyName, clazz, target instanceof Class);
@@ -363,18 +360,21 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
   /**
    * Find a getter method for the specified property.
    */
-  @Nullable
-  protected Method findGetterForProperty(String propertyName, Class<?> clazz, boolean mustBeStatic) {
-    Method method = findMethodForProperty(getPropertyMethodSuffixes(propertyName),
+  protected @Nullable Method findGetterForProperty(String propertyName, Class<?> clazz, boolean mustBeStatic) {
+    String[] methodSuffixes = getPropertyMethodSuffixes(propertyName);
+    Method method = findMethodForProperty(methodSuffixes,
             "get", clazz, mustBeStatic, 0, ANY_TYPES);
     if (method == null) {
-      method = findMethodForProperty(getPropertyMethodSuffixes(propertyName),
+      method = findMethodForProperty(methodSuffixes,
               "is", clazz, mustBeStatic, 0, BOOLEAN_TYPES);
       if (method == null) {
-        // Record-style plain accessor method, e.g. name()
+        // Record-style plain accessor method, for example, name()
         method = findMethodForProperty(new String[] { propertyName },
                 "", clazz, mustBeStatic, 0, ANY_TYPES);
       }
+    }
+    if (method != null && method.getReturnType() == void.class) {
+      method = null; // not a valid accessor method
     }
     return method;
   }
@@ -382,14 +382,12 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
   /**
    * Find a setter method for the specified property.
    */
-  @Nullable
-  protected Method findSetterForProperty(String propertyName, Class<?> clazz, boolean mustBeStatic) {
+  protected @Nullable Method findSetterForProperty(String propertyName, Class<?> clazz, boolean mustBeStatic) {
     return findMethodForProperty(getPropertyMethodSuffixes(propertyName),
             "set", clazz, mustBeStatic, 1, ANY_TYPES);
   }
 
-  @Nullable
-  private Method findMethodForProperty(String[] methodSuffixes, String prefix, Class<?> clazz,
+  private @Nullable Method findMethodForProperty(String[] methodSuffixes, String prefix, Class<?> clazz,
           boolean mustBeStatic, int numberOfParams, Set<Class<?>> requiredReturnTypes) {
 
     Method[] methods = getSortedMethods(clazz);

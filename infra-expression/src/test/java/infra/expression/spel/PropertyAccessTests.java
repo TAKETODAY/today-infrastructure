@@ -21,6 +21,7 @@ package infra.expression.spel;
 import org.assertj.core.api.ThrowableTypeAssert;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,7 @@ import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.testresources.Inventor;
 import infra.expression.spel.testresources.Person;
 import infra.expression.spel.testresources.RecordPerson;
+import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -203,6 +205,16 @@ public class PropertyAccessTests extends AbstractExpressionTests {
     assertThat(expr.getValue(context, target)).isEqualTo("p1");
     target.setName("p2");
     assertThat(expr.getValue(context, target)).isEqualTo("p2");
+
+    assertThatSpelEvaluationException()
+            .isThrownBy(() -> parser.parseExpression("nonexistent").getValue(context, target))
+            .extracting(SpelEvaluationException::getMessageCode).isEqualTo(SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE);
+
+    Method getInvalid = ReflectionUtils.getMethod(Person.class, "getInvalid");
+    assertThat(getInvalid.getReturnType()).isEqualTo(void.class);
+    assertThatSpelEvaluationException()
+            .isThrownBy(() -> parser.parseExpression("invalid").getValue(context, target))
+            .extracting(SpelEvaluationException::getMessageCode).isEqualTo(SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE);
 
     assertThatSpelEvaluationException()
             .isThrownBy(() -> parser.parseExpression("name='p3'").getValue(context, target))
