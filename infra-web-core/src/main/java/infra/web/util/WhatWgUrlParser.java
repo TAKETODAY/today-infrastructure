@@ -281,31 +281,12 @@ final class WhatWgUrlParser {
   }
 
   private static String domainToAscii(String domain, boolean beStrict) {
-    // If beStrict is false, domain is an ASCII string, and strictly splitting domain on U+002E (.)
-    // does not produce any item that starts with an ASCII case-insensitive match for "xn--",
-    // this step is equivalent to ASCII lowercasing domain.
+    // If beStrict is false and domain is an ASCII string, the algorithm returns domain lowercased
+    // regardless of Unicode ToASCII's outcome, due to web compatibility. In particular, the WhatWG
+    // spec deliberately does not reject invalid or ambiguous "xn--" (ACE) labels here. See the note in
+    // https://url.spec.whatwg.org/#concept-domain-to-ascii and web-platform-tests url cases
     if (!beStrict && containsOnlyAscii(domain)) {
-      int dotIdx = domain.indexOf('.');
-      boolean onlyLowerCase = true;
-      while (dotIdx != -1) {
-        if (domain.length() - dotIdx > 4) {
-          // ASCII case-insensitive match for "xn--"
-          int ch0 = domain.codePointAt(dotIdx + 1);
-          int ch1 = domain.codePointAt(dotIdx + 2);
-          int ch2 = domain.codePointAt(dotIdx + 3);
-          int ch3 = domain.codePointAt(dotIdx + 4);
-          if ((ch0 == 'x' || ch0 == 'X') &&
-                  (ch1 == 'n' || ch1 == 'N') &&
-                  ch2 == '-' && ch3 == '_') {
-            onlyLowerCase = false;
-            break;
-          }
-        }
-        dotIdx = domain.indexOf('.', dotIdx + 1);
-      }
-      if (onlyLowerCase) {
-        return domain.toLowerCase(Locale.ENGLISH);
-      }
+      return domain.toLowerCase(Locale.ENGLISH);
     }
     // Let result be the result of running Unicode ToASCII (https://www.unicode.org/reports/tr46/#ToASCII)
     // with domain_name set to domain, UseSTD3ASCIIRules set to beStrict, CheckHyphens set to false,
@@ -322,7 +303,7 @@ final class WhatWgUrlParser {
     }
     catch (IllegalArgumentException ex) {
       throw new InvalidUrlException(
-              "Could not convert \"%s\" to ASCII: %s".formatted(domain, ex.getMessage()), ex);
+              "Could not convert \"" + domain + "\" to ASCII: " + ex.getMessage(), ex);
     }
   }
 
