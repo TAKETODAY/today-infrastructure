@@ -25,74 +25,66 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import infra.dao.DataAccessException;
 import infra.dao.DataAccessResourceFailureException;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.support.JdbcUtils;
 
 /**
- * Abstract base class for {@link DataFieldMaxValueIncrementer} implementations that use
- * a database sequence. Subclasses need to provide the database-specific SQL to use.
+ * {@link DataFieldMaxValueIncrementer} that increments the maximum value of a given table with
+ * the equivalent of an auto-increment column, using an SQLite {@code select max(rowid)} query.
  *
+ * @author Luke Taylor
  * @author Juergen Hoeller
- * @see #getSequenceQuery
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
  */
-public abstract class AbstractSequenceMaxValueIncrementer extends AbstractDataFieldMaxValueIncrementer {
+public class SqliteMaxValueIncrementer extends AbstractColumnMaxValueIncrementer {
 
   /**
    * Default constructor for bean property style usage.
    *
    * @see #setDataSource
    * @see #setIncrementerName
+   * @see #setColumnName
    */
-  public AbstractSequenceMaxValueIncrementer() { }
+  public SqliteMaxValueIncrementer() {
+  }
 
   /**
    * Convenience constructor.
    *
    * @param dataSource the DataSource to use
    * @param incrementerName the name of the sequence/table to use
+   * @param columnName the name of the column in the sequence table to use
    */
-  public AbstractSequenceMaxValueIncrementer(DataSource dataSource, String incrementerName) {
-    super(dataSource, incrementerName);
+  public SqliteMaxValueIncrementer(DataSource dataSource, String incrementerName, String columnName) {
+    super(dataSource, incrementerName, columnName);
   }
 
-  /**
-   * Executes the SQL as specified by {@link #getSequenceQuery()}.
-   */
   @Override
-  protected long getNextKey() throws DataAccessException {
+  protected synchronized long getNextKey() {
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     Statement stmt = null;
-    ResultSet rs = null;
     try {
       stmt = con.createStatement();
       DataSourceUtils.applyTransactionTimeout(stmt, dataSource);
-      rs = stmt.executeQuery(getSequenceQuery());
-      if (rs.next()) {
-        return rs.getLong(1);
+      stmt.executeUpdate("insert into " + getIncrementerName() + " values(null)");
+      ResultSet rs = stmt.executeQuery("select max(rowid) from " + getIncrementerName());
+      if (!rs.next()) {
+        throw new DataAccessResourceFailureException("rowid query failed after executing an update");
       }
-      else {
-        throw new DataAccessResourceFailureException("Sequence query did not return a result");
-      }
+      long nextKey = rs.getLong(1);
+      stmt.executeUpdate("delete from " + getIncrementerName() + " where " + getColumnName() + " < " + nextKey);
+      return nextKey;
     }
     catch (SQLException ex) {
-      throw new DataAccessResourceFailureException("Could not obtain sequence value", ex);
+      throw new DataAccessResourceFailureException("Could not obtain rowid", ex);
     }
     finally {
-      JdbcUtils.closeResultSet(rs);
       JdbcUtils.closeStatement(stmt);
       DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
-
-  /**
-   * Return the database-specific query to use for retrieving a sequence value.
-   * <p>The provided SQL is supposed to result in a single row with a single
-   * column that allows for extracting a {@code long} value.
-   */
-  protected abstract String getSequenceQuery();
 
 }

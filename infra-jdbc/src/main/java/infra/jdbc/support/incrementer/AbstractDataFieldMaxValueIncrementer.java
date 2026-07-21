@@ -18,6 +18,8 @@
 
 package infra.jdbc.support.incrementer;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.sql.DataSource;
 
 import infra.beans.factory.InitializingBean;
@@ -37,10 +39,10 @@ import infra.lang.Assert;
  */
 public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldMaxValueIncrementer, InitializingBean {
 
-  private DataSource dataSource;
+  private @Nullable DataSource dataSource;
 
   /** The name of the sequence/table containing the sequence. */
-  private String incrementerName;
+  private @Nullable String incrementerName;
 
   /** The length to which a string result should be pre-pended with zeroes. */
   protected int paddingLength = 0;
@@ -51,7 +53,6 @@ public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldM
    * @see #setDataSource
    * @see #setIncrementerName
    */
-  @SuppressWarnings("NullAway")
   public AbstractDataFieldMaxValueIncrementer() {
   }
 
@@ -71,28 +72,41 @@ public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldM
   /**
    * Set the data source to retrieve the value from.
    */
-  public void setDataSource(DataSource dataSource) {
+  public void setDataSource(@Nullable DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
   /**
    * Return the data source to retrieve the value from.
    */
-  public DataSource getDataSource() {
+  public @Nullable DataSource getDataSource() {
     return this.dataSource;
+  }
+
+  /**
+   * Obtain the {@code DataSource} for actual use.
+   *
+   * @return the DataSource (never {@code null})
+   * @throws IllegalStateException in case of no DataSource set
+   * @since 5.0
+   */
+  protected DataSource obtainDataSource() {
+    DataSource dataSource = getDataSource();
+    Assert.state(dataSource != null, "No DataSource set");
+    return dataSource;
   }
 
   /**
    * Set the name of the sequence/table.
    */
-  public void setIncrementerName(String incrementerName) {
+  public void setIncrementerName(@Nullable String incrementerName) {
     this.incrementerName = incrementerName;
   }
 
   /**
    * Return the name of the sequence/table.
    */
-  public String getIncrementerName() {
+  public @Nullable String getIncrementerName() {
     return this.incrementerName;
   }
 

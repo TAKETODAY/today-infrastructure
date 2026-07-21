@@ -89,11 +89,12 @@ public abstract class AbstractIdentityColumnMaxValueIncrementer extends Abstract
        * are performed on the same connection (otherwise we can't be sure that @@identity
        * returns the correct value)
        */
-      Connection con = DataSourceUtils.getConnection(getDataSource());
+      DataSource dataSource = obtainDataSource();
+      Connection con = DataSourceUtils.getConnection(dataSource);
       Statement stmt = null;
       try {
         stmt = con.createStatement();
-        DataSourceUtils.applyTransactionTimeout(stmt, getDataSource());
+        DataSourceUtils.applyTransactionTimeout(stmt, dataSource);
         this.valueCache = new long[getCacheSize()];
         this.nextValueIndex = 0;
         for (int i = 0; i < getCacheSize(); i++) {
@@ -116,7 +117,7 @@ public abstract class AbstractIdentityColumnMaxValueIncrementer extends Abstract
       }
       finally {
         JdbcUtils.closeStatement(stmt);
-        DataSourceUtils.releaseConnection(con, getDataSource());
+        DataSourceUtils.releaseConnection(con, dataSource);
       }
     }
     return this.valueCache[this.nextValueIndex++];
