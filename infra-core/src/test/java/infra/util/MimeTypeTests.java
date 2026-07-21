@@ -299,6 +299,13 @@ class MimeTypeTests {
   }
 
   @Test
+  void parseMimeTypeWrappedInQuotes() {
+    assertThatExceptionOfType(InvalidMimeTypeException.class)
+            .isThrownBy(() -> MimeTypeUtils.parseMimeType("\"application/xml\""))
+            .withMessageContaining("Invalid token character '\"'");
+  }
+
+  @Test
   public void parseMimeTypeNull() {
     assertThatExceptionOfType(InvalidMimeTypeException.class).isThrownBy(() -> MimeTypeUtils.parseMimeType(null));
   }
