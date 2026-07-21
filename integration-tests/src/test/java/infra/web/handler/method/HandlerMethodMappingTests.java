@@ -32,20 +32,20 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.HttpHeaders;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
 import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestMapping;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.HandlerMethodMappingNamingStrategy;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -165,8 +165,8 @@ public class HandlerMethodMappingTests {
 
   @Test // gh-26490
   public void ambiguousMatchOnPreFlightRequestWithCorsConfig() throws Throwable {
-    this.mapping.registerMapping("/f?o", this.handler, this.method1);
-    this.mapping.registerMapping("/fo?", this.handler, this.handler.getClass().getMethod("corsHandlerMethod"));
+    this.mapping.registerMapping("/f?o", this.handler, this.handler.getClass().getMethod("corsHandlerMethod1"));
+    this.mapping.registerMapping("/fo?", this.handler, this.handler.getClass().getMethod("corsHandlerMethod2"));
 
     MockRequest request = new MockRequest("OPTIONS", "/foo");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
@@ -385,7 +385,12 @@ public class HandlerMethodMappingTests {
 
     @RequestMapping
     @CrossOrigin(originPatterns = "*")
-    public void corsHandlerMethod() {
+    public void corsHandlerMethod1() {
+    }
+
+    @RequestMapping
+    @CrossOrigin(originPatterns = "*")
+    public void corsHandlerMethod2() {
     }
   }
 }
