@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 
 import infra.core.ConfigurableObjectInputStream;
@@ -33,13 +34,15 @@ import infra.core.ConfigurableObjectInputStream;
  * @author Gary Russell
  * @author Mark Fisher
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ObjectInputStream
  * @since 4.0
  */
 public class DefaultDeserializer implements Deserializer<Object> {
 
-  @Nullable
-  private final ClassLoader classLoader;
+  private final @Nullable ClassLoader classLoader;
+
+  private final @Nullable ObjectInputFilter objectInputFilter;
 
   /**
    * Create a {@code DefaultDeserializer} with default {@link ObjectInputStream}
@@ -47,16 +50,34 @@ public class DefaultDeserializer implements Deserializer<Object> {
    */
   public DefaultDeserializer() {
     this.classLoader = null;
+    this.objectInputFilter = null;
   }
 
   /**
    * Create a {@code DefaultDeserializer} for using an {@link ObjectInputStream}
    * with the given {@code ClassLoader}.
    *
+   * @param classLoader the ClassLoader to use
    * @see ConfigurableObjectInputStream#ConfigurableObjectInputStream(InputStream, ClassLoader)
    */
   public DefaultDeserializer(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
+    this.objectInputFilter = null;
+  }
+
+  /**
+   * Create a {@code DefaultDeserializer} for using an {@link ObjectInputStream}
+   * with the given {@code ClassLoader}.
+   *
+   * @param classLoader the ClassLoader to use
+   * @param objectInputFilter a custom ObjectInputFilter to apply
+   * @see ConfigurableObjectInputStream#ConfigurableObjectInputStream(InputStream, ClassLoader)
+   * @see ObjectInputStream#setObjectInputFilter
+   * @since 5.0
+   */
+  public DefaultDeserializer(@Nullable ClassLoader classLoader, @Nullable ObjectInputFilter objectInputFilter) {
+    this.classLoader = classLoader;
+    this.objectInputFilter = objectInputFilter;
   }
 
   /**
@@ -71,6 +92,17 @@ public class DefaultDeserializer implements Deserializer<Object> {
   }
 
   /**
+   * Return the {@link ObjectInputFilter} to apply to the {@link ObjectInputStream},
+   * if any.
+   *
+   * @see ObjectInputStream#setObjectInputFilter
+   * @since 5.0
+   */
+  public final @Nullable ObjectInputFilter getObjectInputFilter() {
+    return this.objectInputFilter;
+  }
+
+  /**
    * Read from the supplied {@code InputStream} and deserialize the contents
    * into an object.
    *
@@ -78,7 +110,10 @@ public class DefaultDeserializer implements Deserializer<Object> {
    */
   @Override
   public Object deserialize(InputStream inputStream) throws IOException {
-    var objectInputStream = new ConfigurableObjectInputStream(inputStream, this.classLoader);
+    ObjectInputStream objectInputStream = new ConfigurableObjectInputStream(inputStream, this.classLoader);
+    if (this.objectInputFilter != null) {
+      objectInputStream.setObjectInputFilter(this.objectInputFilter);
+    }
     try {
       return objectInputStream.readObject();
     }
