@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import infra.aot.hint.ExecutableMode;
 import infra.aot.hint.MemberCategory;
@@ -180,6 +181,35 @@ class FileNativeConfigurationWriterTests {
             			{"glob": "com/example"},
             			{"glob": "com/example/another.properties"}
             	]
+            }""".formatted(Version.instance.implementationVersion()));
+  }
+
+  @Test
+  void lambdaConfig() throws Exception {
+    FileNativeConfigurationWriter generator = new FileNativeConfigurationWriter(tempDir);
+    RuntimeHints hints = new RuntimeHints();
+    hints.reflection().registerLambda(Integer.class, builder -> builder
+            .withDeclaringMethod("getCell", Integer.class, Integer.class)
+            .withInterfaces(Supplier.class));
+    generator.write(hints);
+    assertEquals("""
+            {
+              "comment": "Infra Framework %s",
+            	"reflection": [
+            		{
+            			"type": {
+            				"lambda": {
+            					"declaringClass": "java.lang.Integer",
+            					"declaringMethod": {
+            						"name": "getCell",
+            						"parameterTypes": [ "java.lang.Integer", "java.lang.Integer" ]
+            					},
+            					"interfaces": [ "java.util.function.Supplier" ]
+            				}
+            			}
+            		}
+            	]
+            }
             }""".formatted(Version.instance.implementationVersion()));
   }
 
