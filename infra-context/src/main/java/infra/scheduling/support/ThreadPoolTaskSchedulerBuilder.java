@@ -239,7 +239,7 @@ public class ThreadPoolTaskSchedulerBuilder {
     }
 
     if (awaitTerminationPeriod != null) {
-      taskScheduler.setAwaitTerminationSeconds(Math.toIntExact(awaitTerminationPeriod.getSeconds()));
+      taskScheduler.setAwaitTerminationMillis(awaitTerminationPeriod.toMillis());
     }
 
     if (threadNamePrefix != null) {

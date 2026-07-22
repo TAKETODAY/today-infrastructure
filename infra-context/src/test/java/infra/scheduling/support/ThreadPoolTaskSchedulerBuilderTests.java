@@ -55,7 +55,7 @@ class ThreadPoolTaskSchedulerBuilderTests {
 
   @Test
   void awaitTerminationPeriodShouldApply() {
-    Duration period = Duration.ofMinutes(1);
+    Duration period = Duration.ofMillis(50);
     ThreadPoolTaskScheduler executor = this.builder.awaitTerminationPeriod(period).build();
     assertThat(executor).hasFieldOrPropertyWithValue("awaitTerminationMillis", period.toMillis());
   }
@@ -67,6 +67,14 @@ class ThreadPoolTaskSchedulerBuilderTests {
   }
 
   @Test
+  void taskDecoratorShouldApply() {
+    TaskDecorator taskDecorator = mock(TaskDecorator.class);
+    ThreadPoolTaskScheduler scheduler = this.builder.taskDecorator(taskDecorator).build();
+    assertThat(scheduler).extracting("taskDecorator").isSameAs(taskDecorator);
+  }
+
+  @Test
+  @SuppressWarnings("NullAway")
   void customizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.customizers((ThreadPoolTaskSchedulerCustomizer[]) null))
@@ -74,6 +82,7 @@ class ThreadPoolTaskSchedulerBuilderTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void customizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.customizers((Set<ThreadPoolTaskSchedulerCustomizer>) null))
@@ -109,6 +118,7 @@ class ThreadPoolTaskSchedulerBuilderTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void additionalCustomizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.additionalCustomizers((ThreadPoolTaskSchedulerCustomizer[]) null))
@@ -116,6 +126,7 @@ class ThreadPoolTaskSchedulerBuilderTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway")
   void additionalCustomizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.additionalCustomizers((Set<ThreadPoolTaskSchedulerCustomizer>) null))
@@ -131,13 +142,6 @@ class ThreadPoolTaskSchedulerBuilderTests {
             .build();
     then(customizer1).should().customize(scheduler);
     then(customizer2).should().customize(scheduler);
-  }
-
-  @Test
-  void taskDecoratorShouldApply() {
-    TaskDecorator taskDecorator = mock(TaskDecorator.class);
-    ThreadPoolTaskScheduler scheduler = this.builder.taskDecorator(taskDecorator).build();
-    assertThat(scheduler).extracting("taskDecorator").isSameAs(taskDecorator);
   }
 
 }
