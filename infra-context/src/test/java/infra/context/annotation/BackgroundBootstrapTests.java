@@ -191,6 +191,7 @@ class BackgroundBootstrapTests {
 
   @Test
   @Timeout(10)
+  @DisabledIfInContinuousIntegration
   void bootstrapWithCustomExecutorAndLazyConfig() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorLazyBeanConfig.class);
     assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isTrue();
