@@ -190,6 +190,7 @@ class BackgroundBootstrapTests {
   }
 
   @Test
+  @Timeout(10)
   void bootstrapWithCustomExecutorAndLazyConfig() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorLazyBeanConfig.class);
     assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isTrue();
@@ -555,13 +556,13 @@ class BackgroundBootstrapTests {
     @Lazy
     static class LazyBeanConfig {
 
-      @Bean(bootstrap = BACKGROUND)
+      @Component(bootstrap = BACKGROUND)
       public TestBean testBean1() throws InterruptedException {
         Thread.sleep(6000);
         return new TestBean();
       }
 
-      @Bean(bootstrap = BACKGROUND)
+      @Component(bootstrap = BACKGROUND)
       @Lazy
       public TestBean testBean2() throws InterruptedException {
         Thread.sleep(6000);
