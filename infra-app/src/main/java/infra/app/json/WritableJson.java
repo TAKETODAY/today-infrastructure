@@ -18,7 +18,6 @@
 
 package infra.app.json;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -82,9 +81,10 @@ public interface WritableJson {
    */
   default byte[] toByteArray(Charset charset) {
     Assert.notNull(charset, "'charset' is required");
-    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      toWriter(new OutputStreamWriter(out, charset));
-      return out.toByteArray();
+    try {
+      AppendableByteArray appendable = AppendableByteArray.get(charset);
+      to(appendable);
+      return appendable.toByteArray();
     }
     catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -123,8 +123,7 @@ public interface WritableJson {
 
   /**
    * Write the JSON to the provided {@link OutputStream} using
-   * {@link StandardCharsets#UTF_8 UTF8} encoding. The output stream will not be
-   * closed.
+   * {@link StandardCharsets#UTF_8 UTF8} encoding. The output stream will not be closed.
    *
    * @param out the {@link OutputStream} to receive the JSON
    * @throws IOException on IO error
@@ -149,8 +148,8 @@ public interface WritableJson {
   }
 
   /**
-   * Write the JSON to the provided {@link Writer}. The writer will be flushed but
-   * not closed.
+   * Write the JSON to the provided {@link Writer}. The writer will be flushed but not
+   * closed.
    *
    * @param out the {@link Writer} to receive the JSON
    * @throws IOException on IO error
