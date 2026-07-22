@@ -85,6 +85,7 @@ public class AntPathMatcher implements PathMatcher {
 
   /** Default path separator: "/". */
   public static final String DEFAULT_PATH_SEPARATOR = "/";
+
   private static final int CACHE_TURNOFF_THRESHOLD = 65536;
 
   private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{[^/]+?\\}");
@@ -99,8 +100,7 @@ public class AntPathMatcher implements PathMatcher {
 
   private PathSeparatorPatternCache pathSeparatorPatternCache;
 
-  @Nullable
-  private volatile Boolean cachePatterns;
+  private volatile @Nullable Boolean cachePatterns;
 
   private final ConcurrentHashMap<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
 
@@ -769,8 +769,7 @@ public class AntPathMatcher implements PathMatcher {
 
     private static final String DEFAULT_VARIABLE_PATTERN = "(.*)";
 
-    @Nullable
-    private final Pattern pattern;
+    private final @Nullable Pattern pattern;
 
     private final ArrayList<String> variableNames;
 
@@ -938,7 +937,7 @@ public class AntPathMatcher implements PathMatcher {
         return this.text;
       }
 
-      private static class Counter {
+      private static final class Counter {
         private int value;
       }
     }
@@ -1057,8 +1056,7 @@ public class AntPathMatcher implements PathMatcher {
 
       public boolean catchAllPattern;
 
-      @Nullable
-      private final String pattern;
+      private final @Nullable String pattern;
 
       PatternInfo(@Nullable String pattern, String pathSeparator) {
         this.pattern = pattern;
