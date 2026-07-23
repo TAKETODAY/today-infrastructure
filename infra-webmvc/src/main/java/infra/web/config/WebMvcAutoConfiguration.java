@@ -494,9 +494,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Lazy
   @Component
   @ConditionalOnEnabledResourceChain
-  static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
-          WebProperties webProperties) {
-    return new ResourceHandlerRegistrationCustomizer(webProperties.resources);
+  static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(WebProperties webProperties) {
+    return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.resources);
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -512,14 +511,15 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   }
 
-  static class ResourceHandlerRegistrationCustomizer {
+  static class ResourceChainResourceHandlerRegistrationCustomizer implements ResourceHandlerRegistrationCustomizer {
 
     private final Resources resources;
 
-    ResourceHandlerRegistrationCustomizer(Resources resourceProperties) {
+    ResourceChainResourceHandlerRegistrationCustomizer(Resources resourceProperties) {
       this.resources = resourceProperties;
     }
 
+    @Override
     public void customize(ResourceHandlerRegistration registration) {
       Resources.Chain properties = resources.chain;
       configureResourceChain(properties, registration.resourceChain(properties.cache));
