@@ -67,6 +67,7 @@ import infra.beans.CachedIntrospectionResults;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.BeanDefinitionStoreException;
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.annotation.Autowired;
@@ -94,6 +95,7 @@ import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SimpleApplicationEventMulticaster;
 import infra.context.event.SmartApplicationListener;
 import infra.context.support.AbstractApplicationContext;
+import infra.context.support.GenericApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
@@ -1108,6 +1110,25 @@ class ApplicationTests {
   void beanDefinitionOverridingIsDisabledByDefault() {
     assertThatExceptionOfType(BeanDefinitionOverrideException.class)
             .isThrownBy(() -> new Application(ExampleConfig.class, OverrideConfig.class).run());
+  }
+
+  @Test
+  void beanDefinitionOverridingIsAppliedToInitializer() {
+    assertThatExceptionOfType(BeanDefinitionOverrideException.class).isThrownBy(() -> {
+      BeanRegistrar registrar = (registry, env) -> {
+        registry.registerBean("someBean", String.class);
+        registry.registerBean("someBean", String.class);
+      };
+      ApplicationContextInitializer initializer = context -> {
+        if (context instanceof GenericApplicationContext gac) {
+          gac.register(registrar);
+        }
+      };
+
+      Application application = new Application(Example.class);
+      application.setInitializers(List.of(initializer));
+      application.run();
+    });
   }
 
   @Test

@@ -565,17 +565,17 @@ public class Application {
     context.setEnvironment(environment);
     postProcessApplicationContext(context);
     addAotGeneratedInitializerIfNecessary(initializers);
-    applyInitializers(context);
-    listeners.contextPrepared(context);
-    bootstrapContext.close(context);
 
-    if (logStartupInfo) {
-      logStartupInfo(context);
-      logStartupProfileInfo(context);
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+
+    if (beanFactory instanceof AbstractAutowireCapableBeanFactory acBeanFactory) {
+      acBeanFactory.setAllowCircularReferences(allowCircularReferences);
+      if (beanFactory instanceof StandardBeanFactory stdBeanFactory) {
+        stdBeanFactory.setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
+      }
     }
 
     // Add specific singleton beans
-    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     beanFactory.registerSingleton(this);
     beanFactory.registerSingleton(applicationTemp);
     beanFactory.registerSingleton(ApplicationArguments.BEAN_NAME, arguments);
@@ -584,11 +584,13 @@ public class Application {
       beanFactory.registerSingleton(Banner.BEAN_NAME, printedBanner);
     }
 
-    if (beanFactory instanceof AbstractAutowireCapableBeanFactory acBeanFactory) {
-      acBeanFactory.setAllowCircularReferences(allowCircularReferences);
-      if (beanFactory instanceof StandardBeanFactory stdBeanFactory) {
-        stdBeanFactory.setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
-      }
+    applyInitializers(context);
+    listeners.contextPrepared(context);
+    bootstrapContext.close(context);
+
+    if (logStartupInfo) {
+      logStartupInfo(context);
+      logStartupProfileInfo(context);
     }
 
     if (lazyInitialization) {
