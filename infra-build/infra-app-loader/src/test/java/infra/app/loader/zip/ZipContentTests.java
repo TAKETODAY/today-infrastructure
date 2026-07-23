@@ -49,6 +49,8 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import infra.app.loader.testsupport.TestJar;
+import infra.app.loader.zip.ZipContent.Entry;
+import infra.app.loader.zip.ZipContent.Kind;
 import infra.util.FileCopyUtils;
 import infra.util.StreamUtils;
 
@@ -107,7 +109,7 @@ class ZipContentTests {
 
   @Test
   void getEntryWhenPresentReturnsEntry() {
-    ZipContent.Entry entry = this.zipContent.getEntry("1.dat");
+    Entry entry = this.zipContent.getEntry("1.dat");
     assertThat(entry).isNotNull();
     assertThat(entry.getName()).isEqualTo("1.dat");
   }
@@ -119,14 +121,14 @@ class ZipContentTests {
 
   @Test
   void getEntryWithPrefixWhenPresentReturnsEntry() {
-    ZipContent.Entry entry = this.zipContent.getEntry("1", ".dat");
+    Entry entry = this.zipContent.getEntry("1", ".dat");
     assertThat(entry).isNotNull();
     assertThat(entry.getName()).isEqualTo("1.dat");
   }
 
   @Test
   void getEntryWithLongPrefixWhenNameIsShorterReturnsNull() {
-    ZipContent.Entry entry = this.zipContent.getEntry("iamaverylongprefixandiwontfindanything", "1.dat");
+    Entry entry = this.zipContent.getEntry("iamaverylongprefixandiwontfindanything", "1.dat");
     assertThat(entry).isNull();
   }
 
@@ -151,7 +153,7 @@ class ZipContentTests {
 
   @Test
   void getManifestEntry() throws Exception {
-    ZipContent.Entry entry = this.zipContent.getEntry("META-INF/MANIFEST.MF");
+    Entry entry = this.zipContent.getEntry("META-INF/MANIFEST.MF");
     try (CloseableDataBlock dataBlock = entry.openContent()) {
       Manifest manifest = new Manifest(asInflaterInputStream(dataBlock));
       assertThat(manifest.getMainAttributes().getValue("Built-By")).isEqualTo("j1");
@@ -164,7 +166,7 @@ class ZipContentTests {
       Iterator<? extends ZipEntry> expected = zipFile.entries().asIterator();
       int i = 0;
       while (expected.hasNext()) {
-        ZipContent.Entry actual = this.zipContent.getEntry(i++);
+        Entry actual = this.zipContent.getEntry(i++);
         assertThatFieldsAreEqual(actual.as(ZipEntry::new), expected.next());
       }
     }
@@ -172,20 +174,20 @@ class ZipContentTests {
 
   @Test
   void getKindWhenZipReturnsZip() {
-    assertThat(this.zipContent.getKind()).isEqualTo(ZipContent.Kind.ZIP);
+    assertThat(this.zipContent.getKind()).isEqualTo(Kind.ZIP);
   }
 
   @Test
   void getKindWhenNestedZipReturnsNestedZip() throws IOException {
     try (ZipContent nested = ZipContent.open(this.file.toPath(), "nested.jar")) {
-      assertThat(nested.getKind()).isEqualTo(ZipContent.Kind.NESTED_ZIP);
+      assertThat(nested.getKind()).isEqualTo(Kind.NESTED_ZIP);
     }
   }
 
   @Test
   void getKindWhenNestedDirectoryReturnsNestedDirectory() throws IOException {
     try (ZipContent nested = ZipContent.open(this.file.toPath(), "d/")) {
-      assertThat(nested.getKind()).isEqualTo(ZipContent.Kind.NESTED_DIRECTORY);
+      assertThat(nested.getKind()).isEqualTo(Kind.NESTED_DIRECTORY);
     }
   }
 
@@ -291,7 +293,7 @@ class ZipContentTests {
     try (ZipContent zip64Content = ZipContent.open(zip64File.toPath())) {
       assertThat(zip64Content.size()).isEqualTo(65537);
       for (int i = 0; i < zip64Content.size(); i++) {
-        ZipContent.Entry entry = zip64Content.getEntry(i);
+        Entry entry = zip64Content.getEntry(i);
         try (CloseableDataBlock dataBlock = entry.openContent()) {
           assertThat(asInflaterInputStream(dataBlock)).hasContent("Entry " + (i + 1));
         }
@@ -351,7 +353,7 @@ class ZipContentTests {
     try (ZipContent nestedZip = ZipContent.open(containerFile.toPath(), "nested-zip64.zip")) {
       assertThat(nestedZip.size()).isEqualTo(65537);
       for (int i = 0; i < nestedZip.size(); i++) {
-        ZipContent.Entry entry = nestedZip.getEntry(i);
+        Entry entry = nestedZip.getEntry(i);
         try (CloseableDataBlock content = entry.openContent()) {
           assertThat(asInflaterInputStream(content)).hasContent("Entry " + (i + 1));
         }
@@ -378,6 +380,42 @@ class ZipContentTests {
       ZipEntry entry = zip.getEntry(0).as(ZipEntry::new);
       assertThat(entry.getLastModifiedTime().toInstant()).isEqualTo(Instant.EPOCH);
       assertThat(entry.getName()).isEqualTo("1.dat");
+    }
+  }
+
+  @Test
+  void detectUnsigned() throws Exception {
+    File file = new File(this.tempDir, "testunsigned.jar");
+    TestJar.create(file);
+    try (ZipContent zip = ZipContent.open(this.file.toPath())) {
+      assertThat(zip.hasJarSignatureFile()).isFalse();
+    }
+  }
+
+  @Test
+  void detectSignedWithDsaFile() throws Exception {
+    File file = new File(this.tempDir, "testsigned.jar");
+    TestJar.create(file, false, "DSA");
+    try (ZipContent zip = ZipContent.open(file.toPath())) {
+      assertThat(zip.hasJarSignatureFile()).isTrue();
+    }
+  }
+
+  @Test
+  void detectSignedWithRsaFile() throws Exception {
+    File file = new File(this.tempDir, "testsigned.jar");
+    TestJar.create(file, false, "RSA");
+    try (ZipContent zip = ZipContent.open(file.toPath())) {
+      assertThat(zip.hasJarSignatureFile()).isTrue();
+    }
+  }
+
+  @Test
+  void detectSignedWithEcFile() throws Exception {
+    File file = new File(this.tempDir, "testsigned.jar");
+    TestJar.create(file, false, "EC");
+    try (ZipContent zip = ZipContent.open(file.toPath())) {
+      assertThat(zip.hasJarSignatureFile()).isTrue();
     }
   }
 
