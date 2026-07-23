@@ -41,7 +41,6 @@ import javax.sql.DataSource;
 import infra.beans.BeanUtils;
 import infra.core.ResolvableType;
 import infra.jdbc.datasource.SimpleDriverDataSource;
-import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
@@ -250,31 +249,7 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @return a new {@link DataSource} builder
    */
   public static DataSourceBuilder<?> derivedFrom(DataSource dataSource) {
-    if (dataSource instanceof EmbeddedDatabase) {
-      try {
-        dataSource = dataSource.unwrap(DataSource.class);
-      }
-      catch (SQLException ex) {
-        throw new IllegalStateException("Unable to unwrap embedded database", ex);
-      }
-    }
-    return new DataSourceBuilder<>(unwrap(dataSource));
-  }
-
-  private static DataSource unwrap(DataSource dataSource) {
-    try {
-      while (dataSource.isWrapperFor(DataSource.class)) {
-        DataSource unwrapped = dataSource.unwrap(DataSource.class);
-        if (unwrapped == dataSource) {
-          return unwrapped;
-        }
-        dataSource = unwrapped;
-      }
-    }
-    catch (SQLException ex) {
-      // Try to continue with the existing, potentially still wrapped, DataSource
-    }
-    return dataSource;
+    return new DataSourceBuilder<>(DataSourceUnwrapper.unwrapRoot(dataSource));
   }
 
   /**

@@ -21,6 +21,8 @@ package infra.jdbc.config;
 import com.zaxxer.hikari.HikariConfigMXBean;
 import com.zaxxer.hikari.HikariDataSource;
 
+import org.apache.tomcat.jdbc.pool.DataSourceProxy;
+import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -97,6 +99,48 @@ class DataSourceUnwrapperTests {
     DataSource actual = wrapInProxy(wrapInDelegate(wrapInDelegate(wrapInProxy(wrapInDelegate(dataSource)))));
     assertThat(DataSourceUnwrapper.unwrap(actual, HikariConfigMXBean.class, HikariDataSource.class))
             .isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapDataSourceProxy() {
+    org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
+    DataSource actual = wrapInDelegate(wrapInProxy(dataSource));
+    assertThat(DataSourceUnwrapper.unwrap(actual, PoolConfiguration.class, DataSourceProxy.class))
+            .isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapRootWithPlainDataSource() {
+    DataSource dataSource = new HikariDataSource();
+    assertThat(DataSourceUnwrapper.unwrapRoot(dataSource)).isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapRootWithDelegate() {
+    DataSource dataSource = new HikariDataSource();
+    DataSource actual = wrapInDelegate(wrapInDelegate(dataSource));
+    assertThat(DataSourceUnwrapper.unwrapRoot(actual)).isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapRootWithProxy() {
+    DataSource dataSource = new HikariDataSource();
+    DataSource actual = wrapInProxy(wrapInProxy(dataSource));
+    assertThat(DataSourceUnwrapper.unwrapRoot(actual)).isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapRootWithLazyConnectionDataSource() {
+    DataSource dataSource = new HikariDataSource();
+    DataSource actual = new LazyConnectionDataSourceProxy(dataSource);
+    assertThat(DataSourceUnwrapper.unwrapRoot(actual)).isSameAs(dataSource);
+  }
+
+  @Test
+  void unwrapRootWithSeveralLevelOfWrapping() {
+    DataSource dataSource = new HikariDataSource();
+    DataSource actual = wrapInProxy(wrapInDelegate(wrapInDelegate(wrapInProxy(wrapInDelegate(dataSource)))));
+    assertThat(DataSourceUnwrapper.unwrapRoot(actual)).isSameAs(dataSource);
   }
 
   @Test

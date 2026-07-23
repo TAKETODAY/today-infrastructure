@@ -96,14 +96,11 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
 
   private static final Logger logger = LoggerFactory.getLogger(LazyConnectionDataSourceProxy.class);
 
-  @Nullable
-  private DataSource readOnlyDataSource;
+  private @Nullable DataSource readOnlyDataSource;
 
-  @Nullable
-  private volatile Boolean defaultAutoCommit;
+  private volatile @Nullable Boolean defaultAutoCommit;
 
-  @Nullable
-  private volatile Integer defaultTransactionIsolation;
+  private volatile @Nullable Integer defaultTransactionIsolation;
 
   /**
    * Create a new LazyConnectionDataSourceProxy.
@@ -111,7 +108,8 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    * @see #setTargetDataSource
    * @see #setReadOnlyDataSource
    */
-  public LazyConnectionDataSourceProxy() { }
+  public LazyConnectionDataSourceProxy() {
+  }
 
   /**
    * Create a new LazyConnectionDataSourceProxy.
@@ -235,16 +233,14 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
   /**
    * Expose the default auto-commit value.
    */
-  @Nullable
-  protected Boolean defaultAutoCommit() {
+  protected @Nullable Boolean defaultAutoCommit() {
     return this.defaultAutoCommit;
   }
 
   /**
    * Expose the default transaction isolation value.
    */
-  @Nullable
-  protected Integer defaultTransactionIsolation() {
+  protected @Nullable Integer defaultTransactionIsolation() {
     return this.defaultTransactionIsolation;
   }
 

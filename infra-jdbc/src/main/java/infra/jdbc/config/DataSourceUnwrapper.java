@@ -51,8 +51,7 @@ public abstract class DataSourceUnwrapper {
    * @return an object that implements the target type or {@code null}
    * @see Wrapper#unwrap(Class)
    */
-  @Nullable
-  public static <I, T extends I> T unwrap(DataSource dataSource, Class<I> unwrapInterface, Class<T> target) {
+  public static <I, T extends I> @Nullable T unwrap(DataSource dataSource, Class<I> unwrapInterface, Class<T> target) {
     if (target.isInstance(dataSource)) {
       return target.cast(dataSource);
     }
@@ -60,7 +59,6 @@ public abstract class DataSourceUnwrapper {
     if (unwrapped != null && unwrapInterface.isAssignableFrom(target)) {
       return target.cast(unwrapped);
     }
-
     DataSource targetDataSource = getTargetDataSource(dataSource);
     if (targetDataSource != null) {
       return unwrap(targetDataSource, unwrapInterface, target);
@@ -85,13 +83,41 @@ public abstract class DataSourceUnwrapper {
    * @param <T> the target type
    * @return an object that implements the target type or {@code null}
    */
-  @Nullable
-  public static <T> T unwrap(DataSource dataSource, Class<T> target) {
+  public static <T> @Nullable T unwrap(DataSource dataSource, Class<T> target) {
     return unwrap(dataSource, target, target);
   }
 
-  @Nullable
-  private static <S> S safeUnwrap(Wrapper wrapper, Class<S> target) {
+  /**
+   * Return the root {@link DataSource} by recursively unwrapping all
+   * {@link infra.jdbc.datasource.DelegatingDataSource delegating}, proxy,
+   * and {@link java.sql.Wrapper} layers until no further unwrapping is possible.
+   *
+   * @param dataSource the datasource to unwrap
+   * @return the root {@link DataSource}
+   * @since 5.0
+   */
+  public static DataSource unwrapRoot(DataSource dataSource) {
+    DataSource targetDataSource = getTargetDataSource(dataSource);
+    if (targetDataSource != null) {
+      return unwrapRoot(targetDataSource);
+    }
+    if (AopUtils.isAopProxy(dataSource)) {
+      Object proxyTarget = AopProxyUtils.getSingletonTarget(dataSource);
+      if (proxyTarget instanceof DataSource proxyDataSource) {
+        return unwrapRoot(proxyDataSource);
+      }
+    }
+    DataSource unwrapped = safeUnwrap(dataSource);
+    if (unwrapped != null) {
+      if (unwrapped == dataSource) {
+        return unwrapped;
+      }
+      return unwrapRoot(unwrapped);
+    }
+    return dataSource;
+  }
+
+  private static <S> @Nullable S safeUnwrap(Wrapper wrapper, Class<S> target) {
     try {
       if (target.isInterface() && wrapper.isWrapperFor(target)) {
         return wrapper.unwrap(target);
@@ -103,8 +129,19 @@ public abstract class DataSourceUnwrapper {
     return null;
   }
 
-  @Nullable
-  private static DataSource getTargetDataSource(DataSource dataSource) {
+  private static @Nullable DataSource safeUnwrap(DataSource dataSource) {
+    try {
+      if (dataSource.isWrapperFor(DataSource.class)) {
+        return dataSource.unwrap(DataSource.class);
+      }
+    }
+    catch (Exception ex) {
+      // continue
+    }
+    return null;
+  }
+
+  private static @Nullable DataSource getTargetDataSource(DataSource dataSource) {
     if (dataSource instanceof DelegatingDataSource delegatingDataSource) {
       return delegatingDataSource.getTargetDataSource();
     }

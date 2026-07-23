@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import infra.jdbc.datasource.AbstractDataSource;
+import infra.jdbc.datasource.LazyConnectionDataSourceProxy;
 import infra.jdbc.datasource.SimpleDriverDataSource;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -345,6 +346,19 @@ class DataSourceBuilderTests {
     dataSource.setPassword("secret");
     dataSource.setJdbcUrl("jdbc:h2:test");
     DataSourceBuilder<?> builder = DataSourceBuilder.derivedFrom(wrap(wrap(dataSource)));
+    HikariDataSource built = (HikariDataSource) builder.username("test2").password("secret2").build();
+    assertThat(built.getUsername()).isEqualTo("test2");
+    assertThat(built.getPassword()).isEqualTo("secret2");
+    assertThat(built.getJdbcUrl()).isEqualTo("jdbc:h2:test");
+  }
+
+  @Test
+  void buildWhenDerivedFromLazyConnectionDataSourceProxy() {
+    HikariDataSource dataSource = new HikariDataSource();
+    dataSource.setUsername("test");
+    dataSource.setPassword("secret");
+    dataSource.setJdbcUrl("jdbc:h2:test");
+    DataSourceBuilder<?> builder = DataSourceBuilder.derivedFrom(new LazyConnectionDataSourceProxy(dataSource));
     HikariDataSource built = (HikariDataSource) builder.username("test2").password("secret2").build();
     assertThat(built.getUsername()).isEqualTo("test2");
     assertThat(built.getPassword()).isEqualTo("secret2");
