@@ -72,15 +72,21 @@ class MailSenderPropertiesConfiguration {
     String protocol = properties.protocol;
     protocol = StringUtils.isEmpty(protocol) ? "smtp" : protocol;
     Ssl ssl = properties.ssl;
-    if (ssl.enabled) {
-      javaMailProperties.setProperty("mail.%s.ssl.enable".formatted(protocol), "true");
+
+    if (ssl.enabled || StringUtils.isNotEmpty(ssl.bundle)) {
+      if (ssl.verifyHostname) {
+        javaMailProperties.setProperty("mail." + protocol + ".ssl.checkserveridentity", "true");
+      }
+      if (ssl.enabled) {
+        javaMailProperties.setProperty("mail." + protocol + ".ssl.enable", "true");
+      }
+      if (StringUtils.isNotEmpty(ssl.bundle)) {
+        Assert.state(sslBundles != null, "'sslBundles' is required");
+        SslBundle sslBundle = sslBundles.getBundle(ssl.bundle);
+        javaMailProperties.put("mail." + protocol + ".ssl.socketFactory", sslBundle.createSslContext().getSocketFactory());
+      }
     }
-    if (ssl.bundle != null) {
-      Assert.state(sslBundles != null, "'sslBundles' is required");
-      SslBundle sslBundle = sslBundles.getBundle(ssl.bundle);
-      javaMailProperties.put("mail." + protocol + ".ssl.socketFactory",
-              sslBundle.createSslContext().getSocketFactory());
-    }
+
     if (!javaMailProperties.isEmpty()) {
       sender.setJavaMailProperties(javaMailProperties);
     }

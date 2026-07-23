@@ -93,6 +93,11 @@ public class MailProperties {
     public boolean enabled;
 
     /**
+     * Whether to enable hostname verification.
+     */
+    public boolean verifyHostname = true;
+
+    /**
      * SSL bundle name. If set, 'mail.(protocol).ssl.socketFactory' property is set to
      * an SSLSocketFactory obtained from the corresponding SSL bundle.
      * <p>
