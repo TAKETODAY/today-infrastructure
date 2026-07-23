@@ -351,6 +351,20 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @Test
+  void cleanUpLeavesBridgeHandlerInstalledByTheApplicationInPlace() {
+    SLF4JBridgeHandler.install();
+    try {
+      assertThat(bridgeHandlerInstalled()).isTrue();
+      this.loggingSystem.beforeInitialize();
+      this.loggingSystem.cleanup();
+      assertThat(bridgeHandlerInstalled()).isTrue();
+    }
+    finally {
+      SLF4JBridgeHandler.uninstall();
+    }
+  }
+
+  @Test
   void standardConfigLocations() {
     String[] locations = this.loggingSystem.getStandardConfigLocations();
     assertThat(locations).containsExactly("logback-test.groovy", "logback-test.xml", "logback.groovy",
