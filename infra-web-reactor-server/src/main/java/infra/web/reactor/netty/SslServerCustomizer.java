@@ -80,13 +80,14 @@ final class SslServerCustomizer implements ReactorNettyServerCustomizer {
   }
 
   private void applySecurity(SslContextSpec spec) {
-    var builder = spec.sslContext(sslProvider.getSslContext())
-            .handshakeTimeout(handshakeTimeout);
+    spec.sslContext(this.sslProvider.getSslContext())
+            .handshakeTimeout(handshakeTimeout)
+            .setSniAsyncMappings((serverName, promise) -> promise.setSuccess(getSslProvider(serverName)));
+  }
 
-    if (!serverNameSslProviders.isEmpty()) {
-      builder.setSniAsyncMappings((serverName, promise) ->
-              promise.setSuccess(serverNameSslProviders.getOrDefault(serverName, sslProvider)));
-    }
+  SslProvider getSslProvider(@Nullable String serverName) {
+    return serverName != null ? this.serverNameSslProviders.getOrDefault(serverName, this.sslProvider)
+            : this.sslProvider;
   }
 
   void updateSslBundle(@Nullable String serverName, SslBundle sslBundle) {
