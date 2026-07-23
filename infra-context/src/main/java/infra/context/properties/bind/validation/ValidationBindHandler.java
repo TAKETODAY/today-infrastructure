@@ -36,7 +36,6 @@ import infra.context.properties.bind.DataObjectPropertyName;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.validation.AbstractBindingResult;
 import infra.validation.BeanPropertyBindingResult;
@@ -121,8 +120,7 @@ public class ValidationBindHandler extends AbstractBindHandler {
     if (this.exception == null) {
       Object validationTarget = getValidationTarget(target, context, result);
       Class<?> validationType = target.getBoxedType().resolve();
-      if (validationTarget != null) {
-        Assert.state(validationType != null, "'validationType' is required");
+      if (validationTarget != null && validationType != null) {
         validateAndPush(name, validationTarget, validationType);
       }
     }

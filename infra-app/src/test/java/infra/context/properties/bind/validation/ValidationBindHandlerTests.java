@@ -240,6 +240,15 @@ class ValidationBindHandlerTests {
     this.binder.bind(ConfigurationPropertyName.of("test"), Bindable.of(ExampleWithMap.class), this.handler);
   }
 
+  @Test
+  void bindShouldValidateMapWithWildcardValue() {
+    this.sources.add(new MockConfigurationPropertySource("test.params.toto", "titi"));
+    ExampleWithWildcardMap result = this.binder
+            .bind(ConfigurationPropertyName.of("test"), Bindable.of(ExampleWithWildcardMap.class), this.handler)
+            .get();
+    assertThat(result.getParams().get("toto")).isEqualTo("titi");
+  }
+
   private Validator getMapValidator() {
     return new Validator() {
 
@@ -450,6 +459,21 @@ class ValidationBindHandlerTests {
     public Object onFailure(ConfigurationPropertyName name, Bindable<?> target, BindContext context,
             Exception error) throws Exception {
       return this.result;
+    }
+
+  }
+
+  @Validated
+  static class ExampleWithWildcardMap {
+
+    private Map<String, ?> params = new LinkedHashMap<>();
+
+    Map<String, ?> getParams() {
+      return this.params;
+    }
+
+    void setParams(Map<String, ?> params) {
+      this.params = params;
     }
 
   }
