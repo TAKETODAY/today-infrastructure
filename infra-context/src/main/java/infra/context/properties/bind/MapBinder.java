@@ -68,6 +68,9 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
         if (property != null) {
           context.setConfigurationProperty(property);
           Object result = context.getPlaceholdersResolver().resolvePlaceholders(property.getValue());
+          if (result instanceof CharSequence cs && cs.isEmpty()) {
+            return createMap(target);
+          }
           return context.getConverter().convert(result, target);
         }
       }

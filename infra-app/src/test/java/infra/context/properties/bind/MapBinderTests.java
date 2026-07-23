@@ -274,6 +274,15 @@ class MapBinderTests {
   }
 
   @Test
+  void bindToMapWhenEmptyStringShouldReturnEmptyMap() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo", "");
+    this.sources.add(source);
+    Map<String, String> result = this.binder.bind("foo", STRING_STRING_MAP).get();
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   void bindToMapShouldConvertKey() {
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo[0]", "1");
