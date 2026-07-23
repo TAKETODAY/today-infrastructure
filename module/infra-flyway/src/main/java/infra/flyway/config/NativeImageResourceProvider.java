@@ -41,6 +41,7 @@ import java.util.function.Predicate;
 import infra.core.NativeDetector;
 import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
+import infra.util.PathMatcher;
 
 /**
  * A Flyway {@link ResourceProvider} which supports GraalVM native-image.
@@ -110,9 +111,7 @@ class NativeImageResourceProvider implements ResourceProvider {
   }
 
   private ClassPathResource asClassPathResource(LocatedResource locatedResource) {
-    Location location = locatedResource.location();
-    String fileNameWithAbsolutePath = location.getRootPath() + "/" + locatedResource.resource().getName();
-    return new ClassPathResource(location, fileNameWithAbsolutePath, this.classLoader, this.encoding);
+    return new ClassPathResource(locatedResource.location(), locatedResource.path(), this.classLoader, this.encoding);
   }
 
   private void ensureInitialized() {
@@ -142,10 +141,24 @@ class NativeImageResourceProvider implements ResourceProvider {
         }
         continue;
       }
-      var resources = getResources(resolver, location, root);
-      for (Resource resource : resources) {
-        this.locatedResources.add(new LocatedResource(resource, location));
+      for (Resource resource : getResources(resolver, location, root)) {
+        this.locatedResources.add(new LocatedResource(resource, location,
+                getClassPathResourcePath(resolver.getPathMatcher(), location, root, resource)));
       }
+    }
+  }
+
+  private String getClassPathResourcePath(PathMatcher pathMatcher, Location location, Resource root, Resource resource) {
+    if (resource instanceof infra.core.io.ClassPathResource cpr) {
+      return cpr.getPath();
+    }
+    try {
+      String rootPath = location.getRootPath();
+      String relativePath = pathMatcher.extractPathWithinPattern(root.getURI() + "/**/*", resource.getURI().toString());
+      return rootPath.isEmpty() ? relativePath : rootPath + "/" + relativePath;
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException("Failed to determine path for " + resource, ex);
     }
   }
 
@@ -158,7 +171,7 @@ class NativeImageResourceProvider implements ResourceProvider {
     }
   }
 
-  private record LocatedResource(Resource resource, Location location) {
+  private record LocatedResource(Resource resource, Location location, String path) {
 
   }
 
