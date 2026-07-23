@@ -27,6 +27,7 @@ import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Enumeration;
@@ -47,8 +48,7 @@ import infra.util.StringUtils;
  */
 public class ApplicationHome {
 
-  @Nullable
-  private final File source;
+  private final @Nullable File source;
 
   private final File dir;
 
@@ -69,8 +69,7 @@ public class ApplicationHome {
     this.dir = findHomeDir(this.source);
   }
 
-  @Nullable
-  private Class<?> getStartClass() {
+  private @Nullable Class<?> getStartClass() {
     try {
       ClassLoader classLoader = getClass().getClassLoader();
       return getStartClass(classLoader.getResources("META-INF/MANIFEST.MF"));
@@ -80,8 +79,7 @@ public class ApplicationHome {
     }
   }
 
-  @Nullable
-  private Class<?> getStartClass(Enumeration<URL> manifestResources) {
+  private @Nullable Class<?> getStartClass(Enumeration<URL> manifestResources) {
     while (manifestResources.hasMoreElements()) {
       try (InputStream inputStream = manifestResources.nextElement().openStream()) {
         Manifest manifest = new Manifest(inputStream);
@@ -96,8 +94,7 @@ public class ApplicationHome {
     return null;
   }
 
-  @Nullable
-  private File findSource(@Nullable Class<?> sourceClass) {
+  private @Nullable File findSource(@Nullable Class<?> sourceClass) {
     try {
       ProtectionDomain domain = (sourceClass != null) ? sourceClass.getProtectionDomain() : null;
       CodeSource codeSource = (domain != null) ? domain.getCodeSource() : null;
@@ -165,8 +162,7 @@ public class ApplicationHome {
    *
    * @return the underlying source or {@code null}
    */
-  @Nullable
-  public File getSource() {
+  public @Nullable File getSource() {
     return this.source;
   }
 
@@ -177,6 +173,28 @@ public class ApplicationHome {
    */
   public File getDir() {
     return this.dir;
+  }
+
+  /**
+   * Returns the path of the underlying source used to find the home directory. This is
+   * usually the jar file or a directory. Can return {@code null} if the source cannot
+   * be determined.
+   *
+   * @return the underlying source path or {@code null}
+   * @since 5.0
+   */
+  public @Nullable Path getSourcePath() {
+    return this.source != null ? this.source.toPath() : null;
+  }
+
+  /**
+   * Returns the path of the application home directory.
+   *
+   * @return the home path (never {@code null})
+   * @since 5.0
+   */
+  public Path getPath() {
+    return this.dir.toPath();
   }
 
   @Override
