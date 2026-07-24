@@ -137,10 +137,7 @@ public class PropertiesLauncher extends Launcher {
 
   private final Archive archive;
 
-  @Nullable
-  private final File homeDirectory;
-
-  private final List<String> paths;
+  private final @Nullable File homeDirectory;
 
   private final Properties properties = new Properties();
 
@@ -152,7 +149,6 @@ public class PropertiesLauncher extends Launcher {
     this.archive = archive;
     this.homeDirectory = getHomeDirectory();
     initializeProperties();
-    this.paths = getPaths();
     this.classPathIndex = getClassPathIndex(this.archive);
   }
 
@@ -300,11 +296,9 @@ public class PropertiesLauncher extends Launcher {
     }
   }
 
-  private List<String> getPaths() throws Exception {
+  private List<String> resolvePaths() throws Exception {
     String path = getProperty(PATH);
-    List<String> paths = (path != null) ? parsePathsProperty(path) : Collections.emptyList();
-    debug.log("Nested archive paths: %s", this.paths);
-    return paths;
+    return (path != null) ? parsePathsProperty(path) : Collections.emptyList();
   }
 
   private List<String> parsePathsProperty(String commaSeparatedPaths) {
@@ -366,9 +360,8 @@ public class PropertiesLauncher extends Launcher {
     throw new IllegalStateException("Unable to create class loader for " + loaderClassName);
   }
 
-  @Nullable
   @Override
-  protected Archive getArchive() {
+  protected @Nullable Archive getArchive() {
     return null; // We don't have a single archive and are not exploded.
   }
 
@@ -393,23 +386,19 @@ public class PropertiesLauncher extends Launcher {
     return result;
   }
 
-  @Nullable
-  private String getProperty(String name) throws Exception {
+  private @Nullable String getProperty(String name) throws Exception {
     return getProperty(name, null, null);
   }
 
-  @Nullable
-  private String getProperty(String name, @Nullable String manifestKey) throws Exception {
+  private @Nullable String getProperty(String name, @Nullable String manifestKey) throws Exception {
     return getProperty(name, manifestKey, null);
   }
 
-  @Nullable
   private String getPropertyWithDefault(String name, String defaultValue) throws Exception {
     return getProperty(name, null, defaultValue);
   }
 
-  @Nullable
-  private String getProperty(String name, @Nullable String manifestKey, @Nullable String defaultValue) throws Exception {
+  private @Nullable String getProperty(String name, @Nullable String manifestKey, @Nullable String defaultValue) throws Exception {
     manifestKey = (manifestKey != null) ? manifestKey : toCamelCase(name.replace('.', '-'));
     String value = SystemPropertyUtils.getProperty(name);
     if (value != null) {
@@ -441,8 +430,7 @@ public class PropertiesLauncher extends Launcher {
     return SystemPropertyUtils.resolvePlaceholders(this.properties, defaultValue);
   }
 
-  @Nullable
-  String getManifestValue(Archive archive, String manifestKey) throws Exception {
+  @Nullable String getManifestValue(Archive archive, String manifestKey) throws Exception {
     Manifest manifest = archive.getManifest();
     return (manifest != null) ? manifest.getMainAttributes().getValue(manifestKey) : null;
   }
@@ -461,8 +449,7 @@ public class PropertiesLauncher extends Launcher {
     }
   }
 
-  @Nullable
-  public static String toCamelCase(@Nullable CharSequence string) {
+  public static @Nullable String toCamelCase(@Nullable CharSequence string) {
     if (string == null) {
       return null;
     }
@@ -484,7 +471,9 @@ public class PropertiesLauncher extends Launcher {
   @Override
   protected Set<URL> getClassPathUrls() throws Exception {
     Set<URL> urls = new LinkedHashSet<>();
-    for (String path : getPaths()) {
+    List<String> paths = resolvePaths();
+    debug.log("Nested archive paths: %s", paths);
+    for (String path : paths) {
       path = cleanupPath(handleUrl(path));
       urls.addAll(getClassPathUrlsForPath(path));
     }

@@ -18,12 +18,12 @@
 
 package infra.app.loader;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
-
-import org.jspecify.annotations.Nullable;
 
 /**
  * Internal helper class adapted from Framework for resolving placeholders in
@@ -46,10 +46,10 @@ final class SystemPropertyUtils {
 
   private static final String SIMPLE_PREFIX = PLACEHOLDER_PREFIX.substring(1);
 
-  private SystemPropertyUtils() { }
+  private SystemPropertyUtils() {
+  }
 
-  @Nullable
-  static String resolvePlaceholders(Properties properties, @Nullable String text) {
+  static @Nullable String resolvePlaceholders(Properties properties, @Nullable String text) {
     return (text != null) ? parseStringValue(properties, text, text, new HashSet<>()) : null;
   }
 
