@@ -38,11 +38,10 @@ class ForwardedHeaderTransformerTests {
 
   private static final String BASE_URL = "https://example.com/path";
 
-  private final ForwardedHeaderTransformer requestMutator = new ForwardedHeaderTransformer();
-
   @Test
   void removeOnly() {
-    this.requestMutator.setRemoveOnly(true);
+    ForwardedHeaderTransformer requestMutator = new ForwardedHeaderTransformer(true);
+    requestMutator.setRemoveOnly(true);
 
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "for=192.0.2.60;proto=http;by=203.0.113.43");
@@ -52,7 +51,7 @@ class ForwardedHeaderTransformerTests {
     headers.add("X-Forwarded-Prefix", "prefix");
     headers.add("X-Forwarded-Ssl", "on");
     headers.add("X-Forwarded-For", "203.0.113.195");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ServerHttpRequest request = requestMutator.apply(getRequest(headers));
 
     assertForwardedHeadersRemoved(request);
   }
@@ -64,7 +63,8 @@ class ForwardedHeaderTransformerTests {
     headers.add("X-Forwarded-Port", "443");
     headers.add("X-Forwarded-Proto", "https");
     headers.add("foo", "bar");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+
+    ServerHttpRequest request = new ForwardedHeaderTransformer(false).apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://84.198.58.199/path"));
     assertForwardedHeadersRemoved(request);
@@ -74,7 +74,7 @@ class ForwardedHeaderTransformerTests {
   void forwardedHeader() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ServerHttpRequest request = new ForwardedHeaderTransformer(true).apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://84.198.58.199/path"));
     assertForwardedHeadersRemoved(request);
@@ -84,7 +84,9 @@ class ForwardedHeaderTransformerTests {
   void xForwardedPrefix() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer(false);
+    transformer.setUseForwardedPrefix(true);
+    ServerHttpRequest request = transformer.apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/prefix/path"));
     assertThat(request.getPath().value()).isEqualTo("/prefix/path");
@@ -100,7 +102,9 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer(false);
+    transformer.setUseForwardedPrefix(true);
+    request = transformer.apply(request);
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/prefix/a%20b?q=a%2Bb"));
     assertThat(request.getPath().value()).isEqualTo("/prefix/a%20b");
@@ -111,7 +115,9 @@ class ForwardedHeaderTransformerTests {
   void xForwardedPrefixTrailingSlash() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix////");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer(false);
+    transformer.setUseForwardedPrefix(true);
+    ServerHttpRequest request = transformer.apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/prefix/path"));
     assertThat(request.getPath().value()).isEqualTo("/prefix/path");
@@ -128,7 +134,7 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    request = new ForwardedHeaderTransformer(true).apply(request);
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://84.198.58.199/a%20b?q=a%2Bb"));
     assertForwardedHeadersRemoved(request);
@@ -143,7 +149,7 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    request = new ForwardedHeaderTransformer(true).apply(request);
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://84.198.58.199/a?q=1+1=2"));
     assertForwardedHeadersRemoved(request);
@@ -153,7 +159,9 @@ class ForwardedHeaderTransformerTests {
   void shouldConcatenatePrefixes() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/first,/second");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer(false);
+    transformer.setUseForwardedPrefix(true);
+    ServerHttpRequest request = transformer.apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/first/second/path"));
     assertThat(request.getPath().value()).isEqualTo("/first/second/path");
@@ -164,7 +172,9 @@ class ForwardedHeaderTransformerTests {
   void shouldConcatenatePrefixesWithTrailingSlashes() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/first/,/second//");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer(false);
+    transformer.setUseForwardedPrefix(true);
+    ServerHttpRequest request = transformer.apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/first/second/path"));
     assertThat(request.getPath().value()).isEqualTo("/first/second/path");
@@ -175,7 +185,9 @@ class ForwardedHeaderTransformerTests {
   void shouldRemoveSingleTrailingSlash() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix,/");
-    ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
+    ForwardedHeaderTransformer transformer = new ForwardedHeaderTransformer(false);
+    transformer.setUseForwardedPrefix(true);
+    ServerHttpRequest request = transformer.apply(getRequest(headers));
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/prefix/path"));
     assertThat(request.getPath().value()).isEqualTo("/prefix/path");
@@ -195,7 +207,7 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    request = new ForwardedHeaderTransformer(true).apply(request);
     assertThat(request.getRemoteAddress()).isEqualTo(remoteAddress);
   }
 
@@ -212,7 +224,7 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    request = new ForwardedHeaderTransformer(true).apply(request);
     assertThat(request.getRemoteAddress()).isNotNull();
     assertThat(request.getRemoteAddress().getHostName()).isEqualTo("203.0.113.195");
     assertThat(request.getRemoteAddress().getPort()).isEqualTo(4711);
@@ -228,7 +240,7 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    request = new ForwardedHeaderTransformer(false).apply(request);
     assertThat(request.getRemoteAddress()).isNotNull();
     assertThat(request.getRemoteAddress().getHostName()).isEqualTo("203.0.113.195");
   }
@@ -246,7 +258,7 @@ class ForwardedHeaderTransformerTests {
             .headers(headers)
             .build();
 
-    request = this.requestMutator.apply(request);
+    request = new ForwardedHeaderTransformer(true).apply(request);
     assertThat(request.getLocalAddress()).isNotNull();
     assertThat(request.getLocalAddress().getHostName()).isEqualTo("203.0.113.195");
     assertThat(request.getLocalAddress().getPort()).isEqualTo(4711);
@@ -258,7 +270,7 @@ class ForwardedHeaderTransformerTests {
 
   private void assertForwardedHeadersRemoved(ServerHttpRequest request) {
     ForwardedHeaderTransformer.FORWARDED_HEADER_NAMES
-            .forEach(name -> assertThat(request.getHeaders().contains(name)).isFalse());
+            .forEach(name -> assertThat(request.containsHeader(name)).isFalse());
   }
 
 }
