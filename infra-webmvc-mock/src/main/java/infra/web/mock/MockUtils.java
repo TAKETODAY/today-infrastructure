@@ -28,7 +28,6 @@ import infra.lang.Assert;
 import infra.util.ObjectUtils;
 import infra.web.HttpContext;
 import infra.web.mock.api.MockIndicator;
-import infra.web.util.WebUtils;
 
 /**
  * @author TODAY 2020/12/8 23:07
@@ -45,13 +44,13 @@ public abstract class MockUtils {
    *
    * @param context the context to introspect
    * @return the matching request object
-   * @see WebUtils#getNativeContext(HttpContext, Class)
+   * @see HttpContext#getNativeContext(Class)
    */
   public static MockRequest getMockRequest(HttpContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getRequest();
     }
-    MockIndicator nativeContext = WebUtils.getNativeContext(context, MockIndicator.class);
+    MockIndicator nativeContext = context.getNativeContext(MockIndicator.class);
     Assert.state(nativeContext != null, "Not run in mock");
     return nativeContext.getRequest();
   }
@@ -61,13 +60,13 @@ public abstract class MockUtils {
    *
    * @param context the context to introspect
    * @return the matching response object
-   * @see WebUtils#getNativeContext(HttpContext, Class)
+   * @see HttpContext#getNativeContext(Class)
    */
   public static MockResponse getMockResponse(HttpContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getResponse();
     }
-    MockIndicator nativeContext = WebUtils.getNativeContext(context, MockIndicator.class);
+    MockIndicator nativeContext = context.getNativeContext(MockIndicator.class);
     Assert.state(nativeContext != null, "Not run in mock");
     return nativeContext.getResponse();
   }
