@@ -136,8 +136,7 @@ public abstract class WebUtils {
    * of that type is available
    */
   @SuppressWarnings("unchecked")
-  @Nullable
-  public static <T> T getNativeContext(HttpContext request, @Nullable Class<T> requiredType) {
+  public static <T> @Nullable T getNativeContext(HttpContext request, @Nullable Class<T> requiredType) {
     if (requiredType != null) {
       if (requiredType.isInstance(request)) {
         return (T) request;
