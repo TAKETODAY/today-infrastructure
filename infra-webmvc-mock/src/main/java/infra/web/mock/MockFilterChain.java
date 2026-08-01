@@ -47,18 +47,11 @@ import infra.web.mock.api.MockHandler;
  */
 public class MockFilterChain implements FilterChain {
 
-  @Nullable
-  private MockRequest request;
-
-  @Nullable
-  private MockResponse response;
-
   private final List<Filter> filters;
 
-  @Nullable
-  private Iterator<Filter> iterator;
+  private @Nullable Iterator<Filter> iterator;
 
-  private HttpContext httpContext;
+  private @Nullable HttpContext httpContext;
 
   /**
    * Register a single do-nothing {@link Filter} implementation. The first
@@ -95,28 +88,26 @@ public class MockFilterChain implements FilterChain {
   /**
    * Return the request that {@link #doFilter} has been called with.
    */
-  @Nullable
-  public MockRequest getRequest() {
-    return this.request;
+  public @Nullable MockRequest getRequest() {
+    return httpContext != null ? MockUtils.getMockRequest(httpContext) : null;
   }
 
   /**
    * Return the response that {@link #doFilter} has been called with.
    */
-  @Nullable
-  public MockResponse getResponse() {
-    return this.response;
+  public @Nullable MockResponse getResponse() {
+    return httpContext != null ? MockUtils.getMockResponse(httpContext) : null;
   }
 
-  public HttpContext getContext() {
+  public @Nullable HttpContext getContext() {
     return httpContext;
   }
 
   @Override
   public void doFilter(HttpContext context) throws Exception {
-    this.httpContext = context;
     Assert.notNull(context, "Request is required");
-    Assert.state(this.request == null, "This FilterChain has already been called!");
+
+    this.httpContext = context;
 
     if (this.iterator == null) {
       this.iterator = this.filters.iterator();
@@ -126,17 +117,13 @@ public class MockFilterChain implements FilterChain {
       Filter nextFilter = this.iterator.next();
       nextFilter.doFilter(context, this);
     }
-
-    this.request = MockUtils.getMockRequest(context);
-    this.response = MockUtils.getMockResponse(context);
   }
 
   /**
    * Reset the {@link MockFilterChain} allowing it to be invoked again.
    */
   public void reset() {
-    this.request = null;
-    this.response = null;
+    this.httpContext = null;
     this.iterator = null;
   }
 
