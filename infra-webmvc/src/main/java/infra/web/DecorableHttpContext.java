@@ -683,25 +683,15 @@ public abstract class DecorableHttpContext implements HttpContext {
     return delegate().isDefaultHtmlEscape();
   }
 
-  @Override
-  public @Nullable <T> T getNativeContext(Class<T> type) {
-    return delegate().getNativeContext(type);
-  }
-
-  @Override
-  public <T> T nativeContext(Class<T> type) {
-    return delegate().nativeContext(type);
-  }
-
   public abstract HttpContext delegate();
 
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof DecorableHttpContext that))
-      return false;
-    return Objects.equals(delegate(), that.delegate());
+
+    return o instanceof DecorableHttpContext that
+            && Objects.equals(delegate(), that.delegate());
   }
 
   @Override
