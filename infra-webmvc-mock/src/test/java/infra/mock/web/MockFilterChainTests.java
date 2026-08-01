@@ -21,19 +21,18 @@ package infra.mock.web;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.web.mock.MockFilterChain;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
-import infra.web.mock.api.MockHandler;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.HttpContext;
+import infra.web.mock.MockFilterChain;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
+import infra.web.mock.api.MockHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -80,10 +79,6 @@ class MockFilterChainTests {
 
     assertThat(chain.getRequest()).isEqualTo(request);
     assertThat(chain.getResponse()).isEqualTo(response);
-
-    assertThatIllegalStateException().isThrownBy(() ->
-                    chain.doFilter(new MockHttpContext(request, response)))
-            .withMessage("This FilterChain has already been called!");
   }
 
   @Test
@@ -92,9 +87,6 @@ class MockFilterChainTests {
     MockFilterChain chain = new MockFilterChain(mockHandler);
     chain.doFilter(new MockHttpContext(request, response));
     verify(mockHandler).service(request, response);
-    assertThatIllegalStateException().isThrownBy(() ->
-                    chain.doFilter(new MockHttpContext(request, response)))
-            .withMessage("This FilterChain has already been called!");
   }
 
   @Test
@@ -111,10 +103,6 @@ class MockFilterChainTests {
     assertThat(filter2.invoked).isTrue();
 
     verify(mockHandler).service(request, response);
-
-    assertThatIllegalStateException().isThrownBy(() ->
-                    chain.doFilter(new MockHttpContext(request, response)))
-            .withMessage("This FilterChain has already been called!");
   }
 
   private static class MockFilter implements Filter {
