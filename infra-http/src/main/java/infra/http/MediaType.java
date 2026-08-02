@@ -161,13 +161,13 @@ public class MediaType extends MimeType implements Serializable {
   public static final MediaType IMAGE_PNG = new MediaType("image", "png");
 
   /** Public constant media type for {@code multipart/form-data}. */
-  public static final MediaType MULTIPART_FORM_DATA = new MediaType("multipart", "form-data");
+  public static final MediaType MULTIPART_FORM_DATA = new MediaType(MULTIPART_TYPE, "form-data");
 
   /** A String equivalent of {@link MediaType#MULTIPART_FORM_DATA}. */
   public static final String MULTIPART_FORM_DATA_VALUE = "multipart/form-data";
 
   /** Public constant media type for {@code multipart/mixed}. */
-  public static final MediaType MULTIPART_MIXED = new MediaType("multipart", "mixed");
+  public static final MediaType MULTIPART_MIXED = new MediaType(MULTIPART_TYPE, "mixed");
 
   /** A String equivalent of {@link MediaType#MULTIPART_MIXED}. */
   public static final String MULTIPART_MIXED_VALUE = "multipart/mixed";
@@ -177,7 +177,7 @@ public class MediaType extends MimeType implements Serializable {
    *
    * @since 4.0
    */
-  public static final MediaType MULTIPART_RELATED = new MediaType("multipart", "related");
+  public static final MediaType MULTIPART_RELATED = new MediaType(MULTIPART_TYPE, "related");
 
   /**
    * A String equivalent of {@link MediaType#MULTIPART_RELATED}.
@@ -513,12 +513,20 @@ public class MediaType extends MimeType implements Serializable {
     if (StringUtils.isEmpty(mediaTypes)) {
       return Collections.emptyList();
     }
-    // Avoid using java.util.stream.Stream in hot paths
-    List<String> tokenizedTypes = MimeTypeUtils.tokenize(mediaTypes);
-    ArrayList<MediaType> result = new ArrayList<>(tokenizedTypes.size());
-    for (String type : tokenizedTypes) {
-      if (StringUtils.hasText(type)) {
-        result.add(parseMediaType(type));
+    List<MimeType> mimeTypes;
+    try {
+      mimeTypes = MimeTypeUtils.parseMimeTypes(mediaTypes);
+    }
+    catch (InvalidMimeTypeException ex) {
+      throw new InvalidMediaTypeException(ex);
+    }
+    ArrayList<MediaType> result = new ArrayList<>(mimeTypes.size());
+    for (MimeType mimeType : mimeTypes) {
+      try {
+        result.add(new MediaType(mimeType));
+      }
+      catch (IllegalArgumentException ex) {
+        throw new InvalidMediaTypeException(mimeType.toString(), ex.getMessage());
       }
     }
     return result;

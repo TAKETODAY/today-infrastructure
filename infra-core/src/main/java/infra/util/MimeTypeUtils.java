@@ -30,10 +30,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.BiPredicate;
 
 import infra.lang.Assert;
+
+import static infra.util.MimeType.MULTIPART_TYPE;
 
 /**
  * Miscellaneous {@link MimeType} utility methods.
@@ -59,8 +62,7 @@ public abstract class MimeTypeUtils {
   private static final ConcurrentLruCache<String, MimeType> cachedMimeTypes =
           new ConcurrentLruCache<>(64, MimeTypeUtils::parseMimeTypeInternal);
 
-  @Nullable
-  private static volatile Random random;
+  private static volatile @Nullable Random random;
 
   static final BitSet TOKEN;
 
@@ -112,81 +114,14 @@ public abstract class MimeTypeUtils {
       throw new InvalidMimeTypeException(mimeType, "'mimeType' must not be empty");
     }
     // do not cache multipart mime types with random boundaries
-    if (mimeType.startsWith("multipart")) {
+    if (mimeType.startsWith(MULTIPART_TYPE)) {
       return parseMimeTypeInternal(mimeType);
     }
     return cachedMimeTypes.get(mimeType);
   }
 
   private static MimeType parseMimeTypeInternal(String mimeType) {
-    int index = mimeType.indexOf(';');
-    String fullType = (index >= 0 ? mimeType.substring(0, index) : mimeType).trim();
-    if (fullType.isEmpty()) {
-      throw new InvalidMimeTypeException(mimeType, "'mimeType' must not be empty");
-    }
-
-    // java.net.HttpURLConnection returns a *; q=.2 Accept header
-    final String wildcardType = MimeType.WILDCARD_TYPE;
-    if (wildcardType.equals(fullType)) {
-      fullType = "*/*";
-    }
-    int subIndex = fullType.indexOf('/');
-    if (subIndex == -1) {
-      throw new InvalidMimeTypeException(mimeType, "does not contain '/'");
-    }
-    if (subIndex == fullType.length() - 1) {
-      throw new InvalidMimeTypeException(mimeType, "does not contain subtype after '/'");
-    }
-    String type = fullType.substring(0, subIndex);
-    String subtype = fullType.substring(subIndex + 1);
-    if (wildcardType.equals(type) && !wildcardType.equals(subtype)) {
-      throw new InvalidMimeTypeException(mimeType, "wildcard type is legal only in '*/*' (all mime types)");
-    }
-
-    LinkedHashMap<String, String> parameters = null;
-    int mimeTypeLength = mimeType.length();
-    do {
-      int nextIndex = index + 1;
-      boolean quoted = false;
-      while (nextIndex < mimeTypeLength) {
-        char ch = mimeType.charAt(nextIndex);
-        if (ch == ';') {
-          if (!quoted) {
-            break;
-          }
-        }
-        else if (ch == '"' && (nextIndex == 0 || mimeType.charAt(nextIndex - 1) != '\\')) {
-          quoted = !quoted;
-        }
-        nextIndex++;
-      }
-      String parameter = mimeType.substring(index + 1, nextIndex).trim();
-      if (!parameter.isEmpty()) {
-        if (parameters == null) {
-          parameters = new LinkedHashMap<>(4);
-        }
-        int eqIndex = parameter.indexOf('=');
-        if (eqIndex >= 0) {
-          String attribute = parameter.substring(0, eqIndex).trim();
-          String value = parameter.substring(eqIndex + 1).trim();
-          if (parameters.put(attribute, value) != null) {
-            throw new InvalidMimeTypeException(mimeType, "duplicate parameter '" + parameter + "'");
-          }
-        }
-      }
-      index = nextIndex;
-    }
-    while (index < mimeTypeLength);
-
-    try {
-      return new MimeType(type, subtype, parameters);
-    }
-    catch (UnsupportedCharsetException ex) {
-      throw new InvalidMimeTypeException(mimeType, "unsupported charset '%s'".formatted(ex.getCharsetName()));
-    }
-    catch (IllegalArgumentException ex) {
-      throw new InvalidMimeTypeException(mimeType, ex.getMessage());
-    }
+    return new MimeTypeParser(mimeType).parse();
   }
 
   /**
@@ -224,6 +159,10 @@ public abstract class MimeTypeUtils {
     if (StringUtils.isEmpty(mimeTypes)) {
       return Collections.emptyList();
     }
+    // Without quoted parameter values, there is no need to track quotes
+    if (mimeTypes.indexOf('"') == -1) {
+      return splitByComma(mimeTypes);
+    }
     ArrayList<String> tokens = new ArrayList<>();
     boolean inQuotes = false;
     int startIndex = 0;
@@ -234,7 +173,10 @@ public abstract class MimeTypeUtils {
         case '"' -> inQuotes = !inQuotes;
         case ',' -> {
           if (!inQuotes) {
-            tokens.add(mimeTypes.substring(startIndex, i));
+            String trimmed = mimeTypes.substring(startIndex, i).trim();
+            if (!trimmed.isEmpty()) {
+              tokens.add(trimmed);
+            }
             startIndex = i + 1;
           }
         }
@@ -242,7 +184,28 @@ public abstract class MimeTypeUtils {
       }
       i++;
     }
-    tokens.add(mimeTypes.substring(startIndex));
+    String trimmed = mimeTypes.substring(startIndex).trim();
+    if (!trimmed.isEmpty()) {
+      tokens.add(trimmed);
+    }
+    return tokens;
+  }
+
+  private static List<String> splitByComma(String mimeTypes) {
+    ArrayList<String> tokens = new ArrayList<>();
+    int startIndex = 0;
+    int commaIndex;
+    while ((commaIndex = mimeTypes.indexOf(',', startIndex)) != -1) {
+      String trimmed = mimeTypes.substring(startIndex, commaIndex).trim();
+      if (!trimmed.isEmpty()) {
+        tokens.add(trimmed);
+      }
+      startIndex = commaIndex + 1;
+    }
+    String trimmed = mimeTypes.substring(startIndex).trim();
+    if (!trimmed.isEmpty()) {
+      tokens.add(trimmed);
+    }
     return tokens;
   }
 
@@ -341,6 +304,268 @@ public abstract class MimeTypeUtils {
       }
     }
     return randomToUse;
+  }
+
+  private static final class MimeTypeParser {
+
+    private final String input;
+
+    private int index = 0;
+
+    private int mark = 0;
+
+    private String type = "";
+
+    private String subtype = "";
+
+    private @Nullable Map<String, String> parameters;
+
+    private @Nullable String paramName;
+
+    private @Nullable MimeType parsed;
+
+    private MimeTypeParser(String input) {
+      this.input = input;
+    }
+
+    /**
+     * Parse the entire input as exactly one MIME type: any leftover
+     * content the state machine cannot make sense of (for example, a
+     * comma-separated second MIME type) is rejected rather than ignored.
+     */
+    private MimeType parse() {
+      ParserState state = ParserState.INITIAL;
+      for (; this.index < this.input.length(); this.index++) {
+        char c = this.input.charAt(this.index);
+        state = state.process(c, this);
+      }
+      state.onEof(this);
+      if (this.parsed == null) {
+        throw new InvalidMimeTypeException(this.input, "'mimeType' must not be empty");
+      }
+      return this.parsed;
+    }
+
+    /**
+     * Resolve a type for which no '/' was found before a terminator (or
+     * the end of input) was reached. The only valid case is the bare
+     * {@code *} some clients (for example, {@code java.net.HttpURLConnection})
+     * send as shorthand for the {@code *; q=.2}-style wildcard
+     * (&#42;/&#42;) Accept header; anything else is rejected.
+     */
+    private void resolveBareType(String candidate) {
+      if (!MimeType.WILDCARD_TYPE.equals(candidate)) {
+        throw new InvalidMimeTypeException(this.input, "does not contain '/'");
+      }
+      this.type = MimeType.WILDCARD_TYPE;
+      this.subtype = MimeType.WILDCARD_TYPE;
+    }
+
+    private void putParameter(String name, String value) {
+      if (this.parameters == null) {
+        this.parameters = new LinkedHashMap<>(4);
+      }
+      if (this.parameters.put(name, value) != null) {
+        throw new InvalidMimeTypeException(this.input, "duplicate parameter '%s=%s'".formatted(name, value));
+      }
+    }
+
+    private void emitMimeType() {
+      this.parsed = buildMimeType();
+    }
+
+    private MimeType buildMimeType() {
+      if (MimeType.WILDCARD_TYPE.equals(this.type) && !MimeType.WILDCARD_TYPE.equals(this.subtype)) {
+        throw new InvalidMimeTypeException(this.input, "wildcard type is legal only in '*/*' (all mime types)");
+      }
+      try {
+        return new MimeType(this.type, this.subtype, this.parameters);
+      }
+      catch (UnsupportedCharsetException ex) {
+        throw new InvalidMimeTypeException(this.input, "unsupported charset '" + ex.getCharsetName() + "'");
+      }
+      catch (IllegalArgumentException ex) {
+        throw new InvalidMimeTypeException(this.input, ex.getMessage());
+      }
+    }
+  }
+
+  enum ParserState {
+
+    INITIAL {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == ' ' || c == '\t') {
+          return this;
+        }
+        parser.mark = parser.index;
+        return TYPE;
+      }
+    },
+
+    TYPE {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == '/') {
+          parser.type = parser.input.substring(parser.mark, parser.index);
+          if (parser.type.isEmpty()) {
+            throw new InvalidMimeTypeException(parser.input, "'type' must not be empty");
+          }
+          parser.mark = parser.index + 1;
+          return SUBTYPE;
+        }
+        if (c == ';' || c == ' ' || c == '\t') {
+          parser.resolveBareType(parser.input.substring(parser.mark, parser.index));
+          return WHITESPACE;
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(MimeTypeParser parser) {
+        parser.resolveBareType(parser.input.substring(parser.mark));
+        parser.emitMimeType();
+      }
+    },
+
+    SUBTYPE {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == ';' || c == ' ' || c == '\t') {
+          parser.subtype = parser.input.substring(parser.mark, parser.index);
+          return WHITESPACE;
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(MimeTypeParser parser) {
+        parser.subtype = parser.input.substring(parser.mark);
+        parser.emitMimeType();
+      }
+    },
+
+    WHITESPACE {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == ' ' || c == '\t' || c == ';') {
+          return this;
+        }
+        parser.mark = parser.index;
+        return PARAM_NAME;
+      }
+
+      @Override
+      void onEof(MimeTypeParser parser) {
+        if (!parser.type.isEmpty()) {
+          parser.emitMimeType();
+        }
+      }
+    },
+
+    PARAM_NAME {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == '=') {
+          parser.paramName = parser.input.substring(parser.mark, parser.index);
+          return PARAM_VALUE_START;
+        }
+        if (c == ' ' || c == '\t') {
+          parser.paramName = parser.input.substring(parser.mark, parser.index);
+          return PARAM_NAME_END;
+        }
+        return this;
+      }
+    },
+
+    PARAM_NAME_END {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == ' ' || c == '\t') {
+          return this;
+        }
+        if (c == '=') {
+          return PARAM_VALUE_START;
+        }
+        throw new InvalidMimeTypeException(parser.input, "Unexpected character '" + c + "' after parameter name");
+      }
+    },
+
+    PARAM_VALUE_START {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == ' ' || c == '\t') {
+          return this;
+        }
+        if (c == '"') {
+          parser.mark = parser.index;
+          return PARAM_VALUE_QUOTED;
+        }
+        parser.mark = parser.index;
+        return PARAM_VALUE_TOKEN;
+      }
+    },
+
+    PARAM_VALUE_TOKEN {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == ';' || c == ' ' || c == '\t') {
+          extractParameter(parser, parser.input.substring(parser.mark, parser.index));
+          return WHITESPACE;
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(MimeTypeParser parser) {
+        extractParameter(parser, parser.input.substring(parser.mark));
+        parser.emitMimeType();
+      }
+    },
+
+    PARAM_VALUE_QUOTED {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        if (c == '"') {
+          extractParameter(parser, parser.input.substring(parser.mark, parser.index + 1));
+          return WHITESPACE;
+        }
+        if (c == '\\') {
+          return PARAM_VALUE_ESCAPED;
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(MimeTypeParser parser) {
+        extractParameter(parser, parser.input.substring(parser.mark));
+        parser.emitMimeType();
+      }
+    },
+
+    PARAM_VALUE_ESCAPED {
+      @Override
+      ParserState process(char c, MimeTypeParser parser) {
+        return PARAM_VALUE_QUOTED;
+      }
+
+      @Override
+      void onEof(MimeTypeParser parser) {
+        extractParameter(parser, parser.input.substring(parser.mark));
+        parser.emitMimeType();
+      }
+    };
+
+    private static void extractParameter(MimeTypeParser parser, String input) {
+      Assert.hasText(parser.paramName, "'paramName' must not be empty");
+      parser.putParameter(parser.paramName, input);
+    }
+
+    abstract ParserState process(char c, MimeTypeParser parser);
+
+    void onEof(MimeTypeParser parser) {
+      // Only specific states need to flush here.
+    }
   }
 
 }

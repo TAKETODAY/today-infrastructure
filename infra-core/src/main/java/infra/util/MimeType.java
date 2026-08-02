@@ -69,6 +69,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   public static final String PARAM_CHARSET = "charset";
 
+  public static final String MULTIPART_TYPE = "multipart";
+
   /**
    * Public constant mime type that includes all media ranges (i.e.
    * "&#42;/&#42;").
@@ -228,6 +230,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   private transient @Nullable Charset resolvedCharset;
 
+  private volatile int hash;
+
   /**
    * Create a new {@code MimeType} for the given primary type.
    * <p>
@@ -342,6 +346,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     this.parameters = other.parameters;
     this.toStringValue = other.toStringValue;
     this.resolvedCharset = other.resolvedCharset;
+    this.hash = other.hash;
   }
 
   /**
@@ -395,15 +400,29 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   /**
-   * Unquote the given string if it is quoted.
-   * <p>This method checks if the string starts and ends with the same quote character
-   * (either single or double quotes) and removes them if so.
-   *
-   * @param s the string to unquote
-   * @return the unquoted string, or the original string if it wasn't quoted
+   * Unquote the given string, resolving any quoted-pair escapes it might
+   * contain (for example, {@code "1\"2"} becomes {@code 1"2}) in the process.
+   * <p>Returns the given string as-is if it is not a quoted string.
    */
   protected final String unquote(String s) {
-    return isQuotedString(s) ? s.substring(1, s.length() - 1) : s;
+    if (!isQuotedString(s)) {
+      return s;
+    }
+    String inner = s.substring(1, s.length() - 1);
+    if (inner.indexOf('\\') == -1) {
+      return inner;
+    }
+    int length = inner.length();
+    StringBuilder sb = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      char c = inner.charAt(i);
+      if (c == '\\' && i + 1 < length) {
+        i++;
+        c = inner.charAt(i);
+      }
+      sb.append(c);
+    }
+    return sb.toString();
   }
 
   /**
@@ -442,7 +461,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @since 5.0
    */
   public boolean isMultipartType() {
-    return "multipart".equals(getType());
+    return MULTIPART_TYPE.equals(getType());
   }
 
   /**
@@ -597,29 +616,20 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       return true;
     }
     else if (getType().equals(other.getType())) {
-      String subtype = getSubtype();
-      String otherSubtype = other.getSubtype();
-      if (subtype.equals(otherSubtype)) {
+      if (getSubtype().equals(other.getSubtype())) {
         return true;
       }
-      // Wildcard with suffix? e.g. application/*+xml
       if (isWildcardSubtype() || other.isWildcardSubtype()) {
-        int thisPlusIdx = subtype.lastIndexOf('+');
-        int otherPlusIdx = otherSubtype.lastIndexOf('+');
-        if (thisPlusIdx == -1 && otherPlusIdx == -1) {
+        String thisSuffix = getSubtypeSuffix();
+        String otherSuffix = other.getSubtypeSuffix();
+        if (getSubtype().equals(WILDCARD_TYPE) || other.getSubtype().equals(WILDCARD_TYPE)) {
           return true;
         }
-        else if (thisPlusIdx != -1 && otherPlusIdx != -1) {
-          String thisSubtypeSuffix = subtype.substring(thisPlusIdx + 1);
-          String otherSubtypeSuffix = otherSubtype.substring(otherPlusIdx + 1);
-          if (thisSubtypeSuffix.equals(otherSubtypeSuffix)) {
-            String thisSubtypeNoSuffix = subtype.substring(0, thisPlusIdx);
-            if (WILDCARD_TYPE.equals(thisSubtypeNoSuffix)) {
-              return true;
-            }
-            String otherSubtypeNoSuffix = otherSubtype.substring(0, otherPlusIdx);
-            return WILDCARD_TYPE.equals(otherSubtypeNoSuffix);
-          }
+        else if (isWildcardSubtype() && thisSuffix != null) {
+          return (thisSuffix.equals(other.getSubtype()) || thisSuffix.equals(otherSuffix));
+        }
+        else if (other.isWildcardSubtype() && otherSuffix != null) {
+          return (getSubtype().equals(otherSuffix) || otherSuffix.equals(thisSuffix));
         }
       }
     }
@@ -672,18 +682,20 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   /**
    * Determine if the parameters in this {@code MimeType} and the supplied
-   * {@code MimeType} are equal, performing case-insensitive comparisons for
-   * {@link Charset Charsets}.
+   * {@code MimeType} are equal, performing case-insensitive comparisons
+   * for {@link Charset Charsets} and disregarding quoting of parameter
+   * values, so that, for example, {@code infra="framework"} and
+   * {@code infra=framework} are considered equal.
    */
   private boolean parametersAreEqual(MimeType other) {
-    Map<String, String> otherParameters = other.parameters;
-    if (parameters.size() != otherParameters.size()) {
+    Map<String, String> op = other.parameters;
+    if (parameters.size() != op.size()) {
       return false;
     }
 
-    for (Map.Entry<String, String> entry : parameters.entrySet()) {
+    for (var entry : parameters.entrySet()) {
       String key = entry.getKey();
-      if (!otherParameters.containsKey(key)) {
+      if (!op.containsKey(key)) {
         return false;
       }
       if (PARAM_CHARSET.equals(key)) {
@@ -691,7 +703,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
           return false;
         }
       }
-      else if (!Objects.equals(entry.getValue(), otherParameters.get(key))) {
+      else if (!Objects.equals(unquote(entry.getValue()), unquote(op.get(key)))) {
         return false;
       }
     }
@@ -701,9 +713,28 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   @Override
   public int hashCode() {
-    int result = this.type.hashCode();
-    result = 31 * result + this.subtype.hashCode();
-    result = 31 * result + this.parameters.hashCode();
+    int result = this.hash;
+    if (result == 0) {
+      result = this.type.hashCode();
+      result = 31 * result + this.subtype.hashCode();
+      result = 31 * result + parametersHashCode();
+      this.hash = result;
+    }
+    return result;
+  }
+
+  /**
+   * Compute a hash code for the parameters map, consistent with
+   * {@link #parametersAreEqual}: normalizing {@link Charset Charsets} and
+   * disregarding quoting of parameter values.
+   */
+  private int parametersHashCode() {
+    int result = 0;
+    for (var entry : parameters.entrySet()) {
+      String key = entry.getKey();
+      Object value = PARAM_CHARSET.equals(key) ? getCharset() : unquote(entry.getValue());
+      result += key.hashCode() ^ ObjectUtils.nullSafeHashCode(value);
+    }
     return result;
   }
 
@@ -794,7 +825,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
         if (otherValue == null) {
           otherValue = "";
         }
-        comp = thisValue.compareTo(otherValue);
+        comp = unquote(thisValue).compareTo(unquote(otherValue));
         if (comp != 0) {
           return comp;
         }
