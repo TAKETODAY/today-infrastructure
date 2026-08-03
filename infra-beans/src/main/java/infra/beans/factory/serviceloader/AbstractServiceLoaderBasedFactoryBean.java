@@ -36,8 +36,7 @@ import infra.lang.Assert;
  */
 public abstract class AbstractServiceLoaderBasedFactoryBean extends AbstractFactoryBean<Object> {
 
-  @Nullable
-  private Class<?> serviceType;
+  private @Nullable Class<?> serviceType;
 
   /**
    * Specify the desired service type (typically the service's public API).
@@ -49,8 +48,7 @@ public abstract class AbstractServiceLoaderBasedFactoryBean extends AbstractFact
   /**
    * Return the desired service type.
    */
-  @Nullable
-  public Class<?> getServiceType() {
+  public @Nullable Class<?> getServiceType() {
     return this.serviceType;
   }
 
@@ -62,7 +60,7 @@ public abstract class AbstractServiceLoaderBasedFactoryBean extends AbstractFact
   @Override
   protected Object createBeanInstance() {
     Assert.notNull(getServiceType(), "Property 'serviceType' is required");
-    return getObjectToExpose(ServiceLoader.load(getServiceType(), getBeanClassLoader()));
+    return getObjectToExpose(ServiceLoader.load(getServiceType(), beanClassLoader));
   }
 
   /**

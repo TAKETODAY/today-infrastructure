@@ -24,9 +24,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 
-import infra.beans.BeanInstantiationException;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.beans.factory.BeanClassLoaderAware;
@@ -38,6 +36,8 @@ import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
 import infra.util.ClassUtils;
+import infra.util.ObjectUtils;
+import infra.util.ReflectionUtils;
 
 /**
  * Simple template superclass for {@link FactoryBean} implementations that
@@ -65,21 +65,15 @@ import infra.util.ClassUtils;
 public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
         BeanClassLoaderAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
-  @Nullable
-  private BeanFactory beanFactory;
-
   private boolean singleton = true;
 
-  private boolean initialized = false;
+  protected @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  @Nullable
-  private T singletonInstance;
+  private @Nullable BeanFactory beanFactory;
 
-  @Nullable
-  private T earlySingletonInstance;
+  private @Nullable T singletonInstance;
 
-  @Nullable
-  private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+  private @Nullable T earlySingletonInstance;
 
   /**
    * Set if a singleton should be created, or a new object on each request
@@ -95,13 +89,8 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   }
 
   @Override
-  public void setBeanClassLoader(@Nullable ClassLoader classLoader) {
+  public void setBeanClassLoader(ClassLoader classLoader) {
     this.beanClassLoader = classLoader;
-  }
-
-  @Nullable
-  public ClassLoader getBeanClassLoader() {
-    return beanClassLoader;
   }
 
   @Override
@@ -112,9 +101,27 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   /**
    * Return the BeanFactory that this bean runs in.
    */
-  @Nullable
-  public BeanFactory getBeanFactory() {
+  protected @Nullable BeanFactory getBeanFactory() {
     return this.beanFactory;
+  }
+
+  /**
+   * Obtain a bean type converter from the BeanFactory that this bean
+   * runs in. This is typically a fresh instance for each call,
+   * since TypeConverters are usually <i>not</i> thread-safe.
+   * <p>Falls back to a SimpleTypeConverter when not running in a BeanFactory.
+   *
+   * @see ConfigurableBeanFactory#getTypeConverter()
+   * @see infra.beans.SimpleTypeConverter
+   */
+  protected TypeConverter getBeanTypeConverter() {
+    BeanFactory beanFactory = getBeanFactory();
+    if (beanFactory instanceof ConfigurableBeanFactory cbf) {
+      return cbf.getTypeConverter();
+    }
+    else {
+      return new SimpleTypeConverter();
+    }
   }
 
   /**
@@ -123,9 +130,8 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   @Override
   public void afterPropertiesSet() throws Exception {
     if (isSingleton()) {
-      this.initialized = true;
-      this.earlySingletonInstance = null;
       this.singletonInstance = createBeanInstance();
+      this.earlySingletonInstance = null;
     }
   }
 
@@ -136,17 +142,19 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * @see #getEarlySingletonInterfaces()
    */
   @Override
-  @SuppressWarnings("NullAway")
   public final T getObject() throws Exception {
     if (isSingleton()) {
-      return (this.initialized ? this.singletonInstance : getEarlySingletonInstance());
+      T instance = this.singletonInstance;
+      return (instance != null ? instance : getEarlySingletonInstance());
     }
-    return createBeanInstance();
+    else {
+      return createBeanInstance();
+    }
   }
 
   /**
-   * Determine an 'early singleton' instance, exposed in case of a circular
-   * reference. Not called in a non-circular scenario.
+   * Determine an 'early singleton' instance, exposed in case of a
+   * circular reference. Not called in a non-circular scenario.
    */
   @SuppressWarnings("unchecked")
   private T getEarlySingletonInstance() {
@@ -156,9 +164,22 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
               getClass().getName() + " does not support circular references");
     }
     if (this.earlySingletonInstance == null) {
-      this.earlySingletonInstance = (T) Proxy.newProxyInstance(this.beanClassLoader, ifcs, new EarlySingletonInvocationHandler());
+      this.earlySingletonInstance = (T) Proxy.newProxyInstance(
+              this.beanClassLoader, ifcs, new EarlySingletonInvocationHandler());
     }
     return this.earlySingletonInstance;
+  }
+
+  /**
+   * Expose the singleton instance (for access through the 'early singleton' proxy).
+   *
+   * @return the singleton instance that this FactoryBean holds
+   * @throws IllegalStateException if the singleton instance is not initialized
+   */
+  private T getSingletonInstance() throws IllegalStateException {
+    T instance = this.singletonInstance;
+    Assert.state(instance != null, "Singleton instance not initialized yet");
+    return instance;
   }
 
   /**
@@ -169,114 +190,83 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   @Override
   public void destroy() throws Exception {
     if (isSingleton()) {
-      destroyInstance(this.singletonInstance);
+      T instance = this.singletonInstance;
+      if (instance != null) {
+        destroyInstance(instance);
+      }
     }
   }
 
   /**
    * This abstract method declaration mirrors the method in the FactoryBean
    * interface, for a consistent offering of abstract template methods.
+   *
+   * @see infra.beans.factory.FactoryBean#getObjectType()
    */
-  @Nullable
   @Override
-  public abstract Class<?> getObjectType();
+  public abstract @Nullable Class<?> getObjectType();
 
   /**
-   * Template method that subclasses must override to construct the object
-   * returned by this factory.
-   * <p>
-   * Invoked on initialization of this FactoryBean in case of a singleton; else,
-   * on each {@link #getObject()} call.
+   * Template method that subclasses must override to construct
+   * the object returned by this factory.
+   * <p>Invoked on initialization of this FactoryBean in case of
+   * a singleton; else, on each {@link #getObject()} call.
    *
    * @return the object returned by this factory
+   * @throws Exception if an exception occurred during object creation
    * @see #getObject()
    */
   protected abstract T createBeanInstance() throws Exception;
 
   /**
    * Return an array of interfaces that a singleton object exposed by this
-   * FactoryBean is supposed to implement, for use with an 'early singleton proxy'
-   * that will be exposed in case of a circular reference.
-   * <p>
-   * The default implementation returns this FactoryBean's object type, provided
-   * that it is an interface, or {@code null} otherwise. The latter indicates that
-   * early singleton access is not supported by this FactoryBean. This will lead
-   * to a FactoryBeanNotInitializedException getting thrown.
+   * FactoryBean is supposed to implement, for use with an 'early singleton
+   * proxy' that will be exposed in case of a circular reference.
+   * <p>The default implementation returns this FactoryBean's object type,
+   * provided that it is an interface, or {@code null} otherwise. The latter
+   * indicates that early singleton access is not supported by this FactoryBean.
+   * This will lead to a FactoryBeanNotInitializedException getting thrown.
    *
-   * @return the interfaces to use for 'early singletons', or {@code null} to
-   * indicate a BeanInstantiationException
-   * @see BeanInstantiationException
+   * @return the interfaces to use for 'early singletons',
+   * or {@code null} to indicate a FactoryBeanNotInitializedException
+   * @see infra.beans.factory.FactoryBeanNotInitializedException
    */
   protected Class<?> @Nullable [] getEarlySingletonInterfaces() {
     Class<?> type = getObjectType();
-    return (type != null && type.isInterface() ? new Class<?>[] { type } : null);
+    return type != null && type.isInterface() ? new Class<?>[] { type } : null;
   }
 
   /**
-   * Callback for destroying a singleton instance. Subclasses may override this to
-   * destroy the previously created instance.
-   * <p>
-   * The default implementation is empty.
+   * Callback for destroying a singleton instance. Subclasses may
+   * override this to destroy the previously created instance.
+   * <p>The default implementation is empty.
    *
    * @param instance the singleton instance, as returned by
    * {@link #createBeanInstance()}
    * @throws Exception in case of shutdown errors
    * @see #createBeanInstance()
    */
-  protected void destroyInstance(@Nullable T instance) throws Exception {
-  }
-
-  /**
-   * Obtain a bean type converter from the BeanFactory that this bean
-   * runs in. This is typically a fresh instance for each call,
-   * since TypeConverters are usually <i>not</i> thread-safe.
-   * <p>Falls back to a SimpleTypeConverter when not running in a BeanFactory.
-   *
-   * @see ConfigurableBeanFactory#getTypeConverter()
-   * @see SimpleTypeConverter
-   */
-  protected TypeConverter getBeanTypeConverter() {
-    BeanFactory beanFactory = getBeanFactory();
-    if (beanFactory instanceof ConfigurableBeanFactory) {
-      return ((ConfigurableBeanFactory) beanFactory).getTypeConverter();
-    }
-    else {
-      return new SimpleTypeConverter();
-    }
+  protected void destroyInstance(T instance) throws Exception {
   }
 
   /**
    * Reflective InvocationHandler for lazy access to the actual singleton object.
    */
-  private final class EarlySingletonInvocationHandler implements InvocationHandler {
-
-    /**
-     * Expose the singleton instance (for access through the 'early singleton'
-     * proxy).
-     *
-     * @return the singleton instance that this FactoryBean holds
-     * @throws IllegalStateException if the singleton instance is not initialized
-     */
-    @Nullable
-    private T getSingletonInstance() {
-      Assert.state(initialized, "Singleton instance not initialized yet");
-      return singletonInstance;
-    }
+  private class EarlySingletonInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-      final String name = method.getName();
-      if ("equals".equals(name)) {
+      if (ReflectionUtils.isEqualsMethod(method)) {
         // Only consider equal when proxies are identical.
         return (proxy == args[0]);
       }
-      else if ("hashCode".equals(name)) {
+      else if (ReflectionUtils.isHashCodeMethod(method)) {
         // Use hashCode of reference proxy.
         return System.identityHashCode(proxy);
       }
-      else if (!initialized && "toString".equals(name)) {
-        return "Early singleton proxy for interfaces " + Arrays.toString(getEarlySingletonInterfaces());
+      else if (ReflectionUtils.isToStringMethod(method) && singletonInstance == null) {
+        return "Early singleton proxy for interfaces " +
+                ObjectUtils.nullSafeToString(getEarlySingletonInterfaces());
       }
       try {
         return method.invoke(getSingletonInstance(), args);
