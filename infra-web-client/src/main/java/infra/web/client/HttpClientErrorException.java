@@ -104,6 +104,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
         case NOT_ACCEPTABLE -> new NotAcceptable(message, statusText, headers, body, charset);
         case CONFLICT -> new Conflict(message, statusText, headers, body, charset);
         case GONE -> new Gone(message, statusText, headers, body, charset);
+        case PRECONDITION_FAILED -> new PreconditionFailed(message, statusText, headers, body, charset);
         case UNSUPPORTED_MEDIA_TYPE -> new UnsupportedMediaType(message, statusText, headers, body, charset);
         case TOO_MANY_REQUESTS -> new TooManyRequests(message, statusText, headers, body, charset);
         case UNPROCESSABLE_ENTITY -> new UnprocessableEntity(message, statusText, headers, body, charset);
@@ -205,6 +206,20 @@ public class HttpClientErrorException extends HttpStatusCodeException {
 
     private Gone(@Nullable String message, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
       super(message, HttpStatus.GONE, statusText, headers, body, charset);
+    }
+  }
+
+  /**
+   * {@link HttpClientErrorException} for status HTTP 412 Precondition Failed.
+   *
+   * @since 5.0
+   */
+  @SuppressWarnings("serial")
+  public static final class PreconditionFailed extends HttpClientErrorException {
+
+    private PreconditionFailed(@Nullable String message, String status, HttpHeaders headers,
+            byte @Nullable [] body, @Nullable Charset charset) {
+      super(message, HttpStatus.PRECONDITION_FAILED, status, headers, body, charset);
     }
   }
 
