@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.awt.Color;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,6 +38,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import example.Color;
 import infra.expression.EvaluationContext;
 import infra.expression.Expression;
 import infra.expression.IndexAccessor;
@@ -74,7 +74,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 class IndexingTests {
 
   @Test
-  @SuppressWarnings("unchecked")
   void indexIntoArrays() {
     SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -161,7 +160,7 @@ class IndexingTests {
 
   @Test
   void setPropertyContainingMapAutoGrow() {
-    SpelExpressionParser parser = new SpelExpressionParser(new infra.expression.spel.SpelParserConfiguration(true, false));
+    SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, false));
     Expression expression = parser.parseExpression("parameterizedMap");
     assertThat(expression.getValueTypeDescriptor(this)).asString()
             .isEqualTo("java.util.Map<java.lang.Integer, java.lang.Integer>");
@@ -464,6 +463,58 @@ class IndexingTests {
       assertThat(expression.getValue(context)).isEqualTo("Jane");
     }
 
+    @Test
+    void nullSafeIndexWithCustomIndexAccessor() {
+      context.addIndexAccessor(new BirdsIndexAccessor());
+      context.setVariable("color", example.Color.RED);
+
+      expression = parser.parseExpression("birds?.[#color]");
+      assertThat(expression.getValue(context)).isNull();
+      rootContext.birds = new Birds();
+      assertThat(expression.getValue(context)).isEqualTo("cardinal");
+    }
+
+    static class Birds {
+
+      public String get(example.Color color) {
+        return switch (color) {
+          case RED -> "cardinal";
+          case BLUE -> "blue jay";
+          default -> throw new RuntimeException("unknown bird color: " + color);
+        };
+      }
+    }
+
+    static class BirdsIndexAccessor implements IndexAccessor {
+
+      @Override
+      public Class<?>[] getSpecificTargetClasses() {
+        return new Class<?>[] { Birds.class };
+      }
+
+      @Override
+      public boolean canRead(EvaluationContext context, Object target, Object index) {
+        return (target instanceof Birds && index instanceof example.Color);
+      }
+
+      @Override
+      public TypedValue read(EvaluationContext context, Object target, Object index) {
+        Birds birds = (Birds) target;
+        example.Color color = (example.Color) index;
+        return new TypedValue(birds.get(color));
+      }
+
+      @Override
+      public boolean canWrite(EvaluationContext context, Object target, Object index) {
+        return false;
+      }
+
+      @Override
+      public void write(EvaluationContext context, Object target, Object index, @Nullable Object newValue) {
+        throw new UnsupportedOperationException();
+      }
+    }
+
     static class RootContextWithIndexedProperties {
       public int[] array;
       public List<Integer> list;
@@ -471,6 +522,7 @@ class IndexingTests {
       public String string;
       public Map<String, Integer> map;
       public Person person;
+      public Birds birds;
     }
 
   }
@@ -624,7 +676,7 @@ class IndexingTests {
       StringNode nodeX = new StringNode("nodeX");
       expr.setValue(context, arrayNode, nodeX);
       // We use isEqualTo() instead of isSameAs(), since ObjectMapper.convertValue()
-      // converts the supplied TextNode to an equivalent JsonNode.
+      // converts the supplied StringNode to an equivalent JsonNode.
       assertThat(expr.getValue(context, arrayNode)).isEqualTo(nodeX);
 
       NullNode nullNode = NullNode.getInstance();
@@ -658,7 +710,7 @@ class IndexingTests {
       StringNode nodeX = new StringNode("nodeX");
       expr.setValue(context, arrayNode, nodeX);
       // We use isEqualTo() instead of isSameAs(), since ObjectMapper.convertValue()
-      // converts the supplied TextNode to an equivalent JsonNode.
+      // converts the supplied StringNode to an equivalent JsonNode.
       assertThat(expr.getValue(context, arrayNode)).isEqualTo(nodeX);
 
       expr = parser.parseExpression("[1]");
@@ -678,7 +730,7 @@ class IndexingTests {
       context.addIndexAccessor(new BirdNameToColorMappingsIndexAccessor());
 
       Expression expression = parser.parseExpression("['cardinal']");
-      assertThat(expression.getValue(context, birdNameMappings)).isEqualTo(Color.RED);
+      assertThat(expression.getValue(context, birdNameMappings)).isEqualTo(example.Color.RED);
 
       // With a registered BirdNameToColorMappingsIndexAccessor, an attempt
       // to index into an object via a property name should fail.
@@ -690,13 +742,14 @@ class IndexingTests {
     }
 
     @Test
+      // gh-32736
     void readIndexWithCollectionTargetType() {
       context.addIndexAccessor(new ColorCollectionIndexAccessor());
 
       Expression expression = parser.parseExpression("[0]");
 
       // List.of() relies on built-in list support.
-      assertThat(expression.getValue(context, List.of(Color.RED))).isEqualTo(Color.RED);
+      assertThat(expression.getValue(context, List.of(example.Color.RED))).isEqualTo(example.Color.RED);
 
       ColorCollection colorCollection = new ColorCollection();
 
@@ -705,17 +758,17 @@ class IndexingTests {
       assertThat(colorCollection).isNotInstanceOf(List.class);
 
       // ColorCollection relies on custom ColorCollectionIndexAccessor.
-      assertThat(expression.getValue(context, colorCollection)).isEqualTo(Color.RED);
+      assertThat(expression.getValue(context, colorCollection)).isEqualTo(example.Color.RED);
     }
 
     static class BirdNameToColorMappings {
 
       public final String property = "enigma";
 
-      public Color get(String name) {
+      public example.Color get(String name) {
         return switch (name) {
-          case "cardinal" -> Color.RED;
-          case "blue jay" -> Color.BLUE;
+          case "cardinal" -> example.Color.RED;
+          case "blue jay" -> example.Color.BLUE;
           default -> throw new NoSuchElementException("unknown bird: " + name);
         };
       }
@@ -728,12 +781,12 @@ class IndexingTests {
       }
     }
 
-    static class ColorCollection extends AbstractCollection<Color> {
+    static class ColorCollection extends AbstractCollection<example.Color> {
 
-      public Color get(int index) {
+      public example.Color get(int index) {
         return switch (index) {
-          case 0 -> Color.RED;
-          case 1 -> Color.BLUE;
+          case 0 -> example.Color.RED;
+          case 1 -> example.Color.BLUE;
           default -> throw new NoSuchElementException("No color at index " + index);
         };
       }
@@ -795,6 +848,82 @@ class IndexingTests {
         ArrayNode arrayNode = (ArrayNode) target;
         Integer intIndex = (Integer) index;
         arrayNode.set(intIndex, this.objectMapper.convertValue(newValue, JsonNode.class));
+      }
+    }
+  }
+
+  @Nested
+  class PropertyAccessorValueRefTests {  // gh-36986
+
+    private final StandardEvaluationContext context = new StandardEvaluationContext();
+
+    private final SpelExpressionParser parser = new SpelExpressionParser();
+
+    @Test
+    void readIndexDoesNotUseRemovedPropertyAccessor() {
+      Person person = new Person("Jane");
+      this.context.setVariable("person", person);
+      PropertyAccessor accessor = new UppercasingPropertyAccessor();
+      this.context.addPropertyAccessor(accessor);
+
+      Expression expression = this.parser.parseExpression("#person['name']");
+
+      // The first evaluation resolves and caches the custom accessor.
+      assertThat(expression.getValue(this.context)).isEqualTo("JANE");
+
+      // Simulate an application reconfiguring the context at runtime.
+      this.context.removePropertyAccessor(accessor);
+
+      // The removed accessor must not be reused for subsequent evaluations.
+      assertThat(expression.getValue(this.context)).isEqualTo("Jane");
+    }
+
+    @Test
+    void writeIndexDoesNotUseRemovedPropertyAccessor() {
+      Person person = new Person("Jane");
+      this.context.setVariable("person", person);
+      PropertyAccessor accessor = new UppercasingPropertyAccessor();
+      this.context.addPropertyAccessor(accessor);
+
+      Expression expression = this.parser.parseExpression("#person['name']");
+
+      // The first write resolves and caches the custom accessor.
+      expression.setValue(this.context, "Alice");
+      assertThat(person.getName()).isEqualTo("custom:Alice");
+
+      // Simulate an application reconfiguring the context at runtime.
+      this.context.removePropertyAccessor(accessor);
+
+      // The removed accessor must not be reused for subsequent writes.
+      expression.setValue(this.context, "Bob");
+      assertThat(person.getName()).isEqualTo("Bob");
+    }
+
+    private static class UppercasingPropertyAccessor implements PropertyAccessor {
+
+      @Override
+      public Class<?>[] getSpecificTargetClasses() {
+        return new Class<?>[] { Person.class };
+      }
+
+      @Override
+      public boolean canRead(EvaluationContext context, @Nullable Object target, String name) {
+        return "name".equals(name);
+      }
+
+      @Override
+      public TypedValue read(EvaluationContext context, @Nullable Object target, String name) {
+        return new TypedValue(((Person) target).getName().toUpperCase());
+      }
+
+      @Override
+      public boolean canWrite(EvaluationContext context, @Nullable Object target, String name) {
+        return "name".equals(name);
+      }
+
+      @Override
+      public void write(EvaluationContext context, @Nullable Object target, String name, @Nullable Object newValue) {
+        ((Person) target).setName("custom:" + newValue);
       }
     }
   }
