@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import infra.bytecode.MethodVisitor;
-import infra.expression.spel.CodeFlow;
 import infra.core.TypeDescriptor;
 import infra.expression.AccessException;
 import infra.expression.ConstructorExecutor;
@@ -39,6 +38,7 @@ import infra.expression.EvaluationException;
 import infra.expression.TypeConverter;
 import infra.expression.TypedValue;
 import infra.expression.common.ExpressionUtils;
+import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
@@ -78,9 +78,10 @@ public class ConstructorReference extends SpelNodeImpl {
   private final SpelNodeImpl @Nullable [] dimensions;
 
   // TODO is this caching safe - passing the expression around will mean this executor is also being passed around
-  /** The cached executor that may be reused on subsequent evaluations. */
-  @Nullable
-  private volatile ConstructorExecutor cachedExecutor;
+  /**
+   * The cached executor that may be reused on subsequent evaluations.
+   */
+  private volatile @Nullable ConstructorExecutor cachedExecutor;
 
   /**
    * Create a constructor reference. The first argument is the type, the rest are the parameters to the constructor
@@ -135,40 +136,47 @@ public class ConstructorReference extends SpelNodeImpl {
 
     ConstructorExecutor executorToUse = this.cachedExecutor;
     if (executorToUse != null) {
-      try {
-        return executorToUse.execute(state.getEvaluationContext(), arguments);
-      }
-      catch (AccessException ex) {
-        // Two reasons this can occur:
-        // 1. the method invoked actually threw a real exception
-        // 2. the method invoked was not passed the arguments it expected and has become 'stale'
-
-        // In the first case we should not retry, in the second case we should see if there is a
-        // better suited method.
-
-        // To determine which situation it is, the AccessException will contain a cause.
-        // If the cause is an InvocationTargetException, a user exception was thrown inside the constructor.
-        // Otherwise, the constructor could not be invoked.
-        if (ex.getCause() instanceof InvocationTargetException) {
-          // User exception was the root cause - exit now
-          Throwable rootCause = ex.getCause().getCause();
-          if (rootCause instanceof RuntimeException runtimeException) {
-            throw runtimeException;
-          }
-          else {
-            String typeName = (String) this.children[0].getValueInternal(state).getValue();
-            throw new SpelEvaluationException(getStartPosition(), rootCause,
-                    SpelMessage.CONSTRUCTOR_INVOCATION_PROBLEM, typeName,
-                    FormatHelper.formatMethodForMessage("", argumentTypes));
-          }
-        }
-
-        // At this point we know it wasn't a user problem so worth a retry if a better candidate can be found
+      if (state.getEvaluationContext().getConstructorResolvers().isEmpty()) {
+        // Constructor resolution is not supported in the current context,
+        // so we discard the cached executor.
         this.cachedExecutor = null;
+      }
+      else {
+        try {
+          return executorToUse.execute(state.getEvaluationContext(), arguments);
+        }
+        catch (AccessException ex) {
+          // Two reasons this can occur:
+          // 1. the constructor invoked actually threw a real exception
+          // 2. the constructor invoked was not passed the arguments it expected and has become 'stale'
+
+          // In the first case we should not retry, in the second case we should see if there is a
+          // better suited constructor.
+
+          // To determine which situation it is, the AccessException will contain a cause.
+          // If the cause is an InvocationTargetException, a user exception was thrown inside the constructor.
+          // Otherwise, the constructor could not be invoked.
+          if (ex.getCause() instanceof InvocationTargetException cause) {
+            // User exception was the root cause - exit now
+            Throwable rootCause = cause.getCause();
+            if (rootCause instanceof RuntimeException runtimeException) {
+              throw runtimeException;
+            }
+            else {
+              String typeName = (String) this.children[0].getValueInternal(state).getValue();
+              throw new SpelEvaluationException(getStartPosition(), rootCause,
+                      SpelMessage.CONSTRUCTOR_INVOCATION_PROBLEM, typeName,
+                      FormatHelper.formatMethodForMessage("", argumentTypes));
+            }
+          }
+
+          // At this point we know it wasn't a user problem so worth a retry if a better candidate can be found
+          this.cachedExecutor = null;
+        }
       }
     }
 
-    // Either there was no accessor or it no longer exists
+    // Either there was no ConstructorExecutor or it no longer exists
     String typeName = (String) this.children[0].getValueInternal(state).getValue();
     Assert.state(typeName != null, "No type name");
     executorToUse = findExecutorForConstructor(typeName, argumentTypes, state);
