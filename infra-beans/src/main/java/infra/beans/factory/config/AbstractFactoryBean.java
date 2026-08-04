@@ -252,7 +252,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   /**
    * Reflective InvocationHandler for lazy access to the actual singleton object.
    */
-  private class EarlySingletonInvocationHandler implements InvocationHandler {
+  private final class EarlySingletonInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
