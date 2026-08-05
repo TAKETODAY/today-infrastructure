@@ -91,6 +91,16 @@ import infra.expression.spel.SpelMessage;
  * <p>For more power and flexibility, in particular for internal configuration
  * scenarios, consider using {@link StandardEvaluationContext} instead.
  *
+ * <p>Because a parsed {@code Expression} may cache accessor and executor state
+ * resolved against a particular {@code EvaluationContext} configuration, a parsed
+ * {@code Expression} must never be evaluated first against a
+ * {@code StandardEvaluationContext} (or any other, less restrictive,
+ * {@code EvaluationContext}) and later against a {@code SimpleEvaluationContext}. If the
+ * same expression string must be evaluated under both kinds of contexts, parse it into
+ * two distinct {@code Expression} instances instead. See
+ * {@link infra.expression.Expression Expression} for further details on
+ * this lifecycle contract.
+ *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

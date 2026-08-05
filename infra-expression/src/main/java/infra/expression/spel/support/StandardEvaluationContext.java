@@ -66,6 +66,15 @@ import infra.lang.Assert;
  * consider using {@link SimpleEvaluationContext} instead which allows for
  * opting into several SpEL features as needed by specific evaluation cases.
  *
+ * <p>Because a parsed {@code Expression} may cache accessor and executor state
+ * resolved against a particular {@code EvaluationContext} configuration, a parsed
+ * {@code Expression} must never be evaluated first against a
+ * {@code StandardEvaluationContext} and later against a {@code SimpleEvaluationContext}
+ * (or any other, more restrictive {@code EvaluationContext}). If the same expression
+ * string must be evaluated under both kinds of contexts, parse it into two distinct
+ * {@code Expression} instances instead. See {@link infra.expression.Expression
+ * Expression} for further details on this lifecycle contract.
+ *
  * @author Andy Clement
  * @author Juergen Hoeller
  * @author Sam Brannen
