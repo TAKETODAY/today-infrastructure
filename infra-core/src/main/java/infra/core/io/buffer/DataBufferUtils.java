@@ -808,6 +808,14 @@ public abstract class DataBufferUtils {
       super(delimiter);
       Assert.isTrue(delimiter.length == 2, "Expected a 2-byte delimiter");
     }
+
+    @Override
+    public boolean match(byte b) {
+      if (matches > 0 && b != delimiter()[matches]) {
+        matches = 0;
+      }
+      return super.match(b);
+    }
   }
 
   /**
