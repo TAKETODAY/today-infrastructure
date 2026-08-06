@@ -85,6 +85,8 @@ class SpinSingleThreadAwaiterTests {
     Thread first = new Thread(awaiter::await);
     first.start();
 
+    Thread.sleep(1000);
+
     Thread second = new Thread(() -> {
       try {
         awaiter.await();
