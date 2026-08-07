@@ -583,7 +583,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Waits for this future to be completed within the
    * specified time limit without interruption.
    *
-   * <p> This method catches an {@link InterruptedException} and sneaky throws.
+   * <p>If the current thread is {@linkplain Thread#interrupt() interrupted}
+   * while waiting, the interruption is ignored and the wait continues with the
+   * remaining time; the thread's interrupt status is restored before this
+   * method returns.
    *
    * @return {@code true} if and only if the future was completed within
    * the specified time limit
@@ -596,18 +599,35 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Waits for this future to be completed within the
    * specified time limit without interruption.
    *
-   * <p> This method catches an {@link InterruptedException} and sneaky throws.
+   * <p>If the current thread is {@linkplain Thread#interrupt() interrupted}
+   * while waiting, the interruption is ignored and the wait continues with the
+   * remaining time; the thread's interrupt status is restored before this
+   * method returns.
    *
    * @return {@code true} if and only if the future was completed within
    * the specified time limit
    */
   public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
+    boolean interrupted = false;
     try {
-      return await(timeout, unit);
+      long remainingNanos = unit.toNanos(timeout);
+      long end = System.nanoTime() + remainingNanos;
+      while (true) {
+        try {
+          return await(remainingNanos, NANOSECONDS);
+        }
+        catch (InterruptedException e) {
+          // Ignore and keep waiting with the remaining time;
+          // the interrupt status is restored in the finally block
+          interrupted = true;
+          remainingNanos = end - System.nanoTime();
+        }
+      }
     }
-    catch (InterruptedException e) {
-      // Should not be raised at all.
-      throw new InternalError();
+    finally {
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 
@@ -620,9 +640,12 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   public abstract Future<V> await() throws InterruptedException;
 
   /**
-   * Waits for this future to be completed without
-   * interruption.  This method catches an {@link InterruptedException} and
-   * discards it silently.
+   * Waits for this future to be completed without interruption.
+   *
+   * <p>If the current thread is {@linkplain Thread#interrupt() interrupted}
+   * while waiting, the interruption is ignored and the wait continues until
+   * this future completes; the thread's interrupt status is restored before
+   * this method returns.
    *
    * @return this future object.
    */

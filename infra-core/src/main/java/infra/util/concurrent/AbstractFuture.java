@@ -189,11 +189,21 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
 
   @Override
   public AbstractFuture<V> awaitUninterruptibly() {
-    if (state <= COMPLETING) {
-      try {
-        awaitDone(false, 0L);
+    boolean interrupted = false;
+    try {
+      while (state <= COMPLETING) {
+        try {
+          awaitDone(false, 0L);
+        }
+        catch (InterruptedException e) {
+          // Ignore and keep waiting until this future completes;
+          // the interrupt status is restored in the finally block
+          interrupted = true;
+        }
       }
-      catch (InterruptedException e) {
+    }
+    finally {
+      if (interrupted) {
         Thread.currentThread().interrupt();
       }
     }

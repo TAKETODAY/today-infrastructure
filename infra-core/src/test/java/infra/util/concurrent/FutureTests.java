@@ -550,6 +550,69 @@ class FutureTests {
   }
 
   @Test
+  void awaitUninterruptiblyIgnoresInterruptionAndRestoresInterruptStatus() throws InterruptedException {
+    Promise<String> promise = forPromise();
+    Thread completer = new Thread(() -> {
+      try {
+        // give the waiting thread a chance to park
+        Thread.sleep(50);
+      }
+      catch (InterruptedException ignored) {
+      }
+      promise.trySuccess("ok");
+    });
+    completer.start();
+
+    Thread.currentThread().interrupt();
+    try {
+      assertThat(promise.awaitUninterruptibly().getNow()).isEqualTo("ok");
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+    }
+    finally {
+      Thread.interrupted(); // clear the flag to not pollute other tests
+    }
+    completer.join();
+  }
+
+  @Test
+  void timedAwaitUninterruptiblyIgnoresInterruptionAndRestoresInterruptStatus() throws InterruptedException {
+    Promise<String> promise = forPromise();
+    Thread completer = new Thread(() -> {
+      try {
+        // give the waiting thread a chance to park
+        Thread.sleep(50);
+      }
+      catch (InterruptedException ignored) {
+      }
+      promise.trySuccess("ok");
+    });
+    completer.start();
+
+    Thread.currentThread().interrupt();
+    try {
+      assertThat(promise.awaitUninterruptibly(10, TimeUnit.SECONDS)).isTrue();
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+    }
+    finally {
+      Thread.interrupted(); // clear the flag to not pollute other tests
+    }
+    completer.join();
+  }
+
+  @Test
+  void timedAwaitUninterruptiblyTimesOutAfterInterruption() {
+    Promise<String> promise = forPromise();
+    Thread.currentThread().interrupt();
+    try {
+      assertThat(promise.awaitUninterruptibly(50, TimeUnit.MILLISECONDS)).isFalse();
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+    }
+    finally {
+      Thread.interrupted(); // clear the flag to not pollute other tests
+    }
+  }
+
+  @Test
   void flatMap_failed() {
     assertThat(Future.failed(new RuntimeException())
             .flatMap(s -> Future.ok(s + "1")).awaitUninterruptibly().getCause()).isInstanceOf(RuntimeException.class);
