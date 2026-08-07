@@ -32,4 +32,6 @@ dependencies {
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation "org.apache.httpcomponents.client5:httpclient5"
 
+  testFixturesApi(testFixtures(project(":infra-http")))
+
 }

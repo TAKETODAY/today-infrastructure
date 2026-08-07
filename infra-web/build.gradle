@@ -12,7 +12,6 @@ dependencies {
   api(project(":infra-web-core"))
 
   optional(project(":infra-aop"))
-  optional(project(":infra-web-client"))
   optional(project(":infra-http-reactive"))
   optional(project(":infra-oxm"))
   optional("org.apache.groovy:groovy-templates")
@@ -79,6 +78,7 @@ dependencies {
   testImplementation(project(":infra-core-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation(project(":infra-webmvc-mock"))
+  testImplementation(project(":infra-web-client"))
 
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-core")))

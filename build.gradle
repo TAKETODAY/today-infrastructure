@@ -38,6 +38,7 @@ ext {
       project(":infra-context"),
       project(":infra-jcache"),
       project(":infra-web"),
+      project(":infra-web-client"),
       project(":infra-webmvc"),
       project(":infra-test"),
       project(":infra-tx")
