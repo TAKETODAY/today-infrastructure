@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 
 import infra.core.annotation.AliasFor;
 import infra.core.conversion.Converter;
-import infra.http.converter.HttpMessageConverter;
 
 /**
  * Annotation that can be used to associate the part of a "multipart/form-data" request
@@ -45,7 +44,7 @@ import infra.http.converter.HttpMessageConverter;
  * argument types. The main difference is that when the method argument is not a String
  * or raw Part, {@code @RequestParam} relies on type
  * conversion via a registered {@link Converter} or {@link PropertyEditor} while
- * {@link RequestPart} relies on {@link HttpMessageConverter HttpMessageConverters}
+ * {@link RequestPart} relies on {@link infra.http.converter.HttpMessageConverter HttpMessageConverters}
  * taking into consideration the 'Content-Type' header of the request part.
  * {@link RequestParam} is likely to be used with name-value form fields while
  * {@link RequestPart} is likely to be used with parts containing more complex content

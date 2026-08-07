@@ -25,11 +25,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.core.annotation.AliasFor;
-import infra.http.converter.HttpMessageConverter;
 
 /**
  * Annotation indicating a method parameter should be bound to the body of the web request.
- * The body of the request is passed through an {@link HttpMessageConverter} to resolve the
+ * The body of the request is passed through an {@link infra.http.converter.HttpMessageConverter} to resolve the
  * method argument depending on the content type of the request. Optionally, automatic
  * validation can be applied by annotating the argument with {@code @Valid}.
  *
