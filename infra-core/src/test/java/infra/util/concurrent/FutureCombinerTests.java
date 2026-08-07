@@ -216,6 +216,20 @@ class FutureCombinerTests {
   }
 
   @Test
+  void cancellingCombinedCallFutureCancelsAllInputFutures() {
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
+
+    Future<String> combined = Future.combine(p1, p2)
+            .call(() -> "done", directExecutor());
+
+    combined.cancel();
+
+    assertThat(p1.awaitUninterruptibly().isCancelled()).isTrue();
+    assertThat(p2.awaitUninterruptibly().isCancelled()).isTrue();
+  }
+
+  @Test
   void combinedFutureCompletesAfterAllInputsComplete() {
     Promise<String> p1 = Future.forPromise(directExecutor());
     Promise<Integer> p2 = Future.forPromise(directExecutor());

@@ -275,6 +275,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
         future.onCompleted(this, task);
       }
     }
+    task.onCompleted((FutureListener) this);
     return task;
   }
 
