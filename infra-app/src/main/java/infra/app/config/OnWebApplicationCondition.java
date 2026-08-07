@@ -103,6 +103,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.noMatch(outcome.getConditionMessage());
     }
     if (!required && outcome.isMatch()) {
+      // ConditionalOnNotWebApplication
       return ConditionOutcome.noMatch(outcome.getConditionMessage());
     }
     return ConditionOutcome.match(outcome.getConditionMessage());

@@ -39,6 +39,7 @@ import infra.util.StringUtils;
  * @since 4.0 2022/1/16 15:46
  */
 public abstract class InfraCondition implements Condition {
+
   private static final Logger log = LoggerFactory.getLogger(InfraCondition.class);
 
   @Override
