@@ -39,3 +39,4 @@ node_modules
 AGENTS.md
 .codegraph
 opencode.jsonc
+.claude
