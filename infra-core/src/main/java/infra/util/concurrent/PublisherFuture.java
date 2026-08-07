@@ -60,7 +60,11 @@ public final class PublisherFuture<T extends @Nullable Object> extends AbstractF
       s.request(Long.MAX_VALUE);
     }
     else {
+      // The publisher violated Reactive Streams 2.5 by calling onSubscribe
+      // more than once; cancel the duplicate and fail the future instead of
+      // leaving it pending forever.
       s.cancel();
+      tryFailure(new IllegalStateException("Multiple onSubscribe signals from a single-subscriber Publisher"));
     }
   }
 

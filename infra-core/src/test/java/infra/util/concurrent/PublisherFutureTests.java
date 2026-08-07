@@ -17,6 +17,8 @@
 package infra.util.concurrent;
 
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscription;
 
 import java.time.Duration;
 
@@ -263,6 +265,38 @@ class PublisherFutureTests {
 
     assertThat(future).succeedsWithin(Duration.ZERO)
             .isEqualTo("done");
+  }
+
+  @Test
+  void duplicateOnSubscribeFailsFuture() {
+    Publisher<Integer> badPublisher = subscriber -> {
+      subscriber.onSubscribe(new Subscription() {
+        @Override
+        public void request(long n) {
+        }
+
+        @Override
+        public void cancel() {
+        }
+      });
+      // violate Reactive Streams 2.5: call onSubscribe a second time
+      subscriber.onSubscribe(new Subscription() {
+        @Override
+        public void request(long n) {
+        }
+
+        @Override
+        public void cancel() {
+        }
+      });
+    };
+
+    PublisherFuture<Integer> future = PublisherFuture.of(badPublisher);
+
+    assertThat(future).failsWithin(Duration.ZERO)
+            .withThrowableThat().havingRootCause()
+            .isInstanceOf(IllegalStateException.class)
+            .withMessageContaining("Multiple onSubscribe");
   }
 
 }
