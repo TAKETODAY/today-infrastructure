@@ -112,6 +112,23 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * does not block at all, but it could be tricky to implement a sequential
  * logic if you are not used to event-driven programming.
  *
+ * <h3>Listener notification threads and ordering</h3>
+ * <p>
+ * Listeners are always notified by a task submitted to this future's
+ * {@code executor} — never on the thread that completes this future, and never
+ * on the thread that registers the listener. If this future is already done when
+ * a listener is registered, the notification task is submitted to the executor
+ * without delay.
+ *
+ * <p>Listeners registered before this future completes are notified sequentially,
+ * in registration order, by a single notification task. Listeners registered after
+ * completion are each notified by a newly submitted task; when the executor runs
+ * its tasks on multiple threads — as the {@linkplain #defaultScheduler default
+ * scheduler} does — such late notifications may execute concurrently with
+ * notifications of earlier listeners that are still in flight. If a strict total
+ * ordering of all listener callbacks is required, construct this future with a
+ * single-threaded executor.
+ *
  * <h3>Do not confuse timeout and await timeout</h3>
  * <p>
  * The timeout value you specify with {@link #await(long, TimeUnit)} is
@@ -505,6 +522,13 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * The specified listener is notified when this future is
    * {@linkplain #isDone() done}. If this future is already
    * completed, the specified listener is notified immediately.
+   *
+   * <p>"Immediately" means the notification task is submitted to this future's
+   * {@code executor} without delay; the listener is still invoked on the executor,
+   * not on the calling thread. With a multi-threaded executor, notifications of
+   * listeners registered after completion may run concurrently with in-flight
+   * notifications of earlier listeners — see the class-level documentation for
+   * the exact ordering guarantees.
    *
    * @return this future object.
    */
