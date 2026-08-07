@@ -36,6 +36,7 @@ import infra.core.task.AsyncTaskExecutor;
 import infra.scheduling.Trigger;
 import infra.scheduling.TriggerContext;
 import infra.util.ErrorHandler;
+import infra.util.concurrent.CustomizableThreadFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

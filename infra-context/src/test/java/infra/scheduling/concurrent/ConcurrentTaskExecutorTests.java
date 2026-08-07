@@ -33,6 +33,7 @@ import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.lang.Assert;
 import infra.scheduling.SchedulingAwareRunnable;
+import infra.util.concurrent.CustomizableThreadFactory;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedTask;
 

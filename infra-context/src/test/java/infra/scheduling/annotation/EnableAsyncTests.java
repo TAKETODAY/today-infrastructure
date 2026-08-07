@@ -51,7 +51,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.core.Ordered;
-import infra.scheduling.concurrent.CustomizableThreadFactory;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ReflectionUtils;

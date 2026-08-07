@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadFactory;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
-import infra.scheduling.concurrent.CustomizableThreadFactory;
+import infra.util.concurrent.CustomizableThreadFactory;
 
 /**
  * Factory to manage JDK HttpClient resources such as a shared {@link Executor}

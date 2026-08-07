@@ -44,6 +44,7 @@ import infra.jndi.JndiLocatorDelegate;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CustomizableThreadCreator;
+import infra.util.concurrent.CustomizableThreadFactory;
 
 /**
  * Base class for setting up a {@link java.util.concurrent.ExecutorService}

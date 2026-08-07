@@ -32,6 +32,7 @@ import infra.jndi.JndiLocatorSupport;
 import infra.jndi.JndiTemplate;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.concurrent.CustomizableThreadFactory;
 
 /**
  * JNDI-based variant of {@link CustomizableThreadFactory}, performing a default lookup

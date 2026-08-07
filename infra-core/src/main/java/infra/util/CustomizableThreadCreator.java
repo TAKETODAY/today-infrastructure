@@ -40,8 +40,7 @@ public class CustomizableThreadCreator implements Serializable {
 
   private boolean daemon = false;
 
-  @Nullable
-  private ThreadGroup threadGroup;
+  private @Nullable ThreadGroup threadGroup;
 
   private final AtomicInteger threadCount = new AtomicInteger();
 
@@ -138,8 +137,7 @@ public class CustomizableThreadCreator implements Serializable {
    * Return the thread group that threads should be created in
    * (or {@code null} for the default group).
    */
-  @Nullable
-  public ThreadGroup getThreadGroup() {
+  public @Nullable ThreadGroup getThreadGroup() {
     return this.threadGroup;
   }
 

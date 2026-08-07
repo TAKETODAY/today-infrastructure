@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.scheduling.concurrent;
+package infra.util.concurrent;
 
 import java.util.concurrent.ThreadFactory;
 
