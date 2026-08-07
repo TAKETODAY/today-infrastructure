@@ -157,7 +157,7 @@ final class Futures {
    * @since 5.0
    */
   public static <V> Future<V> switchIfCancelled(Future<V> future, ThrowingSupplier<V> cancelledMapper) {
-    if (future.isFailed() || future.isSuccess()) {
+    if (future.isFailure() || future.isSuccess()) {
       return future;
     }
     if (future.isCancelled()) {
@@ -173,7 +173,7 @@ final class Futures {
    * @since 5.0
    */
   public static <V> Future<V> switchIfCancelled(Future<V> future, Supplier<Future<V>> cancelledMapper) {
-    if (future.isFailed() || future.isSuccess()) {
+    if (future.isFailure() || future.isSuccess()) {
       return future;
     }
     Promise<V> promise = Future.forPromise(future.executor());

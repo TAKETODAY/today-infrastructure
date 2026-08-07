@@ -1983,6 +1983,20 @@ class FutureTests {
   }
 
   @Test
+  void switchIfCancelled_appliesMapperWhenAlreadyCancelled() {
+    Promise<Integer> promise = Future.forPromise();
+    promise.cancel();
+
+    assertThat(promise.switchIfCancelled(2).join()).isEqualTo(2);
+    assertThat(promise.switchIfCancelled(() -> Future.ok(2)).join()).isEqualTo(2);
+    assertThatThrownBy(promise.switchIfCancelled((ThrowingSupplier<Integer>) () -> {
+      throw new IOException("msg");
+    })::join)
+            .isInstanceOf(IOException.class)
+            .hasMessage("msg");
+  }
+
+  @Test
   void switchIfCancelledFuture() throws InterruptedException {
     RuntimeException exception = new IllegalStateException("msg");
 
