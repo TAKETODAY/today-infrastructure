@@ -54,6 +54,7 @@ import infra.core.Ordered;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 import infra.util.ReflectionUtils;
+import infra.util.concurrent.CustomizableThreadFactory;
 import infra.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
