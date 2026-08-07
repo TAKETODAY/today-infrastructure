@@ -28,7 +28,6 @@ import infra.aot.hint.annotation.Reflective;
 import infra.core.annotation.AliasFor;
 import infra.http.HttpEntity;
 import infra.http.ResponseEntity;
-import infra.http.converter.HttpMessageConverter;
 import infra.ui.Model;
 
 /**
@@ -87,12 +86,12 @@ import infra.ui.Model;
  * <li>A {@link String} value which is interpreted as view name.
  * <li>{@link ResponseBody @ResponseBody} annotated methods
  * to set the response content. The return value will be converted to the
- * response stream using {@linkplain HttpMessageConverter message converters}.
+ * response stream using {@linkplain infra.http.converter.HttpMessageConverter message converters}.
  * <li>An {@link HttpEntity HttpEntity&lt;?&gt;} or
  * {@link ResponseEntity ResponseEntity&lt;?&gt;} object
  * to set response headers and content. The ResponseEntity body
  * will be converted and written to the response stream using
- * {@linkplain HttpMessageConverter message converters}.
+ * {@linkplain infra.http.converter.HttpMessageConverter message converters}.
  * <li>{@code void} if the method handles the response itself (by
  * writing the response content directly, declaring an argument of type
  * {@link infra.web.HttpContext} for that purpose) or if the
