@@ -4,7 +4,6 @@ description = "Web infrastructure API"
 
 
 dependencies {
-  api(project(":infra-web-core"))
   api(project(":infra-web"))
   api(project(":infra-http-reactive"))
   api(project(":infra-http-codec"))
