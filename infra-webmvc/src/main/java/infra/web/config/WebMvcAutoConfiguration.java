@@ -27,6 +27,7 @@ import java.util.List;
 import infra.app.config.ConditionalOnWebApplication;
 import infra.app.config.web.ConditionalOnEnabledResourceChain;
 import infra.app.config.web.WebProperties;
+import infra.app.config.web.WebProperties.HeaderFormat;
 import infra.app.config.web.WebProperties.Resources;
 import infra.app.config.web.WebProperties.Resources.Chain.Strategy;
 import infra.app.config.web.WebResourcesRuntimeHints;
@@ -46,6 +47,7 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.condition.ConditionalOnProperty;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
@@ -90,6 +92,7 @@ import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.config.format.DateTimeFormatters;
 import infra.web.config.format.WebConversionService;
 import infra.web.context.support.RequestHandledEventPublisher;
+import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -262,6 +265,20 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static BeanFactoryPostProcessor webScopeConfigurer() {
     return HttpContextUtils::registerScopes;
+  }
+
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  @Component
+  @ConditionalOnProperty(name = "server.forward-headers-strategy", havingValue = "framework")
+  @ConditionalOnMissingBean(ForwardedHeaderFilter.class)
+  ForwardedHeaderFilter forwardedHeaderFilter(ObjectProvider<ForwardedHeaderFilterCustomizer> customizerProvider) {
+    var properties = webProperties.forwardedHeaders;
+    var filter = new ForwardedHeaderFilter(properties.headerFormat == HeaderFormat.STANDARD);
+    filter.setUseForwardedPrefix(properties.useForwardedPrefix);
+    for (ForwardedHeaderFilterCustomizer customizer : customizerProvider) {
+      customizer.customize(filter);
+    }
+    return filter;
   }
 
   @Override

@@ -17,6 +17,8 @@
 package infra.web.reactor.netty.config;
 
 import infra.app.config.ConditionalOnWebApplication;
+import infra.app.config.web.WebProperties;
+import infra.app.config.web.WebProperties.HeaderFormat;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
@@ -57,7 +59,7 @@ import static infra.app.config.ConditionalOnWebApplication.Type;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnClass(ReactiveHttpInputMessage.class)
 @ConditionalOnWebApplication(type = Type.REACTIVE)
-@EnableConfigurationProperties({ ServerProperties.class, ReactorServerProperties.class })
+@EnableConfigurationProperties({ WebProperties.class, ServerProperties.class, ReactorServerProperties.class })
 @Import({ WebServerConfiguration.class, ReactorResourceFactoryConfiguration.class })
 public final class ReactorNettyWebServerFactoryAutoConfiguration {
 
@@ -85,8 +87,11 @@ public final class ReactorNettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
-  public static ForwardedHeaderTransformer forwardedHeaderTransformer() {
-    return new ForwardedHeaderTransformer();
+  public static ForwardedHeaderTransformer forwardedHeaderTransformer(WebProperties webProperties) {
+    var properties = webProperties.forwardedHeaders;
+    var transformer = new ForwardedHeaderTransformer(properties.headerFormat == HeaderFormat.STANDARD);
+    transformer.setUseForwardedPrefix(properties.useForwardedPrefix);
+    return transformer;
   }
 
 }

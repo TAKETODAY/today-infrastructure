@@ -146,6 +146,47 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
             .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class));
   }
 
+  @Test
+  void forwardedHeaderTransformerIsNotConfiguredByDefault() {
+    this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderTransformer.class));
+  }
+
+  @Test
+  void forwardedHeaderTransformerIsNotConfiguredWhenStrategyIsNotFramework() {
+    this.contextRunner.withPropertyValues("server.forward-headers-strategy=native")
+            .run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderTransformer.class));
+  }
+
+  @Test
+  void forwardedHeaderTransformerIsConfiguredWhenFrameworkStrategyIsUsed() {
+    this.contextRunner.withPropertyValues("server.forward-headers-strategy=framework").run((context) -> {
+      assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class);
+      ForwardedHeaderTransformer transformer = context.getBean(ForwardedHeaderTransformer.class);
+      assertThat(transformer).extracting("useStandardHeader").isEqualTo(false);
+      assertThat(transformer).extracting("useForwardedPrefix").isEqualTo(false);
+    });
+  }
+
+  @Test
+  void forwardedHeaderTransformerAppliesConfiguredProperties() {
+    this.contextRunner
+            .withPropertyValues("server.forward-headers-strategy=framework",
+                    "web.forwarded-headers.header-format=standard",
+                    "web.forwarded-headers.use-forwarded-prefix=true")
+            .run((context) -> {
+              ForwardedHeaderTransformer transformer = context.getBean(ForwardedHeaderTransformer.class);
+              assertThat(transformer).extracting("useStandardHeader").isEqualTo(true);
+              assertThat(transformer).extracting("useForwardedPrefix").isEqualTo(true);
+            });
+  }
+
+  @Test
+  void forwardedHeaderTransformerBacksOffWhenBeanAlreadyRegistered() {
+    this.contextRunner.withUserConfiguration(ForwardedHeaderTransformerConfiguration.class)
+            .withPropertyValues("server.forward-headers-strategy=framework")
+            .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class));
+  }
+
   @Configuration(proxyBeanMethods = false)
   static class HttpHandlerConfiguration {
 

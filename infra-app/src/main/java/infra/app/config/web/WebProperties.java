@@ -57,6 +57,8 @@ public class WebProperties {
   @NestedConfigurationProperty
   public final ErrorProperties error = new ErrorProperties();
 
+  public final ForwardedHeaders forwardedHeaders = new ForwardedHeaders();
+
   public enum LocaleResolver {
 
     /**
@@ -348,6 +350,40 @@ public class WebProperties {
       }
 
     }
+
+  }
+
+  /**
+   * Forwarded headers.
+   */
+  public static class ForwardedHeaders {
+
+    /**
+     * Format of the forwarded headers to support.
+     */
+    public HeaderFormat headerFormat = HeaderFormat.X_FORWARDED;
+
+    /**
+     * Whether to use the "X-Forwarded-Prefix" header to determine the context path.
+     */
+    public boolean useForwardedPrefix;
+
+  }
+
+  /**
+   * Formats of forwarded headers supported by {@link ForwardedHeaders}.
+   */
+  public enum HeaderFormat {
+
+    /**
+     * Use the standard "Forwarded" header, as defined by RFC 7239.
+     */
+    STANDARD,
+
+    /**
+     * Use the non-standard "X-Forwarded-*" headers.
+     */
+    X_FORWARDED
 
   }
 

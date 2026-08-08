@@ -48,8 +48,6 @@ import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ContextConsumer;
-import infra.web.HttpContext;
-import infra.web.context.StandardWebEnvironment;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -73,8 +71,6 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
@@ -83,9 +79,11 @@ import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.validation.config.ValidationAutoConfiguration;
 import infra.validation.config.ValidatorAdapter;
 import infra.web.AbstractRedirectModelManager;
+import infra.web.Filter;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMapping;
+import infra.web.HttpContext;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
@@ -105,6 +103,8 @@ import infra.web.config.annotation.AsyncSupportConfigurer;
 import infra.web.config.annotation.CorsRegistry;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
+import infra.web.context.StandardWebEnvironment;
+import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.CompositeHandlerExceptionHandler;
 import infra.web.handler.ResponseEntityExceptionHandler;
@@ -117,6 +117,8 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.i18n.FixedLocaleResolver;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 import infra.web.resource.CachingResourceResolver;
 import infra.web.resource.CachingResourceTransformer;
 import infra.web.resource.ContentVersionStrategy;
@@ -929,6 +931,58 @@ class WebMvcAutoConfigurationTests {
                             LowestOrderedControllerAdvice.class));
   }
 
+  @Test
+  void forwardedHeaderFilterIsNotConfiguredByDefault() {
+    this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderFilter.class));
+  }
+
+  @Test
+  void forwardedHeaderFilterIsNotConfiguredWhenStrategyIsNotFramework() {
+    this.contextRunner.withPropertyValues("server.forward-headers-strategy=native")
+            .run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderFilter.class));
+  }
+
+  @Test
+  void forwardedHeaderFilterIsConfiguredWhenFrameworkStrategyIsUsed() {
+    this.contextRunner.withPropertyValues("server.forward-headers-strategy=framework").run((context) -> {
+      assertThat(context).hasSingleBean(ForwardedHeaderFilter.class);
+      Filter filter = context.getBean(ForwardedHeaderFilter.class);
+      assertThat(filter).isInstanceOf(ForwardedHeaderFilter.class);
+      assertThat(filter).extracting("useStandardHeader").isEqualTo(false);
+      assertThat(filter).extracting("useForwardedPrefix").isEqualTo(false);
+    });
+  }
+
+  @Test
+  void forwardedHeaderFilterAppliesConfiguredProperties() {
+    this.contextRunner
+            .withPropertyValues("server.forward-headers-strategy=framework",
+                    "web.forwarded-headers.header-format=standard",
+                    "web.forwarded-headers.use-forwarded-prefix=true")
+            .run((context) -> {
+              Filter filter = context.getBean(ForwardedHeaderFilter.class);
+              assertThat(filter).extracting("useStandardHeader").isEqualTo(true);
+              assertThat(filter).extracting("useForwardedPrefix").isEqualTo(true);
+            });
+  }
+
+  @Test
+  void forwardedHeaderFilterBacksOffWhenFilterBeanAlreadyRegistered() {
+    this.contextRunner.withUserConfiguration(ForwardedHeaderFilterConfiguration.class)
+            .withPropertyValues("server.forward-headers-strategy=framework")
+            .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderFilter.class));
+  }
+
+  @Test
+  void forwardedHeaderFilterCustomizerFromDeprecatedTypeIsApplied() {
+    this.contextRunner.withUserConfiguration(ForwardedHeaderFilterCustomizerConfiguration.class)
+            .withPropertyValues("server.forward-headers-strategy=framework")
+            .run((context) -> {
+              Filter filter = context.getBean(ForwardedHeaderFilter.class);
+              assertThat(filter).extracting("removeOnly").isEqualTo(true);
+            });
+  }
+
   private void assertResourceHttpRequestHandler(AssertableApplicationContext context,
           Consumer<ResourceHttpRequestHandler> handlerConsumer) {
     Map<String, Object> handlerMap = getHandlerMap(context.getBean("resourceHandlerMapping", HandlerMapping.class));
@@ -1425,4 +1479,25 @@ class WebMvcAutoConfigurationTests {
     @Nullable Date date;
 
   }
+
+  @Configuration(proxyBeanMethods = false)
+  static class ForwardedHeaderFilterConfiguration {
+
+    @Bean
+    ForwardedHeaderFilter testForwardedHeaderFilter() {
+      return new ForwardedHeaderFilter(false);
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class ForwardedHeaderFilterCustomizerConfiguration {
+
+    @Bean
+    ForwardedHeaderFilterCustomizer forwardedHeaderFilterCustomizer() {
+      return filter -> filter.setRemoveOnly(true);
+    }
+
+  }
+
 }
