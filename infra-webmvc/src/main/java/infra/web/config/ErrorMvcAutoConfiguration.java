@@ -26,7 +26,6 @@ import java.util.Map;
 
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.app.config.ConditionalOnWebApplication;
-import infra.app.config.web.WebProperties;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;

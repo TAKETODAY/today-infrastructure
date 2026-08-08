@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.app.config.web.ErrorProperties;
 import infra.http.HttpStatus;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
@@ -38,6 +37,7 @@ import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
+import infra.web.config.ErrorProperties;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.util.WebUtils;
 
@@ -53,7 +53,7 @@ import infra.web.util.WebUtils;
  * @author Scott Frederick
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ErrorAttributes
- * @see infra.app.config.web.ErrorProperties
+ * @see infra.web.config.ErrorProperties
  * @since 4.0
  */
 @RequestMapping

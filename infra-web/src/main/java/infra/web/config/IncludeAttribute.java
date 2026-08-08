@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web;
+package infra.web.config;
 
 /**
  * Include error attributes options.

@@ -3,6 +3,6 @@
  * Auto-configuration for Web
  */
 @NullMarked
-package infra.app.config.web;
+package infra.web.config;
 
 import org.jspecify.annotations.NullMarked;

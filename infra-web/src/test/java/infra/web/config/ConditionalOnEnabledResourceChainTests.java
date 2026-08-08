@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web;
+package infra.web.config;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -24,12 +24,13 @@ import org.junit.jupiter.api.Test;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.test.classpath.ClassPathExclusions;
 import infra.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link infra.app.config.web.ConditionalOnEnabledResourceChain @ConditionalOnEnabledResourceChain}.
+ * Tests for {@link ConditionalOnEnabledResourceChain @ConditionalOnEnabledResourceChain}.
  *
  * @author Stephane Nicoll
  */
@@ -43,6 +44,7 @@ class ConditionalOnEnabledResourceChainTests {
   }
 
   @Test
+  @ClassPathExclusions("webjars-locator-*.jar")
   void disabledByDefault() {
     load();
     assertThat(this.context.containsBean("foo")).isFalse();
@@ -82,7 +84,7 @@ class ConditionalOnEnabledResourceChainTests {
   static class Config {
 
     @Bean
-    @infra.app.config.web.ConditionalOnEnabledResourceChain
+    @ConditionalOnEnabledResourceChain
     String foo() {
       return "foo";
     }

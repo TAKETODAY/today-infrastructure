@@ -75,6 +75,7 @@ dependencies {
   testFixturesImplementation("org.xmlunit:xmlunit-assertj")
   testFixturesImplementation("org.xmlunit:xmlunit-matchers")
 
+  testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-core-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation(project(":infra-webmvc-mock"))

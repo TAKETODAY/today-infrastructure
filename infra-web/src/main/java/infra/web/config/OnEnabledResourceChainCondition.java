@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web;
+package infra.web.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -25,7 +25,7 @@ import infra.context.annotation.ConditionContext;
 import infra.context.condition.ConditionMessage;
 import infra.context.condition.ConditionOutcome;
 import infra.context.condition.InfraCondition;
-import infra.core.env.ConfigurableEnvironment;
+import infra.core.env.Environment;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.util.ClassUtils;
 
@@ -48,11 +48,11 @@ class OnEnabledResourceChainCondition extends InfraCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
+    Environment environment = context.getEnvironment();
     boolean fixed = getEnabledProperty(environment, "strategy.fixed.", false);
     boolean content = getEnabledProperty(environment, "strategy.content.", false);
     Boolean chain = getEnabledProperty(environment, "", null);
-    Boolean match = infra.app.config.web.WebProperties.Resources.Chain.getEnabled(fixed, content, chain);
+    Boolean match = WebProperties.Resources.Chain.getEnabled(fixed, content, chain);
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnEnabledResourceChain.class);
     if (match == null) {
       if (ClassUtils.isPresent(WEBJAR_VERSION_LOCATOR, getClass().getClassLoader())) {
@@ -69,7 +69,7 @@ class OnEnabledResourceChainCondition extends InfraCondition {
     return ConditionOutcome.noMatch(message.because("disabled"));
   }
 
-  private Boolean getEnabledProperty(ConfigurableEnvironment environment, String key, @Nullable Boolean defaultValue) {
+  private Boolean getEnabledProperty(Environment environment, String key, @Nullable Boolean defaultValue) {
     String name = "web.resources.chain." + key + "enabled";
     return environment.getProperty(name, Boolean.class, defaultValue);
   }

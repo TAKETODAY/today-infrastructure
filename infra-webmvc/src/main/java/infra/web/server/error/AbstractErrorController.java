@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.app.config.web.ErrorProperties;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -32,6 +31,7 @@ import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.stereotype.Controller;
 import infra.web.HttpContext;
+import infra.web.config.ErrorProperties;
 import infra.web.server.error.ErrorAttributeOptions.Include;
 import infra.web.view.ModelAndView;
 

@@ -17,8 +17,8 @@
 package infra.web.reactor.netty.config;
 
 import infra.app.config.ConditionalOnWebApplication;
-import infra.app.config.web.WebProperties;
-import infra.app.config.web.WebProperties.HeaderFormat;
+import infra.web.config.WebProperties;
+import infra.web.config.WebProperties.HeaderFormat;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;

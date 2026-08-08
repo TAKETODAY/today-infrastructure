@@ -16,14 +16,14 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.web;
+package infra.web.config;
 
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
-import infra.app.config.web.WebProperties.Resources;
 import infra.http.CacheControl;
+import infra.web.config.WebProperties.Resources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class WebPropertiesResourcesTests {
 
-  private final Resources properties = new infra.app.config.web.WebProperties().resources;
+  private final Resources properties = new WebProperties().resources;
 
   @Test
   void resourceChainNoCustomization() {
