@@ -78,9 +78,9 @@ public interface UriBuilder {
   UriBuilder port(int port);
 
   /**
-   * Set the URI port . Use this method only when the port needs to be
+   * Set the URI port. Use this method only when the port needs to be
    * parameterized with a URI variable. Otherwise use {@link #port(int)}.
-   * Passing {@code null} will clear the port of this builder.
+   * Passing {@code null} or an empty String will clear the port of this builder.
    *
    * @param port the URI port
    */

@@ -26,6 +26,7 @@ import java.util.Set;
 import infra.lang.Assert;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
+import infra.util.StringUtils;
 
 /**
  * Parser for URI's based on RFC 3986 syntax.
@@ -526,7 +527,8 @@ abstract class RfcUriParser {
 
     public InternalParser capturePort() {
       verify(this.openCurlyBracketCount == 0, this, "Bad authority");
-      this.port = captureComponent("port");
+      String value = captureComponent("port");
+      this.port = StringUtils.hasText(value) ? value : null;
       return this;
     }
 

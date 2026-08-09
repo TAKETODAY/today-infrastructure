@@ -945,11 +945,17 @@ class UriComponentsBuilderTests {
   @ParameterizedTest
   @EnumSource
   void verifyInvalidPort(ParserType parserType) {
-    String url = "http://localhost:XXX/path";
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> UriComponentsBuilder.forURIString(url, parserType).build().toURI());
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> UriComponentsBuilder.forURIString(url, parserType).build().toURI());
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            UriComponentsBuilder.forURIString("http://localhost:XXX/path", parserType).build().toURI());
+  }
+
+  @ParameterizedTest
+  @EnumSource
+  void verifyEmptyPort(ParserType parserType) {
+    URI uri = UriComponentsBuilder.forURIString("http://localhost:/path", parserType).build().toURI();
+    assertThat(uri.getHost()).isEqualTo("localhost");
+    assertThat(uri.getPort()).isEqualTo(-1);
+    assertThat(uri.getPath()).isEqualTo("/path");
   }
 
   @ParameterizedTest
