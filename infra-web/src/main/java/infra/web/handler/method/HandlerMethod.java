@@ -430,7 +430,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
 
     private final MethodParameter returnType;
 
-    public ConcurrentResultHandlerMethod(ConcurrentResultMethodParameter returnType, HandlerMethod target) {
+    public ConcurrentResultHandlerMethod(MethodParameter returnType, HandlerMethod target) {
       super(target);
       this.target = target;
       this.returnType = returnType;
@@ -461,9 +461,8 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
     /**
      * Bridge to controller method-level annotations.
      */
-    @Nullable
     @Override
-    public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+    public @Nullable <A extends Annotation> A getAnnotation(Class<A> annotationType) {
       return target.getAnnotation(annotationType);
     }
 
