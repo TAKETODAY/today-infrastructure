@@ -124,11 +124,9 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    */
   private boolean failOnMissingResponse = HttpClientCodec.DEFAULT_FAIL_ON_MISSING_RESPONSE;
 
-  @Nullable
-  private ChannelFactory<?> channelFactory;
+  private @Nullable ChannelFactory<?> channelFactory;
 
-  @Nullable
-  private EventLoopGroup eventLoopGroup;
+  private @Nullable EventLoopGroup eventLoopGroup;
 
   /**
    * the number of threads that will be used by
@@ -142,8 +140,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   /**
    * @since 5.0
    */
-  @Nullable
-  private String ioThreadPoolName;
+  private @Nullable String ioThreadPoolName;
 
   /**
    * @since 5.0
@@ -158,14 +155,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   /**
    * @since 5.0
    */
-  @Nullable
-  private SslBundle sslBundle;
+  private @Nullable SslBundle sslBundle;
 
   /**
    * @since 5.0
    */
-  @Nullable
-  private SslContext sslContext;
+  private @Nullable SslContext sslContext;
 
   /**
    * @since 5.0
@@ -398,14 +393,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    * @since 5.0
    */
   protected void processBootstrap(Bootstrap bootstrap) {
-
   }
 
   /**
    * init websocket channel
    */
   protected void initChannel(SocketChannel ch) {
-
   }
 
   /**
@@ -440,8 +433,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     public final Promise<WebSocketSession> promise = Future.forPromise();
 
-    @Nullable
-    private NettyWebSocketSession session;
+    private @Nullable NettyWebSocketSession session;
 
     private URI uri;
 
