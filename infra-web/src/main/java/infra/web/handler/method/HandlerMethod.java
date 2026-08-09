@@ -412,8 +412,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * @param handler the handler to unwrap
    * @return the extracted {@link HandlerMethod}, or {@code null} if not found
    */
-  @Nullable
-  public static HandlerMethod unwrap(@Nullable Object handler) {
+  public static @Nullable HandlerMethod unwrap(@Nullable Object handler) {
     if (handler instanceof HandlerMethod) {
       return (HandlerMethod) handler;
     }
@@ -493,8 +492,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    */
   private class ConcurrentResultMethodParameter extends AnnotatedMethodParameter {
 
-    @Nullable
-    private final Object returnValue;
+    private final @Nullable Object returnValue;
 
     private final ResolvableType returnType;
 
