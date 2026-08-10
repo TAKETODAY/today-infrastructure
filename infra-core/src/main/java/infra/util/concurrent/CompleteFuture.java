@@ -108,13 +108,13 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   @Override
   public CompleteFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
     Assert.notNull(listener, "listener is required");
-    notifyListener(executor, this, listener);
+    notifyListener(executor(), this, listener);
     return this;
   }
 
   @Override
   public <C> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    notifyListener(executor, this, FutureListener.forAdaption(listener, context));
+    notifyListener(executor(), this, FutureListener.forAdaption(listener, context));
     return this;
   }
 
