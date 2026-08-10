@@ -105,7 +105,7 @@ public final class FreeMarkerAutoConfiguration {
      * signature to avoid runtime dependency on MVC, which means that the template engine
      * can be used in a non-web application.
      *
-     * @param viewResolver the resolver to apply the properties to.
+     * @param resolver the resolver to apply the properties to.
      */
     private static void applyToMvcViewResolver(FreeMarkerProperties properties, FreeMarkerViewResolver resolver) {
       resolver.setPrefix(properties.getPrefix());
