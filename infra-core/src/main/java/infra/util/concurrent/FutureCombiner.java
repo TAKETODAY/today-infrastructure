@@ -26,7 +26,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import infra.lang.Assert;
@@ -239,9 +238,47 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @throws ClassCastException if any future result cannot be cast to type T
    * @since 5.0
    */
-  @SuppressWarnings("unchecked")
   public <T extends @Nullable Object> Future<List<T>> asList(@Nullable Executor executor) {
-    return call(() -> (List<T>) futures.stream().map(Future::getNow).collect(Collectors.toList()), executor);
+    return asList(executor, false);
+  }
+
+  /**
+   * Combines the results of all futures into a single list future.
+   * <p>
+   * The returned future completes when all input futures complete and:
+   * <ul>
+   *   <li>If all input futures succeed, returns a list containing all their results in order</li>
+   *   <li>If any input future fails, the returned future fails immediately with that error
+   *       (unless {@code skipFailed} is {@code true}, see below)</li>
+   *   <li>If any input future is cancelled, the returned future is cancelled</li>
+   * </ul>
+   * <p>When {@code skipFailed} is {@code true}, failed or cancelled input futures are
+   * excluded from the result list instead of failing or cancelling the combined future;
+   * this is intended to be used with {@link #acceptFailure()}. When {@code false}, a
+   * failed input contributes {@code null} to the result list — this matches the raw
+   * {@link Future#getNow()} semantics and is only meaningful under
+   * {@link #requireAllSucceed()}.
+   *
+   * @param executor the {@link Executor} which is used to notify the {@code Future}
+   * once it is complete. and combiner execution
+   * @param skipFailed whether to exclude failed or cancelled input futures from the result
+   * @param <T> The common result type of the input futures
+   * @return A new future that completes with a list of all results when all input futures complete successfully
+   * @throws ClassCastException if any future result cannot be cast to type T
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends @Nullable Object> Future<List<T>> asList(@Nullable Executor executor, boolean skipFailed) {
+    return call(() -> {
+      var list = new ArrayList<T>(futures.size());
+      for (Future future : futures) {
+        if (skipFailed && future.isFailed()) {
+          continue;
+        }
+        list.add((T) future.getNow());
+      }
+      return list;
+    }, executor);
   }
 
   /**

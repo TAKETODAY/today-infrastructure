@@ -49,6 +49,36 @@ class FutureCombinerTests {
   }
 
   @Test
+  void acceptFailureAsListSkipsFailedFutures() {
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<String> p2 = Future.forPromise(directExecutor());
+
+    Future<List<String>> combined = Future.combine(p1, p2)
+            .acceptFailure()
+            .asList(directExecutor(), true);
+
+    p1.setSuccess("first");
+    p2.setFailure(new RuntimeException("failed"));
+
+    assertThat(combined.join()).containsExactly("first");
+  }
+
+  @Test
+  void asListWithFailedNotSkippedContributesNull() {
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<String> p2 = Future.forPromise(directExecutor());
+
+    Future<List<String>> combined = Future.combine(p1, p2)
+            .acceptFailure()
+            .asList(directExecutor(), false);
+
+    p1.setSuccess("first");
+    p2.setFailure(new RuntimeException("failed"));
+
+    assertThat(combined.join()).containsExactly("first", null);
+  }
+
+  @Test
   void requireAllSucceedWithFailedFutureFailsImmediately() {
     Future<String> future1 = Future.ok("result1");
     Future<String> future2 = Future.failed(new RuntimeException("failed"));
