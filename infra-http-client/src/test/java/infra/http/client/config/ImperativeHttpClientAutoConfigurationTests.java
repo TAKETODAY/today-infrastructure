@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.app.config.ssl.SslAutoConfiguration;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

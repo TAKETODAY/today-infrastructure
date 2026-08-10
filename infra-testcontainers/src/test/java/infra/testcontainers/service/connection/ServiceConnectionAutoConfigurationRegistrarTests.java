@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import infra.testcontainers.service.connection.ContainerConnectionDetailsFactory.ContainerConnectionDetails;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

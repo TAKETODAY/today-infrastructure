@@ -28,7 +28,7 @@ import javax.management.ObjectName;
 
 import infra.app.ApplicationType;
 import infra.app.builder.ApplicationBuilder;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ConfigurableApplicationContext;

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Clock;
 import java.util.Map;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.context.annotation.AnnotationConfigApplicationContext;

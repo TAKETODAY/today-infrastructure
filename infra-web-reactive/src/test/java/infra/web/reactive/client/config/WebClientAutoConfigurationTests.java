@@ -21,7 +21,7 @@ package infra.web.reactive.client.config;
 import org.junit.jupiter.api.Test;
 
 import infra.app.config.ssl.SslAutoConfiguration;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

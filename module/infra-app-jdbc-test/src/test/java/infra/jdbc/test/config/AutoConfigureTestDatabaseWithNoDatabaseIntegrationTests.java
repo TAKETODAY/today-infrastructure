@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.TestConfiguration;
+import infra.test.context.TestConfiguration;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.test.context.junit.jupiter.InfraExtension;

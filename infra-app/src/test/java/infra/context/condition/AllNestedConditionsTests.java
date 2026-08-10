@@ -20,9 +20,9 @@ package infra.context.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ContextConsumer;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ContextConsumer;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;

@@ -18,7 +18,7 @@ package infra.web.socket.server.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.stereotype.Component;

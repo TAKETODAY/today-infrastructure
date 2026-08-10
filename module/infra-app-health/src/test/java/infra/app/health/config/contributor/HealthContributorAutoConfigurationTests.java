@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.app.health.contributor.Health;
 import infra.app.health.contributor.HealthIndicator;
 import infra.app.health.contributor.PingHealthIndicator;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

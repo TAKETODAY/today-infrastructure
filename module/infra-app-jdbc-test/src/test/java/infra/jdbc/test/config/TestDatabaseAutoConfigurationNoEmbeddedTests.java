@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

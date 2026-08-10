@@ -28,7 +28,7 @@ import javax.net.ssl.SSLSocketFactory;
 import infra.app.config.jndi.JndiPropertiesHidingClassLoader;
 import infra.app.config.jndi.TestableInitialContextFactory;
 import infra.app.config.ssl.SslAutoConfiguration;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

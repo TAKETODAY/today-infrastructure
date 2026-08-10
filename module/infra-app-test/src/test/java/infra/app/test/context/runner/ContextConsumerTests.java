@@ -24,6 +24,7 @@ import org.mockito.InOrder;
 import java.util.function.IntPredicate;
 
 import infra.context.ApplicationContext;
+import infra.test.context.runner.ContextConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

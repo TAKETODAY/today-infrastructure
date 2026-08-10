@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import infra.app.resttestclient.TestRestTemplate;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.app.test.http.server.LocalTestWebServer;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.classpath.resources.WithResource;

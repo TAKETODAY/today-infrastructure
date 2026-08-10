@@ -20,7 +20,7 @@ package infra.app.webmvc.test.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.test.context.runner.WebApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.context.FilteredClassLoader;
 import infra.test.web.mock.MockMvc;

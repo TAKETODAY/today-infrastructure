@@ -23,7 +23,7 @@ import infra.jdbc.test.config.TestDatabaseAutoConfiguration.EmbeddedDataSourceFa
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

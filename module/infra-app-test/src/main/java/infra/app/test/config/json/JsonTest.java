@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 import infra.app.InfraApplication;
 import infra.app.test.config.OverrideAutoConfiguration;
-import infra.app.test.context.filter.annotation.TypeExcludeFilters;
+import infra.test.context.filter.annotation.TypeExcludeFilters;
 import infra.app.test.json.GsonTester;
 import infra.app.test.json.JacksonTester;
 import infra.app.test.json.JsonbTester;

@@ -22,9 +22,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ContextConsumer;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ContextConsumer;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.EnableAspectJAutoProxy;

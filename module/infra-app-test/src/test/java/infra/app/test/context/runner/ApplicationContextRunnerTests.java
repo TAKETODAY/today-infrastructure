@@ -18,8 +18,9 @@
 
 package infra.app.test.context.runner;
 
-import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.context.ConfigurableApplicationContext;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
 
 /**
  * Tests for {@link ApplicationContextRunner}.

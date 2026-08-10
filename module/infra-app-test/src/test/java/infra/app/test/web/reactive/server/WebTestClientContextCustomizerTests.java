@@ -20,7 +20,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import infra.app.test.context.InfraTest;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.support.AbstractApplicationContext;

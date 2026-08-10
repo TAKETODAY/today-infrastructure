@@ -13,9 +13,13 @@ infra.test.context.TestExecutionListener=\
   	infra.test.context.bean.override.mockito.MockitoResetTestExecutionListener,\
     infra.test.context.support.CommonCachesTestExecutionListener
 
-
 # Default ContextCustomizerFactory implementations for the TestContext Framework
 #
 infra.test.context.ContextCustomizerFactory=\
   infra.test.context.bean.override.BeanOverrideContextCustomizerFactory,\
-  infra.test.context.support.DynamicPropertiesContextCustomizerFactory
+  infra.test.context.support.DynamicPropertiesContextCustomizerFactory,\
+  infra.test.context.filter.ExcludeFilterContextCustomizerFactory,\
+  infra.test.context.filter.annotation.TypeExcludeFiltersContextCustomizerFactory
+
+infra.context.ApplicationContextInitializer=\
+infra.test.context.filter.ExcludeFilterApplicationContextInitializer

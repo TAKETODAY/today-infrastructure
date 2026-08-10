@@ -79,7 +79,7 @@ import infra.util.StringUtils;
  * @author Lorenzo Dee
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see InfraTest
- * @see TestConfiguration
+ * @see infra.test.context.TestConfiguration
  * @since 4.0
  */
 public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper {
@@ -215,7 +215,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
   private boolean containsNonTestComponent(Class<?>[] classes) {
     for (Class<?> candidate : classes) {
       if (!MergedAnnotations.from(candidate, SearchStrategy.INHERITED_ANNOTATIONS)
-              .isPresent(TestConfiguration.class)) {
+              .isPresent(infra.test.context.TestConfiguration.class)) {
         return true;
       }
     }

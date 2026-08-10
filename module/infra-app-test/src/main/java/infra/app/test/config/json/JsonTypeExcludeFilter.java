@@ -18,7 +18,7 @@
 
 package infra.app.test.config.json;
 
-import infra.app.test.context.filter.annotation.StandardAnnotationCustomizableTypeExcludeFilter;
+import infra.test.context.filter.annotation.StandardAnnotationCustomizableTypeExcludeFilter;
 import infra.context.annotation.config.TypeExcludeFilter;
 
 /**

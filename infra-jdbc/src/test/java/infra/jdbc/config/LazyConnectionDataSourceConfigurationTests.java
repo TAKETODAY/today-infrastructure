@@ -14,7 +14,7 @@ import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import infra.app.config.jmx.JmxAutoConfiguration;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jdbc.datasource.LazyConnectionDataSourceProxy;
 

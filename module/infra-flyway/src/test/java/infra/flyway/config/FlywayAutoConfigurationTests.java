@@ -50,9 +50,9 @@ import javax.sql.DataSource;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ContextConsumer;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ContextConsumer;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.Bean;

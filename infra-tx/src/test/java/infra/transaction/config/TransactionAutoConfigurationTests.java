@@ -25,7 +25,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.AdviceMode;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;

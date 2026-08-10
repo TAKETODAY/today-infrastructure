@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.management.ObjectName;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.jmx.export.annotation.AnnotationJmxAttributeSource;
 import infra.jmx.export.annotation.ManagedResource;
 import infra.util.ObjectUtils;

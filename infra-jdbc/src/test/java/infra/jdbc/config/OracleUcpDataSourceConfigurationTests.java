@@ -25,7 +25,7 @@ import java.time.Duration;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceImpl;

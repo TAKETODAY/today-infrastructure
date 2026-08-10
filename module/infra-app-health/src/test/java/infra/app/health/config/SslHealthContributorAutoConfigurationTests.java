@@ -32,7 +32,7 @@ import infra.app.health.contributor.HealthIndicator;
 import infra.app.health.contributor.Status;
 import infra.app.info.SslInfo;
 import infra.app.info.SslInfo.CertificateChainInfo;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

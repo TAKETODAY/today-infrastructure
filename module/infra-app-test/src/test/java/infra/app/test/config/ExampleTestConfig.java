@@ -18,7 +18,7 @@
 
 package infra.app.test.config;
 
-import infra.app.test.context.TestConfiguration;
+import infra.test.context.TestConfiguration;
 
 /**
  * Example {@link TestConfiguration @TestConfiguration} for

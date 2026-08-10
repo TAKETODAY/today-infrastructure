@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.app.test.http.server.LocalTestWebServer;
 import infra.app.test.http.server.LocalTestWebServer.Scheme;
 import infra.context.annotation.Bean;

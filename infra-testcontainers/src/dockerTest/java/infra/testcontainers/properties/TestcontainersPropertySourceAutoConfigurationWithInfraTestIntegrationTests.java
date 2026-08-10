@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.InfraConfiguration;
 import infra.app.test.context.InfraTest;
-import infra.app.test.context.TestConfiguration;
+import infra.test.context.TestConfiguration;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.config.ImportAutoConfiguration;

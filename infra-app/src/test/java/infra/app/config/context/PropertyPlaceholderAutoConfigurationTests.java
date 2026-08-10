@@ -20,7 +20,7 @@ package infra.app.config.context;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.annotation.Value;
 import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.beans.factory.support.BeanDefinitionRegistry;

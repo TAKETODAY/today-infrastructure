@@ -3,10 +3,8 @@
 infra.test.context.ContextCustomizerFactory=\
     infra.app.test.context.ImportsContextCustomizerFactory,\
     infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
-    infra.app.test.context.filter.ExcludeFilterContextCustomizerFactory,\
     infra.app.test.web.reactive.server.WebTestClientContextCustomizerFactory,\
     infra.app.test.context.PropertyMappingContextCustomizerFactory,\
-    infra.app.test.context.filter.annotation.TypeExcludeFiltersContextCustomizerFactory,\
     infra.app.test.config.OnFailureConditionReportContextCustomizerFactory,\
     infra.app.test.config.OverrideAutoConfigurationContextCustomizerFactory
 
@@ -14,4 +12,4 @@ infra.app.env.EnvironmentPostProcessor=\
 infra.app.test.web.InfraTestRandomPortEnvironmentPostProcessor
 
 infra.context.ApplicationContextInitializer=\
-infra.app.test.context.filter.ExcludeFilterApplicationContextInitializer
+infra.test.context.filter.ExcludeFilterApplicationContextInitializer

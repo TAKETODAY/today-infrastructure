@@ -27,7 +27,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.MergedAnnotation;

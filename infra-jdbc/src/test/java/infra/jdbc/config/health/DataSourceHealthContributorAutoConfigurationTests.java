@@ -36,7 +36,7 @@ import infra.jdbc.config.DataSourcePoolMetadataProvidersConfiguration;
 import infra.jdbc.config.EmbeddedDataSourceConfiguration;
 import infra.jdbc.config.health.DataSourceHealthContributorAutoConfiguration.RoutingDataSourceHealthContributor;
 import infra.jdbc.health.DataSourceHealthIndicator;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanDefinition;
