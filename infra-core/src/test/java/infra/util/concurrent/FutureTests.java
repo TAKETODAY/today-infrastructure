@@ -794,7 +794,6 @@ class FutureTests {
     Callable<String> combiner = () -> {
       inFunction.countDown();
       shouldCompleteFunction.await();
-      System.out.println("no interrupt");
       return "result";
     };
 
