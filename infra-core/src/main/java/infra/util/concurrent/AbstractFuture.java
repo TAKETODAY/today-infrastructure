@@ -145,7 +145,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       if (result instanceof Throwable) {
         return (Throwable) result;
       }
-      return new LeanCancellationException();
+      return LeanCancellationException.INSTANCE;
     }
     return null;
   }
@@ -292,7 +292,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       if (result instanceof Throwable) {
         throw ExceptionUtils.sneakyThrow((Throwable) result);
       }
-      throw new LeanCancellationException();
+      throw LeanCancellationException.INSTANCE;
     }
     throw new ExecutionException((Throwable) result);
   }
@@ -475,6 +475,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    static final LeanCancellationException INSTANCE = new LeanCancellationException();
 
     private static final StackTraceElement[] CANCELLATION_STACK = {
             new StackTraceElement(AbstractFuture.class.getName(), "cancel(...)", null, -1)
