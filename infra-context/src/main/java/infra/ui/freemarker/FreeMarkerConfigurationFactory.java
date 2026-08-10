@@ -78,27 +78,22 @@ import infra.util.CollectionUtils;
  * @since 4.0 2022/2/5 13:02
  */
 public class FreeMarkerConfigurationFactory {
+
   private static final Logger log = LoggerFactory.getLogger(FreeMarkerConfigurationFactory.class);
 
-  @Nullable
-  private Resource configLocation;
+  private @Nullable Resource configLocation;
 
-  @Nullable
-  private Properties freemarkerSettings;
+  private @Nullable Properties freemarkerSettings;
 
-  @Nullable
-  private Map<String, Object> freemarkerVariables;
+  private @Nullable Map<String, Object> freemarkerVariables;
 
-  @Nullable
-  private String defaultEncoding;
+  private @Nullable String defaultEncoding;
 
   private final ArrayList<TemplateLoader> templateLoaders = new ArrayList<>();
 
-  @Nullable
-  private List<TemplateLoader> preTemplateLoaders;
+  private @Nullable List<TemplateLoader> preTemplateLoaders;
 
-  @Nullable
-  private List<TemplateLoader> postTemplateLoaders;
+  private @Nullable List<TemplateLoader> postTemplateLoaders;
 
   private String @Nullable [] templateLoaderPaths;
 

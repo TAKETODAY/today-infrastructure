@@ -57,8 +57,7 @@ import infra.context.ResourceLoaderAware;
 public class FreeMarkerConfigurationFactoryBean extends FreeMarkerConfigurationFactory
         implements FactoryBean<Configuration>, InitializingBean, ResourceLoaderAware {
 
-  @Nullable
-  private Configuration configuration;
+  private @Nullable Configuration configuration;
 
   @Override
   public void afterPropertiesSet() throws IOException, TemplateException {
@@ -66,8 +65,7 @@ public class FreeMarkerConfigurationFactoryBean extends FreeMarkerConfigurationF
   }
 
   @Override
-  @Nullable
-  public Configuration getObject() {
+  public @Nullable Configuration getObject() {
     return this.configuration;
   }
 

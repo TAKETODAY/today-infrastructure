@@ -32,6 +32,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.annotation.Order;
+import infra.test.classpath.ClassPathExclusions;
 import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +50,7 @@ class FreeMarkerAutoConfigurationTests {
           .withConfiguration(AutoConfigurations.of(FreeMarkerAutoConfiguration.class));
 
   @Test
+  @ClassPathExclusions("infra-http-*jar")
   @WithResource(name = "templates/message.ftl", content = "Message: ${greeting}")
   void renderNonWebAppTemplate() {
     this.contextRunner.run((context) -> {

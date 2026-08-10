@@ -73,8 +73,7 @@ import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 public class FreeMarkerConfigurer extends FreeMarkerConfigurationFactory
         implements FreeMarkerConfig, InitializingBean, ResourceLoaderAware {
 
-  @Nullable
-  private Configuration configuration;
+  private @Nullable Configuration configuration;
 
   /**
    * Set a preconfigured Configuration to use for the FreeMarker web config, e.g. a

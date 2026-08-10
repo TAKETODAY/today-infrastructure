@@ -31,11 +31,13 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.properties.EnableConfigurationProperties;
+import infra.core.Ordered;
 import infra.stereotype.Component;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 import infra.web.config.WebMvcAutoConfiguration;
 import infra.web.config.WebMvcProperties;
+import infra.web.view.AbstractTemplateViewResolver;
 import infra.web.view.freemarker.FreeMarkerConfig;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
@@ -93,9 +95,30 @@ public final class FreeMarkerAutoConfiguration {
     @ConditionalOnProperty(name = "freemarker.enabled", matchIfMissing = true)
     static FreeMarkerViewResolver freeMarkerViewResolver(FreeMarkerProperties properties, WebMvcProperties mvcProperties) {
       FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
-      properties.applyToMvcViewResolver(resolver);
+      applyToMvcViewResolver(properties, resolver);
       mvcProperties.view.applyTo(resolver);
       return resolver;
+    }
+
+    /**
+     * Apply the given properties to a {@link AbstractTemplateViewResolver}. Use Object in
+     * signature to avoid runtime dependency on MVC, which means that the template engine
+     * can be used in a non-web application.
+     *
+     * @param viewResolver the resolver to apply the properties to.
+     */
+    private static void applyToMvcViewResolver(FreeMarkerProperties properties, FreeMarkerViewResolver resolver) {
+      resolver.setPrefix(properties.getPrefix());
+      resolver.setSuffix(properties.getSuffix());
+      resolver.setCache(properties.isCache());
+      resolver.setContentType(properties.getContentType().toString());
+      resolver.setViewNames(properties.getViewNames());
+      resolver.setExposeRequestAttributes(properties.isExposeRequestAttributes());
+      resolver.setAllowRequestOverride(properties.isAllowRequestOverride());
+      resolver.setAllowSessionOverride(properties.isAllowSessionOverride());
+      resolver.setExposeSessionAttributes(properties.isExposeSessionAttributes());
+      resolver.setHttpContextAttribute(properties.getHttpContextAttribute());
+      resolver.setOrder(Ordered.HIGHEST_PRECEDENCE + 100);
     }
 
   }
