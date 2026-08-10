@@ -18,6 +18,7 @@ package infra.util.concurrent;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +69,16 @@ class CompleteFutureTests {
     IllegalStateException cause = new IllegalStateException();
     assertThatThrownBy(() -> Future.failed(cause).syncUninterruptibly())
             .isSameAs(cause);
+  }
+
+  @Test
+  void failedWithCancellationExceptionIsCancelled() {
+    CancellationException cause = new CancellationException("cancelled");
+    Future<Integer> future = Future.failed(cause);
+
+    assertThat(future.isCancelled()).isTrue();
+    assertThat(future.isFailure()).isTrue();
+    assertThat(future.getCause()).isSameAs(cause);
   }
 
   @Test
