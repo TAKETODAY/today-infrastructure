@@ -39,11 +39,9 @@ import infra.lang.TodayStrategies;
  */
 public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoaderAware {
 
-  @Nullable
-  private ClassLoader beanClassLoader;
+  private @Nullable ClassLoader beanClassLoader;
 
-  @Nullable
-  private volatile List<String> autoConfigurations;
+  private volatile @Nullable List<String> autoConfigurations;
 
   @Override
   public void setBeanClassLoader(ClassLoader beanClassLoader) {

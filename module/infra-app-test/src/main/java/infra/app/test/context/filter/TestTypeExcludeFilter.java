@@ -18,6 +18,8 @@
 
 package infra.app.test.context.filter;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 
 import infra.app.test.context.TestComponent;
@@ -78,7 +80,7 @@ class TestTypeExcludeFilter extends TypeExcludeFilter {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return (obj != null) && (getClass() == obj.getClass());
   }
 

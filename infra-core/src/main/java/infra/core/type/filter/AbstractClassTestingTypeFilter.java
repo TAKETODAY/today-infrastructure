@@ -38,8 +38,7 @@ import infra.core.type.classreading.MetadataReaderFactory;
 public abstract class AbstractClassTestingTypeFilter implements TypeFilter {
 
   @Override
-  public final boolean match(
-          MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
+  public final boolean match(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
     return match(metadataReader.getClassMetadata());
   }
 

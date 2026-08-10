@@ -53,11 +53,9 @@ import infra.core.type.filter.TypeFilter;
  */
 public class TypeExcludeFilter implements TypeFilter, BeanFactoryAware {
 
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
 
-  @Nullable
-  private Collection<TypeExcludeFilter> delegates;
+  private @Nullable Collection<TypeExcludeFilter> delegates;
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -87,7 +85,7 @@ public class TypeExcludeFilter implements TypeFilter, BeanFactoryAware {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     throw new IllegalStateException("TypeExcludeFilter %s has not implemented equals".formatted(getClass()));
   }
 
