@@ -43,7 +43,7 @@ import infra.util.StringUtils;
 import infra.web.BindStatus;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 
-import static infra.web.view.config.AbstractTemplateViewResolverProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
+import static infra.freemarker.config.FreeMarkerProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

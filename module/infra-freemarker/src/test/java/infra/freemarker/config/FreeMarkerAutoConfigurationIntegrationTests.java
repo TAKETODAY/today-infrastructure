@@ -27,6 +27,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.test.classpath.ClassPathExclusions;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;

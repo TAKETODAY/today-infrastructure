@@ -18,8 +18,12 @@
 
 package infra.freemarker.config;
 
+import org.jspecify.annotations.Nullable;
+
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -31,12 +35,13 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.properties.ConfigurationProperties;
 import infra.freemarker.FreeMarkerTemplateAvailabilityProvider;
+import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateLocation;
-import infra.web.view.config.AbstractTemplateViewResolverProperties;
+import infra.util.MimeType;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} for configuring FreeMarker.
@@ -48,13 +53,86 @@ import infra.web.view.config.AbstractTemplateViewResolverProperties;
  */
 @DisableDependencyInjection
 @ConfigurationProperties(prefix = "freemarker")
-public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties implements InitializingBean, ApplicationContextAware {
+public class FreeMarkerProperties implements InitializingBean, ApplicationContextAware {
 
   public static final String DEFAULT_TEMPLATE_LOADER_PATH = TemplateAvailabilityProvider.DEFAULT_TEMPLATE_LOADER_PATH;
 
   public static final String DEFAULT_PREFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_PREFIX;
 
   public static final String DEFAULT_SUFFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_SUFFIX;
+
+  public static final String DEFAULT_HTTP_CONTEXT_ATTRIBUTE = "request";
+
+  private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.TEXT_HTML;
+
+  /**
+   * Whether to enable view resolution for this technology.
+   */
+  private boolean enabled = true;
+
+  /**
+   * Whether to enable template caching.
+   */
+  private boolean cache;
+
+  /**
+   * Content-Type value.
+   */
+  private MimeType contentType = DEFAULT_CONTENT_TYPE;
+
+  /**
+   * Template encoding.
+   */
+  private Charset charset = Constant.DEFAULT_CHARSET;
+
+  /**
+   * View names that can be resolved.
+   */
+  private String @Nullable [] viewNames;
+
+  /**
+   * Whether to check that the templates location exists.
+   */
+  private boolean checkTemplateLocation = true;
+
+  /**
+   * Prefix that gets prepended to view names when building a URL.
+   */
+  private String prefix;
+
+  /**
+   * Suffix that gets appended to view names when building a URL.
+   */
+  private String suffix;
+
+  /**
+   * Name of the HttpContext attribute for all views.
+   */
+  private @Nullable String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
+
+  /**
+   * Whether all request attributes should be added to the model prior to merging with
+   * the template.
+   */
+  private boolean exposeRequestAttributes = false;
+
+  /**
+   * Whether all HttpSession attributes should be added to the model prior to merging
+   * with the template.
+   */
+  private boolean exposeSessionAttributes = false;
+
+  /**
+   * Whether MockRequest attributes are allowed to override (hide) controller
+   * generated model attributes of the same name.
+   */
+  private boolean allowRequestOverride = false;
+
+  /**
+   * Whether HttpSession attributes are allowed to override (hide) controller generated
+   * model attributes of the same name.
+   */
+  private boolean allowSessionOverride = false;
 
   /**
    * Well-known FreeMarker keys which are passed to FreeMarker's Configuration.
@@ -77,7 +155,70 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
   private ApplicationContext applicationContext;
 
   public FreeMarkerProperties() {
-    super(DEFAULT_PREFIX, DEFAULT_SUFFIX);
+    this(DEFAULT_PREFIX, DEFAULT_SUFFIX);
+  }
+
+  protected FreeMarkerProperties(String defaultPrefix, String defaultSuffix) {
+    this.prefix = defaultPrefix;
+    this.suffix = defaultSuffix;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  public boolean isEnabled() {
+    return this.enabled;
+  }
+
+  public void setCheckTemplateLocation(boolean checkTemplateLocation) {
+    this.checkTemplateLocation = checkTemplateLocation;
+  }
+
+  public boolean isCheckTemplateLocation() {
+    return this.checkTemplateLocation;
+  }
+
+  public String @Nullable [] getViewNames() {
+    return this.viewNames;
+  }
+
+  public void setViewNames(String @Nullable ... viewNames) {
+    this.viewNames = viewNames;
+  }
+
+  public boolean isCache() {
+    return this.cache;
+  }
+
+  public void setCache(boolean cache) {
+    this.cache = cache;
+  }
+
+  public MimeType getContentType() {
+    if (this.contentType.getCharset() == null) {
+      Map<String, String> parameters = new LinkedHashMap<>();
+      parameters.put("charset", this.charset.name());
+      parameters.putAll(this.contentType.getParameters());
+      return new MimeType(this.contentType, parameters);
+    }
+    return this.contentType;
+  }
+
+  public void setContentType(@Nullable MimeType contentType) {
+    this.contentType = contentType == null ? DEFAULT_CONTENT_TYPE : contentType;
+  }
+
+  public Charset getCharset() {
+    return this.charset;
+  }
+
+  public String getCharsetName() {
+    return this.charset.name();
+  }
+
+  public void setCharset(@Nullable Charset charset) {
+    this.charset = charset == null ? Constant.DEFAULT_CHARSET : charset;
   }
 
   public Map<String, String> getSettings() {
@@ -135,6 +276,62 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
   @Override
   public void afterPropertiesSet() throws Exception {
     checkTemplateLocationExists(applicationContext);
+  }
+
+  public String getPrefix() {
+    return this.prefix;
+  }
+
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+
+  public String getSuffix() {
+    return this.suffix;
+  }
+
+  public void setSuffix(String suffix) {
+    this.suffix = suffix;
+  }
+
+  public @Nullable String getHttpContextAttribute() {
+    return this.httpContextAttribute;
+  }
+
+  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
+    this.httpContextAttribute = httpContextAttribute;
+  }
+
+  public boolean isExposeRequestAttributes() {
+    return this.exposeRequestAttributes;
+  }
+
+  public void setExposeRequestAttributes(boolean exposeRequestAttributes) {
+    this.exposeRequestAttributes = exposeRequestAttributes;
+  }
+
+  public boolean isExposeSessionAttributes() {
+    return this.exposeSessionAttributes;
+  }
+
+  public void setExposeSessionAttributes(boolean exposeSessionAttributes) {
+    this.exposeSessionAttributes = exposeSessionAttributes;
+  }
+
+  public boolean isAllowRequestOverride() {
+    return this.allowRequestOverride;
+  }
+
+  public void setAllowRequestOverride(boolean allowRequestOverride) {
+    this.allowRequestOverride = allowRequestOverride;
+  }
+
+  public boolean isAllowSessionOverride() {
+    return this.allowSessionOverride;
+  }
+
+  public void setAllowSessionOverride(boolean allowSessionOverride) {
+    this.allowSessionOverride = allowSessionOverride;
   }
 
   private void checkTemplateLocationExists(ApplicationContext context) {
