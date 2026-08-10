@@ -1239,7 +1239,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> onErrorMap(Function<Throwable, Throwable> mapper) {
-    return onErrorResume(e -> Future.failed(mapper.apply(e), executor));
+    return onErrorResume(e -> Future.failed(mapper.apply(e), executor()));
   }
 
   /**
@@ -1267,7 +1267,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> onErrorMap(Predicate<Throwable> predicate, Function<Throwable, Throwable> mapper) {
-    return onErrorResume(predicate, e -> Future.failed(mapper.apply(e), executor));
+    return onErrorResume(predicate, e -> Future.failed(mapper.apply(e), executor()));
   }
 
   /**
@@ -1296,7 +1296,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    */
   public final Future<V> onErrorResume(Predicate<Throwable> predicate, Function<Throwable, Future<V>> fallback) {
     Assert.notNull(predicate, "predicate is required");
-    return onErrorResume(e -> predicate.test(e) ? fallback.apply(e) : failed(e, executor));
+    return onErrorResume(e -> predicate.test(e) ? fallback.apply(e) : failed(e, executor()));
   }
 
   /**

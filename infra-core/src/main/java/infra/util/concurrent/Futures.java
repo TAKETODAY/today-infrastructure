@@ -247,12 +247,12 @@ final class Futures {
       T target = causeFunction.apply(cause, exType);
       if (target != null) {
         // already failed
-        return new ListenableFutureTask<>(future.executor, new MapCallable<>(target, errorHandler)).execute();
+        return new ListenableFutureTask<>(future.executor(), new MapCallable<>(target, errorHandler)).execute();
       }
       return future;
     }
 
-    Promise<V> promise = Future.forPromise(future.executor);
+    Promise<V> promise = Future.forPromise(future.executor());
     future.onCompleted(new ErrorHandling<>(promise, exType, errorHandler, causeFunction));
 
     // Propagate cancellation if future is either incomplete or failed.
@@ -280,7 +280,7 @@ final class Futures {
     }
 
     Assert.notNull(errorHandler, "errorHandler is required");
-    Promise<V> recipient = Future.forPromise(future.executor);
+    Promise<V> recipient = Future.forPromise(future.executor());
     future.onCompleted(new ErrorResume<>(recipient, errorHandler));
 
     // Propagate cancellation if future is either incomplete or failed.
@@ -303,7 +303,7 @@ final class Futures {
    */
   @SuppressWarnings("NullAway")
   public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
-    Promise<R> recipient = Future.forPromise(future.executor);
+    Promise<R> recipient = Future.forPromise(future.executor());
     future.onCompleted(completed -> {
       if (completed.isSuccess()) {
         // succeed
