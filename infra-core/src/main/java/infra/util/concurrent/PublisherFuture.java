@@ -27,7 +27,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import infra.lang.Assert;
 
 /**
- * Publisher future adapter
+ * Publisher future adapter.
+ * <p>
+ * Adapts a single-value {@link Publisher} to a {@link Future}. Only the first
+ * {@code onNext} signal is accepted; any subsequent elements from a multi-element
+ * publisher are silently discarded. Completion without a value completes the
+ * future with {@code null}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/8/13 21:13
