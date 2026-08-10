@@ -476,11 +476,11 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     @Serial
     private static final long serialVersionUID = 1L;
 
-    static final LeanCancellationException INSTANCE = new LeanCancellationException();
-
     private static final StackTraceElement[] CANCELLATION_STACK = {
             new StackTraceElement(AbstractFuture.class.getName(), "cancel(...)", null, -1)
     };
+
+    private static final LeanCancellationException INSTANCE = new LeanCancellationException();
 
     // Suppress a warning since the method doesn't need synchronization
     @Override
