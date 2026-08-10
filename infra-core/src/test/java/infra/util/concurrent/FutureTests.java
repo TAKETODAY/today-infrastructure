@@ -206,6 +206,18 @@ class FutureTests {
   }
 
   @Test
+  void zipWith_cancelPropagatesToBothOperands() {
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
+
+    Future<Pair<String, Integer>> zipped = p1.zipWith(p2, (s, i) -> Pair.of(s, i));
+    zipped.cancel();
+
+    assertThat(p1.awaitUninterruptibly()).isCancelled();
+    assertThat(p2.awaitUninterruptibly()).isCancelled();
+  }
+
+  @Test
   void errorHandling() throws InterruptedException {
     String string = Future.<String>failed(new RuntimeException())
             .errorHandling(e -> "recover")

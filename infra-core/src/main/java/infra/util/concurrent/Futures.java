@@ -333,6 +333,10 @@ final class Futures {
       // Failed means it could be cancelled, so that needs to be propagated.
       recipient.onCompleted(propagateCancel, future);
     }
+    if (!that.isSuccess()) {
+      // Propagate cancellation to the second operand as well.
+      recipient.onCompleted(propagateCancel, that);
+    }
     return recipient;
   }
 
