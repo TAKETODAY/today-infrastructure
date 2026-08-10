@@ -1956,6 +1956,11 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Creates a failed {@code Future} with the given {@code exception},
    * backed by the given {@link Executor}.
    *
+   * <p>If {@code cause} is a {@link CancellationException}, the returned future
+   * is observed as cancelled: {@link #isCancelled()} returns {@code true} and the
+   * failure is propagated as a cancellation through combinators such as
+   * {@code map}/{@code flatMap}. Any other cause is observed as a plain failure.
+   *
    * @param cause The reason why it failed. the exception to expose
    * (either an pre-built {@link ExecutionException} or a cause to
    * be wrapped in an {@link ExecutionException})
@@ -1971,6 +1976,11 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Creates a failed {@code Future} with the given {@code exception},
    * backed by the given {@link Executor}.
+   *
+   * <p>If {@code cause} is a {@link CancellationException}, the returned future
+   * is observed as cancelled: {@link #isCancelled()} returns {@code true} and the
+   * failure is propagated as a cancellation through combinators such as
+   * {@code map}/{@code flatMap}. Any other cause is observed as a plain failure.
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.

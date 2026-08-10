@@ -18,6 +18,7 @@ package infra.util.concurrent;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -160,7 +161,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
 
   @Override
   public boolean isCancelled() {
-    return false;
+    return executionException instanceof CancellationException;
   }
 
   /**
