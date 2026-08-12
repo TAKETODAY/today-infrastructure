@@ -2201,14 +2201,6 @@ class FutureTests {
   }
 
   @Test
-  void cancelWithCancellationShouldSetSpecifiedCause() {
-    var future = Future.forPromise(directExecutor());
-    var cause = new IllegalStateException("Cancelled");
-    future.cancel(cause);
-    assertThat(future.getCause()).isSameAs(cause);
-  }
-
-  @Test
   void cancelCompletedFutureShouldReturnFalse() {
     var future = Future.forPromise(directExecutor());
     future.trySuccess("OK");
@@ -2263,16 +2255,6 @@ class FutureTests {
   }
 
   @Test
-  void shouldCancelFutureWithCancellationCause() {
-    Promise<String> promise = Future.forPromise(directExecutor());
-    var cause = new IllegalStateException("Cancelled");
-    assertTrue(promise.cancel(cause));
-    assertTrue(promise.isCancelled());
-    assertTrue(promise.isDone());
-    assertSame(cause, promise.getCause());
-  }
-
-  @Test
   void shouldNotCancelCompletedFuture() {
     Promise<String> promise = Future.forPromise(directExecutor());
     promise.trySuccess("success");
@@ -2319,15 +2301,6 @@ class FutureTests {
     Promise<String> promise = Future.forPromise(directExecutor());
     promise.cancel();
     assertThrows(CancellationException.class, promise::join);
-  }
-
-  @Test
-  void shouldThrowCancellationCauseOnGetAfterCancelWithCause() {
-    Promise<String> promise = Future.forPromise(directExecutor());
-    var cause = new IllegalStateException("Cancelled");
-    promise.cancel(cause);
-    var thrown = assertThrows(IllegalStateException.class, promise::join);
-    assertSame(cause, thrown);
   }
 
   @Test

@@ -108,12 +108,11 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   @Override
-  public boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning) {
+  public boolean cancel(boolean mayInterruptIfRunning) {
     if (!(state == NEW && STATE.compareAndSet(this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED))) {
       return false;
     }
     try {
-      result = cancellation;
       // in case call to interrupt throws exception
       if (mayInterruptIfRunning) {
         interruptTask();

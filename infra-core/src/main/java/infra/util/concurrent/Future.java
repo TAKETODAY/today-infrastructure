@@ -762,33 +762,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * otherwise {@code false}.
    */
   public boolean cancel() {
-    return cancel(null, true);
-  }
-
-  /**
-   * Attempts to cancel execution of this task.  This method has no
-   * effect if the task is already completed or cancelled, or could
-   * not be cancelled for some other reason. Otherwise, if this
-   * task has not started when {@code cancel} is called, this task
-   * should never run. If the task has already started, then
-   * attempt to stop the task
-   *
-   * <p>The return value from this method does not necessarily
-   * indicate whether the task is now cancelled; use {@link
-   * #isCancelled}.
-   *
-   * <p>If the cancellation was successful it will fail the future with
-   * a {@link CancellationException} if {@code cancellation} not given.
-   *
-   * @return {@code false} if the task could not be cancelled,
-   * typically because it has already completed; {@code true}
-   * otherwise. If two or more threads cause a task to be cancelled,
-   * then at least one of them returns {@code true}. Implementations
-   * may provide stronger guarantees.
-   * @since 5.0
-   */
-  public boolean cancel(@Nullable Throwable cancellation) {
-    return cancel(cancellation, true);
+    return cancel(true);
   }
 
   /**
@@ -798,39 +772,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * a {@link CancellationException}.
    */
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    return cancel(null, mayInterruptIfRunning);
-  }
-
-  /**
-   * Attempts to cancel execution of this task.  This method has no
-   * effect if the task is already completed or cancelled, or could
-   * not be cancelled for some other reason.  Otherwise, if this
-   * task has not started when {@code cancel} is called, this task
-   * should never run.  If the task has already started, then the
-   * {@code mayInterruptIfRunning} parameter determines whether the
-   * thread executing this task (when known by the implementation)
-   * is interrupted in an attempt to stop the task.
-   *
-   * <p>The return value from this method does not necessarily
-   * indicate whether the task is now cancelled; use {@link
-   * #isCancelled}.
-   *
-   * <p>If the cancellation was successful it will fail the future with
-   * a {@link CancellationException} if {@code cancellation} not given.
-   *
-   * @param mayInterruptIfRunning {@code true} if the thread
-   * executing this task should be interrupted (if the thread is
-   * known to the implementation); otherwise, in-progress tasks are
-   * allowed to complete
-   * @return {@code false} if the task could not be cancelled,
-   * typically because it has already completed; {@code true}
-   * otherwise. If two or more threads cause a task to be cancelled,
-   * then at least one of them returns {@code true}. Implementations
-   * may provide stronger guarantees.
-   * @since 5.0
-   */
-  public abstract boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning);
+  public abstract boolean cancel(boolean mayInterruptIfRunning);
 
   /**
    * Creates a <strong>new</strong> {@link Future} that will complete

@@ -298,19 +298,6 @@ class PromiseTests {
   }
 
   @Test
-  void cancelPublishesCauseBeforeCancelledState() {
-    RuntimeException cause = new RuntimeException("cancelled");
-
-    Promise<String> interruptible = Future.forPromise();
-    assertThat(interruptible.cancel(cause, true)).isTrue();
-    assertThat(interruptible.getCause()).isSameAs(cause);
-
-    Promise<String> nonInterruptible = Future.forPromise();
-    assertThat(nonInterruptible.cancel(cause, false)).isTrue();
-    assertThat(nonInterruptible.getCause()).isSameAs(cause);
-  }
-
-  @Test
   void cancelPublishesTerminalStateWhenInterruptTaskFails() {
     RuntimeException failure = new RuntimeException("interrupt failed");
     InterruptibleSettableFuture future = new InterruptibleSettableFuture(failure);

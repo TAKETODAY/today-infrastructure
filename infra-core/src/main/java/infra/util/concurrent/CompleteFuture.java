@@ -114,7 +114,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   }
 
   @Override
-  public <C> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+  public <C extends @Nullable Object> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
     notifyListener(executor(), this, FutureListener.forAdaption(listener, context));
     return this;
   }
@@ -170,7 +170,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
    * @param mayInterruptIfRunning this value has no effect in this implementation.
    */
   @Override
-  public boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning) {
+  public boolean cancel(boolean mayInterruptIfRunning) {
     return false;
   }
 
