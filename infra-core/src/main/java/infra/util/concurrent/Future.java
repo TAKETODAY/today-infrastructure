@@ -548,11 +548,24 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
       }
     }
 
-    if (isDone()) {
+    if (isDoneForNotification()) {
       notifyListeners();
     }
 
     return this;
+  }
+
+  /**
+   * Whether listener notification is safe to run now, i.e. the result is
+   * published to a readable terminal state.
+   *
+   * <p>The default delegates to {@link #isDone()}. {@link AbstractFuture}
+   * overrides this to exclude transient completing states such as
+   * {@code COMPLETING} and {@code INTERRUPTING}, so that listeners never run
+   * before the outcome is visible.
+   */
+  protected boolean isDoneForNotification() {
+    return isDone();
   }
 
   /**

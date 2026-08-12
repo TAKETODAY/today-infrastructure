@@ -108,6 +108,12 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   @Override
+  protected final boolean isDoneForNotification() {
+    int s = state;
+    return s > COMPLETING && s != INTERRUPTING;
+  }
+
+  @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
     if (!(state == NEW && STATE.compareAndSet(this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED))) {
       return false;
