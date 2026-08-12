@@ -298,6 +298,28 @@ class PromiseTests {
   }
 
   @Test
+  void cancelPublishesCauseBeforeCancelledState() {
+    RuntimeException cause = new RuntimeException("cancelled");
+
+    Promise<String> interruptible = Future.forPromise();
+    assertThat(interruptible.cancel(cause, true)).isTrue();
+    assertThat(interruptible.getCause()).isSameAs(cause);
+
+    Promise<String> nonInterruptible = Future.forPromise();
+    assertThat(nonInterruptible.cancel(cause, false)).isTrue();
+    assertThat(nonInterruptible.getCause()).isSameAs(cause);
+  }
+
+  @Test
+  void cancelPublishesTerminalStateWhenInterruptTaskFails() {
+    RuntimeException failure = new RuntimeException("interrupt failed");
+    InterruptibleSettableFuture future = new InterruptibleSettableFuture(failure);
+
+    assertThatThrownBy(() -> future.cancel(true)).isSameAs(failure);
+    assertThat(future).isCancelled().isDone();
+  }
+
+  @Test
   void setPreventsCancel() {
     assertThat(promise.trySuccess("hello")).isTrue();
     assertThat(promise.cancel(true)).isFalse();
@@ -403,17 +425,27 @@ class PromiseTests {
 
     private boolean interrupted = false;
 
+    private final RuntimeException interruptFailure;
+
     /**
      * Creates a new instance.
      */
     InterruptibleSettableFuture() {
+      this(null);
+    }
+
+    InterruptibleSettableFuture(RuntimeException interruptFailure) {
       super(defaultScheduler);
+      this.interruptFailure = interruptFailure;
     }
 
     @Override
     protected void interruptTask() {
       super.interruptTask();
       interrupted = true;
+      if (interruptFailure != null) {
+        throw interruptFailure;
+      }
     }
 
     boolean calledInterruptTask() {
