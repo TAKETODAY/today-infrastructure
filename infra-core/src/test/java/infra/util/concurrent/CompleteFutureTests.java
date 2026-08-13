@@ -134,4 +134,12 @@ class CompleteFutureTests {
     Future<Integer> future = Future.failed(new IllegalStateException());
     assertThat(future.cancel()).isFalse();
   }
+
+  @Test
+  void getNowWithFallbackPreservesSuccessfulNull() {
+    assertThat(Future.ok(null).getNow("fallback")).isEqualTo("fallback");
+    assertThat(Future.ok("value").getNow("fallback")).isEqualTo("value");
+    assertThat(Future.failed(new IllegalStateException()).getNow("fallback")).isEqualTo("fallback");
+  }
+
 }

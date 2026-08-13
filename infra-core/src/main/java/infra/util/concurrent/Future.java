@@ -696,10 +696,16 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   public abstract @Nullable V getNow();
 
   /**
-   * Returns the result value, if not completed returns the given valueIfAbsent.
+   * Returns the result value, or the given {@code valueIfAbsent} if the
+   * result is {@code null}.
+   * <p>
+   * Note that a {@code null} result does not distinguish between an
+   * incomplete, failed or cancelled future and a successful future whose
+   * value is {@code null}; all of these return {@code valueIfAbsent}. Use
+   * {@link #isDone()}/{@link #isSuccess()} to tell them apart.
    *
-   * @param valueIfAbsent the value to return if not completed
-   * @return the result value, if completed, else the given valueIfAbsent
+   * @param valueIfAbsent the value to return if the result is {@code null}
+   * @return the result value, or {@code valueIfAbsent} if it is {@code null}
    * @since 5.0
    */
   @Contract("null -> null")

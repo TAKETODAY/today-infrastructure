@@ -47,6 +47,11 @@ class PromiseTests {
   }
 
   @Test
+  void getNowWithFallbackReturnsFallbackWhenNotDone() {
+    assertThat(promise.getNow("fallback")).isEqualTo("fallback");
+  }
+
+  @Test
   void returnsSetValue() throws ExecutionException, InterruptedException {
     String string = "hello";
     assertThat(promise.trySuccess(string)).isTrue();
