@@ -512,7 +512,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * when this future completes.
    * @return this future object.
    */
-  public <C extends @Nullable Object> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+  public <C extends @Nullable Object> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, C context) {
     return onCompleted(FutureListener.forAdaption(listener, context));
   }
 

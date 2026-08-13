@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
+import infra.lang.Assert;
 import infra.util.ExceptionUtils;
 
 /**
@@ -278,7 +279,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
    */
   public boolean tryFailure(Throwable t) {
     if (STATE.compareAndSet(this, NEW, COMPLETING)) {
-      // Assert.notNull(cause, "Throwable cause is required");
+      Assert.notNull(t, "Throwable cause is required");
       result = t;
       STATE.setRelease(this, EXCEPTIONAL); // final state
       finishCompletion();

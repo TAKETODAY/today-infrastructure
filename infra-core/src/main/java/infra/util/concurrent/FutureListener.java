@@ -61,7 +61,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @return a new {@link FutureListener} that delegates to the provided context listener
    * @throws IllegalArgumentException if the listener is null
    */
-  static <V extends @Nullable Object, F extends Future<V>, C extends @Nullable Object> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
+  static <V extends @Nullable Object, F extends Future<V>, C extends @Nullable Object> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, C context) {
     Assert.notNull(listener, "listener is required");
     return future -> listener.operationComplete(future, context);
   }
