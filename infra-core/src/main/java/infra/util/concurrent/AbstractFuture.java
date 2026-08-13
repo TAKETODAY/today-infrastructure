@@ -278,8 +278,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
    * already marked as either a success or a failure.
    */
   public boolean tryFailure(Throwable t) {
+    Assert.notNull(t, "Throwable cause is required");
     if (STATE.compareAndSet(this, NEW, COMPLETING)) {
-      Assert.notNull(t, "Throwable cause is required");
       result = t;
       STATE.setRelease(this, EXCEPTIONAL); // final state
       finishCompletion();

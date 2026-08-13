@@ -774,8 +774,9 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * If the cancellation was successful, the result of this operation
    * will be that it has failed with a {@link CancellationException}.
    * <p>
-   * Cancellation will not cause any threads working on the operation
-   * to be {@linkplain Thread#interrupt() interrupted}.
+   * Cancellation will attempt to {@linkplain Thread#interrupt() interrupt}
+   * the thread running the operation. Use {@link #cancel(boolean)} with
+   * {@code false} for a non-interrupting cancellation.
    *
    * @return {@code true} if the operation was cancelled by this call,
    * otherwise {@code false}.
