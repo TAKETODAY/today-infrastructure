@@ -162,6 +162,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   /**
+   * {@inheritDoc}
+   *
    * @throws CancellationException {@inheritDoc}
    */
   @Override
@@ -173,6 +175,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   /**
+   * {@inheritDoc}
+   *
    * @throws CancellationException {@inheritDoc}
    */
   @Override

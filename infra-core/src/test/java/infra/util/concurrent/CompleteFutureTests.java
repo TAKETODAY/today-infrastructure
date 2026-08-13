@@ -77,8 +77,13 @@ class CompleteFutureTests {
     Future<Integer> future = Future.failed(cause);
 
     assertThat(future.isCancelled()).isTrue();
-    assertThat(future.isFailure()).isTrue();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isFailed()).isTrue();
     assertThat(future.getCause()).isSameAs(cause);
+
+    assertThatThrownBy(future::get)
+            .isInstanceOf(CancellationException.class)
+            .isSameAs(cause);
   }
 
   @Test

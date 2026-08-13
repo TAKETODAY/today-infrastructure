@@ -58,16 +58,14 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   }
 
   @Override
-  public boolean isFailure() {
-    return executionException != null;
-  }
-
-  @Override
   public V get() throws ExecutionException {
     if (this.executionException != null) {
-      throw (this.executionException instanceof ExecutionException ?
-              (ExecutionException) this.executionException :
-              new ExecutionException(this.executionException));
+      if (this.executionException instanceof CancellationException) {
+        throw (CancellationException) this.executionException;
+      }
+      throw this.executionException instanceof ExecutionException
+              ? (ExecutionException) this.executionException
+              : new ExecutionException(this.executionException);
     }
     return this.value;
   }
@@ -180,8 +178,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
    *
    * @return the exposed exception
    */
-  @Nullable
-  private static Throwable exposedException(@Nullable Throwable original) {
+  private static @Nullable Throwable exposedException(@Nullable Throwable original) {
     if (original instanceof ExecutionException) {
       Throwable cause = original.getCause();
       if (cause != null) {
