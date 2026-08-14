@@ -73,12 +73,18 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   /** The result to return or exception to throw from get() */
   private @Nullable Object result; // non-volatile, protected by state reads/writes
 
+  /** One or more listeners. */
+  private @Nullable Object listeners;
+
+  /** The executor used to notify listeners once this future completes. */
+  protected final Executor executor;
+
   /**
    * @param executor The {@link Executor} which is used to notify
    * the {@code Future} once it is complete.
    */
   protected AbstractFuture(@Nullable Executor executor) {
-    super(executor);
+    this.executor = executor == null ? Future.defaultScheduler : executor;
     this.state = NEW;
   }
 
@@ -107,10 +113,38 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     return state != NEW;
   }
 
-  @Override
   protected final boolean isDoneForNotification() {
     int s = state;
     return s > COMPLETING && s != INTERRUPTING;
+  }
+
+  @Override
+  public Executor executor() {
+    return executor;
+  }
+
+  @Override
+  public AbstractFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
+    Assert.notNull(listener, "listener is required");
+
+    synchronized(this) {
+      Object local = this.listeners;
+      if (local instanceof FutureListeners ls) {
+        ls.add(listener);
+      }
+      else if (local instanceof FutureListener<?> l) {
+        this.listeners = new FutureListeners(l, listener);
+      }
+      else {
+        this.listeners = listener;
+      }
+    }
+
+    if (isDoneForNotification()) {
+      notifyListeners();
+    }
+
+    return this;
   }
 
   @Override
@@ -237,6 +271,38 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
    */
   protected void done() {
     notifyListeners();
+  }
+
+  protected final void notifyListeners() {
+    safeExecute(executor, new NotifyTask());
+  }
+
+  private void notifyListenersNow() {
+    Object listeners;
+    synchronized(this) {
+      if (this.listeners == null) {
+        return;
+      }
+      listeners = this.listeners;
+      this.listeners = null;
+    }
+    while (true) {
+      if (listeners instanceof FutureListener<?> fl) {
+        notifyListener(this, fl);
+      }
+      else if (listeners instanceof FutureListeners holder) {
+        for (FutureListener<?> listener : holder.listeners) {
+          notifyListener(this, listener);
+        }
+      }
+      synchronized(this) {
+        if (this.listeners == null) {
+          return;
+        }
+        listeners = this.listeners;
+        this.listeners = null;
+      }
+    }
   }
 
   /**
@@ -493,6 +559,14 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     @Override
     public String toString() {
       return CancellationException.class.getName();
+    }
+  }
+
+  private final class NotifyTask implements Runnable {
+
+    @Override
+    public void run() {
+      notifyListenersNow();
     }
   }
 

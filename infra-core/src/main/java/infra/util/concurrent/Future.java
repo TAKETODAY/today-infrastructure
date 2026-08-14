@@ -252,17 +252,6 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   public static final Scheduler defaultScheduler = Scheduler.lookup();
 
   /**
-   * One or more listeners.
-   */
-  private @Nullable Object listeners;
-
-  protected final Executor executor;
-
-  protected Future(@Nullable Executor executor) {
-    this.executor = executor == null ? defaultScheduler : executor;
-  }
-
-  /**
    * Returns {@code true} if and only if the operation was completed
    * successfully.
    */
@@ -538,41 +527,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    *
    * @return this future object.
    */
-  public Future<V> onCompleted(FutureListener<? extends Future<V>> listener) {
-    Assert.notNull(listener, "listener is required");
-
-    synchronized(this) {
-      Object local = this.listeners;
-      if (local instanceof FutureListeners ls) {
-        ls.add(listener);
-      }
-      else if (local instanceof FutureListener<?> l) {
-        this.listeners = new FutureListeners(l, listener);
-      }
-      else {
-        this.listeners = listener;
-      }
-    }
-
-    if (isDoneForNotification()) {
-      notifyListeners();
-    }
-
-    return this;
-  }
-
-  /**
-   * Whether listener notification is safe to run now, i.e. the result is
-   * published to a readable terminal state.
-   *
-   * <p>The default delegates to {@link #isDone()}. {@link AbstractFuture}
-   * overrides this to exclude transient completing states such as
-   * {@code COMPLETING} and {@code INTERRUPTING}, so that listeners never run
-   * before the outcome is visible.
-   */
-  protected boolean isDoneForNotification() {
-    return isDone();
-  }
+  public abstract Future<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
@@ -1139,7 +1094,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    */
   public final Future<V> publishOn(Executor executor) {
     Assert.notNull(executor, "executor is required");
-    if (executor == this.executor) {
+    if (executor == executor()) {
       return this;
     }
     Promise<V> promise = Future.forPromise(executor);
@@ -1496,7 +1451,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration) {
-    return timeout(duration, scheduler());
+    return timeout(duration, scheduler(executor()));
   }
 
   /**
@@ -1511,7 +1466,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, ScheduledExecutorService scheduled) {
-    Scheduler scheduler = createScheduler(scheduled);
+    Scheduler scheduler = createScheduler(executor(), scheduled);
     return timeout(duration, scheduler);
   }
 
@@ -1544,7 +1499,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(long timeout, TimeUnit unit) {
-    return timeout(timeout, unit, scheduler());
+    return timeout(timeout, unit, scheduler(executor()));
   }
 
   /**
@@ -1560,7 +1515,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduled) {
-    Scheduler scheduler = createScheduler(scheduled);
+    Scheduler scheduler = createScheduler(executor(), scheduled);
     return timeout(timeout, unit, scheduler);
   }
 
@@ -1592,7 +1547,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, FutureListener<Promise<V>> timeoutListener) {
-    return timeout(duration, scheduler(), timeoutListener);
+    return timeout(duration, scheduler(executor()), timeoutListener);
   }
 
   /**
@@ -1607,7 +1562,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<Promise<V>> timeoutListener) {
-    Scheduler scheduler = createScheduler(scheduled);
+    Scheduler scheduler = createScheduler(executor(), scheduled);
     return timeout(duration, scheduler, timeoutListener);
   }
 
@@ -1828,9 +1783,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    *
    * @return The underlying {@code Executor}.
    */
-  public Executor executor() {
-    return executor;
-  }
+  public abstract Executor executor();
 
   private void rethrowIfFailed() {
     Throwable cause = getCause();
@@ -1850,38 +1803,6 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     safeExecute(executor, () -> notifyListener(future, listener));
   }
 
-  protected final void notifyListeners() {
-    safeExecute(executor, new NotifyTask());
-  }
-
-  private void notifyListenersNow() {
-    Object listeners;
-    synchronized(this) {
-      if (this.listeners == null) {
-        return;
-      }
-      listeners = this.listeners;
-      this.listeners = null;
-    }
-    while (true) {
-      if (listeners instanceof FutureListener<?> fl) {
-        notifyListener(this, fl);
-      }
-      else if (listeners instanceof FutureListeners holder) {
-        for (FutureListener<?> listener : holder.listeners) {
-          notifyListener(this, listener);
-        }
-      }
-      synchronized(this) {
-        if (this.listeners == null) {
-          return;
-        }
-        listeners = this.listeners;
-        this.listeners = null;
-      }
-    }
-  }
-
   @SuppressWarnings({ "unchecked", "rawtypes" })
   static void notifyListener(Future future, FutureListener l) {
     try {
@@ -1893,7 +1814,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     }
   }
 
-  private static void safeExecute(Executor executor, Runnable task) {
+  static void safeExecute(Executor executor, Runnable task) {
     try {
       executor.execute(task);
     }
@@ -1906,7 +1827,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * @since 5.0
    */
-  private Scheduler createScheduler(ScheduledExecutorService scheduledService) {
+  private static Scheduler createScheduler(Executor executor, ScheduledExecutorService scheduledService) {
     Assert.notNull(scheduledService, "ScheduledExecutorService is required");
     return new Scheduler() {
 
@@ -1925,7 +1846,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * @since 5.0
    */
-  private Scheduler scheduler() {
+  private static Scheduler scheduler(Executor executor) {
     return executor instanceof Scheduler ? (Scheduler) executor : new Scheduler() {
 
       @Override
@@ -2301,11 +2222,4 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     return new FutureCombiner(true, futures.toList());
   }
 
-  private final class NotifyTask implements Runnable {
-
-    @Override
-    public void run() {
-      notifyListenersNow();
-    }
-  }
 }

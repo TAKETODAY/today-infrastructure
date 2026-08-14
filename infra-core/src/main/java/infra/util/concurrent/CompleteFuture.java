@@ -40,6 +40,8 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
 
   private final @Nullable Throwable executionException;
 
+  private final Executor executor;
+
   /**
    * Creates a new instance.
    *
@@ -47,9 +49,14 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
    * @param value the value to pass through
    */
   CompleteFuture(@Nullable Executor executor, @Nullable V value, @Nullable Throwable ex) {
-    super(executor);
+    this.executor = executor == null ? Future.defaultScheduler : executor;
     this.value = value;
     this.executionException = ex;
+  }
+
+  @Override
+  public Executor executor() {
+    return executor;
   }
 
   @Override
