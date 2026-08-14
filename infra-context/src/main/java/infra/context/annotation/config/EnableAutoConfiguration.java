@@ -38,7 +38,7 @@ import infra.lang.TodayStrategies;
  * configure beans that you are likely to need. Auto-configuration classes are usually
  * applied based on your classpath and what beans you have defined. For example, if you
  * have {@code netty-http.jar} on your classpath you are likely to want a
- * {@link infra.web.server.support.NettyWebServerFactory}
+ * {@link infra.web.server.netty.NettyWebServerFactory}
  * (unless you have defined your own
  * {@link infra.web.server.WebServerFactory} bean).
  * <p>
