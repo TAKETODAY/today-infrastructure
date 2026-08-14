@@ -18,6 +18,7 @@
 
 package infra.app.test.config;
 
+import infra.test.context.OverrideAutoConfiguration;
 import infra.test.context.TestConfiguration;
 
 /**

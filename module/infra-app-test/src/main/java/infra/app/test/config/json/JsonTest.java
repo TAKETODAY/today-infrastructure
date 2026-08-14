@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.app.InfraApplication;
-import infra.app.test.config.OverrideAutoConfiguration;
+import infra.test.context.OverrideAutoConfiguration;
 import infra.test.context.filter.annotation.TypeExcludeFilters;
 import infra.app.test.json.GsonTester;
 import infra.app.test.json.JacksonTester;

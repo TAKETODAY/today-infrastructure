@@ -20,8 +20,8 @@ package infra.app.test.config.override;
 
 import infra.app.InfraApplication;
 import infra.app.InfraConfiguration;
-import infra.app.test.config.OverrideAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.test.context.OverrideAutoConfiguration;
 
 /**
  * Example {@link InfraApplication @InfraApplication} for use with

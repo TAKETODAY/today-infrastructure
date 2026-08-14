@@ -21,6 +21,7 @@ infra.test.context.ContextCustomizerFactory=\
   infra.test.context.filter.ExcludeFilterContextCustomizerFactory,\
   infra.test.context.filter.annotation.TypeExcludeFiltersContextCustomizerFactory,\
   infra.test.context.PropertyMappingContextCustomizerFactory,\
+  infra.test.context.OverrideAutoConfigurationContextCustomizerFactory,\
   infra.test.context.support.ImportsContextCustomizerFactory
 
 infra.context.ApplicationContextInitializer=\

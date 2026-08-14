@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.app.test.config.ExampleTestConfig;
-import infra.app.test.config.OverrideAutoConfiguration;
 import infra.app.test.context.InfraTestContextBootstrapper;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.annotation.Autowired;
@@ -30,6 +29,7 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.context.properties.ConfigurationPropertiesBindingPostProcessor;
 import infra.test.context.BootstrapWith;
+import infra.test.context.OverrideAutoConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;

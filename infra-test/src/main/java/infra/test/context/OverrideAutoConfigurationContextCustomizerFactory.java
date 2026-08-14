@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.config;
+package infra.test.context;
 
 import org.jspecify.annotations.Nullable;
 
@@ -25,11 +25,6 @@ import java.util.List;
 import infra.aot.AotDetector;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.config.EnableAutoConfiguration;
-import infra.test.context.ContextConfigurationAttributes;
-import infra.test.context.ContextCustomizer;
-import infra.test.context.ContextCustomizerFactory;
-import infra.test.context.MergedContextConfiguration;
-import infra.test.context.TestContextAnnotationUtils;
 import infra.test.util.TestPropertyValues;
 
 /**

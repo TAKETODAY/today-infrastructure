@@ -16,13 +16,11 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.config;
+package infra.test.context;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-
-import infra.test.context.ContextCustomizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,17 +68,17 @@ class OverrideAutoConfigurationContextCustomizerFactoryTests {
 
   }
 
-  @OverrideAutoConfiguration(enabled = true)
+  @infra.test.context.OverrideAutoConfiguration(enabled = true)
   static class WithAnnotationEnabledTrue {
 
   }
 
-  @OverrideAutoConfiguration(enabled = false)
+  @infra.test.context.OverrideAutoConfiguration(enabled = false)
   static class WithAnnotationEnabledFalse {
 
   }
 
-  @OverrideAutoConfiguration(enabled = false)
+  @infra.test.context.OverrideAutoConfiguration(enabled = false)
   static class WithSameAnnotation {
 
   }
