@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.client;
+package infra.test.web.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +28,6 @@ import java.net.URI;
 
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.support.DecoratingHttpRequest;
-import infra.test.web.client.ExpectedCount;
-import infra.test.web.client.MockRestServiceServer;
-import infra.test.web.client.RequestExpectationManager;
-import infra.test.web.client.RequestMatcher;
 import infra.web.client.RestTemplate;
 import infra.web.client.RestTemplateBuilder;
 

@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import infra.app.test.web.client.RootUriRequestExpectationManager;
 import infra.beans.BeanUtils;
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.lang.Assert;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import infra.test.web.client.RequestExpectationManager;
+import infra.test.web.client.RootUriRequestExpectationManager;
 import infra.test.web.client.SimpleRequestExpectationManager;
 import infra.web.client.RestTemplate;
 import infra.web.client.RestTemplateBuilder;

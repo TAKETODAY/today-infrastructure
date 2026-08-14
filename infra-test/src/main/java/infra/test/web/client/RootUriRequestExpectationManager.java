@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.client;
+package infra.test.web.client;
 
 import org.jspecify.annotations.Nullable;
 
@@ -32,13 +32,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.http.client.support.DecoratingHttpRequest;
 import infra.lang.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
-import infra.test.web.client.ExpectedCount;
-import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
-import infra.test.web.client.RequestExpectationManager;
-import infra.test.web.client.RequestMatcher;
-import infra.test.web.client.ResponseActions;
-import infra.test.web.client.SimpleRequestExpectationManager;
 import infra.util.concurrent.Future;
 import infra.web.client.RestTemplate;
 import infra.web.util.DefaultUriBuilderFactory;
