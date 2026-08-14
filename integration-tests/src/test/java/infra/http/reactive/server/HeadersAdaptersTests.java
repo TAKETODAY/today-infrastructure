@@ -147,7 +147,7 @@ class HeadersAdaptersTests {
 
   static Stream<Arguments> headers() {
     return Stream.of(
-            arguments(named("Map", MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
+            arguments(named("Map", MultiValueMap.forAdaptation(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
             arguments(named("Netty", new Netty4HttpHeaders(new DefaultHttpHeaders()).asMultiValueMap()))
     );
   }

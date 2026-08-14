@@ -502,7 +502,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   protected MultiValueMap<String, String> readParameters() {
     String queryString = getQueryString();
-    MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
+    MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
     if (StringUtils.isNotEmpty(queryString)) {
       parseParameters(params, queryString);
     }
@@ -516,7 +516,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       try {
         String s = new String(getInputStream().readAllBytes(), StandardCharsets.ISO_8859_1);
         if (StringUtils.isNotEmpty(s)) {
-          MultiValueMap<String, String> body = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
+          MultiValueMap<String, String> body = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
           parseParameters(body, s);
           params.addAll(body);
           setAttribute(FORM_URLENCODED_ATTRIBUTE, body);

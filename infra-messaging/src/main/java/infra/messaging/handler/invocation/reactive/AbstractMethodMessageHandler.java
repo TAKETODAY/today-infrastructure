@@ -224,7 +224,7 @@ public abstract class AbstractMethodMessageHandler<T>
    * (for example, for non-pattern destinations).
    */
   public MultiValueMap<String, T> getDestinationLookup() {
-    return MultiValueMap.forAdaption(destinationLookup).asReadOnly();
+    return MultiValueMap.forAdaptation(destinationLookup).asReadOnly();
   }
 
   /**

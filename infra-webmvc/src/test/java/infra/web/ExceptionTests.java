@@ -1234,7 +1234,7 @@ class ExceptionTests {
     @Test
     void constructorWithSingleParamCondition() {
       String[] paramConditions = { "param1=value1", "param2" };
-      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("value2")));
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaptation(Map.of("param1", List.of("value2")));
 
       UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
 
@@ -1251,7 +1251,7 @@ class ExceptionTests {
               new String[] { "param1=value1", "param2" },
               new String[] { "param3=value3" }
       );
-      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("value2")));
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaptation(Map.of("param1", List.of("value2")));
 
       UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
 
@@ -1263,7 +1263,7 @@ class ExceptionTests {
     @Test
     void getMessageContainsConditionsAndActualParams() {
       String[] paramConditions = { "param1=value1", "param2" };
-      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("value2")));
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaptation(Map.of("param1", List.of("value2")));
       UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
 
       String message = exception.getMessage();
@@ -1277,7 +1277,7 @@ class ExceptionTests {
               new String[] { "param1=value1" },
               new String[] { "param2=value2" }
       );
-      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaption(Map.of("param1", List.of("valueX")));
+      MultiValueMap<String, String> actualParams = MultiValueMap.forAdaptation(Map.of("param1", List.of("valueX")));
       UnsatisfiedRequestParameterException exception = new UnsatisfiedRequestParameterException(paramConditions, actualParams);
 
       String message = exception.getMessage();

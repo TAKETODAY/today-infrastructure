@@ -544,7 +544,7 @@ public class CollectionUtilsTests {
 
   @Test
   void conversionOfEmptyMap() {
-    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaption((k) -> new ArrayList<>(1));
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaptation((k) -> new ArrayList<>(1));
     assertThat(asMultiValueMap.isEmpty()).isTrue();
     assertThat(asMultiValueMap).isEmpty();
   }
@@ -553,7 +553,7 @@ public class CollectionUtilsTests {
   void conversionOfNonEmptyMap() {
     Map<String, List<String>> wrapped = new HashMap<>();
     wrapped.put("key", Arrays.asList("first", "second"));
-    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaption(
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaptation(
             wrapped, k -> new ArrayList<>(1));
     assertThat(asMultiValueMap).containsAllEntriesOf(wrapped);
   }
@@ -561,7 +561,7 @@ public class CollectionUtilsTests {
   @Test
   void changesValueByReference() {
     Map<String, List<String>> wrapped = new HashMap<>();
-    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forSmartListAdaption(wrapped);
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forSmartListAdaptation(wrapped);
     assertThat(asMultiValueMap).doesNotContainKeys("key");
     wrapped.put("key", new ArrayList<>());
     assertThat(asMultiValueMap).containsKey("key");

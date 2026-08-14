@@ -57,7 +57,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * Construct a case-insensitive header map
    */
   public DefaultHttpHeaders() {
-    this.headers = MultiValueMap.forSmartListAdaption(
+    this.headers = MultiValueMap.forSmartListAdaptation(
             new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
   }
 
@@ -67,7 +67,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * @see #addAll(Map)
    */
   public DefaultHttpHeaders(@Nullable Map<String, List<String>> headers) {
-    this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(headers == null ? 8 : headers.size(), Locale.ROOT));
+    this.headers = MultiValueMap.forSmartListAdaptation(new LinkedCaseInsensitiveMap<>(headers == null ? 8 : headers.size(), Locale.ROOT));
     addAll(headers);
   }
 
@@ -97,7 +97,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
       this.headers = DefaultHttpHeaders.unwrap(httpHeaders);
     }
     else {
-      this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
+      this.headers = MultiValueMap.forSmartListAdaptation(new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
       setAll(headers);
     }
   }
