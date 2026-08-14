@@ -93,7 +93,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   }
 
   @Override
-  public CompletableFuture<V> completable() {
+  public CompletableFuture<V> toCompletableFuture() {
     if (this.executionException != null) {
       CompletableFuture<V> completable = new CompletableFuture<>();
       completable.completeExceptionally(exposedException(this.executionException));

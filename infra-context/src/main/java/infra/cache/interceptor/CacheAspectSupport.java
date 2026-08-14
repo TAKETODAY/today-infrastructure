@@ -493,7 +493,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   private <T> CompletableFuture<T> invokeAsCompletableFuture(CacheOperationInvoker invoker) {
     Object object = invokeOperation(invoker);
     if (object instanceof Future future) {
-      return future.completable();
+      return future.toCompletableFuture();
     }
     return (CompletableFuture<T>) object;
   }

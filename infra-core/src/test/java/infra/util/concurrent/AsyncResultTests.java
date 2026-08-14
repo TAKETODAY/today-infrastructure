@@ -43,8 +43,8 @@ public class AsyncResultTests {
 
     assertThat(values.iterator().next()).isSameAs(value);
     assertThat(future.get()).isSameAs(value);
-    assertThat(future.completable().get()).isSameAs(value);
-    future.completable().thenAccept(v -> assertThat(v).isSameAs(value));
+    assertThat(future.toCompletableFuture().get()).isSameAs(value);
+    future.toCompletableFuture().thenAccept(v -> assertThat(v).isSameAs(value));
   }
 
   @Test
@@ -63,7 +63,7 @@ public class AsyncResultTests {
             .withCause(ex);
 
     assertThatExceptionOfType(ExecutionException.class)
-            .isThrownBy(future.completable()::get)
+            .isThrownBy(future.toCompletableFuture()::get)
             .withCause(ex);
   }
 
@@ -76,8 +76,8 @@ public class AsyncResultTests {
 
     assertThat(values.iterator().next()).isSameAs(value);
     assertThat(future.get()).isSameAs(value);
-    assertThat(future.completable().get()).isSameAs(value);
-    future.completable().thenAccept(v -> assertThat(v).isSameAs(value));
+    assertThat(future.toCompletableFuture().get()).isSameAs(value);
+    future.toCompletableFuture().thenAccept(v -> assertThat(v).isSameAs(value));
   }
 
   @Test
@@ -93,7 +93,7 @@ public class AsyncResultTests {
                     future::get)
             .withCause(ex);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    future.completable()::get)
+                    future.toCompletableFuture()::get)
             .withCause(ex);
   }
 

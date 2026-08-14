@@ -89,7 +89,7 @@ class CompleteFutureTests {
   @Test
   void completable_success() throws ExecutionException, InterruptedException {
     Future<Integer> future = Future.ok(1);
-    CompletableFuture<Integer> completable = future.completable();
+    CompletableFuture<Integer> completable = future.toCompletableFuture();
     assertThat(completable.join()).isEqualTo(1);
     assertThat(completable).isDone();
     assertThat(completable).isNotCancelled();
@@ -102,7 +102,7 @@ class CompleteFutureTests {
   void completable_failed() {
     IllegalStateException cause = new IllegalStateException();
     Future<Integer> future = Future.failed(cause);
-    CompletableFuture<Integer> completable = future.completable();
+    CompletableFuture<Integer> completable = future.toCompletableFuture();
     assertThat(completable).isDone();
     assertThat(completable).isNotCancelled();
     assertThat(completable).isCompletedExceptionally();

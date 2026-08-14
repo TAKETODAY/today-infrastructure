@@ -1758,7 +1758,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Expose this {@link Future} as a JDK {@link CompletableFuture}.
    */
   @SuppressWarnings("unchecked")
-  public CompletableFuture<V> completable() {
+  public CompletableFuture<V> toCompletableFuture() {
     final CompletableFuture<V> ret = new CompletableFuture<>();
     onCompleted(Futures.completableAdapter, ret);
     return ret;

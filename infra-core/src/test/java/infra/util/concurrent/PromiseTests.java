@@ -64,7 +64,7 @@ class PromiseTests {
   void returnsSetValueFromCompletable() throws ExecutionException, InterruptedException {
     String string = "hello";
     assertThat(promise.trySuccess(string)).isTrue();
-    var completable = promise.completable();
+    var completable = promise.toCompletableFuture();
     assertThat(completable.get()).isEqualTo(string);
     assertThat(completable.isCancelled()).isFalse();
     assertThat(completable.isDone()).isTrue();
@@ -94,7 +94,7 @@ class PromiseTests {
   void throwsSetExceptionWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new RuntimeException();
     assertThat(promise.tryFailure(exception)).isTrue();
-    CompletableFuture<String> completable = promise.completable();
+    CompletableFuture<String> completable = promise.toCompletableFuture();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -121,7 +121,7 @@ class PromiseTests {
   void throwsSetErrorWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new OutOfMemoryError();
     assertThat(promise.tryFailure(exception)).isTrue();
-    CompletableFuture<String> completable = promise.completable();
+    CompletableFuture<String> completable = promise.toCompletableFuture();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)

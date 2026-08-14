@@ -1226,7 +1226,7 @@ class FutureTests {
   @Test
   void completable() {
     Promise<Void> promise = Future.forPromise();
-    CompletableFuture<Void> completable = promise.completable();
+    CompletableFuture<Void> completable = promise.toCompletableFuture();
     assertThat(completable).isNotDone();
     assertThat(completable).isNotCancelled();
     assertThat(completable).isNotCompleted();
