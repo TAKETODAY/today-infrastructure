@@ -113,7 +113,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
 
   @Override
   public <C extends @Nullable Object> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    notifyListener(executor(), this, FutureListener.forAdaption(listener, context));
+    notifyListener(executor(), this, FutureListener.fromContextListener(listener, context));
     return this;
   }
 

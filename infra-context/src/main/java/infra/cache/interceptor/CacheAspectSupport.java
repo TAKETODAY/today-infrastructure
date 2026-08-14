@@ -461,7 +461,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
                 });
 
         if (Future.class == context.getMethod().getReturnType()) {
-          return Future.forAdaption(result);
+          return Future.fromCompletionStage(result);
         }
         return result;
       }
@@ -552,7 +552,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
                   invoker, method, contexts));
 
           if (Future.class == context.getMethod().getReturnType()) {
-            return Future.forAdaption(result);
+            return Future.fromCompletionStage(result);
           }
           return result;
         }

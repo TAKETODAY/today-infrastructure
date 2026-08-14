@@ -352,7 +352,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @see AbstractFuture#tryFailure(Throwable)
    */
   public final Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
+    return onCompleted(FutureListener.of(successCallback, failureCallback));
   }
 
   /**
@@ -513,7 +513,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @return this future object.
    */
   public <C extends @Nullable Object> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, C context) {
-    return onCompleted(FutureListener.forAdaption(listener, context));
+    return onCompleted(FutureListener.fromContextListener(listener, context));
   }
 
   /**
@@ -1982,20 +1982,20 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new Promise instance.
+   * Creates a {@link Future} from the given {@link CompletionStage}.
    */
-  public static <V extends @Nullable Object> Future<V> forAdaption(CompletionStage<V> stage) {
-    return forAdaption(stage, defaultScheduler);
+  public static <V extends @Nullable Object> Future<V> fromCompletionStage(CompletionStage<V> stage) {
+    return fromCompletionStage(stage, defaultScheduler);
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new Promise instance.
+   * Creates a {@link Future} from the given {@link CompletionStage}.
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
    */
   @SuppressWarnings({ "unchecked" })
-  public static <V extends @Nullable Object> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> Future<V> fromCompletionStage(CompletionStage<V> stage, @Nullable Executor executor) {
     return create(promise -> {
       stage.whenCompleteAsync((v, failure) -> {
         if (failure != null) {

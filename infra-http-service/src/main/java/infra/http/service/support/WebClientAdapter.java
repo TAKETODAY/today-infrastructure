@@ -106,12 +106,12 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
 
   @Override
   public <T> Future<T> exchangeAsyncBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyTypeRef) {
-    return Future.forAdaption(newRequest(requestValues).retrieve().bodyToMono(bodyTypeRef).toFuture());
+    return Future.fromCompletionStage(newRequest(requestValues).retrieve().bodyToMono(bodyTypeRef).toFuture());
   }
 
   @Override
   public Future<Void> exchangeAsyncVoid(HttpRequestValues requestValues) {
-    return Future.forAdaption(newRequest(requestValues).retrieve().toBodiless().toFuture());
+    return Future.fromCompletionStage(newRequest(requestValues).retrieve().toBodiless().toFuture());
   }
 
   @Override

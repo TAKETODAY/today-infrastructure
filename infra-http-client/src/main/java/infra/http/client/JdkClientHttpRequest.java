@@ -168,7 +168,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   @Override
   protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body, @Nullable Executor executor) {
     HttpRequest request = buildRequest(headers, body);
-    Future<HttpResponse<InputStream>> responseFuture = Future.forAdaption(httpClient.sendAsync(request,
+    Future<HttpResponse<InputStream>> responseFuture = Future.fromCompletionStage(httpClient.sendAsync(request,
             this.compression ? new DecompressingBodyHandler() : BodyHandlers.ofInputStream()), executor);
     if (timeout != null) {
       responseFuture = responseFuture.timeout(timeout);

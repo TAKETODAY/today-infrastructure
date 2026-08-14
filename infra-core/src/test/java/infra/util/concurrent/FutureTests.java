@@ -1425,17 +1425,17 @@ class FutureTests {
   }
 
   @Test
-  void forAdaption_success() {
-    Future<Integer> adaption = Future.forAdaption(CompletableFuture.completedFuture(1));
+  void fromCompletionStage_success() {
+    Future<Integer> adaption = Future.fromCompletionStage(CompletableFuture.completedFuture(1));
     assertThat(adaption.awaitUninterruptibly()).isDone();
     assertThat(adaption).isNotCancelled();
     assertThat(adaption.getNow()).isEqualTo(1);
   }
 
   @Test
-  void forAdaption_failed() {
+  void fromCompletionStage_failed() {
     IllegalStateException exception = new IllegalStateException();
-    Future<Integer> adaption = Future.forAdaption(CompletableFuture.failedFuture(exception));
+    Future<Integer> adaption = Future.fromCompletionStage(CompletableFuture.failedFuture(exception));
     assertThat(adaption.awaitUninterruptibly()).isDone();
     assertThat(adaption).isNotCancelled();
     assertThat(adaption.getNow()).isNull();
@@ -1443,7 +1443,7 @@ class FutureTests {
   }
 
   @Test
-  void forAdaption_cancel() throws InterruptedException {
+  void fromCompletionStage_cancel() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean(false);
 
     CountDownLatch latch = new CountDownLatch(1);
@@ -1462,7 +1462,7 @@ class FutureTests {
     });
 
     Thread.sleep(100L);
-    Future<Void> adaption = Future.forAdaption(future, directExecutor());
+    Future<Void> adaption = Future.fromCompletionStage(future, directExecutor());
     adaption.cancel();
 
     assertThat(latch.getCount()).isEqualTo(0L);
