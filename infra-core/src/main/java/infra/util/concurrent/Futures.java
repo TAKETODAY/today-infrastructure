@@ -139,7 +139,7 @@ final class Futures {
    * @return A new future instance that will complete with the mapped result of the given future.
    */
   @SuppressWarnings("NullAway")
-  public static <V, R> Future<R> map(Future<V> future, ThrowingFunction<V, R> mapper) {
+  public static <V, R extends @Nullable Object> Future<R> map(Future<V> future, ThrowingFunction<V, R> mapper) {
     if (future.isFailed()) {
       // Cast is safe because the result type is not used in failed futures.
       return (Future<R>) future;
@@ -156,12 +156,13 @@ final class Futures {
   /**
    * @since 5.0
    */
-  public static <V> Future<V> switchIfCancelled(Future<V> future, ThrowingSupplier<V> cancelledMapper) {
+  public static <V extends @Nullable Object> Future<V> switchIfCancelled(Future<V> future, ThrowingSupplier<V> cancelledMapper) {
     if (future.isFailure() || future.isSuccess()) {
       return future;
     }
     if (future.isCancelled()) {
-      return new ListenableFutureTask<>(future.executor(), () -> ExceptionUtils.sneakyThrow(cancelledMapper)).execute();
+      return new ListenableFutureTask<>(future.executor(),
+              () -> ExceptionUtils.sneakyThrow(cancelledMapper)).execute();
     }
     Promise<V> promise = Future.forPromise(future.executor());
     future.onCompleted(new CancelMapper<>(promise, cancelledMapper));
@@ -172,7 +173,7 @@ final class Futures {
   /**
    * @since 5.0
    */
-  public static <V> Future<V> switchIfCancelled(Future<V> future, Supplier<Future<V>> cancelledMapper) {
+  public static <V extends @Nullable Object> Future<V> switchIfCancelled(Future<V> future, Supplier<Future<V>> cancelledMapper) {
     if (future.isFailure() || future.isSuccess()) {
       return future;
     }
@@ -235,7 +236,7 @@ final class Futures {
    * @return A new Future.
    */
   public static <V extends @Nullable Object, T extends @Nullable Object> Future<V> errorHandling(Future<V> future, @Nullable Class<T> exType,
-          ThrowingFunction<T, V> errorHandler, BiFunction<Throwable, Class<T>, T> causeFunction) {
+          ThrowingFunction<T, V> errorHandler, BiFunction<Throwable, @Nullable Class<T>, T> causeFunction) {
     if (future.isSuccess() || future.isCancelled()) {
       // already success or cancelled
       return future;
@@ -273,7 +274,7 @@ final class Futures {
    *
    * @return A new Future.
    */
-  public static <V> Future<V> onErrorResume(Future<V> future, Function<Throwable, Future<V>> errorHandler) {
+  public static <V extends @Nullable Object> Future<V> onErrorResume(Future<V> future, Function<Throwable, Future<V>> errorHandler) {
     if (future.isSuccess() || future.isCancelled()) {
       // already success or cancelled
       return future;
@@ -369,7 +370,7 @@ final class Futures {
    * @see TimeoutException
    * @since 5.0
    */
-  public static <V> Future<V> timeout(Future<V> delegate, long timeout,
+  public static <V extends @Nullable Object> Future<V> timeout(Future<V> delegate, long timeout,
           TimeUnit unit, Scheduler scheduler, FutureListener<Promise<V>> timeoutListener) {
     if (delegate.isDone()) {
       return delegate;
@@ -444,7 +445,7 @@ final class Futures {
   }
 
   @SuppressWarnings("NullAway")
-  static <A, B> void propagateUncommonCompletion(Future<? extends A> completed, Promise<B> recipient) {
+  static <A extends @Nullable Object, B extends @Nullable Object> void propagateUncommonCompletion(Future<? extends A> completed, Promise<B> recipient) {
     if (completed.isCancelled()) {
       // Don't check or log if cancellation propagation fails.
       // Propagation goes both ways, which means at least one future will already be cancelled here.
@@ -491,7 +492,7 @@ final class Futures {
     }
   }
 
-  private static final class Mapper<R, T> implements FutureListener<Future<T>> {
+  private static final class Mapper<R extends @Nullable Object, T> implements FutureListener<Future<T>> {
 
     private final Promise<R> recipient;
 
@@ -558,7 +559,7 @@ final class Futures {
     }
   }
 
-  static final class ErrorHandling<V, T extends @Nullable Object> implements FutureListener<Future<V>> {
+  static final class ErrorHandling<V extends @Nullable Object, T extends @Nullable Object> implements FutureListener<Future<V>> {
 
     @Nullable
     private final Class<T> exType;
@@ -567,10 +568,10 @@ final class Futures {
 
     private final ThrowingFunction<T, V> recoverFunc;
 
-    private final BiFunction<Throwable, Class<T>, T> causeFunction;
+    private final BiFunction<Throwable, @Nullable Class<T>, T> causeFunction;
 
     private ErrorHandling(Promise<V> recipient, @Nullable Class<T> exType,
-            ThrowingFunction<T, V> recoverFunc, BiFunction<Throwable, Class<T>, T> causeFunction) {
+            ThrowingFunction<T, V> recoverFunc, BiFunction<Throwable, @Nullable Class<T>, T> causeFunction) {
       this.recipient = recipient;
       this.exType = exType;
       this.recoverFunc = recoverFunc;
@@ -610,7 +611,7 @@ final class Futures {
    * @param <V> value type
    * @since 5.0
    */
-  static class ErrorResume<V> implements FutureListener<Future<V>> {
+  static class ErrorResume<V extends @Nullable Object> implements FutureListener<Future<V>> {
 
     private final Promise<V> recipient;
 
@@ -656,7 +657,7 @@ final class Futures {
    * @param <T> value type
    * @since 5.0
    */
-  private static final class CancelMapper<T> implements FutureListener<Future<T>> {
+  private static final class CancelMapper<T extends @Nullable Object> implements FutureListener<Future<T>> {
 
     private final Promise<T> recipient;
 
@@ -694,7 +695,7 @@ final class Futures {
    * @param <T> value type
    * @since 5.0
    */
-  private static final class CancelFlatMapper<T> implements FutureListener<Future<T>> {
+  private static final class CancelFlatMapper<T extends @Nullable Object> implements FutureListener<Future<T>> {
 
     private final Promise<T> recipient;
 

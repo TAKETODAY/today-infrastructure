@@ -57,8 +57,8 @@ class ListenableFutureTaskTests {
     task.run();
 
     assertThat(task.get()).isSameAs(s);
-    assertThat(task.completable().get()).isSameAs(s);
-    task.completable().thenAccept(v -> assertThat(v).isSameAs(s));
+    assertThat(task.toCompletableFuture().get()).isSameAs(s);
+    task.toCompletableFuture().thenAccept(v -> assertThat(v).isSameAs(s));
   }
 
   @Test
@@ -86,7 +86,7 @@ class ListenableFutureTaskTests {
             .havingCause()
             .withMessage(s);
     assertThatExceptionOfType(ExecutionException.class)
-            .isThrownBy(task.completable()::get)
+            .isThrownBy(task.toCompletableFuture()::get)
             .havingCause()
             .withMessage(s);
   }
@@ -105,8 +105,8 @@ class ListenableFutureTaskTests {
     verifyNoInteractions(failureCallback);
 
     assertThat(task.get()).isSameAs(s);
-    assertThat(task.completable().get()).isSameAs(s);
-    task.completable().thenAccept(v -> assertThat(v).isSameAs(s));
+    assertThat(task.toCompletableFuture().get()).isSameAs(s);
+    task.toCompletableFuture().thenAccept(v -> assertThat(v).isSameAs(s));
   }
 
   @Test
@@ -128,7 +128,7 @@ class ListenableFutureTaskTests {
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(task::get)
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
 
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(task.completable()::get)
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(task.toCompletableFuture()::get)
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
   }
 

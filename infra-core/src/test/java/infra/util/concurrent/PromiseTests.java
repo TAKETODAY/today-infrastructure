@@ -47,6 +47,11 @@ class PromiseTests {
   }
 
   @Test
+  void getNowWithFallbackReturnsFallbackWhenNotDone() {
+    assertThat(promise.getNow("fallback")).isEqualTo("fallback");
+  }
+
+  @Test
   void returnsSetValue() throws ExecutionException, InterruptedException {
     String string = "hello";
     assertThat(promise.trySuccess(string)).isTrue();
@@ -59,7 +64,7 @@ class PromiseTests {
   void returnsSetValueFromCompletable() throws ExecutionException, InterruptedException {
     String string = "hello";
     assertThat(promise.trySuccess(string)).isTrue();
-    var completable = promise.completable();
+    var completable = promise.toCompletableFuture();
     assertThat(completable.get()).isEqualTo(string);
     assertThat(completable.isCancelled()).isFalse();
     assertThat(completable.isDone()).isTrue();
@@ -89,7 +94,7 @@ class PromiseTests {
   void throwsSetExceptionWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new RuntimeException();
     assertThat(promise.tryFailure(exception)).isTrue();
-    CompletableFuture<String> completable = promise.completable();
+    CompletableFuture<String> completable = promise.toCompletableFuture();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -116,7 +121,7 @@ class PromiseTests {
   void throwsSetErrorWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new OutOfMemoryError();
     assertThat(promise.tryFailure(exception)).isTrue();
-    CompletableFuture<String> completable = promise.completable();
+    CompletableFuture<String> completable = promise.toCompletableFuture();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -298,6 +303,15 @@ class PromiseTests {
   }
 
   @Test
+  void cancelPublishesTerminalStateWhenInterruptTaskFails() {
+    RuntimeException failure = new RuntimeException("interrupt failed");
+    InterruptibleSettableFuture future = new InterruptibleSettableFuture(failure);
+
+    assertThatThrownBy(() -> future.cancel(true)).isSameAs(failure);
+    assertThat(future).isCancelled().isDone();
+  }
+
+  @Test
   void setPreventsCancel() {
     assertThat(promise.trySuccess("hello")).isTrue();
     assertThat(promise.cancel(true)).isFalse();
@@ -403,17 +417,27 @@ class PromiseTests {
 
     private boolean interrupted = false;
 
+    private final RuntimeException interruptFailure;
+
     /**
      * Creates a new instance.
      */
     InterruptibleSettableFuture() {
+      this(null);
+    }
+
+    InterruptibleSettableFuture(RuntimeException interruptFailure) {
       super(defaultScheduler);
+      this.interruptFailure = interruptFailure;
     }
 
     @Override
     protected void interruptTask() {
       super.interruptTask();
       interrupted = true;
+      if (interruptFailure != null) {
+        throw interruptFailure;
+      }
     }
 
     boolean calledInterruptTask() {

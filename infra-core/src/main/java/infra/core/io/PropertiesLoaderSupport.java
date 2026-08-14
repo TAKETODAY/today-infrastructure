@@ -54,8 +54,7 @@ public abstract class PropertiesLoaderSupport {
 
   private boolean ignoreResourceNotFound = false;
 
-  @Nullable
-  private String fileEncoding;
+  private @Nullable String fileEncoding;
 
   private PropertiesPersister propertiesPersister = DefaultPropertiesPersister.INSTANCE;
 

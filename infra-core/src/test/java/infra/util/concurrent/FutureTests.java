@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -57,7 +58,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -1226,7 +1226,7 @@ class FutureTests {
   @Test
   void completable() {
     Promise<Void> promise = Future.forPromise();
-    CompletableFuture<Void> completable = promise.completable();
+    CompletableFuture<Void> completable = promise.toCompletableFuture();
     assertThat(completable).isNotDone();
     assertThat(completable).isNotCancelled();
     assertThat(completable).isNotCompleted();
@@ -1425,17 +1425,17 @@ class FutureTests {
   }
 
   @Test
-  void forAdaption_success() {
-    Future<Integer> adaption = Future.forAdaption(CompletableFuture.completedFuture(1));
+  void fromCompletionStage_success() {
+    Future<Integer> adaption = Future.fromCompletionStage(CompletableFuture.completedFuture(1));
     assertThat(adaption.awaitUninterruptibly()).isDone();
     assertThat(adaption).isNotCancelled();
     assertThat(adaption.getNow()).isEqualTo(1);
   }
 
   @Test
-  void forAdaption_failed() {
+  void fromCompletionStage_failed() {
     IllegalStateException exception = new IllegalStateException();
-    Future<Integer> adaption = Future.forAdaption(CompletableFuture.failedFuture(exception));
+    Future<Integer> adaption = Future.fromCompletionStage(CompletableFuture.failedFuture(exception));
     assertThat(adaption.awaitUninterruptibly()).isDone();
     assertThat(adaption).isNotCancelled();
     assertThat(adaption.getNow()).isNull();
@@ -1443,7 +1443,7 @@ class FutureTests {
   }
 
   @Test
-  void forAdaption_cancel() throws InterruptedException {
+  void fromCompletionStage_cancel() throws InterruptedException {
     AtomicBoolean interrupted = new AtomicBoolean(false);
 
     CountDownLatch latch = new CountDownLatch(1);
@@ -1462,7 +1462,7 @@ class FutureTests {
     });
 
     Thread.sleep(100L);
-    Future<Void> adaption = Future.forAdaption(future, directExecutor());
+    Future<Void> adaption = Future.fromCompletionStage(future, directExecutor());
     adaption.cancel();
 
     assertThat(latch.getCount()).isEqualTo(0L);
@@ -2201,14 +2201,6 @@ class FutureTests {
   }
 
   @Test
-  void cancelWithCancellationShouldSetSpecifiedCause() {
-    var future = Future.forPromise(directExecutor());
-    var cause = new IllegalStateException("Cancelled");
-    future.cancel(cause);
-    assertThat(future.getCause()).isSameAs(cause);
-  }
-
-  @Test
   void cancelCompletedFutureShouldReturnFalse() {
     var future = Future.forPromise(directExecutor());
     future.trySuccess("OK");
@@ -2263,16 +2255,6 @@ class FutureTests {
   }
 
   @Test
-  void shouldCancelFutureWithCancellationCause() {
-    Promise<String> promise = Future.forPromise(directExecutor());
-    var cause = new IllegalStateException("Cancelled");
-    assertTrue(promise.cancel(cause));
-    assertTrue(promise.isCancelled());
-    assertTrue(promise.isDone());
-    assertSame(cause, promise.getCause());
-  }
-
-  @Test
   void shouldNotCancelCompletedFuture() {
     Promise<String> promise = Future.forPromise(directExecutor());
     promise.trySuccess("success");
@@ -2322,15 +2304,6 @@ class FutureTests {
   }
 
   @Test
-  void shouldThrowCancellationCauseOnGetAfterCancelWithCause() {
-    Promise<String> promise = Future.forPromise(directExecutor());
-    var cause = new IllegalStateException("Cancelled");
-    promise.cancel(cause);
-    var thrown = assertThrows(IllegalStateException.class, promise::join);
-    assertSame(cause, thrown);
-  }
-
-  @Test
   void shouldNotifyListenersOnCancel() {
     Promise<String> promise = Future.forPromise(directExecutor());
     AtomicBoolean notified = new AtomicBoolean();
@@ -2363,6 +2336,52 @@ class FutureTests {
         promise.setFailure(e);
       }
     });
+  }
+
+  @Test
+  void publishOn() throws Exception {
+    Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "publish-executor"));
+    AtomicReference<String> threadName = new AtomicReference<>();
+
+    Future<Integer> future = Future.ok("ok")
+            .publishOn(executor)
+            .map(s -> {
+              threadName.set(Thread.currentThread().getName());
+              return s.length();
+            });
+
+    assertThat(future.executor()).isSameAs(executor);
+    assertThat(future.get()).isEqualTo(2);
+    assertThat(threadName.get()).isEqualTo("publish-executor");
+  }
+
+  @Test
+  void publishOn_sameExecutorReturnsThis() {
+    Executor executor = directExecutor();
+    Future<String> future = Future.ok("ok", executor);
+    assertThat(future.publishOn(executor)).isSameAs(future);
+  }
+
+  @Test
+  void publishOn_propagatesFailure() {
+    IllegalStateException exception = new IllegalStateException("boom");
+    Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "publish-executor"));
+
+    Future<String> future = Future.<String>failed(exception)
+            .publishOn(executor);
+
+    assertThat(future.executor()).isSameAs(executor);
+    assertThat(future.awaitUninterruptibly().getCause()).isSameAs(exception);
+  }
+
+  @Test
+  void publishOn_propagatesCancellation() {
+    Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "publish-executor"));
+    Promise<String> source = Future.forPromise();
+    Future<String> future = source.publishOn(executor);
+
+    source.cancel();
+    assertThat(future.awaitUninterruptibly()).isCancelled();
   }
 
   static Executor directExecutor() {

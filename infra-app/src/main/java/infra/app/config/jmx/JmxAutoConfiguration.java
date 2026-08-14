@@ -22,6 +22,7 @@ import javax.management.MBeanServer;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.annotation.EnableMBeanExport;
+import infra.context.annotation.Lazy;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -52,6 +53,7 @@ import infra.util.StringUtils;
  * @author Scott Frederick
  * @since 4.0 2022/10/9 18:35
  */
+@Lazy
 @DisableDIAutoConfiguration
 @ConditionalOnClass({ MBeanExporter.class })
 @EnableConfigurationProperties(JmxProperties.class)

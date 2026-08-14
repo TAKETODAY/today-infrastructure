@@ -49,8 +49,7 @@ import infra.util.ObjectUtils;
  * @see PropertyOverrideConfigurer
  * @since 4.0 2021/12/12 14:37
  */
-public abstract class PropertyResourceConfigurer
-        extends PropertiesLoaderSupport implements BeanFactoryPostProcessor, PriorityOrdered {
+public abstract class PropertyResourceConfigurer extends PropertiesLoaderSupport implements BeanFactoryPostProcessor, PriorityOrdered {
 
   private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
-import infra.util.ExceptionUtils;
+import infra.lang.Assert;
 
 /**
  * Abstract {@link Future} implementation which allow for cancellation.
@@ -73,12 +73,18 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   /** The result to return or exception to throw from get() */
   private @Nullable Object result; // non-volatile, protected by state reads/writes
 
+  /** One or more listeners. */
+  private @Nullable Object listeners;
+
+  /** The executor used to notify listeners once this future completes. */
+  protected final Executor executor;
+
   /**
    * @param executor The {@link Executor} which is used to notify
    * the {@code Future} once it is complete.
    */
   protected AbstractFuture(@Nullable Executor executor) {
-    super(executor);
+    this.executor = executor == null ? Future.defaultScheduler : executor;
     this.state = NEW;
   }
 
@@ -107,13 +113,46 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     return state != NEW;
   }
 
+  protected final boolean isDoneForNotification() {
+    int s = state;
+    return s > COMPLETING && s != INTERRUPTING;
+  }
+
   @Override
-  public boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning) {
+  public Executor executor() {
+    return executor;
+  }
+
+  @Override
+  public AbstractFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
+    Assert.notNull(listener, "listener is required");
+
+    synchronized(this) {
+      Object local = this.listeners;
+      if (local instanceof FutureListeners ls) {
+        ls.add(listener);
+      }
+      else if (local instanceof FutureListener<?> l) {
+        this.listeners = new FutureListeners(l, listener);
+      }
+      else {
+        this.listeners = listener;
+      }
+    }
+
+    if (isDoneForNotification()) {
+      notifyListeners();
+    }
+
+    return this;
+  }
+
+  @Override
+  public boolean cancel(boolean mayInterruptIfRunning) {
     if (!(state == NEW && STATE.compareAndSet(this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED))) {
       return false;
     }
     try {
-      result = cancellation;
       // in case call to interrupt throws exception
       if (mayInterruptIfRunning) {
         interruptTask();
@@ -142,10 +181,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return (Throwable) result;
     }
     else if (s >= CANCELLED) {
-      if (result instanceof Throwable) {
-        return (Throwable) result;
-      }
-      return LeanCancellationException.INSTANCE;
+      return new LeanCancellationException();
     }
     return null;
   }
@@ -157,6 +193,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   /**
+   * {@inheritDoc}
+   *
    * @throws CancellationException {@inheritDoc}
    */
   @Override
@@ -168,6 +206,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   /**
+   * {@inheritDoc}
+   *
    * @throws CancellationException {@inheritDoc}
    */
   @Override
@@ -233,6 +273,38 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     notifyListeners();
   }
 
+  protected final void notifyListeners() {
+    safeExecute(executor, new NotifyTask());
+  }
+
+  private void notifyListenersNow() {
+    Object listeners;
+    synchronized(this) {
+      if (this.listeners == null) {
+        return;
+      }
+      listeners = this.listeners;
+      this.listeners = null;
+    }
+    while (true) {
+      if (listeners instanceof FutureListener<?> fl) {
+        notifyListener(this, fl);
+      }
+      else if (listeners instanceof FutureListeners holder) {
+        for (FutureListener<?> listener : holder.listeners) {
+          notifyListener(this, listener);
+        }
+      }
+      synchronized(this) {
+        if (this.listeners == null) {
+          return;
+        }
+        listeners = this.listeners;
+        this.listeners = null;
+      }
+    }
+  }
+
   /**
    * Sets the result of this future to the given value unless
    * this future has already been set or has been cancelled.
@@ -268,8 +340,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
    * already marked as either a success or a failure.
    */
   public boolean tryFailure(Throwable t) {
+    Assert.notNull(t, "Throwable cause is required");
     if (STATE.compareAndSet(this, NEW, COMPLETING)) {
-      // Assert.notNull(cause, "Throwable cause is required");
       result = t;
       STATE.setRelease(this, EXCEPTIONAL); // final state
       finishCompletion();
@@ -289,10 +361,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return (V) result;
     }
     if (s >= CANCELLED) {
-      if (result instanceof Throwable) {
-        throw ExceptionUtils.sneakyThrow((Throwable) result);
-      }
-      throw LeanCancellationException.INSTANCE;
+      throw new LeanCancellationException();
     }
     throw new ExecutionException((Throwable) result);
   }
@@ -480,8 +549,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
             new StackTraceElement(AbstractFuture.class.getName(), "cancel(...)", null, -1)
     };
 
-    private static final LeanCancellationException INSTANCE = new LeanCancellationException();
-
     // Suppress a warning since the method doesn't need synchronization
     @Override
     public Throwable fillInStackTrace() {
@@ -492,6 +559,14 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     @Override
     public String toString() {
       return CancellationException.class.getName();
+    }
+  }
+
+  private final class NotifyTask implements Runnable {
+
+    @Override
+    public void run() {
+      notifyListenersNow();
     }
   }
 

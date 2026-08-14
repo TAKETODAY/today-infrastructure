@@ -250,7 +250,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
 
   @Override
   protected MultiValueMap<String, String> readParameters() {
-    var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
+    var ret = MultiValueMap.<String, String>forSmartListAdaptation(new LinkedHashMap<>());
     for (var entry : request.getParameterMap().entrySet()) {
       ret.addAll(entry.getKey(), entry.getValue());
     }

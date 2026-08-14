@@ -461,7 +461,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
                 });
 
         if (Future.class == context.getMethod().getReturnType()) {
-          return Future.forAdaption(result);
+          return Future.fromCompletionStage(result);
         }
         return result;
       }
@@ -493,7 +493,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   private <T> CompletableFuture<T> invokeAsCompletableFuture(CacheOperationInvoker invoker) {
     Object object = invokeOperation(invoker);
     if (object instanceof Future future) {
-      return future.completable();
+      return future.toCompletableFuture();
     }
     return (CompletableFuture<T>) object;
   }
@@ -552,7 +552,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
                   invoker, method, contexts));
 
           if (Future.class == context.getMethod().getReturnType()) {
-            return Future.forAdaption(result);
+            return Future.fromCompletionStage(result);
           }
           return result;
         }

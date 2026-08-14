@@ -111,12 +111,12 @@ public abstract class AbstractReactorHttpExchangeAdapter implements ReactorHttpE
   @Override
   public <T> Future<ResponseEntity<T>> exchangeForEntityAsync(
           HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
-    return Future.forAdaption(exchangeForEntityMono(requestValues, bodyType).toFuture());
+    return Future.fromCompletionStage(exchangeForEntityMono(requestValues, bodyType).toFuture());
   }
 
   @Override
   public Future<ResponseEntity<Void>> exchangeForBodilessEntityAsync(HttpRequestValues requestValues) {
-    return Future.forAdaption(exchangeForBodilessEntityMono(requestValues).toFuture());
+    return Future.fromCompletionStage(exchangeForBodilessEntityMono(requestValues).toFuture());
   }
 
   @Nullable

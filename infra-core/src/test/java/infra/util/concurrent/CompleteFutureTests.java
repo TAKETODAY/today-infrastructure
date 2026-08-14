@@ -77,14 +77,19 @@ class CompleteFutureTests {
     Future<Integer> future = Future.failed(cause);
 
     assertThat(future.isCancelled()).isTrue();
-    assertThat(future.isFailure()).isTrue();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isFailed()).isTrue();
     assertThat(future.getCause()).isSameAs(cause);
+
+    assertThatThrownBy(future::get)
+            .isInstanceOf(CancellationException.class)
+            .isSameAs(cause);
   }
 
   @Test
   void completable_success() throws ExecutionException, InterruptedException {
     Future<Integer> future = Future.ok(1);
-    CompletableFuture<Integer> completable = future.completable();
+    CompletableFuture<Integer> completable = future.toCompletableFuture();
     assertThat(completable.join()).isEqualTo(1);
     assertThat(completable).isDone();
     assertThat(completable).isNotCancelled();
@@ -97,7 +102,7 @@ class CompleteFutureTests {
   void completable_failed() {
     IllegalStateException cause = new IllegalStateException();
     Future<Integer> future = Future.failed(cause);
-    CompletableFuture<Integer> completable = future.completable();
+    CompletableFuture<Integer> completable = future.toCompletableFuture();
     assertThat(completable).isDone();
     assertThat(completable).isNotCancelled();
     assertThat(completable).isCompletedExceptionally();
@@ -129,4 +134,12 @@ class CompleteFutureTests {
     Future<Integer> future = Future.failed(new IllegalStateException());
     assertThat(future.cancel()).isFalse();
   }
+
+  @Test
+  void getNowWithFallbackPreservesSuccessfulNull() {
+    assertThat(Future.ok(null).getNow("fallback")).isEqualTo("fallback");
+    assertThat(Future.ok("value").getNow("fallback")).isEqualTo("value");
+    assertThat(Future.failed(new IllegalStateException()).getNow("fallback")).isEqualTo("fallback");
+  }
+
 }

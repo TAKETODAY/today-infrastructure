@@ -78,7 +78,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
       if (CompletionStage.class.isAssignableFrom(returnType)) {
         return request -> {
           Future<?> result = (Future<?>) function.execute(request);
-          return result.completable();  // result non-null
+          return result.toCompletableFuture();  // result non-null
         };
       }
       return function;

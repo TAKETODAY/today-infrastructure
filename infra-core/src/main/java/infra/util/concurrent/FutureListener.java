@@ -51,7 +51,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
   // Static Factory Methods
 
   /**
-   * Adapts a {@link FutureContextListener} with a context object to a {@link FutureListener}.
+   * Creates a {@link FutureListener} from a {@link FutureContextListener} and a context object.
    *
    * @param listener the context listener to adapt, must not be null
    * @param context the context object to pass to the listener, may be null
@@ -61,7 +61,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @return a new {@link FutureListener} that delegates to the provided context listener
    * @throws IllegalArgumentException if the listener is null
    */
-  static <V extends @Nullable Object, F extends Future<V>, C extends @Nullable Object> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
+  static <V extends @Nullable Object, F extends Future<V>, C extends @Nullable Object> FutureListener<F> fromContextListener(FutureContextListener<F, C> listener, C context) {
     Assert.notNull(listener, "listener is required");
     return future -> listener.operationComplete(future, context);
   }
@@ -84,7 +84,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
-  static <V extends @Nullable Object, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
+  static <V extends @Nullable Object, F extends Future<V>> FutureListener<F> of(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
     Assert.notNull(onSuccess, "successCallback is required");
     return future -> {
       if (future.isSuccess()) {

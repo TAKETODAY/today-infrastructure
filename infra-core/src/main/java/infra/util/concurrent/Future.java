@@ -217,9 +217,15 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public abstract class Future<V extends @Nullable Object> implements java.util.concurrent.Future<V> {
 
   /**
-   * The default executor is {@link ForkJoinPool#commonPool()}.
-   * <p>
-   * Facts about ForkJoinPool:
+   * The default {@link Scheduler} used when no {@link Executor} is supplied.
+   *
+   * <p>Resolved via {@link Scheduler#lookup()}, which discovers a {@link Scheduler}
+   * through {@code TodayStrategies} (a {@code SchedulerFactory} or a direct
+   * {@code Scheduler}), falling back to the built-in {@code DefaultScheduler}.
+   *
+   * <p>The built-in {@code DefaultScheduler} executes tasks on
+   * {@link ForkJoinPool#commonPool()} and schedules delayed tasks on a dedicated
+   * {@link ScheduledExecutorService}. Facts about the {@link ForkJoinPool}:
    *
    * <ul>
    * <li>It is work-stealing, i.e. all threads in the pool attempt to find work
@@ -230,31 +236,20 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Compared to fixed-size pools, this reduces the risk of dead-locks.
    * </li>
    * <li>The commonPool() is shared across the entire VM. Keep this in mind when also using
-   * {@link java.util.stream.Stream#parallel()} and {@link java.util.concurrent.CompletableFuture}}
+   * {@link java.util.stream.Stream#parallel()} and {@link java.util.concurrent.CompletableFuture}.
    * </li>
    * </ul>
    *
-   * The ForkJoinPool creates daemon threads but its run state is unaffected
+   * <p>The ForkJoinPool creates daemon threads but its run state is unaffected
    * by attempts to shutdown() or shutdownNow(). However, all running tasks are
-   * immediately terminated upon program System.exit(int).
-   * <p>
-   * IMPORTANT: Invoke {@code ForkJoinPool.commonPool().awaitQuiescence(long, TimeUnit)}
-   * before exit in order to ensure that all running async tasks complete before program termination.
+   * immediately terminated upon program System.exit(int). Invoke
+   * {@code ForkJoinPool.commonPool().awaitQuiescence(long, TimeUnit)} before exit
+   * to ensure that all running async tasks complete before program termination.
    *
+   * @see Scheduler#lookup()
    * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
    */
   public static final Scheduler defaultScheduler = Scheduler.lookup();
-
-  /**
-   * One or more listeners.
-   */
-  private @Nullable Object listeners;
-
-  protected final Executor executor;
-
-  protected Future(@Nullable Executor executor) {
-    this.executor = executor == null ? defaultScheduler : executor;
-  }
 
   /**
    * Returns {@code true} if and only if the operation was completed
@@ -352,7 +347,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @see AbstractFuture#tryFailure(Throwable)
    */
   public final Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
+    return onCompleted(FutureListener.of(successCallback, failureCallback));
   }
 
   /**
@@ -512,8 +507,8 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * when this future completes.
    * @return this future object.
    */
-  public <C extends @Nullable Object> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    return onCompleted(FutureListener.forAdaption(listener, context));
+  public <C extends @Nullable Object> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, C context) {
+    return onCompleted(FutureListener.fromContextListener(listener, context));
   }
 
   /**
@@ -532,34 +527,22 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    *
    * @return this future object.
    */
-  public Future<V> onCompleted(FutureListener<? extends Future<V>> listener) {
-    Assert.notNull(listener, "listener is required");
-
-    synchronized(this) {
-      Object local = this.listeners;
-      if (local instanceof FutureListeners ls) {
-        ls.add(listener);
-      }
-      else if (local instanceof FutureListener<?> l) {
-        this.listeners = new FutureListeners(l, listener);
-      }
-      else {
-        this.listeners = listener;
-      }
-    }
-
-    if (isDone()) {
-      notifyListeners();
-    }
-
-    return this;
-  }
+  public abstract Future<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
    * failure if this future failed.
    *
+   * <p>Unlike {@link CompletableFuture#join()}, this method returns {@code this}
+   * (for fluent chaining) rather than the result value, and it rethrows the
+   * <em>original</em> failure cause verbatim instead of wrapping it in a
+   * {@link java.util.concurrent.CompletionException}. A cancelled future rethrows
+   * a {@link CancellationException}.
+   *
    * @return this future object.
+   * @throws InterruptedException if the current thread was interrupted while waiting
+   * @see #syncUninterruptibly()
+   * @see #join()
    */
   public Future<V> sync() throws InterruptedException {
     await();
@@ -569,9 +552,19 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
-   * failure if this future failed.
+   * failure if this future failed, without interruption.
+   *
+   * <p>If the current thread is interrupted while waiting, the interruption is
+   * ignored and the wait continues until this future completes; the thread's
+   * interrupt status is restored before this method returns. This matches the
+   * non-interruptible behavior of {@link CompletableFuture#join()}.
+   *
+   * <p>As with {@link #sync()}, the original failure cause is rethrown verbatim,
+   * not wrapped in a {@link java.util.concurrent.CompletionException}.
    *
    * @return this future object.
+   * @see #sync()
+   * @see #join()
    */
   public Future<V> syncUninterruptibly() {
     awaitUninterruptibly();
@@ -683,10 +676,16 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   public abstract @Nullable V getNow();
 
   /**
-   * Returns the result value, if not completed returns the given valueIfAbsent.
+   * Returns the result value, or the given {@code valueIfAbsent} if the
+   * result is {@code null}.
+   * <p>
+   * Note that a {@code null} result does not distinguish between an
+   * incomplete, failed or cancelled future and a successful future whose
+   * value is {@code null}; all of these return {@code valueIfAbsent}. Use
+   * {@link #isDone()}/{@link #isSuccess()} to tell them apart.
    *
-   * @param valueIfAbsent the value to return if not completed
-   * @return the result value, if completed, else the given valueIfAbsent
+   * @param valueIfAbsent the value to return if the result is {@code null}
+   * @return the result value, or {@code valueIfAbsent} if it is {@code null}
    * @since 5.0
    */
   @Contract("null -> null")
@@ -755,40 +754,15 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * If the cancellation was successful, the result of this operation
    * will be that it has failed with a {@link CancellationException}.
    * <p>
-   * Cancellation will not cause any threads working on the operation
-   * to be {@linkplain Thread#interrupt() interrupted}.
+   * Cancellation will attempt to {@linkplain Thread#interrupt() interrupt}
+   * the thread running the operation. Use {@link #cancel(boolean)} with
+   * {@code false} for a non-interrupting cancellation.
    *
    * @return {@code true} if the operation was cancelled by this call,
    * otherwise {@code false}.
    */
   public boolean cancel() {
-    return cancel(null, true);
-  }
-
-  /**
-   * Attempts to cancel execution of this task.  This method has no
-   * effect if the task is already completed or cancelled, or could
-   * not be cancelled for some other reason. Otherwise, if this
-   * task has not started when {@code cancel} is called, this task
-   * should never run. If the task has already started, then
-   * attempt to stop the task
-   *
-   * <p>The return value from this method does not necessarily
-   * indicate whether the task is now cancelled; use {@link
-   * #isCancelled}.
-   *
-   * <p>If the cancellation was successful it will fail the future with
-   * a {@link CancellationException} if {@code cancellation} not given.
-   *
-   * @return {@code false} if the task could not be cancelled,
-   * typically because it has already completed; {@code true}
-   * otherwise. If two or more threads cause a task to be cancelled,
-   * then at least one of them returns {@code true}. Implementations
-   * may provide stronger guarantees.
-   * @since 5.0
-   */
-  public boolean cancel(@Nullable Throwable cancellation) {
-    return cancel(cancellation, true);
+    return cancel(true);
   }
 
   /**
@@ -798,39 +772,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * a {@link CancellationException}.
    */
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    return cancel(null, mayInterruptIfRunning);
-  }
-
-  /**
-   * Attempts to cancel execution of this task.  This method has no
-   * effect if the task is already completed or cancelled, or could
-   * not be cancelled for some other reason.  Otherwise, if this
-   * task has not started when {@code cancel} is called, this task
-   * should never run.  If the task has already started, then the
-   * {@code mayInterruptIfRunning} parameter determines whether the
-   * thread executing this task (when known by the implementation)
-   * is interrupted in an attempt to stop the task.
-   *
-   * <p>The return value from this method does not necessarily
-   * indicate whether the task is now cancelled; use {@link
-   * #isCancelled}.
-   *
-   * <p>If the cancellation was successful it will fail the future with
-   * a {@link CancellationException} if {@code cancellation} not given.
-   *
-   * @param mayInterruptIfRunning {@code true} if the thread
-   * executing this task should be interrupted (if the thread is
-   * known to the implementation); otherwise, in-progress tasks are
-   * allowed to complete
-   * @return {@code false} if the task could not be cancelled,
-   * typically because it has already completed; {@code true}
-   * otherwise. If two or more threads cause a task to be cancelled,
-   * then at least one of them returns {@code true}. Implementations
-   * may provide stronger guarantees.
-   * @since 5.0
-   */
-  public abstract boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning);
+  public abstract boolean cancel(boolean mayInterruptIfRunning);
 
   /**
    * Creates a <strong>new</strong> {@link Future} that will complete
@@ -1136,6 +1078,28 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     Assert.notNull(promise, "Promise is required");
     Futures.cascadeTo(this, promise);
     return this;
+  }
+
+  /**
+   * Switches downstream operations of this future to the given {@link Executor}.
+   *
+   * <p>The returned future delegates to this future: it completes with the same
+   * result, failure, or cancellation. Listeners registered on the returned
+   * future — and combinators chained on it such as {@link #map(ThrowingFunction)}
+   * or {@link #flatMap(ThrowingFunction)} — are notified on the given executor.
+   *
+   * @param executor the {@link Executor} used for downstream notifications
+   * @return a future that completes like this future but notifies on {@code executor}
+   * @since 5.0
+   */
+  public final Future<V> publishOn(Executor executor) {
+    Assert.notNull(executor, "executor is required");
+    if (executor == executor()) {
+      return this;
+    }
+    Promise<V> promise = Future.forPromise(executor);
+    Futures.cascadeTo(this, promise);
+    return promise;
   }
 
   /**
@@ -1487,7 +1451,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration) {
-    return timeout(duration, scheduler());
+    return timeout(duration, scheduler(executor()));
   }
 
   /**
@@ -1502,7 +1466,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, ScheduledExecutorService scheduled) {
-    Scheduler scheduler = createScheduler(scheduled);
+    Scheduler scheduler = createScheduler(executor(), scheduled);
     return timeout(duration, scheduler);
   }
 
@@ -1535,7 +1499,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(long timeout, TimeUnit unit) {
-    return timeout(timeout, unit, scheduler());
+    return timeout(timeout, unit, scheduler(executor()));
   }
 
   /**
@@ -1551,7 +1515,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduled) {
-    Scheduler scheduler = createScheduler(scheduled);
+    Scheduler scheduler = createScheduler(executor(), scheduled);
     return timeout(timeout, unit, scheduler);
   }
 
@@ -1583,7 +1547,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, FutureListener<Promise<V>> timeoutListener) {
-    return timeout(duration, scheduler(), timeoutListener);
+    return timeout(duration, scheduler(executor()), timeoutListener);
   }
 
   /**
@@ -1598,7 +1562,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<Promise<V>> timeoutListener) {
-    Scheduler scheduler = createScheduler(scheduled);
+    Scheduler scheduler = createScheduler(executor(), scheduled);
     return timeout(duration, scheduler, timeoutListener);
   }
 
@@ -1637,6 +1601,11 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * The result handler may compute a new result, which will be the return value
    * of the {@code join} call.
    *
+   * <p>This method is unrelated to {@link CompletableFuture#join()}: instead of
+   * returning the result, it blocks and hands the outcome (result or failure) to
+   * the given {@code resultHandler}, similar to a blocking
+   * {@link CompletableFuture#handle(BiFunction)}.
+   *
    * @param resultHandler The function that will process the result of the completed future.
    * @param <T> The return type of the {@code resultHandler}.
    * @return The result of the {@code resultHandler} computation.
@@ -1655,13 +1624,23 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Waits for the future to complete.
-   * <p>
-   * If the future completes successfully, then returns result
-   * <p>
-   * If the future fails, sneaky throw any exception
+   * Waits for this future to complete and returns its result.
    *
-   * @return The result.
+   * <p>This is the counterpart of {@link CompletableFuture#join()}: it waits
+   * without interruption (an interrupt is ignored and the interrupt status is
+   * restored before returning) and returns the result value, which may be
+   * {@code null}.
+   *
+   * <p>Unlike {@link CompletableFuture#join()}, a failure is <em>not</em> wrapped
+   * in a {@link java.util.concurrent.CompletionException}: the original failure
+   * cause is rethrown verbatim via {@link ExceptionUtils#sneakyThrow(Throwable)}.
+   * A cancelled future rethrows a {@link CancellationException}.
+   *
+   * @return the result, or {@code null} if this future completed successfully
+   * with a {@code null} value
+   * @see #sync()
+   * @see #syncUninterruptibly()
+   * @see CompletableFuture#join()
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
@@ -1671,15 +1650,23 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Waits for the future to complete.
-   * <p>
-   * If the future completes successfully, then returns result
-   * <p>
-   * If the future fails, sneaky throw any exception
+   * Waits for this future to complete within the given timeout and returns its
+   * result.
+   *
+   * <p>This is the timed counterpart of {@link #join()}; {@link CompletableFuture}
+   * has no {@code join(timeout)} — use
+   * {@link CompletableFuture#orTimeout(long, TimeUnit)} /
+   * {@link CompletableFuture#completeOnTimeout(Object, long, TimeUnit)} there.
+   * On timeout this future is <em>not</em> cancelled.
+   *
+   * <p>Failure handling matches {@link #join()}: the original cause is rethrown
+   * verbatim, not wrapped in a {@link java.util.concurrent.CompletionException}.
    *
    * @param timeout timeout
-   * @return The result.
-   * @throws TimeoutException timeout
+   * @return the result, or {@code null} if this future completed successfully
+   * with a {@code null} value
+   * @throws TimeoutException if the wait timed out
+   * @see #join(Duration, boolean)
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
@@ -1688,16 +1675,25 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Waits for the future to complete.
-   * <p>
-   * If the future completes successfully, then returns result
-   * <p>
-   * If the future fails, sneaky throw any exception
+   * Waits for this future to complete within the given timeout and returns its
+   * result, optionally cancelling this future on timeout.
+   *
+   * <p>Unlike {@link CompletableFuture#join()}, this variant supports a timeout
+   * and can {@link #cancel()} this future when the timeout elapses. If the
+   * current thread is interrupted while waiting, this future is cancelled, the
+   * thread's interrupt status is restored, and the {@link InterruptedException}
+   * is rethrown via {@link ExceptionUtils#sneakyThrow(Throwable)}.
+   *
+   * <p>Failure handling matches {@link #join()}: the original cause is rethrown
+   * verbatim, not wrapped in a {@link java.util.concurrent.CompletionException}.
    *
    * @param timeout timeout
    * @param cancelOnTimeout invoke {@link #cancel()} when timeout
-   * @return The result.
-   * @throws TimeoutException timeout
+   * @return the result, or {@code null} if this future completed successfully
+   * with a {@code null} value
+   * @throws TimeoutException if the wait timed out
+   * @see #join(Duration)
+   * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
   public final V join(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
@@ -1774,7 +1770,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Expose this {@link Future} as a JDK {@link CompletableFuture}.
    */
   @SuppressWarnings("unchecked")
-  public CompletableFuture<V> completable() {
+  public CompletableFuture<V> toCompletableFuture() {
     final CompletableFuture<V> ret = new CompletableFuture<>();
     onCompleted(Futures.completableAdapter, ret);
     return ret;
@@ -1787,9 +1783,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    *
    * @return The underlying {@code Executor}.
    */
-  public Executor executor() {
-    return executor;
-  }
+  public abstract Executor executor();
 
   private void rethrowIfFailed() {
     Throwable cause = getCause();
@@ -1809,38 +1803,6 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     safeExecute(executor, () -> notifyListener(future, listener));
   }
 
-  protected final void notifyListeners() {
-    safeExecute(executor, new NotifyTask());
-  }
-
-  private void notifyListenersNow() {
-    Object listeners;
-    synchronized(this) {
-      if (this.listeners == null) {
-        return;
-      }
-      listeners = this.listeners;
-      this.listeners = null;
-    }
-    while (true) {
-      if (listeners instanceof FutureListener<?> fl) {
-        notifyListener(this, fl);
-      }
-      else if (listeners instanceof FutureListeners holder) {
-        for (FutureListener<?> listener : holder.listeners) {
-          notifyListener(this, listener);
-        }
-      }
-      synchronized(this) {
-        if (this.listeners == null) {
-          return;
-        }
-        listeners = this.listeners;
-        this.listeners = null;
-      }
-    }
-  }
-
   @SuppressWarnings({ "unchecked", "rawtypes" })
   static void notifyListener(Future future, FutureListener l) {
     try {
@@ -1852,7 +1814,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     }
   }
 
-  private static void safeExecute(Executor executor, Runnable task) {
+  static void safeExecute(Executor executor, Runnable task) {
     try {
       executor.execute(task);
     }
@@ -1865,7 +1827,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * @since 5.0
    */
-  private Scheduler createScheduler(ScheduledExecutorService scheduledService) {
+  private static Scheduler createScheduler(Executor executor, ScheduledExecutorService scheduledService) {
     Assert.notNull(scheduledService, "ScheduledExecutorService is required");
     return new Scheduler() {
 
@@ -1884,7 +1846,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * @since 5.0
    */
-  private Scheduler scheduler() {
+  private static Scheduler scheduler(Executor executor) {
     return executor instanceof Scheduler ? (Scheduler) executor : new Scheduler() {
 
       @Override
@@ -1998,20 +1960,20 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new Promise instance.
+   * Creates a {@link Future} from the given {@link CompletionStage}.
    */
-  public static <V extends @Nullable Object> Future<V> forAdaption(CompletionStage<V> stage) {
-    return forAdaption(stage, defaultScheduler);
+  public static <V extends @Nullable Object> Future<V> fromCompletionStage(CompletionStage<V> stage) {
+    return fromCompletionStage(stage, defaultScheduler);
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new Promise instance.
+   * Creates a {@link Future} from the given {@link CompletionStage}.
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
    */
   @SuppressWarnings({ "unchecked" })
-  public static <V extends @Nullable Object> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
+  public static <V extends @Nullable Object> Future<V> fromCompletionStage(CompletionStage<V> stage, @Nullable Executor executor) {
     return create(promise -> {
       stage.whenCompleteAsync((v, failure) -> {
         if (failure != null) {
@@ -2260,11 +2222,4 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     return new FutureCombiner(true, futures.toList());
   }
 
-  private final class NotifyTask implements Runnable {
-
-    @Override
-    public void run() {
-      notifyListenersNow();
-    }
-  }
 }

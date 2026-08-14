@@ -40,6 +40,8 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
 
   private final @Nullable Throwable executionException;
 
+  private final Executor executor;
+
   /**
    * Creates a new instance.
    *
@@ -47,9 +49,14 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
    * @param value the value to pass through
    */
   CompleteFuture(@Nullable Executor executor, @Nullable V value, @Nullable Throwable ex) {
-    super(executor);
+    this.executor = executor == null ? Future.defaultScheduler : executor;
     this.value = value;
     this.executionException = ex;
+  }
+
+  @Override
+  public Executor executor() {
+    return executor;
   }
 
   @Override
@@ -58,16 +65,14 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   }
 
   @Override
-  public boolean isFailure() {
-    return executionException != null;
-  }
-
-  @Override
   public V get() throws ExecutionException {
     if (this.executionException != null) {
-      throw (this.executionException instanceof ExecutionException ?
-              (ExecutionException) this.executionException :
-              new ExecutionException(this.executionException));
+      if (this.executionException instanceof CancellationException) {
+        throw (CancellationException) this.executionException;
+      }
+      throw this.executionException instanceof ExecutionException
+              ? (ExecutionException) this.executionException
+              : new ExecutionException(this.executionException);
     }
     return this.value;
   }
@@ -95,7 +100,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   }
 
   @Override
-  public CompletableFuture<V> completable() {
+  public CompletableFuture<V> toCompletableFuture() {
     if (this.executionException != null) {
       CompletableFuture<V> completable = new CompletableFuture<>();
       completable.completeExceptionally(exposedException(this.executionException));
@@ -114,8 +119,8 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   }
 
   @Override
-  public <C> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    notifyListener(executor(), this, FutureListener.forAdaption(listener, context));
+  public <C extends @Nullable Object> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    notifyListener(executor(), this, FutureListener.fromContextListener(listener, context));
     return this;
   }
 
@@ -170,7 +175,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
    * @param mayInterruptIfRunning this value has no effect in this implementation.
    */
   @Override
-  public boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning) {
+  public boolean cancel(boolean mayInterruptIfRunning) {
     return false;
   }
 
@@ -180,8 +185,7 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
    *
    * @return the exposed exception
    */
-  @Nullable
-  private static Throwable exposedException(@Nullable Throwable original) {
+  private static @Nullable Throwable exposedException(@Nullable Throwable original) {
     if (original instanceof ExecutionException) {
       Throwable cause = original.getCause();
       if (cause != null) {

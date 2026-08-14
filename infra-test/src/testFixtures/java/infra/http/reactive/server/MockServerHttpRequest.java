@@ -104,7 +104,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private static MultiValueMap<String, String> createDefaultHttpHeaders(MockRequest request) {
-    var headers = MultiValueMap.<String, String>forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+    var headers = MultiValueMap.<String, String>forAdaptation(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
     for (Enumeration<String> names = request.getHeaderNames(); names.hasMoreElements(); ) {
       String name = names.nextElement();
       headers.addAll(name, request.getHeaders(name));

@@ -117,27 +117,22 @@ public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfi
   protected String placeholderSuffix = DEFAULT_PLACEHOLDER_SUFFIX;
 
   /** Defaults to {@value #DEFAULT_VALUE_SEPARATOR}. */
-  @Nullable
-  protected String valueSeparator = DEFAULT_VALUE_SEPARATOR;
+  protected @Nullable String valueSeparator = DEFAULT_VALUE_SEPARATOR;
 
   /**
    * The default is determined by {@link AbstractPropertyResolver#getDefaultEscapeCharacter()}.
    */
-  @Nullable
-  protected Character escapeCharacter = AbstractPropertyResolver.getDefaultEscapeCharacter();
+  protected @Nullable Character escapeCharacter = AbstractPropertyResolver.getDefaultEscapeCharacter();
 
   protected boolean trimValues = false;
 
-  @Nullable
-  protected String nullValue;
+  protected @Nullable String nullValue;
 
   protected boolean ignoreUnresolvablePlaceholders = false;
 
-  @Nullable
-  private String beanName;
+  private @Nullable String beanName;
 
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
 
   /**
    * Set the prefix that a placeholder string starts with.

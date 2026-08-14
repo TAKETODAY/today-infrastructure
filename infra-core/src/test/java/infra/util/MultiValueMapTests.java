@@ -181,17 +181,17 @@ class MultiValueMapTests {
   }
 
   @Test
-  void forAdaptionCreatesMultiValueMapFromExistingMap() {
+  void forAdaptationCreatesMultiValueMapFromExistingMap() {
     Map<String, List<String>> source = new HashMap<>();
     source.put("key", List.of("value"));
 
-    MultiValueMap<String, String> adapted = MultiValueMap.forAdaption(source);
+    MultiValueMap<String, String> adapted = MultiValueMap.forAdaptation(source);
     assertThat(adapted.get("key")).containsExactly("value");
   }
 
   @Test
-  void forSmartListAdaptionUsesSmartList() {
-    MultiValueMap<String, String> map = MultiValueMap.forSmartListAdaption();
+  void forSmartListAdaptationUsesSmartList() {
+    MultiValueMap<String, String> map = MultiValueMap.forSmartListAdaptation();
     map.add("key", "value");
 
     assertThat(map.get("key"))
@@ -469,14 +469,14 @@ class MultiValueMapTests {
             arguments(named("new LinkedMultiValueMap<>(new HashMap<>())", new LinkedMultiValueMap<>(new HashMap<>()))),
             arguments(named("new LinkedMultiValueMap<>(new LinkedHashMap<>())", new LinkedMultiValueMap<>(new LinkedHashMap<>()))),
             arguments(named("new LinkedMultiValueMap<>(Map.of(...))", new LinkedMultiValueMap<>(Map.of("existingkey", List.of("existingvalue1", "existingvalue2"))))),
-            arguments(named("MultiValueMap.forAdaption(HashMap)", MultiValueMap.forAdaption(new HashMap<>()))),
-            arguments(named("CollectionUtils.forAdaption(LinkedHashMap)", MultiValueMap.forAdaption(new LinkedHashMap<>()))),
-            arguments(named("MultiValueMap.forSmartListAdaption()", MultiValueMap.forSmartListAdaption())),
-            arguments(named("MultiValueMap.forAdaption(ArrayList)", MultiValueMap.forAdaption(k -> new ArrayList<>()))),
-            arguments(named("MultiValueMap.forAdaption(SmartList)", MultiValueMap.forAdaption(k -> new SmartList<>()))),
-            arguments(named("MultiValueMap.forAdaption(HashMap, SmartList)", MultiValueMap.forAdaption(new HashMap<>(), k -> new SmartList<>()))),
-            arguments(named("MultiValueMap.forAdaption(LinkedHashMap, SmartList)", MultiValueMap.forAdaption(new LinkedHashMap<>(), k -> new SmartList<>()))),
-            arguments(named("MultiValueMap.forSmartListAdaption(HashMap)", MultiValueMap.forSmartListAdaption(new HashMap<>())))
+            arguments(named("MultiValueMap.forAdaptation(HashMap)", MultiValueMap.forAdaptation(new HashMap<>()))),
+            arguments(named("CollectionUtils.forAdaptation(LinkedHashMap)", MultiValueMap.forAdaptation(new LinkedHashMap<>()))),
+            arguments(named("MultiValueMap.forSmartListAdaptation()", MultiValueMap.forSmartListAdaptation())),
+            arguments(named("MultiValueMap.forAdaptation(ArrayList)", MultiValueMap.forAdaptation(k -> new ArrayList<>()))),
+            arguments(named("MultiValueMap.forAdaptation(SmartList)", MultiValueMap.forAdaptation(k -> new SmartList<>()))),
+            arguments(named("MultiValueMap.forAdaptation(HashMap, SmartList)", MultiValueMap.forAdaptation(new HashMap<>(), k -> new SmartList<>()))),
+            arguments(named("MultiValueMap.forAdaptation(LinkedHashMap, SmartList)", MultiValueMap.forAdaptation(new LinkedHashMap<>(), k -> new SmartList<>()))),
+            arguments(named("MultiValueMap.forSmartListAdaptation(HashMap)", MultiValueMap.forSmartListAdaptation(new HashMap<>())))
     );
   }
 

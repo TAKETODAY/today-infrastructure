@@ -58,7 +58,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
   /**
    * An empty, read-only MultiValueMap instance.
    */
-  MultiValueMap EMPTY = forAdaption(Collections.emptyMap());
+  MultiValueMap EMPTY = forAdaptation(Collections.emptyMap());
 
   /**
    * Return the first value for the given key.
@@ -376,7 +376,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  static <K, V> MultiValueMapAdapter<K, V> forAdaption(Map<K, List<V>> targetMap) {
+  static <K, V> MultiValueMapAdapter<K, V> forAdaptation(Map<K, List<V>> targetMap) {
     return new MultiValueMapAdapter<>(targetMap);
   }
 
@@ -388,7 +388,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @param <V> value type
    * @return MappingMultiValueMap
    */
-  static <K, V> MappingMultiValueMap<K, V> forAdaption(Function<K, List<V>> mappingFunction) {
+  static <K, V> MappingMultiValueMap<K, V> forAdaptation(Function<K, List<V>> mappingFunction) {
     return new MappingMultiValueMap<>(mappingFunction);
   }
 
@@ -401,7 +401,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @return MappingMultiValueMap
    */
   @SuppressWarnings("unchecked")
-  static <K, V> MappingMultiValueMap<K, V> forSmartListAdaption(Map<K, List<V>> targetMap) {
+  static <K, V> MappingMultiValueMap<K, V> forSmartListAdaptation(Map<K, List<V>> targetMap) {
     return new MappingMultiValueMap<>(targetMap, smartListMappingFunction);
   }
 
@@ -414,7 +414,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @return MappingMultiValueMap
    */
   @SuppressWarnings("unchecked")
-  static <K, V> MappingMultiValueMap<K, V> forSmartListAdaption() {
+  static <K, V> MappingMultiValueMap<K, V> forSmartListAdaptation() {
     return new MappingMultiValueMap<>(smartListMappingFunction);
   }
 
@@ -426,7 +426,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  static <K, V> MappingMultiValueMap<K, V> forAdaption(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
+  static <K, V> MappingMultiValueMap<K, V> forAdaptation(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
     return new MappingMultiValueMap<>(targetMap, mappingFunction);
   }
 
@@ -449,7 +449,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @since 5.0
    */
   static <K, V> MappingMultiValueMap<K, V> copyOf(Function<K, List<V>> mappingFunction, Map<K, List<V>> targetMap) {
-    MappingMultiValueMap<K, V> map = forAdaption(mappingFunction);
+    MappingMultiValueMap<K, V> map = forAdaptation(mappingFunction);
     map.addAll(targetMap);
     return map;
   }
@@ -462,7 +462,7 @@ public interface MultiValueMap<K, V extends @Nullable Object> extends Map<K, Lis
    * @since 5.0
    */
   static <K, V> MappingMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction, Map<K, List<V>> source) {
-    MappingMultiValueMap<K, V> map = forAdaption(targetMap, mappingFunction);
+    MappingMultiValueMap<K, V> map = forAdaptation(targetMap, mappingFunction);
     map.addAll(source);
     return map;
   }

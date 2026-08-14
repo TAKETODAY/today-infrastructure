@@ -100,7 +100,7 @@ public interface AsyncServerResponse extends ServerResponse {
   @SuppressWarnings("unchecked")
   private static CompletableFuture<ServerResponse> toCompletableFuture(Object obj) {
     if (obj instanceof Future<?> future) {
-      return (CompletableFuture<ServerResponse>) future.completable();
+      return (CompletableFuture<ServerResponse>) future.toCompletableFuture();
     }
     else if (obj instanceof CompletableFuture<?> futureResponse) {
       return (CompletableFuture<ServerResponse>) futureResponse;
