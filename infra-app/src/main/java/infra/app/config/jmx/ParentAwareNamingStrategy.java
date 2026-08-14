@@ -18,6 +18,8 @@
 
 package infra.app.config.jmx;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Hashtable;
 
 import javax.management.MalformedObjectNameException;
@@ -67,7 +69,7 @@ public class ParentAwareNamingStrategy extends MetadataNamingStrategy implements
   }
 
   @Override
-  public ObjectName getObjectName(Object managedBean, String beanKey) throws MalformedObjectNameException {
+  public ObjectName getObjectName(Object managedBean, @Nullable String beanKey) throws MalformedObjectNameException {
     ObjectName name = super.getObjectName(managedBean, beanKey);
     if (this.ensureUniqueRuntimeObjectNames) {
       return JmxUtils.appendIdentityToObjectName(name, managedBean);

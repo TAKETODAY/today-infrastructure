@@ -16,6 +16,8 @@
 
 package infra.app.config.jmx;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.management.MXBean;
 
 import infra.app.context.event.ApplicationReadyEvent;
@@ -57,7 +59,7 @@ public interface InfraApplicationMXBean {
    * @param key the property key
    * @return the property value or {@code null} if it does not exist
    */
-  String getProperty(String key);
+  @Nullable String getProperty(String key);
 
   /**
    * Shutdown the application.

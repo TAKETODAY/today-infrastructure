@@ -74,14 +74,11 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
    */
   public static final String ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME = "environmentProperties";
 
-  @Nullable
-  private PropertySources propertySources;
+  private @Nullable PropertySources propertySources;
 
-  @Nullable
-  private PropertySources appliedPropertySources;
+  private @Nullable PropertySources appliedPropertySources;
 
-  @Nullable
-  private Environment environment;
+  private @Nullable Environment environment;
 
   /**
    * Customize the set of {@link PropertySources} to be used by this configurer.
@@ -233,9 +230,8 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
     }
 
     @Override
-    @Nullable
     // Declare String as covariant return type, since a String is actually required.
-    public String getProperty(String name) {
+    public @Nullable String getProperty(String name) {
       for (PropertySource<?> propertySource : super.source.getPropertySources()) {
         Object candidate = propertySource.getProperty(name);
         if (candidate != null) {
@@ -254,8 +250,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
      * @param value the value to convert
      * @return the converted value, or the original value if no conversion is necessary
      */
-    @Nullable
-    private String convertToString(Object value) {
+    private @Nullable String convertToString(Object value) {
       if (value instanceof String string) {
         return string;
       }
@@ -286,10 +281,9 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
       return super.source.containsProperty(name);
     }
 
-    @Nullable
     @Override
     // Declare String as covariant return type, since a String is actually required.
-    public String getProperty(String name) {
+    public @Nullable String getProperty(String name) {
       return super.source.getProperty(name);
     }
 

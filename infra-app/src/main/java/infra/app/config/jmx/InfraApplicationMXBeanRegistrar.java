@@ -16,6 +16,8 @@
 
 package infra.app.config.jmx;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
@@ -139,7 +141,7 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
     }
 
     @Override
-    public String getProperty(String key) {
+    public @Nullable String getProperty(String key) {
       return environment.getProperty(key);
     }
 

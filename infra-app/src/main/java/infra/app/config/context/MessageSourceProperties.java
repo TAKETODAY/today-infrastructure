@@ -52,22 +52,19 @@ public class MessageSourceProperties {
   /**
    * List of locale-independent property file resources containing common messages.
    */
-  @Nullable
-  private List<Resource> commonMessages;
+  private @Nullable List<Resource> commonMessages;
 
   /**
    * Message bundles encoding.
    */
-  @Nullable
-  private Charset encoding = StandardCharsets.UTF_8;
+  private @Nullable Charset encoding = StandardCharsets.UTF_8;
 
   /**
    * Loaded resource bundle files cache duration. When not set, bundles are cached
    * forever. If a duration suffix is not specified, seconds will be used.
    */
-  @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
-  private Duration cacheDuration;
+  private @Nullable Duration cacheDuration;
 
   /**
    * Whether to fall back to the system Locale if no files for a specific Locale have
@@ -96,8 +93,7 @@ public class MessageSourceProperties {
     this.basename = basename;
   }
 
-  @Nullable
-  public Charset getEncoding() {
+  public @Nullable Charset getEncoding() {
     return this.encoding;
   }
 
@@ -105,8 +101,7 @@ public class MessageSourceProperties {
     this.encoding = encoding;
   }
 
-  @Nullable
-  public Duration getCacheDuration() {
+  public @Nullable Duration getCacheDuration() {
     return this.cacheDuration;
   }
 
@@ -138,8 +133,7 @@ public class MessageSourceProperties {
     this.useCodeAsDefaultMessage = useCodeAsDefaultMessage;
   }
 
-  @Nullable
-  public List<Resource> getCommonMessages() {
+  public @Nullable List<Resource> getCommonMessages() {
     return this.commonMessages;
   }
 
