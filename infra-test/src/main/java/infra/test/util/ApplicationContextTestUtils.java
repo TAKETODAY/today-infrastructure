@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.util;
+package infra.test.util;
 
 import org.jspecify.annotations.Nullable;
 

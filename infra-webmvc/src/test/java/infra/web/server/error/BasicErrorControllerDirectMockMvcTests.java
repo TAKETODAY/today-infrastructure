@@ -35,7 +35,7 @@ import java.net.URL;
 import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.Application;
 import infra.app.builder.ApplicationBuilder;
-import infra.app.test.util.ApplicationContextTestUtils;
+import infra.test.util.ApplicationContextTestUtils;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.EnableAspectJAutoProxy;
