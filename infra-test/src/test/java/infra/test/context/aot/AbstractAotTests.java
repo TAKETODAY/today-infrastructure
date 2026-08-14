@@ -85,7 +85,8 @@ abstract class AbstractAotTests {
           "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_ApplicationContextInitializer.java",
           "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanDefinitions.java",
           "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanFactoryRegistrations.java",
-          "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext003_EnvironmentPostProcessor.java"
+          "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext003_EnvironmentPostProcessor.java",
+          "infra/test/context/support/ImportsContextCustomizer__TestContext001_BeanDefinitions.java"
 
   };
 

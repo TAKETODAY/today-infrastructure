@@ -19,7 +19,8 @@ infra.test.context.ContextCustomizerFactory=\
   infra.test.context.bean.override.BeanOverrideContextCustomizerFactory,\
   infra.test.context.support.DynamicPropertiesContextCustomizerFactory,\
   infra.test.context.filter.ExcludeFilterContextCustomizerFactory,\
-  infra.test.context.filter.annotation.TypeExcludeFiltersContextCustomizerFactory
+  infra.test.context.filter.annotation.TypeExcludeFiltersContextCustomizerFactory,\
+  infra.test.context.support.ImportsContextCustomizerFactory
 
 infra.context.ApplicationContextInitializer=\
 infra.test.context.filter.ExcludeFilterApplicationContextInitializer
