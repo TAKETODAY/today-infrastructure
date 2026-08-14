@@ -30,12 +30,12 @@ import java.lang.annotation.Target;
 import infra.app.InfraApplication;
 import infra.app.test.config.OverrideAutoConfiguration;
 import infra.app.test.context.InfraTest;
-import infra.test.context.filter.annotation.TypeExcludeFilters;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.core.annotation.AliasFor;
 import infra.core.env.Environment;
 import infra.test.context.BootstrapWith;
+import infra.test.context.filter.annotation.TypeExcludeFilters;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.transaction.annotation.Transactional;
 

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.test.context;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.context.annotation.PropertySource;
-import infra.test.context.TestPropertySource;
 
 /**
  * Indicates that attributes from a test annotation should be mapped into a

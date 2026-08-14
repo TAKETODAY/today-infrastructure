@@ -16,14 +16,11 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.test.context;
 
 import java.util.List;
 
 import infra.core.env.Environment;
-import infra.test.context.ContextConfigurationAttributes;
-import infra.test.context.ContextCustomizer;
-import infra.test.context.ContextCustomizerFactory;
 
 /**
  * {@link ContextCustomizerFactory} to map annotation attributes to {@link Environment}

@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.test.context.PropertyMapping;
+import infra.test.context.PropertyMapping;
 import infra.app.test.json.BasicJsonTester;
 import infra.app.test.json.GsonTester;
 import infra.app.test.json.JacksonTester;

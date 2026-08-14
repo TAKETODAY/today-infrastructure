@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.test.context;
 
 import org.jspecify.annotations.Nullable;
 
@@ -29,13 +29,12 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.app.test.context.PropertyMapping.Skip;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.env.EnumerablePropertySource;
-import infra.test.context.TestContextAnnotationUtils;
+import infra.test.context.PropertyMapping.Skip;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

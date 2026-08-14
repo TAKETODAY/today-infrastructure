@@ -27,12 +27,12 @@ import java.lang.annotation.Target;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.PropertyMapping;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.context.container.ContainerImageMetadata;
 import infra.jdbc.config.EmbeddedDatabaseConnection;
 import infra.test.context.DynamicPropertySource;
+import infra.test.context.PropertyMapping;
 
 /**
  * Annotation that can be applied to a test class to configure a test database to use

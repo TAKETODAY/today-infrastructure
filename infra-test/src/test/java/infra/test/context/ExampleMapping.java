@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.test.context;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

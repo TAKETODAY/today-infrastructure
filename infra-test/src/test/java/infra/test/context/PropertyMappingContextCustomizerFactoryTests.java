@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.test.context;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,9 +30,6 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.core.env.ConfigurableEnvironment;
-import infra.test.context.ContextCustomizer;
-import infra.test.context.ContextLoader;
-import infra.test.context.MergedContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

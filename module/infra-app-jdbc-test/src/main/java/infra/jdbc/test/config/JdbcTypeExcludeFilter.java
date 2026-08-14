@@ -18,8 +18,8 @@
 
 package infra.jdbc.test.config;
 
-import infra.test.context.filter.annotation.StandardAnnotationCustomizableTypeExcludeFilter;
 import infra.context.annotation.config.TypeExcludeFilter;
+import infra.test.context.filter.annotation.StandardAnnotationCustomizableTypeExcludeFilter;
 
 /**
  * {@link TypeExcludeFilter} for {@link JdbcTest @JdbcTest}.

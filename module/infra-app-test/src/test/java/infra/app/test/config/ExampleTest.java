@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.test.context.PropertyMapping;
+import infra.test.context.PropertyMapping;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.test.context.BootstrapWith;
 import infra.test.context.junit.jupiter.InfraExtension;

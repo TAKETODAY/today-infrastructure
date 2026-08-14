@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.context;
+package infra.test.context;
 
 import org.jspecify.annotations.Nullable;
 
@@ -32,8 +32,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.env.Environment;
 import infra.stereotype.Component;
-import infra.test.context.ContextCustomizer;
-import infra.test.context.MergedContextConfiguration;
 import infra.util.ClassUtils;
 
 /**

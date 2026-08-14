@@ -3,7 +3,6 @@
 infra.test.context.ContextCustomizerFactory=\
     infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
     infra.app.test.web.reactive.server.WebTestClientContextCustomizerFactory,\
-    infra.app.test.context.PropertyMappingContextCustomizerFactory,\
     infra.app.test.config.OnFailureConditionReportContextCustomizerFactory,\
     infra.app.test.config.OverrideAutoConfigurationContextCustomizerFactory
 
