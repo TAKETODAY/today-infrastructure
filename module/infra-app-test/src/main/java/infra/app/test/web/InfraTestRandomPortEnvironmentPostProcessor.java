@@ -18,6 +18,8 @@
 
 package infra.app.test.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
 import infra.app.Application;
@@ -72,7 +74,7 @@ class InfraTestRandomPortEnvironmentPostProcessor implements EnvironmentPostProc
     return source.getProperty(MANAGEMENT_PORT_PROPERTY) != null;
   }
 
-  private Integer getPropertyAsInteger(ConfigurableEnvironment environment, String property, Integer defaultValue) {
+  private @Nullable Integer getPropertyAsInteger(ConfigurableEnvironment environment, String property, @Nullable Integer defaultValue) {
     return environment.getPropertySources()
             .stream()
             .filter(source -> !source.getName().equals(TestPropertySourceUtils.INLINED_PROPERTIES_PROPERTY_SOURCE_NAME))
@@ -82,7 +84,7 @@ class InfraTestRandomPortEnvironmentPostProcessor implements EnvironmentPostProc
             .orElse(defaultValue);
   }
 
-  private Integer getPropertyAsInteger(PropertySource<?> source,
+  private @Nullable Integer getPropertyAsInteger(PropertySource<?> source,
           String property, ConfigurableEnvironment environment) {
     Object value = source.getProperty(property);
     if (value == null) {
@@ -102,7 +104,7 @@ class InfraTestRandomPortEnvironmentPostProcessor implements EnvironmentPostProc
     }
   }
 
-  private Integer getResolvedValueIfPossible(ConfigurableEnvironment environment, String value) {
+  private @Nullable Integer getResolvedValueIfPossible(ConfigurableEnvironment environment, String value) {
     String resolvedValue = environment.resolveRequiredPlaceholders(value);
     return environment.getConversionService().convert(resolvedValue, Integer.class);
   }
