@@ -29,7 +29,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
 import infra.lang.Assert;
-import infra.util.ExceptionUtils;
 
 /**
  * Abstract {@link Future} implementation which allow for cancellation.
@@ -148,10 +147,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return (Throwable) result;
     }
     else if (s >= CANCELLED) {
-      if (result instanceof Throwable) {
-        return (Throwable) result;
-      }
-      return LeanCancellationException.INSTANCE;
+      return new LeanCancellationException();
     }
     return null;
   }
@@ -299,10 +295,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return (V) result;
     }
     if (s >= CANCELLED) {
-      if (result instanceof Throwable) {
-        throw ExceptionUtils.sneakyThrow((Throwable) result);
-      }
-      throw LeanCancellationException.INSTANCE;
+      throw new LeanCancellationException();
     }
     throw new ExecutionException((Throwable) result);
   }
@@ -489,8 +482,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     private static final StackTraceElement[] CANCELLATION_STACK = {
             new StackTraceElement(AbstractFuture.class.getName(), "cancel(...)", null, -1)
     };
-
-    private static final LeanCancellationException INSTANCE = new LeanCancellationException();
 
     // Suppress a warning since the method doesn't need synchronization
     @Override
