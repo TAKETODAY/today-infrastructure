@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.app.InfraApplication;
 import infra.app.test.context.InfraTest;
 import infra.app.test.context.InfraTest.WebEnvironment;
-import infra.app.test.web.server.LocalServerPort;
+import infra.test.web.server.LocalServerPort;
 import infra.core.ParameterizedTypeReference;
 import infra.http.ServerSentEvent;
 import infra.test.context.TestPropertySource;

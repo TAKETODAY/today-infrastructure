@@ -31,7 +31,6 @@ import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.app.ApplicationType;
 import infra.app.InfraConfiguration;
-import infra.app.test.web.server.LocalServerPort;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AliasFor;
@@ -41,6 +40,7 @@ import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextLoader;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.web.reactive.server.WebTestClient;
+import infra.test.web.server.LocalServerPort;
 import infra.web.reactive.context.ReactiveWebApplicationContext;
 
 /**

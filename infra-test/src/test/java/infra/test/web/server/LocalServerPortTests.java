@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.web.server;
+package infra.test.web.server;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

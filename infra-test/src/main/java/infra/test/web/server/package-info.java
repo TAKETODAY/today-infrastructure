@@ -1,8 +1,7 @@
-
 /**
  * web server tests supporting
  */
 @NullMarked
-package infra.app.test.web.server;
+package infra.test.web.server;
 
 import org.jspecify.annotations.NullMarked;
