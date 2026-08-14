@@ -19,10 +19,10 @@ package infra.flyway.config;
 import org.junit.jupiter.api.Test;
 
 import infra.app.InfraConfiguration;
-import infra.app.test.config.jdbc.AutoConfigureDataSourceInitialization;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
+import infra.test.context.jdbc.AutoConfigureDataSourceInitialization;
 
 import static infra.app.config.AutoConfigurationImportedCondition.importedAutoConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;

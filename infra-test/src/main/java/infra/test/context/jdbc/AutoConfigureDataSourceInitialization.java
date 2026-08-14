@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.config.jdbc;
+package infra.test.context.jdbc;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

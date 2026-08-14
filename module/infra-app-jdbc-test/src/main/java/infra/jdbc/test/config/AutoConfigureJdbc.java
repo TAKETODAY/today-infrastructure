@@ -25,8 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.test.config.jdbc.AutoConfigureDataSourceInitialization;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.test.context.jdbc.AutoConfigureDataSourceInitialization;
 
 /**
  * {@link ImportAutoConfiguration Auto-configuration imports} for typical JDBC tests. Most
