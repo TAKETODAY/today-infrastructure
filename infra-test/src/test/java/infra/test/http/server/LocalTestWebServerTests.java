@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.http.server;
+package infra.test.http.server;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -25,11 +25,11 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.app.test.http.server.LocalTestWebServer.BaseUriDetails;
-import infra.app.test.http.server.LocalTestWebServer.Scheme;
 import infra.context.ApplicationContext;
 import infra.context.support.GenericApplicationContext;
 import infra.test.classpath.resources.WithResource;
+import infra.test.http.server.LocalTestWebServer.BaseUriDetails;
+import infra.test.http.server.LocalTestWebServer.Scheme;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriBuilderFactory;
 
@@ -158,10 +158,10 @@ class LocalTestWebServerTests {
 
   @Test
   @WithResource(name = "META-INF/today.strategies", content = """
-          infra.app.test.http.server.LocalTestWebServer$Provider=\
-          infra.app.test.http.server.LocalTestWebServerTests$Provider1,\
-          infra.app.test.http.server.LocalTestWebServerTests$Provider2,\
-          infra.app.test.http.server.LocalTestWebServerTests$Provider3
+          infra.test.http.server.LocalTestWebServer$Provider=\
+          infra.test.http.server.LocalTestWebServerTests$Provider1,\
+          infra.test.http.server.LocalTestWebServerTests$Provider2,\
+          infra.test.http.server.LocalTestWebServerTests$Provider3
           """)
   void getReturnsFirstProvided() {
     ApplicationContext applicationContext = new GenericApplicationContext();
@@ -172,8 +172,8 @@ class LocalTestWebServerTests {
 
   @Test
   @WithResource(name = "META-INF/today.strategies", content = """
-          infra.app.test.http.server.LocalTestWebServer$Provider=\
-          infra.app.test.http.server.LocalTestWebServerTests$Provider1
+          infra.test.http.server.LocalTestWebServer$Provider=\
+          infra.test.http.server.LocalTestWebServerTests$Provider1
           """)
   void getWhenNoneReturnsNull() {
     ApplicationContext applicationContext = new GenericApplicationContext();
@@ -183,8 +183,8 @@ class LocalTestWebServerTests {
 
   @Test
   @WithResource(name = "META-INF/today.strategies", content = """
-          infra.app.test.http.server.LocalTestWebServer$Provider=\
-          infra.app.test.http.server.LocalTestWebServerTests$Provider1
+          infra.test.http.server.LocalTestWebServer$Provider=\
+          infra.test.http.server.LocalTestWebServerTests$Provider1
           """)
   void obtainWhenNoneProvidedThrowsException() {
     ApplicationContext applicationContext = new GenericApplicationContext();

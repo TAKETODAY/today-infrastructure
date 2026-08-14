@@ -20,12 +20,12 @@ package infra.app.resttestclient.config;
 
 import infra.app.resttestclient.TestRestTemplate;
 import infra.app.resttestclient.TestRestTemplate.HttpClientOption;
-import infra.app.test.http.server.LocalTestWebServer;
 import infra.beans.factory.ObjectProvider;
 import infra.context.ApplicationContext;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.stereotype.Component;
+import infra.test.http.server.LocalTestWebServer;
 import infra.web.client.RestTemplateBuilder;
 
 /**

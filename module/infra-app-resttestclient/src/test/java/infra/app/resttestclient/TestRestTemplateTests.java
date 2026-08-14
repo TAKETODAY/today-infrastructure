@@ -36,8 +36,6 @@ import java.util.Base64;
 import java.util.stream.Stream;
 
 import infra.app.resttestclient.TestRestTemplate.HttpClientOption;
-import infra.app.test.http.server.LocalTestWebServer;
-import infra.app.test.http.server.LocalTestWebServer.Scheme;
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
@@ -54,6 +52,8 @@ import infra.http.client.HttpRedirects;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
+import infra.test.http.server.LocalTestWebServer;
+import infra.test.http.server.LocalTestWebServer.Scheme;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectionUtils.MethodCallback;
