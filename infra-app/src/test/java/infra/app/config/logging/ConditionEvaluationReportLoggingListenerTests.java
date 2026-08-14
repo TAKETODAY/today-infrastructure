@@ -31,8 +31,6 @@ import infra.app.ApplicationArguments;
 import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.context.event.ApplicationFailedEvent;
 import infra.app.logging.LogLevel;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -40,6 +38,8 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.web.config.WebMvcAutoConfiguration;
 
 import static infra.app.config.logging.ConditionEvaluationReportLoggingListener.forLoggingLevel;

@@ -20,12 +20,12 @@ package infra.app.config.context;
 
 import org.junit.jupiter.api.Test;
 
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.support.AbstractApplicationContext;
 import infra.context.support.DefaultLifecycleProcessor;
+import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

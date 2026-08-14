@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.test.classpath.ClassPathOverrides;
 
 import static org.assertj.core.api.Assertions.assertThat;

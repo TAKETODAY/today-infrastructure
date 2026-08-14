@@ -18,9 +18,9 @@
 
 package infra.app.info;
 
-import java.util.Properties;
-
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
 
 import infra.core.env.PropertySource;
 

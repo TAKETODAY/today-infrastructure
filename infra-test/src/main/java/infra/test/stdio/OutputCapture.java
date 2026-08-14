@@ -16,7 +16,9 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.system;
+package infra.test.stdio;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,13 +50,13 @@ class OutputCapture implements CapturedOutput {
 
   private final Deque<SystemCapture> systemCaptures = new ArrayDeque<>();
 
-  private AnsiOutputState ansiOutputState;
+  private final AtomicReference<@Nullable String> out = new AtomicReference<>(null);
 
-  private final AtomicReference<String> out = new AtomicReference<>(null);
+  private final AtomicReference<@Nullable String> err = new AtomicReference<>(null);
 
-  private final AtomicReference<String> err = new AtomicReference<>(null);
+  private final AtomicReference<@Nullable String> all = new AtomicReference<>(null);
 
-  private final AtomicReference<String> all = new AtomicReference<>(null);
+  private @Nullable AnsiOutputState ansiOutputState;
 
   /**
    * Push a new system capture session onto the stack.
@@ -80,7 +82,7 @@ class OutputCapture implements CapturedOutput {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }
@@ -145,7 +147,7 @@ class OutputCapture implements CapturedOutput {
     this.all.set(null);
   }
 
-  private String get(AtomicReference<String> existing, Predicate<Type> filter) {
+  private String get(AtomicReference<@Nullable String> existing, Predicate<Type> filter) {
     Assert.state(!this.systemCaptures.isEmpty(),
             "No system captures found. Please check your output capture registration.");
     String result = existing.get();
@@ -271,13 +273,13 @@ class OutputCapture implements CapturedOutput {
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) {
       this.copy.accept(new String(b, off, len));
       this.systemStream.write(b, off, len);
     }
 
     @Override
-    public void flush() throws IOException {
+    public void flush() {
       this.systemStream.flush();
     }
 
@@ -333,7 +335,7 @@ class OutputCapture implements CapturedOutput {
       AnsiOutput.setEnabled(this.saved);
     }
 
-    static AnsiOutputState saveAndDisable() {
+    static @Nullable AnsiOutputState saveAndDisable() {
       if (!ClassUtils.isPresent("infra.core.ansi.AnsiOutput",
               OutputCapture.class.getClassLoader())) {
         return null;

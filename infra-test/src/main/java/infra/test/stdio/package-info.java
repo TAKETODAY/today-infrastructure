@@ -3,6 +3,6 @@
  * Classes for {@link java.lang.System System}-related testing.
  */
 @NullMarked
-package infra.app.test.system;
+package infra.test.stdio;
 
 import org.jspecify.annotations.NullMarked;

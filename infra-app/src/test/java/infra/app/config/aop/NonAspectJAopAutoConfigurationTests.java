@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import infra.aop.config.AopConfigUtils;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.classpath.ClassPathExclusions;
+import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

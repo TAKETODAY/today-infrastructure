@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.test.context.runner.ApplicationContextRunner;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;

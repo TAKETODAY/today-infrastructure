@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.Condition;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.context.condition.ConditionOutcome;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

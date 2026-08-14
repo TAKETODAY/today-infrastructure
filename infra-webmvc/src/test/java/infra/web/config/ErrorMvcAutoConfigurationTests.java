@@ -26,8 +26,8 @@ import java.time.Clock;
 import java.util.Map;
 
 import infra.test.context.runner.ApplicationContextRunner;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.web.mock.MockRequest;

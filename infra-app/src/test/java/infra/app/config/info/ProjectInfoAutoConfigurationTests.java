@@ -26,11 +26,11 @@ import java.util.Properties;
 import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.info.BuildProperties;
 import infra.app.info.GitProperties;
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.classpath.resources.WithResource;
+import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

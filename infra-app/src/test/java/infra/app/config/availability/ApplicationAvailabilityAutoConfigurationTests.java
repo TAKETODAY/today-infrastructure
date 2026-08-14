@@ -24,8 +24,8 @@ import infra.app.LazyInitializationBeanFactoryPostProcessor;
 import infra.app.availability.ApplicationAvailability;
 import infra.app.availability.AvailabilityChangeEvent;
 import infra.app.availability.ReadinessState;
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

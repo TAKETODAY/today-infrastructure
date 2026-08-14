@@ -27,9 +27,9 @@ import java.util.Map;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.mock.env.MockEnvironment;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

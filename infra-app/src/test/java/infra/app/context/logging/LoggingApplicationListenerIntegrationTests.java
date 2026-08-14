@@ -32,12 +32,12 @@ import infra.app.context.event.ApplicationStartingEvent;
 import infra.app.logging.LogFile;
 import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystemProperty;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.ObjectProvider;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
 import infra.stereotype.Component;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

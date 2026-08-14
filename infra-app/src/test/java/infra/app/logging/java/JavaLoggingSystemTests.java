@@ -36,8 +36,8 @@ import infra.app.logging.LogLevel;
 import infra.app.logging.LoggerConfiguration;
 import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystemProperty;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

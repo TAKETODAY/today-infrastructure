@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.test.system;
+package infra.test.stdio;
 
 /**
  * Provides access to {@link System#out System.out} and {@link System#err System.err}

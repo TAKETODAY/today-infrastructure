@@ -53,7 +53,7 @@ import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.test.context.assertj.AssertableApplicationContext;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.test.context.runner.ContextConsumer;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

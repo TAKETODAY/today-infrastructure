@@ -20,7 +20,6 @@ package infra.app.config.context;
 
 import org.junit.jupiter.api.Test;
 
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.annotation.Value;
 import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.beans.factory.support.BeanDefinitionRegistry;
@@ -29,6 +28,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 import infra.util.function.ThrowingConsumer;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

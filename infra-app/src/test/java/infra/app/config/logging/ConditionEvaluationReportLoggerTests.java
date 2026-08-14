@@ -29,10 +29,10 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import infra.app.config.logging.ConditionEvaluationReportLoggingListenerTests.Config;
 import infra.app.logging.LogLevel;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.condition.ConditionEvaluationReport;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -25,9 +25,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import infra.app.ApplicationType;
 import infra.app.builder.ApplicationBuilder;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.context.annotation.Configuration;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.web.util.pattern.PathPatternParser;
 import jakarta.annotation.PostConstruct;
 

@@ -24,10 +24,10 @@ import infra.app.context.config.ConfigDataEnvironmentContributor.Kind;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
-import infra.origin.MockOrigin;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.mock.env.MockPropertySource;
+import infra.origin.MockOrigin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
