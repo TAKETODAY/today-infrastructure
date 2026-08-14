@@ -217,9 +217,15 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public abstract class Future<V extends @Nullable Object> implements java.util.concurrent.Future<V> {
 
   /**
-   * The default executor is {@link ForkJoinPool#commonPool()}.
-   * <p>
-   * Facts about ForkJoinPool:
+   * The default {@link Scheduler} used when no {@link Executor} is supplied.
+   *
+   * <p>Resolved via {@link Scheduler#lookup()}, which discovers a {@link Scheduler}
+   * through {@code TodayStrategies} (a {@code SchedulerFactory} or a direct
+   * {@code Scheduler}), falling back to the built-in {@code DefaultScheduler}.
+   *
+   * <p>The built-in {@code DefaultScheduler} executes tasks on
+   * {@link ForkJoinPool#commonPool()} and schedules delayed tasks on a dedicated
+   * {@link ScheduledExecutorService}. Facts about the {@link ForkJoinPool}:
    *
    * <ul>
    * <li>It is work-stealing, i.e. all threads in the pool attempt to find work
@@ -230,17 +236,17 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Compared to fixed-size pools, this reduces the risk of dead-locks.
    * </li>
    * <li>The commonPool() is shared across the entire VM. Keep this in mind when also using
-   * {@link java.util.stream.Stream#parallel()} and {@link java.util.concurrent.CompletableFuture}}
+   * {@link java.util.stream.Stream#parallel()} and {@link java.util.concurrent.CompletableFuture}.
    * </li>
    * </ul>
    *
-   * The ForkJoinPool creates daemon threads but its run state is unaffected
+   * <p>The ForkJoinPool creates daemon threads but its run state is unaffected
    * by attempts to shutdown() or shutdownNow(). However, all running tasks are
-   * immediately terminated upon program System.exit(int).
-   * <p>
-   * IMPORTANT: Invoke {@code ForkJoinPool.commonPool().awaitQuiescence(long, TimeUnit)}
-   * before exit in order to ensure that all running async tasks complete before program termination.
+   * immediately terminated upon program System.exit(int). Invoke
+   * {@code ForkJoinPool.commonPool().awaitQuiescence(long, TimeUnit)} before exit
+   * to ensure that all running async tasks complete before program termination.
    *
+   * @see Scheduler#lookup()
    * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
    */
   public static final Scheduler defaultScheduler = Scheduler.lookup();
@@ -572,7 +578,16 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Waits for this future until it is done, and rethrows the cause of the
    * failure if this future failed.
    *
+   * <p>Unlike {@link CompletableFuture#join()}, this method returns {@code this}
+   * (for fluent chaining) rather than the result value, and it rethrows the
+   * <em>original</em> failure cause verbatim instead of wrapping it in a
+   * {@link java.util.concurrent.CompletionException}. A cancelled future rethrows
+   * a {@link CancellationException}.
+   *
    * @return this future object.
+   * @throws InterruptedException if the current thread was interrupted while waiting
+   * @see #syncUninterruptibly()
+   * @see #join()
    */
   public Future<V> sync() throws InterruptedException {
     await();
@@ -582,9 +597,19 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
-   * failure if this future failed.
+   * failure if this future failed, without interruption.
+   *
+   * <p>If the current thread is interrupted while waiting, the interruption is
+   * ignored and the wait continues until this future completes; the thread's
+   * interrupt status is restored before this method returns. This matches the
+   * non-interruptible behavior of {@link CompletableFuture#join()}.
+   *
+   * <p>As with {@link #sync()}, the original failure cause is rethrown verbatim,
+   * not wrapped in a {@link java.util.concurrent.CompletionException}.
    *
    * @return this future object.
+   * @see #sync()
+   * @see #join()
    */
   public Future<V> syncUninterruptibly() {
     awaitUninterruptibly();
@@ -1621,6 +1646,11 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * The result handler may compute a new result, which will be the return value
    * of the {@code join} call.
    *
+   * <p>This method is unrelated to {@link CompletableFuture#join()}: instead of
+   * returning the result, it blocks and hands the outcome (result or failure) to
+   * the given {@code resultHandler}, similar to a blocking
+   * {@link CompletableFuture#handle(BiFunction)}.
+   *
    * @param resultHandler The function that will process the result of the completed future.
    * @param <T> The return type of the {@code resultHandler}.
    * @return The result of the {@code resultHandler} computation.
@@ -1639,13 +1669,23 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Waits for the future to complete.
-   * <p>
-   * If the future completes successfully, then returns result
-   * <p>
-   * If the future fails, sneaky throw any exception
+   * Waits for this future to complete and returns its result.
    *
-   * @return The result.
+   * <p>This is the counterpart of {@link CompletableFuture#join()}: it waits
+   * without interruption (an interrupt is ignored and the interrupt status is
+   * restored before returning) and returns the result value, which may be
+   * {@code null}.
+   *
+   * <p>Unlike {@link CompletableFuture#join()}, a failure is <em>not</em> wrapped
+   * in a {@link java.util.concurrent.CompletionException}: the original failure
+   * cause is rethrown verbatim via {@link ExceptionUtils#sneakyThrow(Throwable)}.
+   * A cancelled future rethrows a {@link CancellationException}.
+   *
+   * @return the result, or {@code null} if this future completed successfully
+   * with a {@code null} value
+   * @see #sync()
+   * @see #syncUninterruptibly()
+   * @see CompletableFuture#join()
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
@@ -1655,15 +1695,23 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Waits for the future to complete.
-   * <p>
-   * If the future completes successfully, then returns result
-   * <p>
-   * If the future fails, sneaky throw any exception
+   * Waits for this future to complete within the given timeout and returns its
+   * result.
+   *
+   * <p>This is the timed counterpart of {@link #join()}; {@link CompletableFuture}
+   * has no {@code join(timeout)} — use
+   * {@link CompletableFuture#orTimeout(long, TimeUnit)} /
+   * {@link CompletableFuture#completeOnTimeout(Object, long, TimeUnit)} there.
+   * On timeout this future is <em>not</em> cancelled.
+   *
+   * <p>Failure handling matches {@link #join()}: the original cause is rethrown
+   * verbatim, not wrapped in a {@link java.util.concurrent.CompletionException}.
    *
    * @param timeout timeout
-   * @return The result.
-   * @throws TimeoutException timeout
+   * @return the result, or {@code null} if this future completed successfully
+   * with a {@code null} value
+   * @throws TimeoutException if the wait timed out
+   * @see #join(Duration, boolean)
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
@@ -1672,16 +1720,25 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Waits for the future to complete.
-   * <p>
-   * If the future completes successfully, then returns result
-   * <p>
-   * If the future fails, sneaky throw any exception
+   * Waits for this future to complete within the given timeout and returns its
+   * result, optionally cancelling this future on timeout.
+   *
+   * <p>Unlike {@link CompletableFuture#join()}, this variant supports a timeout
+   * and can {@link #cancel()} this future when the timeout elapses. If the
+   * current thread is interrupted while waiting, this future is cancelled, the
+   * thread's interrupt status is restored, and the {@link InterruptedException}
+   * is rethrown via {@link ExceptionUtils#sneakyThrow(Throwable)}.
+   *
+   * <p>Failure handling matches {@link #join()}: the original cause is rethrown
+   * verbatim, not wrapped in a {@link java.util.concurrent.CompletionException}.
    *
    * @param timeout timeout
    * @param cancelOnTimeout invoke {@link #cancel()} when timeout
-   * @return The result.
-   * @throws TimeoutException timeout
+   * @return the result, or {@code null} if this future completed successfully
+   * with a {@code null} value
+   * @throws TimeoutException if the wait timed out
+   * @see #join(Duration)
+   * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
   public final V join(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
