@@ -1101,6 +1101,28 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
+   * Switches downstream operations of this future to the given {@link Executor}.
+   *
+   * <p>The returned future delegates to this future: it completes with the same
+   * result, failure, or cancellation. Listeners registered on the returned
+   * future — and combinators chained on it such as {@link #map(ThrowingFunction)}
+   * or {@link #flatMap(ThrowingFunction)} — are notified on the given executor.
+   *
+   * @param executor the {@link Executor} used for downstream notifications
+   * @return a future that completes like this future but notifies on {@code executor}
+   * @since 5.0
+   */
+  public final Future<V> publishOn(Executor executor) {
+    Assert.notNull(executor, "executor is required");
+    if (executor == this.executor) {
+      return this;
+    }
+    Promise<V> promise = Future.forPromise(executor);
+    Futures.cascadeTo(this, promise);
+    return promise;
+  }
+
+  /**
    * Handles a failure of this Future by returning another result.
    * <p>
    * Example:

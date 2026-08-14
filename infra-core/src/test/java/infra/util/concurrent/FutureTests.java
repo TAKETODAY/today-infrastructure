@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -2335,6 +2336,52 @@ class FutureTests {
         promise.setFailure(e);
       }
     });
+  }
+
+  @Test
+  void publishOn() throws Exception {
+    Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "publish-executor"));
+    AtomicReference<String> threadName = new AtomicReference<>();
+
+    Future<Integer> future = Future.ok("ok")
+            .publishOn(executor)
+            .map(s -> {
+              threadName.set(Thread.currentThread().getName());
+              return s.length();
+            });
+
+    assertThat(future.executor()).isSameAs(executor);
+    assertThat(future.get()).isEqualTo(2);
+    assertThat(threadName.get()).isEqualTo("publish-executor");
+  }
+
+  @Test
+  void publishOn_sameExecutorReturnsThis() {
+    Executor executor = directExecutor();
+    Future<String> future = Future.ok("ok", executor);
+    assertThat(future.publishOn(executor)).isSameAs(future);
+  }
+
+  @Test
+  void publishOn_propagatesFailure() {
+    IllegalStateException exception = new IllegalStateException("boom");
+    Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "publish-executor"));
+
+    Future<String> future = Future.<String>failed(exception)
+            .publishOn(executor);
+
+    assertThat(future.executor()).isSameAs(executor);
+    assertThat(future.awaitUninterruptibly().getCause()).isSameAs(exception);
+  }
+
+  @Test
+  void publishOn_propagatesCancellation() {
+    Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "publish-executor"));
+    Promise<String> source = Future.forPromise();
+    Future<String> future = source.publishOn(executor);
+
+    source.cancel();
+    assertThat(future.awaitUninterruptibly()).isCancelled();
   }
 
   static Executor directExecutor() {
