@@ -302,8 +302,8 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
 
   protected void verifyConfiguration(Class<?> testClass) {
     InfraTest infraTest = getAnnotation(testClass);
-    if (infraTest != null && isListeningOnPort(infraTest.webEnvironment()) && MergedAnnotations
-            .from(testClass, SearchStrategy.INHERITED_ANNOTATIONS).isPresent(WebAppConfiguration.class)) {
+    if (infraTest != null && isListeningOnPort(infraTest.webEnvironment())
+            && MergedAnnotations.from(testClass, SearchStrategy.INHERITED_ANNOTATIONS).isPresent(WebAppConfiguration.class)) {
       throw new IllegalStateException("@WebAppConfiguration should only be used "
               + "with @InfraTest when @InfraTest is configured with a "
               + "mock web environment. Please remove @WebAppConfiguration or reconfigure @InfraTest.");
@@ -321,8 +321,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    * @param classes the replacement classes
    * @return a new {@link MergedContextConfiguration}
    */
-  protected final MergedContextConfiguration createModifiedConfig(
-          MergedContextConfiguration mergedConfig, Class<?>[] classes) {
+  protected final MergedContextConfiguration createModifiedConfig(MergedContextConfiguration mergedConfig, Class<?>[] classes) {
     return createModifiedConfig(mergedConfig, classes, mergedConfig.getPropertySourceProperties());
   }
 

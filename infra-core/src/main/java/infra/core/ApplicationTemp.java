@@ -47,16 +47,15 @@ import infra.util.StringUtils;
  * @since 4.0 2022/2/20 23:28
  */
 public class ApplicationTemp {
+
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
           "infra.app.sub-temp-dir", ApplicationTemp.class.getName());
 
   public static final ApplicationTemp instance = new ApplicationTemp();
 
-  @Nullable
-  private final Class<?> sourceClass;
+  private final @Nullable Class<?> sourceClass;
 
-  @Nullable
-  private volatile Path path;
+  private volatile @Nullable Path path;
 
   /**
    * Create a new {@link ApplicationTemp} instance.
