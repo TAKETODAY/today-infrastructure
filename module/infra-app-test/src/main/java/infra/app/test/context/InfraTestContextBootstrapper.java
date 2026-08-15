@@ -196,8 +196,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
   }
 
   private Class<?> findConfigurationClass(Class<?> testClass) {
-    String propertyName = "%s.InfraConfiguration.%s"
-            .formatted(InfraTestContextBootstrapper.class.getName(), testClass.getName());
+    String propertyName = "%s.InfraConfiguration.%s".formatted(InfraTestContextBootstrapper.class.getName(), testClass.getName());
     String foundClassName = this.aotTestAttributes.getString(propertyName);
     if (foundClassName != null) {
       return ClassUtils.resolveClassName(foundClassName, testClass.getClassLoader());

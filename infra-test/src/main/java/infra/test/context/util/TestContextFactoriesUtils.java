@@ -41,8 +41,7 @@ public abstract class TestContextFactoriesUtils {
   private static final Logger logger = LoggerFactory.getLogger(TestContextFactoriesUtils.class);
 
   /**
-   * Load factory implementations of the given type via the
-   * {@link TodayStrategies} mechanism.
+   * Load factory implementations of the given type via the {@link TodayStrategies} mechanism.
    * <p>This method utilizes a custom {@link TodayStrategies.FailureHandler} and DEBUG/TRACE logging
    * that are specific to the needs of the <em>Infra TestContext Framework</em>.
    * <p>Specifically, this method looks up and instantiates all {@code factoryType}
@@ -60,8 +59,7 @@ public abstract class TestContextFactoriesUtils {
    * @see TodayStrategies#load(Class, TodayStrategies.FailureHandler)
    */
   public static <T> List<T> loadFactoryImplementations(Class<T> factoryType) {
-    TodayStrategies loader = TodayStrategies.forDefaultResourceLocation(
-            TestContextFactoriesUtils.class.getClassLoader());
+    TodayStrategies loader = TodayStrategies.forDefaultResourceLocation(TestContextFactoriesUtils.class.getClassLoader());
     List<T> implementations = loader.load(factoryType, new TestContextFailureHandler());
     if (logger.isTraceEnabled()) {
       logger.trace("Loaded %s implementations from location [%s]: %s"

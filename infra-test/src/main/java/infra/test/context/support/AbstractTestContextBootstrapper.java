@@ -361,9 +361,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
     return processMergedContextConfiguration(mergedConfig);
   }
 
-  private Set<ContextCustomizer> getContextCustomizers(Class<?> testClass,
-          List<ContextConfigurationAttributes> configAttributes) {
-
+  private Set<ContextCustomizer> getContextCustomizers(Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
     List<ContextCustomizerFactory> factories = getContextCustomizerFactories(testClass);
     Set<ContextCustomizer> customizers = CollectionUtils.newLinkedHashSet(factories.size());
     for (ContextCustomizerFactory factory : factories) {
@@ -464,7 +462,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
 
   @SuppressWarnings("unchecked")
   private <T> List<T> instantiateComponents(Class<T> componentType, Class<? extends T>... classes) {
-    List<T> components = new ArrayList<>(classes.length);
+    ArrayList<T> components = new ArrayList<>(classes.length);
     for (Class<? extends T> clazz : classes) {
       try {
         components.add(BeanUtils.newInstance(clazz));
@@ -508,9 +506,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    * @throws IllegalStateException if {@link #getDefaultContextLoaderClass(Class)}
    * returns {@code null}
    */
-  protected ContextLoader resolveContextLoader(Class<?> testClass,
-          List<ContextConfigurationAttributes> configAttributesList) {
-
+  protected ContextLoader resolveContextLoader(Class<?> testClass, List<ContextConfigurationAttributes> configAttributesList) {
     Assert.notNull(testClass, "Class is required");
     Assert.notNull(configAttributesList, "ContextConfigurationAttributes list is required");
 
@@ -546,9 +542,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    * @throws IllegalArgumentException if supplied configuration attributes are
    * {@code null} or <em>empty</em>
    */
-  protected @Nullable Class<? extends ContextLoader> resolveExplicitContextLoaderClass(
-          List<ContextConfigurationAttributes> configAttributesList) {
-
+  protected @Nullable Class<? extends ContextLoader> resolveExplicitContextLoaderClass(List<ContextConfigurationAttributes> configAttributesList) {
     Assert.notNull(configAttributesList, "ContextConfigurationAttributes list is required");
 
     for (ContextConfigurationAttributes configAttributes : configAttributesList) {
