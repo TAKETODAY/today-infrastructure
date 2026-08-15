@@ -22,13 +22,12 @@ import javax.management.MBeanServer;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.annotation.EnableMBeanExport;
-import infra.context.annotation.Lazy;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.SearchStrategy;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.jmx.export.MBeanExporter;
@@ -53,15 +52,11 @@ import infra.util.StringUtils;
  * @author Scott Frederick
  * @since 4.0 2022/10/9 18:35
  */
-@Lazy
 @DisableDIAutoConfiguration
 @ConditionalOnClass({ MBeanExporter.class })
 @EnableConfigurationProperties(JmxProperties.class)
-@ConditionalOnProperty(prefix = "infra.jmx", name = "enabled", havingValue = "true")
-public class JmxAutoConfiguration {
-
-  private JmxAutoConfiguration() {
-  }
+@ConditionalOnBooleanProperty("infra.jmx.enabled")
+public final class JmxAutoConfiguration {
 
   @Primary
   @Component
@@ -90,7 +85,6 @@ public class JmxAutoConfiguration {
     return namingStrategy;
   }
 
-  @SuppressWarnings("NullAway")
   @Component
   @ConditionalOnMissingBean
   public static MBeanServer mbeanServer() {

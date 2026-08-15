@@ -25,8 +25,8 @@ import javax.sql.DataSource;
 
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Configuration;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnClass;
-import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.jmx.export.MBeanExporter;
 
@@ -38,7 +38,7 @@ import infra.jmx.export.MBeanExporter;
  * @since 4.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(prefix = "infra.jmx", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnBooleanProperty("infra.jmx.enabled")
 class DataSourceJmxConfiguration {
 
   @Configuration(proxyBeanMethods = false)
@@ -47,6 +47,7 @@ class DataSourceJmxConfiguration {
   static class Hikari {
 
     private final DataSource dataSource;
+
     private final ObjectProvider<MBeanExporter> mBeanExporter;
 
     Hikari(DataSource dataSource, ObjectProvider<MBeanExporter> mBeanExporter) {
