@@ -1375,7 +1375,7 @@ class FutureTests {
     });
     latch.await();
     Thread.sleep(100);
-    joinTask.cancel();
+    joinTask.cancel(true);
 
     assertThat(joinTask.isCancelled()).isTrue();
 
@@ -2183,6 +2183,68 @@ class FutureTests {
     assertThat(future).isCancelled();
     Thread.sleep(100);
     assertThat(interrupted).isFalse();
+  }
+
+  @Test
+  void cancelWithoutArgumentDoesNotInterruptRunningTask() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicBoolean interrupted = new AtomicBoolean(false);
+
+    Future<?> future = Future.run(() -> {
+      try {
+        latch.countDown();
+        Thread.sleep(10000);
+      }
+      catch (InterruptedException e) {
+        interrupted.set(true);
+      }
+    });
+
+    latch.await();
+    // 无参 cancel() 应是非中断取消（等价于 cancel(false)）
+    assertThat(future.cancel()).isTrue();
+    assertThat(future).isCancelled();
+    Thread.sleep(100);
+    assertThat(interrupted).isFalse();
+  }
+
+  @Test
+  void getCauseReturnsIdentityStableInstanceForCancelledFuture() {
+    Promise<String> future = Future.forPromise(directExecutor());
+    future.cancel();
+
+    Throwable first = future.getCause();
+    Throwable second = future.getCause();
+    assertThat(first).isInstanceOf(CancellationException.class);
+    assertThat(first).isSameAs(second);
+  }
+
+  @Test
+  void getCauseInstanceIsIsolatedPerFuture() {
+    Promise<String> first = Future.forPromise(directExecutor());
+    Promise<String> second = Future.forPromise(directExecutor());
+    first.cancel();
+    second.cancel();
+
+    Throwable firstCause = first.getCause();
+    Throwable secondCause = second.getCause();
+    assertThat(firstCause).isNotSameAs(secondCause);
+
+    // 对一个 future 的 cause 做可变操作，不应影响另一个 future
+    firstCause.addSuppressed(new RuntimeException("only-for-first"));
+    assertThat(firstCause.getSuppressed()).hasSize(1);
+    assertThat(secondCause.getSuppressed()).isEmpty();
+  }
+
+  @Test
+  void getThrowsSameCancellationInstanceAsGetCause() {
+    Promise<String> future = Future.forPromise(directExecutor());
+    future.cancel();
+
+    Throwable cause = future.getCause();
+    assertThatThrownBy(future::get)
+            .isInstanceOf(CancellationException.class)
+            .isSameAs(cause);
   }
 
   @Test

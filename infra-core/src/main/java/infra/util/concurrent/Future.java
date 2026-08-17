@@ -754,15 +754,20 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * If the cancellation was successful, the result of this operation
    * will be that it has failed with a {@link CancellationException}.
    * <p>
-   * Cancellation will attempt to {@linkplain Thread#interrupt() interrupt}
-   * the thread running the operation. Use {@link #cancel(boolean)} with
-   * {@code false} for a non-interrupting cancellation.
+   * This is a <em>non-interrupting</em> cancellation: it only marks the
+   * future as cancelled and does <em>not</em> {@linkplain Thread#interrupt()
+   * interrupt} the thread running the operation. Interrupting the running
+   * thread is a strong side effect and must be requested explicitly via
+   * {@link #cancel(boolean) cancel(true)}.
    *
    * @return {@code true} if the operation was cancelled by this call,
-   * otherwise {@code false}.
+   * otherwise {@code false}. A {@code false} return value means the future
+   * was already completed (successfully, exceptionally, or by an earlier
+   * cancellation); use {@link #isCancelled()} to tell an earlier
+   * cancellation apart from a normal completion.
    */
   public boolean cancel() {
-    return cancel(true);
+    return cancel(false);
   }
 
   /**
