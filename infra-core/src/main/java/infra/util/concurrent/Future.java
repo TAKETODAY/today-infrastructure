@@ -767,7 +767,48 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * cancellation apart from a normal completion.
    */
   public boolean cancel() {
-    return cancel(false);
+    return cancel((Throwable) null);
+  }
+
+  /**
+   * Cancel this asynchronous operation with the given {@code reason}, unless
+   * it has already been completed.
+   *
+   * <p>This is a <em>non-interrupting</em> cancellation. If the cancellation
+   * is successful, the future completes with a {@link CancellationException}
+   * whose message is the given {@code reason}.
+   *
+   * @param reason the cancellation reason, may be {@code null}
+   * @return {@code true} if the operation was cancelled by this call,
+   * otherwise {@code false}.
+   * @see #cancel(String, boolean)
+   * @see #cancel(Throwable)
+   * @since 5.0
+   */
+  public boolean cancel(@Nullable String reason) {
+    return cancel(reason, false);
+  }
+
+  /**
+   * Cancel this asynchronous operation with the given {@code cause}, unless
+   * it has already been completed.
+   *
+   * <p>This is a <em>non-interrupting</em> cancellation. The given
+   * {@code cause} is exposed through {@link #getCause()} and thrown by
+   * {@link #get()} once cancellation succeeds. A {@link CancellationException}
+   * is used as-is; any other {@link Throwable} is wrapped into a
+   * {@link CancellationException} (retained as its cause) to preserve the
+   * cancel-state contract.
+   *
+   * @param cause the cancellation cause, may be {@code null}
+   * @return {@code true} if the operation was cancelled by this call,
+   * otherwise {@code false}.
+   * @see #cancel(Throwable, boolean)
+   * @see #cancel(String)
+   * @since 5.0
+   */
+  public boolean cancel(@Nullable Throwable cause) {
+    return cancel(cause, false);
   }
 
   /**
@@ -777,7 +818,70 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * a {@link CancellationException}.
    */
   @Override
-  public abstract boolean cancel(boolean mayInterruptIfRunning);
+  public boolean cancel(boolean mayInterruptIfRunning) {
+    return cancel((Throwable) null, mayInterruptIfRunning);
+  }
+
+  /**
+   * Cancel this asynchronous operation with the given {@code reason}, unless
+   * it has already been completed.
+   *
+   * <p>If the cancellation is successful, the future completes with a
+   * {@link CancellationException} whose message is the given {@code reason}.
+   *
+   * @param reason the cancellation reason, may be {@code null}
+   * @param mayInterruptIfRunning {@code true} if the thread executing this
+   * task should be interrupted; otherwise, in-progress tasks are allowed to
+   * complete
+   * @return {@code true} if the operation was cancelled by this call,
+   * otherwise {@code false}.
+   * @see #cancel(String)
+   * @see #cancel(Throwable, boolean)
+   * @since 5.0
+   */
+  public boolean cancel(@Nullable String reason, boolean mayInterruptIfRunning) {
+    return cancel(reason == null ? null : createCancellation(reason), mayInterruptIfRunning);
+  }
+
+  /**
+   * Cancel this asynchronous operation with the given {@code cause}, unless
+   * it has already been completed.
+   *
+   * <p>If the cancellation is successful, the given {@code cause} is exposed
+   * through {@link #getCause()} and thrown by {@link #get()}. A
+   * {@link CancellationException} is used as-is; any other {@link Throwable}
+   * is wrapped into a {@link CancellationException} (retained as its cause)
+   * to preserve the cancel-state contract.
+   *
+   * @param cause the cancellation cause, may be {@code null}
+   * @param mayInterruptIfRunning {@code true} if the thread executing this
+   * task should be interrupted; otherwise, in-progress tasks are allowed to
+   * complete
+   * @return {@code true} if the operation was cancelled by this call,
+   * otherwise {@code false}.
+   * @see #cancel(Throwable)
+   * @see #cancel(String, boolean)
+   * @since 5.0
+   */
+  public abstract boolean cancel(@Nullable Throwable cause, boolean mayInterruptIfRunning);
+
+  /**
+   * Create the {@link CancellationException} used to represent a cancellation
+   * initiated through {@link #cancel(String)} / {@link #cancel(String, boolean)}.
+   *
+   * <p>Subclasses may override this hook to supply a more lightweight or
+   * specialized cancellation exception. The default implementation creates a
+   * plain {@link CancellationException} carrying the given reason as its
+   * message.
+   *
+   * @param reason the cancellation reason; never {@code null} (the
+   * {@code null} shorthand is handled before this method is invoked)
+   * @return the cancellation exception to store as the cancellation cause
+   * @since 5.0
+   */
+  protected CancellationException createCancellation(String reason) {
+    return new CancellationException(reason);
+  }
 
   /**
    * Creates a <strong>new</strong> {@link Future} that will complete

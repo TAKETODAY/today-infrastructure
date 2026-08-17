@@ -149,7 +149,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(@Nullable Throwable cause, boolean mayInterruptIfRunning) {
     // Transition through COMPLETING (like trySuccess/tryFailure) so that the
     // cancellation cause stored in `result` is published by the subsequent
     // terminal-state release write, not after it. This avoids a window where
@@ -159,7 +159,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
     }
     // Per-future cancellation cause; each future gets its own instance so
     // callers may safely mutate it (e.g. addSuppressed) without sharing.
-    result = new LeanCancellationException();
+    result = asCancellation(cause);
     if (mayInterruptIfRunning) {
       STATE.setRelease(this, INTERRUPTING);
       try {
@@ -175,6 +175,25 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       finishCompletion();
     }
     return true;
+  }
+
+  /**
+   * Normalize a cancellation cause to a {@link CancellationException}.
+   * <p>A {@link CancellationException} (or subclass) is returned as-is so
+   * caller-supplied structured cancellation causes keep their type and fields.
+   * Any other {@link Throwable} is wrapped into a lightweight
+   * {@link LeanCancellationException}, retaining the original as its cause.
+   */
+  private static CancellationException asCancellation(@Nullable Throwable cause) {
+    if (cause instanceof CancellationException ce) {
+      return ce;
+    }
+    return new LeanCancellationException(null, cause);
+  }
+
+  @Override
+  protected CancellationException createCancellation(String reason) {
+    return new LeanCancellationException(reason, null);
   }
 
   /**
@@ -559,6 +578,13 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
             new StackTraceElement(AbstractFuture.class.getName(), "cancel(...)", null, -1)
     };
 
+    LeanCancellationException(@Nullable String reason, @Nullable Throwable cause) {
+      super(reason);
+      if (cause != null) {
+        initCause(cause);
+      }
+    }
+
     // Suppress a warning since the method doesn't need synchronization
     @Override
     public Throwable fillInStackTrace() {
@@ -566,10 +592,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return this;
     }
 
-    @Override
-    public String toString() {
-      return CancellationException.class.getName();
-    }
   }
 
   private final class NotifyTask implements Runnable {

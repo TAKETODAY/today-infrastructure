@@ -2248,6 +2248,80 @@ class FutureTests {
   }
 
   @Test
+  void cancelWithReasonExposesMessageInCause() {
+    Promise<String> future = Future.forPromise(directExecutor());
+    assertThat(future.cancel("timeout by client")).isTrue();
+    assertThat(future).isCancelled();
+
+    Throwable cause = future.getCause();
+    assertThat(cause).isInstanceOf(CancellationException.class)
+            .hasMessage("timeout by client");
+  }
+
+  @Test
+  void cancelWithReasonAndInterruptExposesMessageInCause() {
+    Promise<String> future = Future.forPromise(directExecutor());
+    assertThat(future.cancel("shutting down", true)).isTrue();
+    assertThat(future).isCancelled();
+
+    assertThat(future.getCause())
+            .isInstanceOf(CancellationException.class)
+            .hasMessage("shutting down");
+    assertThatThrownBy(future::get)
+            .isInstanceOf(CancellationException.class)
+            .hasMessage("shutting down");
+
+    Promise<Object> actual = forPromise(directExecutor());
+    actual.cancel((String) null);
+    assertThat(actual.getCause())
+            .isInstanceOf(CancellationException.class)
+            .hasMessage(null);
+  }
+
+  @Test
+  void cancelWithCancellationExceptionSubclassKeepsTypeAndFields() {
+    class TimeoutCancellationException extends CancellationException {
+      private final long timeoutMillis;
+
+      TimeoutCancellationException(long timeoutMillis) {
+        super("timeout");
+        this.timeoutMillis = timeoutMillis;
+      }
+
+      long getTimeoutMillis() {
+        return timeoutMillis;
+      }
+    }
+
+    Promise<String> future = Future.forPromise(directExecutor());
+    var cause = new TimeoutCancellationException(5000L);
+    assertThat(future.cancel(cause)).isTrue();
+    assertThat(future).isCancelled();
+
+    // CancellationException 子类原样透出，类型与字段保持
+    assertThat(future.getCause()).isSameAs(cause);
+    assertThat(future.getCause())
+            .isInstanceOf(TimeoutCancellationException.class)
+            .satisfies(tce -> assertThat(((TimeoutCancellationException) tce).getTimeoutMillis()).isEqualTo(5000L));
+  }
+
+  @Test
+  void cancelWithRuntimeExceptionWrapsAndRetainsCause() {
+    Promise<String> future = Future.forPromise(directExecutor());
+    var original = new RuntimeException("连接池耗尽");
+    assertThat(future.cancel(original)).isTrue();
+    assertThat(future).isCancelled();
+
+    // 普通 Throwable 被包装为 CancellationException，原始异常作为 cause 保留
+    Throwable cause = future.getCause();
+    assertThat(cause).isInstanceOf(CancellationException.class);
+    assertThat(cause.getCause()).isSameAs(original);
+    assertThatThrownBy(future::get)
+            .isInstanceOf(CancellationException.class)
+            .hasCause(original);
+  }
+
+  @Test
   void cancelWithoutCancellationShouldReturnTrue() {
     var future = Future.forPromise(directExecutor());
     assertThat(future.cancel()).isTrue();

@@ -47,8 +47,8 @@ public final class PublisherFuture<T extends @Nullable Object> extends AbstractF
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    boolean cancelled = super.cancel(mayInterruptIfRunning);
+  public boolean cancel(@Nullable Throwable cause, boolean mayInterruptIfRunning) {
+    boolean cancelled = super.cancel(cause, mayInterruptIfRunning);
     if (cancelled) {
       Subscription s = ref.getAndSet(null);
       if (s != null) {
