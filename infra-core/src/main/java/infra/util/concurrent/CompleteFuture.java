@@ -172,10 +172,11 @@ final class CompleteFuture<V extends @Nullable Object> extends Future<V> {
   /**
    * {@inheritDoc}
    *
+   * @param cause this value is unused in this implementation.
    * @param mayInterruptIfRunning this value has no effect in this implementation.
    */
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(@Nullable Throwable cause, boolean mayInterruptIfRunning) {
     return false;
   }
 

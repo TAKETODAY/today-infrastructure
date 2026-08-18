@@ -50,19 +50,20 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   /**
    * The run state of this {@code Future}, initially {@link #NEW}. The run state
    * transitions to a terminal state only in methods {@link #trySuccess(Object)},
-   * {@link #tryFailure(Throwable)}, and cancel. During completion, state may
-   * take on transient values of {@link #COMPLETING} (while outcome is being set)
-   * or {@link #INTERRUPTING} (only while interrupting the runner to satisfy a
-   * cancel(true)). Transitions from these intermediate to final states use
-   * cheaper ordered/lazy writes because values are unique and cannot be further
-   * modified.
+   * {@link #tryFailure(Throwable)}, and cancel. All transitions first move
+   * through {@link #COMPLETING} (while the outcome or cancellation cause is
+   * being set, and before the terminal state is published), and {@link #cancel
+   * cancel(true)} additionally moves through {@link #INTERRUPTING} while
+   * interrupting the runner. Transitions from these intermediate to final states
+   * use cheaper ordered/lazy writes because values are unique and cannot be
+   * further modified.
    *
    * <pre>
    * Possible state transitions:
    * NEW -> COMPLETING -> NORMAL
    * NEW -> COMPLETING -> EXCEPTIONAL
-   * NEW -> CANCELLED
-   * NEW -> INTERRUPTING -> INTERRUPTED
+   * NEW -> COMPLETING -> CANCELLED
+   * NEW -> COMPLETING -> INTERRUPTING -> INTERRUPTED
    * </pre>
    */
   protected volatile int state;
@@ -148,20 +149,51 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    if (!(state == NEW && STATE.compareAndSet(this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED))) {
+  public boolean cancel(@Nullable Throwable cause, boolean mayInterruptIfRunning) {
+    // Transition through COMPLETING (like trySuccess/tryFailure) so that the
+    // cancellation cause stored in `result` is published by the subsequent
+    // terminal-state release write, not after it. This avoids a window where
+    // getCause() could observe CANCELLED but still see a null result.
+    if (!(state == NEW && STATE.compareAndSet(this, NEW, COMPLETING))) {
       return false;
     }
-    try {
-      // in case call to interrupt throws exception
-      if (mayInterruptIfRunning) {
-        interruptTask();
+    // Per-future cancellation cause; each future gets its own instance so
+    // callers may safely mutate it (e.g. addSuppressed) without sharing.
+    result = asCancellation(cause);
+    if (mayInterruptIfRunning) {
+      STATE.setRelease(this, INTERRUPTING);
+      try {
+        // in case call to interrupt throws exception
+        interruptTask(); // ends with STATE.setRelease(INTERRUPTED), publishing result
+      }
+      finally {
+        finishCompletion();
       }
     }
-    finally {
+    else {
+      STATE.setRelease(this, CANCELLED); // terminal state publishes result
       finishCompletion();
     }
     return true;
+  }
+
+  /**
+   * Normalize a cancellation cause to a {@link CancellationException}.
+   * <p>A {@link CancellationException} (or subclass) is returned as-is so
+   * caller-supplied structured cancellation causes keep their type and fields.
+   * Any other {@link Throwable} is wrapped into a lightweight
+   * {@link LeanCancellationException}, retaining the original as its cause.
+   */
+  private static CancellationException asCancellation(@Nullable Throwable cause) {
+    if (cause instanceof CancellationException ce) {
+      return ce;
+    }
+    return new LeanCancellationException(null, cause);
+  }
+
+  @Override
+  protected CancellationException createCancellation(String reason) {
+    return new LeanCancellationException(reason, null);
   }
 
   /**
@@ -177,11 +209,8 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   @Override
   public @Nullable Throwable getCause() {
     int s = state;
-    if (s == EXCEPTIONAL) {
+    if (s == EXCEPTIONAL || s >= CANCELLED) {
       return (Throwable) result;
-    }
-    else if (s >= CANCELLED) {
-      return new LeanCancellationException();
     }
     return null;
   }
@@ -361,7 +390,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return (V) result;
     }
     if (s >= CANCELLED) {
-      throw new LeanCancellationException();
+      throw (CancellationException) result;
     }
     throw new ExecutionException((Throwable) result);
   }
@@ -549,6 +578,13 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
             new StackTraceElement(AbstractFuture.class.getName(), "cancel(...)", null, -1)
     };
 
+    LeanCancellationException(@Nullable String reason, @Nullable Throwable cause) {
+      super(reason);
+      if (cause != null) {
+        initCause(cause);
+      }
+    }
+
     // Suppress a warning since the method doesn't need synchronization
     @Override
     public Throwable fillInStackTrace() {
@@ -556,10 +592,6 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
       return this;
     }
 
-    @Override
-    public String toString() {
-      return CancellationException.class.getName();
-    }
   }
 
   private final class NotifyTask implements Runnable {
