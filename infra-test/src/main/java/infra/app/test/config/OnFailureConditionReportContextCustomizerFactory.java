@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import infra.app.context.event.ApplicationFailedEvent;
-import infra.app.test.InfraApp;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
