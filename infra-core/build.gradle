@@ -153,20 +153,23 @@ tasks.named('compileJcstressJava') {
 tasks.register('jcstress', JavaExec) {
   group = 'verification'
   description = '运行 jcstress 内存模型压力测试（JDK 21），结果输出到 build/jcstress'
-//  classpath = sourceSets.jcstress.runtimeClasspath.filter { it.exists() }
-  classpath = sourceSets.jcstress.runtimeClasspath
+  classpath = sourceSets.jcstress.runtimeClasspath.filter { it.exists() }
   mainClass = 'org.openjdk.jcstress.Main'
   // 结果与 blob 输出到 build/jcstress
   workingDir = layout.buildDirectory.dir("jcstress")
   args = [
-      '-t', 'infra.util.concurrent.FutureCancelVisibilityTest',
+      '-t', 'infra.util.concurrent.*',
       '-r', 'results',
   ]
   // 固定 JDK 21：jcstress 0.16 与 JDK 25 不兼容
   javaLauncher = javaToolchains.launcherFor {
     languageVersion = JavaLanguageVersion.of(21)
   }
-  // 建议在专用 JVM 上运行，避免与其他测试干扰
+
   maxHeapSize = '2g'
+
+  doFirst {
+    mkdir layout.buildDirectory.dir("jcstress")
+  }
 }
 

@@ -50,7 +50,7 @@ import org.openjdk.jcstress.infra.results.II_Result;
 // 已取消但 getCause 为 null —— 唯一的可见性窗口 bug
 @Outcome(id = "1, 0", expect = Expect.FORBIDDEN, desc = "已取消但 getCause 为 null —— 可见性窗口 bug！")
 @State
-public class FutureCancelVisibilityTest {
+public class FutureCancelVisibilityTests {
 
   final Promise<Object> future = Future.forPromise();
 
