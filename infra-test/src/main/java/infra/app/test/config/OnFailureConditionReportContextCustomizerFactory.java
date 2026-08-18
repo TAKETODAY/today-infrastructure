@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import infra.app.context.event.ApplicationFailedEvent;
+import infra.app.test.InfraApp;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
@@ -46,8 +47,8 @@ import infra.test.context.MergedContextConfiguration;
 class OnFailureConditionReportContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
-  public ContextCustomizer createContextCustomizer(Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
-    return new OnFailureConditionReportContextCustomizer();
+  public @Nullable ContextCustomizer createContextCustomizer(Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
+    return InfraApp.isPresent ? new OnFailureConditionReportContextCustomizer() : null;
   }
 
   static class OnFailureConditionReportContextCustomizer implements ContextCustomizer {
