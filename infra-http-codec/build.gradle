@@ -20,7 +20,7 @@ dependencies {
   optional 'com.google.code.gson:gson'
 
   testImplementation project(':infra-test-support')
-  testImplementation project(':module:infra-app-test')
+  testImplementation project(':infra-test')
   testImplementation(project(":module:infra-jackson"))
 
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")

@@ -7,16 +7,17 @@ plugins {
 description = "Infra JDBC Test"
 
 dependencies {
+  api(project(":infra-app"))
   api project(':infra-jdbc')
   api project(':infra-test-support')
-  api(project(":module:infra-app-test"))
+  api(project(":infra-test"))
   api(project(":module:infra-sql"))
 
   optional(project(":infra-testcontainers"))
   optional("org.junit.jupiter:junit-jupiter-api")
   optional("org.testcontainers:testcontainers-jdbc")
 
-  dockerTestImplementation(project(":module:infra-app-test"))
+  dockerTestImplementation(project(":infra-test"))
   dockerTestImplementation(project(":infra-test-support"))
   dockerTestImplementation(project(":infra-testcontainers"))
   dockerTestImplementation(project(":module:infra-docker-compose"))

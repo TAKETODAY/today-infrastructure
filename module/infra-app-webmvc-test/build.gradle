@@ -8,8 +8,9 @@ description = "Infra Web MVC Test"
 dependencies {
   api(project(":infra-context"))
   api(project(":infra-webmvc"))
+  api(project(":infra-app"))
   api project(':infra-test-support')
-  api(project(":module:infra-app-test"))
+  api(project(":infra-test"))
 
   optional "org.hamcrest:hamcrest"
   optional("org.junit.jupiter:junit-jupiter-api")
@@ -29,7 +30,7 @@ dependencies {
 
   testFixturesImplementation("org.assertj:assertj-core")
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
-  testFixturesImplementation(project(":module:infra-app-test"))
+  testFixturesImplementation(project(":infra-test"))
   testFixturesImplementation(project(":infra-test-support"))
 
 

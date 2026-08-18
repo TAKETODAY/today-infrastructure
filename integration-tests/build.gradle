@@ -10,7 +10,8 @@ dependencies {
   testImplementation project(':infra-app')
   testImplementation project(':infra-test-support')
 
-  testImplementation project(':module:infra-app-test')
+  testImplementation project(':infra-test')
+  testImplementation(testFixtures(project(":infra-test")))
   testImplementation project(':module:infra-freemarker')
   testImplementation project(":infra-web-server")
   testImplementation project(':infra-web-netty-server')
@@ -27,10 +28,8 @@ dependencies {
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-web")))
   testImplementation(testFixtures(project(":infra-webmvc")))
-  testImplementation(testFixtures(project(":infra-test")))
 
   testImplementation(project(":infra-jdbc"))
-  testImplementation(project(":infra-test"))
   testImplementation(project(":infra-tx"))
   testImplementation(project(":infra-web"))
   testImplementation(project(":infra-webmvc"))

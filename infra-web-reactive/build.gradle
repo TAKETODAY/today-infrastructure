@@ -15,9 +15,10 @@ dependencies {
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+  testImplementation(project(":infra-app"))
 
   testImplementation project(':infra-test-support')
-  testImplementation project(':module:infra-app-test')
+  testImplementation project(':infra-test')
 
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("com.squareup.okhttp3:mockwebserver")

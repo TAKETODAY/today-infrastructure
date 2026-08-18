@@ -29,7 +29,7 @@ dependencies {
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
   testImplementation project(':infra-test-support')
-  testImplementation project(":module:infra-app-test")
+  testImplementation project(":infra-test")
 
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")

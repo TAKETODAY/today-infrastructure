@@ -7,4 +7,5 @@ infra.test.context.ContextCustomizerFactory =\
   infra.test.context.customizers.GlobalFruitContextCustomizerFactory
 
 infra.test.context.ApplicationContextFailureProcessor =\
-	infra.test.context.failures.TrackingApplicationContextFailureProcessor
+	infra.test.context.failures.TrackingApplicationContextFailureProcessor,\
+  infra.app.test.context.InfraApplicationContextLoaderTests.ContextLoaderApplicationContextFailureProcessor

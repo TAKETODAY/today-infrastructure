@@ -10,7 +10,7 @@ dependencies {
   api(project(":infra-context"))
   api("org.testcontainers:testcontainers")
 
-  dockerTestImplementation(project(":module:infra-app-test"))
+  dockerTestImplementation(project(":infra-test"))
   dockerTestImplementation(project(":infra-test-support"))
   dockerTestImplementation(project(":infra-core-test"))
   dockerTestImplementation(project(":infra-jdbc"))
@@ -31,7 +31,7 @@ dependencies {
   optional(project(":infra-app"))
   optional(project(":infra-test"))
 
-  testImplementation(project(":module:infra-app-test"))
+  testImplementation(project(":infra-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation("org.testcontainers:testcontainers-junit-jupiter")
   testImplementation("org.testcontainers:testcontainers-postgresql")

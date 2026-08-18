@@ -19,7 +19,7 @@ dependencies {
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
-  dockerTestImplementation(project(":module:infra-app-test"))
+  dockerTestImplementation(project(":infra-test"))
   dockerTestImplementation(project(":module:infra-app-jdbc-test"))
   dockerTestImplementation(project(":infra-test-support"))
   dockerTestImplementation(testFixtures(project(":module:infra-docker-compose")))
@@ -27,7 +27,7 @@ dependencies {
   dockerTestImplementation("org.testcontainers:testcontainers-postgresql")
   dockerTestRuntimeOnly("org.postgresql:postgresql")
 
-  testImplementation(project(":module:infra-app-test"))
+  testImplementation(project(":infra-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation(project(":infra-core-test"))
 

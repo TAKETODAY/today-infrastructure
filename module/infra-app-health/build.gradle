@@ -5,6 +5,7 @@ dependencies {
 
   optional("io.projectreactor:reactor-core")
   optional("tools.jackson.core:jackson-databind")
+  testImplementation(project(":infra-app"))
 
   testImplementation("io.projectreactor:reactor-test")
 
