@@ -102,7 +102,7 @@ import infra.core.io.ResourceLoader;
 import infra.core.io.SmartResourceConsumer;
 import infra.core.metrics.ApplicationStartup;
 import infra.core.metrics.StartupStep;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

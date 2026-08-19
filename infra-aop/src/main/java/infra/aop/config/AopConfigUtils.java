@@ -32,7 +32,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility class for handling registration of AOP auto-proxy creators.

@@ -30,7 +30,7 @@ import infra.cache.interceptor.CacheErrorHandler;
 import infra.cache.interceptor.CacheInterceptor;
 import infra.cache.interceptor.CacheOperationInvoker;
 import infra.cache.interceptor.SimpleCacheErrorHandler;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.SingletonSupplier;
 
 /**

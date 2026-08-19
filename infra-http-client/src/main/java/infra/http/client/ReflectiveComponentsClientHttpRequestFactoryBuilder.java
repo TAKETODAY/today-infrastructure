@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

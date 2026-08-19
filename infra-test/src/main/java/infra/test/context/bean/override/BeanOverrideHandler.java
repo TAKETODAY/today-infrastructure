@@ -36,7 +36,7 @@ import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Handler for Bean Override injection points that is responsible for creating

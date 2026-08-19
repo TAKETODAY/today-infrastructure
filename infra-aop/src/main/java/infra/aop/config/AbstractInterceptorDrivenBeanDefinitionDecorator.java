@@ -32,7 +32,7 @@ import infra.beans.factory.support.ManagedList;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.xml.BeanDefinitionDecorator;
 import infra.beans.factory.xml.ParserContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

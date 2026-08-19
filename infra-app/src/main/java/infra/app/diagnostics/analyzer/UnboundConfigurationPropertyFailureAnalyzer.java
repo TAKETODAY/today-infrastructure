@@ -25,7 +25,7 @@ import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.bind.BindException;
 import infra.context.properties.bind.UnboundConfigurationPropertiesException;
 import infra.context.properties.source.ConfigurationProperty;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by any

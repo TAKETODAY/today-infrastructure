@@ -36,7 +36,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.context.support.GenericXmlApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.metrics.StartupStep;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 
 /**

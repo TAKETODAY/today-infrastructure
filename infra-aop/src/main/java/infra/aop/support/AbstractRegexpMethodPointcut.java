@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

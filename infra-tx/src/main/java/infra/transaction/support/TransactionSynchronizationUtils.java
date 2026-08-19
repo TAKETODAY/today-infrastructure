@@ -24,7 +24,7 @@ import java.util.List;
 
 import infra.aop.scope.ScopedObject;
 import infra.core.InfraProxy;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

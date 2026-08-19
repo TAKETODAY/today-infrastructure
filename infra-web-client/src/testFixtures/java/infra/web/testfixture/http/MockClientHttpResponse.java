@@ -25,7 +25,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MockHttpInputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import org.jspecify.annotations.Nullable;
 import infra.web.client.ClientResponse;
 

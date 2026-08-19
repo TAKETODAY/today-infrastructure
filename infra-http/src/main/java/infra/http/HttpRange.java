@@ -30,7 +30,7 @@ import java.util.StringJoiner;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceRegion;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

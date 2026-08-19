@@ -31,7 +31,7 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.interceptor.NoRollbackRuleAttribute;
 import infra.transaction.interceptor.RollbackRuleAttribute;
 import infra.transaction.interceptor.RuleBasedTransactionAttribute;

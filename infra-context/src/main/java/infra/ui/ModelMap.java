@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.core.Conventions;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

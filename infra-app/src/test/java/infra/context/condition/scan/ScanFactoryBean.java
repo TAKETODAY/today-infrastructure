@@ -19,7 +19,7 @@
 package infra.context.condition.scan;
 
 import infra.beans.factory.FactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 class ScanFactoryBean implements FactoryBean<ScanBean> {
 

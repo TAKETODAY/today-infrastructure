@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A hint that describes the need for reflection on a type.

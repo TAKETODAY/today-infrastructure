@@ -18,7 +18,7 @@
 
 package infra.web.cors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HandlerInterceptor;
 import infra.web.HttpContext;
 

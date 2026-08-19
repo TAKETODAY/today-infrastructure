@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import infra.core.ssl.SslBundle;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static infra.http.client.HttpComponentsHttpClientBuilder.createConnectionConfig;
 

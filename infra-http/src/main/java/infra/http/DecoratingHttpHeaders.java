@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A decorator for {@link HttpHeaders} that delegates all operations to an underlying instance.

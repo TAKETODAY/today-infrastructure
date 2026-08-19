@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

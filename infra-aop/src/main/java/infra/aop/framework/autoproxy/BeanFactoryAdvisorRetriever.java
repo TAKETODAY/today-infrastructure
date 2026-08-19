@@ -28,9 +28,9 @@ import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Helper for retrieving standard Framework Advisors from a BeanFactory,

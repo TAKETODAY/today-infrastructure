@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

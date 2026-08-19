@@ -34,9 +34,9 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.AbstractBeanFactory;
 import infra.beans.factory.support.GenericBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Convenient superclass for {@link TargetSourceCreator}

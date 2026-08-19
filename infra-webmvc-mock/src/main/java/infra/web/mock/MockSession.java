@@ -24,7 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.session.AbstractSession;
 import infra.session.Session;
 import infra.session.SessionEventDispatcher;

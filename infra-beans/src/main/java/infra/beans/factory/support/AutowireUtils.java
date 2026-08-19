@@ -41,7 +41,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.TypedStringValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

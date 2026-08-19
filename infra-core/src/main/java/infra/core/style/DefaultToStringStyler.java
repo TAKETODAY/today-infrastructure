@@ -20,7 +20,7 @@ package infra.core.style;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

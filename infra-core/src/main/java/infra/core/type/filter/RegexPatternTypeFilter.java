@@ -21,7 +21,7 @@ package infra.core.type.filter;
 import java.util.regex.Pattern;
 
 import infra.core.type.ClassMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A simple filter for matching a fully-qualified class name with a regex {@link Pattern}.

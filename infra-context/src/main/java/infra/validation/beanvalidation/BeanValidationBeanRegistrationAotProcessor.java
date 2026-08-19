@@ -34,7 +34,7 @@ import infra.beans.factory.aot.BeanRegistrationAotProcessor;
 import infra.beans.factory.aot.BeanRegistrationCode;
 import infra.beans.factory.support.RegisteredBean;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

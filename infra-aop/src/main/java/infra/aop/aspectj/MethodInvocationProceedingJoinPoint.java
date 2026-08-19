@@ -31,7 +31,7 @@ import java.lang.reflect.Modifier;
 
 import infra.aop.ProxyMethodInvocation;
 import infra.core.ParameterNameDiscoverer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An implementation of the AspectJ {@link ProceedingJoinPoint} interface

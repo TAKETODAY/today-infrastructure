@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import infra.app.loader.tools.Layer;
 import infra.app.loader.tools.Layers;
 import infra.app.loader.tools.Library;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Custom {@link Layers} implementation where layer content is selected by the user.

@@ -32,7 +32,7 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import reactor.core.Exceptions;
 

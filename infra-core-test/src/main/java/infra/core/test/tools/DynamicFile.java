@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for dynamically generated files.

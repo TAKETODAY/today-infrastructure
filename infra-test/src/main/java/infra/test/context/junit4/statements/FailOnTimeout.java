@@ -23,7 +23,7 @@ import org.junit.runners.model.Statement;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeoutException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.annotation.TestAnnotationUtils;
 import infra.test.annotation.Timed;
 

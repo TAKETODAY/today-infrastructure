@@ -21,7 +21,7 @@ package infra.util.xml;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Contains common behavior relating to {@link Transformer Transformers}

@@ -32,8 +32,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-import infra.lang.Assert;
-
 /**
  * Simple LRU (Least Recently Used) cache, bounded by a specified cache capacity.
  * <p>This is a simplified, opinionated implementation of a LRU cache for internal

@@ -24,7 +24,7 @@ import java.beans.PropertyEditorSupport;
 
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Adapter that exposes a {@link java.beans.PropertyEditor} for any given

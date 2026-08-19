@@ -20,7 +20,7 @@ package infra.docker.compose.core;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A Docker image name of the form {@literal "docker.io/library/ubuntu"}.

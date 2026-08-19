@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * AssertJ based JSON tester that works with basic JSON strings. Allows testing of JSON

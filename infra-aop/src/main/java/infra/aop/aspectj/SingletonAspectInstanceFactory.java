@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serializable;
 
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of {@link AspectInstanceFactory} that is backed by a

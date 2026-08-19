@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import infra.beans.BeanProperty;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An interface to discover and determine whether a given property is an ID property.

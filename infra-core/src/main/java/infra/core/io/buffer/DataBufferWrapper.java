@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Provides a convenient implementation of the {@link DataBuffer} interface

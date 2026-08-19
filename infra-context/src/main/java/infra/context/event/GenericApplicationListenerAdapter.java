@@ -27,7 +27,7 @@ import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.core.Ordered;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**

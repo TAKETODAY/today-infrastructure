@@ -26,7 +26,7 @@ import java.sql.SQLException;
 
 import infra.core.BridgeMethodResolver;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Enumerable;
 import infra.util.ReflectionUtils;
 

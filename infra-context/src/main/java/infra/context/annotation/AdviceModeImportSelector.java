@@ -25,7 +25,7 @@ import java.lang.annotation.Annotation;
 import infra.core.GenericTypeResolver;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient base class for {@link ImportSelector} implementations that select imports

@@ -44,7 +44,7 @@ import infra.core.ResolvableType;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.ParameterizedTypeName;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.function.SingletonSupplier;
 

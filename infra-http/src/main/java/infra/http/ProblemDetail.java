@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Representation for an RFC 9457 problem detail. Includes spec-defined

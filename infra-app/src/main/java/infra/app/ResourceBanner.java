@@ -39,7 +39,7 @@ import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Version;
 import infra.logging.LoggerFactory;
 import infra.util.StreamUtils;

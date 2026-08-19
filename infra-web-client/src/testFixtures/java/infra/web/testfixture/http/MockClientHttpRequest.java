@@ -30,7 +30,7 @@ import infra.http.HttpMethod;
 import infra.http.MockHttpOutputMessage;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 import infra.web.util.UriComponentsBuilder;
 

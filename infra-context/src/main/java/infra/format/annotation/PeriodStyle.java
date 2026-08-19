@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A standard set of {@link Period} units.

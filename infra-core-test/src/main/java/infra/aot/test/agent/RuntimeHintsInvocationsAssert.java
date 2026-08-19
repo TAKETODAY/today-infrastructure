@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import infra.aot.agent.RecordedInvocation;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 
 /**

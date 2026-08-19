@@ -32,7 +32,7 @@ import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.core.type.filter.AnnotationTypeFilter;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.oxm.UncategorizedMappingException;
 import infra.util.ClassUtils;
 import jakarta.xml.bind.annotation.XmlEnum;

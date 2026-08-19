@@ -16,7 +16,7 @@
 
 package infra.core;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A callback interface for a decorator to be applied to any {@code T}

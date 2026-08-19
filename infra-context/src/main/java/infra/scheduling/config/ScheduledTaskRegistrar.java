@@ -35,7 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.core.env.Environment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;
 import infra.scheduling.annotation.EnableAsync;

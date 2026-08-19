@@ -31,7 +31,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import infra.jmx.export.MBeanExporter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

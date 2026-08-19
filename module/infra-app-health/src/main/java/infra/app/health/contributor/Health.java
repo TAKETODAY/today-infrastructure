@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * The health of a component or subsystem in including its {@link Status} as well as any

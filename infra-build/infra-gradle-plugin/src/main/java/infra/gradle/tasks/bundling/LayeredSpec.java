@@ -43,7 +43,7 @@ import infra.app.loader.tools.layer.ContentSelector;
 import infra.app.loader.tools.layer.CustomLayers;
 import infra.app.loader.tools.layer.IncludeExcludeContentSelector;
 import infra.app.loader.tools.layer.LibraryContentFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Encapsulates the configuration for a layered archive.

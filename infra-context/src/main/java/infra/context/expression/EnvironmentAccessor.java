@@ -25,7 +25,7 @@ import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
 import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Read-only EL property accessor that knows how to retrieve keys

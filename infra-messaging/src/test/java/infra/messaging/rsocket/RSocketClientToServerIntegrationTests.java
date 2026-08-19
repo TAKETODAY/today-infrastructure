@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.handler.annotation.Header;
 import infra.messaging.handler.annotation.MessageExceptionHandler;
 import infra.messaging.handler.annotation.MessageMapping;

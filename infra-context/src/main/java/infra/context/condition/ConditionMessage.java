@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

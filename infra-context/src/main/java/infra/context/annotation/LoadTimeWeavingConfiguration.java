@@ -30,7 +30,7 @@ import infra.context.weaving.DefaultContextLoadTimeWeaver;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
 import infra.instrument.classloading.LoadTimeWeaver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 
 /**

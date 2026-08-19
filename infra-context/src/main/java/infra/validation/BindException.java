@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.beans.PropertyEditorRegistry;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Thrown when binding errors are considered fatal. Implements the

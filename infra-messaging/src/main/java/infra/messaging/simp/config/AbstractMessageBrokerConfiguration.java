@@ -32,7 +32,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.annotation.Bean;
 import infra.context.event.SmartApplicationListener;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.MessageHandler;
 import infra.messaging.converter.ByteArrayMessageConverter;
 import infra.messaging.converter.CompositeMessageConverter;

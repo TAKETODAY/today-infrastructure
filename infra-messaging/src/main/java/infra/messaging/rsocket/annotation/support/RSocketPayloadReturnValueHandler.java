@@ -25,7 +25,7 @@ import infra.core.MethodParameter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.handler.invocation.reactive.AbstractEncoderMethodReturnValueHandler;
 import infra.messaging.rsocket.PayloadUtils;

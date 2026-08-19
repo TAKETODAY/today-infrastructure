@@ -30,7 +30,7 @@ import infra.dao.DataAccessException;
 import infra.dao.EmptyResultDataAccessException;
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.TypeMismatchDataAccessException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.NumberUtils;
 

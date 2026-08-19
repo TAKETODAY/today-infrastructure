@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 import infra.app.loader.tools.Library;
 import infra.app.loader.tools.LibraryCoordinates;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ContentFilter} that matches {@link Library} items based on a coordinates

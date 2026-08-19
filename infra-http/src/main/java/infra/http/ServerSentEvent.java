@@ -24,7 +24,7 @@ import java.time.Duration;
 import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

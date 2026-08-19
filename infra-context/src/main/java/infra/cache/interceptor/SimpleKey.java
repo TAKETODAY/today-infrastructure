@@ -26,7 +26,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A simple key as returned from the {@link SimpleKeyGenerator}.

@@ -69,7 +69,7 @@ import infra.core.io.DescriptiveResource;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.SyncTaskExecutor;
 import infra.core.type.MethodMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import jakarta.annotation.PostConstruct;

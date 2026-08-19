@@ -39,7 +39,7 @@ import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

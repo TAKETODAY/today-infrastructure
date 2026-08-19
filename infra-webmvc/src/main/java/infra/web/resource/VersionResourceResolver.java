@@ -39,7 +39,7 @@ import java.util.Map;
 import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.AntPathMatcher;
 import infra.util.StringUtils;
 import infra.web.HttpContext;

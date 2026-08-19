@@ -33,7 +33,7 @@ import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.type.TypeHandler;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

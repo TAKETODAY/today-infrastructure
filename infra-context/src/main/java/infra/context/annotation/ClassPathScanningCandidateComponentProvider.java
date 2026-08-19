@@ -48,7 +48,7 @@ import infra.core.type.classreading.MetadataReaderFactory;
 import infra.core.type.filter.AnnotationTypeFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Indexed;

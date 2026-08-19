@@ -33,7 +33,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import infra.core.task.TaskRejectedException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.SchedulingTaskExecutor;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;

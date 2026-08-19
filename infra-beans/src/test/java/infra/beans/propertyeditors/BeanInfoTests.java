@@ -27,7 +27,7 @@ import java.beans.SimpleBeanInfo;
 import infra.beans.BeanWrapper;
 import infra.beans.BeanWrapperImpl;
 import infra.beans.FatalBeanException;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

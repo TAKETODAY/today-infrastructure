@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.javapoet.CodeBlock;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Code generator for a single value. Delegates code generation to a list of

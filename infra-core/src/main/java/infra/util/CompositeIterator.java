@@ -22,8 +22,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 
-import infra.lang.Assert;
-
 /**
  * Composite iterator that combines multiple other iterators,
  * as registered via {@link #add(Iterator)}.

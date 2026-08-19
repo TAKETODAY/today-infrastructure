@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.messaging.Message;

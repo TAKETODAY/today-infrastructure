@@ -34,7 +34,7 @@ import infra.context.annotation.Primary;
 import infra.context.support.AbstractApplicationContext;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Service;
 import infra.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;

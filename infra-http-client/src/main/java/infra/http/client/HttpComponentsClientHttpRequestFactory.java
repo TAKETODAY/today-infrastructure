@@ -45,7 +45,7 @@ import java.util.function.BiFunction;
 
 import infra.beans.factory.DisposableBean;
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link infra.http.client.ClientHttpRequestFactory} implementation that

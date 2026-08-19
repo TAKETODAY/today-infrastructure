@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.view.ModelAndView;

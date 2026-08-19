@@ -25,7 +25,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
 import infra.web.ReturnValueHandler;

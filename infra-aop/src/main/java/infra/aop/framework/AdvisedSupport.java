@@ -48,7 +48,7 @@ import infra.aop.support.DefaultPointcutAdvisor;
 import infra.aop.support.RuntimeMethodInterceptor;
 import infra.aop.target.EmptyTargetSource;
 import infra.aop.target.SingletonTargetSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 

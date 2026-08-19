@@ -30,7 +30,7 @@ import java.util.Set;
 
 import infra.beans.BeanMetadataElement;
 import infra.beans.Mergeable;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

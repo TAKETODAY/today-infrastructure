@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 import infra.aop.BeforeAdvice;
 import infra.aop.MethodBeforeAdvice;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Interceptor to wrap a {@link MethodBeforeAdvice}.

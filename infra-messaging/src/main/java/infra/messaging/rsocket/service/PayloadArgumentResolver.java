@@ -22,7 +22,7 @@ import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.handler.annotation.Payload;
 
 /**

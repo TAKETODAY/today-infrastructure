@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.JavaType;

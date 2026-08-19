@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;

@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.config.AutowireCapableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.PropertyNamingStrategy;

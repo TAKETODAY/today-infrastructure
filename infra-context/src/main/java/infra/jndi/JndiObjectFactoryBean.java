@@ -37,7 +37,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

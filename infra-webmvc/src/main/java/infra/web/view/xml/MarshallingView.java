@@ -25,7 +25,7 @@ import java.util.Map;
 
 import javax.xml.transform.stream.StreamResult;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.oxm.Marshaller;
 import infra.validation.BindingResult;
 import infra.web.HttpContext;

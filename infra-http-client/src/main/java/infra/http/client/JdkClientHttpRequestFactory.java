@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ClientHttpRequestFactory} implementation based on the Java

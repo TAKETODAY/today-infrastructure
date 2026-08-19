@@ -40,7 +40,7 @@ import infra.http.converter.AbstractHttpMessageConverter;
 import infra.http.converter.HttpMessageConversionException;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;

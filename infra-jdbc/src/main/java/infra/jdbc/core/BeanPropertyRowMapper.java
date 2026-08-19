@@ -41,7 +41,7 @@ import infra.dao.DataRetrievalFailureException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.format.support.ApplicationConversionService;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

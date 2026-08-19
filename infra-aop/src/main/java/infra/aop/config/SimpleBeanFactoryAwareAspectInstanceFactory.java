@@ -25,7 +25,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

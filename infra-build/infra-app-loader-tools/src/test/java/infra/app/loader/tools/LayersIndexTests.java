@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

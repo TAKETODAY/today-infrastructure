@@ -21,7 +21,7 @@ package infra.app.diagnostics;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for most {@code FailureAnalyzer} implementations.

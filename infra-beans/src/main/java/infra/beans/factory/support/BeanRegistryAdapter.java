@@ -37,7 +37,7 @@ import infra.beans.factory.config.BeanDefinitionCustomizer;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.env.Environment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MultiValueMap;
 
 /**

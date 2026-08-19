@@ -25,7 +25,7 @@ import java.util.StringJoiner;
 
 import infra.jdbc.core.SqlParameterValue;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link SqlParameterSource} implementations.

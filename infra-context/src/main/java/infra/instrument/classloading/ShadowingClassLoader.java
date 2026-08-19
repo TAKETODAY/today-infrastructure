@@ -31,7 +31,7 @@ import java.util.HashMap;
 
 import infra.core.DecoratingClassLoader;
 import infra.core.OverridingClassLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
 

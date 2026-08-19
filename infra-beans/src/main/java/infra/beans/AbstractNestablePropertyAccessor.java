@@ -39,7 +39,7 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConverterNotFoundException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

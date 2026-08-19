@@ -57,7 +57,7 @@ import infra.core.Ordered;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.scripting.ScriptFactory;

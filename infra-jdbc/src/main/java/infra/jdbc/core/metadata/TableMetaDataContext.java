@@ -34,7 +34,7 @@ import infra.jdbc.core.SqlTypeValue;
 import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.jdbc.core.namedparam.SqlParameterSourceUtils;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

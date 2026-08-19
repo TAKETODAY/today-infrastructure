@@ -31,7 +31,7 @@ import infra.aop.IntroductionAdvisor;
 import infra.aop.IntroductionInfo;
 import infra.core.Ordered;
 import infra.core.OrderedSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

@@ -31,9 +31,9 @@ import infra.bytecode.BytecodeCompiler;
 import infra.bytecode.proxy.Enhancer;
 import infra.core.NativeDetector;
 import infra.core.NativeDetector.Context;
-import infra.lang.Assert;
-import infra.util.TodayStrategies;
+import infra.util.Assert;
 import infra.util.ClassUtils;
+import infra.util.TodayStrategies;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to

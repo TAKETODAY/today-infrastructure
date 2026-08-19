@@ -32,7 +32,7 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.util.function.SingletonSupplier;
 

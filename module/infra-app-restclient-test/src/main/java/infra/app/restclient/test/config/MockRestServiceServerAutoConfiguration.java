@@ -32,7 +32,7 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.test.web.client.ExpectedCount;
 import infra.test.web.client.MockRestServiceServer;

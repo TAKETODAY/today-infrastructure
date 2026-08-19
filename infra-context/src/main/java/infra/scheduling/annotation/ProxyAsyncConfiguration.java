@@ -24,7 +24,7 @@ import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Role;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.config.TaskManagementConfigUtils;
 import infra.stereotype.Component;
 

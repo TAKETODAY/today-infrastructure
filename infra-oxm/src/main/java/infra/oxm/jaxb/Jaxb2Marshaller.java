@@ -73,7 +73,7 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.InitializingBean;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.oxm.GenericMarshaller;

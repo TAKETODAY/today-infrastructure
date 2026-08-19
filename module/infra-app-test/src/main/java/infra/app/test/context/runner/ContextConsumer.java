@@ -19,7 +19,7 @@
 package infra.app.test.context.runner;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Callback interface used to process an {@link ApplicationContext} with the ability to

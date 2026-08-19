@@ -29,7 +29,7 @@ import java.util.Set;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.context.annotation.ClassPathScanningCandidateComponentProvider;
 import infra.core.type.filter.AnnotationTypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

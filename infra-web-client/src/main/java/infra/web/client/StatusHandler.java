@@ -26,7 +26,7 @@ import infra.http.HttpRequest;
 import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Used by {@link DefaultRestClient} and {@link DefaultRestClientBuilder}.

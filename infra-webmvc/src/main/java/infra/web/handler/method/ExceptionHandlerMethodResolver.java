@@ -33,7 +33,7 @@ import infra.core.MethodIntrospector;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ConcurrentLruCache;
 import infra.util.MimeType;
 import infra.util.comparator.ExceptionDepthComparator;

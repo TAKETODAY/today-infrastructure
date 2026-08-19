@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import infra.beans.BeanUtils;
 import infra.jndi.JndiObjectFactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple implementation of the standard JDBC {@link javax.sql.DataSource} interface,

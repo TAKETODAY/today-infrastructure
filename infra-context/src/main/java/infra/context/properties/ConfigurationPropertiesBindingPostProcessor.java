@@ -33,7 +33,7 @@ import infra.context.properties.bind.BindMethod;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
 import infra.core.env.PropertySources;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link BeanPostProcessor} to bind {@link PropertySources} to beans annotated with

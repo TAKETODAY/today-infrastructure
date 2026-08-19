@@ -39,7 +39,7 @@ import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.OrderUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.web.annotation.ControllerAdvice;

@@ -28,7 +28,7 @@ import infra.beans.BeansException;
 import infra.beans.factory.BeanInitializationException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

@@ -26,7 +26,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.function.IOConsumer;
 

@@ -24,7 +24,7 @@ import java.io.Serializable;
 import infra.aop.ClassFilter;
 import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient class for building up pointcuts.

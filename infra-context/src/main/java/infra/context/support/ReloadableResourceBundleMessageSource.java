@@ -40,7 +40,7 @@ import infra.context.ResourceLoaderAware;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentLruCache;
 import infra.util.DefaultPropertiesPersister;

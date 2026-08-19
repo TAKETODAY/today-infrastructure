@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.MessageChannel;
 
 /**

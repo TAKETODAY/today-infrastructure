@@ -23,9 +23,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.Map;
 
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Specialization of {@link MapPropertySource} designed for use with

@@ -60,7 +60,7 @@ import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.MethodMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Contract;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;

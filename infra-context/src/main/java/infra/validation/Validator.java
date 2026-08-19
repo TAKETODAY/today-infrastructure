@@ -21,7 +21,7 @@ package infra.validation;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A validator for application-specific objects.

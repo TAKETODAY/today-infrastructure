@@ -31,8 +31,8 @@ import infra.bytecode.core.ClassGenerator;
 import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.EmitUtils;
 import infra.bytecode.core.MethodInfo;
-import infra.lang.Assert;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

@@ -39,7 +39,7 @@ import infra.context.properties.NestedConfigurationProperty;
 import infra.context.properties.bind.JavaBeanBinder.BeanProperty;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;

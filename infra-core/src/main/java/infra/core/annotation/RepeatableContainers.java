@@ -26,8 +26,8 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Function;
 
-import infra.lang.Assert;
 import infra.lang.NullValue;
+import infra.util.Assert;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 

@@ -30,7 +30,7 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Extension of the {@link BeanDefinition} class, based on an ASM ClassReader,

@@ -32,7 +32,7 @@ import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;

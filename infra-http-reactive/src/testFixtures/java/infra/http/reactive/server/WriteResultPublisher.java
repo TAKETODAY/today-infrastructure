@@ -22,7 +22,7 @@ import org.reactivestreams.Subscription;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import org.jspecify.annotations.Nullable;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;

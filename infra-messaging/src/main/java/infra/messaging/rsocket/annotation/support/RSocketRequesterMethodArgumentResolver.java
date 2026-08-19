@@ -17,7 +17,7 @@
 package infra.messaging.rsocket.annotation.support;
 
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.handler.invocation.reactive.HandlerMethodArgumentResolver;
 import infra.messaging.rsocket.RSocketRequester;

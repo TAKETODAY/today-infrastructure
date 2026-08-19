@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 import infra.aop.AfterAdvice;
 import infra.aop.AfterReturningAdvice;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Interceptor to wrap an {@link infra.aop.AfterReturningAdvice}.

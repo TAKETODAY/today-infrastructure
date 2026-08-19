@@ -30,7 +30,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySourcesPropertyResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility to set system properties that can later be used by log configuration files.

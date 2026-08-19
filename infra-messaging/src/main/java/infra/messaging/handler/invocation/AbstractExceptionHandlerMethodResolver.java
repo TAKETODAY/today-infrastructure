@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.comparator.ExceptionDepthComparator;
 

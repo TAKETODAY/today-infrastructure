@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.SchedulingAwareRunnable;
 import infra.util.concurrent.CustomizableThreadFactory;
 import jakarta.enterprise.concurrent.ManagedExecutorService;

@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import infra.core.io.InputStreamSource;
 import infra.javapoet.JavaFile;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.util.function.ThrowingConsumer;

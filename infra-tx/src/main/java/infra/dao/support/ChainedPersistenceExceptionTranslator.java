@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 
 import infra.dao.DataAccessException;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of {@link PersistenceExceptionTranslator} that supports chaining,

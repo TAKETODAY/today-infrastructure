@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import reactor.netty.http.client.HttpClient;
 

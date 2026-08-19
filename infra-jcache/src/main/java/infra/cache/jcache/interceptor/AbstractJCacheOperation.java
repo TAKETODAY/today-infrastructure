@@ -35,7 +35,7 @@ import javax.cache.annotation.CacheMethodDetails;
 import javax.cache.annotation.CacheValue;
 
 import infra.cache.interceptor.CacheResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ExceptionTypeFilter;
 
 /**

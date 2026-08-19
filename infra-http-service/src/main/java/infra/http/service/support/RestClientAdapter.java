@@ -38,7 +38,7 @@ import infra.http.service.invoker.HttpExchangeAdapter;
 import infra.http.service.invoker.HttpRequestValues;
 import infra.http.service.invoker.HttpServiceProxyFactory;
 import infra.http.service.invoker.RequestExecution;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import infra.web.client.RestClient;

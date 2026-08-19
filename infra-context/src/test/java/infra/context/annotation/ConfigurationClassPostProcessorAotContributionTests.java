@@ -71,7 +71,7 @@ import infra.core.type.AnnotationMetadata;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.ParameterizedTypeName;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;

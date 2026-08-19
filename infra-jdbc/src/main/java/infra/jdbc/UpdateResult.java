@@ -27,7 +27,7 @@ import java.util.List;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.jdbc.type.TypeHandler;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

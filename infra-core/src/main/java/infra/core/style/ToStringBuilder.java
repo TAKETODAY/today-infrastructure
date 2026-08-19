@@ -20,7 +20,7 @@ package infra.core.style;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility class that builds pretty-printing {@code toString()} methods

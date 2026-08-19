@@ -23,7 +23,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import infra.beans.factory.config.CustomEditorConfigurer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An {@link InputStream} that reads from a {@link DataBuffer}.

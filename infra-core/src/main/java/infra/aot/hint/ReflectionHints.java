@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import infra.aot.hint.TypeHint.Builder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

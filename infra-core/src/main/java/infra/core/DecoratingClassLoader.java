@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base class for decorating ClassLoaders such as {@link OverridingClassLoader}

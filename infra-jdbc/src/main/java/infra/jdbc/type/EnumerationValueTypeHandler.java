@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 
 /**

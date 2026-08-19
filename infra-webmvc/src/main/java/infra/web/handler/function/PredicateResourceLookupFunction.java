@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Lookup function used by {@link RouterFunctions#resource(RequestPredicate, Resource)} and

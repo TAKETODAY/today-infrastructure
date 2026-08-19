@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 

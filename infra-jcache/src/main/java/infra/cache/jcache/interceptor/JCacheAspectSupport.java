@@ -30,7 +30,7 @@ import infra.cache.interceptor.BasicOperation;
 import infra.cache.interceptor.CacheAspectSupport;
 import infra.cache.interceptor.CacheOperationInvocationContext;
 import infra.cache.interceptor.CacheOperationInvoker;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

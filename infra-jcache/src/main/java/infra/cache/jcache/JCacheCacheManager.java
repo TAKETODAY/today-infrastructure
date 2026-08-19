@@ -28,7 +28,7 @@ import javax.cache.Caching;
 
 import infra.cache.Cache;
 import infra.cache.transaction.AbstractTransactionSupportingCacheManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link infra.cache.CacheManager} implementation

@@ -26,7 +26,7 @@ import java.util.List;
 import infra.beans.factory.aot.AotServices.Source;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.RegisteredBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;

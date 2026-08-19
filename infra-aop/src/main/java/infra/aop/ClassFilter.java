@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Filter that restricts matching of a pointcut or introduction to

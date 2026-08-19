@@ -33,7 +33,7 @@ import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
 import infra.jmx.export.annotation.AnnotationMBeanExporter;
 import infra.jmx.support.RegistrationPolicy;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.StringUtils;
 

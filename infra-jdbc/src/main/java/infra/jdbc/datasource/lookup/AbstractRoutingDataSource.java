@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 
 import infra.beans.factory.InitializingBean;
 import infra.jdbc.datasource.AbstractDataSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

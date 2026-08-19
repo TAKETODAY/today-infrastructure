@@ -18,7 +18,7 @@
 
 package infra.test.web.client;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A simple type representing a range for an expected count.

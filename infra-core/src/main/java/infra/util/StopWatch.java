@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.Assert;
-
 /**
  * Simple stop watch, allowing for timing of a number of tasks, exposing total
  * running time and running time for each named task.

@@ -34,7 +34,7 @@ import java.util.function.UnaryOperator;
 
 import infra.core.ssl.SslBundle;
 import infra.http.client.HttpComponentsHttpClientBuilder.TlsSocketStrategyFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

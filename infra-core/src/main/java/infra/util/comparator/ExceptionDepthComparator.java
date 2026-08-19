@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Comparator capable of sorting exceptions based on their depth from the thrown exception type.

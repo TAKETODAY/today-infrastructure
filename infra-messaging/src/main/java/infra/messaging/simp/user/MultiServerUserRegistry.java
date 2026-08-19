@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import infra.context.ApplicationEvent;
 import infra.context.event.SmartApplicationListener;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.converter.MessageConverter;
 import infra.util.CollectionUtils;

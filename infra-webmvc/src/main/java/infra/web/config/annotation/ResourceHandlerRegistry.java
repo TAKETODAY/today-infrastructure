@@ -28,7 +28,7 @@ import java.util.List;
 import infra.beans.factory.BeanInitializationException;
 import infra.context.ApplicationContext;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HandlerMapping;
 import infra.web.HttpRequestHandler;
 import infra.web.NotFoundHandler;

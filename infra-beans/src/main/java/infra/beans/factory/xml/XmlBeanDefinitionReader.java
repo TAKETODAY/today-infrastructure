@@ -51,7 +51,7 @@ import infra.core.io.DescriptiveResource;
 import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.xml.SimpleSaxErrorHandler;
 import infra.util.xml.XmlValidationModeDetector;
 

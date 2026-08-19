@@ -51,7 +51,7 @@ import infra.context.LifecycleProcessor;
 import infra.context.Phased;
 import infra.context.SmartLifecycle;
 import infra.core.NativeDetector;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

@@ -39,7 +39,7 @@ import infra.core.Ordered;
 import infra.core.ResolvableType;
 import infra.core.env.Environment;
 import infra.core.env.StandardEnvironment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.messaging.Message;
 import infra.messaging.simp.SimpLogging;

@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Assert;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},

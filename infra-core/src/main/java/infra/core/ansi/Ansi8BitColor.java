@@ -18,7 +18,7 @@
 
 package infra.core.ansi;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link AnsiElement} implementation for ANSI 8-bit foreground or background color codes.

@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 
 import infra.context.MessageSource;
 import infra.context.support.MessageSourceResourceBundle;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of Hibernate Validator 4.3/5.x's {@link ResourceBundleLocator} interface,

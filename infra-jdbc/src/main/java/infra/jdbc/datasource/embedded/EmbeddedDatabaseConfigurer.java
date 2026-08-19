@@ -22,7 +22,7 @@ import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@code EmbeddedDatabaseConfigurer} encapsulates the configuration required to

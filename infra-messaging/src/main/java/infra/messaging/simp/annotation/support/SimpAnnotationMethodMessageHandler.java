@@ -40,7 +40,7 @@ import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;

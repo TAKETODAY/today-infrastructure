@@ -24,7 +24,7 @@ import java.util.List;
 import infra.context.annotation.ConditionContext;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MultiValueMap;
 
 /**

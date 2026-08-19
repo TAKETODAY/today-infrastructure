@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract {@link Future} implementation which allow for cancellation.

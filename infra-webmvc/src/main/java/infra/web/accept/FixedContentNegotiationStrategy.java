@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**

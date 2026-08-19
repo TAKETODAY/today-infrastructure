@@ -29,7 +29,7 @@ import java.util.Date;
 
 import infra.core.io.InputStreamSource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mail.MailMessage;
 import infra.mail.SimpleMailMessage;
 import infra.util.MimeType;

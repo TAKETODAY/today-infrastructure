@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 
 import infra.context.MessageSource;
 import infra.context.NoSuchMessageException;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Helper class that allows for accessing a Framework

@@ -29,7 +29,7 @@ import infra.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator;
 import infra.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link AspectJAwareAdvisorAutoProxyCreator} subclass that processes all AspectJ

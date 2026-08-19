@@ -29,7 +29,7 @@ import infra.instrument.classloading.InstrumentationLoadTimeWeaver;
 import infra.instrument.classloading.LoadTimeWeaver;
 import infra.instrument.classloading.ReflectiveLoadTimeWeaver;
 import infra.instrument.classloading.TomcatLoadTimeWeaver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

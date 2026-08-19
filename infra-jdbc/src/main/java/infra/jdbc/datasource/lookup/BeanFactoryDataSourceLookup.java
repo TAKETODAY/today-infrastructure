@@ -25,7 +25,7 @@ import javax.sql.DataSource;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link DataSourceLookup} implementation based on a Framework {@link BeanFactory}.

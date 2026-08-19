@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serial;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Error thrown when validation fails during a bind operation.

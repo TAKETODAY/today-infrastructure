@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import infra.core.ssl.SslBundle;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Builder that can be used to create an

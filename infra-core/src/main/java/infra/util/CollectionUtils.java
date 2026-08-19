@@ -50,7 +50,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Assert;
 import infra.lang.Contract;
 
 /**

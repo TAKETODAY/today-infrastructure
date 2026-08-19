@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.cache.Cache;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingFunction;
 
 /**

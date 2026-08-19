@@ -31,7 +31,7 @@ import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DefaultDataBufferFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.messaging.Message;

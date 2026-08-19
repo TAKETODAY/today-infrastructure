@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingFunction;
 
 /**

@@ -37,7 +37,7 @@ import infra.http.converter.smile.JacksonSmileHttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.yaml.JacksonYamlHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

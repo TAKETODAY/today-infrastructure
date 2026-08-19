@@ -38,7 +38,7 @@ import infra.core.annotation.AnnotationAttributes;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.StandardAnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.annotation.AsyncAnnotationBeanPostProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;

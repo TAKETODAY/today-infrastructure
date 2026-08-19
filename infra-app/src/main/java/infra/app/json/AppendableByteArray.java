@@ -29,7 +29,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link Appendable} implementation that can be used to return a byte array. Designed to

@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.beans.factory.BeanNameAware;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.messaging.Message;

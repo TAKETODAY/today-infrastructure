@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext.HierarchyMode;

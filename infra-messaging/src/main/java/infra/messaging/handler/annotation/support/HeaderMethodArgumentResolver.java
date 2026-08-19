@@ -24,7 +24,7 @@ import java.util.Map;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.messaging.Message;

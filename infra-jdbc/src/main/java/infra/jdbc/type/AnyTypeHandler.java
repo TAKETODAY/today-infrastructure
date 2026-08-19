@@ -23,7 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link TypeHandler} that maps any type to JDBC {@code setObject} and {@code getObject} methods.

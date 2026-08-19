@@ -21,7 +21,7 @@ package infra.beans.factory.parsing;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeanMetadataElement;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Representation of an alias that has been registered during the parsing process.

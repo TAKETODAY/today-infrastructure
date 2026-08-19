@@ -29,9 +29,9 @@ import java.util.Objects;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

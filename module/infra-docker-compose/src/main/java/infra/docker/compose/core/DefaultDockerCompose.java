@@ -30,7 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import infra.app.logging.LogLevel;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default {@link DockerCompose} implementation backed by {@link DockerCli}.

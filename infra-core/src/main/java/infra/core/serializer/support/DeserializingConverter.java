@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream;
 import infra.core.conversion.Converter;
 import infra.core.serializer.DefaultDeserializer;
 import infra.core.serializer.Deserializer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link Converter} that delegates to a

@@ -27,7 +27,7 @@ import infra.core.annotation.AnnotationAttributes;
 import infra.core.style.DefaultToStringStyler;
 import infra.core.style.SimpleValueStyler;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;

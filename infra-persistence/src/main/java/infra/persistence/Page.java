@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents a paginated result set containing a subset of data from a larger dataset.

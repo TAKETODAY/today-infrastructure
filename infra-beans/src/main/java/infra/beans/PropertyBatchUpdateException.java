@@ -24,7 +24,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.StringJoiner;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

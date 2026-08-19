@@ -44,9 +44,9 @@ import java.util.stream.Stream;
 
 import infra.core.Pair;
 import infra.core.Triple;
-import infra.lang.Assert;
 import infra.lang.Contract;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingConsumer;

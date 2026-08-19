@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.DataSize;
 
 /**

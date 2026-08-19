@@ -24,7 +24,7 @@ import java.io.InputStream;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mock.http.MockHttpInputMessage;
 
 /**

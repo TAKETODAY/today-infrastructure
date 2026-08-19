@@ -26,7 +26,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import infra.beans.factory.DisposableBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

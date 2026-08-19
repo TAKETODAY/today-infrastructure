@@ -25,7 +25,7 @@ import javax.management.ObjectName;
 import javax.management.modelmbean.ModelMBean;
 import javax.management.modelmbean.ModelMBeanNotificationBroadcaster;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link NotificationPublisher} implementation that uses the infrastructure

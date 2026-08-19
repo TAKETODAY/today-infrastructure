@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 
 import infra.beans.BeanInstantiationException;
 import infra.beans.BeanUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.reflect.MethodAccessor;
 import infra.reflect.MethodInvoker;
 import infra.reflect.ReflectionException;

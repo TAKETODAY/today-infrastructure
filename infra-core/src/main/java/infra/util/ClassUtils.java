@@ -60,7 +60,6 @@ import java.util.regex.Pattern;
 
 import infra.core.GenericTypeResolver;
 import infra.core.io.ClassPathResource;
-import infra.lang.Assert;
 import infra.lang.Constant;
 
 import static infra.util.StringUtils.prependLeadingSlash;

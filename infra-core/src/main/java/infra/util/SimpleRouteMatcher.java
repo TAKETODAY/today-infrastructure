@@ -23,8 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Comparator;
 import java.util.Map;
 
-import infra.lang.Assert;
-
 /**
  * {@code RouteMatcher} that delegates to a {@link PathMatcher}.
  *

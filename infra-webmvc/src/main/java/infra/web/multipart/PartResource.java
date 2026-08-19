@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Adapt {@link Part} to {@link Resource},

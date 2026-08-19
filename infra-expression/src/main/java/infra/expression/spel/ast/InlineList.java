@@ -32,7 +32,7 @@ import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelNode;
 import infra.expression.spel.support.StandardEvaluationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represent a list in an expression, e.g. '{1,2,3}'

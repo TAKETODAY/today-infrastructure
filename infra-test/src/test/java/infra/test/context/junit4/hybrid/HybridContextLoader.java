@@ -22,7 +22,7 @@ import infra.beans.factory.support.BeanDefinitionReader;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.support.GenericApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;

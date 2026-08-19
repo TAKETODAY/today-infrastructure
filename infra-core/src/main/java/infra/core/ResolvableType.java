@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import infra.core.SerializableTypeWrapper.MethodParameterTypeProvider;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;

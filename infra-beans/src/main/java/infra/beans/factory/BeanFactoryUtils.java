@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 
 import infra.beans.BeansException;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestContext;

@@ -38,7 +38,7 @@ import infra.app.logging.structured.GraylogExtendedLogFormatService;
 import infra.app.logging.structured.JsonWriterStructuredLogFormatter;
 import infra.app.logging.structured.StructuredLogFormatter;
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

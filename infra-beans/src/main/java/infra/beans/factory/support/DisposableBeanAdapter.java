@@ -39,7 +39,7 @@ import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

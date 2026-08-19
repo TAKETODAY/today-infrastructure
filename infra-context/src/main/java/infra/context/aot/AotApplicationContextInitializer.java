@@ -24,7 +24,7 @@ import infra.beans.BeanInstantiationException;
 import infra.beans.BeanUtils;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

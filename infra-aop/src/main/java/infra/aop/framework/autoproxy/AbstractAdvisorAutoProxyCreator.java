@@ -32,7 +32,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Generic auto proxy creator that builds AOP proxies for specific beans

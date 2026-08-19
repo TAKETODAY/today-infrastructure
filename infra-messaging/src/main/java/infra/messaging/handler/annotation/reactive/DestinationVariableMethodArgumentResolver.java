@@ -22,7 +22,7 @@ import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHandlingException;
 import infra.messaging.MessageHeaders;

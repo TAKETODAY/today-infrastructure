@@ -36,7 +36,7 @@ import java.util.function.Predicate;
 import infra.app.json.JsonWriter.MemberPath;
 import infra.app.json.JsonWriter.NameProcessor;
 import infra.app.json.JsonWriter.ValueProcessor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.LambdaSafe;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

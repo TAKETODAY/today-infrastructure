@@ -30,7 +30,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

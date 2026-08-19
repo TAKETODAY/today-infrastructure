@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.sql.SQLException;
 
 import infra.dao.DataAccessException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

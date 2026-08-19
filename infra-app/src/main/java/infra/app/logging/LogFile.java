@@ -25,7 +25,7 @@ import java.util.Properties;
 
 import infra.core.env.Environment;
 import infra.core.env.PropertyResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

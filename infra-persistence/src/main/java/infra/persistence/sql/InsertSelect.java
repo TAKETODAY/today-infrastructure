@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.persistence.StatementSequence;
 import infra.persistence.platform.Platform;
 import infra.util.CollectionUtils;

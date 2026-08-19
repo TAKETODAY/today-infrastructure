@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Date;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mail.javamail.JavaMailSender;
 import infra.mail.javamail.MimeMailMessage;
 import infra.mail.javamail.MimeMessageHelper;

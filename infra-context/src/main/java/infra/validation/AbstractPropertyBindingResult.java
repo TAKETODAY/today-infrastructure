@@ -30,7 +30,7 @@ import infra.beans.PropertyEditorRegistry;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.ConvertingPropertyEditorAdapter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link BindingResult} implementations that work with

@@ -45,7 +45,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import infra.app.loader.tools.MainClassFinder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link Task} for resolving the name of the application's main class.

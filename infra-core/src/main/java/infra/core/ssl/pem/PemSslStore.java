@@ -27,7 +27,7 @@ import java.util.List;
 
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An individual trust or key store that has been loaded from PEM content.

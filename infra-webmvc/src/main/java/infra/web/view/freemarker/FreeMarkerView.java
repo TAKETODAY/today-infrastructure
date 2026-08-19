@@ -42,7 +42,7 @@ import infra.beans.BeansException;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContextException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.HttpContextUtils;
 import infra.web.view.AbstractTemplateView;

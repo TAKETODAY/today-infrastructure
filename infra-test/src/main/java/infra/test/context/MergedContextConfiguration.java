@@ -34,7 +34,7 @@ import infra.core.io.PropertySourceDescriptor;
 import infra.core.style.DefaultToStringStyler;
 import infra.core.style.SimpleValueStyler;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.cache.ContextCache;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

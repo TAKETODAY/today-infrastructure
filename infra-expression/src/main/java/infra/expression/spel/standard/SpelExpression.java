@@ -37,7 +37,7 @@ import infra.expression.spel.SpelNode;
 import infra.expression.spel.SpelParserConfiguration;
 import infra.expression.spel.ast.SpelNodeImpl;
 import infra.expression.spel.support.StandardEvaluationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@code SpelExpression} represents a parsed (valid) expression that is ready to be

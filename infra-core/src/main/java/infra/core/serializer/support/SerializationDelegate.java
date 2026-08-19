@@ -26,7 +26,7 @@ import infra.core.serializer.DefaultDeserializer;
 import infra.core.serializer.DefaultSerializer;
 import infra.core.serializer.Deserializer;
 import infra.core.serializer.Serializer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A convenient delegate with pre-arranged configuration state for common

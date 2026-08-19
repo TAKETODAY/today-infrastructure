@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 
 /**

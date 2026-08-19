@@ -25,7 +25,7 @@ import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Iterator;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

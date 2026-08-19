@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.util.JsonPathExpectationsHelper;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;

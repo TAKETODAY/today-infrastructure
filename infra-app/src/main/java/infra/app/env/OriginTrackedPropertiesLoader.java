@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginTrackedValue;
 import infra.origin.TextResourceOrigin;

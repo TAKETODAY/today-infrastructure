@@ -50,7 +50,7 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.format.SqlStatementLogger;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Descriptive;
 import infra.logging.LogMessage;
 import infra.logging.Logger;

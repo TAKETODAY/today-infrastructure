@@ -88,7 +88,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.Order;
 import infra.core.metrics.StartupStep;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Modifiable;
 import infra.lang.NullValue;
 import infra.util.TodayStrategies;

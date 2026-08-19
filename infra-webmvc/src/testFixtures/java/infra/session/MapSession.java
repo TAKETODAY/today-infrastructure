@@ -22,7 +22,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * <p>

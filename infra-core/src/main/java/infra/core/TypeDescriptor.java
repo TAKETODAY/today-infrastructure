@@ -36,9 +36,9 @@ import java.util.stream.Stream;
 import infra.core.annotation.AnnotatedElementAdapter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
-import infra.lang.Assert;
 import infra.lang.Contract;
 import infra.reflect.Property;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 

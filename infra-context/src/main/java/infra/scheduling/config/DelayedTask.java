@@ -20,7 +20,7 @@ package infra.scheduling.config;
 
 import java.time.Duration;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link Task} implementation defining a {@code Runnable} with an initial delay.

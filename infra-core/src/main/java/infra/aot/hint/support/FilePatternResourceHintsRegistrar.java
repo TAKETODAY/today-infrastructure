@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.aot.hint.ResourceHints;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ResourceUtils;
 

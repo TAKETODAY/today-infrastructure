@@ -26,7 +26,7 @@ import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.WrappedTypeHandler;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * for any pojo

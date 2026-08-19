@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import infra.context.ApplicationEventPublisher;
 import infra.context.ApplicationEventPublisherAware;
 import infra.context.SmartLifecycle;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;

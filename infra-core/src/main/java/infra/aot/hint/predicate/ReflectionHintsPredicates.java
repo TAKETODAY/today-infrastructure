@@ -38,7 +38,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
 import infra.core.MethodIntrospector;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

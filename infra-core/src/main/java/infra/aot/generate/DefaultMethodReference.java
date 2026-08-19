@@ -29,7 +29,7 @@ import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.TypeName;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default {@link MethodReference} implementation based on a {@link MethodSpec}.

@@ -18,7 +18,7 @@
 
 package infra.app.health.contributor;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 

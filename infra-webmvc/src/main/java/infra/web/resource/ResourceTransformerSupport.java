@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 

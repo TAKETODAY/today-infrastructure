@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

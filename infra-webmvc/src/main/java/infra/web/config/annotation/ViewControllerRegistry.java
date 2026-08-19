@@ -40,7 +40,7 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Version;
 import infra.util.AntPathMatcher;
 import infra.util.StringUtils;

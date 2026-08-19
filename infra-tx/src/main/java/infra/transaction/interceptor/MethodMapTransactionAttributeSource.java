@@ -30,7 +30,7 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.InitializingBean;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

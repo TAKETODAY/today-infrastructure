@@ -20,7 +20,7 @@ package infra.beans.factory.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Context object for evaluating an expression within a bean definition.

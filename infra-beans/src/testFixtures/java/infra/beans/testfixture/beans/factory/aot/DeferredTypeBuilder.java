@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 import infra.javapoet.TypeSpec;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link TypeSpec.Builder} {@link Consumer} that can be used to defer the to

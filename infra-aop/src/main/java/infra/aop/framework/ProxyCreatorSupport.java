@@ -24,7 +24,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 
 import infra.aop.AdvisedSupportListener;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base class for proxy factories.

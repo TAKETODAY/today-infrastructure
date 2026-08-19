@@ -30,7 +30,7 @@ import infra.expression.IndexAccessor;
 import infra.expression.TypedValue;
 import infra.expression.spel.CompilableIndexAccessor;
 import infra.expression.spel.SpelNode;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

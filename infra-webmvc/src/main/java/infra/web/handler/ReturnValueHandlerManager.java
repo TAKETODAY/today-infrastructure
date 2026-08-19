@@ -38,7 +38,7 @@ import infra.http.converter.AllEncompassingFormHttpMessageConverter;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.ErrorResponse;
 import infra.web.HttpContext;

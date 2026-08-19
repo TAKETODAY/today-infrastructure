@@ -47,7 +47,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;

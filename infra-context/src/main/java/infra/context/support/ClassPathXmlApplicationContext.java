@@ -25,7 +25,7 @@ import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.ApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Standalone XML application context, taking the context definition files

@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.support.TransactionSynchronizationManager;
 

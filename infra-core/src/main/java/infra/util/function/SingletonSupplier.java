@@ -24,8 +24,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
 import infra.lang.Contract;
+import infra.util.Assert;
 
 /**
  * A {@link java.util.function.Supplier} decorator that caches a singleton result and

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.BeanUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

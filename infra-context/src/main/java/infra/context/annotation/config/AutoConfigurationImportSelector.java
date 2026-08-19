@@ -43,7 +43,7 @@ import infra.core.annotation.AnnotationAttributes;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

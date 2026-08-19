@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility that can be used to map {@link HttpClientSettingsProperties} to

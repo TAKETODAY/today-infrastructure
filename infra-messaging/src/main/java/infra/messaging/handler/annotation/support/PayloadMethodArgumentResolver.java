@@ -24,7 +24,7 @@ import java.lang.annotation.Annotation;
 import java.util.Optional;
 
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.converter.MessageConversionException;
 import infra.messaging.converter.MessageConverter;

@@ -20,7 +20,7 @@ package infra.transaction.jta;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.Method;
 
 import infra.beans.BeanMetadataElement;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

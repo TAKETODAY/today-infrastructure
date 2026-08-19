@@ -20,7 +20,7 @@ package infra.web.reactive.client;
 
 import java.util.function.Function;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**

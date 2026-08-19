@@ -25,7 +25,7 @@ import java.util.List;
 import infra.beans.BeanProperty;
 import infra.beans.BeanUtils;
 import infra.core.annotation.MergedAnnotation;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A resolver interface for determining the appropriate {@link TypeHandler} for a given

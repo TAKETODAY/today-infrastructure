@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**

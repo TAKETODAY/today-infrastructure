@@ -22,8 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Properties;
 
-import infra.lang.Assert;
-
 /**
  * Utility class for working with Strings that have placeholder values in them.
  * A placeholder takes the form {@code ${name}}. Using {@code PropertyPlaceholderHandler}

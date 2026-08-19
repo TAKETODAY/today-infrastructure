@@ -22,7 +22,7 @@ import java.nio.charset.Charset;
 import java.util.function.Function;
 
 import infra.http.HttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.DataSize;
 import infra.util.concurrent.Awaiter;

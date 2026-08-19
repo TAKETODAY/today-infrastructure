@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A filtered {@link ConfigurationPropertySource}.

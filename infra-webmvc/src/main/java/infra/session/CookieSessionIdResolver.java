@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.session.config.CookieProperties;
 import infra.web.HttpContext;
 

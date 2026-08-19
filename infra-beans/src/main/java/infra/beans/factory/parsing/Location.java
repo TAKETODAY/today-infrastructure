@@ -21,7 +21,7 @@ package infra.beans.factory.parsing;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Class that models an arbitrary location in a {@link Resource resource}.

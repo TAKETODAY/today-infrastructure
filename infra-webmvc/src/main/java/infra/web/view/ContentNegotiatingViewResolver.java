@@ -35,7 +35,7 @@ import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;

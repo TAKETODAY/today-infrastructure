@@ -24,7 +24,7 @@ import java.io.Serial;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.PlatformTransactionManager;

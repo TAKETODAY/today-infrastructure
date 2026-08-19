@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.support.AbstractXpathAssertions;
 
 /**

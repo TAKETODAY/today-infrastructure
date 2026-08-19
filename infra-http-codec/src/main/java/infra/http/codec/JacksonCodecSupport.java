@@ -42,7 +42,7 @@ import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.util.CollectionUtils;
 import infra.util.MimeType;

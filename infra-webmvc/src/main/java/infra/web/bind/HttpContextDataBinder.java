@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 
 import infra.beans.PropertyValues;
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.validation.BindException;

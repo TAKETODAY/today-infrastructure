@@ -25,7 +25,7 @@ import infra.jdbc.core.PreparedStatementCreatorFactory;
 import infra.jdbc.core.PreparedStatementSetter;
 import infra.jdbc.core.namedparam.NamedParameterUtils;
 import infra.jdbc.core.namedparam.ParsedSql;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Operation object representing an SQL-based operation such as a query or update,

@@ -32,7 +32,7 @@ import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

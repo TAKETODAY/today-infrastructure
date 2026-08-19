@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

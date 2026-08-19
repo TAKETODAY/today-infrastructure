@@ -40,7 +40,7 @@ import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.docker.compose.core.DockerComposeFile;
 import infra.docker.compose.core.RunningService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;

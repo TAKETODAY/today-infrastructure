@@ -40,7 +40,7 @@ import infra.core.env.StandardEnvironment;
 import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Repository;

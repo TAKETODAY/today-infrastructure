@@ -24,7 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 import infra.core.ParameterizedTypeReference;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.util.JsonPathExpectationsHelper;
 
 /**

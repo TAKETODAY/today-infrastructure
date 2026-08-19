@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import infra.javapoet.CodeBlock;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

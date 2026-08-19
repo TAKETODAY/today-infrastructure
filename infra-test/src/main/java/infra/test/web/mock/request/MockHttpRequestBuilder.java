@@ -21,7 +21,7 @@ package infra.test.web.mock.request;
 import java.net.URI;
 
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.mock.MockMvc;
 import infra.web.mock.MockRequest;
 import infra.web.util.UriComponentsBuilder;

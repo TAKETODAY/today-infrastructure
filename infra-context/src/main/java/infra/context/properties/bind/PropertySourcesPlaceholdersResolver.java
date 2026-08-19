@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.PlaceholderResolver;
 import infra.util.PropertyPlaceholderHandler;
 

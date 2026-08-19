@@ -29,7 +29,7 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.expression.TypeConverter;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of the {@link TypeConverter} interface,

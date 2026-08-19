@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import infra.http.HttpMethod;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base class for {@code RequestExpectationManager} implementations responsible

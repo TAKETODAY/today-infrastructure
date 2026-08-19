@@ -25,7 +25,7 @@ import java.io.Serializable;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.FactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.inject.Provider;
 
 /**

@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import infra.context.ApplicationEventPublisher;
 import infra.context.ApplicationListener;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

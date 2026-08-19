@@ -49,7 +49,7 @@ import infra.core.io.PropertySourceFactory;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.io.ResourcePropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestContextAnnotationUtils;

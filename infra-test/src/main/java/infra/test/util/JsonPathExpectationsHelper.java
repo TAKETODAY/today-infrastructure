@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import infra.core.ParameterizedTypeReference;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

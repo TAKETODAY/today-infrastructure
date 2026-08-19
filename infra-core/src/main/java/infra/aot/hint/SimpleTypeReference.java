@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.lang.model.SourceVersion;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link TypeReference} based on fully qualified name.

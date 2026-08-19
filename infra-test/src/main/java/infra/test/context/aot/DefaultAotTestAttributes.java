@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 import infra.aot.AotDetector;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of {@link AotTestAttributes} backed by a {@link Map}.

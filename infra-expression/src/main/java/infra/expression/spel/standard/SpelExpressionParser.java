@@ -24,7 +24,7 @@ import infra.expression.ParseException;
 import infra.expression.ParserContext;
 import infra.expression.common.TemplateAwareExpressionParser;
 import infra.expression.spel.SpelParserConfiguration;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * SpEL parser. Instances are reusable and thread-safe.

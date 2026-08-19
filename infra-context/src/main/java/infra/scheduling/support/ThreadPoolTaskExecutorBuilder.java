@@ -28,7 +28,7 @@ import java.util.Set;
 
 import infra.beans.BeanUtils;
 import infra.core.task.TaskDecorator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;

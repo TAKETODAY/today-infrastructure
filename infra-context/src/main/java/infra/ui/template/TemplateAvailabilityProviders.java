@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import infra.context.ApplicationContext;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.lang.VisibleForTesting;
 

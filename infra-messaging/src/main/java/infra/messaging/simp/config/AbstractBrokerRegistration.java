@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.MessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.broker.AbstractBrokerMessageHandler;

@@ -45,7 +45,7 @@ import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.filter.AnnotationTypeFilter;
 import infra.http.service.annotation.HttpExchange;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

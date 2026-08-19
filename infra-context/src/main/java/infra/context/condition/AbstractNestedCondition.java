@@ -32,7 +32,7 @@ import infra.context.annotation.ConfigurationCondition;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.MultiValueMap;
 

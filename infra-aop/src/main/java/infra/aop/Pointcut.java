@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 import infra.aop.support.AopUtils;
 import infra.aop.support.ComposablePointcut;
 import infra.aop.support.StaticMethodMatcherPointcut;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Core  pointcut abstraction.

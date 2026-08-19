@@ -39,7 +39,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

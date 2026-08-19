@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeanMetadataElement;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Representation of an import that has been processed during the parsing process.

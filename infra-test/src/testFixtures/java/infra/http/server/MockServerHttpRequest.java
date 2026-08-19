@@ -41,7 +41,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.mock.MockRequest;
 import infra.util.ArrayIterator;
 import infra.util.LinkedCaseInsensitiveMap;

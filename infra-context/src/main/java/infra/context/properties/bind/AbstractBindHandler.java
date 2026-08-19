@@ -21,7 +21,7 @@ package infra.context.properties.bind;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link BindHandler} implementations.

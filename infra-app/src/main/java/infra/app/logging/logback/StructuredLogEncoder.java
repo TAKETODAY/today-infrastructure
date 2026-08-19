@@ -33,7 +33,7 @@ import infra.app.logging.structured.StructuredLogFormatterFactory;
 import infra.app.logging.structured.StructuredLogFormatterFactory.CommonFormatters;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.Instantiator;
 import infra.util.Instantiator.AvailableParameters;
 

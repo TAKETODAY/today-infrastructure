@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.AnnotatedElement;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

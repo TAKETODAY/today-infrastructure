@@ -28,7 +28,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.util.ClassUtils;

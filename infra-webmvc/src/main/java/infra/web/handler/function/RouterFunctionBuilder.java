@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of {@link RouterFunctions.Builder}.

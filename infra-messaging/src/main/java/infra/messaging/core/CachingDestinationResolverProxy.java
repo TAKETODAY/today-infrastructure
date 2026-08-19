@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link DestinationResolver} implementation that proxies a target DestinationResolver,

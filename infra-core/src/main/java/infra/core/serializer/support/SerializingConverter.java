@@ -21,7 +21,7 @@ package infra.core.serializer.support;
 import infra.core.conversion.Converter;
 import infra.core.serializer.DefaultSerializer;
 import infra.core.serializer.Serializer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link Converter} that delegates to a

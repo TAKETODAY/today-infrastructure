@@ -39,7 +39,7 @@ import infra.jdbc.core.ConnectionCallback;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.RowMapper;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

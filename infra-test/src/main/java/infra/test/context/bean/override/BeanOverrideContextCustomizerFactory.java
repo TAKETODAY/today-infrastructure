@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizerFactory;
 

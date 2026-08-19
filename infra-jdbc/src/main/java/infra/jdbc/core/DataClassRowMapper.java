@@ -30,7 +30,7 @@ import infra.beans.TypeConverter;
 import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LoggerFactory;
 
 /**

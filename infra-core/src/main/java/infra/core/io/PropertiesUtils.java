@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.DefaultPropertiesPersister;
 import infra.util.PropertiesPersister;

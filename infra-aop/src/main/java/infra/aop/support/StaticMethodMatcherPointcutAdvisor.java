@@ -25,7 +25,7 @@ import java.io.Serializable;
 import infra.aop.Pointcut;
 import infra.aop.PointcutAdvisor;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient base class for Advisors that are also static pointcuts.

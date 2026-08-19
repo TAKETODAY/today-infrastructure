@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import infra.core.NamedThreadLocal;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

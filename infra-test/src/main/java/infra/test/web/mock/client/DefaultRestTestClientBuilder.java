@@ -28,7 +28,7 @@ import infra.http.HttpHeaders;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
 import infra.test.web.mock.client.RestTestClient.MockMvcSetupBuilder;

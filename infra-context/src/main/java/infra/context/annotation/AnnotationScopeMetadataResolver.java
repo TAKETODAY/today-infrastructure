@@ -24,7 +24,7 @@ import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.MethodMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link ScopeMetadataResolver} implementation that by default checks for

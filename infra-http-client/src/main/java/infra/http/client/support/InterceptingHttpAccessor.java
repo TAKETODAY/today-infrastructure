@@ -27,7 +27,7 @@ import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.InterceptingClientHttpRequestFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

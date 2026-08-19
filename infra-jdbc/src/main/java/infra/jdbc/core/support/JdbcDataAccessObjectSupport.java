@@ -29,7 +29,7 @@ import infra.jdbc.CannotGetJdbcConnectionException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.support.SQLExceptionTranslator;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient super class for JDBC-based data access objects.

@@ -20,7 +20,7 @@ package infra.core.conversion;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A converter converts a source object of type {@code S} to a target of type {@code T}.

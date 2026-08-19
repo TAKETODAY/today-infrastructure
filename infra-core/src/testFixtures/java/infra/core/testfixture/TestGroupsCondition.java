@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import java.util.Arrays;
 import java.util.Optional;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.junit.jupiter.api.extension.ConditionEvaluationResult.disabled;
 import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;

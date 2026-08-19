@@ -21,8 +21,6 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import infra.lang.Assert;
-
 /**
  * Stream Iterable
  * <p>

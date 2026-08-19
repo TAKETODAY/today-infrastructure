@@ -35,8 +35,8 @@ import infra.beans.BeanInstantiationException;
 import infra.beans.support.BeanInstantiator;
 import infra.core.DecoratingProxy;
 import infra.core.NativeDetector;
-import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

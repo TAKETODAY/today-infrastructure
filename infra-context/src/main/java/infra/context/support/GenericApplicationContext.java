@@ -57,7 +57,7 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceConsumer;
 import infra.core.io.ResourceLoader;
 import infra.core.metrics.ApplicationStartup;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

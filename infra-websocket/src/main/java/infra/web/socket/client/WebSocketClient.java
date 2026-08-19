@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.net.URI;
 
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;

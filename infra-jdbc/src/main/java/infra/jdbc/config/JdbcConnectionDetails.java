@@ -21,7 +21,7 @@ package infra.jdbc.config;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.service.connection.ConnectionDetails;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Details required to establish a connection to an SQL service using JDBC.

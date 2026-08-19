@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import infra.core.ApplicationTemp;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StreamUtils;
 
 /**

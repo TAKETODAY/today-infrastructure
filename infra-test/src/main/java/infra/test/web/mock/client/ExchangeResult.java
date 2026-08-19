@@ -38,7 +38,7 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.json.JsonConverterDelegate;

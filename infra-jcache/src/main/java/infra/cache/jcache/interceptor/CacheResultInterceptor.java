@@ -27,7 +27,7 @@ import infra.cache.interceptor.CacheErrorHandler;
 import infra.cache.interceptor.CacheOperationInvocationContext;
 import infra.cache.interceptor.CacheOperationInvoker;
 import infra.cache.interceptor.CacheResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ExceptionTypeFilter;
 import infra.util.SerializationUtils;
 

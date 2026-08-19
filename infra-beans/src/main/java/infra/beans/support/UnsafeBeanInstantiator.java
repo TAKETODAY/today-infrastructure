@@ -19,7 +19,7 @@ package infra.beans.support;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeanInstantiationException;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 final class UnsafeBeanInstantiator extends BeanInstantiator {
 

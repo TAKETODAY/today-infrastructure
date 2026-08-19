@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Assert;
 import infra.lang.ClassInstantiator;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;

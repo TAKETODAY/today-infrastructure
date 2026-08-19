@@ -71,7 +71,7 @@ import infra.jdbc.config.JdbcConnectionDetails;
 import infra.jdbc.datasource.SimpleDriverDataSource;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.support.MetaDataAccessException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.sql.init.dependency.DatabaseInitializationDependencyConfigurer;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;

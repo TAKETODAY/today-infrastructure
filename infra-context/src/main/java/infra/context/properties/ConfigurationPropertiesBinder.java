@@ -53,7 +53,7 @@ import infra.context.properties.source.UnboundElementsSourceFilter;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionService;
 import infra.core.env.PropertySources;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.validation.Errors;
 import infra.validation.Validator;
 import infra.validation.annotation.Validated;

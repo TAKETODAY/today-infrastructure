@@ -28,7 +28,7 @@ import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.support.GenericApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ContextLoadException;

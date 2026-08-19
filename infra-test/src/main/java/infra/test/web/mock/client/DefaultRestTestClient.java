@@ -46,7 +46,7 @@ import infra.http.client.ClientHttpRequestExecution;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.ClientHttpResponse;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.json.JsonAssert;
 import infra.test.json.JsonComparator;
 import infra.test.json.JsonCompareMode;

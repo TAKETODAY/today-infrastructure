@@ -27,7 +27,7 @@ import infra.beans.factory.support.GenericBeanDefinition;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.StandardAnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Extension of the {@link BeanDefinition}

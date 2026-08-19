@@ -20,7 +20,7 @@ package infra.web.view;
 
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 import static infra.util.StringUtils.prependLeadingSlash;

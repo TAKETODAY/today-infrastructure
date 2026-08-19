@@ -34,7 +34,7 @@ import infra.core.io.Resource;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.LinkedMultiValueMap;

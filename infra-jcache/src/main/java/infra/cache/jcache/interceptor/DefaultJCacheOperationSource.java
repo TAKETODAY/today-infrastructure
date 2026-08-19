@@ -36,7 +36,7 @@ import infra.cache.interceptor.CacheResolver;
 import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheResolver;
 import infra.cache.interceptor.SimpleKeyGenerator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.SupplierUtils;
 

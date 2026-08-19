@@ -44,7 +44,7 @@ import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;

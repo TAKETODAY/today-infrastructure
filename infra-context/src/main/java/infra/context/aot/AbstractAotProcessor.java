@@ -27,7 +27,7 @@ import infra.aot.generate.FileSystemGeneratedFiles;
 import infra.aot.generate.GeneratedFiles.Kind;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.nativex.FileNativeConfigurationWriter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FileSystemUtils;
 
 /**

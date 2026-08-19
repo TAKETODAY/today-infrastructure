@@ -25,7 +25,7 @@ import java.util.List;
 
 import infra.cache.Cache;
 import infra.cache.concurrent.ConcurrentMapCache;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.web.resource.CachingResourceResolver;
 import infra.web.resource.CachingResourceTransformer;

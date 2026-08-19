@@ -38,7 +38,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

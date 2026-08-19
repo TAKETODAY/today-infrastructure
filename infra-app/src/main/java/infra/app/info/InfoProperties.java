@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import infra.core.env.PropertiesPropertySource;
 import infra.core.env.PropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base class for components exposing unstructured data with dedicated methods for well

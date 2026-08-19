@@ -68,7 +68,7 @@ import infra.core.MethodParameter;
 import infra.core.NamedThreadLocal;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.util.ClassUtils;

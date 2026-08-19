@@ -18,7 +18,7 @@ package infra.web.handler.method;
 
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 
 /**

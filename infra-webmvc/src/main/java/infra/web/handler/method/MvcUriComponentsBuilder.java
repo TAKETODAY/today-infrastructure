@@ -45,7 +45,7 @@ import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.AntPathMatcher;

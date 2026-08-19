@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.file.attribute.FileTime;
 import java.util.jar.JarFile;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import org.jspecify.annotations.Nullable;
 
 /**

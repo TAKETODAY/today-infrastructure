@@ -59,7 +59,7 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.format.Formatter;
 import infra.format.support.FormatterPropertyEditorAdapter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

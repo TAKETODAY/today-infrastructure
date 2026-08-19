@@ -21,7 +21,7 @@ package infra.core.io.buffer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An {@link OutputStream} that writes to a {@link DataBuffer}.

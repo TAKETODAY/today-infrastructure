@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Fully compiled results provided from a {@link TestCompiler}.

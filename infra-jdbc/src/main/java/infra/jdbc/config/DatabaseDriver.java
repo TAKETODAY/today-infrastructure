@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

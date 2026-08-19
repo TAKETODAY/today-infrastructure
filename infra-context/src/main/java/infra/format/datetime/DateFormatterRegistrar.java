@@ -27,7 +27,7 @@ import infra.core.conversion.Converter;
 import infra.core.conversion.ConverterRegistry;
 import infra.format.FormatterRegistrar;
 import infra.format.FormatterRegistry;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Configures basic date formatting for use with Framework, primarily for

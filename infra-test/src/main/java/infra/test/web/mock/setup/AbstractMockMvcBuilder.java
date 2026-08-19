@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;

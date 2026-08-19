@@ -28,7 +28,7 @@ import infra.beans.InvalidPropertyException;
 import infra.beans.NoSuchPropertyException;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

@@ -29,7 +29,7 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.http.CacheControl;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.HttpContext;
 import infra.web.NotFoundHandler;

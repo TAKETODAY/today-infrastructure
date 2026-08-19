@@ -30,7 +30,7 @@ import java.util.concurrent.Executor;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
 import infra.http.client.support.DecoratingHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.test.web.client.ExpectedCount;
 import infra.test.web.client.MockRestServiceServer;

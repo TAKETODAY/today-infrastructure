@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Uses a {@link StompEncoder} to encode a message and splits it into parts no

@@ -38,7 +38,7 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.core.annotation.AnnotationUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.VisibleForTesting;
 import infra.util.ReflectionUtils;
 import infra.validation.BeanPropertyBindingResult;

@@ -31,7 +31,7 @@ import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
 import infra.jndi.JndiTemplate;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.HeuristicCompletionException;
 import infra.transaction.IllegalTransactionStateException;

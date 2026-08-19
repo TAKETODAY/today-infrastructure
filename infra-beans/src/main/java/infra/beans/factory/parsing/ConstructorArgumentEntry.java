@@ -18,7 +18,7 @@
 
 package infra.beans.factory.parsing;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ParseState} entry representing a (possibly indexed)

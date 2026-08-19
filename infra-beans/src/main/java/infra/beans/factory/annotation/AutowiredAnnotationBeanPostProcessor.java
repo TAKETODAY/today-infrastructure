@@ -88,7 +88,7 @@ import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

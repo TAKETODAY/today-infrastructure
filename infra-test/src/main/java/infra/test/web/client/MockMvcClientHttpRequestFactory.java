@@ -29,7 +29,7 @@ import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
 import infra.test.web.mock.MockMvc;

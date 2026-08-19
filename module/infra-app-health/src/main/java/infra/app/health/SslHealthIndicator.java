@@ -33,7 +33,7 @@ import infra.app.info.SslInfo.BundleInfo;
 import infra.app.info.SslInfo.CertificateChainInfo;
 import infra.app.info.SslInfo.CertificateInfo;
 import infra.app.info.SslInfo.CertificateValidityInfo;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link HealthIndicator} that checks the certificates the application uses and reports

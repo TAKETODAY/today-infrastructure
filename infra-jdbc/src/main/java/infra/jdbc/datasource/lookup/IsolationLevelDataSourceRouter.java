@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.support.TransactionSynchronizationManager;
 

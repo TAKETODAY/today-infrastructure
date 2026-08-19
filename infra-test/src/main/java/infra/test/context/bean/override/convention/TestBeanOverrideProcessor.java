@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 import infra.core.MethodIntrospector;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.bean.override.BeanOverrideProcessor;
 import infra.test.context.bean.override.BeanOverrideStrategy;

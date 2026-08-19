@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

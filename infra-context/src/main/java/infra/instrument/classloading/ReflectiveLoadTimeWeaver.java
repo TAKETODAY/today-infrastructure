@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 
 import infra.core.DecoratingClassLoader;
 import infra.core.OverridingClassLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

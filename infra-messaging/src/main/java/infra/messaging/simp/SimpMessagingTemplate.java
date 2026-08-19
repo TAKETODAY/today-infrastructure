@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
 import infra.messaging.MessageDeliveryException;

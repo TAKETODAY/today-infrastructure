@@ -19,7 +19,7 @@
 package infra.app.loader.tools.layer;
 
 import infra.util.AntPathMatcher;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ContentFilter} that matches application items based on an Ant-style path

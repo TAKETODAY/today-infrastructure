@@ -20,7 +20,7 @@ package infra.context.properties.source;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Exception thrown when a configuration property value is invalid.

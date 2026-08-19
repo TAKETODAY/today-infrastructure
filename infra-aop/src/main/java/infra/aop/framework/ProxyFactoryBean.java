@@ -45,9 +45,9 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

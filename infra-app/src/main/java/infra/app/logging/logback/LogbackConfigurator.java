@@ -34,7 +34,7 @@ import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.Converter;
 import ch.qos.logback.core.spi.ContextAware;
 import ch.qos.logback.core.spi.LifeCycle;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Allows programmatic configuration of logback which is usually faster than parsing XML.

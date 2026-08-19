@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 import infra.beans.factory.BeanFactory;
 import infra.core.annotation.AnnotatedMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

@@ -60,7 +60,7 @@ import infra.beans.factory.support.ManagedProperties;
 import infra.beans.factory.support.ManagedSet;
 import infra.beans.factory.support.MethodOverrides;
 import infra.beans.factory.support.ReplaceOverride;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

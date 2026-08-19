@@ -19,7 +19,7 @@
 package infra.test.util.subpackage;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

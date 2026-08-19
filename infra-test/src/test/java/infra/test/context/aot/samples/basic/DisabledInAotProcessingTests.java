@@ -26,7 +26,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestExecutionListeners;
 import infra.test.context.aot.AotTestExecutionListener;
 import infra.test.context.aot.DisabledInAotMode;

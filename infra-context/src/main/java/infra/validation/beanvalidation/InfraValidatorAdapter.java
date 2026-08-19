@@ -32,7 +32,7 @@ import java.util.TreeMap;
 import infra.beans.NotReadablePropertyException;
 import infra.context.MessageSourceResolvable;
 import infra.context.support.DefaultMessageSourceResolvable;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.validation.BindingResult;

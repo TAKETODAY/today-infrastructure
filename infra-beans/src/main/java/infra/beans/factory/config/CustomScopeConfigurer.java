@@ -27,7 +27,7 @@ import infra.beans.BeanUtils;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.core.Ordered;
 import infra.core.OrderedSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

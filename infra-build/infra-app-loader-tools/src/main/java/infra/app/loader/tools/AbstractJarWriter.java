@@ -42,7 +42,7 @@ import java.util.jar.Manifest;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for JAR writers.

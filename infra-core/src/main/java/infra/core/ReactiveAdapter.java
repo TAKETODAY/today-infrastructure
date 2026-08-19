@@ -23,7 +23,7 @@ import org.reactivestreams.Publisher;
 
 import java.util.function.Function;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Adapter for a Reactive Streams {@link Publisher} to and from an async/reactive

@@ -19,7 +19,7 @@
 package infra.core.testfixture.io.buffer;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility class for working with {@link DataBuffer}s in tests.

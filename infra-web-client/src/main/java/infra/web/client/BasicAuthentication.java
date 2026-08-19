@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.Charset;
 
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Basic authentication details to be applied to {@link HttpHeaders}.

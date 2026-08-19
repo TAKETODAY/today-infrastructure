@@ -29,7 +29,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import io.netty.buffer.PooledByteBufAllocator;

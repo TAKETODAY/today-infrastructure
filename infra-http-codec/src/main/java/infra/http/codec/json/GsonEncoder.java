@@ -39,7 +39,7 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
 import infra.http.codec.HttpMessageEncoder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FastByteArrayOutputStream;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;

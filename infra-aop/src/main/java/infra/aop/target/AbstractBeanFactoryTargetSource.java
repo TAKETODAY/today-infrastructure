@@ -28,9 +28,9 @@ import infra.aop.TargetSource;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.NoSuchBeanDefinitionException;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Base class for {@link infra.aop.TargetSource} implementations that are

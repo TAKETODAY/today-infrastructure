@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;

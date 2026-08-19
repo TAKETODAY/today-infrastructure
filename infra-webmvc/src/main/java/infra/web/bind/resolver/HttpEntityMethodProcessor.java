@@ -38,7 +38,7 @@ import infra.http.ProblemDetail;
 import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
 import infra.web.HttpContext;

@@ -20,7 +20,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import infra.beans.BeanProperty;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A filter interface used to determine whether a bean property should be excluded

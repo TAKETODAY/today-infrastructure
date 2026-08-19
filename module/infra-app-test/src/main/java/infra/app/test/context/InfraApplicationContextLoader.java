@@ -55,7 +55,7 @@ import infra.core.annotation.Order;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextLoadException;

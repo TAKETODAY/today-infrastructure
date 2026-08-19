@@ -26,7 +26,7 @@ import java.util.List;
 import infra.aot.AotDetector;
 import infra.context.annotation.Import;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;

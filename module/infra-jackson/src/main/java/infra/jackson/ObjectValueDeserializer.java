@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.TreeNode;
 import tools.jackson.databind.DeserializationContext;

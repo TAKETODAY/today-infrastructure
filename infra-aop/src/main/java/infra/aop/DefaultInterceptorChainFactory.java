@@ -31,7 +31,7 @@ import infra.aop.framework.Advised;
 import infra.aop.framework.adapter.AdvisorAdapterRegistry;
 import infra.aop.framework.adapter.DefaultAdvisorAdapterRegistry;
 import infra.aop.support.RuntimeMethodInterceptor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

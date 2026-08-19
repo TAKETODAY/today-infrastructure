@@ -39,7 +39,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.context.aot.AbstractAotProcessor;
 import infra.context.event.SimpleApplicationEventMulticaster;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

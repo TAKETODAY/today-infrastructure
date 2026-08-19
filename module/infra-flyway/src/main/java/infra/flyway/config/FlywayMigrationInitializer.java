@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.factory.InitializingBean;
 import infra.core.Ordered;
 import infra.core.OrderedSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link InitializingBean} used to trigger {@link Flyway} migration through the

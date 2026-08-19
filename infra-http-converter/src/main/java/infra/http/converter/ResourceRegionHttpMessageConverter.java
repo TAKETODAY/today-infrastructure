@@ -36,7 +36,7 @@ import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.MediaTypeFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MimeTypeUtils;
 import infra.util.StreamUtils;
 

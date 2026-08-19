@@ -19,7 +19,7 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.annotation.SessionAttribute;
 import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;

@@ -51,7 +51,7 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.StandardAnnotationMetadata;
 import infra.core.type.StandardMethodMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

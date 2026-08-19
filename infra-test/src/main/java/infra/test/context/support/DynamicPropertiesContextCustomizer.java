@@ -30,7 +30,7 @@ import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.DynamicPropertyRegistry;
 import infra.test.context.DynamicPropertySource;

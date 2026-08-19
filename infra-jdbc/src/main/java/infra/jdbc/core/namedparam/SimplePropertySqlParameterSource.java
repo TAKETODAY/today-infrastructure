@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.BeanUtils;
 import infra.jdbc.core.StatementCreatorUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.NullValue;
 import infra.util.ReflectionUtils;
 import infra.validation.SimpleErrors;

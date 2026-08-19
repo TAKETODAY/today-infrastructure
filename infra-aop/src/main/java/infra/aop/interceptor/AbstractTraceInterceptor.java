@@ -25,9 +25,9 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serializable;
 
 import infra.aop.support.AopUtils;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Base {@code MethodInterceptor} implementation for tracing.

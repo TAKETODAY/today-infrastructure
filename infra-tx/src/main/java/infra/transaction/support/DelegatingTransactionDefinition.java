@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.TransactionDefinition;
 
 /**

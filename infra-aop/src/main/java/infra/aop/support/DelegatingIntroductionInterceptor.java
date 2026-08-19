@@ -26,7 +26,7 @@ import java.io.Serial;
 import infra.aop.DynamicIntroductionAdvice;
 import infra.aop.IntroductionInterceptor;
 import infra.aop.ProxyMethodInvocation;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient implementation of the {@link IntroductionInterceptor} interface.

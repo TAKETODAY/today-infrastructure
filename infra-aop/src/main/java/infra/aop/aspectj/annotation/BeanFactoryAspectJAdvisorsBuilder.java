@@ -31,9 +31,9 @@ import infra.aop.Advisor;
 import infra.aop.framework.AopConfigException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Helper for retrieving @AspectJ beans from a BeanFactory and building

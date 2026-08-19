@@ -37,7 +37,7 @@ import infra.core.env.PropertiesPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Specialization of {@link PlaceholderConfigurerSupport} that resolves ${...} placeholders

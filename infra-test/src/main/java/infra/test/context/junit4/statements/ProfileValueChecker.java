@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.annotation.IfProfileValue;
 import infra.test.annotation.ProfileValueUtils;
 

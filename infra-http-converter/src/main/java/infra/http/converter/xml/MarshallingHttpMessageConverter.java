@@ -26,7 +26,7 @@ import javax.xml.transform.Source;
 import infra.beans.TypeMismatchException;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.oxm.Marshaller;
 import infra.oxm.Unmarshaller;
 

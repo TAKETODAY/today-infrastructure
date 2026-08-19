@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Composite {@link CacheOperationSource} implementation that iterates

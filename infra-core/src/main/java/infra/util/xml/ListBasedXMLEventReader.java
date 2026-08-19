@@ -29,7 +29,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of {@code XMLEventReader} based on a {@link List}

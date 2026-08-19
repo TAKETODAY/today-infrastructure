@@ -65,7 +65,7 @@ import infra.core.annotation.Order;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.VisibleForTesting;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;

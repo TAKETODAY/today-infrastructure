@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Configuration data that has been loaded from a {@link ConfigDataResource} and may

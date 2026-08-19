@@ -63,7 +63,7 @@ import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.jmx.support.JmxUtils;
 import infra.jmx.support.ObjectNameManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

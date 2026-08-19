@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Helper class for resolving generic types against type variables.

@@ -29,7 +29,7 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.core.io.Resource;
 import infra.core.testfixture.stereotype.Component;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static infra.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;

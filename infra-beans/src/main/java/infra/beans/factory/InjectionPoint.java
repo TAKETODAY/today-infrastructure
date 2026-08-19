@@ -28,7 +28,7 @@ import java.util.Objects;
 
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

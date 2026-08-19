@@ -25,7 +25,7 @@ import java.util.List;
 
 import infra.core.io.PropertySourceDescriptor;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestPropertySource;
 
 /**

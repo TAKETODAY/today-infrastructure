@@ -26,7 +26,7 @@ import java.util.function.BiFunction;
 
 import infra.context.MessageSourceResolvable;
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.validation.Errors;
 import infra.validation.FieldError;

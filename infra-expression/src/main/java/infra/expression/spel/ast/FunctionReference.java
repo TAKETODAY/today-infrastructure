@@ -38,7 +38,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.ReflectionHelper;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

@@ -34,7 +34,7 @@ import infra.core.type.classreading.CachingMetadataReaderFactory;
 import infra.core.type.classreading.ClassFormatException;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

@@ -31,7 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A bundle of key and trust managers that can be used to establish an SSL connection.

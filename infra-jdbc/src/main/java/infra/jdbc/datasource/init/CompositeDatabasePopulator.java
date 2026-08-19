@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Composite {@link DatabasePopulator} that delegates to a list of given

@@ -21,7 +21,7 @@ package infra.core.conversion;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.TypeDescriptor;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A service interface for type conversion. This is the entry point into the convert system.

@@ -28,7 +28,7 @@ import infra.beans.PropertyEditorRegistry;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.beans.TypeMismatchException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectiveMethodInvoker;
 

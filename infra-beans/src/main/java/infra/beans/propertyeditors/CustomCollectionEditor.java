@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

@@ -27,7 +27,7 @@ import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Increment operator. Can be used in a prefix or postfix form. This will throw

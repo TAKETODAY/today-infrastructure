@@ -32,7 +32,7 @@ import infra.aop.framework.ProxyCreatorSupport;
 import infra.aop.framework.ProxyFactory;
 import infra.aop.support.AopUtils;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

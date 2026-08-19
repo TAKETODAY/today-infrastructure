@@ -31,7 +31,7 @@ import infra.beans.BeanUtils;
 import infra.core.Conventions;
 import infra.core.GenericTypeResolver;
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.ui.Model;

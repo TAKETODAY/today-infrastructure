@@ -38,7 +38,7 @@ import infra.app.info.SslInfo.CertificateValidityInfo.Status;
 import infra.core.ssl.NoSuchSslBundleException;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

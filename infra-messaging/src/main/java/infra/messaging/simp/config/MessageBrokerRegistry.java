@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import infra.context.event.SmartApplicationListener;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.MessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.broker.DefaultSubscriptionRegistry;

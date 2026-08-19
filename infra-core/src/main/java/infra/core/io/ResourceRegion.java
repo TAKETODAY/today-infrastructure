@@ -19,7 +19,7 @@
 package infra.core.io;
 
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Region of a {@link Resource} implementation, materialized by a {@code position}

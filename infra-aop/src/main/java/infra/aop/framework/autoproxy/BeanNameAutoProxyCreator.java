@@ -26,7 +26,7 @@ import java.util.List;
 import infra.aop.TargetSource;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.FactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.PatternMatchUtils;
 
 /**

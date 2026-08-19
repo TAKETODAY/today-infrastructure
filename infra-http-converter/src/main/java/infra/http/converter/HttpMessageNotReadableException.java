@@ -21,7 +21,7 @@ package infra.http.converter;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpInputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Thrown by {@link HttpMessageConverter} implementations when the

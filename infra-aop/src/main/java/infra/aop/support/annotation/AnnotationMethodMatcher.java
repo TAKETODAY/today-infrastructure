@@ -26,7 +26,7 @@ import java.lang.reflect.Proxy;
 import infra.aop.support.AopUtils;
 import infra.aop.support.StaticMethodMatcher;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple MethodMatcher that looks for a specific Java 5 annotation

@@ -20,7 +20,7 @@ package infra.http;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents an HTTP cookie as a name-value pair consistent with the content of

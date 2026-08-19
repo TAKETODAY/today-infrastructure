@@ -30,7 +30,7 @@ import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.AttributeAccessor;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.MergedContextConfiguration;

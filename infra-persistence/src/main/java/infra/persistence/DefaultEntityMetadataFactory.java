@@ -26,7 +26,7 @@ import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotations;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

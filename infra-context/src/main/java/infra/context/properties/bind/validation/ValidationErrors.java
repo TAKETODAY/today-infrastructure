@@ -28,7 +28,7 @@ import java.util.Set;
 
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
 import infra.validation.FieldError;

@@ -60,10 +60,10 @@ import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
 import infra.core.NativeDetector;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.AntPathMatcher;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ExceptionUtils;
 import infra.util.PathMatcher;

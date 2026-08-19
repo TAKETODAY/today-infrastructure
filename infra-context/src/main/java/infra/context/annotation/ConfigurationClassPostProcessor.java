@@ -114,7 +114,7 @@ import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.NameAllocator;
 import infra.javapoet.ParameterizedTypeName;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

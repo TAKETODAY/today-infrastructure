@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Rule determining whether or not a given exception should cause a rollback.

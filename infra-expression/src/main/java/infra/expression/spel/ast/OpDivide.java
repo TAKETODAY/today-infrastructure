@@ -28,7 +28,7 @@ import infra.expression.EvaluationException;
 import infra.expression.Operation;
 import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.NumberUtils;
 
 /**

@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.SchedulingAwareRunnable;
 
 /**

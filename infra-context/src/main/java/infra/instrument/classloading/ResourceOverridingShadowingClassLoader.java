@@ -27,7 +27,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Subclass of ShadowingClassLoader that overrides attempts to

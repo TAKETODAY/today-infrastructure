@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;

@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.aop.ClassFilter;
 import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.PatternMatchUtils;
 
 /**

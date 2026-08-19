@@ -38,7 +38,7 @@ import infra.core.task.SyncTaskExecutor;
 import infra.core.task.TaskExecutor;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Unmodifiable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

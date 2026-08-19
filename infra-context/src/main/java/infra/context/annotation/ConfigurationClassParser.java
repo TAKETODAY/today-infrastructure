@@ -68,7 +68,7 @@ import infra.core.type.classreading.MetadataReader;
 import infra.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A Comparator that will safely compare nulls to be lower or higher than

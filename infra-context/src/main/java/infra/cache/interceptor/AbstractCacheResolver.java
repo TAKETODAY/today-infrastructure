@@ -27,7 +27,7 @@ import java.util.Collections;
 import infra.beans.factory.InitializingBean;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A base {@link CacheResolver} implementation that requires the concrete

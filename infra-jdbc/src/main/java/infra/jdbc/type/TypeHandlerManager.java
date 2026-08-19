@@ -54,7 +54,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Enumerable;
 
 import static infra.aot.hint.MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS;

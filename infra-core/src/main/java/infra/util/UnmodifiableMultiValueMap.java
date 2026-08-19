@@ -39,8 +39,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import infra.lang.Assert;
-
 /**
  * Unmodifiable wrapper for {@link MultiValueMap}.
  *

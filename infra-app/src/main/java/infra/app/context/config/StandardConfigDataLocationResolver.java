@@ -41,7 +41,7 @@ import infra.core.env.Environment;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

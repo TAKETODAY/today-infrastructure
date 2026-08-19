@@ -28,7 +28,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.FileSystemResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ContextLoadException;

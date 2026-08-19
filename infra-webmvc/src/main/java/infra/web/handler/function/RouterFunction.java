@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents a function that routes to a {@linkplain HandlerFunction handler function}.

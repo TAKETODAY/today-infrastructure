@@ -20,7 +20,7 @@ package infra.jdbc.support.incrementer;
 
 import javax.sql.DataSource;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link DataFieldMaxValueIncrementer} implementations that use

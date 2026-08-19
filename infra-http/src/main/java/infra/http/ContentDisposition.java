@@ -32,7 +32,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StreamUtils;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;

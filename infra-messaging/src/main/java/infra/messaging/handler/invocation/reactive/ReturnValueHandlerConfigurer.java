@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Assist with configuration for handler method return value handlers.

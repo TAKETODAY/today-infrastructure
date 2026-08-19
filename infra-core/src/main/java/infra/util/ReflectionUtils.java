@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.BridgeMethodResolver;
-import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
 

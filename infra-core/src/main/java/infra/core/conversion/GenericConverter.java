@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 
 import infra.core.TypeDescriptor;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Generic converter interface for converting between two or more types.

@@ -48,7 +48,7 @@ import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.jdbc.support.GeneratedKeyHolder;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.support.KeyHolder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

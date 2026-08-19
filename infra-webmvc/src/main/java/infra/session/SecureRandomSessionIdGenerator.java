@@ -18,7 +18,7 @@ package infra.session;
 
 import java.security.SecureRandom;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 
 /**

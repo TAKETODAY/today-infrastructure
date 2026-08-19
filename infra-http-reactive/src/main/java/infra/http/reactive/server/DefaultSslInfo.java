@@ -26,7 +26,7 @@ import java.util.ArrayList;
 
 import javax.net.ssl.SSLSession;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of {@link SslInfo}.

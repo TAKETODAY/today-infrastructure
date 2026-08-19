@@ -21,7 +21,7 @@ package infra.beans.factory.config;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.BeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Immutable placeholder class used for a property value object when it's

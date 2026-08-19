@@ -1132,7 +1132,7 @@ public class JsonContentAssert extends AbstractAssert<JsonContentAssert, CharSeq
     private final JsonPath jsonPath;
 
     JsonPathValue(CharSequence expression, Object... args) {
-      infra.lang.Assert.hasText((expression != null) ? expression.toString() : null,
+      infra.util.Assert.hasText((expression != null) ? expression.toString() : null,
               "expression must not be null or empty");
       this.expression = String.format(expression.toString(), args);
       this.jsonPath = JsonPath.compile(this.expression);

@@ -18,7 +18,7 @@
 
 package infra.test.context.support;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;

@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.NestedTransactionNotSupportedException;
 import infra.transaction.SavepointManager;

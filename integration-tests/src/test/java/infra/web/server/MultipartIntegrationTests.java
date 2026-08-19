@@ -45,7 +45,7 @@ import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.MultiValueMap;
 import infra.web.annotation.POST;

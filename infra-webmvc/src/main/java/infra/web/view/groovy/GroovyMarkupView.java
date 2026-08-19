@@ -32,7 +32,7 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.view.AbstractTemplateView;
 import infra.web.view.ViewRenderingException;

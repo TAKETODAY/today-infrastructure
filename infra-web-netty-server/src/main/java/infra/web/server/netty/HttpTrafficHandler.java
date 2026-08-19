@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

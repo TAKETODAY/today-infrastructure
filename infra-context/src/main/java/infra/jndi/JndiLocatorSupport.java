@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import javax.naming.NamingException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient superclass for classes that can locate any number of JNDI objects.

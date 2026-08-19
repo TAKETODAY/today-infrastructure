@@ -23,7 +23,7 @@ import java.io.Reader;
 import java.util.function.Supplier;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.json.bind.Jsonb;
 
 /**

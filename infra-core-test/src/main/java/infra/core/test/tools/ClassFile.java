@@ -21,7 +21,7 @@ package infra.core.test.tools;
 import java.io.IOException;
 
 import infra.core.io.InputStreamSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FileCopyUtils;
 
 /**

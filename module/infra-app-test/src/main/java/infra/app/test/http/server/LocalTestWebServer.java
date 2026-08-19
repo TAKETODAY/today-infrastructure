@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.TodayStrategies;
 import infra.util.TodayStrategies.ArgumentResolver;
 import infra.util.function.SingletonSupplier;

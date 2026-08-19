@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

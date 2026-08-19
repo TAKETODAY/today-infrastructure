@@ -30,7 +30,7 @@ import java.util.Set;
 import infra.cache.interceptor.AbstractFallbackCacheOperationSource;
 import infra.cache.interceptor.CacheOperation;
 import infra.cache.interceptor.CacheOperationSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of the {@link CacheOperationSource

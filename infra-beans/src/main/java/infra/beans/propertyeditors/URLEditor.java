@@ -24,7 +24,7 @@ import java.net.URL;
 import infra.core.io.Resource;
 import infra.core.io.ResourceEditor;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Editor for {@code java.net.URL}, to directly populate a URL property

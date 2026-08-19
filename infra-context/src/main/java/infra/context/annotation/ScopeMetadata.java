@@ -19,7 +19,7 @@
 package infra.context.annotation;
 
 import infra.beans.factory.config.BeanDefinition;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Describes scope characteristics

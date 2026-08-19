@@ -35,7 +35,7 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.rsocket.RSocketRequester;
 import infra.messaging.rsocket.RSocketStrategies;
 import infra.util.ClassUtils;

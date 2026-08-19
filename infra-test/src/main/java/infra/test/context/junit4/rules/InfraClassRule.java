@@ -25,7 +25,7 @@ import org.junit.runners.model.Statement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.IfProfileValue;

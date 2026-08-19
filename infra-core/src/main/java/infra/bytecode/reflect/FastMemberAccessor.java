@@ -20,8 +20,8 @@ package infra.bytecode.reflect;
 
 import java.lang.reflect.Member;
 
-import infra.lang.Assert;
 import infra.reflect.Accessor;
+import infra.util.Assert;
 
 @SuppressWarnings({ "rawtypes" })
 public abstract class FastMemberAccessor implements Accessor {

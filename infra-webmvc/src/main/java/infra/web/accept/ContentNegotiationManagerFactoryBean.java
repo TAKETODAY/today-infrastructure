@@ -31,7 +31,7 @@ import java.util.Properties;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

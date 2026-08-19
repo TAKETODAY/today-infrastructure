@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A skeletal {@link Future} implementation which represents

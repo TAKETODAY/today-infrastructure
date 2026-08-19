@@ -30,7 +30,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 
-import infra.lang.Assert;
 import infra.lang.Constant;
 
 /**

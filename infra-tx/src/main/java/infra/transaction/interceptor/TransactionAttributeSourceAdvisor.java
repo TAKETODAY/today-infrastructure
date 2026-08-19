@@ -26,7 +26,7 @@ import java.io.Serial;
 import infra.aop.ClassFilter;
 import infra.aop.Pointcut;
 import infra.aop.support.AbstractPointcutAdvisor;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Advisor driven by a {@link TransactionAttributeSource}, used to include

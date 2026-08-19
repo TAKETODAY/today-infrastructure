@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 
 import infra.http.AbstractHttpRequest;
 import infra.http.HttpHeaders;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 
 /**

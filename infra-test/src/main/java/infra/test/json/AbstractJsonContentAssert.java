@@ -45,7 +45,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base AssertJ {@linkplain org.assertj.core.api.Assert assertions} that can be

@@ -37,7 +37,7 @@ import infra.core.test.tools.ResourceFile;
 import infra.core.test.tools.SourceFile;
 import infra.core.test.tools.SourceFiles;
 import infra.core.test.tools.TestCompiler;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FileCopyUtils;
 
 /**

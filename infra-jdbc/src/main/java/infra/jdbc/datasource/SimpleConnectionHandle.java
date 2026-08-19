@@ -20,7 +20,7 @@ package infra.jdbc.datasource;
 
 import java.sql.Connection;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple implementation of the {@link ConnectionHandle} interface,

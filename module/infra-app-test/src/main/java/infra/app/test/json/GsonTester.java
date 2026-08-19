@@ -25,7 +25,7 @@ import java.io.Reader;
 import java.util.function.Supplier;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * AssertJ based JSON tester backed by Gson. Usually instantiated via

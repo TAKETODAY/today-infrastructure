@@ -18,7 +18,7 @@ package infra.web.handler;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerAdapterNotFoundException;
 import infra.web.HttpContext;

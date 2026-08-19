@@ -31,7 +31,7 @@ import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.jmx.export.MBeanExporter;
 import infra.jmx.support.ObjectNameManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

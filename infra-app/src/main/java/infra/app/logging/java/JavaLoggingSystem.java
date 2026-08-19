@@ -42,7 +42,7 @@ import infra.app.logging.LoggingSystemFactory;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;

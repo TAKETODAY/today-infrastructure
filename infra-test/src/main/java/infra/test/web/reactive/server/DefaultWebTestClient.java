@@ -48,7 +48,7 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.util.AssertionErrors;
 import infra.test.util.ExceptionCollector;
 import infra.test.util.JsonExpectationsHelper;

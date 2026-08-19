@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StreamUtils;
 
 /**

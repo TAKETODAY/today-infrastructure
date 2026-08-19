@@ -25,7 +25,7 @@ import java.io.IOException;
 import infra.core.io.FileSystemResource;
 import infra.core.io.FileUrlResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ConfigDataResource} backed by a {@link Resource}.

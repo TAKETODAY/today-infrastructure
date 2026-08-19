@@ -36,7 +36,7 @@ import infra.context.ApplicationListener;
 import infra.context.event.ContextRefreshedEvent;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

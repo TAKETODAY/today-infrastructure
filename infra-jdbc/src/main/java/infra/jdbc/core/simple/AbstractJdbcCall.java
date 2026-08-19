@@ -36,7 +36,7 @@ import infra.jdbc.core.RowMapper;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.metadata.CallMetaDataContext;
 import infra.jdbc.core.namedparam.SqlParameterSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

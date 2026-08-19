@@ -33,7 +33,7 @@ import java.util.Set;
 
 import infra.context.annotation.config.TypeExcludeFilter;
 import infra.core.io.UrlResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

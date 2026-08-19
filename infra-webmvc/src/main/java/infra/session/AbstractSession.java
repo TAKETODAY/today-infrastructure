@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import infra.core.AttributeAccessor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;

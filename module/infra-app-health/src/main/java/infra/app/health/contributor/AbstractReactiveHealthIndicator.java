@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

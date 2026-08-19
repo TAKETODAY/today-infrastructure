@@ -29,7 +29,7 @@ import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

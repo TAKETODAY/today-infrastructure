@@ -20,7 +20,7 @@ package infra.aot.hint;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link TypeReference} based on a {@link Class}.

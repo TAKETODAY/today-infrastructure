@@ -28,7 +28,7 @@ import infra.core.ParameterNameDiscoverer;
 import infra.core.StringValueResolver;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.http.service.annotation.HttpExchange;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implements the invocation of an {@link HttpExchange @HttpExchange}-annotated,

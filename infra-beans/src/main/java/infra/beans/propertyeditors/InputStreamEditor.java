@@ -26,7 +26,7 @@ import java.io.IOException;
 import infra.core.io.Resource;
 import infra.core.io.ResourceEditor;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * One-way PropertyEditor which can convert from a text String to a

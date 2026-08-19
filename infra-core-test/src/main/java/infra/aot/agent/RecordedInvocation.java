@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Record of an invocation of a method relevant to {@link infra.aot.hint.RuntimeHints}.

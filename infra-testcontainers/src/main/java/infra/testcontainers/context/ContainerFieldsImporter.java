@@ -30,7 +30,7 @@ import java.util.Set;
 
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.container.ContainerImageMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**

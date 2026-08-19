@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A collection of named {@link HealthContributor health contributors}.

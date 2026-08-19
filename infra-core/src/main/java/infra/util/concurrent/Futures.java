@@ -27,9 +27,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingFunction;

@@ -26,7 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.Trigger;
 import infra.scheduling.TriggerContext;
 

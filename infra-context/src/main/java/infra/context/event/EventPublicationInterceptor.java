@@ -30,7 +30,7 @@ import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
 import infra.context.ApplicationEventPublisherAware;
 import infra.context.ApplicationListener;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link MethodInterceptor Interceptor} that publishes an

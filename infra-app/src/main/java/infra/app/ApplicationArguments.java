@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import infra.core.env.SimpleCommandLinePropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Provides access to the arguments that were used to run a {@link Application}.

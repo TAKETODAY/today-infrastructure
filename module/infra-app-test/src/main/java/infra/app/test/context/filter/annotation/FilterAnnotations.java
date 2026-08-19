@@ -36,7 +36,7 @@ import infra.core.type.filter.AspectJTypeFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.RegexPatternTypeFilter;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility to load {@link TypeFilter TypeFilters} from {@link Filter @Filter} annotations.

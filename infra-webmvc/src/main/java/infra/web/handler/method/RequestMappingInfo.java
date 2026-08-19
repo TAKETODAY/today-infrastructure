@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

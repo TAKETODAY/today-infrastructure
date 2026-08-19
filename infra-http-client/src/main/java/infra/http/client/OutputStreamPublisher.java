@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.SimpleSingleThreadAwaiter;
 
 /**

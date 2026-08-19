@@ -35,7 +35,7 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
 import infra.scripting.ScriptSource;

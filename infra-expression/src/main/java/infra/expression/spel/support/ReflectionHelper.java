@@ -36,7 +36,7 @@ import infra.core.TypeDescriptor;
 import infra.expression.EvaluationException;
 import infra.expression.TypeConverter;
 import infra.expression.spel.SpelEvaluationException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectiveMethodInvoker;

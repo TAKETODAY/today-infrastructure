@@ -30,7 +30,7 @@ import java.util.List;
 import infra.bytecode.ClassWriter;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Contract;
 import infra.util.CollectionUtils;
 

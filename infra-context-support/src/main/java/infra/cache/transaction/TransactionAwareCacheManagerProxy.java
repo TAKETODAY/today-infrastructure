@@ -25,7 +25,7 @@ import java.util.Collection;
 import infra.beans.factory.InitializingBean;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Proxy for a target {@link CacheManager}, exposing transaction-aware {@link Cache} objects

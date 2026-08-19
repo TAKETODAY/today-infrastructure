@@ -38,7 +38,7 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

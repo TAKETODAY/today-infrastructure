@@ -26,8 +26,8 @@ import java.io.Writer;
 import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
-import infra.core.io.Resource;
 import infra.core.io.DecoratingResource;
+import infra.core.io.Resource;
 import infra.core.io.WritableResource;
 
 /**

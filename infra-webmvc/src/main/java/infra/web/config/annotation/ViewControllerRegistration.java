@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestToViewNameTranslator;
 import infra.web.handler.mvc.ParameterizableViewController;

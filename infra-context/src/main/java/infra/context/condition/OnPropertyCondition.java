@@ -36,7 +36,7 @@ import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.env.PropertyResolver;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

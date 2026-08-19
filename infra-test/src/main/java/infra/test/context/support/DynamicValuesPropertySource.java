@@ -30,7 +30,7 @@ import infra.core.env.EnumerablePropertySource;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.DynamicPropertyRegistry;
 import infra.util.function.SupplierUtils;
 

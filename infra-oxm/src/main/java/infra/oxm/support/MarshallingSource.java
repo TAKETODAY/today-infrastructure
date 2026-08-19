@@ -36,7 +36,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.oxm.Marshaller;
 
 /**

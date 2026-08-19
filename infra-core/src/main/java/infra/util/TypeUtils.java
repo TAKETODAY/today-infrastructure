@@ -25,8 +25,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
-import infra.lang.Assert;
-
 /**
  * Utility to work with Java 5 generic type parameters.
  * Mainly for internal use within the framework.

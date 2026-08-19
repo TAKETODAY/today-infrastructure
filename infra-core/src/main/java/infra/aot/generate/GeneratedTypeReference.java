@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.aot.hint.AbstractTypeReference;
 import infra.aot.hint.TypeReference;
 import infra.javapoet.ClassName;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link TypeReference} for a generated {@linkplain ClassName type}.

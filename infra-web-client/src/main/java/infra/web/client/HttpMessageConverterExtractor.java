@@ -31,7 +31,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

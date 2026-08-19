@@ -20,8 +20,6 @@ package infra.util;
 
 import java.io.ByteArrayOutputStream;
 
-import infra.lang.Assert;
-
 /**
  * An extension of {@link java.io.ByteArrayOutputStream} that:
  * <ul>

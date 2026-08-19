@@ -44,7 +44,7 @@ import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ConcurrentLruCache;
 import infra.util.ObjectUtils;
 

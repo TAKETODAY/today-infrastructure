@@ -79,7 +79,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
 import infra.core.testfixture.io.SerializationTestUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 

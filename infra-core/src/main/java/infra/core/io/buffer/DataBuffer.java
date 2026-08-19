@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

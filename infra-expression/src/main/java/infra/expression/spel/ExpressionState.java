@@ -35,7 +35,7 @@ import infra.expression.PropertyAccessor;
 import infra.expression.TypeComparator;
 import infra.expression.TypeConverter;
 import infra.expression.TypedValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

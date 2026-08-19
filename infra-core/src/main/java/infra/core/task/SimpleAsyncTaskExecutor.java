@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ConcurrencyThrottleSupport;
 import infra.util.CustomizableThreadCreator;
 import infra.util.concurrent.Future;

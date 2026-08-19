@@ -31,7 +31,7 @@ import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 import infra.web.HttpContext;

@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple {@link DataSourceLookup} implementation that relies on a map for doing lookups.

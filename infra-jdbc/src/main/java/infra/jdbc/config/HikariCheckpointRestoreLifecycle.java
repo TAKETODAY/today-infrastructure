@@ -38,7 +38,7 @@ import javax.sql.DataSource;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.Lifecycle;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;

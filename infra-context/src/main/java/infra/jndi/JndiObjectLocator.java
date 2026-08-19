@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

@@ -22,8 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-import infra.lang.Assert;
 import infra.util.AntPathMatcher;
+import infra.util.Assert;
 
 /**
  * A hint that describes resources that should be made available at runtime.

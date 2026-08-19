@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 import infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider;
 import infra.jdbc.metadata.DataSourcePoolMetadata;
 import infra.jdbc.metadata.DataSourcePoolMetadataProvider;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ConcurrentReferenceHashMap;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
