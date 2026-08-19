@@ -80,6 +80,13 @@ class FeatureDetectorTests {
   }
 
   @Test
+  void isPresentWithClassLoaderDelegatesToClassUtils() {
+    assertThat(FeatureDetector.isPresent(Feature.APP, null))
+            .isEqualTo(ClassUtils.isPresent("infra.app.Application"));
+    assertThat(FeatureDetector.isPresent(Feature.of("com.example.DoesNotExist"), null)).isFalse();
+  }
+
+  @Test
   void isMissingIsTheInverseOfIsPresent() {
     assertThat(FeatureDetector.isMissing(Feature.APP)).isFalse();
     assertThat(FeatureDetector.isMissing(Feature.of("com.example.DoesNotExist"))).isTrue();

@@ -16,6 +16,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A common delegate for detecting the presence of Infra framework modules and
  * commonly used third-party libraries on the classpath.
@@ -47,6 +49,25 @@ public abstract class FeatureDetector {
       feature.present = present;
     }
     return present;
+  }
+
+  /**
+   * Determine whether the given feature is present when loaded with the supplied
+   * class loader.
+   * <p>
+   * Unlike {@link #isPresent(Feature)}, this variant performs a dedicated lookup
+   * with the given class loader and does <strong>not</strong> consult or update the
+   * default-class-loader cache held on the {@link Feature} instance. Class-loading
+   * outcomes may differ between class loaders, so the cached result would not be
+   * reliable here.
+   *
+   * @param feature the feature to check
+   * @param classLoader the class loader to use
+   * (may be {@code null} which indicates the default class loader)
+   * @return whether the feature is present with the supplied class loader
+   */
+  public static boolean isPresent(Feature feature, @Nullable ClassLoader classLoader) {
+    return ClassUtils.isPresent(feature.indicatorClassName(), classLoader);
   }
 
   /**
