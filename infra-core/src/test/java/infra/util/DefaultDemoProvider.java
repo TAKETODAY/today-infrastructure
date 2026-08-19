@@ -1,4 +1,4 @@
-package infra.lang;
+package infra.util;
 
 import java.util.Objects;
 

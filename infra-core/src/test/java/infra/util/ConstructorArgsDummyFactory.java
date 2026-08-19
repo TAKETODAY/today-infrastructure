@@ -16,11 +16,28 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.lang;
+package infra.util;
+
+import infra.lang.DummyFactory;
 
 /**
- * @author Phillip Webb
+ * @author Andy Wilkinson
  */
-class DummyPackagePrivateFactory {
+class ConstructorArgsDummyFactory implements DummyFactory {
+
+  private final String string;
+
+  public ConstructorArgsDummyFactory(String string) {
+    this(string, 0);
+  }
+
+  private ConstructorArgsDummyFactory(String string, int reasonCode) {
+    this.string = string;
+  }
+
+  @Override
+  public String getString() {
+    return this.string;
+  }
 
 }

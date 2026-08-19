@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.sql.MutableOrderByClause;

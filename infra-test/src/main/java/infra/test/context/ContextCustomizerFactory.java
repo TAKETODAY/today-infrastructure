@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Factory for creating {@link ContextCustomizer ContextCustomizers}.

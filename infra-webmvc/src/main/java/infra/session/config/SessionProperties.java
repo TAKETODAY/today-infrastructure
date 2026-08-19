@@ -31,7 +31,7 @@ import infra.core.ApplicationHome;
 import infra.core.ApplicationTemp;
 import infra.format.annotation.DurationUnit;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Session properties.

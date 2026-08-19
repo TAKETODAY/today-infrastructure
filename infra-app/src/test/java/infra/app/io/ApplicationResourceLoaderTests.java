@@ -35,7 +35,7 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.classpath.resources.ResourcePath;
 import infra.test.classpath.resources.WithResource;
 

@@ -35,7 +35,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;

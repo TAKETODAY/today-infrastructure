@@ -28,7 +28,7 @@ import infra.context.annotation.Configuration;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * A {@link TypeFilter} implementation that matches registered auto-configuration classes.

@@ -36,7 +36,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.weaving.LoadTimeWeaverAware;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 

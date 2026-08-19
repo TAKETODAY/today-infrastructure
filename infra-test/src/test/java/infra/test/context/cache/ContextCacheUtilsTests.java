@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static infra.test.context.cache.ContextCache.DEFAULT_MAX_CONTEXT_CACHE_SIZE;
 import static infra.test.context.cache.ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME;

@@ -49,7 +49,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.javapoet.ClassName;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.BootstrapUtils;
@@ -88,7 +88,7 @@ public class TestContextAotGenerator {
    * the following JVM system property via the command line.
    * <pre style="code">-Dinfra.test.aot.processing.failOnError=false</pre>
    * <p>May alternatively be configured via the
-   * {@link infra.lang.TodayStrategies TodayStrategies}
+   * {@link TodayStrategies TodayStrategies}
    * mechanism.
    */
   public static final String FAIL_ON_ERROR_PROPERTY_NAME = "infra.test.aot.processing.failOnError";

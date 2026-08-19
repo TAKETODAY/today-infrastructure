@@ -50,7 +50,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
 import infra.util.MimeTypeUtils;

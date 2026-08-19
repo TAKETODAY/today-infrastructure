@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * {@link RuntimeHintsRegistrar} to register hints for {@link TodayStrategies}.

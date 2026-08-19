@@ -45,7 +45,7 @@ import java.util.function.Consumer;
 
 import infra.bytecode.core.CodeGenerationException;
 import infra.core.SmartClassLoader;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.ReflectionUtils;
 
 /**

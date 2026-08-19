@@ -41,7 +41,7 @@ import infra.aop.framework.AopConfigException;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Constant;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

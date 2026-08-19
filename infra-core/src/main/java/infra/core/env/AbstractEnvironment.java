@@ -29,7 +29,7 @@ import java.util.Set;
 
 import infra.core.conversion.support.ConfigurableConversionService;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;

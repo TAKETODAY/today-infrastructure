@@ -20,7 +20,7 @@ package infra.test.context;
 
 import infra.core.Ordered;
 import infra.core.annotation.Order;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.event.ApplicationEventsTestExecutionListener;
 import infra.test.context.event.EventPublishingTestExecutionListener;
 import infra.test.context.jdbc.SqlScriptsTestExecutionListener;

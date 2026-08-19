@@ -20,7 +20,7 @@ package infra.app.logging;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Factory class used by {@link LoggingSystem#get(ClassLoader)} to find an actual

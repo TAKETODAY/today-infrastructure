@@ -1,4 +1,4 @@
-package infra.lang;
+package infra.util;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

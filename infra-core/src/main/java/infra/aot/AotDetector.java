@@ -19,7 +19,7 @@
 package infra.aot;
 
 import infra.core.NativeDetector;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static infra.core.NativeDetector.Context;
 

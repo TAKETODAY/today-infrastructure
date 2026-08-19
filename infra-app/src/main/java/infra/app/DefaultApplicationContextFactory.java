@@ -29,7 +29,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Contract;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

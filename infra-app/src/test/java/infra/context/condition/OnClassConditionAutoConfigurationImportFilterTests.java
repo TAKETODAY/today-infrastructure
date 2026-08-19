@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.config.AutoConfigurationImportFilter;
 import infra.context.annotation.config.AutoConfigurationMetadata;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

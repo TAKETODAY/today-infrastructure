@@ -44,7 +44,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.StringUtils;
 
 /**

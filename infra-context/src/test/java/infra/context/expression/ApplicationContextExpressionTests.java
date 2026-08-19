@@ -53,7 +53,7 @@ import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 import infra.core.testfixture.io.SerializationTestUtils;
 import infra.expression.spel.SpelEvaluationException;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.FileCopyUtils;
 
 import static infra.context.expression.StandardBeanExpressionResolver.MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME;

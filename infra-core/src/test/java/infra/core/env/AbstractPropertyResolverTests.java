@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.IntStream;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static infra.core.env.AbstractPropertyResolver.DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME;
 import static infra.core.env.AbstractPropertyResolver.UNDEFINED_ESCAPE_CHARACTER;

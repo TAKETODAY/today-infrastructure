@@ -32,7 +32,7 @@ import infra.bytecode.proxy.Enhancer;
 import infra.core.NativeDetector;
 import infra.core.NativeDetector.Context;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 
 /**

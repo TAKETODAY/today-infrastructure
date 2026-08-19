@@ -64,7 +64,7 @@ import infra.core.io.ResourceLoader;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.TestCompiler;
 import infra.javapoet.ClassName;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.mock.env.MockPropertySource;
 import infra.util.StringUtils;

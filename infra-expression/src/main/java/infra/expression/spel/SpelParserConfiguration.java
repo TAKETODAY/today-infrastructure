@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 import infra.expression.spel.standard.SpelExpressionParser;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Configuration object for the SpEL expression parser.

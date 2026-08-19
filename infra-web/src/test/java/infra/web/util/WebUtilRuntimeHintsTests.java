@@ -24,7 +24,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.http.MediaTypeEditor;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

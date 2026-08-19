@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.factory.config.DependencyDescriptor;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.LoggerFactory;
 
 /**

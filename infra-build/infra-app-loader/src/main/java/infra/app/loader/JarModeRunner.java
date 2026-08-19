@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 
 import infra.app.loader.jarmode.JarMode;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ExceptionUtils;
 

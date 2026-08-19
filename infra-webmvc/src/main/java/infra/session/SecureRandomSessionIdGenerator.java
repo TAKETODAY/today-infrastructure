@@ -19,12 +19,12 @@ package infra.session;
 import java.security.SecureRandom;
 
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * A {@link SessionIdGenerator} that uses a secure random to generate a
  * session ID.
- *
+ * <p>
  * On some systems this may perform poorly if not enough entropy is available,
  * depending on the algorithm in use.
  *

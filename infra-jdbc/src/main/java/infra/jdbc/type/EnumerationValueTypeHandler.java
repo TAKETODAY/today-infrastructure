@@ -28,7 +28,7 @@ import java.util.function.Function;
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * A {@link TypeHandler} for enum types that implements {@link EnumerationValue}.

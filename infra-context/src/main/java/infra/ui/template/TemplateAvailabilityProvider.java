@@ -20,7 +20,7 @@ package infra.ui.template;
 
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Indicates the availability of view templates for a particular templating engine such as

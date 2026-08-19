@@ -36,7 +36,7 @@ import infra.context.service.connection.ConnectionDetailsFactory;
 import infra.core.ResolvableType;
 import infra.core.ssl.SslBundle;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.origin.Origin;

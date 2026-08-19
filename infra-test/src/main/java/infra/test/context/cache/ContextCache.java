@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 import infra.context.ApplicationContext;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
@@ -95,7 +95,7 @@ public interface ContextCache {
    * for example:
    * <p>{@code -Dinfra.test.context.cache.pause=never}
    * <p>May alternatively be configured via the
-   * {@link infra.lang.TodayStrategies} mechanism.
+   * {@link TodayStrategies} mechanism.
    * <p>Note that implementations of {@code ContextCache} are not required to
    * support context pausing. Consult the documentation of the corresponding
    * implementation for details.

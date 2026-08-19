@@ -38,7 +38,7 @@ import infra.expression.spel.support.StandardTypeConverter;
 import infra.expression.spel.support.StandardTypeLocator;
 import infra.format.support.ApplicationConversionService;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.StringUtils;
 
 /**

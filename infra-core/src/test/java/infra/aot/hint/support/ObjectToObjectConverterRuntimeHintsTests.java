@@ -27,7 +27,7 @@ import java.time.LocalDate;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 
 import static infra.aot.hint.predicate.RuntimeHintsPredicates.reflection;

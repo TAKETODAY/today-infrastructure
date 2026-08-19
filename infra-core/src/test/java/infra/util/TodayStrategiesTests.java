@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.lang;
+package infra.util;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,12 +31,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import infra.lang.TodayStrategies.ArgumentResolver;
-import infra.lang.TodayStrategies.DefaultInstantiator;
-import infra.lang.TodayStrategies.FailureHandler;
+import infra.lang.ClassInstantiator;
+import infra.lang.DummyFactory;
+import infra.lang.MyDummyFactory1;
+import infra.lang.MyDummyFactory2;
+import infra.util.TodayStrategies.ArgumentResolver;
+import infra.util.TodayStrategies.DefaultInstantiator;
+import infra.util.TodayStrategies.FailureHandler;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
-import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

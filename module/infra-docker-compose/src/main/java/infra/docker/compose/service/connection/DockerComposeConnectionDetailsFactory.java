@@ -41,7 +41,7 @@ import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.docker.compose.core.DockerComposeFile;
 import infra.docker.compose.core.RunningService;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
 import infra.util.ClassUtils;

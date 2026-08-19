@@ -23,7 +23,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Configuration;
 import infra.core.env.Environment;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.NestedTestConfiguration;
 import infra.test.context.TestPropertySource;
 import infra.test.context.junit.jupiter.InfraExtension.ExtensionContextScope;

@@ -39,7 +39,7 @@ import infra.core.style.DefaultToStringStyler;
 import infra.core.style.SimpleValueStyler;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.NestedTestConfiguration.EnclosingConfiguration;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentLruCache;

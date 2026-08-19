@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.lang;
+package infra.util;
 
 import org.jspecify.annotations.Nullable;
 
@@ -36,15 +36,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import infra.core.annotation.AnnotationAwareOrderComparator;
+import infra.lang.Assert;
+import infra.lang.ClassInstantiator;
+import infra.lang.Modifiable;
+import infra.lang.Unmodifiable;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
-import infra.util.CollectionUtils;
-import infra.util.ConcurrentReferenceHashMap;
-import infra.util.MultiValueMap;
-import infra.util.ReflectionUtils;
-import infra.util.StringUtils;
 
 import static infra.util.function.SupplierUtils.always;
 

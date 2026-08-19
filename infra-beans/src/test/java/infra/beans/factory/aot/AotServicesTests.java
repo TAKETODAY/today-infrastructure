@@ -28,7 +28,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.Ordered;
 import infra.core.test.io.support.MockStrategies;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

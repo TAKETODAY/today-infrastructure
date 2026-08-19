@@ -31,8 +31,8 @@ import infra.app.ConfigurableBootstrapContext;
 import infra.context.properties.bind.Binder;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
-import infra.lang.TodayStrategies;
-import infra.lang.TodayStrategies.ArgumentResolver;
+import infra.util.TodayStrategies;
+import infra.util.TodayStrategies.ArgumentResolver;
 
 /**
  * A collection of {@link ConfigDataLocationResolver} instances loaded via

@@ -57,7 +57,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.MethodInvoker;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.TestContextManager;
@@ -106,7 +106,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
    * semantics will apply. Note, however, that {@code @InfraExtensionConfig}
    * takes precedence over this property.
    * <p>May alternatively be configured via the
-   * {@link infra.lang.TodayStrategies TodayStrategies}
+   * {@link TodayStrategies TodayStrategies}
    * mechanism or as a
    * <a href="https://docs.junit.org/current/running-tests/configuration-parameters.html">JUnit
    * Platform configuration parameter</a>.

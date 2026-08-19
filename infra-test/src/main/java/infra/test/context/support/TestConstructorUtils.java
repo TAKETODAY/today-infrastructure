@@ -28,7 +28,7 @@ import java.util.Set;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestConstructor;

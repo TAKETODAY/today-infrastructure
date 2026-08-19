@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * The default policy used by {@link AbstractClassGenerator}. Generates names

@@ -36,7 +36,7 @@ import infra.core.io.ProtocolResolver;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.StringUtils;
 
 /**

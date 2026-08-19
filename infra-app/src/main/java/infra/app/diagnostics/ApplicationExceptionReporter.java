@@ -19,7 +19,7 @@ package infra.app.diagnostics;
 import infra.app.Application;
 import infra.context.ApplicationContextAware;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Callback interface used to support custom reporting of {@link Application}
