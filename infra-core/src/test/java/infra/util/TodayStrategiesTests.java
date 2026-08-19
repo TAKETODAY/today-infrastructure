@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import infra.lang.ClassInstantiator;
 import infra.lang.DummyFactory;
 import infra.lang.MyDummyFactory1;
 import infra.lang.MyDummyFactory2;

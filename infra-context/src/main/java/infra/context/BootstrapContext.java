@@ -62,7 +62,7 @@ import infra.core.type.classreading.CachingMetadataReaderFactory;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.util.Assert;
-import infra.lang.ClassInstantiator;
+import infra.util.ClassInstantiator;
 import infra.stereotype.Component;
 
 /**

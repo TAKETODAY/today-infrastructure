@@ -26,7 +26,7 @@ import java.util.List;
 import infra.beans.factory.BeanFactory;
 import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.ClassInstantiator;
+import infra.util.ClassInstantiator;
 import infra.util.TodayStrategies;
 import infra.util.TodayStrategies.ArgumentResolver;
 import infra.util.TodayStrategies.FailureHandler;

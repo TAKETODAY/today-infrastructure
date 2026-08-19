@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.lang;
+package infra.util;
 
 /**
  * An interface responsible for dynamically instantiating classes based on a given implementation

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.lang.ClassInstantiator;
+import infra.util.ClassInstantiator;
 import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 
