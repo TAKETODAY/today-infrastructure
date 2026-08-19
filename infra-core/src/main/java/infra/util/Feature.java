@@ -48,7 +48,7 @@ public final class Feature {
   public static final Feature EXPRESSION = Feature.of("infra.expression.ExpressionParser");
 
   /** infra-jdbc: JDBC support and {@code JdbcTemplate}. */
-  public static final Feature JDBC = Feature.of("infra.jdbc.core.JdbcTemplate");
+  public static final Feature JDBC = Feature.of("infra.jdbc.Query");
 
   /** infra-tx: transaction management support. */
   public static final Feature TX = Feature.of("infra.transaction.TransactionManager");
@@ -128,7 +128,7 @@ public final class Feature {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (!(o instanceof Feature feature))
       return false;
     return Objects.equals(indicatorClassName, feature.indicatorClassName);
