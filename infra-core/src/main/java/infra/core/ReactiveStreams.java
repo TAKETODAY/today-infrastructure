@@ -16,7 +16,9 @@
 
 package infra.core;
 
-import static infra.util.ClassUtils.isPresent;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * A common delegate for detecting Reactive presence AND its features
@@ -25,12 +27,12 @@ import static infra.util.ClassUtils.isPresent;
  * @since 4.0 2023/11/25 14:26
  */
 public abstract class ReactiveStreams {
-  public static final String INDICATOR_CLASS = "org.reactivestreams.Publisher";
-  public static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
+  public static final String INDICATOR_CLASS = Feature.REACTIVE_STREAMS.indicatorClassName();
+  public static final String REACTOR_INDICATOR_CLASS = Feature.REACTOR.indicatorClassName();
 
-  public static final boolean isPresent = isPresent(INDICATOR_CLASS, ReactiveStreams.class);
-  public static final boolean reactorPresent = isPresent(REACTOR_INDICATOR_CLASS, ReactiveStreams.class);
-  public static final boolean mutinyPresent = isPresent("io.smallrye.mutiny.Multi", ReactiveStreams.class);
-  public static final boolean rxjava3Present = isPresent("io.reactivex.rxjava3.core.Flowable", ReactiveStreams.class);
+  public static final boolean isPresent = isPresent(Feature.REACTIVE_STREAMS);
+  public static final boolean reactorPresent = isPresent(Feature.REACTOR);
+  public static final boolean mutinyPresent = isPresent(Feature.MUTINY);
+  public static final boolean rxjava3Present = isPresent(Feature.RX_JAVA_3);
 
 }
