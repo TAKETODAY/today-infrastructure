@@ -86,6 +86,7 @@ dependencies {
   testImplementation 'com.google.jimfs:jimfs:1.2'
   testImplementation 'org.eclipse.jdt.core.compiler:ecj:4.6.1'
   testImplementation(project(":infra-test"))
+  testImplementation(project(":infra-test-support"))
   testImplementation(project(":module:infra-app-test"))
   testImplementation("org.awaitility:awaitility")
   testImplementation("com.networknt:json-schema-validator");
