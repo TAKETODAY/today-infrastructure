@@ -20,7 +20,6 @@ package infra.web.server.reactive.context;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.Application;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.core.env.ConfigurablePropertyResolver;
 import infra.core.env.PropertySources;
@@ -28,7 +27,7 @@ import infra.web.reactive.context.StandardReactiveWebEnvironment;
 
 /**
  * {@link StandardReactiveWebEnvironment} for typical use in a typical
- * {@link Application}.
+ * {@link infra.app.Application}.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
