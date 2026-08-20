@@ -32,7 +32,6 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.annotation.Bean;
 import infra.context.event.SmartApplicationListener;
-import infra.util.Assert;
 import infra.messaging.MessageHandler;
 import infra.messaging.converter.ByteArrayMessageConverter;
 import infra.messaging.converter.CompositeMessageConverter;
@@ -63,14 +62,18 @@ import infra.scheduling.TaskScheduler;
 import infra.scheduling.concurrent.ExecutorConfigurationSupport;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CustomizableThreadCreator;
+import infra.util.Feature;
 import infra.util.MimeType;
 import infra.util.PathMatcher;
 import infra.util.StringUtils;
 import infra.validation.Errors;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Provides essential configuration for handling messages with simple messaging
@@ -101,19 +104,6 @@ import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
 public abstract class AbstractMessageBrokerConfiguration implements ApplicationContextAware {
 
   private static final String MVC_VALIDATOR_NAME = "mvcValidator";
-
-  private static final boolean JACKSON_PRESENT;
-
-  private static final boolean GSON_PRESENT;
-
-  private static final boolean JSONB_PRESENT;
-
-  static {
-    ClassLoader classLoader = AbstractMessageBrokerConfiguration.class.getClassLoader();
-    JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
-    GSON_PRESENT = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    JSONB_PRESENT = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
-  }
 
   private @Nullable ApplicationContext applicationContext;
 
@@ -489,13 +479,13 @@ public abstract class AbstractMessageBrokerConfiguration implements ApplicationC
     if (registerDefaults) {
       converters.add(new StringMessageConverter());
       converters.add(new ByteArrayMessageConverter());
-      if (JACKSON_PRESENT) {
+      if (isPresent(Feature.JACKSON)) {
         converters.add(createJacksonJsonConverter());
       }
-      else if (GSON_PRESENT) {
+      else if (isPresent(Feature.GSON)) {
         converters.add(new GsonMessageConverter());
       }
-      else if (JSONB_PRESENT) {
+      else if (isPresent(Feature.JSONB)) {
         converters.add(new JsonbMessageConverter());
       }
     }

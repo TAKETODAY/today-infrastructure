@@ -76,12 +76,6 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
 
   abstract static class DefaultBuilder {
 
-    private static final boolean JACKSON_PRESENT;
-
-    private static final boolean GSON_PRESENT;
-
-    private static final boolean JSONB_PRESENT;
-
     private static final boolean JAXB_2_PRESENT;
 
     private static final boolean JACKSON_XML_PRESENT;
@@ -126,14 +120,12 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
 
     static {
       ClassLoader classLoader = DefaultBuilder.class.getClassLoader();
-      JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
-      GSON_PRESENT = isPresent(Feature.GSON, classLoader);
-      JSONB_PRESENT = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
-      JACKSON_SMILE_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.smile.SmileMapper", classLoader);
+      boolean jacksonPresent = isPresent(Feature.JACKSON);
+      JACKSON_SMILE_PRESENT = jacksonPresent && isPresent(Feature.JACKSON_SMILE);
+      JACKSON_CBOR_PRESENT = jacksonPresent && isPresent(Feature.JACKSON_CBOR);
+      JACKSON_XML_PRESENT = jacksonPresent && isPresent(Feature.JACKSON_XML);
+      JACKSON_YAML_PRESENT = jacksonPresent && isPresent(Feature.JACKSON_YAML);
       JAXB_2_PRESENT = ClassUtils.isPresent("jakarta.xml.bind.Binder", classLoader);
-      JACKSON_XML_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.xml.XmlMapper", classLoader);
-      JACKSON_CBOR_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.cbor.CBORMapper", classLoader);
-      JACKSON_YAML_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.yaml.YAMLMapper", classLoader);
       ROME_PRESENT = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
     }
 
@@ -236,13 +228,13 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
         this.stringConverter = new StringHttpMessageConverter();
       }
       if (this.jsonConverter == null) {
-        if (JACKSON_PRESENT) {
+        if (isPresent(Feature.JACKSON)) {
           this.jsonConverter = new JacksonJsonHttpMessageConverter();
         }
-        else if (GSON_PRESENT) {
+        else if (isPresent(Feature.GSON)) {
           this.jsonConverter = new GsonHttpMessageConverter();
         }
-        else if (JSONB_PRESENT) {
+        else if (isPresent(Feature.JSONB)) {
           this.jsonConverter = new JsonbHttpMessageConverter();
         }
       }

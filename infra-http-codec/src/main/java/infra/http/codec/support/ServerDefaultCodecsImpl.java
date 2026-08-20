@@ -26,6 +26,9 @@ import infra.core.codec.Encoder;
 import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.ServerCodecConfigurer;
 import infra.http.codec.ServerSentEventHttpMessageWriter;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Default implementation of {@link ServerCodecConfigurer.ServerDefaultCodecs}.
@@ -57,7 +60,7 @@ class ServerDefaultCodecsImpl extends BaseDefaultCodecs implements ServerCodecCo
   }
 
   private @Nullable Encoder<?> getSseEncoder() {
-    return this.sseEncoder != null ? this.sseEncoder : JACKSON_PRESENT ? getJacksonJsonEncoder() : null;
+    return this.sseEncoder != null ? this.sseEncoder : isPresent(Feature.JACKSON) ? getJacksonJsonEncoder() : null;
   }
 
 }

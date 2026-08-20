@@ -71,7 +71,10 @@ import infra.http.codec.protobuf.ProtobufHttpMessageWriter;
 import infra.http.codec.smile.JacksonSmileDecoder;
 import infra.http.codec.smile.JacksonSmileEncoder;
 import infra.util.ClassUtils;
+import infra.util.Feature;
 import infra.util.ObjectUtils;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Default implementation of {@link CodecConfigurer.DefaultCodecs} that serves
@@ -83,25 +86,17 @@ import infra.util.ObjectUtils;
  */
 class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigurer.DefaultCodecConfig {
 
-  static final boolean JACKSON_PRESENT;
-
   private static final boolean JACKSON_SMILE_PRESENT;
 
   private static final boolean JACKSON_CBOR_PRESENT;
-
-  private static final boolean PROTOBUF_PRESENT;
-
-  static final boolean GSON_PRESENT;
 
   static final boolean NETTY_BYTE_BUF_PRESENT;
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
-    GSON_PRESENT = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
-    JACKSON_SMILE_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.smile.SmileMapper", classLoader);
-    JACKSON_CBOR_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.cbor.CBORMapper", classLoader);
-    PROTOBUF_PRESENT = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
+    boolean jacksonPresent = isPresent(Feature.JACKSON);
+    JACKSON_CBOR_PRESENT = jacksonPresent && isPresent(Feature.JACKSON_CBOR);
+    JACKSON_SMILE_PRESENT = jacksonPresent && isPresent(Feature.JACKSON_SMILE);
     NETTY_BYTE_BUF_PRESENT = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
   }
 
@@ -355,7 +350,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     }
     addCodec(this.typedReaders, new ResourceHttpMessageReader(new ResourceDecoder()));
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(StringDecoder.textPlainOnly()));
-    if (PROTOBUF_PRESENT) {
+    if (isPresent(Feature.PROTOBUF)) {
       addCodec(this.typedReaders, new DecoderHttpMessageReader<>(this.protobufDecoder != null ?
               (ProtobufDecoder) this.protobufDecoder : new ProtobufDecoder()));
     }
@@ -406,12 +401,12 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
       }
       // Pattern variables in the following if-blocks cannot be named the same as instance fields
       // due to lacking support in Checkstyle: https://github.com/checkstyle/checkstyle/issues/10969
-      if (PROTOBUF_PRESENT) {
+      if (isPresent(Feature.PROTOBUF)) {
         if (codec instanceof ProtobufDecoder protobufDec) {
           protobufDec.setMaxMessageSize(size);
         }
       }
-      if (JACKSON_PRESENT) {
+      if (isPresent(Feature.JACKSON)) {
         if (codec instanceof AbstractJacksonDecoder<?> abstractJacksonDecoder) {
           abstractJacksonDecoder.setMaxInMemorySize(size);
         }
@@ -492,10 +487,10 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (!this.registerDefaults) {
       return;
     }
-    if (JACKSON_PRESENT) {
+    if (isPresent(Feature.JACKSON)) {
       addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getJacksonJsonDecoder()));
     }
-    else if (GSON_PRESENT) {
+    else if (isPresent(Feature.GSON)) {
       addCodec(this.objectReaders, new DecoderHttpMessageReader<>(getGsonDecoder()));
     }
     if (JACKSON_SMILE_PRESENT) {
@@ -562,7 +557,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     }
     addCodec(writers, new ResourceHttpMessageWriter());
     addCodec(writers, new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
-    if (PROTOBUF_PRESENT) {
+    if (isPresent(Feature.PROTOBUF)) {
       addCodec(writers, new ProtobufHttpMessageWriter(this.protobufEncoder != null ?
               (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
     }
@@ -615,10 +610,10 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
    */
   final List<HttpMessageWriter<?>> getBaseObjectWriters() {
     List<HttpMessageWriter<?>> writers = new ArrayList<>();
-    if (JACKSON_PRESENT) {
+    if (isPresent(Feature.JACKSON)) {
       addCodec(writers, new EncoderHttpMessageWriter<>(getJacksonJsonEncoder()));
     }
-    else if (GSON_PRESENT) {
+    else if (isPresent(Feature.GSON)) {
       addCodec(writers, new EncoderHttpMessageWriter<>(getGsonEncoder()));
     }
     if (JACKSON_SMILE_PRESENT) {
@@ -667,7 +662,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   protected Decoder<?> getJacksonJsonDecoder() {
     if (this.jacksonJsonDecoder == null) {
-      if (JACKSON_PRESENT) {
+      if (isPresent(Feature.JACKSON)) {
         this.jacksonJsonDecoder = new JacksonJsonDecoder();
       }
       else {
@@ -679,7 +674,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   protected Encoder<?> getJacksonJsonEncoder() {
     if (this.jacksonJsonEncoder == null) {
-      if (JACKSON_PRESENT) {
+      if (isPresent(Feature.JACKSON)) {
         this.jacksonJsonEncoder = new JacksonJsonEncoder();
       }
       else {

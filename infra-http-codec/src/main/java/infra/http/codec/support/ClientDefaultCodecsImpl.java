@@ -26,6 +26,9 @@ import infra.core.codec.Decoder;
 import infra.http.codec.ClientCodecConfigurer;
 import infra.http.codec.HttpMessageReader;
 import infra.http.codec.ServerSentEventHttpMessageReader;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Default implementation of {@link ClientCodecConfigurer.ClientDefaultCodecs}.
@@ -53,7 +56,7 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
 
   @Override
   protected void extendObjectReaders(List<HttpMessageReader<?>> objectReaders) {
-    Decoder<?> decoder = (this.sseDecoder != null ? this.sseDecoder : JACKSON_PRESENT ? getJacksonJsonDecoder() : null);
+    Decoder<?> decoder = (this.sseDecoder != null ? this.sseDecoder : isPresent(Feature.JACKSON) ? getJacksonJsonDecoder() : null);
     addCodec(objectReaders, new ServerSentEventHttpMessageReader(decoder));
   }
 

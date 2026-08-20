@@ -21,11 +21,14 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * A {@code Feature} is an immutable descriptor for a detectable module or library on
- * the classpath.
+ * A {@code Feature} is a descriptor for a detectable module or library on the
+ * classpath.
  * <p>
- * A {@code Feature} only carries the fully qualified name of its indicator class.
- * Presence detection and caching are performed by {@link FeatureDetector}.
+ * A {@code Feature} is identified by the fully qualified name of its indicator class.
+ * It also carries an internal lazily-computed cache of whether that indicator class is
+ * present in the default class loader; the cache is populated and consulted by
+ * {@link FeatureDetector}. Presence detection with an explicit class loader is not
+ * cached, since the outcome may differ between class loaders.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
@@ -80,8 +83,26 @@ public final class Feature {
   /** Jackson (databind). */
   public static final Feature JACKSON = Feature.of("tools.jackson.databind.ObjectMapper");
 
+  /** Jackson smile */
+  public static final Feature JACKSON_SMILE = Feature.of("tools.jackson.dataformat.smile.SmileMapper");
+
+  /** Jackson cbor */
+  public static final Feature JACKSON_CBOR = Feature.of("tools.jackson.dataformat.cbor.CBORMapper");
+
+  /** Jackson XML */
+  public static final Feature JACKSON_XML = Feature.of("tools.jackson.dataformat.xml.XmlMapper");
+
+  /** Jackson YAML */
+  public static final Feature JACKSON_YAML = Feature.of("tools.jackson.dataformat.yaml.YAMLMapper");
+
   /** Gson. */
   public static final Feature GSON = Feature.of("com.google.gson.Gson");
+
+  /** Jsonb */
+  public static final Feature JSONB = Feature.of("jakarta.json.bind.Jsonb");
+
+  /** protobuf */
+  public static final Feature PROTOBUF = Feature.of("com.google.protobuf.Message");
 
   /** Mockito. */
   public static final Feature MOCKITO = Feature.of("org.mockito.Mockito");
