@@ -34,6 +34,9 @@ import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextCustomizerFactory;
 import infra.test.context.MergedContextConfiguration;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@link ContextCustomizerFactory} that customizes the {@link ApplicationContext
@@ -47,7 +50,7 @@ class OnFailureConditionReportContextCustomizerFactory implements ContextCustomi
 
   @Override
   public @Nullable ContextCustomizer createContextCustomizer(Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
-    return InfraApp.isPresent ? new OnFailureConditionReportContextCustomizer() : null;
+    return isPresent(Feature.APP) ? new OnFailureConditionReportContextCustomizer() : null;
   }
 
   static class OnFailureConditionReportContextCustomizer implements ContextCustomizer {
