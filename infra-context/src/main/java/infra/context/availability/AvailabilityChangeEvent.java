@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.availability;
+package infra.context.availability;
 
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEvent;

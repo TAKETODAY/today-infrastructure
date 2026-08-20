@@ -18,7 +18,6 @@
 
 package infra.app.health.config;
 
-import infra.app.availability.ApplicationAvailability;
 import infra.app.config.availability.ApplicationAvailabilityAutoConfiguration;
 import infra.app.health.AvailabilityStateHealthIndicator;
 import infra.app.health.LivenessStateHealthIndicator;
@@ -27,6 +26,7 @@ import infra.app.health.contributor.Health;
 import infra.context.annotation.Bean;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.context.availability.ApplicationAvailability;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;

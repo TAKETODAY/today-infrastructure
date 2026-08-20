@@ -20,19 +20,16 @@ package infra.web.server.context;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.availability.AvailabilityChangeEvent;
-import infra.app.availability.ReadinessState;
 import infra.beans.BeansException;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
+import infra.context.availability.AvailabilityChangeEvent;
+import infra.context.availability.ReadinessState;
 import infra.context.support.GenericApplicationContext;
-import infra.util.Feature;
 import infra.util.StringUtils;
 import infra.web.server.GenericWebServerFactory;
 import infra.web.server.MissingWebServerFactoryBeanException;
 import infra.web.server.WebServer;
-
-import static infra.util.FeatureDetector.isPresent;
 
 /**
  * A {@link GenericWebServerApplicationContext} that can be used to bootstrap itself
@@ -92,7 +89,7 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
 
   @Override
   protected void doClose() {
-    if (isActive() && isPresent(Feature.APP)) {
+    if (isActive()) {
       AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
     }
     super.doClose();

@@ -21,9 +21,9 @@ package infra.app.config.availability;
 import org.junit.jupiter.api.Test;
 
 import infra.app.LazyInitializationBeanFactoryPostProcessor;
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.AvailabilityChangeEvent;
-import infra.app.availability.ReadinessState;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.AvailabilityChangeEvent;
+import infra.context.availability.ReadinessState;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 

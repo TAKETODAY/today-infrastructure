@@ -18,11 +18,11 @@
 
 package infra.app.health;
 
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.AvailabilityState;
-import infra.app.availability.ReadinessState;
 import infra.app.health.contributor.HealthIndicator;
 import infra.app.health.contributor.Status;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.AvailabilityState;
+import infra.context.availability.ReadinessState;
 
 /**
  * A {@link HealthIndicator} that checks the {@link ReadinessState} of the application.
