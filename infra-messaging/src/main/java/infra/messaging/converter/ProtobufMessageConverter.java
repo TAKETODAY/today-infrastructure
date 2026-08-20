@@ -32,10 +32,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import infra.messaging.MessageHeaders;
-import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.Feature;
 import infra.util.MimeType;
 
+import static infra.util.FeatureDetector.isPresent;
 import static infra.util.MimeType.APPLICATION_JSON;
 import static infra.util.MimeType.TEXT_PLAIN;
 
@@ -68,9 +69,6 @@ public class ProtobufMessageConverter extends AbstractMessageConverter {
    */
   public static final MimeType PROTOBUF = new MimeType("application", "x-protobuf", DEFAULT_CHARSET);
 
-  private static final boolean PROTOBUF_JSON_FORMAT_PRESENT =
-          ClassUtils.isPresent("com.google.protobuf.util.JsonFormat", ProtobufMessageConverter.class.getClassLoader());
-
   private static final Map<Class<?>, Method> methodCache = new ConcurrentReferenceHashMap<>();
 
   final ExtensionRegistry extensionRegistry;
@@ -99,7 +97,7 @@ public class ProtobufMessageConverter extends AbstractMessageConverter {
     if (formatSupport != null) {
       this.protobufFormatSupport = formatSupport;
     }
-    else if (PROTOBUF_JSON_FORMAT_PRESENT) {
+    else if (isPresent(Feature.PROTOBUF_UTIL)) {
       this.protobufFormatSupport = new ProtobufJavaUtilSupport(null, null);
     }
     else {

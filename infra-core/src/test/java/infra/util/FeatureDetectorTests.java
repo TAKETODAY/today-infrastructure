@@ -48,7 +48,7 @@ class FeatureDetectorTests {
     assertDetected(Feature.WEB, "infra.web.ErrorResponse");
     assertDetected(Feature.WEB_MVC, "infra.web.DispatcherHandler");
     assertDetected(Feature.WEB_REACTIVE, "infra.web.reactive.client.WebClient");
-    assertDetected(Feature.WEB_SOCKET, "infra.web.socket.WebSocketSession");
+    assertDetected(Feature.WEBSOCKET, "infra.web.socket.WebSocketSession");
     assertDetected(Feature.HTTP_SERVICE, "infra.http.service.annotation.HttpExchange");
     assertDetected(Feature.REACTIVE_STREAMS, "org.reactivestreams.Publisher");
     assertDetected(Feature.REACTOR, "reactor.core.publisher.Flux");

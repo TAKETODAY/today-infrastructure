@@ -40,7 +40,6 @@ import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
@@ -78,10 +77,13 @@ import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.support.MessageHeaderInitializer;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
-import infra.util.ClassUtils;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.Feature;
 import infra.util.PathMatcher;
 import infra.validation.Validator;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * A handler for messages delegating to {@link MessageMapping @MessageMapping}
@@ -97,8 +99,7 @@ import infra.validation.Validator;
 public class SimpAnnotationMethodMessageHandler extends AbstractMethodMessageHandler<SimpMessageMappingInfo>
         implements EmbeddedValueResolverAware, SmartLifecycle {
 
-  private static final boolean REACTOR_PRESENT = ClassUtils.isPresent(
-          "reactor.core.publisher.Flux", SimpAnnotationMethodMessageHandler.class.getClassLoader());
+  private static final boolean REACTOR_PRESENT = isPresent(Feature.REACTOR);
 
   private final SubscribableChannel clientInboundChannel;
 

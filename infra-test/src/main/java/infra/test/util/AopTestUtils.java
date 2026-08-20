@@ -23,7 +23,9 @@ import infra.aop.framework.Advised;
 import infra.aop.framework.AopProxyUtils;
 import infra.aop.support.AopUtils;
 import infra.util.Assert;
-import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@code AopTestUtils} is a collection of AOP-related utility methods for
@@ -43,7 +45,7 @@ import infra.util.ClassUtils;
  */
 public abstract class AopTestUtils {
 
-  static final boolean isAopPresent = ClassUtils.isPresent("infra.aop.Advisor", AopTestUtils.class);
+  static final boolean isAopPresent = isPresent(Feature.AOP);
 
   /**
    * Get the <em>target</em> object of the supplied {@code candidate} object.

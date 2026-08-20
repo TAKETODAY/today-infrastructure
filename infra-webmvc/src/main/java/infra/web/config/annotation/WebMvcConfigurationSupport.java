@@ -50,9 +50,10 @@ import infra.format.support.FormattingConversionService;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.util.Assert;
 import infra.stereotype.Component;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.Feature;
 import infra.validation.Errors;
 import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
@@ -102,7 +103,7 @@ import infra.web.view.ViewResolver;
 import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
 
-import static infra.util.ClassUtils.isPresent;
+import static infra.util.FeatureDetector.isPresent;
 import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
@@ -177,8 +178,6 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationObjectSupport implements EmbeddedValueResolverAware {
 
-  private static final boolean jacksonPresent = isPresent("tools.jackson.databind.ObjectMapper", WebMvcConfigurationSupport.class);
-
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
   private @Nullable ContentNegotiationManager contentNegotiationManager;
@@ -217,7 +216,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
       requestResponseBodyAdvice.addAll(0, adviceBeans);
     }
 
-    if (jacksonPresent) {
+    if (isPresent(Feature.JACKSON)) {
       requestResponseBodyAdvice.add(new JsonViewRequestBodyAdvice());
       requestResponseBodyAdvice.add(new JsonViewResponseBodyAdvice());
     }

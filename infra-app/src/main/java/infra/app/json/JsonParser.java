@@ -21,7 +21,9 @@ package infra.app.json;
 import java.util.List;
 import java.util.Map;
 
-import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Parser that can read JSON formatted strings into {@link Map}s or {@link List}s.
@@ -61,10 +63,10 @@ public interface JsonParser {
    * @return a {@link JsonParser}
    */
   static JsonParser lookup() {
-    if (ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", JsonParser.class)) {
+    if (isPresent(Feature.JACKSON)) {
       return new JacksonJsonParser();
     }
-    if (ClassUtils.isPresent("com.google.gson.Gson", JsonParser.class)) {
+    if (isPresent(Feature.GSON)) {
       return new GsonJsonParser();
     }
     return new BasicJsonParser();

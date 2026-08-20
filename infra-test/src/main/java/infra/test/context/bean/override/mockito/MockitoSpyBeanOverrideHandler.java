@@ -31,10 +31,13 @@ import java.lang.reflect.Proxy;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.core.ResolvableType;
-import infra.util.Assert;
 import infra.test.context.bean.override.BeanOverrideHandler;
 import infra.test.context.bean.override.BeanOverrideStrategy;
+import infra.util.Assert;
+import infra.util.Feature;
 import infra.util.StringUtils;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@link BeanOverrideHandler} implementation for Mockito {@code spy} support.
@@ -89,7 +92,7 @@ class MockitoSpyBeanOverrideHandler extends AbstractMockitoBeanOverrideHandler {
     if (StringUtils.isNotEmpty(name)) {
       settings.name(name);
     }
-    if (InfraMockResolver.INFRA_AOP_PRESENT) {
+    if (isPresent(Feature.AOP)) {
       settings.verificationStartedListeners(verificationStartedListener);
     }
 

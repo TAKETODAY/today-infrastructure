@@ -25,7 +25,6 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.http.ProblemDetail;
 import infra.http.support.ProblemDetailJacksonMixin;
-import infra.util.ClassUtils;
 import infra.util.Feature;
 
 import static infra.util.FeatureDetector.isPresent;
@@ -47,7 +46,7 @@ class ProblemDetailRuntimeHints implements RuntimeHintsRegistrar {
     if (isPresent(Feature.JACKSON_XML, classLoader)) {
       bindingRegistrar.registerReflectionHints(hints.reflection(), infra.http.support.ProblemDetailJacksonXmlMixin.class);
     }
-    else if (ClassUtils.isPresent("com.fasterxml.jackson.annotation.JacksonAnnotation", classLoader)) {
+    else if (isPresent(Feature.JACKSON_ANNOTATION, classLoader)) {
       bindingRegistrar.registerReflectionHints(hints.reflection(), ProblemDetailJacksonMixin.class);
     }
   }

@@ -22,12 +22,14 @@ import java.util.Collection;
 
 import infra.aop.scope.ScopedObject;
 import infra.core.InfraProxy;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
+import infra.util.Assert;
+import infra.util.Feature;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Utility methods for triggering specific {@link TransactionSynchronization}
@@ -43,9 +45,6 @@ abstract class TransactionSynchronizationUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(TransactionSynchronizationUtils.class);
 
-  private static final boolean aopAvailable = ClassUtils.isPresent(
-          "infra.aop.scope.ScopedObject", TransactionSynchronizationUtils.class.getClassLoader());
-
   /**
    * Unwrap the given resource handle if necessary; otherwise return
    * the given handle as-is.
@@ -59,7 +58,7 @@ abstract class TransactionSynchronizationUtils {
     if (resourceRef instanceof InfraProxy) {
       resourceRef = ((InfraProxy) resourceRef).getWrappedObject();
     }
-    if (aopAvailable) {
+    if (isPresent(Feature.AOP)) {
       // now unwrap scoped proxy
       resourceRef = ScopedProxyUnwrapper.unwrapIfNecessary(resourceRef);
     }

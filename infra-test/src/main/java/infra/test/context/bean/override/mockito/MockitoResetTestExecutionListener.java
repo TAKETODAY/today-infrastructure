@@ -37,7 +37,9 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestContext;
 import infra.test.context.support.AbstractTestExecutionListener;
-import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@code TestExecutionListener} that resets any mock beans that have been marked
@@ -65,8 +67,7 @@ public class MockitoResetTestExecutionListener extends AbstractTestExecutionList
    * @see #mockitoInitialized
    * @see #isEnabled()
    */
-  private static final boolean MOCKITO_PRESENT = ClassUtils.isPresent("org.mockito.Mockito",
-          MockitoResetTestExecutionListener.class.getClassLoader());
+  private static final boolean MOCKITO_PRESENT = isPresent(Feature.MOCKITO);
 
   /**
    * Boolean flag which tracks whether Mockito has been successfully initialized

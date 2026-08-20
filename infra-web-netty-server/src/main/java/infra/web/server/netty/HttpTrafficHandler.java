@@ -21,10 +21,10 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 
 import infra.context.ApplicationContext;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
+import infra.util.Assert;
+import infra.util.Feature;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
 import infra.web.server.ServiceExecutor;
@@ -45,6 +45,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 
+import static infra.util.FeatureDetector.isPresent;
 import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
@@ -62,7 +63,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   private static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
 
-  private static final boolean webSocketPresent = ClassUtils.isPresent("infra.web.socket.WebSocketMessage", HttpTrafficHandler.class);
+  private static final boolean webSocketPresent = isPresent(Feature.WEBSOCKET);
 
   protected final NettyRequestConfig requestConfig;
 

@@ -24,7 +24,9 @@ import infra.aop.TargetSource;
 import infra.aop.framework.Advised;
 import infra.aop.support.AopUtils;
 import infra.util.Assert;
-import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * A {@link MockResolver} for testing Infra applications with Mockito.
@@ -40,12 +42,9 @@ import infra.util.ClassUtils;
  */
 public class InfraMockResolver implements MockResolver {
 
-  static final boolean INFRA_AOP_PRESENT = ClassUtils.isPresent(
-          "infra.aop.framework.Advised", InfraMockResolver.class.getClassLoader());
-
   @Override
   public Object resolve(Object instance) {
-    if (INFRA_AOP_PRESENT) {
+    if (isPresent(Feature.AOP)) {
       return getUltimateTargetObject(instance);
     }
     return instance;
@@ -93,7 +92,7 @@ public class InfraMockResolver implements MockResolver {
    * @since 5.0
    */
   static void rejectUnsupportedSpyTarget(String beanName, Object bean) throws IllegalStateException {
-    if (INFRA_AOP_PRESENT) {
+    if (isPresent(Feature.AOP)) {
       if (AopUtils.isAopProxy(bean) && bean instanceof Advised advised &&
               !advised.getTargetSource().isStatic()) {
         throw new IllegalStateException("""

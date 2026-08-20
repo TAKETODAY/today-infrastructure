@@ -40,13 +40,14 @@ import infra.http.converter.AbstractHttpMessageConverter;
 import infra.http.converter.HttpMessageConversionException;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.util.Assert;
 import infra.lang.Constant;
-import infra.util.ClassUtils;
+import infra.util.Assert;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.Feature;
 
 import static infra.http.MediaType.APPLICATION_JSON;
 import static infra.http.MediaType.TEXT_PLAIN;
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * An {@code HttpMessageConverter} that reads and writes
@@ -126,7 +127,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     if (formatSupport != null) {
       this.protobufFormatSupport = formatSupport;
     }
-    else if (ClassUtils.isPresent("com.google.protobuf.util.JsonFormat", getClass().getClassLoader())) {
+    else if (isPresent(Feature.PROTOBUF_UTIL)) {
       this.protobufFormatSupport = new ProtobufJavaUtilSupport(null, null);
     }
     else {

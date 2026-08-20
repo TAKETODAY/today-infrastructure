@@ -37,7 +37,10 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.util.ClassUtils;
+import infra.util.Feature;
 import infra.util.ReflectionUtils;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Register the necessary reflection hints so that the specified type can be
@@ -51,11 +54,6 @@ import infra.util.ReflectionUtils;
  * @since 4.0
  */
 public class BindingReflectionHintsRegistrar {
-
-  private static final String JACKSON_ANNOTATION = "com.fasterxml.jackson.annotation.JacksonAnnotation";
-
-  private static final boolean jacksonAnnotationPresent = ClassUtils.isPresent(JACKSON_ANNOTATION,
-          BindingReflectionHintsRegistrar.class.getClassLoader());
 
   /**
    * Register the necessary reflection hints to bind the specified types.
@@ -109,7 +107,7 @@ public class BindingReflectionHintsRegistrar {
               registerPropertyHints(hints, seen, method, -1);
             }
           }
-          if (jacksonAnnotationPresent) {
+          if (isPresent(Feature.JACKSON_ANNOTATION)) {
             registerJacksonHints(hints, clazz);
           }
           registerObjectToObjectConverterHints(hints, clazz);
@@ -178,7 +176,7 @@ public class BindingReflectionHintsRegistrar {
 
   private void forEachJacksonAnnotation(AnnotatedElement element, Consumer<MergedAnnotation<Annotation>> action) {
     MergedAnnotations.from(element, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
-            .stream(JACKSON_ANNOTATION)
+            .stream(Feature.JACKSON_ANNOTATION.indicatorClassName())
             .filter(MergedAnnotation::isMetaPresent)
             .forEach(action);
   }

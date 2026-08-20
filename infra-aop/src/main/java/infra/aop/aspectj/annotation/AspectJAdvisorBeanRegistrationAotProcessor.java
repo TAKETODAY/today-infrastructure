@@ -28,7 +28,9 @@ import infra.beans.factory.aot.BeanRegistrationAotContribution;
 import infra.beans.factory.aot.BeanRegistrationAotProcessor;
 import infra.beans.factory.aot.BeanRegistrationCode;
 import infra.beans.factory.support.RegisteredBean;
-import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * An AOT {@link BeanRegistrationAotProcessor} that detects the presence of
@@ -42,12 +44,9 @@ class AspectJAdvisorBeanRegistrationAotProcessor implements BeanRegistrationAotP
 
   private static final String AJC_MAGIC = "ajc$";
 
-  private static final boolean aspectjPresent = ClassUtils.isPresent("org.aspectj.lang.annotation.Pointcut",
-          AspectJAdvisorBeanRegistrationAotProcessor.class.getClassLoader());
-
   @Override
   public @Nullable BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
-    if (aspectjPresent) {
+    if (isPresent(Feature.ASPECTJ)) {
       Class<?> beanClass = registeredBean.getBeanClass();
       if (compiledByAjc(beanClass)) {
         return new AspectJAdvisorContribution(beanClass);

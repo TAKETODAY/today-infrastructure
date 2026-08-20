@@ -31,7 +31,9 @@ import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@link BeanFactoryInitializationAotProcessor} implementation responsible for registering
@@ -44,13 +46,9 @@ import infra.util.ClassUtils;
  */
 class AspectJBeanFactoryInitializationAotProcessor implements BeanFactoryInitializationAotProcessor {
 
-  private static final boolean aspectJPresent = ClassUtils.isPresent(
-          "org.aspectj.lang.annotation.Pointcut", AspectJBeanFactoryInitializationAotProcessor.class.getClassLoader());
-
-  @Nullable
   @Override
-  public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
-    if (aspectJPresent) {
+  public @Nullable BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
+    if (isPresent(Feature.ASPECTJ)) {
       return AspectDelegate.processAheadOfTime(beanFactory);
     }
     return null;

@@ -24,14 +24,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
+import infra.util.Assert;
+import infra.util.Feature;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectiveMethodInvoker;
 import infra.util.StringUtils;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@code ReflectionTestUtils} is a collection of reflection-based utility
@@ -77,8 +79,7 @@ public abstract class ReflectionTestUtils {
 
   private static final Logger log = LoggerFactory.getLogger(ReflectionTestUtils.class);
 
-  private static final boolean aopPresent = ClassUtils.isPresent(
-          "infra.aop.framework.Advised", ReflectionTestUtils.class.getClassLoader());
+  private static final boolean aopPresent = isPresent(Feature.AOP);
 
   /**
    * Set the {@linkplain Field field} with the given {@code name} on the

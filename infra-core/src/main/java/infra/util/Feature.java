@@ -69,7 +69,7 @@ public final class Feature {
   public static final Feature WEB_REACTIVE = Feature.of("infra.web.reactive.client.WebClient");
 
   /** infra-websocket: WebSocket support. */
-  public static final Feature WEB_SOCKET = Feature.of("infra.web.socket.WebSocketSession");
+  public static final Feature WEBSOCKET = Feature.of("infra.web.socket.WebSocketSession");
 
   /** infra-http-service: HTTP interface / declarative HTTP client support. */
   public static final Feature HTTP_SERVICE = Feature.of("infra.http.service.annotation.HttpExchange");
@@ -95,6 +95,9 @@ public final class Feature {
   /** Jackson YAML */
   public static final Feature JACKSON_YAML = Feature.of("tools.jackson.dataformat.yaml.YAMLMapper");
 
+  /** Jackson annotation */
+  public static final Feature JACKSON_ANNOTATION = Feature.of("com.fasterxml.jackson.annotation.JacksonAnnotation");
+
   /** Gson. */
   public static final Feature GSON = Feature.of("com.google.gson.Gson");
 
@@ -103,6 +106,9 @@ public final class Feature {
 
   /** protobuf */
   public static final Feature PROTOBUF = Feature.of("com.google.protobuf.Message");
+
+  /** protobuf util */
+  public static final Feature PROTOBUF_UTIL = Feature.of("com.google.protobuf.util.JsonFormat");
 
   /** Mockito. */
   public static final Feature MOCKITO = Feature.of("org.mockito.Mockito");
