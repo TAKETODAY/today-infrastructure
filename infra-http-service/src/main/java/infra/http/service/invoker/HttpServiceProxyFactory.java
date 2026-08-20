@@ -35,7 +35,6 @@ import infra.aop.framework.ProxyFactory;
 import infra.core.MethodIntrospector;
 import infra.core.MethodParameter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.core.StringValueResolver;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
@@ -45,7 +44,10 @@ import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.http.service.annotation.HttpExchange;
 import infra.util.Assert;
+import infra.util.Feature;
 import infra.web.annotation.RequestMapping;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Factory to create a client proxy from an HTTP service interface with
@@ -177,7 +179,7 @@ public final class HttpServiceProxyFactory {
     private final List<ProxyFactoryCustomizer> proxyFactoryCustomizers = new ArrayList<>();
 
     public Builder() {
-      if (ReactiveStreams.isPresent) {
+      if (isPresent(Feature.REACTIVE_STREAMS)) {
         reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
       }
     }

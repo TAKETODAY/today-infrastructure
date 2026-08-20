@@ -38,14 +38,16 @@ import infra.beans.factory.DisposableBean;
 import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.Feature;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
+
+import static infra.util.FeatureDetector.isMissing;
 
 /**
  * Adapter that implements the {@link DisposableBean} and {@link Runnable}
@@ -317,8 +319,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
         future.get();
         logDestroyMethodCompletion(destroyMethod, true);
       }
-      else if (!ReactiveStreams.isPresent ||
-              !ReactiveDestroyMethodHandler.await(this, destroyMethod, returnValue)) {
+      else if (isMissing(Feature.REACTIVE_STREAMS)
+              || !ReactiveDestroyMethodHandler.await(this, destroyMethod, returnValue)) {
         if (log.isDebugEnabled()) {
           log.debug("Unknown return value type from custom destroy method '{}' on bean with name '{}': {}",
                   destroyMethod.getName(), beanName, returnValue.getClass());

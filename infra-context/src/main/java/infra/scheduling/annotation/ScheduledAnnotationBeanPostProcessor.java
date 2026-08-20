@@ -57,14 +57,12 @@ import infra.context.event.ContextRefreshedEvent;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.MethodIntrospector;
 import infra.core.Ordered;
-import infra.core.ReactiveStreams;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.AnnotationUtils;
 import infra.format.annotation.DurationFormat;
 import infra.format.datetime.standard.DurationFormatterUtils;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.scheduling.TaskScheduler;
@@ -79,7 +77,11 @@ import infra.scheduling.config.ScheduledTaskRegistrar;
 import infra.scheduling.config.TaskSchedulerRouter;
 import infra.scheduling.support.CronTrigger;
 import infra.scheduling.support.ScheduledMethodRunnable;
+import infra.util.Assert;
+import infra.util.Feature;
 import infra.util.StringUtils;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Bean post-processor that registers methods annotated with
@@ -329,7 +331,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   protected void processScheduled(Scheduled scheduled, Method method, Object bean) {
     // Is the method a Kotlin suspending function? Throws if true and the reactor bridge isn't on the classpath.
     // Does the method return a reactive type? Throws if true and it isn't a deferred Publisher type.
-    if (ReactiveStreams.isPresent && ScheduledAnnotationReactiveSupport.isReactive(method)) {
+    if (isPresent(Feature.REACTIVE_STREAMS) && ScheduledAnnotationReactiveSupport.isReactive(method)) {
       processScheduledAsync(scheduled, method, bean);
       return;
     }

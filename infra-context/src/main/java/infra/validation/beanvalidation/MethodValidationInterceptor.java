@@ -36,10 +36,10 @@ import infra.core.MethodParameter;
 import infra.core.OrderedSupport;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.core.annotation.AnnotationUtils;
-import infra.util.Assert;
 import infra.lang.VisibleForTesting;
+import infra.util.Assert;
+import infra.util.Feature;
 import infra.util.ReflectionUtils;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.Errors;
@@ -56,6 +56,8 @@ import jakarta.validation.ValidatorFactory;
 import jakarta.validation.executable.ExecutableValidator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * An AOP Alliance {@link MethodInterceptor} implementation that delegates to a
@@ -160,9 +162,8 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
   }
 
   @Override
-  @Nullable
   @SuppressWarnings("NullAway")
-  public Object invoke(MethodInvocation invocation) throws Throwable {
+  public @Nullable Object invoke(MethodInvocation invocation) throws Throwable {
     // Avoid Validator invocation on FactoryBean.getObjectType/isSingleton
     if (isFactoryBeanMetadataMethod(invocation.getMethod())) {
       return invocation.proceed();
@@ -173,7 +174,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     @Nullable Object[] arguments = invocation.getArguments();
     Class<?>[] groups = determineValidationGroups(invocation);
 
-    if (ReactiveStreams.reactorPresent) {
+    if (isPresent(Feature.REACTOR)) {
       arguments = ReactorValidationHelper.insertAsyncValidation(
               delegate.getValidatorAdapter(), this.adaptViolations, target, method, arguments);
     }

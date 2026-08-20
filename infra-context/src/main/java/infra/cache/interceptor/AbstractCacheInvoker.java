@@ -92,8 +92,7 @@ public abstract class AbstractCacheInvoker {
    * @see Cache#get(Object, ThrowingFunction)
    * @since 5.0
    */
-  @Nullable
-  protected Object doGet(Cache cache, Object key, ThrowingFunction<Object, Object> valueLoader) {
+  protected @Nullable Object doGet(Cache cache, Object key, ThrowingFunction<Object, Object> valueLoader) {
     try {
       return cache.get(key, valueLoader);
     }
@@ -120,8 +119,7 @@ public abstract class AbstractCacheInvoker {
    * @see Cache#retrieve(Object)
    * @since 5.0
    */
-  @Nullable
-  protected CompletableFuture<?> doRetrieve(Cache cache, Object key) {
+  protected @Nullable CompletableFuture<?> doRetrieve(Cache cache, Object key) {
     try {
       return cache.retrieve(key);
     }

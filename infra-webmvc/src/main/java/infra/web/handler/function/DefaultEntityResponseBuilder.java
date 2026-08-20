@@ -40,7 +40,6 @@ import java.util.function.Consumer;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.core.ResolvableType;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
@@ -59,11 +58,14 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.Feature;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.async.DeferredResult;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Default {@link EntityResponse.Builder} implementation.
@@ -227,7 +229,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       return new CompletionStageEntityResponse(this.status, this.headers, this.cookies,
               completionStage, this.entityType);
     }
-    else if (ReactiveStreams.isPresent) {
+    else if (isPresent(Feature.REACTIVE_STREAMS)) {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(this.entity.getClass());
       if (adapter != null) {
         Publisher<T> publisher = adapter.toPublisher(this.entity);

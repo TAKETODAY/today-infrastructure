@@ -52,8 +52,6 @@ class FeatureDetectorTests {
     assertDetected(Feature.HTTP_SERVICE, "infra.http.service.annotation.HttpExchange");
     assertDetected(Feature.REACTIVE_STREAMS, "org.reactivestreams.Publisher");
     assertDetected(Feature.REACTOR, "reactor.core.publisher.Flux");
-    assertDetected(Feature.RX_JAVA_3, "io.reactivex.rxjava3.core.Flowable");
-    assertDetected(Feature.MUTINY, "io.smallrye.mutiny.Multi");
     assertDetected(Feature.JACKSON, "tools.jackson.databind.ObjectMapper");
     assertDetected(Feature.GSON, "com.google.gson.Gson");
     assertDetected(Feature.MOCKITO, "org.mockito.Mockito");

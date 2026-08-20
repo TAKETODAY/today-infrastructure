@@ -32,14 +32,16 @@ import java.util.concurrent.CountDownLatch;
 import infra.aop.support.AopUtils;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.scheduling.SchedulingAwareRunnable;
+import infra.util.Assert;
+import infra.util.Feature;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import reactor.core.publisher.Flux;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Helper class for @{@link ScheduledAnnotationBeanPostProcessor} to support reactive
@@ -111,7 +113,7 @@ abstract class ScheduledAnnotationReactiveSupport {
 
       Publisher<?> publisher = adapter.toPublisher(returnValue);
       // If Reactor is on the classpath, we could benefit from having a checkpoint for debuggability
-      if (ReactiveStreams.reactorPresent) {
+      if (isPresent(Feature.REACTOR)) {
         return Flux.from(publisher)
                 .checkpoint("@Scheduled '%s()' in '%s'".formatted(method.getName(), method.getDeclaringClass().getName()));
       }

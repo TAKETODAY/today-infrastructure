@@ -58,10 +58,10 @@ import infra.beans.factory.support.LookupOverride;
 import infra.beans.factory.support.MethodOverride;
 import infra.beans.factory.support.ReplaceOverride;
 import infra.beans.factory.support.RootBeanDefinition;
-import infra.core.ReactiveStreams;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.CodeBlock.Builder;
 import infra.util.ClassUtils;
+import infra.util.Feature;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
@@ -146,7 +146,7 @@ class BeanDefinitionPropertiesCodeGenerator {
   private void addInitDestroyMethods(Builder code, AbstractBeanDefinition beanDefinition,
           String @Nullable [] methodNames, String format) {
     // For Publisher-based destroy methods
-    hints.reflection().registerType(TypeReference.of(ReactiveStreams.INDICATOR_CLASS));
+    hints.reflection().registerType(TypeReference.of(Feature.REACTIVE_STREAMS.indicatorClassName()));
     if (ObjectUtils.isNotEmpty(methodNames)) {
       Class<?> beanType = ClassUtils.getUserClass(beanDefinition.getResolvableType().toClass());
       Arrays.stream(methodNames).forEach(methodName -> addInitDestroyHint(beanType, methodName));

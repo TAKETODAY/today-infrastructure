@@ -31,7 +31,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow;
 import java.util.function.Function;
 
+import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.Feature;
 import infra.util.ReflectionUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.PublisherFuture;
@@ -42,6 +44,9 @@ import reactor.blockhound.BlockHound;
 import reactor.blockhound.integration.BlockHoundIntegration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static infra.util.FeatureDetector.isMissing;
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * A registry of adapters to adapt Reactive Streams {@link Publisher} to/from various
@@ -62,6 +67,10 @@ import reactor.core.publisher.Mono;
  */
 public class ReactiveAdapterRegistry {
 
+  private static final boolean mutinyPresent = ClassUtils.isPresent("io.smallrye.mutiny.Multi");
+
+  private static final boolean rxjava3Present = ClassUtils.isPresent("io.reactivex.rxjava3.core.Flowable");
+
   @Nullable
   private static volatile ReactiveAdapterRegistry sharedInstance;
 
@@ -74,27 +83,27 @@ public class ReactiveAdapterRegistry {
    */
   public ReactiveAdapterRegistry() {
     // Defensive guard for the Reactive Streams API itself
-    if (!ReactiveStreams.isPresent) {
+    if (isMissing(Feature.REACTIVE_STREAMS)) {
       return;
     }
 
     // Reactor
-    if (ReactiveStreams.reactorPresent) {
+    if (isPresent(Feature.REACTOR)) {
       new ReactorRegistrar().registerAdapters(this);
     }
 
     // RxJava
-    if (ReactiveStreams.rxjava3Present) {
+    if (rxjava3Present) {
       new RxJava3Registrar().registerAdapters(this);
     }
 
     // SmallRye Mutiny
-    if (ReactiveStreams.mutinyPresent) {
+    if (mutinyPresent) {
       new MutinyRegistrar().registerAdapters(this);
     }
 
     // Simple Flow.Publisher bridge if Reactor is not present
-    if (!ReactiveStreams.reactorPresent) {
+    if (isMissing(Feature.REACTOR)) {
       new FlowAdaptersRegistrar().registerAdapters(this);
     }
   }
@@ -114,7 +123,7 @@ public class ReactiveAdapterRegistry {
   public void registerReactiveType(ReactiveTypeDescriptor descriptor,
           Function<Object, Publisher<?>> toAdapter, Function<Publisher<?>, Object> fromAdapter) {
 
-    if (ReactiveStreams.reactorPresent) {
+    if (isPresent(Feature.REACTOR)) {
       this.adapters.add(new ReactorAdapter(descriptor, toAdapter, fromAdapter));
     }
     else {
@@ -146,7 +155,7 @@ public class ReactiveAdapterRegistry {
   private ReactiveAdapter buildAdapter(ReactiveTypeDescriptor descriptor,
           Function<Object, Publisher<?>> toAdapter, Function<Publisher<?>, Object> fromAdapter) {
 
-    return ReactiveStreams.reactorPresent
+    return isPresent(Feature.REACTOR)
             ? new ReactorAdapter(descriptor, toAdapter, fromAdapter)
             : new ReactiveAdapter(descriptor, toAdapter, fromAdapter);
   }

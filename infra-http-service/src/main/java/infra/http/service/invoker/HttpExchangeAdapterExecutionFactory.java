@@ -15,13 +15,15 @@ import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.http.HttpHeaders;
 import infra.http.ResponseEntity;
 import infra.util.Assert;
 import infra.util.ClassUtils;
+import infra.util.Feature;
 import infra.util.concurrent.Future;
 import reactor.core.publisher.Flux;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Factory for creating request executions with HTTP exchange adapters.
@@ -37,7 +39,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
 
   public HttpExchangeAdapterExecutionFactory(HttpExchangeAdapter exchangeAdapter) {
     this.exchangeAdapter = exchangeAdapter;
-    this.isReactorAdapter = ReactiveStreams.reactorPresent && exchangeAdapter instanceof ReactorHttpExchangeAdapter;
+    this.isReactorAdapter = isPresent(Feature.REACTOR) && exchangeAdapter instanceof ReactorHttpExchangeAdapter;
   }
 
   @Override
@@ -181,7 +183,7 @@ final class HttpExchangeAdapterExecutionFactory implements RequestExecutionFacto
    * {@link RequestExecution} for {@link ReactorHttpExchangeAdapter}.
    */
   private record ReactorExchangeRequestExecution(Function<HttpRequestValues, Publisher<?>> responseFunction,
-          ReactiveAdapter returnTypeAdapter) implements RequestExecution<HttpRequestValues> {
+                                                 ReactiveAdapter returnTypeAdapter) implements RequestExecution<HttpRequestValues> {
 
     @Override
     public Object execute(HttpRequestValues requestValues) {

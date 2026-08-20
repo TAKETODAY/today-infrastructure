@@ -44,23 +44,25 @@ import infra.core.BridgeMethodResolver;
 import infra.core.Ordered;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.Order;
-import infra.util.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
+import infra.util.Feature;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.FutureListener;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@link GenericApplicationListener} adapter that delegates the processing of
@@ -91,8 +93,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * annotation or any matching attribute on a composed annotation that
    * is meta-annotated with {@code @EventListener}.
    */
-  @Nullable
-  protected final String condition;
+  protected final @Nullable String condition;
 
   private final String beanName;
 
@@ -110,14 +111,11 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   private final AnnotatedElementKey methodKey;
 
-  @Nullable
-  private volatile String listenerId;
+  private volatile @Nullable String listenerId;
 
-  @Nullable
-  private ApplicationContext context;
+  private @Nullable ApplicationContext context;
 
-  @Nullable
-  private EventExpressionEvaluator evaluator;
+  private @Nullable EventExpressionEvaluator evaluator;
 
   /**
    * Construct a new MethodApplicationListener.
@@ -301,8 +299,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     return new Object[] { event };
   }
 
-  @Nullable
-  private ResolvableType getResolvableType(ApplicationEvent event) {
+  private @Nullable ResolvableType getResolvableType(ApplicationEvent event) {
     ResolvableType payloadType = null;
     if (event instanceof PayloadApplicationEvent<?> payloadEvent) {
       ResolvableType eventType = payloadEvent.getResolvableType();
@@ -326,9 +323,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   /**
    * Invoke the event listener method with the given argument values.
    */
-  @Nullable
   @SuppressWarnings("NullAway")
-  protected Object doInvoke(Object[] args) {
+  protected @Nullable Object doInvoke(Object[] args) {
     Object bean = getTargetBean();
     // Detect package-protected NullBean instance through equals(null) check
     if (bean == null) {
@@ -386,7 +382,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void handleResult(Object result) {
-    if (ReactiveStreams.isPresent && ReactiveDelegate.subscribeToPublisher(this, result)) {
+    if (isPresent(Feature.REACTIVE_STREAMS) && ReactiveDelegate.subscribeToPublisher(this, result)) {
       if (log.isTraceEnabled()) {
         log.trace("Adapted to reactive result: {}", result);
       }

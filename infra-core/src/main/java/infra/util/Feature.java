@@ -77,12 +77,6 @@ public final class Feature {
   /** Project Reactor. */
   public static final Feature REACTOR = Feature.of("reactor.core.publisher.Flux");
 
-  /** RxJava 3. */
-  public static final Feature RX_JAVA_3 = Feature.of("io.reactivex.rxjava3.core.Flowable");
-
-  /** SmallRye Mutiny. */
-  public static final Feature MUTINY = Feature.of("io.smallrye.mutiny.Multi");
-
   /** Jackson (databind). */
   public static final Feature JACKSON = Feature.of("tools.jackson.databind.ObjectMapper");
 

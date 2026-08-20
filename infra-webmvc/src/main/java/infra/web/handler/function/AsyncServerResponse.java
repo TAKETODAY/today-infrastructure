@@ -27,9 +27,11 @@ import java.util.concurrent.ExecutionException;
 
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
-import infra.core.ReactiveStreams;
 import infra.util.Assert;
+import infra.util.Feature;
 import infra.util.concurrent.Future;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Asynchronous subtype of {@link ServerResponse} that exposes the future
@@ -105,7 +107,7 @@ public interface AsyncServerResponse extends ServerResponse {
     else if (obj instanceof CompletableFuture<?> futureResponse) {
       return (CompletableFuture<ServerResponse>) futureResponse;
     }
-    else if (ReactiveStreams.isPresent) {
+    else if (isPresent(Feature.REACTIVE_STREAMS)) {
       ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
       ReactiveAdapter publisherAdapter = registry.getAdapter(obj.getClass());
       if (publisherAdapter != null) {

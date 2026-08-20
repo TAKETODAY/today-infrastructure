@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.core.ReactiveStreams;
 import infra.core.annotation.AnnotationUtils;
+import infra.util.Feature;
 import infra.util.ReflectionUtils;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
@@ -41,6 +41,7 @@ import reactor.core.publisher.Mono;
 import static infra.scheduling.annotation.ScheduledAnnotationReactiveSupport.createSubscriptionRunnable;
 import static infra.scheduling.annotation.ScheduledAnnotationReactiveSupport.getPublisherFor;
 import static infra.scheduling.annotation.ScheduledAnnotationReactiveSupport.isReactive;
+import static infra.util.FeatureDetector.isPresent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -52,7 +53,7 @@ class ScheduledAnnotationReactiveSupportTests {
 
   @Test
   void ensureReactor() {
-    assertThat(ReactiveStreams.reactorPresent).isTrue();
+    assertThat(isPresent(Feature.REACTOR)).isTrue();
   }
 
   @ParameterizedTest

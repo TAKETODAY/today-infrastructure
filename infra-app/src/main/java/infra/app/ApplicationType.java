@@ -23,7 +23,6 @@ import java.util.List;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
-import infra.core.ReactiveStreams;
 import infra.util.ClassUtils;
 import infra.util.Feature;
 import infra.util.TodayStrategies;
@@ -60,7 +59,7 @@ public enum ApplicationType {
 
   public static final String WEB_MVC_INDICATOR_CLASS = "infra.web.HttpContext";
 
-  public static final String REACTOR_INDICATOR_CLASS = ReactiveStreams.REACTOR_INDICATOR_CLASS;
+  public static final String REACTOR_INDICATOR_CLASS = Feature.REACTOR.indicatorClassName();
 
   /**
    * Determines the application type by checking for the presence of indicator classes.

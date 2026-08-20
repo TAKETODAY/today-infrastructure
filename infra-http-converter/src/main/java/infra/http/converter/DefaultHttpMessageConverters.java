@@ -39,6 +39,9 @@ import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.yaml.JacksonYamlHttpMessageConverter;
 import infra.util.Assert;
 import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * Default implementation for {@link HttpMessageConverters}.
@@ -124,7 +127,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     static {
       ClassLoader classLoader = DefaultBuilder.class.getClassLoader();
       JACKSON_PRESENT = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader);
-      GSON_PRESENT = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
+      GSON_PRESENT = isPresent(Feature.GSON, classLoader);
       JSONB_PRESENT = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
       JACKSON_SMILE_PRESENT = JACKSON_PRESENT && ClassUtils.isPresent("tools.jackson.dataformat.smile.SmileMapper", classLoader);
       JAXB_2_PRESENT = ClassUtils.isPresent("jakarta.xml.bind.Binder", classLoader);
