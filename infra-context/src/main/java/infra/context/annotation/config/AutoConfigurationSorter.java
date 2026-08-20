@@ -37,7 +37,7 @@ import java.util.function.UnaryOperator;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Sort {@link EnableAutoConfiguration auto-configuration} classes into priority order by

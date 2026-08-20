@@ -20,7 +20,7 @@ package infra.beans.factory.support;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Tag collection class used to hold managed array elements, which may

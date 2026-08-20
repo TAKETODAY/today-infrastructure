@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadFactory;
 
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.CustomizableThreadFactory;
 
 /**

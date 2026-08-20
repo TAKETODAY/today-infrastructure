@@ -21,7 +21,7 @@ import org.mockito.MockedStatic;
 
 import infra.core.NativeDetector;
 import infra.core.NativeDetector.Context;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static infra.core.NativeDetector.Context.RUN;
 import static org.assertj.core.api.Assertions.assertThat;

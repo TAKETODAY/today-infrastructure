@@ -29,7 +29,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySource.StubPropertySource;
 import infra.core.env.PropertySources;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.OriginLookup;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ConcurrentReferenceHashMap.ReferenceType;

@@ -35,7 +35,7 @@ import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.support.SQLExceptionTranslator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

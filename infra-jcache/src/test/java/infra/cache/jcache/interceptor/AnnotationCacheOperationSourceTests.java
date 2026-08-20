@@ -37,7 +37,7 @@ import infra.cache.jcache.AbstractJCacheTests;
 import infra.cache.jcache.TestableCacheKeyGenerator;
 import infra.cache.jcache.TestableCacheResolver;
 import infra.cache.jcache.TestableCacheResolverFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

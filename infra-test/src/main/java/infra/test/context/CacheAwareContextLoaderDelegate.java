@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
 import infra.test.context.cache.ContextCache;
 import infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
@@ -55,7 +55,7 @@ public interface CacheAwareContextLoaderDelegate {
    * System property used to configure the failure threshold for errors
    * encountered while attempting to load an application context: {@value}.
    * <p>May alternatively be configured via the
-   * {@link infra.lang.TodayStrategies} mechanism.
+   * {@link TodayStrategies} mechanism.
    * <p>Implementations of {@code CacheAwareContextLoaderDelegate} are not
    * required to support this feature. Consult the documentation of the
    * corresponding implementation for details. Note, however, that the standard

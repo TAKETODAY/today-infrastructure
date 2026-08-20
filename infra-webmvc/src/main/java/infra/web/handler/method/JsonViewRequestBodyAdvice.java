@@ -31,7 +31,7 @@ import infra.http.HttpInputMessage;
 import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link RequestBodyAdvice} implementation that adds support for Jackson's

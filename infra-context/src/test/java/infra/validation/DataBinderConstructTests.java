@@ -29,7 +29,7 @@ import java.util.Set;
 
 import infra.core.ResolvableType;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.validation.constraints.NotNull;
 
 import static org.assertj.core.api.Assertions.assertThat;

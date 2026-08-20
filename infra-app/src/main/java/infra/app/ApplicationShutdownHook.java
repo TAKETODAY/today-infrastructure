@@ -30,7 +30,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.event.ContextClosedEvent;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

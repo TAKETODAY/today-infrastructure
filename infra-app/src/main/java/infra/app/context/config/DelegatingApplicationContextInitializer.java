@@ -27,7 +27,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

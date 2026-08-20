@@ -31,7 +31,7 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.codec.LoggingCodecSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.FastByteArrayOutputStream;
 import infra.util.MimeTypeUtils;

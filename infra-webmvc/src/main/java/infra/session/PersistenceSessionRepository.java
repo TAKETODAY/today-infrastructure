@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import infra.beans.factory.DisposableBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ConcurrentReferenceHashMap;

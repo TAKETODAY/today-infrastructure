@@ -28,7 +28,7 @@ import infra.core.AttributeAccessor;
 import infra.http.DecoratingHttpMessage;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Provides a convenient implementation of the {@link HttpRequest} interface

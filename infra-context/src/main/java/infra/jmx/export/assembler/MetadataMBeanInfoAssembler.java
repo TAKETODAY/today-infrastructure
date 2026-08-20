@@ -41,7 +41,7 @@ import infra.jmx.export.metadata.ManagedNotification;
 import infra.jmx.export.metadata.ManagedOperation;
 import infra.jmx.export.metadata.ManagedOperationParameter;
 import infra.jmx.export.metadata.ManagedResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

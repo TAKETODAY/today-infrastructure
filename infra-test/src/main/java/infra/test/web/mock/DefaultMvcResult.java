@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.Conventions;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.HandlerInterceptor;

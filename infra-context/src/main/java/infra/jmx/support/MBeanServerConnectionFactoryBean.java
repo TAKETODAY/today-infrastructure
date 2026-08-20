@@ -40,7 +40,7 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.jmx.access.MBeanClientInterceptor;
 import infra.jmx.access.NotificationListenerRegistrar;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 

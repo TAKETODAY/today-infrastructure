@@ -24,7 +24,7 @@ import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.core.env.PropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 
 /**

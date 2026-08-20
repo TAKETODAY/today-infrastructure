@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.ConfigurableTransactionManager;

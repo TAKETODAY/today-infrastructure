@@ -18,7 +18,7 @@
 
 package infra.test.annotation;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of {@link ProfileValueSource} which uses system properties as

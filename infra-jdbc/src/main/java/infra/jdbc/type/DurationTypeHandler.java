@@ -27,8 +27,8 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Locale;
 
-import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.Assert;
+import infra.util.TodayStrategies;
 
 /**
  * A configurable {@link java.time.Duration} type handler that supports multiple storage formats.

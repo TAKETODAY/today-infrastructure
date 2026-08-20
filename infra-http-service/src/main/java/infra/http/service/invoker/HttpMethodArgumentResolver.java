@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

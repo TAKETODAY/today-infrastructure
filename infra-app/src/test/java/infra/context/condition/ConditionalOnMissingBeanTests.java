@@ -54,7 +54,7 @@ import infra.context.condition.scan.ScannedFactoryBeanConfiguration;
 import infra.context.condition.scan.ScannedFactoryBeanWithBeanMethodArgumentsConfiguration;
 import infra.context.support.SimpleThreadScope;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

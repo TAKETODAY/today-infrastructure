@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 
 import infra.http.MediaType;
 import infra.http.server.RequestPath;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;

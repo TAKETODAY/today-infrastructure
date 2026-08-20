@@ -31,7 +31,7 @@ import javax.net.ssl.SSLParameters;
 
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslOptions;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Builder that can be used to create a JDK {@link HttpClient}.

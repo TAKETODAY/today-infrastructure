@@ -27,8 +27,8 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SmartApplicationListener;
-import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.Assert;
+import infra.util.TodayStrategies;
 
 /**
  * {@link ApplicationContextInitializer} that writes the {@link ConditionEvaluationReport}

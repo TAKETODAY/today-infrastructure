@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.annotation.Autowired;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

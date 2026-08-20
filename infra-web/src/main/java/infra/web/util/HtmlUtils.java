@@ -18,7 +18,7 @@
 
 package infra.web.util;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Utility class for HTML escaping.

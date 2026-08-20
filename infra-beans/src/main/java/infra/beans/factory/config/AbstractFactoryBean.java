@@ -34,7 +34,7 @@ import infra.beans.factory.DisposableBean;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import org.jspecify.annotations.Nullable;
 
 /**

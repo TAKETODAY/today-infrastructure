@@ -51,7 +51,7 @@ import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.mock.env.MockPropertySource;
 import infra.test.classpath.resources.WithResource;
 

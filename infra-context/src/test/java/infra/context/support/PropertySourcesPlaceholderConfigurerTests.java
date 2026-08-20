@@ -54,7 +54,7 @@ import infra.core.env.StandardEnvironment;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.testfixture.env.MockPropertySource;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.PlaceholderResolutionException;
 import infra.util.ReflectionUtils;
 

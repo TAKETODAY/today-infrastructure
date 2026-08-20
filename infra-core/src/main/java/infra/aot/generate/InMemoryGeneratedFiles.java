@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.core.io.InputStreamSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingConsumer;
 
 /**

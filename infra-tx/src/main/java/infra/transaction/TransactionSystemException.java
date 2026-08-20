@@ -20,7 +20,7 @@ package infra.transaction;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Exception thrown when a general transaction system error is encountered, like

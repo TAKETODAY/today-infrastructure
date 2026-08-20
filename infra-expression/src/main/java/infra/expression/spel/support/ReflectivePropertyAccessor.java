@@ -40,7 +40,7 @@ import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
 import infra.expression.spel.CodeFlow;
 import infra.expression.spel.CompilablePropertyAccessor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.reflect.Property;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

@@ -21,7 +21,7 @@ package infra.test.json;
 import org.assertj.core.api.AssertProvider;
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * JSON content which is generally used to {@link AssertProvider provide}

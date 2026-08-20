@@ -20,7 +20,7 @@ package infra.beans.factory.support;
 
 import infra.beans.BeanMetadataAttributeAccessor;
 import infra.beans.factory.annotation.Qualifier;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Qualifier for resolving autowire candidates. A bean definition that

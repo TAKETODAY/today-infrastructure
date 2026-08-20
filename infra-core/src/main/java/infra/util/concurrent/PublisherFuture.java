@@ -24,7 +24,7 @@ import org.reactivestreams.Subscription;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Publisher future adapter.

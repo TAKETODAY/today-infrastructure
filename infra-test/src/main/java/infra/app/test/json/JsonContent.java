@@ -23,7 +23,7 @@ import com.jayway.jsonpath.Configuration;
 import org.assertj.core.api.AssertProvider;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * JSON content usually created from a JSON tester. Generally used only to

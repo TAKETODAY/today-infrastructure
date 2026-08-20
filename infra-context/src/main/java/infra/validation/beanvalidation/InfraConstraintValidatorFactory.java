@@ -21,7 +21,7 @@ package infra.validation.beanvalidation;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.config.AutowireCapableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorFactory;
 

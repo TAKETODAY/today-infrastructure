@@ -51,7 +51,7 @@ import infra.http.client.HttpComponentsClientHttpRequestFactoryBuilder;
 import infra.http.client.HttpComponentsHttpClientBuilder;
 import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.web.client.NoOpResponseErrorHandler;
 import infra.web.client.RequestCallback;

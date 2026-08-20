@@ -25,7 +25,7 @@ import java.io.IOException;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.test.web.client.ResponseCreator;
 import infra.util.StreamUtils;

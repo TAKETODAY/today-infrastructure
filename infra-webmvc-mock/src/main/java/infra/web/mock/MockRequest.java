@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.session.Session;
 import infra.util.LinkedCaseInsensitiveMap;

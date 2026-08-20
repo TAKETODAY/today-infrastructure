@@ -35,7 +35,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.reactive.client.AbstractClientHttpRequest;
 import infra.http.reactive.client.ClientHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MimeType;
 import infra.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;

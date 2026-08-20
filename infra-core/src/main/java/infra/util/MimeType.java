@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 
-import infra.lang.Assert;
-
 /**
  * Represents a MIME Type, as originally defined in RFC 2046 and subsequently
  * used in other Internet protocols including HTTP.

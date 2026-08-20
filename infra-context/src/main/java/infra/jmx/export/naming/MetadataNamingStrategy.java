@@ -31,7 +31,7 @@ import infra.jmx.export.annotation.AnnotationJmxAttributeSource;
 import infra.jmx.export.metadata.JmxAttributeSource;
 import infra.jmx.export.metadata.ManagedResource;
 import infra.jmx.support.ObjectNameManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

@@ -29,7 +29,7 @@ import infra.core.env.EnumerablePropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.PropertySourceOrigin;
 

@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import infra.beans.factory.BeanCreationException;
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestContext;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;

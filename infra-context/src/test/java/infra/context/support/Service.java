@@ -27,7 +27,7 @@ import infra.context.ApplicationContextAware;
 import infra.context.MessageSource;
 import infra.context.MessageSourceAware;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * @author Alef Arendsen

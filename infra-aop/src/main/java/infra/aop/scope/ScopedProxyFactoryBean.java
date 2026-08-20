@@ -32,7 +32,7 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

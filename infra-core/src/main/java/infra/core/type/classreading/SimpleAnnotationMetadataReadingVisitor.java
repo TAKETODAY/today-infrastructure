@@ -30,8 +30,8 @@ import infra.bytecode.Opcodes;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.MethodMetadata;
-import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

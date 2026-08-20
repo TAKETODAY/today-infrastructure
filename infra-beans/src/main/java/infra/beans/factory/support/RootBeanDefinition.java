@@ -36,7 +36,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.ConstructorArgumentValues;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

@@ -44,7 +44,7 @@ import infra.core.conversion.ConversionService;
 import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.http.service.annotation.HttpExchange;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.annotation.RequestMapping;
 
 /**

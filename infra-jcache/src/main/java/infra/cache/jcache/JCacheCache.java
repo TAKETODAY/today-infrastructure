@@ -26,7 +26,7 @@ import javax.cache.processor.EntryProcessorException;
 import javax.cache.processor.MutableEntry;
 
 import infra.cache.support.AbstractValueAdaptingCache;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingFunction;
 
 /**

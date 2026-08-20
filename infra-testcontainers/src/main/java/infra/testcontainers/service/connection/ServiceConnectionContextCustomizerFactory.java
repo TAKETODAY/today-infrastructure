@@ -29,7 +29,7 @@ import java.util.List;
 import infra.context.aot.AbstractAotProcessor;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;

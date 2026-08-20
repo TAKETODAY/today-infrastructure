@@ -69,7 +69,7 @@ import infra.jmx.export.notification.NotificationPublisher;
 import infra.jmx.export.notification.NotificationPublisherAware;
 import infra.jmx.support.JmxUtils;
 import infra.jmx.support.MBeanRegistrationSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;

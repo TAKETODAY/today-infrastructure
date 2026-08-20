@@ -30,7 +30,7 @@ import java.util.Set;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.SqlParameterValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Helper methods for named parameter parsing.

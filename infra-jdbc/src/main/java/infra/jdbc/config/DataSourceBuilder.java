@@ -41,7 +41,7 @@ import javax.sql.DataSource;
 import infra.beans.BeanUtils;
 import infra.core.ResolvableType;
 import infra.jdbc.datasource.SimpleDriverDataSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

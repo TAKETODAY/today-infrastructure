@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link CompositeReactiveHealthContributor} backed by a map with values adapted as

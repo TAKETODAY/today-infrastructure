@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 import infra.aop.Pointcut;
 import infra.aop.PointcutAdvisor;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * AspectJPointcutAdvisor that adapts an {@link AbstractAspectJAdvice}

@@ -51,7 +51,6 @@ class ResourceUtilsTests {
   @Test
   public void testGetResource() throws IOException {
 
-//		final Resource resource = ResourceUtils.getResource("/META-INF/maven/infra/today-expression/pom.properties");
     Resource resource = ResourceUtils.getResource("classpath:META-INF/maven/org.slf4j/slf4j-api/pom.properties");
     Resource createRelative = resource.createRelative("pom.xml");
     assertThat(createRelative.exists()).isTrue();

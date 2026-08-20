@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@code @ExceptionHandler} mapping information. It contains:

@@ -85,7 +85,7 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MarshallingHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.api.MockException;

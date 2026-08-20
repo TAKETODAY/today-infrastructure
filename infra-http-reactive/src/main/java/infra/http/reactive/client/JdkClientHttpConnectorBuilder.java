@@ -29,7 +29,7 @@ import java.util.function.UnaryOperator;
 
 import infra.http.client.HttpClientSettings;
 import infra.http.client.JdkHttpClientBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Builder for {@link ClientHttpConnectorBuilder#jdk()}.

@@ -37,7 +37,7 @@ import infra.core.type.filter.AspectJTypeFilter;
 import infra.core.type.filter.AssignableTypeFilter;
 import infra.core.type.filter.RegexPatternTypeFilter;
 import infra.core.type.filter.TypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Collection of utilities for working with {@link ComponentScan @ComponentScan}

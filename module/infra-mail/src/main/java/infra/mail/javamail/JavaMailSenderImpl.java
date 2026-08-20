@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mail.MailAuthenticationException;
 import infra.mail.MailException;
 import infra.mail.MailParseException;

@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import infra.jndi.JndiObjectFactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

@@ -21,7 +21,7 @@ package infra.test.context.event;
 import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.junit.jupiter.InfraExtension;
 
 /**

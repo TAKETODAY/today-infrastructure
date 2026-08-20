@@ -22,7 +22,7 @@ import javax.management.NotificationListener;
 
 import infra.beans.factory.InitializingBean;
 import infra.jmx.support.NotificationListenerHolder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Helper class that aggregates a {@link NotificationListener},

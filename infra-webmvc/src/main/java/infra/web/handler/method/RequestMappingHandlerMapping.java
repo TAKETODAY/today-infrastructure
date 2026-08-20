@@ -44,7 +44,7 @@ import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.http.HttpMethod;
 import infra.http.service.annotation.HttpExchange;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;

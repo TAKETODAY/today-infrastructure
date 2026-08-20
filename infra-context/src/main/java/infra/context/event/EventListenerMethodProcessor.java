@@ -43,7 +43,7 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.AnnotationUtils;
 import infra.expression.spel.support.StandardEvaluationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

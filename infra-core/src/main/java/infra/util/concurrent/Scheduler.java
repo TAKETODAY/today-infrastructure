@@ -21,7 +21,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * An interface representing a scheduler capable of executing tasks asynchronously

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.app.logging.LogLevel;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.context.condition.ConditionEvaluationReportMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

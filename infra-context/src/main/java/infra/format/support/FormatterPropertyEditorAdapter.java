@@ -23,7 +23,7 @@ import java.beans.PropertyEditorSupport;
 
 import infra.core.i18n.LocaleContextHolder;
 import infra.format.Formatter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

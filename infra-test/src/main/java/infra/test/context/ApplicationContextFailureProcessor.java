@@ -19,7 +19,7 @@
 package infra.test.context;
 
 import infra.context.ApplicationContext;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Strategy for components that process failures related to application contexts

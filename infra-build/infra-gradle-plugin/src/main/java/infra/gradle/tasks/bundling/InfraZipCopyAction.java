@@ -60,7 +60,7 @@ import infra.app.loader.tools.LayersIndex;
 import infra.app.loader.tools.LibraryCoordinates;
 import infra.app.loader.tools.NativeImageArgFile;
 import infra.app.loader.tools.ReachabilityMetadataProperties;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 

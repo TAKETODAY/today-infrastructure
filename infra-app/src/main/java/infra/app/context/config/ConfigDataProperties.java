@@ -29,7 +29,7 @@ import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.bind.Name;
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

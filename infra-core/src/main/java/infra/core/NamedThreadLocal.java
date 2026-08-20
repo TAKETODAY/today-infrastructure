@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ThreadLocal} subclass that exposes a specified name

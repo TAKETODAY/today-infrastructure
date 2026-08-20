@@ -25,7 +25,7 @@ import infra.core.io.ResourceLoader;
 import infra.jdbc.datasource.init.DatabasePopulator;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
 import infra.jdbc.datasource.init.ScriptUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A builder that provides a convenient API for constructing an embedded database.

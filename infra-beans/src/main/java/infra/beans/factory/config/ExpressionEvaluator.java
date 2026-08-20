@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

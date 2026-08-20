@@ -23,8 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-import infra.lang.Assert;
-
 /**
  * A simple instance filter that checks if a given instance match based on
  * a collection of includes and excludes element.

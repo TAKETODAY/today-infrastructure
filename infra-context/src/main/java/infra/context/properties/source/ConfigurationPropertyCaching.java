@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Interface that can be used to control configuration property source caches.

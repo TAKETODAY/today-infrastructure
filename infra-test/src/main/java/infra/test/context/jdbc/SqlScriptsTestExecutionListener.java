@@ -38,7 +38,7 @@ import infra.core.io.Resource;
 import infra.jdbc.datasource.TransactionAwareDataSourceProxy;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
 import infra.jdbc.datasource.init.ScriptUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestContext;

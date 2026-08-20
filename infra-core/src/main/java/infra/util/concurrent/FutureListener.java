@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EventListener;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A listener that is notified when a {@link Future} operation completes.

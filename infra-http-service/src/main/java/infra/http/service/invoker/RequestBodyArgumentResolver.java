@@ -25,7 +25,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.http.StreamingHttpOutputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.annotation.RequestBody;
 
 /**

@@ -38,7 +38,7 @@ import infra.aop.support.annotation.AnnotationMatchingPointcut;
 import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.resilience.InvocationRejectedException;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;

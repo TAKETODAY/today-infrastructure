@@ -39,7 +39,7 @@ import infra.core.MethodParameter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.annotation.AnnotationUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 

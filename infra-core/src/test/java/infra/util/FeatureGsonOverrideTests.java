@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-present the original author or authors.
+ * Copyright 2017 - 2026 the TODAY authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-// Modifications Copyright 2017 - 2026 the TODAY authors.
+package infra.util;
 
-package infra.lang;
+import org.junit.jupiter.api.Test;
+
+import infra.test.classpath.ClassPathOverrides;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Andy Wilkinson
+ * Tests for {@link Feature} when Gson is added to the classpath.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
  */
-class ConstructorArgsDummyFactory implements DummyFactory {
+@ClassPathOverrides("com.google.code.gson:gson:2.14.0")
+class FeatureGsonOverrideTests {
 
-  private final String string;
-
-  public ConstructorArgsDummyFactory(String string) {
-    this(string, 0);
-  }
-
-  private ConstructorArgsDummyFactory(String string, int reasonCode) {
-    this.string = string;
-  }
-
-  @Override
-  public String getString() {
-    return this.string;
+  @Test
+  void gsonIsPresentWhenOverridden() {
+    assertThat(FeatureDetector.isPresent(Feature.GSON)).isTrue();
   }
 
 }

@@ -22,8 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 
-import infra.lang.Assert;
-
 /**
  * An {@link InstanceFilter} implementation that handles exception types. A type
  * will match against a given candidate if it is assignable to that candidate.

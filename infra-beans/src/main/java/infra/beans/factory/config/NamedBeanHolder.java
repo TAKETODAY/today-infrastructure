@@ -19,7 +19,7 @@
 package infra.beans.factory.config;
 
 import infra.beans.factory.NamedBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A simple holder for a given bean name and bean instance.

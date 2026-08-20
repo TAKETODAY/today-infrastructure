@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

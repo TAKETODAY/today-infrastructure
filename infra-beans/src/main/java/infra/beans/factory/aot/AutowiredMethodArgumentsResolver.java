@@ -36,7 +36,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.beans.factory.support.RegisteredBean;
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 import infra.util.function.ThrowingConsumer;
 

@@ -46,7 +46,7 @@ import infra.core.env.MapPropertySource;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.test.web.mock.MvcResult;

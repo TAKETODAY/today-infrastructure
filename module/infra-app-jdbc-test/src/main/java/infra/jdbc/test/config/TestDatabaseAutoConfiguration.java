@@ -64,7 +64,7 @@ import infra.jdbc.config.JdbcConnectionDetails;
 import infra.jdbc.datasource.embedded.EmbeddedDatabase;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.origin.PropertySourceOrigin;

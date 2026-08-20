@@ -47,7 +47,7 @@ import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Conventions;
 import infra.core.io.ClassPathResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.session.CookieSessionIdResolver;
 import infra.session.MapSession;
 import infra.session.Session;

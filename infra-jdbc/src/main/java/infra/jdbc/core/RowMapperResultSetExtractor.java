@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.object.MappingSqlQuery;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Adapter implementation of the ResultSetExtractor interface that delegates

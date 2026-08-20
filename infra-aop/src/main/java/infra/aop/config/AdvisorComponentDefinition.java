@@ -25,7 +25,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanReference;
 import infra.beans.factory.parsing.AbstractComponentDefinition;
 import infra.beans.factory.parsing.ComponentDefinition;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ComponentDefinition}

@@ -46,7 +46,7 @@ import javax.xml.transform.sax.SAXSource;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.tests.MockitoUtils;
 import infra.tests.MockitoUtils.InvocationArgumentsAdapter;
 

@@ -26,7 +26,7 @@ import infra.beans.MethodInvocationException;
 import infra.beans.PropertyAccessException;
 import infra.beans.TypeMismatchException;
 import infra.context.support.DefaultMessageSourceResolvable;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

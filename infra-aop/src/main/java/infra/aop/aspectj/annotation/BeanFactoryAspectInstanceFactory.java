@@ -28,7 +28,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.annotation.OrderUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

@@ -24,7 +24,7 @@ import infra.beans.BeanUtils;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.AutowireCapableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Instantiates a target handler through a Framework {@link BeanFactory} and also provides

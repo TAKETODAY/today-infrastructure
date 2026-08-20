@@ -20,7 +20,7 @@ package infra.aop.framework;
 
 import infra.aop.support.AopUtils;
 import infra.beans.factory.annotation.Autowired;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 
 /**

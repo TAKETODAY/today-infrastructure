@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link EntityResolver} implementation that delegates to a {@link BeansDtdResolver}

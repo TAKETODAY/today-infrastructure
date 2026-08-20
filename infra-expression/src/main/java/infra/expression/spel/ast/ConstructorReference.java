@@ -43,7 +43,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.ReflectiveConstructorExecutor;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents the invocation of a constructor. Either a constructor on a regular type or

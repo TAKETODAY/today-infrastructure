@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.support.ResourceHolderSupport;
 
 /**

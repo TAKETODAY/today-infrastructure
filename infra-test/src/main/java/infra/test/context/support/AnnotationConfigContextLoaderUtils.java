@@ -24,7 +24,7 @@ import java.util.List;
 
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.SmartContextLoader;

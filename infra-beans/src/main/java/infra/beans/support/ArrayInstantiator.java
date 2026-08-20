@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * @author TODAY 2021/1/29 15:56

@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.core.ResolvableType;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.ObjectUtils;
 import infra.util.function.SingletonSupplier;

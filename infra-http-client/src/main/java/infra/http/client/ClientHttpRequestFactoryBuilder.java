@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.LambdaSafe;
 
 /**

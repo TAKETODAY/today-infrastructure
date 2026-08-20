@@ -30,7 +30,7 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.InitializingBean;
 import infra.context.properties.ConfigurationProperties;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

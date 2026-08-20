@@ -29,9 +29,9 @@ import java.util.Map;
 
 import infra.aop.AfterAdvice;
 import infra.aop.framework.AopConfigException;
-import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * Interceptor to wrap an after-throwing advice.

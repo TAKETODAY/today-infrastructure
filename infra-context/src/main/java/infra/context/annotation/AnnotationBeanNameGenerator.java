@@ -36,7 +36,7 @@ import infra.beans.factory.support.BeanNameGenerator;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

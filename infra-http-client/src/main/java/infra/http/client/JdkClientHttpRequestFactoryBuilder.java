@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Builder for {@link ClientHttpRequestFactoryBuilder#jdk()}.

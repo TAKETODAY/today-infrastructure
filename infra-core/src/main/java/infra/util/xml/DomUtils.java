@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenience methods for working with the DOM API,

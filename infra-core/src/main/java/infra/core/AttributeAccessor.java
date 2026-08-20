@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata

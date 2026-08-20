@@ -31,7 +31,7 @@ import infra.context.expression.EmbeddedValueResolverAware;
 import infra.context.support.ApplicationObjectSupport;
 import infra.core.Ordered;
 import infra.core.StringValueResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
 import infra.util.CollectionUtils;

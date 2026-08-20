@@ -25,7 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import infra.dao.DataAccessResourceFailureException;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Common {@link SqlValue} implementation for JDBC {@link Array} creation

@@ -25,7 +25,7 @@ import java.util.Locale;
 
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.FileCopyUtils;

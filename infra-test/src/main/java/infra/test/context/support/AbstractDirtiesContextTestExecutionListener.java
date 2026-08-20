@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 import infra.context.ApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext;

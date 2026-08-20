@@ -29,7 +29,7 @@ import infra.dao.DataAccessException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlParameterValue;
 import infra.jdbc.datasource.init.ResourceDatabasePopulator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.annotation.Commit;
 import infra.test.annotation.Rollback;
 import infra.test.context.ContextConfiguration;

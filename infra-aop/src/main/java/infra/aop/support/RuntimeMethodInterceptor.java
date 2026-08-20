@@ -21,7 +21,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.Nullable;
 
 import infra.aop.MethodMatcher;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Runtime MethodInterceptor

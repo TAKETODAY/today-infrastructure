@@ -23,7 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 
 import infra.aop.ClassFilter;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple ClassFilter that looks for a specific Java 5 annotation

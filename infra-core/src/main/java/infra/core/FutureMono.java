@@ -22,7 +22,7 @@ import org.reactivestreams.Subscription;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.FutureListener;
 import reactor.core.CoreSubscriber;

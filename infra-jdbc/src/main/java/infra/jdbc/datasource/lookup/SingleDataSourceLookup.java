@@ -20,7 +20,7 @@ package infra.jdbc.datasource.lookup;
 
 import javax.sql.DataSource;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An implementation of the DataSourceLookup that simply wraps a

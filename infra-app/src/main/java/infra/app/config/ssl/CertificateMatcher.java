@@ -30,7 +30,7 @@ import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Helper used to match certificates against a {@link PrivateKey}.

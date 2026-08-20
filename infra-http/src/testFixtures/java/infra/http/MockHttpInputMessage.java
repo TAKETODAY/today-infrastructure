@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Mock implementation of {@link HttpInputMessage}.

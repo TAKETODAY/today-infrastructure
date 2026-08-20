@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenience utilities for working with {@link java.util.concurrent.Future}

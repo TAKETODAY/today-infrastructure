@@ -47,7 +47,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.session.Session;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;

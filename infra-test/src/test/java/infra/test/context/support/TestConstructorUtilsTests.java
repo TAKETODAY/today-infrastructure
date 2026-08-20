@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.TestConstructor;
 
 import static infra.test.context.TestConstructor.AutowireMode.ALL;

@@ -20,7 +20,7 @@ package infra.context.annotation;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.DefaultBeanNameGenerator;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An extension of {@code AnnotationBeanNameGenerator} that uses the fully qualified

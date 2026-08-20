@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.Mergeable;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;

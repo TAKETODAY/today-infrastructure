@@ -27,7 +27,7 @@ import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;
 import infra.context.ConfigurableApplicationContext;
 import infra.instrument.classloading.LoadTimeWeaver;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link BeanPostProcessor}

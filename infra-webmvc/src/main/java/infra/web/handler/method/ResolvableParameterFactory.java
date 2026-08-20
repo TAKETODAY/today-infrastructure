@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

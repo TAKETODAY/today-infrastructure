@@ -26,7 +26,7 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityProperties;
 import infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityRuntimeHints;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.test.classpath.resources.WithResource;
 import infra.ui.template.TemplateAvailabilityProvider;

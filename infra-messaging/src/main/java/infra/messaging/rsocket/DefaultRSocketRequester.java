@@ -33,7 +33,7 @@ import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.MimeType;
 import io.rsocket.Payload;

@@ -35,7 +35,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.core.ResolvableType;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

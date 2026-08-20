@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.InvalidMimeTypeException;
 import infra.util.MimeType;

@@ -39,7 +39,7 @@ import java.util.function.BiConsumer;
 import infra.beans.BeanUtils;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.util.ReflectionUtils;
 

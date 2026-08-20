@@ -38,7 +38,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

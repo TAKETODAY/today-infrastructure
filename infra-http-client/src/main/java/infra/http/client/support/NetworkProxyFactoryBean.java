@@ -26,7 +26,7 @@ import java.net.SocketAddress;
 
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link FactoryBean} that creates a {@link Proxy java.net.Proxy}.

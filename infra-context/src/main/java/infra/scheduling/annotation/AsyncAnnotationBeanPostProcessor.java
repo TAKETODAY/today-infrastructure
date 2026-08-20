@@ -29,7 +29,7 @@ import infra.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcess
 import infra.aop.interceptor.AsyncUncaughtExceptionHandler;
 import infra.beans.factory.BeanFactory;
 import infra.core.task.TaskExecutor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.SingletonSupplier;
 
 /**

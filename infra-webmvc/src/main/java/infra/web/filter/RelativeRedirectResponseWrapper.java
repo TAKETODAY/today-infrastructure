@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.DecoratingHttpContext;
 import infra.web.HttpContext;
 

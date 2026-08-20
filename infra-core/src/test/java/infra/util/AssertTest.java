@@ -22,8 +22,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
-
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;

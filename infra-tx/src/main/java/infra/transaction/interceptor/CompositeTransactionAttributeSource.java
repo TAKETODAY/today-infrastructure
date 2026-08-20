@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Composite {@link TransactionAttributeSource} implementation that iterates

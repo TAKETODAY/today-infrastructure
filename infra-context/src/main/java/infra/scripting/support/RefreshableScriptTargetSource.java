@@ -20,7 +20,7 @@ package infra.scripting.support;
 
 import infra.aop.target.BeanFactoryRefreshableTargetSource;
 import infra.beans.factory.BeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scripting.ScriptFactory;
 import infra.scripting.ScriptSource;
 

@@ -19,7 +19,7 @@
 package infra.test.context.support;
 
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.BootstrapContext;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 

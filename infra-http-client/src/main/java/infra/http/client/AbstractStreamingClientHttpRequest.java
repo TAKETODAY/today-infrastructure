@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 import infra.http.HttpHeaders;
 import infra.http.HttpOutputMessage;
 import infra.http.StreamingHttpOutputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FastByteArrayOutputStream;
 import infra.util.concurrent.Future;
 

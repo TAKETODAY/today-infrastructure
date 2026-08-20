@@ -24,7 +24,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 
 import infra.core.annotation.Order;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Strategy interface for creating {@link BeanInfo} instances for Framework beans.

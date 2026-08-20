@@ -28,7 +28,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.core.io.AbstractResource;
 import infra.core.io.DescriptiveResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Descriptive {@link Resource} wrapper for

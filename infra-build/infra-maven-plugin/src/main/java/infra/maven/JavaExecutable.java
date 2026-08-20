@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

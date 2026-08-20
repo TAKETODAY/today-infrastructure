@@ -21,7 +21,7 @@ package infra.app.test.json;
 import org.assertj.core.api.AssertProvider;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Object content usually created from {@link AbstractJsonMarshalTester}. Generally used

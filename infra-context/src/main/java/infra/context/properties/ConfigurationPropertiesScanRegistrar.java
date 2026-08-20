@@ -31,7 +31,7 @@ import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.filter.AnnotationTypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;

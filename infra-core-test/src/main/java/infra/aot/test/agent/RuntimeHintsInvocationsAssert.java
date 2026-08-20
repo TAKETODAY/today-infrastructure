@@ -32,8 +32,8 @@ import java.util.stream.Stream;
 import infra.aot.agent.RecordedInvocation;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.lang.Assert;
-import infra.lang.TodayStrategies;
+import infra.util.Assert;
+import infra.util.TodayStrategies;
 
 /**
  * AssertJ {@link org.assertj.core.api.Assert assertions} that can be applied to

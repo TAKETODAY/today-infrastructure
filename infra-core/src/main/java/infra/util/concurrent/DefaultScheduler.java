@@ -22,7 +22,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * A default implementation of the {@link Scheduler} interface that provides

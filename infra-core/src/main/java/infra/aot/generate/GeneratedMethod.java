@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 import infra.javapoet.ClassName;
 import infra.javapoet.MethodSpec;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A generated method.

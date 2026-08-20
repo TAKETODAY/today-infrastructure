@@ -30,7 +30,7 @@ import java.util.Set;
 
 import infra.core.OrderComparator;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;

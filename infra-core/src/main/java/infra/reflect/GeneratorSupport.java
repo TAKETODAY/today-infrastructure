@@ -34,7 +34,7 @@ import infra.bytecode.core.DefaultGeneratorStrategy;
 import infra.bytecode.core.EmitUtils;
 import infra.core.NativeDetector;
 import infra.core.NestedRuntimeException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.MapCache;
 import infra.util.ReflectionUtils;

@@ -39,7 +39,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportSelector;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

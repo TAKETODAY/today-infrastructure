@@ -21,7 +21,7 @@ package infra.web.mock;
 import java.io.IOException;
 import java.io.InputStream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.mock.api.MockInputStream;
 import infra.web.mock.api.ReadListener;
 

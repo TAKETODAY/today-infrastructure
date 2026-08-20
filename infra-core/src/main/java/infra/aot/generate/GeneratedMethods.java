@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import infra.javapoet.ClassName;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.MethodSpec.Builder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A managed collection of generated methods.

@@ -27,7 +27,7 @@ import infra.context.condition.ConditionalOnJndi;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.jndi.JndiLocatorDelegate;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mail.MailSender;
 import infra.mail.javamail.JavaMailSenderImpl;
 import jakarta.mail.Session;

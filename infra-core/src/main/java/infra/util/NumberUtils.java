@@ -27,8 +27,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Set;
 
-import infra.lang.Assert;
-
 /**
  * Miscellaneous utility methods for number conversion and parsing.
  * <p>Mainly for internal use within the framework; consider Apache's

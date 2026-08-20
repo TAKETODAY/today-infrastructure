@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of the {@link ScopedObject} interface.

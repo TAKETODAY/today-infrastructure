@@ -26,8 +26,8 @@ import infra.aot.hint.ResourceHints;
 import infra.aot.hint.ResourcePatternHint;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
-import infra.lang.Assert;
 import infra.util.AntPathMatcher;
+import infra.util.Assert;
 
 /**
  * Generator of {@link ResourceHints} predicates, testing whether the given hints

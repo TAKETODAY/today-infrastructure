@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ServiceLoader;
 
 import infra.beans.factory.config.AbstractFactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for FactoryBeans operating on the

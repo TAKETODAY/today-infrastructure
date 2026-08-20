@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HandlerMapping;
 import infra.web.HttpContext;
 

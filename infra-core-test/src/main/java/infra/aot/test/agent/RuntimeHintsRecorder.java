@@ -26,7 +26,7 @@ import infra.aot.agent.RecordedInvocationsListener;
 import infra.aot.agent.RecordedInvocationsPublisher;
 import infra.aot.agent.RuntimeHintsAgent;
 import infra.aot.hint.RuntimeHints;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Invocations relevant to {@link RuntimeHints} recorded during the execution of a block

@@ -45,7 +45,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.server.RequestPath;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;

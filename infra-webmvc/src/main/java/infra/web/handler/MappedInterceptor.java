@@ -21,7 +21,7 @@ package infra.web.handler;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.server.PathContainer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.AntPathMatcher;
 import infra.util.ObjectUtils;
 import infra.util.PathMatcher;

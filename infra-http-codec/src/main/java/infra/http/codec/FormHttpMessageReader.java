@@ -32,7 +32,7 @@ import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.io.buffer.DataBufferUtils;
 import infra.http.MediaType;
 import infra.http.reactive.ReactiveHttpInputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.LinkedMultiValueMap;
 import infra.util.LogFormatUtils;

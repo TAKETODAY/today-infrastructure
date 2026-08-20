@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.converter.MessageConverter;
 import infra.messaging.converter.SimpleMessageConverter;
 import infra.messaging.simp.config.StompBrokerRelayRegistration;

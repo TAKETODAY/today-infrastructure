@@ -29,7 +29,7 @@ import infra.expression.spel.CodeFlow;
 import infra.expression.EvaluationException;
 import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents a reference to a type, for example

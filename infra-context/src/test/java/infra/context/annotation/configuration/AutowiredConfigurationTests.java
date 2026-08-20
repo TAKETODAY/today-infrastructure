@@ -48,7 +48,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.annotation.AliasFor;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.inject.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -40,7 +40,6 @@ import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.io.UrlResource;
-import infra.lang.Assert;
 
 import static infra.lang.Constant.BLANK;
 import static infra.lang.Constant.PATH_SEPARATOR;

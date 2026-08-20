@@ -27,7 +27,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 
 /**

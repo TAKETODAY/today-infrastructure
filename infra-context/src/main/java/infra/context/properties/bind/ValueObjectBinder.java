@@ -45,7 +45,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.NullValue;
 import infra.logging.LogMessage;
 import infra.logging.Logger;

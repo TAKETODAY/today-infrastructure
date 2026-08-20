@@ -28,7 +28,7 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.RepeatableContainers;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MultiValueMap;
 
 /**

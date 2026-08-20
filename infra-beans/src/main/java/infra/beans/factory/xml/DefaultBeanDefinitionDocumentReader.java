@@ -35,7 +35,7 @@ import infra.beans.factory.parsing.SourceExtractor;
 import infra.beans.factory.support.BeanDefinitionReaderUtils;
 import infra.core.io.PatternResourceLoader;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ResourceUtils;

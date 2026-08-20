@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.core.i18n.LocaleContextHolder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMatchingMetadata;

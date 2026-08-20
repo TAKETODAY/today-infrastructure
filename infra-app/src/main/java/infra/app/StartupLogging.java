@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.aot.AotDetector;
 import infra.core.ApplicationHome;
 import infra.core.env.Environment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Version;
 import infra.logging.Logger;
 import infra.util.ClassUtils;

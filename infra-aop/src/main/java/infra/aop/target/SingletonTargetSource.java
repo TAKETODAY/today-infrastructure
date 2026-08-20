@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import infra.aop.TargetSource;
 import infra.aop.framework.AdvisedSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of the {@link infra.aop.TargetSource} interface

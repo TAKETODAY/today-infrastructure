@@ -61,7 +61,7 @@ import infra.context.event.test.TestEvent;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.Order;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.annotation.Async;
 import infra.scheduling.annotation.EnableAsync;
 import infra.stereotype.Component;

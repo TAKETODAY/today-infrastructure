@@ -23,7 +23,7 @@ import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
 import infra.context.PayloadApplicationEvent;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ApplicationEvent} sent when the {@link AvailabilityState} of the application

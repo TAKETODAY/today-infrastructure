@@ -32,7 +32,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.Commit;

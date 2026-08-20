@@ -25,7 +25,7 @@ import java.util.Objects;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;

@@ -38,7 +38,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 

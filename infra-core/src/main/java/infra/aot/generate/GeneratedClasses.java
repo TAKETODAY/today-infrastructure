@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 
 import infra.javapoet.ClassName;
 import infra.javapoet.TypeSpec;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A managed collection of generated classes.

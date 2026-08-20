@@ -38,7 +38,7 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 
 /**

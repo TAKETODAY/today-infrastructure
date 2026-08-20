@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.simp.SimpLogging;
 import infra.messaging.tcp.TcpOperations;
 import infra.messaging.tcp.reactor.ReactorNettyTcpClient;

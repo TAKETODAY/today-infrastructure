@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;

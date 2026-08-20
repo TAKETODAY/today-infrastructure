@@ -27,7 +27,7 @@ import java.io.Serial;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract BeanFactory-based PointcutAdvisor that allows for any Advice

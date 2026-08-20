@@ -26,7 +26,7 @@ import java.util.List;
 
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of {@code RequestExpectation} that simply delegates

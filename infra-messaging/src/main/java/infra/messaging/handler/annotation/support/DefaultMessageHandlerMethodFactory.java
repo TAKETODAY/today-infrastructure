@@ -28,7 +28,7 @@ import infra.beans.factory.InitializingBean;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.converter.GenericMessageConverter;
 import infra.messaging.converter.MessageConverter;
 import infra.messaging.handler.annotation.MessageMapping;

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**

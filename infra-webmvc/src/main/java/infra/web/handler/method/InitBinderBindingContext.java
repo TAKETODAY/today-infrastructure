@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.web.BindingContext;
 import infra.web.HttpContext;

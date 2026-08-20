@@ -21,7 +21,7 @@ package infra.test.context.util;
 import java.lang.reflect.InvocationTargetException;
 
 import infra.core.NativeDetector;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

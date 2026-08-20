@@ -22,7 +22,7 @@ import java.net.SocketAddress;
 import java.time.Duration;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.server.AbstractConfigurableWebServerFactory;
 import infra.web.server.GenericWebServerFactory;
 import infra.web.server.Http2;

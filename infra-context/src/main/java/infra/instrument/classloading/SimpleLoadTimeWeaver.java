@@ -20,7 +20,7 @@ package infra.instrument.classloading;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

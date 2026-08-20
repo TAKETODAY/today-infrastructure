@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.context.support.StaticApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.handler.DestinationPatternsMessageCondition;
 import infra.messaging.handler.HandlerMethod;

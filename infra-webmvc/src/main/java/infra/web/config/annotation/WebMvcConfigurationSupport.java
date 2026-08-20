@@ -50,7 +50,7 @@ import infra.format.support.FormattingConversionService;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 import infra.validation.Errors;

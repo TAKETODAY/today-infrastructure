@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * {@link JndiLocatorSupport} subclass with public lookup methods,

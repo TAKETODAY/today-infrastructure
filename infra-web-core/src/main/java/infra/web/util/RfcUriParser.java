@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.Set;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
 import infra.util.StringUtils;

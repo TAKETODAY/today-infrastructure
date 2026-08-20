@@ -40,7 +40,7 @@ import infra.expression.TypeComparator;
 import infra.expression.TypeConverter;
 import infra.expression.TypeLocator;
 import infra.expression.TypedValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A powerful and highly configurable {@link EvaluationContext} implementation.

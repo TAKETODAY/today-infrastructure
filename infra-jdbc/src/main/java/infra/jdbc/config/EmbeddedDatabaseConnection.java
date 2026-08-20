@@ -33,7 +33,7 @@ import infra.dao.DataAccessException;
 import infra.jdbc.core.ConnectionCallback;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

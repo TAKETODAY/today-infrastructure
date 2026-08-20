@@ -19,7 +19,7 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.NamedThreadLocal;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.lang.VisibleForTesting;
 
 /**

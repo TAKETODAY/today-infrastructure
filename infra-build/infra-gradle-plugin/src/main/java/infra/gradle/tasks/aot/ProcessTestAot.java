@@ -33,7 +33,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Custom {@link JavaExec} task for ahead-of-time processing of a Infra

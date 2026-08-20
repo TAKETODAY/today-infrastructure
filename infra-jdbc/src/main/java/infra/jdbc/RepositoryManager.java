@@ -36,7 +36,7 @@ import infra.jdbc.parsing.SqlParameterParser;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.annotation.Isolation;

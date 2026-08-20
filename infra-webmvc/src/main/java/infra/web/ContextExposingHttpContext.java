@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import infra.context.ApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * HttpContext decorator that makes all beans in a

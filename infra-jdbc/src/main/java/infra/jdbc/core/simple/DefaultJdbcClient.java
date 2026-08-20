@@ -50,7 +50,7 @@ import infra.jdbc.core.namedparam.SqlParameterSource;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.rowset.SqlRowSet;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * The default implementation of {@link JdbcClient},

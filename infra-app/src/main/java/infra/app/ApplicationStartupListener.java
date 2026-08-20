@@ -23,7 +23,7 @@ import java.time.Duration;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Listener for the {@link Application} {@code run} method.

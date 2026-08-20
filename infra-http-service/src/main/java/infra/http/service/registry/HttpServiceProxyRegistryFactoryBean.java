@@ -45,7 +45,7 @@ import infra.context.expression.EmbeddedValueResolverAware;
 import infra.core.StringValueResolver;
 import infra.http.service.invoker.HttpExchangeAdapter;
 import infra.http.service.invoker.HttpServiceProxyFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;

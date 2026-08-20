@@ -23,7 +23,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import infra.app.env.ConfigTreePropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ConfigDataResource} backed by a config tree directory.

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.UnaryOperator;
 
 import infra.aot.generate.GenerationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * AOT contribution from a {@link BeanRegistrationAotProcessor} used to register

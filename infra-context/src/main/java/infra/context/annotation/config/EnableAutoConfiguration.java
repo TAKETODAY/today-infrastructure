@@ -31,7 +31,7 @@ import infra.context.annotation.Import;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Enable auto-configuration of the Application Context, attempting to guess and

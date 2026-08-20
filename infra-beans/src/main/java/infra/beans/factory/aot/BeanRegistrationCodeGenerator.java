@@ -28,7 +28,7 @@ import infra.aot.generate.MethodReference;
 import infra.beans.factory.support.RegisteredBean;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link BeanRegistrationCode} implementation with code generation support.

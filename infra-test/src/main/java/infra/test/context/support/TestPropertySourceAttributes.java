@@ -29,7 +29,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.PropertySourceDescriptor;
 import infra.core.io.PropertySourceFactory;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestPropertySource;

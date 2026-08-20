@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Decorator to cause a {@link MetadataAwareAspectInstanceFactory} to instantiate only once.

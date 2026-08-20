@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
 import infra.lang.Modifiable;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;

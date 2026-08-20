@@ -33,7 +33,7 @@ import infra.core.annotation.Order;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.io.ClassPathResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ContextConfigurationAttributes;

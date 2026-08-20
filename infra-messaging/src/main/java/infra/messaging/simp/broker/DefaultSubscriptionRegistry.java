@@ -40,7 +40,7 @@ import infra.expression.TypedValue;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.SimpleEvaluationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.messaging.simp.SimpMessageHeaderAccessor;

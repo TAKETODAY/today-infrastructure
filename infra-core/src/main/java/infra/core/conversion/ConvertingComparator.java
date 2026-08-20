@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Comparator;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.comparator.Comparators;
 
 /**

@@ -35,7 +35,7 @@ import infra.aop.support.ComposablePointcut;
 import infra.aop.support.annotation.AnnotationMatchingPointcut;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.function.SingletonSupplier;
 

@@ -29,7 +29,7 @@ import infra.expression.Expression;
 import infra.expression.ExpressionParser;
 import infra.expression.ParseException;
 import infra.expression.ParserContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An expression parser that understands templates. It can be subclassed by expression

@@ -30,7 +30,7 @@ import java.util.Set;
 import infra.http.reactive.server.HttpHandler;
 import infra.http.reactive.server.ReactorHttpHandlerAdapter;
 import infra.http.support.ReactorResourceFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.server.Compression;
 import infra.web.server.Shutdown;

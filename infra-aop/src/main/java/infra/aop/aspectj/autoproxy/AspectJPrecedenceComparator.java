@@ -24,7 +24,7 @@ import infra.aop.Advisor;
 import infra.aop.aspectj.AspectJAopUtils;
 import infra.aop.aspectj.AspectJPrecedenceInformation;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Orders AspectJ advice/advisors by precedence (<i>not</i> invocation order).

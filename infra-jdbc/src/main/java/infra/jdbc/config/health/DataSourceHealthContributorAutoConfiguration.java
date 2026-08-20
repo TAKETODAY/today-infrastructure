@@ -48,7 +48,7 @@ import infra.jdbc.health.DataSourceHealthIndicator;
 import infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider;
 import infra.jdbc.metadata.DataSourcePoolMetadata;
 import infra.jdbc.metadata.DataSourcePoolMetadataProvider;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 
 /**

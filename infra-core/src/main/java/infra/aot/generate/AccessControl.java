@@ -32,7 +32,7 @@ import java.util.function.IntFunction;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.javapoet.ClassName;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

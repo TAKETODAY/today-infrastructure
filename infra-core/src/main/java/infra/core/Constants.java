@@ -29,8 +29,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 
 /**
  * This class can be used to parse other classes containing constant definitions

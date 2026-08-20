@@ -38,7 +38,7 @@ import infra.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import infra.context.annotation.ImportRuntimeHints;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.test.util.ReflectionTestUtils;

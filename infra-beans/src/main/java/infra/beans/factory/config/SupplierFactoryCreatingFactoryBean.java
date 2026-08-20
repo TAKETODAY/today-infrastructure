@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.FactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link FactoryBean} implementation that returns a value which is an

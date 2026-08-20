@@ -49,7 +49,7 @@ import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Contract;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;

@@ -27,7 +27,7 @@ import infra.beans.BeanMetadataElement;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.support.ChildBeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

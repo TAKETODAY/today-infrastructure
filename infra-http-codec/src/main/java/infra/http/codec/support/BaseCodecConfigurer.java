@@ -32,7 +32,7 @@ import infra.http.codec.DecoderHttpMessageReader;
 import infra.http.codec.EncoderHttpMessageWriter;
 import infra.http.codec.HttpMessageReader;
 import infra.http.codec.HttpMessageWriter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of {@link CodecConfigurer} that serves as a base for

@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default {@link ConfigurableBootstrapContext} implementation.

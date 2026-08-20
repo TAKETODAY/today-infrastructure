@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import infra.core.task.TaskDecorator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import infra.util.CollectionUtils;
 

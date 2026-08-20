@@ -39,7 +39,7 @@ import infra.context.event.ContextClosedEvent;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskExecutor;
 import infra.core.task.TaskRejectedException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LoggerFactory;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;

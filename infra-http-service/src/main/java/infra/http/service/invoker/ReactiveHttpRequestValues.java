@@ -31,7 +31,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.codec.multipart.MultipartBodyBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MultiValueMap;
 import infra.web.util.UriBuilderFactory;
 

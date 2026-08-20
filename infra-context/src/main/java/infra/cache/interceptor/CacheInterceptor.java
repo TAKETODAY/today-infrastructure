@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import infra.cache.Cache;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * AOP Alliance MethodInterceptor for declarative cache

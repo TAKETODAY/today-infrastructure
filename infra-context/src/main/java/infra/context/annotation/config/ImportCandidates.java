@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import infra.core.io.UrlResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

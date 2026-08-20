@@ -27,7 +27,7 @@ import infra.cache.Cache;
 import infra.cache.interceptor.CacheOperationInvocationContext;
 import infra.cache.interceptor.CacheResolver;
 import infra.cache.jcache.JCacheCache;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Framework's {@link CacheResolver} implementation that delegates to a standard

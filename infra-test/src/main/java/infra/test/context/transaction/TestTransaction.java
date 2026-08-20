@@ -18,7 +18,7 @@
 
 package infra.test.context.transaction;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestExecutionListeners;
 import infra.transaction.TransactionStatus;
 

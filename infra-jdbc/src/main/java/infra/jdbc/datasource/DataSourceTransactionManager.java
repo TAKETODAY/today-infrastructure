@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 import infra.beans.factory.InitializingBean;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.support.JdbcTransactionManager;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionSystemException;

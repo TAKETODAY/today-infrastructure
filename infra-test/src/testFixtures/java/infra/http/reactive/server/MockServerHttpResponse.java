@@ -34,7 +34,7 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.lang.Assert;
+import infra.util.Assert;
 import org.jspecify.annotations.Nullable;
 import infra.web.mock.api.AsyncContext;
 import infra.web.mock.api.AsyncEvent;

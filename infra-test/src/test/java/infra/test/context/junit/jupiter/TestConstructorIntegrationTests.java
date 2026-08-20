@@ -26,7 +26,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.TestConstructor;
 
 import static infra.test.context.TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME;

@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Mock implementation of {@link HttpInputMessage}.

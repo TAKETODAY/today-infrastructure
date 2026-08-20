@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import infra.app.loader.tools.Layer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link ContentSelector} backed by {@code include}/{@code exclude} {@link ContentFilter

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link UriTemplateHandler} implementations.

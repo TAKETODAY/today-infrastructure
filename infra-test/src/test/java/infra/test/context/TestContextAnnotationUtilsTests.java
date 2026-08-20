@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.Order;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.stereotype.Component;
 import infra.stereotype.Service;
 import infra.test.context.TestContextAnnotationUtils.AnnotationDescriptor;

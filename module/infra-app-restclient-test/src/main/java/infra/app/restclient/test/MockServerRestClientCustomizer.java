@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 
 import infra.beans.BeanUtils;
 import infra.http.client.BufferingClientHttpRequestFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import infra.test.web.client.RequestExpectationManager;

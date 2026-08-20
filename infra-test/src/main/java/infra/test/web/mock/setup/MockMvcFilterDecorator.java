@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.HttpContext;

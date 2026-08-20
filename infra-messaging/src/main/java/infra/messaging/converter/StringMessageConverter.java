@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.util.MimeType;

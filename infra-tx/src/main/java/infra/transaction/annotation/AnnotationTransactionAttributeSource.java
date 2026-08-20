@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
 import infra.transaction.interceptor.RollbackRuleAttribute;
 import infra.transaction.interceptor.RuleBasedTransactionAttribute;

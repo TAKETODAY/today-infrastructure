@@ -28,7 +28,7 @@ import javax.cache.annotation.CacheMethodDetails;
 
 import infra.cache.jcache.AbstractJCacheTests;
 import infra.core.annotation.AnnotationUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

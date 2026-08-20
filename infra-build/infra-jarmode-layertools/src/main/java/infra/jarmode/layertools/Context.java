@@ -30,7 +30,7 @@ import java.security.ProtectionDomain;
 import java.util.Locale;
 import java.util.jar.JarFile;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Context for use by commands.

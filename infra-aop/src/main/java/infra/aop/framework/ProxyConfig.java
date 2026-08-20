@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenience superclass for configuration used in creating proxies,

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.testfixture.env.MockPropertySource;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.PlaceholderResolutionException;
 
 import static infra.core.env.Environment.DEFAULT_PROFILE;

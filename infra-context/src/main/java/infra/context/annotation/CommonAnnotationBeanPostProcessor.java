@@ -75,7 +75,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.jndi.support.SimpleJndiBeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

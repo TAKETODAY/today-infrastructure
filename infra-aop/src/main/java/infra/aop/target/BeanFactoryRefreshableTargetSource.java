@@ -19,7 +19,7 @@
 package infra.aop.target;
 
 import infra.beans.factory.BeanFactory;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Refreshable TargetSource that fetches fresh target beans from a BeanFactory.

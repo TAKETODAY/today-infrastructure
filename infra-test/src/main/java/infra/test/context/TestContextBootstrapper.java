@@ -20,7 +20,7 @@ package infra.test.context;
 
 import java.util.List;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.support.AbstractTestContextBootstrapper;
 import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.web.WebAppConfiguration;

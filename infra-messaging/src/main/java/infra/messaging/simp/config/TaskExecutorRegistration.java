@@ -20,7 +20,7 @@ package infra.messaging.simp.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**

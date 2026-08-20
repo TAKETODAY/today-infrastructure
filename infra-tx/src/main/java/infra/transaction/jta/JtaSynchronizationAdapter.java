@@ -20,7 +20,7 @@ package infra.transaction.jta;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.transaction.support.TransactionSynchronization;

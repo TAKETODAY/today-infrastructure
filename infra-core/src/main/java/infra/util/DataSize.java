@@ -25,8 +25,6 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
-
 /**
  * A data size, such as '12MB'. This class models data size in terms of
  * bytes and is immutable and thread-safe.

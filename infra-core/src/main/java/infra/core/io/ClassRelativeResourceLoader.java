@@ -18,7 +18,7 @@
 
 package infra.core.io;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

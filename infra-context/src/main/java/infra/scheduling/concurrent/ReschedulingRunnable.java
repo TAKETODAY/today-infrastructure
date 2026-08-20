@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.Trigger;
 import infra.scheduling.support.DelegatingErrorHandlingRunnable;
 import infra.scheduling.support.SimpleTriggerContext;

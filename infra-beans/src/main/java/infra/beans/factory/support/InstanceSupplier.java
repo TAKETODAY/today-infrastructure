@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingSupplier;
 

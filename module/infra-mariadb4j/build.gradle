@@ -1,4 +1,4 @@
-description = ""
+description = "Infra Mariadb4j Support"
 
 dependencies {
   api project(":infra-context")

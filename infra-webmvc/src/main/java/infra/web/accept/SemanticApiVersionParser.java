@@ -21,7 +21,7 @@ package infra.web.accept;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Parser for semantic API versioning with  a major, minor, and patch values.

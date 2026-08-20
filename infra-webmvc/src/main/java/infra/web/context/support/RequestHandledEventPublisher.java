@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.RequestCompletedListener;
 

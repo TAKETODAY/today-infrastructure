@@ -23,7 +23,7 @@ import java.util.Objects;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.core.AttributeAccessor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A hint that describes the need for reflection on a {@link Method} or

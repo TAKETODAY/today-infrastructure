@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.beans.BeanUtils;
 import infra.jdbc.core.RowMapper;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A concrete variant of {@link SqlQuery} which can be configured

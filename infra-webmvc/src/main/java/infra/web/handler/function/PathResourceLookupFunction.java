@@ -27,7 +27,7 @@ import java.util.function.Function;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.http.server.PathContainer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.resource.ResourceHandlerUtils;
 import infra.web.util.UriUtils;
 import infra.web.util.pattern.PathPattern;

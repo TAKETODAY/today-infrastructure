@@ -31,7 +31,7 @@ import infra.core.io.FileSystemResource;
 import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;

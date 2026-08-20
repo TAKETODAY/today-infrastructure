@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import infra.beans.factory.FactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.support.DelegatingErrorHandlingRunnable;
 import infra.scheduling.support.TaskUtils;
 import infra.util.ObjectUtils;

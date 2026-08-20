@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import infra.aop.TargetSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link TargetSource} implementation that

@@ -47,7 +47,7 @@ import javax.xml.transform.stream.StreamSource;
 import infra.beans.BeansException;
 import infra.context.ApplicationContextException;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

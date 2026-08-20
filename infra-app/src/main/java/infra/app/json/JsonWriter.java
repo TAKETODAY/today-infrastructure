@@ -35,7 +35,7 @@ import java.util.function.UnaryOperator;
 
 import infra.app.json.JsonValueWriter.Series;
 import infra.app.json.JsonWriter.Member.Extractor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

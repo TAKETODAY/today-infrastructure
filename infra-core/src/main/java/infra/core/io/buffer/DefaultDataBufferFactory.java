@@ -21,7 +21,7 @@ package infra.core.io.buffer;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of the {@code DataBufferFactory} interface. Allows for

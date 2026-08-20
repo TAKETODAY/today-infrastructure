@@ -56,7 +56,7 @@ import infra.bytecode.proxy.MethodProxy;
 import infra.bytecode.proxy.NoOp;
 import infra.bytecode.transform.TransformingClassGenerator;
 import infra.core.SmartClassLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.stereotype.Component;

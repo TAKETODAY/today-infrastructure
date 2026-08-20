@@ -37,7 +37,7 @@ import infra.context.ApplicationContextAware;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.resource.ResourceHandlerUtils;
 

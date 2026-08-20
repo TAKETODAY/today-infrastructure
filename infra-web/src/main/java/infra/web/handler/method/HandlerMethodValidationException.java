@@ -29,7 +29,7 @@ import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.core.MethodParameter;
 import infra.http.HttpStatus;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.validation.method.MethodValidationResult;
 import infra.validation.method.ParameterErrors;
 import infra.validation.method.ParameterValidationResult;

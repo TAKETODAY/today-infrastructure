@@ -42,7 +42,7 @@ import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.core.Ordered;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

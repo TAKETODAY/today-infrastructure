@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.aot.TestAotProcessor;
 
 /**

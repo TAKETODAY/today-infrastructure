@@ -27,7 +27,7 @@ import infra.context.event.ApplicationListenerMethodAdapter;
 import infra.context.event.EventListener;
 import infra.context.event.GenericApplicationListener;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

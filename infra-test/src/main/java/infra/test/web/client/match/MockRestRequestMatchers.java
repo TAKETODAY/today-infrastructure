@@ -29,7 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.client.ClientHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.RequestMatcher;
 import infra.util.MultiValueMap;

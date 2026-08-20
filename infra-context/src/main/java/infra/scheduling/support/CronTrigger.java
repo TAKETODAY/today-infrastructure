@@ -26,7 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.TimeZone;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.Trigger;
 import infra.scheduling.TriggerContext;
 

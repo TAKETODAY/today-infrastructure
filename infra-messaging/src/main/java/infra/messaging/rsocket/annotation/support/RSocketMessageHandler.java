@@ -33,7 +33,7 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageDeliveryException;
 import infra.messaging.handler.CompositeMessageCondition;

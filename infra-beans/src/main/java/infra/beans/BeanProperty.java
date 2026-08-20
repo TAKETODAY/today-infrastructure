@@ -27,7 +27,7 @@ import java.util.Optional;
 import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.reflect.Property;
 import infra.reflect.PropertyAccessor;
 import infra.reflect.SetterMethod;

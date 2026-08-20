@@ -24,7 +24,7 @@ import java.io.Writer;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of {@link MessageConverter} that can read and write JSON

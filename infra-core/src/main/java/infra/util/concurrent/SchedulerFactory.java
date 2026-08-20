@@ -16,7 +16,7 @@
 
 package infra.util.concurrent;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * A factory interface for creating instances of {@link Scheduler}. This interface

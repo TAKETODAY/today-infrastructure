@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Map-based implementation of the BindingResult interface,

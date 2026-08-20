@@ -24,7 +24,7 @@ import infra.app.health.contributor.AbstractHealthIndicator;
 import infra.app.health.contributor.Health;
 import infra.app.health.contributor.HealthIndicator;
 import infra.app.health.contributor.Status;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

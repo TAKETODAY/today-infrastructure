@@ -30,7 +30,7 @@ import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.MethodIntrospector;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.DynamicPropertyRegistrar;
 import infra.test.context.DynamicPropertyRegistry;
 import infra.test.context.DynamicPropertySource;

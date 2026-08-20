@@ -20,8 +20,8 @@ package infra.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import infra.lang.Assert;
 import infra.logging.Logger;
+import infra.util.Assert;
 
 /**
  * Simple AOP Alliance {@code MethodInterceptor} that can be introduced

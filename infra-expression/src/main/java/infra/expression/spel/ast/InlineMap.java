@@ -29,7 +29,7 @@ import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelNode;
 import infra.expression.spel.support.StandardEvaluationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represent a map in an expression, e.g. '{name:'foo',age:12}'

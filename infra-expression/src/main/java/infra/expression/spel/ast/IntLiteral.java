@@ -21,7 +21,7 @@ package infra.expression.spel.ast;
 import infra.bytecode.MethodVisitor;
 import infra.expression.spel.CodeFlow;
 import infra.expression.TypedValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Expression language AST node that represents an integer literal.

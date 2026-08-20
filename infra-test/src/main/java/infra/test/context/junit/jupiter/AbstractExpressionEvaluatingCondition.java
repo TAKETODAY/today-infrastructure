@@ -36,7 +36,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.support.GenericApplicationContext;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.env.Environment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext;

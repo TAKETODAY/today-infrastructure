@@ -22,7 +22,7 @@ import infra.aop.TargetSource;
 import infra.aop.framework.Advised;
 import infra.aop.framework.AopProxyUtils;
 import infra.aop.support.AopUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

@@ -43,7 +43,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.core.NamedThreadLocal;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.scripting.support.StandardScriptEvalException;
 import infra.scripting.support.StandardScriptUtils;

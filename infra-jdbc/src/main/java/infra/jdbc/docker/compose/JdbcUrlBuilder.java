@@ -21,7 +21,7 @@ package infra.jdbc.docker.compose;
 import org.jspecify.annotations.Nullable;
 
 import infra.docker.compose.core.RunningService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

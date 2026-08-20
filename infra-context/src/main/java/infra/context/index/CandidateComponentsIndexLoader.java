@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import infra.core.io.PropertiesUtils;
 import infra.core.io.UrlResource;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ConcurrentReferenceHashMap;

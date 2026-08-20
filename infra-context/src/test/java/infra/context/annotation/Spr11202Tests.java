@@ -31,7 +31,7 @@ import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

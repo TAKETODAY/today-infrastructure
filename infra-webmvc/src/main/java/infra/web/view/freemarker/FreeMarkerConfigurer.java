@@ -29,7 +29,7 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import infra.beans.factory.InitializingBean;
 import infra.context.ResourceLoaderAware;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 

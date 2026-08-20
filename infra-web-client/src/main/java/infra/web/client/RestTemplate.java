@@ -48,7 +48,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MimeTypeUtils;
 import infra.web.util.AbstractUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;

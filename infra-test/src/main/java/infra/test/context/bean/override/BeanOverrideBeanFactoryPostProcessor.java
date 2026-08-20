@@ -43,7 +43,7 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.aot.AbstractAotProcessor;
 import infra.core.Ordered;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

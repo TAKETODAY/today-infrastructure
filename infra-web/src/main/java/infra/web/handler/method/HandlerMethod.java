@@ -43,7 +43,7 @@ import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

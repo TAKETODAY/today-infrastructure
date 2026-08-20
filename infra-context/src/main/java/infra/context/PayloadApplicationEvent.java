@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 import infra.core.ResolvableType;
 import infra.core.ResolvableTypeProvider;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An {@link ApplicationEvent} that carries an arbitrary payload.

@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 
 import infra.jdbc.config.DatabaseDriver;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

@@ -24,8 +24,11 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
 import infra.core.ReactiveStreams;
-import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
+import infra.util.Feature;
+import infra.util.TodayStrategies;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * An enumeration of possible types of application.
@@ -75,8 +78,7 @@ public enum ApplicationType {
       }
     }
 
-    ClassLoader classLoader = ApplicationType.class.getClassLoader();
-    if (ClassUtils.isPresent(WEB_MVC_INDICATOR_CLASS, classLoader)) {
+    if (isPresent(Feature.WEB_MVC)) {
       return ApplicationType.WEB;
     }
     return ApplicationType.NORMAL;

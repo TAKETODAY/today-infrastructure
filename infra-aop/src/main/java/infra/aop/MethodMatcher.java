@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Part of a {@link Pointcut}: Checks whether the target method is eligible for advice.

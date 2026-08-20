@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.util.pattern.PatternParseException.PatternMessage;
 
 /**

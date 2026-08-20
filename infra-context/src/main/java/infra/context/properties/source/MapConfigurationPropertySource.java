@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import infra.core.env.MapPropertySource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link ConfigurationPropertySource} backed by a {@link Map} and using standard name

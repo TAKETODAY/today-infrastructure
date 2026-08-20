@@ -25,7 +25,7 @@ import java.util.concurrent.Callable;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.core.task.AsyncTaskExecutor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**

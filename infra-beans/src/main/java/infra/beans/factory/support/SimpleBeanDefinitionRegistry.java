@@ -28,7 +28,7 @@ import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.core.DefaultAliasRegistry;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

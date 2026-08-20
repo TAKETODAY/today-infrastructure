@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import infra.core.task.TaskDecorator;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Composite {@link TaskDecorator} that delegates to other task decorators.

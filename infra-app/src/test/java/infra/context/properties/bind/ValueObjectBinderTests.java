@@ -43,7 +43,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.test.tools.SourceFile;
 import infra.core.test.tools.TestCompiler;
 import infra.format.annotation.DateTimeFormat;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

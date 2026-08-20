@@ -27,7 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import infra.core.io.WritableResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * JSON content that can be written out.

@@ -30,7 +30,7 @@ import infra.docker.compose.core.DockerCliInspectResponse.Config;
 import infra.docker.compose.core.DockerCliInspectResponse.HostConfig;
 import infra.docker.compose.core.DockerCliInspectResponse.HostPort;
 import infra.docker.compose.core.DockerCliInspectResponse.NetworkSettings;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

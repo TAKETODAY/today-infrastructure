@@ -38,7 +38,7 @@ import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

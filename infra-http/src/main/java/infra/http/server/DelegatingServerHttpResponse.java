@@ -23,7 +23,7 @@ import java.io.OutputStream;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Implementation of {@code ServerHttpResponse} that delegates all calls to a

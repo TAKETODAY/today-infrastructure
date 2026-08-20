@@ -25,7 +25,7 @@ import javax.sql.DataSource;
 
 import infra.dao.DataAccessException;
 import infra.jdbc.datasource.DataSourceUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Strategy used to populate, initialize, or clean up a database.

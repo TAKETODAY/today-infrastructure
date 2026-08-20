@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**

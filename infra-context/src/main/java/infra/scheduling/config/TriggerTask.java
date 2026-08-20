@@ -18,7 +18,7 @@
 
 package infra.scheduling.config;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;
 

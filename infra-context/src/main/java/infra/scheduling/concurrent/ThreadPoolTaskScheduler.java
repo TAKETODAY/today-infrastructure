@@ -41,7 +41,7 @@ import java.util.concurrent.TimeoutException;
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskRejectedException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scheduling.SchedulingTaskExecutor;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;

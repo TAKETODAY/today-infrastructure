@@ -29,7 +29,7 @@ import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.LoggingCodecSupport;
 import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;

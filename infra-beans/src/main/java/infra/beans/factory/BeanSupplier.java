@@ -22,7 +22,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

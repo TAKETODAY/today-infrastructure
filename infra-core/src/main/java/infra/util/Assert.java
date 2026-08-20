@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.lang;
+package infra.util;
 
 import org.jspecify.annotations.Nullable;
 
@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import infra.util.CollectionUtils;
-import infra.util.ObjectUtils;
-import infra.util.StringUtils;
+import infra.lang.Contract;
 
 /**
  * Assertion utility class that assists in validating arguments.

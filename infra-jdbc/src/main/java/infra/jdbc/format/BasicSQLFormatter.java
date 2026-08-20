@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Performs formatting of basic SQL statements (DML + query).

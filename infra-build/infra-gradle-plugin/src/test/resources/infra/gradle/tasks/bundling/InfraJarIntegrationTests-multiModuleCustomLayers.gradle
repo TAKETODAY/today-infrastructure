@@ -34,7 +34,7 @@ infraJar {
 				includeProjectDependencies()
 			}
 			intoLayer("commons-dependencies") {
-				include "org.apache.commons:*" 
+				include "org.apache.commons:*"
 			}
 			intoLayer("dependencies")
 		}
@@ -52,7 +52,7 @@ dependencies {
 	implementation(project(':bravo'))
 	implementation("com.example:library:1.0-SNAPSHOT")
 	implementation("org.apache.commons:commons-lang3:3.9")
-	implementation("cn.taketoday:today-core:5.0-Draft.4")
+	implementation("cn.taketoday:infra-core:5.0-Draft.6")
 }
 
 task listLayers(type: JavaExec) {

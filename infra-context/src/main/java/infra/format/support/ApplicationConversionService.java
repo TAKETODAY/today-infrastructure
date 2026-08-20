@@ -53,7 +53,7 @@ import infra.format.Formatter;
 import infra.format.FormatterRegistry;
 import infra.format.Parser;
 import infra.format.Printer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

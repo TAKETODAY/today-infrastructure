@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
 import infra.logging.Logger;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StopWatch;
 import infra.util.StringUtils;

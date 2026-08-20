@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents a WebSocket close status code and reason. Status codes in the 1xxx range are

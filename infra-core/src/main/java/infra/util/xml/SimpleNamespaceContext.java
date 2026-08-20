@@ -30,7 +30,7 @@ import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple {@code javax.xml.namespace.NamespaceContext} implementation.

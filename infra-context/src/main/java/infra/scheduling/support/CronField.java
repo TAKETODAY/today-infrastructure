@@ -28,7 +28,7 @@ import java.time.temporal.ValueRange;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

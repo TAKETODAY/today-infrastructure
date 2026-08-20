@@ -16,7 +16,7 @@
 
 package infra.persistence.sql;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents a composite logical restriction that combines two

@@ -34,7 +34,7 @@ import infra.http.HeadersMultiValueMap;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.mock.MockResponse;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;

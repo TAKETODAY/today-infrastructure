@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Compares objects based on an arbitrary class order. Allows objects to be sorted based

@@ -20,7 +20,7 @@ package infra.app.logging;
 
 import java.util.Comparator;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * An implementation of {@link Comparator} for comparing {@link LoggerConfiguration}s.

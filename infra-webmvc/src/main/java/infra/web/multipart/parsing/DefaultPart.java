@@ -40,7 +40,7 @@ import java.util.Objects;
 import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.web.MultipartException;
 import infra.web.multipart.Part;

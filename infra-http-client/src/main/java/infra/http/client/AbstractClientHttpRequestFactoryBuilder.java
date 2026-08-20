@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.LambdaSafe;
 
 /**

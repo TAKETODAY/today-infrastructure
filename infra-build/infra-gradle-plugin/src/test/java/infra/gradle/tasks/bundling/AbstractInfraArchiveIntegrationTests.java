@@ -56,6 +56,7 @@ import java.util.zip.ZipEntry;
 import infra.app.loader.tools.FileUtils;
 import infra.app.loader.tools.JarModeLibrary;
 import infra.gradle.testkit.GradleBuild;
+import infra.lang.Version;
 import infra.util.FileSystemUtils;
 import infra.util.StringUtils;
 
@@ -359,7 +360,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
       assertThat(jarFile.getEntry(layerToolsJar)).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "commons-lang3-3.9.jar")).isNotNull();
-      assertThat(jarFile.getEntry(this.libPath + "today-core-5.0-Draft.4.jar")).isNotNull();
+      assertThat(jarFile.getEntry(this.libPath + "infra-core-5.0-Draft.6.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "library-1.0-SNAPSHOT.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "example/Main.class")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "static/file.txt")).isNotNull();
@@ -371,7 +372,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     Set<String> expectedDependencies = new TreeSet<>();
     expectedDependencies.add(this.libPath + "commons-lang3-3.9.jar");
     expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
-    expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
+    expectedDependencies.add(this.libPath + "infra-core-5.0-Draft.6.jar");
     Set<String> expectedSnapshotDependencies = new TreeSet<>();
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");
@@ -406,7 +407,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
       assertThat(jarFile.getEntry(this.libPath + "bravo-1.2.3.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "charlie-1.2.3.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "commons-lang3-3.9.jar")).isNotNull();
-      assertThat(jarFile.getEntry(this.libPath + "today-core-5.0-Draft.4.jar")).isNotNull();
+      assertThat(jarFile.getEntry(this.libPath + "infra-core-5.0-Draft.6.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "library-1.0-SNAPSHOT.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "example/Main.class")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "static/file.txt")).isNotNull();
@@ -418,7 +419,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     Set<String> expectedDependencies = new TreeSet<>();
     expectedDependencies.add(this.libPath + "commons-lang3-3.9.jar");
     expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
-    expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
+    expectedDependencies.add(this.libPath + "infra-core-5.0-Draft.6.jar");
     Set<String> expectedSnapshotDependencies = new TreeSet<>();
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
@@ -448,7 +449,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
       assertThat(jarFile.getEntry(layerToolsJar)).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "commons-lang3-3.9.jar")).isNotNull();
-      assertThat(jarFile.getEntry(this.libPath + "today-core-5.0-Draft.4.jar")).isNotNull();
+      assertThat(jarFile.getEntry(this.libPath + "infra-core-5.0-Draft.6.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "library-1.0-SNAPSHOT.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "example/Main.class")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "static/file.txt")).isNotNull();
@@ -460,7 +461,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     assertThat(indexedLayers.keySet()).containsExactlyElementsOf(layerNames);
     Set<String> expectedDependencies = new TreeSet<>();
     expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
-    expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
+    expectedDependencies.add(this.libPath + "infra-core-5.0-Draft.6.jar");
     List<String> expectedSnapshotDependencies = new ArrayList<>();
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");
@@ -497,7 +498,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
       assertThat(jarFile.getEntry(this.libPath + "bravo-1.2.3.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "charlie-1.2.3.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "commons-lang3-3.9.jar")).isNotNull();
-      assertThat(jarFile.getEntry(this.libPath + "today-core-5.0-Draft.4.jar")).isNotNull();
+      assertThat(jarFile.getEntry(this.libPath + "infra-core-5.0-Draft.6.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.libPath + "library-1.0-SNAPSHOT.jar")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "example/Main.class")).isNotNull();
       assertThat(jarFile.getEntry(this.classesPath + "static/file.txt")).isNotNull();
@@ -513,7 +514,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     expectedSubprojectDependencies.add(this.libPath + "charlie-1.2.3.jar");
     Set<String> expectedDependencies = new TreeSet<>();
     expectedDependencies.add(this.libPath + "jspecify-1.0.0.jar");
-    expectedDependencies.add(this.libPath + "today-core-5.0-Draft.4.jar");
+    expectedDependencies.add(this.libPath + "infra-core-5.0-Draft.6.jar");
     List<String> expectedSnapshotDependencies = new ArrayList<>();
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");

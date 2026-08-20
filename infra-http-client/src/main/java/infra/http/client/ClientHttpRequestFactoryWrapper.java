@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import infra.http.HttpMethod;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link ClientHttpRequestFactory} implementations

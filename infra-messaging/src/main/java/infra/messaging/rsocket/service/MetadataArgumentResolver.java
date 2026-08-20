@@ -19,7 +19,7 @@ package infra.messaging.rsocket.service;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.MimeType;
 
 /**

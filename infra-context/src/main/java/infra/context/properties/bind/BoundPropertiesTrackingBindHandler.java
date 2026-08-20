@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link BindHandler} that can be used to track bound configuration properties.

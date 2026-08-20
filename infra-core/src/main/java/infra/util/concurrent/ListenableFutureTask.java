@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A cancellable asynchronous computation.

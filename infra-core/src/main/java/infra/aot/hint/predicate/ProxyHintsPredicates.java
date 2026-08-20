@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import infra.aot.hint.ProxyHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Generator of {@link ProxyHints} predicates, testing whether the given hints

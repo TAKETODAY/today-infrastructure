@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.context.MessageSourceResolvable;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default {@link MethodValidationResult} implementation as a simple container.

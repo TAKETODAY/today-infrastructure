@@ -26,7 +26,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 import infra.bytecode.ClassReader;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * ASM {@link ClassFileTransformer} that delegates bytecode transformations

@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.SimpleAutowireCandidateResolver;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base class for health contributor configurations that can combine source beans into a

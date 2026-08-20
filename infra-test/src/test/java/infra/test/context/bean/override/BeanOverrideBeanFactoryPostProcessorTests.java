@@ -37,7 +37,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.SimpleThreadScope;
 import infra.core.Ordered;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.bean.override.convention.TestBean;
 import infra.test.util.ReflectionTestUtils;

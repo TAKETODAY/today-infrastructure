@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.TestExecutionListeners;
 import infra.test.context.junit.jupiter.JUnitConfig;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;

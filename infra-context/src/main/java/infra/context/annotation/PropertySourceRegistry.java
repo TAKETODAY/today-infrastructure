@@ -30,7 +30,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.PropertySourceDescriptor;
 import infra.core.io.PropertySourceFactory;
 import infra.core.io.PropertySourceProcessor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

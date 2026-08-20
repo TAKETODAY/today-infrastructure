@@ -30,7 +30,7 @@ import infra.cache.Cache;
 import infra.cache.support.AbstractValueAdaptingCache;
 import infra.cache.support.SimpleCacheManager;
 import infra.core.serializer.support.SerializationDelegate;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingFunction;
 
 /**

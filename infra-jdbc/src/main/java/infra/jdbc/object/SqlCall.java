@@ -29,7 +29,7 @@ import infra.jdbc.core.CallableStatementCreator;
 import infra.jdbc.core.CallableStatementCreatorFactory;
 import infra.jdbc.core.ParameterMapper;
 import infra.jdbc.core.SqlParameter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

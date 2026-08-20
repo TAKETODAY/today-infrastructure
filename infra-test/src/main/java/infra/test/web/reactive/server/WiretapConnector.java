@@ -36,7 +36,7 @@ import infra.http.reactive.client.ClientHttpRequest;
 import infra.http.reactive.client.ClientHttpResponse;
 import infra.http.reactive.client.DecoratingClientHttpRequest;
 import infra.http.reactive.client.DecoratingClientHttpResponse;
-import infra.lang.Assert;
+import infra.util.Assert;
 import reactor.core.Scannable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

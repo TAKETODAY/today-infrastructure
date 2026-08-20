@@ -20,7 +20,7 @@ package infra.scheduling.support;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ErrorHandler;
 
 /**

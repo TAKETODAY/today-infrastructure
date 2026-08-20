@@ -24,7 +24,7 @@ import infra.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcess
 import infra.beans.factory.BeanFactory;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Repository;
 
 /**

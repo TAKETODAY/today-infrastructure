@@ -43,7 +43,7 @@ import me.champeau.gradle.japicmp.JapicmpTask;
 
 /**
  * {@link Plugin} that applies the {@code "japicmp-gradle-plugin"}
- * and create tasks for all subprojects named {@code "today-*"}, diffing the public API one by one
+ * and create tasks for all subprojects named {@code "infra-*"}, diffing the public API one by one
  * and creating the reports in {@code "build/reports/api-diff/$OLDVERSION_to_$NEWVERSION/"}.
  * <p>{@code "./gradlew apiDiff -PbaselineVersion=5.1.0.RELEASE"} will output the
  * reports for the API diff between the baseline version and the current one for all modules.

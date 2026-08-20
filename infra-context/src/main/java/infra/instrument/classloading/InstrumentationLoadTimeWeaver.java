@@ -27,7 +27,7 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 
 import infra.instrument.InstrumentationSavingAgent;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

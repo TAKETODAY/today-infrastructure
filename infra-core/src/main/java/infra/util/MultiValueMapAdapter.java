@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import infra.lang.Assert;
-
 /**
  * Adapts a given {@link Map} to the {@link MultiValueMap} contract.
  *

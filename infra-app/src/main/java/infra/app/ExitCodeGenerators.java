@@ -25,7 +25,7 @@ import java.util.Iterator;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Maintains an ordered collection of {@link ExitCodeGenerator} instances and allows the

@@ -46,7 +46,7 @@ import infra.core.MethodIntrospector;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.MapCache;
 import infra.util.ObjectUtils;

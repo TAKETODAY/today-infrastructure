@@ -37,7 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link Resource} implementation for {@link java.nio.file.Path} handles,

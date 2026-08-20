@@ -23,7 +23,7 @@ import java.util.List;
 
 import infra.core.env.PropertySource;
 import infra.core.io.Resource;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Strategy interface located via {@link TodayStrategies} and used to load a

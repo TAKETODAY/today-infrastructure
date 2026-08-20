@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.Set;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Contains the result from parsing a "user" destination from a source message

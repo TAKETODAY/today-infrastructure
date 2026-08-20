@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.context.support.ApplicationObjectSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Convenient base class for {@link ViewResolver}

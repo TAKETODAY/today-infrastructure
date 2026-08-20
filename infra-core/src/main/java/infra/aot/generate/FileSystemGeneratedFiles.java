@@ -31,7 +31,7 @@ import java.util.function.Function;
 
 import infra.core.io.FileSystemResource;
 import infra.core.io.InputStreamSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.ThrowingConsumer;
 
 /**

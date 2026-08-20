@@ -40,7 +40,7 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.jdbc.core.namedparam.SimplePropertySqlParameterSource;
 import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.support.JdbcUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
 import infra.util.ReflectionUtils;

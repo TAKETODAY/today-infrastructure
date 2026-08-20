@@ -23,7 +23,7 @@ import org.aspectj.weaver.tools.TypePatternMatcher;
 import org.jspecify.annotations.Nullable;
 
 import infra.aop.ClassFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 

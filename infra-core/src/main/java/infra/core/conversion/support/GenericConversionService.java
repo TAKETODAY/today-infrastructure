@@ -44,7 +44,7 @@ import infra.core.conversion.ConverterNotFoundException;
 import infra.core.conversion.ConverterRegistry;
 import infra.core.conversion.GenericConverter;
 import infra.core.conversion.GenericConverter.ConvertiblePair;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;

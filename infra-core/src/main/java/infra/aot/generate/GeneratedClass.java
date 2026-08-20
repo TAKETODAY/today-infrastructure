@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import infra.javapoet.ClassName;
 import infra.javapoet.JavaFile;
 import infra.javapoet.TypeSpec;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A single generated class.

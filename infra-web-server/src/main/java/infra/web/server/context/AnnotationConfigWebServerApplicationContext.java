@@ -36,7 +36,7 @@ import infra.context.annotation.ClassPathBeanDefinitionScanner;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.ScopeMetadataResolver;
 import infra.core.env.ConfigurableEnvironment;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;

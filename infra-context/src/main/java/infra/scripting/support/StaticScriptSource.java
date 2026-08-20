@@ -20,7 +20,7 @@ package infra.scripting.support;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.scripting.ScriptSource;
 
 /**

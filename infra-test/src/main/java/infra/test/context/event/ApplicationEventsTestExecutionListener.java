@@ -26,7 +26,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.support.AbstractApplicationContext;
 import infra.core.Conventions;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestContext;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.support.AbstractTestExecutionListener;

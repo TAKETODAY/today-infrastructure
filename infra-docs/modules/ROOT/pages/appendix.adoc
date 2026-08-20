@@ -6,7 +6,7 @@
 [[appendix-infra-properties]]
 == TODAY Properties
 
-{today-framework-api}/core/TodayStrategies.html[`TodayStrategies`] 是控制基础架构某些低级方面的属性的静态持有者。
+{today-framework-api}/util/TodayStrategies.html[`TodayStrategies`] 是控制基础架构某些低级方面的属性的静态持有者。
 用户可以通过JVM系统属性配置这些属性，也可以通过 `TodayStrategies.setProperty(String key, String value)` 方法。
 如果部署环境不允许自定义JVM系统属性，则可能需要后者。作为一种选择，这些属性可以在 `today.properties` 文件。
 属性文件放在类路径的根目录中——例如，部署在应用程序的JAR文件中。

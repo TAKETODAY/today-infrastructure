@@ -30,7 +30,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.function.IOConsumer;
 
 /**

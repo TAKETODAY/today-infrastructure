@@ -39,8 +39,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 

@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**

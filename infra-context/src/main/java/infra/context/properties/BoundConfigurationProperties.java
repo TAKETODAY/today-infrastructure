@@ -30,7 +30,7 @@ import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.context.ApplicationContext;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Bean to record and provide bound

@@ -47,7 +47,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 import infra.core.ssl.pem.PemPrivateKeyParser.DerElement.TagType;
 import infra.core.ssl.pem.PemPrivateKeyParser.DerElement.ValueType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Parser for PKCS private key files in PEM format.

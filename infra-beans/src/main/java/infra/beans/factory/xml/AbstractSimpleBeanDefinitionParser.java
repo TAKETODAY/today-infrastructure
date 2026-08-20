@@ -28,7 +28,7 @@ import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.core.Conventions;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

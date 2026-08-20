@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A reference to a Docker Compose file (usually named {@code compose.yaml}).

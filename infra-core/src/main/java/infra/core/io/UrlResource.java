@@ -34,7 +34,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 

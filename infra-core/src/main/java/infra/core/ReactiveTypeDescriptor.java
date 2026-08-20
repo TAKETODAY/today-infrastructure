@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Describes the semantics of a reactive type including boolean checks for

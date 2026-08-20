@@ -24,7 +24,7 @@ import java.util.TreeMap;
 
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.web.HttpContext;
 import infra.web.mock.api.MockIndicator;

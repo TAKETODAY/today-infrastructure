@@ -28,7 +28,7 @@ import infra.core.ResolvableType;
 import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
-import infra.lang.Assert;
+import infra.util.Assert;
 import org.jspecify.annotations.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;

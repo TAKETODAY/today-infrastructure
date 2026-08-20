@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
 import infra.http.ResponseCookie.Builder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.HttpContext;

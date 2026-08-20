@@ -40,7 +40,7 @@ import infra.context.properties.bind.Binder;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.core.io.DefaultResourceLoader;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.mock.env.MockPropertySource;
 

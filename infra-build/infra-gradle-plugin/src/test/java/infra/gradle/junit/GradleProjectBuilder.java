@@ -26,7 +26,7 @@ import org.gradle.testfixtures.internal.ProjectBuilderImpl;
 
 import java.io.File;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

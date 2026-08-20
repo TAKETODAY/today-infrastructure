@@ -45,8 +45,8 @@ import java.util.function.Consumer;
 
 import infra.bytecode.core.CodeGenerationException;
 import infra.core.SmartClassLoader;
-import infra.lang.TodayStrategies;
 import infra.util.ReflectionUtils;
+import infra.util.TodayStrategies;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.

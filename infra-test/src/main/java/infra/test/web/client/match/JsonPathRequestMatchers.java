@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import infra.http.client.ClientHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.test.util.JsonPathExpectationsHelper;
 import infra.test.web.client.RequestMatcher;

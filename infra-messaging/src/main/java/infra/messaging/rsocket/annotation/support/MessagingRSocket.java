@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.messaging.ReactiveMessageHandler;

@@ -27,7 +27,7 @@ import infra.aot.hint.TypeReference;
 import infra.aot.hint.annotation.ReflectiveProcessor;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 import static infra.aot.hint.ExecutableMode.INVOKE;
 

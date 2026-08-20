@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import infra.core.io.UrlResource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Contains auto-configuration replacements used to handle deprecated or moved

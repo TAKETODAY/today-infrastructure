@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Used to {@linkplain #setDatabasePopulator set up} a database during

@@ -32,7 +32,7 @@ import infra.context.annotation.ClassPathScanningCandidateComponentProvider;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.filter.AnnotationTypeFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;

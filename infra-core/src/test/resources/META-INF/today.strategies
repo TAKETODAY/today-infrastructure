@@ -7,8 +7,8 @@ infra.lang.MyDummyFactory1
 java.lang.String=\
 infra.lang.MyDummyFactory1
 
-infra.lang.DummyPackagePrivateFactory=\
-infra.lang.DummyPackagePrivateFactory
+infra.util.DummyPackagePrivateFactory=\
+infra.util.DummyPackagePrivateFactory
 
 infra.util.concurrent.Scheduler=\
 infra.util.concurrent.SchedulerFactoryTests.MyExecutor

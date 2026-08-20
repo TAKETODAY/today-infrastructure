@@ -20,7 +20,7 @@ package infra.core.testfixture.io.buffer;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferWrapper;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * DataBuffer implementation created by {@link LeakAwareDataBufferFactory}.

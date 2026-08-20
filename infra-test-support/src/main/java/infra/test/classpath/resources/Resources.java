@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.FileSystemUtils;
 import infra.util.function.ThrowingConsumer;
 

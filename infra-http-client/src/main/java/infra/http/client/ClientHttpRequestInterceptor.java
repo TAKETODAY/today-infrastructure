@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import infra.http.HttpRequest;
 import infra.http.client.support.DecoratingHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Contract to intercept client-side HTTP requests. Implementations can be

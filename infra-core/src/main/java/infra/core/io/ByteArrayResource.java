@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link Resource} implementation for a given byte array.

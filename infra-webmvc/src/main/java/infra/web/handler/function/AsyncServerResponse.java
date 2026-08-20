@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 
 /**

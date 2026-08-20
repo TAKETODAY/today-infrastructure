@@ -25,7 +25,7 @@ import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
 import org.mockito.mock.MockCreationSettings;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Reset strategy used on a mock bean.

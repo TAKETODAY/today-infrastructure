@@ -30,7 +30,7 @@ import infra.aop.support.DefaultPointcutAdvisor;
 import infra.aop.support.annotation.AnnotationMatchingPointcut;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.config.BeanPostProcessor;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.validation.annotation.Validated;
 import infra.validation.method.MethodValidationException;
 import infra.validation.method.MethodValidationResult;

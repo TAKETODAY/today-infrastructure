@@ -38,7 +38,7 @@ import infra.bytecode.proxy.MethodInterceptor;
 import infra.bytecode.proxy.MethodProxy;
 import infra.bytecode.proxy.NoOp;
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

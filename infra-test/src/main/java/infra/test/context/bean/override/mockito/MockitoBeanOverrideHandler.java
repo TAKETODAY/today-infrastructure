@@ -34,7 +34,7 @@ import java.util.Set;
 import infra.beans.factory.config.BeanDefinition;
 import infra.core.ResolvableType;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.bean.override.BeanOverrideHandler;
 import infra.test.context.bean.override.BeanOverrideStrategy;
 import infra.util.ClassUtils;

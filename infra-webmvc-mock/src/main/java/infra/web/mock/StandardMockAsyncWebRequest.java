@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.mock.api.AsyncContext;

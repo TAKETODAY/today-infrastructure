@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ProblemDetail;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Default implementation of {@link ErrorResponse.Builder}.

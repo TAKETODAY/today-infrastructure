@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 
 import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

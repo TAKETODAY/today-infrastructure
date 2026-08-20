@@ -27,7 +27,7 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.FactoryBean;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;

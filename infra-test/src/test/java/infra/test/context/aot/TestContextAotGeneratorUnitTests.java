@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static infra.test.context.aot.TestContextAotGenerator.FAIL_ON_ERROR_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;

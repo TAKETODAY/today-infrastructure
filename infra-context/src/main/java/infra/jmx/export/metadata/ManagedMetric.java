@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.jmx.export.assembler.MetadataMBeanInfoAssembler;
 import infra.jmx.support.MetricType;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Metadata that indicates to expose a given bean property as a JMX attribute,

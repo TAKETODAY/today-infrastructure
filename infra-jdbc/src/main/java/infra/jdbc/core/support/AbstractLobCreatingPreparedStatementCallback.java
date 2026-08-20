@@ -26,7 +26,7 @@ import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.PreparedStatementCallback;
 import infra.jdbc.support.lob.LobCreator;
 import infra.jdbc.support.lob.LobHandler;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Abstract {@link PreparedStatementCallback} implementation that manages a {@link LobCreator}.

@@ -21,7 +21,7 @@ package infra.app.loader.tools;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A named layer used to separate the jar when creating a Docker image.

@@ -46,7 +46,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.Order;
 import infra.core.io.DescriptiveResource;
 import infra.core.io.Resource;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;

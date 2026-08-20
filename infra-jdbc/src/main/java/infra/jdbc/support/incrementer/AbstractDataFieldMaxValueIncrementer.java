@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 import infra.beans.factory.InitializingBean;
 import infra.dao.DataAccessException;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Base implementation of {@link DataFieldMaxValueIncrementer} that delegates

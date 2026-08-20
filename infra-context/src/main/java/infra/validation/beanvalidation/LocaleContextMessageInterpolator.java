@@ -21,7 +21,7 @@ package infra.validation.beanvalidation;
 import java.util.Locale;
 
 import infra.core.i18n.LocaleContextHolder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import jakarta.validation.MessageInterpolator;
 
 /**

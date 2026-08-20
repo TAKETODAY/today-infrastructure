@@ -28,7 +28,6 @@ import java.security.MessageDigest;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
-import infra.lang.Assert;
 import infra.lang.Constant;
 
 /**

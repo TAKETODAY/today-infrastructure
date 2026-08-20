@@ -29,7 +29,7 @@ import java.util.List;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.web.mock.MvcResult;

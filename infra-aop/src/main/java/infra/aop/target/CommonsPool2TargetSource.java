@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.Serial;
 
 import infra.aop.TargetSource;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link TargetSource} implementation that holds objects in a

@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Representation of a WebSocket message.

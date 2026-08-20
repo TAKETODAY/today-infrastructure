@@ -21,7 +21,7 @@ package infra.context.properties.source;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
 import infra.util.ObjectUtils;

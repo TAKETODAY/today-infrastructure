@@ -44,7 +44,7 @@ import infra.core.io.InputStreamSource;
 import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.format.support.ApplicationConversionService;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.OriginProvider;

@@ -20,7 +20,7 @@ package infra.beans.factory.parsing;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Represents a problem with a bean definition configuration.

@@ -25,7 +25,7 @@ import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.aot.ContextAotProcessor;
 import infra.context.support.GenericApplicationContext;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.function.ThrowingSupplier;

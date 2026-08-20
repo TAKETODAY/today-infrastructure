@@ -21,7 +21,7 @@ package infra.cache.interceptor;
 import org.jspecify.annotations.Nullable;
 
 import infra.cache.Cache;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

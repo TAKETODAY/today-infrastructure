@@ -20,7 +20,7 @@ package infra.testcontainers.service.connection;
 
 import java.lang.reflect.Field;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.origin.Origin;
 import infra.util.ClassUtils;
 

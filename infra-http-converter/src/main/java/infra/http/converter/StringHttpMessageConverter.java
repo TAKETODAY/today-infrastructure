@@ -30,7 +30,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 
 /**

@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import infra.http.client.ClientHttpRequest;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple {@code RequestExpectationManager} that matches requests to expectations

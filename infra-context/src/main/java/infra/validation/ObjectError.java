@@ -24,7 +24,7 @@ import java.io.Serial;
 
 import infra.beans.PropertyAccessException;
 import infra.context.support.DefaultMessageSourceResolvable;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Encapsulates an object error, that is, a global reason for rejecting

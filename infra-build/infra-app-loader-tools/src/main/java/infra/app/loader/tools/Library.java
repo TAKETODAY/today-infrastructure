@@ -25,7 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Encapsulates information about a single library that may be packed into the archive.

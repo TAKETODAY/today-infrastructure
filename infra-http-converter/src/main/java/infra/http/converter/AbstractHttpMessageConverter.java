@@ -32,7 +32,7 @@ import infra.http.HttpLogging;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.StreamingHttpOutputMessage;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 
 /**

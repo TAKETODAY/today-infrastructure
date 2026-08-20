@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import infra.http.MediaType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;

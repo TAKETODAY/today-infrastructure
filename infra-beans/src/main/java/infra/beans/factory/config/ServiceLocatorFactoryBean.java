@@ -33,7 +33,7 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.NoSuchBeanDefinitionException;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.lang.Constant;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;

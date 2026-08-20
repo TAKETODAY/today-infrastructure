@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.core.ResolvableType;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.bean.override.BeanOverrideHandler;
 import infra.test.context.bean.override.BeanOverrideProcessor;
 

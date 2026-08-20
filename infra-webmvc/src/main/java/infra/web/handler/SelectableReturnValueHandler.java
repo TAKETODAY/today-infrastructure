@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import infra.core.ArraySizeTrimmer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;

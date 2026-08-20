@@ -29,7 +29,7 @@ import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.BooleanTypedValue;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * The operator 'instanceof' checks if an object is of the class specified in the right

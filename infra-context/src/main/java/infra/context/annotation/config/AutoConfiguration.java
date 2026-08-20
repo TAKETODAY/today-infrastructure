@@ -31,7 +31,7 @@ import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.annotation.AliasFor;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 /**
  * Indicates that a class provides configuration that can be automatically applied by

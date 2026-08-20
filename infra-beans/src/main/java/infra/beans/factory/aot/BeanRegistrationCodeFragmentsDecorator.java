@@ -29,7 +29,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ResolvableType;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * A {@link BeanRegistrationCodeFragments} decorator implementation. Typically

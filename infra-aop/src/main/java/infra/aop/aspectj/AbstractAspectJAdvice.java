@@ -45,7 +45,7 @@ import infra.aop.support.ComposablePointcut;
 import infra.aop.support.StaticMethodMatcher;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;

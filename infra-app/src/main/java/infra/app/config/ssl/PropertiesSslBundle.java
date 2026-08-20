@@ -33,7 +33,7 @@ import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.core.io.ResourceLoader;
 import infra.core.style.ToStringBuilder;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * {@link SslBundle} backed by {@link JksSslBundleProperties} or

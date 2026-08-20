@@ -21,7 +21,7 @@ package infra.aop.support;
 import java.io.Serializable;
 
 import infra.aop.ClassFilter;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Simple ClassFilter implementation that passes classes (and optionally subclasses).

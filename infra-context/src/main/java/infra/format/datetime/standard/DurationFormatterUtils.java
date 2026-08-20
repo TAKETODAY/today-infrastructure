@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 import infra.format.annotation.DurationFormat.Style;
 import infra.format.annotation.DurationFormat.Unit;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

@@ -30,7 +30,7 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.mail.MailSender;
 import infra.mail.config.MailProperties.Ssl;
 import infra.mail.javamail.JavaMailSender;

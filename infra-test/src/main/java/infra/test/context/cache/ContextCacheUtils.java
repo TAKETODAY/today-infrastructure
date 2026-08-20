@@ -18,7 +18,7 @@
 
 package infra.test.context.cache;
 
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.cache.ContextCache.PauseMode;
 import infra.util.StringUtils;

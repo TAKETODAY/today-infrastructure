@@ -29,7 +29,7 @@ import java.util.Set;
 import infra.beans.BeanUtils;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**

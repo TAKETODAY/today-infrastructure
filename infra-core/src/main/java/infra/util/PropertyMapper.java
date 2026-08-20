@@ -27,7 +27,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import infra.lang.Assert;
 import infra.util.function.SingletonSupplier;
 
 import static infra.util.function.SupplierUtils.always;

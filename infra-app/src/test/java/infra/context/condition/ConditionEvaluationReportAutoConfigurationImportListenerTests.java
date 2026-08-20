@@ -30,7 +30,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.config.AutoConfigurationImportEvent;
 import infra.context.annotation.config.AutoConfigurationImportListener;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

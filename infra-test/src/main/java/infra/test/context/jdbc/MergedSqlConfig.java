@@ -27,7 +27,7 @@ import infra.core.annotation.AnnotationAttributes;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.style.ToStringBuilder;
 import infra.jdbc.datasource.init.ScriptUtils;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.context.TestContextAnnotationUtils;
 
 /**

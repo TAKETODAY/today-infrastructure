@@ -25,7 +25,7 @@ import java.util.List;
 
 import infra.aot.hint.RuntimeHints;
 import infra.context.properties.bind.BindableRuntimeHintsRegistrar;
-import infra.lang.TodayStrategies;
+import infra.util.TodayStrategies;
 import infra.ui.template.PathBasedTemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.util.ClassUtils;

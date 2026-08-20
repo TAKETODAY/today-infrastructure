@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import infra.http.DecoratingHttpMessage;
 import infra.http.HttpStatusCode;
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * Decorator for {@link ClientHttpResponse} that allows for wrapping and extending

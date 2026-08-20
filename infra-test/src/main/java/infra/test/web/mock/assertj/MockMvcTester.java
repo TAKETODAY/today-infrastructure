@@ -32,7 +32,7 @@ import infra.context.ApplicationContext;
 import infra.http.HttpMethod;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.test.json.JsonConverterDelegate;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;

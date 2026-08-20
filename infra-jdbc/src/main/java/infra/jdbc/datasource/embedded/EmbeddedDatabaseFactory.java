@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 
 import infra.jdbc.datasource.SimpleDriverDataSource;
 import infra.jdbc.datasource.init.DatabasePopulator;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

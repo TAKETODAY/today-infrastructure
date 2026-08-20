@@ -20,7 +20,7 @@ package infra.context.properties.source;
 
 import java.util.function.Predicate;
 
-import infra.lang.Assert;
+import infra.util.Assert;
 
 /**
  * The state of content from a {@link ConfigurationPropertySource}.

@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 import infra.core.OrderedSupport;
-import infra.lang.Assert;
+import infra.util.Assert;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HttpContext;
 
