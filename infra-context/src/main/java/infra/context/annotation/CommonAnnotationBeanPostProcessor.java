@@ -81,7 +81,6 @@ import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import jakarta.annotation.Resource;
-import jakarta.ejb.EJB;
 
 import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
 
@@ -103,11 +102,6 @@ import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
  * equivalent to standard Jakarta EE resource injection for {@code name} references
  * and default names as well. The target beans can be simple POJOs, with no special
  * requirements other than the type having to match.
- *
- * <p>This post-processor also supports the EJB 3 {@link jakarta.ejb.EJB} annotation,
- * analogous to {@link jakarta.annotation.Resource}, with the capability to
- * specify both a local bean name and a global JNDI name for fallback retrieval.
- * The target beans can be plain POJOs as well as EJB 3 Session Beans in this case.
  *
  * <p>For default usage, resolving resource names as Framework bean names,
  * simply define the following in your application context:
@@ -163,9 +157,6 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   @Nullable
   private static final Class<? extends Annotation> javaxResourceType;
 
-  @Nullable
-  private static final Class<? extends Annotation> ejbAnnotationType;
-
   static {
     jakartaResourceType = loadAnnotationType("jakarta.annotation.Resource");
     if (jakartaResourceType != null) {
@@ -177,10 +168,6 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       resourceAnnotationTypes.add(javaxResourceType);
     }
 
-    ejbAnnotationType = loadAnnotationType("jakarta.ejb.EJB");
-    if (ejbAnnotationType != null) {
-      resourceAnnotationTypes.add(ejbAnnotationType);
-    }
   }
 
   private final HashSet<String> ignoredResourceTypes = new HashSet<>(1);
@@ -268,8 +255,8 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   /**
-   * Specify the factory for objects to be injected into {@code @Resource} /
-   * {@code @EJB} annotated fields and setter methods,
+   * Specify the factory for objects to be injected into {@code @Resource}
+   * annotated fields and setter methods,
    * <b>for {@code mappedName} attributes that point directly into JNDI</b>.
    * This factory will also be used if "alwaysUseJndiLookup" is set to "true" in order
    * to enforce JNDI lookups even for {@code name} attributes and default names.
@@ -285,8 +272,8 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   /**
-   * Specify the factory for objects to be injected into {@code @Resource} /
-   * {@code @EJB} annotated fields and setter methods,
+   * Specify the factory for objects to be injected into {@code @Resource}
+   * annotated fields and setter methods,
    * <b>for {@code name} attributes and default names</b>.
    * <p>The default is the BeanFactory that this post-processor is defined in,
    * if any, looking up resource names as Framework bean names. Specify the resource
@@ -429,13 +416,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
       ReflectionUtils.doWithLocalFields(targetClass, field -> {
-        if (ejbAnnotationType != null && field.isAnnotationPresent(ejbAnnotationType)) {
-          if (Modifier.isStatic(field.getModifiers())) {
-            throw new IllegalStateException("@EJB annotation is not supported on static fields");
-          }
-          currElements.add(new EjbRefElement(field, field, null));
-        }
-        else if (jakartaResourceType != null && field.isAnnotationPresent(jakartaResourceType)) {
+        if (jakartaResourceType != null && field.isAnnotationPresent(jakartaResourceType)) {
           if (Modifier.isStatic(field.getModifiers())) {
             throw new IllegalStateException("@Resource annotation is not supported on static fields");
           }
@@ -457,19 +438,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
         if (method.isBridge()) {
           return;
         }
-        if (ejbAnnotationType != null && method.isAnnotationPresent(ejbAnnotationType)) {
-          if (method.equals(BridgeMethodResolver.getMostSpecificMethod(method, clazz))) {
-            if (Modifier.isStatic(method.getModifiers())) {
-              throw new IllegalStateException("@EJB annotation is not supported on static methods");
-            }
-            if (method.getParameterCount() != 1) {
-              throw new IllegalStateException("@EJB annotation requires a single-arg method: " + method);
-            }
-            PropertyDescriptor pd = BeanUtils.findPropertyForMethod(method, clazz);
-            currElements.add(new EjbRefElement(method, method, pd));
-          }
-        }
-        else if (jakartaResourceType != null && method.isAnnotationPresent(jakartaResourceType)) {
+        if (jakartaResourceType != null && method.isAnnotationPresent(jakartaResourceType)) {
           if (method.equals(BridgeMethodResolver.getMostSpecificMethod(method, clazz))) {
             if (Modifier.isStatic(method.getModifiers())) {
               throw new IllegalStateException("@Resource annotation is not supported on static methods");
@@ -788,61 +757,6 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       return this.lazyLookup;
     }
 
-  }
-
-  /**
-   * Class representing injection information about an annotated field
-   * or setter method, supporting the @EJB annotation.
-   */
-  private class EjbRefElement extends LookupElement {
-
-    private final String beanName;
-
-    public EjbRefElement(Member member, AnnotatedElement ae, @Nullable PropertyDescriptor pd) {
-      super(member, pd);
-      EJB resource = ae.getAnnotation(EJB.class);
-      String resourceBeanName = resource.beanName();
-      String resourceName = resource.name();
-      this.isDefaultName = StringUtils.isEmpty(resourceName);
-      if (this.isDefaultName) {
-        resourceName = this.member.getName();
-        if (this.member instanceof Method && resourceName.startsWith("set") && resourceName.length() > 3) {
-          resourceName = StringUtils.uncapitalizeAsProperty(resourceName.substring(3));
-        }
-      }
-      Class<?> resourceType = resource.beanInterface();
-      if (Object.class != resourceType) {
-        checkResourceType(resourceType);
-      }
-      else {
-        // No resource type specified... check field/method.
-        resourceType = getResourceType();
-      }
-      this.beanName = resourceBeanName;
-      this.name = resourceName;
-      this.lookupType = resourceType;
-      this.mappedName = resource.mappedName();
-    }
-
-    @Override
-    protected Object getResourceToInject(Object target, @Nullable String requestingBeanName) {
-      if (StringUtils.isNotEmpty(this.beanName)) {
-        if (beanFactory != null && beanFactory.containsBean(this.beanName)) {
-          // Local match found for explicitly specified local bean name.
-          Object bean = beanFactory.getBean(this.beanName, this.lookupType);
-          if (requestingBeanName != null && beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory) {
-            configurableBeanFactory.registerDependentBean(this.beanName, requestingBeanName);
-          }
-          return bean;
-        }
-        else if (this.isDefaultName && StringUtils.isEmpty(this.mappedName)) {
-          throw new NoSuchBeanDefinitionException(this.beanName,
-                  "Cannot resolve 'beanName' in local BeanFactory. Consider specifying a general 'name' value instead.");
-        }
-      }
-      // JNDI name lookup - may still go to a local BeanFactory.
-      return getResource(this, requestingBeanName);
-    }
   }
 
   /**

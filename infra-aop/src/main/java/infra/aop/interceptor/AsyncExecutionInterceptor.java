@@ -48,8 +48,7 @@ import infra.core.task.TaskExecutor;
  * to track the result of the asynchronous method execution. However, since the
  * target method needs to implement the same signature, it will have to return
  * a temporary Future handle that just passes the return value through
- * (like  {@link Future}
- * or EJB's {@code jakarta.ejb.AsyncResult}).
+ * (like {@link Future}).
  *
  * <p>When the return type is {@code java.util.concurrent.Future}, any exception thrown
  * during the execution can be accessed and managed by the caller. With {@code void}

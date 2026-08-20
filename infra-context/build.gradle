@@ -12,7 +12,6 @@ dependencies {
 
   optional(project(":infra-instrument"))
   optional("jakarta.annotation:jakarta.annotation-api")
-  optional("jakarta.ejb:jakarta.ejb-api")
   optional("jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api")
   optional("jakarta.inject:jakarta.inject-api")
   optional("jakarta.interceptor:jakarta.interceptor-api")

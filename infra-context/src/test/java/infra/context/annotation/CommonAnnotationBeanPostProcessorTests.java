@@ -45,7 +45,6 @@ import infra.jndi.support.SimpleJndiBeanFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
-import jakarta.ejb.EJB;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -475,43 +474,6 @@ class CommonAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testExtendedEjbInjection() {
-    StandardBeanFactory bf = new StandardBeanFactory();
-    CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
-    bpp.setBeanFactory(bf);
-    bf.addBeanPostProcessor(bpp);
-    bf.registerResolvableDependency(BeanFactory.class, bf);
-
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ExtendedEjbInjectionBean.class));
-    TestBean tb = new TestBean();
-    bf.registerSingleton("testBean", tb);
-    TestBean tb2 = new TestBean();
-    bf.registerSingleton("testBean2", tb2);
-    TestBean tb3 = new TestBean();
-    bf.registerSingleton("testBean3", tb3);
-    TestBean tb4 = new TestBean();
-    bf.registerSingleton("testBean4", tb4);
-    NestedTestBean tb6 = new NestedTestBean();
-    bf.registerSingleton("xy", tb6);
-    bf.registerAlias("xy", "testBean9");
-
-    ExtendedEjbInjectionBean bean = (ExtendedEjbInjectionBean) bf.getBean("annotatedBean");
-    assertThat(bean.initCalled).isTrue();
-    assertThat(bean.init2Called).isTrue();
-    assertThat(bean.getTestBean()).isSameAs(tb);
-    assertThat(bean.getTestBean2()).isSameAs(tb2);
-    assertThat(bean.getTestBean3()).isSameAs(tb4);
-    assertThat(bean.getTestBean4()).isSameAs(tb3);
-    assertThat(bean.testBean5).isSameAs(tb6);
-    assertThat(bean.testBean6).isSameAs(tb6);
-    assertThat(bean.beanFactory).isSameAs(bf);
-
-    bf.destroySingletons();
-    assertThat(bean.destroyCalled).isTrue();
-    assertThat(bean.destroy2Called).isTrue();
-  }
-
-  @Test
   public void testLazyResolutionWithResourceField() {
     StandardBeanFactory bf = new StandardBeanFactory();
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
@@ -917,67 +879,6 @@ class CommonAnnotationBeanPostProcessorTests {
     @Override
     public void increaseCounter() {
       counter++;
-    }
-  }
-
-  public static class ExtendedEjbInjectionBean extends ResourceInjectionBean {
-
-    @EJB(name = "testBean4", beanInterface = TestBean.class)
-    protected ITestBean testBean3;
-
-    private ITestBean testBean4;
-
-    @EJB
-    private INestedTestBean testBean5;
-
-    private INestedTestBean testBean6;
-
-    @Resource
-    private BeanFactory beanFactory;
-
-    @Override
-    @EJB
-    public void setTestBean2(TestBean testBean2) {
-      super.setTestBean2(testBean2);
-    }
-
-    @EJB(beanName = "testBean3", beanInterface = ITestBean.class)
-    private void setTestBean4(ITestBean testBean4) {
-      if (this.testBean4 != null) {
-        throw new IllegalStateException("Already called");
-      }
-      this.testBean4 = testBean4;
-    }
-
-    @EJB
-    public void setTestBean6(INestedTestBean testBean6) {
-      if (this.testBean6 != null) {
-        throw new IllegalStateException("Already called");
-      }
-      this.testBean6 = testBean6;
-    }
-
-    public ITestBean getTestBean3() {
-      return testBean3;
-    }
-
-    public ITestBean getTestBean4() {
-      return testBean4;
-    }
-
-    @Override
-    @PostConstruct
-    protected void init2() {
-      if (this.testBean3 == null || this.testBean4 == null) {
-        throw new IllegalStateException("Resources not injected");
-      }
-      super.init2();
-    }
-
-    @Override
-    @PreDestroy
-    protected void destroy2() {
-      super.destroy2();
     }
   }
 

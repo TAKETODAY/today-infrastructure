@@ -42,8 +42,7 @@ import infra.util.function.SingletonSupplier;
  * <p>The {@link TaskExecutor} responsible for the asynchronous execution may
  * be provided as well as the annotation type that indicates a method should be
  * invoked asynchronously. If no annotation type is specified, this post-
- * processor will detect both  {@link Async @Async} annotation as well
- * as the EJB 3.1 {@code jakarta.ejb.Asynchronous} annotation.
+ * processor will detect both  {@link Async @Async} annotation.
  *
  * <p>For methods having a {@code void} return type, any exception thrown
  * during the asynchronous method invocation cannot be accessed by the
@@ -125,8 +124,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
 
   /**
    * Set the 'async' annotation type to be detected at either class or method
-   * level. By default, both the {@link Async} annotation and the EJB 3.1
-   * {@code jakarta.ejb.Asynchronous} annotation will be detected.
+   * level. By default, the {@link Async} annotation will be detected.
    * <p>This setter property exists so that developers can provide their own
    * (non-specific) annotation type to indicate that a method (or all
    * methods of a given class) should be invoked asynchronously.

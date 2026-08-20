@@ -43,9 +43,7 @@ import infra.util.function.SingletonSupplier;
  * Advisor that activates asynchronous method execution through the {@link Async}
  * annotation. This annotation can be used at the method and type level in
  * implementation classes as well as in service interfaces.
- *
- * <p>This advisor detects the EJB 3.1 {@code jakarta.ejb.Asynchronous}
- * annotation as well, treating it exactly like  own {@code Async}.
+ * <p>
  * Furthermore, a custom async annotation type may get specified through the
  * {@link #setAsyncAnnotationType "asyncAnnotationType"} property.
  *
@@ -102,12 +100,6 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 
     ClassLoader classLoader = AsyncAnnotationAdvisor.class.getClassLoader();
     try {
-      asyncAnnoTypes.add(ClassUtils.forName("jakarta.ejb.Asynchronous", classLoader));
-    }
-    catch (ClassNotFoundException ex) {
-      // If EJB API not present, simply ignore.
-    }
-    try {
       asyncAnnoTypes.add(ClassUtils.forName("jakarta.enterprise.concurrent.Asynchronous", classLoader));
     }
     catch (ClassNotFoundException ex) {
@@ -120,10 +112,9 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 
   /**
    * Set the 'async' annotation type.
-   * <p>The default async annotation type is the {@link Async} annotation, as well
-   * as the EJB 3.1 {@code jakarta.ejb.Asynchronous} annotation (if present).
+   * <p>The default async annotation type is the {@link Async} annotation.
    * <p>This setter property exists so that developers can provide their own
-   * (non-Framework-specific) annotation type to indicate that a method is to
+   * (non-Infra-specific) annotation type to indicate that a method is to
    * be executed asynchronously.
    *
    * @param asyncAnnotationType the desired annotation type

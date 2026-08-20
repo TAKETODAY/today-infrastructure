@@ -28,14 +28,12 @@ import infra.transaction.interceptor.TransactionAttribute;
  * Strategy interface for parsing known transaction annotation types.
  * {@link AnnotationTransactionAttributeSource} delegates to such
  * parsers for supporting specific annotation types such as Framework's own
- * {@link Transactional}, JTA 1.2's {@link jakarta.transaction.Transactional}
- * or EJB3's {@link jakarta.ejb.TransactionAttribute}.
+ * {@link Transactional} and JTA 1.2's {@link jakarta.transaction.Transactional}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AnnotationTransactionAttributeSource
  * @see TransactionalAnnotationParser
- * @see Ejb3TransactionAnnotationParser
  * @see JtaTransactionAnnotationParser
  * @since 4.0
  */

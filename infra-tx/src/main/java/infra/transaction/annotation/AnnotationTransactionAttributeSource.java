@@ -43,8 +43,7 @@ import infra.util.CollectionUtils;
  *
  * <p>This class reads Infra JDK 1.5+ {@link Transactional} annotation and
  * exposes corresponding transaction attributes to Framework's transaction infrastructure.
- * Also supports JTA 1.2's {@link jakarta.transaction.Transactional} and EJB3's
- * {@link jakarta.ejb.TransactionAttribute} annotation (if present).
+ * Also supports JTA 1.2's {@link jakarta.transaction.Transactional} annotation (if present).
  * This class may also serve as base class for a custom TransactionAttributeSource,
  * or get customized through {@link TransactionAnnotationParser} strategies.
  *
@@ -54,7 +53,6 @@ import infra.util.CollectionUtils;
  * @see Transactional
  * @see TransactionAnnotationParser
  * @see TransactionalAnnotationParser
- * @see Ejb3TransactionAnnotationParser
  * @see infra.transaction.interceptor.TransactionInterceptor#setTransactionAttributeSource
  * @see infra.transaction.interceptor.TransactionProxyFactoryBean#setTransactionAttributeSource
  * @since 4.0
@@ -72,8 +70,7 @@ public class AnnotationTransactionAttributeSource
 
   /**
    * Create a default AnnotationTransactionAttributeSource, supporting
-   * public methods that carry the {@code Transactional} annotation
-   * or the EJB3 {@link jakarta.ejb.TransactionAttribute} annotation.
+   * public methods that carry the {@code Transactional} annotation.
    */
   public AnnotationTransactionAttributeSource() {
     this(true);
@@ -81,8 +78,7 @@ public class AnnotationTransactionAttributeSource
 
   /**
    * Create a custom AnnotationTransactionAttributeSource, supporting
-   * public methods that carry the {@code Transactional} annotation
-   * or the EJB3 {@link jakarta.ejb.TransactionAttribute} annotation.
+   * public methods that carry the {@code Transactional} annotation.
    *
    * @param publicMethodsOnly whether to support public methods that carry
    * the {@code Transactional} annotation only (typically for use
@@ -93,17 +89,11 @@ public class AnnotationTransactionAttributeSource
     this.publicMethodsOnly = publicMethodsOnly;
     ClassLoader classLoader = getClass().getClassLoader();
     boolean jta12Present = ClassUtils.isPresent("jakarta.transaction.Transactional", classLoader);
-    boolean ejb3Present = ClassUtils.isPresent("jakarta.ejb.TransactionAttribute", classLoader);
 
-    if (jta12Present || ejb3Present) {
-      this.annotationParsers = CollectionUtils.newLinkedHashSet(3);
+    if (jta12Present) {
+      this.annotationParsers = CollectionUtils.newLinkedHashSet(2);
       this.annotationParsers.add(new TransactionalAnnotationParser());
-      if (jta12Present) {
-        this.annotationParsers.add(new JtaTransactionAnnotationParser());
-      }
-      if (ejb3Present) {
-        this.annotationParsers.add(new Ejb3TransactionAnnotationParser());
-      }
+      this.annotationParsers.add(new JtaTransactionAnnotationParser());
     }
     else {
       this.annotationParsers = Collections.singleton(new TransactionalAnnotationParser());
