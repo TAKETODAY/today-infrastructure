@@ -26,6 +26,9 @@ import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.http.ProblemDetail;
 import infra.http.support.ProblemDetailJacksonMixin;
 import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isPresent;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation that registers binding reflection entries
@@ -41,7 +44,7 @@ class ProblemDetailRuntimeHints implements RuntimeHintsRegistrar {
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     BindingReflectionHintsRegistrar bindingRegistrar = new BindingReflectionHintsRegistrar();
     bindingRegistrar.registerReflectionHints(hints.reflection(), ProblemDetail.class);
-    if (ClassUtils.isPresent("tools.jackson.dataformat.xml.XmlMapper", classLoader)) {
+    if (isPresent(Feature.JACKSON_XML, classLoader)) {
       bindingRegistrar.registerReflectionHints(hints.reflection(), infra.http.support.ProblemDetailJacksonXmlMixin.class);
     }
     else if (ClassUtils.isPresent("com.fasterxml.jackson.annotation.JacksonAnnotation", classLoader)) {
