@@ -256,6 +256,54 @@ public class NettyServerProperties {
   public Duration http2GracefulShutdownTimeout = Duration.ofSeconds(30);
 
   /**
+   * Default service executor settings.
+   * <p>
+   * These settings are used when no {@code applicationTaskExecutor} bean is
+   * available and virtual threads are not enabled.
+   *
+   * @since 5.0
+   */
+  @NestedConfigurationProperty
+  public final ServiceExecutor serviceExecutor = new ServiceExecutor();
+
+  public static class ServiceExecutor {
+
+    /**
+     * Core number of threads.
+     */
+    public int coreSize = 8;
+
+    /**
+     * Maximum allowed number of threads. If tasks are filling up the queue,
+     * the pool can expand up to that size to accommodate the load.
+     */
+    public int maxSize = Integer.MAX_VALUE;
+
+    /**
+     * Queue capacity. An unbounded capacity does not increase the pool and
+     * therefore ignores the max-size property.
+     */
+    public int queueCapacity = Integer.MAX_VALUE;
+
+    /**
+     * Whether core threads are allowed to time out. This enables dynamic
+     * growing and shrinking of the pool.
+     */
+    public boolean allowCoreThreadTimeOut = true;
+
+    /**
+     * Time limit for which threads may remain idle before being terminated.
+     */
+    public Duration keepAlive = Duration.ofSeconds(60);
+
+    /**
+     * Prefix to use for the names of newly created threads.
+     */
+    public String threadNamePrefix = "task-";
+
+  }
+
+  /**
    * shutdown details
    */
   @NestedConfigurationProperty

@@ -26,8 +26,6 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.app.config.ConditionalOnWebApplication;
 import infra.app.config.ConditionalOnWebApplication.Type;
-import infra.app.config.task.TaskExecutionAutoConfiguration;
-import infra.app.config.task.TaskExecutionProperties;
 import infra.beans.BeanUtils;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.config.BeanDefinition;
@@ -40,6 +38,7 @@ import infra.context.annotation.Role;
 import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
@@ -72,10 +71,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 
-import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
-import static infra.app.config.task.TaskExecutionAutoConfiguration.TaskExecutorConfiguration;
-import static infra.app.config.task.TaskExecutionAutoConfiguration.threadPoolTaskExecutorBuilder;
-
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.
  *
@@ -88,11 +83,13 @@ import static infra.app.config.task.TaskExecutionAutoConfiguration.threadPoolTas
 @ConditionalOnWebApplication(type = Type.MVC)
 @Import(WebServerConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, NettyServerProperties.class })
-@DisableDIAutoConfiguration(after = {
-        ErrorMvcAutoConfiguration.class,
-        TaskExecutionAutoConfiguration.class
-})
+@DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class,
+        afterName = "infra.app.config.task.TaskExecutionAutoConfiguration")
 public final class NettyWebServerFactoryAutoConfiguration {
+
+  private static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
+
+  private static final String NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME = "nettyServiceTaskExecutor";
 
   private static final String VirtualThreadServiceExecutorClassName = "infra.web.server.support.VirtualThreadServiceExecutor";
 
@@ -109,18 +106,35 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ServiceExecutor serviceExecutor(ServerProperties serverProperties,
-          @Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor) {
+          @Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor,
+          @Qualifier(NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME) @Nullable ThreadPoolTaskExecutor defaultTaskExecutor) {
     if (serverProperties.useVirtualThreadServiceExecutor) {
       return BeanUtils.newInstance(VirtualThreadServiceExecutorClassName, ClassUtils.getDefaultClassLoader());
     }
     if (executor == null) {
-      ThreadPoolTaskExecutor taskExecutor = TaskExecutorConfiguration.applicationTaskExecutor(
-              threadPoolTaskExecutorBuilder(new TaskExecutionProperties(), List.of(), null));
-      taskExecutor.initialize();
-      taskExecutor.start();
-      executor = taskExecutor;
+      executor = defaultTaskExecutor;
     }
     return new SimpleServiceExecutor(executor);
+  }
+
+  @Component(NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME)
+  @ConditionalOnMissingBean(name = APPLICATION_TASK_EXECUTOR_BEAN_NAME)
+  @ConditionalOnBooleanProperty(prefix = "server", name = "use-virtual-thread-service-executor",
+          havingValue = false, matchIfMissing = true)
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public static ThreadPoolTaskExecutor nettyServiceTaskExecutor(NettyServerProperties nettyServerProperties) {
+    return createDefaultTaskExecutor(nettyServerProperties.serviceExecutor);
+  }
+
+  private static ThreadPoolTaskExecutor createDefaultTaskExecutor(NettyServerProperties.ServiceExecutor config) {
+    ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+    taskExecutor.setQueueCapacity(config.queueCapacity);
+    taskExecutor.setCorePoolSize(config.coreSize);
+    taskExecutor.setMaxPoolSize(config.maxSize);
+    taskExecutor.setAllowCoreThreadTimeOut(config.allowCoreThreadTimeOut);
+    taskExecutor.setKeepAliveSeconds((int) config.keepAlive.toSeconds());
+    taskExecutor.setThreadNamePrefix(config.threadNamePrefix);
+    return taskExecutor;
   }
 
   /**

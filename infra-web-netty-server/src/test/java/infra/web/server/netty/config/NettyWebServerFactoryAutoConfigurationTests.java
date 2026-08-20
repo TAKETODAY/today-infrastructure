@@ -18,16 +18,24 @@ package infra.web.server.netty.config;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnJre;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.io.FileNotFoundException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
+import infra.test.classpath.ClassPathExclusions;
 import infra.test.context.runner.ApplicationContextRunner;
+import infra.util.ClassUtils;
 import infra.web.context.StandardWebEnvironment;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.properties.bind.Binder;
-import infra.test.classpath.ClassPathExclusions;
 import infra.util.DataSize;
+import infra.web.server.ServiceExecutor;
+import infra.web.server.SimpleServiceExecutor;
 import infra.web.server.config.ServerProperties;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.server.netty.HttpTrafficHandler;
@@ -188,6 +196,43 @@ class NettyWebServerFactoryAutoConfigurationTests {
                       .isFalse();
             });
 
+  }
+
+  @Test
+  void defaultServiceTaskExecutorIsManagedByContainer() {
+    contextRunner.run(context -> {
+      assertThat(context).hasBean("nettyServiceTaskExecutor");
+      assertThat(context).hasSingleBean(ThreadPoolTaskExecutor.class);
+      assertThat(context.getBean("nettyServiceTaskExecutor"))
+              .isSameAs(context.getBean(ThreadPoolTaskExecutor.class));
+
+      ServiceExecutor serviceExecutor = context.getBean(ServiceExecutor.class);
+      assertThat(serviceExecutor).isInstanceOf(SimpleServiceExecutor.class);
+    });
+  }
+
+  @Test
+  void defaultServiceTaskExecutorIsNotCreatedWhenApplicationTaskExecutorExists() {
+    Executor applicationTaskExecutor = Runnable::run;
+    contextRunner.withBean("applicationTaskExecutor", Executor.class, () -> applicationTaskExecutor)
+            .run(context -> {
+              assertThat(context).doesNotHaveBean("nettyServiceTaskExecutor");
+              assertThat(context.getBean("applicationTaskExecutor")).isSameAs(applicationTaskExecutor);
+              assertThat(context).hasSingleBean(ServiceExecutor.class);
+            });
+  }
+
+  @Test
+  @EnabledForJreRange(min = JRE.JAVA_21)
+  void defaultServiceTaskExecutorIsNotCreatedWhenVirtualThreadsEnabled() {
+    contextRunner.withPropertyValues("server.use-virtual-thread-service-executor=true")
+            .run(context -> {
+              assertThat(context).doesNotHaveBean("nettyServiceTaskExecutor");
+              assertThat(context.getBean(ServiceExecutor.class))
+                      .isInstanceOf(
+                              ClassUtils.load("infra.web.server.support.VirtualThreadServiceExecutor")
+                      );
+            });
   }
 
 }
