@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import infra.test.context.FilteredClassLoader;
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;

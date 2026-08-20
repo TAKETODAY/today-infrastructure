@@ -19,6 +19,7 @@ dependencies {
   implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
   implementation 'org.apache.maven.shared:file-management:1.2.1'
   implementation 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
+  testImplementation(project(":infra-app"))
 
   testImplementation(project(":infra-test-support"))
   testImplementation("org.testcontainers:testcontainers")

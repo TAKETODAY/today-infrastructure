@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.BeansException;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.config.BeanPostProcessor;

@@ -24,7 +24,6 @@ dependencies {
   testImplementation 'com.zaxxer:HikariCP'
 
   testImplementation project(':infra-test-support')
-  testImplementation project(":module:infra-app-test")
 
   testRuntimeOnly("ch.qos.logback:logback-classic")
   testRuntimeOnly("com.mysql:mysql-connector-j")

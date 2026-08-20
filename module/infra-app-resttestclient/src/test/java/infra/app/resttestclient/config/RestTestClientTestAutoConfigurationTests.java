@@ -23,9 +23,6 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.http.server.LocalTestWebServer;
-import infra.app.test.http.server.LocalTestWebServer.Scheme;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
@@ -34,6 +31,9 @@ import infra.http.converter.HttpMessageConverters.ClientBuilder;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.test.classpath.resources.WithResource;
 import infra.test.context.FilteredClassLoader;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.http.server.LocalTestWebServer;
+import infra.test.http.server.LocalTestWebServer.Scheme;
 import infra.test.web.mock.client.RestTestClient;
 import infra.web.client.RestClient;
 import infra.web.util.UriBuilderFactory;
@@ -79,7 +79,7 @@ class RestTestClientTestAutoConfigurationTests {
   @Test
   @WithResource(name = "META-INF/today.strategies",
           content = """
-                  infra.app.test.http.server.LocalTestWebServer$Provider=\
+                  infra.test.http.server.LocalTestWebServer$Provider=\
                   infra.app.resttestclient.config.RestTestClientTestAutoConfigurationTests$TestLocalTestWebServerProvider
                   """)
   void shouldDefineRestTestClientBoundToWebServer() {

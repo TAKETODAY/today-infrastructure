@@ -24,7 +24,7 @@ import infra.context.availability.ApplicationAvailability;
 import infra.app.config.availability.ApplicationAvailabilityAutoConfiguration;
 import infra.app.health.LivenessStateHealthIndicator;
 import infra.app.health.ReadinessStateHealthIndicator;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -21,8 +21,8 @@ package infra.app.webmvc.test.config.mockmvc;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.app.webmvc.test.config.AutoConfigureMockMvc;
 import infra.app.webmvc.test.config.WebMvcTest;
 import infra.beans.factory.annotation.Autowired;

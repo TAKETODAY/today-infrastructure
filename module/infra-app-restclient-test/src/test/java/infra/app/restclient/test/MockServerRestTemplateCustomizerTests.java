@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import infra.app.test.web.client.RootUriRequestExpectationManager;
+import infra.test.web.client.RootUriRequestExpectationManager;
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.test.web.client.RequestExpectationManager;

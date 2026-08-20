@@ -19,7 +19,7 @@ package infra.mail.config;
 import org.junit.jupiter.api.Test;
 
 import infra.app.diagnostics.FailureAnalysis;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.mail.MailSender;

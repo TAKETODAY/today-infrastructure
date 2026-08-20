@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.app.restclient.test.MockServerRestClientCustomizer;
 import infra.app.restclient.test.MockServerRestTemplateCustomizer;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.RequestExpectationManager;

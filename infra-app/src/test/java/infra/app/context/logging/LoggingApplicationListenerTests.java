@@ -59,8 +59,6 @@ import infra.app.logging.LoggingStartupContext;
 import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystemProperty;
 import infra.app.logging.java.JavaLoggingSystem;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
@@ -77,6 +75,8 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
 import infra.test.classpath.ClassPathExclusions;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

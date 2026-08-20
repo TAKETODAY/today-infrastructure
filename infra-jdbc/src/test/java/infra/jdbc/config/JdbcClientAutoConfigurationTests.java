@@ -20,7 +20,7 @@ package infra.jdbc.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jdbc.core.JdbcOperations;
 import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;

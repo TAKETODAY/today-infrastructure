@@ -25,8 +25,8 @@ import org.mockito.Mockito;
 import java.util.HashSet;
 import java.util.Set;
 
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.support.BeanDefinitionRegistry;

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import infra.app.test.context.TestConfiguration;
+import infra.test.context.TestConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;

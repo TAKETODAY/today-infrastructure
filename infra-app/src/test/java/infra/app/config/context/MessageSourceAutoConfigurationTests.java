@@ -26,15 +26,15 @@ import java.util.Locale;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ContextConsumer;
 import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.PropertySource;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ContextConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

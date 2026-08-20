@@ -27,6 +27,7 @@ dependencies {
   loader(project(":infra-build:infra-app-loader"))
 
   jarmode(project(":infra-build:infra-jarmode-layertools"))
+  testImplementation(project(":infra-app"))
 
   testImplementation("org.assertj:assertj-core")
   testImplementation("org.junit.jupiter:junit-jupiter")

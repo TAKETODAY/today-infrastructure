@@ -20,7 +20,7 @@ package infra.context.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;

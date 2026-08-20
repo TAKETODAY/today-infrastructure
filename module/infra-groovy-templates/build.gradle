@@ -14,7 +14,6 @@ dependencies {
   testImplementation project(":infra-webmvc-mock")
   testImplementation project(":infra-web-server")
   testImplementation project(':infra-test-support')
-  testImplementation project(":module:infra-app-test")
 
   testImplementation testFixtures(project(":infra-web-server"))
   testImplementation testFixtures(project(":infra-web-netty-server"))

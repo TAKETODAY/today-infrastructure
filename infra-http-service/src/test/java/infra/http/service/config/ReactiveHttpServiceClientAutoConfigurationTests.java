@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.aop.Advisor;
-import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
+import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

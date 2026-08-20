@@ -1733,8 +1733,7 @@ public class Application {
      */
     private static final class RunListener implements ApplicationStartupListener, Running {
 
-      private final List<ConfigurableApplicationContext> contexts = Collections
-              .synchronizedList(new ArrayList<>());
+      private final List<ConfigurableApplicationContext> contexts = Collections.synchronizedList(new ArrayList<>());
 
       @Override
       public void contextLoaded(ConfigurableApplicationContext context) {

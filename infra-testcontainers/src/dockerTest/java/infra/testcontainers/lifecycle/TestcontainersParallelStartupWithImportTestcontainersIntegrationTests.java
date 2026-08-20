@@ -23,8 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.test.context.TestPropertySource;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.testcontainers.DisabledIfDockerUnavailable;

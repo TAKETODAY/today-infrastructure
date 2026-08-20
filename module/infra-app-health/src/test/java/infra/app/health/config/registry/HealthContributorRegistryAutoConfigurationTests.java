@@ -31,7 +31,7 @@ import infra.app.health.registry.DefaultReactiveHealthContributorRegistry;
 import infra.app.health.registry.HealthContributorRegistry;
 import infra.app.health.registry.ReactiveHealthContributorRegistry;
 import infra.test.context.FilteredClassLoader;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

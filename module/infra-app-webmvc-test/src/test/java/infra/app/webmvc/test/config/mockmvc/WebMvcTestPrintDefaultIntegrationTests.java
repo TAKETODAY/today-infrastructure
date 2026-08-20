@@ -28,8 +28,8 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.app.webmvc.test.config.AutoConfigureMockMvc;
 import infra.app.webmvc.test.config.WebMvcTest;
 import infra.beans.factory.annotation.Autowired;

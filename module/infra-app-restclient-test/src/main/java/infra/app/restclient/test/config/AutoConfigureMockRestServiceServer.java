@@ -25,10 +25,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.test.context.PropertyMapping;
-import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.app.restclient.test.MockServerRestClientCustomizer;
 import infra.app.restclient.test.MockServerRestTemplateCustomizer;
+import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.test.context.PropertyMapping;
 import infra.test.web.client.MockRestServiceServer;
 import infra.web.client.RestClient;
 import infra.web.client.RestTemplate;

@@ -71,8 +71,6 @@ import infra.app.logging.LoggingStartupContext;
 import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystemProperties;
 import infra.app.logging.LoggingSystemProperty;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
@@ -82,6 +80,8 @@ import infra.format.support.ApplicationConversionService;
 import infra.mock.env.MockEnvironment;
 import infra.test.classpath.ClassPathOverrides;
 import infra.test.classpath.resources.WithResource;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.StringUtils;
 

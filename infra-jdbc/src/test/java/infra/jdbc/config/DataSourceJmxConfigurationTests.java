@@ -35,7 +35,7 @@ import javax.management.ObjectName;
 
 import infra.aop.framework.ProxyFactory;
 import infra.app.config.jmx.JmxAutoConfiguration;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

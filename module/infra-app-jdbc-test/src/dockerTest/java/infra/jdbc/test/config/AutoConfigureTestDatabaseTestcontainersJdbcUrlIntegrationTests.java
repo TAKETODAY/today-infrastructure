@@ -27,7 +27,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
 
-import infra.app.test.config.OverrideAutoConfiguration;
+import infra.test.context.OverrideAutoConfiguration;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContextInitializer;

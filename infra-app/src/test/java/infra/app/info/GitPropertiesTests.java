@@ -18,10 +18,10 @@
 
 package infra.app.info;
 
-import java.util.Properties;
-
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;

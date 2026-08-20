@@ -17,7 +17,7 @@ dependencies {
 
 	dockerTestRuntimeOnly("org.testcontainers:testcontainers")
 
-	testImplementation(project(":module:infra-app-test"))
+	testImplementation(project(":infra-test"))
 	testImplementation(project(":infra-test-support"))
 	testImplementation("ch.qos.logback:logback-classic")
 

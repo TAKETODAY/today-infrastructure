@@ -14,7 +14,7 @@ dependencies {
   optional("io.projectreactor:reactor-core")
 
   testImplementation project(':infra-test-support')
-  testImplementation project(":module:infra-app-test")
+  testImplementation project(":infra-test")
 
   testImplementation project(":infra-jdbc")
   testImplementation project(":infra-aspects")

@@ -25,9 +25,9 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.StringWriter;
 import java.nio.file.Path;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;

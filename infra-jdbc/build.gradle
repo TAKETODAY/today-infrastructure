@@ -29,9 +29,10 @@ dependencies {
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+  testImplementation(project(":infra-app"))
 
   testImplementation project(':infra-test-support')
-  testImplementation project(":module:infra-app-test")
+  testImplementation project(":infra-test")
 
   testImplementation 'jakarta.transaction:jakarta.transaction-api:2.0.0'
   testImplementation 'com.google.guava:guava:33.1.0-jre'

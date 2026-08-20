@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.LazyInitializationExcludeFilter;
 import infra.app.config.ssl.SslAutoConfiguration;
-import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
+import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.ApplicationContextException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

@@ -21,8 +21,9 @@ dependencies {
   testImplementation("org.xmlunit:xmlunit-matchers")
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation project(":infra-web-reactive")
+  testImplementation project(":infra-app")
   testImplementation project(':infra-test-support')
-  testImplementation project(':module:infra-app-test')
+  testImplementation project(':infra-test')
 
   testImplementation(testFixtures(project(":infra-web")))
   testImplementation testFixtures(project(":infra-web-netty-server"))

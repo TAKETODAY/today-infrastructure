@@ -24,7 +24,7 @@ import infra.aot.hint.predicate.ReflectionHintsPredicates;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.app.test.config.json.JsonTestersAutoConfiguration;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.app.test.json.JacksonTester;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.aot.ApplicationContextAotGenerator;

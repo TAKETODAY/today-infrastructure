@@ -43,8 +43,8 @@ import java.util.UUID;
 
 import infra.app.Application;
 import infra.app.env.RandomValuePropertySource;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.InitializingBean;

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.annotation.Bean;

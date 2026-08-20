@@ -28,7 +28,6 @@ import javax.management.ObjectName;
 
 import infra.app.ApplicationType;
 import infra.app.builder.ApplicationBuilder;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ConfigurableApplicationContext;
@@ -36,6 +35,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jmx.export.MBeanExporter;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.web.server.context.WebServerApplicationContext;
 import infra.web.server.netty.RandomPortWebServerConfig;
 

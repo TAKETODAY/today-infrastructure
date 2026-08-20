@@ -16,7 +16,6 @@ dependencies {
 
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
-  testImplementation project(":module:infra-app-test")
 
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-web")))

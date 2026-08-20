@@ -31,10 +31,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ContextConsumer;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.support.BeanDefinitionOverrideException;
@@ -53,6 +49,10 @@ import infra.scheduling.annotation.EnableScheduling;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.scheduling.support.SimpleAsyncTaskExecutorBuilder;
 import infra.scheduling.support.ThreadPoolTaskExecutorBuilder;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ContextConsumer;
+import infra.test.stdio.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

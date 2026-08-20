@@ -25,9 +25,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.test.context.PropertyMapping;
-import infra.app.test.context.PropertyMapping.Skip;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.test.context.PropertyMapping;
+import infra.test.context.PropertyMapping.Skip;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.assertj.MockMvcTester;

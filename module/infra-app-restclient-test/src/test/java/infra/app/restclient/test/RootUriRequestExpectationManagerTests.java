@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
 
-import infra.app.test.web.client.RootUriRequestExpectationManager;
+import infra.test.web.client.RootUriRequestExpectationManager;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.support.DecoratingHttpRequest;
 import infra.test.web.client.ExpectedCount;

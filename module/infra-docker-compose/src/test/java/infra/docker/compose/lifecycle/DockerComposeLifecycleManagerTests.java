@@ -37,8 +37,8 @@ import java.util.Set;
 
 import infra.aot.AotDetector;
 import infra.app.ApplicationShutdownHandlers;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.context.aot.AbstractAotProcessor;

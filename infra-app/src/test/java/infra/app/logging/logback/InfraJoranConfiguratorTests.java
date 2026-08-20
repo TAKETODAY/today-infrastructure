@@ -33,8 +33,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import infra.app.logging.LoggingStartupContext;
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.context.aot.AbstractAotProcessor;
 import infra.context.properties.source.ConfigurationPropertySources;
@@ -42,6 +40,8 @@ import infra.mock.env.MockEnvironment;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.classpath.resources.WithResource;
 import infra.test.context.support.TestPropertySourceUtils;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

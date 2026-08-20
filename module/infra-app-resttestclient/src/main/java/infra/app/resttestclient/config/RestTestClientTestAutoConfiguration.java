@@ -20,7 +20,6 @@ package infra.app.resttestclient.config;
 
 import java.util.List;
 
-import infra.app.test.http.server.LocalTestWebServer;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.ObjectProvider;
 import infra.context.ApplicationContext;
@@ -29,6 +28,7 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.converter.config.ClientHttpMessageConvertersCustomizer;
 import infra.stereotype.Component;
+import infra.test.http.server.LocalTestWebServer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.client.RestTestClient;
 import infra.web.client.RestClient;

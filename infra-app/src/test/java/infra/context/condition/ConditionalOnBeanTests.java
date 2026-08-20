@@ -30,8 +30,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.RootBeanDefinition;
@@ -43,7 +43,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.annotation.ImportResource;
-import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.type.AnnotationMetadata;

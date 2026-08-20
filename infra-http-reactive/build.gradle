@@ -17,12 +17,12 @@ dependencies {
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+  testImplementation(project(":infra-app"))
 
   testImplementation project(':infra-test-support')
   testImplementation(project(":infra-test"))
   testImplementation("tools.jackson.core:jackson-databind")
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation(project(":module:infra-app-test"))
   testImplementation(project(":infra-web-server"))
   testImplementation(project(":infra-web-netty-server"))
   testImplementation(testFixtures(project(":infra-web-reactive")))

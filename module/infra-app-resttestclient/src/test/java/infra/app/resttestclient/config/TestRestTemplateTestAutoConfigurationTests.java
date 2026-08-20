@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import infra.app.resttestclient.TestRestTemplate;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.http.server.LocalTestWebServer;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.classpath.resources.WithResource;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.http.server.LocalTestWebServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +50,7 @@ class TestRestTemplateTestAutoConfigurationTests {
 
   @Test
   @WithResource(name = "META-INF/today.strategies", content = """
-          infra.app.test.http.server.LocalTestWebServer$Provider=\
+          infra.test.http.server.LocalTestWebServer$Provider=\
           infra.app.resttestclient.config.RestTestClientTestAutoConfigurationTests$TestLocalTestWebServerProvider
           """)
   void shouldDefineTestRestTemplateBoundToWebServer() {
