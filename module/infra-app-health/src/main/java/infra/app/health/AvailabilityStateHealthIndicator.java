@@ -25,12 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.AvailabilityState;
 import infra.app.health.contributor.AbstractHealthIndicator;
 import infra.app.health.contributor.Health;
 import infra.app.health.contributor.HealthIndicator;
 import infra.app.health.contributor.Status;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.AvailabilityState;
 import infra.util.Assert;
 
 /**

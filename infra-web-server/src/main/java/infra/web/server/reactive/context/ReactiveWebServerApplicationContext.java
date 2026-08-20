@@ -20,14 +20,13 @@ package infra.web.server.reactive.context;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.availability.AvailabilityChangeEvent;
-import infra.app.availability.ReadinessState;
 import infra.beans.BeansException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContextException;
+import infra.context.availability.AvailabilityChangeEvent;
+import infra.context.availability.ReadinessState;
 import infra.http.reactive.server.HttpHandler;
-import infra.util.Feature;
 import infra.util.StringUtils;
 import infra.web.reactive.context.GenericReactiveWebApplicationContext;
 import infra.web.server.MissingWebServerFactoryBeanException;
@@ -35,8 +34,6 @@ import infra.web.server.WebServer;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;
 import infra.web.server.context.WebServerGracefulShutdownLifecycle;
 import infra.web.server.reactive.ReactiveWebServerFactory;
-
-import static infra.util.FeatureDetector.isPresent;
 
 /**
  * A {@link GenericReactiveWebApplicationContext} that can be used to bootstrap itself
@@ -96,7 +93,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
 
   @Override
   protected void doClose() {
-    if (isActive() && isPresent(Feature.APP)) {
+    if (isActive()) {
       AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
     }
     super.doClose();

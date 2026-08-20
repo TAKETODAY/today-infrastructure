@@ -20,7 +20,7 @@ package infra.app.health.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.availability.ApplicationAvailability;
+import infra.context.availability.ApplicationAvailability;
 import infra.app.config.availability.ApplicationAvailabilityAutoConfiguration;
 import infra.app.health.LivenessStateHealthIndicator;
 import infra.app.health.ReadinessStateHealthIndicator;

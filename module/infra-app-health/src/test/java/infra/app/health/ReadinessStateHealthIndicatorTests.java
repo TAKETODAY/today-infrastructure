@@ -21,8 +21,8 @@ package infra.app.health;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.ReadinessState;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.ReadinessState;
 import infra.app.health.contributor.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;

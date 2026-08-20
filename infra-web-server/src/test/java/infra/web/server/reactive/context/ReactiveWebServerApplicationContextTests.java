@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import infra.app.availability.AvailabilityChangeEvent;
-import infra.app.availability.ReadinessState;
+import infra.context.availability.AvailabilityChangeEvent;
+import infra.context.availability.ReadinessState;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContextException;

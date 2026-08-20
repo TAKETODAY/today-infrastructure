@@ -28,7 +28,7 @@ import java.util.List;
 
 import infra.app.Application;
 import infra.app.DefaultBootstrapContext;
-import infra.app.availability.AvailabilityChangeEvent;
+import infra.context.availability.AvailabilityChangeEvent;
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.context.support.StaticApplicationContext;

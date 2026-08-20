@@ -18,8 +18,8 @@
 
 package infra.app.config.availability;
 
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.ApplicationAvailabilityBean;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.ApplicationAvailabilityBean;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;

@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.availability;
+package infra.context.availability;
 
 /**
  * Tagging interface used on {@link ApplicationAvailability} states. This interface is

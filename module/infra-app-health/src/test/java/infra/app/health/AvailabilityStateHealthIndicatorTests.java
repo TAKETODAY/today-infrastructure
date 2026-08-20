@@ -23,9 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.AvailabilityState;
-import infra.app.availability.LivenessState;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.AvailabilityState;
+import infra.context.availability.LivenessState;
 import infra.app.health.contributor.Health;
 import infra.app.health.contributor.Status;
 
