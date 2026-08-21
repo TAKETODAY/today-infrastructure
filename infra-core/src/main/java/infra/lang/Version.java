@@ -22,32 +22,73 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Class that exposes the version. Fetches the
- * "Implementation-Version" manifest attribute from the jar file.
+ * A lightweight, immutable representation of a version.
+ * <p>
+ * A version string follows the format:
+ * <pre>
+ * {major}.{minor}.{micro}-{type}.{step}-{extension}
+ * </pre>
+ * where the {@code {type}} is one of {@link #Draft}, {@link #SNAPSHOT},
+ * {@link #Alpha}, {@link #Beta} or {@link #RELEASE}. The {@code {micro}},
+ * {@code {step}} and {@code {extension}} parts are optional, and the extension
+ * may itself contain hyphens.
+ * <p>
+ * Versions are ordered by major, minor and micro numbers first, then by type
+ * precedence ({@code Draft < SNAPSHOT < Alpha < Beta < RELEASE}), and finally by
+ * the step number.
+ * <p>
+ * The static {@link #instance} is loaded from the "Implementation-Version"
+ * manifest attribute of the jar file and can be obtained via {@link #get()}.
  *
- * @param major major version
- * @param minor minor version
- * @param micro micro version
- * @param type type
- * @param step step
- * @param extension version extension
- * @param implementationVersion "Implementation-Version" manifest attribute
+ * @param major the major version
+ * @param minor the minor version
+ * @param micro the micro (patch) version
+ * @param type the version type, one of {@link #Draft}, {@link #SNAPSHOT},
+ * {@link #Alpha}, {@link #Beta} or {@link #RELEASE}
+ * @param step the version step
+ * @param extension the version extension, may be {@code null}
+ * @param implementationVersion the "Implementation-Version" manifest attribute
  * @author TODAY 2021/10/11 23:28
  * @since 4.0
  */
 public record Version(int major, int minor, int micro, String type, int step,
                       @Nullable String extension, String implementationVersion) implements Comparable<Version> {
 
+  /**
+   * The {@code Draft} version type.
+   */
   public static final String Draft = "Draft";
+
+  /**
+   * The {@code Alpha} version type.
+   */
   public static final String Alpha = "Alpha";
+
+  /**
+   * The {@code Beta} version type.
+   */
   public static final String Beta = "Beta";
+
+  /**
+   * The final, stable {@code RELEASE} version type.
+   */
   public static final String RELEASE = "RELEASE";
+
+  /**
+   * The {@code SNAPSHOT} version type.
+   */
   public static final String SNAPSHOT = "SNAPSHOT";
 
+  /**
+   * The version of the running application, resolved lazily from the
+   * "Implementation-Version" manifest attribute.
+   */
   public static final Version instance;
 
-  // Define version type precedence: Draft < SNAPSHOT < Alpha < Beta < RELEASE
-
+  /**
+   * Version type precedence, from the least to the most stable:
+   * {@code Draft < SNAPSHOT < Alpha < Beta < RELEASE}.
+   */
   private static final List<String> TYPE_PRECEDENCE = List.of(Draft, SNAPSHOT, Alpha, Beta, RELEASE);
 
   static {
@@ -64,10 +105,18 @@ public record Version(int major, int minor, int micro, String type, int step,
   /**
    * Parses a {@link Version} from a version string.
    * <p>
-   * Version format: {major}.{minor}.{micro}-{type}.{step}-{extension}
+   * The accepted format is {@code {major}.{minor}.{micro}-{type}.{step}-{extension}}.
+   * The {@code {micro}}, {@code {step}} and {@code {extension}} parts are optional,
+   * and the extension may itself contain hyphens. For example:
+   * <pre>
+   * "4.0.0"                -&gt; type=RELEASE, step=0, extension=null
+   * "4.0.0-Beta.3"         -&gt; type=Beta,    step=3, extension=null
+   * "4.0.0-Alpha.3-jdk8"   -&gt; type=Alpha,   step=3, extension="jdk8"
+   * "4.0.0-Alpha.3-my-jdk" -&gt; type=Alpha,   step=3, extension="my-jdk"
+   * </pre>
    *
-   * @param implementationVersion the 'Implementation-Version' manifest attribute
-   * @return the parsed Version object
+   * @param implementationVersion the version string to parse
+   * @return the parsed {@link Version}
    */
   public static Version parse(String implementationVersion) {
     String type;
@@ -83,8 +132,13 @@ public record Version(int major, int minor, int micro, String type, int step,
       type = RELEASE;
     }
     else {
-      if (split.length == 3) {
-        extension = split[2]; // optional
+      if (split.length >= 3) {
+        // extension is optional and may itself contain hyphens
+        StringBuilder extensionBuilder = new StringBuilder(split[2]);
+        for (int i = 3; i < split.length; i++) {
+          extensionBuilder.append('-').append(split[i]);
+        }
+        extension = extensionBuilder.toString();
       }
 
       type = split[1];
@@ -106,61 +160,62 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return if this version is a release (stable) version.
+   * Return whether this version is a final, stable release.
    *
-   * @return {@code true} if this version is a release version
+   * @return {@code true} if this version is a release, {@code false} otherwise
    */
   public boolean isRelease() {
     return RELEASE.equals(type);
   }
 
   /**
-   * Return if this version is a SNAPSHOT version.
+   * Return whether this version is a SNAPSHOT version.
    *
-   * @return {@code true} if this version is a SNAPSHOT version
+   * @return {@code true} if this version is a SNAPSHOT, {@code false} otherwise
    */
   public boolean isSnapshot() {
     return SNAPSHOT.equals(type);
   }
 
   /**
-   * Return if this version is an Alpha version.
+   * Return whether this version is an Alpha version.
    *
-   * @return {@code true} if this version is an Alpha version
+   * @return {@code true} if this version is an Alpha, {@code false} otherwise
    */
   public boolean isAlpha() {
     return Alpha.equals(type);
   }
 
   /**
-   * Return if this version is a Beta version.
+   * Return whether this version is a Beta version.
    *
-   * @return {@code true} if this version is a Beta version
+   * @return {@code true} if this version is a Beta, {@code false} otherwise
    */
   public boolean isBeta() {
     return Beta.equals(type);
   }
 
   /**
-   * Return if this version is a Draft version.
+   * Return whether this version is a Draft version.
    *
-   * @return {@code true} if this version is a Draft version
+   * @return {@code true} if this version is a Draft, {@code false} otherwise
    */
   public boolean isDraft() {
     return Draft.equals(type);
   }
 
   /**
-   * Return if this version is a pre-release version, i.e. not a release.
+   * Return whether this version is a pre-release version, i.e. any version
+   * that is not a final {@link #RELEASE}.
    *
-   * @return {@code true} if this version is a pre-release version
+   * @return {@code true} if this version is a pre-release, {@code false} otherwise
    */
   public boolean isPreRelease() {
     return !isRelease();
   }
 
   /**
-   * Return if this version is newer than the given version.
+   * Return whether this version is newer than the given version.
    *
    * @param other the version to compare
    * @return {@code true} if this version is newer than {@code other}
@@ -170,7 +225,7 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return if this version is older than the given version.
+   * Return whether this version is older than the given version.
    *
    * @param other the version to compare
    * @return {@code true} if this version is older than {@code other}
@@ -180,7 +235,7 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return if this version is equal to or newer than the given version.
+   * Return whether this version is equal to or newer than the given version.
    *
    * @param other the version to compare
    * @return {@code true} if this version is equal to or newer than {@code other}
@@ -190,7 +245,7 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return if this version is equal to or older than the given version.
+   * Return whether this version is equal to or older than the given version.
    *
    * @param other the version to compare
    * @return {@code true} if this version is equal to or older than {@code other}
@@ -200,12 +255,13 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return if this version matches the given major, minor and micro version.
+   * Return whether this version has exactly the given major, minor and micro numbers.
+   * The type, step and extension are not considered.
    *
-   * @param major the major version
-   * @param minor the minor version
-   * @param micro the micro version
-   * @return {@code true} if this version matches
+   * @param major the major version to match
+   * @param minor the minor version to match
+   * @param micro the micro version to match
+   * @return {@code true} if the numeric version matches, {@code false} otherwise
    */
   public boolean matches(int major, int minor, int micro) {
     return this.major == major && this.minor == minor && this.micro == micro;
@@ -221,7 +277,7 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return a copy of this version without its extension.
+   * Return a copy of this version with its extension removed.
    *
    * @return the version without extension, or this version if it has none
    */
@@ -235,9 +291,13 @@ public record Version(int major, int minor, int micro, String type, int step,
 
   /**
    * Return a copy of this version with the given extension.
+   * <p>
+   * Passing {@code null} removes the extension (equivalent to
+   * {@link #withoutExtension()}), while passing the current extension returns
+   * {@code this} without creating a new instance.
    *
    * @param extension the new extension, may be {@code null} to remove it
-   * @return the version with the given extension, or this version if unchanged
+   * @return a copy with the given extension, or this version if unchanged
    */
   public Version withExtension(@Nullable String extension) {
     if (Objects.equals(this.extension, extension)) {
@@ -316,9 +376,10 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Returns the version instance.
+   * Return the version of the running application.
    *
-   * @return the version instance
+   * @return the version instance resolved from the "Implementation-Version"
+   * manifest attribute
    * @see Package#getImplementationVersion()
    */
   public static Version get() {

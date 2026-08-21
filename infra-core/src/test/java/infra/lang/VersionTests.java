@@ -340,4 +340,29 @@ class VersionTests {
     assertThat(extensionless.withExtension(null)).isSameAs(extensionless);
   }
 
+  @Test
+  void parseShouldKeepHyphenatedExtension() {
+    Version version = Version.parse("4.0.0-Alpha.3-my-jdk");
+
+    assertThat(version.type()).isEqualTo(Version.Alpha);
+    assertThat(version.step()).isEqualTo(3);
+    assertThat(version.extension()).isEqualTo("my-jdk");
+    assertThat(version.implementationVersion()).isEqualTo("4.0.0-Alpha.3-my-jdk");
+  }
+
+  @Test
+  void withExtensionAndParseShouldBeSymmetricForHyphenatedExtension() {
+    Version original = Version.parse("4.0.0-Alpha.3");
+    Version withExtension = original.withExtension("my-jdk");
+
+    assertThat(withExtension.implementationVersion()).isEqualTo("4.0.0-Alpha.3-my-jdk");
+    assertThat(withExtension.extension()).isEqualTo("my-jdk");
+
+    Version reparsed = Version.parse(withExtension.implementationVersion());
+    assertThat(reparsed.extension()).isEqualTo("my-jdk");
+    assertThat(reparsed.type()).isEqualTo(Version.Alpha);
+    assertThat(reparsed.step()).isEqualTo(3);
+    assertThat(reparsed).isEqualTo(withExtension);
+  }
+
 }
