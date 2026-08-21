@@ -31,7 +31,7 @@ import infra.core.io.ClassPathResource;
 import infra.http.HttpStatus;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.InfraConfigurationException;
+import infra.web.WebConfigurationException;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.mvc.ParameterizableViewController;
 import infra.web.mock.MockHttpContext;
@@ -146,7 +146,7 @@ class ViewControllerRegistryTests {
   void registerWebViewXml() {
     ClassPathResource resource = new ClassPathResource("not-found");
     assertThatThrownBy(() -> registry.registerWebViewXml(resource))
-            .isInstanceOf(InfraConfigurationException.class)
+            .isInstanceOf(WebConfigurationException.class)
             .hasMessage("Your provided configuration location: [%s], does not exist".formatted(resource));
 
     registry.registerWebViewXml();

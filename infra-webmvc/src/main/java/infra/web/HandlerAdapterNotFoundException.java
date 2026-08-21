@@ -22,7 +22,7 @@ package infra.web;
  * @author TODAY 2021/4/26 22:26
  * @since 3.0
  */
-public class HandlerAdapterNotFoundException extends InfraConfigurationException {
+public class HandlerAdapterNotFoundException extends WebConfigurationException {
 
   private final Object handler;
 

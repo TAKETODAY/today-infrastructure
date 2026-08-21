@@ -112,11 +112,11 @@ class ExceptionTests {
     }
 
     @Test
-    void exceptionExtendsInfraConfigurationException() {
+    void exceptionExtendsWebConfigurationException() {
       Object handler = new Object();
       HandlerAdapterNotFoundException exception = new HandlerAdapterNotFoundException(handler);
 
-      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
+      assertThat(exception).isInstanceOf(WebConfigurationException.class);
     }
 
   }
@@ -1353,14 +1353,14 @@ class ExceptionTests {
     }
 
     @Test
-    void exceptionExtendsInfraConfigurationException() throws Exception {
+    void exceptionExtendsWebConfigurationException() throws Exception {
       Method method = TestController.class.getDeclaredMethod("testMethod", String.class);
       MethodParameter parameter = new MethodParameter(method, 0);
 
       ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
               new ResolvableMethodParameter(parameter), "test");
 
-      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
+      assertThat(exception).isInstanceOf(WebConfigurationException.class);
     }
 
     static class TestController {
@@ -1699,11 +1699,11 @@ class ExceptionTests {
     }
 
     @Test
-    void exceptionExtendsInfraConfigurationException() {
+    void exceptionExtendsWebConfigurationException() {
       Object handler = new Object();
       ReturnValueHandlerNotFoundException exception = new ReturnValueHandlerNotFoundException(handler);
 
-      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
+      assertThat(exception).isInstanceOf(WebConfigurationException.class);
     }
 
   }
@@ -1770,10 +1770,10 @@ class ExceptionTests {
     }
 
     @Test
-    void exceptionExtendsInfraConfigurationException() {
+    void exceptionExtendsWebConfigurationException() {
       HandlerNotFoundException exception = new HandlerNotFoundException("GET", "/test", HttpHeaders.forWritable());
 
-      assertThat(exception).isInstanceOf(InfraConfigurationException.class);
+      assertThat(exception).isInstanceOf(WebConfigurationException.class);
     }
 
   }

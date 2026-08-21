@@ -18,7 +18,7 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.InfraConfigurationException;
+import infra.web.WebConfigurationException;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -28,7 +28,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * @see ParameterResolvingStrategy
  * @since 4.0
  */
-public class ParameterResolverNotFoundException extends InfraConfigurationException {
+public class ParameterResolverNotFoundException extends WebConfigurationException {
 
   private final ResolvableMethodParameter parameter;
 

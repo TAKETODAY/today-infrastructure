@@ -44,7 +44,7 @@ import infra.util.Assert;
 import infra.lang.Version;
 import infra.util.AntPathMatcher;
 import infra.util.StringUtils;
-import infra.web.InfraConfigurationException;
+import infra.web.WebConfigurationException;
 import infra.web.handler.SimpleUrlHandlerMapping;
 
 /**
@@ -197,23 +197,23 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
    * Register web view configurations from a specified XML configuration resource.
    * <p>This method processes the provided XML configuration resource and registers
    * the view controllers defined within it.
-   * <p>If the resource does not exist, an {@link InfraConfigurationException} will be thrown.
-   * If there is an error during XML parsing, an {@link InfraConfigurationException} will also be thrown.
+   * <p>If the resource does not exist, an {@link WebConfigurationException} will be thrown.
+   * If there is an error during XML parsing, an {@link WebConfigurationException} will also be thrown.
    *
    * @param resource the XML configuration resource to process
-   * @throws InfraConfigurationException if the resource does not exist or if there is an error parsing the XML
+   * @throws WebConfigurationException if the resource does not exist or if there is an error parsing the XML
    * @see #configure(Resource)
    */
   public void registerWebViewXml(Resource resource) {
     if (!resource.exists()) {
-      throw new InfraConfigurationException(
+      throw new WebConfigurationException(
               "Your provided configuration location: [%s], does not exist".formatted(resource));
     }
     try {
       configure(resource);
     }
     catch (Exception e) {
-      throw new InfraConfigurationException("%s xml parsing error".formatted(resource), e);
+      throw new WebConfigurationException("%s xml parsing error".formatted(resource), e);
     }
   }
 
@@ -328,7 +328,7 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
     String type = action.getAttribute(ATTR_TYPE); // type forward, redirect
 
     if (StringUtils.isBlank(path)) {
-      throw new InfraConfigurationException("You must specify a 'name' attribute like this: " +
+      throw new WebConfigurationException("You must specify a 'name' attribute like this: " +
               "[<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
     }
 

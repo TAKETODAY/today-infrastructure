@@ -23,7 +23,7 @@ import infra.http.HttpStatus;
 import infra.web.DispatcherHandler;
 import infra.web.ErrorResponse;
 import infra.web.HttpContext;
-import infra.web.InfraConfigurationException;
+import infra.web.WebConfigurationException;
 
 /**
  * By default when the DispatcherHandler can't find a handler for a request it
@@ -37,7 +37,7 @@ import infra.web.InfraConfigurationException;
  * @see DispatcherHandler#handlerNotFound(HttpContext)
  * @since 4.0 2022/1/28 23:19
  */
-public class HandlerNotFoundException extends InfraConfigurationException implements ErrorResponse {
+public class HandlerNotFoundException extends WebConfigurationException implements ErrorResponse {
 
   private final String httpMethod;
 

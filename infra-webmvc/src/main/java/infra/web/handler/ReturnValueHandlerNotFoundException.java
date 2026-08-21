@@ -18,7 +18,7 @@ package infra.web.handler;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.InfraConfigurationException;
+import infra.web.WebConfigurationException;
 import infra.web.ReturnValueHandler;
 
 /**
@@ -27,7 +27,7 @@ import infra.web.ReturnValueHandler;
  * @author TODAY 2021/4/26 22:18
  * @since 3.0
  */
-public class ReturnValueHandlerNotFoundException extends InfraConfigurationException {
+public class ReturnValueHandlerNotFoundException extends WebConfigurationException {
 
   @Nullable
   private final Object handler;

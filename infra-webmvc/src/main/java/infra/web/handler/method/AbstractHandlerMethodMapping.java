@@ -54,7 +54,7 @@ import infra.util.ReflectionUtils;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
 import infra.web.HttpContext;
-import infra.web.InfraConfigurationException;
+import infra.web.WebConfigurationException;
 import infra.web.annotation.Interceptor;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AbstractHandlerMapping;
@@ -620,7 +620,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       beanDefinitionReader.registerBean(interceptor);
     }
     catch (BeanDefinitionStoreException e) {
-      throw new InfraConfigurationException(
+      throw new WebConfigurationException(
               "Interceptor: [%s] register error".formatted(interceptor.getName()), e);
     }
   }
