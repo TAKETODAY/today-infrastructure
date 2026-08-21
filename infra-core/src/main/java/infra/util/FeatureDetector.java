@@ -80,4 +80,17 @@ public abstract class FeatureDetector {
     return !isPresent(feature);
   }
 
+  /**
+   * Determine whether the given feature is missing when loaded with the supplied
+   * class loader.
+   *
+   * @param feature the feature to check
+   * @param classLoader the class loader to use
+   * (may be {@code null} which indicates the default class loader)
+   * @return whether the feature is missing with the supplied class loader
+   */
+  public static boolean isMissing(Feature feature, @Nullable ClassLoader classLoader) {
+    return !isPresent(feature, classLoader);
+  }
+
 }
