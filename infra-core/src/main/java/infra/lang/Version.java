@@ -36,7 +36,7 @@ import java.util.Objects;
  * @since 4.0
  */
 public record Version(int major, int minor, int micro, String type, int step,
-        @Nullable String extension, String implementationVersion) implements Comparable<Version> {
+                      @Nullable String extension, String implementationVersion) implements Comparable<Version> {
 
   public static final String Draft = "Draft";
   public static final String Alpha = "Alpha";
@@ -69,7 +69,7 @@ public record Version(int major, int minor, int micro, String type, int step,
    * @param implementationVersion the 'Implementation-Version' manifest attribute
    * @return the parsed Version object
    */
-  static Version parse(String implementationVersion) {
+  public static Version parse(String implementationVersion) {
     String type;
     String extension = null;
     int major;
@@ -103,6 +103,151 @@ public record Version(int major, int minor, int micro, String type, int step,
     }
 
     return new Version(major, minor, micro, type, step, extension, implementationVersion);
+  }
+
+  /**
+   * Return if this version is a release (stable) version.
+   *
+   * @return {@code true} if this version is a release version
+   */
+  public boolean isRelease() {
+    return RELEASE.equals(type);
+  }
+
+  /**
+   * Return if this version is a SNAPSHOT version.
+   *
+   * @return {@code true} if this version is a SNAPSHOT version
+   */
+  public boolean isSnapshot() {
+    return SNAPSHOT.equals(type);
+  }
+
+  /**
+   * Return if this version is an Alpha version.
+   *
+   * @return {@code true} if this version is an Alpha version
+   */
+  public boolean isAlpha() {
+    return Alpha.equals(type);
+  }
+
+  /**
+   * Return if this version is a Beta version.
+   *
+   * @return {@code true} if this version is a Beta version
+   */
+  public boolean isBeta() {
+    return Beta.equals(type);
+  }
+
+  /**
+   * Return if this version is a Draft version.
+   *
+   * @return {@code true} if this version is a Draft version
+   */
+  public boolean isDraft() {
+    return Draft.equals(type);
+  }
+
+  /**
+   * Return if this version is a pre-release version, i.e. not a release.
+   *
+   * @return {@code true} if this version is a pre-release version
+   */
+  public boolean isPreRelease() {
+    return !isRelease();
+  }
+
+  /**
+   * Return if this version is newer than the given version.
+   *
+   * @param other the version to compare
+   * @return {@code true} if this version is newer than {@code other}
+   */
+  public boolean isNewerThan(Version other) {
+    return compareTo(other) > 0;
+  }
+
+  /**
+   * Return if this version is older than the given version.
+   *
+   * @param other the version to compare
+   * @return {@code true} if this version is older than {@code other}
+   */
+  public boolean isOlderThan(Version other) {
+    return compareTo(other) < 0;
+  }
+
+  /**
+   * Return if this version is equal to or newer than the given version.
+   *
+   * @param other the version to compare
+   * @return {@code true} if this version is equal to or newer than {@code other}
+   */
+  public boolean isEqualOrNewerThan(Version other) {
+    return compareTo(other) >= 0;
+  }
+
+  /**
+   * Return if this version is equal to or older than the given version.
+   *
+   * @param other the version to compare
+   * @return {@code true} if this version is equal to or older than {@code other}
+   */
+  public boolean isEqualOrOlderThan(Version other) {
+    return compareTo(other) <= 0;
+  }
+
+  /**
+   * Return if this version matches the given major, minor and micro version.
+   *
+   * @param major the major version
+   * @param minor the minor version
+   * @param micro the micro version
+   * @return {@code true} if this version matches
+   */
+  public boolean matches(int major, int minor, int micro) {
+    return this.major == major && this.minor == minor && this.micro == micro;
+  }
+
+  /**
+   * Return the version string without the leading {@code 'v'} prefix.
+   *
+   * @return the raw implementation version string
+   */
+  public String toVersionString() {
+    return implementationVersion;
+  }
+
+  /**
+   * Return a copy of this version without its extension.
+   *
+   * @return the version without extension, or this version if it has none
+   */
+  public Version withoutExtension() {
+    if (extension == null) {
+      return this;
+    }
+    String base = implementationVersion.substring(0, implementationVersion.length() - extension.length() - 1);
+    return new Version(major, minor, micro, type, step, null, base);
+  }
+
+  /**
+   * Return a copy of this version with the given extension.
+   *
+   * @param extension the new extension, may be {@code null} to remove it
+   * @return the version with the given extension, or this version if unchanged
+   */
+  public Version withExtension(@Nullable String extension) {
+    if (Objects.equals(this.extension, extension)) {
+      return this;
+    }
+    if (extension == null) {
+      return withoutExtension();
+    }
+    String base = withoutExtension().implementationVersion();
+    return new Version(major, minor, micro, type, step, extension, base + "-" + extension);
   }
 
   @Override

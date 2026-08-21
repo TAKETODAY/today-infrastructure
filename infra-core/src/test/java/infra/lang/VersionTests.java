@@ -223,4 +223,121 @@ class VersionTests {
     assertThat(v1.equals(v2) && v2.equals(v1)).isTrue();
   }
 
+  @Test
+  void typeShouldBeDetectedCorrectly() {
+    assertThat(Version.parse("4.0.0-Draft.1").isDraft()).isTrue();
+    assertThat(Version.parse("4.0.0-SNAPSHOT").isSnapshot()).isTrue();
+    assertThat(Version.parse("4.0.0-Alpha.1").isAlpha()).isTrue();
+    assertThat(Version.parse("4.0.0-Beta.1").isBeta()).isTrue();
+    assertThat(Version.parse("4.0.0").isRelease()).isTrue();
+
+    assertThat(Version.parse("4.0.0-Alpha.1").isPreRelease()).isTrue();
+    assertThat(Version.parse("4.0.0").isPreRelease()).isFalse();
+  }
+
+  @Test
+  void convenientComparisonMethodsShouldWork() {
+    Version release = Version.parse("4.1.0");
+    Version beta = Version.parse("4.1.0-Beta.1");
+    Version alpha = Version.parse("4.1.0-Alpha.1");
+
+    assertThat(release.isNewerThan(beta)).isTrue();
+    assertThat(beta.isNewerThan(alpha)).isTrue();
+    assertThat(alpha.isOlderThan(beta)).isTrue();
+    assertThat(beta.isOlderThan(release)).isTrue();
+
+    assertThat(release.isEqualOrNewerThan(beta)).isTrue();
+    assertThat(release.isEqualOrNewerThan(release)).isTrue();
+    assertThat(alpha.isEqualOrOlderThan(beta)).isTrue();
+    assertThat(alpha.isEqualOrOlderThan(alpha)).isTrue();
+    assertThat(beta.isEqualOrNewerThan(release)).isFalse();
+    assertThat(release.isEqualOrOlderThan(alpha)).isFalse();
+  }
+
+  @Test
+  void matchesShouldCheckMajorMinorMicroOnly() {
+    Version version = Version.parse("4.1.2-Beta.3");
+
+    assertThat(version.matches(4, 1, 2)).isTrue();
+    assertThat(version.matches(4, 1, 3)).isFalse();
+    assertThat(version.matches(3, 1, 2)).isFalse();
+  }
+
+  @Test
+  void toVersionStringShouldDropVPrefix() {
+    Version version = Version.parse("4.0.0-Beta.1");
+    assertThat(version.toVersionString()).isEqualTo("4.0.0-Beta.1");
+    assertThat(version.toString()).isEqualTo("v" + version.toVersionString());
+  }
+
+  @Test
+  void withoutExtensionShouldReturnVersionWithoutSuffix() {
+    Version withExtension = Version.parse("4.0.0-Alpha.3-jdk8");
+    Version without = withExtension.withoutExtension();
+
+    assertThat(without.extension()).isNull();
+    assertThat(without.type()).isEqualTo(Version.Alpha);
+    assertThat(without.step()).isEqualTo(3);
+    assertThat(without.implementationVersion()).isEqualTo("4.0.0-Alpha.3");
+  }
+
+  @Test
+  void withoutExtensionShouldReturnSameInstanceWhenNoExtension() {
+    Version version = Version.parse("4.0.0-Alpha.3");
+    assertThat(version.withoutExtension()).isSameAs(version);
+  }
+
+  @Test
+  void parseShouldBePubliclyAccessible() {
+    Version version = Version.parse("3.2.1-Beta.2");
+    assertThat(version.major()).isEqualTo(3);
+    assertThat(version.minor()).isEqualTo(2);
+    assertThat(version.micro()).isEqualTo(1);
+    assertThat(version.type()).isEqualTo(Version.Beta);
+    assertThat(version.step()).isEqualTo(2);
+  }
+
+  @Test
+  void withExtensionShouldAddExtensionToExtensionlessVersion() {
+    Version version = Version.parse("4.0.0-Alpha.3");
+    Version withExtension = version.withExtension("jdk8");
+
+    assertThat(withExtension.extension()).isEqualTo("jdk8");
+    assertThat(withExtension.type()).isEqualTo(Version.Alpha);
+    assertThat(withExtension.step()).isEqualTo(3);
+    assertThat(withExtension.implementationVersion()).isEqualTo("4.0.0-Alpha.3-jdk8");
+  }
+
+  @Test
+  void withExtensionShouldReplaceExistingExtension() {
+    Version version = Version.parse("4.0.0-Alpha.3-jdk8");
+    Version withExtension = version.withExtension("jdk17");
+
+    assertThat(withExtension.extension()).isEqualTo("jdk17");
+    assertThat(withExtension.major()).isEqualTo(4);
+    assertThat(withExtension.minor()).isEqualTo(0);
+    assertThat(withExtension.micro()).isEqualTo(0);
+    assertThat(withExtension.type()).isEqualTo(Version.Alpha);
+    assertThat(withExtension.step()).isEqualTo(3);
+    assertThat(withExtension.implementationVersion()).isEqualTo("4.0.0-Alpha.3-jdk17");
+  }
+
+  @Test
+  void withExtensionShouldRemoveExtensionWhenNull() {
+    Version version = Version.parse("4.0.0-Alpha.3-jdk8");
+    Version without = version.withExtension(null);
+
+    assertThat(without.extension()).isNull();
+    assertThat(without.implementationVersion()).isEqualTo("4.0.0-Alpha.3");
+  }
+
+  @Test
+  void withExtensionShouldReturnSameInstanceWhenUnchanged() {
+    Version version = Version.parse("4.0.0-Alpha.3-jdk8");
+    assertThat(version.withExtension("jdk8")).isSameAs(version);
+
+    Version extensionless = Version.parse("4.0.0-Alpha.3");
+    assertThat(extensionless.withExtension(null)).isSameAs(extensionless);
+  }
+
 }
