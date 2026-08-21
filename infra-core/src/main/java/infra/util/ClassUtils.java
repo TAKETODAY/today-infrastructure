@@ -461,23 +461,37 @@ public abstract class ClassUtils {
   }
 
   /**
-   * Load class
+   * Attempt to resolve the supplied class name using the
+   * {@linkplain #getDefaultClassLoader() default ClassLoader}.
+   * <p>In addition to regular class names, this method supports primitive types,
+   * array class names, and nested class names in Java source style, as described
+   * by {@link #forName(String, ClassLoader)}. The class is loaded without being
+   * initialized.
    *
-   * @param <T> return class type
-   * @param name class full name
-   * @return class if not found will returns null
+   * @param <T> the expected class type
+   * @param name the name of the class to resolve
+   * @return the resolved class, or {@code null} if the class cannot be found or linked
+   * @see #load(String, ClassLoader)
+   * @see #forName(String, ClassLoader)
    */
   public static <T> @Nullable Class<T> load(String name) {
     return load(name, getDefaultClassLoader());
   }
 
   /**
-   * Load class with given class name and {@link ClassLoader}
+   * Attempt to resolve the supplied class name using the specified {@link ClassLoader}.
+   * <p>In addition to regular class names, this method supports primitive types,
+   * array class names, and nested class names in Java source style, as described
+   * by {@link #forName(String, ClassLoader)}. The class is loaded without being
+   * initialized. Unlike {@code forName}, this method returns {@code null} if the
+   * class cannot be found or linked.
    *
-   * @param <T> return class type
-   * @param name class full name
-   * @param classLoader use this {@link ClassLoader} load the class
-   * @return null if cannot load
+   * @param <T> the expected class type
+   * @param name the name of the class to resolve
+   * @param classLoader the class loader to use (may be {@code null}, which indicates
+   * the default class loader)
+   * @return the resolved class, or {@code null} if the class cannot be found or linked
+   * @see #forName(String, ClassLoader)
    */
   public static <T> @Nullable Class<T> load(String name, @Nullable ClassLoader classLoader) {
     try {
