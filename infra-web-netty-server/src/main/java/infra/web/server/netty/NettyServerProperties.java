@@ -266,6 +266,35 @@ public class NettyServerProperties {
   @NestedConfigurationProperty
   public final ServiceExecutor serviceExecutor = new ServiceExecutor();
 
+  /**
+   * shutdown details
+   */
+  @NestedConfigurationProperty
+  public final Shutdown shutdown = new Shutdown();
+
+  public static class Shutdown {
+
+    /**
+     * Graceful shutdown ensures that no tasks are submitted for
+     * 'the quiet period' (usually a couple seconds) before it shuts
+     * itself down. If a task is submitted during the quiet period,
+     * it is guaranteed to be accepted and the quiet period will start over.
+     */
+    public long quietPeriod = 1;
+
+    /**
+     * The maximum amount of time to wait until the executor is
+     * shutdown() regardless if a task was submitted during the quiet period
+     */
+    public long timeout = 10;
+
+    /**
+     * The unit of quietPeriod and timeout
+     */
+    public TimeUnit unit = TimeUnit.SECONDS;
+
+  }
+
   public static class ServiceExecutor {
 
     /**
@@ -300,35 +329,6 @@ public class NettyServerProperties {
      * Prefix to use for the names of newly created threads.
      */
     public String threadNamePrefix = "task-";
-
-  }
-
-  /**
-   * shutdown details
-   */
-  @NestedConfigurationProperty
-  public final Shutdown shutdown = new Shutdown();
-
-  public static class Shutdown {
-
-    /**
-     * Graceful shutdown ensures that no tasks are submitted for
-     * 'the quiet period' (usually a couple seconds) before it shuts
-     * itself down. If a task is submitted during the quiet period,
-     * it is guaranteed to be accepted and the quiet period will start over.
-     */
-    public long quietPeriod = 1;
-
-    /**
-     * The maximum amount of time to wait until the executor is
-     * shutdown() regardless if a task was submitted during the quiet period
-     */
-    public long timeout = 10;
-
-    /**
-     * The unit of quietPeriod and timeout
-     */
-    public TimeUnit unit = TimeUnit.SECONDS;
 
   }
 
