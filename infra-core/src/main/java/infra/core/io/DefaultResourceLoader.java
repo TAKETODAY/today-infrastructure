@@ -42,7 +42,6 @@ import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
 import infra.util.function.IOConsumer;
 
 import static infra.core.io.PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX;
@@ -89,10 +88,6 @@ public class DefaultResourceLoader implements ResourceLoader {
    */
   public DefaultResourceLoader(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
-    List<ProtocolResolver> resolvers = TodayStrategies.find(ProtocolResolver.class, classLoader);
-    if (!resolvers.isEmpty()) {
-      this.protocolResolvers = new LinkedHashSet<>(resolvers);
-    }
   }
 
   /**

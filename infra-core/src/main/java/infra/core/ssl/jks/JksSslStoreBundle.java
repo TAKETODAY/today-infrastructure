@@ -28,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 
-import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ApplicationResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
@@ -62,7 +62,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
    * @param trustStoreDetails the trust store details
    */
   public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails) {
-    this(keyStoreDetails, trustStoreDetails, new DefaultResourceLoader());
+    this(keyStoreDetails, trustStoreDetails, ApplicationResourceLoader.of());
   }
 
   /**
@@ -81,26 +81,22 @@ public class JksSslStoreBundle implements SslStoreBundle {
     this.trustStore = SingletonSupplier.of(() -> createKeyStore("trust", trustStoreDetails));
   }
 
-  @Nullable
   @Override
-  public KeyStore getKeyStore() {
+  public @Nullable KeyStore getKeyStore() {
     return this.keyStore.get();
   }
 
-  @Nullable
   @Override
-  public String getKeyStorePassword() {
+  public @Nullable String getKeyStorePassword() {
     return (this.keyStoreDetails != null) ? this.keyStoreDetails.password() : null;
   }
 
   @Override
-  @Nullable
-  public KeyStore getTrustStore() {
+  public @Nullable KeyStore getTrustStore() {
     return this.trustStore.get();
   }
 
-  @Nullable
-  private KeyStore createKeyStore(String name, @Nullable JksSslStoreDetails details) {
+  private @Nullable KeyStore createKeyStore(String name, @Nullable JksSslStoreDetails details) {
     if (details == null || details.isEmpty()) {
       return null;
     }

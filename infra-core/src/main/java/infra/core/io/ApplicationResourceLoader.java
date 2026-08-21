@@ -173,8 +173,7 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
 
     private static final ResourceLoader shared = new ApplicationFileSystemResourceLoader(null, null);
 
-    @Nullable
-    private final Path workingDirectory;
+    private final @Nullable Path workingDirectory;
 
     private ApplicationFileSystemResourceLoader(@Nullable ClassLoader classLoader, @Nullable Path workingDirectory) {
       super(classLoader);
@@ -262,9 +261,8 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
       this.filePathResolvers = filePathResolvers;
     }
 
-    @Nullable
     @Override
-    public ClassLoader getClassLoader() {
+    public @Nullable ClassLoader getClassLoader() {
       return this.resourceLoader.getClassLoader();
     }
 
@@ -283,8 +281,7 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
       return filePath != null ? new ApplicationResource(filePath) : resource;
     }
 
-    @Nullable
-    private String getFilePath(String location, Resource resource) {
+    private @Nullable String getFilePath(String location, Resource resource) {
       for (FilePathResolver filePathResolver : this.filePathResolvers) {
         String filePath = filePathResolver.resolveFilePath(location, resource);
         if (filePath != null) {

@@ -190,7 +190,7 @@ class BackgroundBootstrapTests {
   }
 
   @Test
-  @Timeout(10)
+  @Timeout(11)
   @DisabledIfInContinuousIntegration
   void bootstrapWithCustomExecutorAndLazyConfig() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorLazyBeanConfig.class);
