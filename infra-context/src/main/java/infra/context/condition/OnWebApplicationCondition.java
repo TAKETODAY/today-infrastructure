@@ -30,6 +30,9 @@ import infra.core.Ordered;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.util.ClassUtils;
+import infra.util.Feature;
+
+import static infra.util.FeatureDetector.isMissing;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -44,17 +47,11 @@ import infra.util.ClassUtils;
  */
 class OnWebApplicationCondition extends FilteringInfraCondition implements Ordered {
 
-  private static final String WEB_INDICATOR_CLASS = "infra.web.ErrorResponse";
-
-  private static final String WEB_MVC_INDICATOR_CLASS = "infra.web.HttpContext";
-
-  private static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
-
   private static final String REACTIVE_WEB_APPLICATION_CLASS = "infra.web.reactive.context.ConfigurableReactiveWebEnvironment";
 
   private static final String REACTIVE_WEB_APPLICATION_CONTEXT_CLASS = "infra.web.reactive.context.ReactiveWebApplicationContext";
 
-  private static final String CONFIGURABLE_WEB_ENVIRONMENT_CLASS = "infra.web.context.ConfigurableWebEnvironment";
+  private static final String WEB_ENVIRONMENT_CLASS = "infra.web.context.ConfigurableWebEnvironment";
 
   @Override
   public int getOrder() {
@@ -79,20 +76,20 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     if (type == null) {
       return null;
     }
-    ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
     if (ConditionalOnWebApplication.Type.MVC.name().equals(type)) {
-      if (missingClassFilter.matches(WEB_MVC_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (isMissing(Feature.WEB_MVC, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("Web MVC application classes").atAll());
       }
     }
     else if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
-      if (missingClassFilter.matches(REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (isMissing(Feature.REACTOR, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (missingClassFilter.matches(WEB_INDICATOR_CLASS, getBeanClassLoader())
-            && missingClassFilter.matches(REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+
+    if (isMissing(Feature.WEB, getBeanClassLoader())
+            && isMissing(Feature.REACTOR, getBeanClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive, web application classes").atAll());
     }
     return null;
@@ -156,8 +153,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isMvcWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
-    if (missingClassFilter.matches(WEB_MVC_INDICATOR_CLASS, context.getClassLoader())) {
+    if (isMissing(Feature.WEB_MVC, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("web mvc application classes").atAll());
     }
 
@@ -167,7 +163,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       }
     }
 
-    if (isInstance(CONFIGURABLE_WEB_ENVIRONMENT_CLASS, context.getEnvironment(), context.getClassLoader())) {
+    if (isInstance(WEB_ENVIRONMENT_CLASS, context.getEnvironment(), context.getClassLoader())) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
 
