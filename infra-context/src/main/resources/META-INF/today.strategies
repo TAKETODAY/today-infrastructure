@@ -1,0 +1,10 @@
+
+# Auto Configuration Import Listeners
+infra.context.annotation.config.AutoConfigurationImportListener=\
+infra.context.condition.ConditionEvaluationReportAutoConfigurationImportListener
+
+# Auto Configuration Import Filters
+infra.context.annotation.config.AutoConfigurationImportFilter=\
+infra.context.condition.OnBeanCondition,\
+infra.context.condition.OnClassCondition,\
+infra.context.condition.OnWebApplicationCondition

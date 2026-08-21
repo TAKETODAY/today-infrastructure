@@ -28,9 +28,7 @@ infra.app.config.ssl.BundleContentNotWatchableFailureAnalyzer
 # Failure Analysis Reporters
 infra.app.diagnostics.FailureAnalysisReporter=\
 infra.app.diagnostics.LoggingFailureAnalysisReporter
-# Auto Configuration Import Listeners
-infra.context.annotation.config.AutoConfigurationImportListener=\
-infra.context.condition.ConditionEvaluationReportAutoConfigurationImportListener
+
 #
 #
 # for EnvironmentPostProcessor processing environment
@@ -66,12 +64,6 @@ infra.app.context.config.StandardConfigDataLoader
 # Error Reporters
 infra.app.diagnostics.ApplicationExceptionReporter=\
 infra.app.diagnostics.FailureAnalyzers
-
-# Auto Configuration Import Filters
-infra.context.annotation.config.AutoConfigurationImportFilter=\
-infra.context.condition.OnBeanCondition,\
-infra.context.condition.OnClassCondition,\
-infra.app.config.OnWebApplicationCondition
 
 #
 # ApplicationContextInitializer
