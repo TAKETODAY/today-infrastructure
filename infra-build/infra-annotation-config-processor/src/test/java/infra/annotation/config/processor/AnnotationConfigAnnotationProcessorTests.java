@@ -44,8 +44,7 @@ class AnnotationConfigAnnotationProcessorTests {
       assertThat(properties).hasSize(7);
       assertThat(properties).containsEntry(
               "infra.annotation.config.processor.TestClassConfiguration.ConditionalOnClass",
-              "infra.foo,java.io.InputStream,infra.annotation.config.processor."
-                      + "TestClassConfiguration$Nested");
+              "java.io.InputStream,infra.annotation.config.processor.TestClassConfiguration$Nested,infra.foo");
       assertThat(properties)
               .containsKey("infra.annotation.config.processor.TestClassConfiguration");
       assertThat(properties)
