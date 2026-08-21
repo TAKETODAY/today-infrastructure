@@ -136,7 +136,6 @@ class AnnotationConfigAnnotationProcessorTests {
   }
 
   @Test
-    // gh-19370
   void propertiesAreFullRepeatable() {
     process(TestOrderedClassConfiguration.class, (firstFile) -> {
       String first = getFileContents(firstFile);

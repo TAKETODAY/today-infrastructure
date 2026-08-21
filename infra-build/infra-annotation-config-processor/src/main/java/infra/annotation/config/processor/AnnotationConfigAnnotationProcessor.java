@@ -89,14 +89,10 @@ public class AnnotationConfigAnnotationProcessor extends AbstractProcessor {
 
   private void addConditionPropertyGenerators(List<PropertyGenerator> generators) {
     String annotationPackage = "infra.context.condition";
-    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnClass")
-            .withAnnotation(new OnClassConditionValueExtractor()));
-    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnBean")
-            .withAnnotation(new OnBeanConditionValueExtractor()));
-    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnSingleCandidate")
-            .withAnnotation(new OnBeanConditionValueExtractor()));
-    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnWebApplication")
-            .withAnnotation(ValueExtractor.allFrom("type")));
+    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnClass").withAnnotation(new OnClassConditionValueExtractor()));
+    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnBean").withAnnotation(new OnBeanConditionValueExtractor()));
+    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnSingleCandidate").withAnnotation(new OnBeanConditionValueExtractor()));
+    generators.add(PropertyGenerator.of(annotationPackage, "ConditionalOnWebApplication").withAnnotation(ValueExtractor.allFrom("type")));
   }
 
   private void addAutoConfigurePropertyGenerators(List<PropertyGenerator> generators) {
@@ -288,18 +284,18 @@ public class AnnotationConfigAnnotationProcessor extends AbstractProcessor {
     }
 
     private int compare(Object o1, Object o2) {
-      return Comparator.comparing(this::isInfraAppClass)
+      return Comparator.comparing(this::isInfraClass)
               .thenComparing(String.CASE_INSENSITIVE_ORDER)
               .compare(o1.toString(), o2.toString());
     }
 
-    private boolean isInfraAppClass(String type) {
-      return type.startsWith("infra.annotation.config");
+    private boolean isInfraClass(String type) {
+      return type.startsWith("infra.");
     }
 
   }
 
-  static final class PropertyGenerator {
+  protected static final class PropertyGenerator {
 
     private final String annotationPackage;
 
