@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.context;
+package infra.context.config;
 
 import org.jspecify.annotations.Nullable;
 
@@ -72,10 +72,7 @@ import infra.util.StringUtils;
 @Conditional(MessageSourceAutoConfiguration.ResourceBundleCondition.class)
 @EnableConfigurationProperties(MessageSourceProperties.class)
 @ImportRuntimeHints(MessageSourceAutoConfiguration.Hints.class)
-public class MessageSourceAutoConfiguration {
-
-  private MessageSourceAutoConfiguration() {
-  }
+public final class MessageSourceAutoConfiguration {
 
   @Component
   public static MessageSource messageSource(MessageSourceProperties properties) {

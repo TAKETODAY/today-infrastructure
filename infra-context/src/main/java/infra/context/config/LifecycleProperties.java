@@ -16,28 +16,26 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.context;
+package infra.context.config;
 
-import infra.context.annotation.Lazy;
-import infra.context.annotation.config.DisableDIAutoConfiguration;
-import infra.context.annotation.config.EnableAutoConfiguration;
+import java.time.Duration;
+
 import infra.context.properties.ConfigurationProperties;
-import infra.context.properties.EnableConfigurationProperties;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for
- * {@link ConfigurationProperties @ConfigurationProperties} beans. Automatically binds and
- * validates any bean annotated with {@code @ConfigurationProperties}.
+ * Configuration properties for lifecycle processing.
  *
- * @author Stephane Nicoll
+ * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EnableConfigurationProperties
- * @see ConfigurationProperties
  * @since 4.0
  */
-@Lazy
-@DisableDIAutoConfiguration
-@EnableConfigurationProperties
-public class ConfigurationPropertiesAutoConfiguration {
+@ConfigurationProperties(prefix = "infra.lifecycle")
+public class LifecycleProperties {
+
+  /**
+   * Timeout for the shutdown of any phase (group of SmartLifecycle beans with the same
+   * 'phase' value).
+   */
+  public Duration timeoutPerShutdownPhase = Duration.ofSeconds(30);
 
 }

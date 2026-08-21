@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.context;
+package infra.context.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LifecycleAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(infra.app.config.context.LifecycleAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(infra.context.config.LifecycleAutoConfiguration.class));
 
   @Test
   void lifecycleProcessorIsConfiguredWithDefaultTimeout() {

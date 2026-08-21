@@ -1,8 +1,7 @@
-
 /**
  * Auto-configuration for application availability features.
  */
 @NullMarked
-package infra.app.config.availability;
+package infra.context.availability.config;
 
 import org.jspecify.annotations.NullMarked;

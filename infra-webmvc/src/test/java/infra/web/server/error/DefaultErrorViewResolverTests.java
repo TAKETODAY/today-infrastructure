@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.web.config.WebProperties.Resources;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Ordered;
@@ -36,12 +35,13 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.web.HttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProviders;
+import infra.web.HttpContext;
+import infra.web.config.WebProperties.Resources;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;

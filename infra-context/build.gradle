@@ -36,6 +36,7 @@ dependencies {
 
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
+  testImplementation(project(":infra-app"))
   testImplementation(project(":infra-core-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation(project(":infra-webmvc-mock"))

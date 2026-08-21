@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.app.config.context;
+package infra.context.config;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -27,21 +27,23 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.test.annotation.DirtiesContext;
+import infra.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link infra.app.config.context.MessageSourceAutoConfiguration}.
+ * Tests for {@link MessageSourceAutoConfiguration}.
  *
  * @author Dave Syer
  */
 @DirtiesContext
-@InfraTest("infra.messages.basename:test/messages")
+@InfraTest
+@ActiveProfiles("switch-messages")
 @ImportAutoConfiguration({
-        infra.app.config.context.MessageSourceAutoConfiguration.class,
+        MessageSourceAutoConfiguration.class,
         PropertyPlaceholderAutoConfiguration.class
 })
-class MessageSourceAutoConfigurationIntegrationTests {
+class MessageSourceAutoConfigurationProfileTests {
 
   @Autowired
   private ApplicationContext context;

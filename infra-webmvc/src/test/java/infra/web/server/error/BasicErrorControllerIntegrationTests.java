@@ -30,13 +30,13 @@ import java.net.URI;
 import java.util.Map;
 
 import infra.app.Application;
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.resttestclient.TestRestTemplate;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.freemarker.config.FreeMarkerAutoConfiguration;
 import infra.http.HttpStatus;

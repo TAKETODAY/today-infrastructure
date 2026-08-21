@@ -29,13 +29,13 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import infra.app.Application;
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;

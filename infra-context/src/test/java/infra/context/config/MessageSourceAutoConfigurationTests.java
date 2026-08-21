@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.context;
+package infra.context.config;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
@@ -39,7 +39,7 @@ import infra.test.context.runner.ContextConsumer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link infra.app.config.context.MessageSourceAutoConfiguration}.
+ * Tests for {@link infra.context.config.MessageSourceAutoConfiguration}.
  *
  * @author Dave Syer
  * @author Eddú Meléndez
@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MessageSourceAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(infra.app.config.context.MessageSourceAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(infra.context.config.MessageSourceAutoConfiguration.class));
 
   @Test
   void testDefaultMessageSource() {
@@ -196,7 +196,7 @@ class MessageSourceAutoConfigurationTests {
   @Test
   void shouldRegisterDefaultHints() {
     RuntimeHints hints = new RuntimeHints();
-    new infra.app.config.context.MessageSourceAutoConfiguration.Hints().registerHints(hints, getClass().getClassLoader());
+    new MessageSourceAutoConfiguration.Hints().registerHints(hints, getClass().getClassLoader());
     assertThat(RuntimeHintsPredicates.resource().forResource("messages.properties")).accepts(hints);
     assertThat(RuntimeHintsPredicates.resource().forResource("messages_de.properties")).accepts(hints);
     assertThat(RuntimeHintsPredicates.resource().forResource("messages_zh-CN.properties")).accepts(hints);

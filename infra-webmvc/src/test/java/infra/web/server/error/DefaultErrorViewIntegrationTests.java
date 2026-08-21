@@ -27,23 +27,23 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.Application;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.http.MediaType;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.test.annotation.DirtiesContext;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.setup.MockMvcBuilders;
-import infra.web.server.netty.RandomPortWebServerConfig;
-import infra.web.util.WebUtils;
 import infra.web.config.ErrorMvcAutoConfiguration;
 import infra.web.config.WebMvcAutoConfiguration;
+import infra.web.server.netty.RandomPortWebServerConfig;
+import infra.web.util.WebUtils;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;

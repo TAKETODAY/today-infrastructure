@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.annotation.Value;

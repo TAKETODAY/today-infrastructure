@@ -16,32 +16,36 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.availability;
+package infra.context.config;
 
-import infra.context.availability.ApplicationAvailability;
-import infra.context.availability.ApplicationAvailabilityBean;
-import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.condition.SearchStrategy;
+import infra.context.properties.EnableConfigurationProperties;
+import infra.context.support.AbstractApplicationContext;
+import infra.context.support.DefaultLifecycleProcessor;
 import infra.stereotype.Component;
 
 /**
- * {@link EnableAutoConfiguration} for {@link ApplicationAvailabilityBean}.
+ * {@link EnableAutoConfiguration Auto-configuration} relating to the application
+ * context's lifecycle.
  *
- * @author Brian Clozel
- * @author Taeik Lim
+ * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Lazy
 @DisableDIAutoConfiguration
-public final class ApplicationAvailabilityAutoConfiguration {
+@EnableConfigurationProperties(LifecycleProperties.class)
+public final class LifecycleAutoConfiguration {
 
-  @Component
-  @ConditionalOnMissingBean(ApplicationAvailability.class)
-  public static ApplicationAvailabilityBean applicationAvailability() {
-    return new ApplicationAvailabilityBean();
+  @Component(name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
+  @ConditionalOnMissingBean(search = SearchStrategy.CURRENT,
+          name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
+  public static DefaultLifecycleProcessor defaultLifecycleProcessor(LifecycleProperties properties) {
+    DefaultLifecycleProcessor lifecycleProcessor = new DefaultLifecycleProcessor();
+    lifecycleProcessor.setTimeoutPerShutdownPhase(properties.timeoutPerShutdownPhase.toMillis());
+    return lifecycleProcessor;
   }
 
 }

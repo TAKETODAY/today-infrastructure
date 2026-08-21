@@ -16,37 +16,32 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.context;
+package infra.context.availability.config;
 
-import infra.context.annotation.config.AutoConfigureOrder;
+import infra.context.availability.ApplicationAvailability;
+import infra.context.availability.ApplicationAvailabilityBean;
+import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.context.condition.SearchStrategy;
-import infra.context.support.PropertySourcesPlaceholderConfigurer;
-import infra.core.Ordered;
 import infra.stereotype.Component;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for
- * {@link PropertySourcesPlaceholderConfigurer}.
+ * {@link EnableAutoConfiguration} for {@link ApplicationAvailabilityBean}.
  *
- * @author Phillip Webb
- * @author Dave Syer
+ * @author Brian Clozel
+ * @author Taeik Lim
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Lazy
 @DisableDIAutoConfiguration
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
-public class PropertyPlaceholderAutoConfiguration {
-
-  private PropertyPlaceholderAutoConfiguration() {
-  }
+public final class ApplicationAvailabilityAutoConfiguration {
 
   @Component
-  @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
-  public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-    return new PropertySourcesPlaceholderConfigurer();
+  @ConditionalOnMissingBean(ApplicationAvailability.class)
+  public static ApplicationAvailabilityBean applicationAvailability() {
+    return new ApplicationAvailabilityBean();
   }
 
 }

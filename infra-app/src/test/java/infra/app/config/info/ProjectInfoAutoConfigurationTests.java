@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Properties;
 
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.app.info.BuildProperties;
 import infra.app.info.GitProperties;
 import infra.context.annotation.Bean;

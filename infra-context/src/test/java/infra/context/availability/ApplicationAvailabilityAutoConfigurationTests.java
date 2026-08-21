@@ -16,15 +16,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.availability;
+package infra.context.availability;
 
 import org.junit.jupiter.api.Test;
 
 import infra.app.LazyInitializationBeanFactoryPostProcessor;
-import infra.context.availability.ApplicationAvailability;
-import infra.context.availability.AvailabilityChangeEvent;
-import infra.context.availability.ReadinessState;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.context.availability.config.ApplicationAvailabilityAutoConfiguration;
 import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;

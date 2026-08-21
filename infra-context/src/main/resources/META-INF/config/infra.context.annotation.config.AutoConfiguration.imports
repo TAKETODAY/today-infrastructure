@@ -1,1 +1,6 @@
 infra.validation.config.ValidationAutoConfiguration
+infra.context.config.LifecycleAutoConfiguration
+infra.context.config.MessageSourceAutoConfiguration
+infra.context.config.PropertyPlaceholderAutoConfiguration
+infra.context.config.ConfigurationPropertiesAutoConfiguration
+infra.context.availability.config.ApplicationAvailabilityAutoConfiguration

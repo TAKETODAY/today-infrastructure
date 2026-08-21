@@ -16,39 +16,34 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.context;
+package infra.context.config;
 
+import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.SearchStrategy;
-import infra.context.properties.EnableConfigurationProperties;
-import infra.context.support.AbstractApplicationContext;
-import infra.context.support.DefaultLifecycleProcessor;
+import infra.context.support.PropertySourcesPlaceholderConfigurer;
+import infra.core.Ordered;
 import infra.stereotype.Component;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} relating to the application
- * context's lifecycle.
+ * {@link EnableAutoConfiguration Auto-configuration} for
+ * {@link PropertySourcesPlaceholderConfigurer}.
  *
- * @author Andy Wilkinson
+ * @author Phillip Webb
+ * @author Dave Syer
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @DisableDIAutoConfiguration
-@EnableConfigurationProperties(LifecycleProperties.class)
-public class LifecycleAutoConfiguration {
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+public final class PropertyPlaceholderAutoConfiguration {
 
-  private LifecycleAutoConfiguration() {
-  }
-
-  @Component(name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
-  @ConditionalOnMissingBean(search = SearchStrategy.CURRENT,
-          name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
-  public static DefaultLifecycleProcessor defaultLifecycleProcessor(LifecycleProperties properties) {
-    DefaultLifecycleProcessor lifecycleProcessor = new DefaultLifecycleProcessor();
-    lifecycleProcessor.setTimeoutPerShutdownPhase(properties.getTimeoutPerShutdownPhase().toMillis());
-    return lifecycleProcessor;
+  @Component
+  @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
+  public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+    return new PropertySourcesPlaceholderConfigurer();
   }
 
 }

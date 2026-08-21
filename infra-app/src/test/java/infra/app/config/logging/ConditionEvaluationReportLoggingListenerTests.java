@@ -28,7 +28,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import infra.app.Application;
 import infra.app.ApplicationArguments;
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.app.context.event.ApplicationFailedEvent;
 import infra.app.logging.LogLevel;
 import infra.beans.factory.NoSuchBeanDefinitionException;

@@ -20,13 +20,13 @@ package infra.web.server.error;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.app.config.task.TaskExecutionAutoConfiguration;
 import infra.app.resttestclient.TestRestTemplate;
 import infra.app.test.context.InfraTest;
 import infra.app.test.context.InfraTest.WebEnvironment;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
+import infra.context.config.PropertyPlaceholderAutoConfiguration;
 import infra.http.converter.HttpMessageConverters.ServerBuilder;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;

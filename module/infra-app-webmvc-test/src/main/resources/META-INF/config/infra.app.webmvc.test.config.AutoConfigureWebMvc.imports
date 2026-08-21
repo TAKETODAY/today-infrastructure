@@ -1,4 +1,4 @@
-infra.app.config.context.MessageSourceAutoConfiguration
+infra.context.config.MessageSourceAutoConfiguration
 infra.app.config.task.TaskExecutionAutoConfiguration
 infra.web.config.WebMvcAutoConfiguration
 infra.web.config.ErrorMvcAutoConfiguration
