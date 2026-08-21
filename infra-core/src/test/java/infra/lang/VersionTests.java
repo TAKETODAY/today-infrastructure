@@ -38,7 +38,7 @@ class VersionTests {
     assertThat(version.step()).isEqualTo(1);
     assertThat(version.major()).isEqualTo(4);
     assertThat(version.minor()).isEqualTo(0);
-    assertThat(version.micro()).isEqualTo(0);
+    assertThat(version.patch()).isEqualTo(0);
     assertThat(version.extension()).isNull();
 
     // release
@@ -84,7 +84,7 @@ class VersionTests {
     assertThat(Version.parse("4.1.2")).satisfies(version -> {
       assertThat(version.major()).isEqualTo(4);
       assertThat(version.minor()).isEqualTo(1);
-      assertThat(version.micro()).isEqualTo(2);
+      assertThat(version.patch()).isEqualTo(2);
       assertThat(version.type()).isEqualTo(Version.RELEASE);
       assertThat(version.step()).isEqualTo(0);
       assertThat(version.extension()).isNull();
@@ -292,7 +292,7 @@ class VersionTests {
     Version version = Version.parse("3.2.1-Beta.2");
     assertThat(version.major()).isEqualTo(3);
     assertThat(version.minor()).isEqualTo(2);
-    assertThat(version.micro()).isEqualTo(1);
+    assertThat(version.patch()).isEqualTo(1);
     assertThat(version.type()).isEqualTo(Version.Beta);
     assertThat(version.step()).isEqualTo(2);
   }
@@ -316,7 +316,7 @@ class VersionTests {
     assertThat(withExtension.extension()).isEqualTo("jdk17");
     assertThat(withExtension.major()).isEqualTo(4);
     assertThat(withExtension.minor()).isEqualTo(0);
-    assertThat(withExtension.micro()).isEqualTo(0);
+    assertThat(withExtension.patch()).isEqualTo(0);
     assertThat(withExtension.type()).isEqualTo(Version.Alpha);
     assertThat(withExtension.step()).isEqualTo(3);
     assertThat(withExtension.implementationVersion()).isEqualTo("4.0.0-Alpha.3-jdk17");

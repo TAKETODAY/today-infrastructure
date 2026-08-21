@@ -26,14 +26,14 @@ import java.util.Objects;
  * <p>
  * A version string follows the format:
  * <pre>
- * {major}.{minor}.{micro}-{type}.{step}-{extension}
+ * {major}.{minor}.{patch}-{type}.{step}-{extension}
  * </pre>
  * where the {@code {type}} is one of {@link #Draft}, {@link #SNAPSHOT},
- * {@link #Alpha}, {@link #Beta} or {@link #RELEASE}. The {@code {micro}},
+ * {@link #Alpha}, {@link #Beta} or {@link #RELEASE}. The {@code {patch}},
  * {@code {step}} and {@code {extension}} parts are optional, and the extension
  * may itself contain hyphens.
  * <p>
- * Versions are ordered by major, minor and micro numbers first, then by type
+ * Versions are ordered by major, minor and patch numbers first, then by type
  * precedence ({@code Draft < SNAPSHOT < Alpha < Beta < RELEASE}), and finally by
  * the step number.
  * <p>
@@ -42,7 +42,7 @@ import java.util.Objects;
  *
  * @param major the major version
  * @param minor the minor version
- * @param micro the micro (patch) version
+ * @param patch the patch version
  * @param type the version type, one of {@link #Draft}, {@link #SNAPSHOT},
  * {@link #Alpha}, {@link #Beta} or {@link #RELEASE}
  * @param step the version step
@@ -51,7 +51,7 @@ import java.util.Objects;
  * @author TODAY 2021/10/11 23:28
  * @since 4.0
  */
-public record Version(int major, int minor, int micro, String type, int step,
+public record Version(int major, int minor, int patch, String type, int step,
                       @Nullable String extension, String implementationVersion) implements Comparable<Version> {
 
   /**
@@ -105,8 +105,8 @@ public record Version(int major, int minor, int micro, String type, int step,
   /**
    * Parses a {@link Version} from a version string.
    * <p>
-   * The accepted format is {@code {major}.{minor}.{micro}-{type}.{step}-{extension}}.
-   * The {@code {micro}}, {@code {step}} and {@code {extension}} parts are optional,
+   * The accepted format is {@code {major}.{minor}.{patch}-{type}.{step}-{extension}}.
+   * The {@code {patch}}, {@code {step}} and {@code {extension}} parts are optional,
    * and the extension may itself contain hyphens. For example:
    * <pre>
    * "4.0.0"                -&gt; type=RELEASE, step=0, extension=null
@@ -123,7 +123,7 @@ public record Version(int major, int minor, int micro, String type, int step,
     String extension = null;
     int major;
     int minor;
-    int micro = 0;
+    int patch = 0;
     int step = 0;
 
     String[] split = implementationVersion.split("-");
@@ -153,10 +153,10 @@ public record Version(int major, int minor, int micro, String type, int step,
     major = Integer.parseInt(number[0]);
     minor = Integer.parseInt(number[1]);
     if (number.length == 3) {
-      micro = Integer.parseInt(number[2]);
+      patch = Integer.parseInt(number[2]);
     }
 
-    return new Version(major, minor, micro, type, step, extension, implementationVersion);
+    return new Version(major, minor, patch, type, step, extension, implementationVersion);
   }
 
   /**
@@ -255,16 +255,16 @@ public record Version(int major, int minor, int micro, String type, int step,
   }
 
   /**
-   * Return whether this version has exactly the given major, minor and micro numbers.
+   * Return whether this version has exactly the given major, minor and patch numbers.
    * The type, step and extension are not considered.
    *
    * @param major the major version to match
    * @param minor the minor version to match
-   * @param micro the micro version to match
+   * @param patch the patch version to match
    * @return {@code true} if the numeric version matches, {@code false} otherwise
    */
-  public boolean matches(int major, int minor, int micro) {
-    return this.major == major && this.minor == minor && this.micro == micro;
+  public boolean matches(int major, int minor, int patch) {
+    return this.major == major && this.minor == minor && this.patch == patch;
   }
 
   /**
@@ -286,7 +286,7 @@ public record Version(int major, int minor, int micro, String type, int step,
       return this;
     }
     String base = implementationVersion.substring(0, implementationVersion.length() - extension.length() - 1);
-    return new Version(major, minor, micro, type, step, null, base);
+    return new Version(major, minor, patch, type, step, null, base);
   }
 
   /**
@@ -307,7 +307,7 @@ public record Version(int major, int minor, int micro, String type, int step,
       return withoutExtension();
     }
     String base = withoutExtension().implementationVersion();
-    return new Version(major, minor, micro, type, step, extension, base + "-" + extension);
+    return new Version(major, minor, patch, type, step, extension, base + "-" + extension);
   }
 
   @Override
@@ -328,8 +328,8 @@ public record Version(int major, int minor, int micro, String type, int step,
       return result;
     }
 
-    // Compare micro version
-    result = Integer.compare(micro, o.micro);
+    // Compare patch version
+    result = Integer.compare(patch, o.patch);
     if (result != 0) {
       return result;
     }
