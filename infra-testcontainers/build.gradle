@@ -31,6 +31,9 @@ dependencies {
   optional(project(":infra-app"))
   optional(project(":infra-test"))
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation(project(":infra-test"))
   testImplementation(project(":infra-test-support"))
   testImplementation("org.testcontainers:testcontainers-junit-jupiter")

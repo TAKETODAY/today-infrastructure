@@ -8,6 +8,10 @@ dependencies {
   optional 'org.apache.httpcomponents.core5:httpcore5'
   optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
   optional 'org.apache.httpcomponents.client5:httpclient5'
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation(project(":infra-app"))
 
   testImplementation project(":infra-webmvc-mock")

@@ -17,6 +17,9 @@ dependencies {
   optional("org.junit.jupiter:junit-jupiter-api")
   optional("org.testcontainers:testcontainers-jdbc")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   dockerTestImplementation(project(":infra-test"))
   dockerTestImplementation(project(":infra-test-support"))
   dockerTestImplementation(project(":infra-testcontainers"))

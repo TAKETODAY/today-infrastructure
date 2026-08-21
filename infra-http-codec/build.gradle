@@ -19,6 +19,9 @@ dependencies {
 
   optional 'com.google.code.gson:gson'
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation project(':infra-test-support')
   testImplementation project(':infra-test')
   testImplementation(project(":module:infra-jackson"))

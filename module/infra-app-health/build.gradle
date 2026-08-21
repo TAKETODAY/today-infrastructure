@@ -5,6 +5,10 @@ dependencies {
 
   optional("io.projectreactor:reactor-core")
   optional("tools.jackson.core:jackson-databind")
+
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation(project(":infra-app"))
 
   testImplementation("io.projectreactor:reactor-test")

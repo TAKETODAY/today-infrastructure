@@ -12,6 +12,9 @@ dependencies {
   optional("jakarta.transaction:jakarta.transaction-api")
   optional("io.projectreactor:reactor-core")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-test")
 
