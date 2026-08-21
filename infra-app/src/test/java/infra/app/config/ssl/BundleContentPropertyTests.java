@@ -24,7 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 
-import infra.app.io.ApplicationResourceLoader;
+import infra.core.io.ApplicationResourceLoader;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 

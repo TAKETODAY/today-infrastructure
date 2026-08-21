@@ -16,14 +16,10 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.io;
+package infra.core.io;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.core.io.ByteArrayResource;
-import infra.core.io.ProtocolResolver;
-import infra.core.io.Resource;
-import infra.core.io.ResourceLoader;
 import infra.util.Base64Utils;
 
 /**

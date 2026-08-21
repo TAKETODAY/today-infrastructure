@@ -24,7 +24,7 @@ import java.security.KeyStore;
 import java.util.Base64;
 import java.util.function.Consumer;
 
-import infra.app.io.ApplicationResourceLoader;
+import infra.core.io.ApplicationResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.util.function.ThrowingConsumer;

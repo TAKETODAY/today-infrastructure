@@ -16,14 +16,9 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.io;
+package infra.core.io;
 
 import java.nio.charset.StandardCharsets;
-
-import infra.core.io.ByteArrayResource;
-import infra.core.io.ProtocolResolver;
-import infra.core.io.Resource;
-import infra.core.io.ResourceLoader;
 
 /**
  * Test {@link ProtocolResolver} that reverses a String.

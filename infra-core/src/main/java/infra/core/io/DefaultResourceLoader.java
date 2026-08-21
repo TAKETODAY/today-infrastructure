@@ -63,14 +63,11 @@ import static infra.core.io.PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX;
  */
 public class DefaultResourceLoader implements ResourceLoader {
 
-  @Nullable
-  private ClassLoader classLoader;
+  private @Nullable ClassLoader classLoader;
 
-  @Nullable
-  private LinkedHashSet<ProtocolResolver> protocolResolvers;
+  private @Nullable LinkedHashSet<ProtocolResolver> protocolResolvers;
 
-  @Nullable
-  private ConcurrentHashMap<Class<?>, Map<Resource, ?>> resourceCaches;
+  private @Nullable ConcurrentHashMap<Class<?>, Map<Resource, ?>> resourceCaches;
 
   /**
    * Create a new DefaultResourceLoader.
@@ -116,8 +113,7 @@ public class DefaultResourceLoader implements ResourceLoader {
    * @see ClassPathResource
    */
   @Override
-  @Nullable
-  public ClassLoader getClassLoader() {
+  public @Nullable ClassLoader getClassLoader() {
     return this.classLoader != null ? this.classLoader : ClassUtils.getDefaultClassLoader();
   }
 
@@ -143,8 +139,7 @@ public class DefaultResourceLoader implements ResourceLoader {
    *
    * @see #addProtocolResolver(ProtocolResolver)
    */
-  @Nullable
-  public Collection<ProtocolResolver> getProtocolResolvers() {
+  public @Nullable Collection<ProtocolResolver> getProtocolResolvers() {
     return this.protocolResolvers;
   }
 

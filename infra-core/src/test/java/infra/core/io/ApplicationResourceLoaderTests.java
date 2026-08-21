@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.io;
+package infra.core.io;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,15 +29,9 @@ import java.util.Base64;
 import java.util.Enumeration;
 import java.util.function.UnaryOperator;
 
-import infra.core.io.ByteArrayResource;
-import infra.core.io.ClassPathResource;
-import infra.core.io.DefaultResourceLoader;
-import infra.core.io.FileSystemResource;
-import infra.core.io.Resource;
-import infra.core.io.ResourceLoader;
-import infra.util.TodayStrategies;
 import infra.test.classpath.resources.ResourcePath;
 import infra.test.classpath.resources.WithResource;
+import infra.util.TodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -180,7 +174,7 @@ class ApplicationResourceLoaderTests {
 
   @Test
   @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
-          content = "infra.core.io.ProtocolResolver=infra.app.io.ReverseStringProtocolResolver")
+          content = "infra.core.io.ProtocolResolver=infra.core.io.ReverseStringProtocolResolver")
   void getWithClassPathIncludesProtocolResolvers() throws IOException {
     ClassLoader classLoader = new TestClassLoader(this::useTestProtocolResolversFactories);
     ResourceLoader loader = ApplicationResourceLoader.of(classLoader);
@@ -197,7 +191,7 @@ class ApplicationResourceLoaderTests {
 
   @Test
   @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
-          content = "infra.core.io.ProtocolResolver=infra.app.io.ReverseStringProtocolResolver")
+          content = "infra.core.io.ProtocolResolver=infra.core.io.ReverseStringProtocolResolver")
   void getWithClassPathAndTodayStrategiesIncludesProtocolResolvers() throws IOException {
     TodayStrategies strategies = TodayStrategies
             .forResourceLocation(TEST_PROTOCOL_RESOLVERS_FACTORIES, Thread.currentThread().getContextClassLoader());
@@ -268,7 +262,7 @@ class ApplicationResourceLoaderTests {
 
   @Test
   @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
-          content = "infra.core.io.ProtocolResolver=infra.app.io.ReverseStringProtocolResolver")
+          content = "infra.core.io.ProtocolResolver=infra.core.io.ReverseStringProtocolResolver")
   void getResourceWhenPathIsAbsolute(@ResourcePath(TEST_PROTOCOL_RESOLVERS_FACTORIES) File file) throws IOException {
     ResourceLoader loader = ApplicationResourceLoader.of();
     Resource resource = loader.getResource(file.getAbsolutePath());

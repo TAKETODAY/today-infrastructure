@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.io;
+package infra.core.io;
 
 import org.jspecify.annotations.Nullable;
 
@@ -28,16 +28,9 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import infra.core.io.ClassPathResource;
-import infra.core.io.ContextResource;
-import infra.core.io.DefaultResourceLoader;
-import infra.core.io.FileSystemResource;
-import infra.core.io.ProtocolResolver;
-import infra.core.io.Resource;
-import infra.core.io.ResourceLoader;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
 import infra.util.StringUtils;
+import infra.util.TodayStrategies;
 
 /**
  * Class can be used to obtain {@link ResourceLoader ResourceLoaders} supporting

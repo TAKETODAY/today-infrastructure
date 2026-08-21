@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package infra.app.io;
+package infra.core.io;
 
 import org.jspecify.annotations.Nullable;
-
-import infra.core.io.FileSystemResource;
-import infra.core.io.Resource;
 
 /**
  * Strategy interface registered in {@code today.strategies} and used by

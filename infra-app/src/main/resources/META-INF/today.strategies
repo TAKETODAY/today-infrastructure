@@ -81,9 +81,3 @@ infra.context.ApplicationListener=\
 infra.app.logging.LoggingSystemFactory=\
   infra.app.logging.logback.LogbackLoggingSystem.Factory,\
   infra.app.logging.java.JavaLoggingSystem.Factory
-
-infra.core.io.ProtocolResolver=\
-  infra.app.io.Base64ProtocolResolver
-
-infra.app.io.FilePathResolver=\
-infra.app.io.ClassPathResourceFilePathResolver

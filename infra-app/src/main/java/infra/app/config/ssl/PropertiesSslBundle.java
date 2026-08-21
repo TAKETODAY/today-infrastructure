@@ -20,7 +20,8 @@ package infra.app.config.ssl;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.app.io.ApplicationResourceLoader;
+import infra.core.io.ApplicationResourceLoader;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundleKey;
 import infra.core.ssl.SslManagerBundle;
@@ -31,7 +32,6 @@ import infra.core.ssl.jks.JksSslStoreDetails;
 import infra.core.ssl.pem.PemSslStore;
 import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
-import infra.core.io.ResourceLoader;
 import infra.core.style.ToStringBuilder;
 import infra.util.Assert;
 

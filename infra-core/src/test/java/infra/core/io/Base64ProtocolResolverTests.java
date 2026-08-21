@@ -16,16 +16,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.io;
+package infra.core.io;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-
-import infra.core.io.DefaultResourceLoader;
-import infra.core.io.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

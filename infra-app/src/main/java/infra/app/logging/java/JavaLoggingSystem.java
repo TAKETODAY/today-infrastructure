@@ -31,7 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import infra.app.io.ApplicationResourceLoader;
+import infra.core.io.ApplicationResourceLoader;
 import infra.app.logging.AbstractLoggingSystem;
 import infra.app.logging.LogFile;
 import infra.app.logging.LogLevel;
