@@ -51,6 +51,8 @@ import infra.http.reactive.client.ReactorClientHttpConnector;
 import infra.http.reactive.server.HttpHandler;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
+import infra.test.classpath.resources.ResourcePath;
+import infra.test.classpath.resources.WithPackageResources;
 import infra.util.DataSize;
 import infra.web.reactive.BodyInserters;
 import infra.web.reactive.client.WebClient;
@@ -163,13 +165,15 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   }
 
   @Test
+  @WithPackageResources("test.jks")
   void basicSslFromClassPath() {
     testBasicSslWithKeyStore("classpath:test.jks", "password");
   }
 
   @Test
-  void basicSslFromFileSystem() {
-    testBasicSslWithKeyStore("test.jks", "password");
+  @WithPackageResources("test.jks")
+  void basicSslFromFileSystem(@ResourcePath("test.jks") String keyStore) throws Exception {
+    testBasicSslWithKeyStore(keyStore, "password");
   }
 
   protected final void testBasicSslWithKeyStore(String keyStore, String keyPassword) {

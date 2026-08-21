@@ -56,6 +56,7 @@ dependencies {
   testImplementation testFixtures(project(":infra-core"))
   testImplementation testFixtures(project(":infra-app"))
 
+  testFixturesImplementation project(':infra-test-support')
   testFixturesImplementation(project(":infra-web-reactive"))
   testFixturesApi("org.mockito:mockito-core")
   testFixturesApi 'org.awaitility:awaitility'
