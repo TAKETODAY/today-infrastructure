@@ -29,9 +29,8 @@ import org.jspecify.annotations.Nullable;
  */
 class ClassPathResourceFilePathResolver implements FilePathResolver {
 
-  @Nullable
   @Override
-  public String resolveFilePath(String location, Resource resource) {
+  public @Nullable String resolveFilePath(String location, Resource resource) {
     return (resource instanceof ClassPathResource && !isClassPathUrl(location)) ? location : null;
   }
 

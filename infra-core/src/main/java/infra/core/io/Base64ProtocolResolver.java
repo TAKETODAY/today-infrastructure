@@ -33,9 +33,8 @@ class Base64ProtocolResolver implements ProtocolResolver {
 
   private static final String BASE64_PREFIX = "base64:";
 
-  @Nullable
   @Override
-  public Resource resolve(String location, ResourceLoader resourceLoader) {
+  public @Nullable Resource resolve(String location, ResourceLoader resourceLoader) {
     if (location.startsWith(BASE64_PREFIX)) {
       String value = location.substring(BASE64_PREFIX.length());
       return new ByteArrayResource(Base64Utils.decodeFromString(value));

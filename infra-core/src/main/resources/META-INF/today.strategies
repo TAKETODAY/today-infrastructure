@@ -1,5 +1,0 @@
-infra.core.io.ProtocolResolver=\
-  infra.core.io.Base64ProtocolResolver
-
-infra.core.io.FilePathResolver=\
-  infra.core.io.ClassPathResourceFilePathResolver

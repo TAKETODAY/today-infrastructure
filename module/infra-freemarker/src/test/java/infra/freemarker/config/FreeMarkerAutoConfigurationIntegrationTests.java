@@ -22,17 +22,16 @@ import org.junit.jupiter.api.Test;
 import java.io.StringWriter;
 import java.util.Locale;
 
-import infra.app.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
-import infra.test.classpath.ClassPathExclusions;
+import infra.test.classpath.resources.WithResource;
+import infra.test.util.TestPropertyValues;
+import infra.web.config.WebMvcAutoConfiguration;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.test.classpath.resources.WithResource;
-import infra.test.util.TestPropertyValues;
 import infra.web.server.MockWebServerFactory;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.view.AbstractTemplateViewResolver;
@@ -40,7 +39,6 @@ import infra.web.view.View;
 import infra.web.view.freemarker.FreeMarkerConfig;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
-import infra.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -174,7 +172,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
 
   @Configuration(proxyBeanMethods = false)
   @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class,// RandomPortWebServerConfig.class,
-          WebMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
+          WebMvcAutoConfiguration.class })
   static class BaseConfiguration {
 
     @Bean

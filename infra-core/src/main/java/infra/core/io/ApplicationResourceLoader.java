@@ -156,8 +156,13 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
     Assert.notNull(resourceLoader, "'resourceLoader' is required");
     Assert.notNull(strategies, "'strategies' is required");
     List<ProtocolResolver> protocolResolvers = strategies.load(ProtocolResolver.class);
-    List<FilePathResolver> filePathResolvers = preferFileResolution
-            ? strategies.load(FilePathResolver.class) : Collections.emptyList();
+    protocolResolvers.add(new Base64ProtocolResolver());
+
+    List<FilePathResolver> filePathResolvers = Collections.emptyList();
+    if (preferFileResolution) {
+      filePathResolvers = strategies.load(FilePathResolver.class);
+      filePathResolvers.add(new ClassPathResourceFilePathResolver());
+    }
     return new ProtocolResolvingResourceLoader(resourceLoader, protocolResolvers, filePathResolvers);
   }
 
