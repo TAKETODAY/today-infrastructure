@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config;
+package infra.context.condition;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

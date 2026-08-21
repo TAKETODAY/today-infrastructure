@@ -16,27 +16,20 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config;
+package infra.context.condition;
 
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.app.ApplicationType;
-import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.config.AutoConfigurationMetadata;
-import infra.context.condition.ConditionMessage;
-import infra.context.condition.ConditionOutcome;
-import infra.context.condition.FilteringInfraCondition;
+import infra.context.condition.ConditionalOnWebApplication.Type;
 import infra.core.Ordered;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.util.ClassUtils;
-import infra.web.context.ConfigurableWebEnvironment;
-import infra.web.reactive.context.ConfigurableReactiveWebEnvironment;
-import infra.web.reactive.context.ReactiveWebApplicationContext;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -51,7 +44,17 @@ import infra.web.reactive.context.ReactiveWebApplicationContext;
  */
 class OnWebApplicationCondition extends FilteringInfraCondition implements Ordered {
 
+  private static final String WEB_INDICATOR_CLASS = "infra.web.ErrorResponse";
+
+  private static final String WEB_MVC_INDICATOR_CLASS = "infra.web.HttpContext";
+
+  private static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
+
   private static final String REACTIVE_WEB_APPLICATION_CLASS = "infra.web.reactive.context.ConfigurableReactiveWebEnvironment";
+
+  private static final String REACTIVE_WEB_APPLICATION_CONTEXT_CLASS = "infra.web.reactive.context.ReactiveWebApplicationContext";
+
+  private static final String CONFIGURABLE_WEB_ENVIRONMENT_CLASS = "infra.web.context.ConfigurableWebEnvironment";
 
   @Override
   public int getOrder() {
@@ -79,17 +82,17 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
     if (ConditionalOnWebApplication.Type.MVC.name().equals(type)) {
-      if (missingClassFilter.matches(ApplicationType.WEB_MVC_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (missingClassFilter.matches(WEB_MVC_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("Web MVC application classes").atAll());
       }
     }
     else if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
-      if (missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (missingClassFilter.matches(REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, getBeanClassLoader())
-            && missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+    if (missingClassFilter.matches(WEB_INDICATOR_CLASS, getBeanClassLoader())
+            && missingClassFilter.matches(REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive, web application classes").atAll());
     }
     return null;
@@ -140,12 +143,12 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
     }
 
-    if (context.getEnvironment() instanceof ConfigurableReactiveWebEnvironment) {
+    if (isInstance(REACTIVE_WEB_APPLICATION_CLASS, context.getEnvironment(), context.getClassLoader())) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableReactiveWebEnvironment"));
     }
 
     ResourceLoader resourceLoader = context.getResourceLoader();
-    if (resourceLoader instanceof ReactiveWebApplicationContext) {
+    if (isInstance(REACTIVE_WEB_APPLICATION_CONTEXT_CLASS, resourceLoader, context.getClassLoader())) {
       return ConditionOutcome.match(message.foundExactly("ReactiveWebApplicationContext"));
     }
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));
@@ -154,7 +157,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   private ConditionOutcome isMvcWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
-    if (missingClassFilter.matches(ApplicationType.WEB_MVC_INDICATOR_CLASS, context.getClassLoader())) {
+    if (missingClassFilter.matches(WEB_MVC_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("web mvc application classes").atAll());
     }
 
@@ -164,7 +167,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       }
     }
 
-    if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
+    if (isInstance(CONFIGURABLE_WEB_ENVIRONMENT_CLASS, context.getEnvironment(), context.getClassLoader())) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
 
@@ -185,6 +188,11 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return annotation.getEnum("type", Type.class);
     }
     return Type.ANY;
+  }
+
+  private static boolean isInstance(String className, Object object, @Nullable ClassLoader classLoader) {
+    Class<?> type = ClassUtils.load(className, classLoader);
+    return type != null && type.isInstance(object);
   }
 
 }

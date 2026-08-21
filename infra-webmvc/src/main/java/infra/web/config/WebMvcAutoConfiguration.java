@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
 
-import infra.app.config.ConditionalOnWebApplication;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
@@ -42,6 +41,7 @@ import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
+import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
@@ -104,8 +104,7 @@ import infra.web.resource.VersionResourceResolver;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
 
-import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
-import static infra.app.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+import static infra.context.condition.ConditionalOnWebApplication.Type.MVC;
 import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
@@ -130,6 +129,8 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 @ImportRuntimeHints(WebResourcesRuntimeHints.class)
 @EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
+
+  private static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
   private final BeanFactory beanFactory;
 

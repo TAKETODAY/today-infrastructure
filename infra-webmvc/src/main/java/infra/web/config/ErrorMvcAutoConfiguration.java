@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import infra.aop.framework.autoproxy.AutoProxyUtils;
-import infra.app.config.ConditionalOnWebApplication;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -39,6 +38,7 @@ import infra.context.condition.ConditionMessage;
 import infra.context.condition.ConditionOutcome;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
+import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.condition.InfraCondition;
 import infra.context.condition.SearchStrategy;
 import infra.context.properties.EnableConfigurationProperties;
@@ -58,7 +58,7 @@ import infra.web.util.HtmlUtils;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
 
-import static infra.app.config.ConditionalOnWebApplication.Type.MVC;
+import static infra.context.condition.ConditionalOnWebApplication.Type.MVC;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error

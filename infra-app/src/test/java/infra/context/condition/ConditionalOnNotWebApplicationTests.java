@@ -20,7 +20,7 @@ package infra.context.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.config.ConditionalOnNotWebApplication;
+import infra.context.condition.ConditionalOnNotWebApplication;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;

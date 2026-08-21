@@ -20,8 +20,6 @@ package infra.freemarker.config;
 
 import java.util.List;
 
-import infra.app.config.ConditionalOnNotWebApplication;
-import infra.app.config.ConditionalOnWebApplication;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.AutoConfigureAfter;
@@ -29,7 +27,9 @@ import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.condition.ConditionalOnNotWebApplication;
 import infra.context.condition.ConditionalOnProperty;
+import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.stereotype.Component;

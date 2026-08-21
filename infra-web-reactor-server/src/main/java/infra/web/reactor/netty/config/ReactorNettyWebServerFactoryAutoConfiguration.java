@@ -16,9 +16,6 @@
 
 package infra.web.reactor.netty.config;
 
-import infra.app.config.ConditionalOnWebApplication;
-import infra.web.config.WebProperties;
-import infra.web.config.WebProperties.HeaderFormat;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
@@ -28,6 +25,7 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
+import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.core.env.Environment;
@@ -35,6 +33,8 @@ import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.http.support.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.http.support.ReactorResourceFactory;
 import infra.stereotype.Component;
+import infra.web.config.WebProperties;
+import infra.web.config.WebProperties.HeaderFormat;
 import infra.web.reactive.server.ForwardedHeaderTransformer;
 import infra.web.reactor.netty.NettyRouteProvider;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
@@ -45,7 +45,7 @@ import infra.web.server.config.WebServerConfiguration;
 import infra.web.server.reactive.ReactiveWebServerFactory;
 import reactor.netty.http.server.HttpServer;
 
-import static infra.app.config.ConditionalOnWebApplication.Type;
+import static infra.context.condition.ConditionalOnWebApplication.Type;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a reactive web server.

@@ -21,11 +21,11 @@ package infra.groovy.template.config;
 import org.jspecify.annotations.Nullable;
 
 import groovy.text.markup.MarkupTemplateEngine;
-import infra.app.config.ConditionalOnWebApplication;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;

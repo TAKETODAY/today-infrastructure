@@ -3,7 +3,6 @@ description = "Infra freemarker integration"
 dependencies {
   api 'org.freemarker:freemarker'
 
-  optional(project(":infra-app"))
   optional project(":infra-webmvc")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))

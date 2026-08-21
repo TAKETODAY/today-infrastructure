@@ -1,9 +1,8 @@
 description = "Infra Groovy Templates integration"
 
 dependencies {
-	api("org.apache.groovy:groovy-templates")
+  api("org.apache.groovy:groovy-templates")
 
-  optional(project(":infra-app"))
   optional project(":infra-webmvc")
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
@@ -18,5 +17,5 @@ dependencies {
   testImplementation testFixtures(project(":infra-web-server"))
   testImplementation testFixtures(project(":infra-web-netty-server"))
 
-	testRuntimeOnly("ch.qos.logback:logback-classic")
+  testRuntimeOnly("ch.qos.logback:logback-classic")
 }

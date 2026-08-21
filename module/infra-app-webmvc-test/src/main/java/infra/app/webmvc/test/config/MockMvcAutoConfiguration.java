@@ -18,11 +18,11 @@
 
 package infra.app.webmvc.test.config;
 
-import infra.app.config.ConditionalOnWebApplication;
-import infra.app.config.ConditionalOnWebApplication.Type;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.AutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.condition.ConditionalOnWebApplication;
+import infra.context.condition.ConditionalOnWebApplication.Type;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.stereotype.Component;
 import infra.test.web.mock.MockMvc;
