@@ -43,7 +43,7 @@ final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
 
   @Override
   @Nullable
-  public Object resolveParameter(final HttpContext request) throws Throwable {
+  public Object resolveArgument(final HttpContext request) throws Throwable {
     ParameterResolvingStrategy strategy = this.strategy;
     if (strategy == null) {
       strategy = resolvers.obtainStrategy(this);

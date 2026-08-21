@@ -50,8 +50,8 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   }
 
   @Override
-  public Object resolveParameter(HttpContext request) throws Throwable {
-    return super.resolveParameter(request);
+  public Object resolveArgument(HttpContext request) throws Throwable {
+    return super.resolveArgument(request);
   }
 
   public void setTypeDescriptor(TypeDescriptor typeDescriptor) {

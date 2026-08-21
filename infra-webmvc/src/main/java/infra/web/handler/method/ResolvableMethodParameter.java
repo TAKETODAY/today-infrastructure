@@ -28,24 +28,32 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.annotation.RequestParam;
 
 /**
- * Abstraction for a method parameter.
- * <p>
- * This class supports resolving the parameter value within a {@link HttpContext}.
- * It also provides common metadata such as whether the parameter is required,
- * its default value, and its name. For more details on parameter configuration,
- * see {@link RequestParam}.
- * </p>
+ * Web-specific descriptor for a handler method parameter that can resolve an
+ * argument value from an {@link HttpContext}.
+ *
+ * <p>This class decorates a {@link MethodParameter} and exposes commonly used
+ * reflection metadata, including the parameter type, annotations, generic type,
+ * and {@link TypeDescriptor}. It also provides named-value metadata such as the
+ * binding name, whether a value is required, and the configured default value.
+ * Named-value metadata is derived from {@link RequestParam} by default, including
+ * composed annotations discovered through {@link MergedAnnotations}.
+ *
+ * <p>Type metadata and named-value metadata are resolved lazily and cached for
+ * subsequent access. Subclasses may customize named-value creation through
+ * {@link #createNamedValueInfo()} and argument resolution through
+ * {@link #resolveArgument(HttpContext)}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodParameter
- * @see #resolveParameter(HttpContext)
- * @see Nullable
+ * @see NamedValueInfo
+ * @see RequestParam
  * @since 2.3.7
  */
 public class ResolvableMethodParameter extends DefaultAttributeAccessor {
@@ -53,54 +61,91 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
   /**
    * @since 3.0.1
    */
-  @Nullable
-  protected TypeDescriptor typeDescriptor;
+  protected @Nullable TypeDescriptor typeDescriptor;
 
   // @since 4.0
   private final MethodParameter parameter;
 
-  @Nullable
-  private NamedValueInfo namedValueInfo;
+  private @Nullable NamedValueInfo namedValueInfo;
 
-  @Nullable
-  private ResolvableType resolvableType;
+  private @Nullable ResolvableType resolvableType;
 
   /**
+   * Create a shallow copy of the supplied resolvable parameter.
+   *
+   * <p>The underlying {@link MethodParameter}, previously resolved metadata,
+   * and attributes are shared with the supplied instance.
+   *
+   * @param other the resolvable method parameter to copy
    * @since 4.0
    */
   public ResolvableMethodParameter(ResolvableMethodParameter other) {
+    this.attributes = other.attributes;
     this.parameter = other.parameter;
     this.resolvableType = other.resolvableType;
     this.namedValueInfo = other.namedValueInfo;
     this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
+  /**
+   * Create a resolvable descriptor for the supplied method parameter.
+   *
+   * @param parameter the method parameter to wrap
+   * @throws IllegalArgumentException if {@code parameter} is {@code null}
+   */
   public ResolvableMethodParameter(MethodParameter parameter) {
+    Assert.notNull(parameter, "parameter is required");
     this.parameter = parameter;
   }
 
+  /**
+   * Determine whether the declared parameter type is an array.
+   */
   public boolean isArray() {
     return getParameterType().isArray();
   }
 
+  /**
+   * Determine whether the declared parameter type is a collection type.
+   */
   public boolean isCollection() {
     return CollectionUtils.isCollection(getParameterType());
   }
 
+  /**
+   * Determine whether the declared parameter type is an interface.
+   */
   public boolean isInterface() {
     return getParameterType().isInterface();
   }
 
+  /**
+   * Determine whether the declared parameter type is exactly the supplied type.
+   *
+   * @param type the type to compare against
+   */
   public boolean is(final Class<?> type) {
     return type == getParameterType();
   }
 
+  /**
+   * Determine whether the declared parameter type can be assigned to the
+   * supplied target type.
+   *
+   * @param superClass the target superclass or interface
+   */
   public boolean isAssignableTo(final Class<?> superClass) {
     return superClass.isAssignableFrom(getParameterType());
   }
 
-  public boolean isInstance(final Object obj) {
-    return getParameterType().isInstance(obj);
+  /**
+   * Determine whether the supplied value is an instance of the declared
+   * parameter type.
+   *
+   * @param val the value to check
+   */
+  public boolean isInstance(final Object val) {
+    return getParameterType().isInstance(val);
   }
 
   // AnnotatedElement @since 3.0
@@ -171,6 +216,13 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
     return parameter.getParameterAnnotation(annotationType);
   }
 
+  /**
+   * Return the generic-aware type of this method parameter.
+   *
+   * <p>The result is resolved lazily and cached.
+   *
+   * @return the resolvable parameter type
+   */
   public ResolvableType getResolvableType() {
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
@@ -182,12 +234,23 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
 
   // NamedValueInfo
 
+  /**
+   * Return whether named-value metadata has already been initialized or
+   * explicitly supplied.
+   *
+   * <p>This method reports cached state and does not trigger metadata creation.
+   */
   public boolean hasNamedValueInfo() {
     return namedValueInfo != null;
   }
 
   /**
-   * Obtain the named value for the given method parameter.
+   * Obtain the named-value metadata for this method parameter.
+   *
+   * <p>If necessary, the metadata is created through
+   * {@link #createNamedValueInfo()}, normalized, and then cached.
+   *
+   * @return the named-value metadata
    */
   public NamedValueInfo getNamedValueInfo() {
     NamedValueInfo namedValueInfo = this.namedValueInfo;
@@ -199,34 +262,63 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
     return namedValueInfo;
   }
 
+  /**
+   * Return whether a value is required for this method parameter.
+   */
   public boolean isRequired() {
     return getNamedValueInfo().required;
   }
 
+  /**
+   * Return whether a value is optional for this method parameter.
+   */
   public boolean isNotRequired() {
     return !isRequired();
   }
 
+  /**
+   * Return the name used to resolve and bind the argument value.
+   *
+   * <p>This may be an explicitly configured name or the discovered Java
+   * parameter name.
+   */
   public String getName() {
     return getNamedValueInfo().name;
   }
 
+  /**
+   * Return the configured default value, if any.
+   *
+   * @return the default value, or {@code null} if none is configured
+   */
   @Nullable
   public String getDefaultValue() {
     return getNamedValueInfo().defaultValue;
   }
 
+  /**
+   * Replace the named-value metadata associated with this parameter.
+   *
+   * <p>The supplied metadata is used directly and is not normalized through
+   * the standard metadata creation process.
+   *
+   * @param namedValueInfo the named-value metadata to use
+   */
   public void withNamedValueInfo(NamedValueInfo namedValueInfo) {
     this.namedValueInfo = namedValueInfo;
   }
 
   /**
-   * Create the {@link NamedValueInfo} object for the given
-   * method parameter. Implementations typically
-   * retrieve the method annotation by means of
-   * {@link MethodParameter#getParameterAnnotation(Class)}.
+   * Create the named-value metadata for this method parameter.
    *
-   * @return the named value information
+   * <p>The default implementation obtains a merged {@link RequestParam}
+   * annotation, if present, and uses its name, required flag, and default
+   * value. Otherwise, it creates metadata using the discovered Java parameter
+   * name. Subclasses may override this method to support other named-value
+   * annotations.
+   *
+   * @return the named-value metadata; never {@code null}
+   * @see MergedAnnotations
    */
   protected NamedValueInfo createNamedValueInfo() {
     var requestParam = MergedAnnotations.from(getParameterAnnotations()).get(RequestParam.class);
@@ -240,9 +332,11 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
   }
 
   /**
-   * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
+   * Normalize the supplied metadata by applying the discovered parameter name,
+   * nullability rules, and the framework's default-value sentinel.
    *
-   * @see Nullable
+   * @param info the metadata to normalize
+   * @return a normalized metadata instance
    */
   private NamedValueInfo updateNamedValueInfo(NamedValueInfo info) {
     String name = info.name;
@@ -258,6 +352,13 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
     return new NamedValueInfo(name, required, defaultValue);
   }
 
+  /**
+   * Return the discovered Java parameter name.
+   *
+   * @return the Java parameter name
+   * @throws IllegalArgumentException if no parameter name is available
+   * @see MethodParameter#getParameterName()
+   */
   public String getParameterName() {
     String name = parameter.getParameterName();
     if (name == null) {
@@ -269,14 +370,17 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
     return name;
   }
 
+  /**
+   * Return the index of this parameter in the declaring method's parameter list.
+   */
   public int getParameterIndex() {
     return parameter.getParameterIndex();
   }
 
   /**
-   * Return the wrapped Method, if any.
+   * Return the method that declares this parameter.
    *
-   * @return the Method
+   * @return the declaring method
    */
   @SuppressWarnings("NullAway")
   public Method getMethod() {
@@ -286,22 +390,34 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
   // resolver
 
   /**
-   * simple impl
+   * Resolve an argument value for this method parameter from the supplied HTTP
+   * context.
    *
-   * @param request Current request context
-   * @return parameter object
+   * <p>The default implementation returns the request parameter identified by
+   * {@link #getName()}. Subclasses may override this method to delegate to a
+   * complete argument resolution strategy, including binding and conversion.
+   *
+   * @param request the current HTTP context
+   * @return the resolved argument value, or {@code null} if no value is available
+   * @throws Throwable if argument resolution fails
    */
   @Nullable
-  public Object resolveParameter(HttpContext request) throws Throwable {
+  public Object resolveArgument(HttpContext request) throws Throwable {
     return request.getParameter(getName());
   }
 
   // Getter Setter
 
+  /**
+   * Return the declared type of this method parameter.
+   */
   public Class<?> getParameterType() {
     return parameter.getParameterType();
   }
 
+  /**
+   * Return the underlying method parameter descriptor.
+   */
   public MethodParameter getParameter() {
     return parameter;
   }
@@ -309,6 +425,12 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
   //
 
   /**
+   * Return the type descriptor for this method parameter.
+   *
+   * <p>The descriptor is created lazily through {@link #createTypeDescriptor()}
+   * and cached for subsequent access.
+   *
+   * @return the parameter type descriptor
    * @since 3.0.1
    */
   public TypeDescriptor getTypeDescriptor() {
@@ -321,6 +443,11 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
   }
 
   /**
+   * Create the type descriptor for this method parameter.
+   *
+   * <p>Subclasses may override this method to provide a specialized descriptor.
+   *
+   * @return a new type descriptor
    * @since 4.0
    */
   protected TypeDescriptor createTypeDescriptor() {
@@ -338,7 +465,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj == this || (obj instanceof ResolvableMethodParameter
             && Objects.equals(parameter, ((ResolvableMethodParameter) obj).parameter)
     );

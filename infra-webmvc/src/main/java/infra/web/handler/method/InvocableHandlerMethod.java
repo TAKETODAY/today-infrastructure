@@ -235,7 +235,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
       if (arg == null) {
         try {
-          arg = parameters[i].resolveParameter(request);
+          arg = parameters[i].resolveArgument(request);
         }
         catch (Throwable ex) {
           // Leave stack trace for later, exception may actually be resolved and handled...
