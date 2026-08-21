@@ -10,7 +10,6 @@ jar {
 
 dependencies {
 
-  testImplementation(project(":infra-test-support"))
   testImplementation(project(":infra-core"))
   testImplementation(project(":infra-aop"))
   testImplementation(project(":infra-core-test"))
