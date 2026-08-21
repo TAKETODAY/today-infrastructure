@@ -20,12 +20,11 @@ package infra.context.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.condition.ConditionalOnNotWebApplication;
-import infra.test.context.runner.ApplicationContextRunner;
-import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.http.reactive.server.HttpHandler;
+import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.context.runner.ReactiveWebApplicationContextRunner;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
