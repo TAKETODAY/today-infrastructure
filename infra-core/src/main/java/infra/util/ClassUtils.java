@@ -58,13 +58,15 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import infra.core.GenericTypeResolver;
 import infra.core.io.ClassPathResource;
 import infra.lang.Constant;
+import infra.lang.Contract;
 
 import static infra.util.StringUtils.prependLeadingSlash;
 
 /**
+ * Miscellaneous {@code java.lang.Class} utility methods.
+ *
  * @author Juergen Hoeller
  * @author Keith Donald
  * @author Rob Harrop
@@ -97,7 +99,7 @@ public abstract class ClassUtils {
   public static final String PACKAGE_INFO_SUFFIX = ".package-info";
 
   /** @since 3.0 */
-  public static HashSet<Class<?>> primitiveTypes;
+  private static final HashSet<Class<?>> primitiveTypes;
 
   /**
    * Map with primitive wrapper type as key and corresponding primitive
@@ -145,11 +147,11 @@ public abstract class ClassUtils {
       registerCommonClasses(entry.getKey());
     }
 
-    Set<Class<?>> primitiveTypes = new HashSet<>(32);
-    primitiveTypes.addAll(primitiveWrapperTypeMap.values());
-    Collections.addAll(primitiveTypes, boolean[].class, byte[].class, char[].class,
+    Set<Class<?>> primitives = new HashSet<>(32);
+    primitives.addAll(primitiveWrapperTypeMap.values());
+    Collections.addAll(primitives, boolean[].class, byte[].class, char[].class,
             double[].class, float[].class, int[].class, long[].class, short[].class);
-    for (Class<?> primitiveType : primitiveTypes) {
+    for (Class<?> primitiveType : primitives) {
       primitiveTypeNameMap.put(primitiveType.getName(), primitiveType);
     }
 
@@ -172,30 +174,30 @@ public abstract class ClassUtils {
     // Map primitive types
     // -------------------------------------------
 
-    primitiveTypes.add(void.class);
-    primitiveTypes.add(String.class);
-    primitiveTypes.add(Byte.class);
-    primitiveTypes.add(Short.class);
-    primitiveTypes.add(Character.class);
-    primitiveTypes.add(Integer.class);
-    primitiveTypes.add(Long.class);
-    primitiveTypes.add(Float.class);
-    primitiveTypes.add(Double.class);
-    primitiveTypes.add(Boolean.class);
-    primitiveTypes.add(Date.class);
-    primitiveTypes.add(Class.class);
-    primitiveTypes.add(BigInteger.class);
-    primitiveTypes.add(BigDecimal.class);
+    primitives.add(void.class);
+    primitives.add(String.class);
+    primitives.add(Byte.class);
+    primitives.add(Short.class);
+    primitives.add(Character.class);
+    primitives.add(Integer.class);
+    primitives.add(Long.class);
+    primitives.add(Float.class);
+    primitives.add(Double.class);
+    primitives.add(Boolean.class);
+    primitives.add(Date.class);
+    primitives.add(Class.class);
+    primitives.add(BigInteger.class);
+    primitives.add(BigDecimal.class);
 
-    primitiveTypes.add(URI.class);
-    primitiveTypes.add(URL.class);
-    primitiveTypes.add(Enum.class);
-    primitiveTypes.add(Locale.class);
-    primitiveTypes.add(Number.class);
-    primitiveTypes.add(Temporal.class);
-    primitiveTypes.add(CharSequence.class);
+    primitives.add(URI.class);
+    primitives.add(URL.class);
+    primitives.add(Enum.class);
+    primitives.add(Locale.class);
+    primitives.add(Number.class);
+    primitives.add(Temporal.class);
+    primitives.add(CharSequence.class);
 
-    ClassUtils.primitiveTypes = new HashSet<>(primitiveTypes);
+    primitiveTypes = new HashSet<>(primitives);
   }
 
   /**
@@ -335,6 +337,18 @@ public abstract class ClassUtils {
     return isPresent(className, loaderSource.getClassLoader());
   }
 
+  /**
+   * Resolve the given class name as primitive class, if appropriate,
+   * according to the JVM's naming rules for primitive classes.
+   * <p>Also supports the JVM's internal class names for primitive arrays.
+   * Does <i>not</i> support the "[]" suffix notation for primitive arrays;
+   * this is only supported by {@link #forName(String, ClassLoader)}.
+   *
+   * @param name the name of the potentially primitive class
+   * @return the primitive class, or {@code null} if the name does not denote
+   * a primitive class or primitive array class
+   */
+  @Contract("null -> null")
   public static @Nullable Class<?> resolvePrimitiveClassName(@Nullable String name) {
     // Most class names will be quite long, considering that they
     // SHOULD sit in a package, so a length check is worthwhile.
@@ -628,25 +642,6 @@ public abstract class ClassUtils {
       return clazz.getTypeName();
     }
   }
-
-  // --------------------------------- Field
-
-  // Generics
-
-  /**
-   * Find generics in target class
-   *
-   * @param type find generics in target class
-   * @param superClass A interface class or super class
-   * @return Target generics {@link Class}s
-   * @since 3.0
-   */
-  public static Class<?> @Nullable [] getGenerics(Class<?> type, Class<?> superClass) {
-    return GenericTypeResolver.resolveTypeArguments(type, superClass);
-  }
-
-  //
-  // ---------------------------------
 
   /**
    * Return the qualified name of the given method, consisting of fully qualified
