@@ -73,7 +73,7 @@ import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.JsonViewRequestBodyAdvice;
 import infra.web.handler.method.JsonViewResponseBodyAdvice;
 import infra.web.handler.method.RequestBodyAdvice;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.view.ModelAndView;
 import infra.web.view.json.JacksonJsonView;
 import tools.jackson.databind.SerializationFeature;
@@ -97,11 +97,11 @@ class RequestResponseBodyMethodProcessorTests {
 
   private MockHttpContext request;
 
-  private ResolvableMethodParameter paramGenericList;
-  private ResolvableMethodParameter paramSimpleBean;
-  private ResolvableMethodParameter paramMultiValueMap;
-  private ResolvableMethodParameter paramString;
-  private ResolvableMethodParameter returnTypeString;
+  private HandlerParameter paramGenericList;
+  private HandlerParameter paramSimpleBean;
+  private HandlerParameter paramMultiValueMap;
+  private HandlerParameter paramString;
+  private HandlerParameter returnTypeString;
 
   private HandlerMethod handlerMethod;
 
@@ -114,11 +114,11 @@ class RequestResponseBodyMethodProcessorTests {
 
     Method method = getClass().getDeclaredMethod("handle",
             List.class, SimpleBean.class, MultiValueMap.class, String.class);
-    paramGenericList = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
-    paramMultiValueMap = new ResolvableMethodParameter(new MethodParameter(method, 2));
-    paramString = new ResolvableMethodParameter(new MethodParameter(method, 3));
-    returnTypeString = new ResolvableMethodParameter(new MethodParameter(method, -1));
+    paramGenericList = new HandlerParameter(new MethodParameter(method, 0));
+    paramSimpleBean = new HandlerParameter(new MethodParameter(method, 1));
+    paramMultiValueMap = new HandlerParameter(new MethodParameter(method, 2));
+    paramString = new HandlerParameter(new MethodParameter(method, 3));
+    returnTypeString = new HandlerParameter(new MethodParameter(method, -1));
 
     handlerMethod = new HandlerMethod(this, method);
   }
@@ -233,7 +233,7 @@ class RequestResponseBodyMethodProcessorTests {
     converters.add(new JacksonJsonHttpMessageConverter());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-    SimpleBean result = (SimpleBean) processor.resolveArgument(request, new ResolvableMethodParameter(methodParam));
+    SimpleBean result = (SimpleBean) processor.resolveArgument(request, new HandlerParameter(methodParam));
 
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo("Jad");
@@ -243,7 +243,7 @@ class RequestResponseBodyMethodProcessorTests {
   public void resolveParameterizedWithTypeVariableArgument() throws Throwable {
     Method method = MyParameterizedControllerWithList.class.getMethod("handleDto", List.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedControllerWithList(), method);
-    ResolvableMethodParameter methodParam = new ResolvableMethodParameter(handlerMethod.getParameters()[0]);
+    HandlerParameter methodParam = new HandlerParameter(handlerMethod.getParameters()[0]);
 
     String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -279,7 +279,7 @@ class RequestResponseBodyMethodProcessorTests {
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
     SimpleBean result = (SimpleBean)
-            processor.resolveArgument(request, new ResolvableMethodParameter(methodParam));
+            processor.resolveArgument(request, new HandlerParameter(methodParam));
 
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo("Jad");
@@ -640,7 +640,7 @@ class RequestResponseBodyMethodProcessorTests {
             converters, null, Collections.singletonList(new JsonViewRequestBodyAdvice()));
 
     JacksonViewBean result = (JacksonViewBean)
-            processor.resolveArgument(request, new ResolvableMethodParameter(methodParameter));
+            processor.resolveArgument(request, new HandlerParameter(methodParameter));
 
     assertThat(result).isNotNull();
     assertThat(result.getWithView1()).isEqualTo("with");
@@ -666,7 +666,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     @SuppressWarnings("unchecked")
     HttpEntity<JacksonViewBean> result = (HttpEntity<JacksonViewBean>)
-            processor.resolveArgument(request, new ResolvableMethodParameter(methodParameter));
+            processor.resolveArgument(request, new HandlerParameter(methodParameter));
 
     assertThat(result).isNotNull();
     assertThat(result.getBody()).isNotNull();
@@ -695,7 +695,7 @@ class RequestResponseBodyMethodProcessorTests {
             converters, null, Collections.singletonList(new JsonViewRequestBodyAdvice()));
 
     JacksonViewBean result = (JacksonViewBean)
-            processor.resolveArgument(request, new ResolvableMethodParameter(methodParameter));
+            processor.resolveArgument(request, new HandlerParameter(methodParameter));
 
     assertThat(result).isNotNull();
     assertThat(result.getWithView1()).isEqualTo("with");
@@ -724,7 +724,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     @SuppressWarnings("unchecked")
     HttpEntity<JacksonViewBean> result = (HttpEntity<JacksonViewBean>)
-            processor.resolveArgument(request, new ResolvableMethodParameter(methodParameter));
+            processor.resolveArgument(request, new HandlerParameter(methodParameter));
 
     assertThat(result).isNotNull();
     assertThat(result.getBody()).isNotNull();
@@ -802,7 +802,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-    assertThat(processor.supportsParameter(new ResolvableMethodParameter(methodParameter))).isTrue();
+    assertThat(processor.supportsParameter(new HandlerParameter(methodParameter))).isTrue();
     String value = (String) processor.readWithMessageConverters(
             this.request, methodParameter, methodParameter.getGenericParameterType());
     assertThat(value).isEqualTo("foo");
@@ -822,7 +822,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-    assertThat(processor.supportsParameter(new ResolvableMethodParameter(methodParameter))).isTrue();
+    assertThat(processor.supportsParameter(new HandlerParameter(methodParameter))).isTrue();
     String value = (String) processor.readWithMessageConverters(
             this.request, methodParameter, methodParameter.getGenericParameterType());
     assertThat(value).isEqualTo("foo");
@@ -840,7 +840,7 @@ class RequestResponseBodyMethodProcessorTests {
     List<HttpMessageConverter<?>> converters = List.of(new JacksonJsonHttpMessageConverter());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-    assertThat(processor.supportsParameter(new ResolvableMethodParameter(methodParameter))).isTrue();
+    assertThat(processor.supportsParameter(new HandlerParameter(methodParameter))).isTrue();
     String value = (String) processor.readWithMessageConverters(
             this.request, methodParameter, methodParameter.getGenericParameterType());
     assertThat(value).isEqualTo("foo");

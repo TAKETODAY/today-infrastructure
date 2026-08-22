@@ -56,7 +56,7 @@ import infra.web.annotation.RequestParam;
  * @see RequestParam
  * @since 2.3.7
  */
-public class ResolvableMethodParameter extends DefaultAttributeAccessor {
+public class HandlerParameter extends DefaultAttributeAccessor {
 
   /**
    * @since 3.0.1
@@ -79,7 +79,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    * @param other the resolvable method parameter to copy
    * @since 4.0
    */
-  public ResolvableMethodParameter(ResolvableMethodParameter other) {
+  public HandlerParameter(HandlerParameter other) {
     this.attributes = other.attributes;
     this.parameter = other.parameter;
     this.resolvableType = other.resolvableType;
@@ -93,7 +93,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    * @param parameter the method parameter to wrap
    * @throws IllegalArgumentException if {@code parameter} is {@code null}
    */
-  public ResolvableMethodParameter(MethodParameter parameter) {
+  public HandlerParameter(MethodParameter parameter) {
     Assert.notNull(parameter, "parameter is required");
     this.parameter = parameter;
   }
@@ -462,8 +462,8 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
 
   @Override
   public boolean equals(@Nullable Object obj) {
-    return obj == this || (obj instanceof ResolvableMethodParameter
-            && Objects.equals(parameter, ((ResolvableMethodParameter) obj).parameter)
+    return obj == this || (obj instanceof HandlerParameter
+            && Objects.equals(parameter, ((HandlerParameter) obj).parameter)
     );
   }
 }

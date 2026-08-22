@@ -32,7 +32,7 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves arguments of type {@link Map} annotated with {@link MatrixVariable @MatrixVariable}
@@ -50,7 +50,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
 public class MatrixVariableMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     MatrixVariable variable = resolvable.getParameterAnnotation(MatrixVariable.class);
     return variable != null
             && Map.class.isAssignableFrom(resolvable.getParameterType())
@@ -59,7 +59,7 @@ public class MatrixVariableMapMethodArgumentResolver implements ParameterResolvi
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     var matrixVariables = context.matchingMetadata().getMatrixVariables();
     MethodParameter parameter = resolvable.getParameter();
     MultiValueMap<String, String> map = mapMatrixVariables(parameter, matrixVariables);

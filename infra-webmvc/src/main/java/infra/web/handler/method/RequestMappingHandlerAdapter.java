@@ -144,7 +144,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
     }
 
     this.methodResolver = new ControllerMethodResolver(context,
-            new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer));
+            new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer));
 
     this.modelHandler = new ModelHandler(methodResolver);
 
@@ -232,7 +232,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
   private Predicate<MethodParameter> methodParamPredicate(ParameterResolvingRegistry resolvingRegistry, Class<?> resolverType) {
     return parameter -> {
-      var strategy = resolvingRegistry.findStrategy(new ResolvableMethodParameter(parameter));
+      var strategy = resolvingRegistry.findStrategy(new HandlerParameter(parameter));
       return resolverType.isInstance(strategy);
     };
   }

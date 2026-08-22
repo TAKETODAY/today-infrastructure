@@ -19,7 +19,7 @@ package infra.session;
 import org.junit.jupiter.api.Test;
 
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -36,7 +36,7 @@ class SessionMethodArgumentResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
     when(parameter.isAssignableTo(Session.class)).thenReturn(true);
 
     boolean result = resolver.supportsParameter(parameter);
@@ -49,7 +49,7 @@ class SessionMethodArgumentResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
     when(parameter.isAssignableTo(Session.class)).thenReturn(false);
 
     boolean result = resolver.supportsParameter(parameter);
@@ -64,7 +64,7 @@ class SessionMethodArgumentResolverTests {
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     HttpContext context = mock(HttpContext.class);
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
 
     when(parameter.isRequired()).thenReturn(true);
     when(sessionManager.getSession(context)).thenReturn(session);
@@ -81,7 +81,7 @@ class SessionMethodArgumentResolverTests {
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     HttpContext context = mock(HttpContext.class);
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
 
     when(parameter.isRequired()).thenReturn(false);
     when(sessionManager.getSession(context, false)).thenReturn(session);
@@ -97,7 +97,7 @@ class SessionMethodArgumentResolverTests {
     SessionMethodArgumentResolver resolver = new SessionMethodArgumentResolver(sessionManager);
 
     HttpContext context = mock(HttpContext.class);
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
 
     when(parameter.isRequired()).thenReturn(false);
     when(sessionManager.getSession(context, false)).thenReturn(null);

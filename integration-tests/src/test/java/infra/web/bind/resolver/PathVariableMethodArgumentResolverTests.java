@@ -39,7 +39,7 @@ import infra.web.annotation.PathVariable;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.mock.MockHttpContext;
 import infra.web.util.UriComponentsBuilder;
 import infra.web.util.pattern.PathPattern;
@@ -61,10 +61,10 @@ class PathVariableMethodArgumentResolverTests {
 
   private MockRequest request;
 
-  private ResolvableMethodParameter paramNamedString;
-  private ResolvableMethodParameter paramString;
-  private ResolvableMethodParameter paramNotRequired;
-  private ResolvableMethodParameter paramOptional;
+  private HandlerParameter paramNamedString;
+  private HandlerParameter paramString;
+  private HandlerParameter paramNotRequired;
+  private HandlerParameter paramOptional;
 
   @BeforeEach
   public void setup() throws Throwable {
@@ -75,10 +75,10 @@ class PathVariableMethodArgumentResolverTests {
     webRequest.setMatchingMetadata(new HandlerMatchingMetadata(webRequest));
 
     Method method = ReflectionUtils.findMethod(getClass(), "handle", (Class<?>[]) null);
-    paramNamedString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
-    paramString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 1));
-    paramNotRequired = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 2));
-    paramOptional = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 3));
+    paramNamedString = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
+    paramString = new HandlerParameter(new SynthesizingMethodParameter(method, 1));
+    paramNotRequired = new HandlerParameter(new SynthesizingMethodParameter(method, 2));
+    paramOptional = new HandlerParameter(new SynthesizingMethodParameter(method, 3));
   }
 
   @Test
@@ -173,7 +173,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithMapType() throws Throwable {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleMap", Map.class);
-    ResolvableMethodParameter paramMap = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramMap = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     applyTemplateVars("name", "value");
 
@@ -188,7 +188,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithIntegerConversion() throws Throwable {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleInteger", Integer.class);
-    ResolvableMethodParameter paramInt = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramInt = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     applyTemplateVars("id", "123");
 
@@ -209,7 +209,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithCustomTypeConversion() throws Throwable {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleCustom", CustomType.class);
-    ResolvableMethodParameter paramCustom = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramCustom = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     applyTemplateVars("custom", "test-value");
 
@@ -232,7 +232,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void handleMissingValueAfterConversion() throws Throwable {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleInteger", Integer.class);
-    ResolvableMethodParameter paramInt = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramInt = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     applyTemplateVars("id", "invalid");
 
@@ -293,7 +293,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void supportsParameterWithMapWithoutName() throws Exception {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleMapWithoutName", Map.class);
-    ResolvableMethodParameter paramMap = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramMap = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
     assertThat(resolver.supportsParameter(paramMap)).isFalse();
@@ -302,7 +302,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void supportsParameterWithMapWithName() throws Exception {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleMap", Map.class);
-    ResolvableMethodParameter paramMap = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramMap = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
     assertThat(resolver.supportsParameter(paramMap)).isTrue();
@@ -311,7 +311,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void resolveArgumentTypeMismatch() throws Throwable {
     Method method = ReflectionUtils.findMethod(TestController.class, "handleInteger", Integer.class);
-    ResolvableMethodParameter paramInt = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramInt = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     applyTemplateVars("id", "invalid");
 
@@ -334,7 +334,7 @@ class PathVariableMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithNullValueAndPrimitiveType() throws Throwable {
     Method method = ReflectionUtils.findMethod(TestController.class, "handlePrimitive", int.class);
-    ResolvableMethodParameter paramInt = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter paramInt = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     applyTemplateVars("count", "");
 

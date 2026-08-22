@@ -18,23 +18,23 @@ package infra.web;
 
 import infra.core.MethodParameter;
 import infra.web.handler.method.NamedValueInfo;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 17:03
  */
 @SuppressWarnings("serial")
-public class MockResolvableMethodParameter extends ResolvableMethodParameter {
+public class MockHandlerParameter extends HandlerParameter {
 
   final String name;
 
-  public MockResolvableMethodParameter(ResolvableMethodParameter other, String name) {
+  public MockHandlerParameter(HandlerParameter other, String name) {
     super(other);
     this.name = name;
   }
 
-  public MockResolvableMethodParameter(MethodParameter parameter, String name) {
+  public MockHandlerParameter(MethodParameter parameter, String name) {
     super(parameter);
     this.name = name;
   }

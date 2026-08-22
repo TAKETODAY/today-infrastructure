@@ -26,7 +26,7 @@ import infra.core.ResolvableType;
 import infra.web.BindingContext;
 import infra.web.HttpContext;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
@@ -44,7 +44,7 @@ import infra.web.handler.result.HandlerMethodReturnValueHandler;
 public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMethodReturnValueHandler {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     if (resolvable.is(Map.class) && resolvable.getParameterAnnotations().length == 0) {
       // Map<String, Object> model;
       ResolvableType mapType = resolvable.getResolvableType().asMap();
@@ -59,7 +59,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
     return context.binding().getModel();
   }
 

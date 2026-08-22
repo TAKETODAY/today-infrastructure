@@ -85,7 +85,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   private final RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
-  private @Nullable ResolvableParameterFactory parameterFactory;
+  private @Nullable HandlerParameterFactory parameterFactory;
 
   private @Nullable ParameterResolvingRegistry resolvingRegistry;
 
@@ -162,7 +162,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
 
-    this.parameterFactory = new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer);
+    this.parameterFactory = new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer);
 
     super.afterPropertiesSet();
   }

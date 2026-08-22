@@ -27,7 +27,7 @@ import infra.beans.factory.support.DependencyInjectorProvider;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +44,7 @@ class AutowiredParameterResolverTests {
   @Test
   public void supportsParameterWithAutowiredAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     AutowiredParameterResolver resolver = new AutowiredParameterResolver(provider);
 
@@ -54,7 +54,7 @@ class AutowiredParameterResolverTests {
   @Test
   public void supportsParameterWithoutAutowiredAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("handleNonAutowiredParam", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     AutowiredParameterResolver resolver = new AutowiredParameterResolver(provider);
 
@@ -64,7 +64,7 @@ class AutowiredParameterResolverTests {
   @Test
   public void resolveArgumentSuccessfully() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     parameter.getParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     DependencyInjector injector = mock(DependencyInjector.class);
@@ -82,7 +82,7 @@ class AutowiredParameterResolverTests {
   @Test
   public void resolveArgumentReturnsNull() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     parameter.getParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     DependencyInjector injector = mock(DependencyInjector.class);

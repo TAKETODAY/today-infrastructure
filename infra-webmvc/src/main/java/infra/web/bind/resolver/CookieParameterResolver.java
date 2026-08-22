@@ -23,7 +23,7 @@ import infra.core.MethodParameter;
 import infra.http.HttpCookie;
 import infra.web.HttpContext;
 import infra.web.annotation.CookieValue;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -33,7 +33,7 @@ public class CookieParameterResolver
         extends AbstractNamedValueResolvingStrategy implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.is(HttpCookie.class);
   }
 
@@ -45,7 +45,7 @@ public class CookieParameterResolver
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
     return context.getCookie(name);
   }
 
@@ -63,7 +63,7 @@ public class CookieParameterResolver
     }
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return resolvable.hasParameterAnnotation(CookieValue.class);
     }
 
@@ -79,7 +79,7 @@ public class CookieParameterResolver
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
+    protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) {
       HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
         if (resolvable.is(HttpCookie.class)) {
@@ -94,14 +94,14 @@ public class CookieParameterResolver
   static final class AllCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       Class<?> parameterType = resolvable.getParameterType();
       return parameterType.isArray()
               && parameterType.getComponentType() == HttpCookie.class;
     }
 
     @Override
-    public Object resolveArgument(HttpContext http, ResolvableMethodParameter resolvable) {
+    public Object resolveArgument(HttpContext http, HandlerParameter resolvable) {
       return http.getCookies();
     }
   }
@@ -113,14 +113,14 @@ public class CookieParameterResolver
     }
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return resolvable.isCollection()
               && resolvable.getResolvableType().getGeneric(0).resolve() == HttpCookie.class;
     }
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+    protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
       return context.getCookies();
     }
 

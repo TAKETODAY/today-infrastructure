@@ -23,7 +23,7 @@ import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.annotation.SessionAttribute;
 import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * resolve attribute from {@link Session}
@@ -44,13 +44,13 @@ public class SessionAttributeParameterResolver extends AbstractNamedValueResolvi
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(HandlerParameter parameter) {
     return parameter.hasParameterAnnotation(SessionAttribute.class);
   }
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
     Session session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;

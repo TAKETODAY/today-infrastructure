@@ -32,7 +32,7 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.web.HttpContext;
 import infra.web.annotation.RequestPart;
 import infra.web.handler.method.NamedValueInfo;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +79,7 @@ class RequestPartMethodArgumentResolverTests {
     MethodParameter methodParameter = mock(MethodParameter.class);
     when(methodParameter.hasParameterAnnotation(RequestPart.class)).thenReturn(true);
 
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParameter);
+    HandlerParameter parameter = new HandlerParameter(methodParameter);
     assertThat(resolver.supportsParameter(parameter)).isTrue();
   }
 
@@ -93,7 +93,7 @@ class RequestPartMethodArgumentResolverTests {
       delegate.when(() -> MultipartResolutionDelegate.isMultipartArgument(methodParameter))
               .thenReturn(true);
 
-      ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParameter);
+      HandlerParameter parameter = new HandlerParameter(methodParameter);
       assertThat(resolver.supportsParameter(parameter)).isTrue();
     }
   }
@@ -104,7 +104,7 @@ class RequestPartMethodArgumentResolverTests {
     when(methodParameter.hasParameterAnnotation(RequestPart.class)).thenReturn(false);
     when(methodParameter.hasParameterAnnotation(infra.web.annotation.RequestParam.class)).thenReturn(true);
 
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParameter);
+    HandlerParameter parameter = new HandlerParameter(methodParameter);
     assertThat(resolver.supportsParameter(parameter)).isFalse();
   }
 
@@ -116,7 +116,7 @@ class RequestPartMethodArgumentResolverTests {
     MethodParameter methodParameter = mock(MethodParameter.class);
     when(methodParameter.hasParameterAnnotation(RequestPart.class)).thenReturn(true);
 
-    ResolvableMethodParameter resolvable = spy(new ResolvableMethodParameter(methodParameter));
+    HandlerParameter resolvable = spy(new HandlerParameter(methodParameter));
     doReturn(new NamedValueInfo(partName)).when(resolvable).getNamedValueInfo();
 
     try (var delegate = mockStatic(MultipartResolutionDelegate.class)) {

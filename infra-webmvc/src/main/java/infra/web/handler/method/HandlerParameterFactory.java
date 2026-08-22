@@ -25,26 +25,26 @@ import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**
- * Factory for creating {@link ResolvableMethodParameter} instances.
+ * Factory for creating {@link HandlerParameter} instances.
  * <p>This class is responsible for building arrays of resolvable method parameters,
  * optionally caching them based on the underlying {@link java.lang.reflect.Method}.</p>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/3/21 13:58
  */
-public class ResolvableParameterFactory {
+public class HandlerParameterFactory {
 
-  private static final ResolvableMethodParameter[] EMPTY = new ResolvableMethodParameter[0];
+  private static final HandlerParameter[] EMPTY = new HandlerParameter[0];
 
   private final ParameterNameDiscoverer parameterNameDiscoverer;
 
-  private final HashMap<Method, ResolvableMethodParameter[]> cache = new HashMap<>();
+  private final HashMap<Method, HandlerParameter[]> cache = new HashMap<>();
 
   /**
    * Constructs a new {@code ResolvableParameterFactory}
    * using the shared instance of {@link ParameterNameDiscoverer}.
    */
-  public ResolvableParameterFactory() {
+  public HandlerParameterFactory() {
     this(ParameterNameDiscoverer.getSharedInstance());
   }
 
@@ -54,26 +54,26 @@ public class ResolvableParameterFactory {
    * @param parameterNameDiscoverer the discoverer used to resolve parameter names; must not be null
    * @throws IllegalArgumentException if {@code parameterNameDiscoverer} is null
    */
-  public ResolvableParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
+  public HandlerParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
     Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer is required");
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
   /**
-   * Creates an array of {@link ResolvableMethodParameter} instances for the given handler method.
+   * Creates an array of {@link HandlerParameter} instances for the given handler method.
    * <p>This method initializes parameter name discovery for each parameter and converts them
    * into resolvable method parameters.</p>
    *
    * @param handlerMethod the handler method to process
-   * @return an array of {@link ResolvableMethodParameter}, or an empty array if no parameters exist
+   * @return an array of {@link HandlerParameter}, or an empty array if no parameters exist
    */
-  public ResolvableMethodParameter[] createArray(HandlerMethod handlerMethod) {
+  public HandlerParameter[] createArray(HandlerMethod handlerMethod) {
     MethodParameter[] parameters = handlerMethod.getParameters();
     if (ObjectUtils.isEmpty(parameters)) {
       return EMPTY;
     }
     int i = 0;
-    ResolvableMethodParameter[] ret = new ResolvableMethodParameter[parameters.length];
+    HandlerParameter[] ret = new HandlerParameter[parameters.length];
     for (MethodParameter parameter : parameters) {
       parameter.initParameterNameDiscovery(parameterNameDiscoverer);
       ret[i++] = createParameter(parameter);
@@ -82,19 +82,19 @@ public class ResolvableParameterFactory {
   }
 
   /**
-   * Retrieves the array of {@link ResolvableMethodParameter} instances for the given handler method,
+   * Retrieves the array of {@link HandlerParameter} instances for the given handler method,
    * using a cache to avoid redundant creation for the same underlying {@link java.lang.reflect.Method}.
    * <p>If the parameters are not found in the cache, they are created and stored for future access.</p>
    *
    * @param handlerMethod the handler method to retrieve parameters for
-   * @return a cached or newly created array of {@link ResolvableMethodParameter}, or an empty array if no parameters exist
+   * @return a cached or newly created array of {@link HandlerParameter}, or an empty array if no parameters exist
    */
-  public ResolvableMethodParameter[] getParameters(HandlerMethod handlerMethod) {
+  public HandlerParameter[] getParameters(HandlerMethod handlerMethod) {
     Method method = handlerMethod.getMethod();
     if (method.getParameterCount() == 0) {
       return EMPTY;
     }
-    ResolvableMethodParameter[] parameters = cache.get(method);
+    HandlerParameter[] parameters = cache.get(method);
     if (parameters == null) {
       parameters = createArray(handlerMethod);
       cache.put(method, parameters);
@@ -103,13 +103,13 @@ public class ResolvableParameterFactory {
   }
 
   /**
-   * Creates a new {@link ResolvableMethodParameter} instance from the given {@link MethodParameter}.
+   * Creates a new {@link HandlerParameter} instance from the given {@link MethodParameter}.
    *
    * @param parameter the method parameter to wrap
-   * @return a new {@link ResolvableMethodParameter} instance
+   * @return a new {@link HandlerParameter} instance
    */
-  public ResolvableMethodParameter createParameter(MethodParameter parameter) {
-    return new ResolvableMethodParameter(parameter);
+  public HandlerParameter createParameter(MethodParameter parameter) {
+    return new HandlerParameter(parameter);
   }
 
 }

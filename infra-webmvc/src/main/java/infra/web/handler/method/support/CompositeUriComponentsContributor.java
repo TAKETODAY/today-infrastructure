@@ -32,7 +32,7 @@ import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.util.UriComponentsBuilder;
 
 /**
@@ -118,7 +118,7 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    ResolvableMethodParameter resolvable = null;
+    HandlerParameter resolvable = null;
     for (Object contributor : contributors) {
       if (contributor instanceof UriComponentsContributor ucc) {
         if (ucc.supportsParameter(parameter)) {
@@ -127,7 +127,7 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
       }
       else if (contributor instanceof ParameterResolvingStrategy resolver) {
         if (resolvable == null) {
-          resolvable = new ResolvableMethodParameter(parameter);
+          resolvable = new HandlerParameter(parameter);
         }
         if (resolver.supportsParameter(resolvable)) {
           return false;
@@ -140,7 +140,7 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
   @Override
   public void contributeMethodArgument(MethodParameter parameter, Object value,
           UriComponentsBuilder builder, Map<String, Object> uriVariables, ConversionService conversionService) {
-    ResolvableMethodParameter resolvable = new ResolvableMethodParameter(parameter);
+    HandlerParameter resolvable = new HandlerParameter(parameter);
     for (Object contributor : this.contributors) {
       if (contributor instanceof UriComponentsContributor ucc) {
         if (ucc.supportsParameter(parameter)) {

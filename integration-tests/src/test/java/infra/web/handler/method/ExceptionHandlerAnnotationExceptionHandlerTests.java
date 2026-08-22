@@ -195,7 +195,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     HandlerMethod handlerMethod = new HandlerMethod(new ModelArgumentController(), "handle");
     handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
     this.handler.afterPropertiesSet();
-    ResolvableParameterFactory factory = new ResolvableParameterFactory();
+    HandlerParameterFactory factory = new HandlerParameterFactory();
 
     MockHttpContext context = new MockHttpContext(null, request, response);
     context.setBinding(new BindingContext());

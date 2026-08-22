@@ -83,9 +83,9 @@ final class ControllerMethodResolver {
 
   private final ConcurrentHashMap<HandlerMethod, InvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
 
-  private final ResolvableParameterFactory parameterFactory;
+  private final HandlerParameterFactory parameterFactory;
 
-  ControllerMethodResolver(@Nullable ApplicationContext context, ResolvableParameterFactory parameterFactory) {
+  ControllerMethodResolver(@Nullable ApplicationContext context, HandlerParameterFactory parameterFactory) {
     this.parameterFactory = parameterFactory;
 
     if (context != null) {

@@ -27,7 +27,7 @@ import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.annotation.PathVariable;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves {@link Map} method arguments annotated with an @{@link PathVariable}
@@ -40,7 +40,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
 public class PathVariableMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     PathVariable ann = resolvable.getParameterAnnotation(PathVariable.class);
     return ann != null
             && Map.class.isAssignableFrom(resolvable.getParameterType())
@@ -52,7 +52,7 @@ public class PathVariableMapMethodArgumentResolver implements ParameterResolving
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
     HandlerMatchingMetadata metadata = context.getMatchingMetadata();
     Map<Object, Object> map = CollectionUtils.createMap(resolvable.getParameterType());
     if (metadata != null) {

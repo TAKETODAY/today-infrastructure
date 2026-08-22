@@ -33,7 +33,7 @@ import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.annotation.RequestHeader;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,20 +45,20 @@ class RequestHeaderMapMethodArgumentResolverTests {
 
   private RequestHeaderMapMethodArgumentResolver resolver;
 
-  private ResolvableMethodParameter paramMap;
-  private ResolvableMethodParameter paramMultiValueMap;
-  private ResolvableMethodParameter paramHttpHeaders;
-  private ResolvableMethodParameter paramUnsupported;
+  private HandlerParameter paramMap;
+  private HandlerParameter paramMultiValueMap;
+  private HandlerParameter paramHttpHeaders;
+  private HandlerParameter paramUnsupported;
 
   @BeforeEach
   public void setup() throws Throwable {
     resolver = new RequestHeaderMapMethodArgumentResolver();
 
     Method method = getClass().getMethod("params", Map.class, MultiValueMap.class, HttpHeaders.class, Map.class);
-    paramMap = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
-    paramMultiValueMap = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 1));
-    paramHttpHeaders = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 2));
-    paramUnsupported = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 3));
+    paramMap = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
+    paramMultiValueMap = new HandlerParameter(new SynthesizingMethodParameter(method, 1));
+    paramHttpHeaders = new HandlerParameter(new SynthesizingMethodParameter(method, 2));
+    paramUnsupported = new HandlerParameter(new SynthesizingMethodParameter(method, 3));
 
   }
 
@@ -182,7 +182,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
   @Test
   void resolveCustomMapImplementation() throws Throwable {
     Method method = getClass().getMethod("customMapParam", CustomMap.class);
-    ResolvableMethodParameter customMapParam = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter customMapParam = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     MockRequest request = new MockRequest();
     request.addHeader("test", "value");
@@ -198,7 +198,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
   @Test
   void resolveCustomMultiValueMapImplementation() throws Throwable {
     Method method = getClass().getMethod("customMultiValueMapParam", CustomMultiValueMap.class);
-    ResolvableMethodParameter customMultiValueMapParam = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter customMultiValueMapParam = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     MockRequest request = new MockRequest();
     request.addHeader("test", "value1");

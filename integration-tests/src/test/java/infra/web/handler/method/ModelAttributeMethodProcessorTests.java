@@ -69,13 +69,13 @@ class ModelAttributeMethodProcessorTests {
 
   private ModelAttributeMethodProcessor processor;
 
-  private ResolvableMethodParameter paramNamedValidModelAttr;
-  private ResolvableMethodParameter paramErrors;
-  private ResolvableMethodParameter paramInt;
-  private ResolvableMethodParameter paramModelAttr;
-  private ResolvableMethodParameter paramBindingDisabledAttr;
-  private ResolvableMethodParameter paramNonSimpleType;
-  private ResolvableMethodParameter beanWithConstructorArgs;
+  private HandlerParameter paramNamedValidModelAttr;
+  private HandlerParameter paramErrors;
+  private HandlerParameter paramInt;
+  private HandlerParameter paramModelAttr;
+  private HandlerParameter paramBindingDisabledAttr;
+  private HandlerParameter paramNonSimpleType;
+  private HandlerParameter beanWithConstructorArgs;
 
   private HandlerMethod returnParamNamedModelAttrHandler;
   private HandlerMethod returnParamNonSimpleTypeHandler;
@@ -91,13 +91,13 @@ class ModelAttributeMethodProcessorTests {
             TestBean.class, Errors.class, int.class, TestBean.class,
             TestBean.class, TestBean.class, TestBeanWithConstructorArgs.class);
 
-    this.paramNamedValidModelAttr = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
-    this.paramErrors = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 1));
-    this.paramInt = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 2));
-    this.paramModelAttr = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 3));
-    this.paramBindingDisabledAttr = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 4));
-    this.paramNonSimpleType = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 5));
-    this.beanWithConstructorArgs = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 6));
+    this.paramNamedValidModelAttr = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
+    this.paramErrors = new HandlerParameter(new SynthesizingMethodParameter(method, 1));
+    this.paramInt = new HandlerParameter(new SynthesizingMethodParameter(method, 2));
+    this.paramModelAttr = new HandlerParameter(new SynthesizingMethodParameter(method, 3));
+    this.paramBindingDisabledAttr = new HandlerParameter(new SynthesizingMethodParameter(method, 4));
+    this.paramNonSimpleType = new HandlerParameter(new SynthesizingMethodParameter(method, 5));
+    this.beanWithConstructorArgs = new HandlerParameter(new SynthesizingMethodParameter(method, 6));
 
     method = getClass().getDeclaredMethod("annotatedReturnValue");
     this.returnParamNamedModelAttrHandler = new HandlerMethod(this, method);
@@ -328,7 +328,7 @@ class ModelAttributeMethodProcessorTests {
     assertThat(((TestBeanWithConstructorArgs) resolved).file).isNull();
   }
 
-  private void testGetAttributeFromModel(String expectedAttrName, ResolvableMethodParameter param) throws Throwable {
+  private void testGetAttributeFromModel(String expectedAttrName, HandlerParameter param) throws Throwable {
     Object target = new TestBean();
     this.container.addAttribute(expectedAttrName, target);
 

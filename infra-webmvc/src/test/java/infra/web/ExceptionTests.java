@@ -56,7 +56,7 @@ import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.bind.resolver.ParameterResolverNotFoundException;
 import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.parsing.ItemSkippedException;
 import infra.web.multipart.parsing.MalformedStreamException;
 import infra.web.multipart.parsing.MultipartBoundaryException;
@@ -1307,7 +1307,7 @@ class ExceptionTests {
       String message = "Parameter resolver not found";
 
       ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
-              new ResolvableMethodParameter(parameter), message);
+              new HandlerParameter(parameter), message);
       parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
 
       assertThat(exception.getParameter()).isNotNull();
@@ -1327,7 +1327,7 @@ class ExceptionTests {
       parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
 
       ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
-              new ResolvableMethodParameter(parameter), message, cause);
+              new HandlerParameter(parameter), message, cause);
 
       assertThat(exception.getParameter()).isNotNull();
       assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
@@ -1343,7 +1343,7 @@ class ExceptionTests {
       parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
 
       ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
-              new ResolvableMethodParameter(parameter), null);
+              new HandlerParameter(parameter), null);
 
       assertThat(exception.getParameter()).isNotNull();
       assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
@@ -1358,7 +1358,7 @@ class ExceptionTests {
       MethodParameter parameter = new MethodParameter(method, 0);
 
       ParameterResolverNotFoundException exception = new ParameterResolverNotFoundException(
-              new ResolvableMethodParameter(parameter), "test");
+              new HandlerParameter(parameter), "test");
 
       assertThat(exception).isInstanceOf(WebConfigurationException.class);
     }

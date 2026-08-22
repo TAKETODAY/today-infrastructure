@@ -478,7 +478,7 @@ class RequestMappingInfoHandlerMappingTests {
     var context = new MockHttpContext(null, request, new MockResponse());
 
     context.setBinding(new BindingContext());
-    Object result = new InvocableHandlerMethod(handlerMethod, new ResolvableParameterFactory())
+    Object result = new InvocableHandlerMethod(handlerMethod, new HandlerParameterFactory())
             .invokeForRequest(context, null, null);
 
     assertThat(result).isNotNull().isInstanceOf(HttpHeaders.class);

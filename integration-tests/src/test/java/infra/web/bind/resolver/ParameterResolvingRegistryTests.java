@@ -28,9 +28,9 @@ import infra.context.annotation.Import;
 import infra.core.MethodParameter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.web.HttpContext;
-import infra.web.MockResolvableMethodParameter;
+import infra.web.MockHandlerParameter;
 import infra.web.config.annotation.EnableWebMvc;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -91,11 +91,11 @@ class ParameterResolvingRegistryTests {
   void lookupStrategy() throws NoSuchMethodException {
     Method q = getClass().getDeclaredMethod("p", String.class);
     MethodParameter parameter = MethodParameter.forExecutable(q, 0);
-    ParameterResolvingStrategy data = registry.findStrategy(new MockResolvableMethodParameter(parameter, "data"));
+    ParameterResolvingStrategy data = registry.findStrategy(new MockHandlerParameter(parameter, "data"));
 
     assertThat(data).isNull();
 
-    assertThatThrownBy(() -> registry.obtainStrategy(new MockResolvableMethodParameter(parameter, "data")))
+    assertThatThrownBy(() -> registry.obtainStrategy(new MockHandlerParameter(parameter, "data")))
             .isInstanceOf(ParameterResolverNotFoundException.class)
             .hasMessageStartingWith("There isn't have a parameter resolver to resolve parameter");
 
@@ -107,11 +107,11 @@ class ParameterResolvingRegistryTests {
     registry.setRedirectModelManager(null);
     assertThat(registry.getRedirectModelManager()).isNull();
 
-    data = registry.findStrategy(new MockResolvableMethodParameter(parameter, "data"));
+    data = registry.findStrategy(new MockHandlerParameter(parameter, "data"));
 
     assertThat(data)
             .isNotNull()
-            .isEqualTo(registry.obtainStrategy(new MockResolvableMethodParameter(parameter, "data")))
+            .isEqualTo(registry.obtainStrategy(new MockHandlerParameter(parameter, "data")))
             .isInstanceOf(RequestParamMethodArgumentResolver.class);
 
   }
@@ -134,13 +134,13 @@ class ParameterResolvingRegistryTests {
   static class ParameterResolvingStrategy0 implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return false;
     }
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
       return null;
     }
   }

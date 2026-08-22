@@ -54,12 +54,12 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
-  private final ResolvableMethodParameter[] resolvableParameters;
+  private final HandlerParameter[] resolvableParameters;
 
   /**
    * Create an instance from a {@code HandlerMethod}.
    */
-  public InvocableHandlerMethod(HandlerMethod handlerMethod, ResolvableParameterFactory factory) {
+  public InvocableHandlerMethod(HandlerMethod handlerMethod, HandlerParameterFactory factory) {
     super(handlerMethod);
     this.resolvableParameters = factory.getParameters(this);
   }
@@ -67,17 +67,17 @@ public class InvocableHandlerMethod extends HandlerMethod {
   /**
    * Create an instance from a bean instance and a method.
    */
-  public InvocableHandlerMethod(Object bean, Method method, ResolvableParameterFactory factory) {
+  public InvocableHandlerMethod(Object bean, Method method, HandlerParameterFactory factory) {
     this(bean, method, null, factory);
   }
 
-  public InvocableHandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource, ResolvableParameterFactory factory) {
+  public InvocableHandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource, HandlerParameterFactory factory) {
     super(bean, method, messageSource);
     this.resolvableParameters = factory.getParameters(this);
   }
 
   public InvocableHandlerMethod(String beanName, BeanFactory beanFactory,
-          @Nullable MessageSource messageSource, Method method, ResolvableParameterFactory factory) {
+          @Nullable MessageSource messageSource, Method method, HandlerParameterFactory factory) {
     super(beanName, beanFactory, messageSource, method);
     this.resolvableParameters = factory.getParameters(this);
   }
@@ -213,7 +213,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * <p>The resulting array will be passed into {@link Method#invoke(Object, Object...)}.
    */
   private @Nullable Object[] getMethodArgumentValues(HttpContext request, Object @Nullable [] providedArgs) throws Exception {
-    ResolvableMethodParameter[] parameters = this.resolvableParameters;
+    HandlerParameter[] parameters = this.resolvableParameters;
     int length = parameters.length;
     if (length == 0) {
       return EMPTY_ARGS;

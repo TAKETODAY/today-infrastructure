@@ -32,7 +32,7 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.annotation.PathVariable;
 import infra.web.bind.MissingPathVariableException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.support.UriComponentsContributor;
 import infra.web.util.UriComponentsBuilder;
 
@@ -64,7 +64,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     if (resolvable.hasParameterAnnotation(PathVariable.class)) {
       if (Map.class.isAssignableFrom(resolvable.getParameter().getParameterType())) {
         PathVariable pathVariable = resolvable.getParameterAnnotation(PathVariable.class);
@@ -77,7 +77,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
     HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariable(name);
@@ -96,13 +96,13 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  protected void handleResolvedValue(@Nullable Object arg, String name, ResolvableMethodParameter resolvable, HttpContext request) {
+  protected void handleResolvedValue(@Nullable Object arg, String name, HandlerParameter resolvable, HttpContext request) {
     request.matchingMetadata().getPathVariables().put(name, arg);
   }
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    return supportsParameter(new ResolvableMethodParameter(parameter));
+    return supportsParameter(new HandlerParameter(parameter));
   }
 
   @Override

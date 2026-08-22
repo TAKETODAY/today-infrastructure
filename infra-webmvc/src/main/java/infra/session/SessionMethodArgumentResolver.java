@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.web.HttpContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * for {@link Session} Type-based parameter resolving
@@ -61,13 +61,13 @@ public class SessionMethodArgumentResolver extends SessionManagerOperations impl
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(HandlerParameter parameter) {
     return parameter.isAssignableTo(Session.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
     // todo type checking?
     if (resolvable.isRequired()) {
       return getSession(context);

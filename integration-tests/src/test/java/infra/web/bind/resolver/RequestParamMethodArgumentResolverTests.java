@@ -39,7 +39,7 @@ import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.MultipartException;
 import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
@@ -69,7 +69,7 @@ class RequestParamMethodArgumentResolverTests {
   public void supportsParameter() {
     resolver = new RequestParamMethodArgumentResolver(null, true);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
     param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
@@ -128,7 +128,7 @@ class RequestParamMethodArgumentResolverTests {
     String expected = "foo";
     request.addParameter("name", expected);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
     Object result = resolver.resolveArgument(webRequest, param);
     boolean condition = result instanceof String;
     assertThat(condition).isTrue();
@@ -140,7 +140,7 @@ class RequestParamMethodArgumentResolverTests {
     String[] expected = new String[] { "foo", "bar" };
     request.addParameter("name", expected);
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
     Object result = resolver.resolveArgument(webRequest, param);
     boolean condition = result instanceof String[];
     assertThat(condition).isTrue();
@@ -153,7 +153,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addParameter("name[]", expected[0]);
     request.addParameter("name[]", expected[1]);
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).asInstanceOf(array(String[].class)).containsExactly(expected);
   }
@@ -166,7 +166,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
             .isNotNullable().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
     boolean condition = result instanceof Part;
@@ -185,7 +185,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof List;
@@ -200,7 +200,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -216,7 +216,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof Part[];
@@ -234,7 +234,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -247,7 +247,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent().arg(Part.class);
+    HandlerParameter param = this.testMethod.annotNotPresent().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof Part;
@@ -265,7 +265,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod
+    HandlerParameter param = this.testMethod
             .annotNotPresent(RequestParam.class).arg(List.class, Part.class);
 
     Object result = resolver.resolveArgument(webRequest, param);
@@ -276,7 +276,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void isMultipartRequest() {
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
             .isNotNullable()
             .arg(Part.class);
     assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
@@ -292,7 +292,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext());
 
-    ResolvableMethodParameter param = testMethod.annotNotPresent(
+    HandlerParameter param = testMethod.annotNotPresent(
             RequestParam.class).arg(List.class, Part.class);
 
     Object actual = resolver.resolveArgument(webRequest, param);
@@ -304,7 +304,7 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void noMultipartContent() throws Throwable {
     request.setMethod("POST");
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
             .isNotNullable().arg(Part.class);
     assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
@@ -314,7 +314,7 @@ class RequestParamMethodArgumentResolverTests {
   public void missingMultipartFile() throws Throwable {
     request.setMethod("POST");
     request.setContentType("multipart/form-data");
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class)
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
             .isNotNullable().arg(Part.class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
@@ -322,7 +322,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveDefaultValue() throws Throwable {
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
     Object result = resolver.resolveArgument(webRequest, param);
     boolean condition = result instanceof String;
     assertThat(condition).isTrue();
@@ -331,7 +331,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParam() throws Throwable {
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
     assertThatExceptionOfType(MissingRequestParameterException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
   }
@@ -349,7 +349,7 @@ class RequestParamMethodArgumentResolverTests {
 
     request.addParameter("stringNotAnnot", "");
 
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
 //    Object arg = resolver.resolveArgument(webRequest, param);
 //    assertThat(arg).isNull();
 
@@ -372,7 +372,7 @@ class RequestParamMethodArgumentResolverTests {
 
     request.addParameter("booleanParam", " ");
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Boolean.class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Boolean.class);
     Object arg = resolver.resolveArgument(webRequest, param);
     assertThat(arg).isEqualTo(Boolean.FALSE);
   }
@@ -390,7 +390,7 @@ class RequestParamMethodArgumentResolverTests {
     given(binderFactory.createBinder(webRequest, "name")).willReturn(binder);
     webRequest.setBinding(binderFactory);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
     assertThat(arg).isNull();
   }
@@ -408,7 +408,7 @@ class RequestParamMethodArgumentResolverTests {
 
     webRequest.setBinding(context);
 
-    ResolvableMethodParameter param = testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    HandlerParameter param = testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
     assertThat(arg).isEqualTo("bar");
   }
@@ -416,7 +416,7 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveSimpleTypeParam() throws Throwable {
     request.setParameter("stringNotAnnot", "plainValue");
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof String;
@@ -426,7 +426,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveSimpleTypeParamToNull() throws Throwable {
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
     assertThatThrownBy(() -> resolver.resolveArgument(webRequest, param))
             .isInstanceOf(MissingRequestParameterException.class)
             .hasMessage("Required request parameter 'stringNotAnnot' for method parameter type String is not present");
@@ -435,7 +435,7 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveEmptyValueToDefault() throws Throwable {
     request.addParameter("name", "");
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).isEqualTo("bar");
   }
@@ -443,7 +443,7 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveEmptyValueWithoutDefault() throws Throwable {
     request.addParameter("stringNotAnnot", "");
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).isEqualTo("");
   }
@@ -451,7 +451,7 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveEmptyValueRequiredWithoutDefault() throws Throwable {
     request.addParameter("name", "");
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).isEqualTo("");
   }
@@ -587,7 +587,7 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, null);
     webRequest.setBinding(new BindingContext(initializer));
 
-    ResolvableMethodParameter param = testMethod.annotPresent(
+    HandlerParameter param = testMethod.annotPresent(
             RequestParam.class).isNullable().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
@@ -623,7 +623,7 @@ class RequestParamMethodArgumentResolverTests {
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).isNullable()
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).isNullable()
             .arg(Part.class);
     Object actual = resolver.resolveArgument(webRequest, param);
 

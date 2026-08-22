@@ -41,7 +41,7 @@ import infra.web.annotation.RequestAttribute;
 import infra.web.bind.RequestBindingException;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestBodyAdvice;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ResponseBodyAdvice;
 
 /**
@@ -140,13 +140,13 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   }
 
   /**
-   * Find a suitable {@link ParameterResolvingStrategy} for given {@link ResolvableMethodParameter}
+   * Find a suitable {@link ParameterResolvingStrategy} for given {@link HandlerParameter}
    *
    * @param resolvable resolvable MethodParameter
    * @return a suitable {@link ParameterResolvingStrategy},
    * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
    */
-  protected @Nullable ParameterResolvingStrategy lookupStrategy(ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
+  protected @Nullable ParameterResolvingStrategy lookupStrategy(HandlerParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
     for (ParameterResolvingStrategy resolver : strategies) {
       if (resolver.supportsParameter(resolvable)) {
         return resolver;
@@ -163,7 +163,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    * @param parameter parameter value to be resolve
    * @return A suitable {@link ParameterResolvingStrategy}
    */
-  public @Nullable ParameterResolvingStrategy findStrategy(ResolvableMethodParameter parameter) {
+  public @Nullable ParameterResolvingStrategy findStrategy(HandlerParameter parameter) {
     ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedStrategies);
     if (resolvingStrategy == null) {
       resolvingStrategy = lookupStrategy(parameter, defaultStrategies);
@@ -178,7 +178,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    * @return A suitable {@link ParameterResolvingStrategy}
    * @throws ParameterResolverNotFoundException If there isn't a suitable resolver
    */
-  public ParameterResolvingStrategy obtainStrategy(ResolvableMethodParameter parameter) {
+  public ParameterResolvingStrategy obtainStrategy(HandlerParameter parameter) {
     ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
       throw new ParameterResolverNotFoundException(
@@ -375,12 +375,12 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     }
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return resolvable.hasParameterAnnotation(RequestAttribute.class);
     }
 
     @Override
-    protected @Nullable Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
+    protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) {
       return context.getAttribute(name);
     }
 

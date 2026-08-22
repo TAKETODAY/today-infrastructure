@@ -31,7 +31,7 @@ import infra.ui.ModelMap;
 import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -67,8 +67,8 @@ class ModelMethodProcessorTests {
 
   @Test
   public void supportsParameter() {
-    assertThat(processor.supportsParameter(new ResolvableMethodParameter(paramModel))).isTrue();
-    assertThat(processor.supportsParameter(new ResolvableMethodParameter(redirectModelParam))).isTrue();
+    assertThat(processor.supportsParameter(new HandlerParameter(paramModel))).isTrue();
+    assertThat(processor.supportsParameter(new HandlerParameter(redirectModelParam))).isTrue();
   }
 
   @Test
@@ -87,8 +87,8 @@ class ModelMethodProcessorTests {
   public void resolveArgumentValue() throws Throwable {
     BindingContext bindingContext = webRequest.getBinding();
     ModelMap model = bindingContext.getModel();
-    assertThat(processor.resolveArgument(webRequest, new ResolvableMethodParameter(paramModel))).isSameAs(model);
-    assertThat(processor.resolveArgument(webRequest, new ResolvableMethodParameter(redirectModelParam))).isSameAs(bindingContext.getRedirectModel());
+    assertThat(processor.resolveArgument(webRequest, new HandlerParameter(paramModel))).isSameAs(model);
+    assertThat(processor.resolveArgument(webRequest, new HandlerParameter(redirectModelParam))).isSameAs(bindingContext.getRedirectModel());
     assertThat(webRequest.hasAttribute(RedirectModel.OUTPUT_ATTRIBUTE)).isTrue();
     assertThat((Object) RedirectModel.findOutputModel(webRequest)).isSameAs(bindingContext.getRedirectModel());
   }

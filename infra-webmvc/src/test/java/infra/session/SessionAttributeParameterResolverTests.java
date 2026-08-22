@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.web.HttpContext;
 import infra.web.annotation.SessionAttribute;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -45,7 +45,7 @@ class SessionAttributeParameterResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
     when(parameter.hasParameterAnnotation(SessionAttribute.class)).thenReturn(true);
 
     boolean result = resolver.supportsParameter(parameter);
@@ -58,7 +58,7 @@ class SessionAttributeParameterResolverTests {
     SessionManager sessionManager = mock(SessionManager.class);
     SessionAttributeParameterResolver resolver = new SessionAttributeParameterResolver(sessionManager, null);
 
-    ResolvableMethodParameter parameter = mock(ResolvableMethodParameter.class);
+    HandlerParameter parameter = mock(HandlerParameter.class);
     when(parameter.hasParameterAnnotation(SessionAttribute.class)).thenReturn(false);
 
     boolean result = resolver.supportsParameter(parameter);
@@ -77,7 +77,7 @@ class SessionAttributeParameterResolverTests {
     when(sessionManager.getSession(context, false)).thenReturn(session);
     when(session.getAttribute("testAttribute")).thenReturn("testValue");
 
-    Object result = resolver.resolveName("testAttribute", mock(ResolvableMethodParameter.class), context);
+    Object result = resolver.resolveName("testAttribute", mock(HandlerParameter.class), context);
 
     assertThat(result).isEqualTo("testValue");
   }
@@ -91,7 +91,7 @@ class SessionAttributeParameterResolverTests {
 
     when(sessionManager.getSession(context, false)).thenReturn(null);
 
-    Object result = resolver.resolveName("testAttribute", mock(ResolvableMethodParameter.class), context);
+    Object result = resolver.resolveName("testAttribute", mock(HandlerParameter.class), context);
 
     assertThat(result).isNull();
   }
@@ -107,7 +107,7 @@ class SessionAttributeParameterResolverTests {
     when(sessionManager.getSession(context, false)).thenReturn(session);
     when(session.getAttribute("testAttribute")).thenReturn(null);
 
-    Object result = resolver.resolveName("testAttribute", mock(ResolvableMethodParameter.class), context);
+    Object result = resolver.resolveName("testAttribute", mock(HandlerParameter.class), context);
 
     assertThat(result).isNull();
   }

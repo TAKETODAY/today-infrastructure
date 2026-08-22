@@ -19,7 +19,7 @@ package infra.web.bind.resolver;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.WebConfigurationException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * For {@link ParameterResolvingStrategy} NotFound Exception
@@ -30,18 +30,18 @@ import infra.web.handler.method.ResolvableMethodParameter;
  */
 public class ParameterResolverNotFoundException extends WebConfigurationException {
 
-  private final ResolvableMethodParameter parameter;
+  private final HandlerParameter parameter;
 
-  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, @Nullable String message) {
+  public ParameterResolverNotFoundException(HandlerParameter parameter, @Nullable String message) {
     this(parameter, message, null);
   }
 
-  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, @Nullable String message, @Nullable Throwable cause) {
+  public ParameterResolverNotFoundException(HandlerParameter parameter, @Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
     this.parameter = parameter;
   }
 
-  public ResolvableMethodParameter getParameter() {
+  public HandlerParameter getParameter() {
     return parameter;
   }
 

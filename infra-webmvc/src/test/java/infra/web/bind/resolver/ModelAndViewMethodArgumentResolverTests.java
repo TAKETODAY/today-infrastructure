@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.web.BindingContext;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ class ModelAndViewMethodArgumentResolverTests {
     when(context.binding()).thenReturn(binding);
     when(binding.getModelAndView()).thenReturn(modelAndView);
 
-    ResolvableMethodParameter resolvable = mock(ResolvableMethodParameter.class);
+    HandlerParameter resolvable = mock(HandlerParameter.class);
     ModelAndViewMethodArgumentResolver resolver = new ModelAndViewMethodArgumentResolver();
 
     Object result = resolver.resolveArgument(context, resolvable);

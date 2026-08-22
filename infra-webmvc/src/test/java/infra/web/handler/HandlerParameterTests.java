@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.web.MockResolvableMethodParameter;
+import infra.web.MockHandlerParameter;
 import infra.web.annotation.RequestParam;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/4/28 13:44
  * @since 3.0
  */
-public class ResolvableMethodParameterTests {
+public class HandlerParameterTests {
 
   public void method(@Nullable String name) {
 
@@ -50,8 +50,8 @@ public class ResolvableMethodParameterTests {
 
   @Test
   public void test() throws NoSuchMethodException {
-    final Method method = ResolvableMethodParameterTests.class.getDeclaredMethod("method", String.class);
-    final ResolvableMethodParameter methodParameter = createParameter(0, method, "name");
+    final Method method = HandlerParameterTests.class.getDeclaredMethod("method", String.class);
+    final HandlerParameter methodParameter = createParameter(0, method, "name");
 
     assertThat(methodParameter).isNotNull();
 
@@ -67,14 +67,14 @@ public class ResolvableMethodParameterTests {
 
   @Test
   public void testRequired() throws NoSuchMethodException {
-    final Method method = ResolvableMethodParameterTests.class.getDeclaredMethod("isRequired", String.class, int.class);
-    final ResolvableMethodParameter methodParameter = createParameter(0, method, "name");
+    final Method method = HandlerParameterTests.class.getDeclaredMethod("isRequired", String.class, int.class);
+    final HandlerParameter methodParameter = createParameter(0, method, "name");
     assertThat(methodParameter.isRequired()).isTrue();
     assertThat(methodParameter.isAssignableTo(CharSequence.class)).isTrue();
     assertThat(methodParameter.isInstance("dbashbgdsaydgasyu")).isTrue();
     assertThat(methodParameter.is(int.class)).isFalse();
 
-    final ResolvableMethodParameter ageMethodParameter = createParameter(1, method, null);
+    final HandlerParameter ageMethodParameter = createParameter(1, method, null);
     assertThat(ageMethodParameter.isRequired()).isTrue();
     assertThat(ageMethodParameter.getParameterIndex()).isEqualTo(1);
     assertThat(ageMethodParameter.getParameterType()).isEqualTo(int.class);
@@ -86,9 +86,9 @@ public class ResolvableMethodParameterTests {
 
   }
 
-  static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
+  static HandlerParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new MockResolvableMethodParameter(parameter, name);
+    return new MockHandlerParameter(parameter, name);
   }
 
 }

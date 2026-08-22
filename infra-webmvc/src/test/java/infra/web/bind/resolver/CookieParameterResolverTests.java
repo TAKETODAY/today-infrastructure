@@ -31,7 +31,7 @@ import infra.web.annotation.CookieValue;
 import infra.web.bind.resolver.CookieParameterResolver.AllCookieParameterResolver;
 import infra.web.bind.resolver.CookieParameterResolver.CookieCollectionParameterResolver;
 import infra.web.bind.resolver.CookieParameterResolver.CookieValueAnnotationParameterResolver;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,7 +45,7 @@ class CookieParameterResolverTests {
   @Test
   public void supportsParameterWithHttpCookie() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieParameterResolver resolver = new CookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isTrue();
@@ -54,7 +54,7 @@ class CookieParameterResolverTests {
   @Test
   public void supportsParameterWithString() throws Exception {
     Method method = getClass().getDeclaredMethod("handleString", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieParameterResolver resolver = new CookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isFalse();
@@ -69,7 +69,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
     MethodParameter parameter1 = new MethodParameter(method, 0);
     parameter1.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(parameter1);
+    HandlerParameter parameter = new HandlerParameter(parameter1);
     CookieParameterResolver resolver = new CookieParameterResolver();
 
     Object result = resolver.resolveArgument(context, parameter);
@@ -88,7 +88,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
     MethodParameter parameter1 = new MethodParameter(method, 0);
     parameter1.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(parameter1);
+    HandlerParameter parameter = new HandlerParameter(parameter1);
     CookieParameterResolver resolver = new CookieParameterResolver();
 
     assertThatThrownBy(() -> resolver.resolveArgument(context, parameter))
@@ -98,7 +98,7 @@ class CookieParameterResolverTests {
   @Test
   public void supportsParameterWithCookieValueAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -108,7 +108,7 @@ class CookieParameterResolverTests {
   @Test
   public void supportsParameterWithoutCookieValueAnnotation() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -124,7 +124,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
     methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParam);
+    HandlerParameter parameter = new HandlerParameter(methodParam);
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -144,7 +144,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
     methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParam);
+    HandlerParameter parameter = new HandlerParameter(methodParam);
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -162,7 +162,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
     methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParam);
+    HandlerParameter parameter = new HandlerParameter(methodParam);
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -197,7 +197,7 @@ class CookieParameterResolverTests {
   @Test
   public void allCookieParameterResolverSupportsParameter() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookieArray", HttpCookie[].class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     AllCookieParameterResolver resolver = new AllCookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isTrue();
@@ -206,7 +206,7 @@ class CookieParameterResolverTests {
   @Test
   public void allCookieParameterResolverSupportsParameterWithNonArrayType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     AllCookieParameterResolver resolver = new AllCookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isFalse();
@@ -215,7 +215,7 @@ class CookieParameterResolverTests {
   @Test
   public void allCookieParameterResolverSupportsParameterWithWrongComponentType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleStringArray", String[].class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     AllCookieParameterResolver resolver = new AllCookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isFalse();
@@ -228,7 +228,7 @@ class CookieParameterResolverTests {
     MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookieArray", HttpCookie[].class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     AllCookieParameterResolver resolver = new AllCookieParameterResolver();
 
     Object result = resolver.resolveArgument(context, parameter);
@@ -243,7 +243,7 @@ class CookieParameterResolverTests {
   @Test
   public void cookieCollectionParameterResolverSupportsParameter() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookieCollection", java.util.List.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieCollectionParameterResolver resolver =
             new CookieCollectionParameterResolver(null);
 
@@ -257,7 +257,7 @@ class CookieParameterResolverTests {
     MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookieCollection", java.util.List.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieCollectionParameterResolver resolver =
             new CookieCollectionParameterResolver(null);
 
@@ -271,7 +271,7 @@ class CookieParameterResolverTests {
   @Test
   public void cookieValueAnnotationParameterResolverSupportsParameter() throws Exception {
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -281,7 +281,7 @@ class CookieParameterResolverTests {
   @Test
   public void cookieValueAnnotationParameterResolverDoesNotSupportParameter() throws Exception {
     Method method = getClass().getDeclaredMethod("handleString", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -297,7 +297,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
     methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParam);
+    HandlerParameter parameter = new HandlerParameter(methodParam);
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -315,7 +315,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleAnnotatedHttpCookie", HttpCookie.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
     methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParam);
+    HandlerParameter parameter = new HandlerParameter(methodParam);
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -335,7 +335,7 @@ class CookieParameterResolverTests {
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
     methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(methodParam);
+    HandlerParameter parameter = new HandlerParameter(methodParam);
     CookieValueAnnotationParameterResolver resolver =
             new CookieValueAnnotationParameterResolver(null);
 
@@ -370,7 +370,7 @@ class CookieParameterResolverTests {
   @Test
   public void allCookieParameterResolverDoesNotSupportNonArrayParameter() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     AllCookieParameterResolver resolver = new AllCookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isFalse();
@@ -379,7 +379,7 @@ class CookieParameterResolverTests {
   @Test
   public void allCookieParameterResolverDoesNotSupportWrongArrayType() throws Exception {
     Method method = getClass().getDeclaredMethod("handleStringArray", String[].class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     AllCookieParameterResolver resolver = new AllCookieParameterResolver();
 
     assertThat(resolver.supportsParameter(parameter)).isFalse();
@@ -388,7 +388,7 @@ class CookieParameterResolverTests {
   @Test
   public void cookieCollectionParameterResolverDoesNotSupportNonCollectionParameter() throws Exception {
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
     CookieCollectionParameterResolver resolver =
             new CookieCollectionParameterResolver(null);
 

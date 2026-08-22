@@ -24,13 +24,13 @@ import java.util.Objects;
 
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * @author TODAY 2021/9/26 23:13
  */
 @SuppressWarnings("serial")
-public class MockMethodParameter extends ResolvableMethodParameter {
+public class MockMethodParameter extends HandlerParameter {
   private MethodParameter parameter;
 
   private int parameterIndex;
@@ -46,7 +46,7 @@ public class MockMethodParameter extends ResolvableMethodParameter {
 
   private AnnotatedElement annotatedElement;
 
-  public MockMethodParameter(ResolvableMethodParameter other) {
+  public MockMethodParameter(HandlerParameter other) {
     super(other);
   }
 

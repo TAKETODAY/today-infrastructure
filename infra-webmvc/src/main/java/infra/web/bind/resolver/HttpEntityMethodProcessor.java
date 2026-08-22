@@ -47,7 +47,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
@@ -116,13 +116,13 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.is(HttpEntity.class)
             || resolvable.is(RequestEntity.class);
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable)
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable)
           throws IOException, HttpMediaTypeNotSupportedException //
   {
     MethodParameter parameter = resolvable.getParameter();

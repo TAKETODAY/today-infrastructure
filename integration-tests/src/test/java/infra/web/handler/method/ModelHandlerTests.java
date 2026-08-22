@@ -75,9 +75,9 @@ class ModelHandlerTests {
     returnValueHandlerManager = new ReturnValueHandlerManager();
     returnValueHandlerManager.setApplicationContext(context);
     returnValueHandlerManager.registerDefaultHandlers();
-    ResolvableParameterFactory resolvableParameterFactory = new ResolvableParameterFactory();
+    HandlerParameterFactory handlerParameterFactory = new HandlerParameterFactory();
 
-    this.methodResolver = new ControllerMethodResolver(context, resolvableParameterFactory);
+    this.methodResolver = new ControllerMethodResolver(context, handlerParameterFactory);
     this.controller = new TestController();
   }
 
@@ -204,7 +204,7 @@ class ModelHandlerTests {
   private InvocableHandlerMethod createHandlerMethod(String methodName, Class<?>... paramTypes) throws Throwable {
     Method method = this.controller.getClass().getMethod(methodName, paramTypes);
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
-    var parameterFactory = new RegistryResolvableParameterFactory(registry);
+    var parameterFactory = new RegistryHandlerParameterFactory(registry);
     registry.getCustomizedStrategies().add(new ModelMethodProcessor());
 
     return new InvocableHandlerMethod(this.controller, method, parameterFactory);

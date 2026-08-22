@@ -29,7 +29,7 @@ import infra.core.ArraySizeTrimmer;
 import infra.core.style.ToStringBuilder;
 import infra.util.CollectionUtils;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * A composite strategy class that manages a list of {@link ParameterResolvingStrategy}
@@ -54,7 +54,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * Resolving arguments using the first supporting strategy:
  * <pre>{@code
  * HttpContext context = ...;
- * ResolvableMethodParameter parameter = ...;
+ * HandlerParameter parameter = ...;
  * Object result = strategies.resolveArgument(context, parameter);
  * }</pre>
  *
@@ -82,8 +82,8 @@ import infra.web.handler.method.ResolvableMethodParameter;
  *
  * <h3>Implementation Details</h3>
  *
- * <p>This class delegates the {@link #supportsParameter(ResolvableMethodParameter)} and
- * {@link #resolveArgument(HttpContext, ResolvableMethodParameter)} methods to the
+ * <p>This class delegates the {@link #supportsParameter(HandlerParameter)} and
+ * {@link #resolveArgument(HttpContext, HandlerParameter)} methods to the
  * first strategy in the list that supports the given parameter. If no strategy supports
  * the parameter, the methods return {@code false} or {@code null}, respectively.</p>
  *
@@ -117,7 +117,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   //---------------------------------------------------------------------
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(HandlerParameter parameter) {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(parameter)) {
         return true;
@@ -128,7 +128,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(resolvable)) {
         return strategy.resolveArgument(context, resolvable);

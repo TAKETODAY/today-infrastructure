@@ -34,7 +34,7 @@ import infra.web.context.support.RequestScope;
 import infra.web.handler.method.MethodArgumentConversionNotSupportedException;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
 import infra.web.handler.method.NamedValueInfo;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Abstract base class for resolving method arguments from a named value.
@@ -87,7 +87,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public final Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     MethodParameter methodParameter = resolvable.getParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
 
@@ -155,7 +155,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
     return arg;
   }
 
-  protected NamedValueInfo getNamedValueInfo(ResolvableMethodParameter resolvable) {
+  protected NamedValueInfo getNamedValueInfo(HandlerParameter resolvable) {
     return resolvable.getNamedValueInfo();
   }
 
@@ -187,12 +187,12 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @throws Exception in case of errors
    */
   @Nullable
-  protected abstract Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context)
+  protected abstract Object resolveName(String name, HandlerParameter resolvable, HttpContext context)
           throws Exception;
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, ResolvableMethodParameter, HttpContext)}
+   * {@link #resolveName(String, HandlerParameter, HttpContext)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -208,7 +208,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, ResolvableMethodParameter, HttpContext)}
+   * {@link #resolveName(String, HandlerParameter, HttpContext)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -261,7 +261,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param context the current request
    */
   protected void handleResolvedValue(@Nullable Object arg,
-          String name, ResolvableMethodParameter resolvable, HttpContext context) {
+          String name, HandlerParameter resolvable, HttpContext context) {
 
   }
 

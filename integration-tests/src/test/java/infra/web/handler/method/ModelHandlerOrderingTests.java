@@ -104,7 +104,7 @@ class ModelHandlerOrderingTests {
     ParameterResolvingRegistry resolvers = new ParameterResolvingRegistry();
     resolvers.addCustomizedStrategies(new ModelAttributeMethodProcessor(false));
     resolvers.addCustomizedStrategies(new ModelMethodProcessor());
-    var parameterFactory = new RegistryResolvableParameterFactory(resolvers);
+    var parameterFactory = new RegistryHandlerParameterFactory(resolvers);
 
     Class<?> type = controller.getClass();
     Set<Method> methods = MethodIntrospector.filterMethods(type, METHOD_FILTER);

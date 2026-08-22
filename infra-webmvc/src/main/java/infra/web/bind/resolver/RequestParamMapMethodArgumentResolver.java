@@ -27,7 +27,7 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.annotation.RequestParam;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
 
@@ -54,7 +54,7 @@ import infra.web.multipart.Part;
 public class RequestParamMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     if (Map.class.isAssignableFrom(resolvable.getParameterType())) {
       RequestParam requestParam = resolvable.getParameterAnnotation(RequestParam.class);
       return requestParam != null
@@ -65,7 +65,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     ResolvableType resolvableType = resolvable.getResolvableType();
 
     if (MultiValueMap.class.isAssignableFrom(resolvable.getParameterType())) {

@@ -43,7 +43,7 @@ import infra.web.annotation.RequestHeader;
 import infra.web.bind.RequestBindingException;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -57,17 +57,17 @@ class RequestHeaderMethodArgumentResolverTests {
 
   private RequestHeaderMethodArgumentResolver resolver;
 
-  private ResolvableMethodParameter paramNamedDefaultValueStringHeader;
-  private ResolvableMethodParameter paramNamedValueStringArray;
-  private ResolvableMethodParameter paramSystemProperty;
-  private ResolvableMethodParameter paramContextPath;
-  private ResolvableMethodParameter paramResolvedNameWithExpression;
-  private ResolvableMethodParameter paramResolvedNameWithPlaceholder;
-  private ResolvableMethodParameter paramNamedValueMap;
-  private ResolvableMethodParameter paramDate;
-  private ResolvableMethodParameter paramInstant;
-  private ResolvableMethodParameter paramUuid;
-  private ResolvableMethodParameter paramUuidOptional;
+  private HandlerParameter paramNamedDefaultValueStringHeader;
+  private HandlerParameter paramNamedValueStringArray;
+  private HandlerParameter paramSystemProperty;
+  private HandlerParameter paramContextPath;
+  private HandlerParameter paramResolvedNameWithExpression;
+  private HandlerParameter paramResolvedNameWithPlaceholder;
+  private HandlerParameter paramNamedValueMap;
+  private HandlerParameter paramDate;
+  private HandlerParameter paramInstant;
+  private HandlerParameter paramUuid;
+  private HandlerParameter paramUuidOptional;
 
   private MockRequest mockRequest;
 
@@ -83,17 +83,17 @@ class RequestHeaderMethodArgumentResolverTests {
     resolver = new RequestHeaderMethodArgumentResolver(context.getBeanFactory());
 
     Method method = ReflectionUtils.findMethod(getClass(), "params", (Class<?>[]) null);
-    paramNamedDefaultValueStringHeader = new ResolvableMethodParameter(getParameter(method, 0));
-    paramNamedValueStringArray = new ResolvableMethodParameter(getParameter(method, 1));
-    paramSystemProperty = new ResolvableMethodParameter(getParameter(method, 2));
-    paramContextPath = new ResolvableMethodParameter(getParameter(method, 3));
-    paramResolvedNameWithExpression = new ResolvableMethodParameter(getParameter(method, 4));
-    paramResolvedNameWithPlaceholder = new ResolvableMethodParameter(getParameter(method, 5));
-    paramNamedValueMap = new ResolvableMethodParameter(getParameter(method, 6));
-    paramDate = new ResolvableMethodParameter(getParameter(method, 7));
-    paramInstant = new ResolvableMethodParameter(getParameter(method, 8));
-    paramUuid = new ResolvableMethodParameter(getParameter(method, 9));
-    paramUuidOptional = new ResolvableMethodParameter(getParameter(method, 10));
+    paramNamedDefaultValueStringHeader = new HandlerParameter(getParameter(method, 0));
+    paramNamedValueStringArray = new HandlerParameter(getParameter(method, 1));
+    paramSystemProperty = new HandlerParameter(getParameter(method, 2));
+    paramContextPath = new HandlerParameter(getParameter(method, 3));
+    paramResolvedNameWithExpression = new HandlerParameter(getParameter(method, 4));
+    paramResolvedNameWithPlaceholder = new HandlerParameter(getParameter(method, 5));
+    paramNamedValueMap = new HandlerParameter(getParameter(method, 6));
+    paramDate = new HandlerParameter(getParameter(method, 7));
+    paramInstant = new HandlerParameter(getParameter(method, 8));
+    paramUuid = new HandlerParameter(getParameter(method, 9));
+    paramUuidOptional = new HandlerParameter(getParameter(method, 10));
 
     mockRequest = new MockRequest();
     webRequest = new MockHttpContext(null, mockRequest, new MockResponse());

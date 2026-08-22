@@ -19,7 +19,7 @@ package infra.web.bind.resolver;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.view.ModelAndView;
 
 /**
@@ -39,13 +39,13 @@ import infra.web.view.ModelAndView;
 public class ModelAndViewMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.is(ModelAndView.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
     return context.binding().getModelAndView();
   }
 

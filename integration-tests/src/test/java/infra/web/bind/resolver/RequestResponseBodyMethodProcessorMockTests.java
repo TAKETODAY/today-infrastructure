@@ -53,7 +53,7 @@ import infra.web.annotation.ResponseBody;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.mock.MockHttpContext;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -90,11 +90,11 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
   private MockHttpContext webRequest;
 
-  private ResolvableMethodParameter paramRequestBodyString;
-  private ResolvableMethodParameter paramInt;
-  private ResolvableMethodParameter paramValidBean;
-  private ResolvableMethodParameter paramStringNotRequired;
-  private ResolvableMethodParameter paramOptionalString;
+  private HandlerParameter paramRequestBodyString;
+  private HandlerParameter paramInt;
+  private HandlerParameter paramValidBean;
+  private HandlerParameter paramStringNotRequired;
+  private HandlerParameter paramOptionalString;
 
   private MethodParameter returnTypeString;
   private MethodParameter returnTypeInt;
@@ -128,11 +128,11 @@ public class RequestResponseBodyMethodProcessorMockTests {
     webRequest = new MockHttpContext(null, mockRequest, mockResponse);
 
     Method methodHandle1 = getClass().getMethod("handle1", String.class, Integer.TYPE);
-    paramRequestBodyString = new ResolvableMethodParameter(new MethodParameter(methodHandle1, 0));
-    paramInt = new ResolvableMethodParameter(new MethodParameter(methodHandle1, 1));
-    paramValidBean = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle2", SimpleBean.class), 0));
-    paramStringNotRequired = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle3", String.class), 0));
-    paramOptionalString = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle4", String.class), 0));
+    paramRequestBodyString = new HandlerParameter(new MethodParameter(methodHandle1, 0));
+    paramInt = new HandlerParameter(new MethodParameter(methodHandle1, 1));
+    paramValidBean = new HandlerParameter(new MethodParameter(getClass().getMethod("handle2", SimpleBean.class), 0));
+    paramStringNotRequired = new HandlerParameter(new MethodParameter(getClass().getMethod("handle3", String.class), 0));
+    paramOptionalString = new HandlerParameter(new MethodParameter(getClass().getMethod("handle4", String.class), 0));
 
     Method handle5 = getClass().getMethod("handle5");
     Method handle6 = getClass().getMethod("handle6");

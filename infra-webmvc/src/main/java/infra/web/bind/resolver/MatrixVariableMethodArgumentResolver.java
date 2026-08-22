@@ -34,7 +34,7 @@ import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.bind.MissingMatrixVariableException;
 import infra.web.bind.RequestBindingException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves arguments annotated with {@link MatrixVariable @MatrixVariable}.
@@ -57,7 +57,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     if (!resolvable.hasParameterAnnotation(MatrixVariable.class)) {
       return false;
     }
@@ -70,7 +70,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext request) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext request) throws Exception {
     Map<String, MultiValueMap<String, String>> pathParameters = request.matchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;

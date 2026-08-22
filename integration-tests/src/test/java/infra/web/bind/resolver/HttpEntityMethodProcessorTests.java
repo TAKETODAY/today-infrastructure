@@ -53,7 +53,7 @@ import infra.web.ErrorResponse;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,9 +63,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class HttpEntityMethodProcessorTests {
 
-  private ResolvableMethodParameter paramList;
+  private HandlerParameter paramList;
 
-  private ResolvableMethodParameter paramSimpleBean;
+  private HandlerParameter paramSimpleBean;
 
   private MockRequest mockRequest;
 
@@ -76,8 +76,8 @@ class HttpEntityMethodProcessorTests {
   @BeforeEach
   public void setup() throws Exception {
     Method method = getClass().getDeclaredMethod("handle", HttpEntity.class, HttpEntity.class);
-    paramList = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
+    paramList = new HandlerParameter(new MethodParameter(method, 0));
+    paramSimpleBean = new HandlerParameter(new MethodParameter(method, 1));
 
     mockRequest = new MockRequest();
     mockResponse = new MockResponse();
@@ -133,7 +133,7 @@ class HttpEntityMethodProcessorTests {
     Method method = getClass().getDeclaredMethod("resolveAsByteArray", RequestEntity.class);
     MethodParameter requestEntity = new MethodParameter(method, 0);
     HttpEntity<byte[]> result = (HttpEntity<byte[]>) processor.resolveArgument(
-            webRequest, new ResolvableMethodParameter(requestEntity));
+            webRequest, new HandlerParameter(requestEntity));
 
     assertThat(result.getBody().length).isEqualTo(result.getHeaders().getContentLength());
   }
@@ -173,7 +173,7 @@ class HttpEntityMethodProcessorTests {
 
     @SuppressWarnings("unchecked")
     HttpEntity<SimpleBean> result = (HttpEntity<SimpleBean>)
-            processor.resolveArgument(webRequest, new ResolvableMethodParameter(methodParam));
+            processor.resolveArgument(webRequest, new HandlerParameter(methodParam));
 
     assertThat(result).isNotNull();
     assertThat(result.getBody().getName()).isEqualTo("Jad");
@@ -237,7 +237,7 @@ class HttpEntityMethodProcessorTests {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new JacksonJsonHttpMessageConverter());
 
-    ResolvableMethodParameter param = new ResolvableMethodParameter(
+    HandlerParameter param = new HandlerParameter(
             new MethodParameter(getClass().getDeclaredMethod("handleRequestEntity", RequestEntity.class), 0));
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
     assertThat(processor.supportsParameter(param)).isTrue();
@@ -245,7 +245,7 @@ class HttpEntityMethodProcessorTests {
 
   @Test
   public void supportsParameterWithNonHttpEntity() throws Exception {
-    ResolvableMethodParameter param = new ResolvableMethodParameter(
+    HandlerParameter param = new HandlerParameter(
             new MethodParameter(getClass().getDeclaredMethod("handleString", String.class), 0));
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsParameter(param)).isFalse();
@@ -375,7 +375,7 @@ class HttpEntityMethodProcessorTests {
   @Test
   public void supportsParameterWithRawHttpEntity() throws Exception {
     Method method = getClass().getDeclaredMethod("handleRawHttpEntity", HttpEntity.class);
-    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter param = new HandlerParameter(new MethodParameter(method, 0));
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     assertThat(processor.supportsParameter(param)).isTrue();
   }
@@ -386,7 +386,7 @@ class HttpEntityMethodProcessorTests {
     mockRequest.setContentType("text/plain");
 
     Method method = getClass().getDeclaredMethod("handleStringRawHttpEntity", HttpEntity.class);
-    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter param = new HandlerParameter(new MethodParameter(method, 0));
 
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new StringHttpMessageConverter()), null);
     HttpEntity<?> result = (HttpEntity<?>) processor.resolveArgument(webRequest, param);
@@ -405,7 +405,7 @@ class HttpEntityMethodProcessorTests {
     converters.add(new JacksonJsonHttpMessageConverter());
 
     Method method = getClass().getDeclaredMethod("handleRequestEntity", RequestEntity.class);
-    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter param = new HandlerParameter(new MethodParameter(method, 0));
 
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
     RequestEntity<SimpleBean> result = (RequestEntity<SimpleBean>) processor.resolveArgument(webRequest, param);

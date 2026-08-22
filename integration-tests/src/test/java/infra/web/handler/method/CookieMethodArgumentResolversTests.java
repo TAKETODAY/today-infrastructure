@@ -41,11 +41,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class CookieMethodArgumentResolversTests {
 
-  private ResolvableMethodParameter paramNamedCookie;
+  private HandlerParameter paramNamedCookie;
 
-  private ResolvableMethodParameter paramNamedDefaultValueString;
+  private HandlerParameter paramNamedDefaultValueString;
 
-  private ResolvableMethodParameter paramString;
+  private HandlerParameter paramString;
 
   private MockHttpContext webRequest;
 
@@ -62,9 +62,9 @@ class CookieMethodArgumentResolversTests {
     MockParameterResolvers.register(context.getBeanFactory(), strategies);
 
     Method method = getClass().getMethod("params", Cookie.class, String.class, String.class);
-    paramNamedCookie = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
-    paramNamedDefaultValueString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 1));
-    paramString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 2));
+    paramNamedCookie = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
+    paramNamedDefaultValueString = new HandlerParameter(new SynthesizingMethodParameter(method, 1));
+    paramString = new HandlerParameter(new SynthesizingMethodParameter(method, 2));
 
     request = new MockRequest();
     webRequest = new MockHttpContext(null, request, new MockResponse());

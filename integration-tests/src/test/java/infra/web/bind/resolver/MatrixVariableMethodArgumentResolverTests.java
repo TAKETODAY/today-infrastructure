@@ -33,7 +33,7 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.MatrixVariable;
 import infra.web.bind.RequestBindingException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.testfixture.ReflectionTestUtils;
 import infra.web.util.pattern.PathMatchInfo;
 import infra.web.util.pattern.PathPattern;
@@ -91,7 +91,7 @@ class MatrixVariableMethodArgumentResolverTests {
     params.add("colors", "red");
     params.add("colors", "green");
     params.add("colors", "blue");
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName()).arg(List.class, String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName()).arg(List.class, String.class);
 
     assertThat(this.resolver.resolveArgument(this.webRequest, param)).isEqualTo(Arrays.asList("red", "green", "blue"));
   }
@@ -100,14 +100,14 @@ class MatrixVariableMethodArgumentResolverTests {
   public void resolveArgumentPathVariable() throws Throwable {
     getVariablesFor("cars").add("year", "2006");
     getVariablesFor("bikes").add("year", "2005");
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().name("year")).arg(int.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().name("year")).arg(int.class);
 
     assertThat(this.resolver.resolveArgument(this.webRequest, param)).isEqualTo(2006);
   }
 
   @Test
   public void resolveArgumentDefaultValue() throws Throwable {
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().name("year")).arg(int.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().name("year")).arg(int.class);
     assertThat(resolver.resolveArgument(this.webRequest, param)).isEqualTo(2013);
   }
 
@@ -115,7 +115,7 @@ class MatrixVariableMethodArgumentResolverTests {
   public void resolveArgumentMultipleMatches() throws Throwable {
     getVariablesFor("var1").add("colors", "red");
     getVariablesFor("var2").add("colors", "green");
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName()).arg(List.class, String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName()).arg(List.class, String.class);
 
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
             this.resolver.resolveArgument(this.webRequest, param));
@@ -123,7 +123,7 @@ class MatrixVariableMethodArgumentResolverTests {
 
   @Test
   public void resolveArgumentRequired() throws Throwable {
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName()).arg(List.class, String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName()).arg(List.class, String.class);
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
             this.resolver.resolveArgument(this.webRequest, param));
   }
@@ -132,7 +132,7 @@ class MatrixVariableMethodArgumentResolverTests {
   public void resolveArgumentNoMatch() throws Throwable {
     MultiValueMap<String, String> params = getVariablesFor("cars");
     params.add("anotherYear", "2012");
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().name("year")).arg(int.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().name("year")).arg(int.class);
 
     assertThat(this.resolver.resolveArgument(this.webRequest, param)).isEqualTo(2013);
   }

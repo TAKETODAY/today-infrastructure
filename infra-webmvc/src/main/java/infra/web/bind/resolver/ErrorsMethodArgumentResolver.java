@@ -25,7 +25,7 @@ import infra.util.CollectionUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves {@link Errors} method arguments.
@@ -43,13 +43,13 @@ import infra.web.handler.method.ResolvableMethodParameter;
 public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.isAssignableTo(Errors.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
     ModelMap model = context.binding().getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {

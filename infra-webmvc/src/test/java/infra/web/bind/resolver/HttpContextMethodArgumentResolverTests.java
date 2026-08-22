@@ -37,7 +37,7 @@ import infra.http.HttpMethod;
 import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.mock.MockHttpContext;
 import infra.web.multipart.MultipartRequest;
 
@@ -62,7 +62,7 @@ class HttpContextMethodArgumentResolverTests {
             InputStreamSource.class, OutputStreamSource.class, ZoneId.class);
 
     for (int i = 0; i < 12; i++) {
-      ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, i));
+      HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, i));
       assertThat(resolver.supportsParameter(parameter))
               .as("Parameter type %s should be supported", parameter.getParameterType())
               .isTrue();
@@ -74,7 +74,7 @@ class HttpContextMethodArgumentResolverTests {
     HttpContextMethodArgumentResolver resolver = new HttpContextMethodArgumentResolver();
 
     Method method = TestController.class.getDeclaredMethod("handleUnsupported", String.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThat(resolver.supportsParameter(parameter)).isFalse();
   }
@@ -85,7 +85,7 @@ class HttpContextMethodArgumentResolverTests {
     MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleHttpContext", HttpContext.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -99,7 +99,7 @@ class HttpContextMethodArgumentResolverTests {
     httpContext.setHttpMethod(HttpMethod.POST);
 
     Method method = TestController.class.getDeclaredMethod("handleMethod", HttpMethod.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -112,7 +112,7 @@ class HttpContextMethodArgumentResolverTests {
     MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleLocale", Locale.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -125,7 +125,7 @@ class HttpContextMethodArgumentResolverTests {
     MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleTimeZone", TimeZone.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -138,7 +138,7 @@ class HttpContextMethodArgumentResolverTests {
     MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleZoneId", ZoneId.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -151,7 +151,7 @@ class HttpContextMethodArgumentResolverTests {
     MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleInputStreamSource", InputStreamSource.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -164,7 +164,7 @@ class HttpContextMethodArgumentResolverTests {
     MockHttpContext httpContext = new MockHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleOutputStreamSource", OutputStreamSource.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -179,7 +179,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.asMultipartRequest()).thenReturn(multipartRequest);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", MultipartRequest.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(http, parameter);
 
@@ -194,7 +194,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getInputStream()).thenReturn(inputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", InputStream.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(http, parameter);
 
@@ -209,7 +209,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getOutputStream()).thenReturn(outputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", OutputStream.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(http, parameter);
 
@@ -224,7 +224,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getReader()).thenReturn(reader);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", Reader.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(http, parameter);
 
@@ -239,7 +239,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getWriter()).thenReturn(writer);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", Writer.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(http, parameter);
 
@@ -254,7 +254,7 @@ class HttpContextMethodArgumentResolverTests {
     httpContext.setHttpMethod(HttpMethod.GET);
 
     Method method = TestController.class.getDeclaredMethod("handleWrongHttpContext", WrongHttpContext.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
             .isThrownBy(() -> resolver.resolveArgument(httpContext, parameter))
@@ -268,7 +268,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.asMultipartRequest()).thenReturn(mock(MultipartRequest.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongMultipartRequest", WrongMultipartRequest.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
             .isThrownBy(() -> resolver.resolveArgument(http, parameter))
@@ -282,7 +282,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getInputStream()).thenReturn(mock(InputStream.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongInputStream", WrongInputStream.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
             .isThrownBy(() -> resolver.resolveArgument(http, parameter))
@@ -296,7 +296,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getOutputStream()).thenReturn(mock(OutputStream.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongOutputStream", WrongOutputStream.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
             .isThrownBy(() -> resolver.resolveArgument(http, parameter))
@@ -310,7 +310,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getReader()).thenReturn(mock(BufferedReader.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongReader", WrongReader.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
             .isThrownBy(() -> resolver.resolveArgument(http, parameter))
@@ -324,7 +324,7 @@ class HttpContextMethodArgumentResolverTests {
     when(http.getWriter()).thenReturn(mock(PrintWriter.class));
 
     Method method = TestController.class.getDeclaredMethod("handleWrongWriter", WrongWriter.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
             .isThrownBy(() -> resolver.resolveArgument(http, parameter))
@@ -337,7 +337,7 @@ class HttpContextMethodArgumentResolverTests {
     CustomHttpContext httpContext = new CustomHttpContext();
 
     Method method = TestController.class.getDeclaredMethod("handleHttpContext", HttpContext.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -352,7 +352,7 @@ class HttpContextMethodArgumentResolverTests {
     when(httpContext.getInputStream()).thenReturn(inputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", InputStream.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
@@ -367,7 +367,7 @@ class HttpContextMethodArgumentResolverTests {
     when(httpContext.getOutputStream()).thenReturn(outputStream);
 
     Method method = TestController.class.getDeclaredMethod("handleRequest", OutputStream.class);
-    ResolvableMethodParameter parameter = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));
+    HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 

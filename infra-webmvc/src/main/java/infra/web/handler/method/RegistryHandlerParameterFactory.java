@@ -22,30 +22,30 @@ import infra.util.Assert;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 
 /**
- * A {@link ResolvableParameterFactory} implementation that utilizes a {@link ParameterResolvingRegistry}
- * to resolve method parameters. This factory creates {@link ResolvableMethodParameter} instances
+ * A {@link HandlerParameterFactory} implementation that utilizes a {@link ParameterResolvingRegistry}
+ * to resolve method parameters. This factory creates {@link HandlerParameter} instances
  * capable of resolving arguments based on the registered resolvers.
  *
  * @author TODAY
  * @since 3.0.1
  */
-public class RegistryResolvableParameterFactory extends ResolvableParameterFactory {
+public class RegistryHandlerParameterFactory extends HandlerParameterFactory {
 
   private final ParameterResolvingRegistry resolvingRegistry;
 
-  public RegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {
+  public RegistryHandlerParameterFactory(ParameterResolvingRegistry resolvingRegistry) {
     Assert.notNull(resolvingRegistry, "ParameterResolvingRegistry is required");
     this.resolvingRegistry = resolvingRegistry;
   }
 
-  public RegistryResolvableParameterFactory(ParameterResolvingRegistry registry, ParameterNameDiscoverer discoverer) {
+  public RegistryHandlerParameterFactory(ParameterResolvingRegistry registry, ParameterNameDiscoverer discoverer) {
     super(discoverer);
     Assert.notNull(registry, "ParameterResolvingRegistry is required");
     this.resolvingRegistry = registry;
   }
 
   @Override
-  public ResolvableMethodParameter createParameter(MethodParameter parameter) {
+  public HandlerParameter createParameter(MethodParameter parameter) {
     return new ParameterResolverMethodParameter(parameter, resolvingRegistry);
   }
 

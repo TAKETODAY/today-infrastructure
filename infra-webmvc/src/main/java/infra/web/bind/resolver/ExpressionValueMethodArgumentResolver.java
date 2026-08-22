@@ -26,7 +26,7 @@ import infra.core.MethodParameter;
 import infra.web.HttpContext;
 import infra.web.bind.HttpContextDataBinder;
 import infra.web.handler.method.NamedValueInfo;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves method arguments annotated with {@code @Value}.
@@ -56,13 +56,13 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueRes
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.hasParameterAnnotation(Value.class);
   }
 
   @Override
   @SuppressWarnings("NullAway")
-  protected NamedValueInfo getNamedValueInfo(ResolvableMethodParameter resolvable) {
+  protected NamedValueInfo getNamedValueInfo(HandlerParameter resolvable) {
     if (resolvable.hasNamedValueInfo()) {
       return resolvable.getNamedValueInfo();
     }
@@ -74,7 +74,7 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueRes
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
     // No name to resolve
     return null;
   }

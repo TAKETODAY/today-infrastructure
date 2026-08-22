@@ -35,7 +35,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestBody;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -105,7 +105,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.hasParameterAnnotation(RequestBody.class);
   }
 
@@ -118,7 +118,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getParameter();
     Object arg = readWithMessageConverters(context, parameter, parameter.getNestedGenericParameterType());
     validateIfApplicable(context, parameter, arg);

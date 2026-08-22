@@ -47,11 +47,11 @@ public class ExpressionValueMethodArgumentResolverTests {
 
   private ExpressionValueMethodArgumentResolver resolver;
 
-  private ResolvableMethodParameter paramSystemProperty;
+  private HandlerParameter paramSystemProperty;
 
-  private ResolvableMethodParameter paramContextPath;
+  private HandlerParameter paramContextPath;
 
-  private ResolvableMethodParameter paramNotSupported;
+  private HandlerParameter paramNotSupported;
   MockRequest request = new MockRequest();
 
   private MockHttpContext webRequest;
@@ -66,9 +66,9 @@ public class ExpressionValueMethodArgumentResolverTests {
     DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     Method method = getClass().getMethod("params", int.class, String.class, String.class);
-    paramSystemProperty = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    paramContextPath = new ResolvableMethodParameter(new MethodParameter(method, 1));
-    paramNotSupported = new ResolvableMethodParameter(new MethodParameter(method, 2));
+    paramSystemProperty = new HandlerParameter(new MethodParameter(method, 0));
+    paramContextPath = new HandlerParameter(new MethodParameter(method, 1));
+    paramNotSupported = new HandlerParameter(new MethodParameter(method, 2));
 
     paramSystemProperty.getParameter().initParameterNameDiscovery(discoverer);
     paramContextPath.getParameter().initParameterNameDiscovery(discoverer);
@@ -111,7 +111,7 @@ public class ExpressionValueMethodArgumentResolverTests {
   @Test
   public void supportsParameterWithoutValueAnnotation() throws Exception {
     Method method = getClass().getMethod("params", int.class, String.class, String.class);
-    ResolvableMethodParameter param = new ResolvableMethodParameter(new MethodParameter(method, 2));
+    HandlerParameter param = new HandlerParameter(new MethodParameter(method, 2));
     assertThat(resolver.supportsParameter(param)).isFalse();
   }
 
@@ -122,7 +122,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     Method method = getClass().getMethod("methodWithPlaceholder", String.class);
     MethodParameter parameter = new MethodParameter(method, 0);
     parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter param = new ResolvableMethodParameter(parameter);
+    HandlerParameter param = new HandlerParameter(parameter);
 
     Object value = resolver.resolveArgument(webRequest, param);
     System.clearProperty("test.property");
@@ -135,7 +135,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     Method method = getClass().getMethod("methodWithDefaultValue", String.class);
     MethodParameter parameter = new MethodParameter(method, 0);
     parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter param = new ResolvableMethodParameter(parameter);
+    HandlerParameter param = new HandlerParameter(parameter);
 
     Object value = resolver.resolveArgument(webRequest, param);
 
@@ -149,7 +149,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     Method method = getClass().getMethod("methodWithSpelExpression", String.class);
     MethodParameter parameter = new MethodParameter(method, 0);
     parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter param = new ResolvableMethodParameter(parameter);
+    HandlerParameter param = new HandlerParameter(parameter);
 
     Object value = resolver.resolveArgument(webRequest, param);
 
@@ -163,7 +163,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     Method method = getClass().getMethod("methodWithNumber", int.class);
     MethodParameter parameter = new MethodParameter(method, 0);
     parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
-    ResolvableMethodParameter param = new ResolvableMethodParameter(parameter);
+    HandlerParameter param = new HandlerParameter(parameter);
 
     Object value = resolver.resolveArgument(webRequest, param);
     assertThat(value).isEqualTo("123");

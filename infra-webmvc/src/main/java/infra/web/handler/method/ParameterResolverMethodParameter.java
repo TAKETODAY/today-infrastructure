@@ -30,7 +30,7 @@ import infra.web.bind.resolver.ParameterResolvingStrategy;
  * @author TODAY 2020/9/26 20:06
  * @since 3.0
  */
-final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
+final class ParameterResolverMethodParameter extends HandlerParameter {
 
   private final ParameterResolvingRegistry resolvers;
 

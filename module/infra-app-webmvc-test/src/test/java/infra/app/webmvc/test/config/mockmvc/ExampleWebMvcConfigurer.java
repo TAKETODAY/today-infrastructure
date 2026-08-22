@@ -24,7 +24,7 @@ import infra.web.HttpContext;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Example {@link WebMvcConfigurer} used in {@link WebMvcTest @WebMvcTest} tests.
@@ -39,12 +39,12 @@ public class ExampleWebMvcConfigurer implements WebMvcConfigurer {
     customizedStrategies.add(new ParameterResolvingStrategy() {
 
       @Override
-      public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      public boolean supportsParameter(HandlerParameter resolvable) {
         return resolvable.getParameterType().equals(ExampleArgument.class);
       }
 
       @Override
-      public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+      public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
         return new ExampleArgument("hello");
       }
 

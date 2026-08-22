@@ -31,7 +31,7 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.Part;
 import infra.web.testfixture.MockMultipartFile;
 
@@ -53,7 +53,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   @Test
   public void supportsParameter() {
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, String.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
     param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class, String.class, String.class);
@@ -73,7 +73,7 @@ class RequestParamMapMethodArgumentResolverTests {
     request.addParameter(name, value);
     Map<String, String> expected = Collections.singletonMap(name, value);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, String.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, String.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof Map;
@@ -92,7 +92,7 @@ class RequestParamMapMethodArgumentResolverTests {
     expected.add(name, value1);
     expected.add(name, value2);
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class, String.class, String.class);
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class, String.class, String.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof MultiValueMap;
@@ -110,7 +110,7 @@ class RequestParamMapMethodArgumentResolverTests {
     request.addPart(expected2);
     webRequest = new MockHttpContext(null, request, null);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, Part.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof Map;
@@ -133,7 +133,7 @@ class RequestParamMapMethodArgumentResolverTests {
     request.addPart(expected3);
     webRequest = new MockHttpContext(null, request, null);
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, Part.class);
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof MultiValueMap;

@@ -41,7 +41,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.WebDataBinder;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.support.UriComponentsContributor;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
@@ -146,13 +146,13 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return supportsParameter(resolvable.getParameter());
   }
 
   @Nullable
   @Override
-  protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext request) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext request) throws Exception {
     MethodParameter parameter = resolvable.getParameter();
     Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, request);
     if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {

@@ -2725,13 +2725,13 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MySpecialArgumentResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return resolvable.getParameterType().equals(MySpecialArg.class);
     }
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
       return new MySpecialArg("myValue");
     }
   }

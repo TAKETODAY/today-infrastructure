@@ -26,7 +26,7 @@ import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves {@link Model} arguments and handles {@link Model} return values.
@@ -45,13 +45,13 @@ import infra.web.handler.method.ResolvableMethodParameter;
 public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.isAssignableTo(Model.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     if (resolvable.is(RedirectModel.class)) {
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);

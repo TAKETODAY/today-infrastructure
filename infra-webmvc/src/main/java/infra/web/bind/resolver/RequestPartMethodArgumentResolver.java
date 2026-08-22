@@ -34,7 +34,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.handler.method.NamedValueInfo;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.Part;
 import infra.web.server.NotMultipartRequestException;
 
@@ -96,7 +96,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
    * </ul>
    */
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(HandlerParameter parameter) {
     if (parameter.hasParameterAnnotation(RequestPart.class)) {
       return true;
     }
@@ -110,7 +110,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getParameter();
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();

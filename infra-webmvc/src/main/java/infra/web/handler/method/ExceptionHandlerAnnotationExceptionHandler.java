@@ -63,7 +63,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   private @Nullable ApplicationContext applicationContext;
 
-  private ResolvableParameterFactory parameterFactory;
+  private HandlerParameterFactory parameterFactory;
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
@@ -71,7 +71,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
    * @since 5.0
    */
   public void setParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-    this.parameterFactory = new RegistryResolvableParameterFactory(registry);
+    this.parameterFactory = new RegistryHandlerParameterFactory(registry);
   }
 
   @Override
@@ -229,10 +229,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     if (parameterFactory == null) {
       ParameterResolvingRegistry registry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
       if (registry != null) {
-        parameterFactory = new RegistryResolvableParameterFactory(registry);
+        parameterFactory = new RegistryHandlerParameterFactory(registry);
       }
       else {
-        parameterFactory = new ResolvableParameterFactory();
+        parameterFactory = new HandlerParameterFactory();
       }
     }
     initExceptionHandlerAdviceCache(context);

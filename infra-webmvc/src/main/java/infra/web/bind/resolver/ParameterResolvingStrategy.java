@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.web.HttpContext;
 import infra.web.bind.MethodParameterResolvingException;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Strategy interface for resolving method parameters in the context of a web request.
@@ -37,12 +37,12 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
  *
  *   @Override
- *   public boolean supportsParameter(ResolvableMethodParameter parameter) {
+ *   public boolean supportsParameter(HandlerParameter parameter) {
  *     return parameter.hasParameterAnnotation(SessionAttribute.class);
  *   }
  *
  *   @Override
- *   public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+ *   public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
  *     HttpSession httpSession = getHttpSession(context, false);
  *     if (httpSession == null) {
  *       return null;
@@ -58,7 +58,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  * validating it.
  *
  * @author TODAY 2019-07-07 23:24
- * @see ResolvableMethodParameter
+ * @see HandlerParameter
  * @see MethodParameterResolvingException
  */
 public interface ParameterResolvingStrategy {
@@ -79,7 +79,7 @@ public interface ParameterResolvingStrategy {
    * static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
    *
    *   @Override
-   *   public boolean supportsParameter(ResolvableMethodParameter parameter) {
+   *   public boolean supportsParameter(HandlerParameter parameter) {
    *     return parameter.hasParameterAnnotation(SessionAttribute.class);
    *   }
    * }
@@ -90,7 +90,7 @@ public interface ParameterResolvingStrategy {
    * static class ForCustomType implements ParameterResolvingStrategy {
    *
    *   @Override
-   *   public boolean supportsParameter(ResolvableMethodParameter parameter) {
+   *   public boolean supportsParameter(HandlerParameter parameter) {
    *     return CustomType.class.isAssignableFrom(parameter.getParameterType());
    *   }
    * }
@@ -99,12 +99,12 @@ public interface ParameterResolvingStrategy {
    * @param resolvable the method parameter to check
    * @return {@code true} if this resolver supports the parameter; {@code false} otherwise
    */
-  boolean supportsParameter(ResolvableMethodParameter resolvable);
+  boolean supportsParameter(HandlerParameter resolvable);
 
   /**
    * Resolves the argument for the given method parameter within the context of a request.
    * <p>
-   * This method is invoked when the {@link #supportsParameter(ResolvableMethodParameter)}
+   * This method is invoked when the {@link #supportsParameter(HandlerParameter)}
    * method has determined that this resolver supports the specified parameter. It is
    * responsible for providing the actual value to be injected into the method parameter.
    * </p>
@@ -115,6 +115,6 @@ public interface ParameterResolvingStrategy {
    * @throws Exception if an error occurs during argument resolution
    */
   @Nullable
-  Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception;
+  Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception;
 
 }

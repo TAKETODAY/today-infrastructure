@@ -29,7 +29,7 @@ import infra.http.HttpHeaders;
 import infra.web.HttpContext;
 import infra.web.annotation.RequestHeader;
 import infra.web.bind.WebDataBinder;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves method arguments annotated with {@code @RequestHeader} except for
@@ -62,13 +62,13 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResol
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(HandlerParameter parameter) {
     return parameter.hasParameterAnnotation(RequestHeader.class)
             && (!parameter.isAssignableTo(Map.class) && !parameter.isAssignableTo(HttpHeaders.class));
   }
 
   @Override
-  protected @Nullable Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
     final HttpHeaders httpHeaders = context.requestHeaders();
     List<String> headerValues = httpHeaders.get(name);
     if (headerValues != null) {

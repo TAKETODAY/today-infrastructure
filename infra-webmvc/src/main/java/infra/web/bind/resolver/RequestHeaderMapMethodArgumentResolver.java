@@ -28,7 +28,7 @@ import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.web.HttpContext;
 import infra.web.annotation.RequestHeader;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves {@link Map} method arguments annotated with {@code @RequestHeader}.
@@ -47,13 +47,13 @@ import infra.web.handler.method.ResolvableMethodParameter;
 public class RequestHeaderMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.is(HttpHeaders.class) ||
             (resolvable.hasParameterAnnotation(RequestHeader.class) && resolvable.isAssignableTo(Map.class));
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     HttpHeaders headers = context.getHeaders();
     Class<?> paramType = resolvable.getParameterType();
     if (paramType == HttpHeaders.class) {

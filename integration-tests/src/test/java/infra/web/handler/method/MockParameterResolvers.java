@@ -60,12 +60,12 @@ public class MockParameterResolvers {
   static class ForMockRequest implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
+    public boolean supportsParameter(HandlerParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(MockRequest.class);
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
       return MockUtils.getMockRequest(context);
     }
   }
@@ -73,12 +73,12 @@ public class MockParameterResolvers {
   static class ForMockResponse implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
+    public boolean supportsParameter(HandlerParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(MockResponse.class);
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
       return MockUtils.getMockResponse(context);
     }
   }
@@ -86,12 +86,12 @@ public class MockParameterResolvers {
   static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
+    public boolean supportsParameter(HandlerParameter parameter) {
       return parameter.hasParameterAnnotation(SessionAttribute.class);
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
       Session session = context.getSession(false);
       if (session == null) {
         return null;
@@ -109,14 +109,14 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return resolvable.isCollection()
               && resolvable.getResolvableType().getGeneric(0).resolve() == Cookie.class;
     }
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
+    protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) {
       return MockUtils.getMockRequest(context).getCookies();
     }
 
@@ -125,13 +125,13 @@ public class MockParameterResolvers {
   static class ForCookieArray implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
+    public boolean supportsParameter(HandlerParameter parameter) {
       return parameter.isArray()
               && parameter.getParameterType().getComponentType() == Cookie.class;
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
       return MockUtils.getMockRequest(context).getCookies();
     }
   }
@@ -143,7 +143,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter resolvable) {
       return resolvable.is(Cookie.class)
               || resolvable.is(HttpCookie.class)
               || resolvable.hasParameterAnnotation(CookieValue.class);
@@ -161,7 +161,7 @@ public class MockParameterResolvers {
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
+    protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) {
       HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
         if (resolvable.is(Cookie.class)) {

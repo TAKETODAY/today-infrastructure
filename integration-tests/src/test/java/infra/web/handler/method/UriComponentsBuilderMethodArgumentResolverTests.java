@@ -44,9 +44,9 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   private MockRequest mockRequest;
 
-  private ResolvableMethodParameter builderParam;
-  private ResolvableMethodParameter mockBuilderParam;
-  private ResolvableMethodParameter intParam;
+  private HandlerParameter builderParam;
+  private HandlerParameter mockBuilderParam;
+  private HandlerParameter intParam;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -57,9 +57,9 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
     Method method = this.getClass().getDeclaredMethod(
             "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);
-    this.builderParam = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    this.mockBuilderParam = new ResolvableMethodParameter(new MethodParameter(method, 1));
-    this.intParam = new ResolvableMethodParameter(new MethodParameter(method, 2));
+    this.builderParam = new HandlerParameter(new MethodParameter(method, 0));
+    this.mockBuilderParam = new HandlerParameter(new MethodParameter(method, 1));
+    this.intParam = new HandlerParameter(new MethodParameter(method, 2));
   }
 
   @Test

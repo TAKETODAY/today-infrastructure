@@ -32,7 +32,7 @@ import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.MatrixVariable;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.mock.MockHttpContext;
 import infra.web.testfixture.ReflectionTestUtils;
 import infra.web.util.pattern.PathMatchInfo;
@@ -98,7 +98,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
     params.add("colors", "blue");
     params.add("year", "2012");
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName())
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName())
             .arg(Map.class, String.class, String.class);
 
     @SuppressWarnings("unchecked")
@@ -128,7 +128,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
     params2.add("colors", "yellow");
     params2.add("colors", "orange");
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().pathVar("cars"))
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().pathVar("cars"))
             .arg(MultiValueMap.class, String.class, String.class);
 
     @SuppressWarnings("unchecked")
@@ -149,7 +149,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
   @Test
   public void resolveArgumentNoParams() throws Throwable {
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName())
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noName())
             .arg(Map.class, String.class, String.class);
 
     @SuppressWarnings("unchecked")
@@ -162,7 +162,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
   @Test
   public void resolveMultiValueMapArgumentNoParams() throws Throwable {
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noPathVar())
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().noPathVar())
             .arg(MultiValueMap.class, String.class, String.class);
 
     Object result = this.resolver.resolveArgument(this.webRequest, param);
@@ -177,7 +177,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
     params2.add("colors", "yellow");
     params2.add("colors", "orange");
 
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().pathVar("cars"))
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.matrixAttribute().pathVar("cars"))
             .arg(MultiValueMap.class, String.class, String.class);
 
     @SuppressWarnings("unchecked")

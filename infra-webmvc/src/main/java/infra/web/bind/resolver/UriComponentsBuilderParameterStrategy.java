@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpRequest;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.util.UriComponentsBuilder;
 
 /**
@@ -38,13 +38,13 @@ import infra.web.util.UriComponentsBuilder;
 public class UriComponentsBuilderParameterStrategy implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.is(UriComponentsBuilder.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
     return UriComponentsBuilder.forHttpRequest(context);
   }
 

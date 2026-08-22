@@ -34,7 +34,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.annotation.PathVariable;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
 
@@ -52,9 +52,9 @@ class PathVariableMapMethodArgumentResolverTests {
 
   private MockRequest request;
 
-  private ResolvableMethodParameter paramMap;
-  private ResolvableMethodParameter paramNamedMap;
-  private ResolvableMethodParameter paramMapNoAnnot;
+  private HandlerParameter paramMap;
+  private HandlerParameter paramNamedMap;
+  private HandlerParameter paramMapNoAnnot;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -63,9 +63,9 @@ class PathVariableMapMethodArgumentResolverTests {
     webRequest = new MockHttpContext(null, request, new MockResponse());
 
     Method method = getClass().getMethod("handle", Map.class, Map.class, Map.class);
-    paramMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    paramNamedMap = new ResolvableMethodParameter(new MethodParameter(method, 1));
-    paramMapNoAnnot = new ResolvableMethodParameter(new MethodParameter(method, 2));
+    paramMap = new HandlerParameter(new MethodParameter(method, 0));
+    paramNamedMap = new HandlerParameter(new MethodParameter(method, 1));
+    paramMapNoAnnot = new HandlerParameter(new MethodParameter(method, 2));
   }
 
   @Test
@@ -106,7 +106,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithCustomMapImplementation() throws Throwable {
     Method method = TestController.class.getMethod("handleCustomMap", CustomMap.class);
-    ResolvableMethodParameter paramCustomMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter paramCustomMap = new HandlerParameter(new MethodParameter(method, 0));
 
     applyTemplateVars();
 
@@ -120,7 +120,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithLinkedHashMap() throws Throwable {
     Method method = TestController.class.getMethod("handleLinkedHashMap", LinkedHashMap.class);
-    ResolvableMethodParameter paramLinkedHashMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter paramLinkedHashMap = new HandlerParameter(new MethodParameter(method, 0));
 
     applyTemplateVars();
 
@@ -162,7 +162,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @Test
   void supportsParameterWithNonMapType() throws Exception {
     Method method = TestController.class.getMethod("handleString", String.class);
-    ResolvableMethodParameter paramString = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter paramString = new HandlerParameter(new MethodParameter(method, 0));
 
     PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
     assertThat(resolver.supportsParameter(paramString)).isFalse();
@@ -171,7 +171,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @Test
   void supportsParameterWithoutPathVariableAnnotation() throws Exception {
     Method method = TestController.class.getMethod("handleMapWithoutAnnotation", Map.class);
-    ResolvableMethodParameter paramMapNoAnnot = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter paramMapNoAnnot = new HandlerParameter(new MethodParameter(method, 0));
 
     PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
     assertThat(resolver.supportsParameter(paramMapNoAnnot)).isFalse();
@@ -180,7 +180,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @Test
   void supportsParameterWithNamedPathVariable() throws Exception {
     Method method = TestController.class.getMethod("handleNamedMap", Map.class);
-    ResolvableMethodParameter paramNamedMap = new ResolvableMethodParameter(new MethodParameter(method, 0));
+    HandlerParameter paramNamedMap = new HandlerParameter(new MethodParameter(method, 0));
 
     PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
     assertThat(resolver.supportsParameter(paramNamedMap)).isFalse();

@@ -30,7 +30,7 @@ import infra.core.MethodParameter;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.web.MockMethodParameter;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.server.InternalServerException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,11 +140,11 @@ class ParameterResolverRegistryTests {
   void test(List<UserForm> userList, UserForm[] userArray,
           Set<UserForm> userSet, Map<String, UserForm> mapUser) { }
 
-  static final ResolvableMethodParameter testUser;
-  static final ResolvableMethodParameter testUserSet;
-  static final ResolvableMethodParameter testListUsers;
-  static final ResolvableMethodParameter testUserArray;
-  static final ResolvableMethodParameter testMapUser;
+  static final HandlerParameter testUser;
+  static final HandlerParameter testUserSet;
+  static final HandlerParameter testListUsers;
+  static final HandlerParameter testUserArray;
+  static final HandlerParameter testMapUser;
 
   static final MethodParameter sharedParameter;
 
@@ -170,7 +170,7 @@ class ParameterResolverRegistryTests {
     }
   }
 
-  ResolvableMethodParameter mockParameter(int index, Class<?> type, String name) {
+  HandlerParameter mockParameter(int index, Class<?> type, String name) {
     BeanInstantiator instantiator = BeanInstantiator.forSerialization(MockMethodParameter.class);
     MockMethodParameter parameter = (MockMethodParameter) instantiator.instantiate();
 
@@ -181,7 +181,7 @@ class ParameterResolverRegistryTests {
     return parameter;
   }
 
-  ResolvableMethodParameter mockParameter(Class<?> type, String name) {
+  HandlerParameter mockParameter(Class<?> type, String name) {
     return mockParameter(0, type, name);
   }
 
@@ -221,9 +221,9 @@ class ParameterResolverRegistryTests {
     assertThat(strategy).isNotNull().isInstanceOf(ModelAttributeMethodProcessor.class);
   }
 
-  static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
+  static HandlerParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new ResolvableMethodParameter(parameter);
+    return new HandlerParameter(parameter);
   }
 
 }

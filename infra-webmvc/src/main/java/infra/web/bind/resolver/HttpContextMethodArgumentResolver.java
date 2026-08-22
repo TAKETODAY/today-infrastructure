@@ -32,7 +32,7 @@ import infra.core.io.OutputStreamSource;
 import infra.http.HttpMethod;
 import infra.web.HttpContext;
 import infra.web.HttpContextUtils;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.MultipartRequest;
 
 /**
@@ -62,7 +62,7 @@ import infra.web.multipart.MultipartRequest;
 public class HttpContextMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     Class<?> paramType = resolvable.getParameterType();
     return HttpContext.class.isAssignableFrom(paramType)
             || MultipartRequest.class.isAssignableFrom(paramType)
@@ -79,7 +79,7 @@ public class HttpContextMethodArgumentResolver implements ParameterResolvingStra
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext request, ResolvableMethodParameter resolvable) throws Exception {
+  public @Nullable Object resolveArgument(HttpContext request, HandlerParameter resolvable) throws Exception {
     Class<?> paramType = resolvable.getParameterType();
     // HttpContext
     if (HttpContext.class.isAssignableFrom(paramType)) {

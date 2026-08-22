@@ -32,7 +32,7 @@ import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +77,7 @@ class MapMethodProcessorTests {
 
   @Test
   public void resolveArgumentValue() throws Throwable {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
     assertThat(this.processor.resolveArgument(webRequest, param)).isSameAs(this.mavContainer.getModel());
   }
 
@@ -100,7 +100,7 @@ class MapMethodProcessorTests {
 
   @Test
   public void resolveArgumentValueWithBindingContext() throws Throwable {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
     Object resolved = this.processor.resolveArgument(webRequest, param);
     assertThat(resolved).isSameAs(this.mavContainer.getModel());
   }
@@ -136,25 +136,25 @@ class MapMethodProcessorTests {
 
   @Test
   public void supportsParameterWithNonStringKey() {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(Map.class, Integer.class, Object.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class, Integer.class, Object.class);
     assertThat(this.processor.supportsParameter(param)).isFalse();
   }
 
   @Test
   public void supportsParameterWithNonObjectValue() {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, String.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, String.class);
     assertThat(this.processor.supportsParameter(param)).isFalse();
   }
 
   @Test
   public void supportsParameterWithRawMap() {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(Map.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class);
     assertThat(this.processor.supportsParameter(param)).isFalse();
   }
 
   @Test
   public void supportsParameterWithSubclassOfMap() {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(ModelMap.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(ModelMap.class);
     assertThat(this.processor.supportsParameter(param)).isFalse();
   }
 
@@ -196,7 +196,7 @@ class MapMethodProcessorTests {
 
   @Test
   public void resolveArgumentReturnsSameInstance() throws Throwable {
-    ResolvableMethodParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
+    HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
     Object result = this.processor.resolveArgument(webRequest, param);
     assertThat(result).isInstanceOf(Map.class);
     assertThat(result).isSameAs(webRequest.binding().getModel());

@@ -44,13 +44,13 @@ public class ErrorsMethodArgumentResolverTests {
 
   private BindingResult bindingResult;
 
-  private ResolvableMethodParameter paramErrors;
+  private HandlerParameter paramErrors;
 
   private MockHttpContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
-    paramErrors = new ResolvableMethodParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
+    paramErrors = new HandlerParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
     bindingResult = new HttpContextDataBinder(new Object(), "attr").getBindingResult();
     webRequest = new MockHttpContext(null, new MockRequest(), null);
   }

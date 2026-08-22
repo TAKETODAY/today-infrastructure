@@ -23,7 +23,7 @@ import infra.beans.factory.config.DependencyDescriptor;
 import infra.beans.factory.support.DependencyInjector;
 import infra.beans.factory.support.DependencyInjectorProvider;
 import infra.web.HttpContext;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 /**
  * Resolves method parameters annotated with {@link Autowired} by injecting dependencies
@@ -41,12 +41,12 @@ public class AutowiredParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(HandlerParameter resolvable) {
     return resolvable.hasParameterAnnotation(Autowired.class);
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), resolvable.isRequired()));
   }
 

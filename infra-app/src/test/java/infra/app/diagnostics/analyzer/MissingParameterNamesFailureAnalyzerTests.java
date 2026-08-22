@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 import infra.app.diagnostics.FailureAnalysis;
 import infra.core.MethodParameter;
-import infra.web.handler.method.ResolvableMethodParameter;
+import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,9 +87,9 @@ class MissingParameterNamesFailureAnalyzerTests {
   private RuntimeException getInfraFrameworkMissingParameterException() throws Throwable {
     Method method = getClass().getDeclaredMethod("example", String.class);
     MethodParameter parameter = new MethodParameter(method, 0);
-    ResolvableMethodParameter resolvableMethodParameter = new ResolvableMethodParameter(parameter);
+    HandlerParameter handlerParameter = new HandlerParameter(parameter);
     try {
-      resolvableMethodParameter.getParameterName();
+      handlerParameter.getParameterName();
     }
     catch (RuntimeException ex) {
       return ex;
