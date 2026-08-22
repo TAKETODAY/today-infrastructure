@@ -48,7 +48,7 @@ import infra.web.handler.method.HandlerMethod;
  *   }
  *
  *   @Override
- *   public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
+ *   public boolean preProcessing(HttpContext request, Object handler) throws Exception {
  *     CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(request);
  *     return processor.process(corsConfiguration, request)
  *             && !request.isPreFlightRequest();
@@ -147,7 +147,7 @@ public interface HandlerInterceptor {
    * <pre>{@code
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
-   *   public boolean preProcessing(HttpContext request, Object handler) throws Throwable {
+   *   public boolean preProcessing(HttpContext request, Object handler) throws Exception {
    *     // Log the incoming request
    *     System.out.println("Processing request: " + request.getRequestURI());
    *
@@ -185,7 +185,7 @@ public interface HandlerInterceptor {
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
    *   public void postProcessing(HttpContext request, Object handler,
-   *                            @Nullable Object result) throws Throwable {
+   *                            @Nullable Object result) throws Exception {
    *     // Log the result of the request processing
    *     System.out.println("Request processed with result: " + result);
    *
@@ -221,14 +221,14 @@ public interface HandlerInterceptor {
    * <pre>{@code
    * public class CustomInterceptor implements HandlerInterceptor {
    *   @Override
-   *   public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+   *   public boolean preProcessing(HttpContext context, Object handler) throws Exception {
    *     System.out.println("Pre-processing request: " + context.getRequestURI());
    *     return true; // Continue processing
    *   }
    *
    *   @Override
    *   public void postProcessing(HttpContext context, Object handler,
-   *                             @Nullable Object result) throws Throwable {
+   *                             @Nullable Object result) throws Exception {
    *     if (result instanceof String) {
    *       System.out.println("Post-processing result: " + result);
    *     }
@@ -236,7 +236,7 @@ public interface HandlerInterceptor {
    *
    *   @Override
    *   @Nullable
-   *   public Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+   *   public Object intercept(HttpContext context, InterceptorChain chain) throws Exception {
    *     return HandlerInterceptor.super.intercept(context, chain);
    *   }
    * }

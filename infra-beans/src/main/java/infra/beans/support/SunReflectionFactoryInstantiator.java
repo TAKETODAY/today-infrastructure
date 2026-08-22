@@ -65,7 +65,7 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   }
 
   @Override
-  protected Object doInstantiate(@Nullable Object @Nullable [] args) throws Throwable {
+  protected Object doInstantiate(@Nullable Object @Nullable [] args) throws Exception {
     return constructor.newInstance(); // serialization
   }
 

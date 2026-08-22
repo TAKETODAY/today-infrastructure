@@ -749,7 +749,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param request current HTTP request
    * @throws Exception if preparing the response failed
    */
-  protected @Nullable Object handlerNotFound(HttpContext request) throws Throwable {
+  protected @Nullable Object handlerNotFound(HttpContext request) throws Exception {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
               request.getMethodAsString(), request.getRequestURI(), request.requestHeaders());

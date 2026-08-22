@@ -45,10 +45,10 @@ import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.AntPathMatcher;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.util.ReflectionUtils;
@@ -720,7 +720,7 @@ public class MvcUriComponentsBuilder {
 
     @Override
     @Nullable
-    public Object invoke(org.aopalliance.intercept.MethodInvocation inv) throws Throwable {
+    public Object invoke(org.aopalliance.intercept.MethodInvocation inv) {
       return intercept(inv.getThis(), inv.getMethod(), inv.getArguments(), null);
     }
 
@@ -805,7 +805,7 @@ public class MvcUriComponentsBuilder {
 
     @Override
     @Nullable
-    public Object invoke(Object proxy, Method method, @Nullable Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, @Nullable Object[] args) {
       return intercept(proxy, method, (args != null ? args : new Object[0]), null);
     }
 

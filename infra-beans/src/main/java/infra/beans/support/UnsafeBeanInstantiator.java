@@ -31,7 +31,7 @@ final class UnsafeBeanInstantiator extends BeanInstantiator {
   }
 
   @Override
-  protected Object doInstantiate(@Nullable Object @Nullable [] args) throws Throwable {
+  protected Object doInstantiate(@Nullable Object @Nullable [] args) throws Exception {
     try {
       return UnsafeUtils.getUnsafe().allocateInstance(this.type);
     }

@@ -42,7 +42,7 @@ import infra.web.handler.method.ResolvableMethodParameter;
  *   }
  *
  *   @Override
- *   public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+ *   public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
  *     HttpSession httpSession = getHttpSession(context, false);
  *     if (httpSession == null) {
  *       return null;

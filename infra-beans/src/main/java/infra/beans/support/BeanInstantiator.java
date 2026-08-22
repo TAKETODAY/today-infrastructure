@@ -187,14 +187,14 @@ public abstract class BeanInstantiator {
     catch (BeanInstantiationException e) {
       throw e;
     }
-    catch (Throwable e) {
+    catch (Exception e) {
       throw new BeanInstantiationException(this + " cannot instantiate a bean", e);
     }
   }
 
   // internal new-instance impl @since 4.0
   protected abstract Object doInstantiate(@Nullable Object @Nullable [] args)
-          throws Throwable;
+          throws Exception;
 
   //---------------------------------------------------------------------
   // Static Factory Methods
