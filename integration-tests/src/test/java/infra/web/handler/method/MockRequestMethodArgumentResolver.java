@@ -43,18 +43,18 @@ import infra.web.mock.MockRequest;
 public class MockRequestMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    Class<?> paramType = resolvable.getParameterType();
+  public boolean supportsParameter(HandlerParameter parameter) {
+    Class<?> paramType = parameter.getParameterType();
     return MockRequest.class.isAssignableFrom(paramType)
             || Session.class.isAssignableFrom(paramType);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     MockRequest request = ((MockHttpContext) context).getRequest();
 
-    Class<?> paramType = resolvable.getParameterType();
+    Class<?> paramType = parameter.getParameterType();
     if (Session.class.isAssignableFrom(paramType)) {
       Session session = request.getSession();
       if (session != null && !paramType.isInstance(session)) {

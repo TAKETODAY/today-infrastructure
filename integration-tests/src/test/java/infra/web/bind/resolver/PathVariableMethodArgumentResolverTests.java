@@ -327,7 +327,7 @@ class PathVariableMethodArgumentResolverTests {
             .isThrownBy(() -> resolver.resolveArgument(webRequest, paramInt))
             .satisfies(ex -> {
               assertThat(ex.getName()).isEqualTo("id");
-              assertThat(ex.getParameter()).isSameAs(paramInt.getParameter());
+              assertThat(ex.getParameter()).isSameAs(paramInt.getMethodParameter());
             });
   }
 

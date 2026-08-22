@@ -45,14 +45,14 @@ import infra.web.handler.method.HandlerParameter;
 public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.isAssignableTo(Model.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.isAssignableTo(Model.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    if (resolvable.is(RedirectModel.class)) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+    if (parameter.is(RedirectModel.class)) {
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
       // set redirect model to current BindingContext

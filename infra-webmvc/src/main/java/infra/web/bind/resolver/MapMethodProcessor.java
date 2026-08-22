@@ -44,10 +44,10 @@ import infra.web.handler.result.HandlerMethodReturnValueHandler;
 public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMethodReturnValueHandler {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    if (resolvable.is(Map.class) && resolvable.getParameterAnnotations().length == 0) {
+  public boolean supportsParameter(HandlerParameter parameter) {
+    if (parameter.is(Map.class) && parameter.getParameterAnnotations().length == 0) {
       // Map<String, Object> model;
-      ResolvableType mapType = resolvable.getResolvableType().asMap();
+      ResolvableType mapType = parameter.getResolvableType().asMap();
       ResolvableType keyType = mapType.getGeneric(0);
       ResolvableType valueType = mapType.getGeneric(1);
       return keyType.resolve() == String.class
@@ -59,7 +59,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     return context.binding().getModel();
   }
 

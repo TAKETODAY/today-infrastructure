@@ -70,9 +70,9 @@ public class ExpressionValueMethodArgumentResolverTests {
     paramContextPath = new HandlerParameter(new MethodParameter(method, 1));
     paramNotSupported = new HandlerParameter(new MethodParameter(method, 2));
 
-    paramSystemProperty.getParameter().initParameterNameDiscovery(discoverer);
-    paramContextPath.getParameter().initParameterNameDiscovery(discoverer);
-    paramNotSupported.getParameter().initParameterNameDiscovery(discoverer);
+    paramSystemProperty.getMethodParameter().initParameterNameDiscovery(discoverer);
+    paramContextPath.getMethodParameter().initParameterNameDiscovery(discoverer);
+    paramNotSupported.getMethodParameter().initParameterNameDiscovery(discoverer);
 
     webRequest = new MockHttpContext(null, request, new MockResponse());
 

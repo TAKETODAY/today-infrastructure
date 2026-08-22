@@ -57,12 +57,12 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    if (!resolvable.hasParameterAnnotation(MatrixVariable.class)) {
+  public boolean supportsParameter(HandlerParameter parameter) {
+    if (!parameter.hasParameterAnnotation(MatrixVariable.class)) {
       return false;
     }
-    if (Map.class.isAssignableFrom(resolvable.getParameterType())) {
-      MatrixVariable matrixVariable = resolvable.getParameterAnnotation(MatrixVariable.class);
+    if (Map.class.isAssignableFrom(parameter.getParameterType())) {
+      MatrixVariable matrixVariable = parameter.getParameterAnnotation(MatrixVariable.class);
       return matrixVariable != null && StringUtils.hasText(matrixVariable.name());
     }
     return true;
@@ -76,7 +76,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
       return null;
     }
 
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
     MatrixVariable ann = parameter.getParameterAnnotation(MatrixVariable.class);
     Assert.state(ann != null, "No MatrixVariable annotation");
     String pathVar = ann.pathVar();

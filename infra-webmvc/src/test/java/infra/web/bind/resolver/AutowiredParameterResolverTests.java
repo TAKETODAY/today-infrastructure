@@ -65,7 +65,7 @@ class AutowiredParameterResolverTests {
   public void resolveArgumentSuccessfully() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
     HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
-    parameter.getParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    parameter.getMethodParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     DependencyInjector injector = mock(DependencyInjector.class);
 
@@ -83,7 +83,7 @@ class AutowiredParameterResolverTests {
   public void resolveArgumentReturnsNull() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAutowiredParam", String.class);
     HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
-    parameter.getParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    parameter.getMethodParameter().initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
     DependencyInjectorProvider provider = mock(DependencyInjectorProvider.class);
     DependencyInjector injector = mock(DependencyInjector.class);
 

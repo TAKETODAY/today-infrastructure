@@ -39,13 +39,13 @@ import infra.web.view.ModelAndView;
 public class ModelAndViewMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.is(ModelAndView.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(ModelAndView.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     return context.binding().getModelAndView();
   }
 

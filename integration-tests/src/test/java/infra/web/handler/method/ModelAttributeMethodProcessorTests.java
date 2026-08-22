@@ -145,8 +145,8 @@ class ModelAttributeMethodProcessorTests {
 
   @Test
   public void bindExceptionRequired() throws Throwable {
-    assertThat(this.processor.isBindExceptionRequired(null, this.paramNonSimpleType.getParameter())).isTrue();
-    assertThat(this.processor.isBindExceptionRequired(null, this.paramNamedValidModelAttr.getParameter())).isFalse();
+    assertThat(this.processor.isBindExceptionRequired(null, this.paramNonSimpleType.getMethodParameter())).isTrue();
+    assertThat(this.processor.isBindExceptionRequired(null, this.paramNamedValidModelAttr.getMethodParameter())).isFalse();
   }
 
   @Test
@@ -159,7 +159,7 @@ class ModelAttributeMethodProcessorTests {
   @Test
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
     HttpContextDataBinder dataBinder = new HttpContextDataBinder(null);
-    dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getParameter()));
+    dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getMethodParameter()));
 
     BindingContext factory = mock();
     request.setBinding(factory);
@@ -313,7 +313,7 @@ class ModelAttributeMethodProcessorTests {
       @Override
       protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
         HttpContextDataBinder binder = new HttpContextDataBinder(target, objectName);
-        binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter()));
+        binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getMethodParameter()));
 
         // Add conversion service which will convert "1,2" to a list
         binder.setConversionService(new DefaultFormattingConversionService());
@@ -333,7 +333,7 @@ class ModelAttributeMethodProcessorTests {
     this.container.addAttribute(expectedAttrName, target);
 
     BindingContext factory = new BindingContext();
-    ResolvableType type = ResolvableType.forMethodParameter(param.getParameter());
+    ResolvableType type = ResolvableType.forMethodParameter(param.getMethodParameter());
 
     request.setBinding(factory);
     this.processor.resolveArgument(request, param);

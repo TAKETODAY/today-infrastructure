@@ -64,10 +64,10 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    if (resolvable.hasParameterAnnotation(PathVariable.class)) {
-      if (Map.class.isAssignableFrom(resolvable.getParameter().getParameterType())) {
-        PathVariable pathVariable = resolvable.getParameterAnnotation(PathVariable.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    if (parameter.hasParameterAnnotation(PathVariable.class)) {
+      if (Map.class.isAssignableFrom(parameter.getMethodParameter().getParameterType())) {
+        PathVariable pathVariable = parameter.getParameterAnnotation(PathVariable.class);
         return pathVariable != null && StringUtils.hasText(pathVariable.value());
       }
       return true;

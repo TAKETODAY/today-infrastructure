@@ -50,10 +50,10 @@ import infra.web.handler.method.HandlerParameter;
 public class MatrixVariableMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    MatrixVariable variable = resolvable.getParameterAnnotation(MatrixVariable.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    MatrixVariable variable = parameter.getParameterAnnotation(MatrixVariable.class);
     return variable != null
-            && Map.class.isAssignableFrom(resolvable.getParameterType())
+            && Map.class.isAssignableFrom(parameter.getParameterType())
             && StringUtils.isBlank(variable.name());
   }
 
@@ -61,7 +61,7 @@ public class MatrixVariableMapMethodArgumentResolver implements ParameterResolvi
   @Override
   public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     var matrixVariables = context.matchingMetadata().getMatrixVariables();
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
     MultiValueMap<String, String> map = mapMatrixVariables(parameter, matrixVariables);
     return isSingleValueMap(parameter) ? map.toSingleValueMap() : map;
   }

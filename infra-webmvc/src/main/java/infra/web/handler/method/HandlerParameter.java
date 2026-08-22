@@ -58,17 +58,17 @@ import infra.web.annotation.RequestParam;
  */
 public class HandlerParameter extends DefaultAttributeAccessor {
 
-  /**
-   * @since 3.0.1
-   */
-  protected @Nullable TypeDescriptor typeDescriptor;
-
   // @since 4.0
   private final MethodParameter parameter;
 
   private @Nullable NamedValueInfo namedValueInfo;
 
   private @Nullable ResolvableType resolvableType;
+
+  /**
+   * @since 3.0.1
+   */
+  protected @Nullable TypeDescriptor typeDescriptor;
 
   /**
    * Create a shallow copy of the supplied resolvable parameter.
@@ -224,7 +224,7 @@ public class HandlerParameter extends DefaultAttributeAccessor {
   public ResolvableType getResolvableType() {
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
-      resolvableType = ResolvableType.forMethodParameter(getParameter());
+      resolvableType = ResolvableType.forMethodParameter(getMethodParameter());
       this.resolvableType = resolvableType;
     }
     return resolvableType;
@@ -414,7 +414,7 @@ public class HandlerParameter extends DefaultAttributeAccessor {
   /**
    * Return the underlying method parameter descriptor.
    */
-  public MethodParameter getParameter() {
+  public MethodParameter getMethodParameter() {
     return parameter;
   }
 

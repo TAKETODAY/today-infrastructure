@@ -41,13 +41,13 @@ public class AutowiredParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.hasParameterAnnotation(Autowired.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.hasParameterAnnotation(Autowired.class);
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), resolvable.isRequired()));
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+    return injector.resolveValue(new DependencyDescriptor(parameter.getMethodParameter(), parameter.isRequired()));
   }
 
 }

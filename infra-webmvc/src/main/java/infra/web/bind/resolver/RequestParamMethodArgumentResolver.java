@@ -146,14 +146,14 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return supportsParameter(resolvable.getParameter());
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return supportsParameter(parameter.getMethodParameter());
   }
 
   @Nullable
   @Override
   protected Object resolveName(String name, HandlerParameter resolvable, HttpContext request) throws Exception {
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
     Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, request);
     if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
       return mpArg;

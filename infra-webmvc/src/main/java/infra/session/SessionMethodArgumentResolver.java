@@ -67,9 +67,9 @@ public class SessionMethodArgumentResolver extends SessionManagerOperations impl
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     // todo type checking?
-    if (resolvable.isRequired()) {
+    if (parameter.isRequired()) {
       return getSession(context);
     }
     // Nullable

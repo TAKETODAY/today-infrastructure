@@ -96,10 +96,10 @@ public interface ParameterResolvingStrategy {
    * }
    * }</pre>
    *
-   * @param resolvable the method parameter to check
+   * @param parameter the method parameter to check
    * @return {@code true} if this resolver supports the parameter; {@code false} otherwise
    */
-  boolean supportsParameter(HandlerParameter resolvable);
+  boolean supportsParameter(HandlerParameter parameter);
 
   /**
    * Resolves the argument for the given method parameter within the context of a request.
@@ -110,11 +110,11 @@ public interface ParameterResolvingStrategy {
    * </p>
    *
    * @param context the request context containing information about the current request
-   * @param resolvable the method parameter to resolve
+   * @param parameter the method parameter to resolve
    * @return the resolved argument value, or {@code null} if the value cannot be resolved
    * @throws Exception if an error occurs during argument resolution
    */
   @Nullable
-  Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception;
+  Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception;
 
 }

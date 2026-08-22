@@ -38,13 +38,13 @@ import infra.web.util.UriComponentsBuilder;
 public class UriComponentsBuilderParameterStrategy implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.is(UriComponentsBuilder.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(UriComponentsBuilder.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     return UriComponentsBuilder.forHttpRequest(context);
   }
 

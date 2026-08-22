@@ -163,7 +163,7 @@ class ParameterResolverRegistryTests {
       testUserSet = createParameter(2, testList, "userSet");
       testMapUser = createParameter(3, testList, "mapUser");
 
-      sharedParameter = testUser.getParameter();
+      sharedParameter = testUser.getMethodParameter();
     }
     catch (NoSuchMethodException e) {
       throw new InternalServerException(null, e);

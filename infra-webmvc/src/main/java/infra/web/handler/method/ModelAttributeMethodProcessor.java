@@ -92,9 +92,9 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * method parameter that is not a simple type.
    */
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.hasParameterAnnotation(ModelAttribute.class)
-            || (annotationNotRequired && !BeanUtils.isSimpleProperty(resolvable.getParameterType()));
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.hasParameterAnnotation(ModelAttribute.class)
+            || (annotationNotRequired && !BeanUtils.isSimpleProperty(parameter.getParameterType()));
   }
 
   /**
@@ -112,7 +112,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     BindingContext bindingContext = context.binding();
 
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
     String name = ModelHandler.getNameForParameter(parameter);
 
     ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);

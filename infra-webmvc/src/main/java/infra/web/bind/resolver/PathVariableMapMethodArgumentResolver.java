@@ -40,10 +40,10 @@ import infra.web.handler.method.HandlerParameter;
 public class PathVariableMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    PathVariable ann = resolvable.getParameterAnnotation(PathVariable.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
     return ann != null
-            && Map.class.isAssignableFrom(resolvable.getParameterType())
+            && Map.class.isAssignableFrom(parameter.getParameterType())
             && StringUtils.isBlank(ann.value());
   }
 
@@ -52,9 +52,9 @@ public class PathVariableMapMethodArgumentResolver implements ParameterResolving
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     HandlerMatchingMetadata metadata = context.getMatchingMetadata();
-    Map<Object, Object> map = CollectionUtils.createMap(resolvable.getParameterType());
+    Map<Object, Object> map = CollectionUtils.createMap(parameter.getParameterType());
     if (metadata != null) {
       Map<String, String> uriVariables = metadata.getUriVariables();
       if (CollectionUtils.isNotEmpty(uriVariables)) {

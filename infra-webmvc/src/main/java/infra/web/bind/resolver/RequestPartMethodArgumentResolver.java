@@ -104,14 +104,14 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
       if (parameter.hasParameterAnnotation(RequestParam.class)) {
         return false;
       }
-      return MultipartResolutionDelegate.isMultipartArgument(parameter.getParameter());
+      return MultipartResolutionDelegate.isMultipartArgument(parameter.getMethodParameter());
     }
   }
 
   @Nullable
   @Override
   public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
     String name = namedValueInfo.name;

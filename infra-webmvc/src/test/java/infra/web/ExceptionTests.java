@@ -1311,7 +1311,7 @@ class ExceptionTests {
       parameter.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
 
       assertThat(exception.getParameter()).isNotNull();
-      assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
+      assertThat(exception.getParameter().getMethodParameter()).isSameAs(parameter);
       assertThat(exception.getMessage()).isEqualTo(message);
       assertThat(exception.getCause()).isNull();
       assertThat(exception.getParameterName()).isEqualTo("param");
@@ -1330,7 +1330,7 @@ class ExceptionTests {
               new HandlerParameter(parameter), message, cause);
 
       assertThat(exception.getParameter()).isNotNull();
-      assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
+      assertThat(exception.getParameter().getMethodParameter()).isSameAs(parameter);
       assertThat(exception.getMessage()).isEqualTo(message);
       assertThat(exception.getCause()).isSameAs(cause);
       assertThat(exception.getParameterName()).isEqualTo("param");
@@ -1346,7 +1346,7 @@ class ExceptionTests {
               new HandlerParameter(parameter), null);
 
       assertThat(exception.getParameter()).isNotNull();
-      assertThat(exception.getParameter().getParameter()).isSameAs(parameter);
+      assertThat(exception.getParameter().getMethodParameter()).isSameAs(parameter);
       assertThat(exception.getMessage()).isNull();
       assertThat(exception.getCause()).isNull();
       assertThat(exception.getParameterName()).isEqualTo("param");

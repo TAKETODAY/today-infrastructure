@@ -114,7 +114,7 @@ public class MockMethodParameter extends HandlerParameter {
   }
 
   @Override
-  public MethodParameter getParameter() {
+  public MethodParameter getMethodParameter() {
     return parameter;
   }
 

@@ -375,8 +375,8 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     }
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
-      return resolvable.hasParameterAnnotation(RequestAttribute.class);
+    public boolean supportsParameter(HandlerParameter parameter) {
+      return parameter.hasParameterAnnotation(RequestAttribute.class);
     }
 
     @Override

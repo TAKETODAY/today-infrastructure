@@ -56,8 +56,8 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueRes
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.hasParameterAnnotation(Value.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.hasParameterAnnotation(Value.class);
   }
 
   @Override

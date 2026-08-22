@@ -65,7 +65,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
       return MockUtils.getMockRequest(context);
     }
   }
@@ -78,7 +78,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
       return MockUtils.getMockResponse(context);
     }
   }
@@ -91,12 +91,12 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
       Session session = context.getSession(false);
       if (session == null) {
         return null;
       }
-      return session.getAttribute(resolvable.getName());
+      return session.getAttribute(parameter.getName());
     }
   }
 
@@ -109,9 +109,9 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
-      return resolvable.isCollection()
-              && resolvable.getResolvableType().getGeneric(0).resolve() == Cookie.class;
+    public boolean supportsParameter(HandlerParameter parameter) {
+      return parameter.isCollection()
+              && parameter.getResolvableType().getGeneric(0).resolve() == Cookie.class;
     }
 
     @Nullable
@@ -131,7 +131,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+    public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
       return MockUtils.getMockRequest(context).getCookies();
     }
   }
@@ -143,10 +143,10 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
-      return resolvable.is(Cookie.class)
-              || resolvable.is(HttpCookie.class)
-              || resolvable.hasParameterAnnotation(CookieValue.class);
+    public boolean supportsParameter(HandlerParameter parameter) {
+      return parameter.is(Cookie.class)
+              || parameter.is(HttpCookie.class)
+              || parameter.hasParameterAnnotation(CookieValue.class);
     }
 
     @Override

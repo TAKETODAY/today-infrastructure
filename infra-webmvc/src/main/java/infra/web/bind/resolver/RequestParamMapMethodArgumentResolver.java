@@ -54,9 +54,9 @@ import infra.web.multipart.Part;
 public class RequestParamMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    if (Map.class.isAssignableFrom(resolvable.getParameterType())) {
-      RequestParam requestParam = resolvable.getParameterAnnotation(RequestParam.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    if (Map.class.isAssignableFrom(parameter.getParameterType())) {
+      RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
       return requestParam != null
               && StringUtils.isBlank(requestParam.name());
     }
@@ -65,10 +65,10 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    ResolvableType resolvableType = resolvable.getResolvableType();
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+    ResolvableType resolvableType = parameter.getResolvableType();
 
-    if (MultiValueMap.class.isAssignableFrom(resolvable.getParameterType())) {
+    if (MultiValueMap.class.isAssignableFrom(parameter.getParameterType())) {
       // MultiValueMap
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == Part.class) {

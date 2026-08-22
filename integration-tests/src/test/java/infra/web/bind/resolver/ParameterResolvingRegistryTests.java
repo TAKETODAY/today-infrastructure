@@ -134,13 +134,13 @@ class ParameterResolvingRegistryTests {
   static class ParameterResolvingStrategy0 implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
+    public boolean supportsParameter(HandlerParameter parameter) {
       return false;
     }
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+    public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
       return null;
     }
   }

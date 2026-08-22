@@ -241,7 +241,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
           if (log.isDebugEnabled()) {
             String exMsg = ex.getMessage();
             if (exMsg != null && !exMsg.contains(parameters[i].getMethod().toGenericString())) {
-              log.debug(formatArgumentError(parameters[i].getParameter(), exMsg));
+              log.debug(formatArgumentError(parameters[i].getMethodParameter(), exMsg));
             }
           }
           throw ex;

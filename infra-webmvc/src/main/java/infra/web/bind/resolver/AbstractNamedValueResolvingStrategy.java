@@ -87,9 +87,9 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    MethodParameter methodParameter = resolvable.getParameter();
-    NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
+  public final Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+    MethodParameter methodParameter = parameter.getMethodParameter();
+    NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 
     Object arg;
     if (namedValueInfo.nameEmbedded) {
@@ -98,10 +98,10 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
         throw new IllegalArgumentException(
                 "Specified name must not resolve to null: [%s]".formatted(namedValueInfo.name));
       }
-      arg = resolveName(resolvedName.toString(), resolvable, context);
+      arg = resolveName(resolvedName.toString(), parameter, context);
     }
     else {
-      arg = resolveName(namedValueInfo.name, resolvable, context);
+      arg = resolveName(namedValueInfo.name, parameter, context);
     }
 
     if (arg == null) {
@@ -132,7 +132,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       }
     }
 
-    handleResolvedValue(arg, namedValueInfo.name, resolvable, context);
+    handleResolvedValue(arg, namedValueInfo.name, parameter, context);
     return arg;
   }
 

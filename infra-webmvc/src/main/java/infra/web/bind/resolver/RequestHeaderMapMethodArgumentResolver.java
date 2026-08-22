@@ -47,15 +47,15 @@ import infra.web.handler.method.HandlerParameter;
 public class RequestHeaderMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.is(HttpHeaders.class) ||
-            (resolvable.hasParameterAnnotation(RequestHeader.class) && resolvable.isAssignableTo(Map.class));
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(HttpHeaders.class) ||
+            (parameter.hasParameterAnnotation(RequestHeader.class) && parameter.isAssignableTo(Map.class));
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
     HttpHeaders headers = context.getHeaders();
-    Class<?> paramType = resolvable.getParameterType();
+    Class<?> paramType = parameter.getParameterType();
     if (paramType == HttpHeaders.class) {
       return headers;
     }

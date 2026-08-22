@@ -105,8 +105,8 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.hasParameterAnnotation(RequestBody.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.hasParameterAnnotation(RequestBody.class);
   }
 
   /**
@@ -119,7 +119,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   @Nullable
   @Override
   public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
     Object arg = readWithMessageConverters(context, parameter, parameter.getNestedGenericParameterType());
     validateIfApplicable(context, parameter, arg);
     return arg;

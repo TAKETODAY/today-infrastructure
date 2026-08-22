@@ -33,8 +33,8 @@ public class CookieParameterResolver
         extends AbstractNamedValueResolvingStrategy implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.is(HttpCookie.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(HttpCookie.class);
   }
 
   @Override
@@ -63,8 +63,8 @@ public class CookieParameterResolver
     }
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
-      return resolvable.hasParameterAnnotation(CookieValue.class);
+    public boolean supportsParameter(HandlerParameter parameter) {
+      return parameter.hasParameterAnnotation(CookieValue.class);
     }
 
     @Override
@@ -94,14 +94,14 @@ public class CookieParameterResolver
   static final class AllCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
-      Class<?> parameterType = resolvable.getParameterType();
+    public boolean supportsParameter(HandlerParameter parameter) {
+      Class<?> parameterType = parameter.getParameterType();
       return parameterType.isArray()
               && parameterType.getComponentType() == HttpCookie.class;
     }
 
     @Override
-    public Object resolveArgument(HttpContext http, HandlerParameter resolvable) {
+    public Object resolveArgument(HttpContext http, HandlerParameter parameter) {
       return http.getCookies();
     }
   }
@@ -113,9 +113,9 @@ public class CookieParameterResolver
     }
 
     @Override
-    public boolean supportsParameter(HandlerParameter resolvable) {
-      return resolvable.isCollection()
-              && resolvable.getResolvableType().getGeneric(0).resolve() == HttpCookie.class;
+    public boolean supportsParameter(HandlerParameter parameter) {
+      return parameter.isCollection()
+              && parameter.getResolvableType().getGeneric(0).resolve() == HttpCookie.class;
     }
 
     @Nullable

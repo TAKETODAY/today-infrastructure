@@ -39,12 +39,12 @@ public class ExampleWebMvcConfigurer implements WebMvcConfigurer {
     customizedStrategies.add(new ParameterResolvingStrategy() {
 
       @Override
-      public boolean supportsParameter(HandlerParameter resolvable) {
-        return resolvable.getParameterType().equals(ExampleArgument.class);
+      public boolean supportsParameter(HandlerParameter parameter) {
+        return parameter.getParameterType().equals(ExampleArgument.class);
       }
 
       @Override
-      public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+      public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
         return new ExampleArgument("hello");
       }
 

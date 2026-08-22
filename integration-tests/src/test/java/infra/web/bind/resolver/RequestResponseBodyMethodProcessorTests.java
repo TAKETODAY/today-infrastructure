@@ -294,7 +294,7 @@ class RequestResponseBodyMethodProcessorTests {
     converters.add(new StringHttpMessageConverter());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-    processor.writeWithMessageConverters("Foo", returnTypeString.getParameter(), request);
+    processor.writeWithMessageConverters("Foo", returnTypeString.getMethodParameter(), request);
 
     assertThat(mockResponse.getHeader("Content-Type")).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
   }
@@ -336,7 +336,7 @@ class RequestResponseBodyMethodProcessorTests {
     converters.add(new StringHttpMessageConverter());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-    processor.writeWithMessageConverters("Foo", returnTypeString.getParameter(), request);
+    processor.writeWithMessageConverters("Foo", returnTypeString.getMethodParameter(), request);
 
     assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
   }

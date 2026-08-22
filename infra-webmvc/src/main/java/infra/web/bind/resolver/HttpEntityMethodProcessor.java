@@ -116,16 +116,16 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.is(HttpEntity.class)
-            || resolvable.is(RequestEntity.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(HttpEntity.class)
+            || parameter.is(RequestEntity.class);
   }
 
   @Override
   public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable)
           throws IOException, HttpMediaTypeNotSupportedException //
   {
-    MethodParameter parameter = resolvable.getParameter();
+    MethodParameter parameter = resolvable.getMethodParameter();
     Type paramType = getHttpEntityType(parameter);
     if (paramType == null) {
       throw new IllegalArgumentException("HttpEntity parameter '%s' in method %s is not parameterized"

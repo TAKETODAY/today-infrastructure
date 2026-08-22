@@ -43,13 +43,13 @@ import infra.web.handler.method.HandlerParameter;
 public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(HandlerParameter resolvable) {
-    return resolvable.isAssignableTo(Errors.class);
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.isAssignableTo(Errors.class);
   }
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) {
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
     ModelMap model = context.binding().getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
@@ -59,7 +59,7 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
     throw new IllegalStateException(
             "An Errors/BindingResult argument is expected to be declared immediately after " +
                     "the model attribute, the @RequestBody or the @RequestPart arguments " +
-                    "to which they apply: " + resolvable.getMethod());
+                    "to which they apply: " + parameter.getMethod());
   }
 
 }
