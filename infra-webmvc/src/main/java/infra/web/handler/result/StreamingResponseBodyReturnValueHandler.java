@@ -83,7 +83,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
       var callable = new StreamingBodyTask(context.getOutputStream(), streamingBody);
       context.asyncManager().startCallableProcessing(callable, handler);
     }
-    else if (HandlerMethod.isHandler(handler)) {
+    else if (HandlerMethod.isHandlerMethod(handler)) {
       startCallableProcessing(context, handler, returnValue);
     }
     else {

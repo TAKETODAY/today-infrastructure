@@ -48,7 +48,7 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
     if (returnValue instanceof Callable<?> callable) {
       context.asyncManager().startCallableProcessing(callable, handler);
     }
-    else if (HandlerMethod.isHandler(handler)) {
+    else if (HandlerMethod.isHandlerMethod(handler)) {
       startCallableProcessing(context, handler, returnValue);
     }
   }

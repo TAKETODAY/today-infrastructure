@@ -60,7 +60,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
       }
       context.asyncManager().startCallableProcessing(task, handler);
     }
-    else if (HandlerMethod.isHandler(handler)) {
+    else if (HandlerMethod.isHandlerMethod(handler)) {
       startCallableProcessing(context, handler, returnValue);
     }
   }

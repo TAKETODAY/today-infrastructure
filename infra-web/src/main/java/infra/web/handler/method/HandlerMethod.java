@@ -402,7 +402,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * @return {@code true} if the object is a handler method, {@code false} otherwise
    * @since 5.0
    */
-  public static boolean isHandler(@Nullable Object handler) {
+  public static boolean isHandlerMethod(@Nullable Object handler) {
     return resolve(handler) != null;
   }
 

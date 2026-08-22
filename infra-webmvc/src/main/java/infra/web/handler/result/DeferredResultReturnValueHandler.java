@@ -66,7 +66,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     else if (returnValue instanceof CompletionStage) {
       result = adaptCompletionStage((CompletionStage<?>) returnValue);
     }
-    else if (HandlerMethod.isHandler(handler)) {
+    else if (HandlerMethod.isHandlerMethod(handler)) {
       result = new DeferredResult<>();
       result.setResult(returnValue);
     }
