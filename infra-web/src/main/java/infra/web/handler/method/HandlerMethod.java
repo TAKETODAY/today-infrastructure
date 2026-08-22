@@ -413,14 +413,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * @return the extracted {@link HandlerMethod}, or {@code null} if not found
    */
   public static @Nullable HandlerMethod resolve(@Nullable Object handler) {
-    if (handler instanceof HandlerMethod) {
-      return (HandlerMethod) handler;
-    }
-    else if (handler instanceof HandlerWrapper wrapper
-            && wrapper.getRawHandler() instanceof HandlerMethod target) {
-      return target;
-    }
-    return null;
+    return HandlerWrapper.unwrapIfNecessary(handler) instanceof HandlerMethod target ? target : null;
   }
 
   protected static class ConcurrentResultHandlerMethod extends HandlerMethod {
