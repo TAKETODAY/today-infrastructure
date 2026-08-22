@@ -74,7 +74,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
 
   @Override
   public boolean supportsHandler(Object handler) {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       return handlerMethod.isReturnTypeAssignableTo(Model.class);
     }
@@ -106,7 +106,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
     }
     else if (returnValue != null) {
       // should not happen
-      HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+      HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
       if (handlerMethod != null) {
         throw new UnsupportedOperationException("Unexpected return type [%s] in method: %s"
                 .formatted(handlerMethod.getReturnType().getParameterType().getName(), handlerMethod.getMethod()));

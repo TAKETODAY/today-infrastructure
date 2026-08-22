@@ -43,10 +43,10 @@ import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
-import infra.util.Assert;
 import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 import infra.validation.annotation.Validated;
@@ -403,7 +403,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * @since 5.0
    */
   public static boolean isHandler(@Nullable Object handler) {
-    return unwrap(handler) != null;
+    return resolve(handler) != null;
   }
 
   /**
@@ -412,7 +412,7 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
    * @param handler the handler to unwrap
    * @return the extracted {@link HandlerMethod}, or {@code null} if not found
    */
-  public static @Nullable HandlerMethod unwrap(@Nullable Object handler) {
+  public static @Nullable HandlerMethod resolve(@Nullable Object handler) {
     if (handler instanceof HandlerMethod) {
       return (HandlerMethod) handler;
     }

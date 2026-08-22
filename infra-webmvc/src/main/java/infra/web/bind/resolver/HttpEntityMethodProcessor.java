@@ -207,7 +207,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
       if (logger.isWarnEnabled() && httpEntity instanceof ResponseEntity<?> responseEntity) {
         if (responseEntity.getStatusCode().value() != detail.getStatus()) {
-          HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+          HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
           if (handlerMethod != null) {
             logger.warn("{} returned ResponseEntity: {}, but its status doesn't match the ProblemDetail status: {}",
                     handlerMethod.getMethod().toGenericString(), responseEntity, detail.getStatus());
@@ -253,7 +253,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       }
     }
 
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null && handlerMethod.getRawReturnType().isInstance(returnValue)) {
       // Try even with null body. ResponseBodyAdvice could get involved.
       writeWithMessageConverters(body, handlerMethod.getReturnType(), context);

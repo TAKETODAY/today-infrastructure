@@ -114,7 +114,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
 
   @Override
   public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       return supportsReturnValue(returnValue)
               || supportsReturnType(handlerMethod.getReturnValueType(returnValue));
@@ -147,7 +147,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     MediaType contentType = null;
     // maybe nested body
     MethodParameter returnType = null;
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       returnType = handlerMethod.getReturnType();
       // for ResponseEntity unwrap body

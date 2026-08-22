@@ -64,7 +64,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   @Override
   public boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       Class<?> rawReturnType = handlerMethod.getRawReturnType();
       if (returnValue == null) {

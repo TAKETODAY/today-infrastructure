@@ -123,7 +123,7 @@ import infra.web.handler.method.HandlerMethod;
  * patterns or other criteria.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see HandlerMethod#unwrap(Object)
+ * @see HandlerMethod#resolve(Object)
  * @since 2018-06-25 20:06:11
  */
 public interface HandlerInterceptor {
@@ -169,7 +169,7 @@ public interface HandlerInterceptor {
    * type of handler
    * @return true if the request should proceed to the handler, false otherwise
    * @throws Exception If any exception occurs during the execution of this method
-   * @see HandlerMethod#unwrap(Object)
+   * @see HandlerMethod#resolve(Object)
    */
   default boolean preProcessing(HttpContext context, Object handler) throws Exception {
     return true;

@@ -495,14 +495,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   protected boolean hasCorsConfigurationSource(Object handler) {
     HandlerMethod handlerMethod;
     return super.hasCorsConfigurationSource(handler)
-            || (((handlerMethod = HandlerMethod.unwrap(handler)) != null)
+            || (((handlerMethod = HandlerMethod.resolve(handler)) != null)
             && mappingRegistry.getCorsConfiguration(handlerMethod) != null);
   }
 
   @Override
   protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, HttpContext request) {
     CorsConfiguration corsConfig = super.getCorsConfiguration(handler, request);
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       if (handlerMethod.equals(PREFLIGHT_AMBIGUOUS_MATCH)) {
         return AbstractHandlerMethodMapping.ALLOW_CORS_CONFIG;
@@ -522,7 +522,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
   @Override
   protected HandlerInterceptor @Nullable [] getHandlerInterceptors(Object handler) {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       return mappingRegistry.getHandlerInterceptors(handlerMethod);
     }

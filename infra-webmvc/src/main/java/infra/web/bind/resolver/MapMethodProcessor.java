@@ -87,7 +87,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
     }
     else if (returnValue != null) {
       // should not happen
-      HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+      HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
       if (handlerMethod != null) {
         throw new UnsupportedOperationException("Unexpected return type [%s] in method: %s"
                 .formatted(handlerMethod.getReturnType().getParameterType().getName(), handlerMethod.getMethod()));

@@ -31,7 +31,7 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
 
   @Override
   default boolean supportsHandler(Object handler) {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
       return supportsHandlerMethod(handlerMethod);
     }
