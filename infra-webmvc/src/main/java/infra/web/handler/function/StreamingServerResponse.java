@@ -50,8 +50,7 @@ final class StreamingServerResponse extends AbstractServerResponse {
 
   private final ThrowingConsumer<StreamBuilder> streamConsumer;
 
-  @Nullable
-  private final Duration timeout;
+  private final @Nullable Duration timeout;
 
   private StreamingServerResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, ResponseCookie> cookies,
           ThrowingConsumer<StreamBuilder> streamConsumer, @Nullable Duration timeout) {
@@ -69,9 +68,8 @@ final class StreamingServerResponse extends AbstractServerResponse {
     return new StreamingServerResponse(statusCode, headers, cookies, streamConsumer, timeout);
   }
 
-  @Nullable
   @Override
-  protected Object writeToInternal(HttpContext request, Context context) throws Throwable {
+  protected @Nullable Object writeToInternal(HttpContext request, Context context) throws Exception {
     DeferredResult<?> result = new DeferredResult<>(timeout != null ? timeout.toMillis() : null);
     DefaultAsyncServerResponse.writeAsync(request, result);
     this.streamConsumer.accept(new DefaultStreamBuilder(request, context, result, headers()));

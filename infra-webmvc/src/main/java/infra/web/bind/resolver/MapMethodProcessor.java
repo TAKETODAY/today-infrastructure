@@ -59,7 +59,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
     return context.binding().getModel();
   }
 

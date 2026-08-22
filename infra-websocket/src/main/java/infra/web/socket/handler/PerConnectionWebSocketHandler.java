@@ -69,7 +69,7 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public void onOpen(WebSocketSession session) throws Throwable {
+  public void onOpen(WebSocketSession session) throws Exception {
     WebSocketHandler handler = this.provider.getHandler();
     this.handlers.put(session, handler);
     handler.onOpen(session);
@@ -82,7 +82,7 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable exception) throws Throwable {
+  public void onError(WebSocketSession session, Throwable exception) throws Exception {
     getHandler(session).onError(session, exception);
   }
 

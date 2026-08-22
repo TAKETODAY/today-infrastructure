@@ -16,13 +16,14 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Objects;
 
 import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
-import org.jspecify.annotations.Nullable;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -50,7 +51,7 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   }
 
   @Override
-  public Object resolveArgument(HttpContext request) throws Throwable {
+  public Object resolveArgument(HttpContext request) throws Exception {
     return super.resolveArgument(request);
   }
 

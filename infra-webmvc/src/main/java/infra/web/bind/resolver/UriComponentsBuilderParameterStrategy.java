@@ -44,7 +44,7 @@ public class UriComponentsBuilderParameterStrategy implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
     return UriComponentsBuilder.forHttpRequest(context);
   }
 

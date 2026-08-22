@@ -49,7 +49,7 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
     ModelMap model = context.binding().getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {

@@ -30,11 +30,11 @@ import java.util.concurrent.CountDownLatch;
 
 import infra.app.InfraApplication;
 import infra.app.test.context.InfraTest;
-import infra.test.web.server.LocalServerPort;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.TestPropertySource;
+import infra.test.web.server.LocalServerPort;
 import infra.util.concurrent.Future;
 import infra.web.HttpContext;
 import infra.web.socket.client.support.NettyWebSocketClient;
@@ -141,12 +141,12 @@ class DispatchTests {
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
     @Override
-    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
+    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Exception {
       return HandshakeCapable.super.beforeHandshake(context, attributes);
     }
 
     @Override
-    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
+    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
       HandshakeCapable.super.afterHandshake(context, session, failure);
     }
 

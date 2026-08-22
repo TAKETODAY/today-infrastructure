@@ -507,7 +507,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param handler sync handler
    * @param concurrentResult async result
    */
-  public void handleConcurrentResult(HttpContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Throwable {
+  public void handleConcurrentResult(HttpContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Exception {
     Throwable throwable = null;
     try {
       if (handler instanceof AsyncHandler asyncHandler) {
@@ -538,7 +538,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * This method will throw un-handling exception to up stream
    *
    * @param context current HTTP request and HTTP response
-   * @throws Throwable in case of any kind of un-handling failure
+   * @throws Exception in case of any kind of un-handling failure
    * @see HandlerAdapter
    * @see HandlerMapping
    * @see HandlerExceptionHandler
@@ -547,7 +547,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @see HttpRequestHandler
    * @since 4.0
    */
-  public void handleRequest(HttpContext context) throws Throwable {
+  public void handleRequest(HttpContext context) throws Exception {
     logRequest(context);
     var filters = this.filters;
     if (filters == null) {
@@ -622,7 +622,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * either a view or an Exception to be resolved to a view.
    */
   protected void processDispatchResult(HttpContext request, @Nullable Object handler,
-          @Nullable Object returnValue, @Nullable Throwable exception) throws Throwable {
+          @Nullable Object returnValue, @Nullable Throwable exception) throws Exception {
 
     if (handler instanceof HandlerWrapper wrapper) {
       handler = wrapper.getRawHandler();
@@ -673,7 +673,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       try {
         handleReturnValue(selected, request, handler, returnValue);
       }
-      catch (Throwable e) {
+      catch (Exception e) {
         if (exception == null) {
           processDispatchResult(request, handler, null, e);
         }
@@ -707,9 +707,9 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param handler the executed handler, or {@code null} if none chosen at the time of the exception
    * @param ex the exception that got thrown during handler execution
    * @return a corresponding view to forward to
-   * @throws Throwable if no handler can handle the exception
+   * @throws Exception if no handler can handle the exception
    */
-  protected @Nullable Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+  protected @Nullable Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
     // Success and error responses may use different content types
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
@@ -738,9 +738,9 @@ public class DispatcherHandler extends WebLifecycleManager {
     return returnValue;
   }
 
-  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
+  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Exception {
     // throw it to top level to handle
-    throw unresolved;
+    throw ExceptionUtils.sneakyThrow(unresolved);
   }
 
   /**

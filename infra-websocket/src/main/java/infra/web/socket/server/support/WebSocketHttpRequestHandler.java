@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.socket.WebSocketHandler;
@@ -77,9 +77,9 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
   }
 
   @Override
-  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Exception {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
-    Throwable failure = null;
+    Exception failure = null;
     try {
       if (logger.isDebugEnabled()) {
         logger.debug(context);
@@ -91,7 +91,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
         chain.applyAfterHandshake(context, session, null);
       }
     }
-    catch (Throwable ex) {
+    catch (Exception ex) {
       failure = ex;
     }
     finally {

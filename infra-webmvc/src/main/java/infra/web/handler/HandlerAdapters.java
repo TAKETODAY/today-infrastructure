@@ -33,6 +33,7 @@ import infra.web.HttpRequestHandler;
  * @since 4.0 2022/6/10 15:18
  */
 public class HandlerAdapters implements HandlerAdapter {
+
   private final HandlerAdapter[] handlerAdapters;
 
   public HandlerAdapters(HandlerAdapter[] handlerAdapters) {
@@ -45,9 +46,8 @@ public class HandlerAdapters implements HandlerAdapter {
     return selectAdapter(handler) != null;
   }
 
-  @Nullable
   @Override
-  public Object handle(HttpContext context, Object handler) throws Throwable {
+  public @Nullable Object handle(HttpContext context, Object handler) throws Exception {
     if (handler instanceof HttpRequestHandler httpRequestHandler) {
       return httpRequestHandler.handleRequest(context);
     }

@@ -170,7 +170,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   }
 
   @Override
-  protected @Nullable Object handleInternal(HttpContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected @Nullable Object handleInternal(HttpContext request, HandlerMethod handlerMethod) throws Exception {
     Object returnValue;
 
     // Execute invokeHandlerMethod in synchronized block if required.
@@ -209,7 +209,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
    *
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
-  protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Exception {
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
     binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
     request.setBinding(binding);

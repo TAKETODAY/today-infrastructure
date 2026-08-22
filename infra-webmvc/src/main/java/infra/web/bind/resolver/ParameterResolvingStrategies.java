@@ -128,7 +128,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(resolvable)) {
         return strategy.resolveArgument(context, resolvable);

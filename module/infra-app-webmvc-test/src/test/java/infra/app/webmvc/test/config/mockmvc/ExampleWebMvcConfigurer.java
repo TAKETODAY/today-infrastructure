@@ -44,7 +44,7 @@ public class ExampleWebMvcConfigurer implements WebMvcConfigurer {
       }
 
       @Override
-      public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+      public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
         return new ExampleArgument("hello");
       }
 

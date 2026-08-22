@@ -20,6 +20,7 @@ package infra.web.handler;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +32,9 @@ import infra.context.expression.EmbeddedValueResolverAware;
 import infra.context.support.ApplicationObjectSupport;
 import infra.core.Ordered;
 import infra.core.StringValueResolver;
-import infra.util.Assert;
 import infra.logging.LogDelegateFactory;
 import infra.logging.Logger;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
@@ -530,7 +531,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public Object handleRequest(HttpContext context) throws Throwable {
+    public Object handleRequest(HttpContext context) throws IOException {
       corsProcessor.process(this.config, context);
       return NONE_RETURN_VALUE;
     }
@@ -551,7 +552,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
     }
 
     @Override
-    public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+    public boolean preProcessing(HttpContext context, Object handler) throws Exception {
       return corsProcessor.process(config, context);
     }
 

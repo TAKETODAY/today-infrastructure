@@ -68,9 +68,8 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
     return this.serverResponse.cookies();
   }
 
-  @Nullable
   @Override
-  public Object writeTo(HttpContext request, Context context) throws Throwable {
+  public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
     return this.serverResponse.writeTo(request, context);
   }
 

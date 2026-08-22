@@ -107,10 +107,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @param methodValidator the validator to apply for method arguments and return values, may be {@code null}
    * @param providedArgs pre-provided argument values to be used directly without resolution, may be {@code null}
    * @return the processed return value, or {@link HttpRequestHandler#NONE_RETURN_VALUE} if no content should be written
-   * @throws Throwable if the invoked method throws an exception
+   * @throws Exception if the invoked method throws an exception
    */
   public @Nullable Object invokeAndHandle(HttpContext request,
-          @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Throwable {
+          @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Exception {
     Object returnValue = invokeForRequest(request, methodValidator, providedArgs);
     applyResponseStatus(request);
 
@@ -166,7 +166,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @see #getMethodArgumentValues
    */
   public @Nullable Object invokeForRequest(HttpContext request,
-          @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Throwable {
+          @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Exception {
     @Nullable Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
       log.trace("Arguments: {}", Arrays.toString(args));
@@ -191,19 +191,18 @@ public class InvocableHandlerMethod extends HandlerMethod {
       throw new IllegalStateException(formatInvokeError(text, args), ex);
     }
     catch (InvocationTargetException ex) {
-      // Unwrap for HandlerExceptionResolvers ...
-      Throwable targetException = ex.getTargetException();
-      if (targetException instanceof RuntimeException) {
-        throw targetException;
+      var te = ex.getTargetException();
+      if (te instanceof RuntimeException r) {
+        throw r;
       }
-      else if (targetException instanceof Error) {
-        throw targetException;
+      else if (te instanceof Error error) {
+        throw error;
       }
-      else if (targetException instanceof Exception) {
-        throw targetException;
+      else if (te instanceof Exception e) {
+        throw e;
       }
       else {
-        throw new IllegalStateException(formatInvokeError("Invocation failure", args), targetException);
+        throw new IllegalStateException(formatInvokeError("Invocation failure", args), te);
       }
     }
   }
@@ -213,7 +212,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * argument values and falling back to the configured argument resolvers.
    * <p>The resulting array will be passed into {@link Method#invoke(Object, Object...)}.
    */
-  private @Nullable Object[] getMethodArgumentValues(HttpContext request, Object @Nullable [] providedArgs) throws Throwable {
+  private @Nullable Object[] getMethodArgumentValues(HttpContext request, Object @Nullable [] providedArgs) throws Exception {
     ResolvableMethodParameter[] parameters = this.resolvableParameters;
     int length = parameters.length;
     if (length == 0) {
@@ -237,7 +236,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
         try {
           arg = parameters[i].resolveArgument(request);
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
           // Leave stack trace for later, exception may actually be resolved and handled...
           if (log.isDebugEnabled()) {
             String exMsg = ex.getMessage();

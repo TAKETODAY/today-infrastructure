@@ -48,7 +48,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
+  public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("Before Handshake {}", context);
     }
@@ -59,7 +59,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
+  public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
     if (failure != null) {
       logger.error("Handshake failed {}", context, failure);
     }
@@ -72,7 +72,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public void onOpen(WebSocketSession session) throws Throwable {
+  public void onOpen(WebSocketSession session) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("New {}", session);
     }
@@ -89,7 +89,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable throwable) throws Throwable {
+  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("Transport error in {}", session, throwable);
     }

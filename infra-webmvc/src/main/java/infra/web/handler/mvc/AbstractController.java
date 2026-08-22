@@ -150,7 +150,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
   @Override
   @Nullable
-  public Object handleRequest(HttpContext context) throws Throwable {
+  public Object handleRequest(HttpContext context) throws Exception {
     if (HttpMethod.OPTIONS == context.getMethod()) {
       context.setHeader(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
@@ -182,6 +182,6 @@ public abstract class AbstractController extends WebContentGenerator implements 
    */
   @Nullable
   protected abstract Object handleRequestInternal(HttpContext request)
-          throws Throwable;
+          throws Exception;
 
 }

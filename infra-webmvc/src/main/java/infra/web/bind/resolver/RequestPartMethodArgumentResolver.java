@@ -110,7 +110,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getParameter();
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();

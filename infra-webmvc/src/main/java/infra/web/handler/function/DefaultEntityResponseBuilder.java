@@ -261,9 +261,8 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       return this.entity;
     }
 
-    @Nullable
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) throws Exception {
+    protected @Nullable Object writeToInternal(HttpContext request, Context context) throws Exception {
       writeEntityWithMessageConverters(this.entity, request, context);
       return NONE_RETURN_VALUE;
     }
@@ -323,9 +322,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       throw new HttpMediaTypeNotAcceptableException(producibleMediaTypes);
     }
 
-    @Nullable
-    @SuppressWarnings("NullAway")
-    private static MediaType getContentType(HttpContext response) {
+    private static @Nullable MediaType getContentType(HttpContext response) {
       try {
         return MediaType.parseMediaType(response.getResponseContentType()).removeQualityValue();
       }
@@ -335,7 +332,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     protected void tryWriteEntityWithMessageConverters(Object entity,
-            HttpContext request, ServerResponse.Context context) throws Throwable {
+            HttpContext request, ServerResponse.Context context) throws Exception {
       try {
         writeEntityWithMessageConverters(entity, request, context);
       }

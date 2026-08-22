@@ -47,10 +47,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.web.HttpContext;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockMemoryFilePart;
-import infra.web.mock.MockMemoryPart;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.stereotype.Controller;
@@ -59,10 +55,10 @@ import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.test.web.Person;
 import infra.test.web.mock.ResultMatcher;
 import infra.test.web.mock.assertj.MockMvcTester.MockMultipartMvcRequestBuilder;
-import infra.web.view.InternalResourceViewResolver;
 import infra.ui.Model;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
@@ -76,8 +72,12 @@ import infra.web.annotation.RestController;
 import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.StreamingResponseBody;
+import infra.web.mock.MockMemoryFilePart;
+import infra.web.mock.MockMemoryPart;
+import infra.web.mock.api.Cookie;
 import infra.web.multipart.Part;
 import infra.web.server.ResponseStatusException;
+import infra.web.view.InternalResourceViewResolver;
 import infra.web.view.ModelAndView;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
@@ -288,7 +288,7 @@ public class MockMvcTesterIntegrationTests {
               new HandlerInterceptor() {
 
                 @Override
-                public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+                public boolean preProcessing(HttpContext context, Object handler) {
                   context.addCookie(ResponseCookie.forSimple(cookie.getName(), cookie.getValue()));
                   return true;
                 }

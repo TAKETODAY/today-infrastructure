@@ -21,8 +21,8 @@ package infra.web.handler;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.server.PathContainer;
-import infra.util.Assert;
 import infra.util.AntPathMatcher;
+import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
@@ -192,17 +192,17 @@ public final class MappedInterceptor implements HandlerInterceptor {
   // HandlerInterceptor delegation
 
   @Override
-  public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+  public boolean preProcessing(HttpContext context, Object handler) throws Exception {
     return interceptor.preProcessing(context, handler);
   }
 
   @Override
-  public void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Throwable {
+  public void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Exception {
     interceptor.postProcessing(context, handler, result);
   }
 
   @Override
-  public @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+  public @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Exception {
     if (matches(context)) {
       return interceptor.intercept(context, chain);
     }

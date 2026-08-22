@@ -377,7 +377,7 @@ class DispatcherHandlerForwardTests {
       }
 
       @Override
-      public Object handle(HttpContext request, Object handler) throws Throwable {
+      public Object handle(HttpContext request, Object handler) throws Exception {
         return ((HttpRequestHandler) handler).handleRequest(request);
       }
     };

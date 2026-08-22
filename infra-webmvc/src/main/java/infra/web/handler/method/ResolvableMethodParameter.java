@@ -163,8 +163,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    * @param annotationType the annotation type to look for
    * @return the annotation object, or {@code null} if not found
    */
-  @Nullable
-  public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
+  public <A extends Annotation> @Nullable A getMethodAnnotation(Class<A> annotationType) {
     return parameter.getMethodAnnotation(annotationType);
   }
 
@@ -211,8 +210,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    * @param annotationType the annotation type to look for
    * @return the annotation object, or {@code null} if not found
    */
-  @Nullable
-  public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
+  public <A extends Annotation> @Nullable A getParameterAnnotation(Class<A> annotationType) {
     return parameter.getParameterAnnotation(annotationType);
   }
 
@@ -291,8 +289,7 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    *
    * @return the default value, or {@code null} if none is configured
    */
-  @Nullable
-  public String getDefaultValue() {
+  public @Nullable String getDefaultValue() {
     return getNamedValueInfo().defaultValue;
   }
 
@@ -399,10 +396,9 @@ public class ResolvableMethodParameter extends DefaultAttributeAccessor {
    *
    * @param request the current HTTP context
    * @return the resolved argument value, or {@code null} if no value is available
-   * @throws Throwable if argument resolution fails
+   * @throws Exception if argument resolution fails
    */
-  @Nullable
-  public Object resolveArgument(HttpContext request) throws Throwable {
+  public @Nullable Object resolveArgument(HttpContext request) throws Exception {
     return request.getParameter(getName());
   }
 

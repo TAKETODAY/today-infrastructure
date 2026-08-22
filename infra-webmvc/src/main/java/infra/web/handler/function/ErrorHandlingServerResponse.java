@@ -25,6 +25,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import infra.util.Assert;
+import infra.util.ExceptionUtils;
 import infra.web.HttpContext;
 
 /**
@@ -46,13 +47,12 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
     this.errorHandlers.add(new ErrorHandler<>(predicate, errorHandler));
   }
 
-  @Nullable
-  protected final Object handleError(Throwable t, HttpContext request, Context context) throws Throwable {
+  protected final @Nullable Object handleError(Throwable t, HttpContext request, Context context) throws Exception {
     ServerResponse serverResponse = errorResponse(t, request);
     if (serverResponse != null) {
       return serverResponse.writeTo(request, context);
     }
-    throw t;
+    throw ExceptionUtils.sneakyThrow(t);
   }
 
   @Nullable

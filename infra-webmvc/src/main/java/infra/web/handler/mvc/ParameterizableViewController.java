@@ -177,7 +177,7 @@ public class ParameterizableViewController extends AbstractController {
    */
   @Nullable
   @Override
-  protected Object handleRequestInternal(HttpContext request) throws Throwable {
+  protected Object handleRequestInternal(HttpContext request) throws Exception {
     String contentType = getContentType();
     if (contentType != null) {
       request.setContentType(contentType);

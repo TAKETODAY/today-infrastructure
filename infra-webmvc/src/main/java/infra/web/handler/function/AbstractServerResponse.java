@@ -80,9 +80,8 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
     return MultiValueMap.empty();
   }
 
-  @Nullable
   @Override
-  public Object writeTo(HttpContext request, Context context) throws Throwable {
+  public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
     try {
       writeStatusAndHeaders(request);
 
@@ -124,7 +123,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
     }
   }
 
-  @Nullable
-  protected abstract Object writeToInternal(HttpContext request, Context context) throws Throwable;
+  protected abstract @Nullable Object writeToInternal(HttpContext request, Context context)
+          throws Exception;
 
 }

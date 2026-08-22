@@ -65,7 +65,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     ResolvableType resolvableType = resolvable.getResolvableType();
 
     if (MultiValueMap.class.isAssignableFrom(resolvable.getParameterType())) {

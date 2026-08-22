@@ -118,7 +118,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getParameter();
     Object arg = readWithMessageConverters(context, parameter, parameter.getNestedGenericParameterType());
     validateIfApplicable(context, parameter, arg);

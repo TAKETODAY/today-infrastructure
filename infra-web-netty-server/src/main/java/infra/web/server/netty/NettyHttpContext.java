@@ -46,10 +46,10 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.server.ServerHttpResponse;
 import infra.http.support.Netty4HttpHeaders;
 import infra.lang.Constant;
-import infra.util.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.util.TodayStrategies;
 import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
@@ -806,9 +806,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * write result to client
    *
    * @param concurrentResult async result
-   * @throws Throwable dispatch error
+   * @throws Exception dispatch error
    */
-  void dispatchConcurrentResult(@Nullable Object concurrentResult) throws Throwable {
+  void dispatchConcurrentResult(@Nullable Object concurrentResult) throws Exception {
     Object handler = WebAsyncManager.findHttpRequestHandler(this);
     dispatcherHandler.handleConcurrentResult(this, handler, concurrentResult);
   }

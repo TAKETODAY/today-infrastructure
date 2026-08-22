@@ -79,7 +79,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
   }
 
   @Override
-  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Exception {
     var interceptors = this.interceptors;
     if (interceptors == null) {
       return handlerAdapter.handle(context, handler);
@@ -107,7 +107,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
     }
 
     @Override
-    protected @Nullable Object invokeHandler(HttpContext context, Object handler) throws Throwable {
+    protected @Nullable Object invokeHandler(HttpContext context, Object handler) throws Exception {
       return handlerAdapter.handle(context, handler);
     }
   }

@@ -145,7 +145,7 @@ class HandlerInterceptorTests {
     }
 
     @Override
-    public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+    public boolean preProcessing(HttpContext context, Object handler) {
       return returnValue;
     }
   }
@@ -165,12 +165,12 @@ class HandlerInterceptorTests {
     }
 
     @Override
-    public boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+    public boolean preProcessing(HttpContext context, Object handler) {
       return beforeProcessResult;
     }
 
     @Override
-    public void postProcessing(HttpContext context, Object handler, Object result) throws Throwable {
+    public void postProcessing(HttpContext context, Object handler, Object result) {
       this.capturedRequest = context;
       this.capturedHandler = handler;
       this.capturedResult = result;

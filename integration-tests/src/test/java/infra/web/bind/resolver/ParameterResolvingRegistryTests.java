@@ -27,8 +27,8 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
 import infra.http.converter.StringHttpMessageConverter;
-import infra.web.MockResolvableMethodParameter;
 import infra.web.HttpContext;
+import infra.web.MockResolvableMethodParameter;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.method.ResolvableMethodParameter;
 
@@ -140,7 +140,7 @@ class ParameterResolvingRegistryTests {
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
       return null;
     }
   }

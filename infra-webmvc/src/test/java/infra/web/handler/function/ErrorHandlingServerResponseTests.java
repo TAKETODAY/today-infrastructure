@@ -132,7 +132,7 @@ class ErrorHandlingServerResponseTests {
     }
 
     @Override
-    public @Nullable Object writeTo(HttpContext request, Context context) throws Throwable {
+    public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
       return null;
     }
   }

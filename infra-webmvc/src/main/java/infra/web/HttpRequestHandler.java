@@ -82,10 +82,10 @@ public interface HttpRequestHandler {
    *
    * @param context Current request context
    * @return Result to be handled by {@link ReturnValueHandler}
-   * @throws Throwable If any exception occurred
+   * @throws Exception If any exception occurred
    * @see ReturnValueHandler
    */
   @Nullable
-  Object handleRequest(HttpContext context) throws Throwable;
+  Object handleRequest(HttpContext context) throws Exception;
 
 }

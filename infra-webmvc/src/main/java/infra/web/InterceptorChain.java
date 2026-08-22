@@ -62,10 +62,10 @@ public abstract class InterceptorChain {
    * @param context the current request context
    * @return the result returned by the handler or an interceptor,
    * which will be processed by {@link infra.web.ReturnValueHandler}
-   * @throws Throwable if any interceptor or the handler throws an exception
+   * @throws Exception if any interceptor or the handler throws an exception
    * @see infra.web.ReturnValueHandler
    */
-  public final @Nullable Object proceed(HttpContext context) throws Throwable {
+  public final @Nullable Object proceed(HttpContext context) throws Exception {
     if (currentIndex < interceptorLength) {
       return interceptors[currentIndex++].intercept(context, this);
     }
@@ -85,12 +85,12 @@ public abstract class InterceptorChain {
    * {@link HandlerWrapper#unwrap(Object)} if it is a wrapped handler
    * @return the result returned by the handler, which will be processed by
    * {@link infra.web.ReturnValueHandler}
-   * @throws Throwable if the handler invocation fails or throws an exception
+   * @throws Exception if the handler invocation fails or throws an exception
    * @see HandlerMethod
    * @see HandlerWrapper
    */
   protected abstract @Nullable Object invokeHandler(HttpContext context, Object handler)
-          throws Throwable;
+          throws Exception;
 
   /**
    * Returns the array of interceptors in this chain.

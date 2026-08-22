@@ -112,9 +112,9 @@ public interface ParameterResolvingStrategy {
    * @param context the request context containing information about the current request
    * @param resolvable the method parameter to resolve
    * @return the resolved argument value, or {@code null} if the value cannot be resolved
-   * @throws Throwable if an error occurs during argument resolution
+   * @throws Exception if an error occurs during argument resolution
    */
   @Nullable
-  Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable;
+  Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception;
 
 }

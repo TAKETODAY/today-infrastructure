@@ -261,9 +261,8 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
       this.writeFunction = writeFunction;
     }
 
-    @Nullable
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) throws Throwable {
+    protected @Nullable Object writeToInternal(HttpContext request, Context context) throws Exception {
       return this.writeFunction.write(request);
     }
   }

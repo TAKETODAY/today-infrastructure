@@ -47,9 +47,9 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.LogFormatUtils;
 import infra.util.MimeTypeUtils;
 import infra.validation.BindingResult;
@@ -272,7 +272,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     return genericType;
   }
 
-  protected void validateIfApplicable(HttpContext context, MethodParameter parameter, @Nullable Object arg) throws Throwable {
+  protected void validateIfApplicable(HttpContext context, MethodParameter parameter, @Nullable Object arg) throws Exception {
     BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
       String name = Conventions.getVariableNameForParameter(parameter);

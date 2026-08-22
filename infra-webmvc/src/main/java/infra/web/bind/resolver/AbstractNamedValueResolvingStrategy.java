@@ -87,7 +87,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public final Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     MethodParameter methodParameter = resolvable.getParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
 
@@ -138,7 +138,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   private static Object convertIfNecessary(HttpContext context, BindingContext bindingContext,
-          NamedValueInfo namedValueInfo, MethodParameter methodParameter, @Nullable Object arg) throws Throwable {
+          NamedValueInfo namedValueInfo, MethodParameter methodParameter, @Nullable Object arg) throws Exception {
 
     WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
     try {

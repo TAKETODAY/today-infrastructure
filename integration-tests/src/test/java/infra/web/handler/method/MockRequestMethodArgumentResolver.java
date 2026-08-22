@@ -20,11 +20,11 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.mock.MockRequest;
 import infra.session.Session;
 import infra.web.HttpContext;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 /**
  * Resolves mock backed request-related method arguments. Supports values of the
@@ -51,7 +51,7 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
     MockRequest request = ((MockHttpContext) context).getRequest();
 
     Class<?> paramType = resolvable.getParameterType();

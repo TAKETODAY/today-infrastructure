@@ -1962,7 +1962,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     }
   }
 
-  protected final void processException(Throwable exception) throws Throwable {
+  protected final void processException(Throwable exception) throws Exception {
     dispatcherHandler.processDispatchResult(this, null, null, exception);
   }
 

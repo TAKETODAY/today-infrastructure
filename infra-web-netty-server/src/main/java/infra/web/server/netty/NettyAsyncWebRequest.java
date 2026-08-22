@@ -79,7 +79,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
       try {
         request.dispatchConcurrentResult(concurrentResult);
       }
-      catch (Throwable e) {
+      catch (Exception e) {
         // last exception handling
         for (var exceptionHandler : exceptionHandlers) {
           exceptionHandler.accept(e);

@@ -109,7 +109,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     BindingContext bindingContext = context.binding();
 
     MethodParameter parameter = resolvable.getParameter();
@@ -197,7 +197,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    */
   @Nullable
   protected Object createAttribute(String attributeName, MethodParameter parameter,
-          BindingContext bindingContext, HttpContext request) throws Throwable {
+          BindingContext bindingContext, HttpContext request) throws Exception {
 
     String value = getRequestValueForAttribute(attributeName, request);
     if (value != null) {
@@ -255,7 +255,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    */
   @Nullable
   protected Object createAttributeFromRequestValue(String sourceValue, String attributeName,
-          MethodParameter parameter, BindingContext binderFactory, HttpContext request) throws Throwable {
+          MethodParameter parameter, BindingContext binderFactory, HttpContext request) throws Exception {
 
     DataBinder binder = binderFactory.createBinder(request, attributeName);
     ConversionService conversionService = binder.getConversionService();

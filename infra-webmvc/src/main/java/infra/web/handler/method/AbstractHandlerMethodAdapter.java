@@ -80,10 +80,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    * This implementation expects the handler to be an {@link HandlerMethod}.
    */
   @Override
-  @Nullable
-  public final Object handle(HttpContext request, Object handler)
-          throws Throwable {
-
+  public final @Nullable Object handle(HttpContext request, Object handler) throws Exception {
     return handleInternal(request, (HandlerMethod) handler);
   }
 
@@ -96,8 +93,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    * @return an object to render, or {@code null}
    * @throws Exception in case of errors
    */
-  @Nullable
-  protected abstract Object handleInternal(
-          HttpContext request, HandlerMethod handlerMethod) throws Throwable;
+  protected abstract @Nullable Object handleInternal(
+          HttpContext request, HandlerMethod handlerMethod) throws Exception;
 
 }

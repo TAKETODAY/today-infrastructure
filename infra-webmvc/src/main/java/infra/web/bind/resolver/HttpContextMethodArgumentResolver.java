@@ -79,7 +79,7 @@ public class HttpContextMethodArgumentResolver implements ParameterResolvingStra
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext request, ResolvableMethodParameter resolvable) throws Throwable {
+  public @Nullable Object resolveArgument(HttpContext request, ResolvableMethodParameter resolvable) throws Exception {
     Class<?> paramType = resolvable.getParameterType();
     // HttpContext
     if (HttpContext.class.isAssignableFrom(paramType)) {

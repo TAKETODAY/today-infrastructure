@@ -85,7 +85,7 @@ final class ModelHandler {
    * @param handlerMethod the method for which the model is initialized
    * @throws Exception may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(HttpContext request, BindingContext container, HandlerMethod handlerMethod) throws Throwable {
+  public void initModel(HttpContext request, BindingContext container, HandlerMethod handlerMethod) throws Exception {
     ArrayList<ModelMethod> modelMethods = getModelMethods(handlerMethod);
     if (modelMethods != null) {
       invokeModelAttributeMethods(request, container, modelMethods);
@@ -110,7 +110,7 @@ final class ModelHandler {
    * Attributes are added only if not already present in the model.
    */
   private void invokeModelAttributeMethods(HttpContext request,
-          BindingContext container, ArrayList<ModelMethod> modelMethods) throws Throwable {
+          BindingContext container, ArrayList<ModelMethod> modelMethods) throws Exception {
 
     while (!modelMethods.isEmpty()) {
       InvocableHandlerMethod modelMethod = getNextModelMethod(container, modelMethods).handlerMethod;
@@ -164,7 +164,7 @@ final class ModelHandler {
    * @param container contains the model to update
    * @throws Exception if creating BindingResult attributes fails
    */
-  public void updateModel(HttpContext request, BindingContext container) throws Throwable {
+  public void updateModel(HttpContext request, BindingContext container) throws Exception {
     if (container.hasModel()) {
       ModelMap model = container.getModel();
       updateBindingResult(request, container, model);
@@ -174,7 +174,7 @@ final class ModelHandler {
   /**
    * Add {@link BindingResult} attributes to the model for attributes that require it.
    */
-  private void updateBindingResult(HttpContext request, BindingContext bindingContext, ModelMap model) throws Throwable {
+  private void updateBindingResult(HttpContext request, BindingContext bindingContext, ModelMap model) throws Exception {
     for (String name : new ArrayList<>(model.keySet())) {
       Object value = model.get(name);
       if (value != null && isBindingCandidate(name, value)) {

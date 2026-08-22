@@ -133,7 +133,7 @@ class InterceptorChainTests {
 
     @Nullable
     @Override
-    protected Object invokeHandler(HttpContext context, Object handler) throws Throwable {
+    protected Object invokeHandler(HttpContext context, Object handler) {
       invokeHandlerCalled = true;
       invokeHandlerContext = context;
       invokeHandlerHandler = handler;

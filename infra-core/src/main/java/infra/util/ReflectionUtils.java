@@ -200,7 +200,7 @@ public abstract class ReflectionUtils {
    * @param ex the exception to rethrow
    * @throws Exception the rethrown exception (in case of a checked exception)
    */
-  public static void rethrowException(Throwable ex) throws Exception {
+  public static Exception rethrowException(Throwable ex) throws Exception {
     if (ex instanceof Exception) {
       throw (Exception) ex;
     }

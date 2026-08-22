@@ -65,7 +65,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
       return MockUtils.getMockRequest(context);
     }
   }
@@ -78,7 +78,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
       return MockUtils.getMockResponse(context);
     }
   }
@@ -91,7 +91,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
       Session session = context.getSession(false);
       if (session == null) {
         return null;
@@ -116,7 +116,7 @@ public class MockParameterResolvers {
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) throws Exception {
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
       return MockUtils.getMockRequest(context).getCookies();
     }
 
@@ -131,7 +131,7 @@ public class MockParameterResolvers {
     }
 
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
       return MockUtils.getMockRequest(context).getCookies();
     }
   }

@@ -511,7 +511,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public @Nullable Object handleRequest(HttpContext context) throws Throwable {
+  public @Nullable Object handleRequest(HttpContext context) throws Exception {
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(context);
     if (resource == null) {

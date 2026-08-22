@@ -168,10 +168,10 @@ public interface HandlerInterceptor {
    * be a {@link HandlerMethod} or another
    * type of handler
    * @return true if the request should proceed to the handler, false otherwise
-   * @throws Throwable If any exception occurs during the execution of this method
+   * @throws Exception If any exception occurs during the execution of this method
    * @see HandlerMethod#unwrap(Object)
    */
-  default boolean preProcessing(HttpContext context, Object handler) throws Throwable {
+  default boolean preProcessing(HttpContext context, Object handler) throws Exception {
     return true;
   }
 
@@ -207,9 +207,9 @@ public interface HandlerInterceptor {
    * be a {@link HandlerMethod} or another type of handler
    * @param result The result returned by the handler after processing the request.
    * This may be {@code null} if the handler does not return a value
-   * @throws Throwable If any exception occurs during the execution of this method
+   * @throws Exception If any exception occurs during the execution of this method
    */
-  default void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Throwable {
+  default void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Exception {
   }
 
   /**
@@ -248,10 +248,10 @@ public interface HandlerInterceptor {
    * @return The result of the request processing if {@link #preProcessing} returns true;
    * otherwise, {@link HandlerInterceptor#NONE_RETURN_VALUE}. May be {@code null}
    * if the handler does not return a value
-   * @throws Throwable If any exception occurs during the execution of this method or
+   * @throws Exception If any exception occurs during the execution of this method or
    * within the interceptor chain
    */
-  default @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Throwable {
+  default @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Exception {
     Object handler = chain.getHandler();
     if (preProcessing(context, handler)) {
       Object result = chain.proceed(context);

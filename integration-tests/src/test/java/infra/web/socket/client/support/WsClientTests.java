@@ -70,7 +70,7 @@ class WsClientTests {
   static class ServerWebSocketHandler extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Throwable {
+    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Exception {
       log.info("server beforeHandshake,{} {}", context, attributes);
       return HandshakeCapable.super.beforeHandshake(context, attributes);
     }

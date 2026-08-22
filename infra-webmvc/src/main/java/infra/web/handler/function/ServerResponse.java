@@ -101,7 +101,7 @@ public interface ServerResponse {
    * @return a Web result to render, or {@code null} if handled directly
    */
   @Nullable
-  Object writeTo(HttpContext request, Context context) throws Throwable;
+  Object writeTo(HttpContext request, Context context) throws Exception;
 
   // Static methods
 

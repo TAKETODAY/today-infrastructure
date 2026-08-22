@@ -116,12 +116,12 @@ public interface HandlerAdapter {
    * returned {@code true}.
    * @return an object with the name of the view and the required model data, or
    * {@code null} if the request has been handled directly
-   * @throws Throwable in case of errors
+   * @throws Exception in case of errors
    * @see #NONE_RETURN_VALUE
    * @see ReturnValueHandler
    */
   @Nullable
-  Object handle(HttpContext context, Object handler) throws Throwable;
+  Object handle(HttpContext context, Object handler) throws Exception;
 
   // static factory method
 

@@ -75,7 +75,7 @@ public abstract class WebSocketHandler {
    *
    * @param session the session that has just been activated.
    */
-  public void onOpen(WebSocketSession session) throws Throwable {
+  public void onOpen(WebSocketSession session) throws Exception {
     if (delegate != null) {
       delegate.onOpen(session);
     }
@@ -162,7 +162,7 @@ public abstract class WebSocketHandler {
    * @param session the session in use when the error occurs.
    * @param throwable the throwable representing the problem.
    */
-  public void onError(WebSocketSession session, Throwable throwable) throws Throwable {
+  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
     if (delegate != null) {
       delegate.onError(session, throwable);
     }

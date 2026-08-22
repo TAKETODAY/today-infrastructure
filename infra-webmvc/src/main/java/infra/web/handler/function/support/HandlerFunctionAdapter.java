@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.Ordered;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.ExceptionUtils;
 import infra.util.LogFormatUtils;
 import infra.web.HandlerAdapter;
 import infra.web.HttpContext;
@@ -64,9 +65,8 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     return handler instanceof HandlerFunction;
   }
 
-  @Nullable
   @Override
-  public Object handle(HttpContext context, Object handler) throws Throwable {
+  public @Nullable Object handle(HttpContext context, Object handler) throws Exception {
     WebAsyncManager asyncManager = context.asyncManager();
 
     ServerRequest serverRequest = ServerRequest.findRequired(context);
@@ -88,8 +88,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     }
   }
 
-  @Nullable
-  private ServerResponse handleAsync(WebAsyncManager asyncManager) throws Throwable {
+  private @Nullable ServerResponse handleAsync(WebAsyncManager asyncManager) throws Exception {
     Object result = asyncManager.getConcurrentResult();
     asyncManager.clearConcurrentResult();
     LogFormatUtils.traceDebug(logger, traceOn -> {
@@ -100,7 +99,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
       return (ServerResponse) result;
     }
     else if (result instanceof Throwable) {
-      throw (Throwable) result;
+      throw ExceptionUtils.sneakyThrow((Throwable) result);
     }
     else if (result == null) {
       return null;

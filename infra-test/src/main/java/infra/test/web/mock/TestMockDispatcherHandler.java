@@ -130,7 +130,7 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   @Nullable
   @Override
-  protected Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+  protected Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
     Object mav = super.processHandlerException(request, handler, ex);
 
     // We got this far, exception was processed..
@@ -144,7 +144,7 @@ final class TestMockDispatcherHandler extends MockDispatcherHandler {
   }
 
   @Override
-  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Throwable {
+  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Exception {
     getMvcResult(request).setUnresolvedException(unresolved);
     return super.handleUnresolvedException(request, unresolved, handler);
   }

@@ -24,20 +24,20 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.validation.BindingResult;
 import infra.web.BindingContext;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ModelMethodProcessor;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -164,7 +164,7 @@ class ModelHandlerTests {
     }
 
     @Override
-    public HttpContextDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) throws Throwable {
+    public HttpContextDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) {
       return dataBinder;
     }
   }

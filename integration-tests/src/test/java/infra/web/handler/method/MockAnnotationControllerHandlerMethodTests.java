@@ -85,14 +85,6 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.http.converter.xml.MarshallingHttpMessageConverter;
-import infra.util.Assert;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.api.MockException;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
-import infra.web.mock.MultipartMockRequest;
 import infra.oxm.jaxb.Jaxb2Marshaller;
 import infra.session.Session;
 import infra.session.SessionManager;
@@ -101,6 +93,7 @@ import infra.session.config.EnableSession;
 import infra.stereotype.Controller;
 import infra.ui.Model;
 import infra.ui.ModelMap;
+import infra.util.Assert;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
@@ -108,8 +101,9 @@ import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
-import infra.web.RedirectModel;
+import infra.web.HttpContext;
 import infra.web.HttpContextUtils;
+import infra.web.RedirectModel;
 import infra.web.SerializationTestUtils;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.annotation.CookieValue;
@@ -137,6 +131,12 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MultipartMockRequest;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.api.MockException;
 import infra.web.multipart.Part;
 import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
@@ -2731,7 +2731,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) {
       return new MySpecialArg("myValue");
     }
   }

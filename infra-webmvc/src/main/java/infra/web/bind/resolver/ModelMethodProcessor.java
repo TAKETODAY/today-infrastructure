@@ -51,7 +51,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(HttpContext context, ResolvableMethodParameter resolvable) throws Exception {
     if (resolvable.is(RedirectModel.class)) {
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);

@@ -99,9 +99,9 @@ public class BindingContext {
    * @param context the current exchange
    * @param objectName the name of the target object
    * @return the created data binder
-   * @throws Throwable if {@code @InitBinder} method invocation fails
+   * @throws Exception if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(HttpContext context, String objectName) throws Throwable {
+  public WebDataBinder createBinder(HttpContext context, String objectName) throws Exception {
     return createBinder(context, null, objectName, null);
   }
 
@@ -113,9 +113,9 @@ public class BindingContext {
    * @param target the object to create a data binder for
    * @param objectName the name of the target object
    * @return the created data binder
-   * @throws Throwable if {@code @InitBinder} method invocation fails
+   * @throws Exception if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) throws Throwable {
+  public WebDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) throws Exception {
     return createBinder(context, target, objectName, null);
   }
 
@@ -126,7 +126,7 @@ public class BindingContext {
    * insight on how to initialize the binder.
    */
   public WebDataBinder createBinder(HttpContext context, @Nullable Object target,
-          String objectName, @Nullable ResolvableType targetType) throws Throwable {
+          String objectName, @Nullable ResolvableType targetType) throws Exception {
 
     WebDataBinder dataBinder = createBinderInstance(target, objectName, context);
     dataBinder.setNameResolver(new BindParamNameResolver());
@@ -165,9 +165,9 @@ public class BindingContext {
   /**
    * Initialize the data binder instance for the given exchange.
    *
-   * @throws Throwable if {@code @InitBinder} method invocation fails
+   * @throws Exception if {@code @InitBinder} method invocation fails
    */
-  public void initBinder(WebDataBinder dataBinder, HttpContext context) throws Throwable {
+  public void initBinder(WebDataBinder dataBinder, HttpContext context) throws Exception {
   }
 
   /**
@@ -222,9 +222,9 @@ public class BindingContext {
    * Add {@link BindingResult} attributes where necessary.
    *
    * @param context the current context
-   * @throws Throwable if creating BindingResult attributes fails
+   * @throws Exception if creating BindingResult attributes fails
    */
-  public void updateModel(HttpContext context) throws Throwable {
+  public void updateModel(HttpContext context) throws Exception {
   }
 
   /**
@@ -238,9 +238,9 @@ public class BindingContext {
    * </ol>
    *
    * @param context the current context
-   * @throws Throwable may arise from {@code @ModelAttribute} methods
+   * @throws Exception may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(HttpContext context) throws Throwable {
+  public void initModel(HttpContext context) throws Exception {
   }
 
   /**
