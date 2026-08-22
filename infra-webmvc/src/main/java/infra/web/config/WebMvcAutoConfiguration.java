@@ -491,7 +491,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     ResourceHandlerRegistration registration = registry.addResourceHandler(pattern);
     registration.addResourceLocations(locations);
     registration.setCachePeriod(getSeconds(resourceProperties.cache.period));
-    registration.setCacheControl(resourceProperties.cache.getHttpCacheControl());
+    registration.setCacheControl(resourceProperties.cache.asHttpCacheControl());
     registration.setUseLastModified(resourceProperties.cache.useLastModified);
     customizeResourceHandlerRegistration(registration);
   }

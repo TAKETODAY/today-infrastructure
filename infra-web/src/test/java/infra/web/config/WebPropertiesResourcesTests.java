@@ -74,7 +74,7 @@ class WebPropertiesResourcesTests {
 
   @Test
   void emptyCacheControl() {
-    CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
+    CacheControl cacheControl = this.properties.cache.asHttpCacheControl();
     assertThat(cacheControl).isNull();
   }
 
@@ -90,7 +90,7 @@ class WebPropertiesResourcesTests {
     properties.sMaxAge = (Duration.ofSeconds(5));
     properties.staleIfError = (Duration.ofSeconds(6));
     properties.staleWhileRevalidate = (Duration.ofSeconds(7));
-    CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
+    CacheControl cacheControl = this.properties.cache.asHttpCacheControl();
     assertThat(cacheControl.getHeaderValue())
             .isEqualTo("max-age=4, must-revalidate, no-transform, public, private, proxy-revalidate,"
                     + " s-maxage=5, stale-if-error=6, stale-while-revalidate=7");
@@ -101,7 +101,7 @@ class WebPropertiesResourcesTests {
     Resources.Cache.Cachecontrol properties = this.properties.cache.cachecontrol;
     properties.maxAge = (Duration.ofSeconds(4));
     properties.noStore = (true);
-    CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
+    CacheControl cacheControl = this.properties.cache.asHttpCacheControl();
     assertThat(cacheControl.getHeaderValue()).isEqualTo("no-store");
   }
 

@@ -241,7 +241,7 @@ public class WebProperties {
        */
       public boolean useLastModified = true;
 
-      public @Nullable CacheControl getHttpCacheControl() {
+      public @Nullable CacheControl asHttpCacheControl() {
         PropertyMapper map = PropertyMapper.get();
         CacheControl control = createCacheControl();
         map.from(cachecontrol.mustRevalidate).whenTrue().toCall(control::mustRevalidate);
