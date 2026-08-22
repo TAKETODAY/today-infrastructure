@@ -25,7 +25,7 @@ import infra.lang.Contract;
  * Implementations of this interface are expected to encapsulate a raw handler object,
  * which can be retrieved using the {@link #getRawHandler()} method.
  *
- * <p>This interface also provides a static utility method {@link #unwrap(Object)} to
+ * <p>This interface also provides a static utility method {@link #unwrapIfNecessary(Object)} to
  * simplify the process of extracting the raw handler from potentially wrapped objects.
  *
  * <p><b>Usage Example:</b>
@@ -36,17 +36,17 @@ import infra.lang.Contract;
  * Object rawHandler = wrapper.getRawHandler();
  *
  * // Use the static unwrap method to extract the raw handler
- * Object handler = HandlerWrapper.unwrap(wrapper);
+ * Object handler = HandlerWrapper.unwrapIfNecessary(wrapper);
  * if (handler instanceof MyHandler myHandler) {
  *   myHandler.performAction();
  * }
  * }</pre>
  *
- * <p>The {@link #unwrap(Object)} method is particularly useful when dealing with
+ * <p>The {@link #unwrapIfNecessary(Object)} method is particularly useful when dealing with
  * objects that may or may not implement the {@link HandlerWrapper} interface. It
  * ensures safe extraction of the raw handler without requiring explicit type checks.
  *
- * <p><b>Note:</b> The behavior of the {@link #unwrap(Object)} method is governed by
+ * <p><b>Note:</b> The behavior of the {@link #unwrapIfNecessary(Object)} method is governed by
  * the {@link Contract} annotation, ensuring that null inputs result in null outputs,
  * and non-null inputs always produce non-null results.
  *
@@ -96,7 +96,7 @@ public interface HandlerWrapper {
    * HandlerWrapper wrapper = new HandlerExecutionChain(new MyHandler());
    *
    * // Use the unwrap method to extract the raw handler
-   * Object handler = HandlerWrapper.unwrap(wrapper);
+   * Object handler = HandlerWrapper.unwrapIfNecessary(wrapper);
    *
    * if (handler instanceof MyHandler myHandler) {
    *   myHandler.performAction();
@@ -104,7 +104,7 @@ public interface HandlerWrapper {
    *
    * // Directly pass a non-wrapped handler
    * MyHandler directHandler = new MyHandler();
-   * Object unwrapped = HandlerWrapper.unwrap(directHandler);
+   * Object unwrapped = HandlerWrapper.unwrapIfNecessary(directHandler);
    *
    * if (unwrapped instanceof MyHandler myHandler) {
    *   myHandler.performAction();
@@ -121,7 +121,7 @@ public interface HandlerWrapper {
    * is {@code null}.
    */
   @Contract("null -> null; !null -> !null")
-  static @Nullable Object unwrap(@Nullable Object handler) {
+  static @Nullable Object unwrapIfNecessary(@Nullable Object handler) {
     if (handler instanceof HandlerWrapper wrapper) {
       return wrapper.getRawHandler();
     }

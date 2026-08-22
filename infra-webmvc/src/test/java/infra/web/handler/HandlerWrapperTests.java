@@ -28,21 +28,21 @@ class HandlerWrapperTests {
 
   @Test
   void unwrap() {
-    assertThat(HandlerWrapper.unwrap(null)).isEqualTo(null);
+    assertThat(HandlerWrapper.unwrapIfNecessary(null)).isEqualTo(null);
     Object handler = new Object();
-    assertThat(HandlerWrapper.unwrap(handler)).isSameAs(handler);
+    assertThat(HandlerWrapper.unwrapIfNecessary(handler)).isSameAs(handler);
   }
 
   @Test
   void unwrapWithNullHandlerReturnsNull() {
-    assertThat(HandlerWrapper.unwrap(null)).isNull();
+    assertThat(HandlerWrapper.unwrapIfNecessary(null)).isNull();
   }
 
   @Test
   void unwrapWithNonHandlerWrapperReturnsSameObject() {
     Object handler = new Object();
 
-    Object result = HandlerWrapper.unwrap(handler);
+    Object result = HandlerWrapper.unwrapIfNecessary(handler);
 
     assertThat(result).isSameAs(handler);
   }
@@ -52,7 +52,7 @@ class HandlerWrapperTests {
     Object rawHandler = new Object();
     HandlerWrapper wrapper = () -> rawHandler;
 
-    Object result = HandlerWrapper.unwrap(wrapper);
+    Object result = HandlerWrapper.unwrapIfNecessary(wrapper);
 
     assertThat(result).isSameAs(rawHandler);
   }
@@ -63,7 +63,7 @@ class HandlerWrapperTests {
     HandlerWrapper innerWrapper = () -> rawHandler;
     HandlerWrapper outerWrapper = () -> innerWrapper;
 
-    Object result = HandlerWrapper.unwrap(outerWrapper);
+    Object result = HandlerWrapper.unwrapIfNecessary(outerWrapper);
 
     assertThat(result).isSameAs(innerWrapper);
   }
@@ -82,7 +82,7 @@ class HandlerWrapperTests {
   void unwrapWithHandlerWrapperReturningNull() {
     HandlerWrapper wrapper = () -> null;
 
-    Object result = HandlerWrapper.unwrap(wrapper);
+    Object result = HandlerWrapper.unwrapIfNecessary(wrapper);
 
     assertThat(result).isNull();
   }

@@ -94,7 +94,7 @@ public class WebSocketHandlerMapping extends SimpleUrlHandlerMapping implements 
   }
 
   private boolean matchWebSocketUpgrade(@Nullable Object handler, HttpContext request) {
-    handler = HandlerWrapper.unwrap(handler);
+    handler = HandlerWrapper.unwrapIfNecessary(handler);
     if (this.webSocketUpgradeMatch && handler instanceof WebSocketHttpRequestHandler) {
       String header = request.requestHeaders().getUpgrade();
       return request.getMethod() == HttpMethod.GET

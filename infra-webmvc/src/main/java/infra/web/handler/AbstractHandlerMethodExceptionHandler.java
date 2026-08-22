@@ -48,7 +48,7 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
     }
 
     // unwrap HandlerWrapper
-    handler = HandlerWrapper.unwrap(handler);
+    handler = HandlerWrapper.unwrapIfNecessary(handler);
 
     if (handler instanceof HandlerMethod handlerMethod) {
       handler = handlerMethod.getBean();
@@ -76,7 +76,7 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
 
   @Override
   protected @Nullable Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
-    handler = HandlerWrapper.unwrap(handler);
+    handler = HandlerWrapper.unwrapIfNecessary(handler);
 
     if (handler instanceof HandlerMethod handlerMethod) {
       return handleInternal(request, handlerMethod, ex);

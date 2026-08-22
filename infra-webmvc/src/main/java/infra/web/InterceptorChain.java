@@ -82,7 +82,7 @@ public abstract class InterceptorChain {
    *
    * @param context the current request context containing request and response information
    * @param handler the target handler to invoke, which may need to be unwrapped using
-   * {@link HandlerWrapper#unwrap(Object)} if it is a wrapped handler
+   * {@link HandlerWrapper#unwrapIfNecessary(Object)} if it is a wrapped handler
    * @return the result returned by the handler, which will be processed by
    * {@link infra.web.ReturnValueHandler}
    * @throws Exception if the handler invocation fails or throws an exception
@@ -129,16 +129,16 @@ public abstract class InterceptorChain {
   /**
    * Unwraps the target handler if it is wrapped by a {@link HandlerWrapper}.
    * <p>
-   * This method delegates to {@link HandlerWrapper#unwrap(Object)} to retrieve
+   * This method delegates to {@link HandlerWrapper#unwrapIfNecessary(Object)} to retrieve
    * the underlying handler instance. If the handler is not wrapped, it is
    * returned as-is.
    *
    * @return the unwrapped target handler
-   * @see HandlerWrapper#unwrap(Object)
+   * @see HandlerWrapper#unwrapIfNecessary(Object)
    * @see HandlerMethod
    */
   public Object unwrapHandler() {
-    return HandlerWrapper.unwrap(handler);
+    return HandlerWrapper.unwrapIfNecessary(handler);
   }
 
 }

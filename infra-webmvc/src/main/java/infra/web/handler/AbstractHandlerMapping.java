@@ -451,7 +451,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @since 4.0
    */
   protected boolean hasCorsConfigurationSource(Object handler) {
-    handler = HandlerWrapper.unwrap(handler);
+    handler = HandlerWrapper.unwrapIfNecessary(handler);
     return handler instanceof CorsConfigurationSource || this.corsConfigurationSource != null;
   }
 
@@ -464,7 +464,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @since 4.0
    */
   protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, HttpContext request) {
-    handler = HandlerWrapper.unwrap(handler);
+    handler = HandlerWrapper.unwrapIfNecessary(handler);
     if (handler instanceof CorsConfigurationSource configSource) {
       return configSource.getCorsConfiguration(request);
     }

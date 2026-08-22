@@ -669,7 +669,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   protected void processDispatchResult(HttpContext request, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Exception {
 
-    handler = HandlerWrapper.unwrap(handler);
+    handler = HandlerWrapper.unwrapIfNecessary(handler);
     if (exception != null) {
       exception = ExceptionUtils.unwrapIfNecessary(exception);
       returnValue = processHandlerException(request, handler, exception);
@@ -957,7 +957,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     if (apiVersion == null || strategy == null) {
       return;
     }
-    Object rawHandler = HandlerWrapper.unwrap(handler);
+    Object rawHandler = HandlerWrapper.unwrapIfNecessary(handler);
     strategy.handleDeprecations(apiVersion, rawHandler, context);
   }
 
