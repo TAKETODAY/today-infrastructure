@@ -57,8 +57,7 @@ import infra.web.util.pattern.PathPatternParser;
  */
 public class RouterFunctionMapping extends AbstractHandlerMapping implements InitializingBean {
 
-  @Nullable
-  private RouterFunction<?> routerFunction;
+  private @Nullable RouterFunction<?> routerFunction;
 
   private List<HttpMessageConverter<?>> messageConverters = Collections.emptyList();
 
@@ -98,8 +97,7 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
    *
    * @return the router function or {@code null}
    */
-  @Nullable
-  public RouterFunction<?> getRouterFunction() {
+  public @Nullable RouterFunction<?> getRouterFunction() {
     return this.routerFunction;
   }
 
@@ -195,9 +193,8 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
     this.messageConverters = messageConverters;
   }
 
-  @Nullable
   @Override
-  protected Object getHandlerInternal(HttpContext context) throws Exception {
+  protected @Nullable Object getHandlerInternal(HttpContext context) throws Exception {
     if (routerFunction != null) {
       ServerRequest request = ServerRequest.create(context, messageConverters, getApiVersionStrategy());
       HandlerFunction<?> handlerFunction = routerFunction.route(request).orElse(null);

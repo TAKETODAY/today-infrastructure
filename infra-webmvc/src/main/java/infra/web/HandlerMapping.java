@@ -93,17 +93,24 @@ public interface HandlerMapping {
   /**
    * Return a handler and any interceptors for this request. The choice may be made
    * on request URL, session state, or any factor the implementing class chooses.
-   * <p>The returned {@link HandlerExecutionChain} contains a handler Object, rather than
-   * even a tag interface, so that handlers are not constrained in any way.
-   * For example, a {@link HandlerAdapter} could be written to allow another framework's
-   * handler objects to be used.
+   *
+   * <p>Implementations typically return a {@link HandlerExecutionChain} wrapping
+   * the handler and its interceptors, but may also return the handler object
+   * itself when no interceptors or CORS handling are required. The handler is
+   * deliberately not constrained to a tag interface, so that handlers from other
+   * frameworks can be integrated without custom coding; for example, a
+   * {@link HandlerAdapter} could be written to allow another framework's handler
+   * objects to be used.
+   *
    * <p>Returns {@code null} if no match was found. This is not an error.
-   * The {@code DispatcherHandler} will query all registered {@code HandlerMapping} beans
-   * to find a match, and only decide there is an error if none can find a handler.
+   * The {@code DispatcherHandler} will query all registered {@code HandlerMapping}
+   * beans to find a match, and only decide there is an error if none can find
+   * a handler.
    *
    * @param context current HTTP request context
-   * @return a {@link HandlerExecutionChain} instance containing the handler object and
-   * any interceptors, or {@code null} if no mapping found
+   * @return a {@link HandlerExecutionChain} containing the handler object and
+   * any interceptors, or the handler object itself if no chain is required,
+   * or {@code null} if no mapping found
    * @throws Exception if there is an internal error
    * @see HandlerExecutionChain
    */

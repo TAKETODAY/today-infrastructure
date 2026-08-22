@@ -75,8 +75,7 @@ public interface ApiVersionStrategy {
    * @throws MissingApiVersionException if the version is required, but not specified
    * @throws InvalidApiVersionException if the version is not supported
    */
-  @Nullable
-  default Comparable<?> resolveParseAndValidateVersion(HttpContext request) {
+  default @Nullable Comparable<?> resolveParseAndValidateVersion(HttpContext request) {
     String value = resolveVersion(request);
     Comparable<?> version;
     if (value == null) {
