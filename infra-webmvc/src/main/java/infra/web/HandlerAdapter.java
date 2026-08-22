@@ -28,7 +28,6 @@ import infra.context.ApplicationContext;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.web.handler.HandlerAdapters;
-import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.handler.function.support.HandlerFunctionAdapter;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 
@@ -61,13 +60,14 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
  * priority.
  *
  * <p>
- * <b>Note:</b> This framework allows use
- * {@link HandlerAdapterProvider HandlerAdapterCapable}
- * to specific a HandlerAdapter at startup time
+ * <b>Note:</b> A handler may specify a dedicated {@link HandlerAdapter} at
+ * startup time through {@link HandlerAdapterProvider}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HandlerAdapterProvider
- * @see SimpleNotFoundHandler
+ * @see HandlerAdapters
+ * @see RequestMappingHandlerAdapter
+ * @see HandlerFunctionAdapter
  * @since 2019-12-08 20:23
  */
 public interface HandlerAdapter {
@@ -76,48 +76,48 @@ public interface HandlerAdapter {
    * Well-known name for the HandlerAdapter object in the bean factory for this namespace.
    * Only used when "detectAllHandlerAdapters" is turned off.
    *
-   * @see DispatcherHandler#setDetectAllHandlerAdapters
+   * @see DispatcherHandler#setDetectAllHandlerAdapters(boolean)
    */
   String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
 
   /**
-   * This value indicates that the handler did not return a value, or the result
-   * has been processed
+   * Sentinel value indicating that the handler did not return a value, or the
+   * result has already been processed and no further rendering is required.
+   *
+   * @see #handle(HttpContext, Object)
    */
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
   /**
-   * Given a handler instance, return whether support or not this
-   * {@code RequestHandlerAdapter} can support it. Typical RequestHandlerAdapters
-   * will base the decision on the handler type. RequestHandlerAdapters will
-   * usually only support one handler type each.
-   * <p>
-   * A typical implementation:
-   * <p>
-   * {@code
-   * return (handler instanceof MyHandler);
-   * }
+   * Given a handler instance, return whether this adapter can support it.
+   * Typical adapters will base the decision on the handler type, and usually
+   * only support one handler type each.
    *
-   * @param handler handler object to check
-   * @return whether support or not this object can use the given handler
+   * <p>A typical implementation:
+   * <pre>{@code
+   * return (handler instanceof MyHandler);
+   * }</pre>
+   *
+   * @param handler the handler object to check
+   * @return {@code true} if this adapter can use the given handler
    */
   boolean supports(Object handler);
 
   /**
    * Use the given handler to handle this request. The workflow that is required
    * may vary widely.
-   * <p>
-   * this result will handle by {@link ReturnValueHandler}
-   * </p>
+   *
+   * <p>The result is handled by a {@link ReturnValueHandler} unless it equals
+   * {@link #NONE_RETURN_VALUE}.
    *
    * @param context current HTTP request context
-   * @param handler handler to use. This object must have previously been passed to
-   * the {@code supports} method of this interface, which must have
-   * returned {@code true}.
-   * @return an object with the name of the view and the required model data, or
-   * {@code null} if the request has been handled directly
+   * @param handler the handler to use. This object must have previously been
+   * passed to the {@link #supports(Object)} method of this interface, which
+   * must have returned {@code true}.
+   * @return an object to be rendered by a {@link ReturnValueHandler}, or
+   * {@code null} if the request has been handled directly, or
+   * {@link #NONE_RETURN_VALUE} if the result has already been processed
    * @throws Exception in case of errors
-   * @see #NONE_RETURN_VALUE
    * @see ReturnValueHandler
    */
   @Nullable
@@ -125,14 +125,48 @@ public interface HandlerAdapter {
 
   // static factory method
 
+  /**
+   * Create a composite {@link HandlerAdapter} that delegates to the given
+   * adapters in order, returning the first non-{@code null} result.
+   *
+   * @param handlerAdapters the adapters to delegate to
+   * @return a composite adapter, never {@code null}
+   * @see HandlerAdapters
+   */
   static HandlerAdapter of(List<HandlerAdapter> handlerAdapters) {
     return new HandlerAdapters(handlerAdapters.toArray(new HandlerAdapter[0]));
   }
 
+  /**
+   * Find a {@link HandlerAdapter} from the given application context,
+   * delegating to {@link #find(ApplicationContext, boolean)} with
+   * {@code detectAllHandlerAdapters} set to {@code true}.
+   *
+   * @param context the application context to search
+   * @return a handler adapter, never {@code null}
+   */
   static HandlerAdapter find(ApplicationContext context) {
     return find(context, true);
   }
 
+  /**
+   * Find a {@link HandlerAdapter} from the given application context.
+   *
+   * <p>When {@code detectAllHandlerAdapters} is {@code true}, all
+   * {@code HandlerAdapter} beans (including those in ancestor contexts) are
+   * collected and composed into a {@link HandlerAdapters} instance ordered by
+   * {@link AnnotationAwareOrderComparator}. When {@code false}, only the bean
+   * named {@link #HANDLER_ADAPTER_BEAN_NAME} is considered.
+   *
+   * <p>If no bean is found, a default composite consisting of a
+   * {@link RequestMappingHandlerAdapter} and a {@link HandlerFunctionAdapter}
+   * is created, ensuring at least some adapters are available.
+   *
+   * @param context the application context to search
+   * @param detectAllHandlerAdapters whether to detect all beans, or only the
+   * bean named {@link #HANDLER_ADAPTER_BEAN_NAME}
+   * @return a handler adapter, never {@code null}
+   */
   static HandlerAdapter find(ApplicationContext context, boolean detectAllHandlerAdapters) {
     if (detectAllHandlerAdapters) {
       // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.

@@ -67,6 +67,8 @@ import infra.web.handler.method.RequestMappingHandlerMapping;
  * @see AbstractHandlerMapping
  * @see BeanNameUrlHandlerMapping
  * @see RequestMappingHandlerMapping
+ * @see RouterFunctionMapping
+ * @see HandlerRegistries
  * @since 2019-12-08 23:06
  */
 @FunctionalInterface
@@ -91,28 +93,56 @@ public interface HandlerMapping {
   /**
    * Return a handler and any interceptors for this request. The choice may be made
    * on request URL, session state, or any factor the implementing class chooses.
-   * <p>The returned HandlerExecutionChain contains a handler Object, rather than
+   * <p>The returned {@link HandlerExecutionChain} contains a handler Object, rather than
    * even a tag interface, so that handlers are not constrained in any way.
-   * For example, a HandlerAdapter could be written to allow another framework's
+   * For example, a {@link HandlerAdapter} could be written to allow another framework's
    * handler objects to be used.
    * <p>Returns {@code null} if no match was found. This is not an error.
-   * The DispatcherHandler will query all registered HandlerMapping beans to find
-   * a match, and only decide there is an error if none can find a handler.
+   * The {@code DispatcherHandler} will query all registered {@code HandlerMapping} beans
+   * to find a match, and only decide there is an error if none can find a handler.
    *
-   * @param context Current request context
-   * @return a fgA instance containing handler object and
+   * @param context current HTTP request context
+   * @return a {@link HandlerExecutionChain} instance containing the handler object and
    * any interceptors, or {@code null} if no mapping found
    * @throws Exception if there is an internal error
+   * @see HandlerExecutionChain
    */
   @Nullable
   Object getHandler(HttpContext context) throws Exception;
 
   // static factory method
 
+  /**
+   * Find a {@link HandlerMapping} from the given application context,
+   * delegating to {@link #find(ApplicationContext, boolean)} with
+   * {@code detectAllHandlerMapping} set to {@code true}.
+   *
+   * @param context the application context to search
+   * @return a handler mapping, never {@code null}
+   */
   static HandlerMapping find(ApplicationContext context) {
     return find(context, true);
   }
 
+  /**
+   * Find a {@link HandlerMapping} from the given application context.
+   *
+   * <p>When {@code detectAllHandlerMapping} is {@code true}, all
+   * {@code HandlerMapping} beans (including those in ancestor contexts) are
+   * collected and, if more than one is found, composed into a
+   * {@link HandlerRegistries} instance ordered by
+   * {@link AnnotationAwareOrderComparator}. When {@code false}, only the bean
+   * named {@link #HANDLER_MAPPING_BEAN_NAME} is considered.
+   *
+   * <p>If no bean is found, a default composite consisting of a
+   * {@link RequestMappingHandlerMapping}, a {@link RouterFunctionMapping}, and
+   * a {@link BeanNameUrlHandlerMapping} is created.
+   *
+   * @param context the application context to search
+   * @param detectAllHandlerMapping whether to detect all beans, or only the
+   * bean named {@link #HANDLER_MAPPING_BEAN_NAME}
+   * @return a handler mapping, never {@code null}
+   */
   static HandlerMapping find(ApplicationContext context, boolean detectAllHandlerMapping) {
     if (detectAllHandlerMapping) {
       // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.

@@ -17,21 +17,20 @@
 package infra.web;
 
 /**
- * <p>
- * <b>Note:</b> This framework allows hander use
- * {@link HandlerAdapterProvider HandlerAdapterCapable}
- * to specific a HandlerAdapter at startup time
+ * Strategy interface that allows a handler to specify a dedicated
+ * {@link HandlerAdapter} at startup time.
  *
- * @author TODAY <br>
- * 2019-12-28 14:12
+ * @author TODAY
+ * @see HandlerAdapter
+ * @since 2019-12-28 14:12
  */
 @FunctionalInterface
 public interface HandlerAdapterProvider {
 
   /**
-   * Get {@link HandlerAdapter}
+   * Get the {@link HandlerAdapter} to use for the owning handler.
    *
-   * @return Never be null
+   * @return the handler adapter, never {@code null}
    */
   HandlerAdapter getHandlerAdapter();
 }
