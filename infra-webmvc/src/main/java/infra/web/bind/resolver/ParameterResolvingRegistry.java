@@ -146,8 +146,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    * @return a suitable {@link ParameterResolvingStrategy},
    * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
    */
-  @Nullable
-  protected ParameterResolvingStrategy lookupStrategy(ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
+  protected @Nullable ParameterResolvingStrategy lookupStrategy(ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
     for (ParameterResolvingStrategy resolver : strategies) {
       if (resolver.supportsParameter(resolvable)) {
         return resolver;
@@ -380,9 +379,8 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
       return resolvable.hasParameterAnnotation(RequestAttribute.class);
     }
 
-    @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
+    protected @Nullable Object resolveName(String name, ResolvableMethodParameter resolvable, HttpContext context) {
       return context.getAttribute(name);
     }
 
