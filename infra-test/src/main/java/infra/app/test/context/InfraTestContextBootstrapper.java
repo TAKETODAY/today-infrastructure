@@ -38,6 +38,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.env.Environment;
+import infra.test.context.AnnotatedClassFinder;
 import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;

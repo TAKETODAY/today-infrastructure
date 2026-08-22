@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.app.InfraConfiguration;
 import infra.app.test.context.example.ExampleConfig;
 import infra.app.test.context.example.scan.Example;
+import infra.test.context.AnnotatedClassFinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
