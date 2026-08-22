@@ -120,9 +120,8 @@ public interface HandlerWrapper {
    * itself if it is not a {@code HandlerWrapper}. Returns {@code null} if the input
    * is {@code null}.
    */
-  @Nullable
   @Contract("null -> null; !null -> !null")
-  static Object unwrap(@Nullable Object handler) {
+  static @Nullable Object unwrap(@Nullable Object handler) {
     if (handler instanceof HandlerWrapper wrapper) {
       return wrapper.getRawHandler();
     }

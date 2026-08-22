@@ -334,16 +334,6 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    */
   @Override
   public final @Nullable Object getHandler(final HttpContext context) throws Exception {
-    Comparable<?> version = null;
-    if (this.apiVersionStrategy != null) {
-      version = (Comparable<?>) context.getAttribute(API_VERSION_ATTRIBUTE);
-      if (version == null) {
-        version = apiVersionStrategy.resolveParseAndValidateVersion(context);
-        if (version != null) {
-          context.setAttribute(API_VERSION_ATTRIBUTE, version);
-        }
-      }
-    }
     Object handler = getHandlerInternal(context);
     if (handler == null) {
       handler = getDefaultHandler();
@@ -382,9 +372,6 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       context.setMatchingMetadata(new HandlerMatchingMetadata(handler, context, patternParser));
     }
 
-    if (version != null) {
-      apiVersionStrategy.handleDeprecations(version, handler, context);
-    }
     return chain;
   }
 
@@ -464,9 +451,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @since 4.0
    */
   protected boolean hasCorsConfigurationSource(Object handler) {
-    if (handler instanceof HandlerWrapper wrapper) {
-      handler = wrapper.getRawHandler();
-    }
+    handler = HandlerWrapper.unwrap(handler);
     return handler instanceof CorsConfigurationSource || this.corsConfigurationSource != null;
   }
 
@@ -479,11 +464,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @since 4.0
    */
   protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, HttpContext request) {
-    Object resolvedHandler = handler;
-    if (handler instanceof HandlerWrapper wrapper) {
-      resolvedHandler = wrapper.getRawHandler();
-    }
-    if (resolvedHandler instanceof CorsConfigurationSource configSource) {
+    handler = HandlerWrapper.unwrap(handler);
+    if (handler instanceof CorsConfigurationSource configSource) {
       return configSource.getCorsConfiguration(request);
     }
     return null;

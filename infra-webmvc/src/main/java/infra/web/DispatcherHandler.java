@@ -39,6 +39,9 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
+import infra.web.accept.ApiVersionStrategy;
+import infra.web.accept.InvalidApiVersionException;
+import infra.web.accept.MissingApiVersionException;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.context.support.SessionManagerDiscover;
 import infra.web.handler.AsyncHandler;
@@ -127,6 +130,9 @@ public class DispatcherHandler extends WebLifecycleManager {
 
   /** @since 5.0 */
   private Filter @Nullable [] filters;
+
+  /** @since 5.0 */
+  private @Nullable ApiVersionStrategy apiVersionStrategy;
 
   /**
    * Create a new {@code DispatcherHandler} with the given application context.
@@ -305,6 +311,27 @@ public class DispatcherHandler extends WebLifecycleManager {
     requestCompletedActions.trimToSize();
   }
 
+  /**
+   * Set the {@link ApiVersionStrategy} to use for resolving and validating
+   * the API version of incoming requests.
+   *
+   * @param apiVersionStrategy the strategy to use, or {@code null} to disable
+   * API versioning
+   * @since 5.0
+   */
+  public void setApiVersionStrategy(@Nullable ApiVersionStrategy apiVersionStrategy) {
+    this.apiVersionStrategy = apiVersionStrategy;
+  }
+
+  /**
+   * Return the configured {@link ApiVersionStrategy}.
+   *
+   * @since 5.0
+   */
+  public @Nullable ApiVersionStrategy getApiVersionStrategy() {
+    return this.apiVersionStrategy;
+  }
+
   @Override
   protected void onRefresh(ApplicationContext context) {
     initStrategies(context);
@@ -325,6 +352,21 @@ public class DispatcherHandler extends WebLifecycleManager {
     initRequestToViewNameTranslator(context);
     initRequestCompletedListeners(context);
     initRequestContinueExpectedResolvers(context);
+    initApiVersionStrategy(context);
+  }
+
+  /**
+   * Initialize the {@link ApiVersionStrategy} used by this class.
+   * <p>If no {@code ApiVersionStrategy} bean is defined in the BeanFactory,
+   * API versioning is disabled.
+   */
+  private void initApiVersionStrategy(ApplicationContext context) {
+    if (apiVersionStrategy == null) {
+      setApiVersionStrategy(BeanFactoryUtils.find(context, ApiVersionStrategy.class));
+      if (apiVersionStrategy != null) {
+        logStrategy(apiVersionStrategy);
+      }
+    }
   }
 
   /**
@@ -563,12 +605,15 @@ public class DispatcherHandler extends WebLifecycleManager {
     Object returnValue = null;
     Throwable throwable = null;
     try {
+      // Resolve the API version for the current request, if API versioning is configured.
+      Comparable<?> apiVersion = resolveApiVersion(context);
       // Determine handler for the current request.
       handler = lookupHandler(context);
       if (handler == null) {
         returnValue = handlerNotFound(context);
       }
       else {
+        handleDeprecations(context, handler, apiVersion);
         if (handler instanceof HandlerAdapterAware aware) {
           aware.setHandlerAdapter(handlerAdapter);
         }
@@ -624,9 +669,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   protected void processDispatchResult(HttpContext request, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Exception {
 
-    if (handler instanceof HandlerWrapper wrapper) {
-      handler = wrapper.getRawHandler();
-    }
+    handler = HandlerWrapper.unwrap(handler);
     if (exception != null) {
       exception = ExceptionUtils.unwrapIfNecessary(exception);
       returnValue = processHandlerException(request, handler, exception);
@@ -873,6 +916,49 @@ public class DispatcherHandler extends WebLifecycleManager {
       log.debug("Forwarding {} {} -> {}", request.getMethod(), requestURI, path);
     }
     handleRequestInternal(request);
+  }
+
+  /**
+   * Resolve and validate the API version for the current request, if API
+   * versioning is configured.
+   *
+   * <p>The resolved version is stored as the {@link HandlerMapping#API_VERSION_ATTRIBUTE}
+   * request attribute so that handler mappings can match against it.
+   *
+   * @param context the current HTTP request context
+   * @return the resolved and validated API version, or {@code null} if API
+   * versioning is disabled or no version applies to the request
+   * @throws MissingApiVersionException if the version is required but not specified
+   * @throws InvalidApiVersionException if the version is not supported
+   * @see ApiVersionStrategy#resolveParseAndValidateVersion(HttpContext)
+   */
+  private @Nullable Comparable<?> resolveApiVersion(HttpContext context) {
+    ApiVersionStrategy strategy = this.apiVersionStrategy;
+    if (strategy == null) {
+      return null;
+    }
+    Comparable<?> version = strategy.resolveParseAndValidateVersion(context);
+    if (version != null) {
+      context.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, version);
+    }
+    return version;
+  }
+
+  /**
+   * Handle API version deprecations for the resolved version, if applicable.
+   *
+   * @param context the current HTTP request context
+   * @param handler the selected handler, possibly wrapped in a {@link HandlerWrapper}
+   * @param apiVersion the resolved API version, or {@code null}
+   * @see ApiVersionStrategy#handleDeprecations(Comparable, Object, HttpContext)
+   */
+  private void handleDeprecations(HttpContext context, Object handler, @Nullable Comparable<?> apiVersion) {
+    ApiVersionStrategy strategy = this.apiVersionStrategy;
+    if (apiVersion == null || strategy == null) {
+      return;
+    }
+    Object rawHandler = HandlerWrapper.unwrap(handler);
+    strategy.handleDeprecations(apiVersion, rawHandler, context);
   }
 
   // @since 4.0

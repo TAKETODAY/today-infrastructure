@@ -47,10 +47,8 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
       return super.shouldApplyTo(request, null);
     }
 
-    // unwrap HandlerExecutionChain
-    if (handler instanceof HandlerWrapper chain) {
-      handler = chain.getRawHandler();
-    }
+    // unwrap HandlerWrapper
+    handler = HandlerWrapper.unwrap(handler);
 
     if (handler instanceof HandlerMethod handlerMethod) {
       handler = handlerMethod.getBean();
@@ -76,12 +74,9 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
     return false;
   }
 
-  @Nullable
   @Override
-  protected Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
-    if (handler instanceof HandlerExecutionChain chain) {
-      handler = chain.getRawHandler();
-    }
+  protected @Nullable Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
+    handler = HandlerWrapper.unwrap(handler);
 
     if (handler instanceof HandlerMethod handlerMethod) {
       return handleInternal(request, handlerMethod, ex);
@@ -105,8 +100,7 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
    * @param ex the exception that got thrown during handler execution
    * @return a corresponding ModelAndView to forward to, or {@code null} for default processing
    */
-  @Nullable
-  protected abstract Object handleInternal(
+  protected abstract @Nullable Object handleInternal(
           HttpContext request, @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception;
 
 }

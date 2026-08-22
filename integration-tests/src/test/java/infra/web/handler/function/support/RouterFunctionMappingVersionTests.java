@@ -18,6 +18,8 @@
 
 package infra.web.handler.function.support;
 
+import org.jspecify.annotations.Nullable;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +35,9 @@ import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.HandlerExecutionChain;
+import infra.web.HandlerMapping;
+import infra.web.HttpContext;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
@@ -77,8 +82,14 @@ public class RouterFunctionMappingVersionTests {
     MockResponse response = new MockResponse();
 
     MockHttpContext context = new MockHttpContext(request, response);
+    // API version resolution is a DispatcherHandler concern; simulate it here.
+    Comparable<?> apiVersion = resolveApiVersion(context);
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
     assertThat(chain).isNotNull();
+
+    ApiVersionStrategy strategy = this.mapping.getApiVersionStrategy();
+    assertThat(strategy).isNotNull();
+    strategy.handleDeprecations(apiVersion, chain.getRawHandler(), context);
 
     context.flush();
 
@@ -90,9 +101,29 @@ public class RouterFunctionMappingVersionTests {
   private void testGetHandler(String version, String expectedBody) throws Exception {
     MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-Version", version);
-    HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(new MockHttpContext(request));
+    MockHttpContext context = new MockHttpContext(request);
+    // API version resolution is a DispatcherHandler concern; simulate it here.
+    resolveApiVersion(context);
+    HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
     HandlerFunction<?> handler = (HandlerFunction<?>) chain.getRawHandler();
     assertThat(((TestHandler) handler).body()).isEqualTo(expectedBody);
+  }
+
+  /**
+   * Resolve and validate the API version and store it as the
+   * {@link HandlerMapping#API_VERSION_ATTRIBUTE} request attribute,
+   * mirroring the {@code DispatcherHandler} request-processing workflow.
+   */
+  private @Nullable Comparable<?> resolveApiVersion(HttpContext context) {
+    ApiVersionStrategy strategy = this.mapping.getApiVersionStrategy();
+    if (strategy == null) {
+      return null;
+    }
+    Comparable<?> version = strategy.resolveParseAndValidateVersion(context);
+    if (version != null) {
+      context.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, version);
+    }
+    return version;
   }
 
   @EnableWebMvc
