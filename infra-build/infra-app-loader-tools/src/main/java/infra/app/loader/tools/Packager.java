@@ -44,7 +44,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.StringUtils;
 
 /**
@@ -386,7 +386,7 @@ public abstract class Packager {
     if (this.layoutFactory != null) {
       return this.layoutFactory;
     }
-    List<LayoutFactory> factories = TodayStrategies.find(LayoutFactory.class);
+    List<LayoutFactory> factories = InfraStrategies.find(LayoutFactory.class);
     if (factories.isEmpty()) {
       return new DefaultLayoutFactory();
     }

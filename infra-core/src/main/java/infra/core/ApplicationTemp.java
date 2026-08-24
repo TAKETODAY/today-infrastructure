@@ -35,7 +35,7 @@ import java.util.Set;
 
 import infra.util.Assert;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Provides access to an application specific temporary directory. Generally speaking
@@ -48,7 +48,7 @@ import infra.util.TodayStrategies;
  */
 public class ApplicationTemp {
 
-  private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
+  private static final String TEMP_SUB_DIR = InfraStrategies.getProperty(
           "infra.app.sub-temp-dir", ApplicationTemp.class.getName());
 
   public static final ApplicationTemp instance = new ApplicationTemp();

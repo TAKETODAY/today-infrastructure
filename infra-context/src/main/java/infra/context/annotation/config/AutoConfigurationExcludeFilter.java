@@ -28,7 +28,7 @@ import infra.context.annotation.Configuration;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.core.type.filter.TypeFilter;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A {@link TypeFilter} implementation that matches registered auto-configuration classes.
@@ -65,7 +65,7 @@ public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoad
     List<String> autoConfigurations = this.autoConfigurations;
     if (autoConfigurations == null) {
       this.autoConfigurations = autoConfigurations = ImportCandidates.load(AutoConfiguration.class, beanClassLoader).getCandidates();
-      autoConfigurations.addAll(TodayStrategies.findNames(EnableAutoConfiguration.class, beanClassLoader));
+      autoConfigurations.addAll(InfraStrategies.findNames(EnableAutoConfiguration.class, beanClassLoader));
     }
     return autoConfigurations;
   }

@@ -28,7 +28,7 @@ import infra.app.ConfigurableBootstrapContext;
 
 /**
  * Strategy class that can be used to load {@link ConfigData} for a given
- * {@link ConfigDataResource}. Implementations should be added as {@code today.strategies}
+ * {@link ConfigDataResource}. Implementations should be added as {@code infra.strategies}
  * entries. The following constructor parameter types are supported:
  * <ul>
  * <li>{@link ConfigurableBootstrapContext} - A bootstrap context that can be used to

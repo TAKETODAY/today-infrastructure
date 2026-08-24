@@ -27,7 +27,7 @@ import java.time.LocalDate;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 
 import static infra.aot.hint.predicate.RuntimeHintsPredicates.reflection;
@@ -45,7 +45,7 @@ class ObjectToObjectConverterRuntimeHintsTests {
   @BeforeEach
   void setup() {
     ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
+    InfraStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class)
             .forEach(registrar -> registrar.registerHints(this.hints, classLoader));
   }

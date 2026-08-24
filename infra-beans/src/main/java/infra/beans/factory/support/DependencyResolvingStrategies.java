@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.factory.config.DependencyDescriptor;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.LoggerFactory;
 
 /**
@@ -59,7 +59,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   public void initStrategies(@Nullable ClassLoader classLoader) {
     LoggerFactory.getLogger(DependencyResolvingStrategies.class)
             .debug("Initialize dependency-resolving-strategies");
-    this.strategies.addAll(TodayStrategies.find(DependencyResolvingStrategy.class, classLoader));
+    this.strategies.addAll(InfraStrategies.find(DependencyResolvingStrategy.class, classLoader));
     strategies.trimToSize();
   }
 

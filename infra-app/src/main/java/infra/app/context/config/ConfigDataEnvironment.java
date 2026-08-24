@@ -39,10 +39,10 @@ import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.io.ResourceLoader;
-import infra.util.Assert;
-import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
+import infra.util.InfraStrategies;
 import infra.util.StringUtils;
 
 import static infra.app.BootstrapRegistry.InstanceSupplier;
@@ -149,13 +149,13 @@ class ConfigDataEnvironment {
             .orRequired(ConfigDataNotFoundAction.FAIL);
     this.resolvers = createConfigDataLocationResolvers(bootstrap, binder, resourceLoader);
     this.environmentUpdateListener = Optional.ofNullable(environmentUpdateListener).orElse(ConfigDataEnvironmentUpdateListener.NONE);
-    this.loaders = new ConfigDataLoaders(bootstrap, TodayStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()));
+    this.loaders = new ConfigDataLoaders(bootstrap, InfraStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()));
     this.contributors = createContributors(binder);
   }
 
   protected ConfigDataLocationResolvers createConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
     return new ConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader,
-            TodayStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()));
+            InfraStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()));
   }
 
   private ConfigDataEnvironmentContributors createContributors(Binder binder) {

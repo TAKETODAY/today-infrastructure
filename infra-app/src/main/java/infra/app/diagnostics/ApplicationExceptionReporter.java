@@ -19,12 +19,12 @@ package infra.app.diagnostics;
 import infra.app.Application;
 import infra.context.ApplicationContextAware;
 import infra.context.ConfigurableApplicationContext;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Callback interface used to support custom reporting of {@link Application}
  * startup errors. {@link ApplicationExceptionReporter reporters} are loaded via the
- * {@link TodayStrategies} and must declare a public constructor with a single
+ * {@link InfraStrategies} and must declare a public constructor with a single
  * {@link ConfigurableApplicationContext} parameter.
  *
  * @author Phillip Webb

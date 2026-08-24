@@ -54,7 +54,7 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.CollectionUtils;
@@ -125,7 +125,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @since 5.0
    */
-  boolean defaultHtmlEscape = TodayStrategies.getFlag("infra.web.default-html-escape", false);
+  boolean defaultHtmlEscape = InfraStrategies.getFlag("infra.web.default-html-escape", false);
 
   /**
    * Empty {@link HttpCookie} array constant used as a safe return value

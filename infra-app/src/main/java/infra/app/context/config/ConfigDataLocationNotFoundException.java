@@ -20,8 +20,8 @@ package infra.app.context.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.util.Assert;
 import infra.origin.Origin;
+import infra.util.Assert;
 
 /**
  * {@link ConfigDataNotFoundException} thrown when a {@link ConfigDataLocation} cannot be

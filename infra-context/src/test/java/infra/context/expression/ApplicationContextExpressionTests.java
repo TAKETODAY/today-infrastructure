@@ -53,7 +53,7 @@ import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 import infra.core.testfixture.io.SerializationTestUtils;
 import infra.expression.spel.SpelEvaluationException;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.FileCopyUtils;
 
 import static infra.context.expression.StandardBeanExpressionResolver.MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME;
@@ -322,11 +322,11 @@ class ApplicationContextExpressionTests {
 
   private static void doWithMaxSpelExpressionLength(String maxLength, Runnable action) {
     try {
-      TodayStrategies.setProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, maxLength);
+      InfraStrategies.setProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, maxLength);
       action.run();
     }
     finally {
-      TodayStrategies.setProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, null);
+      InfraStrategies.setProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, null);
     }
   }
 

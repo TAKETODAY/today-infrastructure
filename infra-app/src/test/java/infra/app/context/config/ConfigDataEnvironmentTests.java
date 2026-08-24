@@ -51,7 +51,7 @@ import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.mock.env.MockPropertySource;
 import infra.test.classpath.resources.WithResource;
 
@@ -367,7 +367,7 @@ class ConfigDataEnvironmentTests {
 
       @Override
       public Enumeration<URL> getResources(String name) throws IOException {
-        if (TodayStrategies.STRATEGIES_LOCATION.equals(name)) {
+        if (InfraStrategies.STRATEGIES_LOCATION.equals(name)) {
           return super.getResources("separate-class-loader-infra.factories");
         }
         return super.getResources(name);

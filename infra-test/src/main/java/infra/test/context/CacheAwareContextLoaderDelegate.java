@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
 import infra.test.context.cache.ContextCache;
 import infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
@@ -55,7 +55,7 @@ public interface CacheAwareContextLoaderDelegate {
    * System property used to configure the failure threshold for errors
    * encountered while attempting to load an application context: {@value}.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies} mechanism.
+   * {@link InfraStrategies} mechanism.
    * <p>Implementations of {@code CacheAwareContextLoaderDelegate} are not
    * required to support this feature. Consult the documentation of the
    * corresponding implementation for details. Note, however, that the standard
@@ -71,7 +71,7 @@ public interface CacheAwareContextLoaderDelegate {
    * System property used to configure the fully qualified class name of the
    * default {@code CacheAwareContextLoaderDelegate}.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies} mechanism.
+   * {@link InfraStrategies} mechanism.
    * <p>If this property is not defined, the
    * {@link DefaultCacheAwareContextLoaderDelegate
    * DefaultCacheAwareContextLoaderDelegate} will be used as the default.
@@ -111,7 +111,7 @@ public interface CacheAwareContextLoaderDelegate {
    * be returned; otherwise, it will be loaded, stored in the cache, and returned.
    * <p>Implementations of this method should load
    * {@link ApplicationContextFailureProcessor} implementations via the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link InfraStrategies InfraStrategies}
    * mechanism, catch any exception thrown by the {@link ContextLoader}, and
    * delegate to each of the configured failure processors to process the context
    * load failure if the exception is an instance of {@link ContextLoadException}.

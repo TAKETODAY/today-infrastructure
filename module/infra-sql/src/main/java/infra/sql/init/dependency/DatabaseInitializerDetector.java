@@ -27,7 +27,7 @@ import infra.core.Ordered;
 
 /**
  * Detects beans that initialize an SQL database. Implementations should be registered in
- * {@code META-INF/today.strategies} under the key
+ * {@code META-INF/infra.strategies} under the key
  * {@code infra.sql.init.dependency.DatabaseInitializerDetector}.
  *
  * @author Andy Wilkinson

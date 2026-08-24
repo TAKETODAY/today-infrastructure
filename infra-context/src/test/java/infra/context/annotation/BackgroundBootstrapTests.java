@@ -36,7 +36,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.weaving.LoadTimeWeaverAware;
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Component;
 
@@ -82,14 +82,14 @@ class BackgroundBootstrapTests {
   @Test
   @Timeout(10)
   void bootstrapWithStrictLockingFlag() {
-    TodayStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
+    InfraStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
     try {
       ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(StrictLockingBeanConfig.class);
       assertThat(ctx.getBean("testBean2", TestBean.class).getSpouse()).isSameAs(ctx.getBean("testBean1"));
       ctx.close();
     }
     finally {
-      TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
+      InfraStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
     }
   }
 
@@ -110,7 +110,7 @@ class BackgroundBootstrapTests {
   @Test
   @Timeout(10)
   void bootstrapWithStrictLockingTurnedOff() throws InterruptedException {
-    TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, "false");
+    InfraStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, "false");
     try {
       AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
       ctx.register(InferredLockingBeanConfig.class);
@@ -123,7 +123,7 @@ class BackgroundBootstrapTests {
       ctx.close();
     }
     finally {
-      TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
+      InfraStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
     }
   }
 
@@ -175,7 +175,7 @@ class BackgroundBootstrapTests {
   @Test
 //  @Timeout(10)
   void bootstrapWithCustomExecutorAndStrictLocking() {
-    TodayStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
+    InfraStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
     try {
       ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorBeanConfig.class);
       ctx.getBean("testBean1", TestBean.class);
@@ -185,7 +185,7 @@ class BackgroundBootstrapTests {
       ctx.close();
     }
     finally {
-      TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
+      InfraStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
     }
   }
 

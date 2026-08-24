@@ -29,13 +29,13 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.util.Assert;
+import infra.util.InfraStrategies;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
 
 /**
  * Class can be used to obtain {@link ResourceLoader ResourceLoaders} supporting
  * additional {@link ProtocolResolver ProtocolResolvers} registered in
- * {@code today.strategies}.
+ * {@code infra.strategies}.
  * <p>
  * When not delegating to an existing resource loader, plain paths without a qualifier
  * will resolve to file system resources. This is different from
@@ -56,7 +56,7 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
 
   /**
    * Return a {@link ResourceLoader} supporting additional {@link ProtocolResolver
-   * ProtocolResolvers} registered in {@code today.strategies}. The factories file will
+   * ProtocolResolvers} registered in {@code infra.strategies}. The factories file will
    * be resolved using the default class loader at the time this call is made. Resources
    * will be resolved using the default class loader at the time they are resolved.
    *
@@ -68,7 +68,7 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
 
   /**
    * Return a {@link ResourceLoader} supporting additional {@link ProtocolResolver
-   * ProtocolResolvers} registered in {@code today.strategies}. The factories files and
+   * ProtocolResolvers} registered in {@code infra.strategies}. The factories files and
    * resources will be resolved using the specified class loader.
    *
    * @param classLoader the class loader to use or {@code null} to use the default class
@@ -76,42 +76,42 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
    * @return a {@link ResourceLoader} instance
    */
   public static ResourceLoader of(@Nullable ClassLoader classLoader) {
-    return of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader));
+    return of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader));
   }
 
   /**
    * Return a {@link ResourceLoader} supporting additional {@link ProtocolResolver
-   * ProtocolResolvers} registered in {@code today.strategies}.
+   * ProtocolResolvers} registered in {@code infra.strategies}.
    *
    * @param classLoader the class loader to use or {@code null} to use the default class
    * loader
-   * @param strategies the {@link TodayStrategies} used to load
+   * @param strategies the {@link InfraStrategies} used to load
    * {@link ProtocolResolver ProtocolResolvers}
    * @return a {@link ResourceLoader} instance
    */
-  public static ResourceLoader of(@Nullable ClassLoader classLoader, TodayStrategies strategies) {
+  public static ResourceLoader of(@Nullable ClassLoader classLoader, InfraStrategies strategies) {
     return of(classLoader, strategies, null);
   }
 
   /**
    * Return a {@link ResourceLoader} supporting additional {@link ProtocolResolver
-   * ProtocolResolvers} registered in {@code today.strategies}.
+   * ProtocolResolvers} registered in {@code infra.strategies}.
    *
    * @param classLoader the class loader to use or {@code null} to use the default class
    * loader
-   * @param strategies the {@link TodayStrategies} used to load
+   * @param strategies the {@link InfraStrategies} used to load
    * {@link ProtocolResolver ProtocolResolvers}
    * @param workingDirectory the working directory
    * @return a {@link ResourceLoader} instance
    */
-  public static ResourceLoader of(@Nullable ClassLoader classLoader, TodayStrategies strategies, @Nullable Path workingDirectory) {
+  public static ResourceLoader of(@Nullable ClassLoader classLoader, InfraStrategies strategies, @Nullable Path workingDirectory) {
     return of(ApplicationFileSystemResourceLoader.get(classLoader, workingDirectory), strategies);
   }
 
   /**
    * Return a {@link ResourceLoader} delegating to the given resource loader and
    * supporting additional {@link ProtocolResolver ProtocolResolvers} registered in
-   * {@code today.strategies}. The factories file will be resolved using the default
+   * {@code infra.strategies}. The factories file will be resolved using the default
    * class loader at the time this call is made.
    *
    * @param resourceLoader the delegate resource loader
@@ -124,7 +124,7 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
   /**
    * Return a {@link ResourceLoader} delegating to the given resource loader and
    * supporting additional {@link ProtocolResolver ProtocolResolvers} registered in
-   * {@code today.strategies}. The factories file will be resolved using the default
+   * {@code infra.strategies}. The factories file will be resolved using the default
    * class loader at the time this call is made.
    *
    * @param resourceLoader the delegate resource loader
@@ -135,24 +135,24 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
    */
   public static ResourceLoader of(ResourceLoader resourceLoader, boolean preferFileResolution) {
     Assert.notNull(resourceLoader, "'resourceLoader' is required");
-    return of(resourceLoader, TodayStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()), preferFileResolution);
+    return of(resourceLoader, InfraStrategies.forDefaultResourceLocation(resourceLoader.getClassLoader()), preferFileResolution);
   }
 
   /**
    * Return a {@link ResourceLoader} delegating to the given resource loader and
    * supporting additional {@link ProtocolResolver ProtocolResolvers} registered in
-   * {@code today.strategies}.
+   * {@code infra.strategies}.
    *
    * @param resourceLoader the delegate resource loader
-   * @param strategies the {@link TodayStrategies} used to load
+   * @param strategies the {@link InfraStrategies} used to load
    * {@link ProtocolResolver ProtocolResolvers}
    * @return a {@link ResourceLoader} instance
    */
-  public static ResourceLoader of(ResourceLoader resourceLoader, TodayStrategies strategies) {
+  public static ResourceLoader of(ResourceLoader resourceLoader, InfraStrategies strategies) {
     return of(resourceLoader, strategies, false);
   }
 
-  private static ResourceLoader of(ResourceLoader resourceLoader, TodayStrategies strategies, boolean preferFileResolution) {
+  private static ResourceLoader of(ResourceLoader resourceLoader, InfraStrategies strategies, boolean preferFileResolution) {
     Assert.notNull(resourceLoader, "'resourceLoader' is required");
     Assert.notNull(strategies, "'strategies' is required");
     List<ProtocolResolver> protocolResolvers = strategies.load(ProtocolResolver.class);

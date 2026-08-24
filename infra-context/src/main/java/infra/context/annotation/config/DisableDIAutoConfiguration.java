@@ -30,7 +30,7 @@ import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.core.annotation.AliasFor;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Indicates that a class provides configuration that can be automatically applied by
@@ -38,7 +38,7 @@ import infra.util.TodayStrategies;
  * {@link Configuration @Configuration} with the exception that
  * {@literal Configuration#proxyBeanMethods() proxyBeanMethods} is always {@code false}.
  * <p>
- * They are located using {@link ImportCandidates} and the {@link TodayStrategies}
+ * They are located using {@link ImportCandidates} and the {@link InfraStrategies}
  * mechanism (keyed against {@link EnableAutoConfiguration}).
  * <p>
  * Generally auto-configuration classes are marked as {@link Conditional @Conditional}

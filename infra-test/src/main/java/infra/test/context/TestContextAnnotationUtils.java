@@ -39,7 +39,7 @@ import infra.core.style.DefaultToStringStyler;
 import infra.core.style.SimpleValueStyler;
 import infra.core.style.ToStringBuilder;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.NestedTestConfiguration.EnclosingConfiguration;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentLruCache;
@@ -438,7 +438,7 @@ public abstract class TestContextAnnotationUtils {
   private static EnclosingConfiguration getDefaultEnclosingConfigurationMode() {
     EnclosingConfiguration defaultConfigurationMode = defaultEnclosingConfigurationMode;
     if (defaultConfigurationMode == null) {
-      String value = TodayStrategies.getProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME);
+      String value = InfraStrategies.getProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME);
       EnclosingConfiguration enclosingConfigurationMode = EnclosingConfiguration.from(value);
       defaultConfigurationMode =
               (enclosingConfigurationMode != null ? enclosingConfigurationMode : EnclosingConfiguration.INHERIT);

@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Locale;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.Commit;
@@ -120,7 +120,7 @@ public @interface NestedTestConfiguration {
    * an inner test class will be <em>inherited</em> according to
    * {@link EnclosingConfiguration#INHERIT} semantics by default.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link InfraStrategies InfraStrategies}
    * mechanism.
    *
    * @see #value

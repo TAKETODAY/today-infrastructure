@@ -47,14 +47,14 @@ import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.javapoet.CodeBlock;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.ArgumentResolver;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.ArgumentResolver;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
 /**
  * {@link SmartApplicationListener} used to trigger {@link EnvironmentPostProcessor
- * EnvironmentPostProcessors} registered in the {@code today.strategies} file.
+ * EnvironmentPostProcessors} registered in the {@code infra.strategies} file.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -100,7 +100,7 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 
   List<EnvironmentPostProcessor> getPostProcessors(@Nullable ResourceLoader resourceLoader, ConfigurableBootstrapContext bootstrapContext) {
     ClassLoader classLoader = resourceLoader != null ? resourceLoader.getClassLoader() : null;
-    return TodayStrategies.forDefaultResourceLocation(classLoader)
+    return InfraStrategies.forDefaultResourceLocation(classLoader)
             .load(EnvironmentPostProcessor.class, ArgumentResolver.of(BootstrapContext.class, bootstrapContext)
                     .and(BootstrapRegistry.class, bootstrapContext)
                     .and(ConfigurableBootstrapContext.class, bootstrapContext));

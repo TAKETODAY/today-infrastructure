@@ -26,8 +26,8 @@ import java.util.function.Supplier;
 
 import infra.context.ApplicationContext;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.ArgumentResolver;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.ArgumentResolver;
 import infra.util.function.SingletonSupplier;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriBuilder;
@@ -183,7 +183,7 @@ public final class LocalTestWebServer {
    */
   public static @Nullable LocalTestWebServer get(ApplicationContext applicationContext) {
     Assert.notNull(applicationContext, "'applicationContext' is required");
-    TodayStrategies strategies = TodayStrategies.forDefaultResourceLocation(applicationContext.getClassLoader());
+    InfraStrategies strategies = InfraStrategies.forDefaultResourceLocation(applicationContext.getClassLoader());
     return strategies.load(Provider.class, ArgumentResolver.of(ApplicationContext.class, applicationContext))
             .stream()
             .map(Provider::getLocalTestWebServer)
@@ -229,7 +229,7 @@ public final class LocalTestWebServer {
 
   /**
    * Internal strategy used to provide the running {@link LocalTestWebServer}.
-   * Implementations can be registered in {@code today.strategies} and may accept an
+   * Implementations can be registered in {@code infra.strategies} and may accept an
    * {@link ApplicationContext} constructor argument.
    */
   @FunctionalInterface

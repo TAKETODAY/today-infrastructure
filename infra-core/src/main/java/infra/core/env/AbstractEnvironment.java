@@ -33,7 +33,7 @@ import infra.logging.LoggerFactory;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Abstract base class for {@link Environment} implementations. Supports the notion of
@@ -389,10 +389,10 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * returning {@code true} if its value equals "true" in any case.
    *
    * @see #KEY_IGNORE_GETENV
-   * @see TodayStrategies#getFlag
+   * @see InfraStrategies#getFlag
    */
   protected boolean suppressGetenvAccess() {
-    return TodayStrategies.getFlag(KEY_IGNORE_GETENV);
+    return InfraStrategies.getFlag(KEY_IGNORE_GETENV);
   }
 
   @Override

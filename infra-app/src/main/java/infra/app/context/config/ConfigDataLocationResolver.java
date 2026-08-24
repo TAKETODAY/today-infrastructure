@@ -33,7 +33,7 @@ import infra.core.io.ResourceLoader;
 /**
  * Strategy interface used to resolve {@link ConfigDataLocation locations} into one or
  * more {@link ConfigDataResource resources}. Implementations should be added as a
- * {@code today.strategies} entries. The following constructor parameter types are
+ * {@code infra.strategies} entries. The following constructor parameter types are
  * supported:
  * <ul>
  * <li>{@link Binder} - if the resolver needs to obtain values from the initial

@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,21 +31,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/9/22 19:58
  */
-class TodayPropertiesRuntimeHintsTests {
+class InfraPropertiesRuntimeHintsTests {
 
   private RuntimeHints hints;
 
   @BeforeEach
   void setup() {
     this.hints = new RuntimeHints();
-    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
+    InfraStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class).forEach(registrar -> registrar
                     .registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
   }
 
   @Test
   void todayPropertiesResourceHasHints() {
-    assertThat(RuntimeHintsPredicates.resource().forResource("today.properties")).accepts(this.hints);
+    assertThat(RuntimeHintsPredicates.resource().forResource("infra.properties")).accepts(this.hints);
   }
 
 }

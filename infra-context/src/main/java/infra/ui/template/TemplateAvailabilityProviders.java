@@ -31,7 +31,7 @@ import infra.context.ApplicationContext;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.lang.VisibleForTesting;
 
 /**
@@ -89,7 +89,7 @@ public class TemplateAvailabilityProviders {
    * @param classLoader the source class loader
    */
   public TemplateAvailabilityProviders(@Nullable ClassLoader classLoader) {
-    this.providers = TodayStrategies.find(TemplateAvailabilityProvider.class, classLoader);
+    this.providers = InfraStrategies.find(TemplateAvailabilityProvider.class, classLoader);
   }
 
   /**

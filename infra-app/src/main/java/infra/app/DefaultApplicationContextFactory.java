@@ -29,7 +29,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Contract;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -70,7 +70,7 @@ class DefaultApplicationContextFactory implements ApplicationContextFactory {
   private <T> @Nullable T getFromStrategies(@Nullable ApplicationType webApplicationType,
           BiFunction<ApplicationContextFactory, @Nullable ApplicationType, @Nullable T> action,
           @Nullable Supplier<T> defaultResult) {
-    for (ApplicationContextFactory candidate : TodayStrategies.find(ApplicationContextFactory.class, getClass().getClassLoader())) {
+    for (ApplicationContextFactory candidate : InfraStrategies.find(ApplicationContextFactory.class, getClass().getClassLoader())) {
       T result = action.apply(candidate, webApplicationType);
       if (result != null) {
         return result;

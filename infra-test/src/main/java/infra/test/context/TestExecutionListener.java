@@ -20,7 +20,7 @@ package infra.test.context;
 
 import infra.core.Ordered;
 import infra.core.annotation.Order;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.event.ApplicationEventsTestExecutionListener;
 import infra.test.context.event.EventPublishingTestExecutionListener;
 import infra.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -68,10 +68,10 @@ import infra.test.context.web.WebMockTestExecutionListener;
  * used across an entire test suite. This issue is addressed through support for
  * automatic discovery of <em>default</em> {@code TestExecutionListener}
  * implementations through the
- * {@link TodayStrategies TodayStrategies}
+ * {@link InfraStrategies InfraStrategies}
  * mechanism. Specifically, default {@code TestExecutionListener} implementations
  * can be registered under the {@code infra.test.context.TestExecutionListener}
- * key in a {@link TodayStrategies#STRATEGIES_LOCATION} properties file.
+ * key in a {@link InfraStrategies#STRATEGIES_LOCATION} properties file.
  *
  * <p>Infra provides the following implementations. Each of these implements
  * {@code Ordered} and is registered automatically by default.

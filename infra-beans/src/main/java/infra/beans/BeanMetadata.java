@@ -31,9 +31,9 @@ import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
 import infra.lang.Modifiable;
-import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.InfraStrategies;
 import infra.util.MapCache;
 import infra.util.ReflectionUtils;
 
@@ -53,7 +53,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
-  private static final boolean shouldIgnoreFields = TodayStrategies.getFlag("infra.beans.fields.ignore", false);
+  private static final boolean shouldIgnoreFields = InfraStrategies.getFlag("infra.beans.fields.ignore", false);
 
   private final Class<?> beanClass;
 

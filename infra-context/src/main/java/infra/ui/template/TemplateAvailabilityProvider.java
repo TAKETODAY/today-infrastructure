@@ -20,7 +20,7 @@ package infra.ui.template;
 
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Indicates the availability of view templates for a particular templating engine such as
@@ -33,7 +33,7 @@ import infra.util.TodayStrategies;
 @FunctionalInterface
 public interface TemplateAvailabilityProvider {
 
-  String DEFAULT_TEMPLATE_LOADER_PATH = TodayStrategies.getProperty(
+  String DEFAULT_TEMPLATE_LOADER_PATH = InfraStrategies.getProperty(
           "template.default.loader.path", "classpath:templates/");
 
   /**

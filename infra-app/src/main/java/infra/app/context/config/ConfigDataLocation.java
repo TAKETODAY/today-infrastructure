@@ -20,9 +20,9 @@ package infra.app.context.config;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

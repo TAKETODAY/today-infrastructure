@@ -52,8 +52,8 @@ class MyTest extends BaseTest {
 但是，如果需要在整个测试套件中使用自定义监听器，则会变得很麻烦。
 这个问题通过 `InfraFactoriesLoader` 机制支持自动发现默认 `TestExecutionListener` 实现来解决。
 
-例如，`infra-test` 模块在其 {today-framework-code}/infra-test/src/main/resources/META-INF/today.strategies[`META-INF/today.strategies` 属性文件] 中的 `infra.test.context.TestExecutionListener` 键下声明了所有核心默认 `TestExecutionListener` 实现。
-第三方框架和开发人员可以通过他们自己的 `today.strategies` 文件，以相同的方式将他们自己的 `TestExecutionListener` 实现贡献给默认监听器列表。
+例如，`infra-test` 模块在其 {today-framework-code}/infra-test/src/main/resources/META-INF/infra.strategies[`META-INF/infra.strategies` 属性文件] 中的 `infra.test.context.TestExecutionListener` 键下声明了所有核心默认 `TestExecutionListener` 实现。
+第三方框架和开发人员可以通过他们自己的 `infra.strategies` 文件，以相同的方式将他们自己的 `TestExecutionListener` 实现贡献给默认监听器列表。
 
 [[testcontext-tel-config-ordering]]
 == `TestExecutionListener` 实现排序

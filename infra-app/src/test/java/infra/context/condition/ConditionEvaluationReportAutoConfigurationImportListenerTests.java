@@ -30,7 +30,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.config.AutoConfigurationImportEvent;
 import infra.context.annotation.config.AutoConfigurationImportListener;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +53,7 @@ class ConditionEvaluationReportAutoConfigurationImportListenerTests {
 
   @Test
   void shouldBeInInfraFactories() {
-    List<AutoConfigurationImportListener> factories = TodayStrategies.find(AutoConfigurationImportListener.class);
+    List<AutoConfigurationImportListener> factories = InfraStrategies.find(AutoConfigurationImportListener.class);
     assertThat(factories)
             .hasAtLeastOneElementOfType(ConditionEvaluationReportAutoConfigurationImportListener.class);
   }

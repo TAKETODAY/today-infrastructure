@@ -41,7 +41,7 @@ import infra.logging.LoggerFactory;
 /**
  * {@link BeanFactoryInitializationAotProcessor} implementation that processes
  * {@link RuntimeHintsRegistrar} implementations declared as
- * {@code today.strategies} or using
+ * {@code infra.strategies} or using
  * {@link ImportRuntimeHints @ImportRuntimeHints} annotated configuration
  * classes or bean methods.
  *

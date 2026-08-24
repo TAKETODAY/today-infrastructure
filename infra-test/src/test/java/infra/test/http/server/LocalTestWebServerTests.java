@@ -157,7 +157,7 @@ class LocalTestWebServerTests {
   }
 
   @Test
-  @WithResource(name = "META-INF/today.strategies", content = """
+  @WithResource(name = "META-INF/infra.strategies", content = """
           infra.test.http.server.LocalTestWebServer$Provider=\
           infra.test.http.server.LocalTestWebServerTests$Provider1,\
           infra.test.http.server.LocalTestWebServerTests$Provider2,\
@@ -171,7 +171,7 @@ class LocalTestWebServerTests {
   }
 
   @Test
-  @WithResource(name = "META-INF/today.strategies", content = """
+  @WithResource(name = "META-INF/infra.strategies", content = """
           infra.test.http.server.LocalTestWebServer$Provider=\
           infra.test.http.server.LocalTestWebServerTests$Provider1
           """)
@@ -182,7 +182,7 @@ class LocalTestWebServerTests {
   }
 
   @Test
-  @WithResource(name = "META-INF/today.strategies", content = """
+  @WithResource(name = "META-INF/infra.strategies", content = """
           infra.test.http.server.LocalTestWebServer$Provider=\
           infra.test.http.server.LocalTestWebServerTests$Provider1
           """)

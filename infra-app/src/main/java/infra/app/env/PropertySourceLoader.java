@@ -23,10 +23,10 @@ import java.util.List;
 
 import infra.core.env.PropertySource;
 import infra.core.io.Resource;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
- * Strategy interface located via {@link TodayStrategies} and used to load a
+ * Strategy interface located via {@link InfraStrategies} and used to load a
  * {@link PropertySource}.
  *
  * @author Dave Syer

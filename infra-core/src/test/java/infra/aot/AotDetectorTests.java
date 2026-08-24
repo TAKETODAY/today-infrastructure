@@ -21,7 +21,7 @@ import org.mockito.MockedStatic;
 
 import infra.core.NativeDetector;
 import infra.core.NativeDetector.Context;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static infra.core.NativeDetector.Context.RUN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +36,10 @@ class AotDetectorTests {
   @Test
   void useGeneratedArtifactsReturnsFalseWhenNotInNativeImageAndPropertyNotSet() throws Exception {
     try (MockedStatic<NativeDetector> mockedNativeDetector = mockStatic(NativeDetector.class);
-            MockedStatic<TodayStrategies> mockedTodayStrategies = mockStatic(TodayStrategies.class)) {
+            MockedStatic<InfraStrategies> mockedInfraStrategies = mockStatic(InfraStrategies.class)) {
 
       mockedNativeDetector.when(() -> NativeDetector.inNativeImage(RUN, Context.BUILD)).thenReturn(false);
-      mockedTodayStrategies.when(() -> TodayStrategies.getFlag(AotDetector.AOT_ENABLED)).thenReturn(false);
+      mockedInfraStrategies.when(() -> InfraStrategies.getFlag(AotDetector.AOT_ENABLED)).thenReturn(false);
 
       assertThat(AotDetector.useGeneratedArtifacts()).isFalse();
     }
@@ -48,10 +48,10 @@ class AotDetectorTests {
   @Test
   void useGeneratedArtifactsReturnsTrueWhenPropertyIsSet() throws Exception {
     try (MockedStatic<NativeDetector> mockedNativeDetector = mockStatic(NativeDetector.class);
-            MockedStatic<TodayStrategies> mockedTodayStrategies = mockStatic(TodayStrategies.class)) {
+            MockedStatic<InfraStrategies> mockedInfraStrategies = mockStatic(InfraStrategies.class)) {
 
       mockedNativeDetector.when(() -> NativeDetector.inNativeImage(Context.RUN, Context.BUILD)).thenReturn(false);
-      mockedTodayStrategies.when(() -> TodayStrategies.getFlag(AotDetector.AOT_ENABLED)).thenReturn(true);
+      mockedInfraStrategies.when(() -> InfraStrategies.getFlag(AotDetector.AOT_ENABLED)).thenReturn(true);
 
       assertThat(AotDetector.useGeneratedArtifacts()).isTrue();
     }

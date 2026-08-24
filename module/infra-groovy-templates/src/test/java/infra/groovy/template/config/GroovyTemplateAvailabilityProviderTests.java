@@ -26,7 +26,7 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityProperties;
 import infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityRuntimeHints;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.test.classpath.resources.WithResource;
 import infra.ui.template.TemplateAvailabilityProvider;
@@ -48,7 +48,7 @@ class GroovyTemplateAvailabilityProviderTests {
 
   @Test
   void spi() {
-    assertThat(TodayStrategies.forDefaultResourceLocation()
+    assertThat(InfraStrategies.forDefaultResourceLocation()
             .load(TemplateAvailabilityProvider.class))
             .hasSize(1)
             .satisfiesExactly(provider -> assertThat(provider).isInstanceOf(GroovyTemplateAvailabilityProvider.class));

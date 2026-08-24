@@ -45,13 +45,13 @@ import infra.logging.LoggerFactory;
 import static infra.util.function.SupplierUtils.always;
 
 /**
- * The {@code TodayStrategies} class provides utility methods for managing
+ * The {@code InfraStrategies} class provides utility methods for managing
  * properties and flags, allowing programmatic access and modification of
  * system or local property values. This class is designed to simplify the
  * handling of configuration settings in an application.
  *
  * <p>General purpose strategy loading mechanism for internal use within the framework.
- * <p>Reads a {@code META-INF/today.strategies} file from the root of the library classpath,
+ * <p>Reads a {@code META-INF/infra.strategies} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
  * When checking a property, local entries are being checked first, then falling back
  * to JVM-level system properties through a {@link System#getProperty} check.
@@ -65,66 +65,66 @@ import static infra.util.function.SupplierUtils.always;
  *
  * Retrieving a flag:
  * <pre>{@code
- * boolean isEnabled = TodayStrategies.getFlag("feature.enabled");
+ * boolean isEnabled = InfraStrategies.getFlag("feature.enabled");
  * }</pre>
  *
  * Setting a local flag programmatically:
  * <pre>{@code
- * TodayStrategies.setFlag("feature.enabled");
+ * InfraStrategies.setFlag("feature.enabled");
  * }</pre>
  *
  * Retrieving a property value with a default fallback:
  * <pre>{@code
- * String timeout = TodayStrategies.getProperty("timeout", "30");
+ * String timeout = InfraStrategies.getProperty("timeout", "30");
  * }</pre>
  *
  * Parsing an integer property value:
  * <pre>{@code
- * int timeoutValue = TodayStrategies.getInt("timeout", 30);
+ * int timeoutValue = InfraStrategies.getInt("timeout", 30);
  * }</pre>
  *
  * Overriding a property value programmatically:
  * <pre>{@code
- * TodayStrategies.setProperty("timeout", "60");
+ * InfraStrategies.setProperty("timeout", "60");
  * }</pre>
  *
  * Checking if a property is explicitly set:
  * <pre>{@code
- * Boolean isSet = TodayStrategies.checkFlag("debug.mode");
+ * Boolean isSet = InfraStrategies.checkFlag("debug.mode");
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/9/5 13:57
  */
-public class TodayStrategies {
+public class InfraStrategies {
 
-  private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
+  private static final Logger log = LoggerFactory.getLogger(InfraStrategies.class);
 
   /**
    * The constant {@code STRATEGIES_LOCATION} specifies the default location
    * where strategy configuration files are stored. This location is typically
    * used by the application to load pluggable strategies dynamically at runtime.
    * <p>
-   * The value of this constant is {@code "META-INF/today.strategies"}. It is
+   * The value of this constant is {@code "META-INF/infra.strategies"}. It is
    * expected that the file at this location contains a list of fully qualified
    * class names, each representing a strategy implementation.
    * <p>
    * Ensure that the file exists in the classpath under the specified location
    * and follows the expected format for proper functionality.
    */
-  public static final String STRATEGIES_LOCATION = "META-INF/today.strategies";
+  public static final String STRATEGIES_LOCATION = "META-INF/infra.strategies";
 
-  static final ConcurrentReferenceHashMap<ClassLoader, Map<String, TodayStrategies>>
+  static final ConcurrentReferenceHashMap<ClassLoader, Map<String, InfraStrategies>>
           strategiesCache = new ConcurrentReferenceHashMap<>();
 
-  private static final String PROPERTIES_RESOURCE_LOCATION = "today.properties";
+  private static final String PROPERTIES_RESOURCE_LOCATION = "infra.properties";
 
   // local application properties file
   private static final Properties localProperties = new Properties();
 
   static {
     try {
-      ClassLoader cl = TodayStrategies.class.getClassLoader();
+      ClassLoader cl = InfraStrategies.class.getClassLoader();
       URL url = (cl != null ? cl.getResource(PROPERTIES_RESOURCE_LOCATION) :
               ClassLoader.getSystemResource(PROPERTIES_RESOURCE_LOCATION));
       if (url != null) {
@@ -134,7 +134,7 @@ public class TodayStrategies {
       }
     }
     catch (IOException ex) {
-      log.error("Could not load 'today.properties' file from local classpath: " + ex, ex);
+      log.error("Could not load 'infra.properties' file from local classpath: " + ex, ex);
     }
   }
 
@@ -253,7 +253,7 @@ public class TodayStrategies {
   /**
    * Determines the integer value of the property with the specified name.
    *
-   * <p>The first argument is treated as the name of a today.properties or
+   * <p>The first argument is treated as the name of a infra.properties or
    * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
@@ -286,7 +286,7 @@ public class TodayStrategies {
    * Determines the integer value of the system property with the
    * specified name.
    *
-   * <p>The first argument is treated as the name of a today.properties or
+   * <p>The first argument is treated as the name of a infra.properties or
    * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
@@ -331,7 +331,7 @@ public class TodayStrategies {
   /**
    * Returns the integer value of the property with the
    * specified name.
-   * <p>The first argument is treated as the name of a today.properties or
+   * <p>The first argument is treated as the name of a infra.properties or
    * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
@@ -386,7 +386,7 @@ public class TodayStrategies {
    * Determines the {@code long} value of the system property
    * with the specified name.
    *
-   * <p>The first argument is treated as the name of a today.properties or
+   * <p>The first argument is treated as the name of a infra.properties or
    * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
@@ -419,7 +419,7 @@ public class TodayStrategies {
    * Determines the {@code long} value of the system property
    * with the specified name.
    *
-   * <p>The first argument is treated as the name of a today.properties or
+   * <p>The first argument is treated as the name of a infra.properties or
    * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
@@ -462,7 +462,7 @@ public class TodayStrategies {
 
   /**
    * Returns the {@code long} value of the system property with the specified name.
-   * <p>The first argument is treated as the name of a today.properties or
+   * <p>The first argument is treated as the name of an infra.properties or
    * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
@@ -530,12 +530,12 @@ public class TodayStrategies {
   private final Map<String, List<String>> strategies;
 
   /**
-   * Create a new {@link TodayStrategies} instance.
+   * Create a new {@link InfraStrategies} instance.
    *
    * @param classLoader the classloader used to instantiate the factories
    * @param strategies a map of strategy class name to implementation class names
    */
-  protected TodayStrategies(ClassLoader classLoader, Map<String, List<String>> strategies) {
+  protected InfraStrategies(ClassLoader classLoader, Map<String, List<String>> strategies) {
     this.classLoader = classLoader;
     this.strategies = strategies;
   }
@@ -881,7 +881,7 @@ public class TodayStrategies {
    * implementation type will be instantiated.
    * <p>For more advanced strategy loading with {@link ArgumentResolver} or
    * {@link FailureHandler} support use {@link #forDefaultResourceLocation(ClassLoader)}
-   * to obtain a {@link TodayStrategies} instance.
+   * to obtain a {@link InfraStrategies} instance.
    *
    * @param strategyType the interface or abstract class representing the strategy
    * @param classLoader the ClassLoader to use for loading (can be {@code null}
@@ -903,7 +903,7 @@ public class TodayStrategies {
    * implementation type will be instantiated.
    * <p>For more advanced strategy loading with {@link ArgumentResolver} or
    * {@link FailureHandler} support use {@link #forDefaultResourceLocation(ClassLoader)}
-   * to obtain a {@link TodayStrategies} instance.
+   * to obtain a {@link InfraStrategies} instance.
    *
    * @param strategyType the interface or abstract class representing the strategy
    * @param classLoader the ClassLoader to use for loading (can be {@code null}
@@ -925,7 +925,7 @@ public class TodayStrategies {
    * implementation type will be instantiated.
    * <p>For more advanced strategy loading with {@link ArgumentResolver} or
    * {@link FailureHandler} support use {@link #forDefaultResourceLocation(ClassLoader)}
-   * to obtain a {@link TodayStrategies} instance.
+   * to obtain a {@link InfraStrategies} instance.
    *
    * @param strategyType the interface or abstract class representing the strategy
    * @throws IllegalArgumentException if any strategy implementation class cannot
@@ -1011,63 +1011,63 @@ public class TodayStrategies {
   }
 
   /**
-   * Create a {@link TodayStrategies} instance that will load and
+   * Create a {@link InfraStrategies} instance that will load and
    * instantiate the strategy implementations from
    * {@value #STRATEGIES_LOCATION}, using the default class loader.
    *
-   * @return a {@link TodayStrategies} instance
+   * @return a {@link InfraStrategies} instance
    * @see #forDefaultResourceLocation(ClassLoader)
    */
-  public static TodayStrategies forDefaultResourceLocation() {
+  public static InfraStrategies forDefaultResourceLocation() {
     return forDefaultResourceLocation(null);
   }
 
   /**
-   * Create a {@link TodayStrategies} instance that will load and
+   * Create a {@link InfraStrategies} instance that will load and
    * instantiate the strategy implementations from
    * {@value #STRATEGIES_LOCATION}, using the given class loader.
    *
    * @param classLoader the ClassLoader to use for loading resources; can be
    * {@code null} to use the default
-   * @return a {@link TodayStrategies} instance
+   * @return a {@link InfraStrategies} instance
    * @see #forDefaultResourceLocation()
    */
-  public static TodayStrategies forDefaultResourceLocation(@Nullable ClassLoader classLoader) {
+  public static InfraStrategies forDefaultResourceLocation(@Nullable ClassLoader classLoader) {
     return forResourceLocation(STRATEGIES_LOCATION, classLoader);
   }
 
   /**
-   * Create a {@link TodayStrategies} instance that will load and
+   * Create a {@link InfraStrategies} instance that will load and
    * instantiate the strategy implementations from the given location, using
    * the default class loader.
    *
    * @param resourceLocation the resource location to look for factories
-   * @return a {@link TodayStrategies} instance
+   * @return a {@link InfraStrategies} instance
    * @see #forResourceLocation(String, ClassLoader)
    */
-  public static TodayStrategies forResourceLocation(String resourceLocation) {
+  public static InfraStrategies forResourceLocation(String resourceLocation) {
     return forResourceLocation(resourceLocation, null);
   }
 
   /**
-   * Create a {@link TodayStrategies} instance that will load and
+   * Create a {@link InfraStrategies} instance that will load and
    * instantiate the strategy implementations from the given location, using
    * the given class loader.
    *
    * @param resourceLocation the resource location to look for factories
    * @param classLoader the ClassLoader to use for loading resources; can be
    * {@code null} to use the default
-   * @return a {@link TodayStrategies} instance
+   * @return a {@link InfraStrategies} instance
    * @see #forResourceLocation(String)
    */
-  public static TodayStrategies forResourceLocation(String resourceLocation, @Nullable ClassLoader classLoader) {
+  public static InfraStrategies forResourceLocation(String resourceLocation, @Nullable ClassLoader classLoader) {
     Assert.hasText(resourceLocation, "'resourceLocation' must not be empty");
 
     if (classLoader == null) {
-      classLoader = TodayStrategies.class.getClassLoader();
+      classLoader = InfraStrategies.class.getClassLoader();
     }
 
-    Map<String, TodayStrategies> loaders = strategiesCache.get(classLoader);
+    Map<String, InfraStrategies> loaders = strategiesCache.get(classLoader);
     if (loaders == null) {
       synchronized(strategiesCache) {
         loaders = strategiesCache.get(classLoader);
@@ -1078,12 +1078,12 @@ public class TodayStrategies {
       }
     }
 
-    TodayStrategies strategies = loaders.get(resourceLocation);
+    InfraStrategies strategies = loaders.get(resourceLocation);
     if (strategies == null) {
       synchronized(loaders) {
         strategies = loaders.get(resourceLocation);
         if (strategies == null) {
-          strategies = new TodayStrategies(classLoader, loadResource(classLoader, resourceLocation));
+          strategies = new InfraStrategies(classLoader, loadResource(classLoader, resourceLocation));
           loaders.put(resourceLocation, strategies);
         }
       }
@@ -1109,7 +1109,7 @@ public class TodayStrategies {
         readStrategies(strategies, properties);
       }
 
-      strategies.replaceAll(TodayStrategies::toDistinctUnmodifiableList);
+      strategies.replaceAll(InfraStrategies::toDistinctUnmodifiableList);
     }
     catch (IOException ex) {
       throw new IllegalArgumentException(

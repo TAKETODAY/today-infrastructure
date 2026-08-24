@@ -21,7 +21,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * An interface representing a scheduler capable of executing tasks asynchronously
@@ -146,9 +146,9 @@ public interface Scheduler extends Executor {
    * directly, or as a default implementation if no other options are available
    */
   static Scheduler lookup() {
-    var factory = TodayStrategies.findFirst(SchedulerFactory.class, null);
+    var factory = InfraStrategies.findFirst(SchedulerFactory.class, null);
     if (factory == null) {
-      Scheduler scheduler = TodayStrategies.findFirst(Scheduler.class, null);
+      Scheduler scheduler = InfraStrategies.findFirst(Scheduler.class, null);
       if (scheduler == null) {
         return new DefaultScheduler();
       }

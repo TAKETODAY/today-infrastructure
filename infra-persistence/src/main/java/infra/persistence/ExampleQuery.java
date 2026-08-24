@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.sql.MutableOrderByClause;
@@ -56,7 +56,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
   static final List<PropertyConditionStrategy> strategies;
 
   static {
-    List<PropertyConditionStrategy> list = TodayStrategies.find(PropertyConditionStrategy.class);
+    List<PropertyConditionStrategy> list = InfraStrategies.find(PropertyConditionStrategy.class);
     list.add(new WhereAnnotationConditionStrategy());
     list.add(new FuzzyQueryConditionStrategy());
     list.add(new DefaultConditionStrategy());

@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Factory for creating {@link ContextCustomizer ContextCustomizers}.
@@ -32,8 +32,8 @@ import infra.util.TodayStrategies;
  * {@link MergedContextConfiguration} is created.
  *
  * <p>By default, the TestContext Framework will use the
- * {@link TodayStrategies TodayStrategies}
- * mechanism for loading factories configured in all {@code META-INF/today.strategies}
+ * {@link InfraStrategies InfraStrategies}
+ * mechanism for loading factories configured in all {@code META-INF/infra.strategies}
  * files on the classpath.
  *
  * <p>it is also possible to register factories

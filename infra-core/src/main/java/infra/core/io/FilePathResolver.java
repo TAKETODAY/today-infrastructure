@@ -19,7 +19,7 @@ package infra.core.io;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Strategy interface registered in {@code today.strategies} and used by
+ * Strategy interface registered in {@code infra.strategies} and used by
  * {@link ApplicationResourceLoader} to determine the file path of loaded resource
  * when it can also be represented as a {@link FileSystemResource}.
  *

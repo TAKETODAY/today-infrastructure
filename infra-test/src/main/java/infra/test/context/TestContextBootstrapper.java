@@ -20,7 +20,7 @@ package infra.test.context;
 
 import java.util.List;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.support.AbstractTestContextBootstrapper;
 import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.web.WebAppConfiguration;
@@ -128,9 +128,9 @@ public interface TestContextBootstrapper {
    * <p>Concrete implementations are free to determine what comprises the
    * set of default listeners. However, by default, the Infra TestContext
    * Framework will use the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link InfraStrategies InfraStrategies}
    * mechanism to look up all {@code TestExecutionListener} class names
-   * configured in all {@code META-INF/today.strategies} files on the classpath.
+   * configured in all {@code META-INF/infra.strategies} files on the classpath.
    * <p>The {@link TestExecutionListeners#inheritListeners() inheritListeners}
    * flag of {@link TestExecutionListeners @TestExecutionListeners} must be
    * taken into consideration. Specifically, if the {@code inheritListeners}

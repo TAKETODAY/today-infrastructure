@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.TestExecutionListeners;
 import infra.test.context.junit.jupiter.JUnitConfig;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
@@ -59,7 +59,7 @@ class ContextFailureThresholdTests {
     resetContextCache();
     passingLoadCount.set(0);
     failingLoadCount.set(0);
-    TodayStrategies.setProperty(CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME, null);
+    InfraStrategies.setProperty(CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME, null);
   }
 
   @Test
@@ -72,7 +72,7 @@ class ContextFailureThresholdTests {
   @Test
   void customThreshold() {
     int customThreshold = 2;
-    TodayStrategies.setProperty(CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME, Integer.toString(customThreshold));
+    InfraStrategies.setProperty(CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME, Integer.toString(customThreshold));
 
     runTests();
     assertThat(passingLoadCount.get()).isEqualTo(1);
@@ -81,7 +81,7 @@ class ContextFailureThresholdTests {
 
   @Test
   void thresholdEffectivelyDisabled() {
-    TodayStrategies.setProperty(CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME, "999999");
+    InfraStrategies.setProperty(CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME, "999999");
 
     runTests();
     assertThat(passingLoadCount.get()).isEqualTo(1);

@@ -29,9 +29,9 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.PlaceholderResolver;
 import infra.util.PropertyPlaceholderHandler;
-import infra.util.TodayStrategies;
 
 /**
  * Abstract base class for resolving properties against any underlying source.
@@ -58,7 +58,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * <p>If the property is not set, {@code '\'} will be used as the default
    * escape character.
    * <p>May alternatively be configured via a
-   * {@link TodayStrategies today.properties} file
+   * {@link InfraStrategies infra.properties} file
    * in the root of the classpath.
    *
    * @see #getDefaultEscapeCharacter()
@@ -362,14 +362,14 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * more than one character
    * @see #DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME
    * @see PropertyPlaceholderHandler#ESCAPE_CHARACTER
-   * @see TodayStrategies
+   * @see InfraStrategies
    * @since 5.0
    */
   @Nullable
   public static Character getDefaultEscapeCharacter() throws IllegalArgumentException {
     Character escapeCharacter = defaultEscapeCharacter;
     if (UNDEFINED_ESCAPE_CHARACTER.equals(escapeCharacter)) {
-      String value = TodayStrategies.getProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME);
+      String value = InfraStrategies.getProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME);
       if (value != null) {
         if (value.isEmpty()) {
           // Disable escape character support by default.

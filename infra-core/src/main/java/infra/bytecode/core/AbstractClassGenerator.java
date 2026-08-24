@@ -33,7 +33,7 @@ import infra.core.NativeDetector;
 import infra.core.NativeDetector.Context;
 import infra.util.Assert;
 import infra.util.ClassUtils;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to
@@ -53,7 +53,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
   private static final boolean DEFAULT_USE_CACHE =
-          TodayStrategies.getFlag("bytecode.useCache", true);
+          InfraStrategies.getFlag("bytecode.useCache", true);
 
   private static final boolean inNativeImage = NativeDetector.inNativeImage(Context.RUN, Context.BUILD);
 

@@ -28,7 +28,7 @@ import java.util.function.Function;
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A {@link TypeHandler} for enum types that implements {@link EnumerationValue}.
@@ -50,7 +50,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
 
   public static final String fallbackValueBeanPropertyKey = "jdbc.type-handler.enum-value-property-name";
 
-  private static final String fallbackValueBeanProperty = TodayStrategies.getProperty(fallbackValueBeanPropertyKey, "value");
+  private static final String fallbackValueBeanProperty = InfraStrategies.getProperty(fallbackValueBeanPropertyKey, "value");
 
   private final T[] enumConstants;
 

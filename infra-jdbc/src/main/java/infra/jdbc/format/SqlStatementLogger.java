@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import infra.core.style.ToStringBuilder;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;
@@ -69,19 +69,19 @@ import infra.util.LogFormatUtils;
  */
 public class SqlStatementLogger {
 
-  private static final Logger sqlLogger = LoggerFactory.getLogger("today.SQL");
+  private static final Logger sqlLogger = LoggerFactory.getLogger("infra.SQL");
 
-  private static final Logger slowLogger = LoggerFactory.getLogger("today.SQL_SLOW");
+  private static final Logger slowLogger = LoggerFactory.getLogger("infra.SQL_SLOW");
 
   public static final String DEFAULT_LOG_PREFIX = "today-infrastructure";
 
   public static final SqlStatementLogger sharedInstance = new SqlStatementLogger(
-          TodayStrategies.getFlag("sql.logToStdout", false),
-          TodayStrategies.getFlag("sql.format", true),
-          TodayStrategies.getFlag("sql.highlight", true),
-          TodayStrategies.getFlag("sql.stdoutOnly", false),
-          TodayStrategies.getLong("sql.logSlowQuery", 0),
-          TodayStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX)
+          InfraStrategies.getFlag("sql.logToStdout", false),
+          InfraStrategies.getFlag("sql.format", true),
+          InfraStrategies.getFlag("sql.highlight", true),
+          InfraStrategies.getFlag("sql.stdoutOnly", false),
+          InfraStrategies.getLong("sql.logSlowQuery", 0),
+          InfraStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX)
   );
 
   private final boolean format;

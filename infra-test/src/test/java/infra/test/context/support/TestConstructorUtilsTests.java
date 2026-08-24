@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.TestConstructor;
 
 import static infra.test.context.TestConstructor.AutowireMode.ALL;
@@ -117,7 +117,7 @@ class TestConstructorUtilsTests {
   }
 
   private void setGlobalFlag(String flag) {
-    TodayStrategies.setProperty(TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
+    InfraStrategies.setProperty(TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
   }
 
   static class NotAutowirableTestCase {

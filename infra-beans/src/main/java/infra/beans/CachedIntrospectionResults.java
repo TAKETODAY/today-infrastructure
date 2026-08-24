@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -95,7 +95,7 @@ public final class CachedIntrospectionResults {
   private static final PropertyDescriptor[] EMPTY_PROPERTY_DESCRIPTOR_ARRAY = {};
 
   private static final boolean shouldIntrospectorIgnoreBeanInfoClasses
-          = TodayStrategies.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
+          = InfraStrategies.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
 
   /** Stores the BeanInfoFactory instances. */
   private static final BeanInfoFactory[] beanInfoFactories;
@@ -129,7 +129,7 @@ public final class CachedIntrospectionResults {
   private final Map<String, PropertyDescriptor> propertyDescriptors;
 
   static {
-    var factories = TodayStrategies.find(
+    var factories = InfraStrategies.find(
             BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
     factories.add(new ExtendedBeanInfoFactory());
     beanInfoFactories = factories.toArray(new BeanInfoFactory[0]);

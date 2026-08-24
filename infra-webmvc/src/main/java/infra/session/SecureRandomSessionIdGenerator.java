@@ -19,7 +19,7 @@ package infra.session;
 import java.security.SecureRandom;
 
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A {@link SessionIdGenerator} that uses a secure random to generate a
@@ -41,7 +41,7 @@ public class SecureRandomSessionIdGenerator implements SessionIdGenerator {
   private static final String ALPHABET_PROPERTY = "server.session.id.source";
 
   static {
-    String alphabet = TodayStrategies.getProperty(
+    String alphabet = InfraStrategies.getProperty(
             ALPHABET_PROPERTY, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
     Assert.state(alphabet.length() == 64, "SecureRandomSessionIdGenerator must be exactly 64 characters long");
     SESSION_ID_ALPHABET = alphabet.toCharArray();

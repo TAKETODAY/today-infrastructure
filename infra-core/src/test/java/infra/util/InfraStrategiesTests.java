@@ -34,9 +34,9 @@ import java.util.ServiceLoader;
 import infra.lang.DummyFactory;
 import infra.lang.MyDummyFactory1;
 import infra.lang.MyDummyFactory2;
-import infra.util.TodayStrategies.ArgumentResolver;
-import infra.util.TodayStrategies.DefaultInstantiator;
-import infra.util.TodayStrategies.FailureHandler;
+import infra.util.InfraStrategies.ArgumentResolver;
+import infra.util.InfraStrategies.DefaultInstantiator;
+import infra.util.InfraStrategies.FailureHandler;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 
@@ -54,36 +54,36 @@ import static org.mockito.Mockito.verify;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/2 19:27
  */
-class TodayStrategiesTests {
+class InfraStrategiesTests {
 
   @BeforeAll
   static void clearCache() {
-    TodayStrategies.strategiesCache.clear();
-    assertThat(TodayStrategies.strategiesCache).isEmpty();
+    InfraStrategies.strategiesCache.clear();
+    assertThat(InfraStrategies.strategiesCache).isEmpty();
   }
 
   @AfterAll
   static void checkCache() {
-    assertThat(TodayStrategies.strategiesCache).hasSize(5);
-    TodayStrategies.strategiesCache.clear();
+    assertThat(InfraStrategies.strategiesCache).hasSize(5);
+    InfraStrategies.strategiesCache.clear();
   }
 
   @Test
   @Deprecated
   void loadFactoryNames() {
-    List<String> strategyNames = TodayStrategies.findNames(DummyFactory.class, null);
+    List<String> strategyNames = InfraStrategies.findNames(DummyFactory.class, null);
     assertThat(strategyNames).containsExactlyInAnyOrder(MyDummyFactory1.class.getName(), MyDummyFactory2.class.getName());
   }
 
   @Test
   void loadWhenNoRegisteredImplementationsReturnsEmptyList() {
-    List<Integer> factories = TodayStrategies.forDefaultResourceLocation().load(Integer.class);
+    List<Integer> factories = InfraStrategies.forDefaultResourceLocation().load(Integer.class);
     assertThat(factories).isEmpty();
   }
 
   @Test
   void loadWhenDuplicateRegistrationsPresentReturnsListInCorrectOrder() {
-    List<DummyFactory> factories = TodayStrategies.forDefaultResourceLocation().load(DummyFactory.class);
+    List<DummyFactory> factories = InfraStrategies.forDefaultResourceLocation().load(DummyFactory.class);
     assertThat(factories).hasSize(2);
     assertThat(factories.get(0)).isInstanceOf(MyDummyFactory1.class);
     assertThat(factories.get(1)).isInstanceOf(MyDummyFactory2.class);
@@ -92,7 +92,7 @@ class TodayStrategiesTests {
   @Test
   void loadWhenPackagePrivateFactory() {
     List<DummyPackagePrivateFactory> factories =
-            TodayStrategies.forDefaultResourceLocation().load(DummyPackagePrivateFactory.class);
+            InfraStrategies.forDefaultResourceLocation().load(DummyPackagePrivateFactory.class);
     assertThat(factories).hasSize(1);
     assertThat(Modifier.isPublic(factories.get(0).getClass().getModifiers())).isFalse();
   }
@@ -100,7 +100,7 @@ class TodayStrategiesTests {
   @Test
   void loadWhenIncompatibleTypeThrowsException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> TodayStrategies.forDefaultResourceLocation().load(String.class))
+            .isThrownBy(() -> InfraStrategies.forDefaultResourceLocation().load(String.class))
             .withMessageContaining("Unable to instantiate strategy class "
                     + "[infra.lang.MyDummyFactory1] for strategy type [java.lang.String]");
   }
@@ -109,14 +109,14 @@ class TodayStrategiesTests {
   void loadWithLoggingFailureHandlerWhenIncompatibleTypeReturnsEmptyList() {
     Logger logger = mock(Logger.class);
     FailureHandler failureHandler = FailureHandler.logging(logger);
-    List<String> factories = TodayStrategies.forDefaultResourceLocation().load(String.class, failureHandler);
+    List<String> factories = InfraStrategies.forDefaultResourceLocation().load(String.class, failureHandler);
     assertThat(factories).isEmpty();
   }
 
   @Test
   void loadWithArgumentResolverWhenNoDefaultConstructor() {
     ArgumentResolver resolver = ArgumentResolver.of(String.class, "injected");
-    List<DummyFactory> list = TodayStrategies.forDefaultResourceLocation(LimitedClassLoader.constructorArgumentFactories)
+    List<DummyFactory> list = InfraStrategies.forDefaultResourceLocation(LimitedClassLoader.constructorArgumentFactories)
             .load(DummyFactory.class, resolver);
     assertThat(list).hasSize(3);
     assertThat(list.get(0)).isInstanceOf(MyDummyFactory1.class);
@@ -129,7 +129,7 @@ class TodayStrategiesTests {
   void loadWhenMultipleConstructorsThrowsException() {
     ArgumentResolver resolver = ArgumentResolver.of(String.class, "injected");
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> TodayStrategies.forDefaultResourceLocation(LimitedClassLoader.multipleArgumentFactories)
+            .isThrownBy(() -> InfraStrategies.forDefaultResourceLocation(LimitedClassLoader.multipleArgumentFactories)
                     .load(DummyFactory.class, resolver))
             .withMessageContaining("Unable to instantiate strategy class "
                     + "[infra.lang.MultipleConstructorArgsDummyFactory] for strategy type [infra.lang.DummyFactory]")
@@ -140,7 +140,7 @@ class TodayStrategiesTests {
   void loadWithLoggingFailureHandlerWhenMissingArgumentDropsItem() {
     Logger logger = mock(Logger.class);
     FailureHandler failureHandler = FailureHandler.logging(logger);
-    List<DummyFactory> factories = TodayStrategies.forDefaultResourceLocation(LimitedClassLoader.multipleArgumentFactories)
+    List<DummyFactory> factories = InfraStrategies.forDefaultResourceLocation(LimitedClassLoader.multipleArgumentFactories)
             .load(DummyFactory.class, failureHandler);
     assertThat(factories).hasSize(2);
     assertThat(factories.get(0)).isInstanceOf(MyDummyFactory1.class);
@@ -149,7 +149,7 @@ class TodayStrategiesTests {
 
   @Test
   void loadFactoriesLoadsFromDefaultLocation() {
-    List<DummyFactory> factories = TodayStrategies.find(DummyFactory.class, (ClassLoader) null);
+    List<DummyFactory> factories = InfraStrategies.find(DummyFactory.class, (ClassLoader) null);
     assertThat(factories).hasSize(2);
     assertThat(factories.get(0)).isInstanceOf(MyDummyFactory1.class);
     assertThat(factories.get(1)).isInstanceOf(MyDummyFactory2.class);
@@ -157,14 +157,14 @@ class TodayStrategiesTests {
 
   @Test
   void loadForResourceLocationWhenLocationDoesNotExistReturnsEmptyList() {
-    List<DummyFactory> factories = TodayStrategies.forResourceLocation(
-            "META-INF/missing/missing-today.strategies").load(DummyFactory.class);
+    List<DummyFactory> factories = InfraStrategies.forResourceLocation(
+            "META-INF/missing/missing-infra.strategies").load(DummyFactory.class);
     assertThat(factories).isEmpty();
   }
 
   @Test
   void loadForResourceLocationLoadsFactories() {
-    List<DummyFactory> factories = TodayStrategies.forResourceLocation(
+    List<DummyFactory> factories = InfraStrategies.forResourceLocation(
             "META-INF/custom/custom.strategies").load(DummyFactory.class);
     assertThat(factories).hasSize(1);
     assertThat(factories.get(0)).isInstanceOf(MyDummyFactory1.class);
@@ -172,8 +172,8 @@ class TodayStrategiesTests {
 
   @Test
   void sameCachedResultIsUsedForDefaultClassLoaderAndNullClassLoader() {
-    TodayStrategies forNull = TodayStrategies.forDefaultResourceLocation(null);
-    TodayStrategies forDefault = TodayStrategies.forDefaultResourceLocation(ClassUtils.getDefaultClassLoader());
+    InfraStrategies forNull = InfraStrategies.forDefaultResourceLocation(null);
+    InfraStrategies forDefault = InfraStrategies.forDefaultResourceLocation(ClassUtils.getDefaultClassLoader());
     assertThat(forNull).isSameAs(forDefault);
   }
 
@@ -183,12 +183,12 @@ class TodayStrategiesTests {
     ClassLoader defaultClassLoader = ClassUtils.getDefaultClassLoader();
     ClassLoader cl1 = new ClassLoader() {
     };
-    TodayStrategies factories1 = TodayStrategies.forDefaultResourceLocation(defaultClassLoader);
+    InfraStrategies factories1 = InfraStrategies.forDefaultResourceLocation(defaultClassLoader);
     assertThat(factories1).extracting("classLoader").isEqualTo(defaultClassLoader);
     ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(cl1);
-      TodayStrategies factories2 = TodayStrategies.forDefaultResourceLocation(null);
+      InfraStrategies factories2 = InfraStrategies.forDefaultResourceLocation(null);
       assertThat(factories2).extracting("classLoader").isNull();
     }
     finally {
@@ -198,8 +198,8 @@ class TodayStrategiesTests {
 
   @Test
   void resourceLocationShouldBeLoadedAndCached() {
-    TodayStrategies strategies1 = TodayStrategies.forResourceLocation("META-INF/test.strategies");
-    TodayStrategies strategies2 = TodayStrategies.forResourceLocation("META-INF/test.strategies");
+    InfraStrategies strategies1 = InfraStrategies.forResourceLocation("META-INF/test.strategies");
+    InfraStrategies strategies2 = InfraStrategies.forResourceLocation("META-INF/test.strategies");
     assertThat(strategies1).isSameAs(strategies2);
   }
 
@@ -208,22 +208,22 @@ class TodayStrategiesTests {
     ClassLoader loader1 = new URLClassLoader(new URL[0]);
     ClassLoader loader2 = new URLClassLoader(new URL[0]);
 
-    TodayStrategies strategies1 = TodayStrategies.forDefaultResourceLocation(loader1);
-    TodayStrategies strategies2 = TodayStrategies.forDefaultResourceLocation(loader2);
+    InfraStrategies strategies1 = InfraStrategies.forDefaultResourceLocation(loader1);
+    InfraStrategies strategies2 = InfraStrategies.forDefaultResourceLocation(loader2);
 
     assertThat(strategies1).isNotSameAs(strategies2);
   }
 
   @Test
   void defaultResourceLocationShouldLoadStrategies() {
-    TodayStrategies strategies = TodayStrategies.forDefaultResourceLocation();
+    InfraStrategies strategies = InfraStrategies.forDefaultResourceLocation();
     List<DummyFactory> factories = strategies.load(DummyFactory.class);
     assertThat(factories).hasSize(2);
   }
 
   @Test
   void loadStrategiesShouldHandleEmptyResourceLocation() {
-    TodayStrategies strategies = TodayStrategies.forResourceLocation("META-INF/empty.strategies");
+    InfraStrategies strategies = InfraStrategies.forResourceLocation("META-INF/empty.strategies");
     List<DummyFactory> factories = strategies.load(DummyFactory.class);
     assertThat(factories).isEmpty();
   }
@@ -231,7 +231,7 @@ class TodayStrategiesTests {
   @Test
   void loadStrategiesShouldHandleCustomInstantiator() throws Exception {
     ClassInstantiator instantiator = mock(ClassInstantiator.class);
-    TodayStrategies strategies = TodayStrategies.forDefaultResourceLocation();
+    InfraStrategies strategies = InfraStrategies.forDefaultResourceLocation();
 
     strategies.load(DummyFactory.class, instantiator);
 
@@ -240,7 +240,7 @@ class TodayStrategiesTests {
 
   @Test
   void findFirstShouldReturnNullWhenEmpty() {
-    assertThat(TodayStrategies.findFirst("non.existent.strategy")).isNull();
+    assertThat(InfraStrategies.findFirst("non.existent.strategy")).isNull();
   }
 
   @Nested
@@ -248,7 +248,7 @@ class TodayStrategiesTests {
 
     @Test
     void serviceLoader() {
-      List<DemoProvider> providers = TodayStrategies.forDefaultResourceLocation().load(DemoProvider.class);
+      List<DemoProvider> providers = InfraStrategies.forDefaultResourceLocation().load(DemoProvider.class);
       List<DemoProvider> list = ServiceLoader.load(DemoProvider.class)
               .stream().map(ServiceLoader.Provider::get).toList();
 

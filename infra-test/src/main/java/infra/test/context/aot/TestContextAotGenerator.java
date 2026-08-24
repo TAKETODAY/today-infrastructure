@@ -49,7 +49,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.javapoet.ClassName;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.BootstrapUtils;
@@ -88,7 +88,7 @@ public class TestContextAotGenerator {
    * the following JVM system property via the command line.
    * <pre style="code">-Dinfra.test.aot.processing.failOnError=false</pre>
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link InfraStrategies InfraStrategies}
    * mechanism.
    */
   public static final String FAIL_ON_ERROR_PROPERTY_NAME = "infra.test.aot.processing.failOnError";
@@ -437,7 +437,7 @@ public class TestContextAotGenerator {
   }
 
   private static boolean getFailOnErrorFlag() {
-    String failOnError = TodayStrategies.getProperty(FAIL_ON_ERROR_PROPERTY_NAME);
+    String failOnError = InfraStrategies.getProperty(FAIL_ON_ERROR_PROPERTY_NAME);
     if (StringUtils.hasText(failOnError)) {
       return Boolean.parseBoolean(failOnError.trim());
     }

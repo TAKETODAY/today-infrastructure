@@ -29,7 +29,7 @@ import infra.context.EnvironmentAware;
 import infra.context.ResourceLoaderAware;
 
 /**
- * Listener that can be registered with {@code today.strategies} to receive details of
+ * Listener that can be registered with {@code infra.strategies} to receive details of
  * imported auto-configurations.
  * <p>
  * An {@link AutoConfigurationImportListener} may implement any of the following

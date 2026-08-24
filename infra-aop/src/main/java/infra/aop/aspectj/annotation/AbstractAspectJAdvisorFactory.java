@@ -43,7 +43,7 @@ import infra.core.annotation.AnnotationUtils;
 import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Abstract base class for factories that can create Framework AOP Advisors
@@ -80,7 +80,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
   public static final String IGNORE_AJC_PROPERTY_NAME = "infra.aop.ajc.ignore";
 
   private static final boolean shouldIgnoreAjcCompiledAspects =
-          TodayStrategies.getFlag(IGNORE_AJC_PROPERTY_NAME);
+          InfraStrategies.getFlag(IGNORE_AJC_PROPERTY_NAME);
 
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());

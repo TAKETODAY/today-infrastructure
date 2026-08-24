@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         mergeMode = ContextCustomizerFactories.MergeMode.REPLACE_DEFAULTS)
 class ReplaceDefaultsContextCustomizerTests {
 
-  // GlobalFruitContextCustomizerFactory is registered via today.strategies
+  // GlobalFruitContextCustomizerFactory is registered via infra.strategies
   @Autowired(required = false)
   @Qualifier("global$fruit")
   String fruit;
@@ -51,7 +51,7 @@ class ReplaceDefaultsContextCustomizerTests {
 
   @Test
   void injectedBean() {
-    // MergeMode.REPLACE_DEFAULTS overrides today.strategies lookup
+    // MergeMode.REPLACE_DEFAULTS overrides infra.strategies lookup
     assertThat(fruit).isNull();
 
     // From local @ContextCustomizerFactories

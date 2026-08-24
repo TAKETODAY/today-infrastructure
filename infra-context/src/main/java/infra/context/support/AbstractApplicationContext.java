@@ -103,7 +103,7 @@ import infra.core.io.SmartResourceConsumer;
 import infra.core.metrics.ApplicationStartup;
 import infra.core.metrics.StartupStep;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -708,7 +708,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   private DependencyInjector getDependencyInjector(BootstrapContext bootstrapContext) {
     DependencyInjector injector = getInjector();
-    var strategies = TodayStrategies.find(DependencyResolvingStrategy.class, getClassLoader(), bootstrapContext);
+    var strategies = InfraStrategies.find(DependencyResolvingStrategy.class, getClassLoader(), bootstrapContext);
     injector.setResolvingStrategies(new DependencyResolvingStrategies(strategies));
     return injector;
   }
@@ -782,7 +782,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     // loading some outside beans
 
     BootstrapContext bootstrapContext = getBootstrapContext();
-    var strategies = TodayStrategies.find(BeanDefinitionLoader.class, classLoader, bootstrapContext);
+    var strategies = InfraStrategies.find(BeanDefinitionLoader.class, classLoader, bootstrapContext);
     if (!strategies.isEmpty()) {
       for (BeanDefinitionLoader loader : strategies) {
         loader.loadBeanDefinitions(bootstrapContext);

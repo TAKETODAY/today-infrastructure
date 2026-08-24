@@ -50,7 +50,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
 import infra.util.MimeTypeUtils;
@@ -107,7 +107,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * @see #addContentDispositionHeader(HttpContext, Object)
    * @since 5.0
    */
-  private static final boolean preventRFDExploits = TodayStrategies.getFlag("infra.web.prevent-RFD-exploits", true);
+  private static final boolean preventRFDExploits = InfraStrategies.getFlag("infra.web.prevent-RFD-exploits", true);
 
   private final ContentNegotiationManager contentNegotiationManager;
 

@@ -31,7 +31,7 @@ import infra.core.ApplicationHome;
 import infra.core.ApplicationTemp;
 import infra.format.annotation.DurationUnit;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Session properties.
@@ -43,7 +43,7 @@ import infra.util.TodayStrategies;
 @ConfigurationProperties(prefix = "server.session", ignoreUnknownFields = true)
 public class SessionProperties {
 
-  private static final String SESSION_TEMP_DIR = TodayStrategies.getProperty(
+  private static final String SESSION_TEMP_DIR = InfraStrategies.getProperty(
           "server.session.temp-dir", "server-sessions");
 
   /**

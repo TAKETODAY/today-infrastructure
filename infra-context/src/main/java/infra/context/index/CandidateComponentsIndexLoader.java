@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentMap;
 
 import infra.core.io.PropertiesUtils;
 import infra.core.io.UrlResource;
-import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ConcurrentReferenceHashMap;
+import infra.util.InfraStrategies;
 
 /**
  * Candidate components index loading mechanism for internal use within the framework.
@@ -48,7 +48,7 @@ public final class CandidateComponentsIndexLoader {
    * The location to look for components.
    * <p>Can be present in multiple JAR files.
    */
-  public static final String COMPONENTS_RESOURCE_LOCATION = "META-INF/today.components";
+  public static final String COMPONENTS_RESOURCE_LOCATION = "META-INF/infra.components";
 
   /**
    * System property that instructs framework to ignore the components index, i.e.
@@ -59,9 +59,9 @@ public final class CandidateComponentsIndexLoader {
    * application. In this case, the application context fallbacks to a regular
    * classpath arrangement (i.e. as though no index were present at all).
    */
-  public static final String IGNORE_INDEX = "today.index.ignore";
+  public static final String IGNORE_INDEX = "infra.components-index.ignore";
 
-  private static final boolean shouldIgnoreIndex = TodayStrategies.getFlag(IGNORE_INDEX);
+  private static final boolean shouldIgnoreIndex = InfraStrategies.getFlag(IGNORE_INDEX);
 
   private static final Logger log = LoggerFactory.getLogger(CandidateComponentsIndexLoader.class);
 

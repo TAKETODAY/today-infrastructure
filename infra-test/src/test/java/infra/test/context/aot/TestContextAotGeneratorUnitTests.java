@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static infra.test.context.aot.TestContextAotGenerator.FAIL_ON_ERROR_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ class TestContextAotGeneratorUnitTests {
   @BeforeEach
   @AfterEach
   void resetFlag() {
-    TodayStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, null);
+    InfraStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, null);
   }
 
   @Test
@@ -48,14 +48,14 @@ class TestContextAotGeneratorUnitTests {
   @ParameterizedTest
   @ValueSource(strings = { "true", "  True\t" })
   void failOnErrorEnabledViaInfraProperty(String value) {
-    TodayStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, value);
+    InfraStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, value);
     assertThat(createGenerator().failOnError).isTrue();
   }
 
   @ParameterizedTest
   @ValueSource(strings = { "false", "  False\t", "x" })
   void failOnErrorDisabledViaInfraProperty(String value) {
-    TodayStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, value);
+    InfraStrategies.setProperty(FAIL_ON_ERROR_PROPERTY_NAME, value);
     assertThat(createGenerator().failOnError).isFalse();
   }
 

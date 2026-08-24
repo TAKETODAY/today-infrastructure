@@ -65,7 +65,7 @@ import infra.util.CollectionUtils;
  *
  * <p>
  * The initialization above makes sure to register {@code MyConfiguration} for all tests
- * and set the {@code today.foo} property to {@code bar} unless specified otherwise.
+ * and set the {@code infra.foo} property to {@code bar} unless specified otherwise.
  * <p>
  * Based on the configuration above, a specific test can simulate what will happen when
  * the context runs, perhaps with overridden property values:

@@ -45,8 +45,8 @@ import java.util.function.Consumer;
 
 import infra.bytecode.core.CodeGenerationException;
 import infra.core.SmartClassLoader;
+import infra.util.InfraStrategies;
 import infra.util.ReflectionUtils;
-import infra.util.TodayStrategies;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -70,7 +70,7 @@ import infra.util.TodayStrategies;
  */
 public abstract class BytecodeCompiler {
 
-  private static final int CLASSES_DEFINED_LIMIT = TodayStrategies.getInt("bytecode.classes.defined.limit", 100);
+  private static final int CLASSES_DEFINED_LIMIT = InfraStrategies.getInt("bytecode.classes.defined.limit", 100);
 
   private static final @Nullable Method classLoaderDefineClassMethod;
 

@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.Order;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.stereotype.Component;
 import infra.stereotype.Service;
 import infra.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
@@ -85,7 +85,7 @@ class TestContextAnnotationUtilsTests {
     }
 
     private void setGlobalFlag(String flag) {
-      TodayStrategies.setProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME, flag);
+      InfraStrategies.setProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME, flag);
     }
   }
 

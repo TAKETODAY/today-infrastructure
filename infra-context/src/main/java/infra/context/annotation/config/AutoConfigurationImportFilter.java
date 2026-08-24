@@ -26,7 +26,7 @@ import infra.context.EnvironmentAware;
 import infra.context.ResourceLoaderAware;
 
 /**
- * Filter that can be registered in {@code today.strategies} to limit the
+ * Filter that can be registered in {@code infra.strategies} to limit the
  * auto-configuration classes considered. This interface is designed to allow fast removal
  * of auto-configuration classes before their bytecode is even read.
  * <p>

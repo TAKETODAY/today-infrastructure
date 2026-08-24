@@ -35,7 +35,7 @@ import infra.core.type.classreading.ClassFormatException;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -64,7 +64,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    */
   public static final String IGNORE_CLASSFORMAT_PROPERTY_NAME = "infra.classformat.ignore";
 
-  private static final boolean shouldIgnoreClassFormatException = TodayStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
+  private static final boolean shouldIgnoreClassFormatException = InfraStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 

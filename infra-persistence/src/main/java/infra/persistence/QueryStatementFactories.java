@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -65,7 +65,7 @@ final class QueryStatementFactories implements QueryStatementFactory {
   }
 
   private static List<QueryStatementFactory> defaultFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
-    List<QueryStatementFactory> list = TodayStrategies.find(QueryStatementFactory.class);
+    List<QueryStatementFactory> list = InfraStrategies.find(QueryStatementFactory.class);
     list.add(new MapQueryStatementFactory());
     list.add(new DefaultQueryStatementFactory(entityMetadataFactory, extractors));
     return list;

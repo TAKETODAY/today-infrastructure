@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A simple implementation of {@link Awaiter} that supports only one thread waiting at a time.
@@ -48,7 +48,7 @@ import infra.util.TodayStrategies;
  */
 public class SimpleSingleThreadAwaiter implements Awaiter {
 
-  protected static final long threadParkNanos = TodayStrategies.getLong("awaiter.thread.pack-nanos", TimeUnit.SECONDS.toNanos(3));
+  protected static final long threadParkNanos = InfraStrategies.getLong("awaiter.thread.pack-nanos", TimeUnit.SECONDS.toNanos(3));
 
   protected static final Object READY = new Object();
 

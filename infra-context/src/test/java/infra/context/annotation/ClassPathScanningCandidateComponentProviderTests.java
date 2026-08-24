@@ -88,7 +88,7 @@ class ClassPathScanningCandidateComponentProviderTests {
 
   private static final ClassLoader TEST_BASE_CLASSLOADER = CandidateComponentsTestClassLoader.index(
           ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-          new ClassPathResource("today.components", NamedComponent.class));
+          new ClassPathResource("infra.components", NamedComponent.class));
 
   private static final Set<Class<?>> infraComponents = Set.of(
           DefaultNamedComponent.class,

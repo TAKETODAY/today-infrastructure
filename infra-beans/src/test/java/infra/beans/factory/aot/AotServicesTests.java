@@ -28,7 +28,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.Ordered;
 import infra.core.test.io.support.MockStrategies;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -60,14 +60,14 @@ class AotServicesTests {
   }
 
   @Test
-  void factoriesWithTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
+  void factoriesWithInfraStrategiesWhenInfraStrategiesIsNullThrowsException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> AotServices.factories((TodayStrategies) null))
+            .isThrownBy(() -> AotServices.factories((InfraStrategies) null))
             .withMessage("'strategies' is required");
   }
 
   @Test
-  void factoriesWithTodayStrategiesLoadsFromTodayStrategies() {
+  void factoriesWithInfraStrategiesLoadsFromInfraStrategies() {
     MockStrategies loader = new MockStrategies();
     loader.addInstance(TestService.class, new TestServiceImpl());
     AotServices<?> loaded = AotServices.factories(loader).load(TestService.class);
@@ -93,7 +93,7 @@ class AotServicesTests {
   }
 
   @Test
-  void factoriesAndBeansWithTodayStrategiesLoadsFromTodayStrategiesAndBeanFactory() {
+  void factoriesAndBeansWithInfraStrategiesLoadsFromInfraStrategiesAndBeanFactory() {
     MockStrategies loader = new MockStrategies();
     loader.addInstance(TestService.class, new TestServiceImpl());
     StandardBeanFactory beanFactory = new StandardBeanFactory();
@@ -104,7 +104,7 @@ class AotServicesTests {
   }
 
   @Test
-  void factoriesAndBeansWithTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
+  void factoriesAndBeansWithInfraStrategiesWhenInfraStrategiesIsNullThrowsException() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> AotServices.factoriesAndBeans(null, beanFactory))
@@ -152,17 +152,17 @@ class AotServicesTests {
   }
 
   @Test
-  void loadLoadsFromBeanFactoryAndTodayStrategiesInOrder() {
+  void loadLoadsFromBeanFactoryAndInfraStrategiesInOrder() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerSingleton("b1", new TestServiceImpl(0, "b1"));
     beanFactory.registerSingleton("b2", new TestServiceImpl(2, "b2"));
-    MockStrategies todayStrategies = new MockStrategies();
-    todayStrategies.addInstance(TestService.class,
+    MockStrategies infraStrategies = new MockStrategies();
+    infraStrategies.addInstance(TestService.class,
             new TestServiceImpl(1, "l1"));
-    todayStrategies.addInstance(TestService.class,
+    infraStrategies.addInstance(TestService.class,
             new TestServiceImpl(3, "l2"));
     Iterable<TestService> loaded = AotServices
-            .factoriesAndBeans(todayStrategies, beanFactory)
+            .factoriesAndBeans(infraStrategies, beanFactory)
             .load(TestService.class);
     assertThat(loaded).map(Object::toString).containsExactly("b1", "l1", "b2", "l2");
   }

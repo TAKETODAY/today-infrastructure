@@ -16,7 +16,7 @@
 
 package infra.util.concurrent;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A factory interface for creating instances of {@link Scheduler}. This interface
@@ -54,7 +54,7 @@ import infra.util.TodayStrategies;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Scheduler
- * @see TodayStrategies
+ * @see InfraStrategies
  * @since 4.0 2024/2/28 13:24
  */
 public interface SchedulerFactory {

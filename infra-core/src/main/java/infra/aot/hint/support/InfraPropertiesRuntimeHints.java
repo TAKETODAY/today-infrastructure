@@ -22,19 +22,19 @@ import org.jspecify.annotations.Nullable;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
- * {@link RuntimeHintsRegistrar} to register hints for {@link TodayStrategies}.
+ * {@link RuntimeHintsRegistrar} to register hints for {@link InfraStrategies}.
  *
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class TodayPropertiesRuntimeHints implements RuntimeHintsRegistrar {
+class InfraPropertiesRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
-    hints.resources().registerPattern("today.properties");
+    hints.resources().registerPattern("infra.properties");
   }
 }

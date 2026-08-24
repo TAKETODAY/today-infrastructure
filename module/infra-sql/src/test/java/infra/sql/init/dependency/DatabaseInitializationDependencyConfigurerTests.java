@@ -339,7 +339,7 @@ class DatabaseInitializationDependencyConfigurerTests {
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-      if (!"META-INF/today.strategies".equals(name)) {
+      if (!"META-INF/infra.strategies".equals(name)) {
         return super.findResources(name);
       }
       Properties properties = new Properties();
@@ -347,7 +347,7 @@ class DatabaseInitializationDependencyConfigurerTests {
               String.join(",", this.databaseInitializerDetectors.stream().map(Class::getName).toList()));
       properties.put(DependsOnDatabaseInitializationDetector.class.getName(), String.join(",",
               this.dependsOnDatabaseInitializationDetectors.stream().map(Class::getName).toList()));
-      File strategies = new File(this.temp, "today.strategies");
+      File strategies = new File(this.temp, "infra.strategies");
       try (FileWriter writer = new FileWriter(strategies)) {
         properties.store(writer, "");
       }

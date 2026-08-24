@@ -19,7 +19,7 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.NamedThreadLocal;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.lang.VisibleForTesting;
 
 /**
@@ -53,7 +53,7 @@ public abstract class RequestThreadLocal {
   /**
    * Static factory method to lookup and create an appropriate RequestThreadLocal instance.
    * <p>
-   * This method first attempts to find an implementation via {@link TodayStrategies}.
+   * This method first attempts to find an implementation via {@link InfraStrategies}.
    * If none is found, it checks for the presence of Netty's FastThreadLocal class.
    * If available, it returns a Netty-based implementation; otherwise, it falls back
    * to a default implementation using NamedThreadLocal.
@@ -61,7 +61,7 @@ public abstract class RequestThreadLocal {
    * @return an appropriate RequestThreadLocal instance
    */
   public static RequestThreadLocal lookup() {
-    RequestThreadLocal ret = TodayStrategies.findFirst(RequestThreadLocal.class, null);
+    RequestThreadLocal ret = InfraStrategies.findFirst(RequestThreadLocal.class, null);
     if (ret == null) {
       return new Default();
     }

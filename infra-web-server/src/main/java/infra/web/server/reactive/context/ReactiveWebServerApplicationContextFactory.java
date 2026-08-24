@@ -27,7 +27,7 @@ import infra.context.ConfigurableApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 
 /**
- * {@link ApplicationContextFactory} registered in {@code today.strategies} to support
+ * {@link ApplicationContextFactory} registered in {@code infra.strategies} to support
  * {@link AnnotationConfigReactiveWebServerApplicationContext} and
  * {@link ReactiveWebServerApplicationContext}.
  *

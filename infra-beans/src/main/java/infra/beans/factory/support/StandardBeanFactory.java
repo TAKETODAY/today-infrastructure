@@ -91,7 +91,7 @@ import infra.core.metrics.StartupStep;
 import infra.util.Assert;
 import infra.lang.Modifiable;
 import infra.lang.NullValue;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.CompositeIterator;
@@ -176,7 +176,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   /** Whether strict locking is enforced or relaxed in this factory. */
   @Nullable
-  private final Boolean strictLocking = TodayStrategies.checkFlag(STRICT_LOCKING_PROPERTY_NAME);
+  private final Boolean strictLocking = InfraStrategies.checkFlag(STRICT_LOCKING_PROPERTY_NAME);
 
   /** Optional id for this factory, for serialization purposes. @since 4.0 */
   @Nullable

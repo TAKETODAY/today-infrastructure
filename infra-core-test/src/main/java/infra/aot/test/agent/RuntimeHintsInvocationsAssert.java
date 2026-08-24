@@ -33,7 +33,7 @@ import infra.aot.agent.RecordedInvocation;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * AssertJ {@link org.assertj.core.api.Assert assertions} that can be applied to
@@ -57,7 +57,7 @@ public class RuntimeHintsInvocationsAssert extends AbstractAssert<RuntimeHintsIn
   }
 
   public RuntimeHintsInvocationsAssert withStrategiesRegistrars(String location) {
-    List<RuntimeHintsRegistrar> registrars = TodayStrategies.forResourceLocation(location).load(RuntimeHintsRegistrar.class);
+    List<RuntimeHintsRegistrar> registrars = InfraStrategies.forResourceLocation(location).load(RuntimeHintsRegistrar.class);
     this.configurers.add(hints -> registrars.forEach(registrar -> registrar.registerHints(hints, getClass().getClassLoader())));
     return this;
   }

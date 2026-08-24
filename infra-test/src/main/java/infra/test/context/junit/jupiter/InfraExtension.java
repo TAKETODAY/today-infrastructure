@@ -57,7 +57,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.MethodInvoker;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.TestContextManager;
@@ -106,7 +106,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
    * semantics will apply. Note, however, that {@code @InfraExtensionConfig}
    * takes precedence over this property.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link InfraStrategies InfraStrategies}
    * mechanism or as a
    * <a href="https://docs.junit.org/current/running-tests/configuration-parameters.html">JUnit
    * Platform configuration parameter</a>.
@@ -535,7 +535,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
   /**
    * Resolve the default {@link ExtensionContextScope} from the
    * {@value #EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME} property, first via
-   * {@link TodayStrategies} and then via
+   * {@link InfraStrategies} and then via
    * {@link ExtensionContext#getConfigurationParameter(String)} as a fallback
    * strategy if the Infra property is not set.
    *
@@ -546,7 +546,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
   private static ExtensionContextScope resolveDefaultExtensionContextScope(ExtensionContext context) {
     return context.getRoot().getStore(DEFAULT_EXTENSION_CONTEXT_SCOPE_NAMESPACE)
             .computeIfAbsent(ExtensionContextScope.class, key -> {
-              String infraValue = TodayStrategies.getProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME);
+              String infraValue = InfraStrategies.getProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME);
               ExtensionContextScope scope = ExtensionContextScope.from(infraValue);
               if (scope != null) {
                 return scope;

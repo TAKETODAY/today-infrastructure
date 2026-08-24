@@ -77,7 +77,7 @@ class RestTestClientTestAutoConfigurationTests {
   }
 
   @Test
-  @WithResource(name = "META-INF/today.strategies",
+  @WithResource(name = "META-INF/infra.strategies",
           content = """
                   infra.test.http.server.LocalTestWebServer$Provider=\
                   infra.app.resttestclient.config.RestTestClientTestAutoConfigurationTests$TestLocalTestWebServerProvider

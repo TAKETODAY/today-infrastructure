@@ -44,7 +44,7 @@ import java.util.Map;
 
 import infra.jdbc.core.support.SqlLobValue;
 import infra.jdbc.support.SqlValue;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -89,7 +89,7 @@ public abstract class StatementCreatorUtils {
   private static final Map<Class<?>, Integer> javaTypeToSqlTypeMap = new HashMap<>(32);
 
   @Nullable
-  static Boolean shouldIgnoreGetParameterType = TodayStrategies.checkFlag(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
+  static Boolean shouldIgnoreGetParameterType = InfraStrategies.checkFlag(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
 
   static {
     javaTypeToSqlTypeMap.put(boolean.class, Types.BOOLEAN);

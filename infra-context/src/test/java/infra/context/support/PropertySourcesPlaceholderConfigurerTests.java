@@ -54,7 +54,7 @@ import infra.core.env.StandardEnvironment;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.testfixture.env.MockPropertySource;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.PlaceholderResolutionException;
 import infra.util.ReflectionUtils;
 
@@ -788,7 +788,7 @@ class PropertySourcesPlaceholderConfigurerTests {
     }
 
     private static void setInfraProperty(String value) {
-      TodayStrategies.setProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME, value);
+      InfraStrategies.setProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME, value);
     }
 
     private static StandardBeanFactory createBeanFactory() {

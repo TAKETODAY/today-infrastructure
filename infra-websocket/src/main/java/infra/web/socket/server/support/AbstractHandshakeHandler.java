@@ -35,7 +35,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -320,7 +320,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
   }
 
   private static RequestUpgradeStrategy initRequestUpgradeStrategy() {
-    var upgradeStrategy = TodayStrategies.findFirst(RequestUpgradeStrategy.class, null);
+    var upgradeStrategy = InfraStrategies.findFirst(RequestUpgradeStrategy.class, null);
     if (upgradeStrategy != null) {
       return upgradeStrategy;
     }

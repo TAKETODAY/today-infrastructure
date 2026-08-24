@@ -65,7 +65,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
@@ -1237,7 +1237,7 @@ final class DefaultRestClient implements RestClient {
     }
 
     private static MediaType defaultMediaType() {
-      String property = TodayStrategies.getProperty(key);
+      String property = InfraStrategies.getProperty(key);
       if (property == null) {
         return MediaType.APPLICATION_JSON;
       }

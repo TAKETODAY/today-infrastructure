@@ -60,11 +60,11 @@ import infra.logging.LoggerFactory;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.Feature;
+import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
 import infra.util.concurrent.Future;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.SupplierUtils;
@@ -122,7 +122,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   public static final String IGNORE_REACTIVESTREAMS_PROPERTY_NAME = "infra.cache.reactivestreams.ignore";
 
   private static final boolean shouldIgnoreReactiveStreams =
-          TodayStrategies.getFlag(IGNORE_REACTIVESTREAMS_PROPERTY_NAME);
+          InfraStrategies.getFlag(IGNORE_REACTIVESTREAMS_PROPERTY_NAME);
 
   private final ConcurrentHashMap<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
 

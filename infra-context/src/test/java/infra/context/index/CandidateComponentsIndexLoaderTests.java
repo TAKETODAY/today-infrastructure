@@ -38,14 +38,14 @@ public class CandidateComponentsIndexLoaderTests {
   @Test
   public void validateIndexIsDisabledByDefault() {
     CandidateComponentsIndex index = CandidateComponentsIndexLoader.loadIndex(null);
-    assertThat(index).as("No today.components should be available at the default location").isNull();
+    assertThat(index).as("No infra.components should be available at the default location").isNull();
   }
 
   @Test
   public void loadIndexSeveralMatches() {
     CandidateComponentsIndex index = CandidateComponentsIndexLoader.loadIndex(
             CandidateComponentsTestClassLoader.index(getClass().getClassLoader(),
-                    new ClassPathResource("today.components", getClass())));
+                    new ClassPathResource("infra.components", getClass())));
     Set<String> components = index.getCandidateTypes("infra", "foo");
     assertThat(components).contains(
             "infra.context.index.Sample1",
@@ -56,7 +56,7 @@ public class CandidateComponentsIndexLoaderTests {
   public void loadIndexSingleMatch() {
     CandidateComponentsIndex index = CandidateComponentsIndexLoader.loadIndex(
             CandidateComponentsTestClassLoader.index(getClass().getClassLoader(),
-                    new ClassPathResource("today.components", getClass())));
+                    new ClassPathResource("infra.components", getClass())));
     Set<String> components = index.getCandidateTypes("infra", "biz");
     assertThat(components).contains(
             "infra.context.index.Sample3");
@@ -66,7 +66,7 @@ public class CandidateComponentsIndexLoaderTests {
   public void loadIndexNoMatch() {
     CandidateComponentsIndex index = CandidateComponentsIndexLoader.loadIndex(
             CandidateComponentsTestClassLoader.index(getClass().getClassLoader(),
-                    new ClassPathResource("today.components", getClass())));
+                    new ClassPathResource("infra.components", getClass())));
     Set<String> components = index.getCandidateTypes("infra", "none");
     assertThat(components).isEmpty();
   }
@@ -75,7 +75,7 @@ public class CandidateComponentsIndexLoaderTests {
   public void loadIndexNoPackage() {
     CandidateComponentsIndex index = CandidateComponentsIndexLoader.loadIndex(
             CandidateComponentsTestClassLoader.index(getClass().getClassLoader(),
-                    new ClassPathResource("today.components", getClass())));
+                    new ClassPathResource("infra.components", getClass())));
     Set<String> components = index.getCandidateTypes("com.example", "foo");
     assertThat(components).isEmpty();
   }
@@ -91,7 +91,7 @@ public class CandidateComponentsIndexLoaderTests {
   public void loadIndexNoEntry() {
     CandidateComponentsIndex index = CandidateComponentsIndexLoader.loadIndex(
             CandidateComponentsTestClassLoader.index(getClass().getClassLoader(),
-                    new ClassPathResource("empty-today.components", getClass())));
+                    new ClassPathResource("empty-infra.components", getClass())));
     assertThat(index).isNull();
   }
 

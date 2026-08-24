@@ -45,9 +45,9 @@ import infra.origin.OriginProvider;
 import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
 
 /**
  * Base class for {@link ConnectionDetailsFactory} implementations that provide
@@ -181,7 +181,7 @@ public abstract class DockerComposeConnectionDetailsFactory<D extends Connection
     private ResourceLoader getResourceLoader(@Nullable Path workingDirectory) {
       ClassLoader classLoader = ApplicationResourceLoader.of().getClassLoader();
       return ApplicationResourceLoader.of(classLoader,
-              TodayStrategies.forDefaultResourceLocation(classLoader), workingDirectory);
+              InfraStrategies.forDefaultResourceLocation(classLoader), workingDirectory);
     }
 
     private @Nullable JksSslStoreDetails getJksSslStoreDetails(RunningService service, String storeType) {

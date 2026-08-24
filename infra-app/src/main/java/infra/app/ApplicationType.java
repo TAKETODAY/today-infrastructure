@@ -25,7 +25,7 @@ import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeReference;
 import infra.util.ClassUtils;
 import infra.util.Feature;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static infra.util.FeatureDetector.isPresent;
 
@@ -69,7 +69,7 @@ public enum ApplicationType {
    * @return the application type
    */
   public static ApplicationType forDefaults() {
-    List<Resolver> resolvers = TodayStrategies.find(Resolver.class);
+    List<Resolver> resolvers = InfraStrategies.find(Resolver.class);
     for (Resolver resolver : resolvers) {
       ApplicationType resolved = resolver.resolve();
       if (resolved != null) {

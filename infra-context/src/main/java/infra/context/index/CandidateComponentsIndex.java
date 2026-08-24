@@ -31,7 +31,7 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 
 /**
- * Provide access to the candidates that are defined in {@code META-INF/today.components}
+ * Provide access to the candidates that are defined in {@code META-INF/infra.components}
  * component index files (see {@link #CandidateComponentsIndex(List)}) or registered
  * programmatically (see {@link #CandidateComponentsIndex()}).
  *

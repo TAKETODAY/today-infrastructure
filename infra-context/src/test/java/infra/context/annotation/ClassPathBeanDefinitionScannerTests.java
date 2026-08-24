@@ -118,7 +118,7 @@ class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     context.setClassLoader(CandidateComponentsTestClassLoader.index(
             ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-            new ClassPathResource("today.components", FooServiceImpl.class)));
+            new ClassPathResource("infra.components", FooServiceImpl.class)));
 
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int beanCount = scanner.scan(BASE_PACKAGE);
@@ -162,7 +162,7 @@ class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     context.setClassLoader(CandidateComponentsTestClassLoader.index(
             ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-            new ClassPathResource("today.components", FooServiceImpl.class)));
+            new ClassPathResource("infra.components", FooServiceImpl.class)));
 
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int beanCount = scanner.scan(BASE_PACKAGE);

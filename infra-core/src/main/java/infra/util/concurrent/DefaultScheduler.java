@@ -22,7 +22,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A default implementation of the {@link Scheduler} interface that provides
@@ -79,7 +79,7 @@ final class DefaultScheduler implements Scheduler {
   private final ScheduledExecutorService scheduledThreadPool;
 
   DefaultScheduler() {
-    int poolSize = TodayStrategies.getInt(PoolSize, 1);
+    int poolSize = InfraStrategies.getInt(PoolSize, 1);
     var threadFactory = new CustomizableThreadFactory("infra-scheduler-");
     threadFactory.setDaemon(true);
     var executor = new ScheduledThreadPoolExecutor(poolSize, threadFactory);

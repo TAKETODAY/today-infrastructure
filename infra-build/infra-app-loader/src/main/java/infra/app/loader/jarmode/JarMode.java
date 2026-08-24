@@ -19,7 +19,7 @@
 package infra.app.loader.jarmode;
 
 /**
- * Interface registered in {@code today.strategies} to provides extended 'jarmode'
+ * Interface registered in {@code infra.strategies} to provides extended 'jarmode'
  * support.
  *
  * @author Phillip Webb

@@ -25,8 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import infra.core.io.Resource;
-import infra.util.Assert;
 import infra.origin.Origin;
+import infra.util.Assert;
 
 /**
  * {@link ConfigDataNotFoundException} thrown when a {@link ConfigDataResource} cannot be

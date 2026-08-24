@@ -29,8 +29,8 @@ import java.util.Map;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.FailureHandler;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.FailureHandler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -56,11 +56,11 @@ public class ConnectionDetailsFactories {
    * @param classLoader the class loader used to load factories
    */
   public ConnectionDetailsFactories(@Nullable ClassLoader classLoader) {
-    this(TodayStrategies.forDefaultResourceLocation(classLoader));
+    this(InfraStrategies.forDefaultResourceLocation(classLoader));
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  ConnectionDetailsFactories(TodayStrategies loader) {
+  ConnectionDetailsFactories(InfraStrategies loader) {
     for (var factory : loader.load(ConnectionDetailsFactory.class, FailureHandler.logging(logger))) {
       Registration registration = Registration.get(factory);
       if (registration != null) {

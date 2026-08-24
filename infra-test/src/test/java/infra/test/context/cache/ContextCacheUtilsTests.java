@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static infra.test.context.cache.ContextCache.DEFAULT_MAX_CONTEXT_CACHE_SIZE;
 import static infra.test.context.cache.ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME;
@@ -41,7 +41,7 @@ class ContextCacheUtilsTests {
   @AfterEach
   void clearProperties() {
     System.clearProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME);
-    TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, null);
+    InfraStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, null);
   }
 
   @Test
@@ -57,13 +57,13 @@ class ContextCacheUtilsTests {
 
   @Test
   void retrieveMaxCacheSizeFromBogusInfraProperty() {
-    TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "bogus");
+    InfraStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "bogus");
     assertDefaultValue();
   }
 
   @Test
   void retrieveMaxCacheSizeFromDecimalInfraProperty() {
-    TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "3.14");
+    InfraStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "3.14");
     assertDefaultValue();
   }
 
@@ -81,7 +81,7 @@ class ContextCacheUtilsTests {
 
   @Test
   void retrieveMaxCacheSizeFromInfraProperty() {
-    TodayStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "99");
+    InfraStrategies.setProperty(MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME, "99");
     assertThat(retrieveMaxCacheSize()).isEqualTo(99);
   }
 

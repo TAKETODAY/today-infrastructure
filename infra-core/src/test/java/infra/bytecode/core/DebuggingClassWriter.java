@@ -25,13 +25,13 @@ import java.io.OutputStream;
 
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.ClassWriter;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 public class DebuggingClassWriter extends ClassVisitor {
 
   public static final String DEBUG_LOCATION_PROPERTY = "bytecode.debugLocation";
 
-  private static final String debugLocation = TodayStrategies.getProperty(DEBUG_LOCATION_PROPERTY);
+  private static final String debugLocation = InfraStrategies.getProperty(DEBUG_LOCATION_PROPERTY);
 
   private String className;
 

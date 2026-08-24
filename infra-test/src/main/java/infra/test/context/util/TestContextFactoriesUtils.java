@@ -22,12 +22,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 /**
- * Collection of utilities for working with {@link TodayStrategies} within
+ * Collection of utilities for working with {@link InfraStrategies} within
  * the <em>Infra TestContext Framework</em>.
  *
  * <p>Primarily intended for use within the TestContext framework.
@@ -41,11 +41,11 @@ public abstract class TestContextFactoriesUtils {
   private static final Logger logger = LoggerFactory.getLogger(TestContextFactoriesUtils.class);
 
   /**
-   * Load factory implementations of the given type via the {@link TodayStrategies} mechanism.
-   * <p>This method utilizes a custom {@link TodayStrategies.FailureHandler} and DEBUG/TRACE logging
+   * Load factory implementations of the given type via the {@link InfraStrategies} mechanism.
+   * <p>This method utilizes a custom {@link InfraStrategies.FailureHandler} and DEBUG/TRACE logging
    * that are specific to the needs of the <em>Infra TestContext Framework</em>.
    * <p>Specifically, this method looks up and instantiates all {@code factoryType}
-   * entries configured in all {@code META-INF/today.strategies} files on the classpath.
+   * entries configured in all {@code META-INF/infra.strategies} files on the classpath.
    * <p>If a particular factory implementation cannot be loaded due to a {@link LinkageError}
    * or {@link ClassNotFoundException}, a {@code DEBUG} message will be logged,
    * but the associated exception will not be rethrown. A {@link RuntimeException}
@@ -55,15 +55,15 @@ public abstract class TestContextFactoriesUtils {
    * @param <T> the factory type
    * @param factoryType the interface or abstract class representing the factory
    * @return an unmodifiable list of factory implementations
-   * @see TodayStrategies#forDefaultResourceLocation(ClassLoader)
-   * @see TodayStrategies#load(Class, TodayStrategies.FailureHandler)
+   * @see InfraStrategies#forDefaultResourceLocation(ClassLoader)
+   * @see InfraStrategies#load(Class, InfraStrategies.FailureHandler)
    */
   public static <T> List<T> loadFactoryImplementations(Class<T> factoryType) {
-    TodayStrategies loader = TodayStrategies.forDefaultResourceLocation(TestContextFactoriesUtils.class.getClassLoader());
+    InfraStrategies loader = InfraStrategies.forDefaultResourceLocation(TestContextFactoriesUtils.class.getClassLoader());
     List<T> implementations = loader.load(factoryType, new TestContextFailureHandler());
     if (logger.isTraceEnabled()) {
       logger.trace("Loaded %s implementations from location [%s]: %s"
-              .formatted(factoryType.getSimpleName(), TodayStrategies.STRATEGIES_LOCATION, classNames(implementations)));
+              .formatted(factoryType.getSimpleName(), InfraStrategies.STRATEGIES_LOCATION, classNames(implementations)));
     }
     return Collections.unmodifiableList(implementations);
   }

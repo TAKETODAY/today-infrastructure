@@ -28,7 +28,7 @@ import java.util.Set;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.TestConstructor;
@@ -100,7 +100,7 @@ public abstract class TestConstructorUtils {
    * @param testClass the test class
    * @param fallbackPropertyProvider fallback property provider used to look up
    * the value for {@link TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME}
-   * if no such value is found in {@link TodayStrategies}
+   * if no such value is found in {@link InfraStrategies}
    * @return {@code true} if the executable is an autowirable constructor
    * @see #isAutowirableConstructor(Constructor, Class, PropertyProvider)
    */
@@ -125,14 +125,14 @@ public abstract class TestConstructorUtils {
    * {@link TestConstructor#autowireMode() autowireMode} set to
    * {@link TestConstructor.AutowireMode#ALL ALL}.</li>
    * <li>The default <em>test constructor autowire mode</em> has been set to
-   * {@code ALL} in {@link TodayStrategies} or in the supplied fallback
+   * {@code ALL} in {@link InfraStrategies} or in the supplied fallback
    * {@link PropertyProvider}.</li>
    * </ol>
    *
    * @param executable an {@code Executable} for a test class
    * @param fallbackPropertyProvider fallback property provider used to look up
    * the value for {@value TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME}
-   * if no such value is found in {@link TodayStrategies}; may be {@code null}
+   * if no such value is found in {@link InfraStrategies}; may be {@code null}
    * if there is no fallback support
    * @return {@code true} if the executable is an autowirable constructor
    * @see TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME
@@ -160,7 +160,7 @@ public abstract class TestConstructorUtils {
    * {@link TestConstructor#autowireMode() autowireMode} set to
    * {@link TestConstructor.AutowireMode#ALL ALL}.</li>
    * <li>The default <em>test constructor autowire mode</em> has been set to
-   * {@code ALL} in {@link TodayStrategies} or in the supplied fallback
+   * {@code ALL} in {@link InfraStrategies} or in the supplied fallback
    * {@link PropertyProvider} (see
    * {@link TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME}).</li>
    * </ol>
@@ -169,7 +169,7 @@ public abstract class TestConstructorUtils {
    * @param testClass the test class
    * @param fallbackPropertyProvider fallback property provider used to look up
    * the value for the default <em>test constructor autowire mode</em> if no
-   * such value is found in {@link TodayStrategies}
+   * such value is found in {@link InfraStrategies}
    * @return {@code true} if the constructor is autowirable
    */
   public static boolean isAutowirableConstructor(Constructor<?> constructor, Class<?> testClass,
@@ -188,8 +188,8 @@ public abstract class TestConstructorUtils {
       autowireMode = testConstructor.autowireMode();
     }
     else {
-      // Custom global default from TodayStrategies?
-      String value = TodayStrategies.getProperty(TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME);
+      // Custom global default from InfraStrategies?
+      String value = InfraStrategies.getProperty(TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME);
       autowireMode = TestConstructor.AutowireMode.from(value);
 
       // Use fallback provider?

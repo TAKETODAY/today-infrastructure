@@ -158,8 +158,8 @@ public class LoggingApplicationListener implements GenericApplicationListener {
     loggers.add("web", "infra.web");
     loggers.add("sql", "infra.jdbc.core");
     loggers.add("sql", "org.hibernate.SQL");
-    loggers.add("sql", "today.SQL");
-    loggers.add("sql", "today.SQL_SLOW");
+    loggers.add("sql", "infra.SQL");
+    loggers.add("sql", "infra.SQL_SLOW");
     loggers.add("sql", "org.jooq.tools.LoggerListener");
     DEFAULT_GROUP_LOGGERS = Collections.unmodifiableMap(loggers);
   }

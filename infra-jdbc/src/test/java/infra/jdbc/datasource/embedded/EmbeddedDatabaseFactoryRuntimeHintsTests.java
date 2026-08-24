@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ class EmbeddedDatabaseFactoryRuntimeHintsTests {
   @BeforeEach
   void setup() {
     this.hints = new RuntimeHints();
-    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
+    InfraStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class).forEach(registrar -> registrar
                     .registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
   }

@@ -44,7 +44,7 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.type.AnnotationMetadata;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -183,7 +183,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   /**
    * Return the auto-configuration class names that should be considered. By default
-   * this method will load candidates using {@link TodayStrategies} with
+   * this method will load candidates using {@link InfraStrategies} with
    * {@link #getStrategyClass()}.
    *
    * @param metadata the source metadata
@@ -192,10 +192,10 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    */
   protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     var configurations = ImportCandidates.load(autoConfigurationAnnotation, getBeanClassLoader()).getCandidates();
-    configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
+    configurations.addAll(InfraStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
 
     if (CollectionUtils.isEmpty(configurations)) {
-      throw new IllegalArgumentException("No auto configuration classes found in META-INF/today.strategies " +
+      throw new IllegalArgumentException("No auto configuration classes found in META-INF/infra.strategies " +
               "nor in META-INF/config/%s.imports If you are using a custom packaging, make sure that file is correct."
                       .formatted(autoConfigurationAnnotation.getName()));
     }
@@ -204,7 +204,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   /**
-   * Return the class used by {@link TodayStrategies} to load configuration
+   * Return the class used by {@link InfraStrategies} to load configuration
    * candidates.
    *
    * @return the strategy class
@@ -282,7 +282,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {
-    return TodayStrategies.find(AutoConfigurationImportFilter.class, getBeanClassLoader(), bootstrapContext);
+    return InfraStrategies.find(AutoConfigurationImportFilter.class, getBeanClassLoader(), bootstrapContext);
   }
 
   private ConfigurationClassFilter getConfigurationClassFilter() {
@@ -324,7 +324,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   protected List<AutoConfigurationImportListener> getAutoConfigurationImportListeners() {
-    return TodayStrategies.find(AutoConfigurationImportListener.class, getBeanClassLoader(), bootstrapContext);
+    return InfraStrategies.find(AutoConfigurationImportListener.class, getBeanClassLoader(), bootstrapContext);
   }
 
   @Override

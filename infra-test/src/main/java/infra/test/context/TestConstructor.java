@@ -31,7 +31,7 @@ import java.util.Locale;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.annotation.Value;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.junit.jupiter.InfraExtension;
@@ -97,7 +97,7 @@ public @interface TestConstructor {
    * constructors will be autowired according to {@link AutowireMode#ANNOTATED}
    * semantics by default.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies TodayStrategies}
+   * {@link InfraStrategies InfraStrategies}
    * mechanism.
    * <p>this property may also be configured as a
    * <a href="https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params">JUnit

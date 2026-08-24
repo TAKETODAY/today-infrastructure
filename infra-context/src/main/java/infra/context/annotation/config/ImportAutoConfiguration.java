@@ -31,7 +31,7 @@ import infra.core.annotation.AliasFor;
 /**
  * Import and apply the specified auto-configuration classes. Applies the same ordering
  * rules as {@code @EnableAutoConfiguration} but restricts the auto-configuration classes
- * to the specified set, rather than consulting {@code today.strategies}.
+ * to the specified set, rather than consulting {@code infra.strategies}.
  * <p>
  * Can also be used to {@link #exclude()} specific auto-configuration classes such that
  * they will never be applied.
@@ -63,7 +63,7 @@ public @interface ImportAutoConfiguration {
 
   /**
    * The auto-configuration classes that should be imported. When empty, the classes are
-   * specified using an entry in {@code META-INF/today.strategies} where the key is the
+   * specified using an entry in {@code META-INF/infra.strategies} where the key is the
    * fully-qualified name of the annotated class.
    *
    * @return the classes to import

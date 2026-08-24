@@ -6,9 +6,9 @@
 [[appendix-infra-properties]]
 == TODAY Properties
 
-{today-framework-api}/util/TodayStrategies.html[`TodayStrategies`] 是控制基础架构某些低级方面的属性的静态持有者。
-用户可以通过JVM系统属性配置这些属性，也可以通过 `TodayStrategies.setProperty(String key, String value)` 方法。
-如果部署环境不允许自定义JVM系统属性，则可能需要后者。作为一种选择，这些属性可以在 `today.properties` 文件。
+{today-framework-api}/util/InfraStrategies.html[`InfraStrategies`] 是控制基础架构某些低级方面的属性的静态持有者。
+用户可以通过JVM系统属性配置这些属性，也可以通过 `InfraStrategies.setProperty(String key, String value)` 方法。
+如果部署环境不允许自定义JVM系统属性，则可能需要后者。作为一种选择，这些属性可以在 `infra.properties` 文件。
 属性文件放在类路径的根目录中——例如，部署在应用程序的JAR文件中。
 
 下表列出了所有当前支持的 properties.
@@ -115,7 +115,7 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 | 用于 DurationTypeHandler 配置 JVM 级别的 duration 存储格式.
 
 | `sql.logToStdout`
-| SQL 调式打印 是否使用 _STDOUT_ ，如果对应的 Logger（`today.SQL`） 调试级别开启会使用 Logger 记录。默认值：`false`。 详见 `SqlStatementLogger`
+| SQL 调式打印 是否使用 _STDOUT_ ，如果对应的 Logger（`infra.SQL`） 调试级别开启会使用 Logger 记录。默认值：`false`。 详见 `SqlStatementLogger`
 
 | `sql.format`
 | SQL 调式打印 是否 _格式化_  默认值：`true`  详见 `SqlStatementLogger`
@@ -124,10 +124,10 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 | SQL 调式打印 是否开启 _SQL 高亮_  默认值：`true` 详见 `SqlStatementLogger`
 
 | `sql.stdoutOnly`
-| SQL 调式打印 是否仅仅使用 _STDOUT_  禁用 Logger（`today.SQL`） 记录，即使日志级别打开，默认值：`false` 详见 `SqlStatementLogger`
+| SQL 调式打印 是否仅仅使用 _STDOUT_  禁用 Logger（`infra.SQL`） 记录，即使日志级别打开，默认值：`false` 详见 `SqlStatementLogger`
 
 | `sql.logSlowQuery`
-| `today.SQL_SLOW` Logger 记录超过该值的 `慢SQL` 默认值：`0` 不记录。详见 `SqlStatementLogger`
+| `infra.SQL_SLOW` Logger 记录超过该值的 `慢SQL` 默认值：`0` 不记录。详见 `SqlStatementLogger`
 
 | `server.session.temp-dir`
 | `SessionProperties` 使用的 默认的会话持久化子目录。该目录父级目录 取决于 `ApplicationTemp`。默认值：`server-sessions`

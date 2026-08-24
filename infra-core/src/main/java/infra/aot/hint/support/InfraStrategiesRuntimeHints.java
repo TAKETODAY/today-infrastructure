@@ -29,7 +29,7 @@ import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * {@link RuntimeHintsRegistrar} to register hints for {@code infra.factories}.
@@ -37,14 +37,14 @@ import infra.util.TodayStrategies;
  * @author Brian Clozel
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see TodayStrategies
+ * @see InfraStrategies
  * @since 4.0
  */
-class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
+class InfraStrategiesRuntimeHints implements RuntimeHintsRegistrar {
 
-  private static final List<String> RESOURCE_LOCATIONS = List.of(TodayStrategies.STRATEGIES_LOCATION);
+  private static final List<String> RESOURCE_LOCATIONS = List.of(InfraStrategies.STRATEGIES_LOCATION);
 
-  private static final Logger logger = LoggerFactory.getLogger(TodayStrategiesRuntimeHints.class);
+  private static final Logger logger = LoggerFactory.getLogger(InfraStrategiesRuntimeHints.class);
 
   @Override
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
@@ -59,7 +59,7 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
   private void registerHints(RuntimeHints hints, ClassLoader classLoader, String resourceLocation) {
     hints.resources().registerPattern(resourceLocation);
     Map<String, List<String>> factories =
-            ExtendedTodayStrategies.accessLoadFactoriesResource(classLoader, resourceLocation);
+            ExtendedInfraStrategies.accessLoadFactoriesResource(classLoader, resourceLocation);
     factories.forEach((factoryClassName, implementationClassNames) ->
             registerHints(hints, classLoader, factoryClassName, implementationClassNames));
   }
@@ -103,14 +103,14 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
     }
   }
 
-  private static class ExtendedTodayStrategies extends TodayStrategies {
+  private static class ExtendedInfraStrategies extends InfraStrategies {
 
-    ExtendedTodayStrategies(ClassLoader classLoader, Map<String, List<String>> factories) {
+    ExtendedInfraStrategies(ClassLoader classLoader, Map<String, List<String>> factories) {
       super(classLoader, factories);
     }
 
     static Map<String, List<String>> accessLoadFactoriesResource(ClassLoader classLoader, String resourceLocation) {
-      return TodayStrategies.loadResource(classLoader, resourceLocation);
+      return InfraStrategies.loadResource(classLoader, resourceLocation);
     }
 
   }

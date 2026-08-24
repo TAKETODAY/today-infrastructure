@@ -28,7 +28,7 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SmartApplicationListener;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * {@link ApplicationContextInitializer} that writes the {@link ConditionEvaluationReport}
@@ -49,7 +49,7 @@ import infra.util.TodayStrategies;
  */
 public class ConditionEvaluationReportLoggingListener implements ApplicationContextInitializer {
 
-  private static final boolean default_destroyBeanOnRefreshed = TodayStrategies.getFlag(
+  private static final boolean default_destroyBeanOnRefreshed = InfraStrategies.getFlag(
           "infra.condition-evaluation-report.destroyBeanOnRefreshed", false);
 
   private final LogLevel logLevelForReport;

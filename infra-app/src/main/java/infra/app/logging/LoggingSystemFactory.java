@@ -20,7 +20,7 @@ package infra.app.logging;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Factory class used by {@link LoggingSystem#get(ClassLoader)} to find an actual
@@ -43,13 +43,13 @@ public interface LoggingSystemFactory {
   LoggingSystem getLoggingSystem(ClassLoader classLoader);
 
   /**
-   * Return a {@link LoggingSystemFactory} backed by {@code today.strategies}.
+   * Return a {@link LoggingSystemFactory} backed by {@code infra.strategies}.
    *
    * @return a {@link LoggingSystemFactory} instance
    */
   static LoggingSystemFactory fromStrategies() {
     return new DelegatingLoggingSystemFactory(
-            classLoader -> TodayStrategies.find(LoggingSystemFactory.class, classLoader));
+            classLoader -> InfraStrategies.find(LoggingSystemFactory.class, classLoader));
   }
 
 }

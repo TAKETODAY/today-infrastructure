@@ -31,7 +31,7 @@ import java.util.function.UnaryOperator;
 
 import infra.test.classpath.resources.ResourcePath;
 import infra.test.classpath.resources.WithResource;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class ApplicationResourceLoaderTests {
 
-  private static final String STRATEGIES_LOCATION = "META-INF/today.strategies";
+  private static final String STRATEGIES_LOCATION = "META-INF/infra.strategies";
 
   private static final String TEST_PROTOCOL_RESOLVERS_FACTORIES = "META-INF/infra-test-protocol-resolvers.factories";
 
@@ -66,7 +66,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadAbsolutePathWithWorkingDirectory() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("/root/file.txt");
     assertThat(resource.isFile()).isTrue();
@@ -84,7 +84,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadRelativeFilenameWithWorkingDirectory() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("file.txt");
     assertThat(resource.isFile()).isTrue();
@@ -95,7 +95,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadRelativePathWithWorkingDirectory() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("a/file.txt");
     assertThat(resource.isFile()).isTrue();
@@ -120,7 +120,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadClasspathLocationsWithWorkingDirectory() {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("classpath:a-file");
     assertThat(resource.exists()).isTrue();
@@ -130,7 +130,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadNonExistentClasspathLocationsWithWorkingDirectory() {
     ClassLoader classLoader = getClass().getClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("classpath:doesnt-exist");
     assertThat(resource.exists()).isFalse();
@@ -154,7 +154,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadRelativeFileUrisWithWorkingDirectory() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("file:file.txt");
     assertThat(resource.isFile()).isTrue();
@@ -165,7 +165,7 @@ class ApplicationResourceLoaderTests {
   void shouldLoadAbsoluteFileUrisWithWorkingDirectory() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     Resource resource = ApplicationResourceLoader
-            .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
+            .of(classLoader, InfraStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
             .getResource("file:/file.txt");
     assertThat(resource.isFile()).isTrue();
@@ -192,8 +192,8 @@ class ApplicationResourceLoaderTests {
   @Test
   @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
           content = "infra.core.io.ProtocolResolver=infra.core.io.ReverseStringProtocolResolver")
-  void getWithClassPathAndTodayStrategiesIncludesProtocolResolvers() throws IOException {
-    TodayStrategies strategies = TodayStrategies
+  void getWithClassPathAndInfraStrategiesIncludesProtocolResolvers() throws IOException {
+    InfraStrategies strategies = InfraStrategies
             .forResourceLocation(TEST_PROTOCOL_RESOLVERS_FACTORIES, Thread.currentThread().getContextClassLoader());
     ResourceLoader loader = ApplicationResourceLoader.of((ClassLoader) null, strategies);
     Resource resource = loader.getResource("reverse:test");
@@ -201,7 +201,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithClassPathAndTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
+  void getWithClassPathAndInfraStrategiesWhenInfraStrategiesIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> ApplicationResourceLoader.of((ClassLoader) null, null))
             .withMessage("'strategies' is required");
   }
@@ -227,7 +227,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithResourceLoaderAndTodayStrategiesIncludesProtocolResolvers() throws IOException {
+  void getWithResourceLoaderAndInfraStrategiesIncludesProtocolResolvers() throws IOException {
     DefaultResourceLoader delegate = new TestResourceLoader();
     ResourceLoader loader = ApplicationResourceLoader.of(delegate);
     Resource resource = loader.getResource("base64:" + TEST_BASE_64_VALUE);
@@ -235,8 +235,8 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithResourceLoaderAndTodayStrategiesWhenResourceLoaderIsNullThrowsException() {
-    TodayStrategies strategies = TodayStrategies
+  void getWithResourceLoaderAndInfraStrategiesWhenResourceLoaderIsNullThrowsException() {
+    InfraStrategies strategies = InfraStrategies
             .forResourceLocation(TEST_PROTOCOL_RESOLVERS_FACTORIES);
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ApplicationResourceLoader.of((ResourceLoader) null, strategies))
@@ -244,7 +244,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithResourceLoaderAndTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
+  void getWithResourceLoaderAndInfraStrategiesWhenInfraStrategiesIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ApplicationResourceLoader.of(new TestResourceLoader(), null))
             .withMessage("'strategies' is required");

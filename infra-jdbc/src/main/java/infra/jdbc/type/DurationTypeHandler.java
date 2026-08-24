@@ -28,7 +28,7 @@ import java.time.Duration;
 import java.util.Locale;
 
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * A configurable {@link java.time.Duration} type handler that supports multiple storage formats.
@@ -160,7 +160,7 @@ public class DurationTypeHandler extends BasicTypeHandler<Duration> {
   }
 
   private static StorageFormat findDefaultFormat() {
-    String property = TodayStrategies.getProperty(DEFAULT_FORMAT_KEY);
+    String property = InfraStrategies.getProperty(DEFAULT_FORMAT_KEY);
     if (property != null) {
       try {
         return StorageFormat.valueOf(property.toUpperCase(Locale.ROOT));

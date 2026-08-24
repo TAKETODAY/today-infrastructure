@@ -29,7 +29,7 @@ import infra.core.env.Environment;
  * information that can be displayed to the user.
  * <p>
  * Implementations should be added as a
- * {@code today.strategies} entries. The following constructor parameter types are
+ * {@code infra.strategies} entries. The following constructor parameter types are
  * supported:
  * <ul>
  * <li>{@link BeanFactory}</li>

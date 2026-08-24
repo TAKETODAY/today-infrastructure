@@ -21,19 +21,19 @@ package infra.test.context.util;
 import java.lang.reflect.InvocationTargetException;
 
 import infra.core.NativeDetector;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 /**
- * Infra factories {@link TodayStrategies.FailureHandler} used
+ * Infra factories {@link InfraStrategies.FailureHandler} used
  * within the <em>Infra TestContext Framework</em>.
  *
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class TestContextFailureHandler implements TodayStrategies.FailureHandler {
+class TestContextFailureHandler implements InfraStrategies.FailureHandler {
 
   private final Logger logger = LoggerFactory.getLogger(TestContextFactoriesUtils.class);
 

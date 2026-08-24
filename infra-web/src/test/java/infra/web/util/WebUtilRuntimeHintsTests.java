@@ -24,7 +24,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.http.MediaTypeEditor;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ class WebUtilRuntimeHintsTests {
 
   @BeforeEach
   void setup() {
-    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
+    InfraStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class)
             .forEach(registrar -> registrar.registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
   }

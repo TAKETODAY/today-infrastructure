@@ -27,15 +27,15 @@ import infra.beans.factory.BeanFactory;
 import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.util.ClassInstantiator;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.ArgumentResolver;
-import infra.util.TodayStrategies.FailureHandler;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.ArgumentResolver;
+import infra.util.InfraStrategies.FailureHandler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 /**
  * Utility to trigger {@link FailureAnalyzer} and {@link FailureAnalysisReporter}
- * instances loaded from {@code today.strategies}.
+ * instances loaded from {@code infra.strategies}.
  * <p>
  * A {@code FailureAnalyzer} that requires access to the {@link BeanFactory} in order to
  * perform its analysis can implement {@code BeanFactoryAware} to have the
@@ -54,15 +54,15 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
 
   private final @Nullable BootstrapContext context;
 
-  private final TodayStrategies strategies;
+  private final InfraStrategies strategies;
 
   private final List<FailureAnalyzer> analyzers;
 
   public FailureAnalyzers(@Nullable ConfigurableApplicationContext context) {
-    this(context, TodayStrategies.forDefaultResourceLocation(context != null ? context.getClassLoader() : null));
+    this(context, InfraStrategies.forDefaultResourceLocation(context != null ? context.getClassLoader() : null));
   }
 
-  FailureAnalyzers(@Nullable ConfigurableApplicationContext context, TodayStrategies strategies) {
+  FailureAnalyzers(@Nullable ConfigurableApplicationContext context, InfraStrategies strategies) {
     this.strategies = strategies;
     this.context = context != null ? context.getBootstrapContext() : null;
     var analyzers = load(FailureAnalyzer.class, this.context, strategies);
@@ -105,7 +105,7 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
     return true;
   }
 
-  private static <T> List<T> load(Class<T> strategyType, @Nullable ClassInstantiator instantiator, TodayStrategies strategies) {
+  private static <T> List<T> load(Class<T> strategyType, @Nullable ClassInstantiator instantiator, InfraStrategies strategies) {
     if (instantiator != null) {
       return strategies.load(strategyType, instantiator, FailureHandler.logging(logger));
     }

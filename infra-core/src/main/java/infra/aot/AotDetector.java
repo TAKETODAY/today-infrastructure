@@ -19,7 +19,7 @@
 package infra.aot;
 
 import infra.core.NativeDetector;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static infra.core.NativeDetector.Context;
 
@@ -52,7 +52,7 @@ public abstract class AotDetector {
    * @return whether AOT optimizations must be considered
    */
   public static boolean useGeneratedArtifacts() {
-    return inNativeImage || TodayStrategies.getFlag(AOT_ENABLED);
+    return inNativeImage || InfraStrategies.getFlag(AOT_ENABLED);
   }
 
 }

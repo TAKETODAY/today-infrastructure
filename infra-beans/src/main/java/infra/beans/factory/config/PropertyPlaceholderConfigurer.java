@@ -27,7 +27,7 @@ import infra.beans.BeansException;
 import infra.core.StringValueResolver;
 import infra.core.env.Environment;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.PlaceholderResolver;
 import infra.util.PropertyPlaceholderHandler;
 
@@ -84,7 +84,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 
   private int systemPropertiesMode = SYSTEM_PROPERTIES_MODE_FALLBACK;
 
-  private boolean searchSystemEnvironment = !TodayStrategies.getFlag(Environment.KEY_IGNORE_GETENV);
+  private boolean searchSystemEnvironment = !InfraStrategies.getFlag(Environment.KEY_IGNORE_GETENV);
 
   /**
    * Set the system property mode by the name of the corresponding constant,

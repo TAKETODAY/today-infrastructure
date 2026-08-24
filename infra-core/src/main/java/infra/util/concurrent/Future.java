@@ -221,7 +221,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * The default {@link Scheduler} used when no {@link Executor} is supplied.
    *
    * <p>Resolved via {@link Scheduler#lookup()}, which discovers a {@link Scheduler}
-   * through {@code TodayStrategies} (a {@code SchedulerFactory} or a direct
+   * through {@code InfraStrategies} (a {@code SchedulerFactory} or a direct
    * {@code Scheduler}), falling back to the built-in {@code DefaultScheduler}.
    *
    * <p>The built-in {@code DefaultScheduler} executes tasks on

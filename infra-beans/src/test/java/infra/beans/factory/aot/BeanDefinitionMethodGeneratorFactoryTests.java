@@ -62,59 +62,59 @@ class BeanDefinitionMethodGeneratorFactoryTests {
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenExcludedByBeanDefinitionAttributeReturnsNull() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     registeredBean.getMergedBeanDefinition().setAttribute(
             BeanRegistrationAotProcessor.IGNORE_REGISTRATION_ATTRIBUTE, true);
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNull();
   }
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenBeanDefinitionAttributeSetToFalseDoesNotFilterBean() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     registeredBean.getMergedBeanDefinition().setAttribute(
             BeanRegistrationAotProcessor.IGNORE_REGISTRATION_ATTRIBUTE, false);
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNotNull();
   }
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenBeanDefinitionAttributeIsNotSetDoesNotFilterBean() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNotNull();
   }
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenExcludedByBeanRegistrationExcludeFilterReturnsNull() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
-    todayStrategies.addInstance(BeanRegistrationExcludeFilter.class,
+    infraStrategies.addInstance(BeanRegistrationExcludeFilter.class,
             new MockBeanRegistrationExcludeFilter(true, 0));
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNull();
   }
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenExcludedByBeanRegistrationExcludeFilterBeanReturnsNull() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     beanFactory.registerSingleton("filter",
             new MockBeanRegistrationExcludeFilter(true, 0));
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNull();
   }
 
@@ -126,15 +126,15 @@ class BeanDefinitionMethodGeneratorFactoryTests {
     MockBeanRegistrationExcludeFilter filter4 = new MockBeanRegistrationExcludeFilter(true, 4);
     MockBeanRegistrationExcludeFilter filter5 = new MockBeanRegistrationExcludeFilter(true, 5);
     MockBeanRegistrationExcludeFilter filter6 = new MockBeanRegistrationExcludeFilter(true, 6);
-    MockStrategies todayStrategies = new MockStrategies();
-    todayStrategies.addInstance(BeanRegistrationExcludeFilter.class, filter3, filter1, filter5);
+    MockStrategies infraStrategies = new MockStrategies();
+    infraStrategies.addInstance(BeanRegistrationExcludeFilter.class, filter3, filter1, filter5);
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerSingleton("filter4", filter4);
     beanFactory.registerSingleton("filter2", filter2);
     beanFactory.registerSingleton("filter6", filter6);
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNull();
     assertThat(filter1.wasCalled()).isTrue();
     assertThat(filter2.wasCalled()).isTrue();
@@ -150,14 +150,14 @@ class BeanDefinitionMethodGeneratorFactoryTests {
     BeanRegistrationAotContribution beanContribution = mock();
     BeanRegistrationAotProcessor processorBean = registeredBean -> beanContribution;
     beanFactory.registerSingleton("processorBean", processorBean);
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     BeanRegistrationAotContribution loaderContribution = mock();
     BeanRegistrationAotProcessor loaderProcessor = registeredBean -> loaderContribution;
-    todayStrategies.addInstance(BeanRegistrationAotProcessor.class,
+    infraStrategies.addInstance(BeanRegistrationAotProcessor.class,
             loaderProcessor);
     RegisteredBean registeredBean = registerTestBean(beanFactory);
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     BeanDefinitionMethodGenerator methodGenerator = methodGeneratorFactory
             .getBeanDefinitionMethodGenerator(registeredBean);
     assertThat(methodGenerator).extracting("aotContributions").asInstanceOf(LIST)
@@ -166,7 +166,7 @@ class BeanDefinitionMethodGeneratorFactoryTests {
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenRegisteredBeanIsAotProcessorFiltersBean() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("test1", BeanDefinitionBuilder
             .rootBeanDefinition(TestBeanFactoryInitializationAotProcessorBean.class).getBeanDefinition());
@@ -175,20 +175,20 @@ class BeanDefinitionMethodGeneratorFactoryTests {
             .rootBeanDefinition(TestBeanRegistrationAotProcessorBean.class).getBeanDefinition());
     RegisteredBean registeredBean2 = RegisteredBean.of(beanFactory, "test2");
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean1)).isNull();
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean2)).isNull();
   }
 
   @Test
   void getBeanDefinitionMethodGeneratorWhenRegisteredBeanIsAotProcessorAndIsNotExcludedAndBeanRegistrationExcludeFilterDoesNotFilterBean() {
-    MockStrategies todayStrategies = new MockStrategies();
+    MockStrategies infraStrategies = new MockStrategies();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("test", BeanDefinitionBuilder
             .rootBeanDefinition(TestBeanRegistrationAotProcessorAndNotExcluded.class).getBeanDefinition());
     RegisteredBean registeredBean1 = RegisteredBean.of(beanFactory, "test");
     BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
-            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+            AotServices.factoriesAndBeans(infraStrategies, beanFactory));
     assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean1)).isNotNull();
   }
 

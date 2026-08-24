@@ -22,7 +22,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * Detects beans that depend on database initialization. Implementations should be
- * registered in {@code META-INF/today.strategies} under the key
+ * registered in {@code META-INF/infra.strategies} under the key
  * {@code infra.sql.init.dependency.DependsOnDatabaseInitializationDetector}.
  *
  * @author Andy Wilkinson

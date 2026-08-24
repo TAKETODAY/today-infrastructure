@@ -38,7 +38,7 @@ import infra.expression.spel.support.StandardTypeConverter;
 import infra.expression.spel.support.StandardTypeLocator;
 import infra.format.support.ApplicationConversionService;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.StringUtils;
 
 /**
@@ -61,7 +61,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
 
   /**
    * System property to configure the maximum length for SpEL expressions: {@value}.
-   * <p>Can also be configured via the {@link TodayStrategies} mechanism.
+   * <p>Can also be configured via the {@link InfraStrategies} mechanism.
    *
    * @see SpelParserConfiguration#getMaximumExpressionLength()
    */
@@ -193,7 +193,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
   }
 
   private static int retrieveMaxExpressionLength() {
-    String value = TodayStrategies.getProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME);
+    String value = InfraStrategies.getProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME);
     if (StringUtils.isBlank(value)) {
       return SpelParserConfiguration.DEFAULT_MAX_EXPRESSION_LENGTH;
     }

@@ -40,7 +40,7 @@ import infra.context.properties.bind.Binder;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.core.io.DefaultResourceLoader;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.mock.env.MockPropertySource;
 
@@ -78,7 +78,7 @@ class ConfigDataEnvironmentContributorsTests {
   void setup() {
     MockEnvironment environment = new MockEnvironment();
     Binder binder = Binder.get(environment);
-    TodayStrategies strategies = TodayStrategies.forDefaultResourceLocation(getClass().getClassLoader());
+    InfraStrategies strategies = InfraStrategies.forDefaultResourceLocation(getClass().getClassLoader());
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             binder, new DefaultResourceLoader(getClass().getClassLoader()), strategies);
     ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, strategies);

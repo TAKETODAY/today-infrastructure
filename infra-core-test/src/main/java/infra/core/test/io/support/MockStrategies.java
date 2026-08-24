@@ -29,18 +29,18 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.util.ClassInstantiator;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 
 /**
- * Simple mock {@link TodayStrategies} implementation that can be used for testing
+ * Simple mock {@link InfraStrategies} implementation that can be used for testing
  * purposes.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public class MockStrategies extends TodayStrategies {
+public class MockStrategies extends InfraStrategies {
 
   private final AtomicInteger sequence = new AtomicInteger();
 

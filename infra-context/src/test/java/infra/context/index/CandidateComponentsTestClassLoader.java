@@ -29,7 +29,7 @@ import infra.core.io.Resource;
 
 /**
  * A test {@link ClassLoader} that can be used in a testing context to control the
- * {@code today.components} resource that should be loaded. Can also simulate a failure
+ * {@code infra.components} resource that should be loaded. Can also simulate a failure
  * by throwing a configurable {@link IOException}.
  *
  * @author Stephane Nicoll

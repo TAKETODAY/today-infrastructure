@@ -24,8 +24,8 @@ import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.core.env.PropertySource;
-import infra.util.Assert;
 import infra.origin.Origin;
+import infra.util.Assert;
 
 /**
  * Exception thrown when an attempt is made to resolve a property against an inactive

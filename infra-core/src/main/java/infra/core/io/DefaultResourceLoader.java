@@ -54,7 +54,7 @@ import static infra.core.io.PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX;
  * "classpath:" pseudo-URL.
  *
  * <p> All the {@link ProtocolResolver ProtocolResolvers} registered in
- * a {@code today.strategies} file applied to it.
+ * a {@code infra.strategies} file applied to it.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 import infra.expression.spel.standard.SpelExpressionParser;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Configuration object for the SpEL expression parser.
@@ -46,7 +46,7 @@ public class SpelParserConfiguration {
 
   /**
    * System property to configure the maximum length for SpEL expressions: {@value}.
-   * <p>Can also be configured via the {@link TodayStrategies} mechanism.
+   * <p>Can also be configured via the {@link InfraStrategies} mechanism.
    *
    * @see SpelParserConfiguration#getMaximumExpressionLength()
    */
@@ -60,9 +60,9 @@ public class SpelParserConfiguration {
   public static final int DEFAULT_MAX_EXPRESSION_LENGTH;
 
   static {
-    String compilerMode = TodayStrategies.getProperty(EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
+    String compilerMode = InfraStrategies.getProperty(EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
     defaultCompilerMode = compilerMode != null ? SpelCompilerMode.valueOf(compilerMode.toUpperCase(Locale.ROOT)) : SpelCompilerMode.OFF;
-    DEFAULT_MAX_EXPRESSION_LENGTH = TodayStrategies.getInt(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, 10_000);
+    DEFAULT_MAX_EXPRESSION_LENGTH = InfraStrategies.getInt(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, 10_000);
   }
 
   private final SpelCompilerMode compilerMode;

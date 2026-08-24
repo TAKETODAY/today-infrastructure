@@ -25,31 +25,31 @@ import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.lang.DummyFactory;
 import infra.lang.MyDummyFactory1;
-import infra.util.TodayStrategies;
 import infra.util.ClassUtils;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link TodayStrategiesRuntimeHints}.
+ * Tests for {@link InfraStrategiesRuntimeHints}.
  *
  * @author Phillip Webb
  */
-class TodayStrategiesRuntimeHintsTests {
+class InfraStrategiesRuntimeHintsTests {
 
   private RuntimeHints hints;
 
   @BeforeEach
   void setup() {
     this.hints = new RuntimeHints();
-    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
+    InfraStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class).forEach(registrar -> registrar
                     .registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
   }
 
   @Test
   void resourceLocationHasHints() {
-    assertThat(RuntimeHintsPredicates.resource().forResource(TodayStrategies.STRATEGIES_LOCATION)).accepts(this.hints);
+    assertThat(RuntimeHintsPredicates.resource().forResource(InfraStrategies.STRATEGIES_LOCATION)).accepts(this.hints);
   }
 
   @Test
@@ -67,7 +67,7 @@ class TodayStrategiesRuntimeHintsTests {
   @Test
   void handlesNonExistentResourceLocationGracefully() {
     RuntimeHints hints = new RuntimeHints();
-    TodayStrategiesRuntimeHints runtimeHints = new TodayStrategiesRuntimeHints();
+    InfraStrategiesRuntimeHints runtimeHints = new InfraStrategiesRuntimeHints();
     runtimeHints.registerHints(hints, getClass().getClassLoader());
     // Should not throw exception and complete normally
   }
@@ -76,7 +76,7 @@ class TodayStrategiesRuntimeHintsTests {
   void skipsUnresolvableFactoryClasses() {
     RuntimeHints hints = new RuntimeHints();
     ClassLoader classLoader = getClass().getClassLoader();
-    TodayStrategiesRuntimeHints runtimeHints = new TodayStrategiesRuntimeHints();
+    InfraStrategiesRuntimeHints runtimeHints = new InfraStrategiesRuntimeHints();
 
     // This should not throw an exception even if class doesn't exist
     runtimeHints.registerHints(hints, classLoader);
@@ -100,7 +100,7 @@ class TodayStrategiesRuntimeHintsTests {
   @Test
   void handlesNullClassLoaderGracefully() {
     RuntimeHints hints = new RuntimeHints();
-    TodayStrategiesRuntimeHints runtimeHints = new TodayStrategiesRuntimeHints();
+    InfraStrategiesRuntimeHints runtimeHints = new InfraStrategiesRuntimeHints();
     runtimeHints.registerHints(hints, null);
     // Test passes if no exception is thrown
   }

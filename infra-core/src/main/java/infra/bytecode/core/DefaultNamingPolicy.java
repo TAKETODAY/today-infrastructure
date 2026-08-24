@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * The default policy used by {@link AbstractClassGenerator}. Generates names
@@ -45,7 +45,7 @@ public class DefaultNamingPolicy implements NamingPolicy {
   /**
    * This allows to test collisions of {@code key.hashCode()}.
    */
-  private static final boolean STRESS_HASH_CODE = TodayStrategies.getFlag("bytecode.stressHashCodes");
+  private static final boolean STRESS_HASH_CODE = InfraStrategies.getFlag("bytecode.stressHashCodes");
 
   @Override
   public String getClassName(@Nullable String prefix, String source, Object key, Predicate<String> names) {

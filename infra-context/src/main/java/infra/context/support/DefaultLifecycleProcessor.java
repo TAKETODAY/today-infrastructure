@@ -52,7 +52,7 @@ import infra.context.Phased;
 import infra.context.SmartLifecycle;
 import infra.core.NativeDetector;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -107,10 +107,10 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   public static final String ON_REFRESH_VALUE = "onRefresh";
 
   private static boolean checkpointOnRefresh =
-          ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(CHECKPOINT_PROPERTY_NAME));
+          ON_REFRESH_VALUE.equalsIgnoreCase(InfraStrategies.getProperty(CHECKPOINT_PROPERTY_NAME));
 
   private static final boolean exitOnRefresh =
-          ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(EXIT_PROPERTY_NAME));
+          ON_REFRESH_VALUE.equalsIgnoreCase(InfraStrategies.getProperty(EXIT_PROPERTY_NAME));
 
   private final ConcurrentHashMap<Integer, Long> concurrentStartupForPhases = new ConcurrentHashMap<>();
 

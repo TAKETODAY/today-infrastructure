@@ -119,7 +119,7 @@ class DependencyResolvingStrategiesTests {
   }
 
   @Test
-  void initStrategiesAddsStrategiesFromTodayStrategies() {
+  void initStrategiesAddsStrategiesFromInfraStrategies() {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     DependencyResolvingStrategies strategies = new DependencyResolvingStrategies();
 

@@ -38,7 +38,7 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.io.ClassPathResource;
 import infra.core.type.AnnotationMetadata;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
@@ -112,7 +112,7 @@ public class ImportAutoConfigurationImportSelector extends AutoConfigurationImpo
   protected Collection<String> getStrategiesNames(Class<?> source) {
     ClassLoader beanClassLoader = getBeanClassLoader();
     ArrayList<String> strategies = ImportCandidates.load(source, beanClassLoader).getCandidates();
-    strategies.addAll(TodayStrategies.findNames(source.getName(), beanClassLoader));
+    strategies.addAll(InfraStrategies.findNames(source.getName(), beanClassLoader));
     return strategies;
   }
 

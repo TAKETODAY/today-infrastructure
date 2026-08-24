@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.config.AutoConfigurationImportFilter;
 import infra.context.annotation.config.AutoConfigurationMetadata;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -49,7 +49,7 @@ class OnClassConditionAutoConfigurationImportFilterTests {
 
   @Test
   void shouldBeRegistered() {
-    assertThat(TodayStrategies.find(AutoConfigurationImportFilter.class))
+    assertThat(InfraStrategies.find(AutoConfigurationImportFilter.class))
             .hasAtLeastOneElementOfType(OnClassCondition.class);
   }
 

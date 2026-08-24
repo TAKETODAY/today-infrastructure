@@ -26,7 +26,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.TestConstructor;
 
 import static infra.test.context.TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME;
@@ -66,7 +66,7 @@ class TestConstructorIntegrationTests {
   }
 
   @Test
-  void autowireModeSetToAllViaTodayStrategies() {
+  void autowireModeSetToAllViaInfraStrategies() {
     setProperty("all");
 
     EngineTestKit.engine("junit-jupiter")
@@ -87,7 +87,7 @@ class TestConstructorIntegrationTests {
   }
 
   private void setProperty(String flag) {
-    TodayStrategies.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
+    InfraStrategies.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
   }
 
   @JUnitConfig

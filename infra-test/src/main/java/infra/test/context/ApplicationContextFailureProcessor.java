@@ -19,14 +19,14 @@
 package infra.test.context;
 
 import infra.context.ApplicationContext;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Strategy for components that process failures related to application contexts
  * within the <em>Infra TestContext Framework</em>.
  *
  * <p>Implementations must be registered via the
- * {@link TodayStrategies} mechanism.
+ * {@link InfraStrategies} mechanism.
  *
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

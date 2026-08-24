@@ -23,11 +23,11 @@ import java.time.Duration;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Listener for the {@link Application} {@code run} method.
- * {@link ApplicationStartupListener}s are loaded via the {@link TodayStrategies}
+ * {@link ApplicationStartupListener}s are loaded via the {@link InfraStrategies}
  * and should declare a public constructor that accepts following arguments
  * <pre>{@code
  * var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,

@@ -86,8 +86,8 @@ import infra.core.io.ResourceLoader;
 import infra.format.support.ApplicationConversionService;
 import infra.util.Assert;
 import infra.lang.Constant;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.ArgumentResolver;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.ArgumentResolver;
 import infra.lang.VisibleForTesting;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -422,7 +422,7 @@ public class Application {
    * <p>
    * The listeners are collected from three sources in the following order:
    * <ol>
-   * <li>Listeners discovered via {@link TodayStrategies} using the current class loader.</li>
+   * <li>Listeners discovered via {@link InfraStrategies} using the current class loader.</li>
    * <li>Listeners explicitly added via {@link #setStartupListeners(Collection)} or {@link #addStartupListeners(ApplicationStartupListener...)}.</li>
    * <li>A listener provided by the current {@link ApplicationHook}, if present.</li>
    * </ol>
@@ -1418,7 +1418,7 @@ public class Application {
   }
 
   private <T> List<T> getStrategiesInstances(Class<T> type, @Nullable ArgumentResolver argumentResolver) {
-    return TodayStrategies.forDefaultResourceLocation(getClassLoader()).load(type, argumentResolver);
+    return InfraStrategies.forDefaultResourceLocation(getClassLoader()).load(type, argumentResolver);
   }
 
   /**

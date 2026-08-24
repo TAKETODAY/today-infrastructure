@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 
 import infra.app.loader.jarmode.JarMode;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ClassUtils;
 import infra.util.ExceptionUtils;
 
@@ -44,7 +44,7 @@ final class JarModeRunner {
 
   static void main(String[] args) {
     String mode = System.getProperty("jarmode");
-    List<JarMode> candidates = TodayStrategies.find(JarMode.class, ClassUtils.getDefaultClassLoader());
+    List<JarMode> candidates = InfraStrategies.find(JarMode.class, ClassUtils.getDefaultClassLoader());
     for (JarMode candidate : candidates) {
       if (tryRun(candidate, mode, args)) {
         return;

@@ -31,12 +31,12 @@ import infra.app.ConfigurableBootstrapContext;
 import infra.context.properties.bind.Binder;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.ArgumentResolver;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.ArgumentResolver;
 
 /**
  * A collection of {@link ConfigDataLocationResolver} instances loaded via
- * {@code today.strategies}.
+ * {@code infra.strategies}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
@@ -56,7 +56,7 @@ class ConfigDataLocationResolvers {
    * @param strategies to load {@link ConfigDataLocationResolver} instances
    */
   ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext,
-          Binder binder, ResourceLoader resourceLoader, TodayStrategies strategies) {
+          Binder binder, ResourceLoader resourceLoader, InfraStrategies strategies) {
     this.resolvers = reorder(strategies.load(ConfigDataLocationResolver.class, ArgumentResolver.of(Binder.class, binder)
             .and(ResourceLoader.class, resourceLoader)
             .and(ConfigurableBootstrapContext.class, bootstrapContext)

@@ -23,7 +23,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Configuration;
 import infra.core.env.Environment;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.test.context.NestedTestConfiguration;
 import infra.test.context.TestPropertySource;
 import infra.test.context.junit.jupiter.InfraExtension.ExtensionContextScope;
@@ -61,7 +61,7 @@ class InfraExtensionExtensionContextScopeTests {
 
   @Test
   void invalidExtensionContextScopeIsRejectedWhenConfiguredViaSpringProperties() {
-    TodayStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, "bogus");
+    InfraStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, "bogus");
     try {
       EngineTestKit.engine("junit-jupiter")
               .selectors(selectClass(InvalidScopeTestCase.class))
@@ -70,7 +70,7 @@ class InfraExtensionExtensionContextScopeTests {
               .assertStatistics(stats -> stats.started(1).failed(1));
     }
     finally {
-      TodayStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, null);
+      InfraStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, null);
     }
   }
 
@@ -86,7 +86,7 @@ class InfraExtensionExtensionContextScopeTests {
 
   @Test
   void testClassScopeConfiguredViaSpringProperties() {
-    TodayStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, TEST_CLASS.name());
+    InfraStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, TEST_CLASS.name());
     try {
       var results = EngineTestKit.engine("junit-jupiter")
               .selectors(selectClass(GlobalClassScopedConfigurationTestCase.class))
@@ -97,7 +97,7 @@ class InfraExtensionExtensionContextScopeTests {
               .assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
     }
     finally {
-      TodayStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, null);
+      InfraStrategies.setProperty(EXTENSION_CONTEXT_SCOPE_PROPERTY_NAME, null);
     }
   }
 

@@ -61,7 +61,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
    * @since 4.0
    */
   @Test
-  @Disabled("TodayStrategies 加载问题")
+  @Disabled("InfraStrategies 加载问题")
   void buildMergedConfigWithContextConfigurationWithoutLocationsClassesOrInitializers() {
     assertThatIllegalStateException().isThrownBy(() ->
                     buildMergedContextConfiguration(MissingContextAttributesTestCase.class))

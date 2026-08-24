@@ -28,9 +28,9 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.support.FilePatternResourceHintsRegistrar;
 import infra.app.env.PropertySourceLoader;
-import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.InfraStrategies;
 import infra.util.ResourceUtils;
 
 /**
@@ -110,8 +110,8 @@ class ConfigDataLocationRuntimeHints implements RuntimeHintsRegistrar {
     return extensions;
   }
 
-  protected TodayStrategies getLoaderStrategies(@Nullable ClassLoader classLoader) {
-    return TodayStrategies.forDefaultResourceLocation(classLoader);
+  protected InfraStrategies getLoaderStrategies(@Nullable ClassLoader classLoader) {
+    return InfraStrategies.forDefaultResourceLocation(classLoader);
   }
 
 }

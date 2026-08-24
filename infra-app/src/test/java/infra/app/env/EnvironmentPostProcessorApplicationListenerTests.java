@@ -64,7 +64,7 @@ import infra.core.io.ResourceLoader;
 import infra.core.test.tools.Compiled;
 import infra.core.test.tools.TestCompiler;
 import infra.javapoet.ClassName;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.mock.env.MockPropertySource;
 import infra.util.StringUtils;
@@ -286,8 +286,8 @@ class EnvironmentPostProcessorApplicationListenerTests {
         @Override
         public Enumeration<URL> getResources(String name) throws IOException {
           Enumeration<URL> resources = super.getResources(name);
-          if (TodayStrategies.STRATEGIES_LOCATION.equals(name)) {
-            Path strategies = tempDir.resolve("today.strategies");
+          if (InfraStrategies.STRATEGIES_LOCATION.equals(name)) {
+            Path strategies = tempDir.resolve("infra.strategies");
             try (BufferedWriter writer = Files.newBufferedWriter(strategies)) {
               properties.store(writer, "");
             }

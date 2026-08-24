@@ -34,12 +34,12 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.ObjectUtils;
 
 /**
  * A collection of AOT services that can be {@link Loader loaded} from
- * a {@link TodayStrategies} or obtained from a {@link BeanFactory}.
+ * a {@link InfraStrategies} or obtained from a {@link BeanFactory}.
  *
  * @param <T> the service type
  * @author Phillip Webb
@@ -103,12 +103,12 @@ public final class AotServices<T> implements Iterable<T> {
 
   /**
    * Create a new {@link Loader} that will obtain AOT services from the given
-   * {@link TodayStrategies}.
+   * {@link InfraStrategies}.
    *
    * @param strategies the strategies loader
    * @return a new {@link Loader} instance
    */
-  public static Loader factories(TodayStrategies strategies) {
+  public static Loader factories(InfraStrategies strategies) {
     Assert.notNull(strategies, "'strategies' is required");
     return new Loader(strategies, null);
   }
@@ -129,20 +129,20 @@ public final class AotServices<T> implements Iterable<T> {
 
   /**
    * Create a new {@link Loader} that will obtain AOT services from the given
-   * {@link TodayStrategies} and {@link BeanFactory}.
+   * {@link InfraStrategies} and {@link BeanFactory}.
    *
    * @param strategies the strategies loader
    * @param beanFactory the bean factory
    * @return a new {@link Loader} instance
    */
-  public static Loader factoriesAndBeans(TodayStrategies strategies, BeanFactory beanFactory) {
+  public static Loader factoriesAndBeans(InfraStrategies strategies, BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "'beanFactory' is required");
     Assert.notNull(strategies, "'strategies' is required");
     return new Loader(strategies, beanFactory);
   }
 
-  private static TodayStrategies getStrategiesLoader(@Nullable ClassLoader classLoader) {
-    return TodayStrategies.forResourceLocation(FACTORIES_RESOURCE_LOCATION, classLoader);
+  private static InfraStrategies getStrategiesLoader(@Nullable ClassLoader classLoader) {
+    return InfraStrategies.forResourceLocation(FACTORIES_RESOURCE_LOCATION, classLoader);
   }
 
   @Override
@@ -197,12 +197,12 @@ public final class AotServices<T> implements Iterable<T> {
    */
   public static class Loader {
 
-    private final TodayStrategies strategies;
+    private final InfraStrategies strategies;
 
     @Nullable
     private final BeanFactory beanFactory;
 
-    Loader(TodayStrategies strategies, @Nullable BeanFactory beanFactory) {
+    Loader(InfraStrategies strategies, @Nullable BeanFactory beanFactory) {
       this.strategies = strategies;
       this.beanFactory = beanFactory;
     }
@@ -232,7 +232,7 @@ public final class AotServices<T> implements Iterable<T> {
   public enum Source {
 
     /**
-     * An AOT service loaded from {@link TodayStrategies}.
+     * An AOT service loaded from {@link InfraStrategies}.
      */
     INFRA_SPI,
 

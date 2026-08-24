@@ -31,7 +31,7 @@ import infra.context.annotation.Import;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Enable auto-configuration of the Application Context, attempting to guess and
@@ -61,7 +61,7 @@ import infra.util.TodayStrategies;
  * and classes can be searched.
  * <p>
  * Auto-configuration classes are regular Framework {@link Configuration @Configuration}
- * beans. They are located using {@link ImportCandidates} and the {@link TodayStrategies}
+ * beans. They are located using {@link ImportCandidates} and the {@link InfraStrategies}
  * mechanism (keyed against this class). Generally auto-configuration beans are
  * {@link Conditional @Conditional} beans (most often using
  * {@link ConditionalOnClass @ConditionalOnClass} and

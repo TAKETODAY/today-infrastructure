@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 /**
  * Performs formatting of basic SQL statements (DML + query).
@@ -26,7 +26,7 @@ import infra.util.TodayStrategies;
  */
 public class BasicSQLFormatter implements SQLFormatter {
 
-  private static final boolean SKIP_DDL = TodayStrategies.getFlag("sql.BasicSQLFormatter.skip-ddl", true);
+  private static final boolean SKIP_DDL = InfraStrategies.getFlag("sql.BasicSQLFormatter.skip-ddl", true);
 
   private static final HashSet<String> BEGIN_CLAUSES = new HashSet<>();
   private static final HashSet<String> END_CLAUSES = new HashSet<>();

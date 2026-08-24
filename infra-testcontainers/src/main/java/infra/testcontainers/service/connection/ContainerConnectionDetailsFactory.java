@@ -36,7 +36,7 @@ import infra.context.service.connection.ConnectionDetailsFactory;
 import infra.core.ResolvableType;
 import infra.core.ssl.SslBundle;
 import infra.util.Assert;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.origin.Origin;
@@ -244,8 +244,8 @@ public abstract class ContainerConnectionDetailsFactory<C extends Container<?>, 
 
     @Override
     public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
-      TodayStrategies.forDefaultResourceLocation(classLoader)
-              .load(ConnectionDetailsFactory.class, TodayStrategies.FailureHandler.logging(logger))
+      InfraStrategies.forDefaultResourceLocation(classLoader)
+              .load(ConnectionDetailsFactory.class, InfraStrategies.FailureHandler.logging(logger))
               .stream()
               .flatMap(this::requiredClassNames)
               .forEach((requiredClassName) -> hints.reflection()

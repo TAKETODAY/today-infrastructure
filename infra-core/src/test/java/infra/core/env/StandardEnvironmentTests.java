@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.core.testfixture.env.MockPropertySource;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.PlaceholderResolutionException;
 
 import static infra.core.env.Environment.DEFAULT_PROFILE;
@@ -271,22 +271,22 @@ public class StandardEnvironmentTests {
   @Test
   void suppressGetenvAccessThroughInfraProperty() {
     try {
-      TodayStrategies.setProperty("infra.getenv.ignore", "true");
+      InfraStrategies.setProperty("infra.getenv.ignore", "true");
       assertThat(environment.getSystemEnvironment()).isEmpty();
     }
     finally {
-      TodayStrategies.setProperty("infra.getenv.ignore", null);
+      InfraStrategies.setProperty("infra.getenv.ignore", null);
     }
   }
 
   @Test
   void suppressGetenvAccessThroughInfraFlag() {
     try {
-      TodayStrategies.setFlag("infra.getenv.ignore");
+      InfraStrategies.setFlag("infra.getenv.ignore");
       assertThat(environment.getSystemEnvironment()).isEmpty();
     }
     finally {
-      TodayStrategies.setProperty("infra.getenv.ignore", null);
+      InfraStrategies.setProperty("infra.getenv.ignore", null);
     }
   }
 

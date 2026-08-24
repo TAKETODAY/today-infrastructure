@@ -47,9 +47,9 @@ import infra.http.server.ServerHttpResponse;
 import infra.http.support.Netty4HttpHeaders;
 import infra.lang.Constant;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.util.TodayStrategies;
 import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
@@ -110,11 +110,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * System property to configure the nio file chunk size when ssl is enabled.
-   * <p>Can also be configured via the {@link TodayStrategies} mechanism.
+   * <p>Can also be configured via the {@link InfraStrategies} mechanism.
    *
    * @since 5.0
    */
-  private static final int nioFileChunkSize = TodayStrategies.getInt("infra.web.ssl.nio-file-chunked-size", 4096);
+  private static final int nioFileChunkSize = InfraStrategies.getInt("infra.web.ssl.nio-file-chunked-size", 4096);
 
   /**
    * RFC 3986 (the URI standard) makes no mention of using '+' to encode a space in a URI query component. The
@@ -126,7 +126,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    *
    * @since 5.0
    */
-  private static final boolean htmlQueryDecoding = TodayStrategies.getFlag("infra.web.htmlQueryDecoding", true);
+  private static final boolean htmlQueryDecoding = InfraStrategies.getFlag("infra.web.htmlQueryDecoding", true);
 
   /**
    * Maximum number of query parameters allowed, to mitigate HashDOS.
@@ -134,7 +134,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    *
    * @since 5.0
    */
-  private static final int maxQueryParams = TodayStrategies.getInt("infra.web.maxQueryParams", 1024);
+  private static final int maxQueryParams = InfraStrategies.getInt("infra.web.maxQueryParams", 1024);
 
   /**
    * {@code false} by default. If set to {@code true}, instead of allowing query parameters to be separated by
@@ -142,7 +142,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    *
    * @since 5.0
    */
-  private static final boolean semicolonAsNormalChar = TodayStrategies.getFlag("infra.web.semicolonAsNormalChar", false);
+  private static final boolean semicolonAsNormalChar = InfraStrategies.getFlag("infra.web.semicolonAsNormalChar", false);
 
   /**
    * For Chunk file written

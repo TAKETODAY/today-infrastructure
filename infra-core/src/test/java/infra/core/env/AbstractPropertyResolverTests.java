@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.IntStream;
 
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 
 import static infra.core.env.AbstractPropertyResolver.DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME;
 import static infra.core.env.AbstractPropertyResolver.UNDEFINED_ESCAPE_CHARACTER;
@@ -107,7 +107,7 @@ class AbstractPropertyResolverTests {
   }
 
   private static void setInfraProperty(String value) {
-    TodayStrategies.setProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME, value);
+    InfraStrategies.setProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME, value);
   }
 
   private static void assertEscapeCharacter(@Nullable Character expected) {

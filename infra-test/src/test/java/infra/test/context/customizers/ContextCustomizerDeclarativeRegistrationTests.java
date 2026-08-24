@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextCustomizerFactories(EnigmaContextCustomizerFactory.class)
 class ContextCustomizerDeclarativeRegistrationTests {
 
-  // GlobalFruitContextCustomizerFactory is registered via today.strategies
+  // GlobalFruitContextCustomizerFactory is registered via infra.strategies
   @Autowired(required = false)
   @Qualifier("global$fruit")
   String fruit;
@@ -62,7 +62,7 @@ class ContextCustomizerDeclarativeRegistrationTests {
 
   @Test
   void injectedBean() {
-    // registered globally via today.strategies
+    // registered globally via infra.strategies
     assertThat(fruit).isEqualTo("apple, banana, cherry");
 
     // From local @ContextCustomizerFactories

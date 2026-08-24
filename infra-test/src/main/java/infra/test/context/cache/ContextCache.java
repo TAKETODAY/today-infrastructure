@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 import infra.context.ApplicationContext;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
@@ -78,7 +78,7 @@ public interface ContextCache {
    * System property used to configure the maximum size of the {@link ContextCache}
    * as a positive integer: {@value}.
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies} mechanism.
+   * {@link InfraStrategies} mechanism.
    * <p>Note that implementations of {@code ContextCache} are not required to
    * actually support a maximum cache size. Consult the documentation of the
    * corresponding implementation for details.
@@ -95,7 +95,7 @@ public interface ContextCache {
    * for example:
    * <p>{@code -Dinfra.test.context.cache.pause=never}
    * <p>May alternatively be configured via the
-   * {@link TodayStrategies} mechanism.
+   * {@link InfraStrategies} mechanism.
    * <p>Note that implementations of {@code ContextCache} are not required to
    * support context pausing. Consult the documentation of the corresponding
    * implementation for details.

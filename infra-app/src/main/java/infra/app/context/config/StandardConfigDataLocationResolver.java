@@ -41,11 +41,11 @@ import infra.core.env.Environment;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.util.Assert;
-import infra.util.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 
@@ -88,7 +88,7 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
    * @param resourceLoader a {@link ResourceLoader} used to load resources
    */
   public StandardConfigDataLocationResolver(Binder binder, ResourceLoader resourceLoader) {
-    this.propertySourceLoaders = TodayStrategies.find(PropertySourceLoader.class, resourceLoader.getClassLoader());
+    this.propertySourceLoaders = InfraStrategies.find(PropertySourceLoader.class, resourceLoader.getClassLoader());
     this.configNames = getConfigNames(binder);
     this.resourceLoader = new LocationResourceLoader(resourceLoader);
   }

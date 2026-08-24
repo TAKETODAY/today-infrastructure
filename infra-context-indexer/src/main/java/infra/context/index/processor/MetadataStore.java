@@ -34,7 +34,7 @@ import javax.tools.StandardLocation;
  */
 class MetadataStore {
 
-  static final String METADATA_PATH = "META-INF/today.components";
+  static final String METADATA_PATH = "META-INF/infra.components";
   private final ProcessingEnvironment environment;
 
   public MetadataStore(ProcessingEnvironment environment) {

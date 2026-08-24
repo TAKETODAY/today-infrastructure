@@ -44,7 +44,7 @@ class OverriddenContextCustomizerRegistrationTests extends LocalContextCustomize
   @Override
   @Test
   void injectedBean() {
-    // globally registered via today.strategies
+    // globally registered via infra.strategies
     assertThat(fruit).isEqualTo("apple, banana, cherry");
 
     // Overridden by this subclass (inheritFactories = false)

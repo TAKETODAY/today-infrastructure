@@ -42,7 +42,7 @@ import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.core.Ordered;
 import infra.core.type.AnnotationMetadata;
-import infra.util.TodayStrategies;
+import infra.util.InfraStrategies;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 
@@ -155,7 +155,7 @@ public class DatabaseInitializationDependencyConfigurer implements ImportBeanDef
     }
 
     private <T> List<T> getDetectors(ConfigurableBeanFactory beanFactory, Class<T> type) {
-      return TodayStrategies.forDefaultResourceLocation(beanFactory.getBeanClassLoader())
+      return InfraStrategies.forDefaultResourceLocation(beanFactory.getBeanClassLoader())
               .load(type, context);
     }
 

@@ -29,13 +29,13 @@ import infra.app.BootstrapContext;
 import infra.app.BootstrapRegistry;
 import infra.app.ConfigurableBootstrapContext;
 import infra.core.ResolvableType;
-import infra.util.TodayStrategies;
-import infra.util.TodayStrategies.ArgumentResolver;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.InfraStrategies;
+import infra.util.InfraStrategies.ArgumentResolver;
 
 /**
- * A collection of {@link ConfigDataLoader} instances loaded via {@code today.strategies}.
+ * A collection of {@link ConfigDataLoader} instances loaded via {@code infra.strategies}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
@@ -56,7 +56,7 @@ class ConfigDataLoaders {
    * @param bootstrapContext the bootstrap context
    * @param strategies to load {@link ConfigDataLoader} instances
    */
-  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext, TodayStrategies strategies) {
+  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext, InfraStrategies strategies) {
     this.loaders = strategies.load(ConfigDataLoader.class, ArgumentResolver.of(BootstrapContext.class, bootstrapContext)
             .and(BootstrapRegistry.class, bootstrapContext)
             .and(ConfigurableBootstrapContext.class, bootstrapContext));

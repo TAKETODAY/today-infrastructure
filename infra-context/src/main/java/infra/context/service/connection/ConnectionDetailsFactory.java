@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A factory to create {@link ConnectionDetails} from a given {@code source}.
- * Implementations should be registered in {@code META-INF/today.strategies}.
+ * Implementations should be registered in {@code META-INF/infra.strategies}.
  *
  * @param <S> the source type accepted by the factory. Implementations are expected to
  * provide a valid {@code toString}.

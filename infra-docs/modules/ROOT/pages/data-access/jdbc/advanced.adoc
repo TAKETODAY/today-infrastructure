@@ -137,7 +137,7 @@ public class JdbcActorDao implements ActorDao {
 在这种情况下，Infra 默认调用 `ParameterMetaData.getParameterType`，这对于您的 JDBC 驱动程序来说可能开销很大。
 如果您遇到性能问题（如在 Oracle 12c、JBoss 和 PostgreSQL 上报告的那样），您应该使用最近的驱动程序版本，
 并考虑将 `jdbc.getParameterType.ignore` 属性设置为 `true`（作为 JVM 系统属性或通过
-xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] 机制）。
+xref:appendix.adoc#appendix-infra-properties[`InfraStrategies`] 机制）。
 
 或者，您可以考虑显式指定相应的 JDBC 类型，可以通过 `BatchPreparedStatementSetter`（如前所示）、
 通过给基于 `List<Object[]>` 的调用的显式类型数组、通过自定义 `MapSqlParameterSource` 实例上的 `registerSqlType` 调用，

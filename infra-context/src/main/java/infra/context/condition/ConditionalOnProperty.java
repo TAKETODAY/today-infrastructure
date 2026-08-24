@@ -74,9 +74,9 @@ import infra.core.env.Environment;
  * match.
  * <p>
  * This condition cannot be reliably used for matching collection properties. For example,
- * in the following configuration, the condition matches if {@code today.example.values}
+ * in the following configuration, the condition matches if {@code infra.example.values}
  * is present in the {@link Environment} but does not match if
- * {@code today.example.values[0]} is present.
+ * {@code infra.example.values[0]} is present.
  *
  * <pre>{@code
  * @ConditionalOnProperty(prefix = "today", name = "example.values")
