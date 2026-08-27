@@ -1,6 +1,6 @@
 # TODAY Infrastructure 架构图
 
-> 版本: 5.0-Draft.6-SNAPSHOT · 七层纵向分层架构
+> 版本: 5.0-Draft.7-SNAPSHOT · 七层纵向分层架构
 
 ```mermaid
 graph BT
