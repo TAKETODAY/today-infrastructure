@@ -156,19 +156,10 @@ class ExceptionTests {
     }
 
     @Test
-    void failedFactoryMethodWithoutParameters() {
-      InternalServerException exception = InternalServerException.failed();
-
-      assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-      assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR");
-      assertThat(exception.getCause()).isNull();
-    }
-
-    @Test
     void failedFactoryMethodWithMessage() {
       String message = "Test error message";
 
-      InternalServerException exception = InternalServerException.failed(message);
+      InternalServerException exception = new InternalServerException(message);
 
       assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
       assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR \"Test error message\"");
@@ -180,7 +171,7 @@ class ExceptionTests {
       String message = "Test error message";
       Throwable cause = new IllegalArgumentException("Cause");
 
-      InternalServerException exception = InternalServerException.failed(message, cause);
+      InternalServerException exception = new InternalServerException(message, cause);
 
       assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
       assertThat(exception.getMessage()).isEqualTo("500 INTERNAL_SERVER_ERROR \"Test error message\"");

@@ -54,34 +54,4 @@ public class InternalServerException extends ResponseStatusException {
     super(HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
 
-  /**
-   * Creates a new instance of {@link InternalServerException} with no detail message.
-   *
-   * @return a new instance of {@link InternalServerException}
-   */
-  public static InternalServerException failed() {
-    return new InternalServerException();
-  }
-
-  /**
-   * Creates a new instance of {@link InternalServerException} with the specified detail message.
-   *
-   * @param msg the detail message (can be null)
-   * @return a new instance of {@link InternalServerException}
-   */
-  public static InternalServerException failed(@Nullable String msg) {
-    return new InternalServerException(msg);
-  }
-
-  /**
-   * Creates a new instance of {@link InternalServerException} with the specified detail message and cause.
-   *
-   * @param msg the detail message (can be null)
-   * @param cause the cause (can be null)
-   * @return a new instance of {@link InternalServerException}
-   */
-  public static InternalServerException failed(@Nullable String msg, @Nullable Throwable cause) {
-    return new InternalServerException(msg, cause);
-  }
-
 }
