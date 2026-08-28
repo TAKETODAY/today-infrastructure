@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app;
+package infra.context.support;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.AbstractBeanDefinition;

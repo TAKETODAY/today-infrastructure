@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import infra.aop.AopInfrastructureBean;
-import infra.app.LazyInitializationExcludeFilter;
 import infra.beans.factory.config.BeanDefinition;
+import infra.context.support.LazyInitializationExcludeFilter;
 import infra.core.MethodIntrospector;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.AnnotationUtils;

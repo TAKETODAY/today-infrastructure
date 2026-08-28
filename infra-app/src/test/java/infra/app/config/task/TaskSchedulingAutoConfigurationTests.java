@@ -33,10 +33,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import infra.app.LazyInitializationBeanFactoryPostProcessor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.context.support.LazyInitializationBeanFactoryPostProcessor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskExecutor;
 import infra.scheduling.TaskScheduler;

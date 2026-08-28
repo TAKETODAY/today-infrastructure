@@ -21,7 +21,6 @@ package infra.app.config.task;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import infra.app.LazyInitializationExcludeFilter;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -32,6 +31,7 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnThreading;
 import infra.context.condition.Threading;
 import infra.context.properties.EnableConfigurationProperties;
+import infra.context.support.LazyInitializationExcludeFilter;
 import infra.core.env.Environment;
 import infra.core.task.TaskDecorator;
 import infra.scheduling.TaskScheduler;

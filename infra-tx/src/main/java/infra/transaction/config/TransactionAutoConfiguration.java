@@ -18,7 +18,6 @@
 
 package infra.transaction.config;
 
-import infra.app.LazyInitializationExcludeFilter;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -28,6 +27,7 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnSingleCandidate;
+import infra.context.support.LazyInitializationExcludeFilter;
 import infra.stereotype.Component;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.ReactiveTransactionManager;

@@ -49,10 +49,6 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.app.Application.NativeImageRequirementsException;
 import infra.app.BootstrapRegistry.InstanceSupplier;
-import infra.context.availability.AvailabilityChangeEvent;
-import infra.context.availability.AvailabilityState;
-import infra.context.availability.LivenessState;
-import infra.context.availability.ReadinessState;
 import infra.app.builder.ApplicationBuilder;
 import infra.app.context.event.ApplicationContextInitializedEvent;
 import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
@@ -88,6 +84,10 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Profile;
+import infra.context.availability.AvailabilityChangeEvent;
+import infra.context.availability.AvailabilityState;
+import infra.context.availability.LivenessState;
+import infra.context.availability.ReadinessState;
 import infra.context.event.ApplicationEventMulticaster;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SimpleApplicationEventMulticaster;
@@ -1803,8 +1803,8 @@ class ApplicationTests {
     }
 
     @Bean
-    static LazyInitializationExcludeFilter lazyInitializationExcludeFilter() {
-      return LazyInitializationExcludeFilter.forBeanTypes(NotLazyBean.class);
+    static infra.context.support.LazyInitializationExcludeFilter lazyInitializationExcludeFilter() {
+      return infra.context.support.LazyInitializationExcludeFilter.forBeanTypes(NotLazyBean.class);
     }
 
   }

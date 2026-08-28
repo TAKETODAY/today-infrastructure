@@ -20,9 +20,9 @@ package infra.context.availability;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.LazyInitializationBeanFactoryPostProcessor;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.availability.config.ApplicationAvailabilityAutoConfiguration;
+import infra.context.support.LazyInitializationBeanFactoryPostProcessor;
 import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
