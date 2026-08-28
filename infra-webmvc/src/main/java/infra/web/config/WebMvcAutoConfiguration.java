@@ -105,6 +105,7 @@ import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
 
 import static infra.context.condition.ConditionalOnWebApplication.Type.MVC;
+import static infra.scheduling.config.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 
 /**
@@ -129,8 +130,6 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 @ImportRuntimeHints(WebResourcesRuntimeHints.class)
 @EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
-
-  private static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
   private final BeanFactory beanFactory;
 

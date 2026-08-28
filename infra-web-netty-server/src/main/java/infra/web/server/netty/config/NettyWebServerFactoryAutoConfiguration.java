@@ -71,6 +71,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 
+import static infra.scheduling.config.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.
  *
@@ -86,8 +88,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class,
         afterName = "infra.scheduling.config.TaskExecutionAutoConfiguration")
 public final class NettyWebServerFactoryAutoConfiguration {
-
-  private static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
   private static final String NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME = "nettyServiceTaskExecutor";
 
