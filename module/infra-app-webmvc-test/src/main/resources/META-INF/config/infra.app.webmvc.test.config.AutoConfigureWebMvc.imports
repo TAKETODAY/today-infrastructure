@@ -1,5 +1,5 @@
 infra.context.config.MessageSourceAutoConfiguration
-infra.app.config.task.TaskExecutionAutoConfiguration
+infra.scheduling.config.TaskExecutionAutoConfiguration
 infra.web.config.WebMvcAutoConfiguration
 infra.web.config.ErrorMvcAutoConfiguration
 optional:infra.http.converter.config.HttpMessageConvertersAutoConfiguration

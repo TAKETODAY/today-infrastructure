@@ -20,7 +20,7 @@ package infra.app.webmvc.test.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.core.task.AsyncTaskExecutor;

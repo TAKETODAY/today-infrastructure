@@ -52,7 +52,7 @@ import infra.web.client.RestClientCustomizer;
 @Lazy
 @DisableDIAutoConfiguration(afterName = {
         "infra.app.config.ssl.SslAutoConfiguration",
-        "infra.app.config.task.TaskExecutionAutoConfiguration",
+        "infra.scheduling.config.TaskExecutionAutoConfiguration",
         "infra.http.client.config.ImperativeHttpClientAutoConfiguration",
         "infra.http.converter.config.HttpMessageConvertersAutoConfiguration"
 })

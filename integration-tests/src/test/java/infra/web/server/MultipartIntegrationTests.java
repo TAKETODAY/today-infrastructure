@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import infra.app.Application;
 import infra.app.InfraApplication;
 import infra.context.config.PropertyPlaceholderAutoConfiguration;
-import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;

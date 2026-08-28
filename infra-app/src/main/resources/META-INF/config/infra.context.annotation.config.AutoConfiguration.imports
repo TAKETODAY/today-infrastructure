@@ -1,5 +1,3 @@
-infra.app.config.task.TaskExecutionAutoConfiguration
-infra.app.config.task.TaskSchedulingAutoConfiguration
 infra.app.config.aop.AopAutoConfiguration
 infra.app.config.jmx.JmxAutoConfiguration
 infra.app.config.jmx.InfraApplicationJmxAutoConfiguration

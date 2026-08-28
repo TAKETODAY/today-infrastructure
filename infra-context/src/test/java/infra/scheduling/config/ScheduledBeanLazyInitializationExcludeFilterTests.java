@@ -16,14 +16,13 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.task;
+package infra.scheduling.config;
 
 import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.scheduling.annotation.Scheduled;
 import infra.scheduling.annotation.Schedules;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

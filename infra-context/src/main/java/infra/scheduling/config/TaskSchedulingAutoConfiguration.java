@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.task;
+package infra.scheduling.config;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,6 @@ import infra.core.task.TaskDecorator;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
-import infra.scheduling.config.TaskManagementConfigUtils;
 import infra.scheduling.support.SimpleAsyncTaskSchedulerBuilder;
 import infra.scheduling.support.SimpleAsyncTaskSchedulerCustomizer;
 import infra.scheduling.support.ThreadPoolTaskSchedulerBuilder;
@@ -53,7 +52,7 @@ import infra.stereotype.Component;
  */
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
 @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
-@DisableDIAutoConfiguration(after = infra.app.config.task.TaskExecutionAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
 public final class TaskSchedulingAutoConfiguration {
 

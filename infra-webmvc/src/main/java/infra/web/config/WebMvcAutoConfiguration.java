@@ -122,7 +122,7 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
  */
 @DisableDIAutoConfiguration(afterName = {
         "infra.validation.config.ValidationAutoConfiguration",
-        "infra.app.config.task.TaskExecutionAutoConfiguration" })
+        "infra.scheduling.config.TaskExecutionAutoConfiguration" })
 @ConditionalOnWebApplication(type = MVC)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)

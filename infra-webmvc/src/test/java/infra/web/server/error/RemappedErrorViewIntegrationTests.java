@@ -20,7 +20,7 @@ package infra.web.server.error;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.app.resttestclient.TestRestTemplate;
 import infra.app.test.context.InfraTest;
 import infra.app.test.context.InfraTest.WebEnvironment;

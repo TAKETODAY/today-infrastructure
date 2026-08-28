@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.task;
+package infra.scheduling.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -65,7 +65,7 @@ import static org.mockito.Mockito.mock;
 class TaskExecutionAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(AutoConfigurations.of(infra.app.config.task.TaskExecutionAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(TaskExecutionAutoConfiguration.class));
 
   @Test
   void shouldSupplyBeans() {
@@ -368,7 +368,7 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void enableAsyncUsesAutoConfiguredOneByDefaultEvenThoughSchedulingIsConfigured() {
     this.contextRunner.withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-")
-            .withConfiguration(AutoConfigurations.of(infra.app.config.task.TaskSchedulingAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(TaskSchedulingAutoConfiguration.class))
             .withUserConfiguration(AsyncConfiguration.class, SchedulingConfiguration.class, TestBean.class)
             .run((context) -> {
               TestBean bean = context.getBean(TestBean.class);

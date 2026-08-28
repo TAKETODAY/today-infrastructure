@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.task;
+package infra.scheduling.config;
 
 import org.jspecify.annotations.Nullable;
 

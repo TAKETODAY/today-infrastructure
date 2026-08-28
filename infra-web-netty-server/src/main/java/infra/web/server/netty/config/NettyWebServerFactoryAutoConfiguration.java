@@ -84,7 +84,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 @Import(WebServerConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, NettyServerProperties.class })
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class,
-        afterName = "infra.app.config.task.TaskExecutionAutoConfiguration")
+        afterName = "infra.scheduling.config.TaskExecutionAutoConfiguration")
 public final class NettyWebServerFactoryAutoConfiguration {
 
   private static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";

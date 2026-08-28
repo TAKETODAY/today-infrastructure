@@ -30,7 +30,7 @@ import java.net.URI;
 import java.util.Map;
 
 import infra.app.Application;
-import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.app.resttestclient.TestRestTemplate;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;

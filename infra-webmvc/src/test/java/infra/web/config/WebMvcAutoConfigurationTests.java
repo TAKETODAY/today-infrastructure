@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import infra.aop.support.AopUtils;
-import infra.app.config.task.TaskExecutionAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;

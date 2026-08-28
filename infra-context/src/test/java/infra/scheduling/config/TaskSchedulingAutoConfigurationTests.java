@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app.config.task;
+package infra.scheduling.config;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,6 @@ import infra.scheduling.annotation.EnableScheduling;
 import infra.scheduling.annotation.Scheduled;
 import infra.scheduling.annotation.SchedulingConfigurer;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
-import infra.scheduling.config.ScheduledTaskRegistrar;
 import infra.scheduling.support.SimpleAsyncTaskSchedulerBuilder;
 import infra.scheduling.support.SimpleAsyncTaskSchedulerCustomizer;
 import infra.scheduling.support.ThreadPoolTaskSchedulerBuilder;
@@ -56,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link infra.app.config.task.TaskSchedulingAutoConfiguration}.
+ * Tests for {@link TaskSchedulingAutoConfiguration}.
  *
  * @author Stephane Nicoll
  */
@@ -64,7 +63,7 @@ class TaskSchedulingAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withUserConfiguration(TestConfiguration.class)
-          .withConfiguration(AutoConfigurations.of(infra.app.config.task.TaskSchedulingAutoConfiguration.class));
+          .withConfiguration(AutoConfigurations.of(TaskSchedulingAutoConfiguration.class));
 
   @Test
   void noSchedulingDoesNotExposeTaskScheduler() {
@@ -248,7 +247,7 @@ class TaskSchedulingAutoConfigurationTests {
             .withPropertyValues("infra.task.scheduling.thread-name-prefix=scheduling-test-")
             .withBean(LazyTestBean.class, () -> new LazyTestBean(threadNames))
             .withUserConfiguration(SchedulingConfiguration.class)
-            .withConfiguration(AutoConfigurations.of(infra.app.config.task.TaskSchedulingAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(TaskSchedulingAutoConfiguration.class))
             .run((context) -> {
               // No lazy lookup.
               Awaitility.waitAtMost(Duration.ofSeconds(3)).until(() -> !threadNames.isEmpty());

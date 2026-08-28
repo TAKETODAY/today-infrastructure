@@ -1,3 +1,5 @@
+infra.scheduling.config.TaskExecutionAutoConfiguration
+infra.scheduling.config.TaskSchedulingAutoConfiguration
 infra.validation.config.ValidationAutoConfiguration
 infra.context.config.LifecycleAutoConfiguration
 infra.context.config.MessageSourceAutoConfiguration
