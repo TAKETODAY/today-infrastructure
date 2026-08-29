@@ -42,7 +42,7 @@ class DockerComposeSkipCheck {
     Set<String> skipped = new LinkedHashSet<>();
     skipped.add("org.junit.runners.");
     skipped.add("org.junit.platform.");
-    skipped.add("infra.app.test.");
+    skipped.add("infra.test.app.");
     skipped.add(ApplicationAotProcessor.class.getName());
     skipped.add("cucumber.runtime.");
     SKIPPED_STACK_ELEMENTS = Collections.unmodifiableSet(skipped);

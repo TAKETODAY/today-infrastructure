@@ -49,7 +49,7 @@ public abstract class ProcessTestAot extends AbstractAot {
   private FileCollection classpathRoots;
 
   public ProcessTestAot() {
-    getMainClass().set("infra.app.test.context.InfraTestAotProcessor");
+    getMainClass().set("infra.test.app.context.InfraTestAotProcessor");
   }
 
   /**

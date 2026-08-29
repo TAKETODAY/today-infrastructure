@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import infra.app.InfraApplication;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;

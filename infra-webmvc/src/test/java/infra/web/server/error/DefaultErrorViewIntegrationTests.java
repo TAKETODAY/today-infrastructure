@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.app.Application;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Configuration;

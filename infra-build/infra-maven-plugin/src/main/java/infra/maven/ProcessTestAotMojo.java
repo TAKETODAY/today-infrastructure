@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  * @since 4.0
  */
 @Mojo(name = "process-test-aot", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, threadSafe = true,
-      requiresDependencyResolution = ResolutionScope.TEST, requiresDependencyCollection = ResolutionScope.TEST)
+        requiresDependencyResolution = ResolutionScope.TEST, requiresDependencyCollection = ResolutionScope.TEST)
 public class ProcessTestAotMojo extends AbstractAotMojo {
 
   private static final String JUNIT_PLATFORM_GROUP_ID = "org.junit.platform";
@@ -67,7 +67,7 @@ public class ProcessTestAotMojo extends AbstractAotMojo {
 
   private static final String JUNIT_PLATFORM_LAUNCHER_ARTIFACT_ID = "junit-platform-launcher";
 
-  private static final String AOT_PROCESSOR_CLASS_NAME = "infra.test.context.InfraTestAotProcessor";
+  private static final String AOT_PROCESSOR_CLASS_NAME = "infra.test.app.context.InfraTestAotProcessor";
 
   /**
    * Directory containing the classes and resource files that should be packaged into

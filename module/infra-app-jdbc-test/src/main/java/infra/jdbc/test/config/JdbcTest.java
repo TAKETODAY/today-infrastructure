@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 import infra.app.InfraApplication;
 import infra.test.context.OverrideAutoConfiguration;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.core.annotation.AliasFor;

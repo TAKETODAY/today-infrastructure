@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.app.resttestclient.TestRestTemplate;
-import infra.app.test.context.InfraTest;
-import infra.app.test.context.InfraTest.WebEnvironment;
+import infra.test.app.context.InfraTest;
+import infra.test.app.context.InfraTest.WebEnvironment;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.config.PropertyPlaceholderAutoConfiguration;

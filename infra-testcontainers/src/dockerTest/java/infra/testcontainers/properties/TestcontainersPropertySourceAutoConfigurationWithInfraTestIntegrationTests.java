@@ -21,7 +21,7 @@ package infra.testcontainers.properties;
 import org.junit.jupiter.api.Test;
 
 import infra.app.InfraConfiguration;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.test.context.TestConfiguration;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;

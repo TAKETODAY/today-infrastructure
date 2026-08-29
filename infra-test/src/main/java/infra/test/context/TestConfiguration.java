@@ -36,7 +36,7 @@ import infra.core.annotation.AliasFor;
  * {@link InfraConfiguration @InfraConfiguration}.
  *
  * @author Phillip Webb
- * @see infra.app.test.context.InfraTestContextBootstrapper
+ * @see infra.test.app.context.InfraTestContextBootstrapper
  * @since 4.0
  */
 @Target(ElementType.TYPE)

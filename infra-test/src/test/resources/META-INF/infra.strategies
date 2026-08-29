@@ -8,4 +8,4 @@ infra.test.context.ContextCustomizerFactory =\
 
 infra.test.context.ApplicationContextFailureProcessor =\
 	infra.test.context.failures.TrackingApplicationContextFailureProcessor,\
-  infra.app.test.context.InfraApplicationContextLoaderTests.ContextLoaderApplicationContextFailureProcessor
+  infra.test.app.context.InfraApplicationContextLoaderTests.ContextLoaderApplicationContextFailureProcessor

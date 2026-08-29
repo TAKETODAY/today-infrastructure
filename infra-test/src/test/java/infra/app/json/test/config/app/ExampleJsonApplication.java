@@ -17,7 +17,7 @@
 package infra.app.json.test.config.app;
 
 import infra.app.InfraApplication;
-import infra.app.test.config.json.JsonTest;
+import infra.test.app.config.json.JsonTest;
 
 /**
  * Example {@link InfraApplication @InfraApplication} for use with

@@ -18,10 +18,10 @@
 
 package infra.jackson.config;
 
-import infra.app.test.config.json.ConditionalOnJsonTesters;
-import infra.app.test.config.json.JsonMarshalTesterRuntimeHints;
-import infra.app.test.config.json.JsonTesterFactoryBean;
-import infra.app.test.json.JacksonTester;
+import infra.test.app.config.json.ConditionalOnJsonTesters;
+import infra.test.app.config.json.JsonMarshalTesterRuntimeHints;
+import infra.test.app.config.json.JsonTesterFactoryBean;
+import infra.test.app.json.JacksonTester;
 import infra.beans.factory.FactoryBean;
 import infra.context.annotation.ImportRuntimeHints;
 import infra.context.annotation.config.AutoConfiguration;

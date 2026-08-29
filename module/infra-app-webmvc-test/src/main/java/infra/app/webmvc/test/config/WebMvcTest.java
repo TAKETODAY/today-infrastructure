@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.app.InfraApplication;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.context.annotation.ComponentScan.Filter;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;

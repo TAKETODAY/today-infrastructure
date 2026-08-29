@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.app.test.config.json.AutoConfigureJson;
+import infra.test.app.config.json.AutoConfigureJson;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.web.client.RestClient;
 import infra.web.client.RestTemplateBuilder;

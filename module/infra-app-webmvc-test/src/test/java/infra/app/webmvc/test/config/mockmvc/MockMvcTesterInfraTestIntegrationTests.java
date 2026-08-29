@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.app.resttestclient.config.AutoConfigureRestTestClient;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.test.stdio.CapturedOutput;
 import infra.test.stdio.OutputCaptureExtension;
 import infra.app.webmvc.test.config.AutoConfigureMockMvc;

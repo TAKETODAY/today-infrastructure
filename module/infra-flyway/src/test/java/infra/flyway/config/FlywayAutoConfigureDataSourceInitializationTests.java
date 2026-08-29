@@ -19,7 +19,7 @@ package infra.flyway.config;
 import org.junit.jupiter.api.Test;
 
 import infra.app.InfraConfiguration;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.test.context.jdbc.AutoConfigureDataSourceInitialization;

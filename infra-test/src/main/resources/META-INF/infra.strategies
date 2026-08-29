@@ -23,14 +23,14 @@ infra.test.context.ContextCustomizerFactory=\
   infra.test.context.PropertyMappingContextCustomizerFactory,\
   infra.test.context.OverrideAutoConfigurationContextCustomizerFactory,\
   infra.test.context.support.ImportsContextCustomizerFactory,\
-  infra.app.test.json.DuplicateJsonObjectContextCustomizerFactory,\
-  infra.app.test.web.reactive.server.WebTestClientContextCustomizerFactory,\
-  infra.app.test.config.OnFailureConditionReportContextCustomizerFactory
+  infra.test.app.json.DuplicateJsonObjectContextCustomizerFactory,\
+  infra.test.app.web.reactive.server.WebTestClientContextCustomizerFactory,\
+  infra.test.app.config.OnFailureConditionReportContextCustomizerFactory
 
 # EnvironmentPostProcessors for application test support
 #
 infra.app.env.EnvironmentPostProcessor=\
-infra.app.test.web.InfraTestRandomPortEnvironmentPostProcessor
+infra.test.app.web.InfraTestRandomPortEnvironmentPostProcessor
 
 infra.context.ApplicationContextInitializer=\
 infra.test.context.filter.ExcludeFilterApplicationContextInitializer

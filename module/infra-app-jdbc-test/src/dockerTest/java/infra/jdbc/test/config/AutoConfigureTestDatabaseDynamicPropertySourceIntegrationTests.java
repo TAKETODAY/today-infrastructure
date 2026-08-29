@@ -28,7 +28,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import javax.sql.DataSource;
 
 import infra.test.context.OverrideAutoConfiguration;
-import infra.app.test.context.InfraTest;
+import infra.test.app.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.ImportAutoConfiguration;

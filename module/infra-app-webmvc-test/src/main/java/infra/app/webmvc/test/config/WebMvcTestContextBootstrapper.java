@@ -18,7 +18,7 @@
 
 package infra.app.webmvc.test.config;
 
-import infra.app.test.config.TestSliceTestContextBootstrapper;
+import infra.test.app.config.TestSliceTestContextBootstrapper;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.TestContextBootstrapper;
 import infra.test.context.web.WebMergedContextConfiguration;
