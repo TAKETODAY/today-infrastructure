@@ -280,6 +280,11 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
+  public String getMethodAsString() {
+    return request.getMethod();
+  }
+
+  @Override
   public String getRemoteAddress() {
     return request.getRemoteAddr();
   }
