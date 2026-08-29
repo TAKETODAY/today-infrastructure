@@ -1022,10 +1022,6 @@ public class MockRequest extends DefaultAttributeAccessor {
     this.pathInfo = pathInfo;
   }
 
-  public @Nullable String getPathInfo() {
-    return this.pathInfo;
-  }
-
   public void setQueryString(@Nullable String queryString) {
     this.queryString = queryString;
   }

@@ -109,21 +109,11 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // gh-28823, gh-29933
   void emptyPath() {
     this.builder = new MockHttpRequestBuilder(GET, "");
     MockRequest request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getRequestURI()).isEqualTo("/");
-    assertThat(request.getPathInfo()).isEqualTo("/");
-  }
-
-  @Test
-  void pathInfoIsDecoded() {
-    this.builder = new MockHttpRequestBuilder(GET, "/travel/hotels 42");
-    MockRequest request = this.builder.buildRequest(this.mockContext);
-
-    assertThat(request.getPathInfo()).isEqualTo("/travel/hotels 42");
   }
 
   @Test

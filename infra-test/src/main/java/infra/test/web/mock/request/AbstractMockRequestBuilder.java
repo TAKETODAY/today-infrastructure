@@ -47,10 +47,10 @@ import infra.http.HttpMethod;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.converter.FormHttpMessageConverter;
-import infra.util.Assert;
 import infra.session.Session;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
+import infra.util.Assert;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -92,8 +92,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
   private @Nullable String uriTemplate;
 
   private @Nullable URI uri;
-
-  private @Nullable String pathInfo = "";
 
   private @Nullable Boolean secure;
 
@@ -174,21 +172,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
             () -> "'uri' should start with a path or be a complete HTTP URI: " + uri);
     String uriString = (uri.isEmpty() ? "/" : uri);
     return UriComponentsBuilder.forURIString(uriString).buildAndExpand(vars).encode().toURI();
-  }
-
-  /**
-   * Specify the portion of the requestURI that represents the pathInfo.
-   * <p>If left unspecified (recommended), the pathInfo will be automatically derived
-   * by removing the contextPath and the servletPath from the requestURI and using any
-   * remaining part. If specified here, the pathInfo must start with a "/".
-   * <p>If specified, the pathInfo will be used as-is.
-   */
-  public B pathInfo(@Nullable String pathInfo) {
-    if (StringUtils.hasText(pathInfo)) {
-      Assert.isTrue(pathInfo.startsWith("/"), "Path info must start with a '/'");
-    }
-    this.pathInfo = pathInfo;
-    return self();
   }
 
   /**
@@ -674,9 +657,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
       this.uri = parentBuilder.uri;
       this.uriTemplate = parentBuilder.uriTemplate;
     }
-    if ("".equals(this.pathInfo)) {
-      this.pathInfo = parentBuilder.pathInfo;
-    }
 
     if (this.secure == null) {
       this.secure = parentBuilder.secure;
@@ -812,8 +792,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
       request.setServerPort(uri.getPort());
     }
 
-    updatePathRequestProperties(request, requestUri);
-
     if (this.secure != null) {
       request.setSecure(this.secure);
     }
@@ -921,17 +899,6 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
    */
   protected MockRequest createMockRequest(MockContext mockContext) {
     return new MockRequest();
-  }
-
-  /**
-   * Update the pathInfo of the request.
-   */
-  private void updatePathRequestProperties(MockRequest request, String requestUri) {
-    String path = this.pathInfo;
-    if ("".equals(path)) {
-      path = StringUtils.hasText(requestUri) ? UriUtils.decode(requestUri, StandardCharsets.UTF_8) : null;
-    }
-    request.setPathInfo(path);
   }
 
   private void addRequestParams(MockRequest request, MultiValueMap<String, String> map) {
