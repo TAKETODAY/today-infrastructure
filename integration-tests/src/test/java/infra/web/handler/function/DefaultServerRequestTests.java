@@ -149,7 +149,7 @@ class DefaultServerRequestTests {
     assertThat(entrySet).doesNotContain(Map.entry("foo", "blah"));
 
     assertThat(entrySet.iterator()).toIterable().contains(Map.entry("foo", "bar"), Map.entry("baz", "qux"));
-    Iterator<String> attributes = mockRequest.getAttributeNames().asIterator();
+    Iterator<String> attributes = mockRequest.attributeNames().iterator();
     Iterator<Map.Entry<String, Object>> entrySetIterator = entrySet.iterator();
     while (attributes.hasNext()) {
       attributes.next();

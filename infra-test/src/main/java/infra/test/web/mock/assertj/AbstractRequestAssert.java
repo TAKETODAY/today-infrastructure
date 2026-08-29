@@ -23,7 +23,6 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.MapAssert;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -59,14 +58,14 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
   }
 
   private static MapAssert<String, Object> createAttributesAssert(MockRequest request) {
-    Map<String, Object> map = toMap(request.getAttributeNames().asIterator(), request::getAttribute);
+    Map<String, Object> map = toMap(request.attributeNames(), request::getAttribute);
     return Assertions.assertThat(map).as("Request Attributes");
   }
 
   protected MapAssert<String, Object> createSessionAttributesAssert(MockRequest request) {
     Session httpSession = request.getSession();
     Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
-    Map<String, Object> map = toMap(httpSession.attributeNames().iterator(), httpSession::getAttribute);
+    Map<String, Object> map = toMap(httpSession.attributeNames(), httpSession::getAttribute);
     HttpContext httpContext = getHttpContext();
     if (httpContext != null) {
       Session session = httpContext.getSession(false);
@@ -123,10 +122,9 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     return this.myself;
   }
 
-  private static Map<String, Object> toMap(Iterator<String> keys, Function<String, Object> valueProvider) {
+  private static Map<String, Object> toMap(Iterable<String> keys, Function<String, Object> valueProvider) {
     Map<String, Object> map = new LinkedHashMap<>();
-    while (keys.hasNext()) {
-      String key = keys.next();
+    for (String key : keys) {
       map.put(key, valueProvider.apply(key));
     }
     return map;

@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -43,11 +42,12 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.util.Assert;
 import infra.lang.Constant;
 import infra.session.Session;
+import infra.util.Assert;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -77,7 +77,7 @@ import infra.web.multipart.Part;
  * @author Brian Clozel
  * @since 4.0
  */
-public class MockRequest {
+public class MockRequest extends DefaultAttributeAccessor {
 
   private static final String HTTP = "http";
 
@@ -149,8 +149,6 @@ public class MockRequest {
   // ---------------------------------------------------------------------
   // MockRequest properties
   // ---------------------------------------------------------------------
-
-  private final Map<String, Object> attributes = new LinkedHashMap<>();
 
   private @Nullable String characterEncoding;
 
@@ -301,14 +299,14 @@ public class MockRequest {
   // MockRequest interface
   // ---------------------------------------------------------------------
 
-  public Object getAttribute(String name) {
+  public @Nullable Object getAttribute(String name) {
     checkActive();
-    return this.attributes.get(name);
+    return super.getAttribute(name);
   }
 
-  public Enumeration<String> getAttributeNames() {
+  public String[] getAttributeNames() {
     checkActive();
-    return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
+    return super.getAttributeNames();
   }
 
   public @Nullable String getCharacterEncoding() {
@@ -656,26 +654,12 @@ public class MockRequest {
 
   public void setAttribute(String name, @Nullable Object value) {
     checkActive();
-    Assert.notNull(name, "Attribute name is required");
-    if (value != null) {
-      this.attributes.put(name, value);
-    }
-    else {
-      this.attributes.remove(name);
-    }
+    super.setAttribute(name, value);
   }
 
-  public void removeAttribute(String name) {
+  public @Nullable Object removeAttribute(String name) {
     checkActive();
-    Assert.notNull(name, "Attribute name is required");
-    this.attributes.remove(name);
-  }
-
-  /**
-   * Clear all of this request's attributes.
-   */
-  public void clearAttributes() {
-    this.attributes.clear();
+    return super.removeAttribute(name);
   }
 
   /**

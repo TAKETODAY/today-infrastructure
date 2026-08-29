@@ -520,7 +520,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   @Override
   public void clearAttributes() {
     super.clearAttributes();
-    CollectionUtils.iterate(request.getAttributeNames(), request::removeAttribute);
+    request.clearAttributes();
   }
 
   @Override
@@ -537,7 +537,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
 
   @Override
   public boolean hasAttributes() {
-    return super.hasAttributes() || request.getAttributeNames().hasMoreElements();
+    return super.hasAttributes() || request.hasAttributes();
   }
 
   @Override
@@ -554,16 +554,16 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
       return StringUtils.toStringArray(names);
     }
     else {
-      return StringUtils.toStringArray(request.getAttributeNames());
+      return request.getAttributeNames();
     }
   }
 
   @Override
   public Iterable<String> attributeNames() {
-    Enumeration<String> attributeNames = request.getAttributeNames();
+    Iterable<String> attributeNames = request.attributeNames();
     ArrayList<String> names = new ArrayList<>(8);
-    while (attributeNames.hasMoreElements()) {
-      names.add(attributeNames.nextElement());
+    for (String attributeName : attributeNames) {
+      names.add(attributeName);
     }
 
     if (super.hasAttributes()) {
