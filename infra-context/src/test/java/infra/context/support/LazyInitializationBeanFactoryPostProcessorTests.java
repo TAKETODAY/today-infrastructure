@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.app;
+package infra.context.support;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,6 @@ import java.util.List;
 import infra.beans.factory.SmartInitializingSingleton;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.support.LazyInitializationBeanFactoryPostProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
