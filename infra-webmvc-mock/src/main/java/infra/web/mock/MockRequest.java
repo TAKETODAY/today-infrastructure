@@ -207,8 +207,6 @@ public class MockRequest extends DefaultAttributeAccessor {
 
   private @Nullable String method;
 
-  private @Nullable String pathInfo;
-
   private @Nullable String queryString;
 
   private @Nullable Principal userPrincipal;
@@ -1016,10 +1014,6 @@ public class MockRequest extends DefaultAttributeAccessor {
 
   public @Nullable String getMethod() {
     return this.method;
-  }
-
-  public void setPathInfo(@Nullable String pathInfo) {
-    this.pathInfo = pathInfo;
   }
 
   public void setQueryString(@Nullable String queryString) {

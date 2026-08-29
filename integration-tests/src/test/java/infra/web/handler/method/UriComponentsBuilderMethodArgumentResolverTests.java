@@ -71,8 +71,6 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   @Test
   public void resolveArgument() throws Throwable {
-    this.mockRequest.setPathInfo("/accounts");
-
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 
     assertThat(actual).isNotNull();
