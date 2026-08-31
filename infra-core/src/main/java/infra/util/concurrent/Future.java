@@ -119,7 +119,10 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * {@code executor} — never on the thread that completes this future, and never
  * on the thread that registers the listener. If this future is already done when
  * a listener is registered, the notification task is submitted to the executor
- * without delay.
+ * without delay. If the executor rejects the notification task (for example
+ * because it has been shut down), the task is handed to the currently configured
+ * {@link RejectedExecutionHandler}; the default {@link
+ * RejectedExecutionHandler#DISCARD} drops the task after logging a warning.
  *
  * <p>Listeners registered before this future completes are notified sequentially,
  * in registration order, by a single notification task. Listeners registered after
@@ -251,6 +254,40 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
    */
   public static final Scheduler defaultScheduler = Scheduler.lookup();
+
+  /**
+   * Strategy used by {@link #safeExecute(Executor, Runnable)} when the
+   * {@link Executor} rejects the listener notification task.
+   *
+   * <p>Defaults to {@link RejectedExecutionHandler#DISCARD}: the rejected task is
+   * dropped after logging a warning, so a rejected notification never blocks the
+   * thread that completes the future. Applications may install their own policy,
+   * for example {@link RejectedExecutionHandler#CALLER_RUNS}, via
+   * {@link #setRejectedExecutionHandler(RejectedExecutionHandler)}.
+   */
+  private static volatile RejectedExecutionHandler rejectedExecutionHandler = RejectedExecutionHandler.DISCARD;
+
+  /**
+   * Set the {@link RejectedExecutionHandler} used when a listener notification
+   * task is rejected by its executor.
+   *
+   * @param handler the handler to use; must not be {@code null}
+   * @see #getRejectedExecutionHandler()
+   */
+  public static void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
+    Assert.notNull(handler, "RejectedExecutionHandler is required");
+    rejectedExecutionHandler = handler;
+  }
+
+  /**
+   * Return the {@link RejectedExecutionHandler} currently used when a listener
+   * notification task is rejected by its executor.
+   *
+   * @return the current handler; never {@code null}
+   */
+  public static RejectedExecutionHandler getRejectedExecutionHandler() {
+    return rejectedExecutionHandler;
+  }
 
   /**
    * Returns {@code true} if and only if the operation was completed
@@ -524,7 +561,9 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * not on the calling thread. With a multi-threaded executor, notifications of
    * listeners registered after completion may run concurrently with in-flight
    * notifications of earlier listeners — see the class-level documentation for
-   * the exact ordering guarantees.
+   * the exact ordering guarantees. If the executor rejects the notification
+   * task, it is delegated to the configured {@link RejectedExecutionHandler}
+   * instead; the default handler discards the task after logging a warning.
    *
    * @return this future object.
    */
@@ -1928,9 +1967,8 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     try {
       executor.execute(task);
     }
-    catch (Throwable t) {
-      LoggerFactory.getLogger(Future.class)
-              .error("Failed to submit a listener notification task. Executor shutting-down?", t);
+    catch (RejectedExecutionException ex) {
+      rejectedExecutionHandler.handleRejected(executor, task, ex);
     }
   }
 

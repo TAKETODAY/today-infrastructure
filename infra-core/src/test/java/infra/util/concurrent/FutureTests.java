@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -1415,13 +1416,70 @@ class FutureTests {
   }
 
   @Test
-  void safeExecute_failed() {
-    Future.ok(1, command -> {
-              throw new RuntimeException();
-            })
-            .onCompleted(future -> {
-              throw new RuntimeException();
-            });
+  void safeExecuteWithDefaultHandlerDiscardsRejectedTask() {
+    AtomicBoolean listenerRan = new AtomicBoolean();
+    RejectedExecutionHandler originalHandler = Future.getRejectedExecutionHandler();
+    try {
+      assertThat(originalHandler).isSameAs(RejectedExecutionHandler.DISCARD);
+
+      Future.ok(1, command -> {
+                throw new RejectedExecutionException();
+              })
+              .onCompleted(future -> listenerRan.set(true));
+
+      assertThat(listenerRan).isFalse();
+    }
+    finally {
+      Future.setRejectedExecutionHandler(originalHandler);
+    }
+  }
+
+  @Test
+  void safeExecuteWithCallerRunsHandlerRunsListenerInCallerThread() {
+    Thread caller = Thread.currentThread();
+    AtomicReference<Thread> listenerThread = new AtomicReference<>();
+    RejectedExecutionHandler originalHandler = Future.getRejectedExecutionHandler();
+    try {
+      Future.setRejectedExecutionHandler(RejectedExecutionHandler.CALLER_RUNS);
+
+      Future.ok(1, command -> {
+                throw new RejectedExecutionException();
+              })
+              .onCompleted(future -> listenerThread.set(Thread.currentThread()));
+
+      assertThat(listenerThread.get()).isSameAs(caller);
+    }
+    finally {
+      Future.setRejectedExecutionHandler(originalHandler);
+    }
+  }
+
+  @Test
+  void safeExecuteDelegatesRejectionToConfiguredHandler() {
+    AtomicReference<Executor> rejectedBy = new AtomicReference<>();
+    AtomicReference<Runnable> rejectedTask = new AtomicReference<>();
+    AtomicBoolean listenerRan = new AtomicBoolean();
+
+    Executor rejectingExecutor = command -> {
+      throw new RejectedExecutionException();
+    };
+    RejectedExecutionHandler originalHandler = Future.getRejectedExecutionHandler();
+    try {
+      Future.setRejectedExecutionHandler((executor, task, cause) -> {
+        rejectedBy.set(executor);
+        rejectedTask.set(task);
+      });
+
+      Future.ok(1, rejectingExecutor)
+              .onCompleted(future -> listenerRan.set(true));
+
+      assertThat(rejectedBy.get()).isSameAs(rejectingExecutor);
+      assertThat(rejectedTask.get()).isNotNull();
+      assertThat(listenerRan).isFalse();
+    }
+    finally {
+      Future.setRejectedExecutionHandler(originalHandler);
+    }
   }
 
   @Test
