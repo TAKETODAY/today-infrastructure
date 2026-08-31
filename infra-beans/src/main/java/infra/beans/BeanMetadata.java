@@ -37,6 +37,7 @@ import infra.util.ConcurrentReferenceHashMap;
 import infra.util.InfraStrategies;
 import infra.util.MapCache;
 import infra.util.ReflectionUtils;
+import infra.util.StringUtils;
 
 /**
  * Provides metadata information for a Java bean class.
@@ -51,10 +52,20 @@ import infra.util.ReflectionUtils;
  */
 public final class BeanMetadata implements Iterable<BeanProperty> {
 
+  /**
+   * Strategy property for a comma-delimited list of field name prefixes.
+   *
+   * @since 5.0
+   */
+  public static final String FIELD_PREFIXES_PROPERTY_NAME = "infra.beans.fields.prefixes";
+
   private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
   private static final boolean shouldIgnoreFields = InfraStrategies.getFlag("infra.beans.fields.ignore", false);
+
+  private static final String[] fieldPrefixes = StringUtils.tokenizeToStringArray(
+          InfraStrategies.getProperty(FIELD_PREFIXES_PROPERTY_NAME), ",");
 
   private final Class<?> beanClass;
 
@@ -256,7 +267,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
     if (!shouldIgnoreFields) {
       ReflectionUtils.doWithFields(beanClass, field -> {
         if (!Modifier.isStatic(field.getModifiers())) {
-          String propertyName = getPropertyName(field);
+          String propertyName = getPropertyName(field, beanPropertyMap);
           BeanProperty property = beanPropertyMap.get(propertyName);
           if (property == null) {
             property = new BeanProperty(field, null, null);
@@ -271,14 +282,28 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
     return beanPropertyMap;
   }
 
-  private String getPropertyName(Field field) {
+  private String getPropertyName(Field field, HashMap<String, BeanProperty> beanProperties) {
+    String fieldName = field.getName();
+    if (beanProperties.containsKey(fieldName)) {
+      return fieldName;
+    }
+
     Method readMethod = ReflectionUtils.getReadMethod(field);
-    String propertyName = ReflectionUtils.getPropertyName(readMethod, null);
-    if (propertyName != null) {
+    Method writeMethod = ReflectionUtils.getWriteMethod(field);
+    String propertyName = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+    if (propertyName != null && beanProperties.containsKey(propertyName)) {
       return propertyName;
     }
-    // todo maybe start with 'm,_'
-    return field.getName();
+
+    for (String prefix : fieldPrefixes) {
+      if (fieldName.startsWith(prefix) && fieldName.length() > prefix.length()) {
+        String candidate = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
+        if (beanProperties.containsKey(candidate)) {
+          return candidate;
+        }
+      }
+    }
+    return fieldName;
   }
 
   @Override

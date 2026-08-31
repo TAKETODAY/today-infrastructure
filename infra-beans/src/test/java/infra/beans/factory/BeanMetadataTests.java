@@ -125,6 +125,15 @@ public class BeanMetadataTests {
   }
 
   @Test
+  void setterOnlyBooleanFieldUsesSetterPropertyName() {
+    BeanMetadata beanMetadata = new BeanMetadata(SetterOnlyBooleanBean.class);
+
+    assertThat(beanMetadata.containsProperty("enabled")).isTrue();
+    assertThat(beanMetadata.containsProperty("isEnabled")).isFalse();
+    beanMetadata.setProperty(new SetterOnlyBooleanBean(), "enabled", true);
+  }
+
+  @Test
   void staticFieldsAreNotCollected() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(RichBean.class);
     assertThat(beanMetadata.containsProperty("STATIC_FIELD")).isFalse();
@@ -285,6 +294,16 @@ public class BeanMetadataTests {
 
     public String getFinalValue() {
       return finalValue;
+    }
+
+  }
+
+  static class SetterOnlyBooleanBean {
+
+    private boolean isEnabled;
+
+    public void setEnabled(boolean enabled) {
+      this.isEnabled = enabled;
     }
 
   }
