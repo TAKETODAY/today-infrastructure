@@ -52,8 +52,8 @@ class PropertyFilterTests {
     PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"));
 
     BeanMetadata metadata = BeanMetadata.forClass(UserModel.class);
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("id"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("class"))).isTrue();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("id"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("class"))).isTrue();
 
   }
 
@@ -61,10 +61,10 @@ class PropertyFilterTests {
   void forTransientAnnotation() {
     PropertyFilter propertyFilter = PropertyFilter.forTransientAnnotation();
     BeanMetadata metadata = BeanMetadata.forClass(NestedUserModel.class);
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("class"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("id"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("my"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("user"))).isTrue();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("class"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("id"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("my"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("user"))).isTrue();
 
   }
 
@@ -72,10 +72,10 @@ class PropertyFilterTests {
   void forAnnotation() {
     PropertyFilter propertyFilter = PropertyFilter.forAnnotation(MyTransient.class);
     BeanMetadata metadata = BeanMetadata.forClass(NestedUserModel.class);
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("class"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("id"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("my"))).isTrue();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("user"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("class"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("id"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("my"))).isTrue();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("user"))).isFalse();
 
   }
 
@@ -86,10 +86,10 @@ class PropertyFilterTests {
             .and(PropertyFilter.forTransientAnnotation());
 
     BeanMetadata metadata = BeanMetadata.forClass(NestedUserModel.class);
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("class"))).isTrue();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("id"))).isFalse();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("my"))).isTrue();
-    assertThat(propertyFilter.isFiltered(metadata.getBeanProperty("user"))).isTrue();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("class"))).isTrue();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("id"))).isFalse();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("my"))).isTrue();
+    assertThat(propertyFilter.isFiltered(metadata.getProperty("user"))).isTrue();
 
   }
 

@@ -22,16 +22,18 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
-import infra.lang.Modifiable;
+import infra.lang.Unmodifiable;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.InfraStrategies;
@@ -64,8 +66,10 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   private static final boolean shouldIgnoreFields = InfraStrategies.getFlag("infra.beans.fields.ignore", false);
 
-  private static final String[] fieldPrefixes = StringUtils.tokenizeToStringArray(
-          InfraStrategies.getProperty(FIELD_PREFIXES_PROPERTY_NAME), ",");
+  private static String[] fieldPrefixes() {
+    return StringUtils.tokenizeToStringArray(
+            InfraStrategies.getProperty(FIELD_PREFIXES_PROPERTY_NAME), ",");
+  }
 
   private final Class<?> beanClass;
 
@@ -133,8 +137,8 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @param propertyName the name of the property to retrieve
    * @return the {@link BeanProperty} instance, or {@code null} if no such property exists
    */
-  public @Nullable BeanProperty getBeanProperty(String propertyName) {
-    return getBeanProperties().get(propertyName);
+  public @Nullable BeanProperty getProperty(String propertyName) {
+    return getBeanPropertyMap().get(propertyName);
   }
 
   /**
@@ -147,7 +151,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException if no property with the given name exists
    */
   public BeanProperty obtainBeanProperty(String propertyName) {
-    BeanProperty beanProperty = getBeanProperty(propertyName);
+    BeanProperty beanProperty = getProperty(propertyName);
     if (beanProperty == null) {
       throw new NoSuchPropertyException(beanClass, propertyName);
     }
@@ -164,7 +168,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException if no property with the given name exists
    * @see #obtainBeanProperty(String)
    */
-  public void setProperty(Object root, String propertyName, Object value) {
+  public void setPropertyValue(Object root, String propertyName, Object value) {
     obtainBeanProperty(propertyName).setValue(root, value);
   }
 
@@ -177,7 +181,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException if no property with the given name exists
    * @see #obtainBeanProperty(String)
    */
-  public @Nullable Object getProperty(Object root, String propertyName) {
+  public @Nullable Object getPropertyValue(Object root, String propertyName) {
     return obtainBeanProperty(propertyName).getValue(root);
   }
 
@@ -194,28 +198,22 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Returns a map of all bean properties, keyed by property name.
+   * Returns an unmodifiable map of all bean properties, keyed by property name.
    *
-   * <p>The returned map is modifiable and reflects the internal state of the bean metadata.
-   * Modifications to this map will affect subsequent operations on this {@code BeanMetadata} instance.
-   *
-   * @return a modifiable map containing all {@link BeanProperty} instances
+   * @return an unmodifiable map containing all {@link BeanProperty} instances
    */
-  @Modifiable
-  public HashMap<String, BeanProperty> getBeanProperties() {
+  @Unmodifiable
+  public Map<String, BeanProperty> getBeanPropertyMap() {
     return propertyHolder().mapping;
   }
 
   /**
-   * Returns a list of all bean properties.
+   * Returns an unmodifiable list of all bean properties.
    *
-   * <p>The returned list is modifiable and reflects the internal state of the bean metadata.
-   * Modifications to this list will affect subsequent operations on this {@code BeanMetadata} instance.
-   *
-   * @return a modifiable list of {@link BeanProperty} instances
+   * @return an unmodifiable list of {@link BeanProperty} instances
    */
-  @Modifiable
-  public ArrayList<BeanProperty> beanProperties() {
+  @Unmodifiable
+  public List<BeanProperty> getBeanProperties() {
     return propertyHolder().beanProperties;
   }
 
@@ -225,7 +223,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return the count of bean properties
    * @since 4.0
    */
-  public int getPropertySize() {
+  public int getPropertyCount() {
     return propertyHolder().beanProperties.size();
   }
 
@@ -238,6 +236,18 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    */
   public boolean containsProperty(String name) {
     return propertyHolder().mapping.containsKey(name);
+  }
+
+  /**
+   * Returns an unmodifiable Set of all property names of the bean, including
+   * inherited properties. Static properties are excluded.
+   *
+   * @return an unmodifiable Set of property names
+   * @since 5.0
+   */
+  @Unmodifiable
+  public Set<String> propertyNames() {
+    return propertyHolder().mapping.keySet();
   }
 
   /**
@@ -265,9 +275,10 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
     }
 
     if (!shouldIgnoreFields) {
+      String[] prefixes = fieldPrefixes();
       ReflectionUtils.doWithFields(beanClass, field -> {
         if (!Modifier.isStatic(field.getModifiers())) {
-          String propertyName = getPropertyName(field, beanPropertyMap);
+          String propertyName = getPropertyName(field, beanPropertyMap, prefixes);
           BeanProperty property = beanPropertyMap.get(propertyName);
           if (property == null) {
             property = new BeanProperty(field, null, null);
@@ -282,20 +293,26 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
     return beanPropertyMap;
   }
 
-  private String getPropertyName(Field field, HashMap<String, BeanProperty> beanProperties) {
+  private String getPropertyName(Field field, Map<String, BeanProperty> beanProperties, String[] prefixes) {
     String fieldName = field.getName();
     if (beanProperties.containsKey(fieldName)) {
       return fieldName;
     }
 
-    Method readMethod = ReflectionUtils.getReadMethod(field);
-    Method writeMethod = ReflectionUtils.getWriteMethod(field);
-    String propertyName = ReflectionUtils.getPropertyName(readMethod, writeMethod);
-    if (propertyName != null && beanProperties.containsKey(propertyName)) {
-      return propertyName;
+    // Only derive the property name from accessors for boolean "is" prefixed fields,
+    // so that a field like "isEnabled" does not surface a second, conflicting
+    // property next to the accessor-derived "enabled". Other fields keep their
+    // raw name (e.g. a field named "Title" stays distinct from the "title" getter).
+    if (fieldName.startsWith("is")) {
+      Method readMethod = ReflectionUtils.getReadMethod(field);
+      Method writeMethod = ReflectionUtils.getWriteMethod(field);
+      String propertyName = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+      if (propertyName != null && beanProperties.containsKey(propertyName)) {
+        return propertyName;
+      }
     }
 
-    for (String prefix : fieldPrefixes) {
+    for (String prefix : prefixes) {
       if (fieldName.startsWith(prefix) && fieldName.length() > prefix.length()) {
         String candidate = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         if (beanProperties.containsKey(candidate)) {
@@ -376,12 +393,12 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @since 4.0
    */
   static final class BeanPropertiesHolder {
-    public final HashMap<String, BeanProperty> mapping;
-    public final ArrayList<BeanProperty> beanProperties;
+    public final Map<String, BeanProperty> mapping;
+    public final List<BeanProperty> beanProperties;
 
     BeanPropertiesHolder(HashMap<String, BeanProperty> mapping) {
-      this.mapping = new HashMap<>(mapping);
-      this.beanProperties = new ArrayList<>(mapping.values());
+      this.mapping = Map.copyOf(mapping);
+      this.beanProperties = List.copyOf(mapping.values());
     }
   }
 

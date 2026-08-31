@@ -183,7 +183,7 @@ public abstract class BeanProperties {
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
           String propertyName = entry.getKey();
           if (!ignorePropertiesSet.contains(propertyName)) {
-            BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+            BeanProperty beanProperty = destination.getProperty(propertyName);
             if (beanProperty != null && beanProperty.isWriteable()) {
               beanProperty.setValue(destinationInstance, entry.getValue(), converter);
             }
@@ -196,7 +196,7 @@ public abstract class BeanProperties {
           if (property.isReadable()) {
             String propertyName = property.getName();
             if (!ignorePropertiesSet.contains(propertyName)) {
-              BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+              BeanProperty beanProperty = destination.getProperty(propertyName);
               if (beanProperty != null && beanProperty.isWriteable()) {
                 beanProperty.setValue(destinationInstance, property.getValue(source), converter);
               }
@@ -209,7 +209,7 @@ public abstract class BeanProperties {
       if (source instanceof Map) {
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
           String propertyName = entry.getKey();
-          BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+          BeanProperty beanProperty = destination.getProperty(propertyName);
           if (beanProperty != null && beanProperty.isWriteable()) {
             beanProperty.setValue(destinationInstance, entry.getValue(), converter);
           }
@@ -220,7 +220,7 @@ public abstract class BeanProperties {
         for (BeanProperty property : sourceMetadata) {
           if (property.isReadable()) {
             String propertyName = property.getName();
-            BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+            BeanProperty beanProperty = destination.getProperty(propertyName);
             if (beanProperty != null && beanProperty.isWriteable()) {
               beanProperty.setValue(destinationInstance, property.getValue(source), converter);
             }

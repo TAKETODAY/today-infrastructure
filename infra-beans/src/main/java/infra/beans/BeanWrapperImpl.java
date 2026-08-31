@@ -192,7 +192,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    * @throws TypeMismatchException if type conversion failed
    */
   public @Nullable Object convertForProperty(@Nullable Object value, String propertyName) throws TypeMismatchException {
-    BeanProperty beanProperty = getMetadata().getBeanProperty(propertyName);
+    BeanProperty beanProperty = getMetadata().getProperty(propertyName);
     if (beanProperty == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
               "No property '%s' found".formatted(propertyName));
@@ -203,7 +203,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
   @Override
   protected @Nullable BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
-    BeanProperty beanProperty = getMetadata().getBeanProperty(propertyName);
+    BeanProperty beanProperty = getMetadata().getProperty(propertyName);
     return beanProperty != null ? new BeanPropertyHandler(beanProperty) : null;
   }
 
@@ -221,14 +221,14 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
   @Override
   public List<BeanProperty> getBeanProperties() {
-    return getMetadata().beanProperties();
+    return getMetadata().getBeanProperties();
   }
 
   @Override
   public BeanProperty getBeanProperty(String propertyName) throws InvalidPropertyException {
     BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
     String finalPath = getFinalPath(nestedBw, propertyName);
-    BeanProperty property = nestedBw.getMetadata().getBeanProperty(finalPath);
+    BeanProperty property = nestedBw.getMetadata().getProperty(finalPath);
     if (property == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
               "No property '%s' found".formatted(propertyName));

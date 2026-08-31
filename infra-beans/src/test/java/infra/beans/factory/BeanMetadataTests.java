@@ -44,7 +44,7 @@ public class BeanMetadataTests {
 
     assertThat(bean.getDoubleProperty()).isEqualTo(321.0);
 
-    beanMetadata.setProperty(instance, "doubleProperty", 123.45);
+    beanMetadata.setPropertyValue(instance, "doubleProperty", 123.45);
     assertThat(bean.getDoubleProperty()).isEqualTo(123.45);
 
     beanMetadata.obtainBeanProperty("doubleProperty").setValue(instance, 321.0);
@@ -61,8 +61,8 @@ public class BeanMetadataTests {
     final BeanMetadata beanMetadata = BeanMetadata.forClass(BooleanConflictBean.class);
     final Object instance = beanMetadata.newInstance();
 
-    beanMetadata.setProperty(instance, "enabled", true);
-    assertThat((Boolean) beanMetadata.getProperty(instance, "enabled")).isTrue();
+    beanMetadata.setPropertyValue(instance, "enabled", true);
+    assertThat((Boolean) beanMetadata.getPropertyValue(instance, "enabled")).isTrue();
 
     // The boolean field is read through its is* getter, and must not surface
     // a second, field-only property under the raw field name.
@@ -74,7 +74,7 @@ public class BeanMetadataTests {
   void isBooleanGetterDerivesSamePropertyNameAsField() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(BooleanConflictBean.class);
 
-    BeanProperty property = beanMetadata.getBeanProperty("enabled");
+    BeanProperty property = beanMetadata.getProperty("enabled");
     assertThat(property).isNotNull();
     assertThat(property.getReadMethod()).isNotNull();
     assertThat(property.getReadMethod().getName()).isEqualTo("isEnabled");
@@ -130,7 +130,7 @@ public class BeanMetadataTests {
 
     assertThat(beanMetadata.containsProperty("enabled")).isTrue();
     assertThat(beanMetadata.containsProperty("isEnabled")).isFalse();
-    beanMetadata.setProperty(new SetterOnlyBooleanBean(), "enabled", true);
+    beanMetadata.setPropertyValue(new SetterOnlyBooleanBean(), "enabled", true);
   }
 
   @Test
@@ -142,7 +142,7 @@ public class BeanMetadataTests {
   @Test
   void readOnlyFinalFieldIsNotWriteable() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(ReadOnlyBean.class);
-    BeanProperty property = beanMetadata.getBeanProperty("finalValue");
+    BeanProperty property = beanMetadata.getProperty("finalValue");
     assertThat(property).isNotNull();
     assertThat(property.isReadable()).isTrue();
     assertThat(property.isWriteable()).isFalse();
@@ -152,7 +152,7 @@ public class BeanMetadataTests {
   void setReadOnlyPropertyThrows() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(ReadOnlyBean.class);
     ReadOnlyBean bean = new ReadOnlyBean();
-    assertThatThrownBy(() -> beanMetadata.setProperty(bean, "finalValue", "x"))
+    assertThatThrownBy(() -> beanMetadata.setPropertyValue(bean, "finalValue", "x"))
             .isInstanceOf(Exception.class)
             .hasMessageStartingWith(
                     "Invalid property 'finalValue' of bean class [%s]: Bean property 'finalValue' is not writable"
@@ -170,10 +170,10 @@ public class BeanMetadataTests {
   @Test
   void propertySizeAndIterationReflectCollectedProperties() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(RichBean.class);
-    int size = beanMetadata.getPropertySize();
+    int size = beanMetadata.getPropertyCount();
 
     assertThat(size).isPositive();
-    assertThat(beanMetadata.beanProperties()).hasSize(size);
+    assertThat(beanMetadata.getBeanProperties()).hasSize(size);
 
     int iterated = 0;
     for (BeanProperty ignored : beanMetadata) {
@@ -195,13 +195,13 @@ public class BeanMetadataTests {
     BeanMetadata beanMetadata = BeanMetadata.forClass(RichBean.class);
     RichBean bean = new RichBean();
 
-    beanMetadata.setProperty(bean, "text", "hello");
-    beanMetadata.setProperty(bean, "count", 42);
-    beanMetadata.setProperty(bean, "active", true);
+    beanMetadata.setPropertyValue(bean, "text", "hello");
+    beanMetadata.setPropertyValue(bean, "count", 42);
+    beanMetadata.setPropertyValue(bean, "active", true);
 
-    assertThat(beanMetadata.getProperty(bean, "text")).isEqualTo("hello");
-    assertThat(beanMetadata.getProperty(bean, "count")).isEqualTo(42);
-    assertThat(beanMetadata.getProperty(bean, "active")).isEqualTo(true);
+    assertThat(beanMetadata.getPropertyValue(bean, "text")).isEqualTo("hello");
+    assertThat(beanMetadata.getPropertyValue(bean, "count")).isEqualTo(42);
+    assertThat(beanMetadata.getPropertyValue(bean, "active")).isEqualTo(true);
 
     assertThat(bean.getText()).isEqualTo("hello");
     assertThat(bean.getCount()).isEqualTo(42);

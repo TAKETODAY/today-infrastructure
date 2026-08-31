@@ -25,6 +25,7 @@ import infra.beans.BeanProperty;
 import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -48,7 +49,7 @@ class BeanMetadataPrefixTests {
     assertThat(beanMetadata.containsProperty("m_name")).isFalse();
 
     PrefixedBean bean = new PrefixedBean();
-    beanMetadata.setProperty(bean, "name", "today");
+    beanMetadata.setPropertyValue(bean, "name", "today");
     assertThat(bean.getName()).isEqualTo("today");
   }
 
@@ -81,7 +82,7 @@ class BeanMetadataPrefixTests {
     assertThat(beanMetadata.containsProperty("_title")).isFalse();
 
     PrefixedBean bean = new PrefixedBean();
-    beanMetadata.setProperty(bean, "title", "frame");
+    beanMetadata.setPropertyValue(bean, "title", "frame");
     assertThat(bean.getTitle()).isEqualTo("frame");
   }
 
@@ -89,7 +90,7 @@ class BeanMetadataPrefixTests {
   void prefixedFieldIsWiredToBeanPropertyField() {
     // 前缀字段通过 setField 关联到对应的 BeanProperty
     BeanMetadata beanMetadata = BeanMetadata.forClass(PrefixedBean.class);
-    BeanProperty property = beanMetadata.getBeanProperty("name");
+    BeanProperty property = beanMetadata.getProperty("name");
     assertThat(property).isNotNull();
     assertThat(property.getField()).isNotNull();
     assertThat(property.getField().getName()).isEqualTo("m_name");
@@ -101,7 +102,20 @@ class BeanMetadataPrefixTests {
     PrefixedBean bean = new PrefixedBean();
 
     bean.setName("hello");
-    assertThat(beanMetadata.getProperty(bean, "name")).isEqualTo("hello");
+    assertThat(beanMetadata.getPropertyValue(bean, "name")).isEqualTo("hello");
+  }
+
+  @Test
+  void fieldNamesReturnsAllNonStaticFieldNames() {
+    BeanMetadata beanMetadata = BeanMetadata.forClass(PrefixedBean.class);
+
+    assertThat(beanMetadata.propertyNames()).contains(
+            "name", "age", "_nickname", "m_", "title");
+    // 静态字段被排除
+    assertThat(beanMetadata.propertyNames()).doesNotContain("STATIC");
+
+    assertThatThrownBy(() -> beanMetadata.propertyNames().add("any"))
+            .isInstanceOf(UnsupportedOperationException.class);
   }
 
   static class PrefixedBean {
@@ -115,6 +129,8 @@ class BeanMetadataPrefixTests {
     private String m_;
 
     private String _title;
+
+    private static String STATIC = "static";
 
     public String getName() {
       return m_name;

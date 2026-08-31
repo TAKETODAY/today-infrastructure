@@ -106,7 +106,7 @@ final class PropertyPath {
     if (pos > -1) {
       // compute next PropertyPath
       String propertyName = propertyPath.substring(0, pos);
-      this.beanProperty = metadata.getBeanProperty(propertyName);
+      this.beanProperty = metadata.getProperty(propertyName);
       if (beanProperty != null) {
         BeanMetadata nextMetadata = BeanMetadata.forClass(beanProperty.getType());
         this.next = new PropertyPath(propertyPath.substring(pos + 1), nextMetadata);
@@ -118,7 +118,7 @@ final class PropertyPath {
     else {
       // terminated (last PropertyPath)
       this.next = null;
-      this.beanProperty = metadata.getBeanProperty(propertyPath); // maybe null
+      this.beanProperty = metadata.getProperty(propertyPath); // maybe null
     }
   }
 

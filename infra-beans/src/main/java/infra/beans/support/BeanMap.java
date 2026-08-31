@@ -19,7 +19,6 @@ package infra.beans.support;
 import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +73,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
 
   @Override
   public Set<String> keySet() {
-    return Collections.unmodifiableSet(metadata.getBeanProperties().keySet());
+    return metadata.propertyNames();
   }
 
   @Nullable
@@ -88,7 +87,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
 
   @Nullable
   public Object get(Object target, String key) {
-    return metadata.getProperty(target, key);
+    return metadata.getPropertyValue(target, key);
   }
 
   /**
@@ -136,7 +135,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
 
   @Override
   public int size() {
-    return metadata.getPropertySize();
+    return metadata.getPropertyCount();
   }
 
   @Override
@@ -187,7 +186,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
    */
   @Nullable
   public Class<?> getPropertyType(String name) {
-    BeanProperty beanProperty = metadata.getBeanProperty(name);
+    BeanProperty beanProperty = metadata.getProperty(name);
     if (beanProperty != null) {
       return beanProperty.getType();
     }

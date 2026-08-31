@@ -146,7 +146,7 @@ class BeanMetadataReflectiveProcessor implements ReflectiveProcessor {
   private void registerBeanPropertiesHints(ReflectionHints hints, Class<?> beanClass) {
     BeanMetadata beanMetadata = BeanMetadata.forClass(beanClass);
 
-    for (BeanProperty property : beanMetadata.beanProperties()) {
+    for (BeanProperty property : beanMetadata.getBeanProperties()) {
       registerPropertyTypeHints(hints, property);
       registerPropertyAccessorsHints(hints, property);
     }
