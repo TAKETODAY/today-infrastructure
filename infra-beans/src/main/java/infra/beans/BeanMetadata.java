@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -271,6 +272,11 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   private String getPropertyName(Field field) {
+    Method readMethod = ReflectionUtils.getReadMethod(field);
+    String propertyName = ReflectionUtils.getPropertyName(readMethod, null);
+    if (propertyName != null) {
+      return propertyName;
+    }
     // todo maybe start with 'm,_'
     return field.getName();
   }
