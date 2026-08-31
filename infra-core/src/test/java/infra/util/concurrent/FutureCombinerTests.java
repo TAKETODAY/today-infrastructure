@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -504,6 +505,32 @@ class FutureCombinerTests {
     Future<Integer> future1 = Future.ok(1);
     Stream<Future<?>> futureStream = null;
     assertThrows(IllegalArgumentException.class, () -> Future.combine(future1).with(futureStream));
+  }
+
+  @Test
+  void rejectedCombinedFutureTaskRunsViaRejectedExecutionHandler() {
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
+
+    RejectedExecutionHandler originalHandler = Future.getRejectedExecutionHandler();
+    try {
+      Future.setRejectedExecutionHandler(RejectedExecutionHandler.CALLER_RUNS);
+
+      Future<String> combined = Future.combine(p1, p2)
+              .call(() -> "done", command -> {
+                throw new RejectedExecutionException();
+              });
+
+      p1.setSuccess("test");
+      p2.setSuccess(42);
+
+      // The combiner task is handed to the configured RejectedExecutionHandler,
+      // which runs it inline on the caller thread and completes the promise.
+      assertThat(combined.join()).isEqualTo("done");
+    }
+    finally {
+      Future.setRejectedExecutionHandler(originalHandler);
+    }
   }
 
 }

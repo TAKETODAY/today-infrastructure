@@ -442,7 +442,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
     if (executor == null) {
       executor = Future.defaultScheduler;
     }
-    executor.execute(task);
+    Future.safeExecute(executor, task);
   }
 
 }
