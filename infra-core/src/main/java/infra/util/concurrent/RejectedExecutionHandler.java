@@ -35,6 +35,13 @@ import infra.logging.LoggerFactory;
  * <p>The handler runs on the thread that attempted the submission; it must not
  * assume any particular security context, thread state, or ordering guarantees.
  *
+ * <p><strong>Exception propagation:</strong> the handler is invoked synchronously
+ * from the code that completes the future ({@code setSuccess()}, {@code setFailure()},
+ * or {@code cancel()}). Any exception thrown by the handler is <em>not</em> swallowed
+ * by the framework: it propagates back to that completing caller. Implementations
+ * must therefore catch and handle their own exceptions if they must not disturb the
+ * completion path.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
@@ -65,6 +72,9 @@ public interface RejectedExecutionHandler {
    * @param task the rejected listener notification task; the handler decides
    * whether and where to run it
    * @param cause the {@link RejectedExecutionException} reported by the executor
+   * @throws RuntimeException any exception thrown by this handler propagates to the
+   * caller that completed the future (e.g. {@code setSuccess()}, {@code setFailure()},
+   * or {@code cancel()})
    */
   void handleRejected(Executor executor, Runnable task, RejectedExecutionException cause);
 

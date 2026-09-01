@@ -303,6 +303,11 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Future<
   }
 
   protected final void notifyListeners() {
+    synchronized(this) {
+      if (listeners == null) {
+        return;
+      }
+    }
     safeExecute(executor, new NotifyTask());
   }
 
