@@ -29,11 +29,9 @@ import infra.util.ObjectUtils;
 
 /**
  * Represents a generic pair of two values.
- *
+ * <p>
  * There is no meaning attached to values in this class, it can be used for any purpose.
  * Pair exhibits value semantics, i.e. two pairs are equal if both components are equal.
- *
- * An example of decomposing it into values:
  *
  * @param <A> type of the first value.
  * @param <B> type of the second value.
