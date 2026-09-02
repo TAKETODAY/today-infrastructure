@@ -40,7 +40,14 @@ public enum TestGroup {
    * 500ms should be considered a candidate in order to avoid making the overall test
    * suite too slow to run during the normal development cycle.
    */
-  LONG_RUNNING;
+  LONG_RUNNING,
+
+  /**
+   * Tests that enable full framework log output. These are only run when explicitly
+   * requested via {@code -PtestGroups=FULL_LOG} so that the framework internals can be
+   * inspected without polluting the normal test output.
+   */
+  FULL_LOG;
 
   /**
    * Determine if this {@link TestGroup} is active.
