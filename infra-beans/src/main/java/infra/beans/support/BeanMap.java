@@ -20,8 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import infra.beans.BeanMetadata;
@@ -30,7 +28,6 @@ import infra.beans.NoSuchPropertyException;
 import infra.beans.NotWritablePropertyException;
 import infra.core.Pair;
 import infra.reflect.SetterMethod;
-import infra.util.ObjectUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -43,8 +40,7 @@ import infra.util.ObjectUtils;
  * @see #ignoreReadOnly
  * @since 3.0.2 2021/5/28 21:15
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public final class BeanMap<T> extends AbstractMap<String, Object> implements Map<String, Object> {
+public final class BeanMap<T> extends AbstractMap<String, Object> {
 
   private T target;
 
@@ -65,8 +61,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     Object target = this.target;
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
     for (BeanProperty property : metadata) {
-      Object value = property.getValue(target);
-      entrySet.add(Pair.of(property.getName(), value));
+      entrySet.add(Pair.of(property.getName(), property.getValue(target)));
     }
     return entrySet;
   }
@@ -76,61 +71,81 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     return metadata.propertyNames();
   }
 
-  @Nullable
+  /**
+   * Returns the value of the property identified by the given key.
+   *
+   * @param key the property name
+   * @return the property value, or {@code null} if the property is not set or
+   * cannot be read
+   * @throws IllegalArgumentException if the given key is not a {@link String}
+   */
   @Override
-  public Object get(Object key) {
-    if (key instanceof String) {
-      return get(target, (String) key);
+  public @Nullable Object get(Object key) {
+    if (key instanceof String name) {
+      return metadata.getPropertyValue(target, name);
     }
     throw new IllegalArgumentException("key must be a string");
   }
 
-  @Nullable
-  public Object get(Object target, String key) {
+  /**
+   * Returns the value of the property identified by the given key from the given
+   * target object, without changing this map's {@link #getTarget() target}.
+   *
+   * @param target the target bean to read from
+   * @param key the property name
+   * @return the property value, or {@code null} if the property is not set or
+   * cannot be read
+   */
+  public @Nullable Object get(Object target, String key) {
     return metadata.getPropertyValue(target, key);
   }
 
   /**
+   * Sets the value of the property identified by the given key on the
+   * {@link #getTarget() target} object.
+   *
+   * @param key the property name
+   * @param value the value to set
+   * @return the previous value of the property, or {@code null} if there was none
+   * or the property is not readable
    * @throws NotWritablePropertyException If this property is read only
    * @see SetterMethod#set(Object, Object)
    */
   @Override
-  @Nullable
-  public Object put(String key, Object value) {
+  public @Nullable Object put(String key, Object value) {
     return put(target, key, value);
   }
 
   /**
+   * Sets the value of the property identified by the given key on the given target
+   * object, without changing this map's {@link #getTarget() target}.
+   *
+   * @param target the target bean to write to
+   * @param key the property name
+   * @param value the value to set
+   * @return the previous value of the property, or {@code null} if there was none
+   * or the property is not readable
    * @throws NoSuchPropertyException If no such property
    * @throws NotWritablePropertyException If this property is read only and 'ignoreReadOnly' is false
    * @see SetterMethod#set(Object, Object)
    */
-  @Nullable
-  public Object put(Object target, String key, Object value) {
+  public @Nullable Object put(Object target, String key, Object value) {
     BeanProperty beanProperty = this.metadata.obtainBeanProperty(key);
     if (beanProperty.isWriteable()) {
-      Object old = null;
-      if (beanProperty.isReadable()) {
-        old = beanProperty.getValue(target);
-      }
+      Object old = beanProperty.isReadable() ? beanProperty.getValue(target) : null;
       beanProperty.setValue(target, value);
       return old;
     }
-    else {
-      if (!ignoreReadOnly) {
-        throw new NotWritablePropertyException(metadata.getType(), beanProperty.getName(),
-                "%s has a property: '%s' that is not-writeable".formatted(target, beanProperty.getName()));
-      }
+    if (!ignoreReadOnly) {
+      throw new NotWritablePropertyException(metadata.getType(), beanProperty.getName(),
+              "%s has a property: '%s' that is not-writeable".formatted(target, beanProperty.getName()));
     }
     return beanProperty.getValue(target);
   }
 
   @Override
   public boolean containsKey(Object key) {
-    if (key instanceof String) {
-      return metadata.containsProperty((String) key);
-    }
-    return false;
+    return key instanceof String name && metadata.containsProperty(name);
   }
 
   @Override
@@ -143,37 +158,36 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     return size() == 0;
   }
 
+  /**
+   * @throws UnsupportedOperationException always, since the key set is fixed
+   */
   @Override
   public Object remove(Object key) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @throws UnsupportedOperationException always, since the key set is fixed
+   */
   @Override
   public void clear() {
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (o != this) {
-      if (o instanceof BeanMap other) {
-        // is BeanMap
-        return ObjectUtils.nullSafeEquals(target, other.target)
-                && Objects.equals(metadata, other.metadata);
-      }
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(target, metadata);
-  }
-
+  /**
+   * Return the underlying bean that this map operates on.
+   *
+   * @return the target bean
+   */
   public T getTarget() {
     return target;
   }
 
+  /**
+   * Set the underlying bean that this map operates on.
+   *
+   * @param target the new target bean
+   */
   public void setTarget(T target) {
     this.target = target;
   }
@@ -184,13 +198,9 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
    * @param name the name of the JavaBean property
    * @return the type of the property, or null if the property does not exist
    */
-  @Nullable
-  public Class<?> getPropertyType(String name) {
+  public @Nullable Class<?> getPropertyType(String name) {
     BeanProperty beanProperty = metadata.getProperty(name);
-    if (beanProperty != null) {
-      return beanProperty.getType();
-    }
-    return null;
+    return beanProperty != null ? beanProperty.getType() : null;
   }
 
   /**
@@ -204,6 +214,12 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     return new BeanMap<>(bean, metadata);
   }
 
+  /**
+   * Create a new instance of the underlying bean type, and set it as this map's
+   * {@link #getTarget() target}.
+   *
+   * @return the newly created target bean
+   */
   @SuppressWarnings("unchecked")
   public T newInstance() {
     T instance = (T) metadata.newInstance();
@@ -211,20 +227,47 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
     return instance;
   }
 
+  /**
+   * Set whether attempts to set a read-only property should be silently ignored.
+   *
+   * @param ignoreReadOnly {@code true} to ignore read-only properties
+   * @see #isIgnoreReadOnly()
+   */
   public void setIgnoreReadOnly(boolean ignoreReadOnly) {
     this.ignoreReadOnly = ignoreReadOnly;
   }
 
+  /**
+   * Return whether attempts to set a read-only property are silently ignored.
+   *
+   * @return {@code true} if read-only properties are ignored
+   * @see #setIgnoreReadOnly(boolean)
+   */
   public boolean isIgnoreReadOnly() {
     return ignoreReadOnly;
   }
 
   // static
 
+  /**
+   * Create a new {@code BeanMap} for the given bean instance.
+   *
+   * @param bean the bean to wrap
+   * @param <T> the bean type
+   * @return a new {@code BeanMap}
+   */
   public static <T> BeanMap<T> forInstance(T bean) {
     return new BeanMap<>(bean, BeanMetadata.forInstance(bean));
   }
 
+  /**
+   * Create a new {@code BeanMap} for the given bean class, backed by a new
+   * instance of that class.
+   *
+   * @param beanClass the bean class
+   * @param <T> the bean type
+   * @return a new {@code BeanMap}
+   */
   @SuppressWarnings("unchecked")
   public static <T> BeanMap<T> forClass(Class<T> beanClass) {
     BeanMetadata metadata = BeanMetadata.forClass(beanClass);
