@@ -26,7 +26,6 @@ import org.gradle.api.tasks.testing.junitplatform.JUnitPlatformOptions;
 import org.gradle.testretry.TestRetryPlugin;
 import org.gradle.testretry.TestRetryTaskExtension;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -71,16 +70,7 @@ class TestConventions {
     ));
 
     if (project.hasProperty("testGroups")) {
-      Object testGroups = project.property("testGroups");
-      test.systemProperty("testGroups", testGroups);
-      if (String.valueOf(testGroups).toUpperCase().contains("FULL_LOG")) {
-        File loggingDir = project.getRootProject()
-                .file("infra-core/src/testFixtures/resources/infra/logging");
-        test.systemProperty("logback.configurationFile",
-                new File(loggingDir, "logback-full.xml").getAbsolutePath());
-        test.systemProperty("java.util.logging.config.file",
-                new File(loggingDir, "logging-full.properties").getAbsolutePath());
-      }
+      test.systemProperty("testGroups", project.getProperties().get("testGroups"));
     }
 
     test.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED",

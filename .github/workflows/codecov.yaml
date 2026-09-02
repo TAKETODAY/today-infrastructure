@@ -36,7 +36,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Test Coverage
-        run: ./gradlew -DCI=true -Pcode-coverage -PtestGroups=FULL_LOG --no-daemon --no-parallel testCodeCoverageReport --scan --stacktrace
+        run: ./gradlew -DCI=true -Pcode-coverage --no-daemon --no-parallel testCodeCoverageReport --scan --stacktrace
 
       - name: Report coverage to Codecov
         uses: codecov/codecov-action@v6
