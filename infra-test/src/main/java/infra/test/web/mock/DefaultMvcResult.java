@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.Conventions;
-import infra.util.Assert;
 import infra.ui.ModelMap;
+import infra.util.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerInterceptor;
 import infra.web.HttpContext;
@@ -74,12 +74,11 @@ class DefaultMvcResult implements MvcResult {
   /**
    * Create a new instance with the given request and response.
    */
-  public DefaultMvcResult(MockRequest request,
-          MockResponse response, HttpContext httpContext) {
+  public DefaultMvcResult(MockRequest request, MockResponse response, HttpContext httpContext) {
     this.mockRequest = request;
     this.mockResponse = response;
     this.httpContext = httpContext;
-    request.setAttribute(MVC_RESULT_ATTRIBUTE, this);
+    httpContext.setAttribute(MVC_RESULT_ATTRIBUTE, this);
   }
 
   @Override

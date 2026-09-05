@@ -25,17 +25,17 @@ import java.util.List;
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
 import infra.http.reactive.client.ClientHttpConnector;
-import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.test.web.mock.client.MockMvcHttpConnector;
 import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.mock.request.RequestPostProcessor;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
-import infra.test.web.mock.setup.MockMvcConfigurerAdapter;
+import infra.test.web.mock.setup.MockMvcConfigurer;
 import infra.test.web.reactive.server.WebTestClient;
 import infra.test.web.reactive.server.WebTestClientConfigurer;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
+import infra.web.mock.MockRequest;
 
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.mock;
@@ -132,7 +132,7 @@ public class FrameworkExtensionTests {
   /**
    * Test {@code MockMvcConfigurer}.
    */
-  private static class TestMockMvcConfigurer extends MockMvcConfigurerAdapter {
+  private static class TestMockMvcConfigurer implements MockMvcConfigurer {
 
     @Override
     public void afterConfigurerAdded(ConfigurableMockMvcBuilder<?> builder) {
@@ -140,9 +140,7 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public RequestPostProcessor beforeMockMvcCreated(
-            ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
-
+    public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
       return request -> {
         request.setUserPrincipal(mock());
         return request;

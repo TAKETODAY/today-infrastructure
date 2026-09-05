@@ -41,7 +41,6 @@ import infra.test.web.mock.request.RequestPostProcessor;
  * </pre>
  *
  * @author Rossen Stoyanchev
- * @see MockMvcConfigurerAdapter
  * @since 4.0
  */
 public interface MockMvcConfigurer {
@@ -65,8 +64,7 @@ public interface MockMvcConfigurer {
    * @return a post processor to be applied to every request performed
    * through the {@code MockMvc} instance.
    */
-  @Nullable
-  default RequestPostProcessor beforeMockMvcCreated(
+  default @Nullable RequestPostProcessor beforeMockMvcCreated(
           ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
 
     return null;
