@@ -175,28 +175,25 @@ public final class MockMvc {
     request.setApplicationContext(dispatcherHandler.getApplicationContext());
 
     AsyncContext asyncContext = request.getAsyncContext();
-    MockResponse mockResponse;
     MockResponse response;
     if (asyncContext != null) {
       response = asyncContext.getResponse();
-      mockResponse = response;
     }
     else {
-      mockResponse = new MockResponse();
-      response = mockResponse;
+      response = new MockResponse();
     }
 
     if (this.defaultResponseCharacterEncoding != null) {
-      mockResponse.setDefaultCharacterEncoding(this.defaultResponseCharacterEncoding.name());
+      response.setDefaultCharacterEncoding(this.defaultResponseCharacterEncoding.name());
     }
 
     HttpContext previous = HttpContextHolder.current();
 
     var context = new MockHttpContext(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
-    DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
+    DefaultMvcResult mvcResult = new DefaultMvcResult(request, response, context);
 
     if (requestBuilder instanceof SmartRequestBuilder smartRequestBuilder) {
-      smartRequestBuilder.postProcessRequest(request, context);
+      smartRequestBuilder.customize(request, context);
     }
 
     HttpContextHolder.set(context);

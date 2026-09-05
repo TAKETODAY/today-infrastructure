@@ -501,7 +501,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-  void mergeInvokesDefaultRequestPostProcessorFirst() {
+  void mergeInvokesDefaultMockRequestCustomizerFirst() {
     final String ATTR = "ATTR";
     final String EXPECTED = "override";
 
@@ -514,13 +514,13 @@ class MockHttpRequestBuilderTests {
 
     MockRequest request = builder.buildRequest(mockContext);
     MockHttpContext context = new MockHttpContext(request);
-    builder.postProcessRequest(request, context);
+    builder.customize(request, context);
 
     assertThat(request.getAttribute(ATTR)).isEqualTo(EXPECTED);
   }
 
-  private static RequestAttributePostProcessor requestAttr(String attrName) {
-    return new RequestAttributePostProcessor().attr(attrName);
+  private static RequestAttributeCustomizer requestAttr(String attrName) {
+    return new RequestAttributeCustomizer().attr(attrName);
   }
 
   private final class User implements Principal {
@@ -531,24 +531,24 @@ class MockHttpRequestBuilderTests {
     }
   }
 
-  private static class RequestAttributePostProcessor implements RequestPostProcessor {
+  private static class RequestAttributeCustomizer implements MockRequestCustomizer {
 
     String attr;
 
     String value;
 
-    public RequestAttributePostProcessor attr(String attr) {
+    public RequestAttributeCustomizer attr(String attr) {
       this.attr = attr;
       return this;
     }
 
-    public RequestAttributePostProcessor value(String value) {
+    public RequestAttributeCustomizer value(String value) {
       this.value = value;
       return this;
     }
 
     @Override
-    public void postProcessRequest(MockRequest request, MockHttpContext context) {
+    public void customize(MockRequest request, MockHttpContext context) {
       request.setAttribute(attr, value);
     }
   }

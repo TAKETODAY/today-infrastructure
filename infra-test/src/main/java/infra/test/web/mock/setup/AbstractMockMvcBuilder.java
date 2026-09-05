@@ -36,7 +36,7 @@ import infra.test.web.mock.ResultMatcher;
 import infra.test.web.mock.request.AbstractMockRequestBuilder;
 import infra.test.web.mock.request.ConfigurableSmartRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
-import infra.test.web.mock.request.RequestPostProcessor;
+import infra.test.web.mock.request.MockRequestCustomizer;
 import infra.web.Filter;
 import infra.web.client.ApiVersionInserter;
 import infra.web.mock.DefaultMockContext;
@@ -161,7 +161,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     MockContext mockContext = new DefaultMockContext();
 
     for (MockMvcConfigurer configurer : this.configurers) {
-      RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, ctx);
+      MockRequestCustomizer processor = configurer.beforeMockMvcCreated(this, ctx);
       if (processor != null) {
         if (this.defaultRequestBuilder == null) {
           this.defaultRequestBuilder = MockMvcRequestBuilders.get("/");

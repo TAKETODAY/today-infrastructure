@@ -59,8 +59,8 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
    * Package-private constructor. Use static factory methods in
    * {@link MockMvcRequestBuilders}.
    * <p>For other ways to initialize a {@code MultipartMockRequest},
-   * see {@link #with(RequestPostProcessor)} and the
-   * {@link RequestPostProcessor} extension point.
+   * see {@link #with(MockRequestCustomizer)} and the
+   * {@link MockRequestCustomizer} extension point.
    *
    * @param urlTemplate a URL template; the resulting URL will be encoded
    * @param uriVariables zero or more URI variables

@@ -22,29 +22,30 @@ import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 
 /**
- * Extension point for applications or 3rd party libraries that wish to further
- * initialize a {@link MockRequest} instance after it has been built
- * by {@link MockHttpRequestBuilder} or its subclass
+ * Callback for customizing a given {@link MockRequest} and its
+ * {@link MockHttpContext} after the request has been built by
+ * {@link MockHttpRequestBuilder} or its subclass
  * {@link MockMultipartHttpRequestBuilder}.
  *
  * <p>Implementations of this interface can be provided to
- * {@link MockHttpRequestBuilder#with(RequestPostProcessor)} at the time
+ * {@link MockHttpRequestBuilder#with(MockRequestCustomizer)} at the time
  * when a request is about to be constructed.
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
-public interface RequestPostProcessor {
+public interface MockRequestCustomizer {
 
   /**
-   * Post-process the given {@code MockRequest} and its {@code MockHttpContext}
+   * Customize the given {@code MockRequest} and its {@code MockHttpContext}
    * after creation and initialization through a {@code MockHttpRequestBuilder}.
    *
-   * @param request the request to initialize
+   * @param request the request to customize
    * @param context the context wrapping the request
    */
-  void postProcessRequest(MockRequest request, MockHttpContext context);
+  void customize(MockRequest request, MockHttpContext context);
 
 }

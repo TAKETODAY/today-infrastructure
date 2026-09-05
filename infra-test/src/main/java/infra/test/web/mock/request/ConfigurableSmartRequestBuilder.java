@@ -22,7 +22,7 @@ import infra.test.web.mock.SmartRequestBuilder;
 
 /**
  * An extension of {@link SmartRequestBuilder
- * SmartRequestBuilder} that can be configured with {@link RequestPostProcessor RequestPostProcessors}.
+ * SmartRequestBuilder} that can be configured with {@link MockRequestCustomizer MockRequestCustomizers}.
  *
  * @param <B> a self reference to the builder type
  * @author Rossen Stoyanchev
@@ -32,8 +32,8 @@ public interface ConfigurableSmartRequestBuilder<B extends ConfigurableSmartRequ
         extends SmartRequestBuilder {
 
   /**
-   * Add the given {@code RequestPostProcessor}.
+   * Add the given {@code MockRequestCustomizer}.
    */
-  B with(RequestPostProcessor requestPostProcessor);
+  B with(MockRequestCustomizer customizer);
 
 }

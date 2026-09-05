@@ -18,13 +18,13 @@
 
 package infra.test.web.mock;
 
-import infra.test.web.mock.request.RequestPostProcessor;
+import infra.test.web.mock.request.MockRequestCustomizer;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 
 /**
  * Extended variant of a {@link RequestBuilder} that applies its
- * {@link RequestPostProcessor infra.test.web.mock.request.RequestPostProcessors}
+ * {@link MockRequestCustomizer MockRequestCustomizers}
  * as a separate step from the {@link #buildRequest} method.
  *
  * @author Rossen Stoyanchev
@@ -33,12 +33,12 @@ import infra.web.mock.MockRequest;
 public interface SmartRequestBuilder extends RequestBuilder {
 
   /**
-   * Apply request post-processing. Typically, that means invoking one or more
-   * {@link RequestPostProcessor infra.test.web.mock.request.RequestPostProcessors}.
+   * Apply request customization. Typically, that means invoking one or more
+   * {@link MockRequestCustomizer infra.test.web.mock.request.MockRequestCustomizers}.
    *
-   * @param request the request to initialize
+   * @param request the request to customize
    * @param context the {@link MockHttpContext} that wraps the request
    */
-  void postProcessRequest(MockRequest request, MockHttpContext context);
+  void customize(MockRequest request, MockHttpContext context);
 
 }

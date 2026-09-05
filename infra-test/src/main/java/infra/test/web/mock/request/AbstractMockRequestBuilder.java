@@ -130,7 +130,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
 
   private final Map<String, Object> flashAttributes = new LinkedHashMap<>();
 
-  private final List<RequestPostProcessor> postProcessors = new ArrayList<>();
+  private final List<MockRequestCustomizer> postProcessors = new ArrayList<>();
 
   /**
    * Create a new instance using the specified {@link HttpMethod}.
@@ -620,12 +620,12 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
    * Implementation of this interface can have builder-style methods themselves
    * and be made accessible through static factory methods.
    *
-   * @param postProcessor a post-processor to add
+   * @param customizer a post-processor to add
    */
   @Override
-  public B with(RequestPostProcessor postProcessor) {
-    Assert.notNull(postProcessor, "postProcessor is required");
-    this.postProcessors.add(postProcessor);
+  public B with(MockRequestCustomizer customizer) {
+    Assert.notNull(customizer, "customizer is required");
+    this.postProcessors.add(customizer);
     return self();
   }
 
@@ -962,9 +962,9 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
   }
 
   @Override
-  public void postProcessRequest(MockRequest request, MockHttpContext context) {
-    for (RequestPostProcessor postProcessor : this.postProcessors) {
-      postProcessor.postProcessRequest(request, context);
+  public void customize(MockRequest request, MockHttpContext context) {
+    for (MockRequestCustomizer postProcessor : this.postProcessors) {
+      postProcessor.customize(request, context);
     }
   }
 

@@ -35,7 +35,7 @@ import infra.web.util.UriComponentsBuilder;
  *
  * <p>This class is not open for extension. To apply custom initialization to
  * the created {@code MockMockRequest}, please use the
- * {@link #with(RequestPostProcessor)} extension point.
+ * {@link #with(MockRequestCustomizer)} extension point.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
@@ -52,7 +52,7 @@ public class MockHttpRequestBuilder extends AbstractMockRequestBuilder<MockHttpR
    * methods in {@link MockMvcRequestBuilders}.
    * <p>Although this class cannot be extended, additional ways to initialize
    * the {@code MockRequest} can be plugged in via
-   * {@link #with(RequestPostProcessor)}.
+   * {@link #with(MockRequestCustomizer)}.
    *
    * @param httpMethod the HTTP method (GET, POST, etc.)
    */
@@ -65,7 +65,7 @@ public class MockHttpRequestBuilder extends AbstractMockRequestBuilder<MockHttpR
    * methods in {@link MockMvcRequestBuilders}.
    * <p>Although this class cannot be extended, additional ways to initialize
    * the {@code MockMockRequest} can be plugged in via
-   * {@link #with(RequestPostProcessor)}.
+   * {@link #with(MockRequestCustomizer)}.
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param url a URL template; the resulting URL will be encoded

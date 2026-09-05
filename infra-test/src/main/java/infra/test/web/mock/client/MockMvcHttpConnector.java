@@ -53,7 +53,7 @@ import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.request.MockHttpRequestBuilder;
 import infra.test.web.mock.request.MockMultipartHttpRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
-import infra.test.web.mock.request.RequestPostProcessor;
+import infra.test.web.mock.request.MockRequestCustomizer;
 import infra.test.web.mock.result.MockMvcResultHandlers;
 import infra.test.web.reactive.server.MockServerClientHttpResponse;
 import infra.util.ObjectUtils;
@@ -84,15 +84,15 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
 
   private final MockMvc mockMvc;
 
-  private final List<RequestPostProcessor> requestPostProcessors;
+  private final List<MockRequestCustomizer> requestCustomizers;
 
   public MockMvcHttpConnector(MockMvc mockMvc) {
     this(mockMvc, Collections.emptyList());
   }
 
-  private MockMvcHttpConnector(MockMvc mockMvc, List<RequestPostProcessor> requestPostProcessors) {
+  private MockMvcHttpConnector(MockMvc mockMvc, List<MockRequestCustomizer> requestCustomizers) {
     this.mockMvc = mockMvc;
-    this.requestPostProcessors = new ArrayList<>(requestPostProcessors);
+    this.requestCustomizers = new ArrayList<>(requestCustomizers);
   }
 
   @Override
@@ -142,7 +142,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
       }
     }
 
-    this.requestPostProcessors.forEach(requestBuilder::with);
+    this.requestCustomizers.forEach(requestBuilder::with);
 
     return requestBuilder;
   }
@@ -217,10 +217,10 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
   }
 
   /**
-   * Create a new instance that applies the given {@link RequestPostProcessor}s
+   * Create a new instance that applies the given {@link MockRequestCustomizer}s
    * to performed requests.
    */
-  public MockMvcHttpConnector with(List<RequestPostProcessor> postProcessors) {
+  public MockMvcHttpConnector with(List<MockRequestCustomizer> postProcessors) {
     return new MockMvcHttpConnector(this.mockMvc, postProcessors);
   }
 

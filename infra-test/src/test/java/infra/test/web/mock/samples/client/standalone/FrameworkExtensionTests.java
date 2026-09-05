@@ -28,7 +28,7 @@ import infra.http.reactive.client.ClientHttpConnector;
 import infra.stereotype.Controller;
 import infra.test.web.mock.client.MockMvcHttpConnector;
 import infra.test.web.mock.client.MockMvcWebTestClient;
-import infra.test.web.mock.request.RequestPostProcessor;
+import infra.test.web.mock.request.MockRequestCustomizer;
 import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcConfigurer;
 import infra.test.web.reactive.server.WebTestClient;
@@ -84,45 +84,45 @@ public class FrameworkExtensionTests {
    */
   private static class TestWebTestClientConfigurer implements WebTestClientConfigurer {
 
-    private final TestRequestPostProcessor requestPostProcessor = new TestRequestPostProcessor();
+    private final TestMockRequestCustomizer requestCustomizer = new TestMockRequestCustomizer();
 
     public TestWebTestClientConfigurer foo(String value) {
-      this.requestPostProcessor.foo(value);
+      this.requestCustomizer.foo(value);
       return this;
     }
 
     public TestWebTestClientConfigurer bar(String value) {
-      this.requestPostProcessor.bar(value);
+      this.requestCustomizer.bar(value);
       return this;
     }
 
     @Override
     public void afterConfigurerAdded(WebTestClient.Builder builder, ClientHttpConnector connector) {
       if (connector instanceof MockMvcHttpConnector mockMvcConnector) {
-        builder.clientConnector(mockMvcConnector.with(List.of(this.requestPostProcessor)));
+        builder.clientConnector(mockMvcConnector.with(List.of(this.requestCustomizer)));
       }
     }
   }
 
   /**
-   * Test {@code RequestPostProcessor} for custom headers.
+   * Test {@code MockRequestCustomizer} for custom headers.
    */
-  private static class TestRequestPostProcessor implements RequestPostProcessor {
+  private static class TestMockRequestCustomizer implements MockRequestCustomizer {
 
     private final HttpHeaders headers = HttpHeaders.forWritable();
 
-    public TestRequestPostProcessor foo(String value) {
+    public TestMockRequestCustomizer foo(String value) {
       this.headers.add("Foo", value);
       return this;
     }
 
-    public TestRequestPostProcessor bar(String value) {
+    public TestMockRequestCustomizer bar(String value) {
       this.headers.add("Bar", value);
       return this;
     }
 
     @Override
-    public void postProcessRequest(MockRequest request, MockHttpContext context) {
+    public void customize(MockRequest request, MockHttpContext context) {
       for (String headerName : this.headers.names()) {
         request.addHeader(headerName, this.headers.get(headerName));
       }
@@ -140,7 +140,7 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
+    public MockRequestCustomizer beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
       return (request, mockContext) -> request.setUserPrincipal(mock());
     }
   }
