@@ -159,21 +159,25 @@ public final class MockMvc {
 
     HttpContextHolder.set(context);
 
-    MockFilterChain filterChain = new MockFilterChain(mockContext.getDispatcherHandler(), this.filters);
-    filterChain.doFilter(context);
+    try {
+      MockFilterChain filterChain = new MockFilterChain(mockContext.getDispatcherHandler(), this.filters);
+      filterChain.doFilter(context);
 
-    HttpContext maybeNew = HttpContextHolder.required();
-    if (maybeNew != context) {
-      mvcResult.setContext(maybeNew);
+      HttpContext maybeNew = HttpContextHolder.required();
+      if (maybeNew != context) {
+        mvcResult.setContext(maybeNew);
+      }
+
+      if (DispatcherType.ASYNC.equals(request.getDispatcherType())
+              && asyncContext != null && !request.isAsyncStarted()) {
+        asyncContext.complete();
+      }
+
+      applyDefaultResultActions(mvcResult);
     }
-
-    if (DispatcherType.ASYNC.equals(request.getDispatcherType())
-            && asyncContext != null && !request.isAsyncStarted()) {
-      asyncContext.complete();
+    finally {
+      HttpContextHolder.set(previous);
     }
-
-    applyDefaultResultActions(mvcResult);
-    HttpContextHolder.set(previous);
     return ResultActions.forMvcResult(mvcResult);
   }
 
