@@ -172,6 +172,7 @@ public final class MockMvc {
     }
 
     MockRequest request = requestBuilder.buildRequest(this.mockContext);
+    request.setApplicationContext(dispatcherHandler.getApplicationContext());
 
     AsyncContext asyncContext = request.getAsyncContext();
     MockResponse mockResponse;
