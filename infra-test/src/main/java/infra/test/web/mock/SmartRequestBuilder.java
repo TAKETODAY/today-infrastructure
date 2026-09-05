@@ -19,6 +19,7 @@
 package infra.test.web.mock;
 
 import infra.test.web.mock.request.RequestPostProcessor;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 
 /**
@@ -36,8 +37,8 @@ public interface SmartRequestBuilder extends RequestBuilder {
    * {@link RequestPostProcessor infra.test.web.mock.request.RequestPostProcessors}.
    *
    * @param request the request to initialize
-   * @return the request to use, either the one passed in or a wrapped one
+   * @param context the {@link MockHttpContext} that wraps the request
    */
-  MockRequest postProcessRequest(MockRequest request);
+  void postProcessRequest(MockRequest request, MockHttpContext context);
 
 }

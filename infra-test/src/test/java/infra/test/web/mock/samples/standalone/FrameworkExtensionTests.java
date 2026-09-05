@@ -29,6 +29,7 @@ import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcConfigurer;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
@@ -89,11 +90,10 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public MockRequest postProcessRequest(MockRequest request) {
+    public void postProcessRequest(MockRequest request, MockHttpContext context) {
       for (String headerName : this.headers.names()) {
         request.addHeader(headerName, this.headers.get(headerName));
       }
-      return request;
     }
   }
 
@@ -109,10 +109,7 @@ public class FrameworkExtensionTests {
 
     @Override
     public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
-      return request -> {
-        request.setUserPrincipal(mock());
-        return request;
-      };
+      return (request, mockContext) -> request.setUserPrincipal(mock());
     }
   }
 

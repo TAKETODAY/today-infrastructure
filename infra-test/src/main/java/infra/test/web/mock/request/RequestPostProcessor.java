@@ -18,6 +18,7 @@
 
 package infra.test.web.mock.request;
 
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 
 /**
@@ -38,12 +39,12 @@ import infra.web.mock.MockRequest;
 public interface RequestPostProcessor {
 
   /**
-   * Post-process the given {@code MockRequest} after its creation
-   * and initialization through a {@code MockHttpRequestBuilder}.
+   * Post-process the given {@code MockRequest} and its {@code MockHttpContext}
+   * after creation and initialization through a {@code MockHttpRequestBuilder}.
    *
    * @param request the request to initialize
-   * @return the request to use, either the one passed in or a wrapped one
+   * @param context the context wrapping the request
    */
-  MockRequest postProcessRequest(MockRequest request);
+  void postProcessRequest(MockRequest request, MockHttpContext context);
 
 }

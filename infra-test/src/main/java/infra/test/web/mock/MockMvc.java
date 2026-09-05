@@ -190,14 +190,14 @@ public final class MockMvc {
       mockResponse.setDefaultCharacterEncoding(this.defaultResponseCharacterEncoding.name());
     }
 
-    if (requestBuilder instanceof SmartRequestBuilder smartRequestBuilder) {
-      request = smartRequestBuilder.postProcessRequest(request);
-    }
-
     HttpContext previous = HttpContextHolder.current();
 
     var context = new MockHttpContext(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
+
+    if (requestBuilder instanceof SmartRequestBuilder smartRequestBuilder) {
+      smartRequestBuilder.postProcessRequest(request, context);
+    }
 
     HttpContextHolder.set(context);
 

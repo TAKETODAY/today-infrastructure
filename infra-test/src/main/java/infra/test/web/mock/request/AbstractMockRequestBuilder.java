@@ -58,6 +58,7 @@ import infra.util.StringUtils;
 import infra.web.RedirectModel;
 import infra.web.client.ApiVersionFormatter;
 import infra.web.client.ApiVersionInserter;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockSession;
 import infra.web.mock.api.Cookie;
@@ -961,11 +962,10 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
   }
 
   @Override
-  public MockRequest postProcessRequest(MockRequest request) {
+  public void postProcessRequest(MockRequest request, MockHttpContext context) {
     for (RequestPostProcessor postProcessor : this.postProcessors) {
-      request = postProcessor.postProcessRequest(request);
+      postProcessor.postProcessRequest(request, context);
     }
-    return request;
   }
 
   private static void addToMap(Map<String, Object> map, String name, Object value) {

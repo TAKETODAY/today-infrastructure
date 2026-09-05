@@ -513,7 +513,8 @@ class MockHttpRequestBuilderTests {
     builder.merge(defaultBuilder);
 
     MockRequest request = builder.buildRequest(mockContext);
-    request = builder.postProcessRequest(request);
+    MockHttpContext context = new MockHttpContext(request);
+    builder.postProcessRequest(request, context);
 
     assertThat(request.getAttribute(ATTR)).isEqualTo(EXPECTED);
   }
@@ -547,9 +548,8 @@ class MockHttpRequestBuilderTests {
     }
 
     @Override
-    public MockRequest postProcessRequest(MockRequest request) {
+    public void postProcessRequest(MockRequest request, MockHttpContext context) {
       request.setAttribute(attr, value);
-      return request;
     }
   }
 
