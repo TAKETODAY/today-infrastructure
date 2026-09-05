@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import infra.context.ApplicationContext;
 import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
@@ -226,6 +227,8 @@ public class MockRequest extends DefaultAttributeAccessor {
   private boolean requestedSessionIdFromURL = false;
 
   protected final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
+
+  private @Nullable ApplicationContext applicationContext;
 
   // ---------------------------------------------------------------------
   // Constructors
@@ -1135,6 +1138,24 @@ public class MockRequest extends DefaultAttributeAccessor {
 
   public boolean isRequestedSessionIdFromURL() {
     return this.requestedSessionIdFromURL;
+  }
+
+  /**
+   * Set the {@link ApplicationContext} that this request runs in.
+   *
+   * @param applicationContext the application context, or {@code null}
+   */
+  public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
+
+  /**
+   * Return the {@link ApplicationContext} that this request runs in, if any.
+   *
+   * @return the application context, or {@code null} if not set
+   */
+  public @Nullable ApplicationContext getApplicationContext() {
+    return this.applicationContext;
   }
 
   public boolean authenticate(MockResponse response) throws IOException, MockException {

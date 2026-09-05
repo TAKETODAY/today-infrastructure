@@ -24,6 +24,7 @@ import java.util.TreeMap;
 
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.context.ApplicationContext;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.web.HttpContext;
@@ -74,6 +75,19 @@ public abstract class MockUtils {
   //---------------------------------------------------------------------
   // MockRequest
   //---------------------------------------------------------------------
+
+  /**
+   * Return the {@link ApplicationContext} associated with the given mock request,
+   * if any.
+   *
+   * @param request the mock request to introspect
+   * @return the application context, or {@code null} if not set
+   * @see MockRequest#getApplicationContext()
+   */
+  public static @Nullable ApplicationContext getApplicationContext(MockRequest request) {
+    Assert.notNull(request, "Request is required");
+    return request.getApplicationContext();
+  }
 
   /**
    * @since 4.0
