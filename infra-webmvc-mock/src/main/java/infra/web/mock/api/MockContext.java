@@ -16,8 +16,35 @@
 
 package infra.web.mock.api;
 
+import infra.context.ApplicationContext;
 import infra.core.AttributeAccessor;
+import infra.web.mock.MockDispatcherHandler;
 
+/**
+ * Mock context interface combining {@link AttributeAccessor}, {@link ApplicationContext}
+ * and {@link MockDispatcherHandler dispatcher handler} access capabilities, used to store
+ * and retrieve context attributes, access the application context and the dispatcher
+ * handler in a web test environment.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2026/9/5
+ */
 public interface MockContext extends AttributeAccessor {
+
+  /**
+   * Return the {@link ApplicationContext application context} currently associated with
+   * this context.
+   *
+   * @return the associated application context, never {@code null}
+   */
+  ApplicationContext getApplicationContext();
+
+  /**
+   * Return the {@link MockDispatcherHandler dispatcher handler} associated with this
+   * context.
+   *
+   * @return the associated dispatcher handler, never {@code null}
+   */
+  MockDispatcherHandler getDispatcherHandler();
 
 }

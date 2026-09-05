@@ -775,6 +775,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
 
     MockRequest request = createMockRequest(mockContext);
 
+    request.setApplicationContext(mockContext.getApplicationContext());
     request.setAsyncSupported(true);
     request.setMethod(this.method.name());
 

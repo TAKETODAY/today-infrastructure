@@ -21,14 +21,12 @@ package infra.test.web.mock;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.Mergeable;
+import infra.context.ApplicationContext;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.result.MockMvcResultMatchers;
-import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
-import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.util.Assert;
 import infra.web.Filter;
@@ -74,85 +72,48 @@ import infra.web.mock.api.MockContext;
  */
 public final class MockMvc {
 
-  private final TestMockDispatcherHandler dispatcherHandler;
-
   private final Filter[] filters;
 
   private final MockContext mockContext;
 
-  private @Nullable RequestBuilder defaultRequestBuilder;
+  private final List<ResultMatcher> defaultResultMatchers;
 
-  private @Nullable Charset defaultResponseCharacterEncoding;
+  private final List<ResultHandler> defaultResultHandlers;
 
-  private List<ResultMatcher> defaultResultMatchers = new ArrayList<>();
+  private final @Nullable RequestBuilder defaultRequestBuilder;
 
-  private List<ResultHandler> defaultResultHandlers = new ArrayList<>();
+  private final @Nullable Charset defaultResponseCharacterEncoding;
 
   /**
    * Private constructor, not for direct instantiation.
    *
    * @see MockMvcBuilders
    */
-  MockMvc(TestMockDispatcherHandler dispatcherHandler, MockContext mockContext, Filter... filters) {
-    Assert.notNull(dispatcherHandler, "DispatcherHandler is required");
+  MockMvc(MockContext mockContext, Filter[] filters, @Nullable RequestBuilder defaultRequestBuilder,
+          List<ResultMatcher> defaultResultMatchers, List<ResultHandler> defaultResultHandlers,
+          @Nullable Charset defaultResponseCharacterEncoding) {
     Assert.notNull(filters, "Filters cannot be null");
+    Assert.notNull(mockContext, "MockContext is required");
+    Assert.notNull(mockContext.getDispatcherHandler(), "DispatcherHandler is required");
     Assert.noNullElements(filters, "Filters cannot contain null values");
 
-    this.dispatcherHandler = dispatcherHandler;
-    this.filters = filters;
-    this.mockContext = mockContext;
-  }
-
-  /**
-   * A default request builder merged into every performed request.
-   *
-   * @see DefaultMockMvcBuilder#defaultRequest(RequestBuilder)
-   */
-  void setDefaultRequest(@Nullable RequestBuilder requestBuilder) {
-    this.defaultRequestBuilder = requestBuilder;
-  }
-
-  /**
-   * The default character encoding to be applied to every response.
-   *
-   * @see ConfigurableMockMvcBuilder#defaultResponseCharacterEncoding(Charset)
-   */
-  void setDefaultResponseCharacterEncoding(@Nullable Charset defaultResponseCharacterEncoding) {
     this.defaultResponseCharacterEncoding = defaultResponseCharacterEncoding;
+    this.defaultResultMatchers = defaultResultMatchers;
+    this.defaultResultHandlers = defaultResultHandlers;
+    this.defaultRequestBuilder = defaultRequestBuilder;
+    this.mockContext = mockContext;
+    this.filters = filters;
   }
 
   /**
-   * Expectations to assert after every performed request.
+   * Return the underlying {@link MockContext} that this {@code MockMvc} was
+   * initialized with, exposing the associated {@link ApplicationContext} and
+   * {@link MockDispatcherHandler dispatcher handler}.
    *
-   * @see DefaultMockMvcBuilder#alwaysExpect(ResultMatcher)
+   * @return the associated mock context, never {@code null}
    */
-  void setGlobalResultMatchers(List<ResultMatcher> resultMatchers) {
-    Assert.notNull(resultMatchers, "ResultMatcher List is required");
-    this.defaultResultMatchers = resultMatchers;
-  }
-
-  /**
-   * General actions to apply after every performed request.
-   *
-   * @see DefaultMockMvcBuilder#alwaysDo(ResultHandler)
-   */
-  void setGlobalResultHandlers(List<ResultHandler> resultHandlers) {
-    Assert.notNull(resultHandlers, "ResultHandler List is required");
-    this.defaultResultHandlers = resultHandlers;
-  }
-
-  /**
-   * Return the underlying {@link MockDispatcherHandler} instance that this
-   * {@code MockMvc} was initialized with.
-   * <p>This is intended for use in custom request processing scenario where a
-   * request handling component happens to delegate to the {@code Dispatcher}
-   * at runtime and therefore needs to be injected with it.
-   * <p>For most processing scenarios, simply use {@link MockMvc#perform},
-   * or if you need to configure the {@code DispatcherHandler}, provide a
-   * {@link DispatcherCustomizer} to the {@code MockMvcBuilder}.
-   */
-  public MockDispatcherHandler getDispatcher() {
-    return this.dispatcherHandler;
+  public MockContext getMockContext() {
+    return mockContext;
   }
 
   /**
@@ -167,12 +128,11 @@ public final class MockMvc {
    * @see MockMvcResultMatchers
    */
   public ResultActions perform(RequestBuilder requestBuilder) throws Exception {
-    if (this.defaultRequestBuilder != null && requestBuilder instanceof Mergeable mergeable) {
-      requestBuilder = (RequestBuilder) mergeable.merge(this.defaultRequestBuilder);
+    if (defaultRequestBuilder != null && requestBuilder instanceof Mergeable mergeable) {
+      requestBuilder = (RequestBuilder) mergeable.merge(defaultRequestBuilder);
     }
 
-    MockRequest request = requestBuilder.buildRequest(this.mockContext);
-    request.setApplicationContext(dispatcherHandler.getApplicationContext());
+    MockRequest request = requestBuilder.buildRequest(mockContext);
 
     AsyncContext asyncContext = request.getAsyncContext();
     MockResponse response;
@@ -189,7 +149,8 @@ public final class MockMvc {
 
     HttpContext previous = HttpContextHolder.current();
 
-    var context = new MockHttpContext(dispatcherHandler.getApplicationContext(), request, response, dispatcherHandler);
+    var context = new MockHttpContext(mockContext.getApplicationContext(),
+            request, response, mockContext.getDispatcherHandler());
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, response, context);
 
     if (requestBuilder instanceof SmartRequestBuilder smartRequestBuilder) {
@@ -198,7 +159,7 @@ public final class MockMvc {
 
     HttpContextHolder.set(context);
 
-    MockFilterChain filterChain = new MockFilterChain(this.dispatcherHandler, this.filters);
+    MockFilterChain filterChain = new MockFilterChain(mockContext.getDispatcherHandler(), this.filters);
     filterChain.doFilter(context);
 
     HttpContext maybeNew = HttpContextHolder.required();
@@ -206,8 +167,8 @@ public final class MockMvc {
       mvcResult.setContext(maybeNew);
     }
 
-    if (DispatcherType.ASYNC.equals(request.getDispatcherType()) &&
-            asyncContext != null && !request.isAsyncStarted()) {
+    if (DispatcherType.ASYNC.equals(request.getDispatcherType())
+            && asyncContext != null && !request.isAsyncStarted()) {
       asyncContext.complete();
     }
 

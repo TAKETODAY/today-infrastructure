@@ -20,8 +20,8 @@ package infra.test.web.mock.setup;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.context.ApplicationContext;
 import infra.test.web.mock.request.MockRequestCustomizer;
+import infra.web.mock.api.MockContext;
 
 /**
  * Contract for customizing a {@code ConfigurableMockMvcBuilder} in some
@@ -60,12 +60,12 @@ public interface MockMvcConfigurer {
    * {@code DispatcherHandler}.
    *
    * @param builder the builder for the MockMvc
-   * @param context the Infra configuration
+   * @param mockContext the Infra configuration
    * @return a customizer to be applied to every request performed
    * through the {@code MockMvc} instance.
    */
   default @Nullable MockRequestCustomizer beforeMockMvcCreated(
-          ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
+          ConfigurableMockMvcBuilder<?> builder, MockContext mockContext) {
 
     return null;
   }

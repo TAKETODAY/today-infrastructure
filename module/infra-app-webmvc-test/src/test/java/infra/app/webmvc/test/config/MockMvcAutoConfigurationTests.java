@@ -20,9 +20,9 @@ package infra.app.webmvc.test.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.test.context.runner.WebApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.test.context.FilteredClassLoader;
+import infra.test.context.runner.WebApplicationContextRunner;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.assertj.MockMvcTester;
@@ -50,7 +50,8 @@ class MockMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       MockMvc mockMvc = context.getBean(MockMvc.class);
       assertThat(context).hasSingleBean(DispatcherHandler.class);
-      assertThat(context.getBean(DispatcherHandler.class)).isEqualTo(mockMvc.getDispatcher());
+      assertThat(context.getBean(DispatcherHandler.class))
+              .isEqualTo(mockMvc.getMockContext().getDispatcherHandler());
     });
   }
 

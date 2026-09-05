@@ -54,7 +54,7 @@ import infra.web.view.ViewReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class TestMockDispatcherHandler extends MockDispatcherHandler {
+public final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   @Serial
   private static final long serialVersionUID = 1L;

@@ -16,8 +16,10 @@
 
 package infra.web.mock;
 
+import infra.context.ApplicationContext;
 import infra.core.DefaultAttributeAccessor;
 import infra.web.mock.api.MockContext;
+import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
  * Mock implementation of the {@link MockContext} interface.
@@ -27,4 +29,30 @@ import infra.web.mock.api.MockContext;
  */
 public class DefaultMockContext extends DefaultAttributeAccessor implements MockContext {
 
+  private final ApplicationContext ctx;
+
+  private final MockDispatcherHandler dispatcherHandler;
+
+  public DefaultMockContext() {
+    this(new GenericMockWebApplicationContext());
+  }
+
+  public DefaultMockContext(ApplicationContext ctx) {
+    this(ctx, new MockDispatcherHandler(ctx));
+  }
+
+  public DefaultMockContext(ApplicationContext ctx, MockDispatcherHandler dispatcherHandler) {
+    this.ctx = ctx;
+    this.dispatcherHandler = dispatcherHandler;
+  }
+
+  @Override
+  public ApplicationContext getApplicationContext() {
+    return ctx;
+  }
+
+  @Override
+  public MockDispatcherHandler getDispatcherHandler() {
+    return dispatcherHandler;
+  }
 }

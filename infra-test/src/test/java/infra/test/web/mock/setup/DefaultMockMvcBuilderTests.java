@@ -68,8 +68,8 @@ public class DefaultMockMvcBuilderTests {
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
     builder.addDispatcherCustomizer(ds -> ds.setDetectAllHandlerMapping(false));
     MockMvc mvc = builder.build();
-    boolean detectAllHandlerMapping = (boolean) new DirectFieldAccessor(mvc)
-            .getPropertyValue("dispatcherHandler.detectAllHandlerMapping");
+    boolean detectAllHandlerMapping = (boolean) new DirectFieldAccessor(mvc.getMockContext().getDispatcherHandler())
+            .getPropertyValue("detectAllHandlerMapping");
     assertThat(detectAllHandlerMapping).isEqualTo(false);
   }
 
@@ -84,8 +84,8 @@ public class DefaultMockMvcBuilderTests {
     builder.addDispatcherCustomizer(ds -> ds.setDetectAllHandlerMapping(false));
     builder.addDispatcherCustomizer(ds -> ds.setDetectAllHandlerMapping(true));
     MockMvc mvc = builder.build();
-    boolean detectAllHandlerMapping = (boolean) new DirectFieldAccessor(mvc)
-            .getPropertyValue("dispatcherHandler.detectAllHandlerMapping");
+    boolean detectAllHandlerMapping = (boolean) new DirectFieldAccessor(mvc.getMockContext().getDispatcherHandler())
+            .getPropertyValue("detectAllHandlerMapping");
     assertThat(detectAllHandlerMapping).isEqualTo(true);
   }
 

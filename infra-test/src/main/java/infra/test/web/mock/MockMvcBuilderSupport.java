@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import infra.context.ApplicationContext;
 import infra.test.web.mock.setup.DefaultMockMvcBuilder;
 import infra.web.Filter;
 import infra.web.mock.api.MockContext;
@@ -47,43 +46,27 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
 public abstract class MockMvcBuilderSupport {
 
   /**
-   * Delegates to {@link #createMockMvc(Filter[], MockContext, ApplicationContext, RequestBuilder, List, List, List)}
-   * for creation of the {@link MockMvc} instance and configures that instance
-   * with the supplied {@code defaultResponseCharacterEncoding}.
+   * Create a {@link MockMvc} instance from the supplied configuration.
+   *
+   * @param filters the filters to apply to every performed request
+   * @param mockContext the mock context that carries the application context and
+   * the dispatcher handler
+   * @param defaultRequestBuilder the default request builder merged into every
+   * performed request, or {@code null}
+   * @param defaultResponseCharacterEncoding the default character encoding applied
+   * to every response, or {@code null}
+   * @param globalResultMatchers the expectations to assert after every performed
+   * request
+   * @param globalResultHandlers the general actions to apply after every performed
+   * request
+   * @return the created {@link MockMvc} instance
    */
   protected final MockMvc createMockMvc(Filter[] filters, MockContext mockContext,
-          ApplicationContext context, @Nullable RequestBuilder defaultRequestBuilder,
-          @Nullable Charset defaultResponseCharacterEncoding,
-          List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
-          @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
+          @Nullable RequestBuilder defaultRequestBuilder, @Nullable Charset defaultResponseCharacterEncoding,
+          List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers) {
 
-    MockMvc mockMvc = createMockMvc(filters, mockContext, context, defaultRequestBuilder,
-            globalResultMatchers, globalResultHandlers, dispatcherCustomizers);
-
-    mockMvc.setDefaultResponseCharacterEncoding(defaultResponseCharacterEncoding);
-    return mockMvc;
-  }
-
-  protected final MockMvc createMockMvc(Filter[] filters, MockContext mockContext,
-          ApplicationContext context, @Nullable RequestBuilder defaultRequestBuilder,
-          List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
-          @Nullable List<DispatcherCustomizer> dispatcherCustomizers) {
-
-    TestMockDispatcherHandler dispatcherHandler = new TestMockDispatcherHandler(context);
-    if (dispatcherCustomizers != null) {
-      for (DispatcherCustomizer customizers : dispatcherCustomizers) {
-        customizers.customize(dispatcherHandler);
-      }
-    }
-
-    dispatcherHandler.start();
-
-    MockMvc mockMvc = new MockMvc(dispatcherHandler, mockContext, filters);
-    mockMvc.setDefaultRequest(defaultRequestBuilder);
-    mockMvc.setGlobalResultMatchers(globalResultMatchers);
-    mockMvc.setGlobalResultHandlers(globalResultHandlers);
-
-    return mockMvc;
+    return new MockMvc(mockContext, filters, defaultRequestBuilder,
+            globalResultMatchers, globalResultHandlers, defaultResponseCharacterEncoding);
   }
 
 }

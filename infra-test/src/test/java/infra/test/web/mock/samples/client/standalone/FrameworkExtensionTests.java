@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
 import infra.http.reactive.client.ClientHttpConnector;
 import infra.stereotype.Controller;
@@ -37,6 +36,7 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
+import infra.web.mock.api.MockContext;
 
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.mock;
@@ -140,7 +140,7 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public MockRequestCustomizer beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, ApplicationContext context) {
+    public MockRequestCustomizer beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, MockContext context) {
       return (request, mockContext) -> request.setUserPrincipal(mock());
     }
   }

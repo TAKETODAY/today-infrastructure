@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.util.Assert;
 import infra.test.web.mock.DispatcherCustomizer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MockMvcBuilder;
@@ -33,10 +32,12 @@ import infra.test.web.mock.MockMvcBuilderSupport;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.ResultHandler;
 import infra.test.web.mock.ResultMatcher;
+import infra.test.web.mock.TestMockDispatcherHandler;
 import infra.test.web.mock.request.AbstractMockRequestBuilder;
 import infra.test.web.mock.request.ConfigurableSmartRequestBuilder;
 import infra.test.web.mock.request.MockMvcRequestBuilders;
 import infra.test.web.mock.request.MockRequestCustomizer;
+import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.client.ApiVersionInserter;
 import infra.web.mock.DefaultMockContext;
@@ -158,10 +159,16 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
     ApplicationContext ctx = initApplicationContext();
-    MockContext mockContext = new DefaultMockContext();
+    var dispatcherHandler = new TestMockDispatcherHandler(ctx);
+    for (DispatcherCustomizer customizers : dispatcherCustomizers) {
+      customizers.customize(dispatcherHandler);
+    }
 
+    dispatcherHandler.start();
+
+    MockContext mockContext = new DefaultMockContext(ctx, dispatcherHandler);
     for (MockMvcConfigurer configurer : this.configurers) {
-      MockRequestCustomizer processor = configurer.beforeMockMvcCreated(this, ctx);
+      MockRequestCustomizer processor = configurer.beforeMockMvcCreated(this, mockContext);
       if (processor != null) {
         if (this.defaultRequestBuilder == null) {
           this.defaultRequestBuilder = MockMvcRequestBuilders.get("/");
@@ -183,9 +190,9 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
       }
     }
 
-    return super.createMockMvc(filterArray, mockContext, ctx, this.defaultRequestBuilder,
-            this.defaultResponseCharacterEncoding, this.globalResultMatchers, this.globalResultHandlers,
-            this.dispatcherCustomizers);
+    return super.createMockMvc(filterArray, mockContext, this.defaultRequestBuilder,
+            this.defaultResponseCharacterEncoding, this.globalResultMatchers,
+            this.globalResultHandlers);
   }
 
   /**

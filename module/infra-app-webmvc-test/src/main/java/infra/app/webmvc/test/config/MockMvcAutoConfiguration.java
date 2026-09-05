@@ -49,7 +49,7 @@ public final class MockMvcAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   static DispatcherHandler dispatcherHandler(MockMvc mockMvc) {
-    return mockMvc.getDispatcher();
+    return mockMvc.getMockContext().getDispatcherHandler();
   }
 
 }
