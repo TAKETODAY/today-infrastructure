@@ -35,10 +35,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -211,6 +213,8 @@ public class MockRequest extends DefaultAttributeAccessor {
   private @Nullable String queryString;
 
   private @Nullable Principal userPrincipal;
+
+  private final Set<String> userRoles = new LinkedHashSet<>();
 
   private @Nullable String requestedSessionId;
 
@@ -1035,6 +1039,23 @@ public class MockRequest extends DefaultAttributeAccessor {
     return this.userPrincipal;
   }
 
+  public void addUserRole(String role) {
+    this.userRoles.add(role);
+  }
+
+  public void setUserRoles(String... roles) {
+    this.userRoles.clear();
+    Collections.addAll(this.userRoles, roles);
+  }
+
+  public Set<String> getUserRoles() {
+    return Collections.unmodifiableSet(this.userRoles);
+  }
+
+  public boolean isUserInRole(String role) {
+    return (this.userRoles.contains(role));
+  }
+
   public void setRequestedSessionId(@Nullable String requestedSessionId) {
     this.requestedSessionId = requestedSessionId;
   }
@@ -1168,6 +1189,7 @@ public class MockRequest extends DefaultAttributeAccessor {
 
   public void logout() throws MockException {
     this.userPrincipal = null;
+    this.userRoles.clear();
     this.authType = null;
   }
 

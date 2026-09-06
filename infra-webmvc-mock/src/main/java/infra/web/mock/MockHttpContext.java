@@ -27,6 +27,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.AbstractHttpContext;
+import infra.web.AuthHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.async.AsyncWebRequest;
@@ -67,7 +69,7 @@ import infra.web.util.UriBuilder;
  * @since 2.3.7
  */
 @SuppressWarnings("NullAway")
-public class MockHttpContext extends AbstractHttpContext implements MockIndicator {
+public class MockHttpContext extends AbstractHttpContext implements MockIndicator, AuthHttpContext {
 
   public final MockRequest request;
 
@@ -137,6 +139,16 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   @Override
   public MockResponse getResponse() {
     return response;
+  }
+
+  @Override
+  public @Nullable Principal getPrincipal() {
+    return request.getUserPrincipal();
+  }
+
+  @Override
+  public boolean isUserInRole(String role) {
+    return request.isUserInRole(role);
   }
 
   @Override
