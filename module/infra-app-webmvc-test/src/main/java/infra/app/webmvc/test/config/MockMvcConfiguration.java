@@ -60,7 +60,7 @@ class MockMvcConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  MockMvc mockMvc(MockMvcBuilder builder) {
+  static MockMvc mockMvc(MockMvcBuilder builder) {
     return builder.build();
   }
 

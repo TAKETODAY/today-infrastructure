@@ -27,9 +27,11 @@ import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.RequestBuilder;
 import infra.test.web.mock.assertj.MockMvcTester;
 import infra.web.DispatcherHandler;
+import infra.web.mock.DefaultMockContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
@@ -69,12 +71,13 @@ class MockMvcAutoConfigurationTests {
   @Test
   void registeredMockMvcTesterDelegatesToConfiguredMockMvc() {
     MockMvc mockMvc = mock(MockMvc.class);
-    this.contextRunner.withBean("customMockMvc", MockMvc.class, () -> mockMvc).run((context) -> {
-      assertThat(context).hasSingleBean(MockMvc.class).hasSingleBean(MockMvcTester.class);
-      MockMvcTester mvc = context.getBean(MockMvcTester.class);
-      mvc.get().uri("/dummy").exchange();
-      then(mockMvc).should().perform(any(RequestBuilder.class));
-    });
+    contextRunner.withInitializer(context -> given(mockMvc.getMockContext()).willReturn(new DefaultMockContext(context)))
+            .withBean("customMockMvc", MockMvc.class, () -> mockMvc).run((context) -> {
+              assertThat(context).hasSingleBean(MockMvc.class).hasSingleBean(MockMvcTester.class);
+              MockMvcTester mvc = context.getBean(MockMvcTester.class);
+              mvc.get().uri("/dummy").exchange();
+              then(mockMvc).should().perform(any(RequestBuilder.class));
+            });
   }
 
 }
