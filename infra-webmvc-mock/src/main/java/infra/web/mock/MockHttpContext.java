@@ -212,7 +212,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
-  public String readQueryString() {
+  public @Nullable String readQueryString() {
     return request.getQueryString();
   }
 
@@ -256,7 +256,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
     }
 
     String queryString = getQueryString();
-    if (StringUtils.hasText(queryString)) {
+    if (queryString != null) {
       UriBuilder.forUriComponents().query(queryString).build().getQueryParams().forEach((name, values) -> {
         for (String value : values) {
           if (!ret.contains(name, value)) {

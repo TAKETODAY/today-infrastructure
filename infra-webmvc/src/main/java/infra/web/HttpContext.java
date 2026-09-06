@@ -53,11 +53,11 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
-import infra.util.Assert;
-import infra.util.InfraStrategies;
 import infra.session.Session;
 import infra.session.SessionManager;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.async.AsyncWebRequest;
@@ -334,6 +334,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <code>null</code> if the URL contains no query string. The value is
    * not decoded by the container.
    */
+  @Nullable
   String getQueryString();
 
   /**

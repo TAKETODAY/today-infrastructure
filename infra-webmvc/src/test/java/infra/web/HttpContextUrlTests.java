@@ -16,6 +16,7 @@
 
 package infra.web;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -147,7 +148,7 @@ class HttpContextUrlTests {
     }
 
     @Override
-    protected String readQueryString() {
+    protected @Nullable String readQueryString() {
       return null;
     }
 

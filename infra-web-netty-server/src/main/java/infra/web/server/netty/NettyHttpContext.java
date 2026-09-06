@@ -317,11 +317,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
-  public final String readQueryString() {
+  public final @Nullable String readQueryString() {
     String uri = request.uri();
     int index = queryStringIndex(uri);
     if (index == -1) {
-      return Constant.BLANK;
+      return null;
     }
     else {
       return uri.substring(index + 1);
@@ -503,7 +503,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   protected MultiValueMap<String, String> readParameters() {
     String queryString = getQueryString();
     MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
-    if (StringUtils.isNotEmpty(queryString)) {
+    if (queryString != null) {
       parseParameters(params, queryString);
     }
 

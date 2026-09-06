@@ -137,7 +137,7 @@ public abstract class DecorableHttpContext implements HttpContext {
   }
 
   @Override
-  public String getQueryString() {
+  public @Nullable String getQueryString() {
     return delegate().getQueryString();
   }
 

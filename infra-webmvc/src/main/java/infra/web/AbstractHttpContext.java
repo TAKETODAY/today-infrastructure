@@ -55,11 +55,11 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
-import infra.util.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
 import infra.session.Session;
 import infra.session.SessionManager;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -69,6 +69,7 @@ import infra.web.async.WebAsyncManagerFactory;
 import infra.web.multipart.MultipartRequest;
 import infra.web.util.WebUtils;
 
+import static infra.lang.Constant.BLANK;
 import static infra.lang.Constant.DEFAULT_CHARSET;
 
 /**
@@ -252,19 +253,17 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   public URI getURI() {
     if (this.uri == null) {
       String urlString = null;
-      boolean hasQuery = false;
       try {
         StringBuilder url = new StringBuilder(getRequestURL());
         String query = getQueryString();
-        hasQuery = StringUtils.hasText(query);
-        if (hasQuery) {
+        if (query != null) {
           url.append('?').append(query);
         }
         urlString = url.toString();
         this.uri = new URI(urlString);
       }
       catch (URISyntaxException ex) {
-        if (!hasQuery) {
+        if (getQueryString() == null) {
           throw new IllegalStateException(
                   "Could not resolve HttpContext as URI: " + urlString, ex);
         }
@@ -371,16 +370,16 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * not decoded by the container.
    */
   @Override
-  public String getQueryString() {
+  public @Nullable String getQueryString() {
     String queryString = this.queryString;
     if (queryString == null) {
       queryString = readQueryString();
-      this.queryString = queryString;
+      this.queryString = queryString == null ? BLANK : queryString;
     }
-    return queryString;
+    return queryString == BLANK ? null : queryString;
   }
 
-  protected abstract String readQueryString();
+  protected abstract @Nullable String readQueryString();
 
   /**
    * Returns an array containing all of the <code>Cookie</code> objects the client
