@@ -64,25 +64,26 @@ class BeanMapTests {
 
     assertThat(beanMap.getTarget()).isEqualTo(testBean).isSameAs(testBean);
 
-    beanMap.setTarget(new BeanMappingTestBean());
+    BeanMap<BeanMappingTestBean> rebound = beanMap.withInstance(new BeanMappingTestBean());
 
-    assertThat(beanMap.get("stringProperty")).isNotEqualTo("stringProperty");
+    assertThat(rebound.get("stringProperty")).isNotEqualTo("stringProperty");
 
-    assertThat(beanMap).isNotEqualTo(BeanMap.forInstance(testBean));
+    assertThat(rebound).isNotEqualTo(BeanMap.forInstance(testBean));
   }
 
   @Test
   void newInstance() {
     var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
-    assertThat(beanMap.newInstance()).isSameAs(beanMap.getTarget());
-
+    var actual = beanMap.newInstance();
+    assertThat(actual).isNotSameAs(beanMap);
+    assertThat(actual.getTarget()).isNotSameAs(beanMap.getTarget());
   }
 
   @Test
   void withInstance() {
     var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
     assertThat(beanMap).isEqualTo(beanMap);
-    assertThat(beanMap.newInstance()).isSameAs(beanMap.getTarget());
+    assertThat(beanMap.newInstance().getTarget()).isNotSameAs(beanMap.getTarget());
 
     beanMap.put("stringProperty", "stringProperty value");
     assertThat(beanMap).containsKey("stringProperty");

@@ -42,7 +42,7 @@ import infra.reflect.SetterMethod;
  */
 public final class BeanMap<T> extends AbstractMap<String, Object> {
 
-  private T target;
+  private final T target;
 
   private final BeanMetadata metadata;
 
@@ -184,15 +184,6 @@ public final class BeanMap<T> extends AbstractMap<String, Object> {
   }
 
   /**
-   * Set the underlying bean that this map operates on.
-   *
-   * @param target the new target bean
-   */
-  public void setTarget(T target) {
-    this.target = target;
-  }
-
-  /**
    * Get the type of a property.
    *
    * @param name the name of the JavaBean property
@@ -215,16 +206,14 @@ public final class BeanMap<T> extends AbstractMap<String, Object> {
   }
 
   /**
-   * Create a new instance of the underlying bean type, and set it as this map's
-   * {@link #getTarget() target}.
+   * Create a new {@code BeanMap} bound to a fresh instance of the underlying bean
+   * type.
    *
-   * @return the newly created target bean
+   * @return a new {@code BeanMap} bound to a newly created target bean
    */
   @SuppressWarnings("unchecked")
-  public T newInstance() {
-    T instance = (T) metadata.newInstance();
-    setTarget(instance);
-    return instance;
+  public BeanMap<T> newInstance() {
+    return withInstance((T) metadata.newInstance());
   }
 
   /**
