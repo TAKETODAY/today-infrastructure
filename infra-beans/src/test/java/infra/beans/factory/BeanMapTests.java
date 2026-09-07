@@ -97,13 +97,15 @@ class BeanMapTests {
   void ignoreReadOnly() {
     var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
     assertThat(beanMap.isIgnoreReadOnly()).isFalse();
-    beanMap.setIgnoreReadOnly(true);
+    var ignoringReadOnly = beanMap.withIgnoreReadOnly(true);
+    assertThat(ignoringReadOnly.isIgnoreReadOnly()).isTrue();
+    assertThat(beanMap.isIgnoreReadOnly()).isFalse();
+    assertThat(ignoringReadOnly.withInstance(new BeanMappingTestBean()).isIgnoreReadOnly()).isTrue();
+    assertThat(ignoringReadOnly.newInstance().isIgnoreReadOnly()).isTrue();
     Object readOnlyProperty = beanMap.get("readOnlyProperty");
 
-    beanMap.put("readOnlyProperty", "readOnlyProperty value");
-    assertThat(readOnlyProperty).isEqualTo(beanMap.get("readOnlyProperty"));
-
-    beanMap.setIgnoreReadOnly(false);
+    ignoringReadOnly.put("readOnlyProperty", "readOnlyProperty value");
+    assertThat(readOnlyProperty).isEqualTo(ignoringReadOnly.get("readOnlyProperty"));
 
     assertThatThrownBy(() -> beanMap.put("readOnlyProperty", "readOnlyProperty value"))
             .isInstanceOf(NotWritablePropertyException.class)
