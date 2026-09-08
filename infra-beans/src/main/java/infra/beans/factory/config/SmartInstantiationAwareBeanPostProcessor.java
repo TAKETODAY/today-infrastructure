@@ -53,8 +53,7 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
    * @return the type of the bean, or {@code null} if not predictable
    * @throws BeansException in case of errors
    */
-  @Nullable
-  default Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException {
+  default @Nullable Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException {
     return null;
   }
 

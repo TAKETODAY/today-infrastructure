@@ -62,8 +62,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * @throws BeansException in case of errors
    * @see AbstractBeanDefinition#getBeanClass()
    */
-  @Nullable
-  default Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
+  default @Nullable Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
     return null;
   }
 
