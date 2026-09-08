@@ -26,7 +26,6 @@ import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -35,7 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.util.Assert;
 import infra.logging.Logger;
@@ -45,7 +43,6 @@ import infra.test.context.ContextConfiguration;
 import infra.util.ClassUtils;
 
 import static infra.core.annotation.MergedAnnotation.VALUE;
-import static infra.core.annotation.MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS;
 import static infra.core.annotation.MergedAnnotations.SearchStrategy.TYPE_HIERARCHY;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClasspathRoots;
 import static org.junit.platform.engine.discovery.PackageNameFilter.includePackageNames;
@@ -62,8 +59,6 @@ import static org.junit.platform.engine.discovery.PackageNameFilter.includePacka
  * <ul>
  * <li>JUnit Jupiter: classes that register the {@code InfraExtension} via
  * {@code @ExtendWith}.</li>
- * <li>JUnit 4: classes that register the {@code InfraJUnit4ClassRunner} or
- * {@code InfraRunner} via {@code @RunWith}.</li>
  * <li>Generic: classes that are annotated with {@code @ContextConfiguration} or
  * {@code @BootstrapWith}.</li>
  * </ul>
@@ -73,7 +68,6 @@ import static org.junit.platform.engine.discovery.PackageNameFilter.includePacka
  *
  * <ul>
  * <li>JUnit Jupiter</li>
- * <li>JUnit Vintage</li>
  * <li>JUnit Platform Suite Engine</li>
  * <li>TestNG Engine for the JUnit Platform</li>
  * </ul>
@@ -87,11 +81,6 @@ class TestClassScanner {
   // JUnit Jupiter
   private static final String EXTEND_WITH_ANNOTATION_NAME = "org.junit.jupiter.api.extension.ExtendWith";
   private static final String EXTENSION_NAME = "infra.test.context.junit.jupiter.InfraExtension";
-
-  // JUnit 4
-  private static final String RUN_WITH_ANNOTATION_NAME = "org.junit.runner.RunWith";
-  private static final String JUNIT4_CLASS_RUNNER_NAME = "infra.test.context.junit4.InfraJUnit4ClassRunner";
-  private static final String RUNNER_NAME = "infra.test.context.junit4.InfraRunner";
 
   private final Logger logger = LoggerFactory.getLogger(TestClassScanner.class);
 
@@ -172,7 +161,7 @@ class TestClassScanner {
   }
 
   private boolean isInfraTestClass(Class<?> clazz) {
-    boolean isInfraTestClass = (isJupiterInfraTestClass(clazz) || isJUnit4InfraTestClass(clazz) ||
+    boolean isInfraTestClass = (isJupiterInfraTestClass(clazz) ||
             isGenericInfraTestClass(clazz));
     if (isInfraTestClass && logger.isTraceEnabled()) {
       logger.trace("Found Infra test class: " + clazz.getName());
@@ -189,16 +178,6 @@ class TestClassScanner {
             .flatMap(Arrays::stream)
             .map(Class::getName)
             .anyMatch(EXTENSION_NAME::equals);
-  }
-
-  private static boolean isJUnit4InfraTestClass(Class<?> clazz) {
-    MergedAnnotation<Annotation> mergedAnnotation =
-            MergedAnnotations.from(clazz, INHERITED_ANNOTATIONS).get(RUN_WITH_ANNOTATION_NAME);
-    if (mergedAnnotation.isPresent()) {
-      String name = mergedAnnotation.getClass(VALUE).getName();
-      return (JUNIT4_CLASS_RUNNER_NAME.equals(name) || RUNNER_NAME.equals(name));
-    }
-    return false;
   }
 
   private static boolean isGenericInfraTestClass(Class<?> clazz) {

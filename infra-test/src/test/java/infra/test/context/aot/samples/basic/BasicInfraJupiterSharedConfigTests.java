@@ -24,6 +24,7 @@ import infra.test.context.aot.samples.common.MessageService;
 import infra.test.context.aot.samples.management.ManagementConfiguration;
 import infra.test.context.env.YamlTestProperties;
 import infra.test.context.junit.jupiter.JUnitConfig;
+import infra.test.context.support.AnnotationConfigContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@JUnitConfig({ BasicTestConfiguration.class, ManagementConfiguration.class })
+@JUnitConfig(classes = { BasicTestConfiguration.class, ManagementConfiguration.class }, loader = AnnotationConfigContextLoader.class)
 @TestPropertySource(properties = "test.engine = jupiter")
 // We cannot use `classpath*:` in AOT tests until gh-31088 is resolved.
 // @YamlTestProperties("classpath*:**/aot/samples/basic/test?.yaml")

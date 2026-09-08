@@ -51,7 +51,6 @@ import infra.core.test.tools.TestCompiler;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterImportedConfigTests;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterTests;
-import infra.test.context.aot.samples.basic.BasicInfraVintageTests;
 import infra.test.context.aot.samples.basic.DisabledInAotProcessingTests;
 import infra.test.context.aot.samples.basic.DisabledInAotRuntimeClassLevelTests;
 import infra.test.context.aot.samples.basic.DisabledInAotRuntimeMethodLevelTests;
@@ -115,7 +114,6 @@ class AotIntegrationTests extends AbstractAotTests {
                             // in order to ensure that the other test classes are not accidentally
                             // using the config for the @Import tests.
                             BasicInfraJupiterImportedConfigTests.class,
-                            BasicInfraVintageTests.class,
                             /* 0 */ DisabledInAotProcessingTests.class,
                             /* 0 */ DisabledInAotRuntimeClassLevelTests.class,
                             /* 1 */ DisabledInAotRuntimeMethodLevelTests.class)));

@@ -32,7 +32,6 @@ import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import infra.test.context.junit.jupiter.FailingTestCase;
 import infra.test.context.junit.jupiter.JUnitConfig;
-import infra.test.context.junit4.TimedTransactionalRunnerTests;
 import infra.test.transaction.TransactionAssert;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.annotation.Propagation;
@@ -51,7 +50,6 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  * Jupiter's {@link Timeout @Timeout}.
  *
  * @author Sam Brannen
- * @see TimedTransactionalRunnerTests
  * @since 4.0
  */
 class TimedTransactionalExtensionTests {

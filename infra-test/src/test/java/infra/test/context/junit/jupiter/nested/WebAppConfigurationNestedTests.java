@@ -27,7 +27,6 @@ import infra.test.context.NestedTestConfiguration;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.context.junit.jupiter.JUnitConfig;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
-import infra.test.context.junit4.nested.NestedTestsWithInfraRulesTests;
 import infra.test.context.web.WebAppConfiguration;
 import infra.web.mock.support.GenericMockWebApplicationContext;
 
@@ -41,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @see NestedTestsWithInfraRulesTests
  * @since 4.0
  */
 @JUnitWebConfig(WebAppConfigurationNestedTests.Config.class)

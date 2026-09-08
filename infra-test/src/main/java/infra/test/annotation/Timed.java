@@ -24,12 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.test.context.junit4.JUnit4ClassRunner;
-import infra.test.context.junit4.rules.InfraMethodRule;
-import infra.test.context.junit4.statements.FailOnTimeout;
-
 /**
- * Test annotation for use with JUnit 4 to indicate that a test method has to finish
+ * Test annotation for use with JUnit to indicate that a test method has to finish
  * execution in a {@linkplain #millis() specified time period}.
  *
  * <p>If the text execution takes longer than the specified time period, then
@@ -45,9 +41,6 @@ import infra.test.context.junit4.statements.FailOnTimeout;
  * @author Rod Johnson
  * @author Sam Brannen
  * @see Repeat
- * @see JUnit4ClassRunner
- * @see InfraMethodRule
- * @see FailOnTimeout
  * @since 4.0
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })

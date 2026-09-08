@@ -28,9 +28,6 @@ import org.junit.platform.suite.api.Suite;
  */
 @Suite
 @IncludeClassNamePatterns(".*Suite$")
-@SelectPackages({
-        "infra.test.context.aot.samples.suites.jupiter",
-        "infra.test.context.aot.samples.suites.vintage"
-})
+@SelectPackages("infra.test.context.aot.samples.suites.jupiter")
 public class NestedTestSuite {
 }

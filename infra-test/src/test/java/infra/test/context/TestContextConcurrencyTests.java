@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
-import infra.test.context.junit4.concurrency.JUnit4ConcurrencyTests;
-
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * are only be visible to the thread in which the mutation occurred.
  *
  * @author Sam Brannen
- * @see JUnit4ConcurrencyTests
  * @since 4.0
  */
 class TestContextConcurrencyTests {

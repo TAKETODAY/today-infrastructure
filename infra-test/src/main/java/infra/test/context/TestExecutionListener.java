@@ -24,7 +24,6 @@ import infra.util.InfraStrategies;
 import infra.test.context.event.ApplicationEventsTestExecutionListener;
 import infra.test.context.event.EventPublishingTestExecutionListener;
 import infra.test.context.jdbc.SqlScriptsTestExecutionListener;
-import infra.test.context.junit4.rules.InfraMethodRule;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
 import infra.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
@@ -38,10 +37,7 @@ import infra.test.context.web.WebMockTestExecutionListener;
  * the listener is registered.
  *
  * <p>Note that not all testing frameworks support all lifecycle callbacks defined
- * in this API. For example, {@link #beforeTestExecution} and
- * {@link #afterTestExecution} are not supported in conjunction with JUnit 4 when
- * using the {@link InfraMethodRule
- * ApplicationMethodRule}.
+ * in this API.
  *
  * <p>This interface provides empty {@code default} implementations for all methods.
  * Concrete implementations can therefore choose to override only those methods
@@ -123,9 +119,7 @@ public interface TestExecutionListener {
    * {@linkplain TestContext test context} &mdash; for example, to inject
    * dependencies.
    * <p>This method should be called immediately after instantiation of the test
-   * class or as soon after instantiation as possible (as is the case with the
-   * {@link InfraMethodRule
-   * ApplicationMethodRule}). In any case, this method must be called prior to any
+   * class. In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The default implementation is <em>empty</em>. Can be overridden by
    * concrete classes as necessary.

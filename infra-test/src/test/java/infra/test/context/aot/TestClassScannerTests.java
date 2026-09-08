@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterImportedConfigTests;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterTests;
-import infra.test.context.aot.samples.basic.BasicInfraVintageTests;
 import infra.test.context.aot.samples.basic.DisabledInAotProcessingTests;
 import infra.test.context.aot.samples.basic.DisabledInAotRuntimeClassLevelTests;
 import infra.test.context.aot.samples.basic.DisabledInAotRuntimeMethodLevelTests;
@@ -46,7 +45,6 @@ class TestClassScannerTests extends AbstractAotTests {
                     BasicInfraJupiterSharedConfigTests.class,
                     BasicInfraJupiterTests.class,
                     BasicInfraJupiterTests.NestedTests.class,
-                    BasicInfraVintageTests.class,
                     DisabledInAotProcessingTests.class,
                     DisabledInAotRuntimeClassLevelTests.class,
                     DisabledInAotRuntimeMethodLevelTests.class
@@ -66,12 +64,6 @@ class TestClassScannerTests extends AbstractAotTests {
   }
 
   @Test
-  void scanTestSuitesForVintage() {
-    assertThat(scan("infra.test.context.aot.samples.suites.vintage"))
-            .containsExactly(BasicInfraVintageTests.class);
-  }
-
-  @Test
   void scanTestSuitesForAllTestEngines() {
     assertThat(scan("infra.test.context.aot.samples.suites.all"))
             .containsExactlyInAnyOrder(
@@ -79,7 +71,6 @@ class TestClassScannerTests extends AbstractAotTests {
                     BasicInfraJupiterSharedConfigTests.class,
                     BasicInfraJupiterTests.class,
                     BasicInfraJupiterTests.NestedTests.class,
-                    BasicInfraVintageTests.class,
                     DisabledInAotProcessingTests.class,
                     DisabledInAotRuntimeClassLevelTests.class,
                     DisabledInAotRuntimeMethodLevelTests.class
@@ -94,7 +85,6 @@ class TestClassScannerTests extends AbstractAotTests {
                     BasicInfraJupiterSharedConfigTests.class,
                     BasicInfraJupiterTests.class,
                     BasicInfraJupiterTests.NestedTests.class,
-                    BasicInfraVintageTests.class,
                     DisabledInAotProcessingTests.class,
                     DisabledInAotRuntimeClassLevelTests.class,
                     DisabledInAotRuntimeMethodLevelTests.class

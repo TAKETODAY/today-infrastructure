@@ -71,20 +71,12 @@ abstract class AbstractAotTests {
           "infra/test/context/aot/samples/management/ManagementMessageService__TestContext003_ManagementBeanDefinitions.java",
           "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext004_BeanDefinitions.java",
 
-          // BasicInfraVintageTests
+          // DisabledInAotRuntimeMethodLevelTests
           "infra/context/event/DefaultEventListenerFactory__TestContext004_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext004_BeanDefinitions.java",
-          "infra/test/context/aot/samples/basic/BasicInfraVintageTests__TestContext004_ApplicationContextInitializer.java",
-          "infra/test/context/aot/samples/basic/BasicInfraVintageTests__TestContext004_BeanFactoryRegistrations.java",
-          "infra/test/context/aot/samples/basic/BasicTestConfiguration__TestContext004_BeanDefinitions.java",
-          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext005_BeanDefinitions.java",
-
-          // DisabledInAotRuntimeMethodLevelTests
-          "infra/context/event/DefaultEventListenerFactory__TestContext005_BeanDefinitions.java",
-          "infra/context/event/EventListenerMethodProcessor__TestContext005_BeanDefinitions.java",
-          "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_ApplicationContextInitializer.java",
-          "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanDefinitions.java",
-          "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanFactoryRegistrations.java",
+          "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext004_ApplicationContextInitializer.java",
+          "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext004_BeanDefinitions.java",
+          "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext004_BeanFactoryRegistrations.java",
           "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext003_EnvironmentPostProcessor.java",
           "infra/test/context/support/ImportsContextCustomizer__TestContext001_BeanDefinitions.java"
 

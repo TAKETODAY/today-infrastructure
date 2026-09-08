@@ -28,12 +28,9 @@ import java.lang.annotation.Target;
 import infra.context.annotation.Profile;
 import infra.core.env.Environment;
 import infra.test.context.ActiveProfiles;
-import infra.test.context.junit4.AbstractJUnit4ContextTests;
-import infra.test.context.junit4.JUnit4ClassRunner;
-import infra.test.context.junit4.statements.ProfileValueChecker;
 
 /**
- * Test annotation for use with JUnit 4 to indicate whether a test is enabled or
+ * Test annotation for use with JUnit to indicate whether a test is enabled or
  * disabled for a specific testing profile.
  *
  * <p>In the context of this annotation, the term <em>profile</em> refers to
@@ -48,10 +45,7 @@ import infra.test.context.junit4.statements.ProfileValueChecker;
  * precedence over method-level usage for any methods within that class or
  * its subclasses. Specifically, a test is enabled if it is enabled both at
  * the class level <em>and</em> at the method level; the absence of
- * {@code @IfProfileValue} means the test is implicitly enabled. This is
- * analogous to the semantics of JUnit's {@link org.junit.Ignore @Ignore}
- * annotation, except that the presence of {@code @Ignore} always disables
- * a test.
+ * {@code @IfProfileValue} means the test is implicitly enabled.
  *
  * <h3>Example</h3>
  * When using {@link SystemProfileValueSource} as the {@code ProfileValueSource}
@@ -97,9 +91,6 @@ import infra.test.context.junit4.statements.ProfileValueChecker;
  * @see SystemProfileValueSource
  * @see ProfileValueSourceConfiguration
  * @see ProfileValueUtils
- * @see AbstractJUnit4ContextTests
- * @see JUnit4ClassRunner
- * @see ProfileValueChecker
  * @see Profile
  * @see ActiveProfiles
  * @since 4.0

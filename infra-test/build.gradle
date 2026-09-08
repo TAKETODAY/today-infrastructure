@@ -25,7 +25,6 @@ dependencies {
   optional("jakarta.xml.bind:jakarta.xml.bind-api")
   optional("jakarta.websocket:jakarta.websocket-api")
   optional("jakarta.websocket:jakarta.websocket-client-api")
-  optional("junit:junit")
   optional("org.junit.platform:junit-platform-launcher")  // for AOT processing
   optional("org.junit.jupiter:junit-jupiter-api")
   optional("org.junit.jupiter:junit-jupiter-params")
@@ -106,12 +105,8 @@ dependencies {
   testImplementation("org.hsqldb:hsqldb")
   testImplementation 'org.eclipse:yasson'
 //  testImplementation("ch.qos.logback:logback-classic")
-  testImplementation("de.bechte.junit:junit-hierarchicalcontextrunner")
   testImplementation("org.awaitility:awaitility")
   testImplementation("org.easymock:easymock")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {
-    exclude group: "junit", module: "junit"
-  }
   testRuntimeOnly("org.junit.support:testng-engine")
   testRuntimeOnly("org.glassfish:jakarta.el")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
@@ -130,9 +125,9 @@ configurations.optional {
 }
 
 test {
-  description = "Runs JUnit 4, JUnit Jupiter, and TestNG tests."
+  description = "Runs JUnit Jupiter and TestNG tests."
   useJUnitPlatform {
-    includeEngines "junit-vintage", "junit-jupiter"
+    includeEngines "junit-jupiter"
     excludeTags "failing-test-case"
   }
 
@@ -140,7 +135,6 @@ test {
   // TestConventions in buildSrc.
   filter.excludeTestsMatching("*TestCase")
   systemProperty("testGroups", project.properties.get("testGroups"))
-  systemProperty("junit.vintage.discovery.issue.reporting.enabled", "false")
   // Optionally configure Java Util Logging for the JUnit Platform.
   // systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
 }

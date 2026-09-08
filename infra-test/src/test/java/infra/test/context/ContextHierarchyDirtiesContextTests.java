@@ -22,9 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.platform.testkit.engine.EngineTestKit;
 
 import infra.beans.BeansException;
 import infra.context.ApplicationContext;
@@ -34,9 +33,10 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.test.annotation.DirtiesContext;
 import infra.test.annotation.DirtiesContext.HierarchyMode;
-import infra.test.context.junit4.InfraRunner;
+import infra.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
 /**
  * Integration tests that verify proper behavior of {@link DirtiesContext @DirtiesContext}
@@ -88,9 +88,9 @@ class ContextHierarchyDirtiesContextTests {
   private void runTestAndVerifyHierarchies(Class<? extends FooTestCase> testClass, boolean isFooContextActive,
           boolean isBarContextActive, boolean isBazContextActive) {
 
-    JUnitCore jUnitCore = new JUnitCore();
-    Result result = jUnitCore.run(testClass);
-    assertThat(result.wasSuccessful()).as("all tests passed").isTrue();
+    EngineTestKit.engine("junit-jupiter")
+            .selectors(selectClass(testClass))
+            .execute();
 
     assertThat(ContextHierarchyDirtiesContextTests.context).isNotNull();
 
@@ -111,7 +111,7 @@ class ContextHierarchyDirtiesContextTests {
 
   // -------------------------------------------------------------------------
 
-  @RunWith(InfraRunner.class)
+  @ExtendWith(InfraExtension.class)
   @ContextHierarchy(@ContextConfiguration(name = "foo"))
   static abstract class FooTestCase implements ApplicationContextAware {
 
@@ -172,7 +172,7 @@ class ContextHierarchyDirtiesContextTests {
   @DirtiesContext
   public static class ClassLevelDirtiesContextWithExhaustiveModeTestCase extends BazTestCase {
 
-    @org.junit.Test
+    @Test
     public void test() {
     }
   }
@@ -186,7 +186,7 @@ class ContextHierarchyDirtiesContextTests {
   @DirtiesContext(hierarchyMode = HierarchyMode.CURRENT_LEVEL)
   public static class ClassLevelDirtiesContextWithCurrentLevelModeTestCase extends BazTestCase {
 
-    @org.junit.Test
+    @Test
     public void test() {
     }
   }
@@ -201,7 +201,7 @@ class ContextHierarchyDirtiesContextTests {
    */
   public static class MethodLevelDirtiesContextWithExhaustiveModeTestCase extends BazTestCase {
 
-    @org.junit.Test
+    @Test
     @DirtiesContext
     public void test() {
     }
@@ -215,7 +215,7 @@ class ContextHierarchyDirtiesContextTests {
    */
   public static class MethodLevelDirtiesContextWithCurrentLevelModeTestCase extends BazTestCase {
 
-    @org.junit.Test
+    @Test
     @DirtiesContext(hierarchyMode = HierarchyMode.CURRENT_LEVEL)
     public void test() {
     }

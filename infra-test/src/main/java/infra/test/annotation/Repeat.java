@@ -24,22 +24,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.test.context.TestExecutionListener;
-import infra.test.context.junit4.JUnit4ClassRunner;
-import infra.test.context.junit4.rules.InfraMethodRule;
-import infra.test.context.junit4.statements.RepeatTest;
-
 /**
- * Test annotation for use with JUnit 4 to indicate that a test method should be
+ * Test annotation for use with JUnit to indicate that a test method should be
  * invoked repeatedly.
  *
  * <p>Note that the scope of execution to be repeated includes execution of the
  * test method itself as well as any <em>set up</em> or <em>tear down</em> of
- * the test fixture. When used with the
- * {@link InfraMethodRule
- * ApplicationMethodRule}, the scope additionally includes
- * {@linkplain TestExecutionListener#prepareTestInstance
- * preparation of the test instance}.
+ * the test fixture.
  *
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
@@ -47,9 +38,6 @@ import infra.test.context.junit4.statements.RepeatTest;
  * @author Rod Johnson
  * @author Sam Brannen
  * @see Timed
- * @see JUnit4ClassRunner
- * @see InfraMethodRule
- * @see RepeatTest
  * @since 4.0
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })

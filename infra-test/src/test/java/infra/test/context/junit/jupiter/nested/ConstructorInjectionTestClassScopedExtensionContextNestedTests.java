@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @see ContextConfigurationTestClassScopedExtensionContextNestedTests
- * @see infra.test.context.junit4.nested.NestedTestsWithInfraRulesTests
  * @since 5.0
  */
 @JUnitConfig(ConstructorInjectionTestClassScopedExtensionContextNestedTests.TopLevelConfig.class)

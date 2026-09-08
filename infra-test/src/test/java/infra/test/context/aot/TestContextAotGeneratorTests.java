@@ -47,14 +47,11 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.TestContextBootstrapper;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
 import infra.test.context.aot.samples.basic.BasicInfraJupiterTests;
-import infra.test.context.aot.samples.basic.BasicInfraVintageTests;
 import infra.test.context.aot.samples.basic.SpanishActiveProfilesResolver;
 import infra.test.context.aot.samples.common.MessageService;
 import infra.test.context.aot.samples.jdbc.SqlScriptsInfraJupiterTests;
 import infra.test.context.aot.samples.web.WebInfraJupiterTests;
-import infra.test.context.aot.samples.web.WebInfraVintageTests;
 import infra.test.context.aot.samples.xml.XmlInfraJupiterTests;
-import infra.test.context.aot.samples.xml.XmlInfraVintageTests;
 import infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
 import infra.test.context.env.YamlPropertySourceFactory;
 import infra.test.context.event.ApplicationEventsTestExecutionListener;
@@ -111,7 +108,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
             BasicInfraJupiterSharedConfigTests.class,
             BasicInfraJupiterTests.class,
             BasicInfraJupiterTests.NestedTests.class,
-            BasicInfraVintageTests.class,
             SqlScriptsInfraJupiterTests.class,
             XmlInfraJupiterTests.class,
             WebInfraJupiterTests.class);
@@ -136,7 +132,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
         assertThatExceptionOfType(UnsupportedOperationException.class)
                 .isThrownBy(() -> aotAttributes.setAttribute("foo", "bar"))
                 .withMessage("AOT attributes cannot be modified during AOT run-time execution");
-        String key = "@InfraConfiguration-" + BasicInfraVintageTests.class.getName();
+        String key = "@InfraConfiguration-" + BasicInfraJupiterTests.class.getName();
         assertThat(aotAttributes.getString(key)).isEqualTo("org.example.Main");
         assertThat(aotAttributes.getBoolean(key + "-active1")).isTrue();
         assertThat(aotAttributes.getBoolean(key + "-active2")).isTrue();
@@ -216,8 +212,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_DECLARED_CONSTRUCTORS));
 
     Stream.of(
-            // @BootstrapWith
-            BasicInfraVintageTests.CustomXmlBootstrapper.class,
             // @ContextConfiguration(loader = ...)
             AnnotationConfigContextLoader.class,
             // @ActiveProfiles(resolver = ...)
@@ -229,11 +223,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
             .accepts(runtimeHints);
 
     // @TestPropertySource(locations = ...)
-    assertThat(resource().forResource("infra/test/context/aot/samples/basic/BasicInfraVintageTests.properties"))
-            .as("@TestPropertySource(locations)")
-            .accepts(runtimeHints);
-
-    // @YamlTestProperties(...)
     assertThat(resource().forResource("infra/test/context/aot/samples/basic/test1.yaml"))
             .as("@YamlTestProperties: test1.yaml")
             .accepts(runtimeHints);
@@ -280,8 +269,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     Set<Class<?>> testClasses = Set.of(
             BasicInfraJupiterSharedConfigTests.class,
             BasicInfraJupiterTests.class,
-            BasicInfraJupiterTests.NestedTests.class,
-            BasicInfraVintageTests.class);
+            BasicInfraJupiterTests.NestedTests.class);
 
     processAheadOfTime(testClasses, this::assertContextForBasicTests);
   }
@@ -313,8 +301,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     // We cannot parameterize with the test classes, since @CompileWithTargetClassAccess
     // cannot support @ParameterizedTest methods.
     Set<Class<?>> testClasses = Set.of(
-            XmlInfraJupiterTests.class,
-            XmlInfraVintageTests.class);
+            XmlInfraJupiterTests.class);
 
     processAheadOfTime(testClasses, context -> {
       assertThat(context.getEnvironment().getProperty("test.engine"))
@@ -330,8 +317,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     // We cannot parameterize with the test classes, since @CompileWithTargetClassAccess
     // cannot support @ParameterizedTest methods.
     Set<Class<?>> testClasses = Set.of(
-            WebInfraJupiterTests.class,
-            WebInfraVintageTests.class);
+            WebInfraJupiterTests.class);
 
     processAheadOfTime(testClasses, context -> {
       assertThat(context.getEnvironment().getProperty("test.engine"))
@@ -411,38 +397,29 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
 
           "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext002_BeanDefinitions.java",
 
-          // BasicInfraVintageTests
+          // SqlScriptsInfraJupiterTests
           "infra/context/event/DefaultEventListenerFactory__TestContext003_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext003_BeanDefinitions.java",
-          "infra/test/context/aot/samples/basic/BasicInfraVintageTests__TestContext003_ApplicationContextInitializer.java",
-          "infra/test/context/aot/samples/basic/BasicInfraVintageTests__TestContext003_BeanFactoryRegistrations.java",
-          "infra/test/context/aot/samples/basic/BasicTestConfiguration__TestContext003_BeanDefinitions.java",
-
-          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext003_BeanDefinitions.java",
-
-          // SqlScriptsInfraJupiterTests
+          "infra/test/context/aot/samples/jdbc/SqlScriptsInfraJupiterTests__TestContext003_ApplicationContextInitializer.java",
+          "infra/test/context/aot/samples/jdbc/SqlScriptsInfraJupiterTests__TestContext003_BeanFactoryRegistrations.java",
+          "infra/test/context/jdbc/EmptyDatabaseConfig__TestContext003_BeanDefinitions.java",
+          // WebInfraJupiterTests
           "infra/context/event/DefaultEventListenerFactory__TestContext004_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext004_BeanDefinitions.java",
-          "infra/test/context/aot/samples/jdbc/SqlScriptsInfraJupiterTests__TestContext004_ApplicationContextInitializer.java",
-          "infra/test/context/aot/samples/jdbc/SqlScriptsInfraJupiterTests__TestContext004_BeanFactoryRegistrations.java",
-          "infra/test/context/jdbc/EmptyDatabaseConfig__TestContext004_BeanDefinitions.java",
-          // WebInfraJupiterTests
+          "infra/test/context/aot/samples/web/WebInfraJupiterTests__TestContext004_ApplicationContextInitializer.java",
+          "infra/test/context/aot/samples/web/WebInfraJupiterTests__TestContext004_BeanFactoryRegistrations.java",
+          "infra/test/context/aot/samples/web/WebTestConfiguration__TestContext004_BeanDefinitions.java",
+          "infra/web/config/annotation/DelegatingWebMvcConfiguration__TestContext004_BeanDefinitions.java",
+          // XmlInfraJupiterTests
           "infra/context/event/DefaultEventListenerFactory__TestContext005_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext005_BeanDefinitions.java",
-          "infra/test/context/aot/samples/web/WebInfraJupiterTests__TestContext005_ApplicationContextInitializer.java",
-          "infra/test/context/aot/samples/web/WebInfraJupiterTests__TestContext005_BeanFactoryRegistrations.java",
-          "infra/test/context/aot/samples/web/WebTestConfiguration__TestContext005_BeanDefinitions.java",
-          "infra/web/config/annotation/DelegatingWebMvcConfiguration__TestContext005_BeanDefinitions.java",
-          // XmlInfraJupiterTests
-          "infra/context/event/DefaultEventListenerFactory__TestContext006_BeanDefinitions.java",
-          "infra/context/event/EventListenerMethodProcessor__TestContext006_BeanDefinitions.java",
-          "infra/test/context/aot/samples/common/DefaultMessageService__TestContext006_BeanDefinitions.java",
-          "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext006_ApplicationContextInitializer.java",
-          "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext006_BeanFactoryRegistrations.java",
+          "infra/test/context/aot/samples/common/DefaultMessageService__TestContext005_BeanDefinitions.java",
+          "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext005_ApplicationContextInitializer.java",
+          "infra/test/context/aot/samples/xml/XmlInfraJupiterTests__TestContext005_BeanFactoryRegistrations.java",
 
+          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext003_BeanDefinitions.java",
           "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext004_BeanDefinitions.java",
           "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext005_BeanDefinitions.java",
-          "infra/test/context/support/DynamicPropertyRegistrarBeanInitializer__TestContext006_BeanDefinitions.java",
 
           "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_EnvironmentPostProcessor.java"
   };

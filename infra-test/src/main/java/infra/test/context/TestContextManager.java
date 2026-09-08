@@ -238,9 +238,7 @@ public class TestContextManager {
    * Hook for preparing a test instance prior to execution of any individual
    * test methods &mdash; for example, to inject dependencies.
    * <p>This method should be called immediately after instantiation of the test
-   * class or as soon after instantiation as possible (as is the case with the
-   * {@link infra.test.context.junit4.rules.InfraMethodRule
-   * InfraMethodRule}). In any case, this method must be called prior to any
+   * class. In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The managed {@link TestContext} will be updated with the supplied
    * {@code testInstance}.

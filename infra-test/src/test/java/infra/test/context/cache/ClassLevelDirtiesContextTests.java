@@ -18,13 +18,11 @@
 
 package infra.test.context.cache;
 
-import org.junit.experimental.runners.Enclosed;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.testkit.engine.EngineTestKit;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,7 +51,6 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(Enclosed.class)
 class ClassLevelDirtiesContextTests {
 
   private static final AtomicInteger cacheHits = new AtomicInteger();
