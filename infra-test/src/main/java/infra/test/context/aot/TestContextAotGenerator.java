@@ -431,7 +431,7 @@ public class TestContextAotGenerator {
    * {@link infra.test.context.TestContextManager}.
    */
   private void registerSkippedExceptionTypes() {
-    Stream.of("org.opentest4j.TestAbortedException", "org.junit.AssumptionViolatedException", "org.testng.SkipException")
+    Stream.of("org.opentest4j.TestAbortedException", "org.testng.SkipException")
             .map(TypeReference::of)
             .forEach(this.runtimeHints.reflection()::registerType);
   }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.test.web.mock.client;
 
 import org.junit.jupiter.api.AutoClose;
@@ -23,15 +25,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.ReactorClientHttpRequestFactory;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
@@ -65,15 +66,10 @@ class RestTestClientIntegrationTests {
   @Test
   void sequentialRequestsNotConsumingBody() {
     for (int i = 0; i < 10; i++) {
-      prepareResponse(builder ->
-              builder.setHeader("Content-Type", "text/plain").setBody("Hello !"));
+      this.server.enqueue(new MockResponse.Builder()
+              .setHeader("Content-Type", "text/plain").body("Hello !").build());
       this.testClient.get().uri("/").exchange().expectStatus().isOk();
     }
-  }
-
-  private void prepareResponse(Function<MockResponse, MockResponse> f) {
-    MockResponse builder = new MockResponse();
-    this.server.enqueue(f.apply(builder));
   }
 
 }

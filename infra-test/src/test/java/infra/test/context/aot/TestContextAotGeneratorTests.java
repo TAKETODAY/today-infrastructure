@@ -171,7 +171,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
 
     Stream.of(
             "org.opentest4j.TestAbortedException",
-            "org.junit.AssumptionViolatedException",
             "org.testng.SkipException"
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type));
 

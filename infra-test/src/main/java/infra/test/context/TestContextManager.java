@@ -95,13 +95,11 @@ public class TestContextManager {
 
   private static final Logger log = LoggerFactory.getLogger(TestContextManager.class);
 
-  private static final Set<Class<? extends Throwable>> skippedExceptionTypes = CollectionUtils.newLinkedHashSet(3);
+  private static final Set<Class<? extends Throwable>> skippedExceptionTypes = CollectionUtils.newLinkedHashSet(2);
 
   static {
     // JUnit Jupiter
     registerSkippedExceptionType("org.opentest4j.TestAbortedException");
-    // JUnit 4
-    registerSkippedExceptionType("org.junit.AssumptionViolatedException");
     // TestNG
     registerSkippedExceptionType("org.testng.SkipException");
   }
