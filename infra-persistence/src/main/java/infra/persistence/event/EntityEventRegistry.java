@@ -33,8 +33,8 @@ import infra.persistence.EntityMetadata;
  * {@link EntityEventListener} wants to observe is derived from its generic type
  * parameter. When the {@link infra.persistence.EntityManager} performs a write
  * operation on an entity, the matching listeners are invoked
- * <strong>synchronously</strong> and in {@linkplain EntityEventListener#getOrder()
- * order}.
+ * <strong>synchronously</strong> and in
+ * {@linkplain infra.core.annotation.AnnotationAwareOrderComparator order}.
  *
  * <p>This interface is deliberately decoupled from any IoC container or application
  * event mechanism: it is just a plain registration + dispatch registry and can be

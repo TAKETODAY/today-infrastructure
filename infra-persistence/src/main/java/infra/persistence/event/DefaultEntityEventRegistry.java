@@ -34,13 +34,13 @@ import infra.util.MultiValueMap;
 /**
  * Default {@link EntityEventRegistry} implementation.
  *
- * <p>All listeners are stored in a single {@link MultiValueMap} keyed by class:
- * {@link BatchPersistListener}s under their contract type, {@link
- * EntityEventListener}s bucketed by the entity type resolved from their generic
- * type parameter at registration time, so dispatch never has to re-resolve
- * generics.
+ * <p>All listeners are stored in a single {@link MultiValueMap} keyed by their
+ * listener contract type — {@link EntityEventListener} or
+ * {@link BatchPersistListener}. Dispatch resolves the entity type of every entity
+ * event listener once, cached per entity class, so steady-state dispatch is a map
+ * lookup followed by an iteration over the resolved listeners.
  *
- * <p>Listeners are invoked by {@linkplain EntityEventListener#getOrder() order},
+ * <p>Listeners are invoked in {@linkplain AnnotationAwareOrderComparator order},
  * lowest value first. All mutating methods as well as the dispatch methods are
  * intended to be invoked from a single thread during steady-state operations.
  *
@@ -50,14 +50,16 @@ import infra.util.MultiValueMap;
 public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   /**
-   * Single listener storage: keyed either by a listener contract — e.g.
-   * {@link BatchPersistListener}, backing {@link #getListeners(Class)} — or by the
-   * entity type of an {@link EntityEventListener}, resolved from its generic type
-   * parameter at registration time and used for dispatch.
+   * Single listener storage keyed by listener contract type — e.g.
+   * {@link BatchPersistListener} — backing {@link #getListeners(Class)}.
    */
   private final MultiValueMap<Class<?>, Listener> eventListeners =
           MultiValueMap.forSmartListAdaptation();
 
+  /**
+   * Cached order-sorted listeners for each encountered entity class, cleared on
+   * every mutation and rebuilt lazily on first dispatch for that entity class.
+   */
   private final Map<Class<?>, List<EntityEventListener<?>>> matchingCache = new HashMap<>();
 
   // ---------------------------------------------------------------------
@@ -170,7 +172,8 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   }
 
   /**
-   * Return the listeners matching the given entity class
+   * Return the listeners matching the given entity class, sorted by
+   * {@link AnnotationAwareOrderComparator order}.
    *
    * <p>The result is cached per entity class and rebuilt lazily after any mutation:
    * dispatch is a single map lookup plus an iteration over the resolved listeners.
@@ -196,8 +199,8 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   /**
    * Resolve the entity type declared by the generic parameter of the listener, or
-   * {@code null} if it cannot be resolved (in which case the listener observes every
-   * entity).
+   * {@link Object} if it cannot be resolved (in which case the listener observes
+   * every entity).
    */
   private static Class<?> resolveEntityType(Listener listener) {
     return ResolvableType.forClass(listener.getClass())

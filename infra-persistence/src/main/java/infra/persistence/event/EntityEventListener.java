@@ -26,15 +26,16 @@ package infra.persistence.event;
  *
  * <p>All methods are {@code default} no-ops so an implementation only has to override
  * the operations it is interested in. Listeners are invoked <strong>synchronously</strong>
- * by the {@link infra.persistence.EntityManager} in {@linkplain #getOrder() order}
- * right after the underlying statement completed; an exception thrown by a listener
+ * by the {@link infra.persistence.EntityManager} in
+ * {@linkplain infra.core.annotation.AnnotationAwareOrderComparator order} right
+ * after the underlying statement completed; an exception thrown by a listener
  * therefore propagates to the caller.
  *
  * <p><strong>Usage example</strong> — react only on the deletion of
  * {@code ProjectProcess} entities, no more sprawling {@code instanceof} dispatch:
  * <pre>{@code
  * entityManager.getEntityEventRegistry()
- *     .addEntityListener(new EntityEventListener<ProjectProcess>() {
+ *     .addListener(new EntityEventListener<ProjectProcess>() {
  *       @Override
  *       public void onDelete(EntityDeleteEvent<ProjectProcess> event) {
  *         ProjectProcess projectProcess = event.getEntity();   // type-safe, may be null
