@@ -16,8 +16,6 @@
 
 package infra.persistence.event;
 
-import infra.core.Ordered;
-
 /**
  * Listener for {@link EntityEvent entity lifecycle events}.
  *
@@ -51,17 +49,11 @@ import infra.core.Ordered;
  * @see infra.persistence.event.EntityInsertEvent
  * @see infra.persistence.event.EntityUpdateEvent
  * @see infra.persistence.event.EntityDeleteEvent
+ * @see infra.core.annotation.Order
+ * @see infra.core.Ordered
  * @since 5.0
  */
 public interface EntityEventListener<T> extends Listener {
-
-  /**
-   * Return the order in which this listener is invoked. Lower values have higher
-   * priority (i.e. invoked first).
-   */
-  default int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
-  }
 
   /**
    * Invoked after an entity of the observed type was successfully persisted.

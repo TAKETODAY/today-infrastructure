@@ -19,7 +19,6 @@ package infra.persistence.event;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
@@ -92,13 +91,6 @@ public interface EntityEventRegistry {
   void removeListeners(Collection<? extends Listener> listeners);
 
   /**
-   * Determine whether any entity event listener is registered.
-   *
-   * @return {@code true} if at least one entity event listener is registered
-   */
-  boolean hasEntityListeners();
-
-  /**
    * Return the listeners registered under the specified listener contract.
    *
    * <p>The returned list is a live registry-backed view and should be treated as
@@ -111,7 +103,7 @@ public interface EntityEventRegistry {
    * @return the registered listeners, or an empty list if no listeners are
    * registered for the specified type
    */
-  <T extends EventListener> List<T> getListeners(Class<T> type);
+  <T extends Listener> List<T> getListeners(Class<T> type);
 
   /**
    * Remove all registered listeners (both entity event and batch persist listeners).

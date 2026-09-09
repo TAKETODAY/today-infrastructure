@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.core.Ordered;
 import infra.jdbc.model.UserModel;
 import infra.persistence.EntityMetadata;
 
@@ -166,15 +165,11 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
-      }
-
-      @Override
       public void onInsert(EntityInsertEvent<UserModel> event) {
         received.add("first");
       }
     });
+
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
@@ -186,6 +181,23 @@ class DefaultEntityEventRegistryTests {
     registry.publishInsert(UserModel.male("TODAY", 10), metadata);
 
     assertThat(received).containsExactly("first", "second");
+  }
+
+  @Test
+  void listenerObservingInterfaceReceivesImplementorEvents() {
+    List<String> received = new ArrayList<>();
+
+    registry.addListener(new EntityEventListener<NamedEntity>() {
+
+      @Override
+      public void onInsert(EntityInsertEvent<NamedEntity> event) {
+        received.add("named:" + event.getEntity().getName());
+      }
+    });
+
+    registry.publishInsert(new IEntity("TODAY"), metadata);
+
+    assertThat(received).containsExactly("named:TODAY");
   }
 
   @Test
@@ -209,15 +221,6 @@ class DefaultEntityEventRegistryTests {
     registry.clear();
     registry.publishInsert(UserModel.male("TODAY", 10), metadata);
     assertThat(received).isEmpty();
-  }
-
-  @Test
-  void hasEntityListenersReflectsRegistration() {
-    assertThat(registry.hasEntityListeners()).isFalse();
-
-    registry.addListener(new EntityEventListener<>() {
-    });
-    assertThat(registry.hasEntityListeners()).isTrue();
   }
 
   @Test
@@ -286,6 +289,25 @@ class DefaultEntityEventRegistryTests {
 
     registry.publishInsert(UserModel.male("TODAY", 10), metadata);
     assertThat(received).isEmpty();
+  }
+
+  interface NamedEntity {
+
+    String getName();
+  }
+
+  static class IEntity implements NamedEntity {
+
+    private final String name;
+
+    IEntity(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
   }
 
 }

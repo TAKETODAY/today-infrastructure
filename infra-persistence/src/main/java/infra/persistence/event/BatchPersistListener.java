@@ -66,6 +66,8 @@ import org.jspecify.annotations.Nullable;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see infra.core.annotation.Order
+ * @see infra.core.Ordered
  * @since 4.0 2022/9/20 12:47
  */
 public interface BatchPersistListener extends Listener {
